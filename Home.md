@@ -5,26 +5,24 @@ trial of Metasploit Pro.
 
 If you’re using [Kali Linux](http://kali.org), Metasploit is already pre-installed. See the [documentation](http://docs.kali.org/general-use/starting-metasploit-framework-in-kali) for how to get started using Metasploit in Kali Linux.
 
-If you're an exploit developer, you will want to review our [[Guidelines for Accepting Modules and Enhancements]] to find out what all we expect when we see pull requests for new Metasploit modules. No idea what you should start working on? Check out the guidelines for [[contributing to Metasploit]], and dive in
-to [[Setting Up a Metasploit Development Environment]].
+If you're an exploit developer, you will want to review our [[Guidelines for Accepting Modules and Enhancements]] to find out what all we expect when we see pull requests for new Metasploit modules. No idea what you should start working on? Check out the guidelines for [[contributing to Metasploit]], and dive in to [[Setting Up a Metasploit Development Environment]].
 
 # Getting Started #
 
-- [[Setting Up a Metasploit Development Environment]] 
+- [[Setting Up a Metasploit Development Environment]]
 - [[Using Metasploit]]
 - [[Using Git]]
 - [[Reporting a Bug]]
 
 # Contributing #
 
-- **[[Creating Metasploit Framework LoginScanners]]** - new in 4.10!
-- [[Guidelines for Accepting Modules and Enhancements]]
 - [[Contributing to Metasploit]]
+- [[Creating Metasploit Framework LoginScanners]]
+- [[Guidelines for Accepting Modules and Enhancements]]
 - [[Common Metasploit Module Coding Mistakes]]
 - [[Style Tips]]
 - [[Committer Rights]]
 - [[Landing Pull Requests]]
-- [[Landing Meterpreter Pull Requests]]
 
 # Metasploit Development #
 
@@ -69,7 +67,6 @@ to [[Setting Up a Metasploit Development Environment]].
 
 - [[How Payloads Work]]
 - [[Merging Metasploit Payload Gem Updates]]
-- [[State of Meterpreter]]
 - [[Meterpreter Configuration]]
 - [[Meterpreter HTTP Communication]]
 - [[Meterpreter Paranoid Mode]]
@@ -87,18 +84,18 @@ to [[Setting Up a Metasploit Development Environment]].
 # Other Metasploit Resources #
 
 - [[Downloads by Version]]
+- [[Evading Anti Virus]]
 - [[How to use a Metasploit module appropriately]]
 - [[How to use a reverse shell in Metasploit]]
-- [[Evading Anti Virus]]
 - [[Information About Unmet Browser Exploit Requirements]]
-- [[What does my Rex::Proto::SMB Error mean?]]
 - [[How to use msfvenom]]
 - [[How to use exim_gethostbyname_bof.rb (Exim GHOST Buffer Overflow)]]
+- [[What does my Rex::Proto::SMB Error mean?]]
 
 # GitHub Resources #
 
-- [[Remote Branch Pruning]]
 - [[Git Cheatsheet]]
 - [[Git Gotchas]]
 - [[Git Reference Sites]]
+- [[Remote Branch Pruning]]
 
