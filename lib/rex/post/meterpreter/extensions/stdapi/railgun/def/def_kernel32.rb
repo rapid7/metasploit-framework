@@ -1419,7 +1419,7 @@ class Def_kernel32
       ["DWORD","nSize","in"],
       ])
 
-    dll.add_function( 'GetModuleHandleA', 'DWORD',[
+    dll.add_function( 'GetModuleHandleA', 'HANDLE',[
       ["PCHAR","lpModuleName","in"],
       ])
 

