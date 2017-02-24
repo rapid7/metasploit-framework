@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Binom3 Web Management Login Scanner, Config and Password File Dump',
       'Description' => %{
-          This module scans for Binom3 Multifunctional Revenue Energy Meter and Power Quality Analyzer management login portal(s), and attempts to identify valid credentials. There are four (4) default accounts - 'root'/'root', 'admin'/'1', 'alg'/'1', 'user'/'1'. In addition to device config, 'root' user can also access password file. Other users - admin, alg, user - can only access configuration file. The module attempts to download configuration and password files depending on the login user credentials found.
+          This module scans for Binom3 Multifunctional Revenue Energy Meter and Power Quality Analyzer
+          management login portal(s), and attempts to identify valid credentials.
+          There are four (4) default accounts - 'root'/'root', 'admin'/'1', 'alg'/'1', 'user'/'1'.
+          In addition to device config, 'root' user can also access password file.
+          Other users - admin, alg, user - can only access configuration file.
+          The module attempts to download configuration and password files depending on the login user credentials found.
       },
       'References' =>
         [
