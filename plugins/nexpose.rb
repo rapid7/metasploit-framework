@@ -583,6 +583,12 @@ class Plugin::Nexpose < Msf::Plugin
         end
 
         if ! opt_preserve
+          # Make sure the scan has finished clean up before attempting to delete the site
+          while (true)
+            info = @nsc.scan_statistics(sid)
+            break if info.status == 'stopped' || info.status == 'finished'
+            select(nil, nil, nil, 5.0)
+          end
           print_status(" >> Deleting the temporary site and report...") if opt_verbose
           begin
             @nsc.delete_site(site.id)
