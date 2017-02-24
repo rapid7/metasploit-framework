@@ -234,6 +234,10 @@ class UI < Rex::Post::UI
   #
   # Extract the keystroke from the buffer data
   #
+
+  #
+  # method will become deprecated with keyscan updates
+  #
   def keyscan_extract(buffer_data)
     # outp = ""
     # buffer_data.unpack("n*").each do |inp|
