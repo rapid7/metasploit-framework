@@ -21,6 +21,7 @@ PATH
       nessus_rest
       net-ssh
       network_interface
+      nexpose
       nokogiri
       octokit
       openssl-ccm
@@ -193,6 +194,7 @@ GEM
     nessus_rest (0.1.6)
     net-ssh (4.1.0)
     network_interface (0.0.1)
+    nexpose (5.3.0)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
     octokit (4.6.2)
