@@ -86,7 +86,6 @@ class MetasploitModule < Msf::Auxiliary
             end
           rescue ::Rex::ConnectionRefused
             vprint_status("#{ip}:#{port} - TCP closed")
-            r << [ip,port,"closed"]
           rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
           rescue ::Rex::Post::Meterpreter::RequestError
           rescue ::Interrupt

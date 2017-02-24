@@ -24,6 +24,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
     allow(creds).to receive(:additional_publics).and_return(['user'])
     allow(creds).to receive(:each).and_return(['user', 'pass'])
     allow(creds).to receive(:additional_publics).and_return([])
+    allow(creds).to receive(:empty?).and_return(false)
     creds
   }
 

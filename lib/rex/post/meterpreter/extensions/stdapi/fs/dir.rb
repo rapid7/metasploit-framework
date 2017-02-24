@@ -222,7 +222,11 @@ class Dir < Rex::Post::Dir
     end
 
     dir_files.each { |src_sub|
-      dst_item = dst + ::File::SEPARATOR + client.unicode_filter_encode(src_sub)
+      dst_sub = src_sub.dup
+      dst_sub.gsub!(::File::SEPARATOR, '_')                                   # '/' on all systems
+      dst_sub.gsub!(::File::ALT_SEPARATOR, '_') if ::File::ALT_SEPARATOR      # nil on Linux, '\' on Windows
+
+      dst_item = ::File.join(dst, client.unicode_filter_encode(dst_sub))
       src_item = src + client.fs.file.separator + client.unicode_filter_encode(src_sub)
 
       if (src_sub == '.' or src_sub == '..')

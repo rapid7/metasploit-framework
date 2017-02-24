@@ -43,11 +43,11 @@ module Auxiliary::UDPScanner
     datastore['BATCHSIZE'].to_i
   end
 
-  def udp_sock(ip, port)
-    @udp_socks_mutex.synchronize do
+  def udp_socket(ip, port)
+    @udp_sockets_mutex.synchronize do
       key = "#{ip}:#{port}"
-      unless @udp_socks.key?(key)
-        @udp_socks[key] =
+      unless @udp_sockets.key?(key)
+        @udp_sockets[key] =
           Rex::Socket::Udp.create({
             'LocalHost' => datastore['CHOST'] || nil,
             'LocalPort' => datastore['CPORT'] || 0,
@@ -55,16 +55,16 @@ module Auxiliary::UDPScanner
             'PeerPort'  => port,
             'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
           })
-        add_socket(@udp_socks[key])
+        add_socket(@udp_sockets[key])
       end
-      return @udp_socks[key]
+      return @udp_sockets[key]
     end
   end
 
-  def cleanup_udp_socks
-    @udp_socks_mutex.synchronize do
-      @udp_socks.each do |key, sock|
-        @udp_socks.delete(key)
+  def cleanup_udp_sockets
+    @udp_sockets_mutex.synchronize do
+      @udp_sockets.each do |key, sock|
+        @udp_sockets.delete(key)
         remove_socket(sock)
         sock.close
       end
@@ -73,8 +73,8 @@ module Auxiliary::UDPScanner
 
   # Start scanning a batch of IP addresses
   def run_batch(batch)
-    @udp_socks = {}
-    @udp_socks_mutex = Mutex.new
+    @udp_sockets = {}
+    @udp_sockets_mutex = Mutex.new
 
     @udp_send_count = 0
     @interval_mutex = Mutex.new
@@ -122,7 +122,7 @@ module Auxiliary::UDPScanner
     resend_count = 0
     sock = nil
     begin
-      sock = udp_sock(ip, port)
+      sock = udp_socket(ip, port)
       sock.send(data, 0)
 
     rescue ::Errno::ENOBUFS
@@ -160,7 +160,7 @@ module Auxiliary::UDPScanner
     queue = []
     start = Time.now
     while Time.now - start < timeout do
-      readable, _, _ = ::IO.select(@udp_socks.values, nil, nil, timeout)
+      readable, _, _ = ::IO.select(@udp_sockets.values, nil, nil, timeout)
       if readable
         for sock in readable
           res = sock.recvfrom(65535, timeout)
@@ -186,7 +186,7 @@ module Auxiliary::UDPScanner
       end
     end
 
-    cleanup_udp_socks
+    cleanup_udp_sockets
 
     queue.each do |q|
       scanner_process(*q)

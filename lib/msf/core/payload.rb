@@ -31,6 +31,7 @@ class Payload < Msf::Module
   require 'msf/core/payload/android'
   require 'msf/core/payload/firefox'
   require 'msf/core/payload/mainframe'
+  require 'msf/core/payload/hardware'
 
   # Universal payload includes
   require 'msf/core/payload/multi'

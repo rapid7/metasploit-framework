@@ -192,6 +192,8 @@ module ModuleCommandDispatcher
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
           print_good("#{peer} #{code[1]}")
+          # Restore RHOST for report_vuln
+          instance.datastore['RHOST'] ||= rhost
           report_vuln(instance)
         else
           print_status("#{peer} #{code[1]}")
