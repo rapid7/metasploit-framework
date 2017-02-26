@@ -119,7 +119,7 @@ class DLL
   def process_function_call(function, args, client)
     raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
 
-    if client.arch == ARCH_X64
+    if client.native_arch == ARCH_X64
       native = 'Q<'
     else
       native = 'V'
