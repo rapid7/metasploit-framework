@@ -108,6 +108,10 @@ class Meterpreter_Python_Python < Msf::Sessions::Meterpreter
     unknown_error
   end
 
+  def native_arch
+    @native_arch ||= self.core.native_arch
+  end
+
   def supports_ssl?
     false
   end
