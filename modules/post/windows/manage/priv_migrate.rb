@@ -36,9 +36,10 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('ANAME', [false, 'System process to migrate to. For sessions with Admin rights. (See Module Description.)']),
-        OptString.new('NAME',  [false, 'Process to migrate to. For sessions with User rights. (See Module Description.)']),
-        OptBool.new(  'KILL',  [false, 'Kill original session process.', false])
+        OptString.new('ANAME',  [false, 'System process to migrate to. For sessions with Admin rights. (See Module Description.)']),
+        OptString.new('NAME',   [false, 'Process to migrate to. For sessions with User rights. (See Module Description.)']),
+        OptBool.new(  'KILL',   [true, 'Kill original session process.', false]),
+        OptBool.new(  'NOFAIL', [true,  'Migrate to user level process if Admin migration fails. May downgrade privileged shells.', false])
       ], self.class)
   end
 
@@ -48,6 +49,7 @@ class MetasploitModule < Msf::Post
     @original_name = client.sys.process.open.name
     print_status("Current session process is #{@original_name} (#{@original_pid}) as: #{client.sys.config.getuid}")
     unless migrate_admin
+      return if is_admin? && datastore['NOFAIL']
       migrate_user
     end
   end
