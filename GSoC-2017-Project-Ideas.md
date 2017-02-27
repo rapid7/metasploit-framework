@@ -47,7 +47,7 @@ And then move the `exploit/*/local` modules that aren't actually exploits back t
 
 # Payload side
 
-### Maleable HTTP/S C2 for Meterpreter
+### Malleable HTTP/S C2 for Meterpreter
 
 Currently, the attributes that one can set for how a Meterpreter payload appears at the HTTP level are limited. We would like the ability to set and add arbitrary HTTP headers to requests and responses, so that the traffic appears more realistic.
 
@@ -105,5 +105,5 @@ All of the following folks have expressed willingness to be mentors.
 * [@jinq102030](https://github.com/jinq102030)
 * [@mubix](https://github.com/mubix)
 * [@OJ](https://github.com/oj)
+* [@wvu](https://github.com/wvu-r7)
 * [@zeroSteiner](https://github.com/zeroSteiner)
-
