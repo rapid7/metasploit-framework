@@ -107,9 +107,13 @@ class MetasploitModule < Msf::Post
       client.core.migrate(target_pid)
       print_good("Successfully migrated to #{client.sys.process.open.name} (#{client.sys.process.open.pid}) as: #{client.sys.config.getuid}")
       return true
-    rescue ::Rex::Post::Meterpreter::RequestError => error
+    rescue ::Rex::Post::Meterpreter::RequestError => req_error
       print_error("Could not migrate to #{proc_name}.")
-      print_error(error.to_s)
+      print_error(req_error.to_s)
+      return false
+    rescue ::Rex::RuntimeError => run_error
+      print_error("Could not migrate to #{proc_name}.")
+      print_error(run_error.to_s)
       return false
     end
   end
