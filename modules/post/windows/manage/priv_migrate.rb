@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
-          'Josh Hale <jhale85446[at]gmail.com>',
+          'Josh Hale "sn0wfa11" <jhale85446[at]gmail.com>',
           'theLightCosine'
         ],
       'Platform'      => ['win' ],
