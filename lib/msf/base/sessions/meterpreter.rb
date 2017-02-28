@@ -537,6 +537,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   end
 
   #
+  # Get a string representation of the architecture of the process in which the
+  # current session is running. This defaults to the same value of arch but can
+  # be overridden by specific meterpreter implementations to add support.
+  #
+  def native_arch
+    arch
+  end
+
+  #
   # Generate a binary suffix based on arch
   #
   def binary_suffix
