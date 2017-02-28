@@ -33,9 +33,13 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    pids = get_current_data_pids(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'])
-    print_status("Available PIDS for pulling realtime data: #{pids.size} pids")
-    print_status("  #{pids.inspect}")
+    pids = get_current_data_pids(datastore["CANBUS"], datastore["SRCID"], datastore["DSTID"])
+    if pids.size == 0
+      print_status("No reported PIDs. You may not be properly connected")
+    else
+      print_status("Available PIDS for pulling realtime data: #{pids.size} pids")
+      print_status("  #{pids.inspect}")
+    end
     if pids.include? 1
       data = get_monitor_status(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'])
       print_status("  MIL (Engine Light) : #{data['MIL'] ? 'ON' : 'OFF'}") if data.key? "MIL"
@@ -75,7 +79,7 @@ class MetasploitModule < Msf::Post
       end
     end
     pids = get_vinfo_supported_pids(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'])
-    print_status("Mode $09 Vehicle Info Supported PIDS: #{pids.inspect}")
+    print_status("Mode $09 Vehicle Info Supported PIDS: #{pids.inspect}") if pids.size > 0
     pids.each do |pid|
       # Handle known pids
       if pid == 2
