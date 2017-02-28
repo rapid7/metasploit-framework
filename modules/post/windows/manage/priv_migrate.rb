@@ -134,6 +134,10 @@ class MetasploitModule < Msf::Post
 
       if is_system?
         print_status("Session is already Admin and System.")
+        if admin_targets.include? @original_name
+          print_good("Session is already in target process: #{@original_name}.")
+          return true
+        end
       else
         print_status("Session is Admin but not System.")
       end
