@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", ''])
       ], self.class)
 
-    deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
+    deregister_options('BLANK_PASSWORDS', 'RHOSTS')
   end
 
   def setup
