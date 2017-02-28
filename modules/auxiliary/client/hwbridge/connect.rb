@@ -98,6 +98,9 @@ class MetasploitModule < Msf::Auxiliary
     if self.hw_specialty.has_key? "automotive"
       sess.load_automotive if self.hw_specialty["automotive"] == true
     end
+    if self.hw_specialty.has_key? "zigbee"
+      sess.load_zigbee if self.hw_specialty["zigbee"] == true
+    end
   end
 
   #
