@@ -49,7 +49,10 @@ class MetasploitModule < Msf::Post
     @original_name = client.sys.process.open.name
     print_status("Current session process is #{@original_name} (#{@original_pid}) as: #{client.sys.config.getuid}")
     unless migrate_admin
-      return if is_admin? && datastore['NOFAIL']
+      if is_admin? && !datastore['NOFAIL']
+        print_status("NOFAIL set to false, exiting module.")
+        return
+      end
       migrate_user
     end
   end
