@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
         OptString.new('ANAME',  [false, 'System process to migrate to. For sessions with Admin rights. (See Module Description.)']),
         OptString.new('NAME',   [false, 'Process to migrate to. For sessions with User rights. (See Module Description.)']),
         OptBool.new(  'KILL',   [true, 'Kill original session process.', false]),
-        OptBool.new(  'NOFAIL', [true,  'Migrate to user level process if Admin migration fails. May downgrade privileged shells.', true])
+        OptBool.new(  'NOFAIL', [true,  'Migrate to user level process if Admin migration fails. May downgrade privileged shells.', false])
       ], self.class)
   end
 
