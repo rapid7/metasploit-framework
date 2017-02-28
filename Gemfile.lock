@@ -14,7 +14,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.2.14)
+      metasploit-payloads (= 1.2.15)
       metasploit_data_models
       metasploit_payloads-mettle (= 0.1.7)
       msgpack
@@ -169,7 +169,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.2.14)
+    metasploit-payloads (1.2.15)
     metasploit_data_models (2.0.14)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -279,7 +279,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.0)
-    rex-text (0.2.11)
+    rex-text (0.2.12)
     rex-zip (0.1.1)
       rex-text
     rkelly-remix (0.0.7)

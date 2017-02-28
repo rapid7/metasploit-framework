@@ -321,7 +321,9 @@ module Msf
               'ExitOnSession'  => exit_on_session,
               'RunAsJob'       => true
             }
+
             handler.datastore.reverse_merge!(payload_datastore)
+            handler.datastore.merge!(handler_opts)
 
             # Launch our Handler and get the Job ID
             handler.exploit_simple(handler_opts)
