@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Post
   def run
     # Get current process information
     @original_pid  = client.sys.process.open.pid
-    @original_name = client.sys.process.open.name
+    @original_name = client.sys.process.open.name.downcase
     print_status("Current session process is #{@original_name} (#{@original_pid}) as: #{client.sys.config.getuid}")
     unless migrate_admin
       if is_admin? && !datastore['NOFAIL']
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
   def get_pid(proc_name)
     processes = client.sys.process.get_processes
     processes.each do |proc|
-      if proc['name'] == proc_name && proc['user'] != ""
+      if proc['name'].downcase == proc_name && proc['user'] != ""
         return proc['pid']
       end
     end
@@ -127,9 +127,10 @@ class MetasploitModule < Msf::Post
   # @return [FalseClass] if it failed to migrate
   def migrate_admin
     if is_admin?
-      # Populate target array
+      # Populate target array and Downcase all Targets
       admin_targets = DEFAULT_ADMIN_TARGETS.dup
       admin_targets.unshift(datastore['ANAME']) if datastore['ANAME']
+      admin_targets.map!(&:downcase)
 
       if is_system?
         print_status("Session is already Admin and System.")
@@ -157,9 +158,11 @@ class MetasploitModule < Msf::Post
   # @return [TrueClass] if it successfully migrated
   # @return [FalseClass] if it failed to migrate
   def migrate_user
-    # Populate Target Array
+    # Populate Target Array and Downcase all Targets
     user_targets = DEFAULT_USER_TARGETS.dup
     user_targets.unshift(datastore['NAME']) if datastore['NAME']
+    user_targets.map!(&:downcase)
+
     print_status("Will attempt to migrate to a User level process.")
 
     # Try to migrate to user level processes in the list.  If it does not exist or cannot migrate, try spawning it then migrating.
