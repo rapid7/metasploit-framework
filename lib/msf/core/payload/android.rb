@@ -54,8 +54,9 @@ module Msf::Payload::Android
       transports: opts[:transport_config] || [transport_config(opts)]
     }
 
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-    config.to_b
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
+    config[0] = "\x01" if opts[:stageless]
+    config
   end
 
   def sign_jar(jar)
@@ -97,7 +98,6 @@ module Msf::Payload::Android
       # Add stageless classname at offset 8000
       config += "\x00" * (8000 - config.size)
       config += 'com.metasploit.meterpreter.AndroidMeterpreter'
-      config[0] = "\x01"
     else
       classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
     end
