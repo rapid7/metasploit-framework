@@ -15,6 +15,7 @@ Perl, Python, and Ruby scripts can all be run via a short command line invocatio
 
 **Difficulty**: 4/5
 **Requirements**: Ruby, Python, bash/sh
+**Mentor**: [@wvu](https://github.com/wvu-r7) [@sempervictus](https://github.com/sempervictus)
 
 
 ### Automated exploit reliability scoring
