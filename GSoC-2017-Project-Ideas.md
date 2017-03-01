@@ -116,5 +116,6 @@ All of the following folks have expressed willingness to be mentors.
 * [@jinq102030](https://github.com/jinq102030)
 * [@mubix](https://github.com/mubix)
 * [@OJ](https://github.com/oj)
+* [@sempervictus](https://github.com/sempervictus)
 * [@wvu](https://github.com/wvu-r7)
 * [@zeroSteiner](https://github.com/zeroSteiner)
