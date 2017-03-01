@@ -1546,7 +1546,7 @@ class Core
     ip = args[1]
 
     if (name.upcase == "LHOST" && ip == "127.0.0.1")
-      print_error("You may experience errors with this choice of IP.")
+      print_error("You may experience errors with this choice of address for LHOST.")
     end
 
     # If the driver indicates that the value is not valid, bust out.
