@@ -72,7 +72,7 @@ Currently, the attributes that one can set for how a Meterpreter payload appears
 Allow meterpreter to act as a mesh network inside a corporate environment.
 
 **Difficulty**: 5/5
-**Requirements**: C, network protocol design. Bonus: Python, PHP
+**Requirements**: C or Python, network protocol design. Bonus: PHP
 
 
 ### Asynchronous victim-side scripting
@@ -88,7 +88,7 @@ Using either Python or Powershell (or maybe both if it can be abstract enough). 
 [SChannel](https://msdn.microsoft.com/en-us/library/windows/desktop/ms678421(v=vs.85).aspx) is Windows' built-in TLS library.
 
 **Difficulty**: 3/5
-**Requirements**: C
+**Requirements**: C, Windows systems programming
 **Mentor**: [@OJ](https://github.com/oj)
 
 --
@@ -105,6 +105,16 @@ Using either Python or Powershell (or maybe both if it can be abstract enough). 
 
 
 --
+
+# Miscellaneous
+
+Replace `msftidy` with a real linter using e.g. rubocop as a base.
+
+**Difficulty**: 2/5
+**Requirements**: Ruby
+
+--
+
 
 # Potential Mentors
 
