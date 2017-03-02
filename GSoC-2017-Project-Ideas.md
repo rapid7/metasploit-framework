@@ -82,15 +82,6 @@ Currently, the attributes that one can set for how a Meterpreter payload appears
 **Requirements**: C, Ruby. Bonus: Python, PHP
 **Mentor**: [@busterb](https://github.com/busterb)
 
-
-### Gossip protocol for payload communications
-
-Allow meterpreter to act as a mesh network inside a corporate environment.
-
-**Difficulty**: 5/5
-**Requirements**: C or Python, network protocol design. Bonus: PHP
-
-
 ### Asynchronous victim-side scripting
 
 Using either Python or Powershell (or maybe both if it can be abstract enough). This could allow things like running Responder.py or Empire on a compromised host.
