@@ -4,10 +4,14 @@
 # we must manually define the project root
 if ENV['MSF_ROOT']
   lib = File.realpath(File.expand_path('lib', ENV['MSF_ROOT']))
+  files = `git ls-files`.split($/).reject { |file|
+    file =~ /^documentation|^data\/gui|^external/
+  }
 else
-  # have to use realpath as metasploit-framework is often loaded through a symlink and tools like Coverage and debuggers
-  # require realpaths.
+  # have to use realpath as metasploit-framework is often loaded through a
+  # symlink and tools like Coverage and debuggers require realpaths.
   lib = File.realpath(File.expand_path('../lib', __FILE__))
+  files = []
 end
 
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
@@ -24,10 +28,8 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
-  spec.files         = `git ls-files`.split($/).reject { |file|
-    file =~ /^documentation|^data\/gui|^external/
-  }
-  spec.bindir = '.'
+  spec.files         = files
+  spec.bindir        = '.'
   if ENV['CREATE_BINSTUBS']
     spec.executables   = [
       'msfconsole',
