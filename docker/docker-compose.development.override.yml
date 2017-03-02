@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  ms: &ms
+    environment:
+      DATABASE_URL: postgres://postgres@db:5432/msf_dev
+
+    volumes:
+      - .:/usr/src/app

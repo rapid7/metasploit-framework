@@ -1,3 +1,11 @@
+.dockerignore
+.gitignore
+.env*
+docker-compose*.yml
+docker/
+!docker/msfconsole.rc
+README.md
+
 .bundle
 Gemfile.local
 Gemfile.local.lock
@@ -85,6 +93,3 @@ data/meterpreter/ext_server_pivot.*.dll
 # https://rapid7.github.io/metasploit-framework. It's an orphan branch.
 /metakitty
 .vagrant
-
-# local docker compose overrides
-docker-compose.local*

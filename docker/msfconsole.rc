@@ -1,0 +1,5 @@
+<ruby>
+run_single("setg LHOST #{ENV['LHOST']}") if ENV['LHOST']
+run_single("setg LPORT #{ENV['LPORT']}") if ENV['LPORT']
+run_single("db_connect #{ENV['DATABASE_URL'].gsub('postrgres://', '')}") if ENV['DATABASE_URL']
+</ruby>
