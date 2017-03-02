@@ -7,7 +7,7 @@ If you want to suggest your own idea, please discuss it with us first on [our ma
 
 --
 
-# Attacker side
+# Console side
 
 ### Convert between `CMD_UNIX` and the interpreted language architectures
 
@@ -34,12 +34,16 @@ Set up automated testing using something like Vagrant to spin up and configure v
 
 Something like "make all X exploits badass", or add a full suite of modules around particular gear or vendor stack.
 
+
+**Requirements**: Ruby
 **Mentor**: [@hdm](https://github.com/hdm)
 
 
 ### Allow post modules to take a payload
 
-And then move the `exploit/*/local` modules that aren't actually exploits back to `post/`
+As it stands, the framework defines anything that takes a payload to be an exploit. Because post-exploitation modules cannot take a payload, things that want to drop an executable for persistence are implemented as local exploits (in the `exploit/*/local` namespace instead of `post/*/persistence`). This project would give those kinds of modules a more consistent interface.
+
+Once this is done, we can move the `exploit/*/local` modules that aren't actually exploits back to `post/`
 
 **Difficulty**: 3/5
 **Requirements**: Ruby
@@ -53,6 +57,18 @@ And then move the `exploit/*/local` modules that aren't actually exploits back t
 **Difficulty**: 5/5
 **Mentor**:  [@egypt](https://github.com/egypt)
 
+
+### Filesystem sessions
+
+The idea here is to create a new session type for authenticated protocols that give you filesystem access. The simplest is FTP, so that's where we should start. We'll need several pieces for this to work:
+
+1. A new session interface in `Msf::Sessions` (`lib/msf/base/sessions/`). This should be abstract enough that we can implement protocols other than FTP in the future.
+1. A mapping of protocol details to that interface.
+1. A new command dispatcher implementing at least `upload`, `download`, `ls`, `cd` commands.
+1. We'll need to modify `auxiliary/scanner/ftp/ftp_login` to create one of these awesome new sessions when authentication is successful.
+
+**Difficulty**: 2/5
+**Requirements**: Ruby
 
 --
 
