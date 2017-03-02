@@ -169,11 +169,11 @@ class MetasploitModule < Msf::Auxiliary
 
         if res && res.code == 200 && res.body =~ /device_props/
           print_good('++++++++++++++++++++++++++++++++++++++')
-          print_good("#{rhost} - dumping configuration")
+          print_good("#{rhost}:#{rport} - dumping configuration")
           print_good('++++++++++++++++++++++++++++++++++++++')
           print_good("#{rhost}:#{rport} - File retrieved successfully!")
 
-          path = store_loot('ePMP_config', 'text/plain', rhost, res.body, rport, 'Cambium ePMP 1000 device config')
+          path = store_loot('ePMP_config', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 device config')
           print_status("#{rhost}:#{rport} - File saved in: #{path}")
 
           # Extract ePMP version
