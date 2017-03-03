@@ -67,6 +67,8 @@ how to identify the carrier of a phone number. There are many services that can 
 
 http://freecarrierlookup.com/
 
+Note: If the phone is using Google Fi, then it may appear as a different carrier.
+
 ## Gmail SMTP Example
 
 Gmail is a popular mail server, so we will use this as a demonstration.

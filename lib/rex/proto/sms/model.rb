@@ -18,7 +18,7 @@ module Rex
           :tmobile => 'tmomail.net',             # T-Mobile
           :verizon => 'vtext.com',               # Verizon
           :virgin  => 'vmobl.com',               # Virgin Mobile
-          :google => 'msg.fi.google.com'
+          :google => 'msg.fi.google.com'         # Google Project Fi
         }
 
       end
