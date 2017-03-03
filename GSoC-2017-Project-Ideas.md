@@ -64,7 +64,7 @@ The idea here is to create a new session type for authenticated protocols that g
 
 1. A new session interface in `Msf::Sessions` (`lib/msf/base/sessions/`). This should be abstract enough that we can implement protocols other than FTP in the future.
 1. A mapping of protocol details to that interface.
-1. A new command dispatcher implementing at least `upload`, `download`, `ls`, `cd` commands.
+1. A new command dispatcher implementing at least these commands: `upload`, `download`, `ls`, `cd`
 1. We'll need to modify `auxiliary/scanner/ftp/ftp_login` to create one of these awesome new sessions when authentication is successful.
 
 **Difficulty**: 2/5
@@ -143,12 +143,15 @@ This is the Meterpreter side of the SMB transport mentioned in the Console secti
 
 # Miscellaneous
 
-Replace `msftidy` with a real linter using e.g. rubocop as a base.
+### Replace `msftidy` with a real linter
+
+[Our current module style checker](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/msftidy.rb) is a mass of regular expressions attempting to look for bad patterns. It could be much improved by using a real lexer. We could use rubocop as a base for this.
+
+This could also dovetail into an ongoing documentation project.
 
 **Difficulty**: 2/5
 **Requirements**: Ruby
 
---
 
 
 # Potential Mentors
