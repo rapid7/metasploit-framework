@@ -55,7 +55,6 @@ The module supports the following carriers:
 * AT&T Wireless
 * Boost Mobile
 * Cricket Wireless
-* Sprint
 * T-Mobile
 * Verizon
 * Virgin Mobile
