@@ -70,6 +70,22 @@ The idea here is to create a new session type for authenticated protocols that g
 **Difficulty**: 2/5
 **Requirements**: Ruby
 
+### SMB-based file transport for Meterpreter
+
+The idea here is to create a transport that allows Meterpreter and Console to talk via File handles opened via UNC path. In cases where 445 is allowed outbound, Meterpreter can open file handles to a UNC path that MSF is listening on, and they can communicate on those file handles. For this to work we need:
+
+1. A new transport that knows how to operate over SMB file handles
+   * In particular, one file handle is used for writing, and one for reading.
+1. New stagers that use the Win32 API to open file handles to a given UNC path.
+  * Most of this is already done in a PR for named pipe transport support, and so a few changes to those stagers should result in it working fine for this.
+1. To come up with a method/protocol that both Console and Meterpreter can use to identify when new sessions come in.
+
+Given that SMB file reading and writing is already a thing, this shouldn't be too hard on the MSF side.
+
+**Difficulty**: 3/5
+**Requirements**: Ruby & SMB
+**Mentor**: [@OJ](https://github.com/oj) and/or [@egyp7](https://github.com/egyp7)
+
 --
 
 # Payload side
@@ -95,6 +111,18 @@ Using either Python or Powershell (or maybe both if it can be abstract enough). 
 [SChannel](https://msdn.microsoft.com/en-us/library/windows/desktop/ms678421(v=vs.85).aspx) is Windows' built-in TLS library.
 
 **Difficulty**: 3/5
+**Requirements**: C, Windows systems programming
+**Mentor**: [@OJ](https://github.com/oj)
+
+### SMB-based file transport for Meterpreter
+
+This is the Meterpreter side of the SMB transport mentioned in the Console section. For this to work we need:
+
+1. A new Meterpreter transport that uses file handles to read and write data over SMB to talk to MSF.
+    * Use the named pipe transport PR to see how this might work.
+1. Full support of the "protocol" that has been designed so that MSF knows when sessions come in.
+
+**Difficulty**: 2/5
 **Requirements**: C, Windows systems programming
 **Mentor**: [@OJ](https://github.com/oj)
 
