@@ -58,6 +58,7 @@ The module supports the following carriers:
 * T-Mobile
 * Verizon
 * Virgin Mobile
+* Google Fi
 
 ## Finding the Carrier for a Phone Number
 

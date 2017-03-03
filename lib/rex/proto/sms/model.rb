@@ -17,7 +17,8 @@ module Rex
           #:sprint  => 'messaging.sprintpcs.com', # Sprint
           :tmobile => 'tmomail.net',             # T-Mobile
           :verizon => 'vtext.com',               # Verizon
-          :virgin  => 'vmobl.com'                # Virgin Mobile
+          :virgin  => 'vmobl.com',               # Virgin Mobile
+          :google => 'msg.fi.google.com'
         }
 
       end
