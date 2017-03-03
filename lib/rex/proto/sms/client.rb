@@ -51,7 +51,9 @@ module Rex
           begin
             smtp.enable_starttls_auto
             smtp.start(helo_domain, username, password, login_type) do
-              smtp.send_message(message, from, recipients)
+              recipients.each do |r|
+                smtp.send_message(message, from, r)
+              end
             end
           ensure
             smtp.finish if smtp && smtp.started?
