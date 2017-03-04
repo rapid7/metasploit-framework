@@ -222,8 +222,7 @@ Alas, though, you have no database set up to use all this hacking madness. Easil
 # Set up PostgreSQL
 
 Kali linux already ships with Postgresql, so we can use that out of the gate. Everything should just work on Ubuntu and
-other Debian-based distros, assuming they have an equivalent `postgresql` package. The TLDR ensures that the database is
-starts up on system start, as well.
+other Debian-based distros, assuming they have an equivalent `postgresql` package. The TLDR ensures that the database starts up on system start as well.
 
 ## Start the database
 
@@ -311,7 +310,7 @@ exit                                 # Become msfdev again
 
 ## Create the database.yml
 
-Now that yourself again, create a file `$HOME/.msf4/database.yml` with the following:
+Now that you are yourself again, create a file `$HOME/.msf4/database.yml` with the following:
 
 ```yaml
 # Development Database
