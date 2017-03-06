@@ -69,7 +69,13 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    if (res && res.code == 200 && (res.body.include?('Accedi') || res.body.include?('Gavazzi') || res.body.include?('styleVMUC.css') || res.body.include?('VMUC')))
+    good_response = (
+      res &&
+      res.code == 200 &&
+      res.body.include?('Accedi') || res.body.include?('Gavazzi') || res.body.include?('styleVMUC.css') || res.body.include?('VMUC')
+    )
+
+    if good_response
       vprint_good("#{rhost}:#{rport} - Running Carlo Gavazzi VMU-C Web Management portal...")
       return true
     else
@@ -138,7 +144,14 @@ class MetasploitModule < Msf::Auxiliary
       return :abort
     end
 
-    if (res && ((res.code == 200 && (res.body.include?('Login in progress') || res.body.include?('Login in corso')) && res.body.match(/id="error" value="2"/)) || (res.code == 302 && res.headers['Location'] == 'disclaimer.php')))
+    good_response = (
+      res &&
+      res.code == 200 &&
+      res.body.include?('Login in progress') || res.body.include?('Login in corso') &&
+      res.body.match(/id="error" value="2"/) || (res.code == 302 && res.headers['Location'] == 'disclaimer.php')
+    )
+
+    if good_response
       print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
 
       # Extract firmware version
