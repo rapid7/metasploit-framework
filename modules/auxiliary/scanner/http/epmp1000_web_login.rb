@@ -83,24 +83,34 @@ class MetasploitModule < Msf::Auxiliary
           'method'    => 'GET'
         }
       )
+
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return false
     end
 
-    if (res && res.code == 200 && res.headers['Server'] && (res.headers['Server'].include?('Cambium HTTP Server') || res.body.include?('cambiumnetworks.com')))
+    good_response = (
+      res &&
+      res.code == 200 &&
+      res.headers['Server'] &&
+      (res.headers['Server'].include?('Cambium HTTP Server') || res.body.include?('cambiumnetworks.com'))
+    )
 
+    if good_response
       get_epmp_ver = res.body.match(/"sw_version">([^<]*)/)
-      epmp_ver = get_epmp_ver[1]
-
-      print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000 version #{epmp_ver}...")
-      return true
-
+      if !get_epmp_ver.nil?
+        epmp_ver = get_epmp_ver[1]
+        if !epmp_ver.nil?
+          print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000 version #{epmp_ver}...")
+          return true
+        else
+          print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000...")
+          return true
+        end
+      end
     else
-
       print_error("#{rhost}:#{rport} - Application does not appear to be Cambium ePMP 1000. Module will not continue.")
       return false
-
     end
   end
 
@@ -109,15 +119,16 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_login(user, pass)
-    print_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
-
+    print_status("#{rhost}:#{rport} - Attempting to login...")
     begin
-
       res = send_request_cgi(
         {
-          'uri'       => '/cgi-bin/luci',
-          'method'    => 'POST',
-          'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'application/json, text/javascript, */*; q=0.01' },
+          'uri' => '/cgi-bin/luci',
+          'method' => 'POST',
+          'headers' => {
+            'X-Requested-With' => 'XMLHttpRequest',
+            'Accept' => 'application/json, text/javascript, */*; q=0.01'
+          },
           'vars_post' =>
             {
               'username' => 'dashboard',
@@ -126,63 +137,70 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
 
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-
-      vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
-      return :abort
-
-    end
-
-    if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('sysauth'))
-
-      sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
-      cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
-
-      res = send_request_cgi(
-        {
-          'uri'       => '/cgi-bin/luci',
-          'method'    => 'POST',
-          'cookie'    => cookie1,
-          'headers'   => { 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'application/json, text/javascript, */*; q=0.01', 'Connection' => 'close' },
-          'vars_post' =>
-            {
-              'username' => user,
-              'password' => pass
-            }
-        }
+      good_response = (
+        res &&
+        res.code == 200 &&
+        res.headers.include?('Set-Cookie') &&
+        res.headers['Set-Cookie'].include?('sysauth')
       )
 
-    end
+      if good_response
+        sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
 
-    if (res && res.code == 200 && res.headers.include?('Set-Cookie') && res.headers['Set-Cookie'].include?('stok='))
+        cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
 
-      print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+        res = send_request_cgi(
+          {
+            'uri' => '/cgi-bin/luci',
+            'method' => 'POST',
+            'cookie' => cookie1,
+            'headers' => {
+              'X-Requested-With' => 'XMLHttpRequest',
+              'Accept' => 'application/json, text/javascript, */*; q=0.01',
+              'Connection' => 'close'
+            },
+            'vars_post' =>
+              {
+                'username' => user,
+                'password' => pass
+              }
+          }
+        )
+      end
 
-      #
-      # Extract ePMP version
-      #
-      res = send_request_cgi(
-        {
-          'uri' => '/',
-          'method' => 'GET'
-        }
+      good_response = (
+        res &&
+        res.code == 200 &&
+        res.headers.include?('Set-Cookie') &&
+        res.headers['Set-Cookie'].include?('stok=')
       )
 
-      get_epmp_ver = res.body.match(/"sw_version">([^<]*)/)
-      epmp_ver = get_epmp_ver[1]
+      if good_response
+        print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
 
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: "Cambium ePMP 1000 version #{epmp_ver}",
-        user: user,
-        password: pass
-      )
+        #
+        # Extract ePMP version
+        #
+        res = send_request_cgi(
+          {
+            'uri' => '/',
+            'method' => 'GET'
+          }
+        )
 
-    else
+        epmp_ver = res.body.match(/"sw_version">([^<]*)/)[1]
 
-      print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: "Cambium ePMP 1000 version #{epmp_ver}",
+          user: user,
+          password: pass
+        )
 
+      else
+        print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+      end
     end
   end
 end
