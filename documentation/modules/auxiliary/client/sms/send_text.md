@@ -1,4 +1,4 @@
-The auxiliary/client/sms/send_text module allows you to send a malicious text/link to a collection
+The ```auxiliary/client/sms/send_text``` module allows you to send a malicious text/link to a collection
 of phone numbers of the same carrier.
 
 In order to use this module, you must set up your own SMTP server to deliver messages. Popular
@@ -8,9 +8,9 @@ mail services such as Gmail, Yahoo, Live should work fine.
 
 **CELLNUMBERS**
 
-The phone number (or numbers) you want to send the text to. If you wish to target against multiple
-phone numbers, ideally you want to create the list in a text file (one number per line), and then
-load the CELLNUMBERS option like this:
+The 10-digit phone number (or numbers) you want to send the text to. If you wish to target against
+multiple phone numbers, ideally you want to create the list in a text file (one number per line),
+and then load the CELLNUMBERS option like this:
 
 ```
 set CELLNUMBER file:///tmp/att_phone_numbers.txt
@@ -33,7 +33,7 @@ The mail server address you wish to use to send the text messages.
 
 **SMTPPORT**
 
-The mail server port. By default, this is 25.
+The mail server port. By default, this is ```25```.
 
 **SMTPUSERNAME**
 
@@ -45,7 +45,7 @@ The password you use to log into the SMTP server.
 
 **SMTPFROM**
 
-The FROM field of SMTP.
+The FROM field of SMTP. In some cases, it may be used as ```SMTPUSER```.
 
 ## Supported Carrier Gateways
 
@@ -55,10 +55,13 @@ The module supports the following carriers:
 * AT&T Wireless
 * Boost Mobile
 * Cricket Wireless
+* Google Fi
 * T-Mobile
 * Verizon
 * Virgin Mobile
-* Google Fi
+
+**Note:** During development, we could not find a valid gateway for Sprint, therefore it is currently
+not supported.
 
 ## Finding the Carrier for a Phone Number
 
@@ -67,7 +70,7 @@ how to identify the carrier of a phone number. There are many services that can 
 
 http://freecarrierlookup.com/
 
-Note: If the phone is using Google Fi, then it may appear as a different carrier.
+**Note:** If the phone is using Google Fi, then it may appear as a different carrier.
 
 ## Gmail SMTP Example
 
