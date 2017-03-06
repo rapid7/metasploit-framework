@@ -157,39 +157,17 @@ class MetasploitModule < Msf::Auxiliary
         return :abort
       end
 
-      if (res && res.code == 200 && res.body.include?('Firmware Version'))
-        fw_ver_dirty = res.body.match(/Firmware Version(.*)(.*)td/)
+      if res && res.code == 200
+        if res.body.include?('Firmware Version') || res.body.include?('Versione Firmware')
+          fw_ver = res.body.match(/Ver. (.*)[$<]/)[1]
 
-        if !fw_ver_dirty.nil?
-          fw_ver_clean = "#{fw_ver_dirty}".match(/Ver. (.*)[$<]/)[1]
-
-          if !fw_ver_clean.nil?
-            print_good("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
+          if !fw_ver.nil?
+            print_good("#{rhost}:#{rport} - Firmware version #{fw_ver}...")
 
             report_cred(
               ip: rhost,
               port: rport,
-              service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
-              user: user,
-              password: pass
-            )
-          end
-        end
-      end
-
-      if (res && res.code == 200 && res.body.include?('Versione Firmware Installata'))
-        fw_ver_dirty = res.body.match(/Ver. (.*)[$<]/)
-
-        if !fw_ver_dirty.nil?
-          fw_ver_clean = "#{fw_ver_dirty}".match(/[^Ver. ](.*)[^<]/)
-
-          if !fw_ver_clean.nil?
-            print_good("#{rhost}:#{rport} - Firmware version #{fw_ver_clean}...")
-
-            report_cred(
-              ip: rhost,
-              port: rport,
-              service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver_clean}]",
+              service_name: "Carlo Gavazzi Energy Meter [Firmware ver #{fw_ver}]",
               user: user,
               password: pass
             )
