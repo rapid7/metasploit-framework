@@ -161,7 +161,7 @@ All of the following folks have expressed willingness to be mentors.
 * [@busterb](https://github.com/busterb)
 * [@egypt](https://github.com/egypt)
 * [@hdm](https://github.com/hdm)
-* [@jhart](https://github.com/jhart)
+* [@jhart-r7](https://github.com/jhart-r7)
 * [@jinq102030](https://github.com/jinq102030)
 * [@mubix](https://github.com/mubix)
 * [@OJ](https://github.com/oj)
