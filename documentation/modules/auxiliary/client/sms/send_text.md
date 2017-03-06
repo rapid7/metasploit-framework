@@ -25,7 +25,13 @@ supported carriers.
 
 **SMSMESSAGE**
 
-The text message you want to send.
+The text message you want to send. For example, this will send a text with a link to google:
+
+```
+set SMSMESSAGE "Hi, please go: google.com"
+```
+
+The link should automatically be parsed on the phone and clickable.
 
 **SMTPADDRESS**
 
