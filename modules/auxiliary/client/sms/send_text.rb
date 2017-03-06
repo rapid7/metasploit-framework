@@ -27,8 +27,12 @@ class MetasploitModule < Msf::Auxiliary
   def run
     phone_numbers = datastore['CELLNUMBERS'].split
     print_status("Sending text (#{datastore['SMSMESSAGE'].length} bytes) to #{phone_numbers.length} number(s)...")
-    res = send_text(phone_numbers, datastore['SMSMESSAGE'])
-    print_status("Done.")
+    begin
+      res = send_text(phone_numbers, datastore['SMSMESSAGE'])
+      print_status("Done.")
+    rescue Rex::Proto::Sms::Exception => e
+      print_error(e.message)
+    end
   end
 
 end

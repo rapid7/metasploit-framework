@@ -55,6 +55,8 @@ module Rex
                 smtp.send_message(message, from, r)
               end
             end
+          rescue Net::SMTPAuthenticationError => e
+            raise Rex::Proto::Sms::Exception, e.message
           ensure
             smtp.finish if smtp && smtp.started?
           end
