@@ -84,7 +84,7 @@ module Msf
 
       def cmd_aggregator_save(*args)
         # if we are logged in, save session details to aggregator.yaml
-        if args[0] == "-h"
+        if args.length == 0 || args[0] == "-h"
           usage_save
           return
         end
@@ -184,7 +184,6 @@ module Msf
       end
 
       def cmd_aggregator_cable_add(*args)
-        return if !aggregator_verify
         host, port, certificate = nil
         case args.length
           when 1
@@ -202,14 +201,19 @@ module Msf
             usage_cable_add
             return
         end
-        usage_cable_add if port.nil? || port.to_i <= 0
+
+        if !aggregator_verify || args.length == 0 || args[0] == '-h' || \
+            port.nil? || port.to_i <= 0
+          usage_cable_add
+          return
+        end
 
         certificate = File.new(certificate).read if certificate && File.exists?(certificate)
 
         @aggregator.add_cable(Metasploit::Aggregator::Cable::HTTPS, host, port, certificate)
       end
 
-      def cmd_aggregator_cables
+      def cmd_aggregator_cables(*_args)
         return if !aggregator_verify
         res = @aggregator.cables
         print_status("Remote Cables:")
@@ -220,15 +224,13 @@ module Msf
       end
 
       def cmd_aggregator_cable_remove(*args)
-        return if !aggregator_verify
-
         case args.length
           when 1
             host, port = args[0].split(':', 2)
           when 2
             host, port = args
         end
-        if host.nil?
+        if !aggregator_verify || args.length == 0 || args[0] == '-h' || host.nil?
           usage_cable_remove
           return
         end
@@ -247,8 +249,8 @@ module Msf
                 @aggregator.release_session(s.conn_id)
                 framework.sessions.deregister(s)
               else
-                # TODO: determine if we can add a transport and route with the aggregator
-                # for now just report action not taken
+                # TODO: determine if we can add a transport and route with the
+                # aggregator. For now, just report action not taken.
                 print_status("#{session_id} does not originate from the aggregator connection.")
               end
             else
