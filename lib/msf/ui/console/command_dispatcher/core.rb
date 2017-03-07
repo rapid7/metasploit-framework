@@ -1541,14 +1541,6 @@ class Core
       @cache_payloads = nil
     end
 
-    # Raise an alert if LHOST is set to 127.0.0.1
-    name = args[0]
-    ip = args[1]
-
-    if (name.upcase == "LHOST" && ip == "127.0.0.1")
-      print_warning("You may experience errors with this choice of address for LHOST.")
-    end
-
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
