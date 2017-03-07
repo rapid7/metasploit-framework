@@ -146,3 +146,4 @@ class MetasploitModule < Msf::Post
             print_good("All.cab Removed")
         end
     end
+end

