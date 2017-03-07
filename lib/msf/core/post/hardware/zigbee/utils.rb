@@ -161,7 +161,7 @@ module Utils
   #  TX_OFFSET
   #  UPDATE_ID
   # @param packet [String] Raw data from recv
-  # @return [Hash] { PktChop => [Array of data], .. 
+  # @return [Hash] { PktChop => [Array of data], ..
   def dot154_packet_decode(packet)
     result = {}
     offset = 0

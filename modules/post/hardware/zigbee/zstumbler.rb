@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Sends Beacons to scan for active Zigbee networks',
+        'Name'          => 'Sends Beacons to Scan for Active Zigbee Networks',
         'Description'   => %q{ Post Module to send beacon signals to the broadcast address while
                                channel hopping},
         'License'       => MSF_LICENSE,
