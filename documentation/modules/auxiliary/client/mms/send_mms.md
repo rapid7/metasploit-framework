@@ -77,6 +77,7 @@ The module supports the following carriers:
 * Sprint
 * T-Mobile
 * Verizon
+* Google Fi
 
 ## Finding the Carrier for a Phone Number
 

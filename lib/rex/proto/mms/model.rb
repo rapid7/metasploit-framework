@@ -6,10 +6,11 @@ module Rex
       module Model
 
         GATEWAYS = {
-          att:'mms.att.net',       # AT&T Wireless
-          sprint: 'pm.sprint.com', # Sprint
-          tmobile: 'tmomail.net',  # T-Mobile
-          verizon: 'vzwpix.com'    # Verizon
+          att:'mms.att.net',          # AT&T Wireless
+          sprint: 'pm.sprint.com',    # Sprint
+          tmobile: 'tmomail.net',     # T-Mobile
+          verizon: 'vzwpix.com',      # Verizon
+          google: 'msg.fi.google.com' # Google
         }
 
       end
