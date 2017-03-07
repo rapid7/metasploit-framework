@@ -17,7 +17,7 @@ RSpec.describe Rex::Proto::Mms::Client do
   let(:carrier) { :verizon }
 
   let(:smtp_server) {
-    Rex::Proto::Sms::Model::Smtp.new(
+    Rex::Proto::Mms::Model::Smtp.new(
       address: 'example.com',
       port: 25,
       username: 'username',
