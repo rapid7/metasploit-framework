@@ -13,7 +13,7 @@ multiple phone numbers, ideally you want to create the list in a text file (one 
 and then load the CELLNUMBERS option like this:
 
 ```
-set CELLNUMBER file:///tmp/att_phone_numbers.txt
+set CELLNUMBERS file:///tmp/att_phone_numbers.txt
 ```
 
 Remember that these phone numbers must be the same carrier.
