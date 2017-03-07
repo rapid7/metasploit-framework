@@ -28,11 +28,54 @@ class Zigbee < Extension
       ])
   end
 
+  # Sets the default target device
+  # @param device [String] Target Zigbee device ID
+  def set_target_device(device)
+    self.target_device = device
+  end
+
+  # Retrieves the default zigbee device ID
+  # @return [String] Zigbee device ID
+  def get_target_device
+    self.target_device
+  end
+
   # Gets supported Zigbee Devices
   # @return [Array] Devices
   def supported_devices
     client.send_request("/zigbee/supported_devices")
   end
+
+  # Sets the channel
+  # @param dev [String] Device to affect
+  # @param channel [Integer] Channel number
+  def set_channel(dev, channel)
+    client.send_request("/zigbee/#{dev}/set_channel?chan=#{channel}")
+  end
+
+  def inject(dev, data)
+    data = Base64.urlsafe_encode64(data)
+    client.send_request("/zigbee/#{dev}/inject?data=#{data}")
+  end
+
+  def recv(dev)
+    data = client.send_request("/zigbee/#{dev}/recv")
+    if data.size > 0
+      data["data"] = Base64.urlsafe_decode64(data["data"]) if data.has_key? "data"
+    end
+    data
+  end
+
+  def sniffer_off(dev)
+    client.send_request("/zigbee/#{dev}/sniffer_off")
+  end
+
+  def sniffer_on(dev)
+    client.send_request("/zigbee/#{dev}/sniffer_on")
+  end
+
+  attr_accessor :target_device
+
 end
 
 end

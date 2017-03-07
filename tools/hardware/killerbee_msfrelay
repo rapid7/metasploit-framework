@@ -22,6 +22,7 @@ packets_sent = 0
 last_sent = 0
 username = None
 password = None
+kb = None
 
 class MSFHandler(BaseHTTPRequestHandler):
     def status(self):
@@ -53,6 +54,7 @@ class MSFHandler(BaseHTTPRequestHandler):
         return status
 
     def statistics(self):
+        global packets_sent
         stats = {}
         stats["uptime"] = int(time.time()) - starttime
         stats["packet_stats"] = packets_sent
@@ -65,6 +67,39 @@ class MSFHandler(BaseHTTPRequestHandler):
 
     def timezone(self):
         return { "system_timezone": time.strftime("%Z") }
+
+    def set_channel(self, args):
+        if not "chan" in args:
+            return self.not_supported()
+        chan = int(args["chan"][0])
+        kb.set_channel(chan)
+        return { "success": True }
+
+    def inject(self, args):
+        global packets_sent
+        if not "data" in args:
+            return self.not_supported()
+        try:
+            kb.inject(base64.urlsafe_b64decode(args["data"][0]))
+            packets_sent+=1
+        except Exception, e:
+            print("ERROR: Unable to inject packet: {0}".format(e))
+            return { "success": False }
+        return { "success": True }
+
+    def recv(self):
+        pkt = kb.pnext()
+        if pkt != None and pkt[1]:
+            return {"data": base64.urlsafe_b64encode(pkt[0]), "valid_crc": pkt[1], "rssi": pkt[2] }
+        return {}
+
+    def sniffer_off(self):
+        kb.sniffer_off()
+        return {"success": True }
+
+    def sniffer_on(self):
+        kb.sniffer_on()
+        return {"success": True }
 
     def supported_devices(self):
         devices = []
@@ -112,12 +147,20 @@ class MSFHandler(BaseHTTPRequestHandler):
         elif self.path=="/zigbee/supported_devices":
             self.send(self.supported_devices())
         elif self.path.startswith("/zigbee/"):
-            re_idx = re.compile("/zigbee/(\w+)/")
-            m = re_idx.match(self.path)
+            re_dev = re.compile("/zigbee/([\d\w:]+)/")
+            m = re_dev.match(self.path)
             if m:
-                idx = m.group(1)
-                if self.path.find("/set_freq?") > -1:
-                    self.send(self.set_freq(args))
+                dev = m.group(1)
+                if self.path.find("/set_channel?") > -1:
+                    self.send(self.set_channel(args))
+                elif self.path.find("/inject?") > -1:
+                    self.send(self.inject(args))
+                elif self.path.find("/recv") > -1:
+                    self.send(self.recv())
+                elif self.path.find("/sniffer_off") > -1:
+                    self.send(self.sniffer_off())
+                elif self.path.find("/sniffer_on") > -1:
+                    self.send(self.sniffer_on())
                 else:
                     self.send(self.not_supported(), 404)
             else:
@@ -160,6 +203,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--iface', '--dev', action='store', dest='devstring')
     parser.add_argument('-u', '--user', default="msf_relay", help='HTTP Username', type=str)
     parser.add_argument('-p', '--password', default="rfcat_relaypass", help='HTTP Password', type=str)
     parser.add_argument('-P', '--Port', default=8080, type=int)
@@ -167,6 +211,12 @@ if __name__ == "__main__":
     parser.add_argument('--localonly', default=False, action="store_true", help='Listen on localhost only')
 
     ifo = parser.parse_args()
+
+    try:
+        kb = KillerBee(device=ifo.devstring)
+    except KBInterfaceError as e:
+        print("Interface Error: {0}".format(e))
+        sys.exit(-1)
 
     username = ifo.user
     password = ifo.password

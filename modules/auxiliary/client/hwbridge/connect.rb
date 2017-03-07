@@ -67,6 +67,8 @@ class MetasploitModule < Msf::Auxiliary
     if (res.code == 200)
       print_status res.body if datastore["DEBUGJSON"] == true
       return JSON.parse(res.body)
+    elsif res.code == 401
+      print_error "Access Denied: #{res.body}"
     end
     return nil
 

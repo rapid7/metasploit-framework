@@ -18,10 +18,19 @@ class Console::CommandDispatcher::Zigbee
   #
   def commands
     all = {
-      'supported_devices'   => 'Get supported zigbee devices'
+      'supported_devices'   => 'Get supported zigbee devices',
+      'target' => 'Set the target device id',
+      'channel' => 'Set the channel'
     }
 
     all
+  end
+
+  # Sets the target device both in the UI class and in the base API
+  # @param device [String] Device ID
+  def set_target_device(device)
+    self.target_device = device
+    client.zigbee.set_target_device device
   end
 
   #
@@ -38,7 +47,7 @@ class Console::CommandDispatcher::Zigbee
       print_line("none")
       return
     end
-    self.target_device = devices[0] if devices.size == 1
+    set_target_device(devices[0]) if devices.size == 1
     str = "Supported Devices: "
     str += devices.join(', ')
     str += "\nUse device name to set your desired device, default is: #{self.target_device}"
@@ -61,10 +70,41 @@ class Console::CommandDispatcher::Zigbee
         print_line(device_opts.usage)
         return
       when '-d'
-        self.target_device = val
+        set_target_device val
       end
     end
     print_line("set target device to #{self.target_device}")
+  end
+
+  #
+  # Sets the channel
+  #
+  def cmd_channel(*args)
+    chan = 11
+    dev = self.target_device if self.target_device
+    xopts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ],
+      '-d' => [ true, 'Zigbee Device' ],
+      '-c' => [ true, 'channel number' ]
+    )
+    xopts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        print_line("Usage: channel -c <channel number>\n")
+        print_line(xopts.usage)
+        return
+      when '-d'
+        dev = val
+      when '-c'
+        chan = val.to_i
+      end
+    end
+    if not dev
+      print_line("You must specify or set a target device")
+      return
+    end
+    client.zigbee.set_channel(dev, chan)
+    print_line("Device #{dev} channel set to #{chan}")
   end
 
   #
@@ -74,9 +114,7 @@ class Console::CommandDispatcher::Zigbee
     'Zigbee'
   end
 
-private
   attr_accessor :target_device
-
 end
 
 end
