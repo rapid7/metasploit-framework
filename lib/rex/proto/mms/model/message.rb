@@ -69,7 +69,7 @@ module Rex
           # @return [String] Base64 data
           def load_file_to_base64(path)
             buf = File.read(path)
-            Rex::Text.encode_base64(buf).scan(/.{,76}/).flatten * "\n"
+            (Rex::Text.encode_base64(buf).scan(/.{,76}/).flatten * "\n").strip
           end
 
 
