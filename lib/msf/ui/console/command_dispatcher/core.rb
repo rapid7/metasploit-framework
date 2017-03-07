@@ -1531,6 +1531,16 @@ class Core
       end
     end
 
+    # Warn when setting RHOST option for module which expects RHOSTS
+    if args.first.upcase.eql?('RHOST')
+      mod = active_module
+      unless mod.nil?
+        if !mod.options.include?('RHOST') && mod.options.include?('RHOSTS')
+          print_warning("RHOST is not a valid option for this module. Did you mean RHOSTS?")
+        end
+      end
+    end
+
     # Set the supplied name to the supplied value
     name  = args[0]
     value = args[1, args.length-1].join(' ')
