@@ -53,11 +53,17 @@ class Zigbee < Extension
     client.send_request("/zigbee/#{dev}/set_channel?chan=#{channel}")
   end
 
+  # Injects a raw packet
+  # @param dev [String] Zigbee Device ID
+  # @param data [String] Raw hex data that will be Base64 encoded
   def inject(dev, data)
     data = Base64.urlsafe_encode64(data)
     client.send_request("/zigbee/#{dev}/inject?data=#{data}")
   end
 
+  # Receives data from transceiver
+  # @param dev [String] Zigbee Device ID
+  # @return [Hash] { data: HexString, valid_crc: X, rssi: X }
   def recv(dev)
     data = client.send_request("/zigbee/#{dev}/recv")
     if data.size > 0
@@ -66,10 +72,14 @@ class Zigbee < Extension
     data
   end
 
+  # Disables sniffer and puts the device in a state that can be changed (like adujsting channel)
+  # @param dev [String] Zigbee Device ID
   def sniffer_off(dev)
     client.send_request("/zigbee/#{dev}/sniffer_off")
   end
 
+  # Enables sniffer receive mode.  Not necessary to call before calling recv
+  # @param dev [String] Zigbee Device ID
   def sniffer_on(dev)
     client.send_request("/zigbee/#{dev}/sniffer_on")
   end

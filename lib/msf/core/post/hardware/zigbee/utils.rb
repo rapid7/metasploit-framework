@@ -143,7 +143,23 @@ module Utils
   end
 
   # Breaks up the packet into different sections.  Also provides
-  # Some decoding information
+  # Some decoding information.  This method relates to Killerbee's Pktchop method and
+  # Returns a similar array structure PktChop.  If it's a beacon data you will also have
+  # A BEACONDATA array of raw beacon related packets.  You can pull other decoded portions from
+  # the returned hash such as
+  #  FSF
+  #  SEQ
+  #  SPAN_ID
+  #  SOURCE
+  #  SUPERFRAME
+  #  GTS
+  #  PENDING_ADDRESS_COUNT
+  #  PROTOCOL_ID
+  #  STACK_PROFILE
+  #  CAPABILITY
+  #  EXT_PAN_ID
+  #  TX_OFFSET
+  #  UPDATE_ID
   # @param packet [String] Raw data from recv
   # @return [Hash] { PktChop => [Array of data], .. 
   def dot154_packet_decode(packet)
