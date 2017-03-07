@@ -48,17 +48,7 @@ module Msf
 
         addrs
       end
-	#Function to check for loopback addresses
-	def loopback_addr(addr)
-	begin
-		a=IPAddr.new(addr.to_s)
-		return true if
-		IPAddr.new('127.0.0.1/8') === a
-		return true if IPAddr.new('::1') ==a
-		rescue
-		end
-		false
-	end
+	
 
 
       # @return [Integer]
@@ -94,10 +84,7 @@ module Msf
                 'MsfPayload' => self,
                 'MsfExploit' => assoc_exploit
               })
-	#Checking whether LHOST is a loopback address	
-	if loopback_addr(ip) ==true
-		print_warning ("You are attempting to listen on a loopback address by setting LHOST to #{ip}, did you mean to set ReverseListenerBindAddress instead?\n")
-	end	
+		
 	 
           rescue
             ex = $!
