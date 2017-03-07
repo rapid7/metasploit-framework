@@ -84,7 +84,7 @@ class RFTransceiver < Extension
   # @param data [String] Data to transmit
   # @param opt [Hash] Optional parameters: "repeat" => Integer, "offset" => Integer
   def rfxmit(idx, data, opt={})
-    data = Base64.encode64(data)
+    data = Base64.urlsafe_encode64(data)
     request = "/rftransceiver/#{idx}/rfxmit?data=#{data}"
     request += "&repeat=#{opt["repeat"]}" if opt.has_key? "repeat"
     request += "&offset=#{opt["offset"]}" if opt.has_key? "offset"
@@ -112,7 +112,7 @@ class RFTransceiver < Extension
     data = client.send_request(request)
     # Note the data is initially base64 encoded
     if data.size() > 0
-      data["data"] = Base64.decode64(data["data"]) if data.has_key? "data"
+      data["data"] = Base64.urlsafe_decode64(data["data"]) if data.has_key? "data"
     end
     data
   end
