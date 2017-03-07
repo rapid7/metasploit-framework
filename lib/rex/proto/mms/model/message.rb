@@ -82,7 +82,7 @@ module Rex
             body = Rex::MIME::Message.new
             body.add_part(text.to_s, "multipart/alternative; boundary=#{text.bound}", nil)
             if self.attachment
-              body.add_part(self.attachment, "image/jpeg; name=\"#{attachment_name}\"", 'base64', "attachment; filename=\"#{attachment_name}\"")
+              body.add_part(self.attachment, "#{content_type}; name=\"#{attachment_name}\"", 'base64', "attachment; filename=\"#{attachment_name}\"")
             end
 
             mms = "MIME-Version: 1.0\n"
