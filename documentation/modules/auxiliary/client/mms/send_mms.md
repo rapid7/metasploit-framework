@@ -67,7 +67,8 @@ The password you use to log into the SMTP server.
 
 **SMTPFROM**
 
-The FROM field of SMTP. In some cases, it may be used as ```SMTPUSER```.
+The FROM field of SMTP. In some cases, it may be used as ```SMTPUSER```. Some carriers require this
+in order to receive the text, such as AT&T.
 
 **MMSSUBJECT**
 
