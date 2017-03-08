@@ -49,6 +49,7 @@ module Rex
             self.from = opts[:from]
             self.to = opts[:to]
             self.message = opts[:message]
+            self.subject = opts[:subject]
             self.content_type = opts[:content_type]
             if opts[:attachment_path]
               self.attachment = load_file_to_base64(opts[:attachment_path])

@@ -12,6 +12,8 @@ RSpec.describe Rex::Proto::Mms::Client do
 
   let(:file_content) { 'content' }
 
+  let(:subject) { 'subject' }
+
   let(:ctype) { 'ctype' }
 
   let(:carrier) { :verizon }
@@ -52,7 +54,7 @@ RSpec.describe Rex::Proto::Mms::Client do
     end
 
     it 'sends an mms message' do
-      subject.send_mms_to_phones(phone_numbers, message, attachment, ctype)
+      subject.send_mms_to_phones(phone_numbers, subject, message, attachment, ctype)
       expect(@sent_message).to include('MIME-Version: 1.0')
     end
   end

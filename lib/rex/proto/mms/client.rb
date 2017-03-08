@@ -60,7 +60,8 @@ module Rex
                   content_type: ctype,
                   attachment_path: attachment_path,
                   from: from,
-                  to: r
+                  to: r,
+                  subject: subject
                 )
                 smtp.send_message(mms_message.to_s, from, r)
               end
