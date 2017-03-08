@@ -32,12 +32,13 @@ module Rex
         # Sends a media text to multiple recipients.
         #
         # @param phone_numbers [<String>Array] An array of phone numbers.
+        # @param subject [String] MMS subject
         # @param message [String] The message to send.
         # @param attachment_path [String] (Optional) The attachment to include
         # @param ctype [String] (Optional) The content type to use for the attachment
         #
         # @return [void]
-        def send_mms_to_phones(phone_numbers, message, attachment_path=nil, ctype=nil)
+        def send_mms_to_phones(phone_numbers, subject, message, attachment_path=nil, ctype=nil)
           carrier     = Rex::Proto::Mms::Model::GATEWAYS[self.carrier]
           recipients  = phone_numbers.collect { |p| "#{p}@#{carrier}" }
           address     = self.smtp_server.address

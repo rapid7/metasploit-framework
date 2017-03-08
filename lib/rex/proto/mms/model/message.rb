@@ -26,6 +26,10 @@ module Rex
           #   @return [String] The to field in the email
           attr_accessor :to
 
+          # @!attribute subject
+          #   @return [String] The subject of the email
+          attr_accessor :subject
+
           # @!attribute attachment_name
           #   @return [String] The attachment base name extracted from :attachment
           attr_accessor :attachment_name
@@ -88,6 +92,7 @@ module Rex
             mms = "MIME-Version: 1.0\n"
             mms << "From: #{self.from}\n"
             mms << "To: #{self.to}\n"
+            mms << "Subject: #{self.subject}\n"
             mms << "Content-Type: multipart/mixed; boundary=#{body.bound}\n"
             mms << "\n"
             mms << body.to_s.gsub(/\-\-\r\n\r\n\-\-_/, "--\n--_")

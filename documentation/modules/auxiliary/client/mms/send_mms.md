@@ -69,6 +69,10 @@ The password you use to log into the SMTP server.
 
 The FROM field of SMTP. In some cases, it may be used as ```SMTPUSER```.
 
+**MMSSUBJECT**
+
+The MMS subject. Some carriers require this in order to receive the text, such as AT&T.
+
 ## Supported Carrier Gateways
 
 The module supports the following carriers:

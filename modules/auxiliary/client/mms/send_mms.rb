@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     phone_numbers = datastore['CELLNUMBERS'].split
     print_status("Sending mms message to #{phone_numbers.length} number(s)...")
     begin
-      res = send_mms(phone_numbers, datastore['TEXTMESSAGE'], datastore['MMSFILE'], datastore['MMSFILECTYPE'])
+      res = send_mms(phone_numbers, datastore['MMSSUBJECT'], datastore['TEXTMESSAGE'], datastore['MMSFILE'], datastore['MMSFILECTYPE'])
       print_status("Done.")
     rescue Rex::Proto::Mms::Exception => e
       print_error(e.message)

@@ -17,6 +17,7 @@ module Msf
         [
           OptString.new('SMTPFROM', [false, 'The FROM field for SMTP', '']),
           OptString.new('SMTPADDRESS', [ true, 'The SMTP server to use to send the text messages']),
+          OptString.new('MMSSUBJECT', [false, 'The Email subject', '']),
           OptPort.new('SMTPPORT', [true, 'The SMTP port to use to send the text messages', 25]),
           OptString.new('SMTPUSERNAME', [true, 'The SMTP account to use to send the text messages']),
           OptString.new('SMTPPASSWORD', [true, 'The SMTP password to use to send the text messages']),
@@ -43,22 +44,25 @@ module Msf
     #   mms.send_mms_to_phones(numbers, 'hello world?', '/tmp/test.jpg', 'image/jpeg')
     #
     # @param phone_numbers [<String>Array] An array of numbers of try (of the same carrier)
+    # @param subject [String] MMS subject
     # @param message [String] The text to send.
+    # @param attachment_path [String] Optional
+    # @param ctype [String] Optional
     #
     # @return [void]
-    def send_mms(phone_numbers, message, attachment_path=nil, ctype=nil)
+    def send_mms(phone_numbers, subject, message, attachment_path=nil, ctype=nil)
       smtp = Rex::Proto::Mms::Model::Smtp.new(
         address: datastore['SMTPADDRESS'],
         port: datastore['SMTPPORT'],
         username: datastore['SMTPUSERNAME'],
         password: datastore['SMTPPASSWORD'],
         login_type: datastore['SmtpLoginType'].to_sym,
-        from: datastore['SMTPFROM']
+        from: datastore['SMTPFROM'],
       )
 
       carrier = datastore['MMSCARRIER'].to_sym
       mms = Rex::Proto::Mms::Client.new(carrier: carrier, smtp_server: smtp)
-      mms.send_mms_to_phones(phone_numbers, message, attachment_path, ctype)
+      mms.send_mms_to_phones(phone_numbers, subject, message, attachment_path, ctype)
     end
 
   end
