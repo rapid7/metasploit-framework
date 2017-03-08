@@ -67,7 +67,7 @@ $port = Array.new
         tomcatHomeArray.push(service_info(service[:name])[:path].split("\\bin\\")[0])
       end
     end
-      
+
     if tomcatHomeArray.size > 0
       tomcatHomeArray.each do |tomcat_home|
         if tomcat_home.include? '"'
@@ -120,7 +120,7 @@ $port = Array.new
   def gathernix()
     print_status("Unix OS detected")
     user_files = cmd_exec('locate tomcat-users.xml').split("\n")
-    if user_files.size > 0 
+    if user_files.size > 0
       user_files.each do |path|
         if exist?(path)
             print_status(path + " found")
@@ -149,7 +149,7 @@ $port = Array.new
     end
 
     port_path = cmd_exec('locate server.xml').split("\n")
-    if port_path.size > 0 
+    if port_path.size > 0
       port_path.each do |path|
         if exist?(path) and path.include? "tomcat"
           xml = read_file(path).split("\n")
@@ -181,7 +181,6 @@ $port = Array.new
       gathernix()
     end
 
-  
   if $username.size == 0
     print_status("No user credentials have been found")
   end
