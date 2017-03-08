@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if not client.automotive
+    unless client.automotive
       print_error("The hwbridge requires a functional automotive extention")
       return
     end

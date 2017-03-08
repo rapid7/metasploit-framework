@@ -25,20 +25,20 @@ class MetasploitModule < Msf::Post
       OptInt.new('ENDID', [true, "End scan at this ID", 0x7F7]),
       OptString.new('CANBUS', [false, "CAN Bus to perform scan on, defaults to connected bus", nil])
     ], self.class)
-    @found_id = Array.new
+    @found_id = []
   end
 
   def run
     scanned_ids = 0
     print_line("Starting scan...")
-    (datastore["STARTID"]..datastore["ENDID"]).each do |id|
-      res = set_dsc(datastore["CANBUS"], id, id+8, 1)
-      scanned_ids += 1
-      next if res == nil
-      next if not res.has_key? "Packets"
-      next if not res["Packets"].size > 0
-      if res["Packets"][0].has_key? "DATA" and res["Packets"][0]["DATA"].size > 3
-        if res["Packets"][0]["DATA"][0].hex == 3 and res["Packets"][0]["DATA"][1].hex == 0x7f and res["Packets"][0]["DATA"][2].hex == 0x10
+    (datastore['STARTID']..datastore['ENDID']).each do |id|
+      res = set_dsc(datastore['CANBUS'], id, id + 8, 1)
+      scanned_ids += 1 
+      next if res.nil?
+      next unless res.key? "Packets"
+      next unless res["Packets"].empty?
+      if (res["Packets"][0].key? "DATA") && res["Packets"][0]["DATA"].size > 3
+        if res["Packets"][0]["DATA"][0].hex == 3 && res["Packets"][0]["DATA"][1].hex == 0x7f && res["Packets"][0]["DATA"][2].hex == 0x10
           print_status("Identified module #{"%3x" % id}")
           @found_id << id
         end
