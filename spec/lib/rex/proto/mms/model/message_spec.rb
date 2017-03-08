@@ -9,7 +9,7 @@ RSpec.describe Rex::Proto::Mms::Model::Message do
   let(:filecontent)  { 'file content' }
   let(:from)         { 'sender@example.com' }
   let(:to)           { 'receiver@example.com' }
-  let(:subject)      { 'subject' }
+  let(:mms_subject)  { 'subject' }
 
   before(:each) do
     allow(File).to receive(:read).and_return(filecontent)
@@ -19,7 +19,7 @@ RSpec.describe Rex::Proto::Mms::Model::Message do
     described_class.new(
       from: from,
       to: to,
-      subject: subject,
+      subject: mms_subject,
       message: message,
       content_type: content_type,
       attachment_path: attachment
@@ -48,7 +48,7 @@ RSpec.describe Rex::Proto::Mms::Model::Message do
     end
 
     it 'sets subject' do
-      expect(subject.to).to receive(subject)
+      expect(subject.subject).to eq(mms_subject)
     end
   end
 
