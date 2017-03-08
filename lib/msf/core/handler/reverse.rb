@@ -48,8 +48,6 @@ module Msf
 
         addrs
       end
-	
-
 
       # @return [Integer]
       def bind_port
@@ -84,13 +82,12 @@ module Msf
                 'MsfPayload' => self,
                 'MsfExploit' => assoc_exploit
               })
-		
-	 
           rescue
             ex = $!
             print_error("Handler failed to bind to #{ip}:#{local_port}:- #{comm} -")
           else
             ex = false
+
             via = via_string_for_ip(ip, comm)
             print_status("Started #{human_name} handler on #{ip}:#{local_port} #{via}")
 
