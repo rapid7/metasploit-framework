@@ -364,9 +364,9 @@ protected
               a = IPAddr.new(address.to_s)
               return true if IPAddr.new('127.0.0.1/8') === a
               return true if IPAddr.new('::1') === a
-              rescue
+            rescue
             end
-              return false
+            return false
           end
 
           if is_loopback_address(uri.host)
