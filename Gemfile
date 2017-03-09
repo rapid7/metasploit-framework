@@ -20,7 +20,8 @@ group :development do
   gem 'pry'
   # module documentation
   gem 'octokit', '~> 4.0'
-  # rails-upgrade staging gems
+  # session aggregator, native builds have issues on arm platforms for now
+  gem 'metasploit-aggregator' if !RUBY_PLATFORM.include?('arm')
 end
 
 group :development, :test do
