@@ -95,8 +95,8 @@ module Msf
               })
 
             if is_loopback_address(ip)
-		          print_warning ("You are attempting to listen on a loopback address by setting LHOST to #{ip}, did you mean to set ReverseListenerBindAddress instead?")
-	          end
+              print_warning ("You are attempting to listen on a loopback address by setting LHOST to #{ip}, did you mean to set ReverseListenerBindAddress instead?")
+            end
 
           rescue
             ex = $!
