@@ -362,8 +362,8 @@ protected
           def is_loopback_address(address)
             begin
               a = IPAddr.new(address.to_s)
-              return true if IPAddr.new('127.0.0.1/8') == a
-              return true if IPAddr.new('::1') == a
+              return true if IPAddr.new('127.0.0.1/8') === a
+              return true if IPAddr.new('::1') === a
               rescue
             end
               return false
