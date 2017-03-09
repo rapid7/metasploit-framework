@@ -126,7 +126,7 @@ Once that's done, fix your current terminal to use RVM's version of ruby:
 ```
 source ~/.rvm/scripts/rvm
 cd ~/git/metasploit-framework
-rvm --install .ruby-version
+rvm --install $(cat .ruby-version)
 ```
 
 And finally, install the `bundler` gem in order to get all the other gems you'll need:
