@@ -356,6 +356,23 @@ protected
 
           print_status("Staging #{uuid.arch} payload (#{blob.length} bytes) ...")
 
+
+          # Checking whether LHOST is a loopback address
+
+          def is_loopback_address(address)
+            begin
+              a = IPAddr.new(address.to_s)
+              return true if IPAddr.new('127.0.0.1/8') == a
+              return true if IPAddr.new('::1') == a
+              rescue
+            end
+              return false
+          end
+
+          if is_loopback_address(uri.host)
+            print_warning ("You are attempting to listen on a loopback address by setting LHOST to #{uri.host}, did you mean to set ReverseListenerBindAddress instead?\n")
+          end
+
           resp.body = blob
 
           # Short-circuit the payload's handle_connection processing for create_session
@@ -419,4 +436,3 @@ end
 
 end
 end
-
