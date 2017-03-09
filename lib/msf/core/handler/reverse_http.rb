@@ -370,7 +370,7 @@ protected
           end
 
           if is_loopback_address(uri.host)
-            print_warning ("You are attempting to listen on a loopback address by setting LHOST to #{uri.host}, did you mean to set ReverseListenerBindAddress instead?\n")
+            print_warning ("You are attempting to listen on a loopback address by setting LHOST to #{uri.host}, did you mean to set ReverseListenerBindAddress instead?")
           end
 
           resp.body = blob
