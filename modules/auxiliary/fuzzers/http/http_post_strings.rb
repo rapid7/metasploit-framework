@@ -15,11 +15,11 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
       ))
     register_options([
-      Opt::RPORT(8000),
+      Opt::RPORT(80),
       OptInt.new("LENGTH", [true, "The length of the string being sent", 10]),
       OptString.new("HEADER", [true, "HTTP Header to Fuzz, Options: none, content-type, user-agent, referer, auth, host, cookie","none"]),
       OptString.new("CHAR", [true, "The character used to build the string", "A"]),
-      OptBool.new("PATTERN", [true, "If true the string will be created using msf parrern create rather than the set char","false"]),
+      OptBool.new("PATTERN", [true, "If true the string will be created using msf pattern create rather than the value of CHAR","false"]),
     ], self.class)
   end
 
