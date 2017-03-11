@@ -2,7 +2,7 @@
 
 # During build, the Gemfile is temporarily moved and
 # we must manually define the project root
-if ENV['MSF_ROOT']
+if ENV['MSF_ROOT'] || ENV['RAILS_ENV']
   lib = File.realpath(File.expand_path('lib', ENV['MSF_ROOT']))
   files = `git ls-files`.split($/).reject { |file|
     file =~ /^documentation|^data\/gui|^external/
