@@ -24,7 +24,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
 def run
-  print_status("Aamir's HTTP Fuzzer Metasploit module")
   head = "POST / HTTP/1.0\r\n"
   char = datastore['CHAR']
   header = datastore['HEADER']
