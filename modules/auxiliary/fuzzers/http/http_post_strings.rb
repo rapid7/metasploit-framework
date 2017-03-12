@@ -3,7 +3,6 @@ require 'msf/core'
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
-  include Msf::Auxiliary::Fuzzer
 
   def initialize(info = {})
     super(update_info(info,
