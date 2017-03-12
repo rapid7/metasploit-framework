@@ -82,12 +82,15 @@ module Msf
                 'MsfPayload' => self,
                 'MsfExploit' => assoc_exploit
               })
+	
+	  if (ip=='127.0.0.1' || ip=='127.0.0.2' || ip=='127.0.0.3' || ip=='127.0.0.4'|| ip=='127.0.0.5'||ip=='127.0.0.6' || ip=='127.0.0.7' || 		ip=='127.0.0.8')
+		print_error("Please note that errors might be experienced with this choice of address for LHOST.")
+	  end
           rescue
             ex = $!
             print_error("Handler failed to bind to #{ip}:#{local_port}:- #{comm} -")
           else
             ex = false
-
             via = via_string_for_ip(ip, comm)
             print_status("Started #{human_name} handler on #{ip}:#{local_port} #{via}")
 
