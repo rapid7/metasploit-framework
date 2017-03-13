@@ -165,8 +165,8 @@ module Msf
         ini[name]['smtp_from']     = self.smtp_from
         ini[name]['sms_number']    = self.sms_number
         ini[name]['sms_carrier']   = self.sms_carrier
-        ini[name]['minimum_ip']    = self.minimum_ip.to_s
-        ini[name]['maximum_ip']    = self.maximum_ip.to_s
+        ini[name]['minimum_ip']    = self.minimum_ip.to_s unless self.minimum_ip.blank?
+        ini[name]['maximum_ip']    = self.maximum_ip.to_s unless self.maximum_ip.blank?
         ini.to_file(config_file)
       end
 
@@ -175,7 +175,7 @@ module Msf
         ini = Rex::Parser::Ini.new(config_file)
         group = ini[name]
         if group
-          @sms_carrier   = group['sms_carrier']            if group['sms_carrier']
+          @sms_carrier   = group['sms_carrier'].to_sym     if group['sms_carrier']
           @sms_number    = group['sms_number']             if group['sms_number']
           @smtp_address  = group['smtp_address']           if group['smtp_address']
           @smtp_port     = group['smtp_port']              if group['smtp_port']
