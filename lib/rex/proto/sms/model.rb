@@ -28,4 +28,5 @@ end
 
 require 'net/smtp'
 require 'rex/proto/sms/model/smtp'
+require 'rex/proto/sms/model/message'
 require 'rex/proto/sms/client'
