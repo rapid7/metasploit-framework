@@ -21,7 +21,7 @@ group :development do
   # module documentation
   gem 'octokit', '~> 4.0'
   # session aggregator, native builds have issues on arm platforms for now
-  gem 'metasploit-aggregator' if !RUBY_PLATFORM.include?('arm')
+  gem 'metasploit-aggregator' if !RUBY_PLATFORM =~ /arm|aarch64/
 end
 
 group :development, :test do
