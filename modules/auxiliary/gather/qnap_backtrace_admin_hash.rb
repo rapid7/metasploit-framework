@@ -37,10 +37,14 @@ class MetasploitModule < Msf::Auxiliary
         ['x86',       'Description' => 'x86 target', offset: 0x16b2],
         ['ARM',       'Description' => 'ARM target', offset: 0x1562]
       ],
-      'DefaultAction'  => 'Automatic'
+      'DefaultAction'  => 'Automatic',
+      'DefaultOptions' => {
+        'SSL'          => true
+      }
     ))
 
     register_options([
+      Opt::RPORT(443),
       OptInt.new('OFFSET_START', [true, 'Starting offset (crash)', 2000]),
       OptInt.new('OFFSET_END',   [true, 'Ending offset (no crash)', 5000]),
       OptInt.new('RETRIES',      [true, 'Retry count for the attack', 3])
