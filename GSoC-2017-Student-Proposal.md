@@ -3,7 +3,7 @@ Send the following to msfdev@metasploit.com
 
 ## Title
 
-A brief description of what you would like to work on.
+A brief description of what you would like to work on. See [[GSoC-2017-Project-Ideas]] for ideas.
 
 ## Vitals
 
