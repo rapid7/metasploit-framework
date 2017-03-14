@@ -1591,7 +1591,7 @@ class Def_kernel32
       ["PDWORD","pdwHandleCount","out"],
       ])
 
-    dll.add_function( 'GetProcessHeap', 'DWORD',[
+    dll.add_function( 'GetProcessHeap', 'HANDLE',[
       ])
 
     dll.add_function( 'GetProcessHeaps', 'DWORD',[
@@ -2078,7 +2078,7 @@ class Def_kernel32
       ["DWORD","dwFlags","in"],
       ])
 
-    dll.add_function( 'HeapCreate', 'DWORD',[
+    dll.add_function( 'HeapCreate', 'HANDLE',[
       ["DWORD","flOptions","in"],
       ["DWORD","dwInitialSize","in"],
       ["DWORD","dwMaximumSize","in"],
