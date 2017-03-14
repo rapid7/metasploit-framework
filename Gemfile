@@ -21,7 +21,10 @@ group :development do
   # module documentation
   gem 'octokit', '~> 4.0'
   # session aggregator, native builds have issues on arm platforms for now
-  gem 'metasploit-aggregator' if !RUBY_PLATFORM =~ /arm|aarch64/
+  gem 'metasploit-aggregator' if [
+    'x86-mingw32', 'x64-mingw32',
+    'x86_64-linux', 'x86-linux',
+    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
 end
 
 group :development, :test do
