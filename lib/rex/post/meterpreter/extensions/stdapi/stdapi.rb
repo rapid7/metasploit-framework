@@ -7,6 +7,7 @@ require 'rex/post/meterpreter/extensions/stdapi/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/fs/dir'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
+require 'rex/post/meterpreter/extensions/stdapi/fs/mount'
 require 'rex/post/meterpreter/extensions/stdapi/net/resolve'
 require 'rex/post/meterpreter/extensions/stdapi/net/config'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket'
@@ -50,7 +51,8 @@ class Stdapi < Extension
             {
               'dir'      => self.dir,
               'file'     => self.file,
-              'filestat' => self.filestat
+              'filestat' => self.filestat,
+              'mount'    => Fs::Mount.new(client)
             })
         },
         {

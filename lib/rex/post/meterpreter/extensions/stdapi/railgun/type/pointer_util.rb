@@ -27,8 +27,8 @@ module PointerUtil
 
     case platform
     when PlatformUtil::X86_64
-      # XXX: Only works if attacker and victim are like-endianed
-      [pointer].pack('Q')
+      # Assume little endian
+      [pointer].pack('Q<')
     when PlatformUtil::X86_32
       [pointer].pack('V')
     else
@@ -40,8 +40,8 @@ module PointerUtil
   def self.unpack_pointer(packed_pointer, platform)
     case platform
     when PlatformUtil::X86_64
-      # XXX: Only works if attacker and victim are like-endianed
-      packed_pointer.unpack('Q').first
+      # Assume little endian
+      packed_pointer.unpack('Q<').first
     when PlatformUtil::X86_32
       packed_pointer.unpack('V').first
     else
@@ -71,7 +71,7 @@ module PointerUtil
 #
 #	def self.is_unpacked_pointer?(pointer, platform)
 #		# TODO also check that the integer size is appropriate for the platform
-#		unless pointer.kind_of?(Fixnum) and pointer > 0 # and pointer <
+#		unless pointer.kind_of?(Integer) and pointer > 0 # and pointer <
 #			return false
 #		end
 #

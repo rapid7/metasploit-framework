@@ -6,10 +6,21 @@ module Rex
 module Proto
 module SunRPC
 
+class RPCError < ::StandardError
+  def initialize(msg = 'RPC operation failed')
+    super
+    @msg = msg
+  end
+
+  def to_s
+    @msg
+  end
+end
+
 class RPCTimeout < ::Interrupt
-   def initialize(msg = 'Operation timed out.')
-      @msg = msg
-   end
+  def initialize(msg = 'Operation timed out.')
+    @msg = msg
+  end
 
   def to_s
     @msg

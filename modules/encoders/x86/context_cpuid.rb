@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/poly'
 require 'msf/core'
 
-class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
+class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the cpuid value is generated and supplied
   # manually...

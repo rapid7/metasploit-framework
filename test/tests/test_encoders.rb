@@ -11,7 +11,6 @@ end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
 
-require 'fastlib'
 require 'msfenv'
 require 'msf/base'
 
@@ -73,7 +72,7 @@ def run( encoders, payload_name, verbose=false )
 
   payload = generate_payload( payload_name )
 
-  table = Rex::Ui::Text::Table.new(
+  table = Rex::Text::Table.new(
     'Header'  => 'Encoder v Payload Test - ' + ::Time.new.strftime( "%d-%b-%Y %H:%M:%S" ),
     'Indent'  => 4,
     'Columns' => [ 'Encoder Name', 'Success', 'Fail' ]

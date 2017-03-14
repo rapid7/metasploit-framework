@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
   def initialize(info={})

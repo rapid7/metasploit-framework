@@ -213,24 +213,56 @@ class ConnectionTimeout < ConnectionError
   end
 end
 
+###
+#
+# This connection error is raised when an attempt is made to connect
+# to a broadcast or network address.
+#
+###
+class InvalidDestination < ConnectionError
+  include SocketError
+  include HostCommunicationError
+
+  def to_s
+    "The destination is invalid: #{addr_to_s}."
+  end
+end
 
 ###
 #
 # This exception is raised when an attempt to use an address or port that is
-# already in use occurs, such as binding to a host on a given port that is
-# already in use.  Note that Windows raises this in some cases when attempting
-# to connect to addresses that it can't handle, e.g. "0.0.0.0".  Thus, this is
-# a ConnectionError.
+# already in use or onot available occurs. such as binding to a host on a
+# given port that is already in use, or when a bind address is specified that
+# is not available to the host.
 #
 ###
+class BindFailed < ::ArgumentError
+  include SocketError
+  include HostCommunicationError
+
+  def to_s
+    "The address is already in use or unavailable: #{addr_to_s}."
+  end
+end
+
+##
+#
+# This exception is listed for backwards compatibility. We had been
+# using AddressInUse as the exception for both bind errors and connection
+# errors triggered by connection attempts to broadcast and network addresses.
+# The two classes above have split this into their respective sources, but
+# callers may still expect the old behavior.
+#
+##
 class AddressInUse < ConnectionError
   include SocketError
   include HostCommunicationError
 
   def to_s
-    "The address is already in use #{addr_to_s}."
+    "The address is already in use or unavailable: #{addr_to_s}."
   end
 end
+
 
 ###
 #

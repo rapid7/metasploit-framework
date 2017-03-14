@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 #Meterpreter script for ping sweeps on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
@@ -138,7 +146,7 @@ def frwdlp(session, hostlst, domain, dest)
   threads = []
   tmpout = []
   begin
-    if ::File.exists?(hostlst)
+    if ::File.exist?(hostlst)
       ::File.open(hostlst).each {|line|
         threads << ::Thread.new(line) { |h|
           #print_status("checking #{h.chomp}")

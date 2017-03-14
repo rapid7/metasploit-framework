@@ -15,7 +15,7 @@ delta:                   ;
 %include "./src/block/block_api.asm" ; 
 start:                   ;
   pop rbp                ; Pop off the address of 'api_call' for calling later.
-  lea rcx, [ebp+libpath-delta]
+  lea rcx, [rbp+libpath-delta]
   mov r10d, 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
   call rbp               ; LoadLibraryA( &libpath );
 	; Finish up with the EXITFUNK.

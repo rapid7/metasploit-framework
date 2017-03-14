@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -26,8 +26,8 @@ class Metasploit3 < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'dun',    #Discovery, PoC
-          'sinn3r'  #Metasploit
+          'dun',    # Discovery, PoC
+          'sinn3r'  # Metasploit module
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Jul 13 2012"

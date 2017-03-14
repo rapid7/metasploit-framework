@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -84,7 +92,7 @@ end
 #-------------------------------------------------------------------------------
 def print_log_details
   print_status("Retriving Event Log Configuration")
-  tbl = Rex::Ui::Text::Table.new(
+  tbl = Rex::Text::Table.new(
     'Header'  => "Event Logs on System",
     'Indent'  => 1,
     'Columns' => [

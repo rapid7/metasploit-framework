@@ -4,6 +4,8 @@ module Proto
 module SMB
 class Client
 
+  require 'net/ntlm'
+
 require 'rex/text'
 require 'rex/struct2'
 require 'rex/proto/smb/constants'
@@ -150,72 +152,116 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     packet.v['ProcessID'] = self.process_id.to_i
   end
 
-
-  # The main dispatcher for all incoming SMB packets
-  def smb_recv_parse(expected_type, ignore_errors = false)
+  # Receive a full SMB reply and cache the parsed packet
+  def smb_recv_and_cache
+    @smb_recv_cache ||= []
 
     # This will throw an exception if it fails to read the whole packet
     data = self.smb_recv
 
     pkt = CONST::SMB_BASE_PKT.make_struct
     pkt.from_s(data)
-    res  = pkt
+
+    # Store the received packet into the cache
+    @smb_recv_cache << [ pkt, data, Time.now ]
+  end
+
+  # Scan the packet receive cache for a matching response
+  def smb_recv_cache_find_match(expected_type)
+
+    clean = []
+    found = nil
+
+    @smb_recv_cache.each do |cent|
+      pkt, data, tstamp = cent
+
+      # Return matching packets and mark for removal
+      if pkt['Payload']['SMB'].v['Command'] == expected_type
+        found = [pkt,data]
+        clean << cent
+      end
+
+      # Purge any packets older than 5 minutes
+      if Time.now.to_i - tstamp.to_i > 300
+        clean << cent
+      end
+
+      break if found
+    end
+
+    clean.each do |cent|
+      @smb_recv_cache.delete(cent)
+    end
+
+    found
+  end
+
+  # The main dispatcher for all incoming SMB packets
+  def smb_recv_parse(expected_type, ignore_errors = false)
+
+    pkt  = nil
+    data = nil
+
+    # This allows for some leeway when a previous response has not
+    # been processed but a new request was sent. The old response
+    # will eventually be timed out of the cache.
+    1.upto(3) do |attempt|
+      smb_recv_and_cache
+      pkt,data = smb_recv_cache_find_match(expected_type)
+      break if pkt
+    end
 
     begin
       case pkt['Payload']['SMB'].v['Command']
 
         when CONST::SMB_COM_NEGOTIATE
-          res =  smb_parse_negotiate(pkt, data)
+          res = smb_parse_negotiate(pkt, data)
 
         when CONST::SMB_COM_SESSION_SETUP_ANDX
-          res =  smb_parse_session_setup(pkt, data)
+          res = smb_parse_session_setup(pkt, data)
 
         when CONST::SMB_COM_TREE_CONNECT_ANDX
-          res =  smb_parse_tree_connect(pkt, data)
+          res = smb_parse_tree_connect(pkt, data)
 
         when CONST::SMB_COM_TREE_DISCONNECT
-          res =  smb_parse_tree_disconnect(pkt, data)
+          res = smb_parse_tree_disconnect(pkt, data)
 
         when CONST::SMB_COM_NT_CREATE_ANDX
-          res =  smb_parse_create(pkt, data)
+          res = smb_parse_create(pkt, data)
 
         when CONST::SMB_COM_TRANSACTION, CONST::SMB_COM_TRANSACTION2
-          res =  smb_parse_trans(pkt, data)
+          res = smb_parse_trans(pkt, data)
 
         when CONST::SMB_COM_NT_TRANSACT
-          res =  smb_parse_nttrans(pkt, data)
+          res = smb_parse_nttrans(pkt, data)
 
         when CONST::SMB_COM_NT_TRANSACT_SECONDARY
-          res =  smb_parse_nttrans(pkt, data)
+          res = smb_parse_nttrans(pkt, data)
 
         when CONST::SMB_COM_OPEN_ANDX
-          res =  smb_parse_open(pkt, data)
+          res = smb_parse_open(pkt, data)
 
         when CONST::SMB_COM_WRITE_ANDX
-          res =  smb_parse_write(pkt, data)
+          res = smb_parse_write(pkt, data)
 
         when CONST::SMB_COM_READ_ANDX
-          res =  smb_parse_read(pkt, data)
+          res = smb_parse_read(pkt, data)
 
         when CONST::SMB_COM_CLOSE
-          res =  smb_parse_close(pkt, data)
+          res = smb_parse_close(pkt, data)
 
         when CONST::SMB_COM_DELETE
-          res =  smb_parse_delete(pkt, data)
+          res = smb_parse_delete(pkt, data)
 
         else
           raise XCEPT::InvalidCommand
-      end
-
-      if (pkt['Payload']['SMB'].v['Command'] != expected_type)
-        raise XCEPT::InvalidType
       end
 
       if (ignore_errors == false and pkt['Payload']['SMB'].v['ErrorClass'] != 0)
         raise XCEPT::ErrorCode
       end
 
-    rescue XCEPT::InvalidWordCount, XCEPT::InvalidCommand, XCEPT::InvalidType, XCEPT::ErrorCode
+    rescue XCEPT::InvalidWordCount, XCEPT::InvalidCommand, XCEPT::ErrorCode
         $!.word_count = pkt['Payload']['SMB'].v['WordCount']
         $!.command = pkt['Payload']['SMB'].v['Command']
         $!.error_code = pkt['Payload']['SMB'].v['ErrorClass']
@@ -579,16 +625,15 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 
   # Authenticate and establish a session
-  def session_setup(*args)
-
+  def session_setup(user='', pass='', domain='', do_recv=true)
     if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
 
       if (self.challenge_key)
-        return self.session_setup_no_ntlmssp(*args)
+        return self.session_setup_no_ntlmssp(user, pass, domain, do_recv)
       end
 
       if ( self.extended_security )
-        return self.session_setup_with_ntlmssp(*args)
+        return self.session_setup_with_ntlmssp(user, pass, domain, nil, do_recv)
       end
 
     end
@@ -715,7 +760,13 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     self.peer_native_os = info[0]
     self.peer_native_lm = info[1]
-    self.default_domain = info[2]
+    #
+    # if the PC belongs to a domain, this value is already populated
+    # if it is not populated, we're in a workgroup and need to pupulate it now
+    #
+    if self.default_domain.nil?
+      self.default_domain = info[2]
+    end
 
     return ack
   end
@@ -787,7 +838,15 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       name = Rex::Text.rand_text_alphanumeric(16)
     end
 
-    blob = NTLM_UTILS.make_ntlmssp_secblob_init(domain, name, ntlmssp_flags)
+    @ntlm_client = Net::NTLM::Client.new(
+      user,
+      pass,
+      workstation: name,
+      domain: domain,
+      flags: ntlmssp_flags
+    )
+
+    blob = @ntlm_client.init_context.serialize
 
     native_data = ''
     native_data << self.native_os + "\x00"
@@ -821,7 +880,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
-
     # The server doesn't know about NTLM_NEGOTIATE
     if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
       return session_setup_no_ntlmssp(user, pass, domain)
@@ -848,37 +906,26 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     # Save the temporary UserID for use in the next request
     temp_user_id = ack['Payload']['SMB'].v['UserID']
 
-    # Get default data
     blob_data = NTLM_UTILS.parse_ntlm_type_2_blob(blob)
-    self.challenge_key = blob_data[:challenge_key]
-    server_ntlmssp_flags = blob_data[:server_ntlmssp_flags] #else should raise an error
     #netbios name
     self.default_name =  blob_data[:default_name] || ''
-    #netbios domain
-    self.default_domain = blob_data[:default_domain] || ''
     #dns name
     self.dns_host_name =  blob_data[:dns_host_name] || ''
     #dns domain
-    self.dns_domain_name =  blob_data[:dns_domain_name] || ''
-    #Client time
-    chall_MsvAvTimestamp = blob_data[:chall_MsvAvTimestamp] || ''
-
-
-    resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge = NTLM_UTILS.create_lm_ntlm_responses(user, pass, self.challenge_key, domain,
-                        default_name, default_domain, dns_host_name,
-                        dns_domain_name, chall_MsvAvTimestamp ,
-                        self.spnopt, ntlm_options)
-    enc_session_key = ''
-    self.sequence_counter = 0
-
-    if self.require_signing
-      self.signing_key, enc_session_key, ntlmssp_flags = NTLM_UTILS.create_session_key(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain,
-                      self.challenge_key, client_challenge, ntlm_cli_challenge,
-                      ntlm_options)
+    if blob_data[:default_name] != blob_data[:default_domain]
+      # We're in a domain; get the domain name now
+      self.default_domain =  blob_data[:default_domain] || ''
+    else
+      # We're in a workgroup; workgroup names come later in the handshake
+      self.default_domain = nil
     end
 
-    # Create the security blob data
-    blob = NTLM_UTILS.make_ntlmssp_secblob_auth(domain, name, user, resp_lm, resp_ntlm, enc_session_key, ntlmssp_flags)
+    type3 = @ntlm_client.init_context([blob].pack('m'))
+    type3_blob = type3.serialize
+    self.signing_key = @ntlm_client.session_key
+
+    # Ugh, it's private
+    self.challenge_key = @ntlm_client.session.send(:server_challenge)
 
     pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
     self.smb_defaults(pkt['Payload']['SMB'])
@@ -900,8 +947,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['Capabilities'] = 0x8000d05c
     pkt['Payload'].v['SessionKey'] = self.session_id
-    pkt['Payload'].v['SecurityBlobLen'] = blob.length
-    pkt['Payload'].v['Payload'] = blob + native_data
+    pkt['Payload'].v['SecurityBlobLen'] = type3_blob.length
+    pkt['Payload'].v['Payload'] = type3_blob + native_data
 
     # NOTE: if do_recv is set to false, we cant reach here...
     self.smb_send(pkt.to_s)
@@ -1727,7 +1774,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       # Remove the NetBIOS header
       resp_rpkt.slice!(0, 4)
 
-      resp_parm = resp_rpkt[poff, pcnt]
+      _resp_parm = resp_rpkt[poff, pcnt]
       resp_data = resp_rpkt[doff, dcnt]
       return resp_data
 
@@ -1753,7 +1800,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       # Remove the NetBIOS header
       resp_rpkt.slice!(0, 4)
 
-      resp_parm = resp_rpkt[poff, pcnt]
+      _resp_parm = resp_rpkt[poff, pcnt]
       resp_data = resp_rpkt[doff, dcnt]
       return resp_data
 
@@ -1828,6 +1875,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
   # Enumerates a specific path on the mounted tree
   def find_first(path)
+    sid = nil
     files = { }
     parm = [
       26,  # Search for ALL files
@@ -1837,103 +1885,164 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       0,   # Storage type is zero
     ].pack('vvvvV') + path + "\x00"
 
-    begin
-      resp = trans2(CONST::TRANS2_FIND_FIRST2, parm, '')
-      search_next = 0
-      begin
-        pcnt = resp['Payload'].v['ParamCount']
-        dcnt = resp['Payload'].v['DataCount']
-        poff = resp['Payload'].v['ParamOffset']
-        doff = resp['Payload'].v['DataOffset']
+    resp = trans2(CONST::TRANS2_FIND_FIRST2, parm, '')
+    search_next = 0
 
-        # Get the raw packet bytes
-        resp_rpkt = resp.to_s
+    # Loop until we run out of results
+    loop do
+      pcnt = resp['Payload'].v['ParamCount']
+      dcnt = resp['Payload'].v['DataCount']
+      poff = resp['Payload'].v['ParamOffset']
+      doff = resp['Payload'].v['DataOffset']
 
-        # Remove the NetBIOS header
-        resp_rpkt.slice!(0, 4)
+      # Get the raw packet bytes
+      resp_rpkt = resp.to_s
 
-        resp_parm = resp_rpkt[poff, pcnt]
-        resp_data = resp_rpkt[doff, dcnt]
+      # Remove the NetBIOS header
+      resp_rpkt.slice!(0, 4)
 
-        if search_next == 0
-          # search id, search count, end of search, error offset, last name offset
-          sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
-        else
-          # FINX_NEXT doesn't return a SID
-          scnt, eos, eoff, loff = resp_parm.unpack('v4')
-        end
-        didx = 0
-        while (didx < resp_data.length)
-          info_buff = resp_data[didx, 70]
-          break if info_buff.length != 70
-          info = info_buff.unpack(
-            'V'+	# Next Entry Offset
-            'V'+	# File Index
-            'VV'+	# Time Create
-            'VV'+	# Time Last Access
-            'VV'+	# Time Last Write
-            'VV'+	# Time Change
-            'VV'+	# End of File
-            'VV'+	# Allocation Size
-            'V'+	# File Attributes
-            'V'+	# File Name Length
-            'V'+	# Extended Attr List Length
-            'C'+	# Short File Name Length
-            'C' 	# Reserved
-          )
-          name = resp_data[didx + 70 + 24, info[15]].sub(/\x00+$/n, '')
-          files[name] =
-          {
-            'type' => ((info[14] & 0x10)==0x10) ? 'D' : 'F',
-            'attr' => info[14],
-            'info' => info
-          }
+      resp_parm = resp_rpkt[poff, pcnt]
+      resp_data = resp_rpkt[doff, dcnt]
 
-          break if info[0] == 0
-          didx += info[0]
-        end
-        last_search_id = sid
-        last_offset = loff
-        last_filename = name
-        if eos == 0 and last_offset != 0 #If we aren't at the end of the search, run find_next
-          resp = find_next(last_search_id, last_offset, last_filename)
-          search_next = 1 # Flip bit so response params will parse correctly
-        end
-      end until eos != 0 or last_offset == 0
-    rescue ::Exception
-      raise $!
+      if search_next == 0
+        # search id, search count, end of search, error offset, last name offset
+        sid, scnt, eos, eoff, loff = resp_parm.unpack('v5')
+      else
+        # FIND_NEXT doesn't return a SID
+        scnt, eos, eoff, loff = resp_parm.unpack('v4')
+      end
+
+      didx = 0
+      while (didx < resp_data.length)
+        info_buff = resp_data[didx, 70]
+        break if info_buff.length != 70
+
+        info = info_buff.unpack(
+          'V'+	# Next Entry Offset
+          'V'+	# File Index
+          'VV'+	# Time Create
+          'VV'+	# Time Last Access
+          'VV'+	# Time Last Write
+          'VV'+	# Time Change
+          'VV'+	# End of File
+          'VV'+	# Allocation Size
+          'V'+	# File Attributes
+          'V'+	# File Name Length
+          'V'+	# Extended Attr List Length
+          'C'+	# Short File Name Length
+          'C' 	# Reserved
+        )
+
+        name = resp_data[didx + 70 + 24, info[15]]
+
+        # Verify that the filename was actually present
+        break unless name
+
+        # Key the file list minus any trailing nulls
+        files[name.sub(/\x00+$/n, '')] =
+        {
+          'type' => ( info[14] & CONST::SMB_EXT_FILE_ATTR_DIRECTORY == 0 ) ? 'F' : 'D',
+          'attr' => info[14],
+          'info' => info
+        }
+
+        break if info[0] == 0
+        didx += info[0]
+      end
+
+      last_search_id = sid
+      last_offset    = loff
+      last_filename  = name
+
+      # Exit the search if we reached the end of our results
+      break if (eos != 0 or last_search_id.nil? or last_offset.to_i == 0)
+
+      # If we aren't at the end of the search, run find_next
+      resp = find_next(last_search_id, last_offset, last_filename)
+
+      # Flip bit so response params will parse correctly
+      search_next = 1
     end
 
-    return files
+    files
   end
 
   # Supplements find_first if file/dir count exceeds max search count
   def find_next(sid, resume_key, last_filename)
 
     parm = [
-      sid, # Search ID
-      20, # Maximum search count (Size of 20 keeps response to 1 packet)
-      260, # Level of interest
-      resume_key,   # Resume key from previous (Last name offset)
-      6,   # Close search if end of search
-    ].pack('vvvVv') + last_filename.to_s + "\x00" # Last filename returned from find_first or find_next
-    resp = trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
-    return resp # Returns the FIND_NEXT2 response packet for parsing by the find_first function
+      sid,                # Search ID
+      20,                 # Maximum search count (Size of 20 keeps response to 1 packet)
+      260,                # Level of interest
+      resume_key,         # Resume key from previous (Last name offset)
+      6,                  # Close search if end of search
+    ].pack('vvvVv') +
+    last_filename.to_s +  # Last filename returned from find_first or find_next
+    "\x00"                # Terminate the file name
+
+    # Returns the FIND_NEXT2 response packet for parsing by the find_first function
+    trans2(CONST::TRANS2_FIND_NEXT2, parm, '')
+  end
+
+  # Recursively search for files matching a regular expression
+  def file_search(current_path, regex, depth)
+    depth -= 1
+    return [] if depth < 0
+
+    results = find_first(current_path + "*")
+    files = []
+
+    results.each_pair do |fname, finfo|
+
+      # Skip current and parent directory results
+      next if %W{. ..}.include?(fname)
+
+      # Verify the results contain an attribute
+      next unless finfo and finfo['attr']
+
+      if finfo['attr'] & CONST::SMB_EXT_FILE_ATTR_DIRECTORY == 0
+        # Add any matching files to our result set
+        files << "#{current_path}#{fname}" if fname =~ regex
+      else
+        # Recurse into the discovery subdirectory for more files
+        begin
+          search_path = "#{current_path}#{fname}\\"
+          file_search(search_path, regex, depth).each {|fn| files << fn }
+        rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+
+          # Ignore common errors related to permissions and non-files
+          if %W{
+            STATUS_ACCESS_DENIED
+            STATUS_NO_SUCH_FILE
+            STATUS_OBJECT_NAME_NOT_FOUND
+            STATUS_OBJECT_PATH_NOT_FOUND
+            }.include? e.get_error(e.error_code)
+            next
+          end
+
+          $stderr.puts [e, e.get_error(e.error_code), search_path]
+
+          raise e
+        end
+      end
+
+    end
+
+    files.uniq
   end
 
   # Creates a new directory on the mounted tree
   def create_directory(name)
-    files = { }
     parm = [0].pack('V') + name + "\x00"
     resp = trans2(CONST::TRANS2_CREATE_DIRECTORY, parm, '')
+    resp
   end
 
 # public read/write methods
   attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
   attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm
-  attr_accessor  	:system_time, :system_zone
-  #misc
-  attr_accessor   :spnopt # used for SPN
+  attr_accessor :system_time, :system_zone
+  attr_accessor :spnopt
 
 # public read methods
   attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
@@ -1941,20 +2050,17 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
   attr_reader		:dns_host_name, :dns_domain_name
   attr_reader		:security_mode, :server_guid
-  #signing related
   attr_reader		:sequence_counter,:signing_key, :require_signing
 
-# private methods
+# private write methods
   attr_writer		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
   attr_writer		:default_domain, :default_name, :auth_user, :auth_user_id
   attr_writer		:dns_host_name, :dns_domain_name
   attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
   attr_writer		:security_mode, :server_guid
-  #signing related
   attr_writer		:sequence_counter,:signing_key, :require_signing
 
   attr_accessor	:socket
-
 
 end
 end

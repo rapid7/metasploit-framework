@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -324,6 +325,8 @@ class Auxiliary::Web::HTTP
     return if !@parent
     @parent.print_error message
   end
+
+  alias_method :print_bad, :print_error
 
 end
 end

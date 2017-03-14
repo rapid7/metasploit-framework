@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 module Msf::Module::Deprecated
 
@@ -33,25 +34,56 @@ module Msf::Module::Deprecated
   end
 
   # (see ClassMethods#replacement_module)
-  def replacement_module; self.class.replacement_module; end
+  def replacement_module
+    if self.class.instance_variable_defined?(:@replacement_module)
+      return self.class.replacement_module
+    elsif self.class.const_defined?(:DEPRECATION_REPLACEMENT)
+      return self.class.const_get(:DEPRECATION_REPLACEMENT)
+    end
+  end
+
   # (see ClassMethods#deprecation_date)
-  def deprecation_date; self.class.deprecation_date; end
+  def deprecation_date
+    if self.class.instance_variable_defined?(:@deprecation_date)
+      return self.class.deprecation_date
+    elsif self.class.const_defined?(:DEPRECATION_DATE)
+      return self.class.const_get(:DEPRECATION_DATE)
+    end
+  end
 
   # Extends with {ClassMethods}
   def self.included(base)
     base.extend(ClassMethods)
   end
 
-  def setup
-    print_warning("*"*72)
-    print_warning("*%red"+"This module is deprecated!".center(70)+"%clr*")
+  # Print the module deprecation information
+  #
+  # @return [void]
+  def print_deprecation_warning
+    print_warning("*"*90)
+    print_warning("*%red"+"The module #{refname} is deprecated!".center(88)+"%clr*")
     if deprecation_date
-      print_warning("*"+"It will be removed on or about #{deprecation_date}".center(70)+"*")
+      print_warning("*"+"It will be removed on or about #{deprecation_date}".center(88)+"*")
     end
     if replacement_module
-      print_warning("*"+"Use #{replacement_module} instead".center(70)+"*")
+      print_warning("*"+"Use #{replacement_module} instead".center(88)+"*")
     end
-    print_warning("*"*72)
+    print_warning("*"*90)
+  end
+
+  def init_ui(input = nil, output = nil)
+    super(input, output)
+    print_deprecation_warning
+    @you_have_been_warned = true
+  end
+
+  def generate
+    print_deprecation_warning
+    super
+  end
+
+  def setup
+    print_deprecation_warning unless @you_have_been_warned
     super
   end
 

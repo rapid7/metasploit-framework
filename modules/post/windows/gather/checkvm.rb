@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
@@ -251,7 +251,7 @@ class Metasploit3 < Msf::Post
       end
     end
     if not vm
-      srvvals = registry_enumkeys('HARDWARE\ACPI\FADT')
+      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
       if srvvals and srvvals.include?("Xen")
         vm = true
       end

@@ -1,5 +1,5 @@
 # -*- coding:binary -*-
-shared_examples_for 'typed_path' do |map|
+RSpec.shared_examples_for 'typed_path' do |map|
   map ||= {}
   if map.length < 1
     raise ArgumentError,
@@ -23,7 +23,7 @@ shared_examples_for 'typed_path' do |map|
       typed_path = described_class.typed_path(type_constant, module_reference_name)
       first_directory = typed_path.split(File::SEPARATOR).first
 
-      first_directory.should == directory
+      expect(first_directory).to eq directory
     end
   end
 end

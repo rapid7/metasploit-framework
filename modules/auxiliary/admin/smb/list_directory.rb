@@ -1,15 +1,15 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB
+  include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Report
 
   # Aliases for common classes
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
         print_status("Listing \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}'...")
       end
       listing = self.simple.client.find_first("\\#{datastore['RPATH']}\\*")
-      directory = Rex::Ui::Text::Table.new(
+      directory = Rex::Text::Table.new(
             'Header' => "Directory Listing of \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}",
             'Indent' => 2,
             'SortIndex' => 2,

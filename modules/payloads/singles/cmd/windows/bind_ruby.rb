@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,9 @@ require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 128
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -24,6 +26,7 @@ module Metasploit3
       'Handler'     => Msf::Handler::BindTcp,
       'Session'     => Msf::Sessions::CommandShell,
       'PayloadType' => 'cmd',
+      'RequiredCmd' => 'ruby',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
   end

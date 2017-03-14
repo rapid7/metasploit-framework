@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 #Meterpreter script for running multiple scripts on a Meterpreter Session
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 #Verion: 0.2
@@ -49,7 +57,7 @@ end
     commands = val.gsub(/;/,"\n")
   when "-rc"
     script = val
-    if not ::File.exists?(script)
+    if not ::File.exist?(script)
       raise "Script List File does not exists!"
     else
       ::File.open(script, "rb").each_line do |line|

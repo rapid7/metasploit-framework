@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,7 +16,9 @@ require 'msf/core/handler/reverse_tcp'
 # Linux reverse TCP stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 200
 
   include Msf::Payload::Stager
 

@@ -1,3 +1,9 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
 
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
@@ -19,11 +25,11 @@ def usage()
 end
 
 def upload(session,file,trgloc = "")
-  if not ::File.exists?(file)
+  if not ::File.exist?(file)
     raise "File to Upload does not exists!"
   else
     if trgloc == ""
-    location = session.fs.file.expand_path("%TEMP%")
+    location = session.sys.config.getenv('TEMP')
     else
       location = trgloc
     end

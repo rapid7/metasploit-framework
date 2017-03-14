@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -108,8 +108,8 @@ class Metasploit3 < Msf::Auxiliary
 
   # For debugging only.
   #rescue ::Exception
-  #	print_error("#{$!}")
-  #	return :abort
+  #  print_error("#{$!}")
+  #return :abort
 
   ensure
     disconnect()
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       sd = Rex::Socket.create_tcp_server('LocalPort' => stderr_port)
 
-    rescue Rex::AddressInUse
+    rescue Rex::BindFailed
       # Ignore and try again
 
     end

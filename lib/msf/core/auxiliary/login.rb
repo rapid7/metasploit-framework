@@ -16,11 +16,15 @@ module Auxiliary::Login
   EOL  = CR + LF
 
   #
-  # Creates an instance of a login negoation module.
+  # Creates an instance of a login negotiation module.
   #
   def initialize(info = {})
     super
 
+    create_login_ivars
+  end
+
+  def create_login_ivars
     # Appended to by each read and gets reset after each send.  Doing it
     # this way lets us deal with partial reads in the middle of expect
     # strings, e.g., the first recv returns "Pa" and the second returns
@@ -31,7 +35,7 @@ module Auxiliary::Login
     #
     # Some of these regexes borrowed from NeXpose, others added from datasets
     #
-    @login_regex = /(?:log[io]n( name|)|user(name|id|))\s*\:/i
+    @login_regex = /(?:log[io]n( name|)|user( ?name|id|))\s*\:/i
     @password_regex = /(?:password|passwd)\s*\:/i
     @false_failure_regex = /(?:(^\s*last)\ login *\:|allows only\ .*\ Telnet\ Client\ License)/i
     @failure_regex = /(?:

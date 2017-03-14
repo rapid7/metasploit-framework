@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
     open_pcap
 
     sent = 0
-    num = datastore['NUM']
+    num = datastore['NUM'] || 0
 
     print_status("SYN flooding #{rhost}:#{rport}...")
 
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
       p.tcp_sport = sport
       p.tcp_seq = rand(0x100000000)
       p.recalc
-      capture_sendto(p,rhost)
+      break unless capture_sendto(p,rhost)
       sent += 1
     end
 

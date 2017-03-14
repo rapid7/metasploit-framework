@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
     super(
       'Name'        => 'Wordpress Scanner',
       'Description' => 'Detects Wordpress installations and their version number',
-      'Author'      => [ 'Christian Mehlmauer <FireFart[at]gmail.com>' ],
+      'Author'      => [ 'Christian Mehlmauer' ],
       'License'     => MSF_LICENSE
     )
   end

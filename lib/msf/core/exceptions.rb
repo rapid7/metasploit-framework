@@ -210,9 +210,15 @@ end
 ###
 class MissingActionError < ArgumentError
   include AuxiliaryError
+  attr_accessor :reason
+
+  def initialize(reason='')
+    self.reason = reason
+    super
+  end
 
   def to_s
-    "A valid action has not been selected."
+    "Invalid action: #{reason}"
   end
 end
 

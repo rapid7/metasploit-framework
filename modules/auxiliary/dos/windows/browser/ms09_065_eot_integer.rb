@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
 
@@ -28,6 +28,9 @@ class Metasploit3 < Msf::Auxiliary
           [ 'MSB', 'MS09-065' ],
           [ 'OSVDB', '59869']
         ],
+      'Actions'        => [[ 'WebServer' ]],
+      'PassiveActions' => [ 'WebServer' ],
+      'DefaultAction'  => 'WebServer',
       'DisclosureDate' => 'Nov 10 2009'
     ))
     register_options([

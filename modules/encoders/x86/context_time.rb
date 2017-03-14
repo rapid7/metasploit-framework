@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/poly'
 require 'msf/core'
 
-class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
+class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the time(2) key is generated and supplied
   # manually.

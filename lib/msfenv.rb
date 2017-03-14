@@ -2,11 +2,18 @@
 # Use bundler to load dependencies
 #
 
-ENV['BUNDLE_GEMFILE'] ||= ::File.expand_path(::File.join(::File.dirname(__FILE__), "..", "Gemfile"))
-begin
-  require 'bundler/setup'
-rescue ::LoadError
-  $stderr.puts "[*] Metasploit requires the Bundler gem to be installed"
-  $stderr.puts "    $ gem install bundler"
-  exit(0)
+# Override the normal rails default, so that msfconsole will come up in production mode instead of development mode
+# unless the `--environment` flag is passed.
+ENV['RAILS_ENV'] ||= 'production'
+
+require 'pathname'
+root = Pathname.new(__FILE__).expand_path.parent.parent
+config = root.join('config')
+require config.join('boot')
+
+# Requiring environment will define the Metasploit::Framework::Application as the one and only Rails::Application in
+# this process and cause an error if a Rails.application is already defined, such as when loading msfenv through
+# msfconsole in Metasploit Pro.
+unless defined?(Rails) && !Rails.application.nil?
+  require config.join('environment')
 end

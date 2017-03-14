@@ -2,10 +2,11 @@
 require 'msf/core'
 require 'rex'
 
-$:.push "test/lib" unless $:.include? "test/lib"
+lib = File.join(Msf::Config.install_root, "test", "lib")
+$:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
 

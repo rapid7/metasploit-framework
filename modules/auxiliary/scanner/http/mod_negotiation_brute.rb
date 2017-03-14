@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
       tpath += '/'
     end
 
-    #load the file with filenames into memory
+    # load the file with filenames into memory
     queue = []
     File.open(datastore['FILEPATH'], 'rb').each_line do |fn|
       queue << fn.strip

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -17,7 +17,7 @@ require 'zlib' # TODO: check if this can be done with REX
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Powershell
 
   def initialize(info={})
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
 
     register_options(
       [
-        OptPath.new( 'SCRIPT',  [true, 'Path to the PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
+        OptPath.new( 'SCRIPT',  [true, 'Path to the local PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
       ], self.class)
 
     register_advanced_options(

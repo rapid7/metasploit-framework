@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,7 +16,7 @@
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -45,8 +45,8 @@ class Metasploit4 < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('CLIENT', [true, 'Client', '001']),
-        OptString.new('USERNAME', [true, 'Username ', 'SAP*']),
-        OptString.new('PASSWORD', [true, 'Password ', '06071992'])
+        OptString.new('HttpUsername', [true, 'Username ', 'SAP*']),
+        OptString.new('HttpPassword', [true, 'Password ', '06071992'])
       ], self.class)
   end
 
@@ -62,17 +62,21 @@ class Metasploit4 < Msf::Auxiliary
     print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_PING request")
     begin
       res = send_request_cgi({
-        'uri' => '/sap/bc/soap/rfc?sap-client=' + client + '&sap-language=EN',
+        'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
-        'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + client,
+        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
         'data' => data,
-        'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
+        'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'ctype'  => 'text/xml; charset=UTF-8',
-        'headers' =>
-          {
-            'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
-          }
-        })
+        'headers' => {
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
+        },
+        'encode_params' => false,
+        'vars_get' => {
+          'sap-client'    => client,
+          'sap-language'  => 'EN'
+        }
+      })
       if res and res.code != 500 and res.code != 200
         if res and res.body =~ /<h1>Logon failed<\/h1>/
           print_error("[SAP] #{ip}:#{rport} - login failed!")

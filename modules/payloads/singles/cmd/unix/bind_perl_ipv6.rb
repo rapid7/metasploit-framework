@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,9 @@ require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 152
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -17,7 +19,7 @@ module Metasploit3
     super(merge_info(info,
       'Name'          => 'Unix Command Shell, Bind TCP (via perl) IPv6',
       'Description'   => 'Listen for a connection and spawn a command shell via perl',
-      'Author'        => ['Samy <samy@samy.pl>', 'cazz'],
+      'Author'        => ['Samy <samy[at]samy.pl>', 'cazz'],
       'License'       => BSD_LICENSE,
       'Platform'      => 'unix',
       'Arch'          => ARCH_CMD,

@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -45,16 +45,19 @@ class Metasploit3 < Msf::Auxiliary
 
       disconnect
 
-      if(response)
+      if response
         success = response[0,1].unpack('C')[0]
+      else
+        print_error("No response received due to a timeout")
+        return
       end
 
 
       if(success == 1)
         vendor_len = response[24,2].unpack('v')[0]
         vendor = response[40,vendor_len].unpack('A*')[0]
-        print_status("#{ip} Open X Server (#{vendor})")
-        #Add Report
+        print_good("#{ip} Open X Server (#{vendor})")
+        # Add Report
         report_note(
           :host	=> ip,
           :proto => 'tcp',
@@ -64,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
           :data	=> "Open X Server (#{vendor})"
       )
       elsif (success == 0)
-        print_status("#{ip} Access Denied")
+        print_error("#{ip} Access Denied")
       else
         # X can return a reason for auth failure but we don't really care for this
       end

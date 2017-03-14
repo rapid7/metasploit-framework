@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -77,16 +77,16 @@ class Metasploit3 < Msf::Auxiliary
 
   def run
     if not has_auth
-      print_error("#{peer} - No basic authentication enabled")
+      print_error("No basic authentication enabled")
       return
     end
 
     bypass_string = try_auth
 
     if bypass_string.empty?
-      print_error("#{peer} - The bypass attempt did not work")
+      print_error("The bypass attempt did not work")
     else
-      print_good("#{peer} - You can bypass auth by doing: #{bypass_string}")
+      print_good("You can bypass auth by doing: #{bypass_string}")
     end
   end
 

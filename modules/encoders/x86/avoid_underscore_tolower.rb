@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Encoder
+class MetasploitModule < Msf::Encoder
 
   # This encoder has a manual ranking because it should only be used in cases
   # where information has been explicitly supplied, like the BufferOffset.

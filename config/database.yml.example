@@ -1,10 +1,9 @@
-# Please only use postgresql bound to a TCP port.
-# Only postgresql is supportable for metasploit-framework
-# these days. (No SQLite, no MySQL).
-#
 # To set up a metasploit database, follow the directions hosted at:
-# https://fedoraproject.org/wiki/Metasploit_Postgres_Setup (Works on
-# essentially any Linux distro, not just Fedora)
+# http://r-7.co/MSF-DEV#set-up-postgresql
+#
+# Kali Linux and the Omnibus installers both include an easy wrapper script for
+# managing your database, which may be more convenient than rolling your own.
+
 development: &pgsql
   adapter: postgresql
   database: metasploit_framework_development
@@ -12,7 +11,7 @@ development: &pgsql
   password: __________________________________
   host: localhost
   port: 5432
-  pool: 5
+  pool: 200
   timeout: 5
 
 # You will often want to seperate your databases between dev

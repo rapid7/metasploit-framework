@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 # Meterpreter script for modifying the hosts file in windows
 # given a single entrie or several in a file and clear the
 # DNS cache on the target machine.
@@ -30,7 +38,7 @@ end
 
 record = ""
 #Set path to the hosts file
-hosts = session.fs.file.expand_path("%SYSTEMROOT%")+"\\System32\\drivers\\etc\\hosts"
+hosts = session.sys.config.getenv('SYSTEMROOT')+"\\System32\\drivers\\etc\\hosts"
 #Function check if UAC is enabled
 def checkuac(session)
   winver = session.sys.config.sysinfo
@@ -76,7 +84,7 @@ if client.platform =~ /win32|win64/
       cleardnscach(session)
     when "-l"
       checkuac(session)
-      if not ::File.exists?(val)
+      if not ::File.exist?(val)
         raise "File #{val} does not exists!"
       else
         backuphosts(session,hosts)

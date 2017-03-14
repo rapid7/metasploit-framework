@@ -1,5 +1,7 @@
+require 'msf/core'
 
-$:.push "test/lib" unless $:.include? "test/lib"
+lib = File.join(Msf::Config.install_root, "test", "lib")
+$:.push(lib) unless $:.include?(lib)
 require 'module_test'
 
 #load 'test/lib/module_test.rb'
@@ -7,7 +9,7 @@ require 'module_test'
 #load 'lib/msf/core/post/linux/system.rb'
 #load 'lib/msf/core/post/unix/enum_user_dirs.rb'
 
-class Metasploit4 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
   include Msf::Post::Linux::System

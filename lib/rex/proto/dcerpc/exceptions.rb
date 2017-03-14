@@ -132,6 +132,32 @@ class NoResponse < Error
   end
 end
 
+class BindError < Error
+    def initialize(message=nil)
+        @message = message
+    end
+
+    def to_s
+        str = 'Failed to bind.'
+        if @message
+            str += " #{@message}"
+        end
+    end
+end
+
+class InvalidSocket < Error
+    def initialize(message=nil)
+        @message = message
+    end
+
+    def to_s
+        str = 'Invalid Socket.'
+        if @message
+            str += " #{@message}"
+        end
+    end
+end
+
 class InvalidPacket < Error
   def initialize(message = nil)
     @message = message

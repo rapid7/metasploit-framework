@@ -29,11 +29,12 @@ class RemoteRegistryKey
     self.target_host = target_host
     self.hkey     = hkey
 
-    ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.hkey) )
+    # Ensure the remote object is closed when all references are removed
+    ObjectSpace.define_finalizer(self, self.class.finalize(client, hkey))
   end
 
-  def self.finalize(client,hkey)
-    proc { self.close(client,hkey) }
+  def self.finalize(client, hkey)
+    proc { self.close(client, hkey) }
   end
 
   ##
@@ -113,8 +114,12 @@ class RemoteRegistryKey
   end
 
   # Instance method for the same
-  def close()
-    self.class.close(self.client, self.hkey)
+  def close
+    unless self.hkey.nil?
+      ObjectSpace.undefine_finalizer(self)
+      self.class.close(self.client, self.hkey)
+      self.hkey = nil
+    end
   end
 
   ##

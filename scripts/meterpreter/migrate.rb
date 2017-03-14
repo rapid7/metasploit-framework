@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 #
 # Simple example script that migrates to a specific process by name.
 # This is meant as an illustration.

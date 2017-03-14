@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::DBManager::Export#extract_module_detail_info module_detail child' do |child_node_name|
+RSpec.shared_examples_for 'Msf::DBManager::Export#extract_module_detail_info module_detail child' do |child_node_name|
   attribute_name = child_node_name.underscore
 
   subject(:child_node) do
@@ -10,14 +10,14 @@ shared_examples_for 'Msf::DBManager::Export#extract_module_detail_info module_de
   end
 
   it "should not have Mdm::Module::Detail##{attribute_name} nil" do
-    attribute.should_not be_nil
+    expect(attribute).not_to be_nil
   end
 
   it "should have Mdm::Module::Detail##{attribute_name} for #{child_node_name} content" do
     if attribute == false
-      child_node.content.should be_blank
+      expect(child_node.content).to be_blank
     else
-      child_node.content.should == attribute.to_s
+      expect(child_node.content).to eq attribute.to_s
     end
   end
 end

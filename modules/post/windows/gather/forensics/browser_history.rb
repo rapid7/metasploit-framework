@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/core/post/windows/user_profiles'
 require 'msf/core/post/windows/registry'
 
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles

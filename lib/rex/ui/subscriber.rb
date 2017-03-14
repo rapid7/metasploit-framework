@@ -46,6 +46,8 @@ module Subscriber
       end
     end
 
+    alias_method :print_bad, :print_error
+
     #
     # Wraps user_output.print_good
     #
@@ -53,16 +55,6 @@ module Subscriber
       if (user_output)
         print_blank_line if user_output.prompting?
         user_output.print_good(msg)
-      end
-    end
-
-    #
-    # Wraps user_output.print_debug
-    #
-    def print_debug(msg='')
-      if (user_output)
-        print_blank_line if user_output.prompting?
-        user_output.print_debug(msg)
       end
     end
 

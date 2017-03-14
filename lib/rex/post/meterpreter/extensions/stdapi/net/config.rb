@@ -49,10 +49,9 @@ class Config
     get_interfaces().each(&block)
   end
 
-  #
   # Returns an array of network interfaces with each element.
   #
-  # being an Interface
+  # @return [Array<Interface>]
   def get_interfaces
     request = Packet.create_request('stdapi_net_config_get_interfaces')
     ifaces  = []

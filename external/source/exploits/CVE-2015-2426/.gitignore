@@ -1,0 +1,17 @@
+Release/
+Debug/
+x64/
+dll/Release/
+dll/Debug/
+dll/reflective_dll.vcproj.*.user
+dll/reflective_dll.vcxproj.user
+inject/Release/
+inject/Debug/
+inject/inject.vcproj.*.user
+inject/inject.vcxproj.user
+*.ncb
+*.suo
+*.sdf
+*.opensdf
+*.suo
+bin/

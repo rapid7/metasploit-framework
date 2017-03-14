@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex'
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Post
       return nil
     end
 
-    table = Rex::Ui::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'  => "Prefetch Information",
       'Indent'  => 1,
       'Columns' =>
@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Post
     print_prefetch_key_value
     print_timezone_key_values(key_value)
     print_good("Current UTC Time: %s" % Time.now.utc)
-    sys_root = expand_path("%SYSTEMROOT%")
+    sys_root = session.sys.config.getenv('SYSTEMROOT')
     full_path = sys_root + "\\Prefetch\\"
     file_type = "*.pf"
     print_status("Gathering information from remote system. This will take awhile..")

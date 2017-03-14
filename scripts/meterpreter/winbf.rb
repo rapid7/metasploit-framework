@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -70,7 +77,7 @@ def passbf(session,passlist,target,user,opt,logfile)
   a = []
   i = 0
   if opt == 1
-    if not ::File.exists?(user)
+    if not ::File.exist?(user)
       raise "Usernames List File does not exists!"
     else
       user = ::File.open(user, "r")
@@ -163,7 +170,7 @@ unsupported if client.platform !~ /win32|win64/i
   when "-p"
 
     passlist = val
-    if not ::File.exists?(passlist)
+    if not ::File.exist?(passlist)
       raise "Password File does not exists!"
     end
   when "-t"

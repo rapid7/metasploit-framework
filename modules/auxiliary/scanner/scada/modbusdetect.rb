@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
   end
 
   def run_host(ip)
-    #read input register=func:04, register 1
+    # read input register=func:04, register 1
     sploit="\x21\x00\x00\x00\x00\x06\x01\x04\x00\x01\x00\x00"
     sploit[6] = [datastore['UNIT_ID']].pack("C")
     connect()

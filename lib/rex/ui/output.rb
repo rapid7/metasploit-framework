@@ -24,13 +24,12 @@ class Output
   def print_error(msg='')
   end
 
+  alias_method :print_bad, :print_error
+
   #
   # Prints a 'good' message.
   #
   def print_good(msg='')
-  end
-
-  def print_debug(msg='')
   end
 
   #

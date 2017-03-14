@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,7 +14,7 @@
 require 'digest/md5'
 require 'digest/sha1'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,

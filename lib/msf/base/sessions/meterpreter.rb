@@ -30,10 +30,12 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   include Msf::Session::Scriptable
 
-  # Override for server implementations that can't do ssl
+  # Override for server implementations that can't do SSL
   def supports_ssl?
     true
   end
+
+  # Override for server implementations that can't do zlib
   def supports_zlib?
     true
   end
@@ -49,10 +51,26 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       :ssl => supports_ssl?,
       :zlib => supports_zlib?
     }
+
+    # The caller didn't request to skip ssl, so make sure we support it
     if not opts[:skip_ssl]
-      # the caller didn't request to skip ssl, so make sure we support it
       opts.merge!(:skip_ssl => (not supports_ssl?))
     end
+
+    #
+    # Parse options passed in via the datastore
+    #
+
+    # Extract the HandlerSSLCert option if specified by the user
+    if opts[:datastore] and opts[:datastore]['HandlerSSLCert']
+      opts[:ssl_cert] = opts[:datastore]['HandlerSSLCert']
+    end
+
+    # Don't pass the datastore into the init_meterpreter method
+    opts.delete(:datastore)
+
+    # Assume by default that 10 threads is a safe number for this session
+    self.max_threads ||= 10
 
     #
     # Initialize the meterpreter client
@@ -240,9 +258,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def kill
     begin
       cleanup_meterpreter
-      self.sock.close
+      self.sock.close if self.sock
     rescue ::Exception
     end
+    # deregister will actually trigger another cleanup
     framework.sessions.deregister(self)
   end
 
@@ -258,14 +277,29 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Explicitly runs a command in the meterpreter console.
   #
-  def run_cmd(cmd)
-    console.run_single(cmd)
+  def run_cmd(cmd,output_object=nil)
+    stored_output_state = nil
+    # If the user supplied an Output IO object, then we tell
+    # the console to use that, while saving it's previous output/
+    if output_object
+      stored_output_state = console.output
+      console.send(:output=, output_object)
+    end
+    success = console.run_single(cmd)
+    # If we stored the previous output object of the channel
+    # we restore it here to put everything back the way we found it
+    # We re-use the conditional above, because we expect in many cases for
+    # the stored state to actually be nil here.
+    if output_object
+      console.send(:output=,stored_output_state)
+    end
+    success
   end
 
   #
   # Load the stdapi extension.
   #
-  def load_stdapi()
+  def load_stdapi
     original = console.disable_output
     console.disable_output = true
     console.run_single('load stdapi')
@@ -275,12 +309,72 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Load the priv extension.
   #
-  def load_priv()
+  def load_priv
     original = console.disable_output
-
     console.disable_output = true
     console.run_single('load priv')
     console.disable_output = original
+  end
+
+  #
+  # Validate session information by checking for a machine_id response
+  #
+  def is_valid_session?(timeout=10)
+    return true if self.machine_id
+
+    begin
+      self.machine_id = self.core.machine_id(timeout)
+
+      return true
+    rescue ::Rex::Post::Meterpreter::RequestError
+      # This meterpreter doesn't support core_machine_id
+      return true
+    rescue ::Exception => e
+      dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
+    end
+    false
+  end
+
+  def update_session_info
+    username = self.sys.config.getuid
+    sysinfo  = self.sys.config.sysinfo
+
+    # when updating session information, we need to make sure we update the platform
+    # in the UUID to match what the target is actually running on, but only for a
+    # subset of platforms.
+    if ['java', 'python', 'php'].include?(self.platform)
+      new_platform = guess_target_platform(sysinfo['OS'])
+      if self.platform != new_platform
+        self.payload_uuid.platform = new_platform
+        self.core.set_uuid(self.payload_uuid)
+      end
+    end
+
+    safe_info = "#{username} @ #{sysinfo['Computer']}"
+    safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
+    # Should probably be using Rex::Text.ascii_safe_hex but leave
+    # this as is for now since "\xNN" is arguably uglier than "_"
+    # showing up in various places in the UI.
+    safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
+    self.info = safe_info
+  end
+
+  def guess_target_platform(os)
+    case os
+    when /windows/i
+      Msf::Module::Platform::Windows.realname.downcase
+    when /darwin/i
+      Msf::Module::Platform::OSX.realname.downcase
+    when /mac os ?x/i
+      # this happens with java on OSX (for real!)
+      Msf::Module::Platform::OSX.realname.downcase
+    when /freebsd/i
+      Msf::Module::Platform::FreeBSD.realname.downcase
+    when /openbsd/i, /netbsd/i
+      Msf::Module::Platform::BSD.realname.downcase
+    else
+      Msf::Module::Platform::Linux.realname.downcase
+    end
   end
 
   #
@@ -288,67 +382,25 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Also reports a session_fingerprint note for host os normalization.
   #
-  def load_session_info()
+  def load_session_info
     begin
       ::Timeout.timeout(60) do
-        # Gather username/system information
-        username  = self.sys.config.getuid
-        sysinfo   = self.sys.config.sysinfo
+        update_session_info
 
-        safe_info = "#{username} @ #{sysinfo['Computer']}"
-        safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
-        # Should probably be using Rex::Text.ascii_safe_hex but leave
-        # this as is for now since "\xNN" is arguably uglier than "_"
-        # showing up in various places in the UI.
-        safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
-        self.info = safe_info
+        hobj = nil
 
-        # Enumerate network interfaces to detect IP
-        ifaces   = self.net.config.get_interfaces().flatten rescue []
-        routes   = self.net.config.get_routes().flatten rescue []
-        shost    = self.session_host
+        nhost = find_internet_connected_address
 
-        # Try to match our visible IP to a real interface
-        # TODO: Deal with IPv6 addresses
-        found    = !!(ifaces.find {|i| i.addrs.find {|a| a == shost } })
-        nhost    = nil
-        hobj     = nil
-
-        if Rex::Socket.is_ipv4?(shost) and not found
-
-          # Try to find an interface with a default route
-          default_routes = routes.select{ |r| r.subnet == "0.0.0.0" || r.subnet == "::" }
-          default_routes.each do |r|
-            ifaces.each do |i|
-              bits = Rex::Socket.net2bitmask( i.netmask ) rescue 32
-              rang = Rex::Socket::RangeWalker.new( "#{i.ip}/#{bits}" ) rescue nil
-              if rang and rang.include?( r.gateway )
-                nhost = i.ip
-                break
-              end
-            end
-            break if nhost
-          end
-
-          # Find the first non-loopback address
-          if not nhost
-            iface = ifaces.select{|i| i.ip != "127.0.0.1" and i.ip != "::1" }
-            if iface.length > 0
-              nhost = iface.first.ip
-            end
-          end
-        end
-
-        # If we found a better IP address for this session, change it up
-        # only handle cases where the DB is not connected here
-        if  not (framework.db and framework.db.active)
+        original_session_host = self.session_host
+        # If we found a better IP address for this session, change it
+        # up.  Only handle cases where the DB is not connected here
+        if nhost && !(framework.db && framework.db.active)
           self.session_host = nhost
         end
 
-
         # The rest of this requires a database, so bail if it's not
         # there
-        return if not (framework.db and framework.db.active)
+        return if !(framework.db && framework.db.active)
 
         ::ActiveRecord::Base.connection_pool.with_connection {
           wspace = framework.db.find_workspace(workspace)
@@ -368,9 +420,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             :host => self,
             :workspace => wspace,
             :data => {
-              :name => sysinfo["Computer"],
-              :os => sysinfo["OS"],
-              :arch => sysinfo["Architecture"],
+              :name => sys.config.sysinfo["Computer"],
+              :os => sys.config.sysinfo["OS"],
+              :arch => sys.config.sysinfo["Architecture"],
             }
           })
 
@@ -379,23 +431,24 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             self.db_record.save!
           end
 
-          framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
+          # XXX: This is obsolete given the Mdm::Host.normalize_os() support for host.os.session_fingerprint
+          # framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
 
           if nhost
             framework.db.report_note({
               :type      => "host.nat.server",
-              :host      => shost,
+              :host      => original_session_host,
               :workspace => wspace,
               :data      => { :info   => "This device is acting as a NAT gateway for #{nhost}", :client => nhost },
               :update    => :unique_data
             })
-            framework.db.report_host(:host => shost, :purpose => 'firewall' )
+            framework.db.report_host(:host => original_session_host, :purpose => 'firewall' )
 
             framework.db.report_note({
               :type      => "host.nat.client",
               :host      => nhost,
               :workspace => wspace,
-              :data      => { :info => "This device is traversing NAT gateway #{shost}", :server => shost },
+              :data      => { :info => "This device is traversing NAT gateway #{original_session_host}", :server => original_session_host },
               :update    => :unique_data
             })
             framework.db.report_host(:host => nhost, :purpose => 'client' )
@@ -428,7 +481,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     console.interact { self.interacting != true }
 
     # If the stop flag has been set, then that means the user exited.  Raise
-    # the EOFError so we can drop this bitch like a bad habit.
+    # the EOFError so we can drop this handle like a bad habit.
     raise EOFError if (console.stopped? == true)
   end
 
@@ -448,11 +501,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     sock = net.socket.create(param)
 
-    # sf: unsure if we should raise an exception or just return nil. returning nil for now.
-    #if( sock == nil )
-    #  raise Rex::UnsupportedProtocol.new(param.proto), caller
-    #end
-
     # Notify now that we've created the socket
     notify_socket_created(self, sock, param)
 
@@ -460,15 +508,148 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     sock
   end
 
-  attr_accessor :platform
-  attr_accessor :binary_suffix
+  #
+  # Get a string representation of the current session platform
+  #
+  def platform
+    if self.payload_uuid
+      # return the actual platform of the current session if it's there
+      self.payload_uuid.platform
+    else
+      # otherwise just use the base for the session type tied to this handler.
+      # If we don't do this, storage of sessions in the DB dies
+      self.base_platform
+    end
+  end
+
+  #
+  # Get a string representation of the current session architecture
+  #
+  def arch
+    if self.payload_uuid
+      # return the actual arch of the current session if it's there
+      self.payload_uuid.arch
+    else
+      # otherwise just use the base for the session type tied to this handler.
+      # If we don't do this, storage of sessions in the DB dies
+      self.base_arch
+    end
+  end
+
+  #
+  # Get a string representation of the architecture of the process in which the
+  # current session is running. This defaults to the same value of arch but can
+  # be overridden by specific meterpreter implementations to add support.
+  #
+  def native_arch
+    arch
+  end
+
+  #
+  # Generate a binary suffix based on arch
+  #
+  def binary_suffix
+    # generate a file/binary suffix based on the current arch and platform.
+    # Platform-agnostic archs go first
+    case self.arch
+    when 'java'
+      'jar'
+    when 'php'
+      'php'
+    when 'python'
+      'py'
+    else
+      # otherwise we fall back to the platform
+      case self.platform
+      when 'windows'
+        "#{self.arch}.dll"
+      when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
+        'lso'
+      when 'android', 'java'
+        'jar'
+      when 'php'
+        'php'
+      when 'python'
+        'py'
+      else
+        nil
+      end
+    end
+  end
+
+  # These are the base arch/platform for the original payload, required for when the
+  # session is first created thanks to the fact that the DB session recording
+  # happens before the session is even established.
+  attr_accessor :base_arch
+  attr_accessor :base_platform
+
   attr_accessor :console # :nodoc:
   attr_accessor :skip_ssl
+  attr_accessor :skip_cleanup
   attr_accessor :target_id
+  attr_accessor :max_threads
 
 protected
 
   attr_accessor :rstream # :nodoc:
+
+  # Rummage through this host's routes and interfaces looking for an
+  # address that it uses to talk to the internet.
+  #
+  # @see Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_interfaces
+  # @see Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_routes
+  # @return [String] The address from which this host reaches the
+  #   internet, as ASCII. e.g.: "192.168.100.156"
+  # @return [nil] If there is an interface with an address that matches
+  #   {#session_host}
+  def find_internet_connected_address
+
+    ifaces = self.net.config.get_interfaces().flatten rescue []
+    routes = self.net.config.get_routes().flatten rescue []
+
+    # Try to match our visible IP to a real interface
+    found = !!(ifaces.find { |i| i.addrs.find { |a| a == session_host } })
+    nhost = nil
+
+    # If the host has no address that matches what we see, then one of
+    # us is behind NAT so we have to look harder.
+    if !found
+      # Grab all routes to the internet
+      default_routes = routes.select { |r| r.subnet == "0.0.0.0" || r.subnet == "::" }
+
+      default_routes.each do |route|
+        # Now try to find an interface whose network includes this
+        # Route's gateway, which means it's the one the host uses to get
+        # to the interweb.
+        ifaces.each do |i|
+          # Try all the addresses this interface has configured
+          addr_and_mask = i.addrs.zip(i.netmasks).find do |addr, netmask|
+            bits = Rex::Socket.net2bitmask( netmask )
+            range = Rex::Socket::RangeWalker.new("#{addr}/#{bits}") rescue nil
+
+            !!(range && range.valid? && range.include?(route.gateway))
+          end
+          if addr_and_mask
+            nhost = addr_and_mask[0]
+            break
+          end
+        end
+        break if nhost
+      end
+
+      if !nhost
+        # No internal address matches what we see externally and no
+        # interface has a default route. Fall back to the first
+        # non-loopback address
+        non_loopback = ifaces.find { |i| i.ip != "127.0.0.1" && i.ip != "::1" }
+        if non_loopback
+          nhost = non_loopback.ip
+        end
+      end
+    end
+
+    nhost
+  end
 
 end
 

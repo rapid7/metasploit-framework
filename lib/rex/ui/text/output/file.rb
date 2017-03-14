@@ -14,8 +14,8 @@ class Output::File < Rex::Ui::Text::Output
 
   attr_accessor :fd
 
-  def initialize(path)
-    self.fd = ::File.open(path, "wb")
+  def initialize(path, mode='wb')
+    self.fd = ::File.open(path, mode)
   end
 
   def supports_color?
@@ -31,6 +31,7 @@ class Output::File < Rex::Ui::Text::Output
     self.fd.flush
     msg
   end
+  alias_method :write, :print_raw
 
   def close
     self.fd.close if self.fd

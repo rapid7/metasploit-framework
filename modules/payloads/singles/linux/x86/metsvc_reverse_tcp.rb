@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,7 +9,9 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_x86_linux'
 require 'msf/base/sessions/meterpreter_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 0
 
   include Msf::Payload::Linux
   include Msf::Payload::Single

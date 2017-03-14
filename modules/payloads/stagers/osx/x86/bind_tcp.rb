@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,7 +14,9 @@ require 'msf/core/handler/bind_tcp'
 # Mac OS X x86 bind TCP stager.
 #
 ###
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 144
 
   include Msf::Payload::Stager
 

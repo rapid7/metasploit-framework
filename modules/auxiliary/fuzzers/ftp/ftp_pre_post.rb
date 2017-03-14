@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Tcp
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   def get_pkt
-    buf = sock.get
+    buf = sock.get_once(-1, 10)
     vprint_status("[in ] #{buf.inspect}")
     buf
   end

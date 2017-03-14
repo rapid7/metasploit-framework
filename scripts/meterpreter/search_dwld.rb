@@ -1,3 +1,9 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
 
 ## Meterpreter script that recursively search and download
 ## files matching a given pattern

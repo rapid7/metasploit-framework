@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'DLink User-Agent Backdoor Scanner',
+      'Name'           => 'D-Link User-Agent Backdoor Scanner',
       'Description'    => %q{
-        This module attempts to find DLink devices running Alphanetworks web interfaces affected
+        This module attempts to find D-Link devices running Alphanetworks web interfaces affected
         by the backdoor found on the User-Agent header. This module has been tested successfully
         on a DIR-100 device with firmware version v1.13.
       },

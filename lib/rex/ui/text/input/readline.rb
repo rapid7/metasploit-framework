@@ -20,11 +20,7 @@ begin
     #
     def initialize(tab_complete_proc = nil)
       if(not Object.const_defined?('Readline'))
-        begin
-          require 'readline'
-        rescue ::LoadError
-          require 'readline_compatible'
-        end
+        require 'readline'
       end
 
       self.extend(::Readline)
@@ -43,6 +39,20 @@ begin
       ::Readline.basic_word_break_characters = "\x00"
       ::Readline.completion_proc = tab_complete_proc || @rl_saved_proc
     end
+
+
+    #
+    # Retrieve the line buffer
+    #
+    def line_buffer
+      if defined? RbReadline
+        RbReadline.rl_line_buffer
+      else
+        ::Readline.line_buffer
+      end
+    end
+
+    attr_accessor :prompt
 
     #
     # Whether or not the input medium supports readline.
@@ -87,7 +97,7 @@ begin
         Thread.current.priority = -20
 
         output.prompting
-        line = ::Readline.readline(prompt, true)
+        line = readline_with_output(prompt, true)
         ::Readline::HISTORY.pop if (line and line.empty?)
       ensure
         Thread.current.priority = orig || 0
@@ -119,6 +129,53 @@ begin
     # The output handle to use when displaying the prompt.
     #
     attr_accessor :output
+
+    private
+
+    def readline_with_output(prompt, add_history=false)
+      # rb-readlines's Readline.readline hardcodes the input and output to
+      # $stdin and $stdout, which means setting `Readline.input` or
+      # `Readline.ouput` has no effect when running `Readline.readline` with
+      # rb-readline, so need to reimplement
+      # []`Readline.readline`](https://github.com/luislavena/rb-readline/blob/ce4908dae45dbcae90a6e42e3710b8c3a1f2cd64/lib/readline.rb#L36-L58)
+      # for rb-readline to support setting input and output.  Output needs to
+      # be set so that colorization works for the prompt on Windows.
+      self.prompt = prompt
+
+      # TODO: there are unhandled quirks in async output buffering that
+      # we have not solved yet, for instance when loading meterpreter
+      # extensions, supporting Windows, printing output from commands, etc.
+      # Remove this guard when issues are resolved.
+=begin
+      reset_sequence = "\n\001\r\033[K\002"
+      if (/mingw/ =~ RUBY_PLATFORM)
+        reset_sequence = ""
+      end
+=end
+      reset_sequence = ""
+
+      if defined? RbReadline
+        RbReadline.rl_instream = fd
+        RbReadline.rl_outstream = output
+
+        begin
+          line = RbReadline.readline(reset_sequence + prompt)
+        rescue ::Exception => exception
+          RbReadline.rl_cleanup_after_signal()
+          RbReadline.rl_deprep_terminal()
+
+          raise exception
+        end
+
+        if add_history && line
+          RbReadline.add_history(line)
+        end
+
+        line.try(:dup)
+      else
+        ::Readline.readline(reset_sequence + prompt, true)
+      end
+    end
 
   end
 rescue LoadError

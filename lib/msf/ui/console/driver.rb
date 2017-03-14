@@ -15,12 +15,9 @@ module Msf
 module Ui
 module Console
 
-###
 #
-# This class implements a user interface driver on a console interface.
+# A user interface driver on a console interface.
 #
-###
-
 class Driver < Msf::Ui::Driver
 
   ConfigCore  = "framework/core"
@@ -28,6 +25,15 @@ class Driver < Msf::Ui::Driver
 
   DefaultPrompt     = "%undmsf%clr"
   DefaultPromptChar = "%clr>"
+
+  #
+  # Console Command Dispatchers to be loaded after the Core dispatcher.
+  #
+  CommandDispatchers = [
+    CommandDispatcher::Modules,
+    CommandDispatcher::Jobs,
+    CommandDispatcher::Resource
+  ]
 
   #
   # The console driver processes various framework notified events.
@@ -44,42 +50,28 @@ class Driver < Msf::Ui::Driver
   # prompt character.  The optional hash can take extra values that will
   # serve to initialize the console driver.
   #
-  # The optional hash values can include:
-  #
-  # AllowCommandPassthru
-  #
-  # 	Whether or not unknown commands should be passed through and executed by
-  # 	the local system.
-  #
-  # RealReadline
-  #
-  # 	Whether or to use the system Readline or the RBReadline (default)
-  #
-  # HistFile
-  #
-  #	Name of a file to store command history
-  #
+  # @option opts [Boolean] 'AllowCommandPassthru' (true) Whether to allow
+  #   unrecognized commands to be executed by the system shell
+  # @option opts [Boolean] 'RealReadline' (false) Whether to use the system's
+  #   readline library instead of RBReadline
+  # @option opts [String] 'HistFile' (Msf::Config.history_file) Path to a file
+  #   where we can store command history
+  # @option opts [Array<String>] 'Resources' ([]) A list of resource files to
+  #   load. If no resources are given, will load the default resource script,
+  #   'msfconsole.rc' in the user's {Msf::Config.config_directory config
+  #   directory}
+  # @option opts [Boolean] 'SkipDatabaseInit' (false) Whether to skip
+  #   connecting to the database and running migrations
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
-
-    # Choose a readline library before calling the parent
-    rl = false
-    rl_err = nil
-    begin
-      if(opts['RealReadline'])
-        require 'readline'
-        rl = true
-      end
-    rescue ::LoadError
-      rl_err = $!
-    end
-
-    # Default to the RbReadline wrapper
-    require 'readline_compatible' if(not rl)
+    choose_readline(opts)
 
     histfile = opts['HistFile'] || Msf::Config.history_file
 
     # Initialize attributes
-    self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
+
+    # Defer loading of modules until paths from opts can be added below
+    framework_create_options = opts.merge('DeferModuleLoads' => true)
+    self.framework = opts['Framework'] || Msf::Simple::Framework.create(framework_create_options)
 
     if self.framework.datastore['Prompt']
       prompt = self.framework.datastore['Prompt']
@@ -118,18 +110,24 @@ class Driver < Msf::Ui::Driver
     enstack_dispatcher(CommandDispatcher::Core)
 
     # Report readline error if there was one..
-    if not rl_err.nil?
+    if !@rl_err.nil?
       print_error("***")
-      print_error("* WARNING: Unable to load readline: #{rl_err}")
+      print_error("* WARNING: Unable to load readline: #{@rl_err}")
       print_error("* Falling back to RbReadLine")
       print_error("***")
     end
 
+    # Load the other "core" command dispatchers
+    CommandDispatchers.each do |dispatcher|
+      enstack_dispatcher(dispatcher)
+    end
 
     # Add the database dispatcher if it is usable
     if (framework.db.usable)
       require 'msf/ui/console/command_dispatcher/db'
       enstack_dispatcher(CommandDispatcher::Db)
+      require 'msf/ui/console/command_dispatcher/creds'
+      enstack_dispatcher(CommandDispatcher::Creds)
     else
       print_error("***")
       if framework.db.error == "disabled"
@@ -156,15 +154,10 @@ class Driver < Msf::Ui::Driver
     self.disable_output = false
 
     # Whether or not command passthru should be allowed
-    self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
+    self.command_passthru = opts.fetch('AllowCommandPassthru', true)
 
-    # Disables "dangerous" functionality of the console
-    @defanged = opts['Defanged'] == true
-
-    # If we're defanged, then command passthru should be disabled
-    if @defanged
-      self.command_passthru = false
-    end
+    # Whether or not to confirm before exiting
+    self.confirm_exit = opts['ConfirmExit']
 
     # Parse any specified database.yml file
     if framework.db.usable and not opts['SkipDatabaseInit']
@@ -176,61 +169,59 @@ class Driver < Msf::Ui::Driver
         end
       end
 
-      # Look for our database configuration in the following places, in order:
-      #	command line arguments
-      #	environment variable
-      #	configuration directory (usually ~/.msf3)
-      dbfile = opts['DatabaseYAML']
-      dbfile ||= ENV["MSF_DATABASE_CONFIG"]
-      dbfile ||= File.join(Msf::Config.get_config_root, "database.yml")
-      if (dbfile and File.exists? dbfile)
-        if File.readable?(dbfile)
-          dbinfo = YAML.load(File.read(dbfile))
-          dbenv  = opts['DatabaseEnv'] || "production"
-          db     = dbinfo[dbenv]
-        else
-          print_error("Warning, #{dbfile} is not readable. Try running as root or chmod.")
-        end
-        if not db
-          print_error("No database definition for environment #{dbenv}")
-        else
-          if not framework.db.connect(db)
-            if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
-              print_error("***")
-              print_error("*")
-              print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
-              print_error("* There a three ways to accomplish this upgrade:")
-              print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
-              print_error("*    $ rvmsudo gem install pg ")
-              print_error("* 2. Use the Community Edition web interface to apply a Software Update")
-              print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
-              print_error("*")
-              print_error("***")
-              print_error("")
-              print_error("")
-            end
+      if framework.db.connection_established?
+        framework.db.after_establish_connection
+      else
+        configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
 
-            print_error("Failed to connect to the database: #{framework.db.error}")
+        unless configuration_pathname.nil?
+          if configuration_pathname.readable?
+            dbinfo = YAML.load_file(configuration_pathname) || {}
+            dbenv  = opts['DatabaseEnv'] || Rails.env
+            db     = dbinfo[dbenv]
           else
-            self.framework.modules.refresh_cache_from_database
+            print_error("Warning, #{configuration_pathname} is not readable. Try running as root or chmod.")
+          end
 
-            if self.framework.modules.cache_empty?
-              print_status("The initial module cache will be built in the background, this can take 2-5 minutes...")
-            end
+          if not db
+            print_error("No database definition for environment #{dbenv}")
+          else
+            framework.db.connect(db)
           end
         end
       end
+
+      # framework.db.active will be true if after_establish_connection ran directly when connection_established? was
+      # already true or if framework.db.connect called after_establish_connection.
+      if !! framework.db.error
+        if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
+          print_error("***")
+          print_error("*")
+          print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
+          print_error("* There a three ways to accomplish this upgrade:")
+          print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
+          print_error("*    $ rvmsudo gem install pg ")
+          print_error("* 2. Use the Community Edition web interface to apply a Software Update")
+          print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
+          print_error("*")
+          print_error("***")
+          print_error("")
+          print_error("")
+        end
+
+        print_error("Failed to connect to the database: #{framework.db.error}")
+      end
     end
 
-    # Initialize the module paths only if we didn't get passed a Framework instance
-    unless opts['Framework']
+    # Initialize the module paths only if we didn't get passed a Framework instance and 'DeferModuleLoads' is false
+    unless opts['Framework'] || opts['DeferModuleLoads']
       # Configure the framework module paths
-      self.framework.init_module_paths
-      self.framework.modules.add_module_path(opts['ModulePath']) if opts['ModulePath']
+      self.framework.init_module_paths(module_paths: opts['ModulePath'])
+    end
 
-      # Rebuild the module cache in a background thread
-      self.framework.threads.spawn("ModuleCacheRebuild", true) do
-        self.framework.modules.refresh_cache_from_module_files
+    if framework.db.active && !opts['DeferModuleLoads']
+      framework.threads.spawn("ModuleCacheRebuild", true) do
+        framework.modules.refresh_cache_from_module_files
       end
     end
 
@@ -240,14 +231,15 @@ class Driver < Msf::Ui::Driver
     # Process things before we actually display the prompt and get rocking
     on_startup(opts)
 
-    # Process the resource script
-    if opts['Resource'] and opts['Resource'].kind_of? Array
+    # Process any resource scripts
+    if opts['Resource'].blank?
+      # None given, load the default
+      default_resource = ::File.join(Msf::Config.config_directory, 'msfconsole.rc')
+      load_resource(default_resource) if ::File.exist?(default_resource)
+    else
       opts['Resource'].each { |r|
         load_resource(r)
       }
-    else
-      # If the opt is nil here, we load ~/.msf3/msfconsole.rc
-      load_resource(opts['Resource'])
     end
 
     # Process any additional startup commands
@@ -302,7 +294,7 @@ class Driver < Msf::Ui::Driver
 
     fname = ::File.join(@junit_output_path, "#{bname}.xml")
     cnt   = 0
-    while ::File.exists?( fname )
+    while ::File.exist?( fname )
       cnt  += 1
       fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
     end
@@ -337,7 +329,7 @@ class Driver < Msf::Ui::Driver
     # Generate the output path, allow multiple test with the same name
     fname = ::File.join(@junit_output_path, "#{bname}.xml")
     cnt   = 0
-    while ::File.exists?( fname )
+    while ::File.exist?( fname )
       cnt  += 1
       fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
     end
@@ -394,8 +386,13 @@ class Driver < Msf::Ui::Driver
     if (conf.group?(ConfigGroup))
       conf[ConfigGroup].each_pair { |k, v|
         case k.downcase
-          when "activemodule"
+          when 'activemodule'
             run_single("use #{v}")
+          when 'activeworkspace'
+            if framework.db.active
+              workspace = framework.db.find_workspace(v)
+              framework.db.workspace = workspace if workspace
+            end
         end
       }
     end
@@ -412,6 +409,12 @@ class Driver < Msf::Ui::Driver
       group['ActiveModule'] = active_module.fullname
     end
 
+    if framework.db.active
+      unless framework.db.workspace.default?
+        group['ActiveWorkspace'] = framework.db.workspace.name
+      end
+    end
+
     # Save it
     begin
       Msf::Config.save(ConfigGroup => group)
@@ -420,13 +423,20 @@ class Driver < Msf::Ui::Driver
     end
   end
 
+  # Processes a resource script file for the console.
   #
-  # Processes the resource script file for the console.
-  #
-  def load_resource(path=nil)
-    path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
-    return if not ::File.readable?(path)
-    resource_file = ::File.read(path)
+  # @param path [String] Path to a resource file to run
+  # @return [void]
+  def load_resource(path)
+    if path == '-'
+      resource_file = $stdin.read
+      path = 'stdin'
+    elsif ::File.exist?(path)
+      resource_file = ::File.read(path)
+    else
+      print_error("Cannot find resource script: #{path}")
+      return
+    end
 
     self.active_resource = resource_file
 
@@ -532,7 +542,19 @@ class Driver < Msf::Ui::Driver
       end
     end
 
+    if framework.modules.module_load_warnings.length > 0
+      print_warning("The following modules were loaded with warnings:")
+      framework.modules.module_load_warnings.each do |path, error|
+        print_warning("\t#{path}: #{error}")
+      end
+    end
+
     framework.events.on_ui_start(Msf::Framework::Revision)
+
+    if $msf_spinner_thread
+      $msf_spinner_thread.kill
+      $stderr.print "\r" + (" " * 50) + "\n"
+    end
 
     run_single("banner") unless opts['DisableBanner']
 
@@ -554,6 +576,8 @@ class Driver < Msf::Ui::Driver
       when "payload"
 
         if (framework and framework.payloads.valid?(val) == false)
+          return false
+        elsif active_module && active_module.type == 'exploit' && !active_module.is_payload_compatible?(val)
           return false
         elsif (active_module)
           active_module.datastore.clear_non_user_defined
@@ -593,6 +617,10 @@ class Driver < Msf::Ui::Driver
   #
   attr_reader   :framework
   #
+  # Whether or not to confirm before exiting
+  #
+  attr_reader   :confirm_exit
+  #
   # Whether or not commands can be passed through.
   #
   attr_reader   :command_passthru
@@ -609,17 +637,6 @@ class Driver < Msf::Ui::Driver
   #
   attr_accessor :active_resource
 
-  #
-  # If defanged is true, dangerous functionality, such as exploitation, irb,
-  # and command shell passthru is disabled.  In this case, an exception is
-  # raised.
-  #
-  def defanged?
-    if @defanged
-      raise DefangedException
-    end
-  end
-
   def stop
     framework.events.on_ui_stop()
     super
@@ -628,6 +645,7 @@ class Driver < Msf::Ui::Driver
 protected
 
   attr_writer   :framework # :nodoc:
+  attr_writer   :confirm_exit # :nodoc:
   attr_writer   :command_passthru # :nodoc:
 
   #
@@ -635,9 +653,13 @@ protected
   # executable.  This is only allowed if command passthru has been permitted
   #
   def unknown_command(method, line)
+    if File.basename(method) == 'msfconsole'
+      print_error('msfconsole cannot be run inside msfconsole')
+      return
+    end
 
     [method, method+".exe"].each do |cmd|
-      if (command_passthru == true and Rex::FileUtils.find_full_path(cmd))
+      if command_passthru && Rex::FileUtils.find_full_path(cmd)
 
         print_status("exec: #{line}")
         print_line('')
@@ -708,15 +730,42 @@ protected
     set_log_level(Msf::LogSource, val)
   end
 
-end
+  # Require the appropriate readline library based on the user's preference.
+  #
+  # @return [void]
+  def choose_readline(opts)
+    # Choose a readline library before calling the parent
+    @rl_err = nil
+    if opts['RealReadline']
+      # Remove the gem version from load path to be sure we're getting the
+      # stdlib readline.
+      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
+      rb_readline_path = File.join(gem_dir, "lib")
+      index = $LOAD_PATH.index(rb_readline_path)
+      # Bundler guarantees that the gem will be there, so it should be safe to
+      # assume we found it in the load path, but check to be on the safe side.
+      if index
+        $LOAD_PATH.delete_at(index)
+      end
+    end
 
-#
-# This exception is used to indicate that functionality is disabled due to
-# defanged being true
-#
-class DefangedException < ::Exception
-  def to_s
-    "This functionality is currently disabled (defanged mode)"
+    begin
+      require 'readline'
+    rescue ::LoadError => e
+      if @rl_err.nil? && index
+        # Then this is the first time the require failed and we have an index
+        # for the gem version as a fallback.
+        @rl_err = e
+        # Put the gem back and see if that works
+        $LOAD_PATH.insert(index, rb_readline_path)
+        index = rb_readline_path = nil
+        retry
+      else
+        # Either we didn't have the gem to fall back on, or we failed twice.
+        # Nothing more we can do here.
+        raise e
+      end
+    end
   end
 end
 

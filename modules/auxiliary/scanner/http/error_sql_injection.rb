@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
@@ -78,12 +78,14 @@ class Metasploit3 < Msf::Auxiliary
       if not datastore['QUERY'].empty?
         qvars = queryparse(datastore['QUERY']) #Now its a Hash
       else
+        print_error("You need to set QUERY param for GET")
         return
       end
     else
       if not datastore['DATA'].empty?
         qvars = queryparse(datastore['DATA']) #Now its a Hash
       else
+        print_error("You need to set DATA parameter for POST")
         return
       end
     end

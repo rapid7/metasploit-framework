@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::ORACLE
 
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
     begin
       print_status("Sending statement: '#{query}'...")
       result = prepare_exec(query)
-      #Need this if 'cause some statements won't return anything
+      # Need this if statement because some statements won't return anything
       if result
         result.each do |line|
           print_status(line)

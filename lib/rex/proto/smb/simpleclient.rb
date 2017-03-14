@@ -66,6 +66,10 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
 
       self.client.spnopt = spnopt
 
+      # In case the user unsets the password option, we make sure this is
+      # always a string
+      pass ||= ''
+
       ok = self.client.session_setup(user, pass, domain)
     rescue ::Interrupt
       raise $!

@@ -1,9 +1,9 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Priv
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
         [
           [ 'URL', 'http://www.youtube.com/watch?v=vdppEZjMPCM&hd=1' ]
         ],
-      'Platform'      => 'windows',
+      'Platform'      => 'win',
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 

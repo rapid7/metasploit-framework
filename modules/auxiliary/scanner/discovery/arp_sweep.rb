@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
       OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data', 5]),
     ], self.class)
 
-    deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE', 'UDP_SECRET', 'GATEWAY', 'NETMASK')
+    deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE', 'SECRET', 'GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT')
   end
 
   def run_batch_size

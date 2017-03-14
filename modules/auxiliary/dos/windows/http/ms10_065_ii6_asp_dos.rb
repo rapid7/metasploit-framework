@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
       },
       'Author'         =>
         [
-          'Alligator Security Team',
           'Heyder Andrade <heyder[at]alligatorteam.org>',
           'Leandro Oliveira <leadro[at]alligatorteam.org>'
         ],

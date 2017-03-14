@@ -2,13 +2,9 @@
 # Web assessment for the metasploit framework
 # Efrain Torres    - et[ ] metasploit.com  2012
 #
-# $Id$
-# $Revision$
-#
 
 require 'rabal/tree'
 require 'msf/core/rpc/v10/client'
-#require 'fileutils'
 
 module Msf
 
@@ -931,7 +927,7 @@ class Plugin::Wmap < Msf::Plugin
                     end
                   end
 
-                  datastr = temparr.join("&")	if (temparr and not temparr.empty?)
+                  datastr = temparr.join("&") if (temparr and not temparr.empty?)
 
                   if (utest_query.has_key?(signature(form.path,datastr)) == false)
 
@@ -1070,7 +1066,7 @@ class Plugin::Wmap < Msf::Plugin
                     end
                   end
 
-                  datastr = temparr.join("&")	if (temparr and not temparr.empty?)
+                  datastr = temparr.join("&") if (temparr and not temparr.empty?)
 
                   modopts['METHOD'] = req.method.upcase
                   modopts['PATH'] =  req.path
@@ -1213,7 +1209,7 @@ class Plugin::Wmap < Msf::Plugin
 
       indent = '     '
 
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => indent.length,
         'Header'  => 'Defined targets',
         'Columns' =>
@@ -1263,7 +1259,7 @@ class Plugin::Wmap < Msf::Plugin
 
       indent = '     '
 
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => indent.length,
         'Header'  => 'Available sites',
         'Columns' =>
@@ -1422,7 +1418,7 @@ class Plugin::Wmap < Msf::Plugin
             inipath = '/'
           end
 
-          #site.web_forms.find_all_by_path(target.path).each do |form|
+          #site.web_forms.where(path: target.path).each do |form|
             ckey = [ site.vhost, host.address, serv.port, inipath].join("|")
 
             if not self.targets[ckey]
@@ -1567,7 +1563,7 @@ class Plugin::Wmap < Msf::Plugin
       wtree = Tree.new(s.vhost)
 
       # Load site pages
-      s.web_pages.find(:all, :order => 'path').each do |req|
+      s.web_pages.order('path asc').each do |req|
         tarray = req.path.to_s.split(pathchr)
         tarray.delete("")
         tpath = Pathname.new(pathchr)
@@ -1952,7 +1948,7 @@ class Plugin::Wmap < Msf::Plugin
           begin
             n = rpccon.call('job.list')
 
-            tbl = Rex::Ui::Text::Table.new(
+            tbl = Rex::Text::Table.new(
               'Indent'  => indent.length,
               'Header'  => 'Jobs',
               'Columns' =>
@@ -2073,7 +2069,7 @@ class Plugin::Wmap < Msf::Plugin
     def rpc_list_nodes()
       indent = '     '
 
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
         'Indent'  => indent.length,
         'Header'  => 'Nodes',
         'Columns' =>
@@ -2152,7 +2148,7 @@ class Plugin::Wmap < Msf::Plugin
 
       wmaptype.each do |modt|
 
-        tbl = Rex::Ui::Text::Table.new(
+        tbl = Rex::Text::Table.new(
           'Indent'  => indent.length,
           'Header'  =>  modt.to_s,
           'Columns' =>
@@ -2247,6 +2243,10 @@ class Plugin::Wmap < Msf::Plugin
 
   def initialize(framework, opts)
     super
+
+    if framework.db.active == false
+      raise 'Database not connected (try db_connect)'
+    end
 
     color = self.opts["ConsoleDriver"].output.supports_color? rescue false
 

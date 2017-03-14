@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'yaml'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
     return mysql_schema
   end
 
-  #Gets all of the Tables names inside the given Database
+  # Gets all of the Tables names inside the given Database
   def get_tbl_names(dbname)
 
     tables=[]

@@ -99,7 +99,7 @@ class Encoder < Module
     #
     NonAlpha = "non_alpha"
     #
-    # tolower safe ascii - not 'A' - 'Z' (more flexable than nonalpha)
+    # tolower safe ascii - not 'A' - 'Z' (more flexible than nonalpha)
     #
     NonUpper = "non_upper"
     #
@@ -127,6 +127,18 @@ class Encoder < Module
     # Special printf(1) via PHP magic_quotes Command Encoder
     #
     PrintfPHPMagicQuotes = "printf_php_mq"
+    #
+    # perl encoding.
+    #
+    CmdUnixPerl = 'perl'
+    #
+    # Bourne shell echo encoding.
+    #
+    CmdUnixEcho = 'echo'
+    #
+    # Bourne shell IFS encoding.
+    #
+    CmdUnixIfs = 'ifs'
   end
 
   #
@@ -150,14 +162,14 @@ class Encoder < Module
   # Returns MODULE_ENCODER to indicate that this is an encoder module.
   #
   def self.type
-    return MODULE_ENCODER
+    return Msf::MODULE_ENCODER
   end
 
   #
   # Returns MODULE_ENCODER to indicate that this is an encoder module.
   #
   def type
-    return MODULE_ENCODER
+    return Msf::MODULE_ENCODER
   end
 
   #
@@ -272,6 +284,10 @@ class Encoder < Module
 
     # Call encoded_end to do any encoder specific post-processing
     encode_end(state)
+
+    if arch?(ARCH_CMD)
+      dlog("#{self.name} result: #{state.encoded}")
+    end
 
     # Return the encoded buffer to the caller
     return state.encoded
@@ -397,6 +413,33 @@ class Encoder < Module
     buf
   end
 
+  #
+  # Determines whether the encoder can preserve registers at all
+  #
+  def can_preserve_registers?
+    false
+  end
+
+  #
+  # A list of registers always modified by the encoder
+  #
+  def modified_registers
+    []
+  end
+
+  #
+  # Determines whether the encoder can preserve the stack frame
+  #
+  def preserves_stack?
+    false
+  end
+
+  #
+  # The amount of space available to the encoder, which may be nil,
+  # indicating that the smallest possible encoding should be used.
+  #
+  attr_accessor :available_space
+
 protected
 
   #
@@ -494,7 +537,7 @@ protected
   #
   def find_context_key(buf, badchars, state)
     # Make sure our context information file is sane
-    if File.exists?(datastore['ContextInformationFile']) == false
+    if !File.exist?(datastore['ContextInformationFile'])
       raise NoKeyError, "A context information file must specified when using context encoding", caller
     end
 

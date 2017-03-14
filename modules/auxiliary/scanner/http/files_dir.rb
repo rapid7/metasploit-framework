@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@ require 'rex/proto/http'
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
@@ -158,7 +158,6 @@ class Metasploit3 < Msf::Auxiliary
             if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
               if dm == false
                 print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}  #{res.code.to_i}")
-                #blah
               end
             else
               if res.code.to_i == 400  and ecode != 400

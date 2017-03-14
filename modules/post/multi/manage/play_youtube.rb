@@ -1,13 +1,15 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
+
+  PLAY_OPTIONS = 'autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0'
 
   def initialize(info={})
     super( update_info( info,
@@ -19,7 +21,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'win', 'osx', 'linux' ],
+      'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
 
@@ -29,16 +31,11 @@ class Metasploit3 < Msf::Post
       ], self.class)
   end
 
-  def peer
-    "#{session.session_host}:#{session.session_port}"
-  end
-
-
   #
   # The OSX version uses an apple script to do this
   #
   def osx_start_video(id)
-    url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1"
+    url = "https://youtube.googleapis.com/v/#{id}?fs=1&#{PLAY_OPTIONS}"
     script = ''
     script << %Q|osascript -e 'tell application "Safari" to open location "#{url}"' |
     script << %Q|-e 'activate application "Safari"' |
@@ -59,7 +56,7 @@ class Metasploit3 < Msf::Post
   def win_start_video(id)
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
-      session.sys.process.execute(iexplore_path, "-k http://youtube.com/embed/#{id}?autoplay=1")
+      session.sys.process.execute(iexplore_path, "-k https://www.youtube.com/embed/#{id}?#{PLAY_OPTIONS}")
     rescue Rex::Post::Meterpreter::RequestError => e
       return false
     end
@@ -86,7 +83,7 @@ class Metasploit3 < Msf::Post
       write_file("/tmp/#{profile_name}/prefs.js", s)
 
       # Start the video
-      url = "https://youtube.googleapis.com/v/#{id}?fs=1&autoplay=1"
+      url = "https://youtube.googleapis.com/v/#{id}?fs=1&#{PLAY_OPTIONS}"
       data_js = %Q|"data:text/html,<script>window.open('#{url}','','width:100000px;height:100000px');</script>"|
       joe = "firefox --display :0 -p #{profile_name} #{data_js} &"
       cmd_exec("/bin/sh -c #{joe.shellescape}")
@@ -97,14 +94,29 @@ class Metasploit3 < Msf::Post
     true
   end
 
+  #
+  # The Android version is launched via an Intent
+  #
+  def android_start_video(id)
+    intenturl = "intent://youtube.com/watch?v=#{id}&autoplay=1#Intent;scheme=http;action=android.intent.action.VIEW;end"
+    begin
+      session.android.activity_start(intenturl)
+    rescue Rex::Post::Meterpreter::RequestError => e
+      return false
+    end
+    true
+  end
+
   def start_video(id)
     case session.platform
-    when /osx/
+    when 'osx'
       osx_start_video(id)
-    when /win/
+    when 'windows'
       win_start_video(id)
-    when /linux/
+    when 'linux'
       linux_start_video(id)
+    when 'android'
+      android_start_video(id)
     end
   end
 

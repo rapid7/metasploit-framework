@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
-  include Msf::HTTP::Wordpress
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>',
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>' ,
-          'Christian Mehlmauer "FireFart" <FireFart[at]gmail.com>' # Original PoC
+          'Christian Mehlmauer' # Original PoC
         ],
       'License' => MSF_LICENSE,
       'References'  =>

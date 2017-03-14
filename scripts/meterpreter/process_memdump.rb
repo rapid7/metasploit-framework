@@ -1,3 +1,11 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
+
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 # Note: Script is based on the paper Neurosurgery With Meterpreter by
 #	Colin Ames (amesc[at]attackresearch.com) David Kerb (dkerb[at]attackresearch.com)
@@ -44,7 +52,7 @@ end
   when "-r"
     list = val
     resource = ""
-    if not ::File.exists?(list)
+    if not ::File.exist?(list)
       raise "Command List File does not exists!"
     else
       ::File.open(list, "r").each_line do |line|

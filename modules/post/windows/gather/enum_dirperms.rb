@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Accounts
 
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
       'Author'         =>
         [
           'Kx499',
-          'Ben Campbell <eat_meatballs[at]hotmail.co.uk>',
+          'Ben Campbell',
           'sinn3r'
         ]
     ))

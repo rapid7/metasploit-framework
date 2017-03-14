@@ -1,12 +1,12 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::WindowsServices
@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Post
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Brandon McCann "zeknox" <bmccann [at] accuvant.com>',
-          'Thomas McCarthy "smilingraccoon" <smilingraccoon [at] gmail.com>'
+          'Brandon McCann "zeknox" <bmccann[at]accuvant.com>',
+          'Thomas McCarthy "smilingraccoon" <smilingraccoon[at]gmail.com>'
         ],
       'SessionTypes'   => [ 'meterpreter' ],
       'References'     =>

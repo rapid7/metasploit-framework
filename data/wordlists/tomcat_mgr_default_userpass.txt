@@ -5,3 +5,5 @@ root owaspbwa
 ADMIN ADMIN
 xampp xampp
 tomcat s3cret
+QCC QLogic66
+admin vagrant

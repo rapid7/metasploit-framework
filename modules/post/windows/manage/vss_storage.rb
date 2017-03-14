@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@
 require 'msf/core'
 require 'rex'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
 
     storage_data = vss_get_storage
     if storage_data
-      tbl = Rex::Ui::Text::Table.new(
+      tbl = Rex::Text::Table.new(
           'Header'  => 'Shadow Copy Storage Data',
           'Indent'  => 1,
           'Columns' => ['Field', 'Value']

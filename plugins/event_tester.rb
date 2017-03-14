@@ -7,7 +7,7 @@ module Msf
 
 class Plugin::EventTester < Msf::Plugin
   class Subscriber
-    def respond_to?(name)
+    def respond_to?(name, *args)
       # Why yes, I can do that.
       true
     end
@@ -21,17 +21,19 @@ class Plugin::EventTester < Msf::Plugin
   def initialize(framework, opts)
     super
     @subscriber = Subscriber.new
-    framework.events.add_exploit_subscriber(@subscriber)
-    framework.events.add_session_subscriber(@subscriber)
-    framework.events.add_general_subscriber(@subscriber)
+    framework.events.add_custom_subscriber(@subscriber)
     framework.events.add_db_subscriber(@subscriber)
+    framework.events.add_exploit_subscriber(@subscriber)
+    framework.events.add_general_subscriber(@subscriber)
+    framework.events.add_session_subscriber(@subscriber)
     framework.events.add_ui_subscriber(@subscriber)
   end
   def cleanup
-    framework.events.remove_exploit_subscriber(@subscriber)
-    framework.events.remove_session_subscriber(@subscriber)
-    framework.events.remove_general_subscriber(@subscriber)
+    framework.events.remove_custom_subscriber(@subscriber)
     framework.events.remove_db_subscriber(@subscriber)
+    framework.events.remove_exploit_subscriber(@subscriber)
+    framework.events.remove_general_subscriber(@subscriber)
+    framework.events.remove_session_subscriber(@subscriber)
     framework.events.remove_ui_subscriber(@subscriber)
   end
 end

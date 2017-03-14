@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,7 +12,7 @@ require 'msf/core'
 # This class implements a "nop" generator for TTY payloads
 #
 ###
-class Metasploit3 < Msf::Nop
+class MetasploitModule < Msf::Nop
 
   def initialize
     super(

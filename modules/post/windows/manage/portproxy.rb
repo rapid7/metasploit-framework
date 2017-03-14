@@ -1,9 +1,9 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
-      'Platform'      => [ 'windows' ],
+      'Platform'      => 'win',
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
   end
 
   def enable_portproxy
-    rtable = Rex::Ui::Text::Table.new(
+    rtable = Rex::Text::Table.new(
       'Header' => 'Port Forwarding Table',
       'Indent' =>  3,
       'Columns' => ['LOCAL IP', 'LOCAL PORT', 'REMOTE IP', 'REMOTE PORT']

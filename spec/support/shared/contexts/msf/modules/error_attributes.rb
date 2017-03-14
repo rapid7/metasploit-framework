@@ -1,5 +1,5 @@
 # -*- coding:binary -*-
-shared_context 'Msf::Modules::Error attributes' do
+RSpec.shared_context 'Msf::Modules::Error attributes' do
   let(:causal_message) do
     'rspec'
   end

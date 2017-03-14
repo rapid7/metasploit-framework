@@ -10,7 +10,7 @@ require 'abbrev'
 class Msf::Module::Platform
 
   Rank  = 0
-  # actually, having a argument of '' is what to do for wanting 'all'
+  # actually, having an argument of '' is what to do for wanting 'all'
   Short = "all"
 
   class << self
@@ -18,7 +18,7 @@ class Msf::Module::Platform
   end
 
   #
-  # Returns the "real" name of the module instance, accouting for potentially
+  # Returns the "real" name of the module instance, accounting for potentially
   # aliased class names.
   #
   def self.realname
@@ -409,6 +409,10 @@ class Msf::Module::Platform
       Rank = 700
       Alias = "10"
     end
+    class V11
+      Rank = 800
+      Alias = "11"
+    end
   end
 
   #
@@ -524,4 +528,29 @@ class Msf::Module::Platform
     Rank = 100
     Alias = "firefox"
   end
+
+  #
+  # Mainframe
+  #
+  class Mainframe < Msf::Module::Platform
+    Rank = 100
+    Alias = "mainframe"
+  end
+
+  #
+  # Multi (for wildcard-style platform functions)
+  #
+  class Multi < Msf::Module::Platform
+    Rank = 100
+    Alias = "multi"
+  end
+
+  #
+  # Hardware
+  #
+  class Hardware < Msf::Module::Platform
+    Rank = 100
+    Alias = "hardware"
+  end
+
 end

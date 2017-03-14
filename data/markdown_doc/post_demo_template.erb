@@ -1,0 +1,44 @@
+There are two ways to execute this post module.
+
+**From the Meterpreter prompt**
+
+The first is by using the "run" command at the Meterpreter prompt. It allows you to run the post
+module against that specific session:
+
+```
+meterpreter > run <%= mod.fullname %>
+```
+
+**From the msf prompt**
+
+The second is by using the "use" command at the msf prompt. You will have to figure out which
+session ID to set manually. To list all session IDs, you can use the "sessions" command.
+
+
+```
+msf > use <%= mod.fullname %>
+msf <%= mod.type %>(<%= mod.shortname %>) > show options
+    ... show and set options ...
+msf <%= mod.type %>(<%= mod.shortname %>) > set SESSION session-id
+msf <%= mod.type %>(<%= mod.shortname %>) > exploit
+```
+
+If you wish to run the post against all sessions from framework, here is how:
+
+1 - Create the following resource script:
+
+```
+<ruby>
+framework.sessions.each_pair do |sid, session|
+  run_single("use <%= mod.fullname %>")
+  run_single("set SESSION #{sid}")
+  run_single("run")
+end
+</ruby>
+```
+
+2 - At the msf prompt, execute the above resource script:
+
+```
+msf > resource path-to-resource-script
+```

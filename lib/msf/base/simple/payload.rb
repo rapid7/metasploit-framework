@@ -51,12 +51,13 @@ module Payload
 
     # Generate the payload
     e = EncodedPayload.create(payload,
-        'BadChars' => opts['BadChars'],
-        'MinNops'  => opts['NopSledSize'],
-        'Encoder'  => opts['Encoder'],
+        'BadChars'    => opts['BadChars'],
+        'MinNops'     => opts['NopSledSize'],
+        'Encoder'     => opts['Encoder'],
         'Iterations'  => opts['Iterations'],
         'ForceEncode' => opts['ForceEncode'],
-        'Space'    => opts['MaxSize'])
+        'DisableNops' => opts['DisableNops'],
+        'Space'       => opts['MaxSize'])
 
     fmt = opts['Format'] || 'raw'
 

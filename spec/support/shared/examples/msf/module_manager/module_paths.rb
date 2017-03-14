@@ -1,4 +1,4 @@
-shared_examples_for 'Msf::ModuleManager::ModulePaths' do
+RSpec.shared_examples_for 'Msf::ModuleManager::ModulePaths' do
   def module_paths
     module_manager.send(:module_paths)
   end
@@ -9,35 +9,8 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
         path_with_trailing_separator = path + File::SEPARATOR
         module_manager.add_module_path(path_with_trailing_separator)
 
-        module_paths.should_not include(path_with_trailing_separator)
-        module_paths.should include(path)
-      end
-    end
-
-    context 'with Fastlib archive' do
-      it 'should raise an ArgumentError unless the File exists' do
-        file = Tempfile.new(archive_basename)
-        # unlink will clear path, so copy it to a variable
-        path = file.path
-        file.unlink
-
-        File.exist?(path).should be_false
-
-        expect {
-          module_manager.add_module_path(path)
-        }.to raise_error(ArgumentError, "The path supplied does not exist")
-      end
-
-      it 'should add the path to #module_paths if the File exists' do
-        Tempfile.open(archive_basename) do |temporary_file|
-          path = temporary_file.path
-
-          File.exist?(path).should be_true
-
-          module_manager.add_module_path(path)
-
-          module_paths.should include(path)
-        end
+        expect(module_paths).not_to include(path_with_trailing_separator)
+        expect(module_paths).to include(path)
       end
     end
 
@@ -46,20 +19,7 @@ shared_examples_for 'Msf::ModuleManager::ModulePaths' do
         Dir.mktmpdir do |path|
           module_manager.add_module_path(path)
 
-          module_paths.should include(path)
-        end
-      end
-
-      context 'containing Fastlib archives' do
-        it 'should add each Fastlib archive to #module_paths' do
-          Dir.mktmpdir do |directory|
-            Tempfile.open(archive_basename, directory) do |file|
-              module_manager.add_module_path(directory)
-
-              module_paths.should include(directory)
-              module_paths.should include(file.path)
-            end
-          end
+          expect(module_paths).to include(path)
         end
       end
     end

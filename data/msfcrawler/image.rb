@@ -10,33 +10,26 @@
 
 require 'rubygems'
 require 'pathname'
-require 'hpricot'
+require 'nokogiri'
 require 'uri'
 
 class CrawlerImage < BaseParser
 
   def parse(request,result)
 
-    if !result['Content-Type'].include? "text/html"
-      return
-    end
+    return unless result['Content-Type'].include?('text/html')
 
-    doc = Hpricot(result.body.to_s)
-    doc.search('img').each do |i|
-
-    im = i.attributes['src']
-
-    if im and !im.match(/^(\#|javascript\:)/)
-      begin
-        hreq = urltohash('GET',im,request['uri'],nil)
-
-        insertnewpath(hreq)
-
-      rescue URI::InvalidURIError
-        #puts "Parse error"
-        #puts "Error: #{i[0]}"
+    doc = Nokogiri::HTML(result.body.to_s)
+    doc.css('img').each do |i|
+      im = i['src']
+      if im && !im.match(/^(\#|javascript\:)/)
+        begin
+          hreq = urltohash('GET', im, request['uri'], nil)
+          insertnewpath(hreq)
+        rescue URI::InvalidURIError
+        end
       end
-    end
+
     end
   end
 end

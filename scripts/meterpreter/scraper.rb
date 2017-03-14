@@ -1,3 +1,10 @@
+##
+# WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
+# If you'd like to imporve this script, please try to port it as a post
+# module instead. Thank you.
+##
+
+
 # This is a Meterpreter script designed to be used by the Metasploit Framework
 #
 # The goal of this script is to obtain system information from a victim through
@@ -73,7 +80,7 @@ logs = ::File.join(Msf::Config.log_directory, 'scripts','scraper', host + "_" + 
 unsupported if client.platform !~ /win32|win64/i
 begin
 
-  tmp = client.fs.file.expand_path("%TEMP%")
+  tmp = client.sys.config.getenv('TEMP')
 
   print_status("Gathering basic system information...")
 

@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit4 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -13,7 +13,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'Cisco Secure ACS Version < 5.1.0.44.5 or 5.2.0.26.2 Unauthorized Password Change',
+      'Name'         => 'Cisco Secure ACS Unauthorized Password Change',
       'Description'  => %q{
         This module exploits an authentication bypass issue which allows arbitrary
         password change requests to be issued for any user in the local store.

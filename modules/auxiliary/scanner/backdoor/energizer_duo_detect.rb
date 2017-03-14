@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
     sock.put(trojan_command(:nop))
 
     print_status("#{ip}:#{rport} FOUND: #{files.inspect}")
-    ## Add Vulnerability and Report
+    # Add Vulnerability and Report
     report_vuln({
       :host  => ip,
       :name  => "Energizer DUO USB Battery Charger Software Arucer.dll Trojaned Distribution",

@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@
 require 'msf/core'
 require 'msf/core/auxiliary/report'
 
-class Metasploit3 < Msf::Post
+class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
 
   def run
 
-    creds = Rex::Ui::Text::Table.new(
+    creds = Rex::Text::Table.new(
       'Header' => 'IMVU Credentials',
       'Indent' => 1,
       'Columns' =>[

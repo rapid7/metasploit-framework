@@ -52,12 +52,21 @@ class Console::CommandDispatcher::Priv::Timestomp
   #
   def cmd_timestomp(*args)
     if (args.length < 2)
-      print_line("\nUsage: timestomp file_path OPTIONS\n" +
+      print_line("\nUsage: timestomp OPTIONS file_path\n" +
         @@timestomp_opts.usage)
       return
     end
 
-    file_path = args.shift
+    file_path = nil
+    args.each { |a| file_path = a unless a[0] == "-" }
+
+    if file_path.nil?
+      print_line("\nNo file_path specified.")
+      return
+    end
+
+    args.delete(file_path)
+
     modified  = nil
     accessed  = nil
     creation  = nil

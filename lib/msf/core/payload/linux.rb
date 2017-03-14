@@ -87,13 +87,7 @@ module Msf::Payload::Linux
     ret
   end
 
-
-  #
-  # Overload the generate() call to prefix our stubs
-  #
-  def generate(*args)
-    # Call the real generator to get the payload
-    buf = super(*args)
+  def apply_prepends(buf)
     pre = ''
     app = ''
 
@@ -294,7 +288,7 @@ module Msf::Payload::Linux
                "\x44\xff\xff\x02"      #   sc                                 #
       end
 
-    elsif (test_arch.include?(ARCH_X86_64))
+    elsif (test_arch.include?(ARCH_X64))
 
       if (datastore['PrependFork'])
         # if (fork()) { exit(0); }

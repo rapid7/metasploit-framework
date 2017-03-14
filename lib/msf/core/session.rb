@@ -84,7 +84,7 @@ module Session
     #self.routes = []
   end
 
-  # Direct descendents
+  # Direct descendants
   require 'msf/core/session/interactive'
   require 'msf/core/session/basic'
   require 'msf/core/session/comm'
@@ -225,22 +225,6 @@ module Session
     "session_#{name}"
   end
 
-  #
-  # This method logs the supplied buffer as coming from the remote side of
-  # the session.
-  #
-  def log_from_remote(buf)
-    rlog(buf, log_source)
-  end
-
-  #
-  # This method logs the supplied buffer as coming from the local side of
-  # the session.
-  #
-  def log_from_local(buf)
-    rlog(buf, log_source)
-  end
-
   ##
   #
   # Core interface
@@ -338,6 +322,14 @@ module Session
     (self.alive)
   end
 
+  #
+  # Get an arch/platform combination
+  #
+  def session_type
+    "#{self.arch}/#{self.platform}"
+  end
+
+
   attr_accessor :alive
 
   #
@@ -384,6 +376,14 @@ module Session
   # The unique identifier of exploit that created this session
   #
   attr_accessor :exploit_uuid
+  #
+  # The unique identifier of the payload that created this session
+  #
+  attr_accessor :payload_uuid
+  #
+  # The unique machine identifier for the host that created this session
+  #
+  attr_accessor :machine_id
   #
   # The actual exploit module instance that created this session
   #

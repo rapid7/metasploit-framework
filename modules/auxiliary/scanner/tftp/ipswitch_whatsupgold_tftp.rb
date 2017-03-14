@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -20,16 +20,17 @@ class Metasploit3 < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Prabhu S Angadi',  #Initial discovery and poc
-          'sinn3r',           #Metasploit
-          'juan vazquez'      #More improvements
+          'Prabhu S Angadi',  # Initial discovery and poc
+          'sinn3r',           # Metasploit module
+          'juan vazquez'      # More improvements
         ],
       'References'     =>
         [
           ['OSVDB', '77455'],
           ['BID', '50890'],
           ['EDB', '18189'],
-          ['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt']
+          ['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt'],
+          ['CVE', '2011-4722']
         ],
       'DisclosureDate' => "Dec 12 2011"
     ))
@@ -37,8 +38,8 @@ class Metasploit3 < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(69),
-        OptString.new('FILENAME', [false, 'The file to loot', 'boot.ini']),
-        OptBool.new('SAVE', [false, 'Save the downloaded file to disk', 'false'])
+        OptString.new('FILENAME', [false, 'The file to loot', 'windows\\win.ini']),
+        OptBool.new('SAVE', [false, 'Save the downloaded file to disk', false])
       ], self.class)
   end
 

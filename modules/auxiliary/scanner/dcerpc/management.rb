@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http//metasploit.com/download
+# This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,7 @@
 require 'msf/core'
 
 
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::DCERPC
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
           #reportdata << "name: #{princ.unpack("H*")[0]}"
         end
 
-        ## Add Report
+        # Add Report
         report_note(
           :host   => ip,
           :proto  => 'tcp',

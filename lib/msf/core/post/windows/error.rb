@@ -1,3 +1,4 @@
+# -*- coding: binary -*-
 
 module Msf::Post::Windows::Error
   SUCCESS = 0x0000
@@ -2527,5 +2528,5 @@ module Msf::Post::Windows::Error
   SYSTEM_DEVICE_NOT_FOUND = 0x3BC3
   HASH_NOT_SUPPORTED = 0x3BC4
   HASH_NOT_PRESENT = 0x3BC5
-
+  INVALID_HANDLE_VALUE = 0xffffffff
 end

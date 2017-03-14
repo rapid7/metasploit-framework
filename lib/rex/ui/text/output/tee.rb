@@ -44,6 +44,8 @@ class Output::Tee < Rex::Ui::Text::Output
     msg
   end
 
+  alias :write :print_raw
+
   def close
     self.fd.close if self.fd
     self.fd = nil

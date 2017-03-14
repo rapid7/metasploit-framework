@@ -15,6 +15,33 @@ module Meterpreter
 ###
 class PacketResponseWaiter
 
+  # Arbitrary argument to {#completion_routine}
+  #
+  # @return [Object,nil]
+  attr_accessor :completion_param
+
+  # A callback to be called when this waiter is notified of a packet's
+  # arrival. If not nil, this will be called with the response packet as first
+  # parameter and {#completion_param} as the second.
+  #
+  # @return [Proc,nil]
+  attr_accessor :completion_routine
+
+  # @return [ConditionVariable]
+  attr_accessor :cond
+
+  # @return [Mutex]
+  attr_accessor :mutex
+
+  # @return [Packet]
+  attr_accessor :response
+
+  # @return [Integer] request ID to wait for
+  attr_accessor :rid
+
+  # @return [Boolean] indicates if part of the response has been received
+  attr_accessor :in_progress
+
   #
   # Initializes a response waiter instance for the supplied request
   # identifier.
@@ -22,12 +49,14 @@ class PacketResponseWaiter
   def initialize(rid, completion_routine = nil, completion_param = nil)
     self.rid      = rid.dup
     self.response = nil
+    self.in_progress = false
 
     if (completion_routine)
       self.completion_routine = completion_routine
       self.completion_param   = completion_param
     else
-      self.done  = false
+      self.mutex = Mutex.new
+      self.cond  = ConditionVariable.new
     end
   end
 
@@ -42,41 +71,48 @@ class PacketResponseWaiter
   #
   # Notifies the waiter that the supplied response packet has arrived.
   #
-  def notify(response)
-    self.response = response
-
+  # @param response [Packet]
+  # @return [void]
+  def notify(response, in_progress = false)
     if (self.completion_routine)
-      self.completion_routine.call(response, self.completion_param)
+      self.in_progress = in_progress
+      unless in_progress
+        self.response = response
+        self.completion_routine.call(response, self.completion_param)
+      end
     else
-      self.done = true
+      self.mutex.synchronize do
+        self.in_progress = in_progress
+        unless in_progress
+          # complete packet, ready for processing...
+          self.response = response
+          self.cond.signal
+        end
+      end
     end
   end
 
   #
-  # Waits for a given time interval for the response packet to arrive.
-  # If the interval is -1 we can wait forever.
+  # Wait for a given time interval for the response packet to arrive.
   #
+  # @param interval [Integer,nil] number of seconds to wait, or nil to wait
+  #   forever
+  # @return [Packet,nil] the response, or nil if the interval elapsed before
+  #   receiving one
   def wait(interval)
-    if( interval and interval == -1 )
-      while(not self.done)
-        ::IO.select(nil, nil, nil, 0.1)
-      end
-    else
-      begin
-        Timeout.timeout(interval) {
-          while(not self.done)
-            ::IO.select(nil, nil, nil, 0.1)
-          end
-        }
-      rescue Timeout::Error
-        self.response = nil
+    interval = nil if interval and interval == -1
+    self.mutex.synchronize do
+      if self.response.nil?
+        loop do
+          self.cond.wait(self.mutex, interval)
+          break unless self.in_progress
+          self.in_progress = false
+        end
       end
     end
     return self.response
   end
 
-  attr_accessor :rid, :done, :response # :nodoc:
-  attr_accessor :completion_routine, :completion_param # :nodoc:
 end
 
 end; end; end

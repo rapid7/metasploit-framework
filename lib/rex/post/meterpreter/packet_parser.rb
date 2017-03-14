@@ -12,6 +12,11 @@ module Meterpreter
 ###
 class PacketParser
 
+  # 4 byte xor
+  # 4 byte length
+  # 4 byte type
+  HEADER_SIZE = 12
+
   #
   # Initializes the packet parser context with an optional cipher.
   #
@@ -26,7 +31,7 @@ class PacketParser
   #
   def reset
     self.raw = ''
-    self.hdr_length_left = 8
+    self.hdr_length_left = HEADER_SIZE
     self.payload_length_left = 0
   end
 
@@ -34,6 +39,9 @@ class PacketParser
   # Reads data from the wire and parse as much of the packet as possible.
   #
   def recv(sock)
+    # Create a typeless packet
+    packet = Packet.new(0)
+
     if (self.hdr_length_left > 0)
       buf = sock.read(self.hdr_length_left)
 
@@ -49,9 +57,13 @@ class PacketParser
       # payload length left to the number of bytes
       # specified in the length
       if (self.hdr_length_left == 0)
-        self.payload_length_left = raw.unpack("N")[0] - 8
+        xor_key = raw[0, 4].unpack('N')[0]
+        length_bytes = packet.xor_bytes(xor_key, raw[4, 4])
+        # header size doesn't include the xor key, which is always tacked on the front
+        self.payload_length_left = length_bytes.unpack("N")[0] - (HEADER_SIZE - 4)
       end
-    elsif (self.payload_length_left > 0)
+    end
+    if (self.payload_length_left > 0)
       buf = sock.read(self.payload_length_left)
 
       if (buf)
@@ -63,25 +75,27 @@ class PacketParser
       end
     end
 
+    in_progress = true
+
+    # TODO: cipher decryption
+    if (cipher)
+    end
+
+    # Deserialize the packet from the raw buffer
+    packet.from_r(self.raw)
+
     # If we've finished reading the entire packet
     if ((self.hdr_length_left == 0) &&
         (self.payload_length_left == 0))
 
-      # Create a typeless packet
-      packet = Packet.new(0)
-
-      # TODO: cipher decryption
-      if (cipher)
-      end
-
-      # Serialize the packet from the raw buffer
-      packet.from_r(self.raw)
-
       # Reset our state
       reset
 
-      return packet
+      # packet is complete!
+      in_progress = false
     end
+
+    return packet, in_progress
   end
 
 protected

