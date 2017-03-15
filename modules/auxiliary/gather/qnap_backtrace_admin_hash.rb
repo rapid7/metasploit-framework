@@ -65,7 +65,11 @@ class MetasploitModule < Msf::Auxiliary
       @target = (xml.at('//platform').text == 'TS-NASX86' ? 'x86' : 'ARM')
       vprint_status("QNAP #{info[0]} #{info[1..-1].join('-')} detected")
 
-      Exploit::CheckCode::Detected
+      if Gem::Version.new(info[1]) < Gem::Version.new('4.2.3')
+        Exploit::CheckCode::Appears
+      else
+        Exploit::CheckCode::Detected
+      end
     else
       Exploit::CheckCode::Safe
     end
