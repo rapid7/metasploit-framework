@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Easy File Sharing FTP Server Version 3.6 and Earlier Directory Traversal Information Disclosure',
+      'Name'           => 'Easy File Sharing FTP Server 3.6 Directory Traversal',
       'Description'    => %q{
         This module exploits a directory traversal vulnerability found in Easy File Sharing FTP Server Version 3.6 and Earlier.
         This vulnerability allows an attacker to download arbitrary files from the server by crafting
@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if /Easy File Sharing FTP Server/i === banner
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Detected
       end
     ensure
       disconnect
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       connect_login
       sock = data_connect
       if sock.nil?
-        error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; posssible invalid response'
+        error_msg = 'data_connect failed; posssible invalid response'
         print_status(error_msg)
         elog(error_msg)
       else
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
         # read the file data from the socket that we opened
         # dont assume theres still a sock to read from. Per #7582
         if sock.nil?
-          error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; posssible invalid response'
+          error_msg = 'data_connect failed; posssible invalid response'
           print_status(error_msg)
           elog(error_msg)
           return
