@@ -39,11 +39,15 @@ class MetasploitModule < Msf::Auxiliary
         print_status("#{ip}:#{rport} TELNET #{banner_santized}")
         report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_santized)
       end
-    rescue ::Rex::ConnectionError
-    rescue Timeout::Error
+    rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
+      print_error("A network issue has occurred: #{e.message}")
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    rescue Timeout::Error => e
       print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
     rescue ::Exception => e
       print_error("#{e} #{e.backtrace}")
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
     end
   end
 end
