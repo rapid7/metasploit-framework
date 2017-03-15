@@ -18,8 +18,6 @@ class MetasploitModule < Msf::Auxiliary
         A binary search is performed to find the correct offset for the BOFs.
         Since the server forks, blind remote exploitation is possible, provided
         the heap does not have ASLR.
-
-        Note: you may need to bump RETRIES (default is 3) if the attack fails.
       },
       'Author'         => [
         'bashis',      # Vuln/PoC
@@ -47,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(443),
       OptInt.new('OFFSET_START', [true, 'Starting offset (crash)', 2000]),
       OptInt.new('OFFSET_END',   [true, 'Ending offset (no crash)', 5000]),
-      OptInt.new('RETRIES',      [true, 'Retry count for the attack', 3])
+      OptInt.new('RETRIES',      [true, 'Retry count for the attack', 10])
     ])
   end
 
