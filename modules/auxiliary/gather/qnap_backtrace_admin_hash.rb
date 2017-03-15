@@ -43,8 +43,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(443),
-      OptInt.new('OFFSET_START', [true, 'Starting offset (crash)', 2000]),
-      OptInt.new('OFFSET_END',   [true, 'Ending offset (no crash)', 5000]),
+      OptInt.new('OFFSET_START', [true, 'Starting offset (backtrace)', 2000]),
+      OptInt.new('OFFSET_END',   [true, 'Ending offset (no backtrace)', 5000]),
       OptInt.new('RETRIES',      [true, 'Retry count for the attack', 10])
     ])
   end
@@ -63,7 +63,6 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       @target = (xml.at('//platform').text == 'TS-NASX86' ? 'x86' : 'ARM')
-
       vprint_status("QNAP #{info[0]} #{info[1..-1].join('-')} detected")
 
       Exploit::CheckCode::Detected
