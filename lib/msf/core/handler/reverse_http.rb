@@ -356,10 +356,6 @@ protected
 
           print_status("Staging #{uuid.arch} payload (#{blob.length} bytes) ...")
 
-          if is_loopback_address(uri.host)
-            print_warning ("You are attempting to listen on a loopback address by setting LHOST to #{uri.host}, did you mean to set ReverseListenerBindAddress instead?")
-          end
-
           resp.body = blob
 
           # Short-circuit the payload's handle_connection processing for create_session
