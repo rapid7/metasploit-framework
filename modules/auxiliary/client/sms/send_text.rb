@@ -16,8 +16,8 @@ class MetasploitModule < Msf::Auxiliary
         This module sends a text message to multiple phones of the same carrier.
         You can use it to send a malicious link to phones.
 
-        Please note that you do not use this module to send a media file (attachment),
-        because that is MMS.
+        Please note that you do not use this module to send a media file (attachment).
+        In order to send a media file, please use auxiliary/client/mms/send_mms instead.
       },
       'Author'         => [ 'sinn3r' ],
       'License'        => MSF_LICENSE
