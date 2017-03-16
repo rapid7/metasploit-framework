@@ -93,7 +93,8 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getsid"      => "Get the SID of the user that the server is running as",
       "getenv"      => "Get one or more environment variable values",
       "kill"        => "Terminate a process",
-      "pkill"       => "Terminate a process by name",
+      "pkill"       => "Terminate processes by name",
+      "pgrep"       => "Filter processes by name",
       "ps"          => "List running processes",
       "reboot"      => "Reboots the remote computer",
       "reg"         => "Modify and interact with the remote registry",
@@ -115,7 +116,8 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getsid"      => [ "stdapi_sys_config_getsid" ],
       "getenv"      => [ "stdapi_sys_config_getenv" ],
       "kill"        => [ "stdapi_sys_process_kill" ],
-      "pkill"       => [ "stdapi_sys_process_kill" ],
+      "pkill"       => [ "stdapi_sys_process_kill", "stdapi_sys_process_get_processes" ],
+      "pgrep"       => [ "stdapi_sys_process_get_processes" ],
       "ps"          => [ "stdapi_sys_process_get_processes" ],
       "reboot"      => [ "stdapi_sys_power_exitwindows" ],
       "reg"	      => [
@@ -404,6 +406,35 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   #
+  # Filters processes by name
+  #
+  def cmd_pgrep(*args)
+    if args.include?('-h')
+      cmd_pgrep_help
+      return true
+    end
+
+    all_processes = client.sys.process.get_processes
+    processes = match_processes(all_processes, args, quiet: true)
+
+    if processes.length == 0 || processes.length == all_processes.length
+      return true
+    end
+
+    pids = processes.collect { |p| p['pid'] }
+    pids.each do | pid |
+      print_line(pid.to_s)
+    end
+    true
+  end
+
+  def cmd_pgrep_help
+    print_line("Usage: pgrep [ options ] pattern")
+    print_line("Filter processes by name.")
+    print_line @@ps_opts.usage
+  end
+
+  #
   # validates an array of pids against the running processes on target host
   # behavior can be controlled to allow/deny proces 0 and the session's process
   # the pids:
@@ -449,7 +480,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     valid_pids
   end
 
-  def match_processes(processes, args)
+  def match_processes(processes, args, quiet: false)
 
     search_proc = nil
     search_user = nil
@@ -479,18 +510,18 @@ class Console::CommandDispatcher::Stdapi::Sys
           print_error "Enter an architecture"
           processes = []
         else
-          print_line "Filtering on arch '#{val}"
+          print_line "Filtering on arch '#{val}" if !quiet
           processes = processes.select do |p|
             p['arch'] == val
           end
         end
       when "-s"
-        print_line "Filtering on SYSTEM processes..."
+        print_line "Filtering on SYSTEM processes..." if !quiet
         processes = processes.select do |p|
           ["NT AUTHORITY\\SYSTEM", "root"].include? p['user']
         end
       when "-c"
-        print_line "Filtering on child processes of the current shell..."
+        print_line "Filtering on child processes of the current shell..." if !quiet
         current_shell_pid = client.sys.process.getpid
         processes = processes.select do |p|
           p['ppid'] == current_shell_pid
@@ -499,7 +530,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     end
 
     unless search_proc.nil?
-      print_line "Filtering on '#{search_proc}'"
+      print_line "Filtering on '#{search_proc}'" if !quiet
       if exact_match
         processes = processes.select do |p|
           p['name'] == search_proc
@@ -513,7 +544,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     end
 
     unless search_user.nil?
-      print_line "Filtering on user '#{search_user}'"
+      print_line "Filtering on user '#{search_user}'" if !quiet
       if exact_match
         processes = processes.select do |p|
           p['user'] == search_user
