@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
     print_line("Starting scan...")
     (datastore['STARTID']..datastore['ENDID']).each do |id|
       res = set_dsc(datastore['CANBUS'], id, id + 8, 1)
-      scanned_ids += 1 
+      scanned_ids += 1
       next if res.nil?
       next unless res.key? "Packets"
       next unless res["Packets"].empty?
