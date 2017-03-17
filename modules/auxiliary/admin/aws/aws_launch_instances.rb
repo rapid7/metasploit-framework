@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
     opts['IamInstanceProfile.Name'] = datastore['ROLE_NAME'] unless datastore['ROLE_NAME'].blank?
     unless datastore['USERDATA_FILE'].blank?
       if File.exist?(datastore['USERDATA_FILE'])
-        opts['UserData'] = Base64.encode64(open(datastore['USERDATA_FILE'], 'r').read).strip
+        opts['UserData'] = URI.encode(Base64.encode64(open(datastore['USERDATA_FILE'], 'r').read).strip)
       else
         print_error("Could not open userdata file: #{datastore['USERDATA_FILE']}")
       end
