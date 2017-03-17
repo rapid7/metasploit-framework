@@ -7,25 +7,25 @@ require 'pathname'
 require 'nokogiri'
 require 'uri'
 
-class CrawlerSimple < BaseParser
+class CrawlerComments < BaseParser
 
   def parse(request,result)
     return unless result['Content-Type'].include?('text/html')
 
-    # doc = Hpricot(result.body.to_s)
     doc = Nokogiri::HTML(result.body.to_s)
-    doc.css('a').each do |anchor_tag|
-      hr = anchor_tag['href']
-      if hr && !hr.match(/^(\#|javascript\:)/)
+    doc.xpath('//comment()').each do |comment|
+      # searching for href
+      hr = /href\s*=\s*"([^"]*)"/.match(comment)
+      if hr
         begin
-          hreq = urltohash('GET', hr, request['uri'], nil)
+          hreq = urltohash('GET', hr[1], request['uri'], nil)
           insertnewpath(hreq)
         rescue URI::InvalidURIError
-          #puts "Parse error"
-          #puts "Error: #{link[0]}"
+          # ignored
         end
       end
+
     end
+
   end
 end
-
