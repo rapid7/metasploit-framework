@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.2)
+    metasploit-framework (4.14.3)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -104,7 +104,7 @@ GEM
     bcrypt (3.1.11)
     bit-struct (0.15.0)
     builder (3.2.3)
-    capybara (2.12.1)
+    capybara (2.13.0)
       addressable
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -145,8 +145,8 @@ GEM
     ffi (1.9.18)
     filesize (0.1.1)
     fivemat (1.3.2)
-    gherkin (4.0.0)
-    google-protobuf (3.2.0)
+    gherkin (4.1.1)
+    google-protobuf (3.2.0.2)
     googleauth (0.5.1)
       faraday (~> 0.9)
       jwt (~> 1.4)
@@ -164,7 +164,7 @@ GEM
     json (2.0.3)
     jwt (1.5.6)
     little-plugger (1.1.4)
-    logging (2.1.0)
+    logging (2.2.0)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
     loofah (2.0.3)
@@ -335,7 +335,7 @@ GEM
       faraday (~> 0.9)
       jwt (~> 1.5)
       multi_json (~> 1.10)
-    simplecov (0.13.0)
+    simplecov (0.14.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
