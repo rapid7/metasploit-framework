@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
 
   def test_api_function_calls
 
-    it "Results should include error information" do
+    it "Should include error information in the results" do
       ret = true
       result = session.railgun.kernel32.GetCurrentProcess()
       ret &&= result['GetLastError'] == 0
@@ -49,6 +49,25 @@ class MetasploitModule < Msf::Post
       ret &&= result['GetLastError'] == 0
       ret &&= result['ComputerName'].is_a? String
       ret &&= result['nSize'].to_i == result['ComputerName'].length
+    end
+
+    it "Should support calling multiple functions at once" do
+      ret = true
+      multi_rail = [
+        ['kernel32', 'LoadLibraryA', ['kernel32.dll']],
+        ['kernel32', 'GetModuleHandleA', ['kernel32.dll']],
+        ['kernel32', 'GetCurrentProcessId', []]
+      ]
+      results = session.railgun.multi(multi_rail)
+      ret &&= results.length == multi_rail.length
+      results.each do |result|
+        ret &&= result['GetLastError'] == 0
+        ret &&= result['return'] != 0
+      end
+
+      # LoadLibraryA('kernel32.dll') == GetModuleHandleA('kernel32.dll')
+      ret &&= results[0]['return'] == results[1]['return']
+      ret &&= results[2]['return'] == session.sys.process.getpid
     end
 
     it "Should support reading memory" do
