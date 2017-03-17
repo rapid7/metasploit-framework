@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Sends Beacons to Scan for Active Zigbee Networks',
+        'Name'          => 'Sends Beacons to Scan for Active ZigBee Networks',
         'Description'   => %q{ Post Module to send beacon signals to the broadcast address while
                                channel hopping},
         'License'       => MSF_LICENSE,
@@ -22,10 +22,10 @@ class MetasploitModule < Msf::Post
         'SessionTypes'  => ['hwbridge']
       ))
     register_options([
-      OptInt.new('CHANNEL', [false, "Disable channel hopping by forcing a channel", nil]),
-      OptInt.new('LOOP', [false, "How many times to loop over the channels. -1 is forever", 1]),
+      OptInt.new('CHANNEL', [false, "Disable channel hopping by forcing a channel (11-26)", nil]),
+      OptInt.new('LOOP', [false, "How many times to loop over the channels (-1 will run in an endless loop)", 1]),
       OptInt.new('DELAY', [false, "Delay in seconds to listen on each channel", 2]),
-      OptString.new('DEVICE', [false, "Zigbee device ID, defaults to target device", nil])
+      OptString.new('DEVICE', [false, "ZigBee device ID, defaults to target device", nil])
     ], self.class)
     @seq = 0
     @channel = 11
@@ -55,8 +55,6 @@ class MetasploitModule < Msf::Post
   end
 
   def scan
-    @loop_count += 1 if @channel > 26 or datastore["CHANNEL"]
-    @channel = 11 if @channel > 26
     @seq = 0 if @seq > 255
     print_status("Scanning Channel #{@channel}")
     set_channel(datastore["DEVICE"], @channel)
@@ -80,14 +78,17 @@ class MetasploitModule < Msf::Post
     sniffer_off(datastore["DEVICE"]) # Needed to clear receive buffers
     @seq += 1
     @channel += 1 if not datastore["CHANNEL"]
+    @loop_count += 1 if @channel > 26 or datastore["CHANNEL"]
+    @channel = 11 if @channel > 26
   end
 
   def run
     if not get_target_device and not datastore["DEVICE"]
-      print_error "No target device set.  Either set one with the 'target' command or specify the DEVICE"
+      print_error "No target device set.  Either set one with the 'target' command or specify the DEVICE."
       return
     end
     @channel = datastore["CHANNEL"] if datastore["CHANNEL"]
+    @channel = 11 if @channel > 26
     if datastore["LOOP"] == -1
       while(1) do
         scan

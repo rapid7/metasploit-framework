@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # KillerBee Metasploit relay server
 
 import re
@@ -171,7 +171,7 @@ class MSFHandler(BaseHTTPRequestHandler):
 
 class Killerbee_MSFRelay(cmd.Cmd):
     intro = """
-       Killerbee Metasploit Relay
+       KillerBee Metasploit Relay
 """
 
     def __init__(self, ip='0.0.0.0', port=8080):
@@ -191,7 +191,7 @@ class Killerbee_MSFRelay(cmd.Cmd):
             try:
                 self._sock = HTTPServer((self._ip, self._port), MSFHandler)
                 starttime = int(time.time())
-                print("Killerbee MSFRelay running.")
+                print("KillerBee MSFRelay running.")
                 self._sock.serve_forever()
             except KeyboardInterrupt:
                 self._sock.socket.close()
@@ -236,13 +236,13 @@ if __name__ == "__main__":
             if len(devs) > 0:
                 dev_found = True
             elif not wait_msg:
-                print("Insert Killerbee compatible Zigbee device.  (You may need to add permissions)")
+                print("Insert KillerBee compatible ZigBee device.  (You may need to add permissions)")
                 wait_msg = True
         except KeyboardInterrupt:
             sys.exit()
         except:
             if not wait_msg:
-                print("Insert Killerbee compatible Zigbee device.  (You may need to add permissions)")
+                print("Insert KillerBee compatible ZigBee device.  (You may need to add permissions)")
                 wait_msg = True
 
     beerelay = Killerbee_MSFRelay(ip, port)

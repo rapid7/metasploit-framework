@@ -42,14 +42,27 @@ module Utils
   DOT154_CRYPT_ENC_MIC64          = 0x06    #: Encryption, 64-bit MIC
   DOT154_CRYPT_ENC_MIC128         = 0x07    #: Encryption, 128-bit MIC
 
+  # Infer if the current session is for a ZigBee device.
+  # @return [Boolean] true if session is for a ZigBee device, false otherwise
+  def is_zigbee_hwbridge_session?
+    return true if client.zigbee
+    print_error("Not a ZigBee hwbridge session")
+    false
+  end
+
+  # Verify if a device has been specified.
+  # @return [Boolean] true if device is specified, false otherwise
+  def verify_device(device)
+    return true if device
+    print_line("No target device set, use 'target' or specify bus via the options.")
+    false
+  end
+
   # Retrieves the target Zigbee device.  This is typically set by the user via the
   # interactive HWBridge command line
   # @return [String] Zigbee device ID
   def get_target_device
-    if not client.zigbee
-      print_error("Not a Zigbee hwbridge session")
-      return
-    end
+    return unless is_zigbee_hwbridge_session?
     return client.zigbee.get_target_device
   end
 
@@ -57,10 +70,7 @@ module Utils
   # Instead the user is expected to set this via the interactive HWBridge commandline
   # @param device [String] Zigbee device ID
   def set_target_device(device)
-    if not client.zigbee
-      print_error("Not a Zigbee hwbridge session")
-      return
-    end
+    return unless is_zigbee_hwbridge_session?
     client.zigbee.set_target_device device
   end
 
@@ -68,15 +78,9 @@ module Utils
   # @param device [String] Zigbee device ID
   # @param channel [Integer] Channel number, typically 11-25
   def set_channel(device, channel)
-    if not client.zigbee
-      print_error("Not a Zigbee hwbridge session")
-      return {}
-    end
-    device = client.zigbee.target_device if not device
-    if not device
-      print_line("No target device set, use 'target' or specify bus via the options")
-      return {}
-    end
+    return {} unless is_zigbee_hwbridge_session?
+    device = client.zigbee.target_device unless device
+    return {} unless verify_device(device)
     client.zigbee.set_channel(device, channel)
   end
 
@@ -84,15 +88,9 @@ module Utils
   # @param device [String] Zigbee device ID
   # @param data [String] Raw binary data sent as a string
   def inject(device, data)
-    if not client.zigbee
-      print_error("Not a Zigbee hwbridge session")
-      return {}
-    end
-    device = client.zigbee.target_device if not device
-    if not device
-      print_line("No target device set, use 'target' or specify bus via the options")
-      return {}
-    end
+    return {} unless is_zigbee_hwbridge_session?
+    device = client.zigbee.target_device unless device
+    return {} unless verify_device(device)
     client.zigbee.inject(device, data)
   end
 
@@ -100,45 +98,27 @@ module Utils
   # @param device [String] Zigbee device ID
   # @return [String] Binary blob of returned data
   def recv(device)
-    if not client.zigbee
-      print_error("Not a Zigbee hwbridge session")
-      return {}
-    end
-    device = client.zigbee.target_device if not device
-    if not device
-      print_line("No target device set, use 'target' or specify bus via the options")
-      return {}
-    end
+    return {} unless is_zigbee_hwbridge_session?
+    device = client.zigbee.target_device unless device
+    return {} unless verify_device(device)
     client.zigbee.recv(device)
   end
 
   # Turn off Zigbee receiving
   # @param device [String] Zigbee device ID
   def sniffer_off(device)
-    if not client.zigbee
-      print_error("Not a Zigbee hwbridge session")
-      return {}
-    end
-    device = client.zigbee.target_device if not device
-    if not device
-      print_line("No target device set, use 'target' or specify bus via the options")
-      return {}
-    end
+    return {} unless is_zigbee_hwbridge_session?
+    device = client.zigbee.target_device unless device
+    return {} unless verify_device(device)
     client.zigbee.sniffer_off(device)
   end
 
   # Turn on Zigbee receiving
   # @param device [String] Zigbee device ID
   def sniffer_on(device)
-    if not client.zigbee
-      print_error("Not a Zigbee hwbridge session")
-      return {}
-    end
-    device = client.zigbee.target_device if not device
-    if not device
-      print_line("No target device set, use 'target' or specify bus via the options")
-      return {}
-    end
+    return {} unless is_zigbee_hwbridge_session?
+    device = client.zigbee.target_device unless device
+    return {} unless verify_device(device)
     client.zigbee.sniffer_on(device)
   end
 

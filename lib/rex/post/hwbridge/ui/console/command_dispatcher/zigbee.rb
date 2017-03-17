@@ -6,6 +6,7 @@ module Rex
 module Post
 module HWBridge
 module Ui
+
 ###
 # Zigbee extension - set of commands to be executed on Zigbee compatible devices
 ###
@@ -18,7 +19,7 @@ class Console::CommandDispatcher::Zigbee
   #
   def commands
     all = {
-      'supported_devices'   => 'Get supported zigbee devices',
+      'supported_devices'   => 'Get supported ZigBee devices',
       'target' => 'Set the target device id',
       'channel' => 'Set the channel'
     }
@@ -38,19 +39,19 @@ class Console::CommandDispatcher::Zigbee
   #
   def cmd_supported_devices
     devices = client.zigbee.supported_devices
-    if not devices or not devices.has_key? "devices"
+    if !devices or !devices.has_key? "devices"
       print_line("error retrieving list of devices")
       return
     end
     devices = devices["devices"]
-    if not devices.size > 0
+    unless devices.size > 0
       print_line("none")
       return
     end
     set_target_device(devices[0]) if devices.size == 1
     str = "Supported Devices: "
-    str += devices.join(', ')
-    str += "\nUse device name to set your desired device, default is: #{self.target_device}"
+    str << devices.join(', ')
+    str << "\nUse device name to set your desired device, default is: #{self.target_device}"
     print_line(str)
   end
 
@@ -60,7 +61,7 @@ class Console::CommandDispatcher::Zigbee
   def cmd_target(*args)
     self.target_device = ""
     device_opts = Rex::Parser::Arguments.new(
-      '-h' => [ false, 'Help Banner' ],
+      '-h' => [ false, 'Help banner' ],
       '-d' => [ true, 'Device ID' ]
     )
     device_opts.parse(args) do |opt, _idx, val|
@@ -83,9 +84,9 @@ class Console::CommandDispatcher::Zigbee
     chan = 11
     dev = self.target_device if self.target_device
     xopts = Rex::Parser::Arguments.new(
-      '-h' => [ false, 'Help Banner' ],
-      '-d' => [ true, 'Zigbee Device' ],
-      '-c' => [ true, 'channel number' ]
+      '-h' => [ false, 'Help banner' ],
+      '-d' => [ true, 'ZigBee device' ],
+      '-c' => [ true, 'Channel number' ]
     )
     xopts.parse(args) do |opt, _idx, val|
       case opt
@@ -99,7 +100,7 @@ class Console::CommandDispatcher::Zigbee
         chan = val.to_i
       end
     end
-    if not dev
+    if !dev
       print_line("You must specify or set a target device")
       return
     end
