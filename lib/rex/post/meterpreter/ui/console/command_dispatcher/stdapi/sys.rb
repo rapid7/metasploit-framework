@@ -393,7 +393,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       return true
     end
 
-    pids = processes.collect { |p| p['pid'] }
+    pids = processes.collect { |p| p['pid'] }.reverse
     print_line("Killing: #{pids.join(', ')}")
     client.sys.process.kill(*(pids.map { |x| x }))
     true
