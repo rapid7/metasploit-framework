@@ -180,14 +180,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def storedb(hashreq,response,dbpath)
 
+    # Added host/port/ssl for report_web_page support
     info = {
       :web_site => @current_site,
       :path     => hashreq['uri'],
       :query    => hashreq['query'],
-      :data	=> hashreq['data'],
-      :code     => response['code'],
-      :body     => response['body'],
-      :headers  => response['headers']
+      :host     => hashreq['rhost'],
+      :port     => hashreq['rport'],
+      :ssl      => !hashreq['ssl'].nil?,
+      :data	    => hashreq['data'],
+      :code     => response.code,
+      :body     => response.body,
+      :headers  => response.headers
     }
 
     #if response['content-type']
