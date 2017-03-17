@@ -72,6 +72,20 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-h" => [ false, "Help menu." ])
 
   #
+  # Options for the 'pgrep' command.
+  #
+  @@pgrep_opts = Rex::Parser::Arguments.new(
+    "-S" => [ true,  "Filter on process name" ],
+    "-U" => [ true,  "Filter on user name" ],
+    "-A" => [ true,  "Filter on architecture" ],
+    "-x" => [ false, "Filter for exact matches rather than regex" ],
+    "-s" => [ false, "Filter only SYSTEM processes" ],
+    "-c" => [ false, "Filter only child processes of the current shell" ],
+    "-l" => [ false, "Display process name with PID" ],
+    "-f" => [ false, "Display process path and args with PID (combine with -l)" ],
+    "-h" => [ false, "Help menu." ])
+
+  #
   # Options for the 'suspend' command.
   #
   @@suspend_opts = Rex::Parser::Arguments.new(
@@ -418,9 +432,19 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Filters processes by name
   #
   def cmd_pgrep(*args)
-    if args.include?('-h')
-      cmd_pgrep_help
-      return true
+    f_flag = false
+    l_flag = false
+
+    @@pgrep_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-h'
+        cmd_pgrep_help
+        return true
+      when '-l'
+        l_flag = true
+      when '-f'
+        f_flag = true
+      end
     end
 
     all_processes = client.sys.process.get_processes
@@ -429,10 +453,6 @@ class Console::CommandDispatcher::Stdapi::Sys
     if processes.length == 0 || processes.length == all_processes.length
       return true
     end
-
-    # XXX fix Rex parser to properly handle adjacent short flags
-    f_flag = args.include?('-f') || args.include?('-lf') || args.include?('-fl')
-    l_flag = args.include?('-l') || args.include?('-lf') || args.include?('-fl')
 
     processes.each do |p|
       if l_flag
@@ -451,7 +471,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_pgrep_help
     print_line("Usage: pgrep [ options ] pattern")
     print_line("Filter processes by name.")
-    print_line @@ps_opts.usage
+    print_line @@pgrep_opts.usage
   end
 
   #
