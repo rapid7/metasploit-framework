@@ -421,9 +421,20 @@ class Console::CommandDispatcher::Stdapi::Sys
       return true
     end
 
-    pids = processes.collect { |p| p['pid'] }
-    pids.each do | pid |
-      print_line(pid.to_s)
+    # XXX fix Rex parser to properly handle adjacent short flags
+    f_flag = args.include?('-f') || args.include?('-lf') || args.include?('-fl')
+    l_flag = args.include?('-l') || args.include?('-lf') || args.include?('-fl')
+
+    processes.each do |p|
+      if l_flag
+        if f_flag
+          print_line("#{p['pid']} #{p['path']}")
+        else
+          print_line("#{p['pid']} #{p['name']}")
+        end
+      else
+        print_line("#{p['pid']}")
+      end
     end
     true
   end
