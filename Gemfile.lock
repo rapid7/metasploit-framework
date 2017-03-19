@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.1)
+    metasploit-framework (4.14.3)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -14,7 +14,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.2.16)
+      metasploit-payloads (= 1.2.19)
       metasploit_data_models
       metasploit_payloads-mettle (= 0.1.7)
       msgpack
@@ -104,7 +104,7 @@ GEM
     bcrypt (3.1.11)
     bit-struct (0.15.0)
     builder (3.2.3)
-    capybara (2.12.1)
+    capybara (2.13.0)
       addressable
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -142,17 +142,38 @@ GEM
       railties (>= 3.0.0)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
-    ffi (1.9.17)
+    ffi (1.9.18)
     filesize (0.1.1)
     fivemat (1.3.2)
-    gherkin (4.0.0)
+    gherkin (4.1.1)
+    google-protobuf (3.2.0.2)
+    googleauth (0.5.1)
+      faraday (~> 0.9)
+      jwt (~> 1.4)
+      logging (~> 2.0)
+      memoist (~> 0.12)
+      multi_json (~> 1.11)
+      os (~> 0.9)
+      signet (~> 0.7)
+    grpc (1.1.2)
+      google-protobuf (~> 3.1)
+      googleauth (~> 0.5.1)
     i18n (0.8.1)
     jsobfu (0.4.2)
       rkelly-remix
     json (2.0.3)
+    jwt (1.5.6)
+    little-plugger (1.1.4)
+    logging (2.2.0)
+      little-plugger (~> 1.1)
+      multi_json (~> 1.10)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
-    metasm (1.0.2)
+    memoist (0.15.0)
+    metasm (1.0.3)
+    metasploit-aggregator (0.1.3)
+      grpc
+      rex-arch
     metasploit-concern (2.0.3)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -169,7 +190,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.2.16)
+    metasploit-payloads (1.2.19)
     metasploit_data_models (2.0.14)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -187,25 +208,26 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.10.1)
-    msgpack (1.0.3)
+    msgpack (1.1.0)
     multi_json (1.12.1)
     multi_test (0.1.2)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
     net-ssh (4.1.0)
     network_interface (0.0.1)
-    nexpose (5.3.0)
+    nexpose (5.3.1)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
     octokit (4.6.2)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
+    os (0.9.6)
     packetfu (1.1.13.pre)
       pcaprub
     patch_finder (1.0.2)
     pcaprub (0.12.4)
-    pg (0.19.0)
+    pg (0.20.0)
     pg_array_parser (0.0.9)
     postgres_ext (3.0.0)
       activerecord (>= 4.0.0)
@@ -234,7 +256,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.0.0)
     rb-readline (0.5.4)
-    recog (2.1.4)
+    recog (2.1.5)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.4)
@@ -308,7 +330,12 @@ GEM
       faraday (~> 0.8, < 1.0)
     shoulda-matchers (3.1.1)
       activesupport (>= 4.0.0)
-    simplecov (0.13.0)
+    signet (0.7.3)
+      addressable (~> 2.3)
+      faraday (~> 0.9)
+      jwt (~> 1.5)
+      multi_json (~> 1.10)
+    simplecov (0.14.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
@@ -321,9 +348,9 @@ GEM
     timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2016.10)
+    tzinfo-data (1.2017.1)
       tzinfo (>= 1.0.0)
-    windows_error (0.1.0)
+    windows_error (0.1.1)
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.9.8)
@@ -336,6 +363,7 @@ DEPENDENCIES
   cucumber-rails
   factory_girl_rails
   fivemat
+  metasploit-aggregator
   metasploit-framework!
   octokit (~> 4.0)
   pry
@@ -348,4 +376,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.14.5
+   1.14.6

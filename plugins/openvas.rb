@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 #
 # This plugin provides integration with OpenVAS. Written by kost and
 # averagesecurityguy.

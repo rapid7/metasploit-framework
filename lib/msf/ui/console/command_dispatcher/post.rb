@@ -63,7 +63,7 @@ class Post
   end
 
   #
-  # Reloads an auxiliary module and executes it
+  # Reloads a post module and executes it
   #
   def cmd_rerun(*args)
     # Stop existing job and reload the module
@@ -75,7 +75,7 @@ class Post
   alias cmd_rexploit cmd_rerun
 
   #
-  # Executes an auxiliary module
+  # Executes a post module
   #
   def cmd_run(*args)
     opt_str = nil
@@ -144,7 +144,7 @@ class Post
     print_line "Usage: run [options]"
     print_line
     print_line "Launches a post module."
-    print @@auxiliary_opts.usage
+    print @@post_opts.usage
   end
 
   alias cmd_exploit_help cmd_run_help

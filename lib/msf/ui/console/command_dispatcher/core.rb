@@ -715,27 +715,34 @@ class Core
   end
 
   def cmd_load_help
-    print_line "Usage: load <path> [var=val var=val ...]"
+    print_line "Usage: load <option> [var=val var=val ...]"
     print_line
-    print_line "Loads a plugin from the supplied path.  If path is not absolute, first looks"
-    print_line "in the user's plugin directory (#{Msf::Config.user_plugin_directory}) then"
-    print_line "in the framework root plugin directory (#{Msf::Config.plugin_directory})."
+    print_line "Loads a plugin from the supplied path."
+    print_line "For a list of built-in plugins, do: load -l"
     print_line "The optional var=val options are custom parameters that can be passed to plugins."
     print_line
   end
 
-  #
-  # Loads a plugin from the supplied path.  If no absolute path is supplied,
-  # the framework root plugin directory is used.
-  #
-  def cmd_load(*args)
-    if (args.length == 0)
-      cmd_load_help
-      return false
-    end
+  def list_plugins
+    plugin_directories = {
+      'Framework' => Msf::Config.plugin_directory,
+      'User'      => Msf::Config.user_plugin_directory
+    }
 
-    # Default to the supplied argument path.
-    path = args.shift
+    plugin_directories.each do |type, plugin_directory|
+      items = Dir.entries(plugin_directory).keep_if { |n| n.match(/^.+\.rb$/)}
+      next if items.empty?
+      print_status("Available #{type} plugins:")
+      items.each do |item|
+        print_line("    * #{item.split('.').first}")
+      end
+      print_line
+    end
+  end
+
+  def load_plugin(args)
+    path = args[0]
+
     opts  = {
       'LocalInput'    => driver.input,
       'LocalOutput'   => driver.output,
@@ -759,7 +766,6 @@ class Core
         # If the following "path" doesn't exist it will be caught when we attempt to load
         path = Msf::Config.plugin_directory + File::SEPARATOR + plugin_file_name
       end
-
     end
 
     # Load that plugin!
@@ -770,6 +776,21 @@ class Core
     rescue ::Exception => e
       elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", 'core', 0, caller)
       print_error("Failed to load plugin from #{path}: #{e}")
+    end
+  end
+
+  #
+  # Loads a plugin from the supplied path.  If no absolute path is supplied,
+  # the framework root plugin directory is used.
+  #
+  def cmd_load(*args)
+    case args[0]
+    when '-l'
+      list_plugins
+    when '-h', nil, ''
+      cmd_load_help
+    else
+      load_plugin(args)
     end
   end
 
@@ -1528,6 +1549,16 @@ class Core
         print_error("Unknown variable")
         cmd_set_help
         return false
+      end
+    end
+
+    # Warn when setting RHOST option for module which expects RHOSTS
+    if args.first.upcase.eql?('RHOST')
+      mod = active_module
+      unless mod.nil?
+        if !mod.options.include?('RHOST') && mod.options.include?('RHOSTS')
+          print_warning("RHOST is not a valid option for this module. Did you mean RHOSTS?")
+        end
       end
     end
 
