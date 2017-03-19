@@ -92,6 +92,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getsid"      => "Get the SID of the user that the server is running as",
       "getenv"      => "Get one or more environment variable values",
       "kill"        => "Terminate a process",
+      "powershell"  => "Drop into an interactive PowerShell session",
       "ps"          => "List running processes",
       "reboot"      => "Reboots the remote computer",
       "reg"         => "Modify and interact with the remote registry",
@@ -113,6 +114,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getsid"      => [ "stdapi_sys_config_getsid" ],
       "getenv"      => [ "stdapi_sys_config_getenv" ],
       "kill"        => [ "stdapi_sys_process_kill" ],
+      "powershell"  => [ "stdapi_sys_process_execute" ],
       "ps"          => [ "stdapi_sys_process_get_processes" ],
       "reboot"      => [ "stdapi_sys_power_exitwindows" ],
       "reg"	      => [
@@ -247,7 +249,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       # attempt the shell with thread impersonation
       begin
         cmd_execute("-f", path, "-c", "-H", "-i", "-t")
-      rescue
+      rescue Rex::Post::Meterpreter::RequestError
         # if this fails, then we attempt without impersonation
         print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
         cmd_execute("-f", path, "-c", "-H", "-i")
@@ -266,6 +268,29 @@ class Console::CommandDispatcher::Stdapi::Sys
     end
   end
 
+  # Drop into an interactive PowerShell session
+  def cmd_powershell(*args)
+    unless client.platform.include?('win')
+      print_error("Platform not supported: #{client.platform}")
+      return
+    end
+
+    path = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+
+    unless client.fs.file.exists?(path)
+      print_error("PowerShell not found: #{path}")
+      return
+    end
+
+    psh_args = '-NoProfile -ExecutionPolicy Bypass -Command -'
+
+    begin
+      cmd_execute('-f', path, '-c', '-i', '-t', '-a', psh_args)
+    rescue Rex::Post::Meterpreter::RequestError
+      print_error('Failed to spawn shell with thread impersonation. Retrying without it.')
+      cmd_execute('-f', path, '-c', '-i', '-a', psh_args)
+    end
+  end
 
   #
   # Gets the process identifier that meterpreter is running in on the remote
