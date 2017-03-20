@@ -116,16 +116,13 @@ class Channel
     begin
       response = client.send_request(request)
       cid = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
-    rescue RequestError
-      # Handle channel open failure exceptions
+      if cid.nil?
+        raise Rex::Post::Meterpreter::RequestError
+      end
     end
 
-    if cid
-      # Create the channel instance
-      klass.new(client, cid, type, flags)
-    else
-      raise Rex::ConnectionRefused
-    end
+    # Create the channel instance
+    klass.new(client, cid, type, flags)
   end
 
   ##

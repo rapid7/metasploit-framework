@@ -75,22 +75,27 @@ class PacketParser
       end
     end
 
+    in_progress = true
+
+    # TODO: cipher decryption
+    if (cipher)
+    end
+
+    # Deserialize the packet from the raw buffer
+    packet.from_r(self.raw)
+
     # If we've finished reading the entire packet
     if ((self.hdr_length_left == 0) &&
         (self.payload_length_left == 0))
 
-      # TODO: cipher decryption
-      if (cipher)
-      end
-
-      # Deserialize the packet from the raw buffer
-      packet.from_r(self.raw)
-
       # Reset our state
       reset
 
-      return packet
+      # packet is complete!
+      in_progress = false
     end
+
+    return packet, in_progress
   end
 
 protected

@@ -86,7 +86,7 @@ if (!$s) { die(); }
 
     php << php_send_uuid if include_send_uuid
 
-    php << %Q^switch ($s_type) { 
+    php << %Q^switch ($s_type) {
 case 'stream': $len = fread($s, 4); break;
 case 'socket': $len = socket_read($s, 4); break;
 }

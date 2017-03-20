@@ -14,13 +14,13 @@ module Metasploit
 
         # Checks if the target is BAVision Camera's web server. The login module should call this.
         #
-        # @return [Boolean] TrueClass if target is SWG, otherwise FalseClass
+        # @return [String] Error message if target is not a BAVision camera, otherwise FalseClass
         def check_setup
           login_uri = normalize_uri("#{uri}")
           res = send_request({'uri'=> login_uri})
 
-          if res && res.headers['WWW-Authenticate'].match(/realm="IPCamera Login"/)
-            return true
+          unless res && res.headers['WWW-Authenticate'] && res.headers['WWW-Authenticate'].match(/realm="IPCamera Login"/)
+            return "Unable to locate \"realm=IPCamera Login\" in headers. (Is this really a BAVision camera?)"
           end
 
           false

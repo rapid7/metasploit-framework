@@ -1419,7 +1419,7 @@ class Def_kernel32
       ["DWORD","nSize","in"],
       ])
 
-    dll.add_function( 'GetModuleHandleA', 'DWORD',[
+    dll.add_function( 'GetModuleHandleA', 'HANDLE',[
       ["PCHAR","lpModuleName","in"],
       ])
 
@@ -1435,7 +1435,7 @@ class Def_kernel32
       ["PDWORD","phModule","out"],
       ])
 
-    dll.add_function( 'GetModuleHandleW', 'DWORD',[
+    dll.add_function( 'GetModuleHandleW', 'HANDLE',[
       ["PWCHAR","lpModuleName","in"],
       ])
 
@@ -1591,7 +1591,7 @@ class Def_kernel32
       ["PDWORD","pdwHandleCount","out"],
       ])
 
-    dll.add_function( 'GetProcessHeap', 'DWORD',[
+    dll.add_function( 'GetProcessHeap', 'HANDLE',[
       ])
 
     dll.add_function( 'GetProcessHeaps', 'DWORD',[
@@ -2078,7 +2078,7 @@ class Def_kernel32
       ["DWORD","dwFlags","in"],
       ])
 
-    dll.add_function( 'HeapCreate', 'DWORD',[
+    dll.add_function( 'HeapCreate', 'HANDLE',[
       ["DWORD","flOptions","in"],
       ["DWORD","dwInitialSize","in"],
       ["DWORD","dwMaximumSize","in"],
@@ -2258,23 +2258,23 @@ class Def_kernel32
       ["PBLOB","lpCriticalSection","inout"],
       ])
 
-    dll.add_function( 'LoadLibraryA', 'DWORD',[
+    dll.add_function( 'LoadLibraryA', 'HANDLE',[
       ["PCHAR","lpLibFileName","in"],
       ])
 
-    dll.add_function( 'LoadLibraryExA', 'DWORD',[
+    dll.add_function( 'LoadLibraryExA', 'HANDLE',[
       ["PCHAR","lpLibFileName","in"],
       ["HANDLE","hFile","inout"],
       ["DWORD","dwFlags","in"],
       ])
 
-    dll.add_function( 'LoadLibraryExW', 'DWORD',[
+    dll.add_function( 'LoadLibraryExW', 'HANDLE',[
       ["PWCHAR","lpLibFileName","in"],
       ["HANDLE","hFile","inout"],
       ["DWORD","dwFlags","in"],
       ])
 
-    dll.add_function( 'LoadLibraryW', 'DWORD',[
+    dll.add_function( 'LoadLibraryW', 'HANDLE',[
       ["PWCHAR","lpLibFileName","in"],
       ])
 

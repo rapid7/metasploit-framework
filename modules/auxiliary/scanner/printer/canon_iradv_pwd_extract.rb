@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     #grab Canon sessionid cookie
     idcookie = res.nil? ? nil : res.get_cookies
 
-    if res.code == 301 || res.code == 302 && res.headers.include?('Location')
+    if res && (res.code == 301 || res.code == 302 && res.headers.include?('Location'))
       print_good("#{rhost} - SUCCESSFUL login with USER='#{datastore['USER']}' : PASSWORD='#{datastore['PASSWD']}'")
 
       #grab Canon IR= session cookie

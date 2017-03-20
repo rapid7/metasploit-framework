@@ -59,6 +59,7 @@ module ReverseHttp
         OptBool.new('OverrideRequestHost', [false, 'Forces a specific host and port instead of using what the client requests, defaults to LHOST:LPORT', false]),
         OptString.new('OverrideLHOST', [false, 'When OverrideRequestHost is set, use this value as the host name for secondary requests']),
         OptPort.new('OverrideLPORT', [false, 'When OverrideRequestHost is set, use this value as the port number for secondary requests']),
+        OptString.new('OverrideScheme', [false, 'When OverrideRequestHost is set, use this value as the scheme for secondary requests, e.g http or https']),
         OptString.new('HttpUnknownRequestResponse', [false, 'The returned HTML response body when the handler receives a request that is not from a payload', '<html><body><h1>It works!</h1></body></html>']),
         OptBool.new('IgnoreUnknownPayloads', [false, 'Whether to drop connections from payloads using unknown UUIDs', false])
       ], Msf::Handler::ReverseHttp)
@@ -91,6 +92,7 @@ module ReverseHttp
   # @return [String] A URI of the form +scheme://host:port/+
   def payload_uri(req=nil)
     callback_host = nil
+    callback_scheme = nil
 
     # Extract whatever the client sent us in the Host header
     if req && req.headers && req.headers['Host']
@@ -103,6 +105,7 @@ module ReverseHttp
     if datastore['OverrideRequestHost'] || callback_host.nil?
       callback_host = datastore['OverrideLHOST']
       callback_port = datastore['OverrideLPORT']
+      callback_scheme = datastore['OverrideScheme']
     end
 
     if callback_host.nil? || callback_host.empty?
@@ -111,6 +114,10 @@ module ReverseHttp
 
     if callback_port.nil? || callback_port.zero?
       callback_port = datastore['LPORT']
+    end
+
+    if callback_scheme.nil? || callback_scheme.empty?
+      callback_scheme = scheme
     end
 
     if Rex::Socket.is_ipv6? callback_host
@@ -122,9 +129,9 @@ module ReverseHttp
     end
 
     if callback_port
-      "#{scheme}://#{callback_host}:#{callback_port}"
+      "#{callback_scheme}://#{callback_host}:#{callback_port}"
     else
-      "#{scheme}://#{callback_host}"
+      "#{callback_scheme}://#{callback_host}"
     end
   end
 
@@ -412,4 +419,3 @@ end
 
 end
 end
-

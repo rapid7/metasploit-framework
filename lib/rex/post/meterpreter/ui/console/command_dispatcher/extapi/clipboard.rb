@@ -373,6 +373,12 @@ private
   def download_file( dest_folder, source )
     stat = client.fs.file.stat( source )
     base = ::Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File.basename( source )
+
+    # Basename ends up with a single name/folder. This is the only point where it
+    # may be possible to do a dir trav up one folder. We need to check to make sure
+    # that the basename doesn't result in a traversal
+    return false if base == '..'
+
     dest = File.join( dest_folder, base )
 
     if stat.directory?
@@ -386,6 +392,8 @@ private
         client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
       }
     end
+
+    return true
   end
 
   def parse_dump(dump, get_images, get_files, download_path)
@@ -406,15 +414,15 @@ private
           print_line(v)
 
         when 'Files'
-          total = 0
           v.each do |f|
             print_line("Remote Path : #{f[:name]}")
             print_line("File size   : #{f[:size]} bytes")
             if get_files
-              download_file( loot_dir, f[:name] )
+              unless download_file(loot_dir, f[:name])
+                print_error("Download of #{f[:name]} failed.")
+              end
             end
             print_line
-            total += f[:size]
           end
 
         when 'Image'

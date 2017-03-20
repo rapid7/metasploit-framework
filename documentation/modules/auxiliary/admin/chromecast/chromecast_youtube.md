@@ -1,4 +1,4 @@
-This module plays (by default) [https://www.youtube.com/watch?v=kxopViU98Xo]("Epic sax guy 10 hours") on a target Google Chromecast via YouTube.
+This module plays (by default) ["Epic sax guy 10 hours"](https://www.youtube.com/watch?v=kxopViU98Xo) on a target Google Chromecast via YouTube.
 
 Naturally, audio should be cranked to 11 before running this module.
 
@@ -12,7 +12,7 @@ Naturally, audio should be cranked to 11 before running this module.
 
   **VID**
 
-  The YouTube video to be played.  Defaults to [https://www.youtube.com/watch?v=kxopViU98Xo](kxopViU98Xo)
+  The YouTube video to be played.  Defaults to [kxopViU98Xo](https://www.youtube.com/watch?v=kxopViU98Xo)
 
 ## Sample Output
 

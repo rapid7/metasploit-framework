@@ -63,7 +63,7 @@ class Console::CommandDispatcher::Automotive
   def cmd_busconfig(*args)
     bus = ''
     bus_config_opts = Rex::Parser::Arguments.new(
-      '-h' => [ false, 'Help Banner' ],
+      '-h' => [ false, 'Help banner' ],
       '-b' => [ true, 'Target bus']
     )
     bus_config_opts.parse(args) do |opt, _idx, val|
