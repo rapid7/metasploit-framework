@@ -84,7 +84,7 @@ Given that SMB file reading and writing is already a thing, this shouldn't be to
 
 **Difficulty**: 3/5
 **Requirements**: Ruby & SMB
-**Mentor**: [@OJ](https://github.com/oj) and/or [@egyp7](https://github.com/egyp7)
+**Mentor**: [@OJ](https://github.com/oj) and/or [@egypt](https://github.com/egypt)
 
 --
 
