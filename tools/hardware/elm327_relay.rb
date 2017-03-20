@@ -249,6 +249,10 @@ module ELM327HWBridgeRelay
       send_cmd(data)
       @packets_sent += 1
       @last_sent = Time.now()
+      if resp == "CAN ERROR"
+        result["success"] = false
+        return result
+      end
       result["success"] = true
       result
     end
@@ -273,6 +277,10 @@ module ELM327HWBridgeRelay
       resp = send_cmd(data)
       @packets_sent += 1
       @last_sent = Time.now()
+      if resp == "CAN ERROR"
+        result["success"] = false
+        return result
+      end
       result["Packets"] = []
       resp.split(/\r/).each do |line|
         pkt = {}
