@@ -20,6 +20,7 @@ The process will use the Start-Process command of powershell to run a process as
 - Requires Powershell
 - Hidden Mode does not work with older powershell versions
 - Interactive mode needs to be run from a meterpreter console
+- Certain SYSTEM Services cannot run Start-Process with the -credential switch, causing the module to fail
 
 ## Examples
 
