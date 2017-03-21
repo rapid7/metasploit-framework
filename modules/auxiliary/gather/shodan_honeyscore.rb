@@ -59,10 +59,10 @@ class MetasploitModule < Msf::Auxiliary
     if score < 0.4
       print_error("#{rhost} is probably not a honeypot")
       print_score(score)
-    elsif score > 0.4 & score < 0.6
+    elsif score > 0.4 && score < 0.6
       print_status("#{rhost} might be a honeypot")
       print_score(score)
-    elsif score > 0.6 & score < 1.0
+    elsif score > 0.6 && score < 1.0
       print_good("#{rhost} is probably a honeypot")
       print_score(score)
     elsif score == 1.0
