@@ -177,10 +177,10 @@ module Msf::DBManager::Host
     end
         
     # Truncate the name field at the maximum field length
-    if opts[:name]
-      opts[:name] = opts[:name][0,255]
-    else
+    if opts[:name].blank?
       opts[:name] = addr
+    else
+      opts[:name] = opts[:name][0,255]
     end
     
     if opts[:os_name]
