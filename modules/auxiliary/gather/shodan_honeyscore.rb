@@ -24,8 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         For more info on how their honeyscore system works, go here:
         https://honeyscore.shodan.io/
       },
-      'Author' =>
-        [ 'thecarterb' ],
+      'Author'  => [ 'thecarterb' ],
       'License' => MSF_LICENSE
       )
     )
