@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core'
-require 'msf/base/sessions/meterpreter_x64_mettle_linux'
+require 'msf/base/sessions/meterpreter_x64_linux'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
 require 'rex/elfparsey'
@@ -25,7 +25,7 @@ module MetasploitModule
         'Platform'      => 'Linux',
         'Arch'          => ARCH_X64,
         'License'       => MSF_LICENSE,
-        'Session'       => Msf::Sessions::Meterpreter_x64_Mettle_Linux
+        'Session'       => Msf::Sessions::Meterpreter_x64_Linux
       )
     )
   end

