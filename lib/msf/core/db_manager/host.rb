@@ -175,14 +175,14 @@ module Msf::DBManager::Host
     if opts[:info]
       opts[:info] = opts[:info][0,65535]
     end
-        
+
     # Truncate the name field at the maximum field length
     if opts[:name].blank?
       opts[:name] = addr
     else
       opts[:name] = opts[:name][0,255]
     end
-    
+
     if opts[:os_name]
       os_name, os_flavor = split_windows_os_name(opts[:os_name])
       opts[:os_name] = os_name if os_name.present?
