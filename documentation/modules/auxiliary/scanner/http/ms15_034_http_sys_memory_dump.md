@@ -57,5 +57,3 @@ msf auxiliary(ms15_034_http_sys_memory_dump) > exploit
 [*] Auxiliary module execution completed
 msf auxiliary(ms15_034_http_sys_memory_dump) > 
 ```
-
-
