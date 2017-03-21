@@ -21,6 +21,8 @@ class MetasploitModule < Msf::Auxiliary
 
         If you don't have an account, go here to register:
         https://account.shodan.io/register
+        For more info on how their honeyscore system works, go here:
+        https://honeyscore.shodan.io/
       },
       'Author' =>
         [ 'thecarterb' ],
@@ -38,29 +40,39 @@ class MetasploitModule < Msf::Auxiliary
       ], self.class)
   end
 
+  def print_score(score)
+    print_status("#{rhost} honeyscore: #{score}")
+  end
+
   # Function to query the shodan API
   def honeypot_query(ip, key)
 
     print_status("Scanning #{rhost}")
     uri = URI("https://api.shodan.io/labs/honeyscore/#{ip}?key=#{key}")
     res = Net::HTTP.get(uri)
-
     score = res.to_f
+
+    if res.to_s.include? "Unauthorized"
+      print_error('Shodan did not respond in an expected way. Check your api key')
+      return
+    end
 
     if score < 0.4
       print_error("#{rhost} is probably not a honeypot")
+      print_score(score)
     elsif score > 0.4 & score < 0.6
       print_status("#{rhost} might be a honeypot")
+      print_score(score)
     elsif score > 0.6 & score < 1.0
       print_good("#{rhost} is probably a honeypot")
+      print_score(score)
     elsif score == 1.0
       print_good("#{rhost} is definitely a honeypot")
-    else
-      print_error("Got an unexpected response from shodan")
-      print_raw("Response: #{res}")
+      print_score(score)
+    else  # We shouldn't ever get here as the previous check should catch an unexpected response
+      print_error('An unexpected error occured.')
       return
     end
-    print_status("#{rhost} honeyscore: #{score}")
   end
 
   def run
