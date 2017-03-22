@@ -1,6 +1,8 @@
-##Description
+## Description
 
-This module dumps memory contents using a crafted Range header and affects only Windows 8.1, Server 2012, and Server 2012R2. Note that if the target is running in VMware Workstation, this module has a high likelihood of resulting in BSOD; however, VMware ESX and non-virtualized hosts seem stable. Using a larger target file should result in more memory being dumped, and SSL seems to produce more data as well.
+This module dumps memory contents using a crafted Range header and affects only Windows 8.1, Server 2012, and Server 2012R2. 
+
+**Note:** If the target is running in VMware Workstation, this module has a high likelihood of resulting in BSOD; however, VMware ESX and non-virtualized hosts seem stable. Using a larger target file should result in more memory being dumped, and SSL seems to produce more data as well.
 
 ## Verification Steps
 
