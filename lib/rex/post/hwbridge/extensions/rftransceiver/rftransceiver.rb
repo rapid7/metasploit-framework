@@ -106,7 +106,7 @@ class RFTransceiver < Extension
       end
       if opt.has_key? "blocksize"
         request += "&" if not first
-        request += "blocksize=#{blocksize}"
+        request += "blocksize=#{opt['blocksize']}"
       end
     end
     data = client.send_request(request)
