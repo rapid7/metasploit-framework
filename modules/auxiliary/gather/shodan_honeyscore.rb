@@ -4,7 +4,6 @@
 ##
 
 require 'msf/core'
-require 'net/http'
 
 class MetasploitModule < Msf::Auxiliary
 
