@@ -76,6 +76,7 @@ module Rex
           txt << "    #{fmtspec.ljust(longest.length)}#{opt}#{val[1]}"
         end
 
+        txt << ""
         txt.join("\n")
       end
 

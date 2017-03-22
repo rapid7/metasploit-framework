@@ -372,6 +372,15 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   #
+  # help for the kill command
+  #
+  def cmd_kill_help
+    print_line("Usage: kill [pid1 [pid2 [pid3 ...]]] [-s]")
+    print_line("Terminate one or more processes.")
+    print_line("     -s        Kills the pid associated with the current session.")
+  end
+
+  #
   # Kills one or more processes by name.
   #
   def cmd_pkill(*args)
