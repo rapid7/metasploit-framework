@@ -135,6 +135,7 @@ module RFTransceiver
   def rfrecv(timeout = -1, blocksize = -1)
     return "" if not is_rf?
     self.index ||= 0
+    opts = {}
     opts["timeout"] = timeout if not timeout == -1
     opts["blocksize"] = blocksize if not blocksize == -1
     client.rftransceiver.rfrecv(self.index, opts)
