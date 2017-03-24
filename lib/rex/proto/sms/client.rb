@@ -32,10 +32,11 @@ module Rex
         # Sends a text to multiple recipients.
         #
         # @param phone_numbers [<String>Array] An array of phone numbers.
+        # @param subject [String] Subject of the message
         # @param message [String] The text message to send.
         #
         # @return [void]
-        def send_text_to_phones(phone_numbers, message)
+        def send_text_to_phones(phone_numbers, subject, message)
           carrier     = Rex::Proto::Sms::Model::GATEWAYS[self.carrier]
           recipients  = phone_numbers.collect { |p| "#{p}@#{carrier}" }
           address     = self.smtp_server.address
@@ -52,7 +53,13 @@ module Rex
             smtp.enable_starttls_auto
             smtp.start(helo_domain, username, password, login_type) do
               recipients.each do |r|
-                smtp.send_message(message, from, r)
+                sms_message = Rex::Proto::Sms::Model::Message.new(
+                  from: from,
+                  to: r,
+                  subject: subject,
+                  message: message
+                )
+                smtp.send_message(sms_message.to_s, from, r)
               end
             end
           rescue Net::SMTPAuthenticationError => e

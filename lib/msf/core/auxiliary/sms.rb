@@ -22,7 +22,8 @@ module Msf
           OptString.new('SMTPPASSWORD', [true, 'The SMTP password to use to send the text messages']),
           OptEnum.new('SMSCARRIER', [true, 'The targeted SMS service provider', nil,Rex::Proto::Sms::Model::GATEWAYS.keys.collect { |k| k.to_s }]),
           OptString.new('CELLNUMBERS', [true, 'The phone numbers to send to']),
-          OptString.new('SMSMESSAGE', [true, 'The text message to send'])
+          OptString.new('SMSMESSAGE', [true, 'The text message to send']),
+          OptString.new('SMSSUBJECT', [false, 'The text subject', ''])
         ], Auxiliary::Sms)
 
       register_advanced_options(
@@ -42,10 +43,11 @@ module Msf
     #   sms.send_text_to_phones(numbers, 'Hello from Gmail')
     #
     # @param phone_numbers [<String>Array] An array of numbers of try (of the same carrier)
+    # @param subject [String] The text subject
     # @param message [String] The text to send.
     #
     # @return [void]
-    def send_text(phone_numbers, message)
+    def send_text(phone_numbers, subject, message)
       smtp = Rex::Proto::Sms::Model::Smtp.new(
         address: datastore['SMTPADDRESS'],
         port: datastore['SMTPPORT'],
@@ -57,7 +59,7 @@ module Msf
 
       carrier = datastore['SMSCARRIER'].to_sym
       sms = Rex::Proto::Sms::Client.new(carrier: carrier, smtp_server: smtp)
-      sms.send_text_to_phones(phone_numbers, message)
+      sms.send_text_to_phones(phone_numbers, subject, message)
     end
 
   end
