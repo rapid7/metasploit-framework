@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References' =>
         [
-          ['URL', 'http://ipositivesecurity.blogspot.in/2015/11/cambium-epmp-1000-multiple.html']
+          ['URL', 'http://ipositivesecurity.com/2015/11/28/cambium-epmp-1000-multiple-vulnerabilities/']
         ],
       'Author' =>
         [
