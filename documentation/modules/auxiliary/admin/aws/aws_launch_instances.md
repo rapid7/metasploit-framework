@@ -2,11 +2,44 @@
 # Introduction
 
 The Launch Instances module (`aws_launch_instances`) can be used to launch a
-Cloud host with a public IP address. Although hosts can be launched using the
-Web console or the CLI, launching a host in the Cloud requires a fair
-amount of configuration; this module does its best to abstract configuration
-requirements away from the user by auto detecting the VPC, subnets, creating
-security groups, etc.
+Cloud host running metasploit-aggregator (a proxy for Meterpreter sessions).
+
+## TLDR
+
+Shell #1:
+
+```
+> use auxiliary/admin/aws/aws_launch_instances
+> set AccessKeyId ...
+> set SecretAccessKey ...
+> set SSH_PUB_KEY ssh-rsa ABCDEDG123...
+> set SEC_GROUP_CIDR <MY IP ADDRESS>/32
+> run
+[*] Created security group: sg-abcdefg
+[*] Launching instance(s) in us-west-2, AMI: ami-1e299d7e, key pair name: admin, security group: sg-abcdefg, subnet ID: subnet-hijklmn
+[*] Launched instance i-12345678 in us-west-2 account 012345678900
+[*] instance i-12345678 status: initializing
+...
+[*] instance i-12345678 status: ok
+[*] Instance i-12345678 has IP adrress 35.12.4.1
+[*] Auxiliary module execution completed
+```
+
+Shell #2:
+
+```
+ssh ec2-user@35.12.4.1 -L 2447:127.0.0.1:2447
+```
+
+Shell #1 again:
+
+```
+> load aggregator
+> aggregator_connect 127.0.0.1:2447
+```
+
+For more information on metasploit-aggregator, see
+https://github.com/rapid7/metasploit-aggregator
 
 
 # Background
@@ -27,9 +60,14 @@ and can be configured by specifyig a protocol, a CIDR and a port.
 
 ## How it Works
 
-The module performs several tasks to launch a host with a public IP address,
-these are as follow: 1) select a VPC, 2) select a subnet, 3) create/select a
-security group, 4) create/select a key-pair, and 5) launch a host.
+Although hosts can be launched using the
+Web console or the CLI, launching a host in the Cloud requires a fair
+amount of configuration; this module does its best to abstract configuration
+requirements away from the user by auto detecting the VPC, subnets, creating
+security groups, etc. It performs several tasks to launch a host with
+a public IP address, these are as follow: 1) select a VPC, 2) select a subnet, 3)
+create/select a security group, 4) create/select a key-pair, and 5) launch
+a host.
 
 The module will attempt to launch the host in the first VPC it finds in the
 given region (`Region` option). Most of the time there is only one VPC per
@@ -62,6 +100,9 @@ instance using an existing key-pair denoted by `KEY_NAME`. To set the
 `ssh-keygen -y -f <private key filename>`. Once a key-pair is created/selected,
 the module launches the host via the AWS API specifying that it should
 associate a public IP address.
+
+As part of launching the host it passes user-data (shell script) that installs
+metasploit-aggregator and runs it in a screen session.
 
 ## Options
 
@@ -151,7 +192,7 @@ our new Cloud host.
 To SSH into the host, you must specify the SSH key, and ec2-user username, e.g.,
 
 ```
-$ ssh -i ec2-user-key ec2-user@54.186.158.6
+$ ssh -i ec2-user-key ec2-user@54.186.158.6 -L 2447:127.0.0.1:2447
 The authenticity of host '54.186.158.6 (54.186.158.6)' can't be established.
 ECDSA key fingerprint is SHA256:ePj6WtCeK...
 Are you sure you want to continue connecting (yes/no)? yes
@@ -163,4 +204,13 @@ https://aws.amazon.com/amazon-linux-ami/2016.09-release-notes/
 5 package(s) needed for security, out of 9 available
 Run "sudo yum update" to apply all updates.
 [ec2-user@ip-172-31-8-176 ~]$
+```
+
+Back in the Metasploit console you can now connect via aggregator:
+
+```
+msf auxiliary(aws_launch_instances) > load aggregator
+msf auxiliary(aws_launch_instances) > aggregator_connect 127.0.0.1:2447
+[*] Connecting to Aggregator instance at 127.0.0.1:2447...
+msf auxiliary(aws_launch_instances) >
 ```
