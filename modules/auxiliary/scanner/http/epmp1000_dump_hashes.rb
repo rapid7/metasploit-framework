@@ -107,7 +107,12 @@ class MetasploitModule < Msf::Auxiliary
         epmp_ver = get_epmp_ver[1]
         if !epmp_ver.nil?
           print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000 version #{epmp_ver}...")
-          return true
+          if "#{epmp_ver}" >= '2.5'
+            print_error('This ePMP version is not vulnerable. Module will not continue.')
+            return false
+          else
+            return true
+          end
         else
           print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000...")
           return true
