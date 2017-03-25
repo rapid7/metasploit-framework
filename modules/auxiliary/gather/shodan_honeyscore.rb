@@ -24,9 +24,9 @@ class MetasploitModule < Msf::Auxiliary
       'Author' =>
         [ 'thecarterb' ],  # Thanks to @rwhitcroft, @h00die and @wvu-r7 for the improvements and review!
       'License' => MSF_LICENSE,
-      'References' => 
+      'References' =>
         [
-          [ 'URL', 'https://honeyscore.shodan.io/']          
+          [ 'URL', 'https://honeyscore.shodan.io/']
         ]
       )
     )
@@ -49,13 +49,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     key = datastore['SHODAN_APIKEY']
-    
+
     # Check the length of the key (should be 32 chars)
     if key.length != 32
       print_error('Invalid API key (Not long enough)')
       return
     end
-   
+
     tgt = datastore['TARGET']
     print_status("Scanning #{tgt}")
     cli = Rex::Proto::Http::Client.new('api.shodan.io', 443, {}, true)
