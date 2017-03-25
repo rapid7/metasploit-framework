@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def print_score(score)
     tgt = datastore['TARGET']
-    print_status("#{tgt} honeyscore: #{score}")
+    print_status("#{tgt} honeyscore: #{score}/1.0")
   end
 
   def run
@@ -70,22 +70,18 @@ class MetasploitModule < Msf::Auxiliary
 
     if score == 0
       print_error("#{tgt} is not a honeypot")
-      print_score(score)
     elsif score < 0.4 && score != 0.0
       print_error("#{tgt} is probably not a honeypot")
-      print_score(score)
     elsif score > 0.4 && score < 0.6
       print_status("#{tgt} might be a honeypot")
-      print_score(score)
     elsif score > 0.6 && score < 1.0
       print_good("#{tgt} is probably a honeypot")
-      print_score(score)
     elsif score == 1.0
       print_good("#{tgt} is definitely a honeypot")
-      print_score(score)
     else  # We shouldn't ever get here as the previous check should catch an unexpected response
       print_error('An unexpected error occured.')
       return
     end
+    print_score(score)
   end
 end
