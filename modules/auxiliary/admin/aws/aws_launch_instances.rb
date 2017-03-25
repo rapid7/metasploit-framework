@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new("AMI_ID", [true, 'The Amazon Machine Image (AMI) ID', 'ami-1e299d7e']),
         OptString.new("KEY_NAME", [true, 'The SSH key to be used for ec2-user', 'admin']),
         OptString.new("SSH_PUB_KEY", [false, 'The public SSH key to be used for ec2-user, e.g., "ssh-rsa ABCDE..."', '']),
-        OptString.new("USERDATA_FILE", [false, 'The script that will be executed on start', ''])
+        OptString.new("USERDATA_FILE", [false, 'The script that will be executed on start', 'tools/modules/aws-aggregator-userdata.sh'])
       ]
     )
     register_advanced_options(
