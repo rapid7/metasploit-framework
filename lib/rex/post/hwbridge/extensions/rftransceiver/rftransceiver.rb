@@ -40,7 +40,7 @@ class RFTransceiver < Extension
   # @param freq [Integer] Frequency to set
   def set_freq(idx, freq, opt={})
     request = "/rftransceiver/#{idx}/set_freq?freq=#{freq}"
-    request += "&mhz=#{opt["mhz"]}" if opt.has_key? "mhz"
+    request << "&mhz=#{opt['mhz']}" if opt.has_key? 'mhz'
     client.send_request(request)
   end
 
@@ -86,8 +86,8 @@ class RFTransceiver < Extension
   def rfxmit(idx, data, opt={})
     data = Base64.urlsafe_encode64(data)
     request = "/rftransceiver/#{idx}/rfxmit?data=#{data}"
-    request += "&repeat=#{opt["repeat"]}" if opt.has_key? "repeat"
-    request += "&offset=#{opt["offset"]}" if opt.has_key? "offset"
+    request << "&repeat=#{opt['repeat']}" if opt.has_key? 'repeat'
+    request << "&offset=#{opt['offset']}" if opt.has_key? 'offset'
     client.send_request(request)
   end
 
@@ -99,20 +99,20 @@ class RFTransceiver < Extension
     request = "/rftransceiver/#{idx}/rfrecv"
     if opt.size() > 0
       first = true
-      request += "?"
-      if opt.has_key? "timeout"
-        request += "timeout=#{opt["timeout"]}"
+      request << '?'
+      if opt.has_key? 'timeout'
+        request << "timeout=#{opt['timeout']}"
         first = false
       end
-      if opt.has_key? "blocksize"
-        request += "&" if not first
-        request += "blocksize=#{opt['blocksize']}"
+      if opt.has_key? 'blocksize'
+        request << '&' unless first
+        request << "blocksize=#{opt['blocksize']}"
       end
     end
     data = client.send_request(request)
     # Note the data is initially base64 encoded
     if data.size() > 0
-      data["data"] = Base64.urlsafe_decode64(data["data"]) if data.has_key? "data"
+      data['data'] = Base64.urlsafe_decode64(data['data']) if data.has_key? 'data'
     end
     data
   end
@@ -131,32 +131,32 @@ class RFTransceiver < Extension
 
   def set_channel_bandwidth(idx, bandwidth, opt={})
     request = "/rftransceiver/#{idx}/set_channel_bandwidth?bw=#{bandwidth}"
-    request += "&mhz=#{opt["mhz"]}" if opt.has_key? "mhz"
+    request << "&mhz=#{opt['mhz']}" if opt.has_key? 'mhz'
     client.send_request(request)
   end
 
   def set_channel_spc(idx, opt={})
     request = "/rftransceiver/#{idx}/set_channel_spc"
     if opt.size > 0
-      request += "?"
+      request << '?'
       first = true
-      if opt.has_key? "chanspc"
-        request += "chanspc=#{opt["chanspc"]}"
+      if opt.has_key? 'chanspc'
+        request << "chanspc=#{opt['chanspc']}"
         first = false
       end
-      if opt.has_key? "chanspc_m"
-        request += "&" if not first
-        request += "chanspc_m=#{opt["chanspc_m"]}"
+      if opt.has_key? 'chanspc_m'
+        request << '&' unless first
+        request << "chanspc_m=#{opt['chanspc_m']}"
         first = false
       end
-      if opt.has_key? "chanspc_e"
-        request += "&" if not first
-        request += "chanspc_e=#{opt["chanspc_e"]}"
+      if opt.has_key? 'chanspc_e'
+        request << '&' unless first
+        request << "chanspc_e=#{opt['chanspc_e']}"
         first = false
       end
-      if opt.has_key? "mhz"
-        request += "&" if not first
-        request += "mhz=#{opt["mhz"]}"
+      if opt.has_key? 'mhz'
+        request << '&' unless first
+        request << "mhz=#{opt['mhz']}"
       end
     end
     client.send_request(request)
@@ -164,13 +164,13 @@ class RFTransceiver < Extension
 
   def set_baud_rate(idx, rate, opt={})
     request = "/rftransceiver/#{idx}/set_baud_rate?rate=#{rate}"
-    request += "&mhz=#{opt["mhz"]}" if opt.has_key? "mhz"
+    request << "&mhz=#{opt['mhz']}" if opt.has_key? 'mhz'
     client.send_request(request)
   end
 
   def set_deviation(idx, deviat, opt={})
     request = "/rftransceiver/#{idx}/set_deviation?deviat=#{deviat}"
-    request += "&mhz=#{opt["mhz"]}" if opt.has_key? "mhz"
+    request << "&mhz=#{opt['mhz']}" if opt.has_key? 'mhz'
     client.send_request(request)
   end
 

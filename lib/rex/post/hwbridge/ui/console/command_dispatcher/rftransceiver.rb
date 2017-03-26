@@ -43,19 +43,19 @@ class Console::CommandDispatcher::RFtransceiver
 
   def cmd_supported_idx
     indexes = client.rftransceiver.supported_idx
-    if not indexes or not indexes.has_key? "indexes"
+    if !indexes || !indexes.has_key?('indexes')
       print_line("error retrieving index list")
       return
     end
-    indexes = indexes["indexes"]
-    if not indexes.size > 0
-      print_line("none")
+    indexes = indexes['indexes']
+    unless indexes.size > 0
+      print_line('none')
       return
     end
     self.idx = indexes[0].to_i if indexes.size == 0
     str = "Supported Indexes: "
-    str += indexes.join(', ')
-    str += "\nUse idx to set your desired bus, default is 0"
+    str << indexes.join(', ')
+    str << "\nUse idx to set your desired bus, default is 0"
     print_line(str)
   end
 
@@ -91,7 +91,7 @@ class Console::CommandDispatcher::RFtransceiver
   # Takes the results of a client request and prints Ok on success
   #
   def print_success(r)
-    if r.has_key? "success" and r["success"] == true
+    if r.has_key?('success') && r['success'] == true
       print_line("Ok")
     else
       print_line("Error")
@@ -127,7 +127,7 @@ class Console::CommandDispatcher::RFtransceiver
       cmd_freq_help
       return
     end
-    arg["mhz"] = mhz if mhz
+    arg['mhz'] = mhz if mhz
     r = client.rftransceiver.set_freq(idx, freq, arg)
     print_success(r)
   end
@@ -159,7 +159,7 @@ class Console::CommandDispatcher::RFtransceiver
         mod = val
       end
     end
-    if not mod
+    unless mod
       cmd_modulation_help
       return
     end
@@ -252,12 +252,12 @@ class Console::CommandDispatcher::RFtransceiver
         offset = val.to_i
       end
     end
-    if not data
+    unless data
       print_line("You must specify the data argument (-d)")
       return
     end
-    arg["repeat"] = repeat if not repeat == -1
-    arg["offset"] = offset if not offset == -1
+    arg['repeat'] = repeat unless repeat == -1
+    arg['offset'] = offset unless offset == -1
     r = client.rftransceiver.rfxmit(idx, data, arg)
     print_success(r)
   end
@@ -287,11 +287,11 @@ class Console::CommandDispatcher::RFtransceiver
         blocksize = val.to_i
       end
     end
-    arg["blocksize"] = blocksize if not blocksize == -1
-    arg["timeout"] = timeout if not timeout == -1
+    arg['blocksize'] = blocksize unless blocksize == -1
+    arg['timeout'] = timeout unless timeout == -1
     r = client.rftransceiver.rfrecv(idx, arg)
-    if r.has_key? "data" and r.has_key? "timestamp"
-      print_line(" #{r["timestamp"]}: #{r["data"].inspect}")
+    if r.has_key?('data') && r.has_key?('timestamp')
+      print_line(" #{r['timestamp']}: #{r['data'].inspect}")
     else
       print_line("Error")
     end
@@ -334,7 +334,7 @@ class Console::CommandDispatcher::RFtransceiver
       end
     end
     r = client.rftransceiver.enable_manchester(idx)
-    print_sucess(r)
+    print_success(r)
   end
 
   #
@@ -394,7 +394,7 @@ class Console::CommandDispatcher::RFtransceiver
       print_line("You must specify the bandwidth (-b)")
       return
     end
-    arg["mhz"] = mhz if mhz
+    arg['mhz'] = mhz if mhz
     r = client.rftransceiver.set_channel_bandwidth(idx, bandwidth, arg)
     print_success(r)
   end
@@ -428,7 +428,7 @@ class Console::CommandDispatcher::RFtransceiver
       print_line("You must specify a baud rate")
       return
     end
-    arg["mhz"] = mhz if mhz
+    arg['mhz'] = mhz if mhz
     r = client.rftransceiver.set_baud_rate(idx, baud, arg)
     print_success(r)
   end
@@ -462,7 +462,7 @@ class Console::CommandDispatcher::RFtransceiver
       print_line("You must specify a deviat value")
       return
     end
-    arg["mhz"] = mhz if mhz
+    arg['mhz'] = mhz if mhz
     r = client.rftransceiver.set_deviation(idx, deviat, arg)
     print_success(r)
   end
@@ -488,7 +488,7 @@ class Console::CommandDispatcher::RFtransceiver
       end
     end
     if word == -1
-      print_line("you must specify a sync word")
+      print_line("You must specify a sync word")
       return
     end
     r = client.rftransceiver.set_sync_word(idx, word)
