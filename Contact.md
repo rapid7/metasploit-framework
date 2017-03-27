@@ -1,6 +1,8 @@
 ### Chat
 
 A lot of our discussion happens on IRC in #metasploit on Freenode.
+Please be patient and hang around for a while -- not everyone is awake
+at the same time as you. =)
 
 ### Mailing list
 
