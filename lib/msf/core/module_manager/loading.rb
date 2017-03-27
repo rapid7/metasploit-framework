@@ -8,6 +8,7 @@ require 'active_support/concern'
 # Project
 #
 require 'msf/core/modules/loader/directory'
+require 'msf/core/modules/loader/executable'
 
 # Deals with loading modules for the {Msf::ModuleManager}
 module Msf::ModuleManager::Loading
@@ -19,7 +20,8 @@ module Msf::ModuleManager::Loading
 
   # Classes that can be used to load modules.
   LOADER_CLASSES = [
-      Msf::Modules::Loader::Directory
+      Msf::Modules::Loader::Directory,
+      Msf::Modules::Loader::Executable # TODO: XXX: When this is the first loader we can load normal exploits, but not payloads
   ]
 
   def file_changed?(path)
