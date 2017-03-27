@@ -578,7 +578,7 @@ class Msftidy
       next if ln =~ /^[[:space:]]*#/
 
       if ln =~ /\$std(?:out|err)/i or ln =~ /[[:space:]]puts/
-        next if ln =~ /^[\s]*["][^"]+\$std(?:out|err)/
+        next if ln =~ /["'][^"'\n]*\$std(?:out|err)(?:[^'"\n]*["']|)/
         no_stdio = false
         error("Writes to stdout", idx)
       end
