@@ -1,4 +1,4 @@
-The `shodan_honeyscore` module utilize the [Shodan](https://www.shodan.io/) API to determine whether or not a server is a honeypot or not. 
+The `shodan_honeyscore` module utilizes the [Shodan](https://www.shodan.io/) API to determine whether or not a server is a honeypot or not. 
 When setting the module options, we aren't directly requesting `TARGET`, we are requesting the shodan API to analyze `TARGET` and return a honeyscore from 0.0 to 1.0. 0.0 being `not a honeypot` and 1.0 being a `honeypot`. The original website for the honeypot system can be found here: https://honeyscore.shodan.io/. 
 
 #### NOTE: 
