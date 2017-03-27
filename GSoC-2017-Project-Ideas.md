@@ -130,6 +130,11 @@ This is the Meterpreter side of the SMB transport mentioned in the Console secti
 
 # Metasploitable3
 
+[Metasploitable3](https://github.com/rapid7/metasploitable3) is an
+intentionally vulnerable virtual machine. It was created to be a
+learning tool for new users as well as a place to test Metasploit and
+its payloads.
+
 ### Linux: add vulnerabilities
 
 **Requirements**: Vagrant
