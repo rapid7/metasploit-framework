@@ -53,6 +53,7 @@ PATH
       rex-text
       rex-zip
       robots
+      ruby_smb
       rubyntlm
       rubyzip
       sqlite3
@@ -102,6 +103,7 @@ GEM
       rspec-expectations (>= 2.99)
       thor (~> 0.19)
     bcrypt (3.1.11)
+    bindata (2.3.5)
     bit-struct (0.15.0)
     builder (3.2.3)
     capybara (2.13.0)
@@ -323,6 +325,11 @@ GEM
       rspec-mocks (~> 3.5.0)
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
+    ruby_smb (0.0.8)
+      bindata
+      bit-struct
+      rubyntlm (~> 0.5)
+      windows_error
     rubyntlm (0.6.1)
     rubyzip (1.2.1)
     sawyer (0.8.1)
