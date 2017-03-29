@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    score = res.to_s.to_f  # Change the score to a float to be able to determine value in the checks
+    score = res.body.to_f  # Change the score to a float to be able to determine value in the checks
 
     if score == 0
       print_error("#{tgt} is not a honeypot")
