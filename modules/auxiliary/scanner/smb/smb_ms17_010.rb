@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'MS17-010 SMB RCE Detection',
       'Description'    => %q{
         Uses information disclosure to determine if MS17-010 has been patched or not.
-        Specifially, it connects to the IPC$ tree and attempts a transaction on FID 0.
+        Specifically, it connects to the IPC$ tree and attempts a transaction on FID 0.
         If the status returned is "STATUS_INSUFF_SERVER_RESOURCES", the machine does
         not have the MS17-010 patch.
 
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status(ip)
     begin
       status = do_smb_probe(ip)
-      print_status("Recieved status #{status} with FID = 0")
+      print_status("Received status #{status} with FID = 0")
 
       # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
       if status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
