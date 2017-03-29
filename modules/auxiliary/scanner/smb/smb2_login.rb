@@ -24,6 +24,10 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'           => 'SMB Login Check Scanner',
       'Description'    => %q{
+        SMB1 and SMB2 Compatible Login Scanner module. This version of
+        smb_login will seemlessly work with either version of the protocol.
+        SMB3 support will come at a future date.
+
         This module will test a SMB login on a range of machines and
         report successful logins.  If you have loaded a database plugin
         and connected to a database this module will record successful
