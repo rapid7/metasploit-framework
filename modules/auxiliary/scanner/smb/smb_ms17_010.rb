@@ -28,6 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2017-0146'],
           [ 'CVE', '2017-0147'],
           [ 'CVE', '2017-0148'],
+          [ 'MSB', 'MS17-010'],
           [ 'URL', 'https://technet.microsoft.com/en-us/library/security/ms17-010.aspx']
         ],
       'License'        => MSF_LICENSE
@@ -37,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     begin
       status = do_smb_probe(ip)
-      print_status("Received #{status} with FID = 0")
 
       # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
       if status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def do_smb_probe(ip, opts={})
+  def do_smb_probe(ip)
     connect
 
     # logon as user \
@@ -83,7 +83,10 @@ class MetasploitModule < Msf::Auxiliary
     # convert error code to string
     code = pkt['SMB'].v['ErrorClass']
     smberr = Rex::Proto::SMB::Exceptions::ErrorCode.new
-    smberr.get_error(code)
+    status = smberr.get_error(code)
+
+    print_status("Received #{status} with FID = 0")
+    status
   end
 
   def make_smb_trans_ms17_010(tree_id)
