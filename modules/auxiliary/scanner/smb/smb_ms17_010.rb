@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status(ip)
     begin
       status = do_smb_probe(ip)
-      print_status("Received status #{status} with FID = 0")
+      print_status("Received #{status} with FID = 0")
 
       # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
       if status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
