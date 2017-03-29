@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status(ip)
     begin
       status = do_smb_probe(ip)
       print_status("Received #{status} with FID = 0")
