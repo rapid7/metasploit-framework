@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt['Payload'].v['DataOffset'] = data_offset
 
     # actual magic: PeekNamedPipe FID=0, \PIPE\
-    pkt['Payload'].v['SetupCount'] = 2
+    pkt['Payload'].v['SetupCount'] = setup_count
     pkt['Payload'].v['SetupData'] = setup
     pkt['Payload'].v['Payload'] = trans
 
