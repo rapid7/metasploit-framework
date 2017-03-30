@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     # request transaction with fid = 0
     pkt = make_smb_trans_ms17_010(tree_id)
     sock.put(pkt)
-    bytes = sock.get_once(-1, 30)
+    bytes = sock.get_once
 
     # convert packet to response struct
     pkt = Rex::Proto::SMB::Constants::SMB_TRANS_RES_HDR_PKT.make_struct
