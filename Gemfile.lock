@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.6)
+    metasploit-framework (4.14.7)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -90,7 +90,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.5.0)
+    addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
     arel (6.0.4)
     arel-helpers (2.3.0)
@@ -217,7 +217,7 @@ GEM
     nessus_rest (0.1.6)
     net-ssh (4.1.0)
     network_interface (0.0.1)
-    nexpose (5.3.1)
+    nexpose (5.3.2)
     nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
     octokit (4.6.2)
@@ -353,7 +353,7 @@ GEM
     thor (0.19.4)
     thread_safe (0.3.6)
     timecop (0.8.1)
-    tzinfo (1.2.2)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     tzinfo-data (1.2017.2)
       tzinfo (>= 1.0.0)
