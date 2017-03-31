@@ -24,6 +24,7 @@ module Msf::DBManager::Import
   autoload :IP360, 'msf/core/db_manager/import/ip360'
   autoload :IPList, 'msf/core/db_manager/import/ip_list'
   autoload :Libpcap, 'msf/core/db_manager/import/libpcap'
+  autoload :Masscan, 'msf/core/db_manager/import/masscan'
   autoload :MBSA, 'msf/core/db_manager/import/mbsa'
   autoload :MetasploitFramework, 'msf/core/db_manager/import/metasploit_framework'
   autoload :Nessus, 'msf/core/db_manager/import/nessus'
@@ -50,6 +51,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::IP360
   include Msf::DBManager::Import::IPList
   include Msf::DBManager::Import::Libpcap
+  include Msf::DBManager::Import::Masscan
   include Msf::DBManager::Import::MBSA
   include Msf::DBManager::Import::MetasploitFramework
   include Msf::DBManager::Import::Nessus
@@ -64,6 +66,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::Retina
   include Msf::DBManager::Import::Spiceworks
   include Msf::DBManager::Import::Wapiti
+
 
   # If hex notation is present, turn them into a character.
   def dehex(str)
@@ -168,6 +171,7 @@ module Msf::DBManager::Import
   # :ip360_xml_v3
   # :ip_list
   # :libpcap
+  # :masscan_xml
   # :mbsa_xml
   # :msf_cred_dump_zip
   # :msf_pwdump
@@ -293,14 +297,21 @@ module Msf::DBManager::Import
       line_count = 0
       data.each_line { |line|
         line =~ /<([a-zA-Z0-9\-\_]+)[ >]/
-
         case $1
         when "niktoscan"
           @import_filedata[:type] = "Nikto XML"
           return :nikto_xml
         when "nmaprun"
-          @import_filedata[:type] = "Nmap XML"
-          return :nmap_xml
+          newline = line.dup
+          newline =~ /<([a-zA-Z0-9\-\_]+)\sscanner\W\"([a-zA-Z0-9\-\_]+)\"/
+          case $2
+          when "nmap"
+            @import_filedata[:type] = "Nmap XML"
+            return :nmap_xml
+          when "masscan"
+            @import_filedata[:type] = "Masscan XML"
+            return :masscan_xml
+          end
         when "openvas-report"
           @import_filedata[:type] = "OpenVAS"
           return :openvas_xml
