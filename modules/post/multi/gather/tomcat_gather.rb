@@ -180,10 +180,14 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if sysinfo['OS'].include? "Windows"
-      gatherwin
+    if sysinfo
+      if sysinfo['OS'].include? "Windows"
+        gatherwin
+      else
+        gathernix
+      end
     else
-      gathernix
+      print_error('Incompatible session type, sysinfo is not available.')
     end
 
     if $username.size == 0
