@@ -1,12 +1,15 @@
 ## Creating A Testing Environment
+
   For this module to work you need a linux or windows machine.
-  For linux you can run something like apt-get install tomcat7 to get a working tomcat service.
-  For WIndows you can download tomcat from http://tomcat.apache.org/ and then install it as a service.
+
+  * For linux you can run something like `apt-get install tomcat7` to get a working tomcat service.
+  * For WIndows you can download tomcat from http://tomcat.apache.org/ and then install it as a service.
 
 This module has been tested against:
 
-  1. Xubuntu 16.04 with tomcat 7,8.
-  2. Windows 10 with tomcat 6,7.
+  1. Xubuntu and Ubuntu Server 16.04 with tomcat 7, 8.
+  2. Windows 10 with tomcat 6, 7.
+  3. Windows XP with tomcat 5.5, 6, 7, 8
 
 This module was not tested against, but may work against:
 
@@ -17,9 +20,9 @@ This module was not tested against, but may work against:
 
   1. Start msfconsole
   2. Obatin a meterpreter session via whatever method
-  3. Do: 'use post/multi/gather/tomcat_gather'
-  4. Do: 'set session #'
-  5. Do: 'run'
+  3. Do: `use post/multi/gather/tomcat_gather`
+  4. Do: `set session #`
+  5. Do: `run`
 
 ## Scenarios
 
