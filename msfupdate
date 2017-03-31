@@ -145,6 +145,35 @@ class Msfupdate
     end
   end
 
+
+  # We could also do this by running `git config --global user.name` and `git config --global user.email` 
+  # and check the output of those
+  def git_globals_okay?
+    conf_out_status = system('git config --list')  # Just see if it runs or not
+    if conf_out_status.nil?
+      stderr.puts '[-] ERROR: Failed to check git settings'
+      return false
+    end
+    
+    conf = `git config --list`  # Need the output for this
+    
+    if !conf.include? 'user.name'
+      stderr.puts '[-] ERROR: user.name is not set in your global git configuration'
+      stderr.puts ''
+      stderr.puts '[-] Set it by running: \'git config --global user.name "NAME HERE"\''
+      return false
+    end
+    if !conf.include? 'user.email'
+      stderr.puts '[-] ERROR: user.email is not set in your global git configuration'
+      stderr.puts ''
+      stderr.puts '[-] Set it by running: \'git config --global user.email "email@example.com"\''
+      return false
+    end
+
+    true
+
+  end
+
   def update_git!
     ####### Since we're Git, do it all that way #######
     stdout.puts "[*] Checking for updates via git"
@@ -163,8 +192,15 @@ class Msfupdate
     # to begin with.
     #
     # Note, this requires at least user.name and user.email
-    # to be configured in the global git config. Installers should
-    # take care that this is done. TODO: Enforce this in msfupdate
+    # to be configured in the global git config. Installers
+    # will be told to set them if they aren't already set.
+
+    # Checks user.name and user.email
+    global_status = git_globals_okay?
+    maybe_wait_and_exit(1) if !global_status
+    
+      
+    # We shouldn't get here if the globals dont check out
     committed = system("git", "diff", "--quiet", "HEAD")
     if committed.nil?
       stderr.puts "[-] ERROR: Failed to run git"
@@ -197,6 +233,8 @@ class Msfupdate
       system("bundle", "install")
     end
   end
+
+  
 
   def update_binary_install!
     update_script = File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))
