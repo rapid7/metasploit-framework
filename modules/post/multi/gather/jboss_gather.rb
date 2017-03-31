@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Post
         getpw(pwfiles,listenports)
       end
       i+=1
-    end    
+    end
   end
 
   def readhome(array)
