@@ -20,9 +20,9 @@ This module was not tested against, but may work against:
 
   1. Start msfconsole
   2. Obatin a meterpreter session via whatever method
-  3. Do: 'use post/multi/gather/tomcat_gather'
-  4. Do: 'set session #'
-  5. Do: 'run'
+  3. Do: `use post/multi/gather/tomcat_gather`
+  4. Do: `set session #`
+  5. Do: `run`
 
 ## Scenarios
 
