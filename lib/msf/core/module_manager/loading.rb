@@ -117,8 +117,6 @@ module Msf::ModuleManager::Loading
     loaders.each do |loader|
       if loader.loadable?(path)
         count_by_type = loader.load_modules(path, options)
-
-        break
       end
     end
 
