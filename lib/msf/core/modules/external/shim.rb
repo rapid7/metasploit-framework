@@ -5,6 +5,7 @@ require 'msf/core/modules/external/bridge'
 class Msf::Modules::External::Shim
   def self.generate(module_path)
     mod = Msf::Modules::External::Bridge.new(module_path)
+    return '' unless mod.meta
     case mod.meta['type']
     when 'remote_exploit.cmd_stager.wget'
       s = remote_exploit_cmd_stager(mod)

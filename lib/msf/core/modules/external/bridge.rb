@@ -85,8 +85,12 @@ class Msf::Modules::External::Bridge
   end
 
   def read_json(id, fd)
-    resp = fd.readpartial(10_000)
-    JSON.parse(resp)
+    begin
+      resp = fd.readpartial(10_000)
+      JSON.parse(resp)
+    rescue EOFError => e
+      {}
+    end
   end
 
   def close_ios
