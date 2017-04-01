@@ -36,12 +36,16 @@ class Msf::Modules::External::Bridge
   def initialize(module_path)
     self.running = false
     self.path = module_path
+    self.env = {
+      'PYTHONPATH' => File.expand_path('../python', __FILE__)
+    }
   end
 
   protected
 
   attr_writer :path, :running
   attr_accessor :ios
+  attr_accessor :env
 
   def describe
     resp = send_receive(Msf::Modules::External::Message.new(:describe))
@@ -57,7 +61,7 @@ class Msf::Modules::External::Bridge
   end
 
   def send(message)
-    input, output, status = ::Open3.popen3([self.path, self.path])
+    input, output, status = ::Open3.popen3(env, [self.path, self.path])
     self.ios = [input, output, status]
     case Rex::ThreadSafe.select(nil, [input], nil, 0.1)
     when nil
