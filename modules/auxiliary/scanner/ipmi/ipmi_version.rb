@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    info = Rex::Proto::IPMI::Channel_Auth_Reply.new(data) rescue nil
+    info = Rex::Proto::IPMI::Channel_Auth_Reply.new.read(data) rescue nil
 
     # Ignore invalid responses
     return unless info
