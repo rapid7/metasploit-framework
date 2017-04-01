@@ -145,28 +145,45 @@ class Msfupdate
     end
   end
 
-
   # We could also do this by running `git config --global user.name` and `git config --global user.email` 
-  # and check the output of those
+  # and check the output of those. (it's a bit quieter)
   def git_globals_okay?
-    conf_out_status = system('git config --list')  # Just see if it runs or not
-    if conf_out_status.nil?
+    require 'tempfile'
+    require 'os'
+    output = ''
+
+    # Make it cross platform
+    if !OS.windows?
+      conf_out_status = system('git config --list > /dev/null 2>&1')  # Just see if it runs or not
+    else
+      conf_out_status = system('git config --list > nul 2&>1')
+    end
+    if !conf_out_status || conf_out_status.nil?
       stderr.puts '[-] ERROR: Failed to check git settings'
       return false
     end
+
+    begin
+      conf = Tempfile.new('gitconf')  # Create a tempfile
+      path = conf.path
+      system("git config --list > #{path}")  # Write to the tempfile (Pretty sure this command is cross platform)
+      output >> conf.read
+    ensure
+      conf.close
+      conf.unlink  # Delete the temp file
+    end
     
-    conf = `git config --list`  # Need the output for this
-    
-    if !conf.include? 'user.name'
+    if !output.include? 'user.name'
       stderr.puts '[-] ERROR: user.name is not set in your global git configuration'
-      stderr.puts ''
       stderr.puts '[-] Set it by running: \'git config --global user.name "NAME HERE"\''
+      stderr.puts ''
       return false
     end
-    if !conf.include? 'user.email'
+
+    if !output.include? 'user.email'
       stderr.puts '[-] ERROR: user.email is not set in your global git configuration'
-      stderr.puts ''
       stderr.puts '[-] Set it by running: \'git config --global user.email "email@example.com"\''
+      stderr.puts ''
       return false
     end
 
@@ -233,8 +250,6 @@ class Msfupdate
       system("bundle", "install")
     end
   end
-
-  
 
   def update_binary_install!
     update_script = File.expand_path(File.join(@msfbase_dir, "..", "engine", "update.rb"))
