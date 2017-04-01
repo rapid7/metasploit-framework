@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
   # Called for each response packet
   def scanner_process(data, shost, sport)
     @results[shost] ||= []
-    @results[shost] << Rex::Proto::NTP::NTPPrivate.new(data)
+    @results[shost] << Rex::Proto::NTP::NTPPrivate.new.read(data)
   end
 
   # Called after the scan block
