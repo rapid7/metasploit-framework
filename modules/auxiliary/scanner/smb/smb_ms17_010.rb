@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
@@ -6,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
@@ -20,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         configurations. It can log on as the user "\" and connect to IPC$.
       },
       'Author'         => [ 'Sean Dillon <sean.dillon@risksense.com>' ],
-      'References' =>
+      'References'     =>
         [
           [ 'CVE', '2017-0143'],
           [ 'CVE', '2017-0144'],
@@ -39,11 +45,18 @@ class MetasploitModule < Msf::Auxiliary
     begin
       status = do_smb_probe(ip)
 
-      # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
-      if status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
-        print_good("Host does NOT appear vulnerable.")
-      elsif status == "STATUS_INSUFF_SERVER_RESOURCES"
+      if status == "STATUS_INSUFF_SERVER_RESOURCES"
         print_warning("Host is likely VULNERABLE to MS17-010!")
+        report_vuln(
+          :host   => rhost,
+          :port   => rport,
+          :proto  => 'tcp',
+          :sname  => 'SMB',
+          :info   => "Vulnerable to MS17-010",
+        )
+      elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
+        # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
+        print_good("Host does NOT appear vulnerable.")
       else
         print_bad("Unable to properly detect if host is vulnerable.")
       end
