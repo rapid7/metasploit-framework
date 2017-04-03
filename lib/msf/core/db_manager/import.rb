@@ -299,7 +299,7 @@ module Msf::DBManager::Import
           @import_filedata[:type] = "Nikto XML"
           return :nikto_xml
         when "nmaprun"
-          if line =~ /^<nmaprun scanner="masscan"/
+          if line.start_with?('<nmaprun scanner="masscan"')
             @import_filedata[:type] = "Masscan XML"
           else
             @import_filedata[:type] = "Nmap XML"
