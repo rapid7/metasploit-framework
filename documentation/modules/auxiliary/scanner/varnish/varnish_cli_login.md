@@ -2,11 +2,11 @@
 
   Ubuntu 14.04 can `apt-get install varnish`.  At the time of writing that installed varnish-3.0.5 revision 1a89b1f.
   Kali installed varnish-5.0.0 revision 99d036f
-  
+
   Varnish installed and ran the cli on localhost.  First lets kill the service: `sudo service varnish stop`.  Now, there are two configurations we want to test:
 
   1. No Authentication: `varnishd -T 0.0.0.0:6082`
-  2. Authentication (based on shared secret file): `varnishd -T 0.0.0.0:6082 -S <file>`.
+  2. Authentication (based on shared secret file): `varnishd -T 0.0.0.0:6082 -S file`.
     1. I made an easy test one `echo "secret" > ~/secret`
 
 ## Exploitation Notes
@@ -110,7 +110,7 @@ enum cli_status_e {
     [+] 192.168.2.85:6082     - 192.168.2.85:6082 - LOGIN SUCCESSFUL: No Authentication Required
     [*] Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
-    msf auxiliary(varnish_cli_login) > 
+    msf auxiliary(varnish_cli_login) >
     ```
 
   Running against Ubuntu 14.04 with varnish-3.0.5 revision 1a89b1f
