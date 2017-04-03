@@ -8,7 +8,7 @@ In order for this module to function properly, a Shodan API key is needed. You c
 
   1. Start `msfconsole`
   2. Do: `use auxiliary/gather/shodan_honeyscore`
-  3. Do: `set RHOST <targetip>`
+  3. Do: `set TARGET <targetip>`
   4. Do: `set SHODAN_APIKEY <your apikey>`
   5. Do: `run`
   6. If the API is up, you should recieve a score from 0.0 to 1.0.
