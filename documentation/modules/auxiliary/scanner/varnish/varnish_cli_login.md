@@ -5,7 +5,7 @@
 
   Varnish installed and ran the cli on localhost.  First lets kill the service: `sudo service varnish stop`.  Now, there are two configurations we want to test:
 
-  1. No Authentication: `varnishd -T 0.0.0.0:6082`
+  1. No Authentication: `varnishd -T 0.0.0.0:6082`. Varnish 4 and later require either passing '-S ""', or may not support unauthenticated mode at all.
   2. Authentication (based on shared secret file): `varnishd -T 0.0.0.0:6082 -S file`.
     1. I made an easy test one `echo "secret" > ~/secret`
 
