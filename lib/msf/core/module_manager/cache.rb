@@ -81,6 +81,7 @@ module Msf::ModuleManager::Cache
     if module_info
       parent_path = module_info[:parent_path]
 
+      # XXX borked
       loaders.each do |loader|
         if loader.loadable?(parent_path)
           type = module_info[:type]
@@ -88,7 +89,7 @@ module Msf::ModuleManager::Cache
 
           loaded = loader.load_module(parent_path, type, reference_name, :force => true)
 
-          break
+          break if loaded
         end
       end
     end
@@ -162,11 +163,9 @@ module Msf::ModuleManager::Cache
           # Skip cached modules that are not in our allowed load paths
           next if allowed_paths.select{|x| path.index(x) == 0}.empty?
 
-          typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
-          # join to '' so that typed_path_prefix starts with file separator
-          typed_path_suffix = File.join('', typed_path)
-          escaped_typed_path = Regexp.escape(typed_path_suffix)
-          parent_path = path.gsub(/#{escaped_typed_path}$/, '')
+          # The load path is assumed to be the next level above the type directory
+          type_dir = File.join('', Mdm::Module::Detail::DIRECTORY_BY_TYPE[type], '')
+          parent_path = path.split(type_dir)[0..-2].join(type_dir) # TODO: rewrite
 
           module_info_by_path[path] = {
               :reference_name => reference_name,
