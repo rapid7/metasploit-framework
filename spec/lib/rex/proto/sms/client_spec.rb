@@ -6,6 +6,8 @@ RSpec.describe Rex::Proto::Sms::Client do
 
   let(:phone_numbers) { ['1112223333'] }
 
+  let(:sms_subject) { 'subject' }
+
   let(:message) { 'message' }
 
   let(:carrier) { :verizon }
@@ -45,8 +47,8 @@ RSpec.describe Rex::Proto::Sms::Client do
     end
 
     it 'sends a text message' do
-      subject.send_text_to_phones(phone_numbers, message)
-      expect(@sent_message).to eq(message)
+      subject.send_text_to_phones(phone_numbers, sms_subject, message)
+      expect(@sent_message).to include(message)
     end
   end
 

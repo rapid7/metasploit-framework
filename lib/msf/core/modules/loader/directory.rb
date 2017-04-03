@@ -11,11 +11,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # @return [true] if path is a directory
   # @return [false] otherwise
   def loadable?(path)
-    if File.directory?(path)
-      true
-    else
-      false
-    end
+    File.directory?(path)
   end
 
   protected
@@ -35,8 +31,7 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
       full_entry_path = ::File.join(path, entry)
       type = entry.singularize
 
-      unless ::File.directory?(full_entry_path) and
-             module_manager.type_enabled? type
+      unless ::File.directory?(full_entry_path) && module_manager.type_enabled?(type)
         next
       end
 

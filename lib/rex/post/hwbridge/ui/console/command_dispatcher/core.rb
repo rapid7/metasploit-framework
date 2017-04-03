@@ -57,6 +57,8 @@ class Console::CommandDispatcher::Core
       "bglist"     => "Lists running background scripts",
       "status"     => "Fetch bridge status information",
       "specialty"  => "Hardware devices specialty",
+      "reset"      => "Resets the device (NOTE: on some devices this is a FULL FACTORY RESET)",
+      "reboot"     => "Reboots the device (usually only supported by stand-alone devices)",
       "load_custom_methods" => "Loads custom HW commands if any"
     }
 
@@ -132,7 +134,7 @@ class Console::CommandDispatcher::Core
   def cmd_info(*args)
     return unless msf_loaded?
 
-    if args.length != 1 or args.include?("-h")
+    if args.length != 1 || args.include?('-h')
       cmd_info_help
       return
     end
@@ -144,10 +146,10 @@ class Console::CommandDispatcher::Core
       print_error 'Invalid module: ' << module_name
     end
 
-    if (mod)
+    if mod
       print_line(::Msf::Serializer::ReadableText.dump_module(mod))
       mod_opt = ::Msf::Serializer::ReadableText.dump_options(mod, '   ')
-      print_line("\nModule options (#{mod.fullname}):\n\n#{mod_opt}") if (mod_opt and mod_opt.length > 0)
+      print_line("\nModule options (#{mod.fullname}):\n\n#{mod_opt}") if mod_opt && mod_opt.length > 0
     end
   end
 
@@ -171,12 +173,15 @@ class Console::CommandDispatcher::Core
       return true
     end
     status = client.get_status
-    if status.has_key? "operational"
-      op = "Unknown"
-      op = "Yes" if status["operational"] == 1
-      op = "No" if status["operational"] == 2
+    if status.has_key? 'operational'
+      op = 'Unknown'
+      op = 'Yes' if status['operational'] == 1
+      op = 'No' if status['operational'] == 2
       print_status("Operational: #{op}")
     end
+    print_status("Device: #{status['device_name']}") if status.has_key? 'device_name'
+    print_status("FW Version: #{status['fw_version']}") if status.has_key? 'fw_version'
+    print_status("HW Version: #{status['hw_version']}") if status.has_key? 'hw_version'
   end
 
   def cmd_specialty_help
@@ -196,6 +201,39 @@ class Console::CommandDispatcher::Core
     print_line client.exploit.hw_specialty.to_s
   end
 
+  def cmd_reset_help
+    print_line("Resets the device.  In some cases this can be used to perform a factory reset")
+    print_line
+  end
+
+  #
+  # Performs a device reset or factory reset
+  #
+  def cmd_reset(*args)
+    if args.length > 0
+      cmd_reset_help
+      return
+    end
+    client.reset
+  end
+
+  def cmd_reboot_help
+    print_line("Reboots the device.  This command typically only works on independent devices that")
+    print_line("are not attached to a laptop or other system")
+    print_line
+  end
+
+  #
+  # Perform a device reboot
+  #
+  def cmd_reboot(*args)
+    if args.length > 0
+      cmd_reboot_help
+      return
+    end
+    client.reboot
+  end
+
   def cmd_load_custom_methods_help
     print_line("Usage: load_custom_methods")
     print_line
@@ -212,14 +250,14 @@ class Console::CommandDispatcher::Core
       return true
     end
     res = client.get_custom_methods
-    if res.has_key? "Methods"
+    if res.has_key? 'Methods'
       cmd_load("custom_methods")
       self.shell.dispatcher_stack.each do |dispatcher|
         if dispatcher.name =~/custom methods/i
-          dispatcher.load_methods(res["Methods"])
+          dispatcher.load_methods(res['Methods'])
         end
       end
-      print_status("Loaded #{res["Methods"].size} method(s)")
+      print_status("Loaded #{res['Methods'].size} method(s)")
     else
       print_status("Not supported")
     end
@@ -236,13 +274,13 @@ class Console::CommandDispatcher::Core
   # Loads one or more meterpreter extensions.
   #
   def cmd_load(*args)
-    if (args.length == 0)
+    if args.length == 0
       args.unshift("-h")
     end
 
     @@load_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-h"
+      when '-h'
         cmd_load_help
         return true
       end
@@ -252,7 +290,7 @@ class Console::CommandDispatcher::Core
     args.each { |m|
       md = m.downcase
 
-      if (extensions.include?(md))
+      if extensions.include?(md)
         print_error("The '#{md}' extension has already been loaded.")
         next
       end
@@ -301,7 +339,7 @@ class Console::CommandDispatcher::Core
       # First try it as a Post module if we have access to the Metasploit
       # Framework instance.  If we don't, or if no such module exists,
       # fall back to using the scripting interface.
-      if (msf_loaded? and mod = client.framework.modules.create(script_name))
+      if msf_loaded? && mod = client.framework.modules.create(script_name)
         original_mod = mod
         reloaded_mod = client.framework.modules.reload_module(original_mod)
 
@@ -332,16 +370,16 @@ class Console::CommandDispatcher::Core
 
   def cmd_run_tabs(str, words)
     tabs = []
-    if(not words[1] or not words[1].match(/^\//))
+    if !words[1] || !words[1].match(/^\//)
       begin
-        if (msf_loaded?)
-          tabs += tab_complete_postmods
+        if msf_loaded?
+          tabs << tab_complete_postmods
         end
         [  # We can just use Meterpreters script path
           ::Msf::Sessions::Meterpreter.script_base,
           ::Msf::Sessions::Meterpreter.user_script_base
         ].each do |dir|
-          next if not ::File.exist? dir
+          next unless ::File.exist? dir
           tabs += ::Dir.new(dir).find_all { |e|
             path = dir + ::File::SEPARATOR + e
             ::File.file?(path) and ::File.readable?(path)
@@ -367,7 +405,7 @@ class Console::CommandDispatcher::Core
     jid = self.bgjob_id
     self.bgjob_id += 1
 
-    Z# Get the script name
+    # Get the script name
     self.bgjobs[jid] = Rex::ThreadFactory.spawn("HWBridgeBGRun(#{args[0]})-#{jid}", false, jid, args) do |myjid,xargs|
       ::Thread.current[:args] = xargs.dup
       begin
@@ -457,15 +495,15 @@ protected
     self.class.client_extension_search_paths.each do |path|
       path = ::File.join(path, "#{mod}.rb")
       klass = CommDispatcher.check_hash(path)
-      if (klass == nil)
-        old   = CommDispatcher.constants
+      if klass.nil?
+        old = CommDispatcher.constants
         next unless ::File.exist? path
 
-        if (require(path))
-          new  = CommDispatcher.constants
+        if require(path)
+          new = CommDispatcher.constants
           diff = new - old
 
-          next if (diff.empty?)
+          next if diff.empty?
 
           klass = CommDispatcher.const_get(diff[0])
 
@@ -497,7 +535,7 @@ protected
   def tab_complete_postmods
     tabs = client.framework.modules.post.map { |name,klass|
       mod = client.framework.modules.post.create(name)
-      if mod and mod.session_compatible?(client)
+      if mod && mod.session_compatible?(client)
         mod.fullname.dup
       else
         nil

@@ -40,20 +40,20 @@ class Console::CommandDispatcher::Automotive
   #
   def cmd_supported_buses
     buses = client.automotive.get_supported_buses
-    if not buses.size > 0
+    unless !buses.empty?
       print_line("none")
       return
     end
     str = "Available buses\n\n"
     first = true
     buses.each do |bus|
-      if not first
+      unless first
         str += ", "
       end
       first = false
-      str += bus["bus_name"] if bus.has_key? "bus_name"
+      str += bus["bus_name"] if bus.key? "bus_name"
     end
-    str+="\n"
+    str += "\n"
     print_line(str)
   end
 
@@ -63,7 +63,7 @@ class Console::CommandDispatcher::Automotive
   def cmd_busconfig(*args)
     bus = ''
     bus_config_opts = Rex::Parser::Arguments.new(
-      '-h' => [ false, 'Help Banner' ],
+      '-h' => [ false, 'Help banner' ],
       '-b' => [ true, 'Target bus']
     )
     bus_config_opts.parse(args) do |opt, _idx, val|
@@ -76,11 +76,12 @@ class Console::CommandDispatcher::Automotive
         bus = val
       end
     end
-    if not client.automotive.is_valid_bus? bus
+    unless client.automotive.is_valid_bus? bus
       print_error("You must specify a valid bus via -b")
       return
     end
     config = client.automotive.get_bus_config(bus)
+    config
   end
 
   #
@@ -103,13 +104,14 @@ class Console::CommandDispatcher::Automotive
         bus = val
       end
     end
-    if not client.automotive.is_valid_bus? bus
+    unless client.automotive.is_valid_bus? bus
       print_error("You must specify a valid bus via -b")
       return
     end
-    self.active_bus = bus
+    active_bus = bus
     client.automotive.set_active_bus(bus)
     hw_methods = client.automotive.get_supported_methods(bus)
+    hw_methods
   end
 
   #
@@ -139,16 +141,17 @@ class Console::CommandDispatcher::Automotive
         data = val
       end
     end
-    bus = self.active_bus if bus.blank? and not self.active_bus == nil
-    if not client.automotive.is_valid_bus? bus
+    bus = active_bus if bus.blank? && !active_bus.nil?
+    unless client.automotive.is_valid_bus? bus
       print_error("You must specify a valid bus via -b")
       return
     end
-    if id.blank? or data.blank?
+    if id.blank? || data.blank?
       print_error("You must specify a CAN ID (-I) and the data packets (-D)")
       return
     end
     success = client.automotive.cansend(bus, id, data)
+    success
   end
 
   #
@@ -158,7 +161,8 @@ class Console::CommandDispatcher::Automotive
     'Automotive'
   end
 
-private
+  private
+
   attr_accessor :active_bus
 
 end
