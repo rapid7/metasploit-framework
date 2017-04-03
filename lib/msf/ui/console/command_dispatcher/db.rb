@@ -1316,6 +1316,7 @@ class Db
     print_line "    IP360 ASPL"
     print_line "    IP360 XML v3"
     print_line "    Libpcap Packet Capture"
+    print_line "    Masscan XML"
     print_line "    Metasploit PWDump Export"
     print_line "    Metasploit XML"
     print_line "    Metasploit Zip Export"
