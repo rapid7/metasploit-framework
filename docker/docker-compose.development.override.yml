@@ -6,4 +6,4 @@ services:
       DATABASE_URL: postgres://postgres@db:5432/msf_dev
 
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/metasploit-framework
