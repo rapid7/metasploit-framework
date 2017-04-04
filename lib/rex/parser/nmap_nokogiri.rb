@@ -37,8 +37,6 @@ module Rex
       block = @block
       @state[:current_tag][name] = true
       case name
-      when "nmaprun"
-        record_nmaprun(attrs)
       when "status"
         record_host_status(attrs)
       when "address"
@@ -96,11 +94,6 @@ module Rex
 
     # We can certainly get fancier with self.send() magic, but
     # leaving this pretty simple for now.
-
-    def record_nmaprun(attrs)
-      nmaprun = attr_hash(attrs)
-      @state[:scanner] = nmaprun['scanner']
-    end
 
     def record_host_hop(attrs)
       return unless in_tag("host")
@@ -197,7 +190,11 @@ module Rex
       return unless in_tag("host")
       attrs.each do |k,v|
         next unless k == "state"
-        @state[:host_alive] = (v == "up")
+        if v == 'up'
+          @state[:host_alive] = true
+        else
+          @state[:host_alive] = false
+        end
       end
     end
 
@@ -235,11 +232,13 @@ module Rex
     end
 
     def collect_host_data
-      # Treat masscan hosts as always alive
-      if @state[:host_alive] || @state[:scanner] == 'masscan'
+      if @state[:host_alive] == true
         @report_data[:state] = Msf::HostState::Alive
-      else
+      elsif @state[:host_alive] == false
         @report_data[:state] = Msf::HostState::Dead
+      # Default to alive if no host state available (masscan)
+      else
+        @report_data[:state] = Msf::HostState::Alive
       end
       if @state[:addresses]
         if @state[:addresses].has_key? "ipv4"
