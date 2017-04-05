@@ -47,6 +47,11 @@ class MetasploitModule < Msf::Auxiliary
     return true if (host =~ Rex::Socket::MATCH_IPV6)
     return false
   end
+  
+  def is_local_ip?(host)
+    return true if (host =~ Rex::Socket::MATCH_IPV4_PRIVATE)
+    return false
+  end
 
 
   def run
@@ -60,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
         next
       end
 
-      if (host =~ Rex::Socket::MATCH_IPV4_PRIVATE)
+      if !is_local_ip?(host)
         print_error("#{host} is a local IP address.")
         next
       end
