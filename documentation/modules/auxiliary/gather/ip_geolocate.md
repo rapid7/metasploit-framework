@@ -6,7 +6,7 @@ but the API sometimes trips up on IPv6. A list of IP addresses or a single addre
 
   **RHOSTS**
 
-  A list of IPv4 or IPv6 addresses or a single address to query the API for. IPv4 address will be checked when the module is executed.
+  A list of IPv4 or IPv6 addresses or a single address to query the API for. The addresses will be checked when the module is executed.
 
 ## Scenarios
  
