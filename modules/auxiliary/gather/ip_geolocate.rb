@@ -39,9 +39,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def valid_ipv4?(host)
-    block = /\d{,2}|1\d{2}|2[0-4]\d|25[0-5]/
-    re = /\A#{block}\.#{block}\.#{block}\.#{block}\z/
-    return re =~ host
+    return true if (host =~ Rex::Socket::MATCH_IPV4)
+    return false
+  end
+
+  def valid_ipv6?(host)
+    return true if (host =~ Rex::Socket::MATCH_IPV6)
+    return false
   end
 
 
@@ -51,11 +55,9 @@ class MetasploitModule < Msf::Auxiliary
     rhosts.each do |host|
 
       host.strip!  # Just in cast there are spaces in there
-      if host.length <= 15
-        if valid_ipv4?(host) != 0  # Check if each ip address is valid
-          print_error("#{host} is not a valid IP address.")
-          next
-        end
+      if !valid_ipv4?(host) && !valid_ipv6?(host)
+        print_error("#{host} is not a valid IP address")
+        next
       end
 
       # Because we're requesting an external site, we aren't actually requesting `rhost`
