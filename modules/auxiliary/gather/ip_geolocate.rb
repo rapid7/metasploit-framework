@@ -40,6 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def valid_ipv4?(host)
     return true if (host =~ Rex::Socket::MATCH_IPV4)
+    return false if (host =~ Rex::Socket::MATCH_IPV4_PRIVATE)
     return false
   end
 
@@ -55,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     rhosts.each do |host|
 
       host.strip!  # Just in cast there are spaces in there
-      if !valid_ipv4?(host) && !valid_ipv6?(host)
+      if !valid_ipv4?(host) || !valid_ipv6?(host)
         print_error("#{host} is not a valid IP address")
         next
       end
