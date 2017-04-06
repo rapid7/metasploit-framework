@@ -13,14 +13,6 @@ GIT
     bit-struct (0.15.0)
 
 GIT
-  remote: https://github.com/octokit/octokit.rb
-  revision: 5b43070ea756af5d2f3ae2ad419ee6db67539344
-  branch: master
-  specs:
-    octokit (4.6.2)
-      sawyer (~> 0.8.0, >= 0.5.3)
-
-GIT
   remote: https://github.com/pry/pry
   revision: 1f64463184e0a160d0b41d1a1f92b8e2f230278c
   branch: master
@@ -42,6 +34,7 @@ PATH
       jsobfu
       json
       metasm
+      metasploit-aggregator
       metasploit-concern
       metasploit-credential
       metasploit-model
@@ -187,7 +180,7 @@ GEM
       multi_json (~> 1.11)
       os (~> 0.9)
       signet (~> 0.7)
-    grpc (1.2.0)
+    grpc (1.2.2)
       google-protobuf (~> 3.1)
       googleauth (~> 0.5.1)
     i18n (0.8.1)
@@ -249,6 +242,8 @@ GEM
     nexpose (6.0.0)
     nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
+    octokit (4.7.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
     os (0.9.6)
@@ -393,10 +388,9 @@ DEPENDENCIES
   cucumber-rails
   factory_girl_rails
   fivemat
-  metasploit-aggregator
   metasploit-framework!
   method_source!
-  octokit!
+  octokit
   pry!
   rake
   redcarpet

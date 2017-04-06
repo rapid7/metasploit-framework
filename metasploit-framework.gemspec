@@ -55,6 +55,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'json'
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm'
+  # Metasploit::Aggregator external session proxy
+  spec.add_runtime_dependency 'metasploit-aggregator'
   # Metasploit::Concern hooks
   spec.add_runtime_dependency 'metasploit-concern'
   # Metasploit::Credential database models

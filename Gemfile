@@ -20,12 +20,7 @@ group :development do
   # for development and testing purposes
   gem 'pry', git: 'https://github.com/pry/pry', branch: 'master'
   # module documentation
-  gem 'octokit', git: 'https://github.com/octokit/octokit.rb', branch: 'master'
-  # session aggregator, native builds have issues on arm platforms for now
-  gem 'metasploit-aggregator' if [
-    'x86-mingw32', 'x64-mingw32',
-    'x86_64-linux', 'x86-linux',
-    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
+  gem 'octokit'
 end
 
 group :development, :test do
