@@ -20,7 +20,7 @@ group :development do
   # for development and testing purposes
   gem 'pry', git: 'https://github.com/pry/pry', branch: 'master'
   # module documentation
-  gem 'octokit', git: 'https://github.com/octokit/octokit.rb', branch: 'master'
+  gem 'octokit'
 end
 
 group :development, :test do
