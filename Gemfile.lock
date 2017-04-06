@@ -42,6 +42,7 @@ PATH
       jsobfu
       json
       metasm
+      metasploit-aggregator
       metasploit-concern
       metasploit-credential
       metasploit-model
@@ -187,7 +188,7 @@ GEM
       multi_json (~> 1.11)
       os (~> 0.9)
       signet (~> 0.7)
-    grpc (1.2.0)
+    grpc (1.2.2)
       google-protobuf (~> 3.1)
       googleauth (~> 0.5.1)
     i18n (0.8.1)
@@ -393,7 +394,6 @@ DEPENDENCIES
   cucumber-rails
   factory_girl_rails
   fivemat
-  metasploit-aggregator
   metasploit-framework!
   method_source!
   octokit!
