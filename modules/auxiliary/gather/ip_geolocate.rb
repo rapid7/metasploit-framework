@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
 
   def run
-    raw_rhosts = datastore['RHOSTS']
+    raw_rhosts = datastore['TARGETS']
     rhosts = raw_rhosts.split(',')
     rhosts.each do |host|
 
