@@ -24,7 +24,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.9)
+    metasploit-framework (4.14.10)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -281,48 +281,48 @@ GEM
     redcarpet (3.4.0)
     rex-arch (0.1.4)
       rex-text
-    rex-bin_tools (0.1.1)
+    rex-bin_tools (0.1.2)
       metasm
       rex-arch
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.8)
-    rex-encoder (0.1.2)
+    rex-core (0.1.9)
+    rex-encoder (0.1.3)
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.11)
+    rex-exploitation (0.1.12)
       jsobfu
       metasm
       rex-arch
       rex-encoder
       rex-text
-    rex-java (0.1.3)
-    rex-mime (0.1.3)
+    rex-java (0.1.4)
+    rex-mime (0.1.4)
       rex-text
     rex-nop (0.1.0)
       rex-arch
-    rex-ole (0.1.4)
+    rex-ole (0.1.5)
       rex-text
-    rex-powershell (0.1.69)
+    rex-powershell (0.1.70)
       rex-random_identifier
       rex-text
-    rex-random_identifier (0.1.1)
+    rex-random_identifier (0.1.2)
       rex-text
-    rex-registry (0.1.1)
-    rex-rop_builder (0.1.1)
+    rex-registry (0.1.2)
+    rex-rop_builder (0.1.2)
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.3)
+    rex-socket (0.1.5)
       rex-core
-    rex-sslscan (0.1.2)
+    rex-sslscan (0.1.3)
       rex-socket
       rex-text
-    rex-struct2 (0.1.0)
-    rex-text (0.2.13)
-    rex-zip (0.1.1)
+    rex-struct2 (0.1.1)
+    rex-text (0.2.14)
+    rex-zip (0.1.2)
       rex-text
     rkelly-remix (0.0.7)
     robots (0.10.1)
