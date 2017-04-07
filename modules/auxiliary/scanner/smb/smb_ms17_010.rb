@@ -64,6 +64,8 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Interrupt
       print_status("Exiting on interrupt.")
       raise $!
+    rescue ::Rex::Proto::SMB::Exceptions::LoginError
+      print_error("An SMB Login Error occurred while connecting to the IPC$ tree.")
     rescue ::Exception => e
       print_error("#{e.class}: #{e.message}")
     ensure
