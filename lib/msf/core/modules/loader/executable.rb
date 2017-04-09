@@ -86,6 +86,9 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
       Msf::Modules::External::Shim.generate(full_path)
     rescue ::Exception => e
       elog "Unable to load module #{full_path} #{e.class} #{e}"
+      # XXX migrate this to a full load_error when we can tell the user why the
+      # module did not load and/or how to resolve it.
+      # load_error(full_path, e)
       ''
     end
   end
