@@ -82,6 +82,11 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
       load_error(full_path, Errno::ENOENT.new)
       return ''
     end
-    Msf::Modules::External::Shim.generate(full_path)
+    begin
+      Msf::Modules::External::Shim.generate(full_path)
+    rescue ::Exception => e
+      elog "Unable to load module #{full_path} #{e.class} #{e}"
+      ''
+    end
   end
 end
