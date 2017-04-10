@@ -1,6 +1,10 @@
 ## Vulnerable Application
 
-  Any system with a `shell` or `meterpreter` session.
+[irssi](https://irssi.org/) an IRC and chat client.
+
+This module was successfully tested against:
+
+- OSX 10.10.5 and IRSSI version 0.8.19
 
 ## Verification Steps
 
