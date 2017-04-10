@@ -10,7 +10,7 @@ This module was successfully tested against:
 
   1. Get a `shell` or `meterpreter` session on some host.
   2. Do: ```use post/multi/gather/irssi_creds```
-  3. Do: ```set SESSION [SESSION_ID]```, replacing ```[SESSION_ID]``` with the session number you wish to run this one.
+  3. Do: ```set SESSION [SESSION_ID]```
   4. Do: ```run```
   5. If the system has readable configuration files containing irc passwords, they will be printed out.
 
