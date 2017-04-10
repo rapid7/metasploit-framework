@@ -77,7 +77,6 @@ class MetasploitModule < Msf::Post
         )
         print_good("IRC password(s) stored in #{loot_path}")
       end
-
     end
   end
 
