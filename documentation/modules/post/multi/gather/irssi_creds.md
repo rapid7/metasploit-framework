@@ -16,6 +16,8 @@ This module was successfully tested against:
 
 ## Scenarios
 
+### OSX 10.10.5 and IRSSI version 0.8.19
+
 ```
 msf post(irssi_creds) > run
 
