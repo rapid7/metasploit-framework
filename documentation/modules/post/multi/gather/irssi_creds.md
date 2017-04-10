@@ -21,9 +21,12 @@ This module was successfully tested against:
 ```
 msf post(irssi_creds) > run
 
+msf post(irssi_creds) > run
+
 [*] Finding ~/.irssi/config
 [*] Looting 1 files
-[+] Found a IRC password(s): chubbybunnies
-[+] IRC password(s) stored in /Users/[REDACTED]/.msf/loot/20170405005410_default_[REDACTED]_irc.password_744582.txt
+[+] Found a IRC password(s): chubbybunnies,meatpopcicle
+[+] IRC password(s) stored in /Users/jclaudius/.msf4/loot/20170410153351_default_192.168.10.99_irc.password_159907.txt
+[+] IRC password(s) stored in /Users/jclaudius/.msf4/loot/20170410153351_default_192.168.10.99_irc.password_967698.txt
 [*] Post module execution completed
 ```
