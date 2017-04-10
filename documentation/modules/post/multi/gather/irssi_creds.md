@@ -14,10 +14,6 @@ This module was successfully tested against:
   4. Do: ```run```
   5. If the system has readable configuration files containing irc passwords, they will be printed out.
 
-## Options
-
-  None.
-
 ## Scenarios
 
 ```
