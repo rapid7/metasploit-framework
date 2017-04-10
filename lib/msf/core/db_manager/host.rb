@@ -170,7 +170,7 @@ module Msf::DBManager::Host
     else
       host = addr
     end
-
+    
     # Truncate the info field at the maximum field length
     if opts[:info]
       opts[:info] = opts[:info][0,65535]
@@ -196,6 +196,8 @@ module Msf::DBManager::Host
         unless host.attribute_locked?(k.to_s)
           host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
         end
+      elsif v.blank?
+        # eating blank attributes that dont exist
       else
         dlog("Unknown attribute for ::Mdm::Host: #{k}")
       end
