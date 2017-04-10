@@ -170,7 +170,7 @@ module Msf::DBManager::Host
     else
       host = addr
     end
-    
+
     # Truncate the info field at the maximum field length
     if opts[:info]
       opts[:info] = opts[:info][0,65535]
