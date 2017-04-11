@@ -84,13 +84,13 @@ You need a Windows Meterpreter session on a host that has a different public IP 
 First set up a default route for the Meterpreter session.
 
 ```
-meterpreter > run post/windows/manage/autoroute CMD=default
+meterpreter > run post/multi/manage/autoroute CMD=default
 ```
 
 or
 
 ```
-msf > use post/windows/manage/autoroute
+msf > use post/multi/manage/autoroute
 msf post(autoroute) > set SESSION session-id
 msf post(autoroute) > set CMD default
 msf post(autoroute) > exploit

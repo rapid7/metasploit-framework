@@ -145,7 +145,7 @@ def usage()
   print_status "  run autoroute -p                            # Print active routing table"
   print_status "  run autoroute -d -s 10.10.10.1              # Deletes the 10.10.10.1/255.255.255.0 route"
   print_status "Use the \"route\" and \"ipconfig\" Meterpreter commands to learn about available routes"
-  print_error "Deprecation warning: This script has been replaced by the post/windows/manage/autoroute module"
+  print_error "Deprecation warning: This script has been replaced by the post/multi/manage/autoroute module"
 end
 
 # Validates the command options
