@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
 
       next if irc_passwords.empty?
 
-      print_good("Found a IRC password(s): #{irc_passwords.join(',')}")
+      print_good("Found IRC password(s): #{irc_passwords.join(',')}")
 
       loot_path = store_loot(
         'irc.password',
