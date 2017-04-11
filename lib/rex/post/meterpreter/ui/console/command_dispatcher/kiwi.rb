@@ -32,13 +32,13 @@ class Console::CommandDispatcher::Kiwi
   #
   # Initializes an instance of the priv command interaction. This function
   # also outputs a banner which gives proper acknowledgement to the original
-  # author of the Mimikatz 2.0 software.
+  # author of the Mimikatz software.
   #
   def initialize(shell)
     super
     print_line
     print_line
-    print_line("  .#####.   mimikatz 2.1 (#{client.session_type})")
+    print_line("  .#####.   mimikatz 2.1.1-20170409 (#{client.session_type})")
     print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
     print_line(" ## / \\ ##  /* * *")
     print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
