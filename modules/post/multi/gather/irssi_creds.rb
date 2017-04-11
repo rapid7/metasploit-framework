@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
   #
   # ***Identify Password Example***
   # autosendcmd = "/msg nickserv identify example_password ;wait 2000";
-  # 
+  #
   # ***Network Password Example***
   #    password = "example_password";
   #
