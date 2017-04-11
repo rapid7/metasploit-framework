@@ -20,7 +20,8 @@ fi
 cd $MSF_PATH
 
 if [[ -n "$MSF_BUILD" ]]; then
-  docker-compose -f $MSF_PATH/docker-compose.yml build
+  docker-compose -f $MSF_PATH/docker-compose.yml -f $MSF_PATH/docker/docker-compose.development.override.yml build
 fi
 
-docker-compose run --rm --service-ports ms ./msfconsole -r docker/msfconsole.rc "$@"
+docker-compose -f $MSF_PATH/docker-compose.yml -f $MSF_PATH/docker/docker-compose.development.override.yml run --rm --service-ports ms ./msfconsole -r docker/msfconsole.rc "$@"
+
