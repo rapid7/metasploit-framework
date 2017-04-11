@@ -74,11 +74,11 @@ class MetasploitModule < Msf::Post
       print_good("Found IRC password(s): #{irc_passwords.join(',')}")
 
       loot_path = store_loot(
-        'irc.password',
+        'irc.passwords',
         'text/plain',
         session,
         irc_passwords.join("\n"),
-        'irc_password.txt',
+        path,
         'IRC Password'
       )
       print_good("IRC password(s) stored in #{loot_path}")
