@@ -34,7 +34,6 @@ PATH
       jsobfu
       json
       metasm
-      metasploit-aggregator
       metasploit-concern
       metasploit-credential
       metasploit-model
@@ -388,6 +387,7 @@ DEPENDENCIES
   cucumber-rails
   factory_girl_rails
   fivemat
+  metasploit-aggregator
   metasploit-framework!
   method_source!
   octokit

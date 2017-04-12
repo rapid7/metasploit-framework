@@ -21,6 +21,9 @@ group :development do
   gem 'pry', git: 'https://github.com/pry/pry', branch: 'master'
   # module documentation
   gem 'octokit'
+  # metasploit-aggregator as a framework only option for now
+  # Metasploit::Aggregator external session proxy
+  gem 'metasploit-aggregator'
 end
 
 group :development, :test do
