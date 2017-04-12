@@ -24,7 +24,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.10)
+    metasploit-framework (4.14.11)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -126,7 +126,7 @@ GEM
       rspec-expectations (>= 2.99)
       thor (~> 0.19)
     bcrypt (3.1.11)
-    bindata (2.3.5)
+    bindata (2.4.0)
     builder (3.2.3)
     capybara (2.13.0)
       addressable
@@ -185,10 +185,10 @@ GEM
     i18n (0.8.1)
     jsobfu (0.4.2)
       rkelly-remix
-    json (2.0.3)
+    json (2.0.4)
     jwt (1.5.6)
     little-plugger (1.1.4)
-    logging (2.2.0)
+    logging (2.2.2)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
     loofah (2.0.3)
