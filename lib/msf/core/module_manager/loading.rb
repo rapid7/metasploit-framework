@@ -116,7 +116,9 @@ module Msf::ModuleManager::Loading
 
     loaders.each do |loader|
       if loader.loadable?(path)
-        count_by_type = loader.load_modules(path, options)
+        count_by_type.merge!(loader.load_modules(path, options)) do |key, old, new|
+          old + new
+        end
       end
     end
 
