@@ -101,6 +101,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bit-struct'
   # Library for interpreting Windows error codes and strings
   spec.add_runtime_dependency 'windows_error'
+  # This used to be depended on by nokogiri, depended on by wmap
+  spec.add_runtime_dependency 'xmlrpc'
 
   #
   # Protocol Libraries
