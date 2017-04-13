@@ -79,15 +79,6 @@ class MetasploitModule < Msf::Auxiliary
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
-      smb_verify_signature: datastore['SMB::VerifySignature'],
-      use_ntlmv2: datastore['NTLM::UseNTLMv2'],
-      use_ntlm2_session: datastore['NTLM::UseNTLM2_session'],
-      send_lm: datastore['NTLM::SendLM'],
-      use_lmkey: datastore['NTLM::UseLMKey'],
-      send_ntlm: datastore['NTLM::SendNTLM'],
-      smb_native_os: datastore['SMB::Native_OS'],
-      smb_native_lm: datastore['SMB::Native_LM'],
-      send_spn: datastore['NTLM::SendSPN'],
     )
 
     if datastore['DETECT_ANY_AUTH']
