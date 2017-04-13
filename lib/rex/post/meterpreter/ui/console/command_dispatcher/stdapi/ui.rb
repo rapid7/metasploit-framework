@@ -39,7 +39,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "enumdesktops"  => [ "stdapi_ui_desktop_enum" ],
       "getdesktop"    => [ "stdapi_ui_desktop_get" ],
       "idletime"      => [ "stdapi_ui_get_idle_time" ],
-      "keyscan_dump"  => [ "stdapi_ui_get_keys" ],
+      "keyscan_dump"  => [ "stdapi_ui_get_keys_utf8" ],
       "keyscan_start" => [ "stdapi_ui_start_keyscan" ],
       "keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
       "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
