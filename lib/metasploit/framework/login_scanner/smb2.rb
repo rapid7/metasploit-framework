@@ -98,6 +98,11 @@ module Metasploit
             client      = RubySMB::Client.new(self.dispatcher, username: credential.public, password: credential.private, domain: realm)
             status_code = client.login
 
+            # Windows SMB will return an error code during Session
+            # Setup, but nix Samba requires a Tree Connect. Try admin$
+            # first, since that will tell us if this user has local
+            # admin access. Fall back to IPC$ which should be accessible
+            # to any user with valid creds.
             begin
               tree = client.tree_connect("\\\\#{host}\\admin$")
               # Check to make sure we can write a file to this dir
@@ -105,7 +110,7 @@ module Metasploit
                 access_level = AccessLevels::ADMINISTRATOR
               end
             rescue Exception => e
-              access_level = nil
+              client.tree_connect("\\\\#{host}\\IPC$")
             end
 
             case status_code.name
@@ -123,6 +128,12 @@ module Metasploit
           rescue ::Rex::ConnectionError => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
+          rescue RubySMB::Error::UnexpectedStatusCode => e
+            status = Metasploit::Model::Login::Status::INCORRECT
+          end
+
+          if status == Metasploit::Model::Login::Status::SUCCESSFUL && credential.public.empty?
+            access_level ||= AccessLevels::GUEST
           end
 
           result = Result.new(credential: credential, status: status, proof: proof, access_level: access_level)
