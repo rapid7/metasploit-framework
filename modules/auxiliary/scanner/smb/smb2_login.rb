@@ -211,6 +211,7 @@ class MetasploitModule < Msf::Auxiliary
     credential_core = create_credential(credential_data)
 
     login_data = {
+      access_level: result.access_level,
       core: credential_core,
       last_attempted_at: DateTime.now,
       status: result.status

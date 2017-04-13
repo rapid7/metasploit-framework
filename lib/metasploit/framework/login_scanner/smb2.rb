@@ -98,6 +98,16 @@ module Metasploit
             client      = RubySMB::Client.new(self.dispatcher, username: credential.public, password: credential.private, domain: realm)
             status_code = client.login
 
+            begin
+              tree = client.tree_connect("\\\\#{host}\\admin$")
+              # Check to make sure we can write a file to this dir
+              if tree.permissions.add_file == 1
+                access_level = AccessLevels::ADMINISTRATOR
+              end
+            rescue Exception => e
+              access_level = nil
+            end
+
             case status_code.name
               when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
                 status = Metasploit::Model::Login::Status::DENIED_ACCESS
@@ -115,7 +125,7 @@ module Metasploit
             proof = e
           end
 
-          result = Result.new(credential: credential, status: status, proof: proof)
+          result = Result.new(credential: credential, status: status, proof: proof, access_level: access_level)
           result.host         = host
           result.port         = port
           result.protocol     = 'tcp'
