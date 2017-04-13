@@ -102,7 +102,9 @@ Gem::Specification.new do |spec|
   # Library for interpreting Windows error codes and strings
   spec.add_runtime_dependency 'windows_error'
   # This used to be depended on by nokogiri, depended on by wmap
-  spec.add_runtime_dependency 'xmlrpc'
+  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
+    spec.add_runtime_dependency 'xmlrpc'
+  end
 
   #
   # Protocol Libraries
