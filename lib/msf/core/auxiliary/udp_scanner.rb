@@ -119,6 +119,9 @@ module Auxiliary::UDPScanner
   # Send a packet to a given host and port
   def scanner_send(data, ip, port)
 
+    # flatten any bindata objects
+    data = data.to_binary_s if data.respond_to?('to_binary_s')
+
     resend_count = 0
     sock = nil
     begin

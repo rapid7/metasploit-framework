@@ -73,7 +73,7 @@ module Msf::DBManager::Host
   # address
   #
   def normalize_host(host)
-    return host if defined?(::Mdm) and host.kind_of? ::Mdm::Host
+    return host if defined?(::Mdm) && host.kind_of?(::Mdm::Host)
     norm_host = nil
 
     if (host.kind_of? String)
@@ -92,7 +92,7 @@ module Msf::DBManager::Host
       else
         norm_host = Rex::Socket.getaddress(host, true)
       end
-    elsif defined?(::Mdm) and host.kind_of? ::Mdm::Session
+    elsif defined?(::Mdm) && host.kind_of?(::Mdm::Session)
       norm_host = host.host
     elsif host.respond_to?(:session_host)
       # Then it's an Msf::Session object
@@ -103,16 +103,16 @@ module Msf::DBManager::Host
     # Msf::Session object with an empty or nil tunnel_host and tunnel_peer;
     # see if it has a socket and use its peerhost if so.
     if (
-        norm_host.nil? and
-        host.respond_to?(:sock) and
-        host.sock.respond_to?(:peerhost) and
+        norm_host.nil? &&
+        host.respond_to?(:sock) &&
+        host.sock.respond_to?(:peerhost) &&
         host.sock.peerhost.to_s.length > 0
       )
       norm_host = session.sock.peerhost
     end
     # If We got here and still don't have a real host, there's nothing left
     # to try, just log it and return what we were given
-    if not norm_host
+    if !norm_host
       dlog("Host could not be normalized: #{host.inspect}")
       norm_host = host
     end
@@ -139,7 +139,7 @@ module Msf::DBManager::Host
   #
   def report_host(opts)
 
-    return if not active
+    return if !active
     addr = opts.delete(:host) || return
 
     # Sometimes a host setup through a pivot will see the address as "Remote Pipe"
@@ -155,7 +155,7 @@ module Msf::DBManager::Host
 
     ret = { }
 
-    if not addr.kind_of? ::Mdm::Host
+    if !addr.kind_of? ::Mdm::Host
       addr = normalize_host(addr)
 
       unless ipv46_validator(addr)
@@ -191,21 +191,21 @@ module Msf::DBManager::Host
       end
     end
 
-    opts.each { |k,v|
+    opts.each do |k,v|
       if (host.attribute_names.include?(k.to_s))
         unless host.attribute_locked?(k.to_s)
           host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
         end
-      else
+      elsif !v.blank?
         dlog("Unknown attribute for ::Mdm::Host: #{k}")
       end
-    }
+    end
     host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
     # Set default fields if needed
-    host.state       = Msf::HostState::Alive if not host.state
-    host.comm        = ''        if not host.comm
-    host.workspace   = wspace    if not host.workspace
+    host.state       = Msf::HostState::Alive if !host.state
+    host.comm        = ''        if !host.comm
+    host.workspace   = wspace    if !host.workspace
 
     if host.changed?
       msf_import_timestamps(opts,host)
@@ -246,7 +246,7 @@ module Msf::DBManager::Host
   #
   def update_host_via_sysinfo(opts)
 
-    return if not active
+    return if !active
     addr = opts.delete(:host) || return
     info = opts.delete(:info) || return
 
@@ -261,7 +261,7 @@ module Msf::DBManager::Host
       wspace = find_workspace(wspace)
     end
 
-    if not addr.kind_of? ::Mdm::Host
+    if !addr.kind_of? ::Mdm::Host
       addr = normalize_host(addr)
       addr, scope = addr.split('%', 2)
       opts[:scope] = scope if scope
@@ -317,21 +317,20 @@ module Msf::DBManager::Host
       res[:name] = res[:name][0,255]
     end
 
-    res.each { |k,v|
-
+    res.each do |k,v|
       if (host.attribute_names.include?(k.to_s))
         unless host.attribute_locked?(k.to_s)
           host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
         end
-      else
+      elsif !v.blank?
         dlog("Unknown attribute for Host: #{k}")
       end
-    }
+    end
 
     # Set default fields if needed
-    host.state       = Msf::HostState::Alive if not host.state
-    host.comm        = ''        if not host.comm
-    host.workspace   = wspace    if not host.workspace
+    host.state       = Msf::HostState::Alive if !host.state
+    host.comm        = ''        if !host.comm
+    host.workspace   = wspace    if !host.workspace
 
     if host.changed?
       host.save!

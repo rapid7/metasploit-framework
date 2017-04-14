@@ -8,9 +8,7 @@ class Msf::Modules::External::Shim
     return '' unless mod.meta
     case mod.meta['type']
     when 'remote_exploit.cmd_stager.wget'
-      s = remote_exploit_cmd_stager(mod)
-      File.open('/tmp/module', 'w') {|f| f.write(s)}
-      s
+      remote_exploit_cmd_stager(mod)
     end
   end
 
