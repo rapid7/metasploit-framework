@@ -313,7 +313,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   def cmd_keyscan_dump(*args)
     print_line("Dumping captured keystrokes...")
     data = client.ui.keyscan_dump
-    print_line(client.ui.keyscan_extract(data))
+    print_line(data)
 
     return true
   end
