@@ -65,7 +65,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.2.19'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.2.22'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.8'
   # Needed by msfgui and other rpc components
@@ -101,6 +101,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'bit-struct'
   # Library for interpreting Windows error codes and strings
   spec.add_runtime_dependency 'windows_error'
+  # This used to be depended on by nokogiri, depended on by wmap
+  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
+    spec.add_runtime_dependency 'xmlrpc'
+  end
 
   #
   # Protocol Libraries

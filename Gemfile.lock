@@ -1,4 +1,11 @@
 GIT
+  remote: https://github.com/WinRb/rubyntlm
+  revision: 7e2daf6076ba55a435d3e345498a7df40faa3d49
+  branch: master
+  specs:
+    rubyntlm (0.6.1)
+
+GIT
   remote: https://github.com/banister/method_source
   revision: 6dcb116e37e20e58f615ffe05a40bbe9a536e44a
   branch: master
@@ -24,7 +31,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.11)
+    metasploit-framework (4.14.12)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -37,7 +44,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.2.19)
+      metasploit-payloads (= 1.2.22)
       metasploit_data_models
       metasploit_payloads-mettle (= 0.1.8)
       msgpack
@@ -84,6 +91,7 @@ PATH
       tzinfo
       tzinfo-data
       windows_error
+      xmlrpc
 
 GEM
   remote: https://rubygems.org/
@@ -214,7 +222,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.2.19)
+    metasploit-payloads (1.2.22)
     metasploit_data_models (2.0.14)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -342,12 +350,10 @@ GEM
       rspec-mocks (~> 3.5.0)
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
-    ruby_smb (0.0.8)
+    ruby_smb (0.0.10)
       bindata
-      bit-struct
-      rubyntlm (~> 0.5)
+      rubyntlm
       windows_error
-    rubyntlm (0.6.1)
     rubyzip (1.2.1)
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
@@ -374,6 +380,7 @@ GEM
     tzinfo-data (1.2017.2)
       tzinfo (>= 1.0.0)
     windows_error (0.1.1)
+    xmlrpc (0.3.0)
     xpath (2.0.0)
       nokogiri (~> 1.3)
     yard (0.9.8)
@@ -395,6 +402,7 @@ DEPENDENCIES
   rake
   redcarpet
   rspec-rails
+  rubyntlm!
   shoulda-matchers
   simplecov
   timecop

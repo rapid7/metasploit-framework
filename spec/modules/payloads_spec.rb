@@ -448,6 +448,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/mainframe/reverse_shell_jcl'
   end
 
+  context 'cmd/mainframe/apf_privesc_jcl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/mainframe/apf_privesc_jcl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/mainframe/apf_privesc_jcl'
+  end
+
   context 'cmd/unix/bind_awk' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

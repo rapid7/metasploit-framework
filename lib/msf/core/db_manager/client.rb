@@ -27,7 +27,7 @@ module Msf::DBManager::Client
   # Returns a Client.
   #
   def report_client(opts)
-    return if not active
+    return if !active
   ::ActiveRecord::Base.connection_pool.with_connection {
     addr = opts.delete(:host) || return
     wspace = opts.delete(:workspace) || workspace
@@ -50,14 +50,14 @@ module Msf::DBManager::Client
       end
     end
 
-    opts.each { |k,v|
+    opts.each do |k,v|
       if (client.attribute_names.include?(k.to_s))
         client[k] = v
-      else
+      elsif !v.blank?
         dlog("Unknown attribute for Client: #{k}")
       end
-    }
-    if (client and client.changed?)
+    end
+    if client && client.changed?
       client.save!
     end
     ret[:client] = client
