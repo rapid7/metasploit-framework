@@ -97,7 +97,7 @@ module Metasploit
             realm       = credential.realm   || ""
             username    = credential.public  || ""
             password    = credential.private || ""
-            client      = RubySMB::Client.new(self.dispatcher, username: credential.public, password: credential.private, domain: realm)
+            client      = RubySMB::Client.new(self.dispatcher, username: username, password: password, domain: realm)
             status_code = client.login
 
             # Windows SMB will return an error code during Session
