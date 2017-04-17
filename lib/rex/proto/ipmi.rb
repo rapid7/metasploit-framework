@@ -5,7 +5,6 @@ require 'rex/proto/ipmi/utils'
 module Rex
 module Proto
 module IPMI
-  require 'bit-struct'
   require 'rex/proto/ipmi/channel_auth_reply'
   require 'rex/proto/ipmi/open_session_reply'
   require 'rex/proto/ipmi/rakp2'
