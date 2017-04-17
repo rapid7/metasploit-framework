@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'IPMI 2.0 RAKP Remote SHA1 Password Hash Retrieval',
       'Description' => %q|
-        This module identifies IPMI 2.0 compatible systems and attempts to retrieve the
+        This module identifies IPMI 2.0-compatible systems and attempts to retrieve the
         HMAC-SHA1 password hashes of default usernames. The hashes can be stored in a
         file using the OUTPUT_FILE option and then cracked using hmac_sha1_crack.rb
         in the tools subdirectory as well hashcat (cpu) 0.46 or newer using type 7300.
