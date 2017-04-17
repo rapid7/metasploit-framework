@@ -94,7 +94,9 @@ module Metasploit
 
           begin
 
-            realm       = credential.realm || ""
+            realm       = credential.realm   || ""
+            username    = credential.public  || ""
+            password    = credential.private || ""
             client      = RubySMB::Client.new(self.dispatcher, username: credential.public, password: credential.private, domain: realm)
             status_code = client.login
 
