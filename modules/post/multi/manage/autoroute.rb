@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Windows Manage Network Route via Meterpreter Session',
+        'Name'          => 'Multi Manage Network Route via Meterpreter Session',
         'Description'   => %q{This module manages session routing via an existing
           Meterpreter session. It enables other modules to 'pivot' through a
           compromised host when connecting to the named NETWORK and SUBMASK.
@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
         'Author'        =>
            [
              'todb',
-             'Josh Hale <jhale85446[at]gmail.com>'
+             'Josh Hale "sn0wfa11" <jhale85446[at]gmail.com>'
            ],
         'SessionTypes'  => [ 'meterpreter']
       ))
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Post
     when :add
       if validate_cmd(datastore['SUBNET'],netmask)
         print_status("Adding a route to %s/%s..." % [datastore['SUBNET'],netmask])
-        add_route(:subnet => datastore['SUBNET'], :netmask => netmask)
+        add_route(datastore['SUBNET'], netmask)
       end
     when :autoadd
       autoadd_routes
@@ -69,21 +69,21 @@ class MetasploitModule < Msf::Post
     when :delete
       if datastore['SUBNET']
         print_status("Deleting route to %s/%s..." % [datastore['SUBNET'],netmask])
-        delete_route(:subnet => datastore['SUBNET'], :netmask => netmask)
+        delete_route(datastore['SUBNET'], netmask)
       else
         delete_all_routes()
       end
     end
   end
 
+  # Delete all routes from framework routing table.
+  #
+  # @return [void] A useful return value is not expected here
   def delete_all_routes
     if Rex::Socket::SwitchBoard.routes.size > 0
-      routes = []
       Rex::Socket::SwitchBoard.each do |route|
-        routes << {:subnet => route.subnet, :netmask => route.netmask}
+        delete_route(route.subnet, route.netmask)
       end
-      routes.each {|route_opts| delete_route(route_opts)}
-
       print_status "Deleted all routes"
     else
       print_status "No routes have been added yet"
@@ -152,16 +152,52 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # Adds a route to the framework instance
-  def add_route(opts={})
-    subnet = opts[:subnet]
-    Rex::Socket::SwitchBoard.add_route(subnet, netmask, session)
+  # This function adds a route to the framework routing table
+  #
+  # @subnet [string class] subnet to add
+  # @netmask [string class] netmask
+  # @origin [string class] where route is coming from. Nill for none.
+  #
+  # @return [true]  If added
+  # @return [false] If not
+  def add_route(subnet, netmask, origin)
+  if origin
+    origin = " from #{origin}"
+  else
+    origin = ""
   end
 
-  # Removes a route to the framework instance
-  def delete_route(opts={})
-    subnet = opts[:subnet]
-    Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
+    begin
+      if Rex::Socket::SwitchBoard.add_route(subnet, netmask, session)
+        print_good("Route added to subnet #{subnet}/#{netmask}#{origin}.")
+        return true
+      else
+        print_error("Could not add route to subnet #{subnet}/#{netmask}#{origin}.")
+        return false
+      end
+    rescue ::Rex::Post::Meterpreter::RequestError => re
+      print_error("Could not add route to subnet #{subnet}/#{netmask}#{origin}.")
+      print_error("#{re.class} #{re.message}\n#{re.backtrace * "\n"}")
+      return false
+    end
+  end
+
+  # This function removes a route to the framework routing table
+  #
+  # @subnet [string class] subnet to add
+  # @netmask [string class] netmask
+  # @origin [string class] where route is coming from.
+  #
+  # @return [true]  If removed
+  # @return [false] If not
+  def delete_route(subnet, netmask)
+    begin
+      Rex::Socket::SwitchBoard.remove_route(subnet, netmask, session)
+    rescue ::Rex::Post::Meterpreter::RequestError => re
+      print_error("Could not remove route to subnet #{subnet}/#{netmask}")
+      print_error("#{re.class} #{re.message}\n#{re.backtrace * "\n"}")
+      return false
+    end
   end
 
   # This function will exclude loopback, multicast, and default routes
@@ -188,26 +224,22 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def autoadd_routes
-    switch_board = Rex::Socket::SwitchBoard.instance
+    return unless route_compatible?
     print_status("Searching for subnets to autoroute.")
     found = false
 
-    session.net.config.each_route do | route |
-      next unless is_routable?(route.subnet, route.netmask)
+    begin
+      session.net.config.each_route do | route |
+        next unless is_routable?(route.subnet, route.netmask)
+        next unless (Rex::Socket.is_ipv4?(route.subnet) && Rex::Socket.is_ipv4?(route.netmask)) # Pick out the IPv4 addresses
 
-      if !switch_board.route_exists?(route.subnet, route.netmask)
-        begin
-          if Rex::Socket::SwitchBoard.add_route(route.subnet, route.netmask, session)
-            print_good("Route added to subnet #{route.subnet}/#{route.netmask} from host's routing table.")
-            found = true
-          else
-            print_error("Could not add route to subnet #{route.subnet}/#{route.netmask} from host's routing table.")
-          end
-        rescue ::Rex::Post::Meterpreter::RequestError => error
-          print_error("Could not add route to subnet #{route.subnet}/(#{route.netmask}) from host's routing table.")
-          print_error(error.to_s)
+        if !Rex::Socket::SwitchBoard.route_exists?(route.subnet, route.netmask)
+          found = true if add_route(route.subnet, route.netmask, "host's routing table")
         end
       end
+
+    rescue ::Rex::Post::Meterpreter::RequestError => re
+      print_status("Unable to get routes from session, trying other methods.")
     end
 
     if !autoadd_interface_routes && !found  # Check interface list for more possible routes
@@ -221,37 +253,32 @@ class MetasploitModule < Msf::Post
   # @return [true] A route from the interface list was added
   # @return [false] No additional routes were added
   def autoadd_interface_routes
-    switch_board = Rex::Socket::SwitchBoard.instance
+    return unless interface_compatible?
     found = false
 
-    session.net.config.each_interface do | interface | # Step through each of the network interfaces
+    begin
+      session.net.config.each_interface do | interface | # Step through each of the network interfaces
 
-      (0..(interface.addrs.size - 1)).each do | index | # Step through the addresses for the interface
+        (0..(interface.addrs.size - 1)).each do | index | # Step through the addresses for the interface
 
-        ip_addr = interface.addrs[index]
-        netmask = interface.netmasks[index]
+          ip_addr = interface.addrs[index]
+          netmask = interface.netmasks[index]
 
-        next unless ip_addr =~ /\./ # Pick out the IPv4 addresses
-        next unless is_routable?(ip_addr, netmask)
+          next unless (Rex::Socket.is_ipv4?(ip_addr) && Rex::Socket.is_ipv4?(netmask)) # Pick out the IPv4 addresses
+          next unless is_routable?(ip_addr, netmask)
 
-        subnet = get_subnet(ip_addr, netmask)
+          subnet = get_subnet(ip_addr, netmask)
 
-        if subnet
-          if !switch_board.route_exists?(subnet, netmask)
-            begin
-              if Rex::Socket::SwitchBoard.add_route(subnet, netmask, session)
-                print_good("Route added to subnet #{subnet}/#{netmask} from #{interface.mac_name}.")
-                found = true
-              else
-                print_error("Could not add route to subnet #{subnet}/#{netmask} from #{interface.mac_name}")
-              end
-            rescue ::Rex::Post::Meterpreter::RequestError => error
-              print_error("Could not add route to subnet #{subnet}/(#{netmask}) from #{interface.mac_name}")
-              print_error(error.to_s)
+          if subnet
+            if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
+              found = true if add_route(subnet, netmask, interface.mac_name)
             end
           end
+
         end
       end
+    rescue ::Rex::Post::Meterpreter::RequestError => error
+      print_error("Unable to get interface information from session.")
     end
     return found
   end
@@ -319,17 +346,26 @@ class MetasploitModule < Msf::Post
     print_status("Attempting to add a default route.")
 
     if !switch_board.route_exists?(subnet, mask)
-      begin
-        if Rex::Socket::SwitchBoard.add_route(subnet, mask, session)
-          print_good("Route added to subnet #{subnet}/#{mask}")
-        else
-          print_error("Could not add route to subnet #{subnet}/#{mask}")
-        end
-      rescue ::Rex::Post::Meterpreter::RequestError => error
-        print_error("Could not add route to subnet #{subnet}/(#{mask})")
-        print_error(error.to_s)
-      end
+      add_route(subnet, mask, nil)
     end
+  end
+
+  # Checks to see if the session has routing capabilities
+  #
+  # @return [true class] Session has routing capabilities
+  # @return [false class] Session does not
+  def route_compatible?
+    session.respond_to?(:net) &&
+    session.net.config.respond_to?(:each_route)
+  end
+
+  # Checks to see if the session has capabilities of accessing network interfaces
+  #
+  # @return [true class] Session has ability to access network interfaces
+  # @return [false class] Session does not
+  def interface_compatible?
+    session.respond_to?(:net) &&
+    session.net.config.respond_to?(:each_interface)
   end
 
   # Validates the command options
@@ -353,6 +389,6 @@ class MetasploitModule < Msf::Post
       print_error "Netmask invalid"
       return false
     end
-    true
+    return true
   end
 end
