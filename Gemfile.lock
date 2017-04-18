@@ -31,7 +31,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.12)
+    metasploit-framework (4.14.13)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -193,7 +193,7 @@ GEM
     i18n (0.8.1)
     jsobfu (0.4.2)
       rkelly-remix
-    json (2.0.4)
+    json (2.1.0)
     jwt (1.5.6)
     little-plugger (1.1.4)
     logging (2.2.2)
