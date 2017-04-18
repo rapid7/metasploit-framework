@@ -26,7 +26,7 @@ RSpec.describe Metasploit::Framework::LoginScanner do
 
 
   context "with port 445" do
-    let(:port) { foo }
+    let(:port) { 445 }
 
     it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
     it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
