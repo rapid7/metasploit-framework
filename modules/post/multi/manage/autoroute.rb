@@ -52,6 +52,8 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
+    return unless session_good?
+
     print_status("Running module against #{sysinfo['Computer']}")
 
     case route_cmd()
@@ -359,6 +361,22 @@ class MetasploitModule < Msf::Post
     if !switch_board.route_exists?(subnet, mask)
       add_route(subnet, mask)
     end
+  end
+
+  # Checks to see if the session is ready.
+  #
+  # Some Meterpreter types, like python, can take a few seconds to
+  # become fully established. This gracefully exits if the session
+  # is not ready yet.
+  #
+  # @return [true class] Session is good
+  # @return [false class] Session is not
+  def session_good?
+    if !session.info
+      print_error("Session is not yet fully established. Try again in a bit.")
+      return false
+    end
+    return true
   end
 
   # Checks to see if the session has routing capabilities
