@@ -350,7 +350,7 @@ GEM
       rspec-mocks (~> 3.5.0)
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
-    ruby_smb (0.0.10)
+    ruby_smb (0.0.12)
       bindata
       rubyntlm
       windows_error
