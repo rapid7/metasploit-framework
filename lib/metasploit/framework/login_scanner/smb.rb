@@ -94,8 +94,10 @@ module Metasploit
 
           begin
 
-            realm       = credential.realm || ""
-            client      = RubySMB::Client.new(self.dispatcher, username: credential.public, password: credential.private, domain: realm)
+            realm       = credential.realm   || ""
+            username    = credential.public  || ""
+            password    = credential.private || ""
+            client      = RubySMB::Client.new(self.dispatcher, username: username, password: password, domain: realm)
             status_code = client.login
 
             # Windows SMB will return an error code during Session
@@ -125,11 +127,13 @@ module Metasploit
               else
                 status = Metasploit::Model::Login::Status::INCORRECT
             end
-          rescue ::Rex::ConnectionError => e
+          rescue ::Rex::ConnectionError, Errno::EINVAL => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
           rescue RubySMB::Error::UnexpectedStatusCode => e
             status = Metasploit::Model::Login::Status::INCORRECT
+          ensure
+            client.disconnect!
           end
 
           if status == Metasploit::Model::Login::Status::SUCCESSFUL && credential.public.empty?

@@ -48,11 +48,10 @@ class MetasploitModule < Msf::Auxiliary
       if status == "STATUS_INSUFF_SERVER_RESOURCES"
         print_warning("Host is likely VULNERABLE to MS17-010!")
         report_vuln(
-          :host   => rhost,
-          :port   => rport,
-          :proto  => 'tcp',
-          :sname  => 'SMB',
-          :info   => "Vulnerable to MS17-010",
+          host: ip,
+          name: self.name,
+          refs: self.references,
+          info: 'STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$'
         )
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
@@ -67,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::Proto::SMB::Exceptions::LoginError
       print_error("An SMB Login Error occurred while connecting to the IPC$ tree.")
     rescue ::Exception => e
-      print_error("#{e.class}: #{e.message}")
+      vprint_error("#{e.class}: #{e.message}")
     ensure
       disconnect
     end
