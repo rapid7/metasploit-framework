@@ -81,12 +81,23 @@ class MetasploitModule < Msf::Post
   # @return [void] A useful return value is not expected here
   def delete_all_routes
     if Rex::Socket::SwitchBoard.routes.size > 0
-      Rex::Socket::SwitchBoard.each do |route|
-        delete_route(route.subnet, route.netmask)
+      print_status("Deleting all routes associated with session: #{session.sid.to_s}.")
+      while true
+        count = 0
+        Rex::Socket::SwitchBoard.each do |route|
+          if route.comm == session
+            print_status("Deleting: #{route.subnet}/#{route.netmask}")
+            delete_route(route.subnet, route.netmask)
+          end
+        end
+        Rex::Socket::SwitchBoard.each do |route|
+          count = count + 1 if route.comm == session
+        end
+        break if count == 0
       end
-      print_status "Deleted all routes"
+      print_status("Deleted all routes")
     else
-      print_status "No routes have been added yet"
+      print_status("No routes associated with this session to delete.")
     end
   end
 
@@ -160,7 +171,7 @@ class MetasploitModule < Msf::Post
   #
   # @return [true]  If added
   # @return [false] If not
-  def add_route(subnet, netmask, origin)
+  def add_route(subnet, netmask, origin=nil)
   if origin
     origin = " from #{origin}"
   else
@@ -346,7 +357,7 @@ class MetasploitModule < Msf::Post
     print_status("Attempting to add a default route.")
 
     if !switch_board.route_exists?(subnet, mask)
-      add_route(subnet, mask, nil)
+      add_route(subnet, mask)
     end
   end
 
