@@ -243,16 +243,17 @@ class MetasploitModule < Msf::Post
 
     begin
       session.net.config.each_route do | route |
-        next unless is_routable?(route.subnet, route.netmask)
         next unless (Rex::Socket.is_ipv4?(route.subnet) && Rex::Socket.is_ipv4?(route.netmask)) # Pick out the IPv4 addresses
+        subnet = get_subnet(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
+        next unless is_routable?(subnet, route.netmask)
 
-        if !Rex::Socket::SwitchBoard.route_exists?(route.subnet, route.netmask)
-          found = true if add_route(route.subnet, route.netmask, "host's routing table")
+        if !Rex::Socket::SwitchBoard.route_exists?(subnet, route.netmask)
+          found = true if add_route(subnet, route.netmask, "host's routing table")
         end
       end
 
     rescue ::Rex::Post::Meterpreter::RequestError => re
-      print_status("Unable to get routes from session, trying other methods.")
+      print_status("Unable to get routes from session, trying interface list.")
     end
 
     if !autoadd_interface_routes && !found  # Check interface list for more possible routes
