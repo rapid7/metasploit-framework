@@ -127,11 +127,13 @@ module Metasploit
               else
                 status = Metasploit::Model::Login::Status::INCORRECT
             end
-          rescue ::Rex::ConnectionError => e
+          rescue ::Rex::ConnectionError, Errno::EINVAL => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
           rescue RubySMB::Error::UnexpectedStatusCode => e
             status = Metasploit::Model::Login::Status::INCORRECT
+          ensure
+            client.disconnect!
           end
 
           if status == Metasploit::Model::Login::Status::SUCCESSFUL && credential.public.empty?
