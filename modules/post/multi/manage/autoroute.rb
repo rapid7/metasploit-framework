@@ -103,37 +103,70 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  # Print all of the active routes defined on the framework
+  #
   # Identical functionality to command_dispatcher/core.rb, and
   # nearly identical code
+  #
+  # @return [void] A useful return value is not expected here
   def print_routes
-    if Rex::Socket::SwitchBoard.routes.size > 0
-      tbl =	Msf::Ui::Console::Table.new(
-        Msf::Ui::Console::Table::Style::Default,
-        'Header'  => "Active Routing Table",
-        'Prefix'  => "\n",
-        'Postfix' => "\n",
-        'Columns' => [
+    # IPv4 Table
+    tbl_ipv4 = Msf::Ui::Console::Table.new(
+      Msf::Ui::Console::Table::Style::Default,
+      'Header'  => "IPv4 Active Routing Table",
+      'Prefix'  => "\n",
+      'Postfix' => "\n",
+      'Columns' =>
+        [
           'Subnet',
           'Netmask',
           'Gateway',
         ],
-        'ColProps' => {
+      'ColProps' =>
+        {
           'Subnet'  => { 'MaxWidth' => 17 },
           'Netmask' => { 'MaxWidth' => 17 },
         })
-      ret = []
 
-      Rex::Socket::SwitchBoard.each { |route|
-        if (route.comm.kind_of?(Msf::Session))
-          gw = "Session #{route.comm.sid}"
-        else
-          gw = route.comm.name.split(/::/)[-1]
-        end
-        tbl << [ route.subnet, route.netmask, gw ]
-      }
-      print_line tbl.to_s
-    else
-      print_status "No routes have been added yet"
+    # IPv6 Table
+    tbl_ipv6 = Msf::Ui::Console::Table.new(
+      Msf::Ui::Console::Table::Style::Default,
+      'Header'  => "IPv6 Active Routing Table",
+      'Prefix'  => "\n",
+      'Postfix' => "\n",
+      'Columns' =>
+        [
+          'Subnet',
+          'Netmask',
+          'Gateway',
+        ],
+      'ColProps' =>
+        {
+          'Subnet'  => { 'MaxWidth' => 17 },
+          'Netmask' => { 'MaxWidth' => 17 },
+        })
+
+    # Populate Route Tables
+    Rex::Socket::SwitchBoard.each { |route|
+      if (route.comm.kind_of?(Msf::Session))
+        gw = "Session #{route.comm.sid}"
+      else
+        gw = route.comm.name.split(/::/)[-1]
+      end
+
+      tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)
+      tbl_ipv6 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv6?(route.netmask)
+    }
+
+    # Print Route Tables
+    print(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
+    print(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
+    if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
+      print_status("There are currently no routes defined.")
+    elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)
+      print_status("There are currently no IPv4 routes defined.")
+    elsif (tbl_ipv4.rows.length > 0) && (tbl_ipv6.rows.length < 1)
+      print_status("There are currently no IPv6 routes defined.")
     end
   end
 
