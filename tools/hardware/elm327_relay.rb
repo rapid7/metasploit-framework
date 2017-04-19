@@ -269,9 +269,9 @@ module ELM327HWBridgeRelay
       result["success"] = false
       srcid = "%03X" % srcid.to_i(16)
       dstid = "%03X" % dstid.to_i(16)
-      send_cmd("ATMCAF1")  # Turn on ISO-TP formatting
+      send_cmd("ATCAF1")  # Turn on ISO-TP formatting
       send_cmd("ATR1")  # Turn on responses
-      send_cmd("ATSTH#{srcid}")  # Src Header
+      send_cmd("ATSH#{srcid}")  # Src Header
       send_cmd("ATCRA#{dstid}")  # Resp Header
       send_cmd("ATCFC1") # Enable flow control
       resp = send_cmd(data)
