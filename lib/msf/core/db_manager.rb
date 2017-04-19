@@ -30,7 +30,6 @@ class Msf::DBManager
   autoload :Adapter, 'msf/core/db_manager/adapter'
   autoload :Client, 'msf/core/db_manager/client'
   autoload :Connection, 'msf/core/db_manager/connection'
-  autoload :Cred, 'msf/core/db_manager/cred'
   autoload :Event, 'msf/core/db_manager/event'
   autoload :ExploitAttempt, 'msf/core/db_manager/exploit_attempt'
   autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
@@ -63,7 +62,6 @@ class Msf::DBManager
   include Msf::DBManager::Adapter
   include Msf::DBManager::Client
   include Msf::DBManager::Connection
-  include Msf::DBManager::Cred
   include Msf::DBManager::Event
   include Msf::DBManager::ExploitAttempt
   include Msf::DBManager::ExploitedHost
