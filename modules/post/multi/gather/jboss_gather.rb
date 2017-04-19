@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
         private_type: :password,
         session_id: session_db_id,
         username: user,
-        workspace_id: myworkspace_id,
+        workspace_id: myworkspace_id
       }
 
       credential_core = create_credential(credential_data)
@@ -56,9 +56,10 @@ class MetasploitModule < Msf::Post
     i = 0
     file.each do |pwfile|
       begin
+        print_status("Getting passwords from: #{pwfile}")
         lines = read_file(pwfile).split("\n")
       rescue
-        print_error("Cannot open #{pwfile}, you probably don't have permissions to open the file.")
+        print_error("Cannot open #{pwfile}, you probably do not have permissions to open the file.")
         next
       end
       for line in lines
@@ -82,7 +83,7 @@ class MetasploitModule < Msf::Post
         begin
           file = read_file(array[i])
         rescue
-          print_error("Cannot open #{array[i]}, you probably don't have permissions to open the file.")
+          print_error("Cannot open #{array[i]}, you probably do not have permissions to open the file.")
           next
         end
         xml_doc = Nokogiri::XML(file)
@@ -161,23 +162,25 @@ class MetasploitModule < Msf::Post
         begin
           file1_read = read_file(file1).split("\n")
         rescue
-          print_error("Cannot open #{file1}, you probably don't have permissions to open the file.")
+          print_error("Cannot open #{file1}, you probably do not have permissions to open the file.")
           next
         end
         parse = false
         portfound = false
         file1_read.each do |line|
-        if line.strip.include? 'deploy/httpha-invoker.sar'
-          parse = true
-        elsif (line.strip == '</bean>' and portfound)
-          parse = false
-        elsif parse and line.include? '<property name="port">'
-          port.push(line.split('<property name="port">')[1].split('<')[0].to_i)
-          portfound = true
+          if line.strip.include? 'deploy/httpha-invoker.sar'
+            parse = true
+          elsif (line.strip == '</bean>' and portfound)
+            parse = false
+          elsif parse and line.include? '<property name="port">'
+            portnr = line.split('<property name="port">')[1].split('<')[0].to_i
+            port.push(portnr)
+            portfound = true
+            print_good("Jboss port found: #{portnr}")
+          end
         end
       end
     end
-  end
 
     type2.each do |file2|
       if file2 and file2.include? version
@@ -185,12 +188,14 @@ class MetasploitModule < Msf::Post
         begin
           xml2 = Nokogiri::XML(read_file(file2))
         rescue
-          print_error("Cannot open #{file2}, you probably don't have permissions to open the file.")
+          print_error("Cannot open #{file2}, you probably do not have permissions to open the file.")
           next
         end
         xml2.xpath("//Server//Connector").each do |connector|
           if connector['protocol'].include? "HTTP"
-            port.push(connector['port'].to_i)
+            portnr = connector['port'].to_i
+            port.push(portnr)
+            print_good("Jboss port found: #{portnr}")
             break
           end
         end
@@ -225,16 +230,16 @@ class MetasploitModule < Msf::Post
     instances = []
     instance_location = "#{home}\\server"
     exec = cmd_exec("cmd /c dir #{instance_location}").split("\n")
-      exec.each do |instance|
-        if instance.split("<DIR>")[1]
-          if (not instance.split("<DIR>")[1].strip.include? ".") and (not instance.split("<DIR>")[1].strip.include? "..")
-            instance_path = "#{home}\\server\\#{(instance.split('<DIR>')[1].strip)}"
-            if instance_path.include? version
-              instances.push(instance_path)
-            end
+    exec.each do |instance|
+      if instance.split("<DIR>")[1]
+        if (not instance.split("<DIR>")[1].strip.include? ".") and (not instance.split("<DIR>")[1].strip.include? "..")
+          instance_path = "#{home}\\server\\#{(instance.split('<DIR>')[1].strip)}"
+          if instance_path.include? version
+            instances.push(instance_path)
           end
         end
       end
+    end
     return instances
   end
 
@@ -273,25 +278,28 @@ class MetasploitModule < Msf::Post
           elsif (line.strip == '</bean>' and portfound)
             parse = false
           elsif parse and line.include? '<property name="port">'
-            port.push(line.split('<property name="port">')[1].split('<')[0].to_i)
+            portnr = line.split('<property name="port">')[1].split('<')[0].to_i
+            port.push(portnr)
             portfound = true
+            print_good("Jboss port found: #{portnr}")
           end
         end
       end
 
       if file2
         print_status("Attempting to extract Jboss service ports from: #{seed}\\deploy\\jboss-web.deployer\\server.xml")
-        xml2  = Nokogiri::XML(file2)
+        xml2 = Nokogiri::XML(file2)
         xml2.xpath("//Server//Connector").each do |connector|
           if connector['protocol'].include? "HTTP"
-            print_status(connector['port'])
-            port.push(connector['port'].to_i)
+            portnr = connector['port'].to_i
+            port.push(portnr)
+            print_good("Jboss port found: #{portnr}")
             break
           end
         end
       end
     end
-  return port
+    return port
   end
 
   def gatherwin
