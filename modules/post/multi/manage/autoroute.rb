@@ -51,6 +51,8 @@ class MetasploitModule < Msf::Post
   end
 
   # Run Method for when run command is issued
+  #
+  # @return [void] A useful return value is not expected here
   def run
     return unless session_good?
 
@@ -170,8 +172,12 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  # Validation check on an IPv4 address
+  #
   # Yet another IP validator. I'm sure there's some Rex
   # function that can just do this.
+  #
+  # @return [string class] IPv4 subnet
   def check_ip(ip=nil)
     return false if(ip.nil? || ip.strip.empty?)
     begin
@@ -182,11 +188,17 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  # Converts a CIDR value to a netmask
+  #
+  # @return [string class] IPv4 netmask
   def cidr_to_netmask(cidr)
     int = cidr.gsub(/\x2f/,"").to_i
     Rex::Socket.addr_ctoa(int)
   end
 
+  # Validates the user input 'NETMASK'
+  #
+  # @return [string class] IPv4 netmask
   def netmask
     case datastore['NETMASK']
     when /^\x2f[0-9]{1,2}/
@@ -432,6 +444,9 @@ class MetasploitModule < Msf::Post
   end
 
   # Validates the command options
+  #
+  # @return [true class] Everything is good
+  # @return [false class] Not so much
   def validate_cmd(subnet=nil,netmask=nil)
     if subnet.nil?
       print_error "Missing subnet option"
