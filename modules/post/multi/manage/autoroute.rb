@@ -34,6 +34,8 @@ class MetasploitModule < Msf::Post
       ])
   end
 
+  # Get the CMD string vs ACTION
+  #
   # Backwards compatability: This was changed because the option name of "ACTION"
   # is special for some things, and indicates the :action attribute, not a datastore option.
   # However, this is a semi-popular module, though, so I'd prefer not to break people's
@@ -41,6 +43,8 @@ class MetasploitModule < Msf::Post
   #
   # TODO: The better solution is to use 'Action' and 'DefaultAction' info elements,
   # but there are some squirelly problems right now with rendering these for post modules.
+  #
+  # @return [string class] cmd string
   def route_cmd
     if datastore['ACTION'].to_s.empty?
       datastore['CMD'].to_s.downcase.to_sym
