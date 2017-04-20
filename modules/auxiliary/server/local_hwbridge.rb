@@ -41,6 +41,8 @@ class MetasploitModule < Msf::Auxiliary
     @server_started = Time.new
     @can_interfaces = []
     @pkt_response = {}  # Candump returned packets
+    @packets_sent = 0
+    @last_sent = nil
   end
 
   def detect_can
@@ -72,8 +74,8 @@ class MetasploitModule < Msf::Auxiliary
   def get_statistics
     stats = {}
     stats["uptime"] = Time.now - @server_started
-    stats["packet_stats"] = "not supported"
-    stats["last_request"] = "not supported"
+    stats["packet_stats"] = @packets_sent
+    stats["last_request"] = @last_sent if @last_sent
     stats["voltage"] = "not supported"
     stats
   end
@@ -134,6 +136,8 @@ class MetasploitModule < Msf::Auxiliary
     @can_interfaces.each do |can|
       if can == bus
         system("cansend #{bus} #{id}##{bytes.join}")
+        @packets_sent += 1
+        @last_sent = Time.now.to_i
         result["Success"] = true if $?.success?
       end
     end
@@ -194,6 +198,8 @@ class MetasploitModule < Msf::Auxiliary
       if can == bus
         candump(bus, dstid, timeout, maxpkts)
         system("cansend #{bus} #{srcid}##{bytes}")
+        @packets_sent += 1
+        @last_sent = Time.now.to_i
         result["Success"] = true if $?.success?
         result["Packets"] = []
         $candump_sniffer.join
