@@ -22,10 +22,16 @@ class MetasploitModule < Msf::Auxiliary
         If the status returned is "STATUS_INSUFF_SERVER_RESOURCES", the machine does
         not have the MS17-010 patch.
 
+        If the machine is missing the MS17-010 patch, the module will check for an
+        existing DoublePulsar (ring 0 shellcode/malware) infection.
+
         This module does not require valid SMB credentials in default server
         configurations. It can log on as the user "\" and connect to IPC$.
       },
-      'Author'         => [ 'Sean Dillon <sean.dillon@risksense.com>' ],
+      'Author'         =>
+          [ 'Sean Dillon <sean.dillon@risksense.com>',
+            'Luke Jennings' # DoublePulsar detection
+          ],
       'References'     =>
         [
           [ 'CVE', '2017-0143'],
@@ -43,19 +49,37 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      status = do_smb_probe(ip)
+      ipc_share = "\\\\#{ip}\\IPC$"
+
+      tree_id = do_smb_setup_tree(ipc_share)
+      print_status("Connected to #{ipc_share} with TID = #{tree_id}")
+
+      status = do_smb_ms17_010_probe(tree_id)
+      print_status("Received #{status} with FID = 0")
 
       if status == "STATUS_INSUFF_SERVER_RESOURCES"
-        print_warning("Host is likely VULNERABLE to MS17-010!")
+        print_good("Host is likely VULNERABLE to MS17-010!")
         report_vuln(
           host: ip,
           name: self.name,
           refs: self.references,
           info: 'STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$'
         )
+
+        # vulnerable to MS17-010, check for DoublePulsar infection
+        code = do_smb_doublepulsar_probe(tree_id)
+        if code == 0x51
+          print_warning("Host is likely INFECTED with DoublePulsar!")
+          report_vuln(
+            host: ip,
+            name: "MS17-010 DoublePulsar Infection",
+            refs: self.references,
+            info: 'MultiPlexID = 0x51 on Trans2 request'
+          )
+        end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
-        print_good("Host does NOT appear vulnerable.")
+        print_bad("Host does NOT appear vulnerable.")
       else
         print_bad("Unable to properly detect if host is vulnerable.")
       end
@@ -72,19 +96,34 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def do_smb_probe(ip)
+  def do_smb_setup_tree(ipc_share)
     connect
 
     # logon as user \
     simple.login(datastore['SMBName'], datastore['SMBUser'], datastore['SMBPass'], datastore['SMBDomain'])
 
     # connect to IPC$
-    ipc_share = "\\\\#{ip}\\IPC$"
     simple.connect(ipc_share)
-    tree_id = simple.shares[ipc_share]
 
-    print_status("Connected to #{ipc_share} with TID = #{tree_id}")
+    # return tree
+    return simple.shares[ipc_share]
+  end
 
+  def do_smb_doublepulsar_probe(tree_id)
+    # make doublepulsar knock
+    pkt = make_smb_trans2_doublepulsar(tree_id)
+
+    sock.put(pkt)
+    bytes = sock.get_once
+
+    # convert packet to response struct
+    pkt = Rex::Proto::SMB::Constants::SMB_TRANS_RES_HDR_PKT.make_struct
+    pkt.from_s(bytes[4..-1])
+
+    return pkt['SMB'].v['MultiplexID']
+  end
+
+  def do_smb_ms17_010_probe(tree_id)
     # request transaction with fid = 0
     pkt = make_smb_trans_ms17_010(tree_id)
     sock.put(pkt)
@@ -97,10 +136,47 @@ class MetasploitModule < Msf::Auxiliary
     # convert error code to string
     code = pkt['SMB'].v['ErrorClass']
     smberr = Rex::Proto::SMB::Exceptions::ErrorCode.new
-    status = smberr.get_error(code)
 
-    print_status("Received #{status} with FID = 0")
-    status
+    return smberr.get_error(code)
+  end
+
+  def make_smb_trans2_doublepulsar(tree_id)
+    # make a raw transaction packet
+    # this one is a trans2 packet, the checker is trans
+    pkt = Rex::Proto::SMB::Constants::SMB_TRANS2_PKT.make_struct
+    simple.client.smb_defaults(pkt['Payload']['SMB'])
+
+    # opcode 0x0e = SESSION_SETUP
+    setup = "\x0e\x00\x00\x00"
+    setup_count = 1             # 2 words
+    trans = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+
+    # calculate offsets to the SetupData payload
+    base_offset = pkt.to_s.length + (setup.length) - 4
+    param_offset = base_offset + trans.length
+    data_offset = param_offset # + 0
+
+    # packet baselines
+    pkt['Payload']['SMB'].v['Command'] = Rex::Proto::SMB::Constants::SMB_COM_TRANSACTION2
+    pkt['Payload']['SMB'].v['Flags1'] = 0x18
+    pkt['Payload']['SMB'].v['MultiplexID'] = 65
+    pkt['Payload']['SMB'].v['Flags2'] = 0xc007 # 0xc803 would unicode
+    pkt['Payload']['SMB'].v['TreeID'] = tree_id
+    pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
+    pkt['Payload'].v['Timeout'] = 0x00a4d9a6
+    pkt['Payload'].v['ParamCountTotal'] = 12
+    pkt['Payload'].v['ParamCount'] = 12
+    pkt['Payload'].v['ParamCountMax'] = 1
+    pkt['Payload'].v['DataCountMax'] = 0
+    pkt['Payload'].v['ParamOffset'] = 66
+    pkt['Payload'].v['DataOffset'] = 78
+
+    # actual magic: PeekNamedPipe FID=0, \PIPE\
+    pkt['Payload'].v['SetupCount'] = setup_count
+    pkt['Payload'].v['SetupData'] = setup
+    pkt['Payload'].v['Payload'] = trans
+
+    pkt.to_s
   end
 
   def make_smb_trans_ms17_010(tree_id)
