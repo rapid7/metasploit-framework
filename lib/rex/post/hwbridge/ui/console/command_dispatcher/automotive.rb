@@ -28,6 +28,7 @@ class Console::CommandDispatcher::Automotive
       'busconfig'         => 'Get baud configs',
       'connect'           => 'Get HW supported methods for a bus',
       'cansend'           => 'Send a CAN packet',
+      'isotpsend'         => 'Send an ISO-TP Packet and get a response',
       'testerpresent'     => 'Sends TesterPresent Pulses to the bus'
     }
 
@@ -161,6 +162,76 @@ class Console::CommandDispatcher::Automotive
     end
     success = client.automotive.cansend(bus, id, data)
     success
+  end
+
+  #
+  # Generic ISO-TP CAN send packet command
+  #
+  def cmd_isotpsend(*args)
+    bus = ''
+    id = ''
+    ret = ''
+    data = ''
+    timeout = nil
+    maxpackets = nil
+    cansend_opts = Rex::Parser::Arguments.new(
+      '-h' => [ false, 'Help Banner' ],
+      '-b' => [ true, 'Target bus'],
+      '-I' => [ true, 'CAN ID'],
+      '-R' => [ true, 'Return ID'],
+      '-D' => [ true, 'Data packet in Hex (Do not include ISOTP command size)'],
+      '-t' => [ true, 'Timeout value'],
+      '-m' => [ true, 'Max packets to receive']
+    )
+    cansend_opts.parse(args) do |opt, _idx, val|
+      case opt
+      when '-h'
+        print_line("Usage: isotpsend -I <ID> -D <data>\n")
+        print_line(cansend_opts.usage)
+        return
+      when '-b'
+        bus = val
+      when '-I'
+        id = val
+      when '-R'
+        ret = val
+      when '-D'
+        data = val
+      when '-t'
+        timeout = val.to_i
+      when '-m'
+        maxpackets = val.to_i
+      end
+    end
+    bus = self.active_bus if bus.blank? && !self.active_bus.nil?
+    unless client.automotive.is_valid_bus? bus
+      print_error("You must specify a valid bus via -b")
+      return
+    end
+    if id.blank? || data.blank?
+      print_error("You must specify a CAN ID (-I) and the data packets (-D)")
+      return
+    end
+    if ret.blank?
+      ret = (id.hex + 8).to_s(16)
+      print_line("Default return set to #{ret}")
+    end
+    bytes = data.scan(/../)  # Break up data string into 2 char (byte) chunks
+    if bytes.size > 8
+      print_error("Data section can only contain a max of 8 bytes (for now)")
+      return result
+    end
+    opt = {}
+    opt['TIMEOUT'] = timeout if not timeout.nil?
+    opt['MAXPKTS'] = maxpackets if not maxpackets.nil?
+    result = client.automotive.send_isotp_and_wait_for_response(bus, id, ret, bytes, opt)
+    if result.key? 'Packets'
+      result['Packets'].each do |pkt|
+        print_line pkt.inspect
+      end
+    end
+    print_line(result['error'].inspect) if result.key? 'error'
+    result
   end
 
   #
