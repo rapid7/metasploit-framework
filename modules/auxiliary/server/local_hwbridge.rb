@@ -228,33 +228,33 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_request_uri(cli, request)
     if request.uri =~ /status$/i
-      print_status("Sending status...")
+      print_status("Sending status...") if datastore['VERBOSE']
       send_response_html(cli, get_status().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /statistics$/i
-      print_status("Sending statistics...")
+      print_status("Sending statistics...") if datastore['VERBOSE']
       send_response_html(cli, get_statistics().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /settings\/datetime\/get$/i
-      print_status("Sending Datetime")
+      print_status("Sending Datetime") if datastore['VERBOSE']
       send_response_html(cli, get_datetime().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /settings\/timezone\/get$/i
-      print_status("Sending Timezone")
+      print_status("Sending Timezone") if datastore['VERBOSE']
       send_response_html(cli, get_timezone().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /custom_methods$/i
-      print_status("Sending custom methods")
+      print_status("Sending custom methods") if datastore['VERBOSE']
       send_response_html(cli, get_custom_methods().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /custom\/sample_cmd\?data=(\S+)$/
-      print_status("Request for custom command with args #{$1}")
+      print_status("Request for custom command with args #{$1}") if datastore['VERBOSE']
       send_response_html(cli, sample_custom_method($1).to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /automotive/i
       if request.uri =~ /automotive\/supported_buses/
-        print_status("Sending known buses...")
+        print_status("Sending known buses...") if datastore['VERBOSE']
         send_response_html(cli, get_auto_supported_buses().to_json, { 'Content-Type' => 'application/json' })
       elsif request.uri =~ /automotive\/(\w+)\/cansend\?id=(\w+)&data=(\w+)/
-        print_status("Request to send CAN packets for #{$1} => #{$2}##{$3}")
+        print_status("Request to send CAN packets for #{$1} => #{$2}##{$3}") if datastore['VERBOSE']
         send_response_html(cli, cansend($1, $2, $3).to_json(), { 'Content-Type' => 'application/json' })
       elsif request.uri =~ /automotive\/(\w+)\/isotpsend_and_wait\?srcid=(\w+)&dstid=(\w+)&data=(\w+)/
         bus = $1; srcid = $2; dstid = $3; data = $4
-        print_status("Request to send ISO-TP packet and wait for response  #{srcid}##{data} => #{dstid}")
+        print_status("Request to send ISO-TP packet and wait for response  #{srcid}##{data} => #{dstid}") if datastore['VERBOSE']
         timeout = 1500
         maxpkts = 3
         timeout = $1 if request.uri =~ /&timeout=(\d+)/
