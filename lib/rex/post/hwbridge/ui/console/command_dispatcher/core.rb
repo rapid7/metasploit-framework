@@ -47,6 +47,7 @@ class Console::CommandDispatcher::Core
   def commands
     c = {
       "?"          => "Help menu",
+      "background" => "Backgrounds the current session",
       "exit"       => "Terminate the hardware bridge session",
       "help"       => "Help menu",
       "irb"        => "Drop into irb scripting mode",
@@ -55,6 +56,7 @@ class Console::CommandDispatcher::Core
       "bgrun"      => "Executes a meterpreter script as a background thread",
       "bgkill"     => "Kills a background meterpreter script",
       "bglist"     => "Lists running background scripts",
+      "sessions"   => "Quickly switch to another session",
       "status"     => "Fetch bridge status information",
       "specialty"  => "Hardware devices specialty",
       "reset"      => "Resets the device (NOTE: on some devices this is a FULL FACTORY RESET)",
@@ -71,6 +73,40 @@ class Console::CommandDispatcher::Core
 
   def name
     "Core"
+  end
+
+  def cmd_sessions_help
+    print_line('Usage: sessions <id>')
+    print_line
+    print_line('Interact with a different session Id.')
+    print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
+    print_line
+  end
+
+  def cmd_sessions(*args)
+    if args.length == 0 || args[0].to_i == 0
+      cmd_sessions_help
+    elsif args[0].to_s == client.name.to_s
+      print_status("Session #{client.name} is already interactive.")
+    else
+      print_status("Backgrounding session #{client.name}...")
+      # store the next session id so that it can be referenced as soon
+      # as this session is no longer interacting
+      client.next_session = args[0]
+      client.interacting = false
+    end
+  end
+
+  def cmd_background_help
+    print_line "Usage: background"
+    print_line
+    print_line "Stop interacting with this session and return to the parent prompt"
+    print_line
+  end
+
+  def cmd_background
+    print_status "Backgrounding session #{client.name}..."
+    client.interacting = false
   end
 
   #
