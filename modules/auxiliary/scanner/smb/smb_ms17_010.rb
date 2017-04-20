@@ -29,8 +29,9 @@ class MetasploitModule < Msf::Auxiliary
         configurations. It can log on as the user "\" and connect to IPC$.
       },
       'Author'         =>
-          [ 'Sean Dillon <sean.dillon@risksense.com>',
-            'Luke Jennings' # DoublePulsar detection
+          [
+            'Sean Dillon <sean.dillon@risksense.com>', # @zerosum0x0
+            'Luke Jennings' # DoublePulsar detection Python code
           ],
       'References'     =>
         [
@@ -41,6 +42,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2017-0147'],
           [ 'CVE', '2017-0148'],
           [ 'MSB', 'MS17-010'],
+          [ 'URL', 'https://github.com/countercept/doublepulsar-detection-script'],
           [ 'URL', 'https://technet.microsoft.com/en-us/library/security/ms17-010.aspx']
         ],
       'License'        => MSF_LICENSE
