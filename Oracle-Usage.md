@@ -69,7 +69,7 @@ group :local do
 end
 ```
 
-Update gems:
+Finally, install the gem by running:
 ```sh
 bundle
 ```
