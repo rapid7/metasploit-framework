@@ -62,14 +62,12 @@ Setting up libgmp-dev:amd64 (2:5.0.5+dfsg-2) ...
 
 # Install the gem
 
-Back in your Metasploit directory, add the following lines to your Gemfile
+Back in your Metasploit directory, copy `Gemfile.local.example` to `Gemfile.local`, then add the following line to the `:local` group
 ```ruby
-group :local do
   gem 'ruby-oci8'
-end
 ```
 
 Update gems:
 ```sh
-bundle
+bundle --gemfile Gemfile.local
 ```
