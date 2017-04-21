@@ -84,7 +84,7 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_sessions(*args)
-    if args.length == 0 || args[0].to_i == 0
+    if args.length.zero? || args[0].to_i.zero?
       cmd_sessions_help
     elsif args[0].to_s == client.name.to_s
       print_status("Session #{client.name} is already interactive.")
@@ -185,7 +185,7 @@ class Console::CommandDispatcher::Core
     if mod
       print_line(::Msf::Serializer::ReadableText.dump_module(mod))
       mod_opt = ::Msf::Serializer::ReadableText.dump_options(mod, '   ')
-      print_line("\nModule options (#{mod.fullname}):\n\n#{mod_opt}") if mod_opt && mod_opt.length > 0
+      print_line("\nModule options (#{mod.fullname}):\n\n#{mod_opt}") if mod_opt && mod_opt.length.positive?
     end
   end
 
@@ -204,7 +204,7 @@ class Console::CommandDispatcher::Core
   # Get the HW bridge devices status
   #
   def cmd_status(*args)
-    if args.length > 0
+    if args.length.positive?
       cmd_status_help
       return true
     end
@@ -235,7 +235,7 @@ class Console::CommandDispatcher::Core
   # Get the Hardware specialty
   #
   def cmd_specialty(*args)
-    if args.length > 0
+    if args.length.positive?
       cmd_specialty_help
       return true
     end
@@ -251,7 +251,7 @@ class Console::CommandDispatcher::Core
   # Performs a device reset or factory reset
   #
   def cmd_reset(*args)
-    if args.length > 0
+    if args.length.positive?
       cmd_reset_help
       return
     end
@@ -268,7 +268,7 @@ class Console::CommandDispatcher::Core
   # Perform a device reboot
   #
   def cmd_reboot(*args)
-    if args.length > 0
+    if args.length.positive?
       cmd_reboot_help
       return
     end
@@ -286,7 +286,7 @@ class Console::CommandDispatcher::Core
   # Loads custom methods if any exist
   #
   def cmd_load_custom_methods(*args)
-    if args.length > 0
+    if args.length.positive?
       cmd_load_custom_methods_help
       return true
     end
@@ -294,7 +294,7 @@ class Console::CommandDispatcher::Core
     if res.has_key? 'Methods'
       cmd_load("custom_methods")
       self.shell.dispatcher_stack.each do |dispatcher|
-        if dispatcher.name =~/custom methods/i
+        if dispatcher.name =~ /custom methods/i
           dispatcher.load_methods(res['Methods'])
         end
       end
@@ -315,7 +315,7 @@ class Console::CommandDispatcher::Core
   # Loads one or more meterpreter extensions.
   #
   def cmd_load(*args)
-    if args.length == 0
+    if args.length.zero?
       args.unshift("-h")
     end
 
@@ -369,7 +369,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the hwbridge session.
   #
   def cmd_run(*args)
-    if args.length == 0
+    if args.length.zero?
       cmd_run_help
       return true
     end
@@ -423,7 +423,7 @@ class Console::CommandDispatcher::Core
           next unless ::File.exist? dir
           tabs += ::Dir.new(dir).find_all { |e|
             path = dir + ::File::SEPARATOR + e
-            ::File.file?(path) and ::File.readable?(path)
+            ::File.file?(path) && ::File.readable?(path)
           }
         end
       rescue Exception
@@ -436,7 +436,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the hardware bridge session in the background
   #
   def cmd_bgrun(*args)
-    if args.length == 0
+    if args.length.zero?
       print_line(
         "Usage: bgrun <script> [arguments]\n\n" +
         "Executes a ruby script in the context of the hardware bridge session.")
@@ -475,7 +475,7 @@ class Console::CommandDispatcher::Core
   # Kill a background job
   #
   def cmd_bgkill(*args)
-    if args.length == 0
+    if args.length.zero?
       print_line("Usage: bgkill [id]")
       return
     end
@@ -574,7 +574,7 @@ protected
   end
 
   def tab_complete_postmods
-    tabs = client.framework.modules.post.map { |name,klass|
+    tabs = client.framework.modules.post.map { |name, klass|
       mod = client.framework.modules.post.create(name)
       if mod && mod.session_compatible?(client)
         mod.fullname.dup

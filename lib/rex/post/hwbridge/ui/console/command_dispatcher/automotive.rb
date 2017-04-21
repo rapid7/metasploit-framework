@@ -222,8 +222,8 @@ class Console::CommandDispatcher::Automotive
       return result
     end
     opt = {}
-    opt['TIMEOUT'] = timeout if not timeout.nil?
-    opt['MAXPKTS'] = maxpackets if not maxpackets.nil?
+    opt['TIMEOUT'] = timeout unless timeout.nil?
+    opt['MAXPKTS'] = maxpackets unless maxpackets.nil?
     result = client.automotive.send_isotp_and_wait_for_response(bus, id, ret, bytes, opt)
     if result.key? 'Packets'
       result['Packets'].each do |pkt|
@@ -269,7 +269,7 @@ class Console::CommandDispatcher::Automotive
       return
     end
     if id.blank? && !stop
-      if self.tpjobs.size > 0
+      if self.tpjobs.size.positive?
         print_line("TesterPresent is currently active")
         self.tpjobs.each_index do |jid|
           if self.tpjobs[jid]

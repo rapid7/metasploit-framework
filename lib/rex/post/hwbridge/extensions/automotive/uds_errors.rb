@@ -117,7 +117,7 @@ ERR_DESC = {
   "SLNIP" => "Shifter Lever Not In Park",
   "TCCL" => "Torque Converter Clutch Locked",
   "VTH" => "Voltage Too High",
-  "VTL" => "Voltage Too Low" 
+  "VTL" => "Voltage Too Low"
 }
 
 end
