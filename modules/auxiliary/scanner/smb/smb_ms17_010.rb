@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # opcode 0x0e = SESSION_SETUP
     setup = "\x0e\x00\x00\x00"
-    setup_count = 1             # 2 words
+    setup_count = 1             # 1 word
     trans = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
     # calculate offsets to the SetupData payload
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt['Payload']['SMB'].v['Command'] = Rex::Proto::SMB::Constants::SMB_COM_TRANSACTION2
     pkt['Payload']['SMB'].v['Flags1'] = 0x18
     pkt['Payload']['SMB'].v['MultiplexID'] = 65
-    pkt['Payload']['SMB'].v['Flags2'] = 0xc007 # 0xc803 would unicode
+    pkt['Payload']['SMB'].v['Flags2'] = 0xc007
     pkt['Payload']['SMB'].v['TreeID'] = tree_id
     pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
     pkt['Payload'].v['Timeout'] = 0x00a4d9a6
@@ -173,7 +173,6 @@ class MetasploitModule < Msf::Auxiliary
     pkt['Payload'].v['ParamOffset'] = 66
     pkt['Payload'].v['DataOffset'] = 78
 
-    # actual magic: PeekNamedPipe FID=0, \PIPE\
     pkt['Payload'].v['SetupCount'] = setup_count
     pkt['Payload'].v['SetupData'] = setup
     pkt['Payload'].v['Payload'] = trans
