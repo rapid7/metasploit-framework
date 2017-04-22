@@ -89,6 +89,6 @@ class MetasploitModule < Msf::Auxiliary
         print_error("#{rhost}:#{rport} - #{e.class}: #{e.message}")
         next  # Continue anyway
       end
-    end
+    check_host_up if !datastore['CHECK_UP']
   end
 end
