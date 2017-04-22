@@ -24,7 +24,7 @@ matrix:
   fast_finish: true
   include:
   - rvm: ruby-head
-    env: CMD=docker-compose -f $TRAVIS_BUILD_DIR/docker-compose.yml build
+    env: CMD="docker-compose -f $TRAVIS_BUILD_DIR/docker-compose.yml build"
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
