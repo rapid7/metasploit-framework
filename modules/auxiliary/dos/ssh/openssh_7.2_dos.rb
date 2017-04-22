@@ -5,7 +5,6 @@
 
 require 'msf/core'
 require 'net/ssh'
-require 'socket'
 
 class MetasploitModule < Msf::Auxiliary
 
