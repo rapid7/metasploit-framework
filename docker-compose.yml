@@ -1,6 +1,6 @@
 version: '2'
 services:
-  ms: &ms
+  ms:
     image: metasploit
     build:
       context: .

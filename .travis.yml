@@ -16,12 +16,15 @@ rvm:
   - '2.4.1'
 
 env:
-  - RAKE_TASKS="cucumber cucumber:boot" CREATE_BINSTUBS=true
-  - RAKE_TASKS=spec SPEC_OPTS="--tag content"
-  - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
+  - CMD=bundle exec rake "cucumber cucumber:boot" CREATE_BINSTUBS=true
+  - CMD=bundle exec rake spec SPEC_OPTS="--tag content"
+  - CMD=bundle exec rake spec SPEC_OPTS="--tag ~content"
 
 matrix:
   fast_finish: true
+  include:
+  - rvm: ruby-head
+    env: CMD=docker-compose -f $TRAVIS_BUILD_DIR/docker-compose.yml build
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
@@ -36,7 +39,7 @@ before_script:
   - bundle exec rake db:migrate
 script:
   # fail build if db/schema.rb update is not committed
-  - git diff --exit-code db/schema.rb && bundle exec rake $RAKE_TASKS
+  - git diff --exit-code db/schema.rb && $CMD
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
@@ -49,3 +52,6 @@ branches:
   except:
     - gh-pages
     - metakitty
+
+services:
+  - docker
