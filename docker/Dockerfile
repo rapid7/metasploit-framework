@@ -12,7 +12,6 @@ RUN apk update && \
     apk add \
       sqlite-libs \
       nmap \
-      # libxslt \
       postgresql-libs \
       # needed as long as metasploit-framework.gemspec contains a 'git ls'
       git \
