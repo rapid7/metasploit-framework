@@ -2,6 +2,7 @@
 
 Chargen is a debugging and measurement tool and a character generator service.  Often chargen is included in `xinetd`, along with `echo` `time`, `daytime`, and `discard`.
 While its possible to run chargen on TCP, the most common implementation is UDP.
+
 The following was done on Kali linux:
   
   1. `apt-get install xinetd`
