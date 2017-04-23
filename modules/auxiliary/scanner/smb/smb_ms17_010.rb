@@ -42,11 +42,18 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2017-0147'],
           [ 'CVE', '2017-0148'],
           [ 'MSB', 'MS17-010'],
+          [ 'URL', 'https://zerosum0x0.blogspot.com/2017/04/doublepulsar-initial-smb-backdoor-ring.html'],
           [ 'URL', 'https://github.com/countercept/doublepulsar-detection-script'],
           [ 'URL', 'https://technet.microsoft.com/en-us/library/security/ms17-010.aspx']
         ],
       'License'        => MSF_LICENSE
     ))
+  end
+
+  # algorithm to calculate the XOR Key for DoublePulsar knocks
+  def calculate_doublepulsar_xor_key(s)
+    x = (2 * s ^ (((s & 0xff00 | (s << 16)) << 8) | (((s >> 16) | s & 0xff0000) >> 8)))
+    x & 0xffffffff  # this line was added just to truncate to 32 bits
   end
 
   def run_host(ip)
@@ -69,14 +76,16 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         # vulnerable to MS17-010, check for DoublePulsar infection
-        code = do_smb_doublepulsar_probe(tree_id)
+        code, signature = do_smb_doublepulsar_probe(tree_id)
+
         if code == 0x51
-          print_warning("Host is likely INFECTED with DoublePulsar!")
+          xor_key = calculate_doublepulsar_xor_key(signature).to_s(16).upcase
+          print_warning("Host is likely INFECTED with DoublePulsar! - XOR Key: #{xor_key}")
           report_vuln(
             host: ip,
             name: "MS17-010 DoublePulsar Infection",
             refs: self.references,
-            info: 'MultiPlexID = 0x51 on Trans2 request'
+            info: 'MultiPlexID += 0x10 on Trans2 request - XOR Key: #{xor_key}'
           )
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
@@ -122,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt = Rex::Proto::SMB::Constants::SMB_TRANS_RES_HDR_PKT.make_struct
     pkt.from_s(bytes[4..-1])
 
-    return pkt['SMB'].v['MultiplexID']
+    return pkt['SMB'].v['MultiplexID'], pkt['SMB'].v['Signature1']
   end
 
   def do_smb_ms17_010_probe(tree_id)
