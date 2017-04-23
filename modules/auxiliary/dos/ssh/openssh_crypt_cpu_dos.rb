@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       return true
     end
   end
-  
+
   def run
     uname = nil
     if datastore['RANDOM_UNAME']
