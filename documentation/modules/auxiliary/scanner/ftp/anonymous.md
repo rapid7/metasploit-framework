@@ -8,15 +8,14 @@ This module allows us to scan through a series of IP Addresses and provide detai
 
 1.  ```apt-get install vsftpd```
 2. Allow local users to log in and to allow ftp uploads by editing file /etc/vsftpd.conf uncommenting the following:
-```
-local_enable=YES
-write_enable=YES
-chroot_list_enable=YES
-chroot_list_file=/etc/vsftpd.chroot_list
-```
-3. **For allowing anonymous access:**
-
-```anonymous_enable=NO```
+	```
+	local_enable=YES
+	write_enable=YES
+	chroot_list_enable=YES
+	chroot_list_file=/etc/vsftpd.chroot_list
+	```
+3. **IMPORTANT:** For allowing anonymous access
+	```anonymous_enable=NO```
 4. Create the file /etc/vsftpd.chroot_list and add the local users you want allow to connect to FTP server. Start service and test connections:
 5. ```service vsftpd start``` 
 
@@ -24,7 +23,7 @@ chroot_list_file=/etc/vsftpd.chroot_list
 
 ### Installing FTP for IIS 7.5 in Windows:
 
-### IIS 7.5 for Windows Server 2008 R2
+#### IIS 7.5 for Windows Server 2008 R2
 
 1. On the taskbar, click Start, point to Administrative Tools, and then click Server Manager.
 2. In the Server Manager hierarchy pane, expand Roles, and then click Web Server (IIS).
@@ -35,7 +34,7 @@ chroot_list_file=/etc/vsftpd.chroot_list
 7. On the Confirm Installation Selections page, click Install.
 8.On the Results page, click Close. 
 
-### IIS 7.5 for Windows 7
+#### IIS 7.5 for Windows 7
 
 1. On the taskbar, click Start, and then click Control Panel.
 2. In Control Panel, click Programs and Features, and then click Turn Windows Features on or off.
@@ -43,7 +42,7 @@ chroot_list_file=/etc/vsftpd.chroot_list
 4. Select FTP Service. (Note: To support ASP.NET Membership or IIS Manager authentication for the FTP service, you will also need to select FTP Extensibility.)
 5. Click OK. 
 
-##Verification steps
+## Verification steps
 
 ```
 msf > use auxiliary/scanner/ftp/anonymous
