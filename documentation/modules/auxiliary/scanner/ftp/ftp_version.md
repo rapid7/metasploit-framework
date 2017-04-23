@@ -60,3 +60,22 @@ msf auxiliary(ftp_version) > exploit
 [*] Auxiliary module execution completed
 msf auxiliary(ftp_version) > 
 ```
+## Confirming using NMAP
+```
+root@kali:~# nmap -sV 127.0.0.1
+
+Starting Nmap 7.40SVN ( https://nmap.org ) at 2017-04-24 00:12 IST
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.0000020s latency).
+Not shown: 997 closed ports
+PORT     STATE SERVICE    VERSION
+21/tcp   open  ftp        vsftpd 3.0.3
+111/tcp  open  rpcbind    2-4 (RPC #100000)
+5432/tcp open  postgresql PostgreSQL DB 9.5.4
+Service Info: OS: Unix
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.35 seconds
+root@kali:~# 
+
+```
