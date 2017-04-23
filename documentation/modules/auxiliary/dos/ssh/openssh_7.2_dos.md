@@ -34,7 +34,7 @@ If the target is running OpenSSH version prior to 7.3,
   Using the module with `VERBOSE` set to `true`, `REQUESTS` set to 2, and `CHECK_UP` set to `true`.
 
   ```
-  msf auxiliary(openssh_7.2_dos) > run
+  msf auxiliary(openssh_crypt_cpu_dos) > run
   
   [*] Using username: root
   [*] Sending 2 requests to [redacted]:22
@@ -43,6 +43,6 @@ If the target is running OpenSSH version prior to 7.3,
   [*] Checking if [redacted] is up.
   [+] Tango down - [redacted] is down!
   [*] Auxiliary module execution completed
-  msf auxiliary(openssh_7.2_dos) > 
+  msf auxiliary(openssh_crypt_cpu_dos) > 
   ```
 
