@@ -7,9 +7,7 @@ This module allows us to scan through a series of IP Addresses and provide detai
 ### Install ftp server on Kali Linux:
 
 1.  ```apt-get install vsftpd```
-2.Allow local users to log in and to allow ftp uploads by editing file /etc/vsftpd.conf uncommenting the following:
-
-
+2. Allow local users to log in and to allow ftp uploads by editing file /etc/vsftpd.conf uncommenting the following:
 ```
 local_enable=YES
 write_enable=YES
@@ -20,7 +18,7 @@ chroot_list_file=/etc/vsftpd.chroot_list
 
 ```anonymous_enable=NO```
 4. Create the file /etc/vsftpd.chroot_list and add the local users you want allow to connect to FTP server. Start service and test connections:
-5.  ```service vsftpd start``` 
+5. ```service vsftpd start``` 
 
 
 
