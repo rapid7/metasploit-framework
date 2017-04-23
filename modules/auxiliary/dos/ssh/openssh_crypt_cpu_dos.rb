@@ -55,6 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       return true
     end
   end
+  
   def run
     uname = nil
     if datastore['RANDOM_UNAME']
@@ -78,6 +79,9 @@ class MetasploitModule < Msf::Auxiliary
         next # Only get here if host isn't up
       rescue Net::SSH::Exception => e # This means something actually went wrong
         print_error("#{rhost}:#{rport} - #{e.class}: #{e.message}")
+        if datastore['CHECK_UP']
+          return if !check_host_up
+        end
         next # Continue anyway
       end
     check_host_up if !datastore['CHECK_UP']
