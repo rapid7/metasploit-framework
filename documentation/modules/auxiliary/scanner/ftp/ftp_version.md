@@ -41,7 +41,7 @@ This module allows us to scan through a series of IP Addresses and provide detai
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/ftp/anonymous```
+1. Do: ```use auxiliary/scanner/ftp/ftp_version```
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set RPORT [IP]```
 4. Do: ```run```
