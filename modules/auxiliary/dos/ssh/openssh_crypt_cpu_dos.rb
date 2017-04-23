@@ -21,10 +21,10 @@ class MetasploitModule < Msf::Auxiliary
         Because the password is so long, it exhausts the CPU, causing the service
         to crash.
       },
-      'Author'         => 
+      'Author'         =>
         [
           'Carter Brainerd <@thecarterb>',
-          'Kashinath T'  
+          'Kashinath T'
         ],
       'License'        => MSF_LICENSE
     ))
