@@ -42,7 +42,14 @@ This module allows us to scan through a series of IP Addresses and provide detai
 4. Select FTP Service. (Note: To support ASP.NET Membership or IIS Manager authentication for the FTP service, you will also need to select FTP Extensibility.)
 5. Click OK. 
 
-## Verification steps
+## Verification Steps
+
+1. Do: ```use auxiliary/scanner/ftp/anonymous```
+2. Do: ```set RHOSTS [IP]```
+3. Do: ```set RPORT [IP]```
+4. Do: ```run```
+
+## Sample Output
 
 ```
 msf > use auxiliary/scanner/ftp/anonymous
