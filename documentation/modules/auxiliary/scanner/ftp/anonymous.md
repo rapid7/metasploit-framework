@@ -61,5 +61,34 @@ msf auxiliary(anonymous) > exploit
 msf auxiliary(anonymous) > 
 ```
 
+## Confirming using NMAP
 
+```
+
+
+root@kali:~# nmap -sV -sC 127.0.0.1
+
+Starting Nmap 7.40SVN ( https://nmap.org ) at 2017-04-23 23:27 IST
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.0000020s latency).
+Not shown: 997 closed ports
+PORT     STATE SERVICE    VERSION
+21/tcp   open  ftp        vsftpd 3.0.3
+|_ftp-anon: Anonymous FTP login allowed (FTP code 230)
+111/tcp  open  rpcbind    2-4 (RPC #100000)
+| rpcinfo: 
+|   program version   port/proto  service
+|   100000  2,3,4        111/tcp  rpcbind
+|_  100000  2,3,4        111/udp  rpcbind
+5432/tcp open  postgresql PostgreSQL DB 9.5.4
+| ssl-cert: Subject: commonName=kali
+| Not valid before: 2016-08-29T20:19:20
+|_Not valid after:  2026-08-27T20:19:20
+|_ssl-date: TLS randomness does not represent time
+Service Info: OS: Unix
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.64 seconds
+root@kali:~# 
+```
 
