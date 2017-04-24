@@ -67,12 +67,12 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Received #{status} with FID = 0")
 
       if status == "STATUS_INSUFF_SERVER_RESOURCES"
-        print_good("Host is likely VULNERABLE to MS17-010!")
+        print_good("Host is likely VULNERABLE to MS17-010!  (#{simple.client.peer_native_os})")
         report_vuln(
           host: ip,
           name: self.name,
           refs: self.references,
-          info: 'STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$'
+          info: 'STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$ -- (#{simple.client.peer_native_os})'
         )
 
         # vulnerable to MS17-010, check for DoublePulsar infection
