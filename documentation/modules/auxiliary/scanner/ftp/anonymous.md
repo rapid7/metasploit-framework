@@ -1,13 +1,13 @@
 ## Description
 
-This module allows us to scan through a series of IP Addresses and provide details whether anonymous access is allowed or not. By default, anonymous access is not allowed by the FTP server.
+This module allows us to scan through a series of IP Addresses and provide details whether anonymous access is allowed or not in that particular FTP server. By default, anonymous access is not allowed by the FTP server.
 
 ## Vulnerable Application
 
 ### Install ftp server on Kali Linux:
 
 1.  ```apt-get install vsftpd```
-2. Allow local users to log in and to allow ftp uploads by editing file /etc/vsftpd.conf uncommenting the following:
+2. Allow local users to log in and to allow ftp uploads by editing file `/etc/vsftpd.conf` uncommenting the following:
 	```
 	local_enable=YES
 	write_enable=YES
@@ -15,7 +15,7 @@ This module allows us to scan through a series of IP Addresses and provide detai
 	chroot_list_file=/etc/vsftpd.chroot_list
 	```
 3. **IMPORTANT:** For allowing anonymous access set ```anonymous_enable=YES```
-4. Create the file /etc/vsftpd.chroot_list and add the local users you want allow to connect to FTP server. Start service and test connections:
+4. Create the file `/etc/vsftpd.chroot_list` and add the local users you want allow to connect to FTP server. Start service and test connections:
 5. ```service vsftpd start``` 
 
 ### Installing FTP for IIS 7.5 in Windows:
@@ -29,7 +29,9 @@ This module allows us to scan through a series of IP Addresses and provide detai
 5. Select FTP Service. (Note: To support ASP.NET Membership or IIS Manager authentication for the FTP service, you will also need to select FTP Extensibility.)
 6. Click Next.
 7. On the Confirm Installation Selections page, click Install.
-8. On the Results page, click Close. 
+8. On the Results page, click Close.
+
+
 
 #### IIS 7.5 for Windows 7:
 
@@ -39,6 +41,13 @@ This module allows us to scan through a series of IP Addresses and provide detai
 4. Select FTP Service. (Note: To support ASP.NET Membership or IIS Manager authentication for the FTP service, you will also need to select FTP Extensibility.)
 5. Click OK. 
 
+#### Enabling anonymous login on IIS
+
+1. Open IIS Manager and navigate to the level you want to manage. ...
+2. In Features View, double-click Authentication.
+3. On the Authentication page, select Anonymous Authentication.
+4. In the Actions pane, click Enable to use Anonymous authentication with the default settings.
+
 ## Verification Steps
 
 1. Do: ```use auxiliary/scanner/ftp/anonymous```
@@ -47,6 +56,8 @@ This module allows us to scan through a series of IP Addresses and provide detai
 4. Do: ```run```
 
 ## Sample Output
+
+### On vsFTPd 3.0.3 on Kali
 
 ```
 msf > use auxiliary/scanner/ftp/anonymous
@@ -65,29 +76,16 @@ msf auxiliary(anonymous) >
 ## Confirming using NMAP
 
 ```
-root@kali:~# nmap -sV -sC 127.0.0.1
+root@kali:~# nmap -sV -sC 127.0.0.1 -p 21
 
-Starting Nmap 7.40SVN ( https://nmap.org ) at 2017-04-23 23:27 IST
+Starting Nmap 7.40SVN ( https://nmap.org ) at 2017-04-24 22:58 IST
 Nmap scan report for localhost (127.0.0.1)
-Host is up (0.0000020s latency).
-Not shown: 997 closed ports
-PORT     STATE SERVICE    VERSION
-21/tcp   open  ftp        vsftpd 3.0.3
+Host is up (0.000035s latency).
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     vsftpd 3.0.3
 |_ftp-anon: Anonymous FTP login allowed (FTP code 230)
-111/tcp  open  rpcbind    2-4 (RPC #100000)
-| rpcinfo: 
-|   program version   port/proto  service
-|   100000  2,3,4        111/tcp  rpcbind
-|_  100000  2,3,4        111/udp  rpcbind
-5432/tcp open  postgresql PostgreSQL DB 9.5.4
-| ssl-cert: Subject: commonName=kali
-| Not valid before: 2016-08-29T20:19:20
-|_Not valid after:  2026-08-27T20:19:20
-|_ssl-date: TLS randomness does not represent time
 Service Info: OS: Unix
 
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 7.64 seconds
 root@kali:~# 
 ```
 
