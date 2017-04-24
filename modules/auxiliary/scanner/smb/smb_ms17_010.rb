@@ -61,10 +61,10 @@ class MetasploitModule < Msf::Auxiliary
       ipc_share = "\\\\#{ip}\\IPC$"
 
       tree_id = do_smb_setup_tree(ipc_share)
-      print_status("Connected to #{ipc_share} with TID = #{tree_id}")
+      vprint_status("Connected to #{ipc_share} with TID = #{tree_id}")
 
       status = do_smb_ms17_010_probe(tree_id)
-      print_status("Received #{status} with FID = 0")
+      vprint_status("Received #{status} with FID = 0")
 
       if status == "STATUS_INSUFF_SERVER_RESOURCES"
         print_good("Host is likely VULNERABLE to MS17-010!  (#{simple.client.peer_native_os})")
