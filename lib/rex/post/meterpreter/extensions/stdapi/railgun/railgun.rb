@@ -66,21 +66,26 @@ class Railgun
   # class name:   Def_my_dll
   # entry below: 'my_dll'
   #
-  BUILTIN_DLLS = [
-    'kernel32',
-    'ntdll',
-    'user32',
-    'ws2_32',
-    'iphlpapi',
-    'advapi32',
-    'shell32',
-    'netapi32',
-    'crypt32',
-    'wlanapi',
-    'wldap32',
-    'version',
-    'psapi'
-  ].freeze
+  BUILTIN_DLLS = {
+    'linux' => [
+      'libc'
+    ].freeze,
+    'windows' => [
+      'kernel32',
+      'ntdll',
+      'user32',
+      'ws2_32',
+      'iphlpapi',
+      'advapi32',
+      'shell32',
+      'netapi32',
+      'crypt32',
+      'wlanapi',
+      'wldap32',
+      'version',
+      'psapi'
+    ].freeze
+  }.freeze
 
   ##
   # Returns a Hash containing DLLs added to this instance with #add_dll
@@ -109,7 +114,7 @@ class Railgun
   end
 
   def self.builtin_dlls
-    BUILTIN_DLLS
+    BUILTIN_DLLS[client.platform]
   end
 
   #
@@ -182,7 +187,7 @@ class Railgun
   # cached dlls) an unfrozen copy is created and used henceforth for this
   # instance.
   #
-  def add_function(dll_name, function_name, return_type, params, windows_name=nil, calling_conv="stdcall")
+  def add_function(dll_name, function_name, return_type, params, remote_name=nil, calling_conv="stdcall")
 
     unless known_dll_names.include?(dll_name)
       raise "DLL #{dll_name} not found. Known DLLs: #{PP.pp(known_dll_names, "")}"
@@ -199,13 +204,13 @@ class Railgun
       dlls[dll_name] = dll
     end
 
-    dll.add_function(function_name, return_type, params, windows_name, calling_conv)
+    dll.add_function(function_name, return_type, params, remote_name, calling_conv)
   end
 
   #
   # Adds a DLL to this Railgun.
   #
-  # The +windows_name+ is the name used on the remote system and should be
+  # The +remote_name+ is the name used on the remote system and should be
   # set appropriately if you want to include a path or the DLL name contains
   # non-ruby-approved characters.
   #
@@ -223,7 +228,7 @@ class Railgun
 
 
   def known_dll_names
-    return BUILTIN_DLLS | dlls.keys
+    return BUILTIN_DLLS[client.platform] | dlls.keys
   end
 
   #
@@ -232,7 +237,6 @@ class Railgun
   # exist, returns nil
   #
   def get_dll(dll_name)
-
     # If the DLL is not local, we now either load it from cache or load it lazily.
     # In either case, a reference to the dll is stored in the collection "dlls"
     # If the DLL can not be found/created, no actions are taken
@@ -241,13 +245,13 @@ class Railgun
       @@cache_semaphore.synchronize do
         if @@cached_dlls.has_key? dll_name
           dlls[dll_name] = @@cached_dlls[dll_name]
-        elsif BUILTIN_DLLS.include? dll_name
+        elsif BUILTIN_DLLS[client.platform].include? dll_name
           # I highly doubt this case will ever occur, but I am paranoid
           if dll_name !~ /^\w+$/
             raise "DLL name #{dll_name} is bad. Correct Railgun::BUILTIN_DLLS"
           end
 
-          require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_' << dll_name
+          require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/def_#{dll_name}"
           dll = Def.const_get('Def_' << dll_name).create_dll.freeze
 
           @@cached_dlls[dll_name] = dll
