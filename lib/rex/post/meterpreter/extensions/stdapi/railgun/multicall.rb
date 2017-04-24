@@ -75,7 +75,6 @@ class MultiCaller
         end
 
         raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
-        #puts "process_function_call(function.windows_name,#{PP.pp(args, "")})"
 
         # We transmit the immediate stack and three heap-buffers:
         # in, inout and out. The reason behind the separation is bandwidth.
@@ -210,7 +209,7 @@ class MultiCaller
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
         group.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, dll_host.dll_path)
-        group.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.windows_name)
+        group.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.remote_name)
         request.tlvs << group
 
         layouts << [inout_layout, out_only_layout]
