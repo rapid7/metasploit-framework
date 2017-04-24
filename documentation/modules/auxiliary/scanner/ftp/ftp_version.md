@@ -7,15 +7,14 @@ This module allows us to scan through a series of IP Addresses and provide detai
 ### Install ftp server on Kali Linux:
 
 1.  ```apt-get install vsftpd```
-2. Allow local users to log in and to allow ftp uploads by editing file /etc/vsftpd.conf uncommenting the following:
+2. Allow local users to log in and to allow ftp uploads by editing file `/etc/vsftpd.conf` uncommenting the following:
 	```
 	local_enable=YES
 	write_enable=YES
 	chroot_list_enable=YES
 	chroot_list_file=/etc/vsftpd.chroot_list
 	```
-3. **IMPORTANT:** For allowing anonymous access set ```anonymous_enable=YES```
-4. Create the file /etc/vsftpd.chroot_list and add the local users you want allow to connect to FTP server. Start service and test connections:
+3. Create the file `/etc/vsftpd.chroot_list` and add the local users you want allow to connect to FTP server. Start service and test connections:
 5. ```service vsftpd start``` 
 
 ### Installing FTP for IIS 7.5 in Windows:
@@ -47,6 +46,9 @@ This module allows us to scan through a series of IP Addresses and provide detai
 4. Do: ```run```
 
 ## Sample Output
+
+### On vsFTPd 3.0.3 on Kali
+
 ```
 msf > use auxiliary/scanner/ftp/ftp_version
 msf auxiliary(ftp_version) > set RHOSTS 127.0.0.1
@@ -62,20 +64,15 @@ msf auxiliary(ftp_version) >
 ```
 ## Confirming using NMAP
 ```
-root@kali:~# nmap -sV 127.0.0.1
+root@kali:~#  nmap -sV 127.0.0.1 -p21
 
-Starting Nmap 7.40SVN ( https://nmap.org ) at 2017-04-24 00:12 IST
+Starting Nmap 7.40SVN ( https://nmap.org ) at 2017-04-24 23:11 IST
 Nmap scan report for localhost (127.0.0.1)
-Host is up (0.0000020s latency).
-Not shown: 997 closed ports
-PORT     STATE SERVICE    VERSION
-21/tcp   open  ftp        vsftpd 3.0.3
-111/tcp  open  rpcbind    2-4 (RPC #100000)
-5432/tcp open  postgresql PostgreSQL DB 9.5.4
+Host is up (0.000035s latency).
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     vsftpd 3.0.3
 Service Info: OS: Unix
 
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 6.35 seconds
 root@kali:~# 
 
 ```
