@@ -40,8 +40,9 @@ class DLLFunction
     "DWORD"  => ["in", "return"],
     "WORD"   => ["in", "return"],
     "BYTE"   => ["in", "return"],
-    "LPVOID" => ["in", "return"], # sf: for specifying a memory address (e.g. VirtualAlloc/HeapAlloc/...) where we dont want ot back it up with actuall mem ala PBLOB
+    "LPVOID" => ["in", "return"], # sf: for specifying a memory address (e.g. VirtualAlloc/HeapAlloc/...) where we don't want to back it up with actual mem ala PBLOB
     "HANDLE" => ["in", "return"],
+    "SIZE_T" => ["in", "return"],
     "PDWORD" => ["in", "out", "inout"], # todo: support for functions that return pointers to strings
     "PWCHAR" => ["in", "out", "inout"],
     "PCHAR"  => ["in", "out", "inout"],

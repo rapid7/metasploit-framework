@@ -221,7 +221,7 @@ class DLL
         # it's not a pointer (LPVOID is a pointer but is not backed by railgun memory, ala PBLOB)
         buffer = [0].pack(native)
         case param_desc[0]
-          when "LPVOID", "HANDLE"
+          when "LPVOID", "HANDLE", "SIZE_T"
             num     = param_to_number(args[param_idx])
             buffer += [num].pack(native)
           when "DWORD"

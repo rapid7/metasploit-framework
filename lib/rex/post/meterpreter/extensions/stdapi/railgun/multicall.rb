@@ -170,7 +170,7 @@ class MultiCaller
             # it's not a pointer
             buffer = [0].pack(@native)
             case param_desc[0]
-              when "LPVOID", "HANDLE"
+              when "LPVOID", "HANDLE", "SIZE_T"
                 num     = param_to_number(args[param_idx])
                 buffer += [num].pack(@native)
               when "DWORD"
@@ -209,7 +209,7 @@ class MultiCaller
         group.add_tlv(TLV_TYPE_RAILGUN_STACKBLOB, literal_pairs_blob)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
-        group.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, dll_name )
+        group.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, dll_host.dll_path)
         group.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.windows_name)
         request.tlvs << group
 

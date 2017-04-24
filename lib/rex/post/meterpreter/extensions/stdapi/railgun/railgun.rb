@@ -212,13 +212,13 @@ class Railgun
   # Raises an exception if a dll with the given name has already been
   # defined.
   #
-  def add_dll(dll_name, windows_name=dll_name)
+  def add_dll(dll_name, remote_name=dll_name)
 
     if dlls.has_key? dll_name
       raise "A DLL of name #{dll_name} has already been loaded."
     end
 
-    dlls[dll_name] = DLL.new(windows_name, constant_manager)
+    dlls[dll_name] = DLL.new(remote_name, constant_manager)
   end
 
 
