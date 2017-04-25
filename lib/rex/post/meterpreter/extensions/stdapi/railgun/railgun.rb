@@ -31,13 +31,16 @@
 # chao - June 2011 - major overhaul of dll lazy loading, caching, and bit of everything
 #
 
+#
+# zeroSteiner - April 2017 - added support for non-windows platforms
+#
+
 require 'pp'
 require 'enumerator'
 
-require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/util'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/const_manager'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/multicall'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_wrapper'
@@ -59,7 +62,7 @@ class Railgun
   # Railgun::DLL's that have builtin definitions.
   #
   # If you want to add additional DLL definitions to be preloaded create a
-  # definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/'.
+  # definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/$platform/'.
   # Naming is important and should follow convention.  For example, if your
   # dll's name was "my_dll"
   # file name:    def_my_dll.rb
@@ -129,12 +132,24 @@ class Railgun
   end
 
   #
-  # Return this Railgun's WinConstManager instance, initially populated with
+  # Return this Railgun's platform specific ApiConstants class.
+  #
+  def api_constants
+    if @api_constants.nil?
+      require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/api_constants"
+      @api_constants = Def.const_get('DefApiConstants_' << client.platform)
+    end
+
+    return @api_constants
+  end
+
+  #
+  # Return this Railgun's ConstManager instance, initially populated with
   # constants defined in ApiConstants.
   #
   def constant_manager
     # Loads lazily
-    return ApiConstants.manager
+    return api_constants.manager
   end
 
   #
@@ -162,22 +177,18 @@ class Railgun
   # Write data to a memory address on the host (useful for working with
   # LPVOID parameters)
   #
-  def memwrite(address, data, length)
+  def memwrite(address, data, length=nil)
 
+    length = data.length if length.nil?
     raise "Invalid parameters." if(not address or not data or not length)
 
     request = Packet.create_request('stdapi_railgun_memwrite')
-
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_ADDRESS, address)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_DATA, data)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_LENGTH, length)
 
     response = client.send_request(request)
-    if(response.result == 0)
-      return true
-    end
-
-    return false
+    return response.result == 0
   end
 
   #
@@ -252,7 +263,7 @@ class Railgun
           end
 
           require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/def_#{dll_name}"
-          dll = Def.const_get('Def_' << dll_name).create_dll.freeze
+          dll = Def.const_get('Def_' << dll_name).create_dll(constant_manager).freeze
 
           @@cached_dlls[dll_name] = dll
           dlls[dll_name] = dll
@@ -284,7 +295,7 @@ class Railgun
   end
 
   #
-  # Return a Windows constant matching +str+.
+  # Return a constant matching +str+.
   #
   def const(str)
     return constant_manager.parse(str)
@@ -295,7 +306,7 @@ class Railgun
   #
   def multi(functions)
     if @multicaller.nil?
-      @multicaller = MultiCaller.new(client, self, ApiConstants.manager)
+      @multicaller = MultiCaller.new(client, self, constant_manager)
     end
 
     return @multicaller.call(functions)

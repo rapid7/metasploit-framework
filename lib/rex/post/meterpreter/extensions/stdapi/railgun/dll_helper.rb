@@ -38,7 +38,7 @@ module DLLHelper
 
   # converts ruby string to zero-terminated ASCII string
   def str_to_ascii_z(str)
-    return str+"\x00"
+    return str + "\x00"
   end
 
   # converts 0-terminated ASCII string to ruby string
@@ -72,14 +72,14 @@ module DLLHelper
   #   "SOME_CONSTANT | OTHER_CONSTANT" => 17
   #   "tuna" => !!!!!!!!!!Exception
   #
-  # Parameter "win_consts" is a WinConstantManager
-  def param_to_number(v, win_consts = @win_consts)
+  # Parameter "consts_mgr" is a ConstantManager
+  def param_to_number(v, consts_mgr = @consts_mgr)
     if v.class == NilClass then
       return 0
     elsif v.kind_of? Integer then
       return v # ok, it's already a number
     elsif v.kind_of? String then
-      dw = win_consts.parse(v) # might raise an exception
+      dw = consts_mgr.parse(v) # might raise an exception
       if dw != nil
         return dw
       else

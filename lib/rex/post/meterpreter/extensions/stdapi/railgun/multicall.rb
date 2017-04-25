@@ -25,7 +25,6 @@
 
 require 'pp'
 require 'enumerator'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
@@ -42,12 +41,12 @@ class MultiCaller
 
     include DLLHelper
 
-    def initialize( client, parent, win_consts )
+    def initialize(client, parent, consts_mgr)
       @parent = parent
       @client = client
 
       # needed by DLL helper
-      @win_consts = win_consts
+      @consts_mgr = consts_mgr
 
       if @client.native_arch == ARCH_X64
         @native = 'Q<'

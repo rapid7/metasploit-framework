@@ -9,8 +9,8 @@ module Def
 
 class Def_psapi
 
-  def self.create_dll(dll_path = 'psapi')
-    dll = DLL.new(dll_path, ApiConstants.manager)
+  def self.create_dll(constant_manager, dll_path = 'psapi')
+    dll = DLL.new(dll_path, constant_manager)
 
     dll.add_function('EnumDeviceDrivers', 'BOOL',[
       %w(PBLOB lpImageBase out),

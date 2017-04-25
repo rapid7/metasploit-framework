@@ -46,11 +46,11 @@ class DLL
   attr_accessor :functions
   attr_reader   :dll_path
 
-  def initialize(dll_path, win_consts)
+  def initialize(dll_path, consts_mgr)
     @dll_path = dll_path
 
     # needed by DLLHelper
-    @win_consts = win_consts
+    @consts_mgr = consts_mgr
 
     self.functions = {}
   end
