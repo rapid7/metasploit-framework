@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Post
     it "Should support writing memory" do
       ret = true
       buffer_value = Rex::Text.rand_text_alphanumeric(buffer_size)
-      ret &&= session.railgun.memwrite(buffer, buffer_value, buffer_size)
+      ret &&= session.railgun.memwrite(buffer, buffer_value)
     end
 
     it "Should support reading memory" do
@@ -154,7 +154,7 @@ class MetasploitModule < Msf::Post
 
       buffer_value = Rex::Text.rand_text_alphanumeric(buffer_size)
       buffer = result['return']
-      ret &&= session.railgun.memwrite(buffer, buffer_value, buffer_size)
+      ret &&= session.railgun.memwrite(buffer, buffer_value)
       ret &&= session.railgun.memread(buffer, buffer_size) == buffer_value
 
       session.railgun.kernel32.HeapFree(handle, 0, buffer)
