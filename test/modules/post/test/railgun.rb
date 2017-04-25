@@ -19,66 +19,9 @@ class MetasploitModule < Msf::Post
     ))
   end
 
-  def init_railgun_defs
-    unless session.railgun.dlls.has_key?('libc')
-      session.railgun.add_dll('libc', 'libc.so.6')
-    end
-    session.railgun.add_function(
-      'libc',
-      'calloc',
-      'LPVOID',
-      [
-        ['SIZE_T', 'nmemb', 'in'],
-        ['SIZE_T', 'size', 'in']
-      ],
-      nil,
-      'cdecl'
-    )
-    session.railgun.add_function(
-      'libc',
-      'getpid',
-      'DWORD',
-      [],
-      nil,
-      'cdecl'
-    )
-    session.railgun.add_function(
-      'libc',
-      'inet_ntop',
-      'LPVOID',
-      [
-        ['DWORD', 'af', 'in'],
-        ['PBLOB', 'src', 'in'],
-        ['PBLOB', 'dst', 'out'],
-        ['DWORD', 'size', 'in']
-      ],
-      nil,
-      'cdecl'
-    )
-    session.railgun.add_function(
-      'libc',
-      'malloc',
-      'LPVOID',
-      [['SIZE_T', 'size', 'in']],
-      nil,
-      'cdecl'
-    )
-    session.railgun.add_function(
-      'libc',
-      'memfrob',
-      'LPVOID',
-      [
-        ['PBLOB', 'mem', 'inout'],
-        ['SIZE_T', 'length', 'in']
-      ],
-      nil,
-      'cdecl'
-    )
-  end
-
   def test_api_function_calls_linux
     return unless session.platform == 'linux'
-    init_railgun_defs
+
     buffer = nil
     buffer_size = 128
     buffer_value = nil
@@ -107,7 +50,7 @@ class MetasploitModule < Msf::Post
     it "Should support functions with in/out/inout parameter types" do
       ret = true
       # first test in/out parameter types
-      result = session.railgun.libc.inet_ntop(2, "\x0a\x00\x00\x01", 128, 128)
+      result = session.railgun.libc.inet_ntop('AF_INET', "\x0a\x00\x00\x01", 128, 128)
       ret &&= result['GetLastError'] == 0
       ret &&= result['return'] != 0
       ret &&= result['dst'][0...8] == '10.0.0.1'
@@ -140,6 +83,8 @@ class MetasploitModule < Msf::Post
       ret = true
       ret &&= session.railgun.memread(buffer, buffer_size) == buffer_value
     end
+
+    session.railgun.libc.free(buffer)
   end
 
   def test_api_function_calls_windows
