@@ -344,7 +344,7 @@ def qemuchk(session)
 
 end
 
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   print_status("Checking if target is a Virtual Machine .....")
   found = hypervchk(session)
   found = vmwarechk(session) if not found

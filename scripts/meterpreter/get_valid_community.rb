@@ -38,7 +38,7 @@ end
   end
 }
 
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   print_status("Searching for community strings...")
   strs = get_community(session)
   if strs

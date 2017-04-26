@@ -124,7 +124,7 @@ def enum_powershell
 
   end
 end
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   enum_powershell
 else
   print_error("This version of Meterpreter is not supported with this Script!")

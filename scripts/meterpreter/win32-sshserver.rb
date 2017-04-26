@@ -179,7 +179,7 @@ type = "auto"
 }
 
 # Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+wrong_meter_version(meter_type) if meter_type != 'windows'
 
 #
 # Uninstall if selected
