@@ -37,7 +37,7 @@ class Msf::Modules::External::Bridge
     self.running = false
     self.path = module_path
     self.env = {
-      'PYTHONPATH' => File.expand_path('../python', __FILE__)
+      'PYTHONPATH' => ENV['PYTHONPATH'] + File::PATH_SEPARATOR + File.expand_path('../python', __FILE__)
     }
   end
 
