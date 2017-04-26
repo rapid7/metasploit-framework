@@ -8,12 +8,14 @@ This module allows us to scan through a series of IP Addresses and provide detai
 
 1.  ```apt-get install vsftpd```
 2. Allow local users to log in and to allow ftp uploads by editing file `/etc/vsftpd.conf` uncommenting the following:
-	```
-	local_enable=YES
-	write_enable=YES
-	chroot_list_enable=YES
-	chroot_list_file=/etc/vsftpd.chroot_list
-	```
+
+    ```
+    local_enable=YES
+    write_enable=YES
+    chroot_list_enable=YES
+    chroot_list_file=/etc/vsftpd.chroot_list
+    ```
+
 3. **IMPORTANT:** For allowing anonymous access set ```anonymous_enable=YES```
 4. Create the file `/etc/vsftpd.chroot_list` and add the local users you want allow to connect to FTP server. Start service and test connections:
 5. ```service vsftpd start``` 
