@@ -5,6 +5,10 @@ docker-compose*.yml
 docker/
 !docker/msfconsole.rc
 README.md
+.git/
+.github/
+.ruby-version
+.ruby-gemset
 
 .bundle
 Gemfile.local
@@ -93,3 +97,6 @@ data/meterpreter/ext_server_pivot.*.dll
 # https://rapid7.github.io/metasploit-framework. It's an orphan branch.
 /metakitty
 .vagrant
+
+# no need for rspecs
+spec/
