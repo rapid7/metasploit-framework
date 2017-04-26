@@ -369,7 +369,7 @@ def get_time(lo_byte, hi_byte)
   end
   return time
 end
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   enum_users(os).each do |user|
     if user['userpath']
       print_status "Extracting lnk files for user #{user['username']} at #{user['userpath']}..."

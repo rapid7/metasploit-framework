@@ -244,7 +244,7 @@ def decrypt_user_hash(rid, hbootkey, enchash, pass)
   d1o << d2.final
   d1o + d2o
 end
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   begin
 
     print_status("Obtaining the boot key...")

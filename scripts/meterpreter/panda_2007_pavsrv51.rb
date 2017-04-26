@@ -62,7 +62,7 @@ end
 
 if rhost.nil? or rport.nil?
   usage
-elsif client.platform =~ /win32|win64/
+elsif client.platform == 'windows'
   client.sys.process.get_processes().each do |m|
 
     if ( m['name'] =~ /PAVSRV51\.EXE/ )

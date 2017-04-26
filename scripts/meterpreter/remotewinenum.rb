@@ -144,7 +144,7 @@ def helpmsg
     @@exec_opts.usage)
 end
 ################## MAIN ##################
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   localos = session.sys.config.sysinfo
 
   # Check that the command is not being ran on a Win2k host

@@ -102,7 +102,7 @@ cidr2scan = ""
     save2log = true
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if args.length > 0
     if save2log
       save_found(arp_scan(cidr2scan))

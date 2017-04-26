@@ -89,7 +89,7 @@ end
     ls_current
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if args.length == 0
     print_line "Meterpreter Script for enumerating Current logged users and users that have loged in to the system."
     print_line(@@exec_opts.usage)

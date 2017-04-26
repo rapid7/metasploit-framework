@@ -42,7 +42,7 @@ rport    = 31337
 install  = false
 autoconn = false
 remove   = false
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
 
   #
   # Option parsing
