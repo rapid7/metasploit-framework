@@ -37,3 +37,22 @@ The USERS_FILE is a newline delimited list of users and defaults to `unix_users.
     [*] Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
   ```
+
+## Confirming using NMAP
+
+Utilizing the [finger](https://nmap.org/nsedoc/scripts/finger.html) script
+
+  ```
+    # nmap -p 79 -sC 127.0.0.1
+    
+    Starting Nmap 7.40 ( https://nmap.org ) at 2017-04-26 19:35 EDT
+    Nmap scan report for localhost (127.0.0.1)
+    Host is up (0.000039s latency).
+    PORT   STATE SERVICE
+    79/tcp open  finger
+    | finger: Login     Name       Tty      Idle  Login Time   Office     Office Phone\x0D
+    | root      root       tty2      16d  Apr 10 19:17 (:0)\x0D
+    |_root      root      *pts/3      1d  Apr 25 19:11 (192.168.2.175)\x0D
+    
+    Nmap done: 1 IP address (1 host up) scanned in 0.42 seconds
+  ```
