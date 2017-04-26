@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_zarch_linux'
 
 module MetasploitModule
 
-  CachedSize = 864336
+  CachedSize = 864376
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
