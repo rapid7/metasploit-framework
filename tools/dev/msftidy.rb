@@ -217,6 +217,15 @@ class Msftidy
     end
   end
 
+  def check_msf_core
+    @lines.each do |line|
+      if line_has_require?(line, 'msf/core')
+        warn('Explicitly requiring/loading msf/core is not necessary')
+        break
+      end
+    end
+  end
+
   # Does the given line contain a require/load of the specified library?
   def line_has_require?(line, lib)
     line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
@@ -678,6 +687,7 @@ class Msftidy
     check_shebang
     check_nokogiri
     check_rubygems
+    check_msf_core
     check_ref_identifiers
     check_old_keywords
     check_verbose_option
