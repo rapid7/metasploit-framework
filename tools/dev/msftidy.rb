@@ -205,6 +205,18 @@ class Msftidy
     end
   end
 
+  def check_self_class
+    in_register = false
+    @lines.each do |line|
+      (in_register = true) if line =~ /^\s*register_(?:advanced_)?options/
+      (in_register = false) if line =~ /^\s*end/
+      if in_register && line =~ /\],\s*self\.class\s*\)/
+        warn('Explicitly using self.class in register_* is not necessary')
+        break
+      end
+    end
+  end
+
   # See if 'require "rubygems"' or equivalent is used, and
   # warn if so.  Since Ruby 1.9 this has not been necessary and
   # the framework only suports 1.9+
@@ -689,6 +701,7 @@ class Msftidy
     check_rubygems
     check_msf_core
     check_ref_identifiers
+    check_self_class
     check_old_keywords
     check_verbose_option
     check_badchars
