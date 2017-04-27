@@ -12,7 +12,7 @@ services:
     ports:
       - 4444:4444
     volumes:
-      - $HOME/.msf4:/root/.msf4
+      - $HOME/.msf4:/home/msf/.msf4
 
   db:
     image: postgres:9.6
