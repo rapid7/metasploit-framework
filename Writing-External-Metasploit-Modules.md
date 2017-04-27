@@ -1,7 +1,7 @@
 JSON-RPC API
 ============
 
-Non-Ruby modules communicate with MSF over stdin/stdout. The methods a module must implement are `describe` and `run`. Metasploit implements `message` and will implement `report` in the near future. The specs for each method are written below using [JSON-schema](https://spacetelescope.github.io/understanding-json-schema). Work still needs to be done enumerating valid types and codes for the messages.
+External modules communicate with Metasploit over stdin/stdout. The methods a module must implement are `describe` and `run`. Metasploit implements `message` and will implement `report` in the near future. The specs for each method are written below using [JSON-schema](https://spacetelescope.github.io/understanding-json-schema). Work still needs to be done enumerating valid types and codes for the messages.
 
 Describe
 --------
