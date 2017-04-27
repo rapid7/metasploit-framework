@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SMB::Client
@@ -56,6 +54,11 @@ class MetasploitModule < Msf::Auxiliary
     x & 0xffffffff  # this line was added just to truncate to 32 bits
   end
 
+  # The arch is adjacent to the XOR key in the SMB signature
+  def calculate_doublepulsar_arch(s)
+    s == 0 ? 'x86 (32-bit)' : 'x64 (64-bit)'
+  end
+
   def run_host(ip)
     begin
       ipc_share = "\\\\#{ip}\\IPC$"
@@ -76,16 +79,17 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         # vulnerable to MS17-010, check for DoublePulsar infection
-        code, signature = do_smb_doublepulsar_probe(tree_id)
+        code, signature1, signature2 = do_smb_doublepulsar_probe(tree_id)
 
         if code == 0x51
-          xor_key = calculate_doublepulsar_xor_key(signature).to_s(16).upcase
-          print_warning("Host is likely INFECTED with DoublePulsar! - XOR Key: #{xor_key}")
+          xor_key = calculate_doublepulsar_xor_key(signature1).to_s(16).upcase
+          arch = calculate_doublepulsar_arch(signature2)
+          print_warning("Host is likely INFECTED with DoublePulsar! - Arch: #{arch}, XOR Key: 0x#{xor_key}")
           report_vuln(
             host: ip,
             name: "MS17-010 DoublePulsar Infection",
             refs: self.references,
-            info: 'MultiPlexID += 0x10 on Trans2 request - XOR Key: #{xor_key}'
+            info: "MultiPlexID += 0x10 on Trans2 request - Arch: #{arch}, XOR Key: 0x#{xor_key}"
           )
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
@@ -131,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt = Rex::Proto::SMB::Constants::SMB_TRANS_RES_HDR_PKT.make_struct
     pkt.from_s(bytes[4..-1])
 
-    return pkt['SMB'].v['MultiplexID'], pkt['SMB'].v['Signature1']
+    return pkt['SMB'].v['MultiplexID'], pkt['SMB'].v['Signature1'], pkt['SMB'].v['Signature2']
   end
 
   def do_smb_ms17_010_probe(tree_id)
