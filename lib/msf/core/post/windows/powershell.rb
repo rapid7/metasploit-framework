@@ -134,7 +134,7 @@ module Msf
 
             # Build the set commands
             set_env_variable =  "[Environment]::SetEnvironmentVariable(" \
-                                "'#{env_variable}'," \
+                                "'#{env_prefix}'," \
                                 "'#{chunk}', 'User')"
 
             # Compress and encode the set command
