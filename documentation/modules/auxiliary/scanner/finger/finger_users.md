@@ -43,7 +43,7 @@ The USERS_FILE is a newline delimited list of users and defaults to `unix_users.
 Utilizing the [finger](https://nmap.org/nsedoc/scripts/finger.html) script
 
   ```
-    # nmap -p 79 -sC 127.0.0.1
+    # nmap -p 79 --script finger 127.0.0.1
     
     Starting Nmap 7.40 ( https://nmap.org ) at 2017-04-26 19:35 EDT
     Nmap scan report for localhost (127.0.0.1)
