@@ -200,7 +200,7 @@ end
 }
 
 # Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+wrong_meter_version(meter_type) if meter_type != 'windows'
 
 if !int_id.nil? or !list_int.nil?
   if not is_uac_enabled? or is_admin?

@@ -81,7 +81,7 @@ keytosearch = nil
     keytosearch = val
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
 if keytosearch == nil
   print_status("Searching for VNC Passwords in the registry....")
   keys.each { |key|

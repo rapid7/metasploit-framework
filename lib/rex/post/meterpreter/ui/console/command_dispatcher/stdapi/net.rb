@@ -58,7 +58,7 @@ class Console::CommandDispatcher::Stdapi::Net
     '-r' => [true,  'Forward: remote host to connect to.'],
     '-p' => [true,  'Forward: remote port to connect to. Reverse: remote port to listen on.'],
     '-R' => [false, 'Indicates a reverse port forward.'],
-    '-L' => [true,  'Forward: local host to listen on (optional). Remote: local host to connect to.'])
+    '-L' => [true,  'Forward: local host to listen on (optional). Reverse: local host to connect to.'])
 
   #
   # Options for the netstat command.

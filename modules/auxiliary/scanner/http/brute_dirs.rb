@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'enumerable'
 
 class MetasploitModule < Msf::Auxiliary
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true,  "The path to identify directories", '/']),
         OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'a,aa,aaa'])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         ),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
         OptInt.new('TestThreads', [ true, "Number of test threads", 25])
-      ], self.class)
+      ])
 
   end
 

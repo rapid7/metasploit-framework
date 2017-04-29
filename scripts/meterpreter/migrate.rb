@@ -61,7 +61,7 @@ end
 
 ### Main ###
 
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   server = client.sys.process.open
   original_pid = server.pid
   print_status("Current server process: #{server.name} (#{server.pid})")

