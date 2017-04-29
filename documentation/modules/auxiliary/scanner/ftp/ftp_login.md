@@ -40,7 +40,7 @@ This module will test FTP logins on a range of machines and report successful lo
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/ftp/anonymous```
+1. Do: ```use auxiliary/scanner/ftp/ftp_login```
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set RPORT [IP]```
 4. Do: ```run```
