@@ -325,6 +325,18 @@ class ClientCore < Extension
     Rex::Text.md5(mid.to_s.downcase.strip)
   end
 
+  def native_arch(timeout=nil)
+    # Not all meterpreter implementations support this
+    request = Packet.create_request('core_native_arch')
+
+    args = [ request ]
+    args << timeout if timeout
+
+    response = client.send_request(*args)
+
+    response.get_tlv_value(TLV_TYPE_STRING)
+  end
+
   def transport_remove(opts={})
     request = transport_prepare_request('core_transport_remove', opts)
 

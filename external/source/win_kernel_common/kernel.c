@@ -272,3 +272,10 @@ VOID destroy_anon_mapping(MemMapping* memMap)
 		}
 	}
 }
+
+DWORD execute_payload(LPVOID lpPayload)
+{
+	VOID(*lpCode)() = (VOID(*)())lpPayload;
+	lpCode();
+	return ERROR_SUCCESS;
+}

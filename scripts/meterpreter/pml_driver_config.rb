@@ -63,7 +63,7 @@ end
 
 if rhost.nil? or rport.nil?
   usage
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   client.sys.process.get_processes().each do |m|
     if ( m['name'] =~ /HPZipm12\.exe/ )
 

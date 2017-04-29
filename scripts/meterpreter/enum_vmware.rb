@@ -297,7 +297,7 @@ def enum_vmwarewrk
     end
   end
 end
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if check_vmsoft
     vmware_products = check_prods()
     if vmware_products.include?("VMware VirtualCenter")

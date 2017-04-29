@@ -254,7 +254,7 @@ end
     kill_frfx = true
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if frfxchk
     user = @client.sys.config.getuid
     if not is_system?

@@ -7,6 +7,8 @@ require 'rex/proto/drda'
 require 'rex/proto/iax2'
 require 'rex/proto/kerberos'
 require 'rex/proto/rmi'
+require 'rex/proto/sms'
+require 'rex/proto/mms'
 
 module Rex
 module Proto

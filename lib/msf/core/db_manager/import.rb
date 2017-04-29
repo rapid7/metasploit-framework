@@ -299,7 +299,11 @@ module Msf::DBManager::Import
           @import_filedata[:type] = "Nikto XML"
           return :nikto_xml
         when "nmaprun"
-          @import_filedata[:type] = "Nmap XML"
+          if line.start_with?('<nmaprun scanner="masscan"')
+            @import_filedata[:type] = "Masscan XML"
+          else
+            @import_filedata[:type] = "Nmap XML"
+          end
           return :nmap_xml
         when "openvas-report"
           @import_filedata[:type] = "OpenVAS"

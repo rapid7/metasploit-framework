@@ -155,7 +155,7 @@ enbl = nil
 
 }
 
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 
 if enbl or (usr!= nil && pass != nil)
   message

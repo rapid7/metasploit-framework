@@ -27,9 +27,11 @@ class Auxiliary
   #
   def commands
     super.update({
-      "run"   => "Launches the auxiliary module",
-      "rerun" => "Reloads and launches the auxiliary module",
-      "exploit" => "This is an alias for the run command",
+      "run"      => "Launches the auxiliary module",
+      "rcheck"   => "Reloads the module and checks if the target is vulnerable",
+      "rerun"    => "Reloads and launches the auxiliary module",
+      "exploit"  => "This is an alias for the run command",
+      "recheck"  => "This is an alias for the rcheck command",
       "rexploit" => "This is an alias for the rerun command",
       "reload"   => "Reloads the auxiliary module"
     }).merge( (mod ? mod.auxiliary_commands : {}) )
@@ -146,6 +148,18 @@ class Auxiliary
   end
 
   alias cmd_exploit_help cmd_run_help
+
+  #
+  # Reloads an auxiliary module and checks the target to see if it's
+  # vulnerable.
+  #
+  def cmd_rcheck(*args)
+    reload()
+
+    cmd_check(*args)
+  end
+
+  alias cmd_recheck cmd_rcheck
 
 end
 

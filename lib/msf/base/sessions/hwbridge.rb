@@ -158,6 +158,26 @@ class HWBridge  < Rex::Post::HWBridge::Client
   end
 
   #
+  # Loads the zigbee extension
+  #
+  def load_zigbee
+    original = console.disable_output
+    console.disable_output = true
+    console.run_single('load zigbee')
+    console.disable_output = original
+  end
+
+  #
+  # Loads the rftransceiver extension
+  #
+  def load_rftransceiver
+    original = console.disable_output
+    console.disable_output = true
+    console.run_single('load rftransceiver')
+    console.disable_output = original
+  end
+
+  #
   # Load custom methods provided by the hardware
   #
   def load_custom_methods

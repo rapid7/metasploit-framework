@@ -29,7 +29,7 @@ module Msf
         # Returns true if powershell is installed
         #
         def have_powershell?
-          cmd_exec('cmd.exe /c "echo. | powershell get-host"') =~ /Name.*Version.*InstanceId/m
+          cmd_exec('cmd.exe', '/c "echo. | powershell get-host"') =~ /Name.*Version.*InstanceId/m
         end
 
         #
@@ -88,9 +88,9 @@ module Msf
             script = encode_script(script.to_s)
           end
 
-          ps_string = "#{ps_bin} -EncodedCommand #{script} -InputFormat None"
-          vprint_good "EXECUTING:\n#{ps_string}"
-          cmd_out = session.sys.process.execute(ps_string, nil, { 'Hidden' => true, 'Channelized' => true })
+          ps_string = "-EncodedCommand #{script} -InputFormat None"
+          vprint_good "EXECUTING:\n#{ps_bin} #{ps_string}"
+          cmd_out = session.sys.process.execute(ps_bin, ps_string, { 'Hidden' => true, 'Channelized' => true })
 
           # Subtract prior PIDs from current
           if greedy_kill

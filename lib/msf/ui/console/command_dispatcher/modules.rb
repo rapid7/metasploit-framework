@@ -52,6 +52,7 @@ module Msf
             @cache_payloads = nil
             @previous_module = nil
             @module_name_stack = []
+            @dangerzone_map = nil
           end
 
           #
@@ -595,6 +596,9 @@ module Msf
               return false
             end
 
+            # Divert logic for dangerzone mode
+            args = dangerzone_codename_to_module(args)
+
             # Try to create an instance of the supplied module name
             mod_name = args[0]
 
@@ -873,7 +877,84 @@ module Msf
               end
             end
 
+            return dangerzone_modules_to_codenames(res.sort) if dangerzone_active?
             return res.sort
+          end
+
+          #
+          # Convert squirrel names back to regular module names
+          #
+          def dangerzone_codename_to_module(args)
+            return args unless dangerzone_active? && args.length > 0 && args[0].length > 0
+            return args unless args[0] =~ /^[A-Z]/
+            args[0] = dangerzone_codename_to_module_name(args[0])
+            args
+          end
+
+          #
+          # Determine if dangerzone mode is active via date or environment variable
+          #
+          def dangerzone_active?
+            active = Time.now.strftime("%m%d") == "0401" || Rex::Compat.getenv('DANGERZONE').to_i > 0
+            if active && @dangerzone_map.nil?
+              dangerzone_build_map
+            end
+            active
+          end
+
+          #
+          # Convert module names to squirrel names
+          #
+          def dangerzone_modules_to_codenames(names)
+            (names + @dangerzone_map.keys.grep(/^[A-Z]+/)).sort
+          end
+
+          def dangerzone_codename_to_module_name(cname)
+            @dangerzone_map[cname] || cname
+          end
+
+          def dangerzone_module_name_to_codename(mname)
+            @dangerzone_map[mname] || mname
+          end
+
+          def dangerzone_build_map
+            return unless @dangerzone_map.nil?
+
+            @dangerzone_map = {}
+
+            res = []
+            %W{exploit auxiliary}.each do |mtyp|
+              mset = framework.modules.module_names(mtyp)
+              mset.each do |mref|
+                res << mtyp + '/' + mref
+              end
+            end
+
+            words_a = ::File.readlines(::File.join(
+              ::Msf::Config.data_directory, "wordlists", "dangerzone_a.txt"
+              )).map{|line| line.strip.upcase}
+
+            words_b = ::File.readlines(::File.join(
+              ::Msf::Config.data_directory, "wordlists", "dangerzone_b.txt"
+              )).map{|line| line.strip.upcase}
+
+            aidx = -1
+            bidx = -1
+
+            res.sort.each do |mname|
+              word_a = words_a[ (aidx += 1) % words_a.length ]
+              word_b = words_b[ (bidx += 1) % words_b.length ]
+              cname = word_a + word_b
+
+              while @dangerzone_map[cname]
+                aidx += 1
+                word_a = words_a[ (aidx += 1) % words_a.length ]
+                cname = word_a + word_b
+              end
+
+              @dangerzone_map[mname] = cname
+              @dangerzone_map[cname] = mname
+            end
           end
 
           #

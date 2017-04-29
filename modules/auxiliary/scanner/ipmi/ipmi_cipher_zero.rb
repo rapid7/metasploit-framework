@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'IPMI 2.0 Cipher Zero Authentication Bypass Scanner',
       'Description' => %q|
-        This module identifies IPMI 2.0 compatible systems that are vulnerable
+        This module identifies IPMI 2.0-compatible systems that are vulnerable
         to an authentication bypass vulnerability through the use of cipher
         zero.
         |,
@@ -54,9 +54,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    info = Rex::Proto::IPMI::Open_Session_Reply.new(data) rescue nil
-    return if not info
-    return if not info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RMCPPLUSOPEN_REP
+    info = Rex::Proto::IPMI::Open_Session_Reply.new.read(data)#  rescue nil
+    return unless info && info.session_payload_type == Rex::Proto::IPMI::PAYLOAD_RMCPPLUSOPEN_REP
 
     # Ignore duplicate replies
     return if @res[shost]

