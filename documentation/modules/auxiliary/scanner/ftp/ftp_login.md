@@ -44,6 +44,7 @@ This module will test FTP logins on a range of machines and report successful lo
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set RPORT [IP]```
 4. Do: ```run```
+
 ## Sample Output
 ```
 msf> use auxiliary/scanner/ftp/ftp_login
