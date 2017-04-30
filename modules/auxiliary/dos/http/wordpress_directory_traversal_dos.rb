@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'WordPress Traversal Directory DoS',
-      'Description'     =>  %q{Directory traversal vulnerability in the wp_ajax_update_plugin function in wp-admin/includes/ajax-actions.php in WordPress 4.5.3 allows remote authenticated users to cause a denial of service or read certain text files via a .. (dot dot) in the plugin parameter to wp-admin/admin-ajax.php, as demonstrated by /dev/random read operations that deplete the entropy pool.},
+      'Description'     =>  %q{Cross-site request forgery (CSRF) vulnerability in the wp_ajax_update_plugin function in wp-admin/includes/ajax-actions.php in WordPress before 4.6 allows remote attackers to hijack the authentication of subscribers for /dev/random read operations by leveraging a late call to the check_ajax_referer function, a related issue to CVE-2016-6896.},
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-6897'],
           ['EDB', '40288'],
           ['OVEID', 'OVE-20160712-0036'],
-          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2016-6896']
+          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2016-6897']
         ],
     ))
 
