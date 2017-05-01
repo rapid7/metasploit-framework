@@ -7,6 +7,10 @@ class Msf::Modules::External::Bridge
 
   attr_reader :path, :running
 
+  def self.applies?(module_name)
+    File::executable? module_name
+  end
+
   def meta
     @meta ||= describe
   end
@@ -34,11 +38,9 @@ class Msf::Modules::External::Bridge
   end
 
   def initialize(module_path)
+    self.env = {}
     self.running = false
     self.path = module_path
-    self.env = {
-      'PYTHONPATH' => ENV['PYTHONPATH'] + File::PATH_SEPARATOR + File.expand_path('../python', __FILE__)
-    }
   end
 
   protected
@@ -100,5 +102,31 @@ class Msf::Modules::External::Bridge
   def close_ios
     input, output, status = self.ios
     [input, output].each {|fd| fd.close rescue nil} # Yeah, yeah. I know.
+  end
+end
+
+class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
+  def self.applies?(module_name)
+    module_name.match? /\.py$/
+  end
+
+  def initialize(module_path)
+    super
+    pythonpath = ENV['PYTHONPATH'] || ''
+    self.env = self.env.merge({ 'PYTHONPATH' => pythonpath + File::PATH_SEPARATOR + File.expand_path('../python', __FILE__) })
+  end
+end
+
+class Msf::Modules::External::Bridge
+
+  LOADERS = [
+    Msf::Modules::External::PyBridge,
+    Msf::Modules::External::Bridge
+  ]
+
+  def self.open(module_path)
+    LOADERS.each do |klass|
+      return klass.new module_path if klass.applies? module_path
+    end
   end
 end
