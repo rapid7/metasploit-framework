@@ -24,10 +24,10 @@ module Msf::Module::Auth
     unless service_data.empty?
       login_data = {
         core: core,
-        proof: proof
-        # last_attempted_at: DateTime.now,
-        # status: Metasploit::Model::Login::Status::SUCCESSFUL
-      }.merge(service_data)
+        proof: proof,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL
+      }.merge(cdata)
       create_credential_login(login_data)
     end
 
