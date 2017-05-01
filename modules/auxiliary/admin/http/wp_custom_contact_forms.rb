@@ -62,31 +62,19 @@ class MetasploitModule < Msf::Auxiliary
     table_prefix
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
+  def service_details
+    {
+      address: rhost,
+      port: rport,
+      service_name: (ssl ? "https": "http"), # changed from "WorkPress" here
       protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
+      workspace_id: myworkspace_id,
       module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      last_attempted_at: DateTime.now,
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
+      origin_type: :service
+      # moved to Msf::Module::Auth
+      # last_attempted_at: DateTime.now,
+      # status: Metasploit::Model::Login::Status::SUCCESSFUL
+    }
   end
 
   def run
@@ -122,17 +110,10 @@ class MetasploitModule < Msf::Auxiliary
     # test login
     cookie = wordpress_login(username, password)
 
-    # login successfull
+    # login successful
     if cookie
       print_status("User #{username} with password #{password} successfully created")
-      report_cred(
-        ip: rhost,
-        port: rport,
-        user: username,
-        password: password,
-        service_name: 'WordPress',
-        proof: cookie
-      )
+      store_valid_credential(username, password, :password, cookie)
     else
       print_error("User creation failed")
       return

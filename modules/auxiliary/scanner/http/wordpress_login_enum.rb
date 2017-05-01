@@ -100,41 +100,19 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: ssl ? 'https' : 'http',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
+  def service_details
+    {
+        address: rhost,
+        port: rport,
+        service_name: ssl ? 'https' : 'http',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id,
+        module_fullname: fullname,
+        origin_type: :service,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL
     }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user]
-    }.merge(service_data)
-
-    if opts[:password]
-      credential_data.merge!(
-        private_data: opts[:password],
-        private_type: :password
-      )
-    end
-
-    login_data = {
-      core: create_credential(credential_data),
-      status: opts[:status]
-    }.merge(service_data)
-
-    if opts[:attempt_time]
-      login_data.merge!(last_attempted_at: opts[:attempt_time])
-    end
-
-    create_credential_login(login_data)
   end
-
 
   def validate_user(user=nil)
     print_status("#{target_uri} - WordPress User-Validation - Checking Username:'#{user}'")
@@ -167,14 +145,7 @@ class MetasploitModule < Msf::Auxiliary
     if cookie
       print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
 
-      report_cred(
-        ip: rhost,
-        port: rport,
-        user: user,
-        password: pass,
-        status: Metasploit::Model::Login::Status::SUCCESSFUL,
-        attempt_time: DateTime.now
-      )
+      store_valid_credential(user, pass, :password, cookie)
 
       return :next_user
     else

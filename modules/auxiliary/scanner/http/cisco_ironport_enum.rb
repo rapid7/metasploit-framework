@@ -115,31 +115,15 @@ class MetasploitModule < Msf::Auxiliary
       end
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
+  def service_details
+    {
+      address: rhost,
+      port: rport,
       service_name: 'Cisco IronPort Appliance',
       protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
       origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      last_attempted_at: DateTime.now,
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
+      module_fullname: fullname
+    }
   end
 
   #
@@ -166,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
       if res and res.get_cookies.include?('authenticated=')
         print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
-        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.get_cookies.inspect)
+        store_valid_credential(user, pass, :password, res.get_cookies.inspect)
         return :next_user
 
       else
