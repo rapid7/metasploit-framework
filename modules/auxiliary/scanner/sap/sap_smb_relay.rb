@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CLIENT',   [true,  'SAP client', '001']),
       OptString.new('HttpUsername', [false, 'Username (Ex SAP*)']),
       OptString.new('HttpPassword', [false, 'Password (Ex 06071992)']),
-      OptAddress.new('LHOST',   [true,  'Server IP or hostname of the SMB Capture system']),
+      OptAddressLocal.new('LHOST',   [true,  'Server IP or hostname of the SMB Capture system']),
       OptEnum.new('ABUSE',      [true,  'SMB Relay abuse to use', "MMR",
         [
           "MMR",

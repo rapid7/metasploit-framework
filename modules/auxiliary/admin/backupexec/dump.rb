@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(10000),
-        OptAddress.new('LHOST',
+        OptAddressLocal.new('LHOST',
           [
             false,
             "The local IP address to accept the data connection"

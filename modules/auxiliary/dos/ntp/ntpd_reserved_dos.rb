@@ -34,9 +34,8 @@ class MetasploitModule < Msf::Auxiliary
 
       register_options(
         [
-          OptAddress.new('LHOST', [true, "The spoofed address of a vulnerable ntpd server" ])
+          OptAddressLocal.new('LHOST', [true, "The spoofed address of a vulnerable ntpd server" ])
         ])
-
       deregister_options('FILTER','PCAPFILE')
 
   end

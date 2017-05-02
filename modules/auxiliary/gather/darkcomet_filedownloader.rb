@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(1604),
         Opt::RHOST('0.0.0.0'),
 
-        OptString.new('LHOST', [true, 'This is our IP (as it appears to the DarkComet C2 server)', '0.0.0.0']),
+        OptAddressLocal.new('LHOST', [true, 'This is our IP (as it appears to the DarkComet C2 server)', '0.0.0.0']),
         OptString.new('KEY', [false, 'DarkComet RC4 key (include DC prefix with key eg. #KCMDDC51#-890password)', '']),
         OptBool.new('NEWVERSION', [false, 'Set to true if DarkComet version >= 5.1, set to false if version < 5.1', true]),
         OptString.new('TARGETFILE', [false, 'Target file to download (assumes password is set)', '']),
