@@ -1,13 +1,13 @@
 GIT
   remote: https://github.com/WinRb/rubyntlm
-  revision: 7e2daf6076ba55a435d3e345498a7df40faa3d49
+  revision: 38aaf1d59dd1a443e4a9c0aea2be232cfe262772
   branch: master
   specs:
-    rubyntlm (0.6.1)
+    rubyntlm (0.6.2)
 
 GIT
   remote: https://github.com/banister/method_source
-  revision: 6dcb116e37e20e58f615ffe05a40bbe9a536e44a
+  revision: 0cc6cc8e15d08880585e8cb0c54e13c3cf937c54
   branch: master
   specs:
     method_source (0.8.1)
@@ -31,7 +31,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.15)
+    metasploit-framework (4.14.16)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -136,7 +136,7 @@ GEM
     bcrypt (3.1.11)
     bindata (2.4.0)
     builder (3.2.3)
-    capybara (2.13.0)
+    capybara (2.14.0)
       addressable
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -146,7 +146,7 @@ GEM
     childprocess (0.5.9)
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.1)
-    contracts (0.15.0)
+    contracts (0.16.0)
     cucumber (2.4.0)
       builder (>= 2.1.2)
       cucumber-core (~> 1.5.0)
@@ -312,7 +312,7 @@ GEM
       rex-arch
     rex-ole (0.1.5)
       rex-text
-    rex-powershell (0.1.70)
+    rex-powershell (0.1.71)
       rex-random_identifier
       rex-text
     rex-random_identifier (0.1.2)
@@ -383,7 +383,7 @@ GEM
     xmlrpc (0.3.0)
     xpath (2.0.0)
       nokogiri (~> 1.3)
-    yard (0.9.8)
+    yard (0.9.9)
 
 PLATFORMS
   ruby
