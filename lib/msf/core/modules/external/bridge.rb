@@ -46,8 +46,7 @@ class Msf::Modules::External::Bridge
   protected
 
   attr_writer :path, :running
-  attr_accessor :ios
-  attr_accessor :env
+  attr_accessor :env, :ios
 
   def describe
     resp = send_receive(Msf::Modules::External::Message.new(:describe))
@@ -128,5 +127,7 @@ class Msf::Modules::External::Bridge
     LOADERS.each do |klass|
       return klass.new module_path if klass.applies? module_path
     end
+
+    nil
   end
 end
