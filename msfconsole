@@ -11,6 +11,8 @@
 
 require 'pathname'
 
+raise 'Must be run as root' unless Process.uid = 0
+
 if ENV['METASPLOIT_FRAMEWORK_PROFILE'] == 'true'
   gem 'perftools.rb'
   require 'perftools'
