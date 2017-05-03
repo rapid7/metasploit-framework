@@ -1,0 +1,7 @@
+source :rubygems
+
+gem 'railties', '>= 3.0.13'
+gem 'activerecord', '>= 3.0.13', :require => 'active_record'
+gem 'rspec-rails', '>= 2.0'
+
+gemspec :path => '../'
