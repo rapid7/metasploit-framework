@@ -9,6 +9,8 @@
 #
 ###
 
+# Monkeypatches to core Ruby classes
+require 'msf/util/monkeypatch'
 
 require 'msf/core'
 require 'rex'
