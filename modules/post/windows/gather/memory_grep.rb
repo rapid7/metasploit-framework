@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Post
       OptString.new('PROCESS', [true,  'Name of the process to dump memory from', nil]),
       OptRegexp.new('REGEX',   [true,  'Regular expression to search for with in memory', nil]),
       OptBool.new('HEAP',      [false, 'Grep from heap', false])
-    ], self.class)
+    ])
   end
 
   def get_data_from_stack(target_pid)

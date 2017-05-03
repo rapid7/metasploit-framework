@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/encoder/alpha2/unicode_upper'
 
 

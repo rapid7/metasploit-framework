@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(4444),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini'])
-      ], self.class)
+      ])
 
     deregister_options('RHOST')
   end

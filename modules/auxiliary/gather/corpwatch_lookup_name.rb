@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
@@ -34,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1]),
         OptString.new('LIMIT', [ true, "Limit the number of results returned", "5"]),
         OptString.new('CORPWATCH_APIKEY', [ false, "Use this API key when getting the data", ""]),
-      ], self.class)
+      ])
 
     deregister_options('RHOST', 'RPORT', 'Proxies', 'VHOST')
   end

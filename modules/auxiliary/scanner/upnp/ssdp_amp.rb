@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(1900),
       OptBool.new('SHORT', [ false, "Does a shorter request, for a higher amplifier, not compatible with all devices", false])
-    ], self.class)
+    ])
   end
 
   def setup

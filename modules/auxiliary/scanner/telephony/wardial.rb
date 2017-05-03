@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'zlib'
 
 
@@ -53,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('DIALPREFIX',   [true,  'Dial Prefix', 'ATDT']),
       OptString.new('INITSTRING',   [true,  'Initialization String', 'AT X6 S11=80']),
       OptString.new('SERIALPORT',   [true,  'Serial Port (e.g. 0 (COM1), 1 (COM2), /dev/ttyS0, etc.)', '/dev/ttyS0']),
-    ], self.class)
+    ])
 
     register_advanced_options(
     [
@@ -72,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       OptEnum.new(  'Parity',       [false,  'Parity (Mark & Space are Windows Only)', 'None', ['None', 'Even', 'Odd', 'Mark', 'Space'], 'None']),
       OptBool.new(  'RedialBusy',   [false,  'Redials numbers found to be busy', false]),
       OptEnum.new(  'StopBits',     [true,  'Stop Bits', '1', ['1', '2'], '1']),
-    ], self.class)
+    ])
 
     deregister_options('NUMBER')
     deregister_options('RPORT')

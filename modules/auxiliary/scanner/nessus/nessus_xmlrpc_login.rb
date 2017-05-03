@@ -7,8 +7,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8834),
         OptString.new('URI', [true, "URI for Nessus XMLRPC login. Default is /login", "/login"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

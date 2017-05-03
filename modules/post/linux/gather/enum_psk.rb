@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Post
         OptString.new('DIR', [true, 'The default path for network connections',
                               '/etc/NetworkManager/system-connections/']
         )
-      ], self.class)
+      ])
   end
 
   def dir

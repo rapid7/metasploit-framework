@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/meterpreter_multi'
 require 'msf/base/sessions/meterpreter_options'
 

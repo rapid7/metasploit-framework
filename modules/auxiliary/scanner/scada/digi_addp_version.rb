@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/addp'
 
 class MetasploitModule < Msf::Auxiliary
@@ -29,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       Opt::RPORT(2362),
       OptString.new('ADDP_PASSWORD', [true, 'The ADDP protocol password for each target', 'dbps'])
-    ], self.class)
+    ])
   end
 
   def scanner_prescan(batch)

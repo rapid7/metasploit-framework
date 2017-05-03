@@ -1,5 +1,3 @@
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::File

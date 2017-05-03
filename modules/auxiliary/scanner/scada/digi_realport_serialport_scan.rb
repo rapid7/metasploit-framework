@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::RealPort
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new("BANNER_TIMEOUT", [true, "How long to capture data from the serial port", 5]),
         OptString.new('BAUD_RATES', [true, "A space delimited list of baud rates to try for each port", "9600 115200"]),
         OptString.new('PORTS', [true, "A space delimited list of 1-indexed serial port numbers to try, default is all supported", "ALL"])
-      ], self.class)
+      ])
   end
 
   def setup

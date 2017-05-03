@@ -4,7 +4,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'nokogiri'
 
 class MetasploitModule < Msf::Auxiliary

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('REMOTE_PATH', [ true, "Location of the remote file", 'flag.txt' ]),
         OptString.new('REMOTE_CONTENT', [ true, "Content of the remote file", 'Hello from CVE-2011-1774' ])
-      ], self.class)
+      ])
   end
 
   def on_request_uri(cli, request)

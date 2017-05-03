@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           Opt::RPORT(515),
           OptString.new('RPATH', [ true, "The remote file path to delete"]),
-        ], self.class)
+        ])
   end
 
   def run

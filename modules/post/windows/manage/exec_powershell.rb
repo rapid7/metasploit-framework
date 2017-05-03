@@ -4,8 +4,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/windows/powershell'
 
 class MetasploitModule < Msf::Post
@@ -31,12 +29,12 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new( 'SCRIPT',  [true, 'Path to the local PS script or command string to execute']),
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub']),
-      ], self.class)
+      ])
 
   end
 

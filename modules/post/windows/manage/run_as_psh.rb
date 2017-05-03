@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/windows/powershell'
 
 class MetasploitModule < Msf::Post
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('CHANNELIZE', [true, 'Chanelize output, required for reading output or interracting', true]),
         OptBool.new('INTERACTIVE', [true, 'Run interactively', true]),
         OptBool.new('HIDDEN', [true, 'Hide the window', true])
-      ], self.class)
+      ])
   end
 
   def run

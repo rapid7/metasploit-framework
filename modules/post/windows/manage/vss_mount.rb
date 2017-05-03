@@ -4,9 +4,6 @@
 ##
 
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('DEVICE', [ true, 'DeviceObject of Shadowcopy to mount.' ]),
         OptString.new('PATH', [ true, 'Path to mount it to.' ])
-      ], self.class)
+      ])
 
   end
 

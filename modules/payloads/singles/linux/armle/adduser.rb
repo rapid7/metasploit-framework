@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 ###
 #
 # AddUser
@@ -37,7 +35,7 @@ module MetasploitModule
         OptString.new('USER',  [ true,  "The username to create",     "metasploit" ]),
         OptString.new('PASS',  [ true,  "The password for this user", "metasploit" ]),
         OptString.new('SHELL', [ false, "The shell for this user",    "/bin/sh"    ]),
-      ], self.class)
+      ])
   end
 
   #

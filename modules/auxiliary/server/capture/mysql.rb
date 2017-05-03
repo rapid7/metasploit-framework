@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SRVVERSION', [ true, "The server version to report in the greeting response", "5.5.16" ]),
         OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
-      ], self.class)
+      ])
   end
 
   def setup

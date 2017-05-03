@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 
 class MetasploitModule < Msf::Auxiliary
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('PATH', [ true,  "The path/file to identify backups", '/index.asp'])
-      ], self.class)
+      ])
 
   end
 

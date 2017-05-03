@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/exploit/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
@@ -46,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         'The cookie file (on older 2.x devices this is "webview.db")',
         'webviewCookiesChromium.db'
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)

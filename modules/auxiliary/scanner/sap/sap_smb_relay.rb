@@ -20,8 +20,6 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -64,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
           "CLBA_UPDATE_FILE_REMOTE_HOST"
         ]
       ]),
-    ], self.class)
+    ])
 
   end
 

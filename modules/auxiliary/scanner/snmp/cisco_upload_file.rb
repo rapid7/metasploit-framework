@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SNMPClient
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptPath.new('SOURCE', [true, "The filename to upload" ]),
       OptAddress.new('LHOST', [ false, "The IP address of the system running this module" ])
-    ], self.class)
+    ])
   end
 
   #

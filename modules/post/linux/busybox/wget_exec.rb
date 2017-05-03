@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('URL', [true, 'Full URL of file to download'])
-      ], self.class)
+      ])
   end
 
   def run

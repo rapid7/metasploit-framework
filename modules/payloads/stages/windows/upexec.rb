@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -63,7 +62,7 @@ module MetasploitModule
     register_options(
       [
         OptPath.new('PEXEC', [ true, "Full path to the file to upload and execute" ])
-      ], self.class)
+      ])
   end
 
   #

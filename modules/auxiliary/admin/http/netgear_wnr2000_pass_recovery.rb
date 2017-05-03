@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'time'
 
 class MetasploitModule < Msf::Auxiliary
@@ -41,12 +40,12 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80)
-      ], self.class)
+      ])
     register_advanced_options(
       [
         OptInt.new('TIME_OFFSET', [true, 'Maximum time differential to try', 5000]),
         OptInt.new('TIME_SURPLUS', [true, 'Increase this if you are sure the device is vulnerable and you are not getting through', 200])
-      ], self.class)
+      ])
   end
 
   def get_current_time

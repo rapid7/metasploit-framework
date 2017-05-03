@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8080),
         OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
-      ], self.class)
+      ])
     register_autofilter_ports([ 8080 ])
   end
 

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Capture
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           OptAddress.new('LHOST', [true, "The spoofed address of a vulnerable ntpd server" ])
-        ], self.class)
+        ])
 
       deregister_options('FILTER','PCAPFILE')
 

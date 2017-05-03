@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(5632)
-    ], self.class)
+    ])
   end
 
   def scanner_prescan(batch)

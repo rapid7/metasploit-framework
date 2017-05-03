@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Post
         OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']), # Enum would be a better choice
         OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil]),
         OptBool.new('SAVEHOSTS', [true, 'Save Discovered Hosts to the Database', false])
-      ], self.class)
+      ])
   end
 
   def parse_netserverenum(startmem,count)

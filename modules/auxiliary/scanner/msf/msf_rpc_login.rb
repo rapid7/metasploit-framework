@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, "A specific username to authenticate as. Default is msf", "msf"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
         OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true])
-      ], self.class)
+      ])
     register_autofilter_ports([3790])
 
   end

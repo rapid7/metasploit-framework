@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptInt.new('MAXDRIVES',[false,'Maximum physical drive number',10])
-      ], self.class)
+      ])
   end
 
   def print_device(devname)

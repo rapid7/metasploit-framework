@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/exploit/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         'Steals a default set of file URLs',
         true
       ])
-    ], self.class)
+    ])
   end
 
   def run

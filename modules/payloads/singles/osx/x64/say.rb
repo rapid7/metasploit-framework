@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 53
@@ -26,7 +24,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('TEXT',  [ true,  "The text to say", "Hello\!"]),
-    ], self.class)
+    ])
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD

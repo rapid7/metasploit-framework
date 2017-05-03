@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
         OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", '<title>(.*)</title>'])
 
-      ], self.class)
+      ])
 
   end
 

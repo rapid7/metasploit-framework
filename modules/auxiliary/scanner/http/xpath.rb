@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('MAX_OVER', [ true, "Dont detect result size. Use MAX_LEN instead", true ]),
         OptBool.new('CHKINJ', [ false, "Check XPath injection with error message", false ]),
         OptBool.new('DEBUG_INJ', [ false, "Debug XPath injection", true ])
-      ], self.class)
+      ])
 
   end
 

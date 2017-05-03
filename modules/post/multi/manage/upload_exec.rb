@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('LFILE', [true,'Local file to upload and execute']),
         OptString.new('RFILE', [false,'Name of file on target (default is basename of LFILE)']),
-      ], self.class)
+      ])
   end
 
   def rfile

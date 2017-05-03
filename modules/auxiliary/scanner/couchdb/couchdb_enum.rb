@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/_all_dbs']),
         OptString.new('HttpUsername', [false, 'The username to login as']),
         OptString.new('HttpPassword', [false, 'The password to login with'])
-      ], self.class)
+      ])
   end
 
   def run

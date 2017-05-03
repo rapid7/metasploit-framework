@@ -4,9 +4,6 @@
 ##
 
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptInt.new('SIZE', [ true, 'Size in bytes to set for Max Storage'])
-      ], self.class)
+      ])
 
   end
 

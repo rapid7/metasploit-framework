@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(138),
         OptString.new('DOMAIN', [ true, "The name of the domain that the target controls" ])
-      ], self.class)
+      ])
   end
 
 

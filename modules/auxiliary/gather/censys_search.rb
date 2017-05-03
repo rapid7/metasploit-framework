@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/http'
 
 class MetasploitModule < Msf::Auxiliary
@@ -32,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CENSYS_SECRET', [true, 'The Censys API SECRET']),
       OptString.new('CENSYS_DORK', [true, 'The Censys Search Dork']),
       OptEnum.new('CENSYS_SEARCHTYPE', [true, 'The Censys Search Type', 'certificates', ['certificates', 'ipv4', 'websites']])
-    ], self.class)
+    ])
   end
 
   def basic_auth_header(username, password)

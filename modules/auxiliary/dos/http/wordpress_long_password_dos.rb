@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Dos
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5]),
         OptString.new('USERNAME', [true, 'The username to send the requests with', '']),
         OptBool.new('VALIDATE_USER', [true, 'Validate the specified username', true])
-      ], self.class)
+      ])
   end
 
   def rlimit

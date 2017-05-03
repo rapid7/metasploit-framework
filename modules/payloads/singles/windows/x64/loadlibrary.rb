@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 module MetasploitModule
 
@@ -55,7 +53,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('DLL', [ true, "The library path to load (UNC is OK)" ]),
-      ], self.class )
+      ])
   end
 
   def generate

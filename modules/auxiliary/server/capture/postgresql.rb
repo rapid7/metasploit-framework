@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 5432 ]),
-      ], self.class)
+      ])
   end
 
   # This module is based on MySQL capture module by Patrik Karlsson.

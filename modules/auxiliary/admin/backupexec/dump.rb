@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -67,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
             "backupexec_dump.mtf"
           ]
         ),
-      ], self.class)
+      ])
   end
 
   def run

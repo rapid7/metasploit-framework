@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::ORACLE
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('CMD', [ false, 'CMD to execute.',  "echo metasploit >> %SYSTEMDRIVE%\\\\unbreakable.txt"]),
-      ], self.class)
+      ])
   end
 
   def run

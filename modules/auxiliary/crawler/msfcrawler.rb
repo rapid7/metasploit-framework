@@ -11,7 +11,6 @@
 #
 
 # openssl before rubygems mac os
-require 'msf/core'
 require 'openssl'
 require 'rinda/tuplespace'
 require 'pathname'
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('PATH',	[true,	"Starting crawling path", '/']),
       OptInt.new('RPORT', [true, "Remote port", 80 ])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptPath.new('CrawlerModulesDir', [true,	'The base directory containing the crawler modules',
@@ -47,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('ReadTimeout', [ true, "Read timeout (-1 forever)", 3]),
       OptInt.new('ThreadNum', [ true, "Threads number", 20]),
       OptString.new('DontCrawl',	[true,	"Filestypes not to crawl", '.exe,.zip,.tar,.bz2,.run,.asc,.gz'])
-    ], self.class)
+    ])
   end
 
   attr_accessor :ctarget, :cport, :cssl

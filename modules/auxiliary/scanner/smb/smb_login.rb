@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/smb'
 require 'metasploit/framework/credential_collection'
 
@@ -59,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ]),
         OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', true])
-      ], self.class)
+      ])
 
   end
 

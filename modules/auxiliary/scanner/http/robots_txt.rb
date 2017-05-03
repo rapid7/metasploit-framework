@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true,  "The test path to find robots.txt file", '/']),
 
-      ], self.class)
+      ])
 
   end
 

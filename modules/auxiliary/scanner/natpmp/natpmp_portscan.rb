@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"])
-      ], self.class)
+      ])
   end
 
   def run_host(host)

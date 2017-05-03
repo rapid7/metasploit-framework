@@ -4,9 +4,6 @@
 ##
 
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Services
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Post
         OptString.new('CRED', [ false, 'String to search credentials for' ]),
         OptString.new('PATH', [ false, 'String to search path for' ]),
         OptEnum.new('TYPE', [true, 'Service startup Option', 'All', ['All', 'Auto', 'Manual', 'Disabled' ]])
-      ], self.class)
+      ])
   end
 
 

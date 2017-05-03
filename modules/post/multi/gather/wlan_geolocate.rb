@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rex/google/geolocation'
 
 class MetasploitModule < Msf::Post
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Post
       register_options(
         [
         OptBool.new('GEOLOCATE', [ false, 'Use Google APIs to geolocate Linux, Windows, and OS X targets.', false])
-        ], self.class)
+        ])
 
   end
 

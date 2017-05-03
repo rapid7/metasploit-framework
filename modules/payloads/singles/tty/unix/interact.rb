@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'msf/core/handler/find_tty'
 require 'msf/base/sessions/command_shell'
 

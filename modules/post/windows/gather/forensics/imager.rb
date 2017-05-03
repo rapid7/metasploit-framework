@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
         OptInt.new('BLOCKSIZE',[false,'Block size, in bytes (multiples of 512)',1048576]),
         OptInt.new('SKIP',[false,'Skip this many blocks before beginning',0]),
         OptInt.new('COUNT',[false,'Image only this many blocks (0 - read till end)',0])
-      ], self.class)
+      ])
   end
 
   def run

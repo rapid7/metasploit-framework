@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, "URI for Web login", "/provision/index.php"]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", "admin"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

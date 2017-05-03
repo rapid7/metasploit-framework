@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -56,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
             "The local filesystem path",
             nil
           ]),
-      ], self.class)
+      ])
   end
 
   def check_option(name)

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 1080 ]),
         OptString.new('UNCHOST',    [ false, "The address of the UNC host.", nil ])
-      ], self.class)
+      ])
   end
 
   def setup

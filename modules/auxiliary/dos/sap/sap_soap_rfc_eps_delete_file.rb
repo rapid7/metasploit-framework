@@ -20,8 +20,6 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -55,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('HttpPassword', [true, 'Password', '06071992']),
       OptString.new('DIRNAME', [true, 'Directory Path which contains the file to delete', '/tmp']),
       OptString.new('FILENAME', [true, 'Filename to delete', 'msf.txt'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

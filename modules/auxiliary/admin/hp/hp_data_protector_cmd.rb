@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -50,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(5555),
         OptString.new("CMD", [true, 'File to execute', 'Windows\System32\calc.exe'])
-      ], self.class)
+      ])
   end
 
 

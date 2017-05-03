@@ -14,8 +14,6 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -49,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CLIENT', [true, 'SAP Client ', '001']),
         OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
         OptString.new('HttpPassword', [true, 'Password', '06071992']),
-      ], self.class)
+      ])
   end
 
   def extract_field(data, elem)

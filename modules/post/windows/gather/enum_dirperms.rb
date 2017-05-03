@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Accounts
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Post
         OptString.new('PATH', [ false, 'Directory to begin search from', '']),
         OptEnum.new('FILTER', [ false, 'Filter to limit results by', 'NA', [ 'NA', 'R', 'W', 'RW' ]]),
         OptInt.new('DEPTH', [ true, 'Depth to drill down into subdirs, O = no limit',0]),
-      ], self.class)
+      ])
   end
 
   def enum_subdirs(perm_filter, dpath, maxdepth, token)

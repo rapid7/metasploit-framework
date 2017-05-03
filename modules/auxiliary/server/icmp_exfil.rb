@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
@@ -49,13 +47,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BPF_FILTER',    [true, 'BFP format filter to listen for', 'icmp']),
       OptString.new('INTERFACE',     [false, 'The name of the interface']),
       OptBool.new('FNAME_IN_PACKET', [true, 'Filename presented in first packet straight after START_TRIGGER', true])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptEnum.new('CLOAK',      [true, 'OS fingerprint to use for packet creation', 'linux', ['windows', 'linux', 'freebsd']]),
       OptBool.new('PROMISC',    [true, 'Enable/Disable promiscuous mode', false]),
       OptAddress.new('LOCALIP', [false, 'The IP address of the local interface'])
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT', 'TIMEOUT')
   end

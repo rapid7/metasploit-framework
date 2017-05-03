@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         OptString.new('TARGETURI', [false, 'Base path to the .svn directory', '/.svn/'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

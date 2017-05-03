@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SMB::Client
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('CMD', [ true, 'The command to execute', 'ver']),
           OptString.new('SMBUser', [ true, 'The username to authenticate as', 'db2admin']),
           OptString.new('SMBPass', [ true, 'The password for the specified username', 'db2admin'])
-        ], self.class )
+        ])
   end
 
   def run

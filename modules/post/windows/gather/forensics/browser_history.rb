@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'csv'
 require 'msf/core/post/windows/user_profiles'
 require 'msf/core/post/windows/registry'

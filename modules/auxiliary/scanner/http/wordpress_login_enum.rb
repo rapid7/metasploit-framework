@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ENUMERATE_USERNAMES', [ true, 'Enumerate usernames', true ]),
         OptInt.new('RANGE_START', [false, 'First user id to enumerate', 1]),
         OptInt.new('RANGE_END', [false, 'Last user id to enumerate', 10])
-    ], self.class)
+    ])
 
   end
 

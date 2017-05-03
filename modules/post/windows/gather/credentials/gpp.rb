@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 require 'rex/parser/group_policy_preferences'
 
@@ -51,7 +50,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptBool.new('ALL', [false, 'Enumerate all domains on network.', true]),
       OptBool.new('STORE', [false, 'Store the enumerated files in loot.', true]),
-      OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])], self.class)
+      OptString.new('DOMAINS', [false, 'Enumerate list of space seperated domains DOMAINS="dom1 dom2".'])])
   end
 
   def run

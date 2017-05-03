@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Post
         OptString.new('RHOSTS', [true, 'The target address range or CIDR identifier', nil]),
         OptInt.new('THREADS', [false, 'The number of concurrent threads', 10])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
         OptEnum.new('START_TYPE',    [true,  'Start type.', 'auto', [ 'boot', 'system', 'auto', 'demand','disabled']]),
         OptEnum.new('SERVICE_TYPE',  [true,  'Service type.', 'kernel', [ 'kernel', 'file_system', 'adapter', 'recognizer']]),
         OptEnum.new('ERROR_TYPE',    [true,  'Error type.', 'ignore', [ 'ignore', 'normal', 'severe', 'critical']])
-      ], self.class)
+      ])
   end
 
   def run

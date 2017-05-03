@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -44,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptAddress.new('RHOST', [true, 'The IPS Lock IP Address']),
         OptString.new('PHONENAME', [true, 'The name of the target phone'])
-      ], self.class)
+      ])
 
   end
 

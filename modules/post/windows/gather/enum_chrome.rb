@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('MIGRATE', [false, 'Automatically migrate to explorer.exe', false]),
-      ], self.class)
+      ])
   end
 
   def extension_mailvelope_parse_key(data)

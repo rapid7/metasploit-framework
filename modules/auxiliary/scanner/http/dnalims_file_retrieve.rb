@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The base path to dnaLIMS', '/cgi-bin/dna/']),
         OptString.new('FILE', [ true,  "The path to the file to view", '/home/dna/spool/.pfile']), # password db for app
         OptInt.new('DEPTH', [true, 'The traversal depth', 4])
-      ], self.class)
+      ])
 
     deregister_options('RHOST')
   end

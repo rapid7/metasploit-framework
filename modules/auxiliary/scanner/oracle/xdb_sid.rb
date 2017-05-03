@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           Opt::RPORT(8080),
           OptString.new('DBUSER', [ false, 'The db user to authenticate with.',  'scott']),
           OptString.new('DBPASS', [ false, 'The db pass to authenticate with.',  'tiger']),
-        ], self.class)
+        ])
   end
 
   def run_host(ip)

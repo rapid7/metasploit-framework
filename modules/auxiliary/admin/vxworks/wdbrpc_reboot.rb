@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptInt.new('CONTEXT', [ true, "The context to terminate (0=system reboot)", 0 ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

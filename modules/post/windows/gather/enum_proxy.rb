@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   include Post::Windows::Services
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Post
       [
         OptAddress.new('RHOST',   [ false,  'Remote host to clone settings to, defaults to local' ]),
         OptString.new('SID',   [ false,  'SID of user to clone settings to (SYSTEM is S-1-5-18)' ])
-      ], self.class)
+      ])
   end
 
   def run

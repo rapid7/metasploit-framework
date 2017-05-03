@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/java/serialization'
 
 class MetasploitModule < Msf::Auxiliary
@@ -30,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1099)
-      ], self.class)
+      ])
   end
 
   def run

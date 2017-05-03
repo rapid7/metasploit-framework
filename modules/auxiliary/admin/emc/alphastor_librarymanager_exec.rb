@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           Opt::RPORT(3500),
           OptString.new('CMD', [ false, 'The OS command to execute', 'echo metasploit > metasploit.txt']),
-        ], self.class)
+        ])
   end
 
   def run

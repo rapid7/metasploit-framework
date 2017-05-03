@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -32,7 +31,7 @@ module MetasploitModule
     ))
     register_options([
       OptString.new('SHELL', [true, 'The system shell to use.', '/bin/bash'])
-    ], self.class)
+    ])
   end
 
   def generate

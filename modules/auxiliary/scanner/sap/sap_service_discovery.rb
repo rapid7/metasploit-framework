@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('INSTANCES', [true, "Instance numbers to scan (e.g. 00-05,00-99)", "00-01"]),
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
-    ], self.class)
+    ])
 
     deregister_options('RPORT')
   end

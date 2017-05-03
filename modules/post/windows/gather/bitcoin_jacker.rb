@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptBool.new('KILL_PROCESSES', [false, 'Kill associated Bitcoin processes before jacking.', false]),
-    ], self.class)
+    ])
   end
 
   def run

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Ftp
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PATH', [ true, 'Path to the file to disclose, releative to the root dir.', 'conf\\xml-users.xml']),
         OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser']), #override default
         OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123']) #override default
-      ], self.class)
+      ])
 
   end
 

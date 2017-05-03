@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ###
 
-require 'msf/core'
 require 'msf/core/exploit/format/webarchive'
 
 class MetasploitModule < Msf::Auxiliary
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new("URIPATH", [false, 'The URI to use for this exploit (default is random)']),
       OptPort.new('SRVPORT',   [true, "The local port to use for the FTP server", 8081]),
       OptPort.new('HTTPPORT',  [true, "The HTTP server port", 8080])
-    ], self.class)
+    ])
   end
 
   def lookup_lhost(c=nil)

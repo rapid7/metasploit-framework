@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/postgres'
 
@@ -43,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_user.txt") ]),
         OptPath.new('PASS_FILE',      [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_pass.txt") ]),
-      ], self.class)
+      ])
 
     deregister_options('SQL')
 

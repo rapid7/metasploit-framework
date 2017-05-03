@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
         OptString.new('PATH_SAVE', [true, 'The path to save the downloaded source code', '']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

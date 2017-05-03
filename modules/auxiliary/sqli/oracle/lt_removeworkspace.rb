@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::ORACLE
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execte.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run

@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/meterpreter_x86_bsd'
 require 'msf/base/sessions/meterpreter_options'

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Report
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TABLE_PREFIX', [true,	'Wordpress table prefix', 'wp_']),
         OptInt.new('SITE_ITERATIONS', [true, 'Number of sites to iterate', 25]),
         OptInt.new('USER_ITERATIONS', [true, 'Number of users to iterate', 25])
-      ], self.class)
+      ])
   end
 
   def table_prefix

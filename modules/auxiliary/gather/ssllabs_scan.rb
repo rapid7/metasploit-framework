@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'active_support/inflector'
 require 'json'
 require 'active_support/core_ext/hash'
@@ -439,7 +438,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('USECACHE', [true, 'Use cached results (if available), else force live scan', true]),
         OptBool.new('GRADE', [true, 'Output only the hostname: grade', false]),
         OptBool.new('IGNOREMISMATCH', [true, 'Proceed with assessments even when the server certificate doesn\'t match the assessment hostname', true])
-      ], self.class)
+      ])
   end
 
   def report_good(line)

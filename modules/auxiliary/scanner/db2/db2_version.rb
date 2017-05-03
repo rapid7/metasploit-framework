@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -23,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptInt.new('TIMEOUT', [true, 'Timeout for the DB2 probe', 5])
-    ], self.class)
+    ])
 
     deregister_options('USERNAME' , 'PASSWORD')
   end

@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('EXTRAVERBOSE', [false, "More verbose", false]),
       OptInt.new('INDEX', [false, "USB Index to use", 0]),
       OptInt.new('DELAY', [false, "Delay in milliseconds between transmissions", 500])
-    ], self.class)
+    ])
     @zeropwm = "1110"
     @onepwm = "1000"
     @brutechar = "01"

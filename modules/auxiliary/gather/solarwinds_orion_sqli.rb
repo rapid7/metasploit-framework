@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [ true, "Base Orion directory path", '/']),
         OptString.new('USERNAME', [true, 'The username to authenticate as', 'Guest']),
         OptString.new('PASSWORD', [false, 'The password to authenticate with', ''])
-      ], self.class)
+      ])
 
   end
 

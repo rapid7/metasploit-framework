@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(3037),
       OptBool.new('SSL', [true, 'Use SSL', true]),
       OptString.new('RFILE', [true, 'Remote File', 'c:\\windows\\win.ini'])
-    ], self.class)
+    ])
 
     register_autofilter_ports([ 3037 ])
     deregister_options('RHOST')

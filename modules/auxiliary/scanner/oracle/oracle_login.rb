@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
         OptString.new('SID', [ true, 'The instance (SID) to authenticate against', 'XE'])
-      ], self.class)
+      ])
 
   end
 
