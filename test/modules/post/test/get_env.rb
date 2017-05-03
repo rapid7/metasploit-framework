@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Post
       ))
   end
 
+
   def test_get_env_windows
     if session.platform =~ /win/i
       it "should return windows path" do
@@ -51,10 +52,19 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  # Username may not be present on all NIX systems so export
+  # USERNAME=parp
   def test_get_envs
     it "should return multiple envs" do
       res = get_envs('PATH','USERNAME')
       !res['PATH'].blank? && !res['USERNAME'].blank?
+    end
+  end
+
+  def test_get_env_newline
+    it "should not start with a new line" do
+      path = get_env('PATH')
+      path[0] != "\n"
     end
   end
 

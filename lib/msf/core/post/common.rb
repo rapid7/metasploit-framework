@@ -205,7 +205,13 @@ module Msf::Post::Common
           env = "$#{env}"
         end
 
-        return cmd_exec("echo \"#{env}\"")
+        result = cmd_exec("echo \"#{env}\"")
+
+        if result and result[0] == "\n"
+          result = result[1..-1]
+        end
+
+        return result
       end
     end
 
