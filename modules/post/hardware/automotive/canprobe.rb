@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
       ))
     register_options([
       OptInt.new('STARTID', [false, "CAN ID to start scan", 0x300]),
-      OptInt.new('STOPID', [false, "CAN ID to stop scan", 0x300]),
+      OptInt.new('STOPID', [false, "CAN ID to stop scan", nil]),
       OptInt.new('PROBEVALUE', [false, "Value to inject in the data stream", 0xFF]),
       OptInt.new('PADDING', [false, "If a value is given a full 8 bytes will be used and padded with this value", nil]),
       OptBool.new('FUZZ', [false, "If true interates through all possible values for each data position", false]),
@@ -35,8 +35,10 @@ class MetasploitModule < Msf::Post
       print_error("The hwbridge requires a functional automotive extention")
       return
     end
+    stopid = datastore['STARTID']
+    stopid = datastore['STOPID'] unless datastore['STOPID'].nil?
     data = "%02X" % datastore['PROBEVALUE']
-    (datastore['STARTID']..datastore['STOPID']).each do |id|
+    (datastore['STARTID']..stopid).each do |id|
       print_status("Probing 0x#{id.to_s(16)}...")
       (0..7).each do |pos|
         padding = "00" * pos
