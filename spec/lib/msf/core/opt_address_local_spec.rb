@@ -40,16 +40,4 @@ RSpec.describe Msf::OptAddressLocal do
 
   let(:required_opt) {  Msf::OptAddressLocal.new('LHOST', [true, 'local address', '']) }
   
-  # context 'the normalizer' do
-  #   it 'should handle a call for random IPs' do
-  #     random_addresses = required_opt.normalize('rand:5')
-  #     expect(random_addresses.kind_of?(String)).to eq true
-  #     ips = random_addresses.split(' ')
-  #     expect(ips.count).to eq 5
-  #     ips.each do |ip|
-  #       expect(ip).to match Rex::Socket::MATCH_IPV4
-  #     end
-  #   end
-  # end
-  
 end
