@@ -92,6 +92,8 @@ module MetasploitModule
   end
 
   def generate_stage(opts = {})
-    MetasploitPayloads::Mettle.new('mipsel-linux-muslsf', generate_config(opts)).to_binary :process_image
+    opts = {scheme: 'tcp'}
+    MetasploitPayloads::Mettle.new('mipsel-linux-muslsf',
+      generate_config(opts.merge({scheme: 'tcp'}))).to_binary :process_image
   end
 end
