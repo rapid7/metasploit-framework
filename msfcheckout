@@ -1,0 +1,48 @@
+#!/usr/bin/bash
+
+SVN_DIR="$HOME/msf3"
+SVN_SRC="https://github.com/rapid7/metasploit-framework/trunk"
+SVN_BIN=`which svn`
+
+if [ -z $SVN_BIN ]
+then
+	echo "[-] svn is not in the path, aborting"
+	exit 1
+fi
+
+if [ -e $SVN_DIR ] 
+then 
+	echo "[-] $SVN_DIR already exists, aborting"
+	echo "[-]"
+	echo "[-] If you really want to check out there,"
+	echo "[-] then move $SVN_DIR out of the way."
+	exit 2
+fi
+
+mkdir -p $SVN_DIR
+
+if [ ! -d $SVN_DIR ]
+then
+	echo "[-] $SVN_DIR creation failed, aborting"
+	exit 3
+fi
+
+echo "[*] Checking out the Metasploit Framework to"
+echo "[*] $SVN_DIR"
+echo "[*]"
+echo "[*] Staging the checkout, this will take a minute or two..."
+$SVN_BIN checkout --non-recursive "$SVN_SRC" "$SVN_DIR"
+echo "[*] Actually checking out..."
+$SVN_BIN update --set-depth infinity "$SVN_DIR"
+echo "[+] Cleaning up"
+$SVN_BIN resolve --accept working $SVN_DIR/Gemfile.lock
+$SVN_BIN cleanup
+echo "[+]"
+echo "[+] Complete!"
+echo "[+]"
+
+$SVN_BIN info $SVN_DIR
+$SVN_BIN status $SVN_DIR
+
+
+
