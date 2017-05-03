@@ -26,14 +26,28 @@ class MetasploitModule < Msf::Auxiliary
     register_wmap_options({
         'OrderID' => 0,
         'Require' => {},
-      })
+    })
+
+    register_options([
+      OptString.new('TARGETURI', [true, 'The URI to use', '/'])
+    ])
+
+    register_advanced_options([
+      OptString.new('HTTP_METHOD', [true, 'HTTP Method to use', 'GET']),
+      OptString.new('PROTOCOL', [false, 'Protocol to use', 'HTTP'])
+    ])
   end
 
   # Fingerprint a single host
   def run_host(ip)
     begin
       connect
-      res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
+      uri = normalize_uri(target_uri.path)
+      res = send_request_raw({
+          'method'  => datastore['HTTP_METHOD'],
+          'uri'     => uri,
+          'proto'   => datastore['PROTOCOL']
+      })
       fp = http_fingerprint(:response => res)
       print_status("#{ip}:#{rport} #{fp}") if fp
       report_service(:host => rhost, :port => rport, :sname => (ssl ? 'https' : 'http'), :info => fp)
