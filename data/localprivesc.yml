@@ -1,0 +1,232 @@
+- name: do_brk
+  cve: 2003-0961
+  versions:
+    - 2.4.0-2.4.22
+  exploits:
+    - 131
+- name: mremap missing do_munmap
+  cve: 2004-0077
+  versions: 
+    - 2.2.0-2.2.25
+    - 2.4.0-2.4.24
+    - 2.6.0-2.6.2
+  exploits: 
+    - 160
+- name: binfmt_elf Executable File Read
+  cve: 2004-1073
+  versions:
+    - 2.4.0-2.4.27
+    - 2.6.0-2.6.8
+  exploits: 
+    - 624 
+- name: uselib
+  cve: 2004-1235
+  versions: 
+    - 2.4.0-2.4.29rc2
+    - 2.6.0-2.6.10rc2
+  exploits: 
+    - 895 
+- name: bluez
+  cve: 2005-1294
+  versions: 
+    - 2.6.0-2.6.11.5
+  exploits: 
+    - 4756 926 
+- name: prctl
+  cve: 2006-2451
+  versions: 
+    - 2.6.13-2.6.17.4
+  exploits: 
+    - 2031
+    - 2006
+    - 2011
+    - 2005
+    - 2004 
+- name: proc
+  cve: 2006-3626
+  versions: 
+    - 2.6.0-2.6.17.4
+  exploits: 
+    - 2013 
+- name: system call emulation
+  cve: 2007-4573
+  versions: 
+    - 2.4.0-2.4.30
+    - 2.6.0-2.6.22.7
+  exploits: 
+    - 4460 
+- name: vmsplice
+  cve: 2008-0009
+  versions: 
+    - 2.6.17-2.6.24.1
+  exploits: 
+    - 5092
+    - 5093 
+- name: ftruncate/open
+  cve: 2008-4210
+  versions: 
+    - 2.6.0-2.6.22
+  exploits: 
+    - 6851 
+- name: eCryptfs Paokara
+  cve: 2009-0269
+  versions: 
+    - 2.6.19-2.6.31.1
+  exploits: 
+    - "http://www.grsecurity.net/~spender/enlightenment.tgz"
+- name: set_selection UTF-8 Off By One
+  cve: 2009-1046
+  versions: 
+    - 2.6.0-2.6.28.3
+  exploits: 
+    - 9083 
+- name: "UDEV < 141"
+  cve: 2009-1185
+  versions: 
+    - 2.6.25-2.6.30
+  exploits: 
+    - 8478
+    - 8572 
+- name: exit_notify
+  cve: 2009-1337
+  versions: 
+    - 2.6.0-2.6.29
+  exploits: 
+    - 8369 
+- name: ptrace_attach Local Root Race Condition
+  cve: 2009-1527
+  versions: 
+    - 2.6.29
+  exploits: 
+    - 8678
+    - 8673 
+- name: sock_sendpage Wunderbar Emporium
+  cve: 2009-2692
+  versions: 
+    - 2.6.0-2.6.31rc3
+    - 2.4.0-2.4.37.1
+  exploits: 
+    - 9641
+    - 9545
+    - 9479
+    - 9436
+    - 9435
+    - "http://www.grsecurity.net/~spender/enlightenment.tgz"
+- name: udp_sendmsg The Rebel
+  cve: 2009-2698
+  versions: 
+    - 2.6.0-2.6.9.2
+  exploits: 
+    - 9575
+    - 9574
+    - "http://www.grsecurity.net/~spender/enlightenment.tgz"
+- name: 32bit ip_append_data ring0
+  cve: 2009-2698
+  versions: 
+    - 2.6.0-2.6.9
+  exploits: 
+    - 9542 
+- name: perf_counter_open Powerglove and Ingo m0wnar
+  cve: 2009-3234
+  versions: 
+    - 2.6.31
+  exploits: 
+    - "http://www.grsecurity.net/~spender/enlightenment.tgz"
+- name: pipe.c MooseCox
+  cve: 2009-3547
+  versions: 
+    - 2.6.0-2.6.32rc5
+    - 2.4.0-2.4.37
+  exploits: 
+    - 10018
+    - "http://www.grsecurity.net/~spender/enlightenment.tgz"
+- name: CPL 0
+  cve: 2010-0298
+  versions: 
+    - 2.6.0-2.6.11
+  exploits: 
+    - 1397 
+- name: ReiserFS xattr
+  cve: 2010-1146
+  versions: 
+    - 2.6.0-2.6.34rc3
+  exploits: 
+    - 12130 
+- name: Unknown
+  cve: 
+  versions: 
+    - 2.6.18-2.6.20
+  exploits: 
+    - 10613 
+- name: SELinux/RHEL5 Cheddar Bay
+  cve: 
+  versions: 
+    - 2.6.9-2.6.30
+  exploits: 
+    - 9208
+    - 9191
+    - "http://www.grsecurity.net/~spender/enlightenment.tgz"
+- name: compat
+  cve: 2010-3301
+  versions: 
+    - 2.6.27-2.6.36rc4
+  exploits: 
+    - 15023
+    - 15024 
+- name: BCM
+  cve: 2010-2959
+  versions: 
+   - 2.6.0-2.6.36rc1
+  exploits: 
+    - 14814 
+- name: RDS protocol
+  cve: 2010-3904
+  versions: 
+    - 2.6.0-2.6.36rc8
+  exploits: 
+    - 15285 
+- name: put_user full-nelson
+  cve: 2010-4258
+  versions: 
+    - 2.6.0-2.6.37
+  exploits: 
+    - 15704 
+- name: sock_no_sendpage full-nelson
+  cve: 2010-3849
+  versions: 
+    - 2.6.0-2.6.37
+  exploits: 
+    - 15704 
+- name: ACPI custom_method
+  cve: 2010-4347
+  versions: 
+    - 2.6.0-2.6.37rc2
+  exploits: 
+    - 15774 
+- name: CAP_SYS_ADMIN
+  cve: 2010-4347
+  versions: 
+    - 2.6.34-2.6.37
+  exploits: 
+    - 15916
+    - 15944 
+- name: econet_sendmsg half-nelson
+  cve: 2010-3848
+  versions: 
+    - 2.6.0-2.6.36.2
+  exploits: 
+    - 17787 
+- name: ec_dev_ioctl half-nelson
+  cve: 2010-3850
+  versions: 
+    - 2.6.0-2.6.36.2
+  exploits: 
+    - 17787
+    - 15704 
+- name: ipc half-nelson
+  cve: 2010-4073
+  versions: 
+    - 2.6.0-2.6.37rc1
+  exploits: 
+    - 17787 
+
