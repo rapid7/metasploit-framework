@@ -89,6 +89,7 @@ module MetasploitModule
   end
 
   def generate_stage(opts = {})
+    opts = {scheme: 'tcp'}
     MetasploitPayloads::Mettle.new('x86_64-linux-musl', generate_config(opts)).to_binary :process_image
   end
 end
