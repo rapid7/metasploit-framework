@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -23,7 +21,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CAFILE', [ true, 'Path to the certificate you wish to install as a Trusted Root CA.', ''])
-      ], self.class)
+      ])
   end
 
   def run

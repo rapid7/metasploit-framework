@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require "msf/core"
 require "rex/proto/pjl"
 
 class MetasploitModule < Msf::Auxiliary
@@ -41,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
       OptString.new("MESSAGE", [false, "Ready message", "PC LOAD LETTER"])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

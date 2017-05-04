@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -38,11 +36,11 @@ class MetasploitModule < Msf::Auxiliary
       OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
         File.join(Msf::Config.data_directory, "wordlists", "idrac_default_pass.txt") ]),
       OptInt.new('RPORT', [true, "Default remote port", 443])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptBool.new('SSL', [true, "Negotiate SSL connection", true])
-    ], self.class)
+    ])
   end
 
   def target_url

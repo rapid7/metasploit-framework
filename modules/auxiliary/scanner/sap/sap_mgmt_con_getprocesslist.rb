@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(50013),
         OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-      ], self.class)
+      ])
     register_autofilter_ports([ 50013 ])
     deregister_options('RHOST')
   end

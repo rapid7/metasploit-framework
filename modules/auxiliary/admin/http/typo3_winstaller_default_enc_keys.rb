@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -55,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('URI', [true, "TYPO3 Path", "/"]),
         OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
         OptString.new('ENC_KEY', [false, "Encryption key if known", '']),
-      ], self.class)
+      ])
 
   end
 

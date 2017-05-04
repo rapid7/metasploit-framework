@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Username to use', '']),
         OptString.new('PASSWORD', [true, 'Password to use', '']),
         OptBool.new('SSL', [true, 'Use SSL', true])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

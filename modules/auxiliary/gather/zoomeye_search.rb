@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/http'
 
 class MetasploitModule < Msf::Auxiliary
@@ -40,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye Dock']),
           OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
           OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1])
-        ], self.class)
+        ])
   end
 
   # Check to see if api.zoomeye.org resolves properly

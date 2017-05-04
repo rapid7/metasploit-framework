@@ -5,8 +5,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 50000 ])
-      ], self.class)
+      ])
   end
 
   def setup

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SUBJECT', [ true, 'The subject of the e-mail', 're: Your Brains'])
-      ], self.class)
+      ])
 
   end
 

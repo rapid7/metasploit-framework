@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(10001),
         OptString.new('CMD', [ false, 'The OS command to execute', 'cmd.exe /c echo metasploit > %SYSTEMDRIVE%\\metasploit.txt']),
-      ], self.class)
+      ])
   end
 
   def run

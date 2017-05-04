@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         OptAddress.new('EXCLUDENETMASK', [ true, "Netmask to exclude",'255.255.255.0' ]),
         OptAddress.new('PROXY', [ true, "Proxy to redirect traffic to", '0.0.0.0' ]),
         OptPort.new('PROXYPORT',[ true, "Proxy port", 8080 ])
-      ], self.class)
+      ])
 
     deregister_options('URIPATH')
   end

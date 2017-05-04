@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'net/https'
 require 'uri'
 
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
         OptRegexp.new('REGEX', [true, 'Regex search for a specific IP/City/Country/Hostname', '.*'])
 
-      ], self.class)
+      ])
   end
 
   # create our Shodan query function that performs the actual web request

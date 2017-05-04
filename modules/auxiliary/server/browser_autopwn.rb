@@ -8,7 +8,6 @@
 #   insert all of the evil js and iframes into
 # - caching is busted when different browsers come from the same IP
 
-require 'msf/core'
 require 'rex/exploitation/js/detect'
 require 'rex/exploitation/jsobfu'
 
@@ -64,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       OptAddress.new('LHOST', [true,
         'The IP address to use for reverse-connect payloads'
       ])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
@@ -121,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
         'The payload to use for Android reverse-connect payloads',
         'android/meterpreter/reverse_tcp'
       ])
-    ], self.class)
+    ])
 
     @exploits = Hash.new
     @payloads = Hash.new

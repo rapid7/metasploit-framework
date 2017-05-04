@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 ###
 #
@@ -39,7 +37,7 @@ module MetasploitModule
     # Register exec options
     register_options([
       OptString.new('CMD',  [ true,  "The command string to execute" ]),
-    ], self.class)
+    ])
   end
 
   #

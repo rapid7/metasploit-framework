@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('STORE_LOOT', [false, 'Store file in loot (will simply output file to console if set to false).', true]),
         OptInt.new('BRUTETIMEOUT', [false, 'Timeout (in seconds) for bruteforce attempts', 1])
 
-      ], self.class)
+      ])
   end
 
   # Functions for XORing two strings, deriving keystream using known plaintext and applying keystream to produce ciphertext

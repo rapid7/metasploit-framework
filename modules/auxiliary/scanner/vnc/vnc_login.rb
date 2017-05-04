@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/rfb'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/vnc'
@@ -47,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         # We need to set the following options to make sure BLANK_PASSWORDS functions properly
         OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
         OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
-      ], self.class)
+      ])
 
     register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
 

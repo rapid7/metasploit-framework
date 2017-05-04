@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'net/dns'
 require 'resolv'
 
@@ -48,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
           OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
           OptInt.new('TTL', [true, 'The TTL for the malicious host entry', rand(20000)+30000]),
 
-        ], self.class)
+        ])
 
       deregister_options('FILTER','PCAPFILE')
 

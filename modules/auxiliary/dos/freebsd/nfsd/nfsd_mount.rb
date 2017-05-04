@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2006-0900' ],
         ]))
 
-      register_options([Opt::RPORT(2049),], self.class)
+      register_options([Opt::RPORT(2049),])
   end
 
   def run

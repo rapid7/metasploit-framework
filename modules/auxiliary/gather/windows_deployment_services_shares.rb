@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/dcerpc'
 require 'rex/parser/unattend'
 
@@ -39,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(445),
         OptString.new('SMBDomain', [ false, "SMB Domain", '']),
-      ], self.class)
+      ])
 
     deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
   end

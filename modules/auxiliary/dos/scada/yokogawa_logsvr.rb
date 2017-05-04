@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(52302),
         OptInt.new('RLIMIT', [true,  "Number of packets to send", 10])
-      ], self.class)
+      ])
   end
 
   def run

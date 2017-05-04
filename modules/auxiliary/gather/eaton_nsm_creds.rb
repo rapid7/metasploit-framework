@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(4679)
-      ], self.class)
+      ])
   end
 
   def execute_php_code(code, opts = {})

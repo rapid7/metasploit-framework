@@ -5,8 +5,6 @@
 
 # TODO: Split this module into two seperate SNMP and HTTP modules.
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SNMPClient
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPort.new('SNMPPORT', [true, 'The SNMP Port', 161]),
         OptPort.new('HTTPPORT', [true, 'The HTTP Port', 80])
-      ], self.class)
+      ])
 
     deregister_options('RPORT', 'VHOST')
   end

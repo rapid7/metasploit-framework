@@ -4,8 +4,6 @@
 ##
 
 require 'rex/poly'
-require 'msf/core'
-
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the stat(2) key is generated and supplied
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
           "STAT key from target host (see tools/context/stat-key utility)",
           "0x00000000" ]),
         OptString.new('STAT_FILE', [ true, "name of file to stat(2)", "/bin/ls" ]),
-      ], self.class)
+      ])
   end
 
   def obtain_key(buf, badchars, state)

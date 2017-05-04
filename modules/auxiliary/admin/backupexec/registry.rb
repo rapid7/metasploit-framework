@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
               "Compromised by Metasploit!\r\n"
             ]
           ),
-        ], self.class)
+        ])
   end
 
   def auxiliary_commands

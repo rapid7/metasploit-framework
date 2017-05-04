@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
 module MetasploitModule
@@ -32,7 +31,7 @@ module MetasploitModule
       [
         OptString.new('CMD',  [ true,  "The command string to execute", "/bin/sh" ]),
         Opt::LPORT(4444)
-    ], self.class)
+    ])
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD

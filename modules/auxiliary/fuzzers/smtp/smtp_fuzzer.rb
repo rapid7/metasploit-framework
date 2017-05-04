@@ -8,8 +8,6 @@
 # It allows to respect the order or just throw everything at it....
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Smtp
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
           'VRFY',
           'EXPN'
         ], 'EHLO'])
-    ], self.class)
+    ])
   end
 
   def smtp_send(data='', con=true)

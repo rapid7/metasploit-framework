@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 80 ]),
         OptString.new('REALM', [ true, "The authentication realm you'd like to present.", "Secure Site" ]),
         OptString.new('RedirectURL', [ false, "The page to redirect users to after they enter basic auth creds" ])
-      ], self.class)
+      ])
   end
 
   # Not compatible today

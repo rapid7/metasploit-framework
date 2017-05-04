@@ -3,8 +3,6 @@
 ## Current source: https://github.com/rapid7/metasploit-framework
 ###
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/common'
 require 'msf/core/post/file'
 require 'msf/core/post/windows/priv'

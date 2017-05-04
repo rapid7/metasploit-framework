@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 1019
@@ -29,7 +27,7 @@ module MetasploitModule
     register_options([
       OptString.new('CMD', [true, "The command string to execute", 'touch /tmp/a.txt']),
       OptBool.new('WSCRIPT', [true, "On Windows, drop a vbscript to hide the cmd prompt", false])
-    ], self.class)
+    ])
   end
 
   def generate

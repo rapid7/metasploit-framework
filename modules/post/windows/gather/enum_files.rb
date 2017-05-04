@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -31,7 +30,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('SEARCH_FROM', [ false, 'Search from a specific location. Ex. C:\\']),
         OptString.new('FILE_GLOBS',  [ true, 'The file pattern to search for in a filename', '*.config'])
-      ], self.class)
+      ])
   end
 
 

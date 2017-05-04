@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMAC',    	[false, 'The spoofed mac (if unset, derived from netifaces)']),
-      ], self.class)
+      ])
     deregister_options('RHOST', 'PCAPFILE')
   end
 

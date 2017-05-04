@@ -1,5 +1,4 @@
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/ipboard'
 require 'metasploit/framework/credential_collection'
 
@@ -23,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
         OptString.new('TARGETURI', [true, "The directory of the IP Board install", "/forum/"]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

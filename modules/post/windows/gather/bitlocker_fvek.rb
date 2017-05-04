@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('DRIVE_LETTER', [true, 'Dump informations from the DRIVE_LETTER encrypted with Bitlocker', nil]),
         OptString.new('RECOVERY_KEY', [false, 'Use the recovery key provided to decrypt the Bitlocker master key (FVEK)', nil])
-      ], self.class)
+      ])
   end
 
   def run

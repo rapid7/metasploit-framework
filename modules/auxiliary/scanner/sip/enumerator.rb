@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(5060),
       Opt::CHOST,
       Opt::CPORT(5060)
-    ], self.class)
+    ])
   end
 
 

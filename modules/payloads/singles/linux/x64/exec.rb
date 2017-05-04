@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 47
@@ -25,7 +23,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('CMD',  [ true,  "The command string to execute" ]),
-      ], self.class)
+      ])
   end
 
   def generate_stage(opts={})

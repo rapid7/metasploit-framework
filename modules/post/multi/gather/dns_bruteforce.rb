@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 
 class MetasploitModule < Msf::Post
 
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Post
         OptPath.new('NAMELIST',[true, "List of hostnames or subdomains to use.",
             ::File.join(Msf::Config.data_directory, "wordlists", "namelist.txt")])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

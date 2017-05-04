@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('NOTES_USER', [false, 'The username to authenticate as', '']),
       OptString.new('NOTES_PASS', [false, 'The password for the specified username' ]),
       OptString.new('URI', [false, 'Define the path to the names.nsf file', '/names.nsf']),
-    ], self.class)
+    ])
 
   end
 

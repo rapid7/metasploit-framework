@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/message'
 require 'rex/proto/ntlm/crypt'
@@ -67,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
       OptPath.new('SYNCFILE', [false, "Local Ruby file to eval dynamically" ]),
       OptString.new('SYNCID', [false, "ID to identify a request saved to db" ]),
 
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptPath.new('RESPPAGE', [false,
@@ -76,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
         'File specifying extra HTTP_* headers (cookies, multipart, etc.)', nil]),
       OptString.new('SMB_SHARES', [false, 'The shares to check with SMB_ENUM',
               'IPC$,ADMIN$,C$,D$,CCMLOGS$,ccmsetup$,share,netlogon,sysvol'])
-    ], self.class)
+    ])
 
     deregister_options('DOMAIN', 'NTLM::SendLM', 'NTLM::SendSPN', 'NTLM::SendNTLM', 'NTLM::UseLMKey',
       'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')

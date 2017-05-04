@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('CURRENT', [ true, 'Enumerate currently logged on users', true]),
         OptBool.new('RECENT' , [ true, 'Enumerate Recently logged on users' , true])
-      ], self.class)
+      ])
 
   end
 

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 285
@@ -32,7 +30,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('DNSZONE', [ true, "The DNS zone to query" ]),
-      ], self.class)
+      ])
   end
 
   #

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -19,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-    register_options([Opt::RPORT(523),], self.class)
+    register_options([Opt::RPORT(523),])
 
     deregister_options('RHOST')
   end

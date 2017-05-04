@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'thread'
 
 class MetasploitModule < Msf::Auxiliary
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('URI', [true, "TYPO3 Path", "/"]),
         OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
         OptInt.new('MAX_TRIES', [true, "Maximum tries", 10000]),
-      ], self.class)
+      ])
 
   end
 

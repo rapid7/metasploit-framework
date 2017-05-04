@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -48,12 +46,12 @@ class MetasploitModule < Msf::Auxiliary
             File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
           ]
         )
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-      ], self.class)
+      ])
 
   end
 

@@ -14,7 +14,6 @@ require 'zip'
 # Project
 #
 
-require 'msf/core'
 # for creating files
 require 'rex/zip'
 
@@ -50,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('SOURCE', [false, 'Full path and filename of .docx file to use as source. If empty, creates new document.']),
         OptString.new('FILENAME', [true, 'Document output filename.', 'msf.docx']),
         OptString.new('DOCAUTHOR',[false,'Document author for empty document.']),
-      ], self.class)
+      ])
   end
 
   # here we create an empty .docx file with the UNC path. Only done when FILENAME is empty

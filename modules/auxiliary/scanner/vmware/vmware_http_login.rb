@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('URI', [true, "The default URI to login with", "/sdk"]),
         Opt::RPORT(443)
-      ], self.class)
+      ])
   end
 
   def report_cred(opts)

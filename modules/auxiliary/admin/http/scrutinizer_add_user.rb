@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new("TARGETURI", [true, 'The path to the admin CGI script', '/cgi-bin/admin.cgi']),
         OptString.new("USERNAME", [true, 'The username for your new account']),
         OptString.new("PASSWORD", [true, 'The password for your new account'])
-      ], self.class)
+      ])
   end
 
   def run

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(513),
         OptString.new('TERM',  [ true, 'The terminal type desired', 'vt100' ]),
         OptString.new('SPEED', [ true, 'The terminal speed desired', '9600' ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

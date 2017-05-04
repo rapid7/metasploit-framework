@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -21,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-    register_options([Opt::RPORT(3500),], self.class)
+    register_options([Opt::RPORT(3500),])
   end
 
 

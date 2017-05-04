@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -46,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DATA_COILS', [false, "Data in binary to write (WRITE_COILS mode only) e.g. 0110"]),
         OptString.new('DATA_REGISTERS', [false, "Words to write to each register separated with a comma (WRITE_REGISTERS mode only) e.g. 1,2,3,4"]),
         OptInt.new('UNIT_NUMBER', [false, "Modbus unit number", 1]),
-      ], self.class)
+      ])
 
   end
 

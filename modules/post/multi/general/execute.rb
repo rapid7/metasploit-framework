@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -20,7 +17,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new( 'COMMAND', [false, 'The entire command line to execute on the session'])
-      ], self.class)
+      ])
   end
 
   def run

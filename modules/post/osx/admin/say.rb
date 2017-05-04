@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Post
     [
       OptString.new('TEXT',  [true, 'The text to say', "meta-sploit\!"]),
       OptString.new('VOICE', [true, 'The voice to use', 'alex'])
-    ], self.class)
+    ])
   end
 
 

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/octopusdeploy'
 
@@ -29,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'URI for login. Default is /api/users/login', '/api/users/login'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

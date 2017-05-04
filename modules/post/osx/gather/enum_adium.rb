@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptRegexp.new('PATTERN', [true, 'Match a keyword in any chat log\'s filename', '\(2012\-02\-.+\)\.xml$']),
-      ], self.class)
+      ])
   end
 
   #

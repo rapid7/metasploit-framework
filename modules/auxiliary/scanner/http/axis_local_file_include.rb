@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(8080),
       OptString.new('TARGETURI', [false, 'The path to the Axis listServices', '/axis2/services/listServices']),
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

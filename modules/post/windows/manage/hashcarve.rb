@@ -3,8 +3,6 @@
     # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Post
             [
                 OptString.new('user', [true, 'Username to change password of', nil]),
                 OptString.new('pass', [true, 'Password, NTHash or LM:NT hashes value to set as the user\'s password', nil])
-            ], self.class)
+            ])
         # Constants for SAM decryption
         @sam_lmpass   = "LMPASSWORD\x00"
         @sam_ntpass   = "NTPASSWORD\x00"

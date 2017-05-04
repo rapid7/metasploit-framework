@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
         OptString.new('FILENAME',[true, "Filename to use as a test",'index'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

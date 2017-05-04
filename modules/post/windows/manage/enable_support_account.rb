@@ -1,6 +1,3 @@
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Post
     [
       OptString.new('PASSWORD',  [true, 'Password of the support user account', 'password']),
       OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', false])
-    ], self.class)
+    ])
   end
 
   def run

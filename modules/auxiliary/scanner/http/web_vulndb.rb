@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true, "Original test path", '/']),
         OptPath.new('VULNCSV',[ true, "Path of vulnerabilities csv file to use" ])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
         OptBool.new('ForceCode', [ false, "Force detection using HTTP code", false ]),
         OptInt.new('TestThreads', [ true, "Number of test threads", 25])
-      ], self.class)
+      ])
 
   end
 

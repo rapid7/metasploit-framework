@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('RPORT', [true, 'Web management console port for the printer', 80]),
         OptPort.new('JPORT', [true, 'Jetdirect port', 9100]),
          OptInt.new('TIMEOUT', [true, 'Timeout to wait for printer job to run', 45])
-      ], self.class)
+      ])
   end
 
   def jport

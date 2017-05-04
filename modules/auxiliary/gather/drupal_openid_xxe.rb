@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [ true, "Base Drupal directory path", '/drupal']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"])
-      ], self.class)
+      ])
 
   end
 

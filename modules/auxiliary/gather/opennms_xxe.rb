@@ -1,4 +1,3 @@
-require 'msf/core'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
@@ -41,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, "The file or directory to read on the server", "/etc/shadow"]),
         OptString.new('USERNAME', [true, "The username to authenticate with", "rtc"]),
         OptString.new('PASSWORD', [true, "The password to authenticate with", "rtc"])
-      ], self.class)
+      ])
 
   end
 

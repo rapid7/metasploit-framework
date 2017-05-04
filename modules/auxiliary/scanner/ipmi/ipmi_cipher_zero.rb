@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/ipmi'
 
 class MetasploitModule < Msf::Auxiliary
@@ -36,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(623)
-    ], self.class)
+    ])
 
   end
 

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(8030),
       OptBool.new('SSL', [true, 'Use SSL', true])
-    ], self.class)
+    ])
   end
 
   def run

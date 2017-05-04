@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8000),
         OptString.new('FILE', [ true,  "Define the remote file to view, ex:/etc/passwd", '/mail/snapshot/config.snapshot']),
         OptString.new('TARGETURI', [true, 'Barracuda vulnerable URI path', '/cgi-mod/view_help.cgi']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

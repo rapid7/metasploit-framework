@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The path to users Home Page', '/']),
         OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "unix_users.txt") ]),
-      ], self.class)
+      ])
 
     deregister_options(
       'PASSWORD',

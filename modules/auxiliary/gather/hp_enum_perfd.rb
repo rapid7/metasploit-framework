@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       Opt::RPORT(5227),
       OptString.new("COMMANDS", [true, "Command(s) to execute (one or more of #{commands_help})", commands_help])
-    ], self.class)
+    ])
   end
 
   def commands

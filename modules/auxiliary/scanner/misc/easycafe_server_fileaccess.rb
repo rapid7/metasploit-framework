@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(831),
         OptString.new('FILEPATH', [true, 'The path of the file to download', 'C:\\WINDOWS\\system32\\drivers\\etc\\hosts'])
-      ], self.class)
+      ])
   end
 
   def get_file

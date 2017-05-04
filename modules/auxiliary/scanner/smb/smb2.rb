@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    register_options([ Opt::RPORT(445) ], self.class)
+    register_options([ Opt::RPORT(445) ])
   end
 
   # Fingerprint a single host

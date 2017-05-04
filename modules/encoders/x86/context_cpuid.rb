@@ -4,8 +4,6 @@
 ##
 
 require 'rex/poly'
-require 'msf/core'
-
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the cpuid value is generated and supplied
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
           [ true,
           "CPUID key from target host (see tools/context/cpuid-key utility)",
           "0x00000000"]),
-      ], self.class)
+      ])
   end
 
   def obtain_key(buf, badchars, state)

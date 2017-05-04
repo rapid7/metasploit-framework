@@ -14,8 +14,6 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The base path to the SOAP RFC Service', '/sap/bc/soap/rfc']),
         OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "sap_default.txt") ])
-      ], self.class)
+      ])
 
     deregister_options('HttpUsername', 'HttpPassword')
   end

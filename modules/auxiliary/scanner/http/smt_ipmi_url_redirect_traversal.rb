@@ -4,8 +4,6 @@
 ##
 
 require 'uri'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -47,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/nv/PSBlock']),
         OptString.new('PASSWORD', [true, 'Password for Supermicro Web Interface', 'ADMIN']),
         OptString.new('USERNAME', [true, 'Username for Supermicro Web Interface', 'ADMIN'])
-      ], self.class)
+      ])
   end
 
   def my_basename(filename)

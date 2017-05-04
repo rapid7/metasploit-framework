@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
         OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  1]),
-      ], self.class)
+      ])
   end
 
   def print_with_underline(str)

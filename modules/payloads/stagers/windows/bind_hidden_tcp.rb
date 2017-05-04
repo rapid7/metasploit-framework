@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
 

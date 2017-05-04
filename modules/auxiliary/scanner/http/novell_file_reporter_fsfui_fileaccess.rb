@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('SSL', [true, 'Use SSL', true]),
       OptString.new('RFILE', [true, 'Remote File', 'windows\\win.ini']),
       OptInt.new('DEPTH', [true, 'Traversal depth', 6])
-    ], self.class)
+    ])
 
   end
 

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   def initialize
@@ -23,7 +21,7 @@ class MetasploitModule < Msf::Post
      register_options([
       OptAddress.new('TARGET_HOST', [ true, 'The address of the target host']),
       OptBool.new('DELETE', [true, 'Remove host from the DMZ, otherwise will add it', false])
-    ], self.class)
+    ])
   end
 
   def run

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [ true, "Base Joomla directory path", '/']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"]),
         OptInt.new('CATEGORYID', [true, "The category ID to use in the SQL injection", 0])
-      ], self.class)
+      ])
 
   end
 

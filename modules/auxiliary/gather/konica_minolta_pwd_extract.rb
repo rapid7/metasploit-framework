@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWD', [true, 'The default Admin password', '12345678']),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer probe', 20])
 
-      ], self.class)
+      ])
   end
 
   # Creates the XML data to be sent that will extract AuthKey

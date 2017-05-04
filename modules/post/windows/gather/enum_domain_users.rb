@@ -1,5 +1,3 @@
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/netapi'
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('USER', [false, 'Target User for NetSessionEnum']),
         OptString.new('HOST', [false, 'Target a specific host']),
-      ], self.class)
+      ])
   end
 
   def run

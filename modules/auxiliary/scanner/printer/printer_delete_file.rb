@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require "msf/core"
 require "rex/proto/pjl"
 
 class MetasploitModule < Msf::Auxiliary
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
       OptString.new("PATH", [true, "Remote path", '0:\..\..\..\eicar.com'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

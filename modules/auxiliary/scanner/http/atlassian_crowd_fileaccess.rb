@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -44,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGETURI', [true, 'Path to Crowd', '/crowd/services']),
       OptString.new('RFILE', [true, 'Remote File', '/etc/passwd'])
 
-    ], self.class)
+    ])
 
     register_autofilter_ports([ 8095 ])
     deregister_options('RHOST')

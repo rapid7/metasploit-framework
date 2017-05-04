@@ -4,7 +4,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/dns/resolver'
 
 class MetasploitModule < Msf::Auxiliary
@@ -47,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
         OptInt.new('THREADS', [false, 'Threads for ENUM_BRT', 1]),
         OptPath.new('WORDLIST', [false, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -55,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('RETRY', [false, 'Number of times to try to resolve a record if no response is received', 2]),
         OptInt.new('RETRY_INTERVAL', [false, 'Number of seconds to wait before doing a retry', 2]),
         OptBool.new('TCP_DNS', [false, 'Run queries over TCP', false])
-      ], self.class)
+      ])
   end
 
   def run

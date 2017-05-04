@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 31
@@ -26,7 +24,7 @@ module MetasploitModule
     # exec payload options
     register_options([
       OptString.new('CMD',  [ true,  "The command string to execute" ])
-    ], self.class)
+    ])
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD

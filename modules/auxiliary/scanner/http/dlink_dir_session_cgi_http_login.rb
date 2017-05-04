@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME',  [ false, "Username for authentication (default: admin)","admin" ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
-      ], self.class)
+      ])
 
     deregister_options('HttpUsername', 'HttpPassword')
   end

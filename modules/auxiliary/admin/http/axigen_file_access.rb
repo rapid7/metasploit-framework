@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -47,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [ true, 'The user to authenticate as', 'admin' ]),
         OptString.new('PASSWORD', [ true, 'The password to authenticate with' ]),
         OptString.new('PATH',     [ true, 'The file to read or delete', "\\windows\\win.ini" ])
-      ], self.class)
+      ])
   end
 
   def run

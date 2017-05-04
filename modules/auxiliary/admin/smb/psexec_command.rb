@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SMB::Client::Psexec
@@ -46,13 +44,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('COMMAND', [true, 'The command you want to execute on the remote host', 'net group "Domain Admins" /domain']),
       OptString.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('WINPATH', [true, 'The name of the remote Windows directory', 'WINDOWS']),
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('FILEPREFIX', [false, 'Add a custom prefix to the temporary files','']),
       OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
       OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
-    ], self.class)
+    ])
 
     deregister_options('RHOST')
   end

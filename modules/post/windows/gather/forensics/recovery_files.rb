@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
         OptString.new('FILES',[false,'ID or extensions of the files to recover in a comma separated way. Let empty to enumerate deleted files.',""]),
         OptString.new('DRIVE',[true,'Drive you want to recover files from.',"C:"]),
         OptInt.new('TIMEOUT', [true,'Search timeout. If 0 the module will go through the entire $MFT.', 3600])
-      ], self.class)
+      ])
   end
 
   def run

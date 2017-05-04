@@ -4,9 +4,6 @@
 ##
 
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv

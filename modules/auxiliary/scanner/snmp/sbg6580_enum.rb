@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SNMPClient
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('VERSION', [ true, 'SNMP Version <1/2c>', '2c' ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

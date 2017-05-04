@@ -1,4 +1,3 @@
-require 'msf/core'
 require 'msf/core/post/windows/netapi'
 require 'msf/core/post/windows/kiwi'
 require 'msf/core/post/windows/error'
@@ -40,7 +39,7 @@ class MetasploitModule < Msf::Post
         OptString.new('Domain SID', [false, 'Domain SID']),
         OptInt.new('ID', [false, 'Target User ID']),
         OptString.new('GROUPS', [false, 'ID of Groups (Comma Seperated)'])
-      ], self.class)
+      ])
   end
 
   def run

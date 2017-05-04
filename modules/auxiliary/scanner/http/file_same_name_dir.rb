@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PATH', [ true,  "The directory path  to identify files", '/']),
         OptString.new('EXT', [ true, "File extension to use", '.aspx']),
 
-      ], self.class)
+      ])
 
   end
 

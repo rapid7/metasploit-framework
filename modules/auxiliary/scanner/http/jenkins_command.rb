@@ -4,7 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 require 'cgi'
 
 class MetasploitModule < Msf::Auxiliary
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [ true, 'The path to the Jenkins-CI application', '/jenkins/' ]),
         OptString.new('COMMAND', [ true, 'Command to run in application', 'whoami' ]),
-      ], self.class)
+      ])
   end
 
   def fingerprint_os(ip)

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('DISPLAYHTML', [true, 'Display HTML response', false]),
         OptBool.new('SSL', [true, 'Use SSL', false]),
         OptBool.new('VERB_DELETE', [false, 'Enable DELETE verb', false])
-      ], self.class)
+      ])
   end
 
   # Fingerprint a single host

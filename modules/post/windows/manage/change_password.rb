@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Post
         OptString.new('SMBUser', [true, 'Username to change password of']),
         OptString.new('OLD_PASSWORD', [true, 'Original password' ]),
         OptString.new('NEW_PASSWORD', [true, 'New password' ]),
-      ], self.class)
+      ])
   end
 
   def run

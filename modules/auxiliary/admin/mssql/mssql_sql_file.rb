@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('SQL_FILE', [ true, "File containing multiple SQL queries execute (one per line)"]),
         OptString.new('QUERY_PREFIX', [ false, "string to append each line of the file",""]),
         OptString.new('QUERY_SUFFIX', [ false, "string to prepend each line of the file",""])
-      ], self.class)
+      ])
   end
 
 

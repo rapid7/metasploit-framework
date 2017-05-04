@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(445),
         OptString.new('SMBSHARE', [ true, "The name of a readable share on the server" ])
-      ], self.class)
+      ])
   end
 
   # Perform a transaction2 request using the specified subcommand, parameters, and data

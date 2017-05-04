@@ -2,7 +2,6 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
 require 'msf/core/payload/android'
 require 'msf/core/payload/transport_config'
 require 'msf/core/handler/reverse_tcp'

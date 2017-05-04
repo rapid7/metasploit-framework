@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       OptString.new('PORTS', [true, 'Ports to scan (e.g. 80-81,443,8080-8090)', '80,443']),
       OptInt.new('TIMEOUT', [true, 'The socket connect/read timeout in seconds', 1]),
-    ], self.class)
+    ])
 
     deregister_options('RPORT')
   end

@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
@@ -25,7 +22,7 @@ class MetasploitModule < Msf::Post
         OptBool.new("CURRENT" , [ true, "Enumerate currently configured shares"                  , true]),
         OptBool.new("RECENT"  , [ true, "Enumerate Recently mapped shares"                       , true]),
         OptBool.new("ENTERED" , [ true, "Enumerate Recently entered UNC Paths in the Run Dialog" , true])
-      ], self.class)
+      ])
 
   end
 

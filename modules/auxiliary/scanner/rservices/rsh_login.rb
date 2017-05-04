@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(514),
         OptBool.new('ENABLE_STDERR', [ true, 'Enables connecting the stderr port', false ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

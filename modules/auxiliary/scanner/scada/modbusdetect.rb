@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(502),
         OptInt.new('UNIT_ID', [true, "ModBus Unit Identifier, 1..255, most often 1 ", 1]),
         OptInt.new('TIMEOUT', [true, 'Timeout for the network probe', 10])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

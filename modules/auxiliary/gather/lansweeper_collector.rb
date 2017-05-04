@@ -1,5 +1,3 @@
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('DATABASE', [true, 'The Lansweeper database', 'lansweeperdb'])
-    ], self.class)
+    ])
 
   end
 

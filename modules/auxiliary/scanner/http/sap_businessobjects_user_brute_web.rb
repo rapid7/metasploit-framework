@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(6405),
-      ], self.class)
+      ])
     register_autofilter_ports([ 6405 ])
   end
 

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
           Opt::RPORT(8080),
-        ], self.class)
+        ])
   end
 
   def run_host(ip)

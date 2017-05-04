@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Registry
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptAddress.new('SMBHOST', [ true, 'IP Address where SMB host is listening to capture hashes.' ])
-      ], self.class)
+      ])
   end
 
   # method to make smb connection

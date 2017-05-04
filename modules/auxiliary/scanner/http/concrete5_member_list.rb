@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('URI', [false, 'URL of the Concrete5 root', '/'])
-      ], self.class)
+      ])
     deregister_options('RHOST')
   end
 

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Rex::Proto::TFTP
@@ -49,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       OptAddress.new('LHOST',    [false, "The local address the TFTP client should bind to"]),
       OptString.new( 'MODE',     [false, "The TFTP mode; usual choices are netascii and octet.", "octet"]),
       Opt::RPORT(69)
-    ], self.class)
+    ])
   end
 
   def mode

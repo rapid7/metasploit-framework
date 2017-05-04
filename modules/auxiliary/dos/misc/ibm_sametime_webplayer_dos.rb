@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -62,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
           '<target_email_address>@<sametime_media_server_FQDN>'
         ]),
         OptInt.new('TIMEOUT', [ true,  'Set specific response timeout', 0])
-      ], self.class)
+      ])
 
   end
 

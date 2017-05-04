@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('VERB',  [ true,  "Verb for auth bypass testing", "HEAD"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
