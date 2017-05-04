@@ -1,16 +1,18 @@
 ## Description
 
-This module is a http crawler, it will browse the links recursively from the web site. If you have loaded a database plugin and connected to a database this module will report web pages and web forms.
+This module is a http crawler, it will browse the links recursively from the
+web site. If you have loaded a database plugin and connected to a database,
+this module will report web pages and web forms.
 
 ## Vulnerable Application
 
-You can use any web application to test the crawler 
+You can use any web application to test the crawler.
 
 ## Options
 
   **URI**
 
-  Default path is /
+  Default path is `/`
 
   **DirBust**
 
@@ -22,7 +24,7 @@ You can use any web application to test the crawler
 
   **UserAgent**
 
-  Default User Agent is `Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)` 
+  Default User Agent is `Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)`
 
 ## Verification Steps
 
@@ -32,7 +34,7 @@ You can use any web application to test the crawler
 4. Do: ```set URI [PATH]```
 4. Do: ```run```
 
-## Sample Output
+### Example against [WebGoat](https://github.com/WebGoat/WebGoat)
 ```
 msf> use auxiliary/scanner/http/crawler
 msf auxiliary(crawler) > set RHOST 127.0.0.1
@@ -60,11 +62,11 @@ msf auxiliary(crawler) > run
 [*] Auxiliary module execution completed
 ```
 
-## Useful Output
+## Follow-on: Wmap
 
 As you see, the result is not very user friendly...
 
-But you can view a tree of your website with the wmap plugin. Simply run :
+But you can view a tree of your website with the Wmap plugin. Simply run :
 
 ```
 msf auxiliary(crawler) > load wmap
