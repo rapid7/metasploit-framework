@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultAction'  => 'WebServer'))
 
     register_options([
-      OptAddress.new('LHOST', [true,
+      OptAddressLocal.new('LHOST', [true,
         'The IP address to use for reverse-connect payloads'
       ])
     ])

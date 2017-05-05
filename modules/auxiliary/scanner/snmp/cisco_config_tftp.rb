@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptEnum.new("SOURCE", [true, "Grab the startup (3) or running (4) configuration", "4", ["3","4"]]),
       OptString.new('OUTPUTDIR', [ false, "The directory where we should save the configuration files (disabled by default)"]),
-      OptAddress.new('LHOST', [ false, "The IP address of the system running this module" ])
+      OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ])
     ])
   end
 

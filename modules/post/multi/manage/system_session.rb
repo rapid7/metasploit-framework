@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
       ))
     register_options(
       [
-        OptAddress.new('LHOST',
+        OptAddressLocal.new('LHOST',
           [true, 'IP of host that will receive the connection from the payload.']),
         OptInt.new('LPORT',
           [false, 'Port for Payload to connect to.', 4433]),

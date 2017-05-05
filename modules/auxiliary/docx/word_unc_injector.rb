@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.']),
+        OptAddressLocal.new('LHOST',[true, 'Server IP or hostname that the .docx document points to.']),
         OptPath.new('SOURCE', [false, 'Full path and filename of .docx file to use as source. If empty, creates new document.']),
         OptString.new('FILENAME', [true, 'Document output filename.', 'msf.docx']),
         OptString.new('DOCAUTHOR',[false,'Document author for empty document.']),
