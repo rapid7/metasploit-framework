@@ -1,6 +1,6 @@
 ## Description
 
-This module will detect `robots.txt` files on web servers and analize its content.
+This module will detect `robots.txt` files on web servers and analyze its content.
 The `robots.txt` file is a file which is supposed to be honored by web crawlers
 and bots, as locations which are not to be indexed or specifically called out
 to be indexed. This can be abused to reveal interesting information about areas
@@ -14,7 +14,7 @@ is extremely common.
 ## Verification Steps
 
 1. Do: `use auxiliary/scanner/http/robots_txt`
-2. Do: `set rhosts <ip>`
+2. Do: `set rhosts [ip]`
 3. Do: `run`
 4. You should get the `robots.txt` file content
 
@@ -40,7 +40,9 @@ Disallow: /groups
 Disallow: /index.html?
 Disallow: /?
 ```
+
 [...Truncated...]
+
 ```
 User-agent: facebookexternalhit
 Allow: /imgres

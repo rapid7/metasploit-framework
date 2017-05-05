@@ -18,7 +18,7 @@ You can use any web application to test the crawler.
 
   Bruteforce common url path, default is `true` but may generate noise in reports.
 
-  **HttpPassword/HttpUsername/HTTPAdditionalHeaders/HTTPCookie**
+  **HttpPassword**, **HttpUsername**, **HTTPAdditionalHeaders**, **HTTPCookie**
 
   You can add some login information
 
@@ -33,6 +33,8 @@ You can use any web application to test the crawler.
 3. Do: ```set RPORT [PORT]```
 4. Do: ```set URI [PATH]```
 4. Do: ```run```
+
+## Sample Output
 
 ### Example against [WebGoat](https://github.com/WebGoat/WebGoat)
 ```
