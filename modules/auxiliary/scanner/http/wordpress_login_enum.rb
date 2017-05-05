@@ -110,7 +110,8 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         origin_type: :service,
         last_attempted_at: DateTime.now,
-        status: Metasploit::Model::Login::Status::SUCCESSFUL
+        # infer status from state when called
+        status: (@validate_only ? Metasploit::Model::Login::Status::UNTRIED : Metasploit::Model::Login::Status::SUCCESSFUL)
     }
   end
 
@@ -120,14 +121,9 @@ class MetasploitModule < Msf::Auxiliary
     exists = wordpress_user_exists?(user)
     if exists
       print_good("#{target_uri} - WordPress User-Validation - Username: '#{user}' - is VALID")
-
-      report_cred(
-        ip: rhost,
-        port: rport,
-        user: user,
-        status: Metasploit::Model::Login::Status::UNTRIED
-      )
-
+      @validate_only = true
+      store_valid_credential(user: user, private: nil)
+      @validate_only = false
       @users_found[user] = :reported
       return :next_user
     else
@@ -145,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     if cookie
       print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
 
-      store_valid_credential(user, pass, :password, cookie)
+      store_valid_credential(user: user, private: pass, proof: cookie)
 
       return :next_user
     else

@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     exists = wordpress_user_exists?(user)
     if exists
       print_good("Username \"#{username}\" is valid")
-      store_valid_credential(user, nil, :password, "WEBAPP=\"Wordpress\", VHOST=#{vhost}")
+      store_valid_credential(user: user, private: nil, proof: "WEBAPP=\"Wordpress\", VHOST=#{vhost}")
       return true
     else
       print_error("\"#{user}\" is not a valid username")

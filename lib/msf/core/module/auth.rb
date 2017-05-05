@@ -1,5 +1,5 @@
 module Msf::Module::Auth
-  def store_valid_credential(user, private, private_type, proof = nil)
+  def store_valid_credential(user:, private:, private_type: :password, proof: nil)
     service_data = {}
     if self.respond_to? ("service_details")
       service_data = service_details

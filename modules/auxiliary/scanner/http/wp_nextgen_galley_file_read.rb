@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unable to login as: #{user}")
       return
     end
-    store_valid_credential(user, password, :password, cookie)
+    store_valid_credential(user: user, private: password, proof: cookie)
 
     vprint_status("Trying to get nonce...")
     nonce = get_nonce(cookie)

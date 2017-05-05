@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
     # login successful
     if cookie
       print_status("User #{username} with password #{password} successfully created")
-      store_valid_credential(username, password, :password, cookie)
+      store_valid_credential(user: username, private: password, proof: cookie)
     else
       print_error("User creation failed")
       return

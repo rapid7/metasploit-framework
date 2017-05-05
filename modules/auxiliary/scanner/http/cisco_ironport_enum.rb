@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
       if res and res.get_cookies.include?('authenticated=')
         print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
-        store_valid_credential(user, pass, :password, res.get_cookies.inspect)
+        store_valid_credential(user: user, private: pass, proof: res.get_cookies.inspect)
         return :next_user
 
       else
