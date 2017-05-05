@@ -23,5 +23,7 @@ if [[ -n "$MSF_BUILD" ]]; then
   docker-compose -f $MSF_PATH/docker-compose.yml -f $MSF_PATH/docker/docker-compose.development.override.yml build
 fi
 
+source ./docker/make-volume.sh
+
 docker-compose -f $MSF_PATH/docker-compose.yml -f $MSF_PATH/docker/docker-compose.development.override.yml run --rm --service-ports ms ./msfconsole -r docker/msfconsole.rc "$@"
 

@@ -16,6 +16,7 @@ RUN apk update && \
       # needed as long as metasploit-framework.gemspec contains a 'git ls'
       git \
       ncurses \
+      libcap \
     && apk add --virtual .ruby-builddeps \
       autoconf \
       bison \
@@ -32,12 +33,21 @@ RUN apk update && \
       yaml-dev \
       zlib-dev \
       ncurses-dev \
-      bison \
-      autoconf \
-    && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
-    && bundle install --system $BUNDLER_ARGS \
-    && apk del .ruby-builddeps \
-    && rm -rf /var/cache/apk/*
+    && echo "gem: --no-ri --no-rdoc" > /etc/gemrc
 
 ADD ./ $APP_HOME
+
+RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
+RUN adduser -D msf
+RUN chown -R msf:msf $APP_HOME
+
+USER msf
+ENV GEM_HOME $HOME/.gem
+RUN bundle install $BUNDLER_ARGS
+
+USER root
+RUN apk del .ruby-builddeps \
+    && rm -rf /var/cache/apk/*
+
+USER msf
 CMD ["./msfconsole", "-r", "docker/msfconsole.rc"]
