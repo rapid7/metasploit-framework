@@ -11,15 +11,15 @@ attempt to check for return packets.
 
   **STOPID**
 
-  The CAN ID to stop the CAN scan.  If no STOPID is specified it will only scan one ID (STARTID)
+  The CAN ID to stop the CAN scan.  If no STOPID is specified it will only scan one ID (STARTID).
 
   **FUZZ**
 
-  If true the data segment will iterate through all possiblities (0-255)
+  If true the data segment will iterate through all possiblities (0-255).
 
   **PROBEVALUE**
 
-  The value to put at each data segment.  The default is 0xFF.  When Fuzz is enabled this value is ignored
+  The value to put at each data segment.  The default is 0xFF.  When Fuzz is enabled this value is ignored.
 
   **PADDING**
 
@@ -27,7 +27,7 @@ attempt to check for return packets.
 
   **CANBUS**
 
-  The bus to scan.  See 'supported_buses' for a list of available buses
+  The bus to scan.  See 'supported_buses' for a list of available buses.
 
 ## Scenarios
 
@@ -35,7 +35,7 @@ attempt to check for return packets.
 have identified some door controls using a certain CAN ID.  By probing the other values you can often identify
 other door related functions.
 
-Note:  This is not a scanner.  You would not want to run this against all the IDs in a car and expect (good) results
+Note:  This is not a scanner.  You would not want to run this against all the IDs in a car and expect (good) results.
 
 ```
 hwbridge > run post/hardware/automotive/canprobe CANBUS=can0 STARTID=0x320 fuzz=true
