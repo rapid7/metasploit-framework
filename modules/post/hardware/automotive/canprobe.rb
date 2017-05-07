@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Post
       OptInt.new('PADDING', [false, "If a value is given a full 8 bytes will be used and padded with this value", nil]),
       OptBool.new('FUZZ', [false, "If true interates through all possible values for each data position", false]),
       OptString.new('CANBUS', [false, "CAN Bus to perform scan on, defaults to connected bus", nil])
-    ], self.class)
+    ])
   end
 
   def run
