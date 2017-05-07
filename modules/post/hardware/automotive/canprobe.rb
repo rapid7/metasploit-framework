@@ -9,8 +9,8 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         'Name'          => 'Module to Probe Different Data Points in a CAN Packet',
         'Description'   => %q{
-                               Scans between two CAN IDs and puts data at eacy byte position. It will
-                               Either write a set byte value (Default 0xFF) or iterate through all possible values
+                               Scans between two CAN IDs and writes data at each byte position. It will
+                               either write a set byte value (Default 0xFF) or iterate through all possible values
                                of that byte position (takes much longer). Does not check for responses and is
                                basically a simple blind fuzzer.
         },
