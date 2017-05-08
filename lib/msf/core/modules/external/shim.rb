@@ -39,7 +39,7 @@ class Msf::Modules::External::Shim
   end
 
   def self.mod_meta_exploit(mod, meta = {})
-    meta[:delay]       = mod.meta['delay'] || 5
+    meta[:wfsdelay]    = mod.meta['wfsdelay'] || 5
     meta[:privileged]  = mod.meta['privileged'].inspect
     meta[:platform]    = mod.meta['targets'].map do |t|
       t['platform'].dump
