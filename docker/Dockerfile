@@ -47,7 +47,7 @@ RUN adduser -g msfconsole -D $MSF_USER
 
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 
-USER $MSF_USER
+# USER $MSF_USER
 
 ADD ./ $APP_HOME
 
