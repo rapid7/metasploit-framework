@@ -62,21 +62,6 @@ class MetasploitModule < Msf::Auxiliary
     table_prefix
   end
 
-  def service_details
-    {
-      address: rhost,
-      port: rport,
-      service_name: (ssl ? "https": "http"), # changed from "WorkPress" here
-      protocol: 'tcp',
-      workspace_id: myworkspace_id,
-      module_fullname: fullname,
-      origin_type: :service
-      # moved to Msf::Module::Auth
-      # last_attempted_at: DateTime.now,
-      # status: Metasploit::Model::Login::Status::SUCCESSFUL
-    }
-  end
-
   def run
     username = Rex::Text.rand_text_alpha(10)
     password = Rex::Text.rand_text_alpha(20)

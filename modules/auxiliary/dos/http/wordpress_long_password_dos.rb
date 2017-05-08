@@ -66,20 +66,6 @@ class MetasploitModule < Msf::Auxiliary
     datastore['TIMEOUT']
   end
 
-  def service_details
-    {
-        service_name: (ssl ? 'https' : 'http'),
-        address: rhost,
-        port: rport,
-        protocol: 'tcp',
-        origin_type: :service,
-        module_fullname: fullname
-        # moved to Msf::Module::Auth
-        # last_attempted_at: DateTime.now,
-        # status: Metasploit::Model::Login::Status::SUCCESSFUL
-    }
-  end
-
   def user_exists(user)
     exists = wordpress_user_exists?(user)
     if exists

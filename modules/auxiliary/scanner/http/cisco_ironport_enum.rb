@@ -116,14 +116,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def service_details
-    {
-      address: rhost,
-      port: rport,
-      service_name: 'Cisco IronPort Appliance',
-      protocol: 'tcp',
-      origin_type: :service,
-      module_fullname: fullname
-    }
+    super.merge({service_name: 'Cisco IronPort Appliance'})
   end
 
   #

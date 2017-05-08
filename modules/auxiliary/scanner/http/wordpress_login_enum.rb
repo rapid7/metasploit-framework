@@ -100,30 +100,19 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def service_details
-    {
-        address: rhost,
-        port: rport,
-        service_name: ssl ? 'https' : 'http',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id,
-        module_fullname: fullname,
-        origin_type: :service,
-        last_attempted_at: DateTime.now,
-        # infer status from state when called
-        status: (@validate_only ? Metasploit::Model::Login::Status::UNTRIED : Metasploit::Model::Login::Status::SUCCESSFUL)
-    }
-  end
-
   def validate_user(user=nil)
     print_status("#{target_uri} - WordPress User-Validation - Checking Username:'#{user}'")
 
     exists = wordpress_user_exists?(user)
     if exists
       print_good("#{target_uri} - WordPress User-Validation - Username: '#{user}' - is VALID")
-      @validate_only = true
-      store_valid_credential(user: user, private: nil)
-      @validate_only = false
+      connection_details = {
+        module_fullname: self.fullname,
+        username: user,
+        workspace_id: myworkspace_id,
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
       @users_found[user] = :reported
       return :next_user
     else
