@@ -7,20 +7,30 @@ class Msf::Modules::External::Shim
     mod = Msf::Modules::External::Bridge.open(module_path)
     return '' unless mod.meta
     case mod.meta['type']
-    when 'remote_exploit.cmd_stager.wget'
+    when 'remote_exploit_cmd_stager'
       remote_exploit_cmd_stager(mod)
     end
+  end
+
+  def self.render_template(name, meta = {})
+    template = File.join(File.dirname(__FILE__), 'templates', name)
+    ERB.new(File.read(template)).result(binding)
+  end
+
+  def self.common_metadata(meta = {})
+    render_template('common_metadata.erb', meta)
   end
 
   def self.mod_meta_common(mod, meta = {})
     meta[:path]        = mod.path.dump
     meta[:name]        = mod.meta['name'].dump
-    meta[:description] = mod.meta['description'].dump.strip
+    meta[:description] = mod.meta['description'].dump
     meta[:authors]     = mod.meta['authors'].map(&:dump).join(",\n          ")
     meta[:date]        = mod.meta['date'].dump
     meta[:references]  = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
+
     meta[:options]     = mod.meta['options'].map do |n, o|
       "Opt#{o['type'].capitalize}.new(#{n.dump},
         [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
@@ -37,14 +47,15 @@ class Msf::Modules::External::Shim
     meta[:targets]     = mod.meta['targets'].map do |t|
       "[#{t['platform'].dump} + ' ' + #{t['arch'].dump}, {'Arch' => ARCH_#{t['arch'].upcase}, 'Platform' => #{t['platform'].dump} }]"
     end.join(",\n          ")
-
     meta
   end
 
   def self.remote_exploit_cmd_stager(mod)
     meta = mod_meta_common(mod)
     meta = mod_meta_exploit(mod, meta)
-    template = File.join(File.dirname(__FILE__), 'remote_exploit_cmd_stager.erb')
-    ERB.new(File.read(template)).result(binding)
+    meta[:command_stager_flavor] = mod.meta['payload']['command_stager_flavor'].dump
+    out = render_template('remote_exploit_cmd_stager.erb', meta)
+    File.write("/tmp/blah.rb", out)
+    out
   end
 end
