@@ -70,6 +70,7 @@ class MetasploitModule < Msf::Auxiliary
 
       unless res && res.body.to_s.index("Computer model")
         vprint_error("#{ip}:#{rport} - AMT service does not appear to be vulnerable")
+        return
       end
 
       proof = res.body.to_s
