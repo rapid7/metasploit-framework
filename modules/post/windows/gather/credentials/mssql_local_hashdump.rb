@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 require 'msf/core/post/windows/mssql'
 
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('INSTANCE',  [false, 'Name of target SQL Server instance', nil])
-      ], self.class)
+      ])
   end
 
   def run

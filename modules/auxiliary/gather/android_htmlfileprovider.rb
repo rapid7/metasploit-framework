@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FILES', [ false, "The remote file(s) to steal",
           '/proc/version,/proc/self/status,/data/system/packages.list' ])
-      ], self.class)
+      ])
   end
 
   def on_request_uri(cli, request)

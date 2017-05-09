@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('PORTS', [true, "Ports to Check","80,8080,443,3460"]),
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10])
-    ], self.class)
+    ])
 
     deregister_options('RPORT')
 

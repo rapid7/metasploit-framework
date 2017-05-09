@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('FILEPATH', [true, "The path to the file to read", "/etc/passwd"]),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 5 ])
-      ], self.class)
+      ])
 
     deregister_options('RHOST')
   end

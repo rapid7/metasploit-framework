@@ -29,26 +29,26 @@ class MetasploitModule < Msf::Post
       OptInt.new('BAUD', [false, "Baud rate to use", 4800]),
       OptInt.new('POWER', [false, "Power level", 100]),
       OptInt.new('INDEX', [false, "USB Index to use", 0])
-    ], self.class)
+    ])
 
   end
 
   def run
-    if not is_rf?
+    unless is_rf?
       print_error("Not an RF Transceiver")
       return
     end
-    if not set_index(datastore['INDEX'])
-      print_error("Couldn't set usb index to #{datastore["INDEX"]}")
+    unless set_index(datastore['INDEX'])
+      print_error("Couldn't set usb index to #{datastore['INDEX']}")
       return
     end
     set_modulation("ASK/OOK")
-    set_freq(datastore["FREQ"])
+    set_freq(datastore['FREQ'])
     set_sync_mode(0)
-    set_baud(datastore["BAUD"])
+    set_baud(datastore['BAUD'])
     set_channel_spc(24000)
     set_mode("idle")
-    set_power(datastore["POWER"])
+    set_power(datastore['POWER'])
 
     print_status("Transmitting on #{datastore['FREQ']} for #{datastore['SECONDS']} seconds...")
     set_mode("tx")

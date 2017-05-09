@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::SunRPC
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true, "Path to the file to disclose, releative to the root dir.", 'etc/shadow']),
         OptString.new('OUTPUTPATH', [ false, "Local path to save the file contents to", nil ])
-      ], self.class)
+      ])
   end
 
   def run

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('GETSYSTEM', [ true, 'Attempt to get SYSTEM privilege on the target host.', true])
-      ], self.class)
+      ])
   end
 
   def get_system

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
@@ -91,12 +90,12 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ShowVersions', [ true,  "Display Version information from server", true]),
         OptBool.new('ShowConfig', [ true,  "Display Config information from server", true]),
         OptBool.new('ShowAPIVersions', [ true,  "Display API Version information from server", false])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('StoreConfigs', [ true,  "Store JSON configs to loot", true])
-      ], self.class)
+      ])
 
   end
 

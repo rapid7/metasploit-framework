@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'tmpdir'
 
 class MetasploitModule < Msf::Post
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('SocketPath', [false, 'Specify a filename for the local UNIX socket.', nil])
-      ], self.class)
+      ])
   end
 
   def setup

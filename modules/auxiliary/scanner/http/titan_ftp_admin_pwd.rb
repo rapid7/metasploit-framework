@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         ]
     )
 
-    register_options([Opt::RPORT(31001)], self.class)
+    register_options([Opt::RPORT(31001)])
   end
 
   def run_host(ip)

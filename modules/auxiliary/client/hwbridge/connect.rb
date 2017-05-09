@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/hwbridge'
 
 class MetasploitModule < Msf::Auxiliary
@@ -45,8 +44,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        Opt::RHOST("127.0.0.1"),
-        OptBool.new("DEBUGJSON", [false, "Additional debugging out for JSON requests to HW Bridge", false]),
+        Opt::RHOST('127.0.0.1'),
+        OptBool.new('DEBUGJSON', [false, "Additional debugging out for JSON requests to HW Bridge", false]),
         OptString.new('TARGETURI', [ true, "The path to the hwbridge API", '/'])
       ],
       self.class
@@ -97,14 +96,14 @@ class MetasploitModule < Msf::Auxiliary
   # Uses status information to automatically load proper extensions
   #
   def autoload_extensions(sess)
-    if self.hw_specialty.key? "automotive"
-      sess.load_automotive if self.hw_specialty["automotive"] == true
+    if self.hw_specialty.key? 'automotive'
+      sess.load_automotive if self.hw_specialty['automotive'] == true
     end
-    if self.hw_specialty.has_key? "zigbee"
-      sess.load_zigbee if self.hw_specialty["zigbee"] == true
+    if self.hw_specialty.has_key? 'zigbee'
+      sess.load_zigbee if self.hw_specialty['zigbee'] == true
     end
-    if self.hw_specialty.has_key? "rftransceiver"
-      sess.load_rftransceiver if self.hw_specialty["rftransceiver"] == true
+    if self.hw_specialty.has_key? 'rftransceiver'
+      sess.load_rftransceiver if self.hw_specialty['rftransceiver'] == true
     end
   end
 
@@ -112,8 +111,8 @@ class MetasploitModule < Msf::Auxiliary
   # If the hardware contains custom methods, create functions for those
   #
   def load_custom_methods(sess)
-    if self.hw_capabilities.key? "custom_methods"
-      sess.load_custom_methods if self.hw_capabilities["custom_methods"] == true
+    if self.hw_capabilities.key? 'custom_methods'
+      sess.load_custom_methods if self.hw_capabilities['custom_methods'] == true
     end
   end
 
@@ -123,13 +122,13 @@ class MetasploitModule < Msf::Auxiliary
   def get_status
     data = fetch_json("/status")
     unless data.nil?
-      if data.key? "operational"
+      if data.key? 'operational'
         @last_access = Time.now
-        if data.key? "hw_specialty"
-          self.hw_specialty = data["hw_specialty"]
+        if data.key? 'hw_specialty'
+          self.hw_specialty = data['hw_specialty']
         end
-        if data.key? "hw_capabilities"
-          self.hw_capabilities = data["hw_capabilities"]
+        if data.key? 'hw_capabilities'
+          self.hw_capabilities = data['hw_capabilities']
         end
       end
     end
@@ -138,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status "Attempting to connect to #{datastore['RHOST']}..."
     self.get_status()
-    if !@last_access.nil?
+    unless @last_access.nil?
       sess = Msf::Sessions::HWBridge.new(self)
       sess.set_from_exploit(self)
 

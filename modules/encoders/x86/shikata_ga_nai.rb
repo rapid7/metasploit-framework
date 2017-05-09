@@ -5,8 +5,6 @@
 
 
 require 'rex/poly'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 

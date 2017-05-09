@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([Opt::RPORT(443),
       OptString.new('URI', [false, 'The uri path to test against' , '/sdk'])
-    ], self.class)
+    ])
   end
 
 

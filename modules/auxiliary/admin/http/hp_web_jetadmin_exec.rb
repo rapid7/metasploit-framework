@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           Opt::RPORT(8000),
           OptString.new('CMD', [ false, "The command to execute.", "net user metasploit password /add" ]),
-        ], self.class)
+        ])
   end
 
   def run

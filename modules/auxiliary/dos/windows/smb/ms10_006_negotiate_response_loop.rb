@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptPort.new('SRVPORT', [ true, "The SMB port to listen on", 445 ])
-    ], self.class)
+    ])
   end
 
   def run

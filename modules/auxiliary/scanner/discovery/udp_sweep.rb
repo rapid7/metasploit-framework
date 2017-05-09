@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
@@ -23,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
     [
       OptBool.new('RANDOMIZE_PORTS', [false, 'Randomize the order the ports are probed', true])
-    ], self.class)
+    ])
 
     # RPORT is required by UDPScanner but not used in this module since it
     # works with multiple ports.

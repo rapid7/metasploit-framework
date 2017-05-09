@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::TcpServer
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('TIMEOUT', [true, 'Timeout for printer connection probe.', 20]),
         OptInt.new('TCPDELAY', [true, 'Number of seconds the tcp server will wait before termination.', 20]),
         OptString.new('NewLDAPServer', [true, 'The IP address of the LDAP server you want the printer to connect back to.'])
-      ], self.class)
+      ])
   end
 
   def run

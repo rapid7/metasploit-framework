@@ -2,8 +2,6 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/']),
         OptPath.new('PLUGINS',   [ true, "Path to list of plugins to enumerate", File.join(Msf::Config.data_directory, "wordlists", "joomla.txt")])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

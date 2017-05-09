@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptInt.new('DURATION', [false, 'Number of seconds to record', 5])
-      ], self.class)
+      ])
   end
 
   def rhost

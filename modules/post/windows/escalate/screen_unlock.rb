@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
 
 
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptBool.new('REVERT', [false, "Enable this option to revert the in-memory patch and enable locking again", false])
-    ], self.class)
+    ])
 
   end
 

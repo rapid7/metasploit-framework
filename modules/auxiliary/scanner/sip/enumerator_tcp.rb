@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('PADLEN',   [true, 'Cero padding maximum length', 4]),
       OptEnum.new('METHOD',  [true, 'Enumeration method', 'REGISTER', ['OPTIONS', 'REGISTER']]),
       Opt::RPORT(5060)
-    ], self.class)
+    ])
   end
 
 

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/redis'
 require 'metasploit/framework/credential_collection'
 
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
             'The file that contains a list of of probable passwords.',
             File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
           ])
-      ], self.class)
+      ])
 
     # redis does not have an username, there's only password
     deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS', 'DB_ALL_CREDS')

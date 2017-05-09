@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/nessus'
 require 'metasploit/framework/credential_collection'
 
@@ -31,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8834),
         OptString.new('TARGETURI', [ true,  'The path to the Nessus server login API', '/session']),
-      ], self.class)
+      ])
 
     deregister_options('HttpUsername', 'HttpPassword')
   end

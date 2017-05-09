@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/element'
 
 class MetasploitModule < Msf::Auxiliary
@@ -56,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'The password to set']),
         OptBool.new('FLUSHTOKENS', [ true, 'Flush existing reset tokens before trying', true]),
         OptInt.new('MAXINT', [true, 'Max integer to try (tokens begining with a higher int will fail)', 10])
-      ], self.class)
+      ])
   end
 
   def generate_token(account)

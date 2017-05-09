@@ -4,7 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
@@ -40,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('QUERY', [ false, "HTTP URI Query", nil]),
         OptString.new('DATA', [ false, "HTTP Body Data", '']),
         OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
         OptString.new('HttpPassword',[ true, 'Password to login with', 'password']),
         OptString.new('CMD', [ true, 'The command to execute', 'telnetd -p 1337'])
-      ], self.class)
+      ])
   end
 
   def run

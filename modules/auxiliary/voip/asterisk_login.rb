@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
             'The file that contains a list of probable passwords.',
             File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
           ])
-      ], self.class)
+      ])
   end
 
   def report_cred(opts)

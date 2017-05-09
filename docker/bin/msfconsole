@@ -18,4 +18,9 @@ if [[ -z "$MSF_PATH" ]]; then
 fi
 
 cd $MSF_PATH
+
+if [[ -n "$MSF_BUILD" ]]; then
+  docker-compose -f $MSF_PATH/docker-compose.yml build
+fi
+
 docker-compose run --rm --service-ports ms ./msfconsole -r docker/msfconsole.rc "$@"

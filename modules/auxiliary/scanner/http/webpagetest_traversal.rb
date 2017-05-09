@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The base path to WebPageTest', '/www/']),
         OptString.new('FILE', [ true,  "The path to the file to view", '/etc/passwd']),
         OptInt.new('DEPTH', [true, 'The max traversal depth', 11])
-      ], self.class)
+      ])
 
     deregister_options('RHOST')
   end

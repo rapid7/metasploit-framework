@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
@@ -35,7 +32,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('ADDTODOMAIN', [true,  'Add user to the Domain', true]),
         OptString.new('TOKEN',     [false, 'Username or PID of the Token which will be used. If blank, Domain Admin Tokens will be enumerated. (Username doesnt require a Domain)', '']),
         OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', true])
-      ], self.class)
+      ])
   end
 
   def get_system

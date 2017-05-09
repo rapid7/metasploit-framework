@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::CHOST,
         Opt::RPORT(30718),
         OptBool.new('CHECK_TCP', [false , 'Check TCP instead of UDP', false])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

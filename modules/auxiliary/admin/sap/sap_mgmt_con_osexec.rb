@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpUsername', [true, 'Username to use', '']),
         OptString.new('HttpPassword', [true, 'Password to use', '']),
         OptString.new('CMD', [true, 'Command to run', 'set']),
-      ], self.class)
+      ])
     register_autofilter_ports([ 50013 ])
   end
 

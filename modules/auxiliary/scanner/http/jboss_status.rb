@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(8080),
       OptString.new('TARGETURI', [ true,  'The JBoss status servlet URI path', '/status'])
-    ], self.class)
+    ])
   end
 
   def run_host(target_host)

@@ -38,7 +38,7 @@ module ReverseHttpsProxy
 
     register_options(
       [
-        OptString.new('LHOST', [ true, "The local listener hostname" ,"127.0.0.1"]),
+        OptAddressLocal.new('LHOST', [ true, "The local listener hostname" ,"127.0.0.1"]),
         OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
         OptString.new('PayloadProxyHost', [true, "The proxy server's IP address", "127.0.0.1"]),
         OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ]),

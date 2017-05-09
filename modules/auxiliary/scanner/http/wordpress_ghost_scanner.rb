@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       OptInt.new('LENGTH', [false, 'Payload length', 2500]),
-    ], self.class)
+    ])
   end
 
   def length

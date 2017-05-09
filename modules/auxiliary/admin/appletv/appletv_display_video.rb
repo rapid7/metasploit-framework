@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
@@ -42,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('TIME', [true, 'Time in seconds to show the video', 60]),
       OptString.new('URL', [true, 'URL of video to show. Must use an IP address']),
       OptString.new('HttpPassword', [false, 'The password for AppleTV AirPlay'])
-    ], self.class)
+    ])
 
     # We're not actually using any of these against AppleTV in our Rex HTTP client init,
     # so deregister them so we don't overwhelm the user with fake options.

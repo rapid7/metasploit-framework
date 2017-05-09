@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSL', [true, 'Use SSL', true]),
         OptString.new('TARGETURI', [true, 'The URI to request that triggers a call to template()', '/courier/intermediate_login.html']),
         OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/bavision_cameras'
 require 'metasploit/framework/credential_collection'
 
@@ -29,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:123456', false])
-      ], self.class)
+      ])
   end
 
 

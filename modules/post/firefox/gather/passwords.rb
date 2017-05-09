@@ -4,7 +4,6 @@
 ##
 
 require 'json'
-require 'msf/core'
 require 'msf/core/payload/firefox'
 
 class MetasploitModule < Msf::Post
@@ -25,7 +24,7 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptInt.new('TIMEOUT', [true, "Maximum time (seconds) to wait for a response", 90])
-    ], self.class)
+    ])
   end
 
   def run

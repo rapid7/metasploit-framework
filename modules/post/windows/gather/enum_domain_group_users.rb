@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
   def initialize(info = {})
     super(update_info(info,
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('GROUP', [true, 'Domain Group to enumerate', nil])
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

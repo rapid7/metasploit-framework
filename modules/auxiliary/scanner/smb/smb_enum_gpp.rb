@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/parser/group_policy_preferences'
 
 class MetasploitModule < Msf::Auxiliary
@@ -43,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('SMBSHARE', [true, 'The name of the share on the server', 'SYSVOL']),
       OptString.new('RPORT', [true, 'The Target port', 445]),
       OptBool.new('STORE', [true, 'Store the enumerated files in loot.', true])
-    ], self.class)
+    ])
   end
 
   def check_path(ip, path)

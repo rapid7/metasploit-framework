@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMBPROXY', [ true, 'IP of SMB proxy or sniffer.', '0.0.0.0']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

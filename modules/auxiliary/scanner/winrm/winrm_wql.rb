@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to authenticate as"]),
         OptString.new('PASSWORD', [ true, "The password to authenticate with"]),
         OptString.new('NAMESPACE', [true, 'The WMI namespace to use for queries', '/root/cimv2/'])
-      ], self.class)
+      ])
   end
 
 

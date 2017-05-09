@@ -5,9 +5,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -23,7 +20,7 @@ class MetasploitModule < Msf::Post
       [
         OptAddress.new("ADDRESS" , [ false, "Enumerate currently configured shares"]),
         OptAddressRange.new("RANGE"  , [ false, "Enumerate Recently mapped shares"])
-      ], self.class)
+      ])
 
   end
 

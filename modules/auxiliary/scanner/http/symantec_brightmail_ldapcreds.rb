@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'digest'
 require "openssl"
 
@@ -48,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to login as']),
         OptString.new('PASSWORD', [true, 'The password to login with']),
         OptString.new('TARGETURI', [true, 'The base path to Symantec Messaging Gateway', '/'])
-      ], self.class)
+      ])
 
     deregister_options('RHOST')
   end

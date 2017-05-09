@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
@@ -52,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [ true, "Base ePO directory path", '/']),
         OptString.new('USERNAME', [true, "The username to authenticate with", "username"]),
         OptString.new('PASSWORD', [true, "The password to authenticate with", "password"])
-      ], self.class)
+      ])
   end
 
   def run

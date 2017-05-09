@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 ###
 #

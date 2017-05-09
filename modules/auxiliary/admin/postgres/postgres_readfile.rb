@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('RFILE', [ true, 'The remote file', '/etc/passwd'])
-      ], self.class)
+      ])
 
     deregister_options( 'SQL', 'RETURN_ROWSET' )
   end

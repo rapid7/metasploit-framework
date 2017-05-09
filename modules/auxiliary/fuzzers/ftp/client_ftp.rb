@@ -8,8 +8,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Exploit::Remote::TcpServer
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('CYCLIC', [ true, "Use Cyclic pattern instead of A's (fuzzing payload).",true]),
       OptBool.new('ERROR', [ true, "Reply with error codes only",false]),
       OptBool.new('EXTRALINE', [ true, "Add extra CRLF's in response to LIST",true])
-      ], self.class)
+      ])
   end
 
 

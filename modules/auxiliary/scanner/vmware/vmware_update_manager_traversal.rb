@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(9084),
         OptString.new('URIPATH', [true, 'URI path to the downloads', '/vci/downloads/']),
         OptString.new('FILE', [true, 'Define the remote file to download', 'windows\\win.ini'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('MAILSLOT', [ true,  "The mailslot name to use", 'Alerter']),
-      ], self.class)
+      ])
 
   end
 

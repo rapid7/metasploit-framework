@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'csv'
 
 class MetasploitModule < Msf::Auxiliary
@@ -30,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           OptPath.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
-        ], self.class)
+        ])
 
       deregister_options('DBUSER','DBPASS')
 

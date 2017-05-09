@@ -151,7 +151,7 @@ frwrd = nil
   end
 
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if args.length > 0
     if enbl or (usr and pass)
       message

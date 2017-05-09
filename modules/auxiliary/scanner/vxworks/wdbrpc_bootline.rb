@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
       Opt::RPORT(17185)
-    ], self.class)
+    ])
   end
 
 

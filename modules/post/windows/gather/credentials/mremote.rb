@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 require 'msf/core/auxiliary/report'
 

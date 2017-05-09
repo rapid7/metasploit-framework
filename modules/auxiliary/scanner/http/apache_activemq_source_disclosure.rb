@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8161),
         OptString.new('TARGETURI', [true, 'Path to the JSP file to disclose source code', '/admin/index.jsp'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   # list of accepted file share protocols. other "special" URLs (like vnc://) will be ignored.
@@ -46,7 +43,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('VOLUME', [true, 'Name of network share volume. `set ACTION LIST` to get a list.', 'localhost']),
         OptEnum.new('PROTOCOL', [true, 'Network share protocol.', 'smb', FILE_SHARE_PROTOCOLS])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [

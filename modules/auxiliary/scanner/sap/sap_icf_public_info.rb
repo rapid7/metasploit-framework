@@ -14,8 +14,6 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8000),
         OptString.new('TARGETURI', [true, 'Path to SAP Application Server', '/'])
-      ], self.class)
+      ])
   end
 
   def extract_field(data, elem)

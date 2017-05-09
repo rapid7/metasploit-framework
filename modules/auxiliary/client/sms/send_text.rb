@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Sms
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
     phone_numbers = datastore['CELLNUMBERS'].split
     print_status("Sending text (#{datastore['SMSMESSAGE'].length} bytes) to #{phone_numbers.length} number(s)...")
     begin
-      res = send_text(phone_numbers, datastore['SMSMESSAGE'])
+      res = send_text(phone_numbers, datastore['SMSSUBJECT'], datastore['SMSMESSAGE'])
       print_status("Done.")
     rescue Rex::Proto::Sms::Exception => e
       print_error(e.message)

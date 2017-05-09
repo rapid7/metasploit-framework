@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASS', [ false, "Password",'mozilla@example.com']),
         OptBool.new('FASTFUZZ', [ false, "Only fuzz with cyclic pattern",true]),
         OptBool.new('CONNRESET', [ false, "Break on CONNRESET error",true]),
-      ], self.class)
+      ])
     deregister_options('RHOST')
 
     @evilchars = [
@@ -59,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FtpCommands', [ false, "Commands to fuzz at stages 4 and 5",@commands.join(" ")]),
         OptBool.new('ExpandCrash', [ false, "Expand any crash strings",false]),
-    ], self.class)
+    ])
   end
 
 

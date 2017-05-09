@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('URI', [true, "Typo3 Path", "/"]),
         OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
         OptString.new('LFILE',[true, "The local filename to store the data", "localconf.php"]),
-      ], self.class)
+      ])
   end
 
   def run

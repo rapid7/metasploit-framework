@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 ###
 #  Linux Chmod(file, mode)
 #
@@ -30,7 +28,7 @@ module MetasploitModule
       [
         OptString.new('FILE', [ true, "Filename to chmod", "/etc/shadow" ]),
         OptString.new('MODE', [ true, "File mode (octal)", "0666" ]),
-      ], self.class)
+      ])
   end
 
   # Dynamically generates chmod(FILE, MODE) + exit()

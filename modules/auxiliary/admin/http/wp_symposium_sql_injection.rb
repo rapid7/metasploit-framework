@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
 
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('URI_PLUGIN', [true, 'The WordPress Symposium Plugin URI', 'wp-symposium'])
-      ], self.class)
+      ])
   end
 
   def check

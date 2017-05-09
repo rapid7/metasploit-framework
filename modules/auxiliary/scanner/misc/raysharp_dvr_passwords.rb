@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    register_options( [ Opt::RPORT(9000) ], self.class)
+    register_options( [ Opt::RPORT(9000) ])
   end
 
   def report_cred(opts)

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -34,11 +32,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to the Novell Zenworks MDM install', '/'])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptBool.new('SSL', [true, "Negotiate SSL connection", false])
-    ], self.class)
+    ])
   end
 
   def setup_session()

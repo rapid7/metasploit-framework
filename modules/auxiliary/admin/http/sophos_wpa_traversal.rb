@@ -4,8 +4,6 @@
 ##
 
 require 'uri'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -44,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/etc/passwd']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 2])
-      ], self.class)
+      ])
   end
 
   def my_basename(filename)

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
         OptString.new('VM', [true, "The VM to try to Power On"])
-      ], self.class)
+      ])
   end
 
   def run

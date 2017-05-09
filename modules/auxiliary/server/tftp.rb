@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/tftp'
 require 'tmpdir'
 
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 69 ]),
         OptPath.new('TFTPROOT',   [ true, "The TFTP root directory to serve files from", Dir.tmpdir  ]),
         OptPath.new('OUTPUTPATH', [ true, "The directory in which uploaded files will be written.", Dir.tmpdir ])
-      ], self.class)
+      ])
   end
 
   def srvhost

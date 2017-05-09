@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMBPIPE', [ true,  "The pipe name to use", 'LSARPC']),
-      ], self.class)
+      ])
 
   end
 

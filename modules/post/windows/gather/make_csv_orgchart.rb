@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('ACTIVE_USERS_ONLY', [true, 'Only include active users (i.e. not disabled ones)', true]),
       OptBool.new('STORE_LOOT', [true, 'Store the organizational chart information in CSV format in loot', true]),
       OptString.new('FILTER', [false, 'Additional LDAP filter to use when searching for users', ''])
-    ], self.class)
+    ])
   end
 
   def run

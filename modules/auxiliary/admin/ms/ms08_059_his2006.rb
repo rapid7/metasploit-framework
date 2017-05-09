@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(0),
         OptString.new('COMMAND', [ true, 'The command to execute', 'cmd.exe']),
         OptString.new('ARGS', [ true, 'The arguments to the command', '/c echo metasploit > metasploit.txt'])
-        ], self.class )
+        ])
   end
 
   def run

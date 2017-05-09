@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(53),
       OptString.new('DOMAINNAME', [true, 'Domain to use for the DNS request', 'isc.org' ]),
       OptString.new('QUERYTYPE', [true, 'Query type(A, NS, SOA, MX, TXT, AAAA, RRSIG, DNSKEY, ANY)', 'ANY' ]),
-    ], self.class)
+    ])
   end
 
   def rport

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -60,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
         "A URL to inject into a script tag in the context of the target URLs.",
         ''
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)

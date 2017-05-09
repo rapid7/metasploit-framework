@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 #
 # May I reuse some methods?
 #
@@ -39,7 +37,7 @@ require 'cgi'
         OptString.new('DOMAIN', [ true,  "Domain name", '']),
         OptString.new('HEADERS', [ false,  "HTTP Headers", '']),
         OptPath.new('SUBDOM_LIST', [false, "Path to text file with subdomains"]),
-      ], self.class)
+      ])
 
     end
 

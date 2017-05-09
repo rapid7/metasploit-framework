@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 ###
 #
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Nop
     register_advanced_options(
       [
         OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-      ], self.class)
+      ])
   end
 
 

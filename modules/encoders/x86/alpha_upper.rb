@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/encoder/alpha2/alpha_upper'
 
 
@@ -18,6 +17,9 @@ class MetasploitModule < Msf::Encoder::Alphanum
       'Description'      => %q{
         Encodes payloads as alphanumeric uppercase text.  This encoder uses
         SkyLined's Alpha2 encoding suite.
+        A pure alpha encoder is impossible without having a register that points at or near the shellcode.
+        In a default configuration the first few bytes at the beginning are an fnstenv getpc stub (the same as used in shikata_ga_nai) and thus are not alphanumeric.
+        You can set BufferRegister for full alpha (see Encoder options for details).
       },
       'Author'           => [ 'pusscat', 'skylined' ],
       'Arch'             => ARCH_X86,

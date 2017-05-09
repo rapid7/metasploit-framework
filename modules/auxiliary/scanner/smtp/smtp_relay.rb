@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Smtp
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptBool.new('EXTENDED', [true, 'Do all the 16 extended checks', false]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

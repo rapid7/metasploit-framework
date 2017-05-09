@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Post
       OptInt.new('LOCKTIME',[true, 'Amount of idle time before lockout',300]),
       OptInt.new('PID',[false,'Target PID, only needed if multiple winlogon.exe instances exist',nil]),
       OptBool.new('WAIT', [true, 'Wait for lockout instead of default method', false])
-    ], self.class)
+    ])
   end
 
   def check_admin

@@ -24,15 +24,15 @@ RSpec.describe Metasploit::Framework::LoginScanner do
     it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
   end
 
-  [ 139, 445 ].each do |foo|
-    context "with port #{foo}" do
-      let(:port) { foo }
 
-      it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
-      it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
-      it { is_expected.not_to include Metasploit::Framework::LoginScanner::VNC }
-    end
+  context "with port 445" do
+    let(:port) { 445 }
+
+    it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
+    it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
+    it { is_expected.not_to include Metasploit::Framework::LoginScanner::VNC }
   end
+
 
   context "with name 'http'" do
     let(:name) { 'http' }

@@ -23,6 +23,10 @@ Remember that these phone numbers must be the same carrier.
 The carrier that the targeted numbers use. See **Supported Carrier Gateways** to learn more about
 supported carriers.
 
+**SMSSUBJECT**
+
+The text subject.
+
 **SMSMESSAGE**
 
 The text message you want to send. For example, this will send a text with a link to google:

@@ -147,7 +147,7 @@ check_update  = false
     raise Rex::Script::Completed
   end
 }
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 prefetch_local = ::File.join(Msf::Config.data_directory, "prefetch.exe")
 
 if !(::File.exist?(prefetch_local))

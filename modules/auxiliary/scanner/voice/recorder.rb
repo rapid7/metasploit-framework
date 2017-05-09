@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'fileutils'
 
 class MetasploitModule < Msf::Auxiliary
@@ -22,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGETS', [true, "A list of telephone masks in the format of 1-555-555-5XXX, separated by commas"]),
       OptString.new('OUTPUT_PATH', [true, "A local directory to store the resulting audio files"]),
       OptInt.new('CALL_TIME', [true, "The maximum time in seconds to spent on each call (ring + recording)", 52])
-    ], self.class)
+    ])
   end
 
   def run

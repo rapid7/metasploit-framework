@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -38,7 +37,7 @@ class MetasploitModule < Msf::Post
         [
           OptString.new('IMAILUSER', [false, 'iMail username', '']),
           OptString.new('IMAILDOMAIN', [false, 'iMail Domain', ''])
-        ], self.class)
+        ])
   end
 
   def download_info(imail_user='', imail_domain='')

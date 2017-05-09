@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(22),
         OptString.new('CLIENTVERSION', [ true, 'The SSH client version to report.', 'Debian-5ubuntu1'])
-      ], self.class)
+      ])
 
   end
 

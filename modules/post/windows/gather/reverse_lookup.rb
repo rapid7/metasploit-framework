@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Post
       [
         OptAddressRange.new('RHOSTS', [true, 'IP Range to perform reverse lookup against.'])
 
-      ], self.class)
+      ])
   end
 
 

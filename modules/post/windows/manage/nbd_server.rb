@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
         OptString.new('DEVICE',[true,'Device to map (use enum_drives for possible names)',nil]),
         OptString.new('NBDIP',[false,'IP address for NBD server','0.0.0.0']),
         OptInt.new('NBDPORT',[false,'TCP port for NBD server',10005]),
-      ], self.class)
+      ])
   end
 
 

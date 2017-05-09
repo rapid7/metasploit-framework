@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('IP_SEARCH', [ false, "Enable ip of subdomains to locate subdomains", true]),
         OptBool.new('ENUM_BING', [ true, "Enable Bing Search Subdomains", true]),
         OptBool.new('ENUM_YAHOO', [ true, "Enable Yahoo Search Subdomains", true])
-      ], self.class)
+      ])
 
     deregister_options('RHOST', 'RPORT', 'VHOST', 'SSL', 'Proxies')
   end

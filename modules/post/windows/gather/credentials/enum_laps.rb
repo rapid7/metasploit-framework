@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('STORE_DB', [true, 'Store file in loot.', false]),
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', true]),
       OptString.new('FILTER', [true, 'Search filter.', '(&(objectCategory=Computer)(ms-MCS-AdmPwd=*))'])
-    ], self.class)
+    ])
 
     deregister_options('FIELDS')
   end

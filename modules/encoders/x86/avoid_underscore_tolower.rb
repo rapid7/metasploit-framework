@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Encoder
 
   # This encoder has a manual ranking because it should only be used in cases

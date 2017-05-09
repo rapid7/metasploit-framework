@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/ipmi'
 
 class MetasploitModule < Msf::Auxiliary
@@ -27,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(623)
-    ], self.class)
+    ])
 
   end
 
@@ -46,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    info = Rex::Proto::IPMI::Channel_Auth_Reply.new(data) rescue nil
+    info = Rex::Proto::IPMI::Channel_Auth_Reply.new.read(data) rescue nil
 
     # Ignore invalid responses
     return unless info

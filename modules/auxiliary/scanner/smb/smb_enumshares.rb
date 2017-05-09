@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Auxiliary
@@ -51,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('LogSpider',      [false, '0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt)', 3, [0,1,2,3]]),
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
         OptBool.new('USE_SRVSVC_ONLY', [true, 'List shares only with SRVSVC', false ])
-      ], self.class)
+      ])
 
     deregister_options('RPORT', 'RHOST')
   end

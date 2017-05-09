@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(8008),
       OptString.new('VID', [true, 'Video ID', 'kxopViU98Xo'])
-    ], self.class)
+    ])
   end
 
   def run

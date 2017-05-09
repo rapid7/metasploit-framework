@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true,  "The test path. The default value will not work.", '/']),
         OptString.new('EXT', [ true,  "Extension to include.", '.aspx']),
-      ], self.class)
+      ])
 
   end
 

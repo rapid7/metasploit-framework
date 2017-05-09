@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::ORACLE
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           OptString.new('IP', [ false, 'IP adress of SMB proxy.', '0.0.0.0' ]),
-        ], self.class)
+        ])
   end
 
   def run

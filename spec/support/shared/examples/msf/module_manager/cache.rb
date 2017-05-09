@@ -166,9 +166,9 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
       end
 
       it 'should enumerate loaders until if it find the one where loadable?(parent_path) is true' do
-        module_manager.send(:loaders).each do |loader|
-          expect(loader).to receive(:loadable?).with(parent_path).and_call_original
-        end
+        # Only the first one gets it since it finds the module
+        loader = module_manager.send(:loaders).first
+        expect(loader).to receive(:loadable?).with(parent_path).and_call_original
 
         load_cached_module
       end
@@ -188,9 +188,9 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
 
       context 'return from load_module' do
         before(:example) do
-          module_manager.send(:loaders).each do |loader|
-            expect(loader).to receive(:load_module).and_return(module_loaded)
-          end
+          # Only the first one gets it since it finds the module
+          loader = module_manager.send(:loaders).first
+          expect(loader).to receive(:load_module).and_return(module_loaded)
         end
 
         context 'with false' do
@@ -392,12 +392,6 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
           module_info_by_path_from_database!
 
           expect(module_info_by_path).to have_key(path)
-        end
-
-        it 'should use Msf::Modules::Loader::Base.typed_path to derive parent_path' do
-          expect(Msf::Modules::Loader::Base).to receive(:typed_path).with(type, reference_name).at_least(:once).and_call_original
-
-          module_info_by_path_from_database!
         end
 
         context 'cache entry' do

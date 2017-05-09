@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
@@ -38,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPort.new('RPORT', [true, 'The target port', 8080]),
         OptString.new('TARGETURI', [ true, 'SysAid path', '/sysaid']),
-      ], self.class)
+      ])
   end
 
 

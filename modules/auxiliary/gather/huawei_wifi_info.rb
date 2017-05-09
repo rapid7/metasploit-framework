@@ -4,8 +4,6 @@
 ##
 
 require 'base64'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -77,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RHOST('mobilewifi.home')
-      ], self.class)
+      ])
 
   end
 

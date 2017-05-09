@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -53,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         '/usr/bin/id']),
       OptEnum.new('CVE', [true, 'CVE to check/exploit', 'CVE-2014-6271',
         ['CVE-2014-6271', 'CVE-2014-6278']])
-    ], self.class)
+    ])
   end
 
   def check_host(ip)

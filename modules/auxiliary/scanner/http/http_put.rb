@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -47,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILENAME', [true,  "The file to attempt to write or delete", "msf_http_put_test.txt"]),
         OptString.new('FILEDATA', [false, "The data to upload into the file", "msf test file"]),
         OptString.new('ACTION', [true, "PUT or DELETE", "PUT"])
-      ], self.class)
+      ])
   end
 
   #

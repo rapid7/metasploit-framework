@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in John format", nil ]),
         OptString.new('CHALLENGE',   [ true, "The 8 byte server challenge", "1122334455667788" ])
-      ], self.class )
+      ])
 
     register_advanced_options(
       [
@@ -73,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
             "The domain name used during smb exchange with SMB_EXTENDED_SECURITY set.",
             "anonymous"
           ])
-      ], self.class)
+      ])
 
   end
 

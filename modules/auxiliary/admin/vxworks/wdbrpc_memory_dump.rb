@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
           ]
         ),
         OptInt.new('OFFSET', [ true, "The starting offset to read the memory dump (hex allowed)", 0 ])
-      ], self.class)
+      ])
   end
 
   def run

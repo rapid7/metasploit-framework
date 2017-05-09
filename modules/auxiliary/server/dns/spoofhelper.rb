@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'resolv'
 
 
@@ -39,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
         OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 53 ]),
-      ], self.class)
+      ])
   end
 
 

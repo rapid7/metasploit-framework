@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
@@ -51,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('METADATA',     [ true, 'Display Metadata from printjobs', true ]),
       OptEnum.new('MODE',         [ true,  'Print mode', 'RAW', ['RAW', 'LPR']]) # TODO: Add IPP
 
-    ], self.class)
+    ])
 
     deregister_options('SSL', 'SSLVersion', 'SSLCert')
 

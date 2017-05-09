@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('ADDITIONAL_FILES', [false, 'Additional files to steal from the device'])
-      ], self.class)
+      ])
   end
 
   def is_android?(user_agent)

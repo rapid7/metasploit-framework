@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'Password for Cisco Firepower Management console', 'Admin123']),
         OptString.new('TARGETURI', [true, 'The base path to Cisco Firepower Management console', '/']),
         OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/passwd'])
-      ], self.class)
+      ])
 
     deregister_options('RHOST')
   end

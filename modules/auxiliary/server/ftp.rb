@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FTPROOT',    [ true,  "The FTP root directory to serve files from", '/tmp/ftproot' ]),
         OptString.new('FTPUSER',    [ false, "Configure a specific username that should be allowed access"]),
         OptString.new('FTPPASS',    [ false, "Configure a specific password that should be allowed access"]),
-      ], self.class)
+      ])
   end
 
   def run

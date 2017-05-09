@@ -5,9 +5,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
   def initialize(info = {})
     super(update_info(info,
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Post
         OptEnum.new('PROTOCOL', [true, 'Protocol to use.', 'TCP', [ 'TCP', 'UDP', 'ALL' ]]),
         OptEnum.new('METHOD', [true, 'The mechanism by which the packets are generated. Can be NATIVE or WINAPI (Windows only).', 'NATIVE', [ 'NATIVE', 'WINAPI']]),
         OptInt.new('THREADS', [true, 'Number of simultaneous threads/connections to try.', '20'])
-      ], self.class)
+      ])
   end
 
   def winapi_create_socket(proto)

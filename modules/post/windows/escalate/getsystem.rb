@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
 
 
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-4), otherwise try them all", 0])
-    ], self.class)
+    ])
 
   end
 

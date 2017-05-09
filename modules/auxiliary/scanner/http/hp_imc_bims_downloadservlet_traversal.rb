@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
         # By default files downloaded from C:\Program Files\iMC\client\web\apps\imc\
         OptInt.new('DEPTH', [true, 'Traversal depth', 6])
-      ], self.class)
+      ])
   end
 
   def is_imc?

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     ))
     register_options([
       OptPath.new('EOTFILE', [ true, "The EOT template to use to generate the trigger", File.join(Msf::Config.data_directory, "exploits", "pricedown.eot")]),
-    ], self.class)
+    ])
 
   end
 

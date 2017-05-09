@@ -631,7 +631,7 @@ require 'msf/core/exe/segment_appender'
 
       opts[:framework] = framework
       opts[:payload] = 'stdin'
-      opts[:encoder] = '@x86/service,'+opts[:serviceencoder]
+      opts[:encoder] = '@x86/service,'+(opts[:serviceencoder] || '')
 
       venom_generator = Msf::PayloadGenerator.new(opts)
       code_service = venom_generator.multiple_encode_payload(code)
@@ -2143,7 +2143,7 @@ require 'msf/core/exe/segment_appender'
       exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
     when 'loop-vbs'
-      exe = exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
+      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
       Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
     when 'jsp'
       arch ||= [ ARCH_X86 ]
