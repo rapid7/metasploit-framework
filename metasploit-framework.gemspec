@@ -77,7 +77,7 @@ Gem::Specification.new do |spec|
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
-  spec.add_runtime_dependency 'packetfu', '1.1.13.pre'
+  spec.add_runtime_dependency 'packetfu', '1.1.13'
   # For sniffer and raw socket modules
   spec.add_runtime_dependency 'pcaprub'
   # Needed for module caching in Mdm::ModuleDetails
