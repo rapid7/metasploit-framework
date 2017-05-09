@@ -24,7 +24,7 @@ Generally speaking, auxiliary modules are categorized based on their behavior, b
 | **crawler** | If you have a web-spider (crawler), put it here. |
 | **dos** | Pretty self-explanatory: denial-of-service modules. |
 | **fuzzers** | If your module is a fuzzer, this is where it belongs. Make sure to place it in the correct sub-directory based on the protocol. |
-| **gathers** | Modules that gather, collect, or enumerates data from a single target. |
+| **gather** | Modules that gather, collect, or enumerates data from a single target. |
 | **scanner** | Modules that use the ```Msf::Auxiliary::Scanner``` mixin almost always go here. Make sure to place yours in the correct sub-directory based on the protocol. |
 | **server** | Modules that are servers. |
 | **sniffer** | Modules that are sniffers. |
