@@ -21,7 +21,6 @@ Generally speaking, auxiliary modules are categorized based on their behavior, b
 | **admin** | Modules that modify, operate, or manipulate something on target machine. |
 | **analyze** | We initially created this folder for password-cracking modules that require analysis time. |
 | **client** | We initially created this folder for an SMTP module for social-engineering purposes. |
-| **crawler** | If you have a web-spider (crawler), put it here. |
 | **dos** | Pretty self-explanatory: denial-of-service modules. |
 | **fuzzers** | If your module is a fuzzer, this is where it belongs. Make sure to place it in the correct sub-directory based on the protocol. |
 | **gather** | Modules that gather, collect, or enumerates data from a single target. |
