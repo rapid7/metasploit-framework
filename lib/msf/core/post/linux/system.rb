@@ -3,6 +3,7 @@ require 'msf/core/post/common'
 require 'msf/core/post/file'
 require 'msf/core/post/unix'
 
+
 module Msf
 class Post
 module Linux
@@ -95,6 +96,34 @@ module System
     end
     return system_data
   end
+
+  #
+  # return true if possible chroot environment detect, if not true then false
+  #
+  def is_chroot?
+    chroot_env = false
+
+    if not directory?("/proc/")
+      chroot_env = true
+    else
+      dir("/proc/").each do |pid|
+        pid = Integer(pid) rescue nil
+        if pid
+          begin
+            mfd = session.fs.file.new("/proc/#{pid}/exe", "rb")
+            mfd.close
+          rescue Rex::Post::Meterpreter::RequestError => e
+            if Errno::ENOENT::Errno == e.code
+              chroot_env = true
+              break
+            end
+          end
+        end
+      end
+    end
+    return chroot_env
+  end
+
 
 
 end # System
