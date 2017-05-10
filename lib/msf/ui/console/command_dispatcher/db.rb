@@ -385,28 +385,34 @@ class Db
 
       when '-g'
         # This product includes GeoLite data created by MaxMind, available from http://www.maxmind.com
-        host = args.shift
-        # RegEx#match? seems to be faster on newer versions of Ruby
-        if !Rex::Socket::MATCH_IPV4.match(host) && !Rex::Socket::MATCH_IPV6.match(host)
-          if Rex::Socket::MATCH_IPV4_PRIVATE.match(host)
-            print_error("You cannot geolocate local IP addresses")
-            return
-          end
-          print_error("#{host} is not a valid IP address")
-          return
-        end
         glcdat = ::File.join(Msf::Config::data_directory, 'GeoLiteCity.dat')  # Point to data directory
-        c = GeoIP.new(glcdat).city(host)
-        data = ''
-        data << "    IP: #{c[1]}\n"
-        data << "    Continent: #{c[5]}\n"
-        data << "    Country: #{c[4]}\n"
-        data << "    Region: #{c.real_region_name}\n"
-        data << "    City: #{c[7]}\n"
-        data << "    Longitude: #{c.longitude} (about)\n"
-        data << "    Latitude: #{c.latitude} (about)\n"
-        print_status("Info for #{c.request}")
-        print_line(data)
+        hosts = args.drop(0)  # Get rid of the first 2 args (`hosts` and `-g`)
+        hosts = hosts.drop(0)
+        hosts.each do |host|
+
+          # RegEx#match seems to be faster on newer versions of Ruby
+          if !Rex::Socket::MATCH_IPV4.match(host) && !Rex::Socket::MATCH_IPV6.match(host)
+            if Rex::Socket::MATCH_IPV4_PRIVATE.match(host)
+              print_error("You cannot geolocate local IP addresses\n")
+              next
+            end
+            print_error("#{host} is not a valid IP address\n")
+            next
+          end
+
+          c = GeoIP.new(glcdat).city(host)
+          data = ''
+          data << "    IP: #{c[1]}\n"
+          data << "    Continent: #{c[5]}\n"
+          data << "    Country: #{c[4]}\n"
+          data << "    Region: #{c.real_region_name}\n"
+          data << "    City: #{c[7]}\n"
+          data << "    Longitude: #{c.longitude} (about)\n"
+          data << "    Latitude: #{c.latitude} (about)\n"
+          print_status("Info for #{c.request}")
+          print_line(data)
+          host = args.shift
+        end
         return
       when '-u','--up'
         onlyup = true
