@@ -112,7 +112,7 @@ module Msf
 
       def cmd_aggregator_save(*args)
         # if we are logged in, save session details to aggregator.yaml
-        if args.length == 0 || args[0] == "-h"
+        if args.length > 0 || args[0] == "-h"
           usage_save
           return
         end
