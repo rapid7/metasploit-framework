@@ -38,7 +38,6 @@ group :development, :test do
   # environment is development
   gem 'rspec-rails'
 end
-
 group :test do
   # cucumber extension for testing command line applications, like msfconsole
   gem 'aruba'

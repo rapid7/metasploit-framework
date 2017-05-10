@@ -210,7 +210,7 @@ class Export
   #   module_detail elements.
   # @return [void]
   def extract_module_detail_info(report_file)
-      Mdm::Module::Detail.all.each do |m|
+    Mdm::Module::Detail.all.each do |m|
       report_file.write("<module_detail>\n")
       #m_id = m.attributes["id"]
 
