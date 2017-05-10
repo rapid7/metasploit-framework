@@ -395,7 +395,7 @@ class Db
           print_error("#{host} is not a valid IP address")
           return
         end
-        glcdat = "#{File.expand_path(File.dirname(__FILE__))}/../../../../../data/GeoLiteCity.dat"  # Point to data directory
+        glcdat = ::File.join(Msf::Config::data_directory, 'GeoCity.dat')  # Point to data directory
         c = GeoIP.new(glcdat).city(host)
         data = ''
         data << "    IP: #{c[1]}\n"
