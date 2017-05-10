@@ -411,7 +411,7 @@ module DispatcherShell
       }
 
       if (found == false and error == false)
-        unknown_command(method, line)
+        unknown_command(method, line) unless method == "#"
       end
     end
 
