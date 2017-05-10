@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'  => [
         'corelanc0d3r',
-        'Paulino Calderon <calderon[at]websec.mx>' #Added cookie handling
+        'Paulino Calderon <calderon[at]websec.mx>', #Added cookie handling
+        'Nicholas Starke <starke.nicholas[at]gmail.com>' #Fixed bug with delay for fields
         ],
       'License'       => MSF_LICENSE,
       'References'    =>
@@ -250,7 +251,7 @@ class MetasploitModule < Msf::Auxiliary
       @send_data[:method] = form[:method].upcase
       response = send_fuzz(@send_data,datastr)
       if not process_response(response,field,"field")
-        return
+        @fuzzsize = @endsize+2
       end
       if datastore['DELAY'] > 0
         print_status("      (Sleeping for #{datastore['DELAY']} seconds...)")
