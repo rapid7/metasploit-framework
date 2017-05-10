@@ -262,6 +262,8 @@ class MetasploitModule < Msf::Auxiliary
     def initialize(opts={})
       super
       valid!
+
+      super
     end
 
     # Override CredentialCollection#has_privates?
