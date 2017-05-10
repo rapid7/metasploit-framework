@@ -65,8 +65,6 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 		print_line("using jtr_crack_fast")
 		run_single("use auxiliary/analyze/jtr_crack_fast")
 		# we use the info from Msf::Config.install_root and append the following path to it (thx to sinn3r)
-		run_single("set JOHN_BASE #{Msf::Config.install_root}/data/john")
-		run_single("set JOHN_PATH #{Msf::Config.install_root}/data/john")
 		run_single("run -j")
 		run_single("back")
 		jotr = 0		# jtr modules tries to crack all smb_hashes from the db ... so we could leave it now
