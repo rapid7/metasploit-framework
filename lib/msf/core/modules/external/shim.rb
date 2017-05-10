@@ -54,8 +54,6 @@ class Msf::Modules::External::Shim
     meta = mod_meta_common(mod)
     meta = mod_meta_exploit(mod, meta)
     meta[:command_stager_flavor] = mod.meta['payload']['command_stager_flavor'].dump
-    out = render_template('remote_exploit_cmd_stager.erb', meta)
-    File.write("/tmp/blah.rb", out)
-    out
+    render_template('remote_exploit_cmd_stager.erb', meta)
   end
 end
