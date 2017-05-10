@@ -2118,6 +2118,8 @@ require 'msf/core/exe/segment_appender'
         case arch
         when ARCH_X64
           to_linux_x64_elf_dll(framework, code, exeopts)
+        else
+          raise "#{arch} is not supported with elf-so"
         end
       end
     when 'macho', 'osx-app'
