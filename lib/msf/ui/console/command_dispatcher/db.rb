@@ -387,8 +387,8 @@ class Db
         # This product includes GeoLite data created by MaxMind, available from http://www.maxmind.com
         host = args.shift
         # RegEx#match? seems to be faster on newer versions of Ruby
-        if !Rex::Socket::MATCH_IPV4.match?(host) && !Rex::Socket::MATCH_IPV6.match?(host)
-          if Rex::Socket::MATCH_IPV4_PRIVATE.match?(host)
+        if !Rex::Socket::MATCH_IPV4.match(host) && !Rex::Socket::MATCH_IPV6.match(host)
+          if Rex::Socket::MATCH_IPV4_PRIVATE.match(host)
             print_error("You cannot geolocate local IP addresses")
             return
           end
