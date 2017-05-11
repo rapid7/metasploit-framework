@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::WmapScanFile
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Dos
