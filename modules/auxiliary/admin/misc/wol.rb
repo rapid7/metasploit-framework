@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new("MAC",      [true, 'Specify a MAC address', '00:90:27:85:cf:01']),
         OptString.new("PASSWORD", [false, 'Specify a four or six-byte password']),
         OptBool.new("IPV6",       [false, 'Use IPv6 broadcast', false])
-      ], self.class)
+      ])
 
     deregister_options('RHOST', 'RPORT')
   end

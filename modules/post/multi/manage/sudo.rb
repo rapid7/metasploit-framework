@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Post
       register_options(
         [
           OptString.new('PASSWORD', [false, 'The password to use when running sudo.'])
-        ], self.class)
+        ])
   end
 
   # Run Method for when run command is issued

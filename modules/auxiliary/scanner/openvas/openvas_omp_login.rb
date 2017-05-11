@@ -2,8 +2,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -22,13 +20,13 @@ class MetasploitModule < Msf::Auxiliary
     [
       Opt::RPORT(9390),
       OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
-    ], self.class)
+    ])
 
   register_advanced_options(
   [
     OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
     OptString.new('SSLVersion', [ true, " Specify the version of SSL that should be used", "TLS1"])
-  ], self.class)
+  ])
   end
 
   def run_host(ip)

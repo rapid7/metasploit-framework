@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/windows/exec'
 require 'msf/core/payload/windows/powershell'
 require 'msf/base/sessions/powershell'
@@ -46,7 +45,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('LOAD_MODULES', [ false, "A list of powershell modules seperated by a comma to download over the web", nil ]),
-      ], self.class)
+      ])
     # Hide the CMD option...this is kinda ugly
     deregister_options('CMD')
   end

@@ -9,8 +9,6 @@
 #
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -53,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TYPES', [ true, "Field types to fuzz","text,password,inputtextbox"]),
         OptString.new('CODE', [ true, "Response code(s) indicating OK", "200,301,302,303" ] ),
         OptBool.new('HANDLECOOKIES', [ true, "Appends cookies with every request.",false])
-      ], self.class )
+      ])
   end
 
   def init_vars

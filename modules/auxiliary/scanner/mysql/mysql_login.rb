@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mysql'
 
@@ -31,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies
-      ], self.class)
+      ])
   end
 
   def target

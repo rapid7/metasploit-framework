@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -26,7 +23,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('TMP_PATH', [true, 'Path to remote temp directory', '/data/local/tmp/']),
         OptString.new('EXE_PATH', [true, 'Path to remote screencap executable', '/system/bin/screencap'])
-      ], self.class)
+      ])
   end
 
   def run

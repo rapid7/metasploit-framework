@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -56,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('STOP_ON_SUCCESS', [false, "Stop guessing when a credential works for a host", true]),
       OptPort.new('HTTP_PORT', [true, "The HTTP port for the IE ActiveX web client interface", 80]),
       Opt::RPORT(5920)
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -23,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptInt.new('MAXDEPTH', [false, 'Specify a maximum byte depth to test']),
       OptString.new('SMBTREE', [true, 'Specify the tree name to corrupt', "\\\\SERVER\\IPC$"])
-    ], self.class)
+    ])
   end
 
   def do_smb_tree(pkt,opts={})

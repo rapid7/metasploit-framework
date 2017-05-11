@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'recog'
 
 class MetasploitModule < Msf::Auxiliary

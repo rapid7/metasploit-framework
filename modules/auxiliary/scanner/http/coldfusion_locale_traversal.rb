@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FILE', [ false,  'File to retrieve', '']),
         OptBool.new('FINGERPRINT', [true, 'Only fingerprint endpoints', false])
-      ], self.class)
+      ])
   end
 
   def fingerprint(response)

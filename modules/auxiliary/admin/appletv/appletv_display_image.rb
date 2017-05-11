@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('TIME', [true, 'Time in seconds to show the image', 10]),
       OptPath.new('FILE', [true, 'Image to upload and show']),
       OptString.new('HttpPassword', [false, 'The password for AppleTV AirPlay'])
-    ], self.class)
+    ])
 
     # We're not actually using any of these against AppleTV in our Rex HTTP client init,
     # so deregister them so we don't overwhelm the user with fake options.

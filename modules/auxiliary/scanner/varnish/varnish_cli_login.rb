@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/varnish'
 require 'metasploit/framework/tcp/client'
@@ -40,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(6082),
         OptPath.new('PASS_FILE',  [ true, 'File containing passwords, one per line',
           File.join(Msf::Config.data_directory, 'wordlists', 'unix_passwords.txt') ])
-      ], self.class)
+      ])
 
     # We don't currently support an auth mechanism that uses usernames, so we'll ignore any
     # usernames that are passed in.

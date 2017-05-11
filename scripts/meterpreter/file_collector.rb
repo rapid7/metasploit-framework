@@ -33,7 +33,7 @@ def usage
 end
 
 # Check that we are running under the right type of Meterpreter
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   # Parse the options
   if args.length > 0
     @opts.parse(args) { |opt, idx, val|

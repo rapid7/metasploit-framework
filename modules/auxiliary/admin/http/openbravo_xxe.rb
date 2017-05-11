@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'net/dns'
 require 'rexml/document'
 
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpPassword', [true, "The Openbravo password", "openbravo"]),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"]),
         OptString.new('ENDPOINT', [true, "The XML API REST endpoint to use", "ADUser"])
-      ], self.class)
+      ])
   end
 
   def run

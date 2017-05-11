@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'Path to HP Intelligent Management Center', '/imc']),
         OptString.new('FILEPATH', [true, 'The path of the file to download', 'c:\\windows\\win.ini'])
-      ], self.class)
+      ])
   end
 
   def is_imc_som?

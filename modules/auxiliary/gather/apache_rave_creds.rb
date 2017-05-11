@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'Path to Apache Rave Portal', '/portal']),
         OptString.new('USERNAME', [ false, 'Apache Rave Username' ]),
         OptString.new('PASSWORD', [ false, 'Apache Rave Password' ]),
-      ], self.class)
+      ])
   end
 
   def login(username, password)

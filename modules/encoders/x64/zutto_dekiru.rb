@@ -1,5 +1,4 @@
 require 'metasm'
-require 'msf/core'
 require 'rex/nop/opty2'
 
 class MetasploitModule < Msf::Encoder::Xor

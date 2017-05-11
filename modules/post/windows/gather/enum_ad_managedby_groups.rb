@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Post
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional group fields to retrieve, comma separated.', nil]),
       OptBool.new('RESOLVE_MANAGERS', [true, 'Query LDAP to get the account name of group managers.', true]),
       OptBool.new('SECURITY_GROUPS_ONLY', [true, 'Only include security groups.', true])
-    ], self.class)
+    ])
   end
 
   def run

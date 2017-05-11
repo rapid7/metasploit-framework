@@ -84,7 +84,7 @@ mul.exploit_simple(
   'RunAsJob' => true
 )
 
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   server = client.sys.process.open
 
   print_status("Current server process: #{server.name} (#{server.pid})")

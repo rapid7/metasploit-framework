@@ -4,9 +4,6 @@
 ##
 
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('VOLUME', [ true, 'Volume to make a copy of.', 'C:\\'])
-      ], self.class)
+      ])
 
   end
 

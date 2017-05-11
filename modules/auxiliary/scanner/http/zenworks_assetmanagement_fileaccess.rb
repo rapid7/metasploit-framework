@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ABSOLUTE', [ true, 'Use an absolute file path or directory traversal relative to the tomcat home', true ]),
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'C:\\WINDOWS\\system32\\drivers\\etc\\hosts']),
         OptInt.new('DEPTH', [false, 'Traversal depth if absolute is set to false', 1])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

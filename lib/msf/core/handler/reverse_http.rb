@@ -45,7 +45,7 @@ module ReverseHttp
 
     register_options(
       [
-        OptString.new('LHOST', [true, 'The local listener hostname']),
+        OptAddressLocal.new('LHOST', [true, 'The local listener hostname']),
         OptPort.new('LPORT', [true, 'The local listener port', 8080]),
         OptString.new('LURI', [false, 'The HTTP Path', ''])
       ], Msf::Handler::ReverseHttp)

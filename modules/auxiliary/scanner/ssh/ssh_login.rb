@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
 require 'net/ssh/command_stream'
 require 'metasploit/framework/login_scanner/ssh'

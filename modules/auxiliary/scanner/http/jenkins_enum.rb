@@ -8,7 +8,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
@@ -31,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true,  'The path to the Jenkins-CI application', '/jenkins/' ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

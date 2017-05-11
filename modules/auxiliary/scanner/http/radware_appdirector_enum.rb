@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as, default 'radware'", "radware"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'radware'", "radware"])
-      ], self.class)
+      ])
 
     deregister_options('HttpUsername', 'HttpPassword')
   end

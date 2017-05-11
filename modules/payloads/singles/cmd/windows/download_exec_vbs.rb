@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -39,7 +38,7 @@ module MetasploitModule
         OptString.new('EXT', [ true, "The extension to give the saved file", "exe" ]),
         OptBool.new('INCLUDECMD', [ true, "Include the cmd /q /c", false ]),
         OptBool.new('DELETE', [ true, "Delete created .vbs after download", true ])
-      ], self.class)
+      ])
   end
 
   def generate

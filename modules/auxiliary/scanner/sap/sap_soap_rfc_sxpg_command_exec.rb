@@ -14,8 +14,6 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -50,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CMD', [true, 'SM69 command to be executed', 'PING']),
         OptString.new('PARAM', [false, 'Additional parameters for the SM69 command', nil]),
         OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

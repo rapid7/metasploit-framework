@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('URILOGIN', [true, "URI for Metasploit Web login. Default is /login", "/login"]),
         OptString.new('URIGUESS', [true, "URI for Metasploit Web login. Default is /user_sessions", "/user_sessions"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
-      ], self.class)
+      ])
 
     register_autofilter_ports([55553])
   end

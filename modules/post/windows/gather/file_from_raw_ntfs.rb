@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('FILE_PATH', [true, 'The FILE_PATH to retreive from the Volume raw device', nil])
-      ], self.class)
+      ])
   end
 
   def run

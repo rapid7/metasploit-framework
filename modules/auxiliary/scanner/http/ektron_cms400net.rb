@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
             "File containing users and passwords",
             File.join(Msf::Config.data_directory, "wordlists", "cms400net_default_userpass.txt")
           ])
-      ], self.class)
+      ])
 
     # Set to false to prevent account lockouts - it will!
     deregister_options('BLANK_PASSWORDS')

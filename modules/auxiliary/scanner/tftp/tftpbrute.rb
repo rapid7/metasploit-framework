@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::CHOST,
         OptPath.new('DICTIONARY', [ true, 'The list of filenames',
           File.join(Msf::Config.data_directory, "wordlists", "tftp.txt") ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

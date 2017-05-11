@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Post
         OptString.new('HOSTNAMES', [false, 'Comma seperated list of hostnames to resolve.']),
         OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve.']),
         OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ])
-      ], self.class)
+      ])
   end
 
   def run

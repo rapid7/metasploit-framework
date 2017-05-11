@@ -12,8 +12,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MSSQL
@@ -44,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('NAMES', [ true, 'Pipe separated list of column names',  'passw|bank|credit|card']),
-      ], self.class)
+      ])
   end
 
   def print_with_underline(str)

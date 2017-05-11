@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'metasploit/framework/community_string_collection'
 require 'metasploit/framework/login_scanner/snmp'
 
@@ -36,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       OptPath.new('PASS_FILE',  [ false, "File containing communities, one per line",
         File.join(Msf::Config.data_directory, "wordlists", "snmp_default_pass.txt")
       ])
-    ], self.class)
+    ])
 
     deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE')
   end

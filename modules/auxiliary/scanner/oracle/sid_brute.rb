@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TNS
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('SID_FILE', [ false, "File containing instance names, one per line", File.join(Msf::Config.data_directory, "wordlists", "sid.txt") ]),
         OptString.new('SID', [ false, 'A specific SID to attempt.' ]),
         Opt::RPORT(1521)
-      ], self.class)
+      ])
 
     deregister_options(
       "RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",

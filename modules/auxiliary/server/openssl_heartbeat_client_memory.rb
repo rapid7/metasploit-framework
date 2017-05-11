@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
@@ -46,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('HEARTBEAT_LIMIT', [true, "The number of kilobytes of data to capture at most from each client", 512]),
         OptInt.new('HEARTBEAT_READ', [true, "The number of bytes to leak in the heartbeat response", 65535]),
         OptBool.new('NEGOTIATE_TLS', [true, "Set this to true to negotiate TLS and often leak more data at the cost of CA validation", false])
-      ], self.class)
+      ])
   end
 
   # Initialize the client state and RSA key for this session

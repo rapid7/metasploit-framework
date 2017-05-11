@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/zabbix'
 require 'metasploit/framework/credential_collection'
 
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [ true,  'The path to the Zabbix server application', '/zabbix/']),
-      ], self.class)
+      ])
   end
 
   #

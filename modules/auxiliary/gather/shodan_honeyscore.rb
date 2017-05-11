@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGET', [true, 'The target to get the score of']),
         OptString.new('SHODAN_APIKEY', [true, 'The SHODAN API key'])
-      ], self.class)
+      ])
   end
 
   def print_score(score)

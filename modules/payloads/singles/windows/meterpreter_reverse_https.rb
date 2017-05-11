@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/transport_config'
 require 'msf/core/handler/reverse_https'
 require 'msf/core/payload/windows/meterpreter_loader'
@@ -37,7 +36,7 @@ module MetasploitModule
     register_options([
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
       OptString.new('EXTINIT',    [false, 'Initialization strings for extensions'])
-    ], self.class)
+    ])
   end
 
   def generate(opts={})

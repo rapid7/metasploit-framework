@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Nop
 
@@ -18,8 +16,8 @@ class MetasploitModule < Msf::Nop
       'License'     => MSF_LICENSE,
       'Arch'        => ARCH_X64 )
 
-    register_advanced_options( [ OptBool.new( 'RandomNops', [ false, "Generate a random NOP sled", true ] ) ], self.class )
-    register_advanced_options( [ OptBool.new( 'MultiByte',  [ false, "Generate a multi byte instruction NOP sled", false ] ) ], self.class )
+    register_advanced_options( [ OptBool.new( 'RandomNops', [ false, "Generate a random NOP sled", true ] ) ])
+    register_advanced_options( [ OptBool.new( 'MultiByte',  [ false, "Generate a multi byte instruction NOP sled", false ] ) ])
   end
 
   # This instruction list is far from complete (Only single byte instructions and some multi byte ADD/MOV instructions are used).

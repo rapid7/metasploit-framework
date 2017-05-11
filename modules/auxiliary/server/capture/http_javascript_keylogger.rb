@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
   register_options(
     [
       OptBool.new('DEMO', [true, "Creates HTML for demo purposes", false]),
-    ], self.class)
+    ])
   end
 
 

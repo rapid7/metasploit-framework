@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require "msf/core"
 require "rex/proto/pjl"
 
 class MetasploitModule < Msf::Auxiliary
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       OptPath.new("LPATH", [true, "Local path",
         File.join(Msf::Config.data_directory, "eicar.com")]),
       OptString.new("RPATH", [true, "Remote path", '0:\..\..\..\eicar.com'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

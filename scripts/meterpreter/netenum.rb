@@ -311,7 +311,7 @@ srvrc = nil
   end
 }
 
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if  pngsp == 1
     if range != nil
       message(logs)

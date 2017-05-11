@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -23,7 +20,7 @@ class MetasploitModule < Msf::Post
       ))
     register_options(
       [
-        OptAddress.new('LHOST',
+        OptAddressLocal.new('LHOST',
           [true, 'IP of host that will receive the connection from the payload.']),
         OptInt.new('LPORT',
           [false, 'Port for Payload to connect to.', 4433]),
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Post
           [ true, 'Start an exploit/multi/handler to receive the connection', false]),
         OptEnum.new('TYPE', [true, 'Scripting environment on target to use for reverse shell',
           'auto', ['auto','ruby','python','perl','bash']])
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

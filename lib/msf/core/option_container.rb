@@ -7,6 +7,7 @@ module Msf
   autoload :OptBase, 'msf/core/opt_base'
 
   autoload :OptAddress, 'msf/core/opt_address'
+  autoload :OptAddressLocal, 'msf/core/opt_address_local'
   autoload :OptAddressRange, 'msf/core/opt_address_range'
   autoload :OptBool, 'msf/core/opt_bool'
   autoload :OptEnum, 'msf/core/opt_enum'

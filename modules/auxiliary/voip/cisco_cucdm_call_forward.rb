@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
@@ -40,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('MAC', [ true, 'MAC Address of target phone', '000000000000']),
         OptString.new('FORWARDTO', [ true, 'Number to forward all calls', '007']),
         OptString.new('FINTNUMBER', [ false, 'FINTNUMBER of IP Phones, required for multiple lines'])
-      ], self.class)
+      ])
   end
 
   def run

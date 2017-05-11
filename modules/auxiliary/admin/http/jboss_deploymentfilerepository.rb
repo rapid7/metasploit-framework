@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HTTP::JBoss
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('APPBASE', [ true,  'Application base name', 'payload']),
         OptPath.new('WARFILE',   [ false, 'The WAR file to deploy'])
-      ], self.class)
+      ])
   end
 
   def deploy_action(app_base, war_data)

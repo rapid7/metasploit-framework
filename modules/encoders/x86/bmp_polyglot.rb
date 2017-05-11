@@ -4,8 +4,6 @@
 ##
 
 require 'rex/poly'
-require 'msf/core'
-
 =begin
 [BITS 32]
 

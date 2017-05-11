@@ -196,7 +196,7 @@ kill = false
     kill = true
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if (captype.to_i == 2)
     if startkeylogger(session)
       keycap(session, keytime, logfile)

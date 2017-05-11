@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::MYSQL
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('PASSWORD')
     register_options( [
       OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ])
-    ], self.class )
+    ])
   end
 
 

@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptString.new('TARGETURI', [true, "URI for Web login. Default: /VPortal/mgtconsole/CheckPassword.jsp", "/VPortal/mgtconsole/CheckPassword.jsp"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

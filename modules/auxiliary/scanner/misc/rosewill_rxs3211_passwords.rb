@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::CHOST,
         Opt::RPORT(13364),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

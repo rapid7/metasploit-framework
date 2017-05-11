@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Capture
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "21,22,23,80,443"]),
           OptString.new('INTERFACE', [true, "The name of the interface", "eth0"]),
           OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500])
-        ],self.class)
+        ])
 
     deregister_options('FILTER','PCAPFILE','RHOST','SNAPLEN')
 

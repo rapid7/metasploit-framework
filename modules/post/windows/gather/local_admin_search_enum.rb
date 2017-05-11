@@ -4,9 +4,6 @@
 ##
 
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('ENUM_GROUPS', [ false, 'Enumerates groups for identified users.', true]),
         OptString.new('DOMAIN', [false, 'Domain to enumerate user\'s groups for']),
         OptString.new('DOMAIN_CONTROLLER', [false, 'Domain Controller to query groups'])
-      ], self.class)
+      ])
   end
 
   def setup

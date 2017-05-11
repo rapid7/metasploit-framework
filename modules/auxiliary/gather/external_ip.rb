@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOST('ifconfig.me'),
         OptBool.new('REPORT_HOST', [false, 'Add the found IP to the database', false])
-      ], self.class)
+      ])
 end
 
   def run

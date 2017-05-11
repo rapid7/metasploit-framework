@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::Priv
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Post
         OptString.new('REMOTE_PAC',  [false, 'Remote PAC file. (Ex: http://192.168.1.20/proxy.pac)' ]),
         OptBool.new('DISABLE_PROXY', [true, 'Disable the proxy server.', false]),
         OptBool.new('AUTO_DETECT',   [true, 'Automatically detect settings.', false])
-      ], self.class)
+      ])
   end
 
   def run

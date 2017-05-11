@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TcpServer
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 5900 ]),
         OptString.new('CHALLENGE', [ true, "The 16 byte challenge", "00112233445566778899AABBCCDDEEFF" ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ])
-      ], self.class)
+      ])
   end
 
   def setup

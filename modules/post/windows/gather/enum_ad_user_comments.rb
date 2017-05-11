@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
       OptString.new('FIELDS', [true, 'Fields to retrieve.','userPrincipalName,sAMAccountName,userAccountControl,comment,description']),
       OptString.new('FILTER', [true, 'Search filter.','(&(&(objectCategory=person)(objectClass=user))(|(description=*pass*)(comment=*pass*)))']),
-    ], self.class)
+    ])
   end
 
   def run

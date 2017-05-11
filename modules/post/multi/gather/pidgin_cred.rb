@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('CONTACTS', [false, 'Collect contact lists?', false]),
         # Not supported yet OptBool.new('LOGS', [false, 'Gather log files?', false]),
-      ], self.class)
+      ])
   end
 
 # TODO add support for collecting logs

@@ -2,8 +2,6 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGET_URI', [ false, "Single target URI", nil]),
         OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request",
           File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

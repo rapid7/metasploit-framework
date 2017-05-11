@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::HttpClient
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('STORE_NOTES', [ true, 'Store the captured information in notes. Use "notes -t http.title" to view', true ]),
         OptBool.new('SHOW_TITLES', [ true, 'Show the titles on the console as they are grabbed', true ]),
         OptString.new('TARGETURI', [true, 'The base path', '/'])
-      ], self.class)
+      ])
 
     deregister_options('VHOST')
   end

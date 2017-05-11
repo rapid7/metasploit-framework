@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'nexpose'
 
 class MetasploitModule < Msf::Auxiliary
@@ -42,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('USERNAME', [true, "The Nexpose user", nil]),
       OptString.new('PASSWORD', [true, "The Nexpose password", nil]),
       OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"])
-    ], self.class)
+    ])
   end
 
   def report_cred(opts)

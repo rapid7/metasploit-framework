@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'base64'
 
 class MetasploitModule < Msf::Post
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [OptString.new('RPATH', [false, 'Path of the MDaemon installation', false]) # If software is installed on a rare directory
-    ], self.class)
+    ])
   end
 
   def run

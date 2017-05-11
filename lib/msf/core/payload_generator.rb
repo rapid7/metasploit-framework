@@ -411,6 +411,10 @@ module Msf
         # Allow comma separated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
           e = framework.encoders.create(chosen_encoder)
+          if e.nil?
+            cli_print "Skipping invalid encoder #{chosen_encoder}"
+            next
+          end
           e.datastore.import_options_from_hash(datastore)
           encoders << e if e
         end

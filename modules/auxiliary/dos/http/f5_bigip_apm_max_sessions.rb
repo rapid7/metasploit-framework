@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('RLIMIT', [true, 'The number of requests to send', 10000]),
         OptBool.new('FORCE', [true, 'Proceed with attack even if a BigIP virtual server isn\'t detected', false])
-      ], self.class)
+      ])
   end
 
   def run

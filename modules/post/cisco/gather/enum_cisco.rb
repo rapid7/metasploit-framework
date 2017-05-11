@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/cisco'
 
 class MetasploitModule < Msf::Post
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('ENABLE', [ false, 'Enable password for changing privilege level.']),
         OptPath.new('WORDLIST', [false, 'Wordlist of possible enable passwords to try.'])
-      ], self.class)
+      ])
 
   end
 

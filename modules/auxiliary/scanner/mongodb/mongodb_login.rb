@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(27017),
         OptString.new('DB', [ true, "Database to use", "admin"])
-      ], self.class)
+      ])
 
     deregister_options('RHOST')
   end

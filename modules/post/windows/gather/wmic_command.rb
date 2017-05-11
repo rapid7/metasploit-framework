@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Windows::WMIC
@@ -26,7 +23,7 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('RESOURCE', [false, 'Full path to resource file to read commands from.']),
         OptString.new('COMMAND', [false, 'WMIC command options.']),
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

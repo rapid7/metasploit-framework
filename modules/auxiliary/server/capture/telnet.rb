@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 # Fake Telnet Service - Kris Katterjohn 09/28/2008
 class MetasploitModule < Msf::Auxiliary
 
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPort.new('SRVPORT', [true, 'The local port to listen on.', 23]),
         OptString.new('BANNER', [false, 'The server banner to display when client connects'])
-      ], self.class)
+      ])
   end
 
   def setup

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/http'
 
@@ -50,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
                 'File containing passwords, one per line',
                 File.join(Msf::Config.data_directory, 'wordlists', 'http_default_pass.txt')
             ]
-            )], self.class)
+            )])
 
     deregister_options(
         'USERNAME', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_USERS', 'NTLM::SendLM', 'NTLM::SendNTLM',

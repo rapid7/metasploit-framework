@@ -4,7 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 require 'thread'
 
 
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           ]
         )
 
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
         OptInt.new('TestThreads', [ true, "Number of test threads", 25])
 
-      ], self.class)
+      ])
 
   end
 

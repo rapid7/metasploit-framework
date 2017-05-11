@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -47,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       # Moxa protocol listens on 4800/UDP by default
       Opt::RPORT(4800)
-    ], self.class)
+    ])
   end
 
   # The data to be sent via UDP

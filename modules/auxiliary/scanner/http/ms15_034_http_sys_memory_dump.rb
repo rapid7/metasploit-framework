@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('TARGETURI', [false, 'URI to the site (e.g /site/) or a valid file resource (e.g /welcome.png)', '/']),
       OptBool.new('SUPPRESS_REQUEST', [ true, 'Suppress output of the requested resource', true ])
-    ], self.class)
+    ])
 
     deregister_options('VHOST')
   end

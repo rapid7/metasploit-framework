@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Smtp
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
             File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
           ]),
         OptBool.new('UNIXONLY', [ true, 'Skip Microsoft bannered servers when testing unix users', true])
-      ], self.class)
+      ])
 
     deregister_options('MAILTO','MAILFROM')
   end

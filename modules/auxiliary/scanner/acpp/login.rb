@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/acpp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/acpp'
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(Rex::Proto::ACPP::DEFAULT_PORT)
-      ], self.class)
+      ])
 
     deregister_options(
       # there is no username, so remove all of these options

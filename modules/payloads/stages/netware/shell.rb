@@ -4,7 +4,6 @@
 ##
 
 require 'metasm'
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 

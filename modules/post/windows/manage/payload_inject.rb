@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/common'
 
 class MetasploitModule < Msf::Post
@@ -30,13 +28,13 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('PAYLOAD',   [false, 'Windows Payload to inject into memory of a process.', "windows/meterpreter/reverse_tcp"]),
-        OptAddress.new('LHOST', [true, 'IP of host that will receive the connection from the payload.']),
+        OptAddressLocal.new('LHOST', [true, 'IP of host that will receive the connection from the payload.']),
         OptInt.new('LPORT', [false, 'Port for Payload to connect to.', 4433]),
         OptInt.new('PID', [false, 'Process Identifier to inject of process to inject payload.']),
         OptBool.new('HANDLER', [ false, 'Start an exploit/multi/handler to receive the connection', false]),
         OptString.new('OPTIONS', [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format."]),
         OptInt.new('AMOUNT',  [false, 'Select the amount of shells you want to spawn.', 1])
-        ], self.class)
+        ])
   end
 
   # Run Method for when run command is issued

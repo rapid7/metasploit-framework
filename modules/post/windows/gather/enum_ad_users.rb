@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
@@ -58,7 +55,7 @@ class MetasploitModule < Msf::Post
                             'SMARTCARD_REQUIRED',
                             'NEVER_LOGGEDON'
                           ]])
-    ], self.class)
+    ])
   end
 
   def run

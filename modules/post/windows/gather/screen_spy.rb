@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rbconfig'
 
 class MetasploitModule < Msf::Post
@@ -38,7 +37,7 @@ class MetasploitModule < Msf::Post
         OptInt.new('COUNT', [true, 'Number of screenshots to collect', 6]),
         OptBool.new('VIEW_SCREENSHOTS', [false, 'View screenshots automatically', false]),
         OptBool.new('RECORD', [true, 'Record all screenshots to disk by looting them', true])
-      ], self.class)
+      ])
   end
 
   def view_screenshots?

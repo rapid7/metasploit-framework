@@ -5,9 +5,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Post
         OptString.new('PORTS', [true, 'Ports to test (e.g. 80,443,100-110).','80,443']),
         OptInt.new('TIMEOUT', [true, 'Timeout for the ICMP socket.', 3]),
         OptBool.new('STOP', [true, 'Stop when it finds a public IP.', true])
-      ], self.class)
+      ])
   end
 
   def icmp_setup

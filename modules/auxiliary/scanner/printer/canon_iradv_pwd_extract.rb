@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -44,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWD', [ true, 'The default Admin password', '7654321']),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer probe', 20])
 
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

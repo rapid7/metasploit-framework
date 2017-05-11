@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Smtp
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(25),
         OptString.new('EHLO_DOMAIN', [ true, 'The domain to send with the EHLO command', 'localhost' ]),
-      ], self.class)
+      ])
 
     deregister_options('MAILTO', 'MAILFROM')
   end

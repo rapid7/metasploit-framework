@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('USERNAME', [true, "A specific username to authenticate as, default 'admn'", "admn"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'admn'", "admn"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

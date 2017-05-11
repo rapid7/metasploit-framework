@@ -20,8 +20,6 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -55,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
       OptString.new('HttpPassword', [true, 'Password', '06071992']),
       OptString.new('FILEPATH',[true,'File Path to check for  (e.g. /etc)','/etc/passwd'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

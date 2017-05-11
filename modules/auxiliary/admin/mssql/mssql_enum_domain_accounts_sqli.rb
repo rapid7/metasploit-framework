@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/exploit/mssql_commands'
 
 class MetasploitModule < Msf::Auxiliary
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       OptInt.new('START_RID', [true, 'RID to start fuzzing at.', 500]),
       OptInt.new('END_RID', [true, 'RID to stop fuzzing at.', 3000])
-    ], self.class)
+    ])
   end
 
   def run

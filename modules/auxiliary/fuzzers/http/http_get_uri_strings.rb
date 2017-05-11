@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(80),
       OptString.new("VHOST", [false, "The virtual host name to use in requests"]),
       OptString.new("URIBASE", [true, "The base URL to use for the request fuzzer", "/"])
-    ], self.class)
+    ])
   end
 
   def do_http_get(uri='',opts={})

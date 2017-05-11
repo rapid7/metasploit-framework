@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/cisco_firepower'
 require 'metasploit/framework/credential_collection'
 
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The base path to Cisco Firepower Management console', '/']),
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:Admin123', false])
-      ], self.class)
+      ])
   end
 
 

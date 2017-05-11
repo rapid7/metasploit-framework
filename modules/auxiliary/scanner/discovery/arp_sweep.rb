@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('SMAC', [false, "Source MAC Address"]),
       # one re-register TIMEOUT here with a lower value, cause 5 seconds will be enough in most of the case
       OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data', 5]),
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE', 'SECRET', 'GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT')
   end

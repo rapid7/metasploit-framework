@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('VID', [true, 'The video ID to the YouTube video'])
-      ], self.class)
+      ])
   end
 
   #

@@ -14,7 +14,6 @@ require 'zip'
 # Project
 #
 
-require 'msf/core'
 # for creating files
 require 'rex/zip'
 
@@ -50,7 +49,7 @@ class MetasploitModule < Msf::Post
           OptAddress.new('SMBHOST',[true, 'Server IP or hostname that the .docx document points to']),
           OptString.new('FILE', [true, 'Remote file to inject UNC path into. ']),
           OptBool.new('BACKUP', [true, 'Make local backup of remote file.', true]),
-      ], self.class)
+      ])
   end
 
   #Store MACE values so we can set them later again.

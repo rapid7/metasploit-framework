@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 module MetasploitModule
 
@@ -34,7 +32,7 @@ module MetasploitModule
         OptString.new('TITLE', [ true, "Messagebox Title (max 255 chars)", "MessageBox" ]),
         OptString.new('TEXT', [ true, "Messagebox Text (max 255 chars)", "Hello, from MSF!" ]),
         OptString.new('ICON', [ true, "Icon type can be NO, ERROR, INFORMATION, WARNING or QUESTION", "NO" ])
-      ], self.class)
+      ])
   end
 
   #

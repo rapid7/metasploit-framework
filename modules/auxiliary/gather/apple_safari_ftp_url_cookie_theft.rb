@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/service_manager'
 
 class MetasploitModule < Msf::Auxiliary
@@ -43,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         'The comma-separated list of domains to steal non-HTTPOnly cookies from.',
         'apple.com,example.com'
       ])
-    ], self.class )
+    ])
   end
 
 
