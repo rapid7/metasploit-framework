@@ -1,11 +1,4 @@
 GIT
-  remote: https://github.com/WinRb/rubyntlm
-  revision: 38aaf1d59dd1a443e4a9c0aea2be232cfe262772
-  branch: master
-  specs:
-    rubyntlm (0.6.2)
-
-GIT
   remote: https://github.com/banister/method_source
   revision: 0cc6cc8e15d08880585e8cb0c54e13c3cf937c54
   branch: master
@@ -354,6 +347,7 @@ GEM
       bindata
       rubyntlm
       windows_error
+    rubyntlm (0.6.1)
     rubyzip (1.2.1)
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
@@ -402,7 +396,6 @@ DEPENDENCIES
   rake
   redcarpet
   rspec-rails
-  rubyntlm!
   shoulda-matchers
   simplecov
   timecop
