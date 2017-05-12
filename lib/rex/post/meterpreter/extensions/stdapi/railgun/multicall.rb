@@ -25,7 +25,6 @@
 
 require 'pp'
 require 'enumerator'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
@@ -42,12 +41,12 @@ class MultiCaller
 
     include DLLHelper
 
-    def initialize( client, parent, win_consts )
+    def initialize(client, parent, consts_mgr)
       @parent = parent
       @client = client
 
       # needed by DLL helper
-      @win_consts = win_consts
+      @consts_mgr = consts_mgr
 
       if @client.native_arch == ARCH_X64
         @native = 'Q<'
@@ -75,7 +74,6 @@ class MultiCaller
         end
 
         raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
-        #puts "process_function_call(function.windows_name,#{PP.pp(args, "")})"
 
         # We transmit the immediate stack and three heap-buffers:
         # in, inout and out. The reason behind the separation is bandwidth.
@@ -170,7 +168,7 @@ class MultiCaller
             # it's not a pointer
             buffer = [0].pack(@native)
             case param_desc[0]
-              when "LPVOID", "HANDLE"
+              when "LPVOID", "HANDLE", "SIZE_T"
                 num     = param_to_number(args[param_idx])
                 buffer += [num].pack(@native)
               when "DWORD"
@@ -209,8 +207,8 @@ class MultiCaller
         group.add_tlv(TLV_TYPE_RAILGUN_STACKBLOB, literal_pairs_blob)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
-        group.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, dll_name )
-        group.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.windows_name)
+        group.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, dll_host.dll_path)
+        group.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.remote_name)
         request.tlvs << group
 
         layouts << [inout_layout, out_only_layout]

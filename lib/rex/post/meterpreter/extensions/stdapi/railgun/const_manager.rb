@@ -23,6 +23,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+require 'thread'
+
 module Rex
 module Post
 module Meterpreter
@@ -31,9 +33,53 @@ module Stdapi
 module Railgun
 
 #
-# Manages our library of windows constants
+# A container holding useful API Constants.
 #
-class WinConstManager
+class ApiConstants
+
+  # This will be lazily loaded in self.manager
+  @manager = nil
+
+  # Mutex to ensure we don't add constants more than once via thread races.
+  @manager_semaphore = Mutex.new
+
+  class << self
+    attr_accessor :manager_semaphore
+  end
+
+  def self.inherited(child_class)
+    child_class.manager_semaphore = Mutex.new
+  end
+
+  #
+  # Provides a frozen constant manager for the constants defined in
+  # self.add_constants
+  #
+  def self.manager
+
+    # The first check for nil is to potentially skip the need to synchronize
+    if @manager.nil?
+      # Looks like we MAY need to load manager
+      @manager_semaphore.synchronize do
+        # We check once more. Now our options are synchronized
+        if @manager.nil?
+          @manager = ConstManager.new
+
+          self.add_constants(@manager)
+
+          @manager.freeze
+        end
+      end
+    end
+
+    return @manager
+  end
+end
+
+#
+# Manages our library of constants
+#
+class ConstManager
   attr_reader :consts
 
   def initialize(initial_consts = {})
@@ -72,14 +118,14 @@ class WinConstManager
   end
 
   #
-  # Returns an array of constant names that have a value matching "winconst"
+  # Returns an array of constant names that have a value matching "const"
   # and (optionally) a name that matches "filter_regex"
   #
-  def select_const_names(winconst, filter_regex=nil)
+  def select_const_names(const, filter_regex=nil)
     matches = []
 
     consts.each_pair do |name, value|
-      matches << name if value == winconst
+      matches << name if value == const
     end
 
     # Filter matches by name if a filter has been provided

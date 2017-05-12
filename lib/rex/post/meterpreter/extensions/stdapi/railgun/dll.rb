@@ -46,11 +46,11 @@ class DLL
   attr_accessor :functions
   attr_reader   :dll_path
 
-  def initialize(dll_path, win_consts)
+  def initialize(dll_path, consts_mgr)
     @dll_path = dll_path
 
     # needed by DLLHelper
-    @win_consts = win_consts
+    @consts_mgr = consts_mgr
 
     self.functions = {}
   end
@@ -99,7 +99,7 @@ class DLL
   #      ["DWORD","uType","in"],
   #     ])
   #
-  # Use +windows_name+ when the actual windows name is different from the
+  # Use +remote_name+ when the actual library name is different from the
   # ruby variable.  You might need to do this for example when the actual
   # func name is myFunc@4 or when you want to create an alternative version
   # of an existing function.
@@ -107,11 +107,11 @@ class DLL
   # When the new function is called it will return a list containing the
   # return value and all inout params.  See #call_function.
   #
-  def add_function(name, return_type, params, windows_name=nil, calling_conv="stdcall")
-    if windows_name == nil
-      windows_name = name
+  def add_function(name, return_type, params, remote_name=nil, calling_conv="stdcall")
+    if remote_name == nil
+      remote_name = name
     end
-    @functions[name] = DLLFunction.new(return_type, params, windows_name, calling_conv)
+    @functions[name] = DLLFunction.new(return_type, params, remote_name, calling_conv)
   end
 
   private
@@ -124,8 +124,6 @@ class DLL
     else
       native = 'V'
     end
-
-#puts "process_function_call(function.windows_name,#{PP.pp(args, "")})"
 
     # We transmit the immediate stack and three heap-buffers:
     # in, inout and out. The reason behind the separation is bandwidth.
@@ -221,7 +219,7 @@ class DLL
         # it's not a pointer (LPVOID is a pointer but is not backed by railgun memory, ala PBLOB)
         buffer = [0].pack(native)
         case param_desc[0]
-          when "LPVOID", "HANDLE"
+          when "LPVOID", "HANDLE", "SIZE_T"
             num     = param_to_number(args[param_idx])
             buffer += [num].pack(native)
           when "DWORD"
@@ -261,8 +259,8 @@ class DLL
     request.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
     request.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
 
-    request.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, @dll_path )
-    request.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.windows_name)
+    request.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, @dll_path)
+    request.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.remote_name)
     request.add_tlv(TLV_TYPE_RAILGUN_CALLCONV, function.calling_conv)
 
     response = client.send_request(request)
@@ -368,7 +366,7 @@ class DLL
 #=== START of proccess_function_call snapshot ===
 #		{
 #			:platform => '#{native == 'Q' ? 'x64/windows' : 'x86/windows'}',
-#			:name => '#{function.windows_name}',
+#			:name => '#{function.remote_name}',
 #			:params => #{function.params},
 #			:return_type => '#{function.return_type}',
 #			:dll_name => '#{@dll_path}',
@@ -379,7 +377,7 @@ class DLL
 #				TLV_TYPE_RAILGUN_BUFFERBLOB_IN => #{in_only_buffer.inspect},
 #				TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT => #{inout_buffer.inspect},
 #				TLV_TYPE_RAILGUN_DLLNAME => '#{@dll_path}',
-#				TLV_TYPE_RAILGUN_FUNCNAME => '#{function.windows_name}',
+#				TLV_TYPE_RAILGUN_FUNCNAME => '#{function.remote_name}',
 #			},
 #			:response_from_client => {
 #				TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT => #{rec_inout_buffers.inspect},

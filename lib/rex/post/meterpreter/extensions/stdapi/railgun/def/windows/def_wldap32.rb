@@ -9,8 +9,8 @@ module Def
 
 class Def_wldap32
 
-  def self.create_dll(dll_path = 'wldap32')
-    dll = DLL.new(dll_path, ApiConstants.manager)
+  def self.create_dll(constant_manager, dll_path = 'wldap32')
+    dll = DLL.new(dll_path, constant_manager)
 
     dll.add_function('ldap_sslinitA', 'DWORD',[
         ['PCHAR', 'HostName', 'in'],

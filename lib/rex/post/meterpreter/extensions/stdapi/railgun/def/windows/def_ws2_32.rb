@@ -9,8 +9,8 @@ module Def
 
 class Def_ws2_32
 
-  def self.create_dll(dll_path = 'ws2_32')
-    dll = DLL.new(dll_path, ApiConstants.manager)
+  def self.create_dll(constant_manager, dll_path = 'ws2_32')
+    dll = DLL.new(dll_path, constant_manager)
 
     dll.add_function('getaddrinfo', 'DWORD',[
       ["PCHAR","pNodeName","in"],

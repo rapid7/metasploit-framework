@@ -9,8 +9,8 @@ module Def
 
 class Def_iphlpapi
 
-  def self.create_dll(dll_path = 'iphlpapi')
-    dll = DLL.new(dll_path, ApiConstants.manager)
+  def self.create_dll(constant_manager, dll_path = 'iphlpapi')
+    dll = DLL.new(dll_path, constant_manager)
 
     dll.add_function('CancelIPChangeNotify', 'BOOL',[
       ["PBLOB","notifyOverlapped","in"],
