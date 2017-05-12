@@ -4,7 +4,9 @@ The R Services (rexecd, rlogind, and rshd) are a suite of unencrypted remote com
 These services are all but unused in modern computing, as they have been replace by telnet and ssh.
 
 `rsh` relies on host names as a security mechanism.  Utilizing `+` can wildcard so any computer can connect.  In the following
-config, we'll utilize that wildcarded setting to simplify our exploitation.  This is a glaring security issue!!!
+config, we'll utilize that wildcarded setting to simplify our exploitation.  **This is a glaring security issue!!!**
+However, there are exceptions to this in proprietary Unix systems which may include other mechanisms such as Kerberos
+([AIX](https://www.ibm.com/support/knowledgecenter/en/ssw_aix_71/com.ibm.aix.cmds4/rsh.htm))
 
 If you encounter `Host address mismatch for `..., you may need to adjust your `/etc/hosts` file accordingly.
 
