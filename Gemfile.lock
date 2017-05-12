@@ -44,7 +44,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.2.28)
+      metasploit-payloads (= 1.2.29)
       metasploit_data_models
       metasploit_payloads-mettle (= 0.1.9)
       msgpack
@@ -222,7 +222,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.2.28)
+    metasploit-payloads (1.2.29)
     metasploit_data_models (2.0.14)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
