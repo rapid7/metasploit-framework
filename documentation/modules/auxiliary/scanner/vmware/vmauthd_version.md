@@ -1,6 +1,8 @@
 ## Vulnerable Application
 
-`vmauthd` is the VMWare authentication daemon that is included wiht many VMWare products, including ESX(i), player, and workstation.
+`vmauthd` is the VMWare authentication daemon that is included with many VMWare products, 
+including [ESX(i)](https://my.vmware.com/en/web/vmware/evalcenter?p=free-esxi6), 
+and [Workstation](https://www.vmware.com/products/workstation.html).
 
 **Warning:** There is a known condition where this module utilizes `SSLv3`, however this is disabled in Kali.
 Changing to `SSLv23` will work on a default Kali install.  This change was made for documenting this module.
