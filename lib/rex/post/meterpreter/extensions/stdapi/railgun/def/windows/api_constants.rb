@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
-require 'thread'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/const_manager'
 
 module Rex
 module Post
@@ -8,41 +7,12 @@ module Meterpreter
 module Extensions
 module Stdapi
 module Railgun
+module Def
 
 #
 # A container holding useful Windows API Constants.
 #
-class ApiConstants
-
-  # This will be lazily loaded in self.manager
-  @@manager = nil
-
-  # Mutex to ensure we don't add constants more than once via thread races.
-  @@manager_semaphore = Mutex.new
-
-  #
-  # Provides a frozen constant manager for the constants defined in
-  # self.add_constants
-  #
-  def self.manager
-
-    # The first check for nil is to potentially skip the need to synchronize
-    if @@manager.nil?
-      # Looks like we MAY need to load manager
-      @@manager_semaphore.synchronize do
-        # We check once more. Now our options are synchronized
-        if @@manager.nil?
-          @@manager = WinConstManager.new
-
-          self.add_constants(@@manager)
-
-          @@manager.freeze
-        end
-      end
-    end
-
-    return @@manager
-  end
+class DefApiConstants_windows < ApiConstants
 
   #
   # Slurp in a giant list of known constants.
@@ -2356,31 +2326,31 @@ class ApiConstants
     win_const_mgr.add_const('RTM_VIEW_MASK_UCAST',0x00000001)
     win_const_mgr.add_const('CERT_ALT_NAME_VALUE_ERR_INDEX_MASK',0x0000FFFF)
     win_const_mgr.add_const('ERROR_NO_SUCH_GROUP',0x00000527)
-    
+
     # Generic Access Rights
     win_const_mgr.add_const('GENERIC_ALL',0x10000000)
     win_const_mgr.add_const('GENERIC_EXECUTE',0x20000000)
     win_const_mgr.add_const('GENERIC_WRITE',0x40000000)
     win_const_mgr.add_const('GENERIC_READ',0x80000000)
-    
-        
+
+
     # Standard Access Rights
     win_const_mgr.add_const('DELETE',0x00010000)
     win_const_mgr.add_const('READ_CONTROL',0x00020000)
     win_const_mgr.add_const('WRITE_DAC',0x00040000)
     win_const_mgr.add_const('WRITE_OWNER',0x00080000)
     win_const_mgr.add_const('ACCESS_SYSTEM_SECURITY',0x01000000)
-    
+
     # Services
     win_const_mgr.add_const('SERVICE_NO_CHANGE',0xFFFFFFFF)
-    
+
     # Service Start Types
     win_const_mgr.add_const('START_TYPE_BOOT',0x00000000)
     win_const_mgr.add_const('START_TYPE_SYSTEM',0x00000001)
     win_const_mgr.add_const('START_TYPE_AUTO',0x00000002)
     win_const_mgr.add_const('START_TYPE_MANUAL',0x00000003)
     win_const_mgr.add_const('START_TYPE_DISABLED',0x00000004)
-    
+
     # Service States
     win_const_mgr.add_const('SERVICE_STOPPED',0x00000001)
     win_const_mgr.add_const('SERVICE_START_PENDING',0x00000002)
@@ -2389,7 +2359,7 @@ class ApiConstants
     win_const_mgr.add_const('SERVICE_CONTINUE_PENDING',0x00000005)
     win_const_mgr.add_const('SERVICE_PAUSE_PENDING',0x00000006)
     win_const_mgr.add_const('SERVICE_PAUSED',0x00000007)
-    
+
     # Service Types
     win_const_mgr.add_const('SERVICE_KERNEL_DRIVER',0x00000001)
     win_const_mgr.add_const('SERVICE_FILE_SYSTEM_DRIVER',0x00000002)
@@ -2397,7 +2367,7 @@ class ApiConstants
     win_const_mgr.add_const('SERVICE_RECOGNIZER_DRIVER',0x00000008)
     win_const_mgr.add_const('SERVICE_WIN32_OWN_PROCESS',0x00000010)
     win_const_mgr.add_const('SERVICE_WIN32_SHARE_PROCESS',0x00000020)
-    
+
     # Service Manager Permissions
     win_const_mgr.add_const('SC_MANAGER_CONNECT',0x00000001)
     win_const_mgr.add_const('SC_MANAGER_CREATE_SERVICE',0x00000002)
@@ -2407,7 +2377,7 @@ class ApiConstants
     win_const_mgr.add_const('SC_MANAGER_MODIFY_BOOT_CONFIG',0x00000020)
     win_const_mgr.add_const('SC_MANAGER_USER_DEFINED_CONTROL',0x00000100)
     win_const_mgr.add_const('SC_MANAGER_ALL_ACCESS',0x000F003F)
-    
+
     # Service Permissions
     win_const_mgr.add_const('SERVICE_QUERY_CONFIG',0x00000001)
     win_const_mgr.add_const('SERVICE_CHANGE_CONFIG',0x00000002)
@@ -2419,7 +2389,7 @@ class ApiConstants
     win_const_mgr.add_const('SERVICE_INTERROGATE',0x00000080)
     win_const_mgr.add_const('SERVICE_USER_DEFINED_CONTROL',0x00000100)
     win_const_mgr.add_const('SERVICE_ALL_ACCESS',0x000F01FF)
-    
+
     win_const_mgr.add_const('LINEINITIALIZEEXOPTION_USECOMPLETIONPORT',0x00000003)
     win_const_mgr.add_const('AVIIF_TWOCC',0x00000002)
     win_const_mgr.add_const('TBTS_LEFT',0x00000001)
@@ -38170,4 +38140,4 @@ class ApiConstants
 
 end
 
-end; end; end; end; end; end
+end; end; end; end; end; end; end

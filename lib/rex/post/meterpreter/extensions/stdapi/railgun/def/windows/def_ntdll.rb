@@ -9,8 +9,8 @@ module Def
 
 class Def_ntdll
 
-  def self.create_dll(dll_path = 'ntdll')
-    dll = DLL.new(dll_path, ApiConstants.manager)
+  def self.create_dll(constant_manager, dll_path = 'ntdll')
+    dll = DLL.new(dll_path, constant_manager)
 
     dll.add_function('NtAllocateVirtualMemory', 'DWORD',[
       ["DWORD","ProcessHandle","in"],

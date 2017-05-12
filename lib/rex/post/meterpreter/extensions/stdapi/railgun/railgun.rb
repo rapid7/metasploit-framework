@@ -31,13 +31,16 @@
 # chao - June 2011 - major overhaul of dll lazy loading, caching, and bit of everything
 #
 
+#
+# zeroSteiner - April 2017 - added support for non-windows platforms
+#
+
 require 'pp'
 require 'enumerator'
 
-require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/util'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/const_manager'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/multicall'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_wrapper'
@@ -59,28 +62,33 @@ class Railgun
   # Railgun::DLL's that have builtin definitions.
   #
   # If you want to add additional DLL definitions to be preloaded create a
-  # definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/'.
+  # definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/$platform/'.
   # Naming is important and should follow convention.  For example, if your
   # dll's name was "my_dll"
   # file name:    def_my_dll.rb
   # class name:   Def_my_dll
   # entry below: 'my_dll'
   #
-  BUILTIN_DLLS = [
-    'kernel32',
-    'ntdll',
-    'user32',
-    'ws2_32',
-    'iphlpapi',
-    'advapi32',
-    'shell32',
-    'netapi32',
-    'crypt32',
-    'wlanapi',
-    'wldap32',
-    'version',
-    'psapi'
-  ].freeze
+  BUILTIN_DLLS = {
+    'linux' => [
+      'libc'
+    ].freeze,
+    'windows' => [
+      'kernel32',
+      'ntdll',
+      'user32',
+      'ws2_32',
+      'iphlpapi',
+      'advapi32',
+      'shell32',
+      'netapi32',
+      'crypt32',
+      'wlanapi',
+      'wldap32',
+      'version',
+      'psapi'
+    ].freeze
+  }.freeze
 
   ##
   # Returns a Hash containing DLLs added to this instance with #add_dll
@@ -109,7 +117,7 @@ class Railgun
   end
 
   def self.builtin_dlls
-    BUILTIN_DLLS
+    BUILTIN_DLLS[client.platform]
   end
 
   #
@@ -124,12 +132,24 @@ class Railgun
   end
 
   #
-  # Return this Railgun's WinConstManager instance, initially populated with
+  # Return this Railgun's platform specific ApiConstants class.
+  #
+  def api_constants
+    if @api_constants.nil?
+      require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/api_constants"
+      @api_constants = Def.const_get('DefApiConstants_' << client.platform)
+    end
+
+    return @api_constants
+  end
+
+  #
+  # Return this Railgun's ConstManager instance, initially populated with
   # constants defined in ApiConstants.
   #
   def constant_manager
     # Loads lazily
-    return ApiConstants.manager
+    return api_constants.manager
   end
 
   #
@@ -157,22 +177,18 @@ class Railgun
   # Write data to a memory address on the host (useful for working with
   # LPVOID parameters)
   #
-  def memwrite(address, data, length)
+  def memwrite(address, data, length=nil)
 
+    length = data.length if length.nil?
     raise "Invalid parameters." if(not address or not data or not length)
 
     request = Packet.create_request('stdapi_railgun_memwrite')
-
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_ADDRESS, address)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_DATA, data)
     request.add_tlv(TLV_TYPE_RAILGUN_MEM_LENGTH, length)
 
     response = client.send_request(request)
-    if(response.result == 0)
-      return true
-    end
-
-    return false
+    return response.result == 0
   end
 
   #
@@ -182,7 +198,7 @@ class Railgun
   # cached dlls) an unfrozen copy is created and used henceforth for this
   # instance.
   #
-  def add_function(dll_name, function_name, return_type, params, windows_name=nil, calling_conv="stdcall")
+  def add_function(dll_name, function_name, return_type, params, remote_name=nil, calling_conv="stdcall")
 
     unless known_dll_names.include?(dll_name)
       raise "DLL #{dll_name} not found. Known DLLs: #{PP.pp(known_dll_names, "")}"
@@ -199,31 +215,31 @@ class Railgun
       dlls[dll_name] = dll
     end
 
-    dll.add_function(function_name, return_type, params, windows_name, calling_conv)
+    dll.add_function(function_name, return_type, params, remote_name, calling_conv)
   end
 
   #
   # Adds a DLL to this Railgun.
   #
-  # The +windows_name+ is the name used on the remote system and should be
+  # The +remote_name+ is the name used on the remote system and should be
   # set appropriately if you want to include a path or the DLL name contains
   # non-ruby-approved characters.
   #
   # Raises an exception if a dll with the given name has already been
   # defined.
   #
-  def add_dll(dll_name, windows_name=dll_name)
+  def add_dll(dll_name, remote_name=dll_name)
 
     if dlls.has_key? dll_name
       raise "A DLL of name #{dll_name} has already been loaded."
     end
 
-    dlls[dll_name] = DLL.new(windows_name, constant_manager)
+    dlls[dll_name] = DLL.new(remote_name, constant_manager)
   end
 
 
   def known_dll_names
-    return BUILTIN_DLLS | dlls.keys
+    return BUILTIN_DLLS[client.platform] | dlls.keys
   end
 
   #
@@ -232,7 +248,6 @@ class Railgun
   # exist, returns nil
   #
   def get_dll(dll_name)
-
     # If the DLL is not local, we now either load it from cache or load it lazily.
     # In either case, a reference to the dll is stored in the collection "dlls"
     # If the DLL can not be found/created, no actions are taken
@@ -241,14 +256,14 @@ class Railgun
       @@cache_semaphore.synchronize do
         if @@cached_dlls.has_key? dll_name
           dlls[dll_name] = @@cached_dlls[dll_name]
-        elsif BUILTIN_DLLS.include? dll_name
+        elsif BUILTIN_DLLS[client.platform].include? dll_name
           # I highly doubt this case will ever occur, but I am paranoid
           if dll_name !~ /^\w+$/
             raise "DLL name #{dll_name} is bad. Correct Railgun::BUILTIN_DLLS"
           end
 
-          require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_' << dll_name
-          dll = Def.const_get('Def_' << dll_name).create_dll.freeze
+          require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/def_#{dll_name}"
+          dll = Def.const_get('Def_' << dll_name).create_dll(constant_manager).freeze
 
           @@cached_dlls[dll_name] = dll
           dlls[dll_name] = dll
@@ -280,7 +295,7 @@ class Railgun
   end
 
   #
-  # Return a Windows constant matching +str+.
+  # Return a constant matching +str+.
   #
   def const(str)
     return constant_manager.parse(str)
@@ -291,7 +306,7 @@ class Railgun
   #
   def multi(functions)
     if @multicaller.nil?
-      @multicaller = MultiCaller.new(client, self, ApiConstants.manager)
+      @multicaller = MultiCaller.new(client, self, constant_manager)
     end
 
     return @multicaller.call(functions)

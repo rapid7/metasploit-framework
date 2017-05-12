@@ -24,8 +24,8 @@ class Def_advapi32
     [:UserName, :LPTSTR]
   ]
 
-  def self.create_dll(dll_path = 'advapi32')
-    dll = DLL.new(dll_path, ApiConstants.manager)
+  def self.create_dll(constant_manager, dll_path = 'advapi32')
+    dll = DLL.new(dll_path, constant_manager)
 
     dll.add_function('QueryServiceStatus', 'DWORD', [
         ['LPVOID', 'hService', 'in'],

