@@ -1,4 +1,3 @@
-require 'msf/core'
 require 'nokogiri'
 
 class MetasploitModule < Msf::Post
