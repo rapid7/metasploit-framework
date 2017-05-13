@@ -127,14 +127,14 @@ module Msf
           count = 8000
           while index < compressed_script.size - 1
             # Define random, but serialized variable name
-            env_prefix = format("%05d%s", ((index + 8000) / 8000), env_suffix)
+            env_variable = format("%05d%s", ((index + 8000) / 8000), env_suffix)
 
             # Create chunk
             chunk = compressed_script[index, count]
 
             # Build the set commands
             set_env_variable =  "[Environment]::SetEnvironmentVariable(" \
-                                "'#{env_prefix}'," \
+                                "'#{env_variable}'," \
                                 "'#{chunk}', 'User')"
 
             # Compress and encode the set command
