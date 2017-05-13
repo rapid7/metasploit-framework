@@ -2,7 +2,6 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::File
   include Msf::Post::Common
-  include Msf::Post::Windows::Priv
 
   def initialize(info = {})
     super(update_info(
@@ -22,8 +21,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('EXE', [true, 'The executable to start and migrate into', 'C:\windows\sysnative\svchost.exe']),
-        OptBool.new('FALLBACK', [ true, 'If the selected migration executable does not exist fallback to a sysnative file', true ]),
-        OptBool.new('IGNORE_SYSTEM', [true, 'Migrate even if you have system priveleges', true])
+        OptBool.new('FALLBACK', [ true, 'If the selected migration executable does not exist fallback to a sysnative file', true ])
       ],
       self.class
     )
@@ -50,7 +48,7 @@ class MetasploitModule < Msf::Post
     return windir
   end
 
-  def do_migrate
+  def run
     if check_32_on_64
       print_status('The meterpreter is not the same architecture as the OS! Upgrading!')
       newproc = datastore['EXE']
@@ -87,21 +85,5 @@ class MetasploitModule < Msf::Post
     else
       print_good('The meterpreter is the same architecture as the OS!')
     end
-  end
-
-
-
-  def run
-      if datastore['IGNORE_SYSTEM']
-        do_migrate
-      elsif !datastore['IGNORE_SYSTEM'] && is_system?
-        print_error('You are running as SYSTEM! Aborting migration.')
-      elsif datastore['IGNORE_SYSTEM'] && is_system?
-        print_error('You are running as SYSTEM! You will lose your priveleges!')
-        do_migrate
-      elsif !datastore['IGNORE_SYSTEM'] && !is_system?
-        print_status('You\'re not running as SYSTEM. Moving on...')
-        do_migrate
-      end
   end
 end
