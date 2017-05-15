@@ -1580,7 +1580,14 @@ class Core
       mod = active_module
       unless mod.nil?
         if !mod.options.include?('RHOST') && mod.options.include?('RHOSTS')
-          print_warning("RHOST is not a valid option for this module. Did you mean RHOSTS?")
+          warn_rhost = false
+          if mod.exploit? && mod.datastore['PAYLOAD']
+            p = framework.payloads.create(mod.datastore['PAYLOAD'])
+            warn_rhost = (p && !p.options.include?('RHOST'))
+          else
+            warn_rhost = true
+          end
+          print_warning("RHOST is not a valid option for this module. Did you mean RHOSTS?") if warn_rhost
         end
       end
     end
