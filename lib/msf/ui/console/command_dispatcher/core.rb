@@ -1581,9 +1581,9 @@ class Core
       unless mod.nil?
         if !mod.options.include?('RHOST') && mod.options.include?('RHOSTS')
           warn_rhost = false
-          if (mod.exploit? and mod.datastore['PAYLOAD'])
+          if mod.exploit? && mod.datastore['PAYLOAD']
             p = framework.payloads.create(mod.datastore['PAYLOAD'])
-            warn_rhost = (p and !p.options.include?('RHOST'))
+            warn_rhost = (p && !p.options.include?('RHOST'))
           else
             warn_rhost = true
           end
