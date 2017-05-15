@@ -460,9 +460,8 @@ module Msf
             return raw + shellcode
           end
         end
-      else
-        shellcode
       end
+      shellcode
     end
 
     # This method runs a specified encoder, for a number of defined iterations against the shellcode.
