@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('EXE', [true, 'The executable to start and migrate into', 'C:\windows\sysnative\svchost.exe']),
         OptBool.new('FALLBACK', [ true, 'If the selected migration executable does not exist fallback to a sysnative file', true ]),
-        OptBool.new('IGNORE_SYSTEM', [true, 'Migrate even if you have system priveleges', true])
+        OptBool.new('IGNORE_SYSTEM', [true, 'Migrate even if you have SYSTEM privileges', true])
       ],
       self.class
     )
@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Post
       elsif !datastore['IGNORE_SYSTEM'] && is_system?
         print_error('You are running as SYSTEM! Aborting migration.')
       elsif datastore['IGNORE_SYSTEM'] && is_system?
-        print_error('You are running as SYSTEM! You will lose your priveleges!')
+        print_error('You are running as SYSTEM! You will lose your privileges!')
         do_migrate
       elsif !datastore['IGNORE_SYSTEM'] && !is_system?
         print_status('You\'re not running as SYSTEM. Moving on...')
