@@ -224,4 +224,44 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
   end
+
+  # Override Auxiliary::AuthBrute.build_credentials_array to allow
+  # smb_hash password types to be dragged in for DB_ALL_*
+  def build_credentials_array
+    credentials = extract_word_pair(datastore['USERPASS_FILE'])
+    translate_proto_datastores()
+    return credentials if datastore['USERPASS_FILE'] =~ /^memory:/
+    users = load_user_vars(credentials)
+    passwords = load_password_vars(credentials)
+    cleanup_files()
+    if datastore['USER_AS_PASS']
+      credentials = gen_user_as_password(users, credentials)
+    end
+    if datastore['BLANK_PASSWORDS']
+      credentials = gen_blank_passwords(users, credentials)
+    end
+    if framework.db.active
+      if datastore['DB_ALL_CREDS']
+        myworkspace.creds.each do |o|
+          credentials << [o.user, o.pass] if o.ptype =~ /password|smb_hash/
+        end
+      end
+      if datastore['DB_ALL_USERS']
+        myworkspace.creds.each do |o|
+          users << o.user
+        end
+      end
+      if datastore['DB_ALL_PASS']
+        myworkspace.creds.each do |o|
+          passwords << o.pass if o.ptype =~ /passwords|smb_hash/
+        end
+      end
+    end
+    credentials.concat(combine_users_and_passwords(users, passwords))
+    credentials.uniq!
+    credentials = just_uniq_users(credentials) if @strip_passwords
+    credentials = just_uniq_passwords(credentials) if @strip_usernames
+    return credentials
+  end
 end
+
