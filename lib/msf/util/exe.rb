@@ -860,7 +860,6 @@ require 'msf/core/exe/segment_appender'
     macho.close
     FileUtils.chmod(777, macho)
 
-
     app_name.chomp!(".app")
     app_name += ".app"
 
@@ -890,8 +889,6 @@ require 'msf/core/exe/segment_appender'
 </dict>
 </plist>
     |
-
-
 
     zip = Rex::Zip::Archive.new
     zip.add_file("#{app_name}/", '')
