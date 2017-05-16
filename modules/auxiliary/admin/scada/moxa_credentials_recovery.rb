@@ -219,9 +219,16 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Unknown
     end
     cleanup
+
+    Exploit::CheckCode::Safe
   end
 
   def run
+    unless check == Exploit::CheckCode::Appears
+      print_error("Aborted because the target does not seem vulnerable.")
+      return
+    end
+
     function = datastore["FUNCTION"]
 
     connect_udp
