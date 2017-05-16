@@ -854,6 +854,13 @@ require 'msf/core/exe/segment_appender'
     hidden      = opts.fetch(:hidden, true)
     plist_extra = opts.fetch(:plist_extra, '')
 
+    # The app won't execute if the macho isn't executable
+    macho = File.new(exe_name, 'w')
+    macho.write(exe)
+    macho.close
+    FileUtils.chmod(777, macho)
+
+
     app_name.chomp!(".app")
     app_name += ".app"
 
@@ -884,6 +891,8 @@ require 'msf/core/exe/segment_appender'
 </plist>
     |
 
+
+
     zip = Rex::Zip::Archive.new
     zip.add_file("#{app_name}/", '')
     zip.add_file("#{app_name}/Contents/", '')
@@ -892,6 +901,7 @@ require 'msf/core/exe/segment_appender'
     zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe)
     zip.add_file("#{app_name}/Contents/Info.plist", info_plist)
     zip.add_file("#{app_name}/Contents/PkgInfo", 'APPLaplt')
+    File.delete(exe_name)
     zip.pack
   end
 
