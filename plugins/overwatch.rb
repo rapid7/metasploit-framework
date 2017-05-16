@@ -70,9 +70,6 @@ class Plugin::Overwatch < Msf::Plugin
           rescue Rex::TimeoutError => te # Error when a session stops responding and the requests time out.
             #Do Nothing for this error
 
-          rescue Rex::Post::Meterpreter::RequestError => re # Error when a session does not have access to routing information.
-            self.state[sid].add_error
-
           rescue ::Exception => e
             elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
           end
@@ -94,7 +91,7 @@ class Plugin::Overwatch < Msf::Plugin
 
       self.state[sid] = SessionState.new(sid, framework.sessions[sid].inspect, type) if self.state[sid].nil?
       self.state[sid].update
-      process_routing(sid) unless self.state[sid].errored_out?
+      process_routing(sid)
       process_sessions(sid)
     end
 
@@ -122,8 +119,8 @@ class Plugin::Overwatch < Msf::Plugin
         framework.sessions[sid].response_timeout = self.config[:route_timeout] # Don't want to wait 300 secs for a time out!
       end
 
-      add_routes(sid, stale_sids) unless self.state[sid].host_add?
-      host_add_route(sid, stale_sids) if self.state[sid].host_add?
+      add_routes(sid, stale_sids) unless self.state[sid].route_errored_out?
+      add_interface_routes(sid, stale_sids) unless self.state[sid].iface_errored_out?
 
       if framework.sessions[sid].respond_to?(:response_timeout) && last_known_timeout 
         framework.sessions[sid].response_timeout = last_known_timeout # Set it back now that we are done trying to add routes.
@@ -156,34 +153,40 @@ class Plugin::Overwatch < Msf::Plugin
       return unless route_compatible?(sid)
       return unless framework.sessions[sid].alive?
 
-      framework.sessions[sid].net.config.each_route do | route |  # This line is where errors are thrown for python, php, etc...
-        if (Rex::Socket.is_ipv4?(route.subnet) && Rex::Socket.is_ipv4?(route.netmask))
-          subnet = get_subnet_ipv4(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
-          next unless is_routable_ipv4?(subnet, route.netmask)
+      begin
+        framework.sessions[sid].net.config.each_route do | route |  # This line is where errors are thrown for python, php, etc...
 
-        # Optional IPv6 routing
-        elsif (Rex::Socket.is_ipv6?(route.subnet) && Rex::Socket.is_ipv6?(route.netmask))
-          next unless self.config[:ipv6]
-          subnet = route.subnet
-          next unless is_routeable_ipv6?(subnet, route.netmask)
+          if (Rex::Socket.is_ipv4?(route.subnet) && Rex::Socket.is_ipv4?(route.netmask))
+            subnet = get_subnet_ipv4(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
+            next unless is_routable_ipv4?(subnet, route.netmask)
 
-        else
-          next
-        end
+          # Optional IPv6 routing
+          elsif (Rex::Socket.is_ipv6?(route.subnet) && Rex::Socket.is_ipv6?(route.netmask))
+            next unless self.config[:ipv6]
+            subnet = route.subnet
+            next unless is_routeable_ipv6?(subnet, route.netmask)
 
-        if subnet
-          remove_if_stale(subnet, route.netmask, sid, stale_sids) if self.config[:reroute_stale]
+          else
+            next
+          end
 
-          if !Rex::Socket::SwitchBoard.route_exists?(subnet, route.netmask)
-            begin
-              Rex::Socket::SwitchBoard.add_route(subnet, route.netmask, framework.sessions[sid])
-            rescue ::Exception => e
-              elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+          if subnet
+            remove_if_stale(subnet, route.netmask, sid, stale_sids) if self.config[:reroute_stale]
+
+            if !Rex::Socket::SwitchBoard.route_exists?(subnet, route.netmask)
+              begin
+                Rex::Socket::SwitchBoard.add_route(subnet, route.netmask, framework.sessions[sid])
+              rescue ::Exception => e
+                elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+              end
             end
           end
         end
+
+      rescue ::Rex::Post::Meterpreter::RequestError => re
+        self.state[sid].add_route_error
       end
-      add_interface_routes(sid, stale_sids) # Check interface list for more possible routes
+
     end
 
     # Look at network interfaces as options for additional routes.
@@ -198,63 +201,36 @@ class Plugin::Overwatch < Msf::Plugin
       return unless interface_compatible?(sid)
       return unless framework.sessions[sid].alive?
 
-      framework.sessions[sid].net.config.each_interface do | interface | # Step through each of the network interfaces
+      begin
+        framework.sessions[sid].net.config.each_interface do | interface | # Step through each of the network interfaces
 
-        (0..(interface.addrs.size - 1)).each do | index | # Step through the addresses for the interface
+          (0..(interface.addrs.size - 1)).each do | index | # Step through the addresses for the interface
 
-          ip_addr = interface.addrs[index]
-          netmask = interface.netmasks[index]
+            ip_addr = interface.addrs[index]
+            netmask = interface.netmasks[index]
 
-          next unless (Rex::Socket.is_ipv4?(ip_addr) && Rex::Socket.is_ipv4?(netmask)) # Pick out the IPv4 addresses
-          subnet = get_subnet_ipv4(ip_addr, netmask)
-          next unless is_routable_ipv4?(subnet, netmask)
+            next unless (Rex::Socket.is_ipv4?(ip_addr) && Rex::Socket.is_ipv4?(netmask)) # Pick out the IPv4 addresses
+            subnet = get_subnet_ipv4(ip_addr, netmask)
+            next unless is_routable_ipv4?(subnet, netmask)
 
-          if subnet
-            remove_if_stale(subnet, netmask, sid, stale_sids) if self.config[:reroute_stale]
+            if subnet
+              remove_if_stale(subnet, netmask, sid, stale_sids) if self.config[:reroute_stale]
 
-            if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
-              begin
-                Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
-              rescue ::Exception => e
-                elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+              if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
+                begin
+                  Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
+                rescue ::Exception => e
+                  elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+                end
               end
-            end
-          end 
-        end
-      end
-    end
-
-    # Uses the session_host information to add a standard class C network.
-    # This is primarliy for python meterpreter sessions that do not have
-    # access to the host's routing table, but return the correct value for
-    # session_host
-    #
-    # @sid [int class] Session ID of the current session
-    # @stale_sids [int array] Array of session id's of sessions marked as stale
-    #
-    # @return [void] A useful return value is not expected here
-    def host_add_route(sid, stale_sids)
-      return unless framework.sessions[sid].alive?
-      return unless framework.sessions[sid].respond_to?(:net)
-
-      ip_addr = framework.sessions[sid].session_host
-      return unless Rex::Socket.is_ipv4?(ip_addr)
-
-      netmask = "255.255.255.0"
-      subnet = get_subnet_ipv4(ip_addr, netmask)
-      return unless is_routable_ipv4?(subnet, netmask)
-
-      if subnet
-        remove_if_stale(subnet, netmask, sid, stale_sids) if self.config[:reroute_stale]
-
-        if !Rex::Socket::SwitchBoard.route_exists?(subnet, netmask)
-          begin
-            Rex::Socket::SwitchBoard.add_route(subnet, netmask, framework.sessions[sid])
-          rescue ::Exception => e
-            elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+            end 
           end
         end
+
+      rescue ::Rex::Post::Meterpreter::RequestError => re
+        self.state[sid].add_iface_error
       end
+
     end
 
     # Removes routes associated with stale sessions only if they are
@@ -289,8 +265,6 @@ class Plugin::Overwatch < Msf::Plugin
     # @return [string class] The subnet related to the IP address and netmask
     # @return [nil class] Something is out of range
     def get_subnet_ipv4(ip_addr, netmask)
-      #return nil unless validate_cmd(ip_addr, netmask) #make sure IP and netmask are valid
-
       nets = ip_addr.split('.')
       masks = netmask.split('.')
       output = ""
@@ -356,8 +330,6 @@ class Plugin::Overwatch < Msf::Plugin
     # @return [true]  If good to add
     # @return [false] If not
     def is_routeable_ipv6?(subnet, netmask)
-      #return false unless validate_cmd(subnet, netmask)
-
       if netmask == 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
         return false
       elsif subnet =~ /^fe80::/  # Link-Local Subnet
@@ -649,37 +621,41 @@ class Plugin::Overwatch < Msf::Plugin
 end #class Plugin::Overwatch < Msf::Plugin
 
 class SessionState
-  attr_accessor :error_count, :info, :last_update, :sid, :type, :host_add, :errored_out
+  attr_accessor :route_error, :iface_error, :info, :last_update, :sid, :type
 
   def initialize(sid, info, type)
     @sid = sid
     @info = info
     @type = type
-    @error_count = 0
+    @route_error = 0
+    @iface_error = 0
     @last_update = Time.now.to_f
-    @host_add = type =~ /python/ ? true : false 
-    @errored_out = type =~ /php/ ? true : false # PHP meterpreter sessions do not provide correct information for automatic routing.
   end
 
-  def add_error
-    @error_count = @error_count + 1
+  def add_route_error
+    @route_error = @route_error + 1
+  end
+
+  def add_iface_error
+    @iface_error = @iface_error + 1
   end
 
   def update
     @last_update = Time.now.to_f
   end
 
-  def errored_out?
-     @error_count >= 3 ? true : false
+  def route_errored_out?
+     @route_error >= 3 ? true : false
+  end
+
+  def iface_errored_out?
+     @iface_error >= 3 ? true : false
   end
 
   def host_add?
     @host_add
   end
 
-  def get_error_count
-    @error_count
-  end
 end #class SessionState
 
 end #module Msf
