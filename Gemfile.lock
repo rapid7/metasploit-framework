@@ -24,7 +24,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.18)
+    metasploit-framework (4.14.19)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -117,7 +117,7 @@ GEM
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
     arel (6.0.4)
-    arel-helpers (2.3.0)
+    arel-helpers (2.4.0)
       activerecord (>= 3.1.0, < 6)
     aruba (0.14.2)
       childprocess (~> 0.5.6)
@@ -258,7 +258,7 @@ GEM
       arel (>= 4.0.1)
       pg_array_parser (~> 0.0.9)
     public_suffix (2.0.5)
-    rack (1.6.6)
+    rack (1.6.7)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails-deprecated_sanitizer (1.0.3)
