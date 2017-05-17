@@ -4,6 +4,7 @@ MAINTAINER Rapid7
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
 ENV APP_HOME /usr/src/metasploit-framework/
 ENV MSF_USER msf
+ENV NMAP_PRIVILEGED=""
 WORKDIR $APP_HOME
 
 COPY Gemfile* m* Rakefile $APP_HOME
@@ -51,7 +52,5 @@ RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip /usr/bin/nmap
 USER $MSF_USER
 
 ADD ./ $APP_HOME
-
-ENV NMAP_PRIVILEGED=""
 
 CMD ["./msfconsole", "-r", "docker/msfconsole.rc"]
