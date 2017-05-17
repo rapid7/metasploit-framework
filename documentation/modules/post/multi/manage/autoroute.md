@@ -18,6 +18,8 @@ Netmask Examples `set NETMASK 255.255.255.0` or `set NETMASK /24`
 ### delete
 This CMD option is used to remove a route from Metasploit's routing table. The IPv4 subnet and netmask (IPv4 or CIDR) of the route to be removed are required. The session number of the Meterpreter session to run the module on is also required. Use `route print` or the print CMD option to display the current Metasploit routing table.
 
+To remove all routes associated with the specified session, use CMD delete and leave the subnet option blank.
+
 ### print
 This CMD option is used to display Metasploit's routing table. This option has the same functionality as the `route print` command.
 
@@ -84,13 +86,13 @@ You need a Windows Meterpreter session on a host that has a different public IP 
 First set up a default route for the Meterpreter session.
 
 ```
-meterpreter > run post/windows/manage/autoroute CMD=default
+meterpreter > run post/multi/manage/autoroute CMD=default
 ```
 
 or
 
 ```
-msf > use post/windows/manage/autoroute
+msf > use post/multi/manage/autoroute
 msf post(autoroute) > set SESSION session-id
 msf post(autoroute) > set CMD default
 msf post(autoroute) > exploit
