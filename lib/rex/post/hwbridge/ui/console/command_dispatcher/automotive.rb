@@ -219,7 +219,7 @@ class Console::CommandDispatcher::Automotive
     bytes = data.scan(/../)  # Break up data string into 2 char (byte) chunks
     if bytes.size > 8
       print_error("Data section can only contain a max of 8 bytes (for now)")
-      return result
+      return
     end
     opt = {}
     opt['TIMEOUT'] = timeout unless timeout.nil?
@@ -281,7 +281,15 @@ class Console::CommandDispatcher::Automotive
       end
       return
     end
-    unless stop
+    if stop
+      if self.tpjobs[stopid]
+        self.tpjobs[stopid].kill
+        self.tpjobs[stopid] = nil
+        print_status("Stopped TesterPresent #{stopid}")
+      else
+        print_error("TesterPresent #{stopid} was not running")
+      end
+    else
       jid = self.tpjob_id
       print_status("Starting TesterPresent sender (#{self.tpjob_id})")
       self.tpjob_id += 1
@@ -299,14 +307,6 @@ class Console::CommandDispatcher::Automotive
         end
         self.tpjobs[myjid] = nil
         print_status("TesterPreset #{myjid} has stopped (#{::Thread.current[:args].inspect})")
-      end
-    else
-      if self.tpjobs[stopid]
-        self.tpjobs[stopid].kill
-        self.tpjobs[stopid] = nil
-        print_status("Stopped TesterPresent #{stopid}")
-      else
-        print_error("TesterPresent #{stopid} was not running")
       end
     end
   end

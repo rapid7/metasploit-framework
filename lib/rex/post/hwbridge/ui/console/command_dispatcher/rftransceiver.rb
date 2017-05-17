@@ -290,7 +290,7 @@ class Console::CommandDispatcher::RFtransceiver
     arg['blocksize'] = blocksize unless blocksize == -1
     arg['timeout'] = timeout unless timeout == -1
     r = client.rftransceiver.rfrecv(idx, arg)
-    if r.key?('data') && r.has_key?('timestamp')
+    if r.key?('data') && r.key?('timestamp')
       print_line(" #{r['timestamp']}: #{r['data'].inspect}")
     else
       print_line("Error")
