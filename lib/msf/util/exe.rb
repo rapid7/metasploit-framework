@@ -895,10 +895,10 @@ require 'msf/core/exe/segment_appender'
     zip.add_file("#{app_name}/Contents/", '')
     zip.add_file("#{app_name}/Contents/MacOS/", '')
     zip.add_file("#{app_name}/Contents/Resources/", '')
-    zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe)
+    zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", File.new(macho, 'r').read)
     zip.add_file("#{app_name}/Contents/Info.plist", info_plist)
     zip.add_file("#{app_name}/Contents/PkgInfo", 'APPLaplt')
-    File.delete(exe_name)
+    File.delete(macho)
     zip.pack
   end
 
