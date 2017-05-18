@@ -36,6 +36,9 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails'
+  # Mechanize for exploit rails_csrf_token_bypass
+  gem 'mechanize'
+
 end
 
 group :test do
