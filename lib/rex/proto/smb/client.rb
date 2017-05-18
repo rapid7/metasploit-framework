@@ -150,6 +150,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     packet.v['TreeID'] = self.last_tree_id.to_i
     packet.v['UserID'] = self.auth_user_id.to_i
     packet.v['ProcessID'] = self.process_id.to_i
+    self.multiplex_id = (self.multiplex_id + 16) % 65536
   end
 
   # Receive a full SMB reply and cache the parsed packet
@@ -1335,6 +1336,42 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
 
+    return ack
+  end
+
+
+  # Used by auxiliary/admin/smb/psexec_classic.rb to send ANDX writes with
+  # greater precision.
+  def write_raw(args)
+
+    pkt = CONST::SMB_WRITE_PKT.make_struct
+    self.smb_defaults(pkt['Payload']['SMB'])
+
+    pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
+    pkt['Payload']['SMB'].v['Flags1'] = args[:flags1]
+    pkt['Payload']['SMB'].v['Flags2'] = args[:flags2]
+
+    pkt['Payload']['SMB'].v['WordCount'] = args[:wordcount]
+
+    pkt['Payload'].v['AndX'] = args[:andx_command]
+    pkt['Payload'].v['AndXOffset'] = args[:andx_offset]
+    pkt['Payload'].v['FileID'] = args[:file_id]
+    pkt['Payload'].v['Offset'] = args[:offset]
+    pkt['Payload'].v['Reserved2'] = -1
+    pkt['Payload'].v['WriteMode'] = args[:write_mode]
+    pkt['Payload'].v['Remaining'] = args[:remaining]
+    pkt['Payload'].v['DataLenHigh'] = args[:data_len_high]
+    pkt['Payload'].v['DataLenLow'] = args[:data_len_low]
+    pkt['Payload'].v['DataOffset'] = args[:data_offset]
+    pkt['Payload'].v['HighOffset'] = args[:high_offset]
+    pkt['Payload'].v['ByteCount'] = args[:byte_count]
+
+    pkt['Payload'].v['Payload'] = args[:data]
+
+    ret = self.smb_send(pkt.to_s)
+    return ret if not args[:do_recv]
+
+    ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
     return ack
   end
 
