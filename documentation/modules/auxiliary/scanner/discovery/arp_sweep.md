@@ -31,6 +31,7 @@
 ## Scenarios
 
   An example output on a home network:
+
   ```
     msf > use auxiliary/scanner/discovery/arp_sweep
     msf auxiliary(arp_sweep) > set RHOSTS 192.168.0.0/24
