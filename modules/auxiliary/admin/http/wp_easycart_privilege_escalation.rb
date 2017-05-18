@@ -78,6 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Failed to authenticate with WordPress")
       return
     end
+    store_valid_credential(user: username, private: password, proof: cookie)
     print_good("Authenticated with WordPress")
 
     new_email = "#{Rex::Text.rand_text_alpha(5)}@#{Rex::Text.rand_text_alpha(5)}.com"

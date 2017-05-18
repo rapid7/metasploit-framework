@@ -15,6 +15,7 @@ module Msf
 ###
 class Module
   autoload :Arch, 'msf/core/module/arch'
+  autoload :Auth, 'msf/core/module/auth'
   autoload :Author, 'msf/core/module/author'
   autoload :AuxiliaryAction, 'msf/core/module/auxiliary_action'
   autoload :Compatibility, 'msf/core/module/compatibility'
@@ -40,6 +41,7 @@ class Module
   autoload :UUID, 'msf/core/module/uuid'
 
   include Msf::Module::Arch
+  include Msf::Module::Auth
   include Msf::Module::Author
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
