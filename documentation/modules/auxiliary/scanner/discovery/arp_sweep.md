@@ -44,3 +44,19 @@
     [*] Scanned 256 of 256 hosts (100% complete)
     [*] Auxiliary module execution completed
   ```
+
+## Confirming using NMAP
+
+  ```
+    nmap -n -sn -PR 192.168.0.0/24
+
+    Starting Nmap 7.40 ( https://nmap.org ) at 2017-05-19 00:33 CEST
+    Nmap scan report for 192.168.0.1
+    Host is up (0.041s latency).
+    MAC Address: CC:B2:55:14:CO:FE (D-Link International)
+    Nmap scan report for 192.168.0.4
+    Host is up (0.076s latency).
+    MAC Address: C8:85:50:4C:BE:EF (ASUSTek COMPUTER INC.)
+    Host is up (0.052s latency).
+    Nmap done: 256 IP addresses (2 hosts up) scanned in 2.76 seconds
+  ```
