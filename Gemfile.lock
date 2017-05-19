@@ -28,6 +28,7 @@ PATH
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
+      backports
       bcrypt
       bit-struct
       filesize
@@ -126,6 +127,7 @@ GEM
       ffi (~> 1.9.10)
       rspec-expectations (>= 2.99)
       thor (~> 0.19)
+    backports (3.8.0)
     bcrypt (3.1.11)
     bindata (2.4.0)
     builder (3.2.3)

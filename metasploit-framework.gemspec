@@ -47,6 +47,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'activesupport', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for config.action_view for view plugin compatibility for Pro
   spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
+  # Backports Ruby features across language versions
+  spec.add_runtime_dependency 'backports'
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
