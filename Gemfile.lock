@@ -24,7 +24,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.20)
+    metasploit-framework (4.14.21)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -404,4 +404,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.14.6
+   1.15.0
