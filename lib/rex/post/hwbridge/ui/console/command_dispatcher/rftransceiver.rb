@@ -43,16 +43,16 @@ class Console::CommandDispatcher::RFtransceiver
 
   def cmd_supported_idx
     indexes = client.rftransceiver.supported_idx
-    if !indexes || !indexes.has_key?('indexes')
+    if !indexes || !indexes.key?('indexes')
       print_line("error retrieving index list")
       return
     end
     indexes = indexes['indexes']
-    unless indexes.size > 0
+    unless indexes.size.positive?
       print_line('none')
       return
     end
-    self.idx = indexes[0].to_i if indexes.size == 0
+    self.idx = indexes[0].to_i if indexes.size.zero?
     str = "Supported Indexes: "
     str << indexes.join(', ')
     str << "\nUse idx to set your desired bus, default is 0"
@@ -91,7 +91,7 @@ class Console::CommandDispatcher::RFtransceiver
   # Takes the results of a client request and prints Ok on success
   #
   def print_success(r)
-    if r.has_key?('success') && r['success'] == true
+    if r.key?('success') && r['success'] == true
       print_line("Ok")
     else
       print_line("Error")
@@ -290,7 +290,7 @@ class Console::CommandDispatcher::RFtransceiver
     arg['blocksize'] = blocksize unless blocksize == -1
     arg['timeout'] = timeout unless timeout == -1
     r = client.rftransceiver.rfrecv(idx, arg)
-    if r.has_key?('data') && r.has_key?('timestamp')
+    if r.key?('data') && r.key?('timestamp')
       print_line(" #{r['timestamp']}: #{r['data'].inspect}")
     else
       print_line("Error")
@@ -305,7 +305,7 @@ class Console::CommandDispatcher::RFtransceiver
     opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ]
     )
-    opts.parse(args) do |opt, _idx, val|
+    opts.parse(args) do |opt, _idx, _val|
       case opt
       when '-h'
         print_line("Usage: enable_crc\n")
@@ -537,7 +537,7 @@ class Console::CommandDispatcher::RFtransceiver
   #
   def cmd_maxpower(*args)
     self.idx ||= 0
-    if args.length > 0
+    if args.length.positive?
       cmd_maxpower_help
       return
     end
