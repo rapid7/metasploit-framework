@@ -47,6 +47,8 @@
 
 ## Confirming using NMAP
 
+The `-PR` flags are utilized to perform ARP/Neighbor Discovery scans.
+
   ```
     nmap -n -sn -PR 192.168.0.0/24
 
