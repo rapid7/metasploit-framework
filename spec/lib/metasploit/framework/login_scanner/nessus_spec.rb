@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/nessus'
 
-RSpec.describe Metasploit::Framework::LoginScanner::Nessus do
+RSpec.describe Metasploit::Framework::LoginScanner::Nessus, :login_scanner => true do
 
     subject(:http_scanner) { described_class.new }
 

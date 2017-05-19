@@ -37,6 +37,7 @@ before_script:
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
+  - export SPEC_ALL=true
 script:
   # fail build if db/schema.rb update is not committed
   - git diff --exit-code db/schema.rb && $CMD

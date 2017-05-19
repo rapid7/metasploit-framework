@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/ssh'
 
-RSpec.describe Metasploit::Framework::LoginScanner::SSH do
+RSpec.describe Metasploit::Framework::LoginScanner::SSH, :login_scanner => true do
   let(:public) { 'root' }
   let(:private) { 'toor' }
   let(:key) { OpenSSL::PKey::RSA.generate(2048).to_s }

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'metasploit/framework/login_scanner/pop3'
 
-RSpec.describe Metasploit::Framework::LoginScanner::POP3 do
+RSpec.describe Metasploit::Framework::LoginScanner::POP3, :login_scanner => true do
   subject(:scanner) { described_class.new }
 
   it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: false, has_default_realm: false

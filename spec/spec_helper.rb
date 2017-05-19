@@ -55,6 +55,8 @@ RSpec.configure do |config|
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
 
+  config.filter_run_excluding :login_scanner => true unless ENV['SPEC_ALL'] == 'true'
+
   # allow more verbose output when running an individual spec file.
   if config.files_to_run.one?
     # RSpec filters the backtrace by default so as not to be so noisy.
