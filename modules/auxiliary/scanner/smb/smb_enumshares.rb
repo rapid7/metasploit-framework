@@ -140,22 +140,38 @@ class MetasploitModule < Msf::Auxiliary
     read = true if rfd != nil
 
     # Test writable
-    filename = Rex::Text.rand_text_alpha(rand(8))
-    wfd = simple.open("\\#{filename}", 'rwct')
-    wfd << Rex::Text.rand_text_alpha(rand(1024))
-    wfd.close
-    simple.delete("\\#{filename}")
-    simple.disconnect("\\\\#{ip}\\#{share}")
-
-    # Operating under assumption STATUS_ACCESS_DENIED or the like will get
-    # thrown before write=true
-    write = true
+    if subdir != ""
+      folder_path = "\\#{subdir}"
+    else
+      folder_path = ""
+    end
+    write = test_writable(ip, share, folder_path)
 
     return read,write,msg,rfd
 
     rescue ::Rex::Proto::SMB::Exceptions::NoReply,::Rex::Proto::SMB::Exceptions::InvalidType,
       ::Rex::Proto::SMB::Exceptions::ReadPacket,::Rex::Proto::SMB::Exceptions::ErrorCode
       return read,false,msg,rfd
+  end
+
+  def test_writable(ip, share, folder_path)
+    self.simple.connect("\\\\#{ip}\\#{share}")
+
+    # Test writable
+    filename = Rex::Text.rand_text_alpha(rand(8))
+    wfd = simple.open("#{folder_path}\\#{filename}", 'rwct')
+    wfd << Rex::Text.rand_text_alpha(rand(1024))
+    wfd.close
+    simple.delete("#{folder_path}\\#{filename}")
+    simple.disconnect("\\\\#{ip}\\#{share}")
+    # Operating under assumption STATUS_ACCESS_DENIED or the like will get
+    # thrown before write=true
+
+    return true
+
+    rescue ::Rex::Proto::SMB::Exceptions::NoReply,::Rex::Proto::SMB::Exceptions::InvalidType,
+      ::Rex::Proto::SMB::Exceptions::ReadPacket,::Rex::Proto::SMB::Exceptions::ErrorCode
+      return false
   end
 
   def get_os_info(ip, rport)
@@ -323,7 +339,7 @@ class MetasploitModule < Msf::Auxiliary
     detailed_tbl = Rex::Text::Table.new(
       'Header'  => "Spidered results for #{ip}.",
       'Indent'  => 1,
-      'Columns' => [ 'IP Address', 'Type', 'Share', 'Path', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size' ]
+      'Columns' => [ 'IP Address', 'Type', 'Share', 'Path', 'Name', 'Created', 'Accessed', 'Written', 'Changed', 'Size', 'Permission' ]
     )
 
     logdata = ""
@@ -365,7 +381,6 @@ class MetasploitModule < Msf::Auxiliary
             header << " \\\\#{simple.client.default_domain}"
           end
           header << "\\#{x.sub("C$","C$\\")}" if simple.client.default_name
-          header << subdirs[0]
 
           pretty_tbl = Rex::Text::Table.new(
             'Header'  => header,
@@ -375,7 +390,8 @@ class MetasploitModule < Msf::Auxiliary
 
           f_types = {
             1  => 'RO',  2  => 'HIDDEN', 4  => 'SYS', 8   => 'VOL',
-            16 => 'DIR', 32 => 'ARC',    64 => 'DEV', 128 => 'FILE'
+            16 => 'DIR', 17 => 'DIRRO', 18 => 'DIRHID', 19 => 'DIRHID',
+            32 => 'ARC',  33 => 'ARCRO', 64 => 'DEV', 128 => 'FILE'
           }
 
           files.each do |file|
@@ -388,17 +404,40 @@ class MetasploitModule < Msf::Auxiliary
               twr   = to_unix_time(info[7], info[6]) # Written
               tch   = to_unix_time(info[9], info[8]) # Changed
               sz    = info[12] + info[13]            # Size
+              perms = 'N/A'                            # Access perms
 
+              # permissions set
+              if f_types[file[1]['attr']] == 'DIR' or f_types[file[1]['attr']] == 'DIRRO' or f_types[file[1]['attr']] == 'DIRHID'
+                write_this = test_writable(ip, x, "\\#{fname}")
+
+                if read
+                  perms = 'readable'
+                end
+                if write_this
+                  if perms != 'N/A'
+                    perms += '|'
+                  end
+                  perms += 'writable'
+                end
+              elsif f_types[file[1]['attr']] == 'RO'
+                perms = 'readable'
+              elsif f_types[file[1]['attr']] == 'FILE'
+                if write
+                  perms = 'readable|writable'
+                else
+                  perms = 'readable'
+                end
+              end
               # Filename is too long for the UI table, cut it.
               fname = "#{fname[0, 35]}..." if fname.length > 35
 
               # Add subdirectories to list to use if SpiderShare is enabled.
-              if fa == "DIR" or (fa == nil and sz == 0)
+              if fa == "DIR" or fa == "DIRRO" or fa == "DIRHID" or (fa == nil and sz == 0)
                 subdirs.push(subdirs[0] + "\\" + fname)
               end
 
               pretty_tbl << [fa || 'Unknown', fname, tcr, tac, twr, tch, sz]
-              detailed_tbl << ["#{ip}", fa || 'Unknown', "#{x}", subdirs[0] + "\\", fname, tcr, tac, twr, tch, sz]
+              detailed_tbl << ["#{ip}", fa || 'Unknown', "#{x}", subdirs[0] + "\\", fname, tcr, tac, twr, tch, sz, perms]
               logdata << "#{ip}\\#{x.sub("C$","C$\\")}#{subdirs[0]}\\#{fname}\n"
 
             end
