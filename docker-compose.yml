@@ -15,7 +15,7 @@ services:
       - $HOME/.msf4:/home/msf/.msf4
 
   db:
-    image: postgres:9.6
+    image: postgres:9-alpine
     volumes:
       - pg_data:/var/lib/postgresql/data
 
