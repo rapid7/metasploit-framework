@@ -229,7 +229,11 @@ class Msfupdate
       require 'bundler'
     end
     Bundler.with_clean_env do
-      system("bundle", "install")
+      if File::exist? "Gemfile.local"
+        system("bundle", "install", "--gemfile", "Gemfile.local")
+      else
+        system("bundle", "install")
+      end
     end
   end
 
