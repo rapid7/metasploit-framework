@@ -30,10 +30,6 @@ class MetasploitModule < Msf::Post
 
 
   def run
-    if session.type != "meterpreter"
-      print_error "Only meterpreter sessions are supported by this post module"
-      return
-    end
 
     progfiles_env = session.sys.config.getenvs('ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
     locations = []
