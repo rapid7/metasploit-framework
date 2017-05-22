@@ -86,7 +86,7 @@ private
       proxy_host = ''
       if opts[:proxy_host] && opts[:proxy_port]
         prefix = 'http://'
-        prefix = 'socks=' if opts[:proxy_type].downcase == 'socks'
+        prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
         proxy_host = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
       end
       proxy_host = to_str(proxy_host || '', PROXY_HOST_SIZE)
