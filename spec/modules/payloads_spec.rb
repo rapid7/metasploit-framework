@@ -648,6 +648,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/reverse_lua'
   end
 
+  context 'cmd/unix/reverse_ncat_ssl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/reverse_ncat_ssl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_ncat_ssl'
+  end
+
   context 'cmd/unix/reverse_netcat' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
