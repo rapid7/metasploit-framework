@@ -89,19 +89,17 @@ class MetasploitModule < Msf::Post
     end
   end
 
-
-
   def run
-      if datastore['IGNORE_SYSTEM']
-        do_migrate
-      elsif !datastore['IGNORE_SYSTEM'] && is_system?
-        print_error('You are running as SYSTEM! Aborting migration.')
-      elsif datastore['IGNORE_SYSTEM'] && is_system?
-        print_error('You are running as SYSTEM! You will lose your privileges!')
-        do_migrate
-      elsif !datastore['IGNORE_SYSTEM'] && !is_system?
-        print_status('You\'re not running as SYSTEM. Moving on...')
-        do_migrate
-      end
+    if datastore['IGNORE_SYSTEM']
+      do_migrate
+    elsif !datastore['IGNORE_SYSTEM'] && is_system?
+      print_error('You are running as SYSTEM! Aborting migration.')
+    elsif datastore['IGNORE_SYSTEM'] && is_system?
+      print_error('You are running as SYSTEM! You will lose your privileges!')
+      do_migrate
+    elsif !datastore['IGNORE_SYSTEM'] && !is_system?
+      print_status('You\'re not running as SYSTEM. Moving on...')
+      do_migrate
+    end
   end
 end
