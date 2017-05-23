@@ -126,16 +126,8 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   def report_credential_core(cred_opts={})
-    origin_service_data = {
-      address: rhost,
-      port: rport,
-      service_name: (ssl ? 'https' : 'http'),
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
+    # use a basic core only since this credential is not known valid for service it was obtained from.
     credential_data = {
       origin_type: :service,
       module_fullname: self.fullname,
@@ -143,8 +135,6 @@ class MetasploitModule < Msf::Auxiliary
       private_data: cred_opts[:password],
       username: cred_opts[:username]
     }
-
-    credential_data.merge!(origin_service_data)
     create_credential(credential_data)
   end
 end
