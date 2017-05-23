@@ -85,6 +85,7 @@ PATH
       tzinfo
       tzinfo-data
       windows_error
+      xdr
       xmlrpc
 
 GEM
@@ -376,6 +377,9 @@ GEM
     tzinfo-data (1.2017.2)
       tzinfo (>= 1.0.0)
     windows_error (0.1.2)
+    xdr (2.0.0)
+      activemodel (>= 4.2.7)
+      activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
     xpath (2.0.0)
       nokogiri (~> 1.3)
