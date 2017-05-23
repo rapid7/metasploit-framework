@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('EXE', [true, 'The executable to start and migrate into', 'C:\windows\sysnative\svchost.exe']),
         OptBool.new('FALLBACK', [ true, 'If the selected migration executable does not exist fallback to a sysnative file', true ]),
-        OptBool.new('IGNORE_SYSTEM', [true, 'Migrate even if you have SYSTEM privileges', true])
+        OptBool.new('IGNORE_SYSTEM', [true, 'Migrate even if you have SYSTEM privileges', false])
       ],
       self.class
     )
