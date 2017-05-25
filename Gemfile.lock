@@ -278,7 +278,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.0.0)
     rb-readline (0.5.4)
-    recog (2.1.7)
+    recog (2.1.8)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.4)
