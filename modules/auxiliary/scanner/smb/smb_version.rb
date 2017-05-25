@@ -153,9 +153,14 @@ class MetasploitModule < Msf::Auxiliary
         descs << "native_lm=#{res['native_lm']}" unless res['native_lm'].blank?
         descs << "native_os=#{res['native_os']}" unless res['native_os'].blank?
         desc = descs.join(' ')
-        desc = "no native LM/OS info obtained" if desc.blank?
-        report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
-        print_status("Host could not be identified: #{desc}")
+        if desc.blank?
+          report_service(:host => ip, :port => rport, :name => 'smb')
+          print_status("Host could not be identified: no native LM/OS info obtained")
+        else
+          desc = "no native LM/OS info obtained" if desc.blank?
+          report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
+          print_status("Host could not be identified: #{desc}")
+        end
       end
 
       # Report a smb.fingerprint hash of attributes for OS fingerprinting
