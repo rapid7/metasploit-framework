@@ -149,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
           :data  => match_conf
         )
       else
-        desc = "#{res['native_os']} (#{res['native_lm']})"
+        desc = "native_os=#{res['native_os']} native_lm=#{res['native_lm']}"
         report_service(:host => ip, :port => rport, :name => 'smb', :info => desc)
         print_status("Host could not be identified: #{desc}")
       end
