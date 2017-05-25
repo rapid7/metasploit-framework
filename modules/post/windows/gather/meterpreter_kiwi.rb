@@ -1,13 +1,7 @@
-require 'msf/core'
-require 'msf/core/post/windows/netapi'
 require 'msf/core/post/windows/kiwi'
-require 'msf/core/post/windows/error'
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::Windows::NetAPI
-  include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Kiwi
-  include Msf::Post::Windows::Error
 
   def initialize(info = {})
     super(update_info(
@@ -30,7 +24,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CMD', [true, 'Kiwi Command']),
-      ], self.class)
+      ])
   end
 
   @@golden_ticket_create_opts = Rex::Parser::Arguments.new(
@@ -189,7 +183,7 @@ class MetasploitModule < Msf::Post
         print_line
         return
       end
-      print_line(client.kiwi.dcsync(args[0])) 
+      print_line(client.kiwi.dcsync(args[0]))
     when 'dcsync_ntlm'
       return unless check_is_domain_user
 
@@ -383,6 +377,6 @@ class MetasploitModule < Msf::Post
     else
       print_error('Invalid command: '+cmd)
   end
-  
+
 end
 end
