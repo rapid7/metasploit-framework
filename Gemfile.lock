@@ -24,7 +24,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.22)
+    metasploit-framework (4.14.23)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -278,7 +278,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.0.0)
     rb-readline (0.5.4)
-    recog (2.1.7)
+    recog (2.1.8)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.4)
@@ -345,7 +345,7 @@ GEM
       rspec-mocks (~> 3.6.0)
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
-    ruby_smb (0.0.14)
+    ruby_smb (0.0.17)
       bindata
       rubyntlm
       windows_error
@@ -377,7 +377,7 @@ GEM
       tzinfo (>= 1.0.0)
     windows_error (0.1.2)
     xmlrpc (0.3.0)
-    xpath (2.0.0)
+    xpath (2.1.0)
       nokogiri (~> 1.3)
     yard (0.9.9)
 
