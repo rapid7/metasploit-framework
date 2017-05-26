@@ -90,7 +90,7 @@ PATH
 PATH
   remote: /Users/dmaloney/rapid7/ruby_smb
   specs:
-    ruby_smb (0.0.17)
+    ruby_smb (0.0.18)
       bindata
       rubyntlm
       windows_error
