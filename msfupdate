@@ -86,7 +86,7 @@ class Msfupdate
 
   def validate_args
     valid = true
-    if binary_install? || apt?
+    if binary_install?
       if @git_branch
         stderr.puts "[-] ERROR: git-branch is not supported on this installation"
         valid = false
@@ -96,7 +96,7 @@ class Msfupdate
         valid = false
       end
     end
-    if apt? || git?
+    if git?
       if @offline_file
         stderr.puts "[-] ERROR: offline-file option is not supported on this installation"
         valid = false
@@ -135,8 +135,8 @@ class Msfupdate
 
     Dir.chdir(@msfbase_dir) do
       if apt?
-        stderr.puts "msfupdate is not supported on Kali Linux, since it is a normal OS package."
-        stderr.puts "Please use 'apt update; apt install metasploit-framework' instead."
+        stderr.puts "[-] ERROR: msfupdate is not supported on Kali Linux."
+        stderr.puts "[-] Please run 'apt update; apt install metasploit-framework' instead."
       elsif binary_install?
         update_binary_install!
       elsif git?
