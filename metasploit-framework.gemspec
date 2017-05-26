@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
 
   if File.directory?(File.join(__FILE__, ".git"))
     spec.files         = `git ls-files`.split($/).reject { |file|
-      file =~ /^documentation|^data\/gui|^external/
+      file =~ /^documentation|^external/
     }
   end
   spec.bindir = '.'
