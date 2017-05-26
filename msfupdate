@@ -135,7 +135,8 @@ class Msfupdate
 
     Dir.chdir(@msfbase_dir) do
       if apt?
-        raise "msfupdate is not supported when Metasploit is part of the operating system. Please use 'apt update; apt install metasploit-framework'"
+        stderr.puts "msfupdate is not supported on Kali Linux, since it is a normal OS package."
+        stderr.puts "Please use 'apt update; apt install metasploit-framework' instead."
       elsif binary_install?
         update_binary_install!
       elsif git?

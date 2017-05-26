@@ -34,7 +34,6 @@ Gem::Specification.new do |spec|
       'msfd',
       'msfrpc',
       'msfrpcd',
-      'msfupdate',
       'msfvenom'
     ]
   end
