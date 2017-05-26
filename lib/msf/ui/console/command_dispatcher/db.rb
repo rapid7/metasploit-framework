@@ -382,6 +382,38 @@ class Db
             return
           end
         }
+
+      when '-g'
+        # This product includes GeoLite data created by MaxMind, available from http://www.maxmind.com
+        glcdat = ::File.join(Msf::Config::data_directory, 'GeoLiteCity.dat')  # Point to data directory
+        hosts = args.drop(0)  # Get rid of the first 2 args (`hosts` and `-g`)
+        hosts = hosts.drop(0)
+        hosts.each do |host|
+
+          # RegEx#match seems to be faster on newer versions of Ruby
+          if !Rex::Socket::MATCH_IPV4.match(host) && !Rex::Socket::MATCH_IPV6.match(host)
+            if Rex::Socket::MATCH_IPV4_PRIVATE.match(host)
+              print_error("You cannot geolocate local IP addresses\n")
+              next
+            end
+            print_error("#{host} is not a valid IP address\n")
+            next
+          end
+
+          c = GeoIP.new(glcdat).city(host)
+          data = ''
+          data << "    IP: #{c[1]}\n"
+          data << "    Continent: #{c[5]}\n"
+          data << "    Country: #{c[4]}\n"
+          data << "    Region: #{c.real_region_name}\n"
+          data << "    City: #{c[7]}\n"
+          data << "    Longitude: #{c.longitude} (about)\n"
+          data << "    Latitude: #{c.latitude} (about)\n"
+          print_status("Info for #{c.request}")
+          print_line(data)
+          host = args.shift
+        end
+        return
       when '-u','--up'
         onlyup = true
       when '-o'
@@ -414,6 +446,7 @@ class Db
         print_line "  -a,--add          Add the hosts instead of searching"
         print_line "  -d,--delete       Delete the hosts instead of searching"
         print_line "  -c <col1,col2>    Only show the given columns (see list below)"
+        print_line "  -g <host>         Perform a geolocation on a given host (IPv4)"
         print_line "  -h,--help         Show this help information"
         print_line "  -u,--up           Only show hosts which are up"
         print_line "  -o <file>         Send output to a file in csv format"

@@ -172,6 +172,7 @@ GEM
     ffi (1.9.18)
     filesize (0.1.1)
     fivemat (1.3.3)
+    geoip (1.6.3)
     gherkin (4.1.3)
     google-protobuf (3.3.0)
     googleauth (0.5.1)
@@ -390,6 +391,7 @@ DEPENDENCIES
   cucumber-rails
   factory_girl_rails
   fivemat
+  geoip
   metasploit-aggregator
   metasploit-framework!
   method_source!
