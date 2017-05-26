@@ -6,7 +6,7 @@ gemspec name: 'metasploit-framework'
 gem 'bit-struct', git: 'https://github.com/busterb/bit-struct', branch: 'ruby-2.4'
 gem 'method_source', git: 'https://github.com/banister/method_source', branch: 'master'
 
-
+gem 'ruby_smb', path: '/Users/dmaloney/rapid7/ruby_smb'
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
