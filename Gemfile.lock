@@ -6,13 +6,6 @@ GIT
     method_source (0.8.1)
 
 GIT
-  remote: https://github.com/busterb/bit-struct
-  revision: 707133ae6af5420be6fbe29be6baa5fbc929da2e
-  branch: ruby-2.4
-  specs:
-    bit-struct (0.15.0)
-
-GIT
   remote: https://github.com/pry/pry
   revision: f19d3e2ae86a677e1e926016fa1a5763675e3659
   branch: master
@@ -130,6 +123,7 @@ GEM
     backports (3.8.0)
     bcrypt (3.1.11)
     bindata (2.4.0)
+    bit-struct (0.16)
     builder (3.2.3)
     capybara (2.14.0)
       addressable
@@ -386,7 +380,6 @@ PLATFORMS
 
 DEPENDENCIES
   aruba
-  bit-struct!
   cucumber-rails
   factory_girl_rails
   fivemat
