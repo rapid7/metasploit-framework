@@ -86,7 +86,7 @@ class Msfupdate
 
   def validate_args
     valid = true
-    if binary_install?
+    if binary_install? || apt?
       if @git_branch
         stderr.puts "[-] ERROR: git-branch is not supported on this installation"
         valid = false
@@ -96,7 +96,7 @@ class Msfupdate
         valid = false
       end
     end
-    if git?
+    if apt? || git?
       if @offline_file
         stderr.puts "[-] ERROR: offline-file option is not supported on this installation"
         valid = false
