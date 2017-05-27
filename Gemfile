@@ -3,9 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-gem 'bit-struct', git: 'https://github.com/busterb/bit-struct', branch: 'ruby-2.4'
-gem 'method_source', git: 'https://github.com/banister/method_source', branch: 'master'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -18,7 +15,7 @@ group :development do
   # generating documentation
   gem 'yard'
   # for development and testing purposes
-  gem 'pry', git: 'https://github.com/pry/pry', branch: 'master'
+  gem 'pry'
   # module documentation
   gem 'octokit'
   # metasploit-aggregator as a framework only option for now
