@@ -17,8 +17,6 @@ RUN apk update && \
       nmap-scripts \
       nmap-nselibs \
       postgresql-libs \
-      # needed as long as metasploit-framework.gemspec contains a 'git ls'
-      git \
       ncurses \
       libcap \
     && apk add --virtual .ruby-builddeps \
