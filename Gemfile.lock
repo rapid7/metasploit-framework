@@ -128,6 +128,7 @@ GEM
       thor (~> 0.19)
     bcrypt (3.1.11)
     bindata (2.4.0)
+    bluetooth (1.0)
     builder (3.2.3)
     capybara (2.14.0)
       addressable
@@ -194,6 +195,7 @@ GEM
       multi_json (~> 1.10)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
+    louis (2.0.5)
     memoist (0.15.0)
     metasm (1.0.3)
     metasploit-aggregator (0.2.0)
@@ -385,9 +387,11 @@ PLATFORMS
 DEPENDENCIES
   aruba
   bit-struct!
+  bluetooth
   cucumber-rails
   factory_girl_rails
   fivemat
+  louis
   metasploit-aggregator
   metasploit-framework!
   method_source!
