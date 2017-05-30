@@ -2263,7 +2263,7 @@ require 'msf/core/exe/segment_appender'
   end
 
   def self.macho?(code)
-    code[0..3] == "\xCF\xFA\xED\xFE"
+    code[0..3] == "\xCF\xFA\xED\xFE" || code[0..3] == "\xCE\xFA\xED\xFE" || code[0..3] == "\xCA\xFE\xBA\xBE" 
   end
 
 end
