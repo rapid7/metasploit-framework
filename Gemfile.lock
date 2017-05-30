@@ -64,14 +64,6 @@ PATH
       windows_error
       xmlrpc
 
-PATH
-  remote: /Users/dmaloney/rapid7/ruby_smb
-  specs:
-    ruby_smb (0.0.18)
-      bindata
-      rubyntlm
-      windows_error
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -336,7 +328,7 @@ GEM
       rspec-mocks (~> 3.6.0)
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
-    ruby_smb (0.0.17)
+    ruby_smb (0.0.18)
       bindata
       rubyntlm
       windows_error
@@ -388,7 +380,6 @@ DEPENDENCIES
   rake
   redcarpet
   rspec-rails
-  ruby_smb!
   shoulda-matchers
   simplecov
   timecop
