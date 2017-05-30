@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
-  if File.directory?(File.join(__FILE__, ".git"))
+  if File.directory?(File.join(File.dirname(__FILE__), ".git"))
     spec.files         = `git ls-files`.split($/).reject { |file|
       file =~ /^documentation|^external/
     }
