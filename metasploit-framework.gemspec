@@ -135,7 +135,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-struct2'
   # Library which contains architecture specific information such as registers, opcodes,
   # and stack manipulation routines.
-  spec.add_runtime_dependency 'rex-arch', '0.1.4'
+  spec.add_runtime_dependency 'rex-arch'
   # Library for working with OLE.
   spec.add_runtime_dependency 'rex-ole'
   # Library for creating and/or parsing MIME messages.
