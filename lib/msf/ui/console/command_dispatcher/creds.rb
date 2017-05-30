@@ -3,6 +3,7 @@
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
+require 'msf/ui/console/command_dispatcher/db_common'
 
 module Msf
 module Ui
@@ -14,6 +15,7 @@ class Creds
 
   include Msf::Ui::Console::CommandDispatcher
   include Metasploit::Credential::Creation
+  include Msf::Ui::Console::CommandDispatcher::DbCommon
   
   #
   # The dispatcher's name.
