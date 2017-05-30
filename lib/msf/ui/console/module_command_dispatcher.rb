@@ -240,9 +240,6 @@ module ModuleCommandDispatcher
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
-    rescue Msf::OptionValidateError => e
-      print_error("{peer} - Check failed: #{e.message}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
