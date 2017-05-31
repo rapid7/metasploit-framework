@@ -78,9 +78,9 @@ module Rex
 
             html = stream_path
 
-            ::File.open(player_path, 'wb') do |f|
-              f.write(html)
-            end
+            # ::File.open(player_path, 'wb') do |f|
+            #   f.write(html)
+            # end
             if view
               print_status("Audio File: #{stream_path}")
               #Rex::Compat.open_file(player_path)
@@ -98,7 +98,6 @@ module Rex
                   if data
                     ::File.open(stream_path, 'a') do |f|
                       f.write(data)
-                      print_status(data)
                     end
                     data = nil
                   end
