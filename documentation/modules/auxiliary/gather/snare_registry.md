@@ -1,8 +1,8 @@
 ## Description
 
-  This module uses the Registry Dump feature of the [Snare Lite for Windows](https://sourceforge.net/projects/snare/) HTTP service on 6161/TCP to retrieve the Windows registry. The Dump Registry functionality is unavailable in Snare Enterprise.
+  This module uses the Registry Dump feature of the [Snare Lite for Windows](https://sourceforge.net/projects/snare/) HTTP service on 6161/TCP to retrieve the Windows registry. The Registry Dump functionality is unavailable in Snare Enterprise.
 
-  Note: The Dump Registry functionality accepts only one connected client at a time. Requesting a large key/hive will cause the service to become unresponsive until the server completes the request.
+  **Note: The Registry Dump functionality accepts only one connected client at a time. Requesting a large key/hive will cause the service to become unresponsive until the server completes the request.**
 
 
 ## Vulnerable Application
@@ -11,7 +11,7 @@
 
   This module has been tested successfully with Snare Lite for Windows version 4.0.2.0 on Windows XP SP3.
 
-  Installers for Snare Lite are no longer available and the product is unsupported.
+  Snare Lite for Windows is no longer supported, however a [free trial is available](http://www.snarealliance.com/snare-open-source-agent-downloads-submission/) from the Snare Alliance website.
 
 
 ## Verification Steps
