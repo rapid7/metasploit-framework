@@ -3,8 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-gem 'bit-struct', git: 'https://github.com/busterb/bit-struct', branch: 'ruby-2.4'
-gem 'method_source', git: 'https://github.com/banister/method_source', branch: 'master'
 gem 'bluetooth'
 gem 'louis'
 
