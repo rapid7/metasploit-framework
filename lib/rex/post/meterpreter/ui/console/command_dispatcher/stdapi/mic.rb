@@ -1,6 +1,7 @@
 class Mic
 end# -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'bindata'
 
 module Rex
   module Post
@@ -93,9 +94,58 @@ module Rex
               client.mic.mic_start(index)
               mic_started = true
               ::Timeout.timeout(duration) do
+                ::File.open(stream_path, 'wb') do |outfd|
+                  numchannels = 1
+                  sampleratehz = 10250
+                  bitspersample = 16
+                  datasize = 2000000000#infd.size
+                  subchunk1size = 16
+                  chunksize = 4 + (8 + subchunk1size) + (8 + datasize)
+                  byterate = sampleratehz * numchannels * bitspersample / 8
+                  blockalign = numchannels * bitspersample / 8
+
+                  BinData::Int32be.new(0x52494646).write(outfd)    # ChunkID: "RIFF"
+                  BinData::Int32le.new(chunksize).write(outfd)     # ChunkSize
+                  BinData::Int32be.new(0x57415645).write(outfd)    # Format: "WAVE"
+                  BinData::Int32be.new(0x666d7420).write(outfd)    # SubChunk1ID: "fmt "
+                  BinData::Int32le.new(16).write(outfd)            # SubChunk1Size
+                  BinData::Int16le.new(1).write(outfd)             # AudioFormat
+                  BinData::Int16le.new(numchannels).write(outfd)   # NumChannels
+                  BinData::Int32le.new(sampleratehz).write(outfd)  # SampleRate
+                  BinData::Int32le.new(byterate).write(outfd)      # ByteRate
+                  BinData::Int16le.new(blockalign).write(outfd)    # BlockAlign
+                  BinData::Int16le.new(bitspersample).write(outfd) # BitsPerSample
+                  BinData::Int32be.new(0x64617461).write(outfd)    # SubChunk2ID: "data"
+                  BinData::Int32le.new(datasize).write(outfd)      # SubChunk2Size
+                  #f.write(data)
+                end
                 while client do
                   data = client.mic.mic_get_frame(quality)
                   if data
+                    # ::File.open(stream_path, 'w') do |outfd|
+                    #   numchannels = 1
+                    #   sampleratehz = 10250
+                    #   bitspersample = 16
+                    #   datasize = data.size#infd.size
+                    #   subchunk1size = 16
+                    #   chunksize = 4 + (8 + subchunk1size) + (8 + datasize)
+                    #   byterate = sampleratehz * numchannels * bitspersample / 8
+                    #   blockalign = numchannels * bitspersample / 8
+                    #
+                    #   BinData::Int32be.new(0x52494646).write(outfd)    # ChunkID: "RIFF"
+                    #   BinData::Int32le.new(chunksize).write(outfd)     # ChunkSize
+                    #   BinData::Int32be.new(0x57415645).write(outfd)    # Format: "WAVE"
+                    #   BinData::Int32be.new(0x666d7420).write(outfd)    # SubChunk1ID: "fmt "
+                    #   BinData::Int32le.new(16).write(outfd)            # SubChunk1Size
+                    #   BinData::Int16le.new(1).write(outfd)             # AudioFormat
+                    #   BinData::Int16le.new(numchannels).write(outfd)   # NumChannels
+                    #   BinData::Int32le.new(sampleratehz).write(outfd)  # SampleRate
+                    #   BinData::Int32le.new(byterate).write(outfd)      # ByteRate
+                    #   BinData::Int16le.new(blockalign).write(outfd)    # BlockAlign
+                    #   BinData::Int16le.new(bitspersample).write(outfd) # BitsPerSample
+                    #   BinData::Int32be.new(0x64617461).write(outfd)    # SubChunk2ID: "data"
+                    #   BinData::Int32le.new(datasize).write(outfd)      # SubChunk2Size
+                    # end
                     ::File.open(stream_path, 'a') do |f|
                       f.write(data)
                     end
