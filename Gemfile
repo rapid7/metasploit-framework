@@ -20,7 +20,7 @@ group :development do
   # generating documentation
   gem 'yard'
   # for development and testing purposes
-  gem 'pry', git: 'https://github.com/pry/pry', branch: 'master'
+  gem 'pry'
   # module documentation
   gem 'octokit'
   # metasploit-aggregator as a framework only option for now

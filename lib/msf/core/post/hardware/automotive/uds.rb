@@ -393,7 +393,7 @@ module UDS
     end
     if (data.key? "Packets") && !data["Packets"].empty?
       data = response_hash_to_data_array(dst_id, data, 4)
-      if !data.empty? && data.even?
+      if !data.empty? && data.size.even?
         (0..data.size / 2).step(2) do |idx|
           code = ""
           case data[idx].hex & 0xC0 >> 3

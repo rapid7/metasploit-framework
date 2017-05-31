@@ -41,7 +41,7 @@ class Automotive < Extension
     valid = false
     get_supported_buses if buses.nil?
     unless bus.blank?
-      buses.each do |b|
+      self.buses.each do |b|
         valid = true if b["bus_name"] == bus
       end
     end
@@ -86,8 +86,8 @@ class Automotive < Extension
   end
 
   def get_supported_buses
-    buses = client.send_request("/automotive/supported_buses")
-    buses
+    self.buses = client.send_request("/automotive/supported_buses")
+    self.buses
   end
 
   def get_bus_config(bus)

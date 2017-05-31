@@ -84,7 +84,7 @@ module Msf
 
       def show_session(details, target, local_id)
         status = pad_space("  #{local_id}", 4)
-        status += "  #{details['ID']}" unless local_id.nil?
+        status += "  #{details['ID']}"
         status = pad_space(status, 15)
         status += "  meterpreter "
         status += "#{guess_target_platform(details['OS'])} "

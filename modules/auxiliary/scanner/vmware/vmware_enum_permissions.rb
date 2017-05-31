@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'VMWare Enumerate Permissions',
       'Description'    => %Q{
         This module will log into the Web API of VMWare and try to enumerate
-        all the user/group permissions. Unlike enum suers this is only
+        all the user/group permissions. Unlike enum users this is only
         users and groups that specifically have permissions defined within
         the VMware product
       },

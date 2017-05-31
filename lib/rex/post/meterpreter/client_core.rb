@@ -730,7 +730,7 @@ private
 
       if opts[:proxy_host] && opts[:proxy_port]
         prefix = 'http://'
-        prefix = 'socks=' if opts[:proxy_type] == 'socks'
+        prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
         proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
         request.add_tlv(TLV_TYPE_TRANS_PROXY_HOST, proxy)
 
