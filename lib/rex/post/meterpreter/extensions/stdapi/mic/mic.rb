@@ -10,11 +10,11 @@ module Rex
         module Stdapi
           module Mic
 
-###
-#
-# This meterpreter extension can list and capture from microphone
-#
-###
+            ###
+            #
+            # This meterpreter extension can list and capture from microphone
+            #
+            ###
             class Mic
               include Msf::Post::Common
 
