@@ -1,4 +1,9 @@
-This module exploits an OS Command Injection vulnerability in Cambium ePMP 1000 (<v2.5) device management portal. It requires any one of the following login credentials - admin/admin, installer/installer, home/home - to execute arbitrary system commands.
+This module exploits an OS Command Injection vulnerability in Cambium ePMP 1000 (<v2.5) device management portal.
+It requires any one of the following login credentials to execute arbitrary system commands:
+
+1. admin/admin
+2. installer/installer
+3. home/home
 
 ## Verification Steps
 
@@ -7,7 +12,7 @@ This module exploits an OS Command Injection vulnerability in Cambium ePMP 1000 
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/epmp1000_cmd_exec

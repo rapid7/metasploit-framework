@@ -34,9 +34,10 @@ You can use any web application to test the crawler.
 4. Do: ```set URI [PATH]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
 ### Example against [WebGoat](https://github.com/WebGoat/WebGoat)
+
 ```
 msf> use auxiliary/scanner/http/crawler
 msf auxiliary(crawler) > set RHOST 127.0.0.1

@@ -47,9 +47,9 @@ This module allows us to scan through a series of IP Addresses and provide detai
 3. Do: ```set RPORT [IP]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
-### On vsFTPd 3.0.3 on Kali
+### vsFTPd 3.0.3 on Kali
 
 ```
 msf > use auxiliary/scanner/ftp/ftp_version
