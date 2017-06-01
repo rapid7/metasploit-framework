@@ -33,12 +33,6 @@ module Rex
                   names << tlv.value
                 end
                 names
-                # response = client.send_request(Packet.create_request('webcam_list'))
-                # names = []
-                # response.get_tlvs(TLV_TYPE_WEBCAM_NAME).each do |tlv|
-                #   names << tlv.value
-                # end
-                # names
               end
 
               # Starts recording video from video source of index +cam+
@@ -60,31 +54,6 @@ module Rex
                 client.send_request(Packet.create_request('audio_interface_stop'))
                 true
               end
-
-              # # Starts streaming from audio source of index
-              # def mic_start
-              #   request = Packet.create_request('audio_interface_start')
-              #
-              #   response = client.send_request(request)
-              #   channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
-              #
-              #   if(channel_id)
-              #     # audio_channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(
-              #     #     client,
-              #     #     channel_id,
-              #     #     "stdapi_net_mic_broadcast",
-              #     #     CHANNEL_FLAG_SYNCHRONOUS
-              #     # )
-              #     audio_channel =  Rex::Post::Meterpreter::Channels::Pools::Audio.open(self.client)
-              #   end
-              #
-              #   return response, audio_channel
-              # end
-
-              # def mic_stop
-              #   client.send_request(Packet.create_request('mic_stop'))
-              #   true
-              # end
 
               attr_accessor :client
             end

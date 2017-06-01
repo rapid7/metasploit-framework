@@ -52,7 +52,7 @@ class Socket
     client.deregister_inbound_handler(Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel)
   end
 
-  ##/
+  ##
   #
   # Factory
   #

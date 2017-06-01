@@ -23,7 +23,8 @@ module Rex
           #
           def commands
             {
-                'start_capture'         => 'play an audio stream from the specified mic',
+                'mic_start'             => 'play an audio stream from the specified mic',
+                'mic_stop'              => 'stop capturing audio from device',
                 'list_audio_interfaces' => 'list all audio interfaces',
                 'listen'                => 'listen to audio via audio player'
             }
@@ -48,7 +49,7 @@ module Rex
             end
           end
 
-          def cmd_start_capture(start_delay=4096, play_audio=true)
+          def cmd_mic_start(start_delay=4096, play_audio=true)
             print_status("Streaming mic audio channel...")
 
             if client.mic.mic_list.length == 0
@@ -112,6 +113,10 @@ module Rex
             ensure
               client.mic.mic_stop if mic_started
             end
+          end
+
+          def cmd_mic_stop(index=0)
+            client.mic.mic_stop(index)
           end
 
           def cmd_listen(stream_path, player_path="/Applications/VLC.app/Contents/MacOS/VLC")
