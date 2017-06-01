@@ -48,7 +48,7 @@ module Rex
             end
           end
 
-          def cmd_start_capture
+          def cmd_start_capture(start_delay=4096, play_audio=true)
             print_status("Streaming mic audio channel...")
 
             if client.mic.mic_list.length == 0
@@ -95,7 +95,7 @@ module Rex
                 end
                 stream_index = 0
                 while client do
-                  if stream_index == 4096
+                  if play_audio && (stream_index == start_delay)
                     cmd_listen(stream_path)
                   end
                   data = client.mic.mic_get_frame(quality)
@@ -114,8 +114,8 @@ module Rex
             end
           end
 
-          def cmd_listen(stream_path)
-            system("/Applications/VLC.app/Contents/MacOS/VLC #{stream_path} &")
+          def cmd_listen(stream_path, player_path="/Applications/VLC.app/Contents/MacOS/VLC")
+            system("#{player_path} #{stream_path} &")
           end
         end
       end
