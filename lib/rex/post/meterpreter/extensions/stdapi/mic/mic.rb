@@ -36,9 +36,9 @@ module Rex
               end
 
               # Starts recording video from video source of index +cam+
-              def mic_start(cam)
+              def mic_start(mic)
                 request = Packet.create_request('audio_interface_start')
-                request.add_tlv(TLV_TYPE_AUDIO_INTERFACE_NAME, cam)
+                request.add_tlv(TLV_TYPE_AUDIO_INTERFACE_NAME, mic)
                 client.send_request(request)
                 true
               end
