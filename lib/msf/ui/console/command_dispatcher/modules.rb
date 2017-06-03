@@ -22,7 +22,8 @@ module Msf
           DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
 
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h" => [ false, "Help banner."]
+            "-h" => [ false, "Help banner."],
+            "-S" => [ true, "Row search filter."],
           )
 
           def commands
@@ -381,15 +382,20 @@ module Msf
           #
           def cmd_search(*args)
             match   = ''
+            search_term = nil
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
                 when "-t"
                   print_error("Deprecated option.  Use type:#{val} instead")
                   cmd_search_help
                   return
+                when "-S", "--search"
+                  search_term = val
                 when "-h"
                   cmd_search_help
                   return
+                when "-S"
+                  search_term = val
                 else
                   match += val + " "
               end
@@ -397,7 +403,7 @@ module Msf
 
             if framework.db
               if framework.db.migrated && framework.db.modules_cached
-                search_modules_sql(match)
+                search_modules_sql(match, search_term)
                 return
               else
                 print_warning("Module database cache not built yet, using slow search")
@@ -406,7 +412,7 @@ module Msf
               print_warning("Database not connected, using slow search")
             end
 
-            tbl = generate_module_table("Matching Modules")
+            tbl = generate_module_table("Matching Modules", search_term)
             [
               framework.exploits,
               framework.auxiliary,
@@ -434,8 +440,8 @@ module Msf
           #
           # @param (see Msf::DBManager#search_modules)
           # @return [void]
-          def search_modules_sql(search_string)
-            tbl = generate_module_table("Matching Modules")
+          def search_modules_sql(search_string, search_term = nil)
+            tbl = generate_module_table("Matching Modules", search_term)
             framework.db.search_modules(search_string).each do |o|
               tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), RankingName[o.rank].to_s, o.name ]
             end
@@ -1157,13 +1163,14 @@ module Msf
             print(tbl.to_s)
           end
 
-          def generate_module_table(type) # :nodoc:
+          def generate_module_table(type, search_term = nil) # :nodoc:
             Table.new(
               Table::Style::Default,
-              'Header'  => type,
-              'Prefix'  => "\n",
-              'Postfix' => "\n",
-              'Columns' => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ]
+              'Header'     => type,
+              'Prefix'     => "\n",
+              'Postfix'    => "\n",
+              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ],
+              'SearchTerm' => search_term
             )
           end
 
