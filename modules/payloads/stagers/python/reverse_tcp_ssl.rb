@@ -9,7 +9,7 @@ require 'msf/core/payload/python/reverse_tcp_ssl'
 
 module MetasploitModule
 
-  CachedSize = 378
+  CachedSize = 470
 
   include Msf::Payload::Stager
   include Msf::Payload::Python::ReverseTcpSsl
