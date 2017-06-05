@@ -118,8 +118,8 @@ module Rex
             client.mic.mic_stop(index)
           end
 
-          def cmd_listen(stream_path, player_path="/Applications/VLC.app/Contents/MacOS/VLC")
-            system("#{player_path} #{stream_path} &")
+          def cmd_listen(stream_path)
+            Rex::Compat.open_webrtc_browser("file://#{::File.absolute_path(stream_path)}")
           end
         end
       end
