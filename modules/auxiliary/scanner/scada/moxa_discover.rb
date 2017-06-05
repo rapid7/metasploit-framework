@@ -35,6 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         'License'        => MSF_LICENSE,
         'References'     =>
         [
+          [ 'CVE', '2016-9361'],
           [ 'URL', 'https://www.digitalbond.com/blog/2016/10/25/serial-killers/'],
           [ 'URL', 'http://www.moxa.com/support/faq/faq_detail.aspx?id=646' ],
         ]

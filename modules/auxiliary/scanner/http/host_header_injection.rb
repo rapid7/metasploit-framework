@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
+          ['CVE', 'CVE-2016-10073'], # validate, an instance of a described attack approach from the original reference
           ['URL', 'http://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html']
         ]
     ))
