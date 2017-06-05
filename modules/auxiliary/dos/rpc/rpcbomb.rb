@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Dos
+  include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
   def initialize(info={})
