@@ -106,6 +106,7 @@ module Rex
                     data = nil
                   end
                   stream_index += 1
+                  sleep 1
                 end
               end
             rescue ::Timeout::Error
