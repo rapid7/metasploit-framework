@@ -16,6 +16,7 @@ module Msf
         #
         class Jobs
           include Msf::Ui::Console::CommandDispatcher
+          include Msf::Ui::Console::CommandDispatcher::Common
 
           @@handler_opts = Rex::Parser::Arguments.new(
             "-h" => [ false, "Help Banner"],
