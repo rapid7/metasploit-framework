@@ -64,6 +64,8 @@ module Rex
 
             print_status("Audio File: #{stream_path}")
             print_status("Streaming...")
+
+            client.mic.stream
           end
 
           def cmd_mic_stop(index=0)
