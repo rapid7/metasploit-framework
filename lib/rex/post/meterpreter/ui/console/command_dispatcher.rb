@@ -50,6 +50,23 @@ module Console::CommandDispatcher
   end
 
   #
+  # Returns the commands that meet the requirements
+  #
+  def check_commands(all, reqs=nil)
+    all.delete_if do |cmd, _desc|
+      del = false
+      reqs[cmd].each do |req|
+        next if client.commands.include? req
+        del = true
+        break
+      end
+      del
+    end
+
+    all
+  end
+
+  #
   # Returns true if the client has a framework object.
   #
   # Used for firing framework session events
