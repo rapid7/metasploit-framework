@@ -49,7 +49,7 @@ module Rex
             end
           end
 
-          def cmd_mic_start(index=0, start_delay=4096, play_audio=true)
+          def cmd_mic_start(mic_index=0, start_delay=4096)
             print_status("Streaming mic audio channel...")
 
             if client.mic.mic_list.length == 0
@@ -65,11 +65,11 @@ module Rex
             print_status("Audio File: #{stream_path}")
             print_status("Streaming...")
 
-            client.mic.stream
+            client.mic_start(mic_index, start_delay)
           end
 
-          def cmd_mic_stop(index=0)
-            client.mic.mic_stop(index)
+          def cmd_mic_stop
+            client.mic.mic_stop
           end
 
           def cmd_listen(stream_path)
