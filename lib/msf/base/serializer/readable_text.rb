@@ -618,7 +618,6 @@ class ReadableText
       sess_luri    = session.exploit_datastore['LURI'] || ""
 
       sess_checkin = "<none>"
-      sess_machine_id = session.machine_id.to_s
       sess_registration = "No"
 
       if session.respond_to? :platform
@@ -642,14 +641,11 @@ class ReadableText
       out << "      Tunnel: #{sess_tunnel}\n"
       out << "         Via: #{sess_via}\n"
       out << "        UUID: #{sess_uuid}\n"
-      out << "   MachineID: #{sess_machine_id}\n"
       out << "     CheckIn: #{sess_checkin}\n"
       out << "  Registered: #{sess_registration}\n"
-      if !sess_luri.empty?
+      unless sess_luri.empty?
         out << "        LURI: #{sess_luri}\n"
       end
-
-
 
       out << "\n"
     end

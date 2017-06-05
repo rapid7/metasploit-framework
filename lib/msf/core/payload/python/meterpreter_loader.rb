@@ -74,6 +74,13 @@ module Payload::Python::MeterpreterLoader
     uuid = Rex::Text.to_hex(uuid.to_raw, prefix = '')
     met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
+    if opts[:stageless] == true
+      session_guid = "00" * 16
+    else
+      session_guid = SecureRandom.uuid.gsub(/-/, '')
+    end
+    met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'.decode(\'hex\')")
+
     http_user_agent = opts[:http_user_agent] || ds['MeterpreterUserAgent']
     http_proxy_host = opts[:http_proxy_host] || ds['PayloadProxyHost'] || ds['PROXYHOST']
     http_proxy_port = opts[:http_proxy_port] || ds['PayloadProxyPort'] || ds['PROXYPORT']

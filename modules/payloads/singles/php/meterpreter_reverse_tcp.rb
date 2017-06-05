@@ -39,6 +39,10 @@ module MetasploitModule
     bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
     met = met.sub(%q|"PAYLOAD_UUID", ""|, %Q|"PAYLOAD_UUID", "#{bytes}"|)
 
+    # Stageless payloads need to have a blank session GUID
+    session_guid = '\x00' * 16
+    met = met.sub(%q|"SESSION_GUID", ""|, %Q|"SESSION_GUID", "#{session_guid}"|)
+
     met.gsub!(/#.*$/, '')
     met = Rex::Text.compress(met)
     met

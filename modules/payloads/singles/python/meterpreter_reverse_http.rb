@@ -37,7 +37,8 @@ module MetasploitModule
       url:             generate_callback_url(opts),
       http_user_agent: opts[:user_agent],
       http_proxy_host: opts[:proxy_host],
-      http_proxy_port: opts[:proxy_port]
+      http_proxy_port: opts[:proxy_port],
+      stageless:       true
     })
 
     py_create_exec_stub(met)

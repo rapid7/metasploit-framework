@@ -56,7 +56,8 @@ module MetasploitModule
       uuid:       opts[:uuid],
       transports: [transport_config_reverse_ipv6_tcp(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
-      ext_init:   (datastore['EXTINIT'] || '')
+      ext_init:   (datastore['EXTINIT'] || ''),
+      stageless:  true
     }
 
     # create the configuration instance based off the parameters
