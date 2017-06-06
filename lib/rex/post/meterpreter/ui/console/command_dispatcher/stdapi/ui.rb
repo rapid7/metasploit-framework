@@ -49,19 +49,7 @@ class Console::CommandDispatcher::Stdapi::Ui
         "stdapi_ui_enable_keyboard"
       ]
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
