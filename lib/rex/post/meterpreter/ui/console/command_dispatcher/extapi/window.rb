@@ -27,7 +27,7 @@ class Console::CommandDispatcher::Extapi::Window
     reqs = {
       "window_enum" => [ "extapi_window_enum" ],
     }
-    check_commands(all, reqs)
+    filter_commands(all, reqs)
   end
 
   #

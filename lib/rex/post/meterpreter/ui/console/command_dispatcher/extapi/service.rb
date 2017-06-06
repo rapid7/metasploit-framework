@@ -31,7 +31,7 @@ class Console::CommandDispatcher::Extapi::Service
       "service_query"   => [ "extapi_service_query" ],
       "service_control" => [ "extapi_service_control" ],
     }
-    check_commands(all, reqs)
+    filter_commands(all, reqs)
   end
 
   #

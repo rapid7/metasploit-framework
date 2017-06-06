@@ -52,18 +52,10 @@ module Console::CommandDispatcher
   #
   # Returns the commands that meet the requirements
   #
-  def check_commands(all, reqs=nil)
+  def filter_commands(all, reqs)
     all.delete_if do |cmd, _desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-      del
+      reqs[cmd].any? { |req| !client.commands.include?(req) }
     end
-
-    all
   end
 
   #

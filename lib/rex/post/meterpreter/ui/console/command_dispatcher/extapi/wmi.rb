@@ -31,7 +31,7 @@ class Console::CommandDispatcher::Extapi::Wmi
     reqs = {
       "wmi_query" => [ "extapi_wmi_query" ],
     }
-    check_commands(all, reqs)
+    filter_commands(all, reqs)
   end
 
   #

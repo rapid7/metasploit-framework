@@ -52,7 +52,7 @@ class Console::CommandDispatcher::Android
       'set_audio_mode'   => ['android_set_audio_mode'],
       'wakelock'         => ['android_wakelock'],
     }
-    check_commands(all, reqs)
+    filter_commands(all, reqs)
   end
 
   def interval_collect_usage

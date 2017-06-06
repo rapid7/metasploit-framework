@@ -41,7 +41,7 @@ class Console::CommandDispatcher::Extapi::Adsi
       "adsi_dc_enum"                => [ "extapi_adsi_domain_query" ],
       "adsi_domain_query"           => [ "extapi_adsi_domain_query" ],
     }
-    check_commands(all, reqs)
+    filter_commands(all, reqs)
   end
 
   #

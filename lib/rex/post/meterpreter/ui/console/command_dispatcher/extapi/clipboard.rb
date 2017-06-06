@@ -40,7 +40,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
       "clipboard_monitor_purge"  => [ "extapi_clipboard_monitor_purge" ],
       "clipboard_monitor_stop"   => [ "extapi_clipboard_monitor_stop" ],
     }
-    check_commands(all, reqs)
+    filter_commands(all, reqs)
   end
 
   #
