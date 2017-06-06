@@ -30,4 +30,4 @@ If your conditional statement takes up two whole lines, so be it.  If two nested
 This is likely never to come up, but if it does, please don't use tertiary operators.
 
 #### But I copied it from another module!
-Consistency is a virtue only when it is correct.
+Consistency is a virtue only when it is correct.  (In all seriousness, use your best judgement here, and don't be afraid to ask.)
