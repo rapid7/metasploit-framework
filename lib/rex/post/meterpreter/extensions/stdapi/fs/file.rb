@@ -328,7 +328,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     continue=false
     tries=false
     tries_no=0
-    stat ||= lambda { }
+    stat ||= lambda { |a,b,c| }
 
     if opts
       continue = true if opts["continue"]
