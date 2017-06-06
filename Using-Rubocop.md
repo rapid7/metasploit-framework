@@ -29,3 +29,5 @@ If your conditional statement takes up two whole lines, so be it.  If two nested
 #### Tertiary Operations
 This is likely never to come up, but if it does, please don't use tertiary operators.
 
+#### But I copied it from another module!
+Consistency is a virtue only when it is correct.
