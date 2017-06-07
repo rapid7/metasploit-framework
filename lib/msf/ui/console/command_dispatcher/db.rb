@@ -3,7 +3,6 @@
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
-require 'msf/ui/console/command_dispatcher/db_common'
 
 module Msf
 module Ui
@@ -15,7 +14,7 @@ class Db
   require 'tempfile'
 
   include Msf::Ui::Console::CommandDispatcher
-  include Msf::Ui::Console::CommandDispatcher::DbCommon
+  include Msf::Ui::Console::CommandDispatcher::Common
   
   #
   # The dispatcher's name.
@@ -1809,55 +1808,6 @@ class Db
   # Miscellaneous option helpers
   #
 
-  # Parse +arg+ into a {Rex::Socket::RangeWalker} and append the result into +host_ranges+
-  #
-  # @note This modifies +host_ranges+ in place
-  #
-  # @param arg [String] The thing to turn into a RangeWalker
-  # @param host_ranges [Array] The array of ranges to append
-  # @param required [Boolean] Whether an empty +arg+ should be an error
-  # @return [Boolean] true if parsing was successful or false otherwise
-  def arg_host_range(arg, host_ranges, required=false)
-    if (!arg and required)
-      print_error("Missing required host argument")
-      return false
-    end
-    begin
-      rw = Rex::Socket::RangeWalker.new(arg)
-    rescue
-      print_error("Invalid host parameter, #{arg}.")
-      return false
-    end
-
-    if rw.valid?
-      host_ranges << rw
-    else
-      print_error("Invalid host parameter, #{arg}.")
-      return false
-    end
-    return true
-  end
-
-  #
-  # Parse +arg+ into an array of ports and append the result into +port_ranges+
-  #
-  # Returns true if parsing was successful or nil otherwise.
-  #
-  # NOTE: This modifies +port_ranges+
-  #
-  def arg_port_range(arg, port_ranges, required=false)
-    if (!arg and required)
-      print_error("Argument required for -p")
-      return
-    end
-    begin
-      port_ranges << Rex::Socket.portspec_to_portlist(arg)
-    rescue
-      print_error("Invalid port parameter, #{arg}.")
-      return
-    end
-    return true
-  end
 
   #
   # Takes +host_ranges+, an Array of RangeWalkers, and chunks it up into
