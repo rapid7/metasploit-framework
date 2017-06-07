@@ -165,7 +165,7 @@ module Msf
                 job = framework.jobs[job_id.to_s]
                 mod = job.ctx[0]
 
-                output  = '\n'
+                output  = "\n"
                 output += "Name: #{mod.name}"
                 output += ", started at #{job.start_time}" if job.start_time
                 print_line(output)
