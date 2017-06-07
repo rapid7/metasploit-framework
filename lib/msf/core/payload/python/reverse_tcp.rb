@@ -32,7 +32,7 @@ module Payload::Python::ReverseTcp
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],
       retry_count: datastore['StagerRetryCount'],
-      retry_wait:  datastore['StagerRetryWait'],
+      retry_wait:  datastore['StagerRetryWait']
     }
 
     generate_reverse_tcp(conf)

