@@ -36,7 +36,10 @@ module MetasploitModule
   end
 
   def generate
-    opts = {scheme: 'https'}
+    opts = {
+      scheme: 'https',
+      stageless: true
+    }
     MetasploitPayloads::Mettle.new('mips-linux-muslsf', generate_config(opts)).to_binary :exec
   end
 end
