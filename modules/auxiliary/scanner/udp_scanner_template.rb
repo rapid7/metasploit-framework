@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Auxiliary
         ),
         'Author'         => 'Joe Contributor <joe_contributor[at]example.com>',
         'DisclosureDate' => 'Mar 15 2014',
-        'License'        => MSF_LICENSE
+        'License'        => MSF_LICENSE,
+        'References'     =>
+          [
+              ['CVE', '0000-0000'], # remove or update if CVE exists
+              ['URL', 'https://SomeURLinCyberspace.local']
+          ]
       )
     )
 

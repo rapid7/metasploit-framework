@@ -21,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => ['ir0njaw (Nikita Kelesis) <nikita.elkey[at]gmail.com>'], # of Digital Security [http://dsec.ru]
       'References'     =>
         [
+          [ 'CVE', '2012-1675'],
           [ 'URL', 'http://seclists.org/fulldisclosure/2012/Apr/204' ],
         ],
       'DisclosureDate' => 'Apr 18 2012',

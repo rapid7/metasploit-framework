@@ -26,6 +26,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'  =>
         [
+          ['CVE', '2015-8103'], # see link and validate, https://highon.coffee/blog/jenkins-api-unauthenticated-rce-exploit/ states this is another issue
+          ['URL', 'https://jenkins.io/security/advisory/2015-11-11/'],
           ['URL', 'https://www.pentestgeek.com/penetration-testing/hacking-jenkins-servers-with-no-password/'],
           ['URL', 'https://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Script+Console'],
         ],
