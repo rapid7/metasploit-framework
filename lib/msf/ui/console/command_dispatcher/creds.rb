@@ -84,9 +84,6 @@ class Creds
   # TODO: this needs to be cleaned up to use the new syntax
   #
   def cmd_creds_help
-    require 'pry'
-    binding.pry
-    
     print_line
     print_line "With no sub-command, list credentials. If an address range is"
     print_line "given, show only credentials with logins on hosts within that"
