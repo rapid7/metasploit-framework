@@ -90,11 +90,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if admin_hash
       print_good("Hopefully this is your hash: #{admin_hash}")
-      report_note(
-        host: rhost,
-        port: rport,
-        type: 'qnap.admin.hash',
-        data: admin_hash
+      store_valid_credential(
+        user:         'admin',
+        private:      admin_hash,
+        private_type: :nonreplayable_hash
       )
     else
       print_error('Looks like we didn\'t find the hash :(')
