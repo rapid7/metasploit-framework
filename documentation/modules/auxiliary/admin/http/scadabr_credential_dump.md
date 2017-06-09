@@ -27,7 +27,7 @@
   7. You should get credentials
 
 
-## Sample Output
+## Scenarios
 
   ```
   [+] 172.16.191.166:8080 Authenticated successfully as 'admin'

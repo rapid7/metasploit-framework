@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         'License'     => MSF_LICENSE,
         'References'     =>
         [
+          [ 'CVE', '2014-0659' ],
           [ 'OSVDB', '101653' ],
           [ 'URL', 'https://github.com/elvanderb/TCP-32764' ]
         ],

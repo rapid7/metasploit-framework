@@ -28,6 +28,8 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@download_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
     "-c" => [ false, "Resume getting a partially-downloaded file." ],
+    "-a" => [ false, "Enable adaptive download buffer size." ],
+    "-b" => [ true,  "Set the initial block size for the download." ],
     "-l" => [ true,  "Set the limit of retries (0 unlimits)." ],
     "-r" => [ false, "Download recursively." ],
     "-t" => [ false, "Timestamp downloaded files." ])
@@ -382,6 +384,10 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     @@download_opts.parse(args) { |opt, idx, val|
       case opt
+      when "-a"
+        opts['adaptive'] = true
+      when "-b"
+        opts['block_size'] = val.to_i
       when "-r"
         recursive = true
         opts['recursive'] = true

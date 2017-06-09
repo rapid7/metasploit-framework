@@ -16,6 +16,7 @@ module Msf
         #
         class Jobs
           include Msf::Ui::Console::CommandDispatcher
+          include Msf::Ui::Console::CommandDispatcher::Common
 
           @@handler_opts = Rex::Parser::Arguments.new(
             "-h" => [ false, "Help Banner"],
@@ -164,7 +165,7 @@ module Msf
                 job = framework.jobs[job_id.to_s]
                 mod = job.ctx[0]
 
-                output  = '\n'
+                output  = "\n"
                 output += "Name: #{mod.name}"
                 output += ", started at #{job.start_time}" if job.start_time
                 print_line(output)
