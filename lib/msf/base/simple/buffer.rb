@@ -18,6 +18,26 @@ module Buffer
   # Serializes a buffer to a provided format.  The formats supported are raw,
   # num, dword, ruby, python, perl, bash, c, js_be, js_le, java and psh
   #
+
+  def self.escape_hex(buf)
+    i = 0
+    buf = Rex::Text.to_hex(buf, '')
+    escaped = ''
+    if (buf.length != 0) && (buf.length <= 10000)
+      escaped = '\\x'
+      while i < buf.length
+        escaped = escaped + buf[i]
+	if (i % 2 == 1) && (i != buf.length - 1)
+	  escaped = escaped + '\\x'
+	end
+	i += 1
+      end
+    else
+    escaped = "\x0a===============================================\x0a|| Your payload is too big for this format!! ||\x0a===============================================\x0a\x0a"
+    end
+   return escaped
+  end
+
   def self.transform(buf, fmt = "ruby", var_name = 'buf')
     default_wrap = 60
 
@@ -27,6 +47,8 @@ module Buffer
         buf = Rex::Text.to_num(buf)
       when 'hex'
         buf = Rex::Text.to_hex(buf, '')
+      when 'hex_esc'
+        buf = escape_hex(buf)
       when 'dword', 'dw'
         buf = Rex::Text.to_dword(buf)
       when 'python', 'py'
@@ -67,7 +89,7 @@ module Buffer
   def self.comment(buf, fmt = "ruby")
     case fmt
       when 'raw'
-      when 'num', 'dword', 'dw', 'hex'
+      when 'num', 'dword', 'dw', 'hex', 'hex_esc'
         buf = Rex::Text.to_js_comment(buf)
       when 'ruby', 'rb', 'python', 'py'
         buf = Rex::Text.to_ruby_comment(buf)
@@ -101,6 +123,7 @@ module Buffer
       'dw',
       'dword',
       'hex',
+      'hex_esc',
       'java',
       'js_be',
       'js_le',
