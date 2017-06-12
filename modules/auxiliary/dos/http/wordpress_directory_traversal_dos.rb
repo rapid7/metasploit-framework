@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
   def user_exists(user)
     exists = wordpress_user_exists?(user)
     if exists
-      print_good("Username \"#{username}\" is valid")
+      print_good("Username \"#{user}\" is valid")
       return true
     else
       print_error("\"#{user}\" is not a valid username")
@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       starting_thread = 1
 
       cookie  = wordpress_login(username, password)
-      store_valid_credential(user: user, private: password, proof: cookie)
+      store_valid_credential(user: username, private: password, proof: cookie)
       if cookie.nil?
         print_error('Aborting operation - failed to authenticate')
         return
