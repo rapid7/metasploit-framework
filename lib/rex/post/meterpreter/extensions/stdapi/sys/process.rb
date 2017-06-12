@@ -395,7 +395,10 @@ class ProcessList < Array
     # ppid.  Cut columns from the list if they aren't there.  It is conceivable
     # that processes might have different columns, but for now assume that the
     # first one is representative.
-    cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
+    cols.delete_if do |c|
+      !(any? {|r| r.has_key?(c.downcase)}) or
+        all? {|r| r[c.downcase].nil?}
+    end
 
     opts = {
       'Header' => 'Process List',
@@ -406,6 +409,7 @@ class ProcessList < Array
     tbl = Rex::Text::Table.new(opts)
     each { |process|
       tbl << cols.map { |c|
+        next unless cols.any? {|h| h.downcase == c.downcase}
         col = c.downcase
         val = process[col]
         if col == 'session'
@@ -413,7 +417,7 @@ class ProcessList < Array
         else
           val
         end
-      }.compact
+      }
     }
 
     tbl
