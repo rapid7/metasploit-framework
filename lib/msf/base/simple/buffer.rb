@@ -21,18 +21,24 @@ module Buffer
 
   def self.escape_hex(buf)
     i = 0
+    # Transform the buffer into hex
     buf = Rex::Text.to_hex(buf, '')
     escaped = ''
-    if (buf.length != 0) && (buf.length <= 10000)
+    # Check that the buffer isn't empty and less than 10,000 bytes
+    if (buf.length != 0) && (buf.length <= 20000)
       escaped = '\\x'
       while i < buf.length
         escaped = escaped + buf[i]
-	if (i % 2 == 1) && (i != buf.length - 1)
-	  escaped = escaped + '\\x'
-	end
-	i += 1
+        # Insert \x after every two characters but not at the end of the string
+        if (i % 2 == 1) && (i != buf.length - 1)
+          escaped = escaped + '\\x'
+        end
+        i += 1
       end
     else
+    # This method of inserting \x into the string is order O(n) so for a large string it will take far too long
+    # to actually finish. The scenario in which this format will be useful typically involves shorter strings
+    # (shellcodes and their ilk).
     escaped = "\x0a===============================================\x0a|| Your payload is too big for this format!! ||\x0a===============================================\x0a\x0a"
     end
    return escaped
@@ -48,7 +54,7 @@ module Buffer
       when 'hex'
         buf = Rex::Text.to_hex(buf, '')
       when 'hex_esc'
-        buf = escape_hex(buf)
+        buf = self.escape_hex(buf)
       when 'dword', 'dw'
         buf = Rex::Text.to_dword(buf)
       when 'python', 'py'
