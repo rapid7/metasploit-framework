@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
 
     hfile = tdl_local.read
     tdl_rfile = Rex::Text.rand_text_alpha_lower(8) + ".exe"
-    tdl_local.close 
+    tdl_local.close
     hdrv = driver_local.read
     driver_rfile = Rex::Text.rand_text_alpha_lower(8) + ".sys"
     driver_local.close
