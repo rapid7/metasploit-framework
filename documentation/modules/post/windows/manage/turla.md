@@ -10,6 +10,7 @@ By default, the module expects the tool to be at <Msf::Config.local_directory>/t
 - **SESSION** - This option specifies the remote session to upload and launch the tool on.
 - **DRIVER** - This option specifies the location of the driver file to be installed on the remote system.
 - **TDL** - This option specifies the location of the TDL tool (Furutaka.exe) itself.
+- **REMOTEPATH** - This option specifies a writable directory on the target system in which files will be uploaded.  Default is c:\\windows\\temp\\
 
 ### Basic Setup Information
 First, one must obtain the tool itself and copy it to ~/.msf4/local/tdl/ along with the driver they wish to inject.  In lieu of this, the user can specify the location of both the tool and the driver via the aforementioned module options.

