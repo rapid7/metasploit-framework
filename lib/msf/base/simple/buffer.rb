@@ -15,8 +15,8 @@ module Simple
 module Buffer
 
   #
-  # Serializes a buffer to a provided format.  The formats supported are raw,
-  # num, dword, ruby, python, perl, bash, c, js_be, js_le, java and psh
+  # Serializes a buffer to hex, and then inserts '\\x' in front of every
+  # byte. Only accepts buffers less than 10,000 bytes in length.
   #
 
   def self.escape_hex(buf)
@@ -43,6 +43,11 @@ module Buffer
     end
    return escaped
   end
+
+ #
+ # Serializes a buffer to a provided format.  The formats supported are raw,
+ # num, dword, ruby, python, perl, bash, c, js_be, js_le, java and psh
+ #
 
   def self.transform(buf, fmt = "ruby", var_name = 'buf')
     default_wrap = 60
