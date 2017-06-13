@@ -14,8 +14,8 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{
           This module uses the Turla Driver Loader to inject an arbitrary driver into
           kernel space on a target by way of a vulnerability in a signed Oracle VirtualBox 
-          driver.  The tool itself must be obtained and installed by the end user of this
-          module.
+          driver.  As it contains copyrighted material, the tool itself must be obtained and 
+          installed by the end user of this module.
 
           See https://github.com/hfiref0x/TDL for details.
       },
