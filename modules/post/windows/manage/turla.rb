@@ -13,8 +13,8 @@ class MetasploitModule < Msf::Post
       'Name'          => 'Turla Driver Loader',
       'Description'   => %q{
           This module uses the Turla Driver Loader to inject an arbitrary driver into
-          kernel space on a target by way of a vulnerability in a signed Oracle VirtualBox 
-          driver.  As it contains copyrighted material, the tool itself must be obtained and 
+          kernel space on a target by way of a vulnerability in a signed Oracle VirtualBox
+          driver.  As it contains copyrighted material, the tool itself must be obtained and
           installed by the end user of this module.
 
           See https://github.com/hfiref0x/TDL for details.
@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Post
     else
       tdl_local = File.open(File.join(Msf::Config.local_directory, "tdl", "Furutaka.exe"))
     end
-    
+
     if datastore['REMOTEPATH'].to_s.length > 0
       print_status("Target directory #{datastore['REMOTEPATH']}")
       remote_path = datastore['REMOTEPATH']
@@ -73,12 +73,9 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::None, 'Insufficient privileges or unsupported operating system')
     end
 
-    
     hfile = tdl_local.read
     tdl_rfile = Rex::Text.rand_text_alpha_lower(8) + ".exe"
-    tdl_local.close
-
-    
+    tdl_local.close 
     hdrv = driver_local.read
     driver_rfile = Rex::Text.rand_text_alpha_lower(8) + ".sys"
     driver_local.close
