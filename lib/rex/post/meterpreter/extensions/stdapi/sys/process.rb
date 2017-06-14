@@ -391,13 +391,9 @@ class ProcessList < Array
     end
 
     cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
-    # Arch and Session are specific to native Windows, PHP and Java can't do
-    # ppid.  Cut columns from the list if they aren't there.  It is conceivable
-    # that processes might have different columns, but for now assume that the
-    # first one is representative.
     cols.delete_if do |c|
-      !(any? {|r| r.has_key?(c.downcase)}) or
-        all? {|r| r[c.downcase].nil?}
+      none? {|r| r.has_key?(c.downcase)} ||
+      all? {|r| r[c.downcase].nil?}
     end
 
     opts = {
