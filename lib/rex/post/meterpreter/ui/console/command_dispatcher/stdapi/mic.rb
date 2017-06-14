@@ -25,7 +25,7 @@ module Rex
             {
                 'mic_start'             => 'play an audio stream from the specified mic',
                 'mic_stop'              => 'stop capturing audio from device',
-                'list_audio_interfaces' => 'list all audio interfaces',
+                'mic_list' => 'list all audio interfaces',
                 'listen'                => 'listen to audio via audio player'
             }
           end
@@ -37,7 +37,7 @@ module Rex
             "Stdapi: Mic"
           end
 
-          def cmd_list_audio_interfaces
+          def cmd_mic_list
             client.mic.mic_list
             if client.mic.mic_list.length == 0
               print_error("No mics were found")
