@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
@@ -33,12 +31,12 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('MSG', [true, "The spoofed caller id to send","The Metasploit has you"]),
         OptString.new('EXTENSION', [false, "The specific extension or name to target", nil]),
         OptString.new('DOMAIN', [false, "Use a specific SIP domain", nil])
-      ], self.class)
+      ])
     register_advanced_options(
       [
         OptAddress.new('SIP_PROXY_NAME', [false, "Use a specific SIP proxy", nil]),
         OptPort.new('SIP_PROXY_PORT', [false, "SIP Proxy port to use", 5060])
-      ], self.class)
+      ])
   end
 
 

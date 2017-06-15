@@ -4,8 +4,6 @@
 ##
 
 # auxilary/dos/ssl/openssl_aesni
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptInt.new('MAX_TRIES', [true,  "Maximum number of tries", 300])
-      ], self.class)
+      ])
   end
 
   def run

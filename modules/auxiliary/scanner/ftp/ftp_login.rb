@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/ftp'
 
@@ -40,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::Proxies,
         Opt::RPORT(21),
         OptBool.new('RECORD_GUEST', [ false, "Record anonymous/guest logins to the database", false])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [

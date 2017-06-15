@@ -82,9 +82,37 @@ module Msf
         usage("aggregator_session_forward")
       end
 
+      def show_session(details, target, local_id)
+        status = pad_space("  #{local_id}", 4)
+        status += "  #{details['ID']}"
+        status = pad_space(status, 15)
+        status += "  meterpreter "
+        status += "#{guess_target_platform(details['OS'])} "
+        status = pad_space(status, 43)
+        status += "#{details['USER']} @ #{details['HOSTNAME']} "
+        status = pad_space(status, 64)
+        status += "#{details['LOCAL_SOCKET']} -> #{details['REMOTE_SOCKET']}"
+        print_status status
+      end
+
+      def show_session_detailed(details, target, local_id)
+        print_status "\t Remote ID: #{details['ID']}"
+        print_status "\t      Type: meterpreter #{guess_target_platform(details['OS'])}"
+        print_status "\t      Info: #{details['USER']} @ #{details['HOSTNAME']}"
+        print_status "\t    Tunnel: #{details['LOCAL_SOCKET']} -> #{details['REMOTE_SOCKET']}"
+        print_status "\t       Via: exploit/multi/handler"
+        print_status "\t      UUID: #{details['UUID']}"
+        print_status "\t MachineID: #{details['MachineID']}"
+        print_status "\t   CheckIn: #{details['LAST_SEEN'].to_i}s ago" unless details['LAST_SEEN'].nil?
+        print_status "\tRegistered: Not Yet Implemented"
+        print_status "\t   Forward: #{target}"
+        print_status "\tSession ID: #{local_id}" unless local_id.nil?
+        print_status ""
+      end
+
       def cmd_aggregator_save(*args)
         # if we are logged in, save session details to aggregator.yaml
-        if args.length == 0 || args[0] == "-h"
+        if args.length > 0 || args[0] == "-h"
           usage_save
           return
         end
@@ -137,14 +165,28 @@ module Msf
         aggregator_login
       end
 
-      def cmd_aggregator_sessions(*_args)
+      def cmd_aggregator_sessions(*args)
+        case args.length
+          when 0
+            isDetailed = false
+          when 1
+            unless args[0] == "-v"
+              usage_sessions
+              return
+            end
+            isDetailed = true
+          else
+            usage_sessions
+            return
+        end
         return unless aggregator_verify
 
         sessions_list = @aggregator.sessions
         return if sessions_list.nil?
 
+        session_map = {}
+
         # get details for each session and print in format of sessions -v
-        print_status("Sessions found:")
         sessions_list.each do |session|
           session_id, target = session
           details = @aggregator.session_details(session_id)
@@ -155,19 +197,27 @@ module Msf
           end
           # filter session that do not have details as forwarding options (this may change later)
           next unless details && details['ID']
+          session_map[details['ID']] = [details, target, local_id]
+        end
 
-          print_status "\t Remote ID: #{details['ID']}"
-          print_status "\t      Type: meterpreter #{guess_target_platform(details['OS'])}"
-          print_status "\t      Info: #{details['USER']} @ #{details['HOSTNAME']}"
-          print_status "\t    Tunnel: #{details['LOCAL_SOCKET']} -> #{details['REMOTE_SOCKET']}"
-          print_status "\t       Via: exploit/multi/handler"
-          print_status "\t      UUID: #{details['UUID']}"
-          print_status "\t MachineID: #{details['MachineID']}"
-          print_status "\t   CheckIn: #{details['LAST_SEEN'].to_i}s ago" unless details['LAST_SEEN'].nil?
-          print_status "\tRegistered: Not Yet Implemented"
-          print_status "\t   Forward: #{target}"
-          print_status "\tSession ID: #{local_id}" unless local_id.nil?
-          print_status ""
+        print_status("Remote sessions")
+        print_status("===============")
+        print_status("")
+        if session_map.length == 0
+          print_status("No remote sessions.")
+        else
+          unless isDetailed
+            print_status("  Id  Remote Id  Type                      Information          Connection")
+            print_status("  --  ---------  ----                      -----------          ----------")
+          end
+          session_map.keys.sort.each do |key|
+            details, target, local_id = session_map[key]
+            unless isDetailed
+              show_session(details, target, local_id)
+            else
+              show_session_detailed(details, target, local_id)
+            end
+          end
         end
       end
 
@@ -425,11 +475,21 @@ module Msf
         end
       end
 
+      def pad_space(status, length)
+        while status.length < length
+          status << " "
+        end
+        status
+      end
+
       private :guess_target_platform
       private :aggregator_login
       private :aggregator_compatibility_check
       private :aggregator_verify
       private :local_handler
+      private :pad_space
+      private :show_session
+      private :show_session_detailed
     end
 
     #

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
       OptString.new('RPATH', [false, 'The name of the remote directory relative to the share']),
-    ], self.class)
+    ])
 
   end
 

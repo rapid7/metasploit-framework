@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Auxiliary
@@ -60,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           Opt::RPORT(32764),
-        ], self.class)
+        ])
   end
 
   def run

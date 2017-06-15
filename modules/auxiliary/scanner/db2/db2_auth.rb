@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/db2'
 
@@ -38,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "db2_default_user.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "db2_default_pass.txt") ]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/ipmi'
 
 class MetasploitModule < Msf::Auxiliary
@@ -24,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
+          ['CVE', '2013-4782'],
           ['URL', 'http://fish2.com/ipmi/cipherzero.html'],
           ['OSVDB', '93038'],
           ['OSVDB', '93039'],
@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(623)
-    ], self.class)
+    ])
 
   end
 

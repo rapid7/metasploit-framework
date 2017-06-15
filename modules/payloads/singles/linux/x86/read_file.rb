@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 63
@@ -27,7 +25,7 @@ module MetasploitModule
       [
         OptString.new('PATH',   [ true,  "The file path to read" ]),
         OptString.new('FD',     [ true,  "The file descriptor to write output to", 1 ]),
-      ], self.class)
+      ])
   end
 
   def generate_stage(opts={})

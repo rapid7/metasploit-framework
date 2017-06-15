@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           Opt::RPORT(3037),
           OptBool.new('SSL', [true, 'Use SSL', true]),
           OptString.new('RPATH', [ true, "The remote file path to delete", "c:\\test.txt" ]),
-        ], self.class)
+        ])
   end
 
   def run

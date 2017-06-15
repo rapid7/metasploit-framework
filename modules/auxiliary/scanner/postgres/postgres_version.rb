@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         ]
     ))
 
-    register_options([ ], self.class) # None needed.
+    register_options([ ]) # None needed.
 
     deregister_options('SQL', 'RETURN_ROWSET')
   end

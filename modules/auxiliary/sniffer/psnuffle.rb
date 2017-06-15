@@ -12,8 +12,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -40,13 +38,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('PROTOCOLS',	[true,	'A comma-delimited list of protocols to sniff or "all".', "all"]),
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptPath.new('ProtocolBase', [true,	'The base directory containing the protocol decoders',
         File.join(Msf::Config.data_directory, "exploits", "psnuffle")
       ]),
-    ], self.class)
+    ])
     deregister_options('RHOST')
   end
 

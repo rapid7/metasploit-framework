@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_http'
 require 'msf/core/payload/python'
 require 'msf/core/payload/python/meterpreter_loader'
@@ -12,7 +11,7 @@ require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 53346
+  CachedSize = 53614
 
   include Msf::Payload::Single
   include Msf::Payload::Python

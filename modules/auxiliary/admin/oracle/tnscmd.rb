@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::TNS
@@ -26,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(1521),
         OptString.new('CMD', [ false, 'Something like ping, version, status, etc..', '(CONNECT_DATA=(COMMAND=VERSION))']),
-      ], self.class)
+      ])
   end
 
   def run

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'cgi'
 
 class MetasploitModule < Msf::Auxiliary
@@ -44,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FILENAME', [true, 'The MCL file', 'msf.mcl']),
         OptPath.new('FILES',      [true, 'Files you wish to download', ::File.join(Msf::Config.data_directory, 'wordlists', 'sensitive_files_win.txt')])
-      ], self.class)
+      ])
   end
 
   def receiver_page

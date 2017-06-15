@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -30,12 +28,12 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
         OptString.new('QUERY',[ false,  "HTTP URI Query", '']),
         OptString.new('DATA', [ false,  "HTTP Body/Data Query", ''])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-      ], self.class)
+      ])
 
   end
 

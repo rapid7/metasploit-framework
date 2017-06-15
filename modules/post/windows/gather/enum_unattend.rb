@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/parser/unattend'
 require 'rexml/document'
 
@@ -39,7 +38,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('GETALL', [true, 'Collect all unattend.xml that are found', true])
-      ], self.class)
+      ])
   end
 
 

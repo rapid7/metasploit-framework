@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SSLVersion', [true, 'SSL version', 'TLS1']),
         OptString.new('TARGETURI', [ true, "Base directory path", '/']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"]),
-      ], self.class)
+      ])
   end
 
   def run

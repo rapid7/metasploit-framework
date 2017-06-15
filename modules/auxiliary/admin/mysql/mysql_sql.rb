@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SQL', [ true, 'The SQL to execute.',  'select version()'])
-      ], self.class)
+      ])
   end
 
   def auxiliary_commands

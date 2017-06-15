@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/socket/range_walker'
 
 class MetasploitModule < Msf::Auxiliary
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PORTS', [true, "Ports to scan; must be TCP", "21,80,139,443,445,1433,1521,1723,3389,8080,9100"]),
         OptBool.new('MANUAL_CHECK',[true,"Stop the scan if server seems to answer positively to every request",true]),
         OptString.new('CANARY_IP',[true,"The IP to check if the proxy always answers positively; the IP should not respond.","1.2.3.4"])
-      ], self.class)
+      ])
 
   end
 

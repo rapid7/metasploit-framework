@@ -49,7 +49,6 @@ RSpec.describe Msfupdate do
   before(:example) do
     # By default, we want to ensure tests never actually try to execute any
     # of the update methods unless we are explicitly testing them
-    allow(subject).to receive(:update_apt!)
     allow(subject).to receive(:update_binary_install!)
     allow(subject).to receive(:update_git!)
   end
@@ -219,10 +218,6 @@ RSpec.describe Msfupdate do
     end
 
     context "#run!" do
-      it "calls update_apt!" do
-        expect(subject).to receive(:update_apt!)
-        subject.run!
-      end
       it "does not call update_binary_install!" do
         expect(subject).not_to receive(:update_binary_install!)
         subject.run!
@@ -231,10 +226,6 @@ RSpec.describe Msfupdate do
         expect(subject).not_to receive(:update_git!)
         subject.run!
       end
-    end
-
-    context "#update_apt!" do
-      # TODO: Add more tests!
     end
   end
 
@@ -272,10 +263,6 @@ RSpec.describe Msfupdate do
     end
 
     context "#run!" do
-      it "does not call update_apt!" do
-        expect(subject).not_to receive(:update_apt!)
-        subject.run!
-      end
       it "calls update_binary_install!" do
         expect(subject).to receive(:update_binary_install!)
         subject.run!
@@ -326,10 +313,6 @@ RSpec.describe Msfupdate do
     end
 
     context "#run!" do
-      it "does not call update_apt!" do
-        expect(subject).not_to receive(:update_apt!)
-        subject.run!
-      end
       it "does not call update_binary_install!" do
         expect(subject).not_to receive(:update_binary_install!)
         subject.run!

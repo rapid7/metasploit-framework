@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Tcp
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(46824),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/WINDOWS/system32/drivers/etc/hosts']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 10])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

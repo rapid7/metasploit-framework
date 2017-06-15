@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 
@@ -19,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'VMWare Enumerate Permissions',
       'Description'    => %Q{
         This module will log into the Web API of VMWare and try to enumerate
-        all the user/group permissions. Unlike enum suers this is only
+        all the user/group permissions. Unlike enum users this is only
         users and groups that specifically have permissions defined within
         the VMware product
       },
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
-      ], self.class)
+      ])
   end
 
 

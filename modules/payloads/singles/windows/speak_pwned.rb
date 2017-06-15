@@ -34,7 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =end
 
-require 'msf/core'
 require 'msf/core/payload/windows/exec'
 
 

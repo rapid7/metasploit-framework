@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Ipv6
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('SHOST', [false, "Source IP Address"]),
         OptString.new('SMAC', [false, "Source MAC Address"]),
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN', 'FILTER')
   end

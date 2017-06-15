@@ -9,7 +9,7 @@ Bug tracking and development information can be found at:
  https://github.com/rapid7/metasploit-framework
 
 New bugs and feature requests should be directed to:
-  http://r-7.co/MSF-BUGv1
+  https://r-7.co/MSF-BUGv1
 
 API documentation for writing modules can be found at:
   https://rapid7.github.io/metasploit-framework/api
@@ -22,7 +22,7 @@ Installing
 
 Generally, you should use [the free installer](https://www.metasploit.com/download),
 which contains all of the dependencies and will get you up and running with a
-few clicks. See the [Dev Environment Setup](http://r-7.co/MSF-DEV) if
+few clicks. See the [Dev Environment Setup](https://r-7.co/MSF-DEV) if
 you'd like to deal with dependencies on your own.
 
 Using Metasploit
@@ -45,6 +45,6 @@ pull request. For slightly more information, see
 [wiki-devenv]: https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment "Metasploit Development Environment Setup"
 [wiki-start]: https://github.com/rapid7/metasploit-framework/wiki/ "Metasploit Wiki"
 [wiki-usage]: https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit "Using Metasploit"
-[unleashed]: http://www.offensive-security.com/metasploit-unleashed/ "Metasploit Unleashed"
+[unleashed]: https://www.offensive-security.com/metasploit-unleashed/ "Metasploit Unleashed"
 
 

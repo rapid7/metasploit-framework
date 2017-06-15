@@ -1,4 +1,5 @@
-This module dumps Cambium ePMP 1000 device configuration file. An ePMP 1000 box has four (4) login accounts - admin/admin, installer/installer, home/home, and readonly/readonly. This module requires any one of the following login credentials - admin / installer / home - to dump device configuration file.
+This module dumps Cambium ePMP 1000 device configuration file. An ePMP 1000 box has four (4) login accounts - admin/admin, installer/installer, home/home, and readonly/readonly.
+This module requires any one of the following login credentials - admin / installer / home - to dump device configuration file.
 
 ## Verification Steps
 
@@ -7,7 +8,7 @@ This module dumps Cambium ePMP 1000 device configuration file. An ePMP 1000 box 
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/epmp1000_dump_config

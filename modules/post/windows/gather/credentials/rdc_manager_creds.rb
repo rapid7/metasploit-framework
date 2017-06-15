@@ -5,8 +5,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 require 'msf/core/auxiliary/report'
 

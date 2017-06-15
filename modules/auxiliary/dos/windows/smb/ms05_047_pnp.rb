@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::DCERPC
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMBPIPE', [ true,  "The pipe name to use (browser, srvsvc, wkssvc, ntsvcs)", 'browser']),
-      ], self.class)
+      ])
   end
 
 =begin

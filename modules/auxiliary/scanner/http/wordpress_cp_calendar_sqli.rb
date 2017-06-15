@@ -4,8 +4,6 @@
 ##
 
 require 'uri'
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Target URI of the Wordpress instance', '/'])
-    ], self.class)
+    ])
   end
 
   def run_host(ip)

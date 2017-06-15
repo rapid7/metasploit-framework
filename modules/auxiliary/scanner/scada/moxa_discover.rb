@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -37,6 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         'License'        => MSF_LICENSE,
         'References'     =>
         [
+          [ 'CVE', '2016-9361'],
           [ 'URL', 'https://www.digitalbond.com/blog/2016/10/25/serial-killers/'],
           [ 'URL', 'http://www.moxa.com/support/faq/faq_detail.aspx?id=646' ],
         ]
@@ -47,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       # Moxa protocol listens on 4800/UDP by default
       Opt::RPORT(4800)
-    ], self.class)
+    ])
   end
 
   # The data to be sent via UDP

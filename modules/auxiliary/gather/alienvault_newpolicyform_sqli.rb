@@ -3,8 +3,6 @@
 ## Current source: https://github.com/rapid7/metasploit-framework
 ###
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [ true, 'Single password' ]),
         OptString.new('TARGETURI', [ true, 'Relative URI of installation', '/' ]),
         OptInt.new('SQLI_TIMEOUT', [ true, 'Specify the maximum time to exploit the sqli (in seconds)', 60])
-      ], self.class)
+      ])
   end
 
   def run

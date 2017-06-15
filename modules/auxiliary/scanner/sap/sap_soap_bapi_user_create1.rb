@@ -14,8 +14,6 @@
 # provided excellent feedback. Some people just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -49,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BAPI_LAST',[true,'Last name','Doe']),
       OptString.new('BAPI_PASSWORD',[true,'Password for the account (Default is msf1234)','msf1234']),
       OptString.new('BAPI_USER',[true,'Username for the account (Username in upper case only. Default is MSF)', 'MSF'])
-      ], self.class)
+      ])
   end
 
   def report_cred(opts)

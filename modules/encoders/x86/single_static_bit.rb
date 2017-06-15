@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 #
 # NOTE: this encoder currently has only be tested using bit 5 set to on.
 #

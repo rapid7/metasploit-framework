@@ -7,8 +7,6 @@
 #
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -41,6 +39,8 @@ class MetasploitModule < Msf::Auxiliary
     @server_started = Time.new
     @can_interfaces = []
     @pkt_response = {}  # Candump returned packets
+    @packets_sent = 0
+    @last_sent = nil
   end
 
   def detect_can
@@ -72,8 +72,8 @@ class MetasploitModule < Msf::Auxiliary
   def get_statistics
     stats = {}
     stats["uptime"] = Time.now - @server_started
-    stats["packet_stats"] = "not supported"
-    stats["last_request"] = "not supported"
+    stats["packet_stats"] = @packets_sent
+    stats["last_request"] = @last_sent if @last_sent
     stats["voltage"] = "not supported"
     stats
   end
@@ -134,6 +134,8 @@ class MetasploitModule < Msf::Auxiliary
     @can_interfaces.each do |can|
       if can == bus
         system("cansend #{bus} #{id}##{bytes.join}")
+        @packets_sent += 1
+        @last_sent = Time.now.to_i
         result["Success"] = true if $?.success?
       end
     end
@@ -194,6 +196,8 @@ class MetasploitModule < Msf::Auxiliary
       if can == bus
         candump(bus, dstid, timeout, maxpkts)
         system("cansend #{bus} #{srcid}##{bytes}")
+        @packets_sent += 1
+        @last_sent = Time.now.to_i
         result["Success"] = true if $?.success?
         result["Packets"] = []
         $candump_sniffer.join
@@ -222,33 +226,33 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_request_uri(cli, request)
     if request.uri =~ /status$/i
-      print_status("Sending status...")
+      print_status("Sending status...") if datastore['VERBOSE']
       send_response_html(cli, get_status().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /statistics$/i
-      print_status("Sending statistics...")
+      print_status("Sending statistics...") if datastore['VERBOSE']
       send_response_html(cli, get_statistics().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /settings\/datetime\/get$/i
-      print_status("Sending Datetime")
+      print_status("Sending Datetime") if datastore['VERBOSE']
       send_response_html(cli, get_datetime().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /settings\/timezone\/get$/i
-      print_status("Sending Timezone")
+      print_status("Sending Timezone") if datastore['VERBOSE']
       send_response_html(cli, get_timezone().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /custom_methods$/i
-      print_status("Sending custom methods")
+      print_status("Sending custom methods") if datastore['VERBOSE']
       send_response_html(cli, get_custom_methods().to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /custom\/sample_cmd\?data=(\S+)$/
-      print_status("Request for custom command with args #{$1}")
+      print_status("Request for custom command with args #{$1}") if datastore['VERBOSE']
       send_response_html(cli, sample_custom_method($1).to_json(), { 'Content-Type' => 'application/json' })
     elsif request.uri =~ /automotive/i
       if request.uri =~ /automotive\/supported_buses/
-        print_status("Sending known buses...")
+        print_status("Sending known buses...") if datastore['VERBOSE']
         send_response_html(cli, get_auto_supported_buses().to_json, { 'Content-Type' => 'application/json' })
       elsif request.uri =~ /automotive\/(\w+)\/cansend\?id=(\w+)&data=(\w+)/
-        print_status("Request to send CAN packets for #{$1} => #{$2}##{$3}")
+        print_status("Request to send CAN packets for #{$1} => #{$2}##{$3}") if datastore['VERBOSE']
         send_response_html(cli, cansend($1, $2, $3).to_json(), { 'Content-Type' => 'application/json' })
       elsif request.uri =~ /automotive\/(\w+)\/isotpsend_and_wait\?srcid=(\w+)&dstid=(\w+)&data=(\w+)/
         bus = $1; srcid = $2; dstid = $3; data = $4
-        print_status("Request to send ISO-TP packet and wait for response  #{srcid}##{data} => #{dstid}")
+        print_status("Request to send ISO-TP packet and wait for response  #{srcid}##{data} => #{dstid}") if datastore['VERBOSE']
         timeout = 1500
         maxpkts = 3
         timeout = $1 if request.uri =~ /&timeout=(\d+)/

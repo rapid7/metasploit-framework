@@ -4,7 +4,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/ntp'
 require 'securerandom'
 
@@ -48,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(123),
         OptInt.new('SLEEP', [true, 'Sleep for this many ms between requests', 0]),
         OptInt.new('WAIT', [true, 'Wait this many ms for responses', 250])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -57,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('MODE_6_OPERATIONS', [false, 'Mode 6 operations to fuzz (csv)']),
         OptString.new('MODE_7_IMPLEMENTATIONS', [false, 'Mode 7 implementations to fuzz (csv)']),
         OptString.new('MODE_7_REQUEST_CODES', [false, 'Mode 7 request codes to fuzz (csv)'])
-      ], self.class)
+      ])
   end
 
   def sleep_time

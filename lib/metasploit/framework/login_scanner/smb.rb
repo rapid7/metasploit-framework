@@ -30,7 +30,7 @@ module Metasploit
 
         CAN_GET_SESSION      = true
         DEFAULT_REALM        = 'WORKSTATION'
-        LIKELY_PORTS         = [ 139, 445 ]
+        LIKELY_PORTS         = [ 445 ]
         LIKELY_SERVICE_NAMES = [ "smb" ]
         PRIVATE_TYPES        = [ :password, :ntlm_hash ]
         REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
@@ -100,19 +100,21 @@ module Metasploit
             client      = RubySMB::Client.new(self.dispatcher, username: username, password: password, domain: realm)
             status_code = client.login
 
-            # Windows SMB will return an error code during Session
-            # Setup, but nix Samba requires a Tree Connect. Try admin$
-            # first, since that will tell us if this user has local
-            # admin access. Fall back to IPC$ which should be accessible
-            # to any user with valid creds.
-            begin
-              tree = client.tree_connect("\\\\#{host}\\admin$")
-              # Check to make sure we can write a file to this dir
-              if tree.permissions.add_file == 1
-                access_level = AccessLevels::ADMINISTRATOR
+            if status_code == WindowsError::NTStatus::STATUS_SUCCESS
+              # Windows SMB will return an error code during Session
+              # Setup, but nix Samba requires a Tree Connect. Try admin$
+              # first, since that will tell us if this user has local
+              # admin access. Fall back to IPC$ which should be accessible
+              # to any user with valid creds.
+              begin
+                tree = client.tree_connect("\\\\#{host}\\admin$")
+                # Check to make sure we can write a file to this dir
+                if tree.permissions.add_file == 1
+                  access_level = AccessLevels::ADMINISTRATOR
+                end
+              rescue Exception => e
+                client.tree_connect("\\\\#{host}\\IPC$")
               end
-            rescue Exception => e
-              client.tree_connect("\\\\#{host}\\IPC$")
             end
 
             case status_code.name

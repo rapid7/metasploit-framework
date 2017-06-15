@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('GETSYSTEM', [ false, 'Attempt to get SYSTEM privilege on the target host.', false])
 
-      ], self.class)
+      ])
     @smb_port = 445
     # Constants for SAM decryption
     @sam_lmpass   = "LMPASSWORD\x00"

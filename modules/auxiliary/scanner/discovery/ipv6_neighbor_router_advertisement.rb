@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       OptInt.new('TIMEOUT_NEIGHBOR', [true, "Time (seconds) to listen for a solicitation response.", 1])
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN', 'FILTER', 'RHOST', 'PCAPFILE')
   end

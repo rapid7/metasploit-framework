@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -22,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
           'Jay Turla <@shipcod3>' , #Cross-Site Tracing (XST) Checker
           'CG' #HTTP TRACE Detection
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          ['CVE', '2005-3398'], # early case where this vector applied to a specific application.
+          ['URL', 'https://www.owasp.org/index.php/Cross_Site_Tracing']
+        ]
     )
   end
 

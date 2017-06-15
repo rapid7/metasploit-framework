@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true,  "Application path", '/']),
         OptString.new('USERNAME', [false, 'The username to login as', 'admin']),
         OptString.new('PASSWORD', [false, 'Password for the specified username', 'admin']),
-      ], self.class)
+      ])
   end
 
 

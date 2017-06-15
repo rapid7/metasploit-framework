@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::DRDoS
   include Msf::Auxiliary::Report
@@ -18,6 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
+          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
           ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-017A']
         ]
     )

@@ -1,6 +1,6 @@
 version: '2'
 services:
-  ms: &ms
+  ms:
     image: metasploit
     build:
       context: .
@@ -12,10 +12,11 @@ services:
     ports:
       - 4444:4444
     volumes:
-      - $HOME/.msf4:/root/.msf4
+      - $HOME/.msf4:/home/msf/.msf4
+      - /etc/localtime:/etc/localtime:ro
 
   db:
-    image: postgres:9.6
+    image: postgres:9-alpine
     volumes:
       - pg_data:/var/lib/postgresql/data
 

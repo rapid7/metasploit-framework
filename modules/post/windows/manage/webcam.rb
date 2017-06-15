@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Auxiliary::Report
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Post
       [
         OptInt.new('INDEX',   [false, 'The index of the webcam to use', 1]),
         OptInt.new('QUALITY', [false, 'The JPEG image quality', 50])
-      ], self.class)
+      ])
   end
 
 

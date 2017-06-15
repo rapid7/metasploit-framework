@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/java/serialization'
 
 class MetasploitModule < Msf::Auxiliary
@@ -22,8 +21,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           # RMI protocol specification
           [ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html'],
-          # Placeholder reference for matching
-          [ 'MSF', 'java_rmi_server']
+          [ 'URL', 'http://www.securitytracker.com/id?1026215'],
+          [ 'CVE', '2011-3556']
         ],
       'DisclosureDate' => 'Oct 15 2011'
     )
@@ -31,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1099)
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)

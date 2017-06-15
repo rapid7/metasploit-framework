@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -23,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => ['ir0njaw (Nikita Kelesis) <nikita.elkey[at]gmail.com>'], # of Digital Security [http://dsec.ru]
       'References'     =>
         [
+          [ 'CVE', '2012-1675'],
           [ 'URL', 'http://seclists.org/fulldisclosure/2012/Apr/204' ],
         ],
       'DisclosureDate' => 'Apr 18 2012',
@@ -31,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1521)
-      ], self.class)
+      ])
 
     deregister_options('RHOST') # Provided by the TNS mixin, but not needed in a scanner module
   end

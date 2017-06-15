@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('PATH', [true, "Path to use", '/']),
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)

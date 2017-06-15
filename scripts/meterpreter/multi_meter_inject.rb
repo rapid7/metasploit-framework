@@ -122,7 +122,7 @@ end
 }
 
 # Check for version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+wrong_meter_version(meter_type) if meter_type != 'windows'
 # Create a exploit/multi/handler if desired
 create_multi_handler(payload_type) if start_handler
 

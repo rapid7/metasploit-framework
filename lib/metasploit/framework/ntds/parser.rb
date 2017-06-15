@@ -50,11 +50,13 @@ module Metasploit
 
         def pull_batch
           if channel.cid.nil?
+            dlog("NTDS Parser Channel was closed, reopening")
             reopen_channel
           end
           begin
             raw_batch_data = channel.read(BATCH_SIZE)
-          rescue EOFError
+          rescue EOFError => e
+            elog("NTDS Parser: Error pulling batch - #{e}")
             raw_batch_data = nil
           end
           raw_batch_data

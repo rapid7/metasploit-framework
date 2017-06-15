@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'msf/core/payload/php'
 
 
@@ -33,7 +32,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('URL', [ true, "The pre-encoded URL to the executable" ])
-      ], self.class)
+      ])
   end
 
   def php_exec_file

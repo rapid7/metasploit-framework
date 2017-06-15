@@ -16,8 +16,6 @@ require 'zip'
 #
 # Project
 #
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 
@@ -59,13 +57,13 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptBool.new('DECRYPT', [false, 'Decrypts passwords without third party tools', false])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptInt.new('DOWNLOAD_TIMEOUT', [true, 'Timeout to wait when downloading files through shell sessions', 20]),
       OptBool.new('DISCLAIMER', [false, 'Acknowledge the DECRYPT warning', false]),
       OptBool.new('RECOVER',  [false, 'Attempt to recover from bad DECRYPT when possible', false])
-    ], self.class)
+    ])
   end
 
 

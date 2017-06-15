@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 #
 # NOTE: Read this if you plan on using this encoder:

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('GET_CHILDREN', [false, "Get children companies", true]),
         OptInt.new('CHILD_LIMIT', [false, "Set limit to how many children we can get", 5]),
         OptBool.new('GET_HISTORY', [false, "Get company history", false])
-      ], self.class)
+      ])
 
     deregister_options('RHOST', 'RPORT', 'VHOST', 'Proxies')
   end

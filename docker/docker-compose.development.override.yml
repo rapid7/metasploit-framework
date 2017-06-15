@@ -1,7 +1,11 @@
 version: '2'
 
 services:
-  ms: &ms
+  ms:
+    build:
+      args:
+        BUNDLER_ARGS: --jobs=8
+    image: metasploit:dev
     environment:
       DATABASE_URL: postgres://postgres@db:5432/msf_dev
 

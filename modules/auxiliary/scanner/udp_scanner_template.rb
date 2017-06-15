@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
@@ -23,7 +21,12 @@ class MetasploitModule < Msf::Auxiliary
         ),
         'Author'         => 'Joe Contributor <joe_contributor[at]example.com>',
         'DisclosureDate' => 'Mar 15 2014',
-        'License'        => MSF_LICENSE
+        'License'        => MSF_LICENSE,
+        'References'     =>
+          [
+              ['CVE', '0000-0000'], # remove or update if CVE exists
+              ['URL', 'https://SomeURLinCyberspace.local']
+          ]
       )
     )
 
@@ -31,13 +34,13 @@ class MetasploitModule < Msf::Auxiliary
     [
       # TODO: change to the port you need to scan
       Opt::RPORT(12345)
-    ], self.class)
+    ])
 
     # TODO: add any advanced, special options here, otherwise remove
     register_advanced_options(
     [
       OptBool.new('SPECIAL', [true, 'Try this special thing', false])
-    ], self.class)
+    ])
   end
 
   def setup

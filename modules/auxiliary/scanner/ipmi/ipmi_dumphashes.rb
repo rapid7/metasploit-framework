@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/ipmi'
 
 class MetasploitModule < Msf::Auxiliary
@@ -46,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('OUTPUT_HASHCAT_FILE', [false, "Save captured password hashes in hashcat format"]),
       OptString.new('OUTPUT_JOHN_FILE', [false, "Save captured password hashes in john the ripper format"]),
       OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true])
-    ], self.class)
+    ])
 
   end
 
@@ -59,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ipmi_good(msg)
-    vprint_good("#{rhost}:#{rport} - IPMI - #{msg}")
+    print_good("#{rhost}:#{rport} - IPMI - #{msg}")
   end
 
   def run_host(ip)

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(500),
         OptPath.new('PACKETFILE',
           [ true, 'The ISAKMP packet file', File.join(Msf::Config.data_directory, 'exploits', 'cve-2016-6415', 'sendpacket.raw') ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

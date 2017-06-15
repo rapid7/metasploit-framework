@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 52
@@ -41,7 +39,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('CMD', [ true, "The command string to execute" ]),
-      ], self.class)
+      ])
   end
 
   #

@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DisclosureDate' => 'Jun 24 2004'))
 
-    register_options( [ Opt::RPORT(80) ], self.class )
+    register_options( [ Opt::RPORT(80) ])
   end
 
   def run

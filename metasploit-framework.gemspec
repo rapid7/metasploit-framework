@@ -24,9 +24,11 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
-  spec.files         = `git ls-files`.split($/).reject { |file|
-    file =~ /^documentation|^data\/gui|^external/
-  }
+  if File.directory?(File.join(File.dirname(__FILE__), ".git"))
+    spec.files         = `git ls-files`.split($/).reject { |file|
+      file =~ /^documentation|^external/
+    }
+  end
   spec.bindir = '.'
   if ENV['CREATE_BINSTUBS']
     spec.executables   = [
@@ -34,7 +36,6 @@ Gem::Specification.new do |spec|
       'msfd',
       'msfrpc',
       'msfrpcd',
-      'msfupdate',
       'msfvenom'
     ]
   end
@@ -47,6 +48,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'activesupport', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
   # Needed for config.action_view for view plugin compatibility for Pro
   spec.add_runtime_dependency 'actionpack', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
+  # Backports Ruby features across language versions
+  spec.add_runtime_dependency 'backports'
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
   # Needed for Javascript obfuscation
@@ -65,9 +68,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.2.24'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.2.32'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.8'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.9'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -77,7 +80,7 @@ Gem::Specification.new do |spec|
   # Needed by anemone crawler
   spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
-  spec.add_runtime_dependency 'packetfu', '1.1.13.pre'
+  spec.add_runtime_dependency 'packetfu'
   # For sniffer and raw socket modules
   spec.add_runtime_dependency 'pcaprub'
   # Needed for module caching in Mdm::ModuleDetails
@@ -133,7 +136,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-struct2'
   # Library which contains architecture specific information such as registers, opcodes,
   # and stack manipulation routines.
-  spec.add_runtime_dependency 'rex-arch', '0.1.4'
+  spec.add_runtime_dependency 'rex-arch'
   # Library for working with OLE.
   spec.add_runtime_dependency 'rex-ole'
   # Library for creating and/or parsing MIME messages.

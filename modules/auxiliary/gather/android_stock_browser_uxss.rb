@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpServer::HTML
@@ -72,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
         "When BYPASS_XFO is enabled, this closes the popup window after exfiltration.",
         true
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)

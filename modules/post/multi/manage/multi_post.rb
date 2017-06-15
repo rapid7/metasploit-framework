@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Post
 
         OptString.new('MACRO', [true, 'File with Post Modules and Options to run in the session', nil])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

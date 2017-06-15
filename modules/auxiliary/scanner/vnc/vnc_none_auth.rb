@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/rfb'
 
 class MetasploitModule < Msf::Auxiliary
@@ -18,6 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Detect VNC servers that support the "None" authentication method.',
       'References'  =>
         [
+          ['CVE', '2006-2369'], # a related instance where "None" could be offered and used when not configured as allowed.
           ['URL', 'http://en.wikipedia.org/wiki/RFB'],
           ['URL', 'http://en.wikipedia.org/wiki/Vnc'],
         ],
@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(5900)
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)

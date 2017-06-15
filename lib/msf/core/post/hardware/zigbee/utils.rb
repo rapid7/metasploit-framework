@@ -220,26 +220,26 @@ module Utils
       daddr_mask = (fcf & DOT154_FCF_DADDR_MASK) >> 10
       if daddr_mask == DOT154_FCF_ADDR_EXT
         pktchop[3] = packet[offset,8]
-        offset+=8
+        offset += 8
       elsif daddr_mask == DOT154_FCF_ADDR_SHORT
         pktchop[3] = packet[offset,2]
-        offset+=2
+        offset += 2
       end
 
       # Examine the Intra-PAN flag
       if (fcf & DOT154_FCF_INTRA_PAN) == 0
         pktchop[4] = packet[offset,2]
-        offset+=2
+        offset += 2
       end
 
       # Examine the source addressing mode
       saddr_mask = (fcf & DOT154_FCF_SADDR_MASK) >> 14
       if daddr_mask == DOT154_FCF_ADDR_EXT
         pktchop[5] = packet[offset,8]
-        offset+=8
+        offset += 8
       elsif daddr_mask == DOT154_FCF_ADDR_SHORT
         pktchop[5] = packet[offset,2]
-        offset+=2
+        offset += 2
       end
     end
     # Append remaining payload

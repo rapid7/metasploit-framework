@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd']),
         OptString.new('URL', [ true, 'The path to mimencode', '/cgi-bin/ck/mimencode']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

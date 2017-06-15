@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   include Msf::Post::File
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('ACTIVE',   [ true, 'Enable rpcapd in active mode (passive by default).', false]),
         OptAddress.new('RHOST',	 [ false, 'Remote host to connect (set in active mode only).']),
         OptInt.new('PORT',    [ true,  'Local/Remote port to capture traffic.',2002])
-      ], self.class)
+      ])
   end
 
   def run

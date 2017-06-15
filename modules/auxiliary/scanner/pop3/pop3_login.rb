@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/pop3'
 require 'metasploit/framework/credential_collection'
 
@@ -44,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
           'The file that contains a list of probable passwords.',
           File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
         ])
-    ], self.class)
+    ])
   end
 
   def target

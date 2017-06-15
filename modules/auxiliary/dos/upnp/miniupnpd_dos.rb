@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       Opt::RPORT(1900),
       OptInt.new('ATTEMPTS', [true, 'Max number of attempts to DoS the remote MiniUPnP ending', 3 ])
-    ], self.class)
+    ])
   end
 
   def send_probe(udp_sock, probe)

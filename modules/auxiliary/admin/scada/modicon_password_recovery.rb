@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
@@ -37,12 +35,12 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(21),
         OptString.new('FTPUSER', [true, "The backdoor account to use for login", 'ftpuser']),
         OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password'])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('RUN_CHECK', [false, "Check if the device is really a Modicon device", true])
-      ], self.class)
+      ])
 
   end
 

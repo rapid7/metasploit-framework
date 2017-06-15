@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -22,7 +19,7 @@ class MetasploitModule < Msf::Post
 
         OptAddressRange.new('RHOSTS', [true, 'IP Range to perform ping sweep against.']),
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

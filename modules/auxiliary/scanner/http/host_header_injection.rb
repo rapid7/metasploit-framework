@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -23,6 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
+          ['CVE', '2016-10073'], # validate, an instance of a described attack approach from the original reference
           ['URL', 'http://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html']
         ]
     ))
@@ -30,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETHOST', [true, 'The redirector target', 'evil.com'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

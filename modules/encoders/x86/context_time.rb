@@ -4,8 +4,6 @@
 ##
 
 require 'rex/poly'
-require 'msf/core'
-
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the time(2) key is generated and supplied
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
           [ true,
           "TIME key from target host (see tools/context/time-key utility)",
           "0x00000000"])
-      ], self.class)
+      ])
   end
 
   def obtain_key(buf, badchars, state)

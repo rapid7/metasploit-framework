@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a share on the RHOST', 'C$'])
-    ], self.class)
+    ])
   end
 
   def smb_delete_files

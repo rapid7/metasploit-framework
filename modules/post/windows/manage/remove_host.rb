@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -22,7 +20,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('DOMAIN', [ true, 'Domain name to remove from the hosts file.' ])
-      ], self.class)
+      ])
   end
 
 

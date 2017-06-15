@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI',
           [ true, "The base path to NetFlow Analyzer", '/netflow' ]),
         OptString.new('FILEPATH', [true, 'Path of the file to download', 'C:\\windows\\system.ini']),
-      ], self.class)
+      ])
   end
 
 

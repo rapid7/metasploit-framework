@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -53,7 +51,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('STORE_DB', [true, 'Store file in DB (performance hit resolving IPs).', false]),
       OptString.new('FIELDS', [true, 'FIELDS to retrieve.', 'dNSHostName,distinguishedName,description,operatingSystem,operatingSystemServicePack']),
       OptString.new('FILTER', [true, 'Search filter.', '(&(objectCategory=computer)(operatingSystem=*server*))'])
-    ], self.class)
+    ])
   end
 
   def run

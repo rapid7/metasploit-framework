@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(445),
       OptInt.new('OFFSET', [true, 'The function table offset to call', 0xffff])
-    ], self.class)
+    ])
 
   end
 

@@ -4,8 +4,6 @@
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 
 
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
         OptString.new('DATA', [ false, "HTTP Body Data", '']),
         OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
-      ], self.class)
+      ])
 
   end
 

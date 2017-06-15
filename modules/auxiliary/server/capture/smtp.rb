@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 25 ])
-      ], self.class)
+      ])
   end
 
   def setup

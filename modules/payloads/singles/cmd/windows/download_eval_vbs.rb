@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -40,7 +39,7 @@ module MetasploitModule
         OptBool.new('INCLUDECMD', [ true, "Include the cmd /q /c", false ]),
         OptBool.new('INCLUDEWSCRIPT', [ true, "Include the wscript command", false ]),
         OptBool.new('DELETE', [ true, "Delete created .vbs after download", false ])
-      ], self.class)
+      ])
   end
 
   def generate

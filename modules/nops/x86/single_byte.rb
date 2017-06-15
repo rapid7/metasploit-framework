@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 ###
 #
@@ -90,7 +88,7 @@ SINGLE_BYTE_SLED =
     register_advanced_options(
       [
         OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-      ], self.class)
+      ])
   end
 
   # Generate a single-byte NOP sled for X86

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
         OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
-      ], self.class)
+      ])
 
   end
 

@@ -4,7 +4,6 @@
 ##
 
 
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to authenticate as"]),
         OptString.new('PASSWORD', [ true, "The password to authenticate with"]),
         OptBool.new('SAVE_OUTPUT', [true, "Store output as loot", false])
-      ], self.class)
+      ])
   end
 
 

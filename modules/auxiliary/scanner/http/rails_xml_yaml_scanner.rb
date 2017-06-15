@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('URIPATH', [true, "The URI to test", "/"]),
       OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST', 'PUT'] ]),
-    ], self.class)
+    ])
   end
 
   def send_probe(ptype, pdata)

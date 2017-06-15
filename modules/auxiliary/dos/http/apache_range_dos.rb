@@ -3,12 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::WmapScanFile
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Dos
@@ -50,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('URI', [ true,  "The request URI", '/']),
         OptInt.new('RLIMIT', [ true,  "Number of requests to send",50])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

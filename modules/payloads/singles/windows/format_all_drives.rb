@@ -12,8 +12,6 @@
 #
 ###
 
-require 'msf/core'
-
 module MetasploitModule
 
   CachedSize = 393
@@ -54,7 +52,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('VOLUMELABEL', [ false, "Set the volume label", "PwNeD" ])
-      ], self.class)
+      ])
   end
 
   def generate

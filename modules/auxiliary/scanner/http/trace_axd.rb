@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -26,12 +24,12 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH',  [ true,  "The test path to find trace.axd file", '/']),
         OptBool.new('TRACE_DETAILS', [ true,  "Display trace.axd details", true ])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('StoreFile', [ false,  "Store all information into a file", './trace_axd.log'])
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)

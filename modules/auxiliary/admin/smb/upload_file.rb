@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$'])
-    ], self.class)
+    ])
 
   end
 

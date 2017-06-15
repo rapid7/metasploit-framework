@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Udp
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('STRTPORT',  [true, 'The start probe port', 59150]),
         OptInt.new('FNLPORT',   [true, 'The final probe port', 59159]),
         OptInt.new('RPORT',     [false, 'Remote port to probe', nil]),
-      ], self.class)
+      ])
   end
 
   def create_probe(ip, meth, branch, tag, callid)

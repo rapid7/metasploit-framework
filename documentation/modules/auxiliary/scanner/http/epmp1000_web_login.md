@@ -1,4 +1,5 @@
-This module scans for Cambium ePMP 1000 management login portal(s), and attempts to identify valid credentials. Default login credentials are - admin/admin, installer/installer, home/home and readonly/readonly.
+This module scans for Cambium ePMP 1000 management login portal(s), and attempts to identify valid credentials.
+Default login credentials are - admin/admin, installer/installer, home/home and readonly/readonly.
 
 ## Verification Steps
 
@@ -7,7 +8,7 @@ This module scans for Cambium ePMP 1000 management login portal(s), and attempts
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/epmp1000_web_login

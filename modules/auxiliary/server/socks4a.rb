@@ -4,7 +4,6 @@
 ##
 
 require 'thread'
-require 'msf/core'
 require 'rex/proto/proxy/socks4a'
 
 class MetasploitModule < Msf::Auxiliary
@@ -32,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new( 'SRVHOST', [ true,  "The address to listen on", '0.0.0.0' ] ),
         OptPort.new( 'SRVPORT', [ true,  "The port to listen on.", 1080 ] )
-      ], self.class )
+      ])
   end
 
   def setup

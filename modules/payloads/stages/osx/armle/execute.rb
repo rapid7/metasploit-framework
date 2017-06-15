@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -141,7 +140,7 @@ module MetasploitModule
       [
         OptPath.new('PEXEC', [ true, "Full path to the file to execute",
           File.join(Msf::Config.data_directory, "ipwn", "ipwn")])
-      ], self.class)
+      ])
   end
 
   def generate_stage(opts={})

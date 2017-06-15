@@ -153,7 +153,7 @@ end
 
 }
 
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 print_status("Meterpreter session running as #{session.sys.config.getuid}")
 if help == 0 && commands.length != 0
   abuse(session,targets,commands,username,password,delay)

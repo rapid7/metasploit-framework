@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Post
       OptInt.new('BAUD', [false, "Baud rate to use", 4800]),
       OptInt.new('POWER', [false, "Power level", 100]),
       OptInt.new('INDEX', [false, "USB Index to use", 0])
-    ], self.class)
+    ])
 
   end
 

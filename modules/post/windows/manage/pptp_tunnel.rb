@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
         OptInt.new('TIMEOUT', [true, 'Timeout for the tunnel creation.', 60]),
         OptString.new('PBK_NAME', [true, 'PhoneBook entry name.', 'MSF']),
         OptAddress.new('VPNHOST', [true, 'VPN server.'])
-      ], self.class)
+      ])
   end
 
 

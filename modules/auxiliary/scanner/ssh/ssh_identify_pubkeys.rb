@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
 require 'sshkey' # TODO: Actually include this!
 require 'net/ssh/pubkey_verifier'

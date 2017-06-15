@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})
@@ -22,7 +20,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CERTID', [ true, 'SHA1 hash of the certificate to remove.', '']),
-      ], self.class)
+      ])
   end
 
 

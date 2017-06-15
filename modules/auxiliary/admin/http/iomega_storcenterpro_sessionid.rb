@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptInt.new('SID_MAX', [true, 'Maximum Session ID', 100])
-      ], self.class)
+      ])
   end
 
   def run

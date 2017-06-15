@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'json'
 require 'msf/core/payload/firefox'
 
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Post
         true, "URL to inject into", 'http://metasploit.com'
       ]),
       OptInt.new('TIMEOUT', [true, "Maximum time (seconds) to wait for a response", 90])
-    ], self.class)
+    ])
   end
 
   def run

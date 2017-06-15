@@ -4,8 +4,6 @@
 ##
 
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   def initialize
@@ -63,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('NBNAME',     [ true, "The NetBIOS name to spoof a reply for", 'WPAD' ]),
         OptAddress.new('NBADDR',    [ true, "The address that the NetBIOS name should resolve to", Rex::Socket.source_address("50.50.50.50") ]),
         OptInt.new('PPSRATE',       [ true, "The rate at which to send NetBIOS replies", 1_000])
-      ], self.class)
+      ])
   end
 
   def netbios_service

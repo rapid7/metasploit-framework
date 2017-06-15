@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
 
 
@@ -34,12 +31,12 @@ class MetasploitModule < Msf::Post
         OptString.new('PIDLIST', [false, 'List of semicolon separated PID list.', '']),
         OptBool.new('HANDLER',   [false, 'Start new exploit/multi/handler job on local box.', false]),
         OptInt.new('AMOUNT',     [false, 'Select the amount of shells you want to spawn.', 1])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('PROCESSNAME', [false, 'Description', 'notepad.exe'])
-      ],self.class)
+      ])
   end
 
   # Run Method for when run command is issued

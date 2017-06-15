@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::Capture
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new(  'BIDIRECTIONAL',	[true, 'Spoof also the source with the dest',false]),
       OptBool.new(  'AUTO_ADD',	[true, 'Auto add new host when discovered by the listener',false]),
       OptBool.new(  'LISTENER',    	[true, 'Use an additional thread that will listen for arp requests to reply as fast as possible', true])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('LOCALSMAC',    	[false, 'The MAC address of the local interface to use for hosts detection, this is usefull only if you want to spoof to another host with SMAC']),
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data during host detection', 2]),
       # This mode will generate address ip conflict pop up  on most systems
       OptBool.new(  'BROADCAST',    	[true, 'If set, the module will send replies on the broadcast address witout consideration of DHOSTS', false])
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST','GATEWAY_PROBE_PORT')
   end

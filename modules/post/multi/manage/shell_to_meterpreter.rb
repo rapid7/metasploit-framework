@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/exploit/powershell'
 require 'msf/core/post/windows/powershell'
 
@@ -28,13 +26,13 @@ class MetasploitModule < Msf::Post
       ))
     register_options(
       [
-        OptAddress.new('LHOST',
+        OptAddressLocal.new('LHOST',
           [false, 'IP of host that will receive the connection from the payload (Will try to auto detect).', nil]),
         OptInt.new('LPORT',
           [true, 'Port for payload to connect to.', 4433]),
         OptBool.new('HANDLER',
           [ true, 'Start an exploit/multi/handler to receive the connection', true])
-      ], self.class)
+      ])
     register_advanced_options([
       OptInt.new('HANDLE_TIMEOUT',
         [true, 'How long to wait (in seconds) for the session to come back.', 30]),
@@ -46,7 +44,7 @@ class MetasploitModule < Msf::Post
         [false, 'Remote path to drop binary']),
       OptString.new('BOURNE_FILE',
         [false, 'Remote filename to use for dropped binary'])
-    ], self.class)
+    ])
     deregister_options('PERSIST', 'PSH_OLD_METHOD', 'RUN_WOW64')
   end
 

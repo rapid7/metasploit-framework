@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -49,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD',  [true, 'Webmin Password']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 4]),
         OptString.new('RPATH', [ true, "The file to download", "/etc/shadow" ])
-      ], self.class)
+      ])
   end
 
   def run

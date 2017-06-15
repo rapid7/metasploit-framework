@@ -56,7 +56,7 @@ module Scriptable
   #
   def legacy_script_to_post_module(script_name)
     {
-      'autoroute' => 'post/windows/manage/autoroute',
+      'autoroute' => 'post/multi/manage/autoroute',
       'checkvm' => 'post/windows/gather/checkvm',
       'duplicate' => 'post/windows/manage/multi_meterpreter_inject',
       'enum_chrome' => 'post/windows/gather/enum_chrome',
@@ -68,7 +68,7 @@ module Scriptable
       'file_collector' => 'post/windows/gather/enum_files',
       'get_application_list' => 'post/windows/gather/enum_applications',
       'get_filezilla_creds' => 'post/windows/gather/credentials/filezilla_server',
-      'get_local_subnets' => 'post/windows/manage/autoroute',
+      'get_local_subnets' => 'post/multi/manage/autoroute',
       'get_valid_community' => 'post/windows/gather/enum_snmp',
       'getcountermeasure' => 'post/windows/manage/killav',
       'getgui' => 'post/windows/manage/enable_rdp',

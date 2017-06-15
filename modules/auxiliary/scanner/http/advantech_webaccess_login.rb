@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/advantech_webaccess'
 require 'metasploit/framework/credential_collection'
 
@@ -32,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The base path to Advantech WebAccess', '/']),
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:[empty]', false])
-      ], self.class)
+      ])
   end
 
 

