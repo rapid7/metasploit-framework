@@ -41,6 +41,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "idletime"      => [ "stdapi_ui_get_idle_time" ],
       "keyscan_dump"  => [ "stdapi_ui_get_keys_utf8" ],
       "keyscan_start" => [ "stdapi_ui_start_keyscan" ],
+      "keyscan_start_aw" => [ "stdapi_ui_start_keyscan_actwin"],
       "keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
       "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
       "setdesktop"    => [ "stdapi_ui_desktop_set" ],
