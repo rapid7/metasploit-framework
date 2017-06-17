@@ -15,15 +15,15 @@ class MetasploitModule < Msf::Auxiliary
       'Description'  => %q{
         This module extracts usernames and password hashes from the Cerberus Helpdesk
         through an unauthenticated accss to a workers file.
-        Verified on Version 4.2.3 Stable (Build 925)
+        Verified on Version 4.2.3 Stable (Build 925) and 5.4.4
         },
       'References'   =>
         [
           [ 'EDB', '39526' ]
         ],
       'Author'       => [
-        'asdizzle_', #discovery
-        'h00die',    #module
+        'asdizzle_', # discovery
+        'h00die',    # module
         ],
       'License'      => MSF_LICENSE
     )
