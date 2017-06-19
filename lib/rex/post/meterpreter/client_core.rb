@@ -680,6 +680,12 @@ class ClientCore < Extension
     end
   end
 
+  def negotiate_aes
+    request  = Packet.create_request('core_negotiate_aes')
+    response = client.send_request(request)
+    response
+  end
+
 private
 
   #

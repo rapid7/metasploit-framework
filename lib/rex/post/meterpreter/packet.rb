@@ -110,6 +110,8 @@ TLV_TYPE_SESSION_GUID        = TLV_META_TYPE_RAW    | 462
 TLV_TYPE_CIPHER_NAME         = TLV_META_TYPE_STRING | 500
 TLV_TYPE_CIPHER_PARAMETERS   = TLV_META_TYPE_GROUP  | 501
 
+TLV_TYPE_AES_KEY             = TLV_META_TYPE_RAW    | 550
+
 #
 # Core flags
 #
@@ -217,6 +219,7 @@ class Tlv
       when TLV_TYPE_MACHINE_ID; "MACHINE-ID"
       when TLV_TYPE_UUID; "UUID"
       when TLV_TYPE_SESSION_GUID; "SESSION-GUID"
+      when TLV_TYPE_AES_KEY; "AES-KEY"
 
       #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
       #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
