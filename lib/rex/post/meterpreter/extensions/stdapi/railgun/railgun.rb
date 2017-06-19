@@ -73,6 +73,9 @@ class Railgun
     'linux' => [
       'libc'
     ].freeze,
+    'osx' => [
+      'libc'
+    ].freeze,
     'windows' => [
       'kernel32',
       'ntdll',
