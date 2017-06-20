@@ -305,7 +305,7 @@ class Tlv
     end
 
     # check if the tlv is to be compressed...
-    if( @compress )
+    if @compress
       raw_uncompressed = raw
       # compress the raw data
       raw_compressed = Rex::Text.zlib_deflate( raw_uncompressed )
@@ -614,6 +614,7 @@ end
 ###
 class Packet < GroupTlv
   attr_accessor :created_at
+  attr_accessor :raw
 
   ##
   #
@@ -665,6 +666,7 @@ class Packet < GroupTlv
     end
 
     self.created_at = ::Time.now
+    self.raw = ''
 
     # If it's a request, generate a random request identifier
     if ((type == PACKET_TYPE_REQUEST) ||
@@ -677,6 +679,28 @@ class Packet < GroupTlv
     end
   end
 
+  def add_raw(bytes)
+    self.raw << bytes
+  end
+
+  def raw_bytes_required
+    # if we have the xor bytes and length ...
+    if self.raw.length >= 8
+      # return a value based on the length of the data indicated by
+      # the header
+      xor_key = self.raw[0, 4]
+      length_bytes = xor_bytes(xor_key, raw[4, 4])
+      length = length_bytes.unpack("N")[0]
+      # the raw buffer will always be 4 bytes longer than the length value
+      # given because of the xor key, so the number of bytes we need is ...
+      length - self.raw.length + 4
+    else
+      # Otherwise ask for the remaining 8 bytes for the xor/length
+      # So we can do the rest of the calculation next time
+      8 - self.raw.length
+    end
+  end
+
   #
   # Override the function that creates the raw byte stream for
   # sending so that it generates an XOR key, uses it to scramble
@@ -685,11 +709,8 @@ class Packet < GroupTlv
   #
   def to_r
     raw = super
-    xor_key = rand(254) + 1
-    xor_key |= (rand(254) + 1) << 8
-    xor_key |= (rand(254) + 1) << 16
-    xor_key |= (rand(254) + 1) << 24
-    result = [xor_key].pack('N') + xor_bytes(xor_key, raw)
+    xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
+    result = xor_key + xor_bytes(xor_key, raw)
     result
   end
 
@@ -699,17 +720,18 @@ class Packet < GroupTlv
   # passing it on to the default functionality that can parse
   # the TLV values.
   #
-  def from_r(bytes)
-    xor_key = bytes[0,4].unpack('N')[0]
+  def from_r(bytes=nil)
+    bytes ||= self.raw
+    xor_key = bytes[0,4]
     super(xor_bytes(xor_key, bytes[4, bytes.length]))
   end
 
   #
-  # Xor a set of bytes with a given DWORD xor key.
+  # Xor a set of bytes with a given XOR key.
   #
   def xor_bytes(xor_key, bytes)
     result = ''
-    bytes.bytes.zip([xor_key].pack('V').bytes.cycle).each do |b|
+    bytes.bytes.zip(xor_key.bytes.cycle).each do |b|
       result << (b[0].ord ^ b[1].ord).chr
     end
     result
