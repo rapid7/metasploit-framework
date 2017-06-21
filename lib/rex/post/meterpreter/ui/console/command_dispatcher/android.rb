@@ -701,6 +701,7 @@ class Console::CommandDispatcher::Android
     wakelock_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-r' => [ false, 'Release wakelock' ],
+      '-w' => [ false, 'Turn screen on' ],
       '-f' => [ true, 'Advanced Wakelock flags (e.g 268435456)' ],
     )
 
@@ -713,6 +714,9 @@ class Console::CommandDispatcher::Android
         return
       when '-r'
         flags = 0
+      when '-w'
+        client.android.wakelock(0)
+        flags = 268435482
       when '-f'
         flags = val.to_i
       end
