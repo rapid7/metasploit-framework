@@ -60,12 +60,13 @@ module Ui
       end
       print_good("Driver PMEM loaded successfully")
       #Arbitrary big buffer size, could be optimized
-      buffer_size = 2**17
+      buffer_size = 2 ** 17
       bytes_read = 0
       next_message_byte = memory_size / 10
+      print_good("memory_size #{memory_size}")
       begin
         data = channel.read(buffer_size)
-        until channel.eof
+        until channel.eof || data.nil?
           fd.write(data)
           bytes_read += data.length
           data = channel.read(buffer_size)
