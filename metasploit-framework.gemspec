@@ -84,7 +84,7 @@ Gem::Specification.new do |spec|
   # For sniffer and raw socket modules
   spec.add_runtime_dependency 'pcaprub'
   # Needed for module caching in Mdm::ModuleDetails
-  spec.add_runtime_dependency 'pg'
+  spec.add_runtime_dependency 'pg', '0.20.0'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting

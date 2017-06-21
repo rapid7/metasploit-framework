@@ -30,7 +30,7 @@ PATH
       packetfu
       patch_finder
       pcaprub
-      pg
+      pg (= 0.20.0)
       railties
       rb-readline
       recog
@@ -233,7 +233,7 @@ GEM
       pcaprub
     patch_finder (1.0.2)
     pcaprub (0.12.4)
-    pg (0.21.0)
+    pg (0.20.0)
     pg_array_parser (0.0.9)
     postgres_ext (3.0.0)
       activerecord (>= 4.0.0)
