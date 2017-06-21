@@ -23,6 +23,25 @@ class Def_libc
       'cdecl'
     )
     lib.add_function(
+      'dlclose',
+      'DWORD',
+      [
+        ['LPVOID', 'handle', 'in']
+      ],
+      nil,
+      'cdecl'
+    )
+    lib.add_function(
+      'dlopen',
+      'LPVOID',
+      [
+        ['PCHAR', 'filename', 'in'],
+        ['DWORD', 'flags', 'in']
+      ],
+      nil,
+      'cdecl'
+    )
+    lib.add_function(
       'free',
       'VOID',
       [

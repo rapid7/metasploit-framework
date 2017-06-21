@@ -74,7 +74,8 @@ class Railgun
       'libc'
     ].freeze,
     'osx' => [
-      'libc'
+      'libc',
+      'libobjc'
     ].freeze,
     'windows' => [
       'kernel32',

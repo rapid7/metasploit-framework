@@ -69,17 +69,19 @@ class DLL
   # Returns a Hash containing the return value, the result of GetLastError(),
   # and any +inout+ parameters.
   #
-  # Raises an exception if +func_symbol+ is not a known function in this DLL,
+  # Raises an exception if +function+ is not a known function in this DLL,
   # i.e., it hasn't been defined in a Def.
   #
-  def call_function(func_symbol, args, client)
-    func_name = func_symbol.to_s
+  def call_function(function, args, client)
+    unless function.instance_of? DLLFunction
+      func_name = function.to_s
 
-    unless known_function_names.include? func_name
-      raise "DLL-function #{func_name} not found. Known functions: #{PP.pp(known_function_names, '')}"
+      unless known_function_names.include? func_name
+        raise "DLL-function #{func_name} not found. Known functions: #{PP.pp(known_function_names, '')}"
+      end
+
+      function = get_function(func_name)
     end
-
-    function = get_function(func_name)
 
     return process_function_call(function, args, client)
   end
