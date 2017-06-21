@@ -63,7 +63,7 @@ module Ui
       buffer_size = 2 ** 17
       bytes_read = 0
       next_message_byte = memory_size / 10
-      print_good("memory_size #{memory_size}")
+      print_good("Dumping #{memory_size} bytes (press Ctrl-C to abort)")
       begin
         data = channel.read(buffer_size)
         until channel.eof || data.nil?
