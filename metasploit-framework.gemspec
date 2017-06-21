@@ -83,8 +83,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'packetfu'
   # For sniffer and raw socket modules
   spec.add_runtime_dependency 'pcaprub'
-  # Needed for module caching in Mdm::ModuleDetails
-  spec.add_runtime_dependency 'pg'
+  # Used by the Metasploit data model, etc.
+  # bound to 0.20 for Activerecord 4.2.8 deprecation warnings:
+  # https://github.com/ged/ruby-pg/commit/c90ac644e861857ae75638eb6954b1cb49617090
+  spec.add_runtime_dependency 'pg', '0.20.0'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
