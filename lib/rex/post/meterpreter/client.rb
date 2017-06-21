@@ -77,7 +77,7 @@ class Client
   # Initializes the client context with the supplied socket through
   # which communication with the server will be performed.
   #
-  def initialize(sock,opts={})
+  def initialize(sock, opts={})
     init_meterpreter(sock, opts)
   end
 
@@ -129,6 +129,9 @@ class Client
     # TODO: Clarify why we don't allow unicode to be set in initial options
     # self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
     self.encode_unicode = false
+
+    self.aes_key      = nil
+    self.session_guid = '00000000-0000-0000-0000-000000000000'
 
     # The SSL certificate is being passed down as a file path
     if opts[:ssl_cert]

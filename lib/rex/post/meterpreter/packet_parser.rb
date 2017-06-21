@@ -31,6 +31,7 @@ class PacketParser
   #
   def recv(sock)
     bytes_left = self.packet.raw_bytes_required
+    STDERR.puts("Waiting for bytes: #{bytes_left}\n")
 
     if bytes_left > 0
       raw = sock.read(bytes_left)
@@ -42,8 +43,8 @@ class PacketParser
     end
 
     if self.packet.raw_bytes_required == 0
+      STDERR.puts("Packet is ready ...\n")
       packet = self.packet
-      packet.from_r
       reset
       return packet
     end

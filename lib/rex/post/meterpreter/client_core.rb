@@ -75,6 +75,7 @@ class ClientCore < Extension
     begin
       response = self.client.send_packet_wait_response(request, self.client.response_timeout)
     rescue
+      STDERR.puts("Getting ext commands for #{extension_name} failed with an exception\n")
       # In the case where orphaned shells call back with OLD copies of the meterpreter
       # binaries, we end up with a case where this fails. So here we just return the
       # empty list of supported commands.
@@ -210,7 +211,8 @@ class ClientCore < Extension
         image = f.read
       }
 
-      if !image.nil?
+      if image
+        STDERR.puts("Capabilities zlib: #{client.capabilities[:zlib]}\n")
         request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
       else
         raise RuntimeError, "Failed to serialize library #{library_path}.", caller
@@ -286,6 +288,8 @@ class ClientCore < Extension
       if path.nil?
         raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
       end
+
+      STDERR.puts("Going to try to load #{mod} from #{path}\n")
 
       # Load the extension DLL
       commands = load_library(
@@ -680,10 +684,13 @@ class ClientCore < Extension
     end
   end
 
+  #
+  # Negotiates the use of AES256 encryption over the TLV packets.
+  #
   def negotiate_aes
     request  = Packet.create_request('core_negotiate_aes')
     response = client.send_request(request)
-    response
+    response.get_tlv_value(TLV_TYPE_AES_KEY)
   end
 
 private
