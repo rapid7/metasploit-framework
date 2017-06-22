@@ -3,7 +3,7 @@ require 'msf/core'
 
 module Msf
 
-  require 'msf/core/session_event'
+require 'msf/core/session_event'
 
 ###
 #
@@ -233,7 +233,7 @@ module Session
         db_record.closed_at = Time.now.utc
         # ignore exceptions
         db_record.save
-        db_record = nil
+        self.db_record = nil
       }
     end
   end
