@@ -90,12 +90,15 @@ class MetasploitModule < Msf::Auxiliary
 
     if admin_hash
       print_good("Hopefully this is your hash: #{admin_hash}")
-      report_note(
-        host: rhost,
-        port: rport,
-        type: 'qnap.admin.hash',
-        data: admin_hash
-      )
+      credential_data = {
+        workspace_id:    myworkspace_id,
+        module_fullname: self.fullname,
+        username:        'admin',
+        private_data:    admin_hash,
+        private_type:    :nonreplayable_hash,
+        jtr_format:      'md5crypt'
+      }.merge(service_details)
+      create_credential(credential_data)
     else
       print_error('Looks like we didn\'t find the hash :(')
     end

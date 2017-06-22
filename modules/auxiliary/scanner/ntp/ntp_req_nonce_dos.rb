@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
       'References'     =>
         [
+          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
           ['URL', 'http://r-7.co/R7-2014-12']
         ],

@@ -23,6 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
+          ['CVE', '2013-4782'],
           ['URL', 'http://fish2.com/ipmi/cipherzero.html'],
           ['OSVDB', '93038'],
           ['OSVDB', '93039'],

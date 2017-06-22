@@ -14,7 +14,8 @@ class Db
   require 'tempfile'
 
   include Msf::Ui::Console::CommandDispatcher
-
+  include Msf::Ui::Console::CommandDispatcher::Common
+  
   #
   # The dispatcher's name.
   #
@@ -1715,43 +1716,6 @@ class Db
     print_line
   end
 
-  #
-  # Set RHOSTS in the +active_module+'s (or global if none) datastore from an array of addresses
-  #
-  # This stores all the addresses to a temporary file and utilizes the
-  # <pre>file:/tmp/filename</pre> syntax to confer the addrs.  +rhosts+
-  # should be an Array.  NOTE: the temporary file is *not* deleted
-  # automatically.
-  #
-  def set_rhosts_from_addrs(rhosts)
-    if rhosts.empty?
-      print_status("The list is empty, cowardly refusing to set RHOSTS")
-      return
-    end
-    if active_module
-      mydatastore = active_module.datastore
-    else
-      # if there is no module in use set the list to the global variable
-      mydatastore = self.framework.datastore
-    end
-
-    if rhosts.length > 5
-      # Lots of hosts makes 'show options' wrap which is difficult to
-      # read, store to a temp file
-      rhosts_file = Rex::Quickfile.new("msf-db-rhosts-")
-      mydatastore['RHOSTS'] = 'file:'+rhosts_file.path
-      # create the output file and assign it to the RHOSTS variable
-      rhosts_file.write(rhosts.join("\n")+"\n")
-      rhosts_file.close
-    else
-      # For short lists, just set it directly
-      mydatastore['RHOSTS'] = rhosts.join(" ")
-    end
-
-    print_line "RHOSTS => #{mydatastore['RHOSTS']}"
-    print_line
-  end
-
   def db_find_tools(tools)
     missed  = []
     tools.each do |name|
@@ -1844,55 +1808,6 @@ class Db
   # Miscellaneous option helpers
   #
 
-  # Parse +arg+ into a {Rex::Socket::RangeWalker} and append the result into +host_ranges+
-  #
-  # @note This modifies +host_ranges+ in place
-  #
-  # @param arg [String] The thing to turn into a RangeWalker
-  # @param host_ranges [Array] The array of ranges to append
-  # @param required [Boolean] Whether an empty +arg+ should be an error
-  # @return [Boolean] true if parsing was successful or false otherwise
-  def arg_host_range(arg, host_ranges, required=false)
-    if (!arg and required)
-      print_error("Missing required host argument")
-      return false
-    end
-    begin
-      rw = Rex::Socket::RangeWalker.new(arg)
-    rescue
-      print_error("Invalid host parameter, #{arg}.")
-      return false
-    end
-
-    if rw.valid?
-      host_ranges << rw
-    else
-      print_error("Invalid host parameter, #{arg}.")
-      return false
-    end
-    return true
-  end
-
-  #
-  # Parse +arg+ into an array of ports and append the result into +port_ranges+
-  #
-  # Returns true if parsing was successful or nil otherwise.
-  #
-  # NOTE: This modifies +port_ranges+
-  #
-  def arg_port_range(arg, port_ranges, required=false)
-    if (!arg and required)
-      print_error("Argument required for -p")
-      return
-    end
-    begin
-      port_ranges << Rex::Socket.portspec_to_portlist(arg)
-    rescue
-      print_error("Invalid port parameter, #{arg}.")
-      return
-    end
-    return true
-  end
 
   #
   # Takes +host_ranges+, an Array of RangeWalkers, and chunks it up into
