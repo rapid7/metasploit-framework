@@ -98,9 +98,12 @@ class Msf::Sessions::SSH
     @forwarding_processor = framework.threads.spawn("Session #{sid} ssh_fwd", false) do
       $stderr.puts("starting forwarding thread")
       until ssh.forward.active_locals.empty?
-        # If all ssh channels have hit eof, this will return immediately
         @ssh.loop
-        sleep 0.5
+        # If there are no open ssh channels, such as is the case when we're
+        # listening but haven't received a connection to forward yet, `loop`
+        # will return immediately. We need to pass here so we don't spin cpu
+        # when that happens.
+        sleep 0.1
       end
       $stderr.puts("forwarding thread done")
     end
