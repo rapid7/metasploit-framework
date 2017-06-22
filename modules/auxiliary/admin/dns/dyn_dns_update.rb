@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     case
       when action.name == 'ADD'
         # Prerequisite is that no A records exist for the name.
-        update.absent("#{domain}.", type)
+        update.absent("#{fqdn}.", type)
         # Add two A records for the name.
         update.add("#{fqdn}.", type_enum, 86400, value)
         begin
