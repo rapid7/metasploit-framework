@@ -362,6 +362,44 @@ class Console::CommandDispatcher::Stdapi::Net
     end
   end
 
+  def portfwd_list
+    service = client.pfservice
+
+    table = Rex::Text::Table.new(
+      'Header'    => 'Active Port Forwards',
+      'Indent'    => 3,
+      'SortIndex' => -1,
+      'Columns'   => ['Index', 'Local', 'Remote', 'Direction'])
+
+    cnt = 0
+
+    # Enumerate each TCP relay
+    service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
+      next if (opts['MeterpreterRelay'] == nil)
+
+      direction = 'Forward'
+      direction = 'Reverse' if opts['Reverse'] == true
+
+      if opts['Reverse'] == true
+        table << [cnt + 1, "#{rhost}:#{rport}", "#{lhost}:#{lport}", 'Reverse']
+      else
+        table << [cnt + 1, "#{lhost}:#{lport}", "#{rhost}:#{rport}", 'Forward']
+      end
+
+      cnt += 1
+    }
+
+    print_line
+    if cnt > 0
+      print_line(table.to_s)
+      print_line("#{cnt} total active port forwards.")
+    else
+      print_line('No port forwards are currently active.')
+    end
+    print_line
+
+  end
+
   #
   # Starts and stops local port forwards to remote hosts on the target
   # network.  This provides an elementary pivoting interface.
@@ -411,40 +449,7 @@ class Console::CommandDispatcher::Stdapi::Net
     # Process the command
     case args.shift
       when 'list'
-
-        table = Rex::Text::Table.new(
-          'Header'    => 'Active Port Forwards',
-          'Indent'    => 3,
-          'SortIndex' => -1,
-          'Columns'   => ['Index', 'Local', 'Remote', 'Direction'])
-
-        cnt = 0
-
-        # Enumerate each TCP relay
-        service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
-          next if (opts['MeterpreterRelay'] == nil)
-
-          direction = 'Forward'
-          direction = 'Reverse' if opts['Reverse'] == true
-
-          if opts['Reverse'] == true
-            table << [cnt + 1, "#{rhost}:#{rport}", "#{lhost}:#{lport}", 'Reverse']
-          else
-            table << [cnt + 1, "#{lhost}:#{lport}", "#{rhost}:#{rport}", 'Forward']
-          end
-
-          cnt += 1
-        }
-
-        print_line
-        if cnt > 0
-          print_line(table.to_s)
-          print_line("#{cnt} total active port forwards.")
-        else
-          print_line('No port forwards are currently active.')
-        end
-        print_line
-
+        portfwd_list
       when 'add'
 
         if reverse
