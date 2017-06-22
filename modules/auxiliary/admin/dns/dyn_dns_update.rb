@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
         begin
           resolver.send_message(update)
           print_good("The record '#{fqdn} => #{ip}' has been added!")
-        rescue Exception => e
+        rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet, Dnsruby::NXDomain => e
           print_error "Cannot inject #{fqdn}. Make sure the DNS server is vulnerable or hostname already exists."
           vprint_error "Update failed: #{e.message}"
         end
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
           update.delete(fqdn, type)
           resolver.send_message(update)
           print_good("The record '#{fqdn} => #{ip}' has been deleted!")
-        rescue Exception => e
+        rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet => e
           print_error "Cannot delete #{fqdn}. DNS server is vulnerable or domain doesn't exist."
           vprint_error "Update failed: #{e.message}"
         end

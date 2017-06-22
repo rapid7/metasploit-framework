@@ -1,7 +1,7 @@
 # Dynamic DNS Update Injection
 
-`dyn_dns_update` module allows adding and/or deleting an '**A**' record to
-any remote DNS server that allows unrestricted dynamic updates.
+`dyn_dns_update` module allows adding or deleting DNS records
+on a DNS server that allows unrestricted dynamic updates.
 
 ## Vulnerable Application
 
