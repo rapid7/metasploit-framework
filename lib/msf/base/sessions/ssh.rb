@@ -27,6 +27,10 @@ class Msf::Sessions::SSH
     self.class.type
   end
 
+  def arch
+    'ssh'
+  end
+
   def session_host
     sock = self.ssh.transport.socket
     sock.peerhost
