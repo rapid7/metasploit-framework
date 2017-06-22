@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def scanner_process(data, shost, _sport)
     @results[shost] ||= []
-    @results[shost] << Rex::Proto::NTP::NTPControl.new(data)
+    @results[shost] << Rex::Proto::NTP::NTPControl.new.read(data)
   end
 
   def scan_host(ip)

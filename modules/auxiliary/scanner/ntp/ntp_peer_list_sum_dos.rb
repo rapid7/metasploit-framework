@@ -36,13 +36,13 @@ class MetasploitModule < Msf::Auxiliary
   # Called for each response packet
   def scanner_process(data, shost, sport)
     @results[shost] ||= []
-    @results[shost] << Rex::Proto::NTP::NTPPrivate.new(data)
+    @results[shost] << Rex::Proto::NTP::NTPPrivate.new.read(data).to_binary_s
   end
 
   # Called before the scan block
   def scanner_prescan(batch)
     @results = {}
-    @probe = Rex::Proto::NTP.ntp_private(datastore['VERSION'], datastore['IMPLEMENTATION'], 1)
+    @probe = Rex::Proto::NTP.ntp_private(datastore['VERSION'], datastore['IMPLEMENTATION'], 1).to_binary_s
   end
 
   # Called after the scan block
