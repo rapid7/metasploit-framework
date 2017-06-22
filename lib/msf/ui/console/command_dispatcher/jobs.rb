@@ -34,7 +34,8 @@ module Msf
             "-K" => [ false, "Terminate all running jobs."                    ],
             "-i" => [ true,  "Lists detailed information about a running job."],
             "-l" => [ false, "List all running jobs."                         ],
-            "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ]
+            "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ],
+            "-S" => [ true, "Row search filter."                              ],
           )
 
           def commands
@@ -151,6 +152,9 @@ module Msf
                 # so we can check for the verbose flag.
                 dump_info = true
                 job_id = val
+              when "-S", "--search"
+                search_term = val
+                dump_list = true
               when "-h"
                 cmd_jobs_help
                 return false

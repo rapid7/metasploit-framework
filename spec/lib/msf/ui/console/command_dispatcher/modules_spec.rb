@@ -22,7 +22,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Modules do
     end
 
     it 'should generate Matching Modules table' do
-      expect(core).to receive(:generate_module_table).with('Matching Modules').and_call_original
+      expect(core).to receive(:generate_module_table).with('Matching Modules', nil).and_call_original
 
       search_modules_sql
     end

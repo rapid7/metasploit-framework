@@ -15,7 +15,7 @@ class Db
 
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
-  
+ 
   #
   # The dispatcher's name.
   #
@@ -93,7 +93,9 @@ class Db
 
   def cmd_workspace(*args)
     return unless active?
+    search_term = nil
   ::ActiveRecord::Base.connection_pool.with_connection {
+    search_term = nil
     while (arg = args.shift)
       case arg
       when '-h','--help'
@@ -107,8 +109,10 @@ class Db
         delete_all = true
       when '-r','--rename'
         renaming = true
-      when '-v'
+      when '-v','--verbose'
         verbose = true
+      when '-S', '--search'
+        search_term = args.shift
       else
         names ||= []
         names << arg
@@ -178,19 +182,26 @@ class Db
       workspace = framework.db.workspace
 
       unless verbose
-        framework.db.workspaces.each do |ws|
-          pad = (ws == workspace) ? '* ' : '  '
-          print_line("#{pad}#{ws.name}")
+        current = nil
+        framework.db.workspaces.sort_by {|s| s.name}.each do |s|
+          if s.name == workspace.name
+            current = s.name
+          else
+            print_line("  #{s.name}")
+          end
         end
+        print_line("%red* #{current}%clr") unless current.nil?
         return
       end
+      workspace = framework.db.workspace
 
       col_names = %w{current name hosts services vulns creds loots notes}
 
       tbl = Rex::Text::Table.new(
-        'Header'    => 'Workspaces',
-        'Columns'   => col_names,
-        'SortIndex' => -1
+        'Header'     => 'Workspaces',
+        'Columns'    => col_names,
+        'SortIndex'  => -1,
+        'SearchTerm' => search_term
       )
 
       # List workspaces
@@ -455,11 +466,16 @@ class Db
       return
     end
 
+    cp_hsh = {}
+    col_names.map do |col|
+      cp_hsh[col] = { 'MaxChar' => 52 }
+    end
     # If we got here, we're searching.  Delete implies search
     tbl = Rex::Text::Table.new(
       {
-        'Header'    => "Hosts",
-        'Columns'   => col_names,
+        'Header'  => "Hosts",
+        'Columns' => col_names,
+        'ColProps' => cp_hsh,
         'SortIndex' => order_by
       })
 
@@ -526,7 +542,12 @@ class Db
           rhosts << addr
         end
         if mode == [:delete]
-          host.destroy
+          begin
+            host.destroy
+          rescue # refs suck
+            print_error("Forcibly deleting #{host.address}")
+            host.delete
+          end
           delete_count += 1
         end
       end
@@ -1488,6 +1509,8 @@ class Db
       print_status("Usage: db_nmap [--save | [--help | -h]] [nmap options]")
       return
     end
+
+    save = false
     arguments = []
     while (arg = args.shift)
       case arg
@@ -1590,7 +1613,7 @@ class Db
       print_error(err_line.strip)
     end
 
-    tabs
+    return tabs
   end
 
   #
