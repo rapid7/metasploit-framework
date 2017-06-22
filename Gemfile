@@ -33,6 +33,7 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails'
+  gem 'rspec-rerun'
 end
 
 group :test do

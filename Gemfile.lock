@@ -312,6 +312,10 @@ GEM
       rex-text
     rkelly-remix (0.0.7)
     robots (0.10.1)
+    rspec (3.6.0)
+      rspec-core (~> 3.6.0)
+      rspec-expectations (~> 3.6.0)
+      rspec-mocks (~> 3.6.0)
     rspec-core (3.6.0)
       rspec-support (~> 3.6.0)
     rspec-expectations (3.6.0)
@@ -328,6 +332,8 @@ GEM
       rspec-expectations (~> 3.6.0)
       rspec-mocks (~> 3.6.0)
       rspec-support (~> 3.6.0)
+    rspec-rerun (1.1.0)
+      rspec (~> 3.0)
     rspec-support (3.6.0)
     ruby_smb (0.0.18)
       bindata
@@ -381,6 +387,7 @@ DEPENDENCIES
   rake
   redcarpet
   rspec-rails
+  rspec-rerun
   shoulda-matchers
   simplecov
   timecop
