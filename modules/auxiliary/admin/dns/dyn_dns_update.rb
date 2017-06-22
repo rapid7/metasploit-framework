@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       OptEnum.new('TYPE',  [true, 'The record type you want to inject.', 'A', ['A', 'AAAA', 'CNAME', 'TXT']])
     ])
 
-    deregister_options('RHOST', 'RPORT')
+    deregister_options('RPORT')
   end
 
   def update_record(type:, type_enum:, value:)
