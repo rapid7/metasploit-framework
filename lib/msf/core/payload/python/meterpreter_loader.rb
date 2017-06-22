@@ -29,7 +29,8 @@ module Payload::Python::MeterpreterLoader
     ))
 
     register_advanced_options([
-      OptBool.new('PythonMeterpreterDebug', [ true, 'Enable debugging for the Python meterpreter', false ])
+      OptBool.new('PythonMeterpreterDebug', [ true, 'Enable debugging for the Python meterpreter', false ]),
+      OptBool.new('PythonMeterpreterTryToFork', [ true, 'Fork a new process if the functionality is available', true ])
     ], self.class)
   end
 
@@ -62,7 +63,10 @@ module Payload::Python::MeterpreterLoader
     }
 
     if ds['PythonMeterpreterDebug']
-      met = met.sub("DEBUGGING = False", "DEBUGGING = True")
+      met = met.sub('DEBUGGING = False', 'DEBUGGING = True')
+    end
+    unless ds['PythonMeterpreterTryToFork']
+      met = met.sub('TRY_TO_FORK = True', 'TRY_TO_FORK = False')
     end
 
     met.sub!('SESSION_EXPIRATION_TIMEOUT = 604800', "SESSION_EXPIRATION_TIMEOUT = #{ds['SessionExpirationTimeout']}")
