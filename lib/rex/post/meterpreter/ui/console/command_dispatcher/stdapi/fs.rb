@@ -104,18 +104,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'show_mount' => ['stdapi_fs_mount_show'],
     }
 
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
