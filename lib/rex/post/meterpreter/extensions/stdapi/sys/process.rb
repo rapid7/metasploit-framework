@@ -390,31 +390,31 @@ class ProcessList < Array
       return Rex::Text::Table.new(opts)
     end
 
-    cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
-    cols.delete_if do |c|
-      none? {|r| r.has_key?(c.downcase)} ||
-      all? {|r| r[c.downcase].nil?}
+    column_headers = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
+    column_headers.delete_if do |h|
+      none? { |process| process.has_key?(h.downcase) } ||
+      all? { |process| process[h.downcase].nil? }
     end
 
     opts = {
       'Header' => 'Process List',
       'Indent' => 1,
-      'Columns' => cols
+      'Columns' => column_headers
     }.merge(opts)
 
     tbl = Rex::Text::Table.new(opts)
-    each { |process|
-      tbl << cols.map { |c|
-        next unless cols.any? {|h| h.downcase == c.downcase}
-        col = c.downcase
+    each do |process|
+      tbl << column_headers.map do |header|
+        col = header.downcase
+        next unless process.keys.any? { |process_header| process_header == col }
         val = process[col]
         if col == 'session'
           val == 0xFFFFFFFF ? '' : val.to_s
         else
           val
         end
-      }
-    }
+      end
+    end
 
     tbl
   end
