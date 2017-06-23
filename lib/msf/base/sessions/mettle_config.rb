@@ -3,6 +3,7 @@
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/uuid/options'
 require 'base64'
+require 'securerandom'
 
 module Msf
   module Sessions
@@ -53,6 +54,7 @@ module Msf
 
       def generate_config(opts={})
         opts[:uuid] ||= generate_payload_uuid
+
         case opts[:scheme]
         when 'http'
           transport = transport_config_reverse_http(opts)
@@ -66,8 +68,15 @@ module Msf
         else
           raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
         end
+
         opts[:uuid] = Base64.encode64(opts[:uuid].to_raw).strip
-        opts.slice(:uuid, :uri, :debug, :log_file)
+        guid = "\x00" * 16
+        unless opts[:stageless] == true
+          guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+        end
+        opts[:session_guid] = Base64.encode64(guid)
+
+        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file)
       end
 
     end

