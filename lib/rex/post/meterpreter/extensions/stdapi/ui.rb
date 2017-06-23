@@ -207,8 +207,9 @@ class UI < Rex::Post::UI
   #
   # Start the keyboard sniffer
   #
-  def keyscan_start
+  def keyscan_start(trackwindow=false)
     request  = Packet.create_request('stdapi_ui_start_keyscan')
+    request.add_tlv( TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW, trackwindow )
     response = client.send_request(request)
     return true
   end
