@@ -27,6 +27,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "idletime"      => "Returns the number of seconds the remote user has been idle",
       "keyscan_dump"  => "Dump the keystroke buffer",
       "keyscan_start" => "Start capturing keystrokes",
+      "keyscan_start_aw" => "Start capturing keystrokes with active window enumeration",
       "keyscan_stop"  => "Stop capturing keystrokes",
       "screenshot"    => "Grab a screenshot of the interactive desktop",
       "setdesktop"    => "Change the meterpreters current desktop",
@@ -41,6 +42,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "idletime"      => [ "stdapi_ui_get_idle_time" ],
       "keyscan_dump"  => [ "stdapi_ui_get_keys_utf8" ],
       "keyscan_start" => [ "stdapi_ui_start_keyscan" ],
+      "keyscan_start_aw" => [ "stdapi_ui_start_keyscan_actwin"],
       "keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
       "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
       "setdesktop"    => [ "stdapi_ui_desktop_set" ],
@@ -283,6 +285,15 @@ class Console::CommandDispatcher::Stdapi::Ui
   def cmd_keyscan_start(*args)
     print_line("Starting the keystroke sniffer...")
     client.ui.keyscan_start
+    return true
+  end
+
+  #
+  # Start the keyboard sniffer with active window enumeration
+  #
+  def cmd_keyscan_start_aw(*args)
+    print_line("Starting the keystroke sniffer...")
+    client.ui.keyscan_start_aw
     return true
   end
 
