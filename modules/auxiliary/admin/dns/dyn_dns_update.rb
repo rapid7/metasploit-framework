@@ -54,8 +54,9 @@ class MetasploitModule < Msf::Auxiliary
           answer = resolver.query(fqdn, type)
           print_good "Found existing #{type} record for #{fqdn}"
           return true
-        rescue Dnsruby::ServFail, Dnsruby::NXDomain
+        rescue Dnsruby::ResolvError => e
           print_good "Did not find an existing #{type} record for #{fqdn}"
+          vprint_error "Query failed: #{e.message}"
           return false
         end
       when action == :add
@@ -66,9 +67,9 @@ class MetasploitModule < Msf::Auxiliary
           resolver.send_message(update)
           print_good "The record '#{fqdn} => #{value}' has been added!"
           updated = true
-        rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet, Dnsruby::NXDomain, Dnsruby::ServFail => e
+        rescue Dnsruby::ResolvError => e
           print_error "Cannot add #{fqdn}"
-          print_error "The DNS server may not be vulnerable, or there may be a preexisting static record."
+          vprint_error "The DNS server may not be vulnerable, or there may be a preexisting static record."
           vprint_error "Update failed: #{e.message}"
         end
       when action == :delete
@@ -78,10 +79,10 @@ class MetasploitModule < Msf::Auxiliary
           update.delete(fqdn, type)
           resolver.send_message(update)
           print_good("The record '#{fqdn} => #{value}' has been deleted!")
-          updated = false
-        rescue Dnsruby::YXRRSet, Dnsruby::NXRRSet, Dnsruby::ServFail => e
+          updated = true
+        rescue Dnsruby::ResolvError => e
           print_error "Cannot delete #{fqdn}"
-          print_error "The DNS server may not be vulnerable, or there may be a preexisting static record."
+          vprint_error "The DNS server may not be vulnerable, or there may be a preexisting static record."
           vprint_error "Update failed: #{e.message}"
         end
     end
@@ -95,17 +96,25 @@ class MetasploitModule < Msf::Auxiliary
     end
     case
       when action.name == 'UPDATE'
-        record_action(type, type_enum, value, :resolve)
-        if record_action(type, type_enum, value, :add) == false
-          print_good "Attempting to force an update to an existing record."
-          if record_action(type, type_enum, value, :delete) == true
+        if record_action(type, type_enum, value, :resolve)
+          if record_action(type, type_enum, value, :delete)
             record_action(type, type_enum, value, :add)
           end
+        else
+          record_action(type, type_enum, value, :add)
         end
       when action.name == 'ADD'
-        record_action(type, type_enum, value, :add)
+        if record_action(type, type_enum, value, :resolve) == false
+          record_action(type, type_enum, value, :add)
+        else
+          print_error "Record already exists, try DELETE or UPDATE"
+        end
       when action.name == 'DELETE'
-        record_action(type, type_enum, value, :delete)
+        if record_action(type, type_enum, value, :resolve)
+          record_action(type, type_enum, value, :delete)
+        else
+          print_error "Record does not exist, not deleting"
+        end
     end
   end
 
