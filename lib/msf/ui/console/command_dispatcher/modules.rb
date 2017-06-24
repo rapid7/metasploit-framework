@@ -401,49 +401,9 @@ module Msf
               end
             }
 
-            matching_modules = []
-
-            # Check if the database is usable
-            use_db = true
-            if framework.db
-              if !(framework.db.migrated && framework.db.modules_cached)
-                print_warning("Module database cache not built yet, using slow search")
-                use_db = false
-              end
-            else
-              print_warning("Database not connected, using slow search")
-              use_db = false
-            end
-
-            # Do the actual search
-            if use_db
-              framework.db.search_modules(match).each do |o|
-                matching_modules << o
-              end
-            else
-              [
-                framework.exploits,
-                framework.auxiliary,
-                framework.post,
-                framework.payloads,
-                framework.nops,
-                framework.encoders
-              ].each do |mset|
-                mset.each do |m|
-                  begin
-                    o = mset.create(m[0])
-                    if o && !o.search_filter(match)
-                      matching_modules << o
-                    end
-                  rescue
-                  end
-                end
-              end
-            end
-
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            matching_modules.each do |o|
+            framework.search(match, verbose: true).each do |o|
               tbl << [
                 o.fullname,
                 o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT),
@@ -452,7 +412,6 @@ module Msf
               ]
             end
             print_line(tbl.to_s)
-
           end
 
           #
