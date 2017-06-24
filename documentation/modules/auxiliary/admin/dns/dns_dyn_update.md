@@ -24,3 +24,7 @@ There are two kind of actions the module can run:
 
  1. **ADD** - Add a new record. [Default]
  2. **DEL** - Delete an existing record.
+
+## Targeting Information
+
+WPAD may not work with Windows 2008+ targets due to a DNS block list: https://technet.microsoft.com/en-us/library/cc995261.aspx
