@@ -284,11 +284,17 @@ class Console::CommandDispatcher::Stdapi::Ui
     trackwin = false
 
     keyscan_opts = Rex::Parser::Arguments.new(
-      "-v" => [ false, "Verbose logging: tracks the current active window" ]
+      "-h" => [ false, "Help Banner." ],
+      "-v" => [ false, "Verbose logging: tracks the current active window in which keystrokes are occuring." ]
     )
 
     keyscan_opts.parse( args ) { | opt |
       case opt
+       when "-h"
+        print_line("Usage: keyscan_start <options>")
+        print_line("Starts the key logger")
+        print_line(keyscan_opts.usage)
+        return
        when "-v"
         print_line("Verbose logging selected ...")
         trackwin = true
