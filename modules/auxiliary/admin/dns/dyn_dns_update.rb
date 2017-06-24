@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
           answer = resolver.query(fqdn, type)
           print_good "Found existing #{type} record for #{fqdn}"
           return true
-        rescue Dnsruby::ServFail
+        rescue Dnsruby::ServFail, Dnsruby::NXDomain
           print_good "Did not find an existing #{type} record for #{fqdn}"
           return false
         end
