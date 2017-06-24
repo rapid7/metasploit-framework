@@ -401,51 +401,58 @@ module Msf
               end
             }
 
+            matching_modules = []
+
+            # Check if the database is usable
+            use_db = true
             if framework.db
-              if framework.db.migrated && framework.db.modules_cached
-                search_modules_sql(match, search_term)
-                return
-              else
+              if !(framework.db.migrated && framework.db.modules_cached)
                 print_warning("Module database cache not built yet, using slow search")
+                use_db = false
               end
             else
               print_warning("Database not connected, using slow search")
+              use_db = false
             end
 
-            tbl = generate_module_table("Matching Modules", search_term)
-            [
-              framework.exploits,
-              framework.auxiliary,
-              framework.post,
-              framework.payloads,
-              framework.nops,
-              framework.encoders
-            ].each do |mset|
-              mset.each do |m|
-                o = mset.create(m[0]) rescue nil
-
-                # Expected if modules are loaded without the right pre-requirements
-                next if not o
-
-                if not o.search_filter(match)
-                  tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
+            # Do the actual search
+            if use_db
+              framework.db.search_modules(match).each do |o|
+                matching_modules << o
+              end
+            else
+              [
+                framework.exploits,
+                framework.auxiliary,
+                framework.post,
+                framework.payloads,
+                framework.nops,
+                framework.encoders
+              ].each do |mset|
+                mset.each do |m|
+                  begin
+                    o = mset.create(m[0])
+                    if o && !o.search_filter(match)
+                      matching_modules << o
+                    end
+                  rescue
+                  end
                 end
               end
             end
-            print_line(tbl.to_s)
 
-          end
-
-          # Prints table of modules matching the search_string.
-          #
-          # @param (see Msf::DBManager#search_modules)
-          # @return [void]
-          def search_modules_sql(search_string, search_term = nil)
+            # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            framework.db.search_modules(search_string).each do |o|
-              tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), RankingName[o.rank].to_s, o.name ]
+            matching_modules.each do |o|
+              tbl << [
+                o.fullname,
+                o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT),
+                RankingName[o.rank].to_s,
+                o.name
+              ]
             end
             print_line(tbl.to_s)
+
           end
 
           #
