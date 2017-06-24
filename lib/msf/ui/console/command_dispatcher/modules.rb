@@ -18,9 +18,6 @@ module Msf
           # Constant for a retry timeout on using modules before they're loaded
           CMD_USE_TIMEOUT = 3
 
-          # Constant for disclosure date formatting in search functions
-          DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
-
           @@search_opts = Rex::Parser::Arguments.new(
             "-h" => [ false, "Help banner."],
             "-S" => [ true, "Row search filter."],
@@ -403,12 +400,12 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            framework.search(match, verbose: true).each do |o|
+            framework.search(match, verbose: true).each do |m|
               tbl << [
-                o.fullname,
-                o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT),
-                RankingName[o.rank].to_s,
-                o.name
+                m.fullname,
+                m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
+                RankingName[m.rank].to_s,
+                m.name
               ]
             end
             print_line(tbl.to_s)
@@ -1120,7 +1117,12 @@ module Msf
                     end
                   end
                   if (opts == nil or show == true)
-                    tbl << [ refname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
+                    tbl << [
+                      refname,
+                      o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
+                      o.rank_to_s,
+                      o.name
+                    ]
                   end
                 end
               end

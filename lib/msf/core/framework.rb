@@ -229,11 +229,11 @@ class Framework
     }
   end
 
-  def search(match, verbose: true)
+  def search(match, verbose: false)
     # Check if the database is usable
     use_db = true
-    if @db
-      if !(@db.migrated && @db.modules_cached)
+    if self.db
+      if !(self.db.migrated && self.db.modules_cached)
         if verbose
           print_warning("Module database cache not built yet, using slow search")
         end
@@ -248,12 +248,12 @@ class Framework
 
     # Used the database for search
     if use_db
-      return @db.search_modules(match)
+      return self.db.search_modules(match)
     end
 
     # Do an in-place search
     matches = []
-    [ @exploits, @auxiliary, @post, @payloads, @nops, @encoders ].each do |mset|
+    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders ].each do |mset|
       mset.each do |m|
         begin
           o = mset.create(m[0])
