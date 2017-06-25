@@ -33,7 +33,7 @@ reading [Metasploit Unleashed][unleashed], the [great community
 resources](https://metasploit.github.io), or the [wiki].
 
 Contributing
---
+-- hi
 See the [Dev Environment Setup][wiki-devenv] guide on GitHub, which will
 walk you through the whole process from installing all the
 dependencies, to cloning the repository, and finally to submitting a
