@@ -13,7 +13,10 @@ class MetasploitModule < Msf::Auxiliary
         'Description'    => %q{
         This module allows adding and/or deleting a record to
         any remote DNS server that allows unrestricted dynamic updates.},
-        'Author'         => [ 'King Sabri <king.sabri[at]gmail.com>' ],
+        'Author'         => [
+          'King Sabri <king.sabri[at]gmail.com>',
+          'Brent Cook <brent_cook[at]rapid7.com>'
+        ],
         'References'     => [
           ['URL', 'http://www.tenable.com/plugins/index.php?view=single&id=35372'],
           ['URL', 'https://github.com/KINGSABRI/CVE-in-Ruby/tree/master/NONE-CVE/DNSInject'],
