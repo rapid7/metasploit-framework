@@ -138,6 +138,7 @@ module PacketDispatcher
       if req.body and req.body.length > 0
         packet = Packet.new(0)
         packet.add_raw(req.body)
+        packet.from_r(self.aes_key)
         dispatch_inbound_packet(packet)
       end
       cli.send_response(resp)
