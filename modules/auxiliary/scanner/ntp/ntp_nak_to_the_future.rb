@@ -81,11 +81,11 @@ class MetasploitModule < Msf::Auxiliary
     probe = build_crypto_nak(canary_timestamp)
     udp_sock.put(probe)
 
-    expected_length = probe.length - probe.payload.length
+    expected_length = probe.to_binary_s.length - probe.payload.length
     response = udp_sock.timed_read(expected_length)
     disconnect_udp
     if response.length == expected_length
-      ntp_symmetric = Rex::Proto::NTP::NTPSymmetric.new(response)
+      ntp_symmetric = Rex::Proto::NTP::NTPSymmetric.new.read(response)
       if ntp_symmetric.mode == 2 && ntp_symmetric.origin_timestamp == canary_timestamp
         vprint_good("#{rhost}:#{rport} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
         report_vuln(

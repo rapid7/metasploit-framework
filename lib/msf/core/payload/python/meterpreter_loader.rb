@@ -75,11 +75,11 @@ module Payload::Python::MeterpreterLoader
     met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
     if opts[:stageless] == true
-      session_guid = "00" * 16
+      session_guid = '\x00' * 16
     else
-      session_guid = SecureRandom.uuid.gsub(/-/, '')
+      session_guid = SecureRandom.uuid.gsub(/-/, '').gsub(/(..)/, '\\x\1')
     end
-    met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'.decode(\'hex\')")
+    met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'")
 
     http_user_agent = opts[:http_user_agent] || ds['MeterpreterUserAgent']
     http_proxy_host = opts[:http_proxy_host] || ds['PayloadProxyHost'] || ds['PROXYHOST']

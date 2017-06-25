@@ -12,7 +12,7 @@ require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
-  CachedSize = 958531
+  CachedSize = 958035
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows

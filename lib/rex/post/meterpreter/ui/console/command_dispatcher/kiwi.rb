@@ -38,7 +38,7 @@ class Console::CommandDispatcher::Kiwi
     super
     print_line
     print_line
-    print_line("  .#####.   mimikatz 2.1.1-20170409 (#{client.session_type})")
+    print_line("  .#####.   mimikatz 2.1.1 20170608 (#{client.session_type})")
     print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
     print_line(" ## / \\ ##  /* * *")
     print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
@@ -72,6 +72,7 @@ class Console::CommandDispatcher::Kiwi
       'kerberos_ticket_list'  => 'List all kerberos tickets (unparsed)',
       'lsa_dump_secrets'      => 'Dump LSA secrets (unparsed)',
       'lsa_dump_sam'          => 'Dump LSA SAM (unparsed)',
+      'password_change'       => 'Change the password/hash of a user',
       'wifi_list'             => 'List wifi profiles/creds for the current user',
       'wifi_list_shared'      => 'List shared wifi profiles/creds (requires SYSTEM)',
     }
@@ -80,6 +81,92 @@ class Console::CommandDispatcher::Kiwi
   def cmd_kiwi_cmd(*args)
     output = client.kiwi.exec_cmd(args.join(' '))
     print_line(output)
+  end
+
+  #
+  # Valid options for the password change feature
+  #
+  @@password_change_usage_opts = Rex::Parser::Arguments.new(
+    '-h'  => [false, 'Help banner'],
+    '-u'  => [true,  'User name of the password to change.'],
+    '-s'  => [true,  'Server to perform the action on (eg. Domain Controller).'],
+    '-op' => [true,  'The known existing/old password (do not use with -oh).'],
+    '-oh' => [true,  'The known existing/old hash (do not use with -op).'],
+    '-np' => [true,  'The new password to set for the account (do not use with -nh).'],
+    '-nh' => [true,  'The new hash to set for the account (do not use with -np).']
+  )
+
+  def cmd_password_change_usage
+    print_line('Usage password_change [options]')
+    print_line
+    print_line(@@password_change_usage_opts.usage)
+  end
+
+  def cmd_password_change(*args)
+    if args.length == 0 || args.include?('-h')
+      cmd_password_change_usage
+      return
+    end
+
+    opts = {}
+
+    @@password_change_usage_opts.parse(args) { |opt, idx, val|
+      case opt
+      when '-u'
+        opts[:user] = val
+      when '-s'
+        opts[:server] = val
+      when '-op'
+        opts[:old_pass] = val
+      when '-oh'
+        opts[:old_hash] = val
+      when '-np'
+        opts[:new_pass] = val
+      when '-nh'
+        opts[:new_hash] = val
+      end
+    }
+
+    valid = true
+    if opts[:old_pass] && opts[:old_hash]
+      print_error('Options -op and -oh cannot be used together.')
+      valid = false
+    end
+
+    if opts[:new_pass] && opts[:new_hash]
+      print_error('Options -np and -nh cannot be used together.')
+      valid = false
+    end
+
+    unless opts[:old_pass] || opts[:old_hash]
+      print_error('At least one of -op and -oh must be specified.')
+      valid = false
+    end
+
+    unless opts[:new_pass] || opts[:new_hash]
+      print_error('At least one of -np and -nh must be specified.')
+      valid = false
+    end
+
+    unless opts[:user]
+      print_error('The -u parameter must be specified.')
+      valid = false
+    end
+
+    if valid
+
+      unless opts[:server]
+        print_status('No server (-s) specified, defaulting to localhost.')
+      end
+
+      result = client.kiwi.password_change(opts)
+
+      if result[:success] == true
+        print_good("Success! New NTLM hash: #{result[:new]}")
+      else
+        print_error("Failed! #{result[:error]}")
+      end
+    end
   end
 
   def cmd_dcsync(*args)

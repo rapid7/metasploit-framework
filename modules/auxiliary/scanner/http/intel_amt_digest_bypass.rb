@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       proof = res.body.to_s
       proof_hash = nil
 
-      info_keys = res.body.scan(/<td class=r1><p>([^\<]+)<\/p>/).map{|x| x.first.to_s.gsub("&#x2F;", "/") }
+      info_keys = res.body.scan(/<td class=r1><p>([^\<]+)(?:<\/p>)?/).map{|x| x.first.to_s.gsub("&#x2F;", "/") }
       if info_keys.length > 0
         proof_hash = {}
         proof = ""
@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto => 'tcp',
         :name  => "Intel AMT Digest Authentication Bypass",
         :refs  => self.references,
-        :proof => proof
+        :info => proof
       })
 
     rescue ::Timeout::Error, ::Errno::EPIPE
