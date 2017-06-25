@@ -48,7 +48,11 @@ class MetasploitModule < Msf::Auxiliary
     fqdn   = "#{datastore['HOSTNAME']}.#{domain}"
     opts   = {nameserver: datastore['RHOST']}
     if datastore['CHOST'] && datastore['CHOST'] != ""
-      opts[:src_address] = datastore['CHOST']
+      if Rex::Socket.is_ipv4?(datastore['CHOST'])
+        opts[:src_address] = datastore['CHOST']
+      elsif Rex::Socket.is_ipv6?(datastore['CHOST'])
+        opts[:src_address6] = datastore['CHOST']
+      end
     end
     resolver = Dnsruby::Resolver.new(opts)
     update   = Dnsruby::Update.new(domain)
