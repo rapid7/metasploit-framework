@@ -152,7 +152,7 @@ as a login shell**. It looks like this:
 
 [[/screens/kali-gnome-terminal.png]]
 
-Finally, see that you're now running the Ruby version in `.ruby-version`:
+Finally, see that you're now running the Ruby version in [`.ruby-version`](https://github.com/rapid7/metasploit-framework/blob/master/.ruby-version):
 
 ```
 ruby -v
@@ -366,7 +366,7 @@ ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit &&
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge &&
 git config --global user.name   "YOUR_USERNAME_FOR_REAL_LIFE" &&
 git config --global user.email  "YOUR_USERNAME_FOR_EMAIL" &&
-git config --global github.user "YOUR_USERNAME_FOR_GITHUB" &&
+git config --global github.user "YOUR_USERNAME_FOR_GITHUB"
 ```
 ----
 
