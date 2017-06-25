@@ -114,6 +114,7 @@ Gem::Specification.new do |spec|
   #
   # Protocol Libraries
   #
+  spec.add_runtime_dependency 'dnsruby'
   spec.add_runtime_dependency 'net-ssh'
   spec.add_runtime_dependency 'ruby_smb'
 
