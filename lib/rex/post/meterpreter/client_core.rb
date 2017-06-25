@@ -17,6 +17,8 @@ require 'rex/payloads/meterpreter/uri_checksum'
 # certificate hash checking
 require 'rex/socket/x509_certificate'
 
+require 'openssl'
+
 module Rex
 module Post
 module Meterpreter
@@ -75,7 +77,6 @@ class ClientCore < Extension
     begin
       response = self.client.send_packet_wait_response(request, self.client.response_timeout)
     rescue
-      STDERR.puts("Getting ext commands for #{extension_name} failed with an exception\n")
       # In the case where orphaned shells call back with OLD copies of the meterpreter
       # binaries, we end up with a case where this fails. So here we just return the
       # empty list of supported commands.
@@ -212,7 +213,6 @@ class ClientCore < Extension
       }
 
       if image
-        STDERR.puts("Capabilities zlib: #{client.capabilities[:zlib]}\n")
         request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
       else
         raise RuntimeError, "Failed to serialize library #{library_path}.", caller
@@ -288,8 +288,6 @@ class ClientCore < Extension
       if path.nil?
         raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
       end
-
-      STDERR.puts("Going to try to load #{mod} from #{path}\n")
 
       # Load the extension DLL
       commands = load_library(
@@ -688,9 +686,28 @@ class ClientCore < Extension
   # Negotiates the use of AES256 encryption over the TLV packets.
   #
   def negotiate_aes
+    aes_key = nil
+    rsa_key = OpenSSL::PKey::RSA.new(2048)
+    rsa_pub_key = rsa_key.public_key
+
     request  = Packet.create_request('core_negotiate_aes')
+    request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_pem)
+
     response = client.send_request(request)
-    response.get_tlv_value(TLV_TYPE_AES_KEY)
+    aes_key_enc = response.get_tlv_value(TLV_TYPE_ENC_AES_KEY)
+
+    if aes_key_enc
+      begin
+        aes_key = rsa_key.private_decrypt(aes_key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
+      rescue OpenSSL::PKey::RSAError
+        # probably failed due to padding, everything else can be bubbled up, but
+        # we'll stick with a blank key
+      end
+    else
+      aes_key = response.get_tlv_value(TLV_TYPE_AES_KEY)
+    end
+
+    aes_key
   end
 
 private

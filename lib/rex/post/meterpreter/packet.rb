@@ -111,6 +111,8 @@ TLV_TYPE_SESSION_GUID        = TLV_META_TYPE_RAW    | 462
 TLV_TYPE_CIPHER_NAME         = TLV_META_TYPE_STRING | 500
 TLV_TYPE_CIPHER_PARAMETERS   = TLV_META_TYPE_GROUP  | 501
 TLV_TYPE_AES_KEY             = TLV_META_TYPE_RAW    | 550
+TLV_TYPE_ENC_AES_KEY         = TLV_META_TYPE_RAW    | 551
+TLV_TYPE_RSA_PUB_KEY         = TLV_META_TYPE_STRING | 552
 
 #
 # Core flags
@@ -222,6 +224,8 @@ class Tlv
       when TLV_TYPE_UUID; "UUID"
       when TLV_TYPE_SESSION_GUID; "SESSION-GUID"
       when TLV_TYPE_AES_KEY; "AES-KEY"
+      when TLV_TYPE_ENC_AES_KEY; "ENC-AES-KEY"
+      when TLV_TYPE_RSA_PUB_KEY; "RSA-PUB-KEY"
 
       #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
       #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
@@ -740,12 +744,6 @@ class Packet < GroupTlv
   def raw_bytes_required
     # if we have the xor bytes and length ...
     if self.raw.length >= REQUIRED_PREFIX_SIZE
-      p = [ self.raw[0,4].unpack('H*')[0],
-            self.raw[4,16].unpack('H*')[0],
-            self.raw[20].unpack('H*')[0],
-            self.raw[21,4].unpack('H*')[0] ].join('-')
-      STDERR.puts("Incoming packet: #{p}\n")
-
       # return a value based on the length of the data indicated by
       # the header
       xor_key = self.raw[XOR_KEY_OFF, XOR_KEY_SIZE]
@@ -795,7 +793,6 @@ class Packet < GroupTlv
   # scrambled data as the payload.
   #
   def to_r(session_guid, aes_key=nil)
-    STDERR.puts("AES key: #{aes_key.inspect}\n")
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
     raw = [session_guid.gsub(/-/, '')].pack('H*')
@@ -803,12 +800,9 @@ class Packet < GroupTlv
 
     if aes_key
       raw << "\x01"
-      STDERR.puts("Doing the encryption!\n")
       # encrypt the data, but not include the length and type
       iv, ciphertext = aes_encrypt(aes_key, tlv_data[HEADER_SIZE, tlv_data.length - HEADER_SIZE])
-      STDERR.puts("Encryption done! IV is #{iv.unpack('H*')[0]}\n")
       # now manually add the length/type/iv/ciphertext
-      STDERR.puts("len/type: #{[iv.length + ciphertext.length + HEADER_SIZE, self.type].inspect}\n")
       raw << [iv.length + ciphertext.length + HEADER_SIZE, self.type].pack('NN')
       raw << iv
       raw << ciphertext
@@ -836,17 +830,14 @@ class Packet < GroupTlv
     packet_type = data[PACKET_TYPE_OFF, PACKET_TYPE_SIZE]
     self.type = packet_type.unpack('N')[0]
     if encrypted_flag
-      STDERR.puts("Packet is encrypted\n")
       # TODO error when there's no aes key
       iv = data[PACKET_DATA_OFF, AES_IV_SIZE]
       raw = aes_decrypt(aes_key, iv, data[PACKET_DATA_OFF + AES_IV_SIZE, data.length - PACKET_DATA_OFF - AES_IV_SIZE])
     else
-      STDERR.puts("Packet isn't encrypted\n")
       raw = data[PACKET_DATA_OFF, data.length - PACKET_DATA_OFF]
     end
 
     super(packet_length + packet_type + raw)
-    STDERR.puts("Received packet: #{self.inspect}\n")
   end
 
   #

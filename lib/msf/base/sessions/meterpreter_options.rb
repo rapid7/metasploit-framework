@@ -55,7 +55,6 @@ module MeterpreterOptions
     if valid
       # always make sure that the new session has a new guid if it's not already known
       guid = session.session_guid
-      STDERR.puts("Session GUID is #{guid}\n")
       if guid == '00000000-0000-0000-0000-000000000000'
         guid = SecureRandom.uuid
         session.core.set_session_guid(guid)

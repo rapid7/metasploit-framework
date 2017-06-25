@@ -162,8 +162,6 @@ module PacketDispatcher
       add_response_waiter(packet, completion_routine, completion_param)
     end
 
-    STDERR.puts("Sending packet: #{packet.inspect}\n")
-
     bytes = 0
     raw   = packet.to_r(self.session_guid, self.aes_key)
     err   = nil
@@ -430,9 +428,7 @@ module PacketDispatcher
     packet = parser.recv(self.sock)
     if packet
       packet.from_r(self.aes_key)
-      STDERR.puts("Current GUID in packet dispatcher: #{self.session_guid}\n")
       if self.session_guid == '00000000-0000-0000-0000-000000000000'
-        STDERR.puts("Packet Session GUID : #{packet.session_guid.inspect}\n")
         parts = packet.session_guid.unpack('H*')[0]
         self.session_guid = [parts[0, 8], parts[8, 4], parts[12, 4], parts[16, 4], parts[20, 12]].join('-')
       end
