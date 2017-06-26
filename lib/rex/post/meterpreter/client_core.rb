@@ -693,18 +693,18 @@ class ClientCore < Extension
     request  = Packet.create_request('core_negotiate_aes')
     request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_pem)
 
-    response = client.send_request(request)
-    aes_key_enc = response.get_tlv_value(TLV_TYPE_ENC_AES_KEY)
+    begin
+      response = client.send_request(request)
+      aes_key_enc = response.get_tlv_value(TLV_TYPE_ENC_AES_KEY)
 
-    if aes_key_enc
-      begin
+      if aes_key_enc
         aes_key = rsa_key.private_decrypt(aes_key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
-      rescue OpenSSL::PKey::RSAError
-        # probably failed due to padding, everything else can be bubbled up, but
-        # we'll stick with a blank key
+      else
+        aes_key = response.get_tlv_value(TLV_TYPE_AES_KEY)
       end
-    else
-      aes_key = response.get_tlv_value(TLV_TYPE_AES_KEY)
+    rescue OpenSSL::PKey::RSAError, Rex::Post::Meterpreter::RequestError
+      # 1) OpenSSL error may be due to padding issues (or something else)
+      # 2) Request error probably means the request isn't supported, so fallback to plain
     end
 
     aes_key
