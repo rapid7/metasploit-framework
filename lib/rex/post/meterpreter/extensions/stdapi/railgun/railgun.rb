@@ -267,7 +267,7 @@ class Railgun
           end
 
           require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/def_#{dll_name}"
-          dll = Def.const_get('Def_' << dll_name).create_dll(constant_manager).freeze
+          dll = Def.const_get("Def_#{client.platform}_#{dll_name}").create_dll(constant_manager).freeze
 
           @@cached_dlls[dll_name] = dll
           dlls[dll_name] = dll

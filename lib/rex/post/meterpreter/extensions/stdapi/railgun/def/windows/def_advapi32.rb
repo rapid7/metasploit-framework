@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_advapi32
+class Def_windows_advapi32
 
   CREDENTIAL = [
     [:Flags, :DWORD],

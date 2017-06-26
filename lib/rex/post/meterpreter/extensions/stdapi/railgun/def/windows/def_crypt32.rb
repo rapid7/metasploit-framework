@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_crypt32
+class Def_windows_crypt32
 
   def self.create_dll(constant_manager, dll_path = 'crypt32')
     dll = DLL.new(dll_path, constant_manager)

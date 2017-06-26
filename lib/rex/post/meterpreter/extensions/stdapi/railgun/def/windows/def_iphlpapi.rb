@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_iphlpapi
+class Def_windows_iphlpapi
 
   def self.create_dll(constant_manager, dll_path = 'iphlpapi')
     dll = DLL.new(dll_path, constant_manager)

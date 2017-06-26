@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_version
+class Def_windows_version
 
   def self.create_dll(constant_manager, dll_path = 'version')
     dll = DLL.new(dll_path, constant_manager)

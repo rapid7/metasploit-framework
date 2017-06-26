@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_netapi32
+class Def_windows_netapi32
 
   def self.create_dll(constant_manager, dll_path = 'netapi32')
     dll = DLL.new(dll_path, constant_manager)

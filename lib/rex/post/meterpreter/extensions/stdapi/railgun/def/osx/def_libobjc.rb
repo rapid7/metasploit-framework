@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_libobjc
+class Def_osx_libobjc
 
   def self.create_dll(constant_manager, dll_path = 'libobjc.dylib')
     lib = DLL.new(dll_path, constant_manager)

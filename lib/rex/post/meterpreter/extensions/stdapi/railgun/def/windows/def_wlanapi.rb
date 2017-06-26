@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_wlanapi
+class Def_windows_wlanapi
 
   def self.create_dll(constant_manager, dll_path = 'wlanapi')
     dll = DLL.new(dll_path, constant_manager)

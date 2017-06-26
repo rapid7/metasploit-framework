@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_ntdll
+class Def_windows_ntdll
 
   def self.create_dll(constant_manager, dll_path = 'ntdll')
     dll = DLL.new(dll_path, constant_manager)

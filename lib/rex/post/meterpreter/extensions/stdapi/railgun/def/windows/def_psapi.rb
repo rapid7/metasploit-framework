@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_psapi
+class Def_windows_psapi
 
   def self.create_dll(constant_manager, dll_path = 'psapi')
     dll = DLL.new(dll_path, constant_manager)

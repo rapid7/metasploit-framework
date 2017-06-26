@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_ws2_32
+class Def_windows_ws2_32
 
   def self.create_dll(constant_manager, dll_path = 'ws2_32')
     dll = DLL.new(dll_path, constant_manager)
