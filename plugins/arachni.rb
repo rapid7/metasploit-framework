@@ -92,7 +92,6 @@ class Plugin::Arachni < Msf::Plugin
       log["issues"].each do |issue|
         port = issue["vector"]["action"].split(':')[2]
         port = ((issue["vector"]["action"].split(':') == 'http') ? 80 : 443) unless port
-        p port
         vuln_info = {}
         vuln_info[:web_site] = issue["vector"]["action"]
         vuln_info[:pname] = issue['vector']['affected_input_name']
@@ -107,7 +106,6 @@ class Plugin::Arachni < Msf::Plugin
         vuln_info[:params] = issue['request']['parameters'].map{|k,v| [k,v]}
         vuln_info[:description] = issue['description']
         vuln_info[:proof] = issue['proof']
-        p vuln_info
         framework.db.report_web_vuln(vuln_info)
       end
     end
