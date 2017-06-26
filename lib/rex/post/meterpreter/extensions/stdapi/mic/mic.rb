@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/channel'
-require 'rex/post/meterpreter/channels/pools/audio'
+require 'rex/post/meterpreter/channels/pools/audio_stream_pool'
 
 module Rex
   module Post
@@ -40,6 +40,15 @@ module Rex
                 request = Packet.create_request('audio_mic_start')
                 request.add_tlv(TLV_TYPE_AUDIO_INTERFACE_NAME, 0)
                 response = client.send_request(request)
+                #channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+                # If we were creating a channel out of this
+
+                channel = Channel.create(client, 'audio_mic', Rex::Post::Meterpreter::Channels::Pools::AudioStreamPool, CHANNEL_FLAG_SYNCHRONOUS)
+
+                #if (channel_id != nil)
+                #  channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client,
+                #    channel_id, "audio_mic", CHANNEL_FLAG_SYNCHRONOUS)
+                #end
               end
 
               def mic_get_frame(quality)
