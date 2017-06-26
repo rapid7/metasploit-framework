@@ -603,7 +603,12 @@ class ClientCore < Extension
     # Send the migration request. Timeout can be specified by the caller, or set to a min
     # of 60 seconds.
     timeout = [(opts[:timeout] || 0), 60].max
-    client.send_request(request, timeout)
+    response = client.send_request(request, timeout)
+
+    # Post-migration the session doesn't have encryption any more.
+    # Set the AES key to nil to make sure that the old key isn't used
+    # at all.
+    client.aes_key = nil
 
     if client.passive_service
       # Sleep for 5 seconds to allow the full handoff, this prevents
@@ -619,27 +624,33 @@ class ClientCore < Extension
         # Now communicating with the new process
         ###
 
-        # If renegotiation takes longer than a minute, it's a pretty
-        # good bet that migration failed and the remote side is hung.
-        # Since we have the comm_mutex here, we *must* release it to
-        # keep from hanging the packet dispatcher thread, which results
-        # in blocking the entire process.
-        begin
-          Timeout.timeout(timeout) do
-            # Renegotiate SSL over this socket
-            client.swap_sock_ssl_to_plain()
-            client.swap_sock_plain_to_ssl()
+        # only renegotiate SSL if the session had support for it in the
+        # first place!
+        if client.supports_ssl?
+          # If renegotiation takes longer than a minute, it's a pretty
+          # good bet that migration failed and the remote side is hung.
+          # Since we have the comm_mutex here, we *must* release it to
+          # keep from hanging the packet dispatcher thread, which results
+          # in blocking the entire process.
+          begin
+            Timeout.timeout(timeout) do
+              # Renegotiate SSL over this socket
+              client.swap_sock_ssl_to_plain()
+              client.swap_sock_plain_to_ssl()
+            end
+          rescue TimeoutError
+            client.alive = false
+            return false
           end
-        rescue TimeoutError
-          client.alive = false
-          return false
         end
 
         # Restart the socket monitor
         client.monitor_socket
-
       end
     end
+
+    # Renegotiate AES on the migrated session
+    client.aes_key = negotiate_aes
 
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
     client.ext.aliases.keys.each { |e|
