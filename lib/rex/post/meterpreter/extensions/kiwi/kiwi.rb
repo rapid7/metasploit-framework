@@ -308,11 +308,18 @@ class Kiwi < Extension
       # did we find something?
       next if line.blank?
 
-      # the next 4 lines should be interesting
       msv = {}
-      4.times do
-        k, v = read_value(lines.shift)
-        msv[k.strip] = v if k
+      # loop until we find a line that doesn't start with
+      # an asterisk, as this is the next credential set
+      loop do
+        line = lines.shift
+        if line.strip.start_with?('*')
+          k, v = read_value(line)
+          msv[k.strip] = v if k
+        else
+          lines.unshift(line)
+          break
+        end
       end
 
       if msv.length > 0
