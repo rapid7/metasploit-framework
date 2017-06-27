@@ -23,7 +23,8 @@ class MetasploitModule < Msf::Post
       'SessionTypes' => [ %w(shell meterpreter) ]
     ))
     register_options(
-      [  OptBool.new('STORE_LOOT', [false, 'Store files in loot (will simply output file to console if set to false).', true])
+      [  OptBool.new('STORE_LOOT', [false, 'Store files in loot (will simply output file to console if set to false).', true]),
+         OptBool.new('SEARCH_JOBS', [false, 'Search through job history logs for interesting keywords. Increases runtime.', false])
       ], self.class)
 
     @nodes = []
@@ -325,7 +326,7 @@ class MetasploitModule < Msf::Post
     get_key_material(home, "nix")
     parse_credentialsxml(home + '/credentials.xml')
     find_configs(home, "nix")
-    grep_job_history(home + '/jobs/',"nix")
+    grep_job_history(home + '/jobs/',"nix") if datastore['SEARCH_JOBS']
     pretty_print_gathered
   end
 
@@ -334,7 +335,7 @@ class MetasploitModule < Msf::Post
     get_key_material(home, "windows")
     parse_credentialsxml(home + "\\credentials.xml")
     find_configs(home, "windows")
-    grep_job_history(home + "\\jobs\\", "windows")
+    grep_job_history(home + "\\jobs\\", "windows") if datastore['SEARCH_JOBS']
     pretty_print_gathered
   end
 
