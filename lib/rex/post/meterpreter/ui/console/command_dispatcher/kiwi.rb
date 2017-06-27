@@ -90,10 +90,10 @@ class Console::CommandDispatcher::Kiwi
     '-h'  => [false, 'Help banner'],
     '-u'  => [true,  'User name of the password to change.'],
     '-s'  => [true,  'Server to perform the action on (eg. Domain Controller).'],
-    '-op' => [true,  'The known existing/old password (do not use with -oh).'],
-    '-oh' => [true,  'The known existing/old hash (do not use with -op).'],
-    '-np' => [true,  'The new password to set for the account (do not use with -nh).'],
-    '-nh' => [true,  'The new hash to set for the account (do not use with -np).']
+    '-p' => [true,  'The known existing/old password (do not use with -n).'],
+    '-n' => [true,  'The known existing/old hash (do not use with -p).'],
+    '-P' => [true,  'The new password to set for the account (do not use with -N).'],
+    '-N' => [true,  'The new hash to set for the account (do not use with -P).']
   )
 
   def cmd_password_change_usage
@@ -116,35 +116,35 @@ class Console::CommandDispatcher::Kiwi
         opts[:user] = val
       when '-s'
         opts[:server] = val
-      when '-op'
+      when '-p'
         opts[:old_pass] = val
-      when '-oh'
+      when '-n'
         opts[:old_hash] = val
-      when '-np'
+      when '-P'
         opts[:new_pass] = val
-      when '-nh'
+      when '-N'
         opts[:new_hash] = val
       end
     }
 
     valid = true
     if opts[:old_pass] && opts[:old_hash]
-      print_error('Options -op and -oh cannot be used together.')
+      print_error('Options -p and -n cannot be used together.')
       valid = false
     end
 
     if opts[:new_pass] && opts[:new_hash]
-      print_error('Options -np and -nh cannot be used together.')
+      print_error('Options -P and -N cannot be used together.')
       valid = false
     end
 
     unless opts[:old_pass] || opts[:old_hash]
-      print_error('At least one of -op and -oh must be specified.')
+      print_error('At least one of -p and -n must be specified.')
       valid = false
     end
 
     unless opts[:new_pass] || opts[:new_hash]
-      print_error('At least one of -np and -nh must be specified.')
+      print_error('At least one of -P and -N must be specified.')
       valid = false
     end
 
