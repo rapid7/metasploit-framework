@@ -687,7 +687,7 @@ module Msf
           #
           # Command to take to the previously active module
           #
-          def cmd_previous()
+          def cmd_previous(*args)
             if @previous_module
               self.cmd_use(@previous_module.fullname)
             else
