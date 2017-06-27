@@ -9,8 +9,8 @@ module Def
 
 class Def_osx_libobjc
 
-  def self.create_dll(constant_manager, dll_path = 'libobjc.dylib')
-    lib = DLL.new(dll_path, constant_manager)
+  def self.create_library(constant_manager, library_path = 'libobjc.dylib')
+    lib = Library.new(library_path, constant_manager)
 
     # https://developer.apple.com/documentation/objectivec/1418952-objc_getclass?language=objc
     lib.add_function(

@@ -42,8 +42,8 @@ require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/util'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/const_manager'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/multicall'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_wrapper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_wrapper'
 
 module Rex
 module Post
@@ -59,15 +59,15 @@ module Railgun
 class Railgun
 
   #
-  # Railgun::DLL's that have builtin definitions.
+  # Railgun::Library's that have builtin definitions.
   #
-  # If you want to add additional DLL definitions to be preloaded create a
+  # If you want to add additional library definitions to be preloaded create a
   # definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/$platform/'.
   # Naming is important and should follow convention.  For example, if your
-  # dll's name was "my_dll"
-  # file name:    def_my_dll.rb
-  # class name:   Def_my_dll
-  # entry below: 'my_dll'
+  # library's name was "my_library"
+  # file name:    def_my_library.rb
+  # class name:   Def_my_library
+  # entry below: 'my_library'
   #
   BUILTIN_LIBRARIES = {
     'linux' => [
@@ -95,8 +95,8 @@ class Railgun
   }.freeze
 
   ##
-  # Returns a Hash containing DLLs added to this instance with #add_library as
-  # well as references to any frozen cached libraries added directly in
+  # Returns a Hash containing libraries added to this instance with #add_library
+  # as well as references to any frozen cached libraries added directly in
   # #get_library and copies of any frozen libraries (added directly with
   # #add_function) that the user attempted to modify with #add_function.
   #
@@ -237,7 +237,7 @@ class Railgun
       raise "A library of name #{lib_name} has already been loaded."
     end
 
-    libraries[lib_name] = DLL.new(remote_name, constant_manager)
+    libraries[lib_name] = Library.new(remote_name, constant_manager)
   end
   alias_method :add_dll, :add_library
 
@@ -270,7 +270,7 @@ class Railgun
           end
 
           require "rex/post/meterpreter/extensions/stdapi/railgun/def/#{client.platform}/def_#{lib_name}"
-          lib = Def.const_get("Def_#{client.platform}_#{lib_name}").create_dll(constant_manager).freeze
+          lib = Def.const_get("Def_#{client.platform}_#{lib_name}").create_library(constant_manager).freeze
 
           @@cached_libraries[cached_lib_name] = lib
           libraries[lib_name] = lib
@@ -299,7 +299,7 @@ class Railgun
 
     lib = get_library(lib_name)
 
-    return DLLWrapper.new(lib, client)
+    return LibraryWrapper.new(lib, client)
   end
 
   #

@@ -9,8 +9,8 @@ module Def
 
 class Def_linux_libc
 
-  def self.create_dll(constant_manager, dll_path = 'libc.so.6')
-    lib = DLL.new(dll_path, constant_manager)
+  def self.create_library(constant_manager, library_path = 'libc.so.6')
+    lib = Library.new(library_path, constant_manager)
 
     lib.add_function(
       'calloc',

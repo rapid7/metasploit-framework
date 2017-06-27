@@ -33,29 +33,29 @@ module Railgun
 #
 # represents one function, e.g. MessageBoxW
 #
-class DLLFunction
+class LibraryFunction
   @@allowed_datatypes = {
-    "VOID"   => ["return"],
-    "BOOL"   => ["in", "return"],
-    "DWORD"  => ["in", "return"],
-    "WORD"   => ["in", "return"],
-    "BYTE"   => ["in", "return"],
-    "LPVOID" => ["in", "return"], # sf: for specifying a memory address (e.g. VirtualAlloc/HeapAlloc/...) where we don't want to back it up with actual mem ala PBLOB
-    "HANDLE" => ["in", "return"],
-    "SIZE_T" => ["in", "return"],
-    "PDWORD" => ["in", "out", "inout"], # todo: support for functions that return pointers to strings
-    "PWCHAR" => ["in", "out", "inout"],
-    "PCHAR"  => ["in", "out", "inout"],
-    "PBLOB"  => ["in", "out", "inout"],
+    'VOID'   => ['return'],
+    'BOOL'   => ['in', 'return'],
+    'DWORD'  => ['in', 'return'],
+    'WORD'   => ['in', 'return'],
+    'BYTE'   => ['in', 'return'],
+    'LPVOID' => ['in', 'return'], # sf: for specifying a memory address (e.g. VirtualAlloc/HeapAlloc/...) where we don't want to back it up with actual mem ala PBLOB
+    'HANDLE' => ['in', 'return'],
+    'SIZE_T' => ['in', 'return'],
+    'PDWORD' => ['in', 'out', 'inout'], # todo: support for functions that return pointers to strings
+    'PWCHAR' => ['in', 'out', 'inout'],
+    'PCHAR'  => ['in', 'out', 'inout'],
+    'PBLOB'  => ['in', 'out', 'inout'],
   }.freeze
 
-  @@allowed_convs = ["stdcall", "cdecl"]
+  @@allowed_convs = ['stdcall', 'cdecl']
 
-  @@directions = ["in", "out", "inout", "return"].freeze
+  @@directions = ['in', 'out', 'inout', 'return'].freeze
 
   attr_reader :return_type,  :params, :remote_name, :calling_conv
 
-  def initialize(return_type, params, remote_name, calling_conv="stdcall")
+  def initialize(return_type, params, remote_name, calling_conv='stdcall')
     check_return_type(return_type) # we do error checking as early as possible so the library is easier to use
     check_params(params)
     check_calling_conv(calling_conv)

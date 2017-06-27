@@ -26,7 +26,7 @@
 require 'pp'
 require 'enumerator'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_helper'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
 
 module Rex
@@ -39,13 +39,13 @@ module Railgun
 # A easier way to call multiple functions in a single request
 class MultiCaller
 
-    include DLLHelper
+    include LibraryHelper
 
     def initialize(client, parent, consts_mgr)
       @parent = parent
       @client = client
 
-      # needed by DLL helper
+      # needed by LibraryHelper
       @consts_mgr = consts_mgr
 
       if @client.native_arch == ARCH_X64
@@ -60,17 +60,17 @@ class MultiCaller
       function_results = []
       layouts          = []
       functions.each do |f|
-        dll_name, function, args = f
-        dll_host = @parent.get_dll( dll_name )
+        lib_name, function, args = f
+        lib_host = @parent.get_library(lib_name)
 
-        if not dll_host
-          raise "DLL #{dll_name} has not been loaded"
+        if not lib_host
+          raise "Library #{lib_name} has not been loaded"
         end
 
-        unless function.instance_of? DLLFunction
-          function = dll_host.functions[function]
+        unless function.instance_of? LibraryFunction
+          function = lib_host.functions[function]
           if not function
-            raise "DLL #{dll_name} function #{function} has not been defined"
+            raise "Library #{lib_name} function #{function} has not been defined"
           end
         end
 
@@ -150,7 +150,7 @@ class MultiCaller
           if ['PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
             #puts '   pointer'
             if args[param_idx] == nil # null pointer?
-              buffer = [0].pack(@native) # type: DWORD  (so the dll does not rebase it)
+              buffer = [0].pack(@native) # type: DWORD  (so the library does not rebase it)
               buffer += [0].pack(@native) # value: 0
             elsif param_desc[2] == 'in'
               buffer = [1].pack(@native)
@@ -208,7 +208,7 @@ class MultiCaller
         group.add_tlv(TLV_TYPE_RAILGUN_STACKBLOB, literal_pairs_blob)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
         group.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
-        group.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, dll_host.dll_path)
+        group.add_tlv(TLV_TYPE_RAILGUN_LIBNAME, lib_host.library_path)
         group.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.remote_name)
         request.tlvs << group
 
@@ -222,9 +222,9 @@ class MultiCaller
       end
 
       functions.each do |f|
-        dll_name, function, args = f
-        dll_host = @parent.get_dll(dll_name)
-        function = dll_host.functions[function] unless function.instance_of? DLLFunction
+        lib_name, function, args = f
+        lib_host = @parent.get_library(lib_name)
+        function = lib_host.functions[function] unless function.instance_of? LibraryFunction
         response = call_results.shift
         inout_layout, out_only_layout = layouts.shift
 

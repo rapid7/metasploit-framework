@@ -34,7 +34,7 @@ module Railgun
 # shared functions
 #
 #
-module DLLHelper
+module LibraryHelper
 
   # converts ruby string to zero-terminated ASCII string
   def str_to_ascii_z(str)

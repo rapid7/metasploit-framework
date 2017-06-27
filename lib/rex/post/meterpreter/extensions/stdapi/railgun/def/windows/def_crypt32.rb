@@ -9,8 +9,8 @@ module Def
 
 class Def_windows_crypt32
 
-  def self.create_dll(constant_manager, dll_path = 'crypt32')
-    dll = DLL.new(dll_path, constant_manager)
+  def self.create_library(constant_manager, library_path = 'crypt32')
+    dll = Library.new(library_path, constant_manager)
 
     dll.add_function('CryptUnprotectData', 'BOOL', [
         ['PBLOB','pDataIn', 'in'],
