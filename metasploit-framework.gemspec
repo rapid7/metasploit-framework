@@ -176,4 +176,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nessus_rest'
   # Nexpose Gem
   spec.add_runtime_dependency 'nexpose'
+  # Needed for NDMP sockets
+  spec.add_runtime_dependency 'xdr'
 end
