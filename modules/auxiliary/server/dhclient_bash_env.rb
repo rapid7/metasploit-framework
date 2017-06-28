@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DefaultAction'  => 'Service',
       'References' => [
-        [ 'AKA', 'shellshock' ],
+        [ 'AKA', 'Shellshock' ],
         [ 'CVE', '2014-6271' ],
         [ 'CWE', '94' ],
         [ 'OSVDB', '112004' ],

@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         'lcamtuf' # CVE-2014-6278
       ],
       'References' => [
-        [ 'AKA', 'shellshock' ],
+        [ 'AKA', 'Shellshock' ],
         [ 'CVE', '2014-6271' ],
         [ 'CVE', '2014-6278' ],
         [ 'OSVDB', '112004' ],
