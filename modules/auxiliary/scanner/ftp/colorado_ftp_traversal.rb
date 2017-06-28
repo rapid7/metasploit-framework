@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'EDB', '40231'],
-          [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86']
+          [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86'],
+          [ 'URL', 'http://www.securityfocus.com/archive/1/539186']
         ],
       'DisclosureDate' => 'Aug 11 2016'
     ))
@@ -47,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if /Welcome to ColoradoFTP - the open source FTP server \(www\.coldcore\.com\)/i === banner
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Detected
       end
     ensure
       disconnect
@@ -58,7 +59,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     begin
-      connect_login
+      c = connect_login
+      return unless c
       sock = data_connect
 
       # additional check per https://github.com/bwatters-r7/metasploit-framework/blob/b44568dd85759a1aa2160a9d41397f2edc30d16f/modules/auxiliary/scanner/ftp/bison_ftp_traversal.rb
