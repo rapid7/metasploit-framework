@@ -14,7 +14,7 @@ ZDI | zerodayinitiative.com | ```['ZDI', '10-123']```
 WPVDB | wpvulndb.com | ```['WPVDB', '7615']```
 PACKETSTORM | packetstormsecurity.com | ```['PACKETSTORM', '132721']```
 URL | anything | ```['URL', 'http://example.com/blog.php?id=123']```
-AKA | anything | shellshock
+AKA | anything | ```['AKA', 'shellshock']```
 
 ## Code Example of having references in a module ##
 
