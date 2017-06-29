@@ -26,7 +26,7 @@ module Rex
               'mic_start' => 'start capturing an audio stream from the target mic',
               'mic_stop'  => 'stop capturing audio',
               'mic_list'  => 'list all microphone interfaces',
-              'listen'    => 'listen to streaming audio via audio player'
+              'listen'    => 'listen to a saved audio recording via audio player'
             }
             reqs = {
               'mic_start' => [ 'audio_mic_start' ],
@@ -91,17 +91,14 @@ module Rex
           end
 
           def cmd_mic_start(*args)
-            start_delay = 8
             device_id = 1
             duration = 1800
-            play_stream = true
             saved_audio_path = Rex::Text.rand_text_alpha(8) + ".wav"
 
             mic_start_opts = Rex::Parser::Arguments.new(
               "-h" => [ false, "Help Banner" ],
               "-d" => [ true, "The stream duration in seconds (Default: 1800)" ], # 30 min
               "-m" => [ true, "Microphone device index to record from (1: system default)" ],
-              "-p" => [ true, "Automatically start a player for the stream (Default: '#{play_stream}')" ],
               "-s" => [ true, "The saved audio file path (Default: '#{saved_audio_path}')" ]
             )
 
@@ -116,8 +113,6 @@ module Rex
                   duration = val.to_i
                 when "-m"
                   device_id = val.to_i
-                when "-p"
-                  play = false if val =~ /^(f|n|0)/i
                 when "-s"
                   saved_audio_path = val
               end
@@ -142,7 +137,6 @@ module Rex
                 ::File.open(saved_audio_path, 'wb') do |outfd|
                   audio_file_wave_header(11025, 1, 16, 2000000000).each { |e| e.write(outfd) }
                 end
-                stream_index = 0
                 while client do
                   Rex::sleep(0.5)
                   data = channel.read(65536)
@@ -151,10 +145,6 @@ module Rex
                       f.write(data)
                     end
                     data = nil
-                    stream_index += 1
-                    if stream_index == start_delay
-                      cmd_listen(saved_audio_path)
-                    end
                   end
                 end
               end
@@ -167,9 +157,32 @@ module Rex
             end
           end
 
-          def cmd_listen(saved_audio_path)
-            #Rex::Compat.open_webrtc_browser("file://#{::File.absolute_path(saved_audio_path)}")
-            Rex::Compat.play_sound(::File.expand_path(saved_audio_path))
+          def cmd_listen(*args)
+            filename = nil
+
+            listen_opts = Rex::Parser::Arguments.new(
+              "-h" => [ false, "Help Banner" ],
+              "-f" => [ true, "audio filename" ]
+            )
+
+            listen_opts.parse(args) do |opt, _idx, val|
+              case opt
+                when "-h"
+                  print_line("Usage: listen -f <filename>\n")
+                  print_line("Plays saved audio from a file.")
+                  print_line(listen_opts.usage)
+                  return
+                when "-f"
+                  filename = val
+              end
+            end
+
+            if filename.nil?
+              print_error("use '-f' option to provide a filename for playback")
+              return
+            end
+
+            Rex::Compat.play_sound(::File.expand_path(filename))
           end
 
           def cmd_mic_stop
