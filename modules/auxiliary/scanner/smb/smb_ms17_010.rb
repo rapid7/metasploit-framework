@@ -33,6 +33,8 @@ class MetasploitModule < Msf::Auxiliary
           ],
       'References'     =>
         [
+          [ 'AKA', 'DOUBLEPULSAR' ],
+          [ 'AKA', 'ETERNALBLUE' ],
           [ 'CVE', '2017-0143'],
           [ 'CVE', '2017-0144'],
           [ 'CVE', '2017-0145'],
