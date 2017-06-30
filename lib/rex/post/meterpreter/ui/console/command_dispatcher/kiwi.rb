@@ -567,18 +567,44 @@ protected
     output = ""
 
     accounts.keys.each do |k|
-
       next if accounts[k].length == 0
+
+      # Keep track of the columns that we were given, in
+      # the order we are given them, while removing duplicates
+      columns = []
+      existing = Set.new
+      accounts[k].each do |acct|
+        acct.keys.each do |k|
+          unless existing.include?(k)
+            columns << k
+            existing.add(k)
+          end
+        end
+      end
 
       table = Rex::Text::Table.new(
         'Header'    => "#{k} credentials",
         'Indent'    => 0,
         'SortIndex' => 0,
-        'Columns'   => accounts[k][0].keys
+        'Columns'   => columns
       )
 
       accounts[k].each do |acct|
-        table << acct.values
+        values = []
+        # Iterate through the given columns and match the values up
+        # correctly based on the index of the column header.
+        columns.each do |c|
+          col_idx = acct.keys.index(c)
+          # If the column exists, we'll use the value that is associated
+          # with the column based on its index
+          if col_idx
+            values << acct.values[col_idx]
+          else
+            # Otherwise, just add a blank value
+            values << ''
+          end
+        end
+        table << values
       end
 
       output << table.to_s + "\n"
