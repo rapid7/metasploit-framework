@@ -5,12 +5,12 @@ data structure with username and password hash (MD5) credentials.  The contents 
 
 ## Vulnerable Application
 
-This module has been verified against:
+This module has been verified against the following Cerberus Helpdesk versions:
 
 1. Version 4.2.3 Stable (Build 925)
 2. Version 5.4.4
 
-However it may also work up to, but no including, version 6.7
+However it may also work up to, but not including, version 6.7
 
 Version 5.4.4 is available on [exploit-db.com](https://www.exploit-db.com/apps/882596e791e54529b29ecbc6f48a6cb7-cerb5-5_4_4.zip)
 
