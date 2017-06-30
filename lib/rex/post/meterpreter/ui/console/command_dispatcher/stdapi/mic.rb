@@ -91,6 +91,15 @@ module Rex
           end
 
           def cmd_mic_start(*args)
+            get_data = lambda do |channel, file|
+              data = channel.read(65536)
+              if data
+                ::File.open(file, 'a') do |f|
+                  f.write(data)
+                end
+                data = nil
+              end
+            end
             device_id = 1
             duration = 1800
             saved_audio_path = Rex::Text.rand_text_alpha(8) + ".wav"
@@ -138,19 +147,14 @@ module Rex
                   audio_file_wave_header(11025, 1, 16, 2000000000).each { |e| e.write(outfd) }
                 end
                 while client do
+                  get_data.call(channel, saved_audio_path)
                   Rex::sleep(0.5)
-                  data = channel.read(65536)
-                  if data
-                    ::File.open(saved_audio_path, 'a') do |f|
-                      f.write(data)
-                    end
-                    data = nil
-                  end
                 end
               end
             rescue ::Timeout::Error
             ensure
               if mic_started
+                get_data.call(channel, saved_audio_path)
                 client.mic.mic_stop
                 print_status("Streaming stopped.")
               end
