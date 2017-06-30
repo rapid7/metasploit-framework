@@ -229,6 +229,44 @@ class Framework
     }
   end
 
+  def search(match, verbose: false)
+    # Check if the database is usable
+    use_db = true
+    if self.db
+      if !(self.db.migrated && self.db.modules_cached)
+        if verbose
+          print_warning("Module database cache not built yet, using slow search")
+        end
+        use_db = false
+      end
+    else
+      if verbose
+        print_warning("Database not connected, using slow search")
+      end
+      use_db = false
+    end
+
+    # Used the database for search
+    if use_db
+      return self.db.search_modules(match)
+    end
+
+    # Do an in-place search
+    matches = []
+    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders ].each do |mset|
+      mset.each do |m|
+        begin
+          o = mset.create(m[0])
+          if o && !o.search_filter(match)
+            matches << o
+          end
+        rescue
+        end
+      end
+    end
+    matches
+  end
+
 protected
 
   # @!attribute options

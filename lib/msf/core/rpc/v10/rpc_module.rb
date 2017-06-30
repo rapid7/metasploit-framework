@@ -99,12 +99,7 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.info', 'exploit', 'windows/smb/ms08_067_netapi')
   def rpc_info(mtype, mname)
     m = _find_module(mtype,mname)
-    res = {}
-
-    res['type'] = m.type
-    res['name'] = m.name
-    res['fullname'] = m.fullname
-    res['rank'] = m.rank.to_i
+    res = module_short_info(m)
     res['description'] = Rex::Text.compress(m.description)
     res['license'] = m.license
     res['filepath'] = m.file_path
@@ -165,6 +160,23 @@ class RPC_Module < RPC_Base
     res
   end
 
+  def module_short_info(m)
+    res = {}
+    res['type'] = m.type
+    res['name'] = m.name
+    res['fullname'] = m.fullname
+    res['rank'] = RankingName[m.rank].to_s
+    res['disclosuredate'] = m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d")
+    res
+  end
+
+  def rpc_search(match)
+    matches = []
+    self.framework.search(match).each do |m|
+      matches << module_short_info(m)
+    end
+    matches
+  end
 
   # Returns the compatible payloads for a specific exploit.
   #
