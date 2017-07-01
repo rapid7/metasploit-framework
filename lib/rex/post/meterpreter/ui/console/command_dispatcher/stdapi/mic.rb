@@ -97,8 +97,9 @@ module Rex
                 ::File.open(file, 'a') do |f|
                   f.write(data)
                 end
-                data = nil
+                return data.length
               end
+              return 0
             end
             device_id = 1
             duration = 1800
@@ -138,25 +139,31 @@ module Rex
             end
 
             print_status("Saving to audio file: #{saved_audio_path}")
+            total_data_len = 0
             begin
               channel = client.mic.mic_start(device_id)
               mic_started = true
               print_status("Streaming started...")
+              ::File.open(saved_audio_path, 'wb') do |outfile|
+                audio_file_wave_header(11025, 1, 16, 2000000000).each { |e| e.write(outfile) }
+              end
               ::Timeout.timeout(duration) do
-                ::File.open(saved_audio_path, 'wb') do |outfd|
-                  audio_file_wave_header(11025, 1, 16, 2000000000).each { |e| e.write(outfd) }
-                end
                 while client do
-                  get_data.call(channel, saved_audio_path)
                   Rex::sleep(0.5)
+                  total_data_len += get_data.call(channel, saved_audio_path)
                 end
               end
             rescue ::Timeout::Error
             ensure
               if mic_started
-                get_data.call(channel, saved_audio_path)
+                total_data_len += get_data.call(channel, saved_audio_path)
                 client.mic.mic_stop
                 print_status("Streaming stopped.")
+                # Now that we know the actual length of data, update the file header.
+                ::File.open(saved_audio_path, 'rb+') do |outfile|
+                  outfile.seek(0, ::IO::SEEK_SET)
+                  audio_file_wave_header(11025, 1, 16, total_data_len).each { |e| e.write(outfile) }
+                end
               end
             end
           end
