@@ -5,8 +5,8 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
-  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Scanner
 
   HttpFingerprint = { :pattern => [ /DManager/ ] }
 
