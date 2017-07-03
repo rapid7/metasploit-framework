@@ -229,20 +229,16 @@ class Framework
     }
   end
 
-  def search(match, verbose: false)
+  def search(match, logger: nil)
     # Check if the database is usable
     use_db = true
     if self.db
       if !(self.db.migrated && self.db.modules_cached)
-        if verbose
-          print_warning("Module database cache not built yet, using slow search")
-        end
+        logger.print_warning("Module database cache not built yet, using slow search") if logger
         use_db = false
       end
     else
-      if verbose
-        print_warning("Database not connected, using slow search")
-      end
+      logger.print_warning("Database not connected, using slow search") if logger
       use_db = false
     end
 
