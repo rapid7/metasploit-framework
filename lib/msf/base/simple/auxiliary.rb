@@ -138,6 +138,11 @@ protected
       mod.setup
       mod.framework.events.on_module_run(mod)
       mod.run
+    rescue Msf::Auxiliary::Failed => e
+      mod.error = e
+      mod.print_error("Auxiliary aborted due to failure: #{e.message}")
+      mod.cleanup
+      return
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Auxiliary triggered a timeout exception")
