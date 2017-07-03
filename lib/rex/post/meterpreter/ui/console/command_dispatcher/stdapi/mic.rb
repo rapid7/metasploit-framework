@@ -35,17 +35,7 @@ module Rex
               'listen'    => [ 'audio_mic_start' ]
             }
 
-            all.delete_if do |cmd, _desc|
-              del = false
-              reqs[cmd].each do |req|
-                next if client.commands.include? req
-                del = true
-                break
-              end
-              del
-            end
-
-            all
+            filter_commands(all, reqs)
           end
 
           #
