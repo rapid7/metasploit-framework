@@ -576,7 +576,7 @@ class ReadableText
           row << '?'
         end
 
-        if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key
+        if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
           row << "Y"
         else
           row << 'N'
@@ -623,7 +623,10 @@ class ReadableText
       sess_uuid    = session.payload_uuid.to_s
       sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
       sess_luri    = session.exploit_datastore['LURI'] || ""
-      sess_enc     = (session.respond_to?(:tlv_enc_key) ? session.tlv_enc_key : nil) != nil
+      sess_enc     = false
+      if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
+        sess_enc   = true
+      end
 
       sess_checkin = "<none>"
       sess_registration = "No"
