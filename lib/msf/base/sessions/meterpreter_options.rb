@@ -43,7 +43,7 @@ module MeterpreterOptions
 
     valid = true
 
-    session.aes_key = session.core.negotiate_aes
+    session.tlv_enc_key = session.core.negotiate_tlv_encryption
 
     if datastore['AutoVerifySession']
       if not session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)

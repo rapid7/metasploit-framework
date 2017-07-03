@@ -60,9 +60,8 @@ module PacketDispatcher
   # The guid that identifies an active Meterpreter session
   attr_accessor :session_guid
 
-  # This contains the AES key to use when handling TLV packet comms in an
-  # encrypted context
-  attr_accessor :aes_key
+  # This contains the key material used for TLV encryption
+  attr_accessor :tlv_enc_key
 
   # Passive Dispatching
   #
@@ -138,7 +137,7 @@ module PacketDispatcher
       if req.body and req.body.length > 0
         packet = Packet.new(0)
         packet.add_raw(req.body)
-        packet.from_r(self.aes_key)
+        packet.from_r(self.tlv_enc_key)
         dispatch_inbound_packet(packet)
       end
       cli.send_response(resp)
@@ -164,7 +163,7 @@ module PacketDispatcher
     end
 
     bytes = 0
-    raw   = packet.to_r(self.session_guid, self.aes_key)
+    raw   = packet.to_r(self.session_guid, self.tlv_enc_key)
     err   = nil
 
     # Short-circuit send when using a passive dispatcher
@@ -428,7 +427,7 @@ module PacketDispatcher
   def receive_packet
     packet = parser.recv(self.sock)
     if packet
-      packet.from_r(self.aes_key)
+      packet.from_r(self.tlv_enc_key)
       if self.session_guid == '00000000-0000-0000-0000-000000000000'
         parts = packet.session_guid.unpack('H*')[0]
         self.session_guid = [parts[0, 8], parts[8, 4], parts[12, 4], parts[16, 4], parts[20, 12]].join('-')

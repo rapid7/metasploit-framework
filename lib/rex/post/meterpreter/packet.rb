@@ -108,9 +108,10 @@ TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
 TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
 TLV_TYPE_SESSION_GUID        = TLV_META_TYPE_RAW    | 462
 
-TLV_TYPE_AES_KEY             = TLV_META_TYPE_RAW    | 550
-TLV_TYPE_ENC_AES_KEY         = TLV_META_TYPE_RAW    | 551
-TLV_TYPE_RSA_PUB_KEY         = TLV_META_TYPE_STRING | 552
+TLV_TYPE_RSA_PUB_KEY         = TLV_META_TYPE_STRING | 550
+TLV_TYPE_SYM_KEY_TYPE        = TLV_META_TYPE_UINT   | 551
+TLV_TYPE_SYM_KEY             = TLV_META_TYPE_RAW    | 552
+TLV_TYPE_ENC_SYM_KEY         = TLV_META_TYPE_RAW    | 553
 
 #
 # Core flags
@@ -221,9 +222,10 @@ class Tlv
       when TLV_TYPE_MACHINE_ID; "MACHINE-ID"
       when TLV_TYPE_UUID; "UUID"
       when TLV_TYPE_SESSION_GUID; "SESSION-GUID"
-      when TLV_TYPE_AES_KEY; "AES-KEY"
-      when TLV_TYPE_ENC_AES_KEY; "ENC-AES-KEY"
       when TLV_TYPE_RSA_PUB_KEY; "RSA-PUB-KEY"
+      when TLV_TYPE_SYM_KEY_TYPE; "SYM-KEY-TYPE"
+      when TLV_TYPE_SYM_KEY; "SYM-KEY"
+      when TLV_TYPE_ENC_SYM_KEY; "ENC-SYM-KEY"
 
       #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
       #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
@@ -630,19 +632,19 @@ class Packet < GroupTlv
   #
   # XOR KEY        - 4 bytes
   # Session GUID   - 16 bytes
-  # Encrypted flag - 1 byte
+  # Encrypt flags  - 4 bytes
   # Packet length  - 4 bytes
   # Packet type    - 4 bytes
   # Packet data    - X bytes
   #
-  # If the encrypted flag is NOT set, then the Packet data is just straight TLV values as
+  # If the encrypt flags are zero, then the Packet data is just straight TLV values as
   # per the normal TLV packet structure.
   #
-  # If the encrypted flag IS set, then the Packet data is an AES256 encrypted block with
-  # the following format:
+  # If the encrypt flags are non-zer, then the Packet data is encrypted based on the scheme.
   #
-  # IV             - 16 bytes
-  # Encrypted data - X bytes
+  # Flag == 1 (AES256)
+  #    IV             - 16 bytes
+  #    Encrypted data - X bytes
   #
   # The key that is required to decrypt the data is stored alongside the session data,
   # and hence when the packet is initially parsed, only the header is accessed. The
@@ -651,26 +653,17 @@ class Packet < GroupTlv
   #
   ###
 
-  XOR_KEY_OFF = 0
   XOR_KEY_SIZE = 4
-
-  SESSION_GUID_OFF = XOR_KEY_OFF + XOR_KEY_SIZE
   SESSION_GUID_SIZE = 16
-
-  ENCRYPTED_FLAG_OFF = SESSION_GUID_OFF + SESSION_GUID_SIZE
-  ENCRYPTED_FLAG_SIZE = 1
-
-  PACKET_LENGTH_OFF = ENCRYPTED_FLAG_OFF + ENCRYPTED_FLAG_SIZE
+  ENCRYPTED_FLAGS_SIZE = 4
   PACKET_LENGTH_SIZE = 4
-
-  PACKET_TYPE_OFF = PACKET_LENGTH_OFF + PACKET_LENGTH_SIZE
   PACKET_TYPE_SIZE = 4
-
-  PACKET_DATA_OFF = PACKET_TYPE_OFF + PACKET_TYPE_SIZE
-
-  REQUIRED_PREFIX_SIZE = XOR_KEY_SIZE + SESSION_GUID_SIZE + ENCRYPTED_FLAG_SIZE + PACKET_LENGTH_SIZE
-
+  PACKET_HEADER_SIZE = XOR_KEY_SIZE + SESSION_GUID_SIZE + ENCRYPTED_FLAGS_SIZE + PACKET_LENGTH_SIZE + PACKET_TYPE_SIZE
+  
   AES_IV_SIZE = 16
+
+  ENC_FLAG_NONE   = 0x0
+  ENC_FLAG_AES256 = 0x1
 
   ##
   #
@@ -741,21 +734,21 @@ class Packet < GroupTlv
 
   def raw_bytes_required
     # if we have the xor bytes and length ...
-    if self.raw.length >= REQUIRED_PREFIX_SIZE
+    if self.raw.length >= PACKET_HEADER_SIZE
       # return a value based on the length of the data indicated by
       # the header
-      xor_key = self.raw[XOR_KEY_OFF, XOR_KEY_SIZE]
-      decoded_bytes = xor_bytes(xor_key, raw[0, REQUIRED_PREFIX_SIZE])
-      length_bytes = decoded_bytes[PACKET_LENGTH_OFF, PACKET_LENGTH_SIZE]
-      length_bytes.unpack("N")[0] + PACKET_DATA_OFF - HEADER_SIZE - self.raw.length
+      xor_key = self.raw.unpack('A4')[0]
+      decoded_bytes = xor_bytes(xor_key, raw[0, PACKET_HEADER_SIZE])
+      _, _, _, length, _ = decoded_bytes.unpack('A4A16NNN')
+      length + PACKET_HEADER_SIZE - HEADER_SIZE - self.raw.length
     else
       # Otherwise ask for the remaining bytes for the metadata to get the packet length
       # So we can do the rest of the calculation next time
-      REQUIRED_PREFIX_SIZE - self.raw.length
+      PACKET_HEADER_SIZE - self.raw.length
     end
   end
 
-  def aes_encrypt(aes_key, data)
+  def aes_encrypt(key, data)
     # Create the required cipher instance
     aes = OpenSSL::Cipher.new('AES-256-CBC')
     # Generate a truly random IV
@@ -763,21 +756,21 @@ class Packet < GroupTlv
 
     # set up the encryption
     aes.encrypt
-    aes.key = aes_key
+    aes.key = key
     aes.iv = iv
 
     # encrypt and return the IV along with the result
     return iv, aes.update(data) + aes.final
   end
 
-  def aes_decrypt(aes_key, iv, data)
+  def aes_decrypt(key, iv, data)
     # Create the required cipher instance
     aes = OpenSSL::Cipher.new('AES-256-CBC')
     # Generate a truly random IV
 
     # set up the encryption
     aes.decrypt
-    aes.key = aes_key
+    aes.key = key
     aes.iv = iv
 
     # decrypt!
@@ -790,27 +783,38 @@ class Packet < GroupTlv
   # the serialized TLV content, and then returns the key plus the
   # scrambled data as the payload.
   #
-  def to_r(session_guid, aes_key=nil)
+  def to_r(session_guid, key)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
     raw = [session_guid.gsub(/-/, '')].pack('H*')
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
-    if aes_key
-      raw << "\x01"
+    if key && key[:key] && key[:type] == ENC_FLAG_AES256
       # encrypt the data, but not include the length and type
-      iv, ciphertext = aes_encrypt(aes_key, tlv_data[HEADER_SIZE, tlv_data.length - HEADER_SIZE])
+      iv, ciphertext = aes_encrypt(key[:key], tlv_data[HEADER_SIZE..-1])
       # now manually add the length/type/iv/ciphertext
-      raw << [iv.length + ciphertext.length + HEADER_SIZE, self.type].pack('NN')
-      raw << iv
-      raw << ciphertext
+      raw << [ENC_FLAG_AES256, iv.length + ciphertext.length + HEADER_SIZE, self.type, iv, ciphertext].pack('NNNA*A*')
     else
-      raw << "\x00"
-      raw << tlv_data
+      raw << [ENC_FLAG_NONE, tlv_data].pack('NA*')
     end
 
     # return the xor'd result with the key
     xor_key + xor_bytes(xor_key, raw)
+  end
+
+  #
+  # Decrypt the packet based on the content of the encryption flags.
+  #
+  def decrypt_packet(key, encrypt_flags, data)
+    # TODO: throw an error if the expected encryption isn't the same as the given
+    #       as this could be an indication of hijacking or side-channel packet addition
+    #       as highlighted by Justin Steven on github.
+    if key && key[:key] && encrypt_flags == ENC_FLAG_AES256 && encrypt_flags == key[:type]
+      iv = data[0, AES_IV_SIZE]
+      aes_decrypt(key[:key], iv, data[iv.length..-1])
+    else
+      data
+    end
   end
 
   #
@@ -819,23 +823,12 @@ class Packet < GroupTlv
   # passing it on to the default functionality that can parse
   # the TLV values.
   #
-  def from_r(aes_key=nil)
-    xor_key = self.raw[XOR_KEY_OFF, XOR_KEY_SIZE]
-    data = xor_key + xor_bytes(xor_key, self.raw[SESSION_GUID_OFF, self.raw.length - SESSION_GUID_OFF])
-    self.session_guid = data[SESSION_GUID_OFF, SESSION_GUID_SIZE]
-    encrypted_flag = data[ENCRYPTED_FLAG_OFF, ENCRYPTED_FLAG_SIZE] == "\x01"
-    packet_length = data[PACKET_LENGTH_OFF, PACKET_LENGTH_SIZE]
-    packet_type = data[PACKET_TYPE_OFF, PACKET_TYPE_SIZE]
-    self.type = packet_type.unpack('N')[0]
-    if encrypted_flag
-      # TODO error when there's no aes key
-      iv = data[PACKET_DATA_OFF, AES_IV_SIZE]
-      raw = aes_decrypt(aes_key, iv, data[PACKET_DATA_OFF + AES_IV_SIZE, data.length - PACKET_DATA_OFF - AES_IV_SIZE])
-    else
-      raw = data[PACKET_DATA_OFF, data.length - PACKET_DATA_OFF]
-    end
-
-    super(packet_length + packet_type + raw)
+  def from_r(key)
+    xor_key = self.raw.unpack('A4')[0]
+    data = xor_bytes(xor_key, self.raw)
+    _, self.session_guid, encrypt_flags, length, type = data.unpack('A4A16NNN')
+    raw = decrypt_packet(key, encrypt_flags, data[PACKET_HEADER_SIZE..-1])
+    super([length, type, raw].pack('NNA*'))
   end
 
   #

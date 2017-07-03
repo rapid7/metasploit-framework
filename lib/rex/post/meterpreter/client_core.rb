@@ -606,9 +606,9 @@ class ClientCore < Extension
     response = client.send_request(request, timeout)
 
     # Post-migration the session doesn't have encryption any more.
-    # Set the AES key to nil to make sure that the old key isn't used
+    # Set the TLV key to nil to make sure that the old key isn't used
     # at all.
-    client.aes_key = nil
+    client.tlv_enc_key = nil
 
     if client.passive_service
       # Sleep for 5 seconds to allow the full handoff, this prevents
@@ -649,8 +649,8 @@ class ClientCore < Extension
       end
     end
 
-    # Renegotiate AES on the migrated session
-    client.aes_key = negotiate_aes
+    # Renegotiate TLV encryption on the migrated session
+    client.tlv_enc_key = negotiate_tlv_encryption
 
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
     client.ext.aliases.keys.each { |e|
@@ -694,31 +694,35 @@ class ClientCore < Extension
   end
 
   #
-  # Negotiates the use of AES256 encryption over the TLV packets.
+  # Negotiates the use of encryption at the TLV level
   #
-  def negotiate_aes
-    aes_key = nil
+  def negotiate_tlv_encryption
+    sym_key = nil
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
 
-    request  = Packet.create_request('core_negotiate_aes')
+    request  = Packet.create_request('core_negotiate_tlv_encryption')
     request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_pem)
 
     begin
       response = client.send_request(request)
-      aes_key_enc = response.get_tlv_value(TLV_TYPE_ENC_AES_KEY)
+      key_enc = response.get_tlv_value(TLV_TYPE_ENC_SYM_KEY)
+      key_type = response.get_tlv_value(TLV_TYPE_SYM_KEY_TYPE)
 
-      if aes_key_enc
-        aes_key = rsa_key.private_decrypt(aes_key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
+      if key_enc
+        sym_key = rsa_key.private_decrypt(key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
       else
-        aes_key = response.get_tlv_value(TLV_TYPE_AES_KEY)
+        sym_key = response.get_tlv_value(TLV_TYPE_SYM_KEY)
       end
     rescue OpenSSL::PKey::RSAError, Rex::Post::Meterpreter::RequestError
       # 1) OpenSSL error may be due to padding issues (or something else)
       # 2) Request error probably means the request isn't supported, so fallback to plain
     end
 
-    aes_key
+    {
+      key:  sym_key,
+      type: key_type
+    }
   end
 
 private
