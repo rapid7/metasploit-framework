@@ -19,6 +19,9 @@ class Msf::Post < Msf::Module
   require 'msf/core/post/android'
   require 'msf/core/post/hardware'
 
+  class Complete < RuntimeError
+  end
+
   class Failed < RuntimeError
   end
 
