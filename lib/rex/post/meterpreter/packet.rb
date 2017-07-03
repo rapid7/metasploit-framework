@@ -783,10 +783,10 @@ class Packet < GroupTlv
   # the serialized TLV content, and then returns the key plus the
   # scrambled data as the payload.
   #
-  def to_r(session_guid, key)
+  def to_r(session_guid=nil, key=nil)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
-    raw = [session_guid.gsub(/-/, '')].pack('H*')
+    raw = [(session_guid || "0"*32).gsub(/-/, '')].pack('H*')
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
     if key && key[:key] && key[:type] == ENC_FLAG_AES256
@@ -809,7 +809,7 @@ class Packet < GroupTlv
     # TODO: throw an error if the expected encryption isn't the same as the given
     #       as this could be an indication of hijacking or side-channel packet addition
     #       as highlighted by Justin Steven on github.
-    if key && key[:key] && encrypt_flags == ENC_FLAG_AES256 && encrypt_flags == key[:type]
+    if key && key[:key] && key[:type] && encrypt_flags == ENC_FLAG_AES256 && encrypt_flags == key[:type]
       iv = data[0, AES_IV_SIZE]
       aes_decrypt(key[:key], iv, data[iv.length..-1])
     else
@@ -823,7 +823,7 @@ class Packet < GroupTlv
   # passing it on to the default functionality that can parse
   # the TLV values.
   #
-  def from_r(key)
+  def from_r(key=nil)
     xor_key = self.raw.unpack('A4')[0]
     data = xor_bytes(xor_key, self.raw)
     _, self.session_guid, encrypt_flags, length, type = data.unpack('A4A16NNN')
