@@ -400,7 +400,7 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            framework.search(match, verbose: true).each do |m|
+            framework.search(match, logger: self).each do |m|
               tbl << [
                 m.fullname,
                 m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
