@@ -57,7 +57,7 @@ module Rex
             end
           end
 
-          def audio_file_wave_header(sample_rate_hz, num_channels, bits_per_sample, data_size)
+          def audio_file_wave_header(sample_rate_hz:, num_channels:, bits_per_sample:, data_size:)
             subchunk1_size = 16
             chunk_size = 4 + (8 + subchunk1_size) + (8 + data_size)
             byte_rate = sample_rate_hz * num_channels * bits_per_sample / 8
@@ -104,17 +104,17 @@ module Rex
 
             mic_start_opts.parse(args) do |opt, _idx, val|
               case opt
-                when "-h"
-                  print_line("Usage: mic_start [options]\n")
-                  print_line("Streams and records audio from the target microphone.")
-                  print_line(mic_start_opts.usage)
-                  return
-                when "-d"
-                  duration = val.to_i
-                when "-m"
-                  device_id = val.to_i
-                when "-s"
-                  saved_audio_path = val
+              when "-h"
+                print_line("Usage: mic_start [options]\n")
+                print_line("Streams and records audio from the target microphone.")
+                print_line(mic_start_opts.usage)
+                return
+              when "-d"
+                duration = val.to_i
+              when "-m"
+                device_id = val.to_i
+              when "-s"
+                saved_audio_path = val
               end
             end
 
@@ -128,14 +128,19 @@ module Rex
               return
             end
 
+            channel = client.mic.mic_start(device_id)
+            if channel.nil?
+              print_error("Mic failed to start streaming.")
+              return
+            end
             print_status("Saving to audio file: #{saved_audio_path}")
+            print_status("Streaming started...")
             total_data_len = 0
             begin
-              channel = client.mic.mic_start(device_id)
-              mic_started = true
-              print_status("Streaming started...")
               ::File.open(saved_audio_path, 'wb') do |outfile|
-                audio_file_wave_header(11025, 1, 16, 2000000000).each { |e| e.write(outfile) }
+                audio_file_wave_header(sample_rate_hz: 11025, num_channels: 1, bits_per_sample: 16, data_size: 2_000_000_000).each {
+                  |e| e.write(outfile)
+                }
               end
               ::Timeout.timeout(duration) do
                 while client do
@@ -145,15 +150,15 @@ module Rex
               end
             rescue ::Timeout::Error
             ensure
-              if mic_started
-                total_data_len += get_data.call(channel, saved_audio_path)
-                client.mic.mic_stop
-                print_status("Streaming stopped.")
-                # Now that we know the actual length of data, update the file header.
-                ::File.open(saved_audio_path, 'rb+') do |outfile|
-                  outfile.seek(0, ::IO::SEEK_SET)
-                  audio_file_wave_header(11025, 1, 16, total_data_len).each { |e| e.write(outfile) }
-                end
+              total_data_len += get_data.call(channel, saved_audio_path)
+              client.mic.mic_stop
+              print_status("Streaming stopped.")
+              # Now that we know the actual length of data, update the file header.
+              ::File.open(saved_audio_path, 'rb+') do |outfile|
+                outfile.seek(0, ::IO::SEEK_SET)
+                audio_file_wave_header(sample_rate_hz: 11025, num_channels: 1, bits_per_sample: 16, data_size: total_data_len).each {
+                  |e| e.write(outfile)
+                }
               end
             end
           end
@@ -168,13 +173,13 @@ module Rex
 
             listen_opts.parse(args) do |opt, _idx, val|
               case opt
-                when "-h"
-                  print_line("Usage: listen -f <filename>\n")
-                  print_line("Plays saved audio from a file.")
-                  print_line(listen_opts.usage)
-                  return
-                when "-f"
-                  filename = val
+              when "-h"
+                print_line("Usage: listen -f <filename>\n")
+                print_line("Plays saved audio from a file.")
+                print_line(listen_opts.usage)
+                return
+              when "-f"
+                filename = val
               end
             end
 

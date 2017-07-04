@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/channel'
-require 'rex/post/meterpreter/channels/pools/audio_stream_pool'
+require 'rex/post/meterpreter/channels/pools/stream_pool'
 
 module Rex
   module Post
@@ -16,8 +16,6 @@ module Rex
             #
             ###
             class Mic
-              include Msf::Post::Common
-
               def initialize(client)
                 @client = client
               end
@@ -30,8 +28,10 @@ module Rex
               def mic_list
                 response = client.send_request(Packet.create_request('audio_mic_list'))
                 names = []
-                response.get_tlvs(TLV_TYPE_AUDIO_INTERFACE_NAME).each do |tlv|
-                  names << tlv.value
+                if response.result == 0
+                  response.get_tlvs(TLV_TYPE_AUDIO_INTERFACE_NAME).each do |tlv|
+                    names << tlv.value
+                  end
                 end
                 names
               end
@@ -41,8 +41,9 @@ module Rex
                 request = Packet.create_request('audio_mic_start')
                 request.add_tlv(TLV_TYPE_AUDIO_INTERFACE_ID, device_id)
                 response = client.send_request(request)
+                return nil unless response.result == 0
 
-                channel = Channel.create(client, 'audio_mic', Rex::Post::Meterpreter::Channels::Pools::AudioStreamPool, CHANNEL_FLAG_SYNCHRONOUS)
+                channel = Channel.create(client, 'audio_mic', Rex::Post::Meterpreter::Channels::Pools::StreamPool, CHANNEL_FLAG_SYNCHRONOUS)
               end
 
               # Stop recording from microphone
