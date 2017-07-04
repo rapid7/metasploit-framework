@@ -7,6 +7,7 @@ class Client
 require 'rex/proto/dcerpc/uuid'
 require 'rex/proto/dcerpc/response'
 require 'rex/proto/dcerpc/exceptions'
+require 'rex/proto/dcerpc/authentication'
 require 'rex/text'
 require 'rex/proto/smb/exceptions'
 
