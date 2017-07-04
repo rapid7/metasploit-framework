@@ -10,6 +10,110 @@ require 'rex/text'
 
   UUID = Rex::Proto::DCERPC::UUID
 
+  def self.make_auth(last_response, opts, ntlm_options, auth_client = Authentication.new)
+    ntlm3, auth_length = auth_client.auth_ntlm_3(last_response, opts, ntlm_options)
+
+    frag_length = 28+auth_length
+
+    # Create the alter_context request packet
+    buff =
+    [
+      5,      # major version 5
+      0,      # minor version 0
+      16,     # Auth3
+      3,      # flags
+      0x10000000,  # data representation
+      frag_length,     # frag length
+      auth_length,      # auth length
+      1,      # call id
+      0,  #padd
+    ].pack('CCCCNvvVV')
+
+    return buff+ntlm3, 0
+
+  end
+
+  def self.make_bind_auth(uuid, vers, domain, name, ntlm_options, auth_client = Authentication.new)
+    # Process the version strings ("1.0", 1.0, "1", 1)
+    bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
+    xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(UUID.xfer_syntax_vers)
+
+    if UUID.is? UUID.xfer_syntax_uuid
+      xfer_syntax_uuid = UUID.uuid_pack(UUID.xfer_syntax_uuid)
+    end
+
+    spnego, auth_length = auth_client.auth_ntlm_1(domain, name, ntlm_options)
+    frag_length = 80+auth_length
+
+    # Create the bind request packet
+    buff =
+    [
+      5,      # major version 5
+      0,      # minor version 0
+      11,     # bind type
+      3,      # flags
+      0x10000000,  # data representation
+      frag_length,     # frag length
+      auth_length,      # auth length
+      0,      # call id
+      5840,   # max xmit frag
+      5840,   # max recv frag
+      0,      # assoc group
+      1,      # num ctx items
+      0,      # context id
+      1,      # num trans items
+      UUID.uuid_pack(uuid),   # interface uuid
+      bind_vers_maj,       # interface major version
+      bind_vers_min,       # interface minor version
+      UUID.xfer_syntax_uuid,  # transfer syntax
+      xfer_vers_maj,       # syntax major version
+      xfer_vers_min,       # syntax minor version
+    ].pack('CCCCNvvVvvVVvvA16vvA16vv')
+
+    return buff+spnego, 0
+  end
+
+  def self.make_alter_context_auth(uuid,vers,last_response, opts, ntlm_options, auth_client = Authentication.new)
+    # Process the version strings ("1.0", 1.0, "1", 1)
+    bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
+    xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(UUID.xfer_syntax_vers)
+
+    if UUID.is? UUID.xfer_syntax_uuid
+           xfer_syntax_uuid = UUID.uuid_pack(UUID.xfer_syntax_uuid)
+    end
+
+    ntlm3, auth_length = auth_client.auth_ntlm_3(last_response, opts, ntlm_options)
+    frag_length = 80+auth_length
+
+    # Create the alter_context request packet
+    buff =
+    [
+      5,      # major version 5
+      0,      # minor version 0
+      14,     # Alter_context type
+      3,      # flags
+      0x10000000,  # data representation
+      frag_length,     # frag length
+      auth_length,      # auth length
+      0,      # call id
+      5840,   # max xmit frag
+      5840,   # max recv frag
+      0,      # assoc group
+      1,      # num ctx items
+      0,      # context id
+      1,      # num trans items
+      UUID.uuid_pack(uuid),   # interface uuid
+      bind_vers_maj,       # interface major version
+      bind_vers_min,       # interface minor version
+      UUID.xfer_syntax_uuid,  # transfer syntax
+      xfer_vers_maj,       # syntax major version
+      xfer_vers_min,       # syntax minor version
+    ].pack('CCCCNvvVvvVVvvA16vvA16vv')
+
+    return buff+ntlm3, 0
+
+  end
+
   # Create a standard DCERPC BIND request packet
   def self.make_bind(uuid, vers, xfer_syntax_uuid=UUID.xfer_syntax_uuid, xfer_syntax_vers=UUID.xfer_syntax_vers)
 
@@ -214,6 +318,50 @@ require 'rex/text'
       ctx,    # context id
       opnum,  # operation number
     ].pack('CCCCNvvVVvv') + object_str + data
+  end
+
+
+  def self.make_request_chunk_auth(flags=3, opnum=0, data="", ctx=0, object_id = '', auth_client = Authentication.new)
+
+    flags = flags.to_i
+    opnum = opnum.to_i
+    ctx   = ctx.to_i
+    use_object = 0
+    object_str = ''
+    flen = data.length + 40
+
+    if object_id.size > 0
+      flags |= 0x80
+      flen += 16
+      object_str = UUID.uuid_pack(object_id)
+    end
+
+    padding_length = 12
+    auth = "\x00" * padding_length
+    auth << auth_client.auth_buff(padding_length) # 12
+
+    flen += auth.length
+
+    buff =
+    [
+      5,      # major version 5
+      0,      # minor version 0
+      0,      # request type
+      flags,  # flags
+      0x10000000,     # data representation
+      flen,   # frag length
+      16,      # auth length
+      2,      # call id
+      data.length,   # alloc hint
+      ctx,    # context id
+      opnum,  # operation number
+    ].pack('CCCCNvvVVvv') + object_str + data + auth + auth_client.ntlmssp_verifier(data)
+
+    return buff #[0..-5]
+  end
+
+  def self.make_request_auth(opnum=0, data="", size=data.length, ctx=0, object_id='',auth_client = Authentication.new)
+    return [make_request_chunk_auth(0x83, opnum, data, ctx, object_id, auth_client)]
   end
 
   # Used to create standard DCERPC REQUEST packet(s)

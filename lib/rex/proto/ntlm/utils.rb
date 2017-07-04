@@ -296,7 +296,11 @@ class Utils
       domain_uni +
       user_uni +
       name_uni +
-      session + "\x00"
+      session
+
+      padd = "\x00" * (blob.length % 4)
+      blob << padd
+
     return blob
 
   end
@@ -441,7 +445,12 @@ class Utils
     client_challenge ||= Rex::Text.rand_text(8)
     # We have to set the timestamps here to the one in the challenge message from server if present
     # If we don't do that, recent server like Seven/2008 will send a STATUS_INVALID_PARAMETER error packet
-    timestamp = chall_MsvAvTimestamp != '' ? chall_MsvAvTimestamp : self.time_unix_to_smb(Time.now.to_i).reverse.pack("VV")
+    if chall_MsvAvTimestamp.nil? or chall_MsvAvTimestamp.empty?
+      timestamp = self.time_unix_to_smb(Time.now.to_i).reverse.pack("VV")
+    else
+      timestamp = chall_MsvAvTimestamp
+    end
+
     # Make those values unicode as requested
     win_domain = Rex::Text.to_unicode(win_domain)
     win_name = Rex::Text.to_unicode(win_name)
@@ -459,7 +468,7 @@ class Utils
     # Microsoft network server : Server SPN target name validation level is set to <Required from client>
     # otherwise it send an STATUS_ACCESS_DENIED packet
     if spnopt[:use_spn]
-      spn= Rex::Text.to_unicode("cifs/#{spnopt[:name] || 'unknow'}")
+      spn = Rex::Text.to_unicode("cifs/#{spnopt[:name] || 'unknown'}")
       addr_list  << [9, spn.length].pack('vv') + spn
     end
 
