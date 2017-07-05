@@ -751,6 +751,8 @@ private
         case t[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp)
+        when /^pipe/i
+          c.include(::Msf::Payload::Windows::MigrateNamedPipe)
         when /^http/i
           # Covers HTTP and HTTPS
           c.include(::Msf::Payload::Windows::MigrateHttp)
@@ -760,6 +762,8 @@ private
         case t[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp_x64)
+        when /^pipe/i
+          c.include(::Msf::Payload::Windows::MigrateNamedPipe_x64)
         when /^http/i
           # Covers HTTP and HTTPS
           c.include(::Msf::Payload::Windows::MigrateHttp_x64)
