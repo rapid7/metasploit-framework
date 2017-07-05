@@ -9,7 +9,7 @@ require 'msf/core/handler/reverse_tcp'
 
 module MetasploitModule
 
-  CachedSize = 212
+  CachedSize = 272
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux
