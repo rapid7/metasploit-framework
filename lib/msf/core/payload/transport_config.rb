@@ -64,6 +64,14 @@ module Msf::Payload::TransportConfig
     }.merge(timeout_config)
   end
 
+  def transport_config_reverse_named_pipe(opts={})
+    {
+      scheme: 'pipe',
+      lhost:  datastore['PIPEHOST'],
+      uri:    "/#{datastore['PIPENAME']}"
+    }.merge(timeout_config)
+  end
+
 private
 
   def timeout_config

