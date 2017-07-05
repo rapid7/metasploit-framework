@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     rescue Rex::ConnectionRefused => e
       print_error("#{peer} - Connection refused")
-      return :next_user
+      return :abort
     rescue => e
       vprint_status("#{peer} - Bad login")
       return :skip_pass
