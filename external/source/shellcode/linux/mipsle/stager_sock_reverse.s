@@ -4,7 +4,7 @@
 #        Type: Stager
 #   Qualities: No Nulls out of the IP / Port data
 #   Platforms: Linux MIPS Little Endian
-#     Authors: juan vazquez <juan.vazquez [at] metasploit.com>
+#     Authors: juan vazquez <juan.vazquez [at] metasploit.com>, tkmru
 #     License:
 #
 #        This file is part of the Metasploit Exploit Framework
