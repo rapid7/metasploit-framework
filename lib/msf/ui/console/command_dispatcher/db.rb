@@ -1,8 +1,12 @@
 # -*- coding: binary -*-
 
+require 'json'
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
+require 'metasploit/framework/data_service'
+require 'metasploit/framework/data_service/remote/http/core'
+require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 
 module Msf
 module Ui
@@ -42,7 +46,12 @@ class Db
       "db_import"     => "Import a scan result file (filetype will be auto-detected)",
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
-      "db_rebuild_cache" => "Rebuilds the database-stored module cache"
+      "db_rebuild_cache" => "Rebuilds the database-stored module cache",
+      "test_data_service_host" => "Blah",
+      "add_goliath_service" => "Blah",
+      "list_data_services" => "Blah",
+      "set_data_service" => "Blah",
+      "nl_search" => "Blah"
     }
 
     # Always include commands that only make sense when connected.
@@ -75,6 +84,32 @@ class Db
       return false
     end
     true
+  end
+
+  def cmd_set_data_service(service_id)
+    data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
+    data_service_manager.set_data_service(service_id)
+  end
+
+  def cmd_list_data_services()
+    data_service_manager = Metasploit::Framework::DataService::DataProxy..instance
+    data_service_manager.print_data_services
+  end
+
+  def cmd_add_goliath_service(*args)
+      while (arg = args.shift)
+        case arg
+          when '-h'
+            host = args.shift
+          when '-p'
+            port = args.shift
+        end
+      end
+
+      remote_service_endpoint = Metasploit::Framework::DataService::RemoteServiceEndpoint.new(host, port)
+      remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(remote_service_endpoint)
+      data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
+      data_service_manager.register_data_service(remote_data_service)
   end
 
   def cmd_workspace_help
@@ -344,7 +379,7 @@ class Db
 
   def cmd_hosts(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  #::ActiveRecord::Base.connection_pool.with_connection {
     onlyup = false
     set_rhosts = false
     mode = []
@@ -355,7 +390,34 @@ class Db
     search_term = nil
 
     output = nil
-    default_columns = ::Mdm::Host.column_names.sort
+    default_columns = [
+        'address',
+        'arch',
+        'comm',
+        'comments',
+        'created_at',
+        'cred_count',
+        'detected_arch',
+        'exploit_attempt_count',
+        'host_detail_count',
+        'info',
+        'mac',
+        'name',
+        'note_count',
+        'os_family',
+        'os_flavor',
+        'os_lang',
+        'os_name',
+        'os_sp',
+        'purpose',
+        'scope',
+        'service_count',
+        'state',
+        'updated_at',
+        'virtual_host',
+        'vuln_count',
+        'workspace_id']
+    
     default_columns << 'tags' # Special case
     virtual_columns = [ 'svcs', 'vulns', 'workspace', 'tags' ]
 
@@ -504,8 +566,8 @@ class Db
           # Deal with the special cases
           if virtual_columns.include?(n)
             case n
-            when "svcs";      host.services.length
-            when "vulns";     host.vulns.length
+            when "svcs";      host.service_count
+            when "vulns";     host.vuln_count
             when "workspace"; host.workspace.name
             when "tags"
               found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
@@ -515,7 +577,7 @@ class Db
             end
           # Otherwise, it's just an attribute
           else
-            host.attributes[n] || ""
+            host[n] || ""
           end
         end
 
@@ -546,7 +608,7 @@ class Db
     set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 
     print_status("Deleted #{delete_count} hosts") if delete_count > 0
-  }
+  #}
   end
 
   def cmd_services_help

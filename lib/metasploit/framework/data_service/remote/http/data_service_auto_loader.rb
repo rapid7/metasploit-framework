@@ -1,0 +1,19 @@
+#
+# Autoloads specific remote data services
+#
+module DataServiceAutoLoader
+  autoload :RemoteHostDataService, 'metasploit/framework/data_service/remote/http/remote_host_data_service'
+  autoload :RemoteEventDataService, 'metasploit/framework/data_service/remote/http/remote_event_data_service'
+  autoload :RemoteNoteDataService, 'metasploit/framework/data_service/remote/http/remote_note_data_service'
+  autoload :RemoteWorkspaceDataService, 'metasploit/framework/data_service/remote/http/remote_workspace_data_service'
+  autoload :RemoteVulnDataService, 'metasploit/framework/data_service/remote/http/remote_vuln_data_service'
+  autoload :RemoteWebDataService, 'metasploit/framework/data_service/remote/http/remote_web_data_service'
+  autoload :RemoteServiceDataService, 'metasploit/framework/data_service/remote/http/remote_service_data_service'
+  include RemoteHostDataService
+  include RemoteEventDataService
+  include RemoteNoteDataService
+  include RemoteWorkspaceDataService
+  include RemoteVulnDataService
+  include RemoteWebDataService
+  include RemoteServiceDataService
+end

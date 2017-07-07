@@ -3,6 +3,9 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'thin'
+gem 'sinatra'
+gem 'ruby-prof'
 gem 'bit-struct', git: 'https://github.com/busterb/bit-struct', branch: 'ruby-2.4'
 gem 'method_source', git: 'https://github.com/banister/method_source', branch: 'master'
 
@@ -24,6 +27,8 @@ group :development do
   # metasploit-aggregator as a framework only option for now
   # Metasploit::Aggregator external session proxy
   gem 'metasploit-aggregator'
+
+  #gem 'rex-core', path: '/home/chlee/rapid7/rex-core'
 end
 
 group :development, :test do

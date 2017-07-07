@@ -33,4 +33,9 @@ module Msf::DBManager::Workspace
     ::Mdm::Workspace.order('updated_at asc').load
   }
   end
+
+  def get_workspace(opts)
+    workspace = opts.delete(:wspace) || opts.delete(:workspace) || workspace
+    find_workspace(workspace) if (workspace.is_a?(String))
+  end
 end

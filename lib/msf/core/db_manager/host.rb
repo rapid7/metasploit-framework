@@ -22,6 +22,9 @@ module Msf::DBManager::Host
 
   # Exactly like report_host but waits for the database to create a host and returns it.
   def find_or_create_host(opts)
+    host = get_host(opts)
+    return host unless host.nil?
+
     report_host(opts)
   end
 
@@ -57,11 +60,16 @@ module Msf::DBManager::Host
   end
 
   # Returns a list of all hosts in the database
-  def hosts(wspace = workspace, only_up = false, addresses = nil)
+  def hosts(opts)
+    wspace = opts[:workspace] || opts[:wspace] || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+
   ::ActiveRecord::Base.connection_pool.with_connection {
     conditions = {}
-    conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if only_up
-    conditions[:address] = addresses if addresses
+    conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
+    conditions[:address] = opts[:addresses] if opts[:addresses]
     wspace.hosts.where(conditions).order(:address)
   }
   end

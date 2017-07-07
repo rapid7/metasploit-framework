@@ -58,7 +58,7 @@ class Framework
   require 'msf/core/module_manager'
   require 'msf/core/session_manager'
   require 'msf/core/plugin_manager'
-  require 'msf/core/db_manager'
+  require 'metasploit/framework/data_service/proxy/core'
   require 'msf/core/event_dispatcher'
   require 'rex/json_hash_file'
 
@@ -189,13 +189,13 @@ class Framework
   #
   attr_reader   :browser_profiles
 
-  # The framework instance's db manager. The db manager
-  # maintains the database db and handles db events
   #
-  # @return [Msf::DBManager]
+  # The framework instance's data service proxy
+  #
+  # @return [Metasploit::Framework::DataService::DataProxy]
   def db
     synchronize {
-      @db ||= Msf::DBManager.new(self, options)
+      @db ||= Metasploit::Framework::DataService::DataProxy.instance
     }
   end
 
@@ -302,19 +302,19 @@ class FrameworkEventSubscriber
 
   include ::Msf::UiEventSubscriber
   ##
-  # :category: ::Msf::UiEventSubscriber implementors
+  # :category: ::Msf::Uips -ef | EventSubscriber implementors
   def on_ui_command(command)
-    if framework.db.active
-      report_event(:name => "ui_command", :info => {:command => command})
-    end
+    # if framework.db.active
+    #   report_event(:name => "ui_command", :info => {:command => command})
+    # end
   end
 
   ##
   # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_stop()
-    if framework.db.active
-      report_event(:name => "ui_stop")
-    end
+    # if framework.db.active
+    #   report_event(:name => "ui_stop")
+    # end
   end
 
   ##
