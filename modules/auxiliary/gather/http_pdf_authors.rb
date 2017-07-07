@@ -180,7 +180,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       progress(index + 1, urls.size)
     end
-    pdf_urls.uniq!
+    pdf_urls.uniq
   end
 
   def extract_authors urls
