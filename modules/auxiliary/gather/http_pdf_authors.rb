@@ -11,14 +11,15 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Gather PDF Authors',
       'Description' => %q{
-        This module takes a list of PDF URLs, downloads the PDFs,
-        and extracts the author's name from the document metadata.
+        This module downloads PDF files and extracts the author's
+        name from the document metadata.
       },
       'License'     => MSF_LICENSE,
       'Author'      => 'Brendan Coles <bcoles[at]gmail.com>'))
     register_options(
       [
-        OptPath.new('URL_LIST', [ true, 'File containing a list of PDF URLs to analyze', '' ]),
+        OptString.new('URL', [ false, 'The URL of a PDF to analyse', '' ]),
+        OptString.new('URL_LIST', [ false, 'File containing a list of PDF URLs to analyze', '' ]),
         OptString.new('OUTFILE', [ false, 'File to store output', '' ])
       ])
     register_advanced_options(
@@ -37,6 +38,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def load_urls
+    return [ datastore['URL'] ] unless datastore['URL'].to_s.eql? ''
+
+    if datastore['URL_LIST'].to_s.eql? ''
+      fail_with Failure::BadConfig, 'No URL(s) specified'
+    end
+
+    unless File.file? datastore['URL_LIST'].to_s
+      fail_with Failure::BadConfig, "File '#{datastore['URL_LIST']}' does not exit"
+    end
+
     File.open(datastore['URL_LIST'], 'rb') {|f| f.read}.split(/\r?\n/)
   end
 
@@ -77,6 +88,8 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       target = URI.parse url
+      raise 'Invalid URL' unless target.scheme =~ %r{https?}
+      raise 'Invalid URL' if target.host.to_s.eql? ''
     rescue => e
       print_error "Could not parse URL: #{e}"
       return
@@ -128,10 +141,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    unless File.file? datastore['URL_LIST']
-      fail_with Failure::BadConfig, "File '#{datastore['URL_LIST']}' does not exit"
-    end
-
     if datastore['PROXY']
       @proxysrv, @proxyport = datastore['PROXY'].split(':')
       @proxyuser = datastore['PROXY_USER']
