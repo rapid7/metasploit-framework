@@ -31,6 +31,7 @@ PATH
       packetfu
       patch_finder
       pcaprub
+      pdf-reader
       pg (= 0.20.0)
       railties
       rb-readline
@@ -69,6 +70,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    Ascii85 (1.0.2)
     actionpack (4.2.8)
       actionview (= 4.2.8)
       activesupport (= 4.2.8)
@@ -96,6 +98,7 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
+    afm (0.2.2)
     arel (6.0.4)
     arel-helpers (2.4.0)
       activerecord (>= 3.1.0, < 6)
@@ -166,6 +169,7 @@ GEM
     grpc (1.4.0)
       google-protobuf (~> 3.1)
       googleauth (~> 0.5.1)
+    hashery (2.1.2)
     i18n (0.8.4)
     jsobfu (0.4.2)
       rkelly-remix
@@ -236,6 +240,12 @@ GEM
       pcaprub
     patch_finder (1.0.2)
     pcaprub (0.12.4)
+    pdf-reader (2.0.0)
+      Ascii85 (~> 1.0.0)
+      afm (~> 0.2.1)
+      hashery (~> 2.0)
+      ruby-rc4
+      ttfunk
     pg (0.20.0)
     pg_array_parser (0.0.9)
     postgres_ext (3.0.0)
@@ -338,6 +348,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.6.0)
+    ruby-rc4 (0.1.5)
     ruby_smb (0.0.18)
       bindata
       rubyntlm
@@ -365,6 +376,7 @@ GEM
     thor (0.19.4)
     thread_safe (0.3.6)
     timecop (0.9.0)
+    ttfunk (1.5.1)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
     tzinfo-data (1.2017.2)

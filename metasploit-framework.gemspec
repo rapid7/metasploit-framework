@@ -112,6 +112,12 @@ Gem::Specification.new do |spec|
   end
 
   #
+  # File Parsing Libraries
+  #
+  # Needed by auxiliary/gather/http_pdf_authors module
+  spec.add_runtime_dependency 'pdf-reader'
+
+  #
   # Protocol Libraries
   #
   spec.add_runtime_dependency 'dnsruby'
