@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2017-7615'],
           ['EDB', '41890'],
           ['URL', 'https://mantisbt.org/bugs/view.php?id=22690']
-					['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
+                    ['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
         ],
       'Platform'     => ['win', 'linux'],
       'Privileged'   => false,
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('PASSWORD', [ false, 'The new password to set (blank for random)', '']),
           OptString.new('TARGETURI', [ true, 'Relative URI of MantisBT installation', '/'])
         ]
-			)
+      )
   end
 
   def check
