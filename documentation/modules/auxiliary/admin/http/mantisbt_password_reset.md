@@ -12,7 +12,7 @@ on
   4. Do: ```set rhost```
   5. Do: ```run```
   6. If the system is vulnerable, the module should tell you that the password
-     was successfulyl changed.
+     was successfully changed.
 
 ## Scenarios
 
