@@ -21,7 +21,9 @@ class MetasploitModule < Msf::Auxiliary
       'References'   =>
         [
           ['CVE', '2017-7615'],
+          ['EDB', '41890'],
           ['URL', 'https://mantisbt.org/bugs/view.php?id=22690']
+					['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
         ],
       'Platform'     => ['win', 'linux'],
       'Privileged'   => false,
