@@ -85,7 +85,12 @@ class MetasploitModule < Msf::Auxiliary
       password = datastore['PASSWORD']
     end
 
-    res.body =~ /<input type="hidden" name="account_update_token" value="([a-zA-Z0-9_-]+)"/
+    if res.body =~ /<input type="hidden" name="account_update_token" value="([a-zA-Z0-9_-]+)"/
+      token = $1
+    else
+      fail_with(Failure::UnexpectedReply, 'Could not retrieve account_update_token')
+    end
+
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, '/account_update.php'),
       'method' => 'POST',
