@@ -24,7 +24,9 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
-  if File.directory?(File.join(File.dirname(__FILE__), ".git"))
+  # only do a git ls-files if the .git folder exists and we have a git binary in PATH
+  if File.directory?(File.join(File.dirname(__FILE__), ".git")) &&
+      ENV['PATH'].split(':').collect {|d| Dir.entries d if Dir.exists? d}.flatten.include?("git")
     spec.files         = `git ls-files`.split($/).reject { |file|
       file =~ /^documentation|^external/
     }
