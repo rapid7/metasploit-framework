@@ -51,7 +51,7 @@ main:
   bne     $s0, $zero, failed
   sw      $v0, -4($sp) # store the file descriptor for the socket on the stack
 
-  # connect(sockfd, {sa_family=AF_INET, sin_port=htons(4444), sin_addr=inet_addr("192.168.172.1")}, 16)
+  # connect(sockfd, {sa_family=AF_INET, sin_port=htons(4444), sin_addr=inet_addr("127.0.0.1")}, 16)
   # a0: sockfd
   # a1: addr = AF_INET (2)
   # a2: addrlen = 16
