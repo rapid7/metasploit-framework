@@ -88,25 +88,8 @@ class MetasploitModule < Msf::Auxiliary
   def download(url)
     print_status "Downloading '#{url}'"
 
-    begin
-      target = URI.parse url
-      raise 'Invalid URL' unless target.scheme =~ %r{https?}
-      raise 'Invalid URL' if target.host.to_s.eql? ''
-    rescue => e
-      print_error "Could not parse URL: #{e}"
-      return
-    end
 
-    options = {
-      'rhost'  =>  target.host,
-      'rport'  => target.port,
-      'method' => 'GET',
-      'uri'    => target.request_uri
-    }
-
-    options['SSL'] = true if target.scheme.eql? 'https'
-
-    res = send_request_raw(options)
+    res = send_request_raw(request_options_from_url(url))
     disconnect
 
     print_status "HTTP #{res.code} -- Downloaded PDF (#{res.body.length} bytes)"
