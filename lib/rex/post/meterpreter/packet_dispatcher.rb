@@ -370,7 +370,7 @@ module PacketDispatcher
         backlog.each do |pkt|
 
           begin
-          if ! dispatch_inbound_packet(pkt)
+          unless dispatch_inbound_packet(pkt)
             # Keep Packets in the receive queue until a handler is registered
             # for them. Packets will live in the receive queue for up to
             # PACKET_TIMEOUT seconds, after which they will be dropped.
@@ -428,9 +428,10 @@ module PacketDispatcher
     packet = parser.recv(self.sock)
     if packet
       packet.from_r(self.tlv_enc_key)
-      if self.session_guid == '00000000-0000-0000-0000-000000000000'
-        parts = packet.session_guid.unpack('H*')[0]
-        self.session_guid = [parts[0, 8], parts[8, 4], parts[12, 4], parts[16, 4], parts[20, 12]].join('-')
+      if self.session_guid == "\x00" * 16
+        self.session_guid = packet.session_guid.dup
+      elsif self.session_guid != packet.session_guid
+        STDERR.puts("Incoming packet for other session: #{packet.inspect}\n")
       end
     end
     packet
@@ -440,12 +441,12 @@ module PacketDispatcher
   # Stop the monitor
   #
   def monitor_stop
-    if(self.receiver_thread)
+    if self.receiver_thread
       self.receiver_thread.kill
       self.receiver_thread = nil
     end
 
-    if(self.dispatcher_thread)
+    if self.dispatcher_thread
       self.dispatcher_thread.kill
       self.dispatcher_thread = nil
     end
@@ -519,10 +520,8 @@ module PacketDispatcher
 
     # If the packet is a response, try to notify any potential
     # waiters
-    if packet.response?
-      if (notify_response_waiter(packet))
-        return true
-      end
+    if packet.response? && notify_response_waiter(packet)
+      return true
     end
 
     # Enumerate all of the inbound packet handlers until one handles
