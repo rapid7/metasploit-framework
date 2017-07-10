@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_request_exploit(cli, req, target_info)
     print_target_info(cli, target_info)
-    send_not_found(cli)
+    send_response(cli, '')
   end
 
   def run
