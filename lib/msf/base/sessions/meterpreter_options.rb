@@ -54,8 +54,8 @@ module MeterpreterOptions
 
       # always make sure that the new session has a new guid if it's not already known
       guid = session.session_guid
-      if guid == '00000000-0000-0000-0000-000000000000'
-        guid = SecureRandom.uuid
+      if guid == "\x00" * 16
+        guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
         session.core.set_session_guid(guid)
         session.session_guid = guid
         # TODO: New stageless session, do some account in the DB so we can track it later.

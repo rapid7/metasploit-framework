@@ -12,6 +12,7 @@ require 'rex/post/meterpreter/object_aliases'
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/packet_parser'
 require 'rex/post/meterpreter/packet_dispatcher'
+require 'rex/post/meterpreter/pivot_container'
 
 module Rex
 module Post
@@ -131,7 +132,7 @@ class Client
     self.encode_unicode = false
 
     self.aes_key      = nil
-    self.session_guid = '00000000-0000-0000-0000-000000000000'
+    self.session_guid = "\x00" * 16
 
     # The SSL certificate is being passed down as a file path
     if opts[:ssl_cert]
@@ -153,6 +154,7 @@ class Client
 
       # Register the channel inbound packet handler
       register_inbound_handler(Rex::Post::Meterpreter::Channel)
+      register_inbound_handler(Rex::Post::Meterpreter::PivotContainer)
     else
       # Switch the socket to SSL mode and receive the hello if needed
       if capabilities[:ssl] and not opts[:skip_ssl]
@@ -166,6 +168,7 @@ class Client
 
       # Register the channel inbound packet handler
       register_inbound_handler(Rex::Post::Meterpreter::Channel)
+      register_inbound_handler(Rex::Post::Meterpreter::PivotContainer)
 
       monitor_socket
     end

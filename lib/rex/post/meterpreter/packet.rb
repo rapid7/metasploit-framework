@@ -114,6 +114,14 @@ TLV_TYPE_SYM_KEY             = TLV_META_TYPE_RAW    | 552
 TLV_TYPE_ENC_SYM_KEY         = TLV_META_TYPE_RAW    | 553
 
 #
+# Pivots
+#
+TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  650
+TLV_TYPE_PIVOT_STAGE_DATA_SIZE = TLV_META_TYPE_UINT   |  651
+TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  652
+
+
+#
 # Core flags
 #
 LOAD_LIBRARY_FLAG_ON_DISK   = (1 << 0)
@@ -786,7 +794,7 @@ class Packet < GroupTlv
   def to_r(session_guid = nil, key = nil)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
-    raw = [(session_guid || '00' * SESSION_GUID_SIZE).gsub(/-/, '')].pack('H*')
+    raw = session_guid.dup
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
     if key && key[:key] && key[:type] == ENC_FLAG_AES256
