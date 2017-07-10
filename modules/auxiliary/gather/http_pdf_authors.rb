@@ -7,6 +7,8 @@ require 'pdf-reader'
 
 class MetasploitModule < Msf::Auxiliary
 
+  include Msf::Exploit::Remote::HttpClient
+
   def initialize(info = {})
     super(update_info(info,
       'Name'        => 'Gather PDF Authors',
@@ -95,34 +97,21 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    clnt = Net::HTTP::Proxy(@proxysrv, @proxyport, @proxyuser, @proxypass).new(target.host, target.port)
-
-    if target.scheme.eql? 'https'
-      clnt.use_ssl = true
-      clnt.verify_mode = datastore['SSL_VERIFY'] ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
-    end
-
-    headers = {
-      'User-Agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13'
+    options = {
+      'rhost'  =>  target.host,
+      'rport'  => target.port,
+      'method' => 'GET',
+      'uri'    => target.request_uri
     }
 
-    begin
-      res = clnt.get2 target.request_uri, headers
-    rescue => e
-      print_error "Connection failed: #{e}"
-      return
-    end
+    options['SSL'] = true if target.scheme.eql? 'https'
 
-    unless res
-      print_error 'Connection failed'
-      return
-    end
+    res = send_request_raw(options)
+    disconnect
 
     print_status "HTTP #{res.code} -- Downloaded PDF (#{res.body.length} bytes)"
 
-    contents = StringIO.new
-    contents.puts res.body
-    contents
+    return res.code == 200 ? StringIO.new(res.body) : StringIO.new
   end
 
   def write_output(data)
@@ -141,13 +130,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['PROXY']
-      @proxysrv, @proxyport = datastore['PROXY'].split(':')
-      @proxyuser = datastore['PROXY_USER']
-      @proxypass = datastore['PROXY_PASS']
-    else
-      @proxysrv, @proxyport = nil, nil
-    end
 
     urls = load_urls
     print_status "Processing #{urls.size} URLs..."
