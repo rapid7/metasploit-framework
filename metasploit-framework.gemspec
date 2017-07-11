@@ -184,4 +184,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
   spec.add_runtime_dependency 'xdr'
+  # Needed for the xpath
+  spec.add_runtime_dependency 'xpath', '2.0'
 end
