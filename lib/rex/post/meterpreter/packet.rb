@@ -116,9 +116,10 @@ TLV_TYPE_ENC_SYM_KEY         = TLV_META_TYPE_RAW    | 553
 #
 # Pivots
 #
-TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  650
-TLV_TYPE_PIVOT_STAGE_DATA_SIZE = TLV_META_TYPE_UINT   |  651
-TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  652
+TLV_TYPE_PIVOT_ID              = TLV_META_TYPE_RAW    |  650
+TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  651
+TLV_TYPE_PIVOT_STAGE_DATA_SIZE = TLV_META_TYPE_UINT   |  652
+TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  653
 
 
 #
@@ -632,6 +633,8 @@ class Packet < GroupTlv
   attr_accessor :created_at
   attr_accessor :raw
   attr_accessor :session_guid
+  attr_accessor :encrypt_flags
+  attr_accessor :length
 
   ##
   #
@@ -825,6 +828,14 @@ class Packet < GroupTlv
     end
   end
 
+  def parse_header!
+    xor_key = self.raw.unpack('A4')[0]
+    data = xor_bytes(xor_key, self.raw[0..PACKET_HEADER_SIZE])
+    STDERR.puts("extracting header values\n")
+    _, self.session_guid, self.encrypt_flags, self.length, self.type = data.unpack('a4a16NNN')
+    STDERR.puts("extracted header values\n")
+  end
+
   #
   # Override the function that reads from a raw byte stream so
   # that the XORing of data is included in the process prior to
@@ -832,11 +843,11 @@ class Packet < GroupTlv
   # the TLV values.
   #
   def from_r(key=nil)
+    self.parse_header!
     xor_key = self.raw.unpack('a4')[0]
-    data = xor_bytes(xor_key, self.raw)
-    _, self.session_guid, encrypt_flags, length, type = data.unpack('a4a16NNN')
-    raw = decrypt_packet(key, encrypt_flags, data[PACKET_HEADER_SIZE..-1])
-    super([length, type, raw].pack('NNA*'))
+    data = xor_bytes(xor_key, self.raw[PACKET_HEADER_SIZE..-1])
+    raw = decrypt_packet(key, self.encrypt_flags, data)
+    super([self.length, self.type, raw].pack('NNA*'))
   end
 
   #

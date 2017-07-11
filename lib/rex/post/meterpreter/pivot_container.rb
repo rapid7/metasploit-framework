@@ -1,47 +1,68 @@
-
 # -*- coding: binary -*-
-
-require 'rex/post/meterpreter/inbound_packet_handler'
 
 module Rex
 module Post
 module Meterpreter
 
-class PivotContainer
+###
+#
+# This interface is meant to be included by things that are meant to contain
+# zero or more pivot instances in the form of a hash.
+#
+###
+module PivotContainer
 
-  # Class modifications to support global pivot message
-  # dispatching without having to register a per-instance handler
-  class << self
-    include Rex::Post::Meterpreter::InboundPacketHandler
-
-    # Class request handler for all channels that dispatches requests
-    # to the appropriate class instance's DIO handler
-    def request_handler(client, packet)
-      if packet.method == 'core_pivot_new'
-        STDERR.puts("Received pivot packet! #{packet.inspect}\n")
-      end
-      true
-    end
-  end
-
-  def initialize(client)
-    self.client = client
+  #
+  # Initializes the pivot association hash
+  #
+  def initialize_pivots
+    self.pivots = {}
+    self.pivot_listeners = {}
   end
 
   #
-  # The associated meterpreter client instance
+  # Adds a pivot to the container that is indexed by the pivoted
+  # session guid.
   #
-  attr_accessor :client
+  def add_pivot(pivot)
+    self.pivots[pivot.pivot_session_guid] = pivot
+  end
+
+  def add_pivot_listener(listener)
+    self.pivot_listeners[listener.id] = listener
+  end
+
+  #
+  # Looks up a pivot instance based on its pivoted session guid.
+  #
+  def find_pivot(pivot_session_guid)
+    return self.pivots[pivot_session_guid]
+  end
+
+  def find_pivot_listener(listener_id)
+    return self.pivot_listeners[listener_id]
+  end
+
+  #
+  # Removes a pivot based on its pivoted session guid.
+  #
+  def remove_pivot(pivot_session_guid)
+    return self.pivots.delete(pivot_session_guid)
+  end
+
+  #
+  # The hash of pivots.
+  #
+  attr_reader :pivots
+
+  attr_reader :pivot_listeners
 
 protected
 
-  #
-  # Cleans up any lingering resources
-  #
-  def cleanup
-  end
+  attr_writer :pivots # :nodoc:
+
+  attr_writer :pivot_listeners # :nodoc:
 
 end
 
 end; end; end
-

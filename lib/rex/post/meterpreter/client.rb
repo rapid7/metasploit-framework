@@ -12,6 +12,7 @@ require 'rex/post/meterpreter/object_aliases'
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/packet_parser'
 require 'rex/post/meterpreter/packet_dispatcher'
+require 'rex/post/meterpreter/pivot'
 require 'rex/post/meterpreter/pivot_container'
 
 module Rex
@@ -36,6 +37,7 @@ class Client
 
   include Rex::Post::Meterpreter::PacketDispatcher
   include Rex::Post::Meterpreter::ChannelContainer
+  include Rex::Post::Meterpreter::PivotContainer
 
   #
   # Extension name to class hash.
@@ -123,6 +125,7 @@ class Client
     self.retry_total  = opts[:retry_total]
     self.retry_wait   = opts[:retry_wait]
     self.passive_dispatcher = opts[:passive_dispatcher]
+    self.pivot_session = opts[:pivot_session]
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
     self.send_keepalives  = true
@@ -132,7 +135,7 @@ class Client
     self.encode_unicode = false
 
     self.aes_key      = nil
-    self.session_guid = "\x00" * 16
+    self.session_guid = opts[:session_guid] || "\x00" * 16
 
     # The SSL certificate is being passed down as a file path
     if opts[:ssl_cert]
@@ -144,33 +147,20 @@ class Client
       end
     end
 
-    if opts[:passive_dispatcher]
-      initialize_passive_dispatcher
+    initialize_passive_dispatcher if opts[:passive_dispatcher]
 
-      register_extension_alias('core', ClientCore.new(self))
+    register_extension_alias('core', ClientCore.new(self))
 
-      initialize_inbound_handlers
-      initialize_channels
+    initialize_inbound_handlers
+    initialize_channels
+    initialize_pivots
 
-      # Register the channel inbound packet handler
-      register_inbound_handler(Rex::Post::Meterpreter::Channel)
-      register_inbound_handler(Rex::Post::Meterpreter::PivotContainer)
-    else
-      # Switch the socket to SSL mode and receive the hello if needed
-      if capabilities[:ssl] and not opts[:skip_ssl]
-        swap_sock_plain_to_ssl()
-      end
+    # Register the channel and pivot inbound packet handlers
+    register_inbound_handler(Rex::Post::Meterpreter::Channel)
+    register_inbound_handler(Rex::Post::Meterpreter::Pivot)
 
-      register_extension_alias('core', ClientCore.new(self))
-
-      initialize_inbound_handlers
-      initialize_channels
-
-      # Register the channel inbound packet handler
-      register_inbound_handler(Rex::Post::Meterpreter::Channel)
-      register_inbound_handler(Rex::Post::Meterpreter::PivotContainer)
-
-      monitor_socket
+    unless opts[:passive_dispatcher] || opts[:pivot_session]
+      monitor_socket 
     end
   end
 
@@ -480,6 +470,10 @@ class Client
   # The Passive Dispatcher
   #
   attr_accessor :passive_dispatcher
+  #
+  # Reference to a session to pivot through
+  #
+  attr_accessor :pivot_session
   #
   # Flag indicating whether to hex-encode UTF-8 file names and other strings
   #

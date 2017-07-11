@@ -137,7 +137,7 @@ module PacketDispatcher
       if req.body and req.body.length > 0
         packet = Packet.new(0)
         packet.add_raw(req.body)
-        packet.from_r(self.tlv_enc_key)
+        packet.parse_header!
         dispatch_inbound_packet(packet)
       end
       cli.send_response(resp)
@@ -157,13 +157,22 @@ module PacketDispatcher
   #
   # Sends a packet without waiting for a response.
   #
-  def send_packet(packet, completion_routine = nil, completion_param = nil)
-    if (completion_routine)
-      add_response_waiter(packet, completion_routine, completion_param)
+  def send_packet(packet, opts={})
+    if self.pivot_session
+      opts[:session_guid] = self.session_guid
+      opts[:tlv_enc_key] = self.tlv_enc_key
+      return self.pivot_session.send_packet(packet, opts)
     end
 
+    if opts[:completion_routine]
+      add_response_waiter(packet, opts[:completion_routine], opts[:completion_param])
+    end
+
+    session_guid = opts[:session_guid] || self.session_guid
+    tlv_enc_key = opts[:tlv_enc_key] || self.tlv_enc_key
+
     bytes = 0
-    raw   = packet.to_r(self.session_guid, self.tlv_enc_key)
+    raw   = packet.to_r(session_guid, tlv_enc_key)
     err   = nil
 
     # Short-circuit send when using a passive dispatcher
@@ -244,7 +253,9 @@ module PacketDispatcher
     end
 
     # Wait for the supplied time interval
+    STDERR.puts("Waiting for the response: #{waiter.inspect}\n")
     response = waiter.wait(timeout)
+    STDERR.puts("Response found\n")
 
     # Remove the waiter from the list of waiters in case it wasn't
     # removed. This happens if the waiter timed out above.
@@ -427,11 +438,11 @@ module PacketDispatcher
   def receive_packet
     packet = parser.recv(self.sock)
     if packet
-      packet.from_r(self.tlv_enc_key)
+      STDERR.puts("here!\n")
+      packet.parse_header!
+      STDERR.puts("Packet: #{packet.inspect}\n")
       if self.session_guid == "\x00" * 16
         self.session_guid = packet.session_guid.dup
-      elsif self.session_guid != packet.session_guid
-        STDERR.puts("Incoming packet for other session: #{packet.inspect}\n")
       end
     end
     packet
@@ -462,6 +473,10 @@ module PacketDispatcher
   # Adds a waiter association with the supplied request packet.
   #
   def add_response_waiter(request, completion_routine = nil, completion_param = nil)
+    if self.pivot_session
+      return self.pivot_session.add_response_waiter(request, completion_routine, completion_param)
+    end
+
     waiter = PacketResponseWaiter.new(request.rid, completion_routine, completion_param)
 
     self.waiters << waiter
@@ -474,6 +489,10 @@ module PacketDispatcher
   # if anyone.
   #
   def notify_response_waiter(response)
+    if self.pivot_session
+      return self.pivot_session.notify_response_waiter(response)
+    end
+
     handled = false
     self.waiters.each() { |waiter|
       if (waiter.waiting_for?(response))
@@ -490,7 +509,11 @@ module PacketDispatcher
   # Removes a waiter from the list of waiters.
   #
   def remove_response_waiter(waiter)
-    self.waiters.delete(waiter)
+    if self.pivot_session
+      self.pivot_session.remove_response_waiter(waiter)
+    else
+      self.waiters.delete(waiter)
+    end
   end
 
   ##
@@ -514,6 +537,12 @@ module PacketDispatcher
   #
   def dispatch_inbound_packet(packet)
     handled = false
+
+    pivot = self.find_pivot(packet.session_guid)
+
+    pivot.dispatch_inbound_packet(packet) if pivot
+
+    packet.from_r(self.tlv_enc_key)
 
     # Update our last reply time
     self.last_checkin = Time.now
