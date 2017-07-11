@@ -86,12 +86,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def download(url)
-    print_status "Downloading '#{url}'"
+    print_status "Downloading PDF from '#{url}'"
 
-
-    res = send_request_raw(request_options_from_url(url))
-    disconnect
-
+    res = request_url(url)
     print_status "HTTP #{res.code} -- Downloaded PDF (#{res.body.length} bytes)"
 
     return res.code == 200 ? StringIO.new(res.body) : StringIO.new
