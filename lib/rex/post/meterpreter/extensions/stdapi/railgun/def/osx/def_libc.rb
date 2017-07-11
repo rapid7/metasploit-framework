@@ -7,9 +7,9 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_linux_libc
+class Def_osx_libc
 
-  def self.create_library(constant_manager, library_path = 'libc.so.6')
+  def self.create_library(constant_manager, library_path = 'libc.dylib')
     lib = Library.new(library_path, constant_manager)
 
     lib.add_function(
@@ -18,6 +18,25 @@ class Def_linux_libc
       [
         ['SIZE_T', 'nmemb', 'in'],
         ['SIZE_T', 'size', 'in']
+      ],
+      nil,
+      'cdecl'
+    )
+    lib.add_function(
+      'dlclose',
+      'DWORD',
+      [
+        ['LPVOID', 'handle', 'in']
+      ],
+      nil,
+      'cdecl'
+    )
+    lib.add_function(
+      'dlopen',
+      'LPVOID',
+      [
+        ['PCHAR', 'filename', 'in'],
+        ['DWORD', 'flags', 'in']
       ],
       nil,
       'cdecl'
@@ -65,16 +84,6 @@ class Def_linux_libc
       'malloc',
       'LPVOID',
       [['SIZE_T', 'size', 'in']],
-      nil,
-      'cdecl'
-    )
-    lib.add_function(
-      'memfrob',
-      'LPVOID',
-      [
-        ['PBLOB', 'mem', 'inout'],
-        ['SIZE_T', 'length', 'in']
-      ],
       nil,
       'cdecl'
     )

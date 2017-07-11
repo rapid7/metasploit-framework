@@ -5,11 +5,12 @@ module Meterpreter
 module Extensions
 module Stdapi
 module Railgun
-class DLLWrapper
-  attr_reader :_client, :_dll
 
-  def initialize(dll, client)
-    @_dll    = dll
+class LibraryWrapper
+  attr_reader :_client, :_library
+
+  def initialize(library, client)
+    @_library    = library
     @_client = client
   end
 
@@ -17,11 +18,12 @@ class DLLWrapper
   # XXX: Depricate this
   def functions
     # warn 'Depricated.'
-    _dll.functions
+    _library.functions
   end
 
   def method_missing(sym, *args)
-    _dll.call_function(sym, args, _client)
+    _library.call_function(sym, args, _client)
   end
 end
+
 end; end; end; end; end; end

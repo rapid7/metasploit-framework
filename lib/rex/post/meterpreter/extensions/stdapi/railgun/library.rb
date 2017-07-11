@@ -23,8 +23,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_function'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_function'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_helper'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 require 'rex/post/meterpreter/packet'
@@ -37,19 +37,19 @@ module Stdapi
 module Railgun
 
 #
-# Represents a DLL, e.g. kernel32.dll
+# Represents a library, e.g. kernel32.dll
 #
-class DLL
+class Library
 
-  include DLLHelper
+  include LibraryHelper
 
   attr_accessor :functions
-  attr_reader   :dll_path
+  attr_reader   :library_path
 
-  def initialize(dll_path, consts_mgr)
-    @dll_path = dll_path
+  def initialize(library_path, consts_mgr)
+    @library_path = library_path
 
-    # needed by DLLHelper
+    # needed by LibraryHelper
     @consts_mgr = consts_mgr
 
     self.functions = {}
@@ -64,28 +64,30 @@ class DLL
   end
 
   #
-  # Perform a function call in this DLL on the remote system.
+  # Perform a function call in this library on the remote system.
   #
   # Returns a Hash containing the return value, the result of GetLastError(),
   # and any +inout+ parameters.
   #
-  # Raises an exception if +func_symbol+ is not a known function in this DLL,
+  # Raises an exception if +function+ is not a known function in this library,
   # i.e., it hasn't been defined in a Def.
   #
-  def call_function(func_symbol, args, client)
-    func_name = func_symbol.to_s
+  def call_function(function, args, client)
+    unless function.instance_of? LibraryFunction
+      func_name = function.to_s
 
-    unless known_function_names.include? func_name
-      raise "DLL-function #{func_name} not found. Known functions: #{PP.pp(known_function_names, '')}"
+      unless known_function_names.include? func_name
+        raise "Library-function #{func_name} not found. Known functions: #{PP.pp(known_function_names, '')}"
+      end
+
+      function = get_function(func_name)
     end
-
-    function = get_function(func_name)
 
     return process_function_call(function, args, client)
   end
 
   #
-  # Define a function for this DLL.
+  # Define a function for this library.
   #
   # Every function argument is described by a tuple (type,name,direction)
   #
@@ -107,11 +109,11 @@ class DLL
   # When the new function is called it will return a list containing the
   # return value and all inout params.  See #call_function.
   #
-  def add_function(name, return_type, params, remote_name=nil, calling_conv="stdcall")
+  def add_function(name, return_type, params, remote_name=nil, calling_conv='stdcall')
     if remote_name == nil
       remote_name = name
     end
-    @functions[name] = DLLFunction.new(return_type, params, remote_name, calling_conv)
+    @functions[name] = LibraryFunction.new(return_type, params, remote_name, calling_conv)
   end
 
   private
@@ -146,12 +148,12 @@ class DLL
       end
 
       # we care only about out-only buffers
-      if param_desc[2] == "out"
+      if param_desc[2] == 'out'
         if !args[param_idx].kind_of? Integer
           raise "error in param #{param_desc[1]}: Out-only buffers must be described by a number indicating their size in bytes"
         end
         buffer_size = args[param_idx]
-        if param_desc[0] == "PDWORD"
+        if param_desc[0] == 'PDWORD'
           # bump up the size for an x64 pointer
           if native == 'Q<' && buffer_size == 4
             args[param_idx] = 8
@@ -174,11 +176,11 @@ class DLL
       end
     end
 
-    tmp = assemble_buffer("in", function, args)
+    tmp = assemble_buffer('in', function, args)
     in_only_layout = tmp[0]
     in_only_buffer = tmp[1]
 
-    tmp = assemble_buffer("inout", function, args)
+    tmp = assemble_buffer('inout', function, args)
     inout_layout = tmp[0]
     inout_buffer = tmp[1]
 
@@ -197,41 +199,41 @@ class DLL
       #puts "  processing (#{param_desc[0]}, #{param_desc[1]}, #{param_desc[2]})"
       buffer = nil
       # is it a pointer to a buffer on our stack
-      if ["PDWORD", "PWCHAR", "PCHAR", "PBLOB"].include? param_desc[0]
-        #puts "   pointer"
+      if ['PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
+        #puts '   pointer'
         if args[param_idx] == nil # null pointer?
-          buffer  = [0].pack(native) # type: DWORD  (so the dll does not rebase it)
+          buffer  = [0].pack(native) # type: DWORD  (so the library does not rebase it)
           buffer += [0].pack(native) # value: 0
-        elsif param_desc[2] == "in"
+        elsif param_desc[2] == 'in'
           buffer  = [1].pack(native)
           buffer += [in_only_layout[param_desc[1]].addr].pack(native)
-        elsif param_desc[2] == "out"
+        elsif param_desc[2] == 'out'
           buffer  = [2].pack(native)
           buffer += [out_only_layout[param_desc[1]].addr].pack(native)
-        elsif param_desc[2] == "inout"
+        elsif param_desc[2] == 'inout'
           buffer  = [3].pack(native)
           buffer += [inout_layout[param_desc[1]].addr].pack(native)
         else
-          raise "unexpected direction"
+          raise 'unexpected direction'
         end
       else
         #puts "   not a pointer"
         # it's not a pointer (LPVOID is a pointer but is not backed by railgun memory, ala PBLOB)
         buffer = [0].pack(native)
         case param_desc[0]
-          when "LPVOID", "HANDLE", "SIZE_T"
+          when 'LPVOID', 'HANDLE', 'SIZE_T'
             num     = param_to_number(args[param_idx])
             buffer += [num].pack(native)
-          when "DWORD"
+          when 'DWORD'
             num     = param_to_number(args[param_idx])
             buffer += [num % 4294967296].pack(native)
-          when "WORD"
+          when 'WORD'
             num     = param_to_number(args[param_idx])
             buffer += [num % 65536].pack(native)
-          when "BYTE"
+          when 'BYTE'
             num     = param_to_number(args[param_idx])
             buffer += [num % 256].pack(native)
-          when "BOOL"
+          when 'BOOL'
             case args[param_idx]
               when true
                 buffer += [1].pack(native)
@@ -259,7 +261,7 @@ class DLL
     request.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_IN, in_only_buffer)
     request.add_tlv(TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT, inout_buffer)
 
-    request.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, @dll_path)
+    request.add_tlv(TLV_TYPE_RAILGUN_LIBNAME, @library_path)
     request.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.remote_name)
     request.add_tlv(TLV_TYPE_RAILGUN_CALLCONV, function.calling_conv)
 
@@ -285,28 +287,28 @@ class DLL
 
     # The hash the function returns
     return_hash = {
-      "GetLastError" => rec_last_error,
-      "ErrorMessage" => rec_err_msg
+      'GetLastError' => rec_last_error,
+      'ErrorMessage' => rec_err_msg
     }
 
     #process return value
     case function.return_type
-      when "LPVOID", "HANDLE"
+      when 'LPVOID', 'HANDLE'
         if( native == 'Q<' )
-          return_hash["return"] = rec_return_value
+          return_hash['return'] = rec_return_value
         else
-          return_hash["return"] = rec_return_value % 4294967296
+          return_hash['return'] = rec_return_value % 4294967296
         end
-      when "DWORD"
-        return_hash["return"] = rec_return_value % 4294967296
-      when "WORD"
-        return_hash["return"] = rec_return_value % 65536
-      when "BYTE"
-        return_hash["return"] = rec_return_value % 256
-      when "BOOL"
-        return_hash["return"] = (rec_return_value != 0)
-      when "VOID"
-        return_hash["return"] = nil
+      when 'DWORD'
+        return_hash['return'] = rec_return_value % 4294967296
+      when 'WORD'
+        return_hash['return'] = rec_return_value % 65536
+      when 'BYTE'
+        return_hash['return'] = rec_return_value % 256
+      when 'BOOL'
+        return_hash['return'] = (rec_return_value != 0)
+      when 'VOID'
+        return_hash['return'] = nil
       else
         raise "unexpected return type: #{function.return_type}"
     end
@@ -321,16 +323,16 @@ class DLL
       #puts "   #{param_name}"
       buffer = rec_out_only_buffers[buffer_item.addr, buffer_item.length_in_bytes]
       case buffer_item.datatype
-        when "PDWORD"
+        when 'PDWORD'
           # PDWORD is treated as a POINTER
           return_hash[param_name] = buffer.unpack(native).first
           # If PDWORD is treated correctly as a DWORD
           return_hash[param_name] = buffer.unpack('V').first if return_hash[param_name].nil?
-        when "PCHAR"
+        when 'PCHAR'
           return_hash[param_name] = asciiz_to_str(buffer)
-        when "PWCHAR"
+        when 'PWCHAR'
           return_hash[param_name] = uniz_to_str(buffer)
-        when "PBLOB"
+        when 'PBLOB'
           return_hash[param_name] = buffer
         else
           raise "unexpected type in out-only buffer of #{param_name}: #{buffer_item.datatype}"
@@ -344,16 +346,16 @@ class DLL
       #puts "   #{param_name}"
       buffer = rec_inout_buffers[buffer_item.addr, buffer_item.length_in_bytes]
       case buffer_item.datatype
-        when "PDWORD"
+        when 'PDWORD'
           # PDWORD is treated as a POINTER
           return_hash[param_name] = buffer.unpack(native).first
           # If PDWORD is treated correctly as a DWORD
           return_hash[param_name] = buffer.unpack('V').first if return_hash[param_name].nil?
-        when "PCHAR"
+        when 'PCHAR'
           return_hash[param_name] = asciiz_to_str(buffer)
-        when "PWCHAR"
+        when 'PWCHAR'
           return_hash[param_name] = uniz_to_str(buffer)
-        when "PBLOB"
+        when 'PBLOB'
           return_hash[param_name] = buffer
         else
           raise "unexpected type in in-out-buffer of #{param_name}: #{buffer_item.datatype}"
@@ -369,14 +371,14 @@ class DLL
 #			:name => '#{function.remote_name}',
 #			:params => #{function.params},
 #			:return_type => '#{function.return_type}',
-#			:dll_name => '#{@dll_path}',
+#			:library_name => '#{@library_path}',
 #			:ruby_args => #{args.inspect},
 #			:request_to_client => {
 #				TLV_TYPE_RAILGUN_SIZE_OUT => #{out_only_size_bytes},
 #				TLV_TYPE_RAILGUN_STACKBLOB => #{literal_pairs_blob.inspect},
 #				TLV_TYPE_RAILGUN_BUFFERBLOB_IN => #{in_only_buffer.inspect},
 #				TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT => #{inout_buffer.inspect},
-#				TLV_TYPE_RAILGUN_DLLNAME => '#{@dll_path}',
+#				TLV_TYPE_RAILGUN_LIBNAME => '#{@library_path}',
 #				TLV_TYPE_RAILGUN_FUNCNAME => '#{function.remote_name}',
 #			},
 #			:response_from_client => {

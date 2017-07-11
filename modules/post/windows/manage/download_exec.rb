@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
 
   def add_railgun_urlmon
 
-    if client.railgun.dlls.find_all {|d| d.first == 'urlmon'}.empty?
+    if client.railgun.libraries.find_all {|d| d.first == 'urlmon'}.empty?
       session.railgun.add_dll('urlmon','urlmon')
       session.railgun.add_function(
         'urlmon', 'URLDownloadToFileW', 'DWORD',
