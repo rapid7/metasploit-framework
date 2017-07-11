@@ -11,15 +11,32 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Gather PDF Authors',
       'Description' => %q{
-        This module downloads PDF files and extracts the author's
+        This module downloads PDF documents and extracts the author's
         name from the document metadata.
+
+        This module expects a URL to be provided using the URL option.
+        Alternatively, multiple URLs can be provided by supplying the
+        path to a file containing a list of URLs in the URL_LIST option.
+
+        The URL_TYPE option is used to specify the type of URLs supplied.
+
+        By specifying 'pdf' for the URL_TYPE, the module will treat
+        the specified URL(s) as PDF documents. The module will
+        download the documents and extract the author's name from the
+        document metadata.
+
+        By specifying 'html' for the URL_TYPE, the module will treat
+        the specified URL(s) as HTML pages. The module will scrape the
+        pages for links to PDF documents, download the PDF documents,
+        and extract the author's name from the document metadata.
       },
       'License'     => MSF_LICENSE,
       'Author'      => 'Brendan Coles <bcoles[at]gmail.com>'))
     register_options(
       [
-        OptString.new('URL', [ false, 'The URL of a PDF to analyse', '' ]),
-        OptString.new('URL_LIST', [ false, 'File containing a list of PDF URLs to analyze', '' ]),
+        OptString.new('URL', [ false, 'The target URL', '' ]),
+        OptString.new('URL_LIST', [ false, 'File containing a list of target URLs', '' ]),
+        OptEnum.new('URL_TYPE', [ true, 'The type of URL(s) specified', 'html', [ 'pdf', 'html' ] ]),
         OptString.new('OUTFILE', [ false, 'File to store output', '' ])
       ])
     register_advanced_options(
@@ -118,26 +135,9 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status "HTTP #{res.code} -- Downloaded PDF (#{res.body.length} bytes)"
+    print_status "- HTTP #{res.code} - #{res.body.length} bytes"
 
-    contents = StringIO.new
-    contents.puts res.body
-    contents
-  end
-
-  def write_output(data)
-    return if datastore['OUTFILE'].to_s.eql? ''
-
-    print_status "Writing data to #{datastore['OUTFILE']}..."
-    file_name = datastore['OUTFILE']
-
-    if FileTest::exist?(file_name)
-      print_status 'OUTFILE already exists, appending..'
-    end
-
-    File.open(file_name, 'ab') do |fd|
-      fd.write(data)
-    end
+    res.body
   end
 
   def run
@@ -150,14 +150,50 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     urls = load_urls
+    if datastore['URL_TYPE'].eql? 'html'
+      urls = extract_pdf_links urls
+
+      if urls.empty?
+        print_error 'Found no links to PDF files'
+        return
+      end
+
+      print_line
+      print_good "Found links to #{urls.size} PDF files:"
+      print_line urls.join "\n"
+      print_line
+    end
+
+    extract_authors urls
+  end
+
+  def extract_pdf_links urls
+    print_status "Processing #{urls.size} URLs..."
+    pdf_urls = []
+    urls.each_with_index do |url, index|
+      next if url.blank?
+      html = download url
+      next if html.blank?
+      doc = Nokogiri::HTML html
+      doc.search('a[href]').select { |n| n['href'][/(\.pdf$|\.pdf\?)/] }.map do |n|
+        pdf_urls << URI.join( url, n['href'] ).to_s
+      end
+      progress(index + 1, urls.size)
+    end
+    pdf_urls.uniq
+  end
+
+  def extract_authors urls
     print_status "Processing #{urls.size} URLs..."
     authors = []
     max_len = 256
     urls.each_with_index do |url, index|
       next if url.blank?
-      contents = download url
-      next if contents.blank?
-      author = read contents
+      file = download url
+      next if file.blank?
+      pdf = StringIO.new
+      pdf.puts file
+      author = read pdf
       unless author.blank?
         print_good "PDF Author: #{author}"
         if author.length > max_len
@@ -169,6 +205,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       progress(index + 1, urls.size)
     end
+    authors.uniq!
 
     print_line
 
@@ -179,5 +216,20 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good "Found #{authors.size} authors: #{authors.join ', '}"
     write_output authors.join "\n"
+  end
+
+  def write_output(data)
+    file_name = datastore['OUTFILE'].to_s
+    return if file_name.eql? ''
+
+    print_status "Writing data to #{file_name}..."
+
+    if FileTest::exist? file_name
+      print_status 'OUTFILE already exists, appending..'
+    end
+
+    File.open(file_name, 'ab') do |fd|
+      fd.write data
+    end
   end
 end
