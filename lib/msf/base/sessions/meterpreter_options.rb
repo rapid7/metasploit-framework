@@ -33,17 +33,22 @@ module MeterpreterOptions
   def on_session(session)
     super
 
+    STDERR.puts("meterpreter options on_session\n")
+
     # Defer the session initialization to the Session Manager scheduler
     framework.sessions.schedule Proc.new {
 
+    STDERR.puts("meterpreter options on_session proc running 1\n")
     # Configure unicode encoding before loading stdapi
     session.encode_unicode = datastore['EnableUnicodeEncoding']
 
     session.init_ui(self.user_input, self.user_output)
+    STDERR.puts("meterpreter options on_session proc running 2\n")
 
     valid = true
 
     session.tlv_enc_key = session.core.negotiate_tlv_encryption
+    STDERR.puts("meterpreter options on_session proc running 3\n")
 
     if datastore['AutoVerifySession']
       if not session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
@@ -52,8 +57,10 @@ module MeterpreterOptions
       end
     end
 
+    STDERR.puts("meterpreter options on_session proc running 4\n")
     if valid
       # always make sure that the new session has a new guid if it's not already known
+      STDERR.puts("meterpreter options on_session proc running 5\n")
       guid = session.session_guid
       if guid == "\x00" * 16
         guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
@@ -66,7 +73,9 @@ module MeterpreterOptions
 
       if datastore['AutoLoadStdapi']
 
+        STDERR.puts("meterpreter options on_session proc running 6\n")
         session.load_stdapi
+        STDERR.puts("meterpreter options on_session proc running 7\n")
 
         if datastore['AutoSystemInfo']
           session.load_session_info
