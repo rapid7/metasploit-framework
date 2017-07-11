@@ -3,10 +3,7 @@
 
 Vagrant.configure(2) do |config|
   config.ssh.forward_x11 = true
-  config.vm.box = "ubuntu/trusty64"
-  # TODO: find a minimal image that keeps up-to-date and
-  # supports multiple providers
-  #config.vm.box = "phusion/ubuntu-14.04-amd64"
+  config.vm.box = "ubuntu/xenial64"
   config.vm.network :forwarded_port, guest: 4444, host: 4444
   config.vm.provider "vmware" do |v|
 	  v.memory = 2048
@@ -33,7 +30,7 @@ Vagrant.configure(2) do |config|
 
   [ "gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3",
     "curl -L https://get.rvm.io | bash -s stable",
-    "source ~/.rvm/scripts/rvm && cd /vagrant && rvm --install .ruby-version",
+    "source ~/.rvm/scripts/rvm && cd /vagrant && rvm install `cat .ruby-version`",
     "source ~/.rvm/scripts/rvm && cd /vagrant && gem install bundler",
     "source ~/.rvm/scripts/rvm && cd /vagrant && bundle",
     "mkdir -p ~/.msf4",
