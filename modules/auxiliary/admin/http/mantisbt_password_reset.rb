@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         'method'=>'GET'
       })
 
-      if res && res.body && res.body.include? 'Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT'
+      if res && res.body && res.body.include?('Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT')
         vprint_status("MantisBT detected")
         return Exploit::CheckCode::Detected
       else
@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
       'cookie' => cookie
     })
 
-    if res && res.body && res.body.include? 'Password successfully updated'
+    if res && res.body && res.body.include?('Password successfully updated')
       print_good("Password successfully changed to '#{password}'.")
     else
       fail_with(Failure::UnexpectedReply, 'Something went wrong, the password was not changed.')
