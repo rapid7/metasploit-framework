@@ -184,7 +184,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
   spec.add_runtime_dependency 'xdr'
-  # Needed to work around a regression between capybara 2.7.1 and xpath 2.1
-  # XXX remove when capybara is updated to work with xpath 2.1
-  spec.add_runtime_dependency 'xpath', '2.0'
 end
