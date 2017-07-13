@@ -1,9 +1,9 @@
-# post/windows/gather/enum_vnc_pw.rb
-
 ##
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
+# post/windows/gather/enum_vnc_pw.rb
 
 require 'msf/core/auxiliary/report'
 require 'rex/proto/rfb'

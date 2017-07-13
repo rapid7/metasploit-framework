@@ -1,9 +1,9 @@
-# post/windows/gather/enum_termserv.rb
-
 ##
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
+# post/windows/gather/enum_termserv.rb
 
 require 'msf/core/auxiliary/report'
 
