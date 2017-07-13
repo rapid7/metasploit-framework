@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.15.0)
+    metasploit-framework (4.15.1)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -358,7 +358,7 @@ GEM
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
-    shoulda-matchers (3.1.1)
+    shoulda-matchers (3.1.2)
       activesupport (>= 4.0.0)
     signet (0.7.3)
       addressable (~> 2.3)
