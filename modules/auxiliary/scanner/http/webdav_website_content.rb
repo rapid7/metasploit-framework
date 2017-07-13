@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         result = res.body.scan(urlregex).uniq
 
         result.each do |u|
-          print_status("Found file or directory in WebDAV response (#{target_host}) #{u}")
+          print_good("Found file or directory in WebDAV response (#{target_host}) #{u}")
 
           report_note(
             :host	=> target_host,

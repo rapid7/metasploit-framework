@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       ver = "#{vnc.majver}.#{vnc.minver}"
-      print_status("#{target_host}:#{rport} - VNC server protocol version: #{ver}")
+      print_good("#{target_host}:#{rport} - VNC server protocol version: #{ver}")
       svc = report_service(
         :host => rhost,
         :port => rport,

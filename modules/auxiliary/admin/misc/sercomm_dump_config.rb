@@ -221,7 +221,7 @@ class MetasploitModule < Msf::Auxiliary
 
     @credentials.each do |k,v|
       next unless v[:user] and v[:password]
-      print_status("#{k}: User: #{v[:user]} Pass: #{v[:password]}")
+      print_good("#{k}: User: #{v[:user]} Pass: #{v[:password]}")
       report_cred(
         ip: rhost,
         port: rport,

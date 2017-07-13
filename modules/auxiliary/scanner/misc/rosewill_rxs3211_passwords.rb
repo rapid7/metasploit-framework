@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
 
     #Store the password if the parser returns something
     if password
-      print_status("Password retrieved: #{password.to_s}")
+      print_good("Password retrieved: #{password.to_s}")
       report_cred(
         ip: rhost,
         port: rport,

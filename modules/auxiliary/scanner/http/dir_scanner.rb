@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
               :name   => 'directory'
             )
 
-            print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
+            print_good("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 
             if res.code.to_i == 401
               print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")

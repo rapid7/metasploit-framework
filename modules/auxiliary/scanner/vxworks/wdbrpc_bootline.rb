@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
     if data[48,64] =~ /^.{1,16}\(\d+,\d+\)/
       buff = data[48, data.length-48]
       boot,left = buff.split("\x00", 2)
-      print_status("#{pkt[1]}: BOOT> #{boot}")
+      print_good("#{pkt[1]}: BOOT> #{boot}")
       report_note(
         :host   => pkt[1],
         :port   => datastore['RPORT'],
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     res = wdbrpc_parse_connect_reply(data)
 
     if res[:rt_membase]
-      print_status("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
+      print_good("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
 
       report_note(
         :host   => pkt[1],

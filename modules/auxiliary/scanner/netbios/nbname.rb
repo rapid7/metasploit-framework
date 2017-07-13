@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      print_status("#{ip} [#{host[:name]}] OS:#{os}#{user}#{names} #{addrs} Mac:#{host[:mac]} #{extra}")
+      print_good("#{ip} [#{host[:name]}] OS:#{os}#{user}#{names} #{addrs} Mac:#{host[:mac]} #{extra}")
     end
   end
 

@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'"
         print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
       elsif result[:preauth]
-        print_status "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+        print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
       else # It's something we don't know yet
         vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
         print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"

@@ -180,7 +180,7 @@ class MetasploitModule < Msf::Auxiliary
         next if not reply.is_arp?
         # Without this check any arp request would be added to the cache
         if @dhosts.include? reply.arp_saddr_ip
-          print_status("#{reply.arp_saddr_ip} appears to be up.")
+          print_good("#{reply.arp_saddr_ip} appears to be up.")
           report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
@@ -193,7 +193,7 @@ class MetasploitModule < Msf::Auxiliary
       while(reply = getreply())
         next if not reply.is_arp?
         if @dhosts.include? reply.arp_saddr_ip
-          print_status("#{reply.arp_saddr_ip} appears to be up.")
+          print_good("#{reply.arp_saddr_ip} appears to be up.")
           report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
@@ -217,7 +217,7 @@ class MetasploitModule < Msf::Auxiliary
         while(reply = getreply())
           next if not reply.is_arp?
           if @shosts.include? reply.arp_saddr_ip
-            print_status("#{reply.arp_saddr_ip} appears to be up.")
+            print_good("#{reply.arp_saddr_ip} appears to be up.")
             report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end
@@ -230,7 +230,7 @@ class MetasploitModule < Msf::Auxiliary
         while(reply = getreply())
           next if not reply.is_arp?
           if @shosts.include? reply.arp_saddr_ip
-            print_status("#{reply.arp_saddr_ip} appears to be up.")
+            print_good("#{reply.arp_saddr_ip} appears to be up.")
             report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end

@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
               print_status("Server #{wmap_target_host}:#{datastore['RPORT']} returned HTTP 404 for #{datastore['PATH']}.  Use a different one.")
               return false
             else
-              print_status("Server #{wmap_target_host}:#{datastore['RPORT']} responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
+              print_good("Server #{wmap_target_host}:#{datastore['RPORT']} responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
               # Add Report
               report_note(
                 host: ip,

@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
         resp = send_cmd(["LIST"])
 
         if resp =~ /^[12]/
-          print_status(" TCP OPEN #{ip}:#{port}")
+          print_good(" TCP OPEN #{ip}:#{port}")
           report_service(:host => ip, :port => port)
         end
       rescue ::Exception

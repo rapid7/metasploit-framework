@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
 
       case retcode
         when /^200/
-          print_status("#{info} FrontPage ACCESS ALLOWED [#{retcode}]")
+          print_good("#{info} FrontPage ACCESS ALLOWED [#{retcode}]")
           # Report a note or vulnerability or something
           # Not really this one, but close
           report_vuln(

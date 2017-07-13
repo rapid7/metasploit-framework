@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     res = wdbrpc_parse_connect_reply(data)
-    print_status("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
+    print_good("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
 
     report_note(
       :host   => pkt[1],

@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if version
-      print_status("Joomla version: #{version}")
+      print_good("Joomla version: #{version}")
       report_note(
         host: ip,
         port: datastore['RPORT'],

@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
               if res.code.to_i == 400  and ecode != 400
                 print_error("Server returned an error code. #{wmap_base_url}#{teststr} #{res.code.to_i}")
               else
-                print_status("Found #{wmap_base_url}#{teststr} #{res.code.to_i}")
+                print_good("Found #{wmap_base_url}#{teststr} #{res.code.to_i}")
 
                 report_web_vuln(
                   :host	=> ip,

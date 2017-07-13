@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
         if (data)
           parsed_data = parse_call(data)
           parsed_data['time'] = Time.now
-          print_status("Found active call on: #{parsed_data['rfpi']}")
+          print_good("Found active call on: #{parsed_data['rfpi']}")
           @calls[parsed_data['time']] = parsed_data
         end
 

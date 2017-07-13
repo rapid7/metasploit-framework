@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     counter = 0;
     headers_uppercase.each do |h|
       header_string = "#{h[0]}: #{h[1]}"
-      print_status "#{peer}: #{header_string}"
+      print_good "#{peer}: #{header_string}"
 
       report_note(
         :type => "http.header.#{rport}.#{counter}",

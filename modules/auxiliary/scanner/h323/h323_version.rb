@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
         banner << "DisplayName: #{ remote_display }"
       end
 
-      print_status("#{rhost}:#{rport} #{banner}")
+      print_good("#{rhost}:#{rport} #{banner}")
       report_service(:host => rhost, :port => rport, :name => "h323", :info => banner)
     end
 

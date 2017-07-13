@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     return_value = recv_return
 
     if return_value.nil?
-      print_error("Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
+      print_good("Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
       return
     end

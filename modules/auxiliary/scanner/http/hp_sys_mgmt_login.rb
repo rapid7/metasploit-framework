@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
 
     sys_name = get_system_name(res)
     unless sys_name.blank?
-      print_status("System name detected: #{sys_name}")
+      print_good("System name detected: #{sys_name}")
       report_note(
         :host => ip,
         :type => "system.name",

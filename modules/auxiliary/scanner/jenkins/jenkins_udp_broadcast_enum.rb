@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # if a version was identified, then out and store to DB
     if ver
-      print_status("#{pkt[1]} - Found Jenkins Server #{ver} Version")
+      print_good("#{pkt[1]} - Found Jenkins Server #{ver} Version")
       report_host(
         host: pkt[1],
         info: "Jenkins v.#{ver} (port typically 8080)"

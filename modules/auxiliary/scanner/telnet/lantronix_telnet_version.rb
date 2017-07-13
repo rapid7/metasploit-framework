@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       ::Timeout.timeout(to) do
         res = connect
         if banner.start_with? "MAC address"
-          print_status("#{ip}:#{rport} TELNET: #{banner}")
+          print_good("#{ip}:#{rport} TELNET: #{banner}")
           version = banner.match(/Software version [\w\.]+ \(\d+\) \w*$/)[0]
           report_service(:host => rhost, :port => rport, :name => "telnet", :info => "Lantronix Version: #{version}" )
         end

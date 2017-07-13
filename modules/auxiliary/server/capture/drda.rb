@@ -213,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if @state[c][:user] and @state[c][:pass]
-      print_status("DRDA LOGIN #{@state[c][:name]} Database: #{@state[c][:database]}; #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_good("DRDA LOGIN #{@state[c][:name]} Database: #{@state[c][:database]}; #{@state[c][:user]} / #{@state[c][:pass]}")
       report_cred(
         ip: @state[c][:ip],
         port: datastore['SRVPORT'],

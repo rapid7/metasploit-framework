@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         uri = "http://#{rhost}:#{datastore['HTTP_PORT']}"
-        print_status("Confirmed IE ActiveX HTTP interface (#{v}): #{uri}")
+        print_good("Confirmed IE ActiveX HTTP interface (#{v}): #{uri}")
 
         report_service(
           :host => rhost,

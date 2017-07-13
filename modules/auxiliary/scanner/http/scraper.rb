@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       result = res.body.scan(datastore['PATTERN']).flatten.map{ |s| s.strip }.uniq
 
       result.each do |u|
-        print_status("[#{target_host}] #{tpath} [#{u}]")
+        print_good("[#{target_host}] #{tpath} [#{u}]")
 
         report_note(
           :host    => target_host,

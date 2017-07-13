@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       connect
       res = send_request_raw({ 'uri' => '/', 'method' => 'GET' })
       fp = http_fingerprint(:response => res)
-      print_status("#{ip}:#{rport} #{fp}") if fp
+      print_good("#{ip}:#{rport} #{fp}") if fp
       report_service(:host => rhost, :port => rport, :sname => (ssl ? 'https' : 'http'), :info => fp)
     rescue ::Timeout::Error, ::Errno::EPIPE
     ensure

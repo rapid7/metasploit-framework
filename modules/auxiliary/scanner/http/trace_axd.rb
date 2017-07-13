@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
 
       if res and res.body.include?("<td><h1>Application Trace</h1></td>")
-        print_status("[#{target_host}] #{tpath}trace.axd FOUND.")
+        print_good("[#{target_host}] #{tpath}trace.axd FOUND.")
 
         report_note(
             :host	=> target_host,

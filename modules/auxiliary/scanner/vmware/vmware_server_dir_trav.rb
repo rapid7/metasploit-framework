@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if res.code == 200
         #print_status("Output Of Requested File:\n#{res.body}")
-        print_status("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
+        print_good("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
         report_vuln(
           {
             :host   => target_host,

@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif @state[c][:chall]
       c.put [0x00000001].pack("N")
       c.close
-      print_status("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
+      print_good("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
       hash_line = "$vnc$*#{@state[c][:chall].unpack("H*")[0]}*#{data.unpack('H*')[0]}"
       report_cred(
         ip: c.peerhost,

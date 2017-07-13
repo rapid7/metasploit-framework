@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       c.put "\x00\r\n"
     end
 
-    print_status("TELNET LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+    print_good("TELNET LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
     c.put "\r\nLogin failed\r\n\r\n"
     report_cred(
       ip: @state[c][:ip],

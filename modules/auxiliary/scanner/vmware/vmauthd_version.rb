@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       banner << " Certificate:#{cert.subject.to_s}"
     end
 
-    print_status "#{rhost}:#{rport} Banner: #{banner}"
+    print_good "#{rhost}:#{rport} Banner: #{banner}"
 
     report_service(
       :host  => rhost,

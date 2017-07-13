@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless realport_connect
 
     info = "#{@realport_name} ( ports: #{@realport_port_count} )"
-    vprint_status("#{target_host}:#{rport} is running #{info}")
+    vprint_good("#{target_host}:#{rport} is running #{info}")
     report_service(:host => rhost, :port => rport, :name => "realport", :info => info)
 
     1.upto(@realport_port_count) do |pnum|

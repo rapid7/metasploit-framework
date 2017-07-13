@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_setup
     version = wordpress_version
-    vprint_status("Found Wordpress version: #{version}")
+    vprint_good("Found Wordpress version: #{version}")
 
     if !wordpress_and_online?
       print_error("#{peer}:#{rport}#{target_uri} does not appear to be running Wordpress or you got blocked! (Do Manual Check)")

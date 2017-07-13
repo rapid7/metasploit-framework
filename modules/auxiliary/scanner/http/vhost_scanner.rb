@@ -118,7 +118,7 @@ require 'cgi'
           if res and noexistsres
 
             if res.body !=  noexistsres.body
-              print_status("[#{ip}] Vhost found  #{thost} ")
+              print_good("[#{ip}] Vhost found  #{thost} ")
 
               report_note(
                 :host	=> ip,

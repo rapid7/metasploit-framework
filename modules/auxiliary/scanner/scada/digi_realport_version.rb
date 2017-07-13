@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(target_host)
     if realport_connect
       info = "#{@realport_name} ( ports: #{@realport_port_count} )"
-      print_status("#{target_host}:#{rport} #{info}")
+      print_good("#{target_host}:#{rport} #{info}")
       report_service(:host => rhost, :port => rport, :name => "realport", :info => info)
     end
     realport_disconnect

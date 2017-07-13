@@ -195,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
             @oracle_reported = true
           end
           user = extract_creds(oline)[0]
-          print_status "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
+          print_good "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
           report_cred(
             ip: addr,
             port: port,

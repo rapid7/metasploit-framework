@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
 
 
         result.each do |addr|
-          print_status("Found internal IP in WebDAV response (#{target_host}) #{addr}")
+          print_good("Found internal IP in WebDAV response (#{target_host}) #{addr}")
 
           report_note(
             :host	=> target_host,

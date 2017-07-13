@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status "#{ip}:#{rport} - FTP - Connecting"
     conn = connect_login
     if conn
-      print_status("#{ip}:#{rport} - FTP - Login succeeded")
+      print_good("#{ip}:#{rport} - FTP - Login succeeded")
       report_cred(
         ip: ip,
         port: rport,

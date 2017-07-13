@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         if (data)
           parsed_data = parse_station(data)
           if (not @base_stations.key?(parsed_data['rfpi']))
-            print_status("Found New RFPI: #{parsed_data['rfpi']}")
+            print_good("Found New RFPI: #{parsed_data['rfpi']}")
             @base_stations[parsed_data['rfpi']] = parsed_data
           end
         end

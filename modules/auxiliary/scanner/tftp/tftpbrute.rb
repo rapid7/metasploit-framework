@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         udp_sock.sendto(pkt, ip, datastore['RPORT'])
         resp = udp_sock.get(3)
         if resp and resp.length >= 2 and resp[0, 2] == "\x00\x03"
-          print_status("Found #{filename} on #{ip}")
+          print_good("Found #{filename} on #{ip}")
           #Add Report
           report_note(
             :host	=> ip,

@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
 
     case resp
     when /^401/
-      print_status("Found user: #{testn} [Auth]")
+      print_good("Found user: #{testn} [Auth]")
       # Add Report
       report_note(
         :host	=> rhost,
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
         :data	=> "Found user: #{testn} [Auth]"
       )
     when /^200/
-      print_status("Found user: #{testn} [Open]")
+      print_good("Found user: #{testn} [Open]")
       # Add Report
       report_note(
         :host	=> rhost,

@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-      print_status("SMTP #{banner_sanitized}")
+      print_good("SMTP #{banner_sanitized}")
       report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
 
       if datastore['EXTENDED']

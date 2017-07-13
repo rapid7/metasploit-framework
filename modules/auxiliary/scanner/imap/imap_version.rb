@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-      print_status("#{ip}:#{rport} IMAP #{banner_sanitized}")
+      print_good("#{ip}:#{rport} IMAP #{banner_sanitized}")
       report_service(:host => rhost, :port => rport, :name => "imap", :info => banner)
     rescue ::Rex::ConnectionError
     rescue ::EOFError

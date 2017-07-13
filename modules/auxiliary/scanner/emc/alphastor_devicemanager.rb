@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     data = sock.get_once
 
     if ( data and data =~ /rrobotd:rrobotd/ )
-        print_status("Host #{ip} is running the EMC AlphaStor Device Manager.")
+        print_good("Host #{ip} is running the EMC AlphaStor Device Manager.")
         report_service(:host => rhost, :port => rport, :name => "emc-manager", :info => data)
     else
         print_error("Host #{ip} is not running the service...")

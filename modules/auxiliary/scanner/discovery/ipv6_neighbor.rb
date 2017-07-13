@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
         while(reply = getreply())
           next unless reply.is_arp?
           if not found[reply.arp_saddr_ip]
-            print_status(sprintf("  %16s ALIVE",reply.arp_saddr_ip))
+            print_good(sprintf("  %16s ALIVE",reply.arp_saddr_ip))
             addrs << [reply.arp_saddr_ip, reply.arp_saddr_mac]
             report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
             found[reply.arp_saddr_ip] = true
@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
         while(reply = getreply())
           next unless reply.is_arp?
           if not found[reply.arp_saddr_ip]
-            print_status(sprintf("  %16s ALIVE",reply.arp_saddr_ip))
+            print_good(sprintf("  %16s ALIVE",reply.arp_saddr_ip))
             addrs << [reply.arp_saddr_ip, reply.arp_saddr_mac]
             report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
             found[reply.arp_saddr_ip] = true

@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
         }, 20)
 
         if (res and res.code >= 200 and res.code < 300)
-          print_status("Found #{wmap_base_url}#{testf}")
+          print_good("Found #{wmap_base_url}#{testf}")
 
           report_web_vuln(
             :host	=> ip,

@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
     if res and res.size > 0
       print_status("\tList of Accounts with Password Hashes:")
       res.each do |row|
-        print_status("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
+        print_good("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
         report_cred(
           ip: rhost,
           port: rport,
