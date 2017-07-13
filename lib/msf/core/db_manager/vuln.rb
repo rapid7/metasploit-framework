@@ -105,7 +105,7 @@ module Msf::DBManager::Vuln
       opts[:refs].each do |r|
         if (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
           r = "#{r.ctx_id}-#{r.ctx_val}"
-        elsif (r.is_a?(Hash) and r['ctx_id'] and r['ctx_val'])
+        elsif (r.is_a?(Hash) and r[:ctx_id] and r[:ctx_val])
           r = "#{r[:ctx_id]}-#{r[:ctx_val]}"
         end
         rids << find_or_create_ref(:name => r)

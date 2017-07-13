@@ -92,7 +92,7 @@ class Db
   end
 
   def cmd_list_data_services()
-    data_service_manager = Metasploit::Framework::DataService::DataProxy..instance
+    data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
     data_service_manager.print_data_services
   end
 

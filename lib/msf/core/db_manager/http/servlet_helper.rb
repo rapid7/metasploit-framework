@@ -27,7 +27,7 @@ module ServletHelper
     end
 
     hash = JSON.parse(body)
-    hash.symbolize_keys
+    hash.deep_symbolize_keys
   end
 
   def exec_report_job(request, &job)
@@ -39,9 +39,10 @@ module ServletHelper
       exec_async = opts.delete(:exec_async)
       if (exec_async)
         JobProcessor.instance.submit_job(opts, &job)
+        return set_empty_response()
       else
         data = job.call(opts)
-        set_json_response(data)
+        return set_json_response(data)
       end
 
     rescue Exception => e
