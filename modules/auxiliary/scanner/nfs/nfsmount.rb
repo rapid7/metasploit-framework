@@ -56,11 +56,11 @@ class MetasploitModule < Msf::Auxiliary
       exports = resp[3,1].unpack('C')[0]
       if (exports == 0x01)
         shares = []
-        while XDR.decode_int!(resp) == 1 do
-          dir = XDR.decode_string!(resp)
+        while Rex::Encoder::XDR.decode_int!(resp) == 1 do
+          dir = Rex::Encoder::XDR.decode_string!(resp)
           grp = []
-          while XDR.decode_int!(resp) == 1 do
-            grp << XDR.decode_string!(resp)
+          while Rex::Encoder::XDR.decode_int!(resp) == 1 do
+            grp << Rex::Encoder::XDR.decode_string!(resp)
           end
           print_good("#{ip} NFS Export: #{dir} [#{grp.join(", ")}]")
           shares << [dir, grp]
