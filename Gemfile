@@ -44,4 +44,7 @@ group :test do
   gem 'shoulda-matchers'
   # Manipulate Time.now in specs
   gem 'timecop'
+  # Needed to work around a regression between capybara 2.7.1 and xpath 2.1
+  # XXX remove when capybara is updated to work with xpath 2.1
+  gem 'xpath', '2.0'
 end

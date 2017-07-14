@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           OptString.new('USERNAME', [true, 'The ZoomEye username']),
           OptString.new('PASSWORD', [true, 'The ZoomEye password']),
-          OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye Dock']),
+          OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
           OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
           OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1])
         ])
