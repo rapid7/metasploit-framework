@@ -37,14 +37,6 @@ group :development, :test do
 end
 
 group :test do
-  # cucumber extension for testing command line applications, like msfconsole
-  gem 'aruba'
-  # cucumber + automatic database cleaning with database_cleaner
-  gem 'cucumber-rails', :require => false
-  gem 'shoulda-matchers'
   # Manipulate Time.now in specs
   gem 'timecop'
-  # Needed to work around a regression between capybara 2.7.1 and xpath 2.1
-  # XXX remove when capybara is updated to work with xpath 2.1
-  gem 'xpath', '2.0'
 end
