@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Common
   include Msf::Post::Android::Priv
 

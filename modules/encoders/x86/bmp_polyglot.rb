@@ -176,7 +176,6 @@ class SizeCalculator
 end
 
 class MetasploitModule < Msf::Encoder
-
   Rank = ManualRanking
 
   DESTEGO_STUB_SIZE = 53

@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Linux::System
 
   def initialize(info={})

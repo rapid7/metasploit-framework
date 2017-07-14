@@ -6,7 +6,6 @@
 require 'fileutils'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::IAX2
 
   def initialize

@@ -5,7 +5,6 @@
 
 require 'rex/parser/ini'
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 

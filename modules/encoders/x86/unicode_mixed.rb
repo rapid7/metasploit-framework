@@ -5,9 +5,7 @@
 
 require 'rex/encoder/alpha2/unicode_mixed'
 
-
 class MetasploitModule < Msf::Encoder::Alphanum
-
   Rank = ManualRanking
 
   def initialize

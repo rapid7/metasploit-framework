@@ -4,8 +4,8 @@
 ##
 
 require 'json'
-class MetasploitModule < Msf::Post
 
+class MetasploitModule < Msf::Post
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
 
   def initialize(info={})

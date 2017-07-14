@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})

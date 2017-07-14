@@ -4,6 +4,7 @@
 ##
 
 require 'rex/poly'
+
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the cpuid value is generated and supplied

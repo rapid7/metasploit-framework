@@ -7,9 +7,7 @@ require 'csv'
 require 'msf/core/post/windows/user_profiles'
 require 'msf/core/post/windows/registry'
 
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Registry

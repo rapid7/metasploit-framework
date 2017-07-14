@@ -8,7 +8,6 @@ require 'openssl'
 require 'digest/md5'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
   include Msf::Auxiliary::Report

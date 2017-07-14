@@ -5,6 +5,7 @@
 
 require 'sqlite3'
 require 'uri'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles

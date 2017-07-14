@@ -7,7 +7,6 @@ require 'metasploit/framework/aws/client'
 require 'json'
 
 class MetasploitModule < Msf::Post
-
   include Metasploit::Framework::Aws::Client
 
   def initialize(info = {})

@@ -5,7 +5,6 @@
 
 # Fake Telnet Service - Kris Katterjohn 09/28/2008
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 

@@ -8,7 +8,6 @@ require "openssl"
 
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
 

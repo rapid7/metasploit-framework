@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Services
 
   def initialize(info={})

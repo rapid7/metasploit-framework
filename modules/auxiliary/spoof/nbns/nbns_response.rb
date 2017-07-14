@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
 
   attr_accessor :sock, :thread

@@ -6,7 +6,6 @@
 require 'yaml'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
 

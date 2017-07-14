@@ -7,7 +7,6 @@ require 'net/https'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 

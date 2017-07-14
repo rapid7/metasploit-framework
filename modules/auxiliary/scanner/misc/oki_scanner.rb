@@ -6,7 +6,6 @@
 # TODO: Split this module into two seperate SNMP and HTTP modules.
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

@@ -6,7 +6,6 @@
 require 'sshkey'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
 

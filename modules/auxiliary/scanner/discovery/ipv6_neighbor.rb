@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ipv6
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report

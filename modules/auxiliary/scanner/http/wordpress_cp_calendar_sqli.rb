@@ -4,8 +4,8 @@
 ##
 
 require 'uri'
-class MetasploitModule < Msf::Auxiliary
 
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

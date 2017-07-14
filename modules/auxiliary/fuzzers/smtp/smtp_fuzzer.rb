@@ -9,7 +9,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Fuzzer
   include Msf::Auxiliary::Scanner

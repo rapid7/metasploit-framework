@@ -7,7 +7,6 @@ require 'net/dns'
 require 'resolv'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
 
   def initialize(info = {})

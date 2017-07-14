@@ -8,7 +8,6 @@ require 'sshkey' # TODO: Actually include this!
 require 'net/ssh/pubkey_verifier'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report

@@ -7,7 +7,6 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/octopusdeploy'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute

@@ -6,7 +6,6 @@
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 

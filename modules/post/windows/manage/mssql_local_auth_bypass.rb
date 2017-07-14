@@ -6,7 +6,6 @@
 require 'msf/core/post/windows/mssql'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::MSSQL
 
   def initialize(info={})

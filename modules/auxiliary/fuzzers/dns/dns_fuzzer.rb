@@ -6,7 +6,6 @@
 require 'bindata'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Fuzzer

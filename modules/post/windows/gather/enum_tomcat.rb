@@ -7,7 +7,6 @@ require 'rexml/document'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report

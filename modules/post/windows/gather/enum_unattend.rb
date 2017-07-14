@@ -7,7 +7,6 @@ require 'rex/parser/unattend'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
   def initialize(info={})

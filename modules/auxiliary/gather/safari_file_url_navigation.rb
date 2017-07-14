@@ -6,7 +6,6 @@
 require 'msf/core/exploit/format/webarchive'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::FtpServer
   include Msf::Exploit::Format::Webarchive
   include Msf::Auxiliary::Report

@@ -6,7 +6,6 @@
 require 'rex/service_manager'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::FtpServer
   include Msf::Auxiliary::Report
 

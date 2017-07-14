@@ -3,14 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-##
-#
-# Tip : run "show advanced" for more options
-#
-##
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})

@@ -7,7 +7,6 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/ftp'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

@@ -7,7 +7,6 @@ require 'rex/proto/dcerpc'
 require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC

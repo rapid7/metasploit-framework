@@ -4,6 +4,7 @@
 ##
 
 require 'rex/poly'
+
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Manual ranking because the time(2) key is generated and supplied

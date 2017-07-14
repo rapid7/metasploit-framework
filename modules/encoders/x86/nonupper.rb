@@ -5,9 +5,7 @@
 
 require 'rex/encoder/nonupper'
 
-
 class MetasploitModule < Msf::Encoder::NonUpper
-
   Rank = LowRanking
 
   def initialize

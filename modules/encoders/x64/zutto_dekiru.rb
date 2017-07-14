@@ -2,11 +2,11 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+
 require 'metasm'
 require 'rex/nop/opty2'
 
 class MetasploitModule < Msf::Encoder::Xor
-
   Rank = ManualRanking
 
   def initialize

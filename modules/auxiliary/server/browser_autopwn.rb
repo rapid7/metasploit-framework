@@ -12,7 +12,6 @@ require 'rex/exploitation/js/detect'
 require 'rex/exploitation/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})

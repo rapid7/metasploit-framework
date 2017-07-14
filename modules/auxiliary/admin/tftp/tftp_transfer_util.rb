@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Rex::Proto::TFTP
   include Msf::Auxiliary::Report
 

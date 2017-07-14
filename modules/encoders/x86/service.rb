@@ -4,6 +4,7 @@
 ##
 
 require 'metasm'
+
 class MetasploitModule < Msf::Encoder
 
     Rank = ManualRanking

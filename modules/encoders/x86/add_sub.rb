@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Encoder
-
   Rank = ManualRanking
 
   def initialize

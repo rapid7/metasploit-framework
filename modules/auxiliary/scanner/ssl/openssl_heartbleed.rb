@@ -10,7 +10,6 @@
 # TODO: Extract the relevant functions and include them in the framework
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

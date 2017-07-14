@@ -1,5 +1,4 @@
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Hardware::RFTransceiver::RFTransceiver
 
   def initialize(info={})

@@ -5,7 +5,6 @@
 
 require 'rex/proto/ntlm/message'
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Exploit::Remote::HttpClient

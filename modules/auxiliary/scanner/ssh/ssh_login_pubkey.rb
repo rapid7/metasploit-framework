@@ -10,7 +10,6 @@ require 'sshkey'
 require 'net/ssh/command_stream'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell

@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Imap
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

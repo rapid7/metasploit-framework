@@ -6,7 +6,6 @@
 require 'rex/proto/http'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
 
   def initialize(info={})

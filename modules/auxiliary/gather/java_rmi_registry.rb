@@ -6,7 +6,6 @@
 require 'rex/java/serialization'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Java::Rmi::Client
 

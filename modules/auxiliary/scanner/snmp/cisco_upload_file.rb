@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Cisco
   include Msf::Auxiliary::Scanner

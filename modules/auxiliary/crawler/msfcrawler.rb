@@ -17,7 +17,6 @@ require 'pathname'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 

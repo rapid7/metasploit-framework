@@ -8,7 +8,6 @@ require 'rex/proto/http'
 
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner

@@ -6,7 +6,6 @@
 require 'rex/proto/dhcp'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DHCPServer
 
   def initialize

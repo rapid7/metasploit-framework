@@ -5,9 +5,7 @@
 
 require 'rex/encoder/nonalpha'
 
-
 class MetasploitModule < Msf::Encoder::NonAlpha
-
   Rank = LowRanking
 
   def initialize

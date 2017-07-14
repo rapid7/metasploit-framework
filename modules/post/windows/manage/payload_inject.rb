@@ -6,7 +6,6 @@
 require 'msf/core/post/common'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Common
 
   def initialize(info={})

@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Mms
 
   def initialize(info = {})

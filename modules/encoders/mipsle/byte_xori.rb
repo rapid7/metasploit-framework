@@ -5,9 +5,7 @@
 
 require 'metasm'
 
-
 class MetasploitModule < Msf::Encoder::Xor
-
   Rank = NormalRanking
 
   def initialize

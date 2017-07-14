@@ -6,7 +6,6 @@
 require 'openssl'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::UserProfiles
 
   def initialize(info={})

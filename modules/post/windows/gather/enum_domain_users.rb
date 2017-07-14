@@ -8,7 +8,6 @@ require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/netapi'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Common
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::NetAPI

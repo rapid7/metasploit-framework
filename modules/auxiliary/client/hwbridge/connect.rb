@@ -6,7 +6,6 @@
 require 'msf/base/sessions/hwbridge'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 

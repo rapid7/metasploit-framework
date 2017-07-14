@@ -7,7 +7,6 @@ require 'msf/core/auxiliary/report'
 require 'openssl'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles

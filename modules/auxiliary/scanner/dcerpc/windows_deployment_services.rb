@@ -8,7 +8,6 @@ require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner

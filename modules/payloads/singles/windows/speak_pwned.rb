@@ -5,7 +5,7 @@
 
 =begin
 
-http://www.exploit-db.com/sploits/w32-speaking-shellcode.zip
+https://www.exploit-db.com/sploits/w32-speaking-shellcode.zip
 
 Copyright (c) 2009-2010 Berend-Jan "SkyLined" Wever <berendjanwever@gmail.com>
 All rights reserved.

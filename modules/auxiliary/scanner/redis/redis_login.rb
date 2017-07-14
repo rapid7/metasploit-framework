@@ -7,7 +7,6 @@ require 'metasploit/framework/login_scanner/redis'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

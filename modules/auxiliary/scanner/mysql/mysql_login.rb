@@ -7,7 +7,6 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mysql'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute

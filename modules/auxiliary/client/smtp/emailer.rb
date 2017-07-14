@@ -5,7 +5,6 @@
 
 require 'yaml'
 
-
 class MetasploitModule < Msf::Auxiliary
 
   #

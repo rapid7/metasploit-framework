@@ -5,7 +5,6 @@
 
 require 'metasm'
 
-
 class MetasploitModule < Msf::Encoder::Xor
 
   def initialize

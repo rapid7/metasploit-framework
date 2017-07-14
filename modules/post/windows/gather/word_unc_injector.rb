@@ -18,7 +18,6 @@ require 'zip'
 require 'rex/zip'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Priv
 

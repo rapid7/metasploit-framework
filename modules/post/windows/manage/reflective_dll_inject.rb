@@ -4,8 +4,8 @@
 ##
 
 require 'msf/core/post/windows/reflective_dll_injection'
-class MetasploitModule < Msf::Post
 
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::ReflectiveDLLInjection
 
   def initialize(info={})

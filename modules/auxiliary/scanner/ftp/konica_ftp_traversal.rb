@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner

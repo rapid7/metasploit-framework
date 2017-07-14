@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::OSX::System
   include Msf::Exploit::FileDropper
 

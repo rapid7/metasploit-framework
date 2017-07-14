@@ -6,7 +6,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 

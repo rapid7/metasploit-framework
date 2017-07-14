@@ -6,7 +6,6 @@
 require 'openssl'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::File
 

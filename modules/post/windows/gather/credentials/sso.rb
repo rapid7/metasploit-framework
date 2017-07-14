@@ -6,7 +6,6 @@
 require 'msf/core/post/windows/priv'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 

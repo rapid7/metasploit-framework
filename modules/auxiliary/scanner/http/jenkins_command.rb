@@ -7,7 +7,6 @@ require 'rex/proto/http'
 require 'cgi'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

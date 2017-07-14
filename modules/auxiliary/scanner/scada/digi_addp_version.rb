@@ -6,7 +6,6 @@
 require 'rex/proto/addp'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 

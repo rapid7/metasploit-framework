@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SSH
   include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner

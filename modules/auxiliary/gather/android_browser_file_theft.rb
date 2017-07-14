@@ -6,7 +6,6 @@
 require 'msf/core/exploit/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
   include Msf::Exploit::JSObfu

@@ -6,7 +6,6 @@
 require 'timeout'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report

@@ -7,7 +7,6 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/db2'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DB2
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner

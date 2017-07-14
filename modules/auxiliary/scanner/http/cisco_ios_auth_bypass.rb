@@ -5,7 +5,6 @@
 
 require 'rex/proto/http'
 
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first

@@ -6,7 +6,6 @@
 require 'msf/core/auxiliary/jtr'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::JohnTheRipper
 
   def initialize

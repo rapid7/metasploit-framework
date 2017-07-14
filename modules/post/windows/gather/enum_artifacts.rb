@@ -7,7 +7,6 @@ require 'yaml'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Auxiliary::Report
   include Msf::Post::File
   include Msf::Post::Windows::Registry

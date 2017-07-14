@@ -7,7 +7,6 @@ require 'net/dns/resolver'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 

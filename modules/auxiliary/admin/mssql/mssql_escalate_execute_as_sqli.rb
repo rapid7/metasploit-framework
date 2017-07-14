@@ -6,7 +6,6 @@
 require 'msf/core/exploit/mssql_commands'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MSSQL_SQLI
   include Msf::Auxiliary::Report
 

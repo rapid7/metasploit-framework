@@ -9,7 +9,6 @@ require 'metasploit/framework/login_scanner'
 require 'metasploit/framework/login_scanner/winrm'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::WinRM
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute

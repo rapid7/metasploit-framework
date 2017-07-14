@@ -8,7 +8,6 @@ require 'metasploit/framework/login_scanner/varnish'
 require 'metasploit/framework/tcp/client'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner

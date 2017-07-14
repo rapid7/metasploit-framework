@@ -7,7 +7,6 @@
 # TODO: Make into a real AuthBrute module, although the password pattern is fixed
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner

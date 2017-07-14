@@ -7,7 +7,6 @@ require 'metasploit/framework/community_string_collection'
 require 'metasploit/framework/login_scanner/snmp'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute

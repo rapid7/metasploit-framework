@@ -6,9 +6,7 @@
 require 'rex/proto/http'
 require 'thread'
 
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner

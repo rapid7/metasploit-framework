@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Encoder
-
   Rank = ManualRanking
 
   ASM_SUBESP20 = "\x83\xEC\x20"

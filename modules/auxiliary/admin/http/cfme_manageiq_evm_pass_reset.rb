@@ -8,7 +8,6 @@ require 'digest'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize

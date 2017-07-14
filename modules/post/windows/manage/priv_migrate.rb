@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   DEFAULT_ADMIN_TARGETS = [ 'services.exe', 'wininit.exe', 'svchost.exe', 'lsm.exe', 'lsass.exe', 'winlogon.exe' ]

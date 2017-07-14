@@ -6,7 +6,6 @@
 require 'msf/core/post/windows/netapi'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::NetAPI
 
   def initialize(info={})

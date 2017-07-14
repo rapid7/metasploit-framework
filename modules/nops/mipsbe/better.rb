@@ -13,7 +13,6 @@
 ###
 class MetasploitModule < Msf::Nop
 
-
   def initialize
     super(
       'Name'        => 'Better',

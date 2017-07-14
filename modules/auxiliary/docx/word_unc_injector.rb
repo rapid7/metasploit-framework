@@ -18,7 +18,6 @@ require 'zip'
 require 'rex/zip'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})

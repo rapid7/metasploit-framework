@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Dos
   include Msf::Exploit::Capture
   include Exploit::Remote::Tcp

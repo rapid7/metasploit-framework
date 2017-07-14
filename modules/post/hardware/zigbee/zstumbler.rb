@@ -6,7 +6,6 @@
 require 'msf/core/post/hardware/zigbee/utils'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Hardware::Zigbee::Utils
 
   def initialize(info={})

@@ -6,7 +6,6 @@
 require 'csv'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::OSX::System

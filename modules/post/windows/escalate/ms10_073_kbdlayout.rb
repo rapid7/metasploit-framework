@@ -5,7 +5,6 @@
 
 require 'metasm'
 
-
 class MetasploitModule < Msf::Post
 
   def initialize(info={})

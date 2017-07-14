@@ -7,7 +7,6 @@ require 'thread'
 require 'rex/proto/proxy/socks4a'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
 
   def initialize

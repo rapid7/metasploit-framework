@@ -5,7 +5,6 @@
 
 require 'msf/core/auxiliary/jtr'
 
-
 class MetasploitModule < Msf::Auxiliary
 
   #Included to grab the john.pot and use some utiltiy functions

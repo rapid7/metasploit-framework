@@ -6,7 +6,6 @@
 require 'cgi'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report

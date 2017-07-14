@@ -6,7 +6,6 @@
 require 'yaml'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
 

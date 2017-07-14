@@ -6,7 +6,6 @@
 require 'msf/core/post/hardware/automotive/uds'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Hardware::Automotive::UDS
 
   def initialize(info={})
