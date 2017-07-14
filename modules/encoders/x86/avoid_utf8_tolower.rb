@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 #
 # NOTE: Read this if you plan on using this encoder:
 #

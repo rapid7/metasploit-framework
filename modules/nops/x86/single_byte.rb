@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 ###
 #
 # This class implements single-byte NOP generation for X86.  It takes from

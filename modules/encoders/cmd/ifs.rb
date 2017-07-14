@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Encoder
 
   # Below normal ranking because this will produce incorrect code a lot of

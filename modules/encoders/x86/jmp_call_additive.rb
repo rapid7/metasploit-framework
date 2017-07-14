@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
   # Uncomment when we get the poly stuff working again.

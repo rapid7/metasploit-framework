@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'metasploit/framework/community_string_collection'
 require 'metasploit/framework/login_scanner/snmp'
 

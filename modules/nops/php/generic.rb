@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 ###
 #
 # This class implements a "nop" generator for PHP payloads

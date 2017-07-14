@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 #
 # NOTE: this encoder currently has only be tested using bit 5 set to on.
 #

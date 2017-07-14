@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'metasm'
 require 'msf/core/handler/reverse_tcp'
 

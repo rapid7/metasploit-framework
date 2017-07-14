@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Encoder
 
   # This encoder has a manual ranking because it should only be used in cases

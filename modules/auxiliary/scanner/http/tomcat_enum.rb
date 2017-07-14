@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
@@ -122,7 +120,7 @@ end
 =begin
 
 If your Tomcat doesn't have the admin package by default, download it here:
-http://archive.apache.org/dist/tomcat/	
+http://archive.apache.org/dist/tomcat/
 
 The package name should look something like: apache-tomcat-[version]-admin.zip
 
