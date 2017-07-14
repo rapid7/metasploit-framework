@@ -1,5 +1,6 @@
 ##
-# auxiliary/admin/cisco/cisco_asa_extrabacon.rb
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
