@@ -831,9 +831,7 @@ class Packet < GroupTlv
   def parse_header!
     xor_key = self.raw.unpack('A4')[0]
     data = xor_bytes(xor_key, self.raw[0..PACKET_HEADER_SIZE])
-    STDERR.puts("extracting header values\n")
     _, self.session_guid, self.encrypt_flags, self.length, self.type = data.unpack('a4a16NNN')
-    STDERR.puts("extracted header values\n")
   end
 
   #

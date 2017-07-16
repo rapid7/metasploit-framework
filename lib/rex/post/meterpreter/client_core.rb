@@ -734,21 +734,30 @@ class ClientCore < Extension
   # Negotiates the use of encryption at the TLV level
   #
   def negotiate_tlv_encryption
+    STDERR.puts("negotiate_tlv_encryption entry: #{client.inspect}\n")
     sym_key = nil
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
 
+    STDERR.puts("negotiate_tlv_encryption 1\n")
     request  = Packet.create_request('core_negotiate_tlv_encryption')
+    STDERR.puts("negotiate_tlv_encryption 2\n")
     request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_pem)
+    STDERR.puts("negotiate_tlv_encryption 3\n")
 
     begin
       response = client.send_request(request)
+      STDERR.puts("negotiate_tlv_encryption 4\n")
       key_enc = response.get_tlv_value(TLV_TYPE_ENC_SYM_KEY)
+      STDERR.puts("negotiate_tlv_encryption 5\n")
       key_type = response.get_tlv_value(TLV_TYPE_SYM_KEY_TYPE)
+      STDERR.puts("negotiate_tlv_encryption 6\n")
 
       if key_enc
+        STDERR.puts("negotiate_tlv_encryption 7\n")
         sym_key = rsa_key.private_decrypt(key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
       else
+        STDERR.puts("negotiate_tlv_encryption 8\n")
         sym_key = response.get_tlv_value(TLV_TYPE_SYM_KEY)
       end
     rescue OpenSSL::PKey::RSAError, Rex::Post::Meterpreter::RequestError
