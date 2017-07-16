@@ -205,6 +205,8 @@ protected
         if self.session.respond_to?('create_session')
           s = self.session.create_session(conn, opts)
         else
+          STDERR.puts("create_session caller: #{caller.inspect}\n")
+          STDERR.puts("create_session opts: #{opts.inspect}\n")
           s = self.session.new(conn, opts)
         end
       rescue ::Exception => e
@@ -240,16 +242,15 @@ protected
   # new session.
   #
   def register_session(session)
+    STDERR.puts("Registering session\n")
     # Register the session with the framework
     framework.sessions.register(session)
 
+    STDERR.puts("Calling on_session\n")
     # Call the handler's on_session() method
     on_session(session)
-
-    # Process the auto-run scripts for this session
-    if session.respond_to?('process_autoruns')
-      session.process_autoruns(datastore)
-    end
+    session.bootstrap(datastore)
+    STDERR.puts("Called on_session\n")
 
     # If there is an exploit associated with this payload, then let's notify
     # anyone who is interested that this exploit succeeded

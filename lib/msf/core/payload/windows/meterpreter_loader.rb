@@ -68,6 +68,8 @@ module Payload::Windows::MeterpreterLoader
   end
 
   def stage_payload(opts={})
+    STDERR.puts("In stage_payload: #{opts.inspect}\n")
+
     stage_meterpreter(opts) + generate_config(opts)
   end
 
@@ -77,13 +79,14 @@ module Payload::Windows::MeterpreterLoader
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
-      arch:       opts[:uuid].arch,
-      exitfunk:   ds['EXITFUNC'],
-      expiration: ds['SessionExpirationTimeout'].to_i,
-      uuid:       opts[:uuid],
-      transports: opts[:transport_config] || [transport_config(opts)],
-      extensions: [],
-      stageless:  opts[:stageless] == true
+      arch:              opts[:uuid].arch,
+      null_session_guid: opts[:null_session_guid] == true,
+      exitfunk:          ds[:exit_func] || ds['EXITFUNC'],
+      expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+      uuid:              opts[:uuid],
+      transports:        opts[:transport_config] || [transport_config(opts)],
+      extensions:        [],
+      stageless:         opts[:stageless] == true
     }
 
     # create the configuration instance based off the parameters

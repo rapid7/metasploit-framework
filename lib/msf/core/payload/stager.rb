@@ -89,6 +89,7 @@ module Msf::Payload::Stager
   #
   # @return [String,nil]
   def stage_payload(opts = {})
+    STDERR.puts("In stager stage_payload: #{opts.inspect}\n")
     if module_info['Stage']
       return module_info['Stage']['Payload']
     end
@@ -165,8 +166,6 @@ module Msf::Payload::Stager
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
     if (stage_over_connection?)
-      opts = {}
-
       if respond_to? :include_send_uuid
         if include_send_uuid
           uuid_raw = conn.get_once(16, 1)

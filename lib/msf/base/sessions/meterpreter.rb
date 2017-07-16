@@ -45,6 +45,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   # that is to be used as the client's connection to the server.
   #
   def initialize(rstream, opts={})
+    STDERR.puts("init in meterpreter\n")
     super
 
     opts[:capabilities] = {
@@ -109,6 +110,94 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # shell.
     sh = fs.file.expand_path("%COMSPEC%")
     @shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
+
+  end
+
+  def bootstrap(datastore={})
+    session = self
+
+    STDERR.puts("meterpreter session on_session\n")
+
+    # Defer the session initialization to the Session Manager scheduler
+    framework.sessions.schedule Proc.new {
+
+    STDERR.puts("meterpreter options on_session proc running 1\n")
+    # Configure unicode encoding before loading stdapi
+    session.encode_unicode = datastore['EnableUnicodeEncoding']
+
+    session.init_ui(self.user_input, self.user_output)
+
+    valid = true
+
+    STDERR.puts("meterpreter options on_session proc running 2: #{session.core.inspect}\n")
+    session.tlv_enc_key = session.core.negotiate_tlv_encryption
+    STDERR.puts("meterpreter options on_session proc running 3\n")
+
+    unless datastore['AutoVerifySession'] == false
+      unless session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
+        print_error("Meterpreter session #{session.sid} is not valid and will be closed")
+        valid = false
+      end
+    end
+
+    STDERR.puts("meterpreter options on_session proc running 4\n")
+    if valid
+      # always make sure that the new session has a new guid if it's not already known
+      STDERR.puts("meterpreter options on_session proc running 5\n")
+      guid = session.session_guid
+      if guid == "\x00" * 16
+        guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+        session.core.set_session_guid(guid)
+        session.session_guid = guid
+        # TODO: New statgeless session, do some account in the DB so we can track it later.
+      else
+        # TODO: This session was either staged or previously known, and so we shold do some accounting here!
+      end
+
+      unless datastore['AutoLoadStdapi'] == false
+
+        STDERR.puts("meterpreter options on_session proc running 6\n")
+        session.load_stdapi
+        STDERR.puts("meterpreter options on_session proc running 7\n")
+
+        unless datastore['AutoSystemInfo'] == false
+          session.load_session_info
+        end
+
+        # only load priv on native windows
+        # TODO: abastrct this too, to remove windows stuff
+        if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
+          session.load_priv rescue nil
+        end
+      end
+
+      # TODO: abstract this a little, perhaps a "post load" function that removes
+      # platform-specific stuff?
+      if session.platform == 'android'
+        session.load_android
+      end
+
+      ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
+        unless datastore[key].empty?
+          args = Shellwords.shellwords(datastore[key])
+          print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+          session.execute_script(args.shift, *args)
+        end
+      end
+    end
+
+    # Terminate the session without cleanup if it did not validate
+    unless valid
+      session.skip_cleanup = true
+      session.kill
+    end
+
+    }
+
+    # Process the auto-run scripts for this session
+    if self.respond_to?('process_autoruns')
+      self.process_autoruns(datastore)
+    end
 
   end
 

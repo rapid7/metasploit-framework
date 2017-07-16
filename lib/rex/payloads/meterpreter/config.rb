@@ -53,11 +53,13 @@ private
 
     # if no session guid is given then we'll just pass the blank
     # guid through. this is important for stageless payloads
-    if opts[:stageless] == true
+    if opts[:stageless] == true || opts[:null_session_guid] == true
       session_guid = "\x00" * 16
     else
       session_guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
     end
+
+    STDERR.puts("**** Session config expiration: #{opts[:expiration]}\n")
 
     session_data = [
       0,                  # comms socket, patched in by the stager

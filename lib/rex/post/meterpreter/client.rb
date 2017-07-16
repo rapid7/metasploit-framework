@@ -81,6 +81,7 @@ class Client
   # which communication with the server will be performed.
   #
   def initialize(sock, opts={})
+    STDERR.puts("init in client\n")
     init_meterpreter(sock, opts)
   end
 
@@ -107,6 +108,7 @@ class Client
   # Initializes the meterpreter client instance
   #
   def init_meterpreter(sock,opts={})
+    STDERR.puts("init_meterpreter in client.rb\n")
     self.sock         = sock
     self.parser       = PacketParser.new
     self.ext          = ObjectAliases.new
@@ -120,12 +122,25 @@ class Client
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
-    self.expiration   = opts[:expiration]
-    self.comm_timeout = opts[:comm_timeout]
-    self.retry_total  = opts[:retry_total]
-    self.retry_wait   = opts[:retry_wait]
-    self.passive_dispatcher = opts[:passive_dispatcher]
+
     self.pivot_session = opts[:pivot_session]
+    if self.pivot_session
+      self.expiration   = self.pivot_session.expiration
+      self.comm_timeout = self.pivot_session.comm_timeout
+      self.retry_total  = self.pivot_session.retry_total
+      self.retry_wait   = self.pivot_session.retry_wait
+    else
+      self.expiration   = opts[:expiration]
+      self.comm_timeout = opts[:comm_timeout]
+      self.retry_total  = opts[:retry_total]
+      self.retry_wait   = opts[:retry_wait]
+      self.passive_dispatcher = opts[:passive_dispatcher]
+    end
+
+    STDERR.puts("Expr; #{self.expiration.inspect}\n")
+    STDERR.puts("Comm: #{self.comm_timeout.inspect}\n")
+    STDERR.puts("TOT:  #{self.retry_total.inspect}\n")
+    STDERR.puts("Wait: #{self.retry_wait.inspect}\n")
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
     self.send_keepalives  = true

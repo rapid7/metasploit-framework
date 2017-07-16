@@ -73,8 +73,8 @@ module Msf::Payload::TransportConfig
     ds = opts[:datastore] || datastore
     {
       scheme: 'pipe',
-      lhost:  ds['PIPEHOST'],
-      uri:    "/#{ds['PIPENAME']}"
+      lhost:  ds[:pipe_host] || ds['PIPEHOST'],
+      uri:    "/#{ds[:pipe_host] || ds['PIPENAME']}"
     }.merge(timeout_config(opts))
   end
 
@@ -83,9 +83,9 @@ private
   def timeout_config(opts={})
     ds = opts[:datastore] || datastore
     {
-      comm_timeout: ds['SessionCommunicationTimeout'].to_i,
-      retry_total:  ds['SessionRetryTotal'].to_i,
-      retry_wait:   ds['SessionRetryWait'].to_i
+      comm_timeout: (ds[:comm_timeout] || ds['SessionCommunicationTimeout']).to_i,
+      retry_total:  (ds[:retry_total] || ds['SessionRetryTotal']).to_i,
+      retry_wait:   (ds[:retry_wait] || ds['SessionRetryWait']).to_i
     }
   end
 
