@@ -25,8 +25,7 @@ Gem::Specification.new do |spec|
   spec.license       = 'BSD-3-clause'
 
   # only do a git ls-files if the .git folder exists and we have a git binary in PATH
-  if File.directory?(File.join(File.dirname(__FILE__), ".git")) &&
-      ENV['PATH'].split(':').collect {|d| Dir.entries d if Dir.exists? d}.flatten.include?("git")
+  if File.directory?(File.join(File.dirname(__FILE__), ".git")) && Msf::Util::Helper.which("git")
     spec.files         = `git ls-files`.split($/).reject { |file|
       file =~ /^documentation|^external/
     }
