@@ -13,6 +13,7 @@ end
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
 require 'metasploit/framework/rails_version_constraint'
+require 'msf/util/helper'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
@@ -24,7 +25,8 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
-  if File.directory?(File.join(File.dirname(__FILE__), ".git"))
+  # only do a git ls-files if the .git folder exists and we have a git binary in PATH
+  if File.directory?(File.join(File.dirname(__FILE__), ".git")) && Msf::Util::Helper.which("git")
     spec.files         = `git ls-files`.split($/).reject { |file|
       file =~ /^documentation|^external/
     }
