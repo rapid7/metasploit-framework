@@ -58,7 +58,7 @@ PATH
       rex-mime
       rex-nop
       rex-ole
-      rex-powershell
+      rex-powershell (< 0.1.73)
       rex-random_identifier
       rex-registry
       rex-rop_builder
