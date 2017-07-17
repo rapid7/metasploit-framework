@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
         'References'     =>
           [
+            ['URL', 'https://msdn.microsoft.com/en-us/library/cc240445.aspx']
           ],
         'License'        => MSF_LICENSE
       )
@@ -27,18 +28,18 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(3389)
-        # XXX: add options to turn on/off TLS, CredSSP, early user, cookies, etc.
+        Opt::RPORT(3389),
+        OptBool.new('TLS', [true, 'Wheter or not request TLS security', true]),
+        OptBool.new('CredSSP', [true, 'Whether or not to request CredSSP', true]),
+        OptBool.new('EarlyUser', [true, 'Whether to support Earlier User Authorization Result PDU', false])
       ]
     )
   end
 
-  # simple TPKT v3 + x.224 COTP Connect Request + RDP negotiation request with TLS and CredSSP requested
-  RDP_PROBE = "\x03\x00\x00\x13\x0e\xe0\x00\x00\x00\x00\x00\x01\x00\x08\x00\x03\x00\x00\x00"
   # any TPKT v3 + x.2224 COTP Connect Confirm
-  RDP_RE = /^\x03\x00.{3}\xd0.{7}.*$/
+  RDP_RE = /^\x03\x00.{3}\xd0.{5}.*$/
   def rdp?
-    sock.put(RDP_PROBE)
+    sock.put(@probe)
     response = sock.get_once(-1)
     if response
       if RDP_RE.match?(response)
@@ -51,6 +52,34 @@ class MetasploitModule < Msf::Auxiliary
     else
       vprint_status("No response")
     end
+  end
+
+  def setup
+    # build a simple TPKT v3 + x.224 COTP Connect Request.  optionally append
+    # RDP negotiation request with TLS, CredSSP and Early User as requesteste
+    requestedProtocols = 0
+    if datastore['TLS']
+      requestedProtocols = requestedProtocols ^ 0b1
+    end
+    if datastore['CredSSP']
+      requestedProtocols = requestedProtocols ^ 0b10
+    end
+    if datastore['EarlyUser']
+      requestedProtocols = requestedProtocols ^ 0b1000
+    end
+
+    if requestedProtocols == 0
+      tpkt_len = 11
+      cotp_len = 6
+      pack = [ 3, 0, tpkt_len, cotp_len, 0xe0, 0, 0, 0 ]
+      pack_string = "CCnCCnnC"
+    else
+      tpkt_len = 19
+      cotp_len = 14
+      pack  = [ 3, 0, tpkt_len, cotp_len, 0xe0, 0, 0, 0, 1, 0, 8, 0, requestedProtocols ]
+      pack_string = "CCnCCnnCCCCCV"
+    end
+    @probe = pack.pack(pack_string)
   end
 
   def run_host(_ip)
