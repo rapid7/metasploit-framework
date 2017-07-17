@@ -13,7 +13,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.15.1)
+    metasploit-framework (4.15.2)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -274,7 +274,7 @@ GEM
       rex-arch
     rex-ole (0.1.6)
       rex-text
-    rex-powershell (0.1.72)
+    rex-powershell (0.1.73)
       rex-random_identifier
       rex-text
     rex-random_identifier (0.1.2)
@@ -377,4 +377,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.15.1
+   1.15.2
