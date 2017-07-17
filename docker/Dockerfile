@@ -24,7 +24,6 @@ RUN apk update && \
       bison \
       build-base \
       ruby-dev \
-      libffi-dev\
       openssl-dev \
       readline-dev \
       sqlite-dev \
