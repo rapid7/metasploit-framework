@@ -24,7 +24,6 @@ RUN apk update && \
       bison \
       build-base \
       ruby-dev \
-      libffi-dev\
       openssl-dev \
       readline-dev \
       sqlite-dev \
@@ -35,6 +34,7 @@ RUN apk update && \
       yaml-dev \
       zlib-dev \
       ncurses-dev \
+      git \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
     && bundle install --system $BUNDLER_ARGS \
     && apk del .ruby-builddeps \
