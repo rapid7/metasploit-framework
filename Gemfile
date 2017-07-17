@@ -3,6 +3,12 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+# These pull in pre-release gems in order to fix specific issues.
+# XXX https://github.com/alexdalitz/dnsruby/pull/134
+gem 'dnsruby', git: 'https://github.com/alexdalitz/dnsruby'
+# XXX https://github.com/ConnorAtherton/rb-readline/commit/fd882edcd145c26681f9971be5f6675c7f6d1970
+gem 'rb-readline', git: 'https://github.com/ConnorAtherton/rb-readline'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -37,14 +43,6 @@ group :development, :test do
 end
 
 group :test do
-  # cucumber extension for testing command line applications, like msfconsole
-  gem 'aruba'
-  # cucumber + automatic database cleaning with database_cleaner
-  gem 'cucumber-rails', :require => false
-  gem 'shoulda-matchers'
   # Manipulate Time.now in specs
   gem 'timecop'
-  # Needed to work around a regression between capybara 2.7.1 and xpath 2.1
-  # XXX remove when capybara is updated to work with xpath 2.1
-  gem 'xpath', '2.0'
 end
