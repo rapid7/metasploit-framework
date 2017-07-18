@@ -655,7 +655,7 @@ class ReadableText
       out << "        UUID: #{sess_uuid}\n"
       out << "     CheckIn: #{sess_checkin}\n"
       out << "  Registered: #{sess_registration}\n"
-      unless sess_luri.empty?
+      unless (sess_luri || '').empty?
         out << "        LURI: #{sess_luri}\n"
       end
 
