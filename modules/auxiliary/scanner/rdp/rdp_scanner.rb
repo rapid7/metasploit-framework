@@ -57,18 +57,18 @@ class MetasploitModule < Msf::Auxiliary
   def setup
     # build a simple TPKT v3 + x.224 COTP Connect Request.  optionally append
     # RDP negotiation request with TLS, CredSSP and Early User as requesteste
-    requestedProtocols = 0
+    requested_protocols = 0
     if datastore['TLS']
-      requestedProtocols = requestedProtocols ^ 0b1
+      requested_protocols = requested_protocols ^ 0b1
     end
     if datastore['CredSSP']
-      requestedProtocols = requestedProtocols ^ 0b10
+      requested_protocols = requested_protocols ^ 0b10
     end
     if datastore['EarlyUser']
-      requestedProtocols = requestedProtocols ^ 0b1000
+      requested_protocols = requested_protocols ^ 0b1000
     end
 
-    if requestedProtocols == 0
+    if requested_protocols == 0
       tpkt_len = 11
       cotp_len = 6
       pack = [ 3, 0, tpkt_len, cotp_len, 0xe0, 0, 0, 0 ]
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       tpkt_len = 19
       cotp_len = 14
-      pack  = [ 3, 0, tpkt_len, cotp_len, 0xe0, 0, 0, 0, 1, 0, 8, 0, requestedProtocols ]
+      pack  = [ 3, 0, tpkt_len, cotp_len, 0xe0, 0, 0, 0, 1, 0, 8, 0, requested_protocols ]
       pack_string = "CCnCCnnCCCCCV"
     end
     @probe = pack.pack(pack_string)
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
 
-    service = report_service(
+    report_service(
       host: rhost,
       port: rport,
       proto: 'tcp',
