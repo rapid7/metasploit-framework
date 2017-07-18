@@ -184,7 +184,7 @@ class Msftidy
           warn("Invalid WPVDB reference") if value !~ /^\d+$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
-        when 'URL'
+        when 'URL' || 'AKA'
           if value =~ /^http:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
           elsif value =~ /^http:\/\/www\.securityfocus\.com\/bid\//

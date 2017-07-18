@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("\tOld Password Hashing Algorithm #{vparm["old_passwords"]}")
     print_status("\tLoading of local files: #{vparm["local_infile"]}")
-    print_status("\tLogins with old Pre-4.1 Passwords: #{vparm["secure_auth"]}")
+    print_status("\tDeny logins with old Pre-4.1 Passwords: #{vparm["secure_auth"]}")
     print_status("\tSkipping of GRANT TABLE: #{vparm["skip_grant_tables"]}") if vparm["skip_grant_tables"]
     print_status("\tAllow Use of symlinks for Database Files: #{vparm["have_symlink"]}")
     print_status("\tAllow Table Merge: #{vparm["have_merge_engine"]}")

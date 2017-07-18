@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_ppc64le_linux'
 
 module MetasploitModule
 
-  CachedSize = 789888
+  CachedSize = 790264
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -36,7 +36,10 @@ module MetasploitModule
   end
 
   def generate
-    opts = {scheme: 'http'}
+    opts = {
+      scheme: 'http',
+      stageless: true
+    }
     MetasploitPayloads::Mettle.new('powerpc64le-linux-musl', generate_config(opts)).to_binary :exec
   end
 end

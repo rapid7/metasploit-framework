@@ -13,6 +13,7 @@ end
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
 require 'metasploit/framework/rails_version_constraint'
+require 'msf/util/helper'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
@@ -24,9 +25,12 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
-  spec.files         = `git ls-files`.split($/).reject { |file|
-    file =~ /^documentation|^data\/gui|^external/
-  }
+  # only do a git ls-files if the .git folder exists and we have a git binary in PATH
+  if File.directory?(File.join(File.dirname(__FILE__), ".git")) && Msf::Util::Helper.which("git")
+    spec.files         = `git ls-files`.split($/).reject { |file|
+      file =~ /^documentation|^external/
+    }
+  end
   spec.bindir = '.'
   if ENV['CREATE_BINSTUBS']
     spec.executables   = [
@@ -34,7 +38,6 @@ Gem::Specification.new do |spec|
       'msfd',
       'msfrpc',
       'msfrpcd',
-      'msfupdate',
       'msfvenom'
     ]
   end
@@ -67,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.2.29'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.2.37'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.9'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.10'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -82,8 +85,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'packetfu'
   # For sniffer and raw socket modules
   spec.add_runtime_dependency 'pcaprub'
-  # Needed for module caching in Mdm::ModuleDetails
-  spec.add_runtime_dependency 'pg'
+  # Used by the Metasploit data model, etc.
+  # bound to 0.20 for Activerecord 4.2.8 deprecation warnings:
+  # https://github.com/ged/ruby-pg/commit/c90ac644e861857ae75638eb6954b1cb49617090
+  spec.add_runtime_dependency 'pg', '0.20.0'
   # Run initializers for metasploit-concern, metasploit-credential, metasploit_data_models Rails::Engines
   spec.add_runtime_dependency 'railties'
   # required for OS fingerprinting
@@ -109,8 +114,15 @@ Gem::Specification.new do |spec|
   end
 
   #
+  # File Parsing Libraries
+  #
+  # Needed by auxiliary/gather/http_pdf_authors module
+  spec.add_runtime_dependency 'pdf-reader'
+
+  #
   # Protocol Libraries
   #
+  spec.add_runtime_dependency 'dnsruby'
   spec.add_runtime_dependency 'net-ssh'
   spec.add_runtime_dependency 'ruby_smb'
 
@@ -124,7 +136,7 @@ Gem::Specification.new do |spec|
   # Library for Generating Randomized strings valid as Identifiers such as variable names
   spec.add_runtime_dependency 'rex-random_identifier'
   # library for creating Powershell scripts for exploitation purposes
-  spec.add_runtime_dependency 'rex-powershell'
+  spec.add_runtime_dependency 'rex-powershell', ["< 0.1.73"]
   # Library for processing and creating Zip compatbile archives
   spec.add_runtime_dependency 'rex-zip'
   # Library for parsing offline Windows Registry files
@@ -135,7 +147,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-struct2'
   # Library which contains architecture specific information such as registers, opcodes,
   # and stack manipulation routines.
-  spec.add_runtime_dependency 'rex-arch', '0.1.4'
+  spec.add_runtime_dependency 'rex-arch'
   # Library for working with OLE.
   spec.add_runtime_dependency 'rex-ole'
   # Library for creating and/or parsing MIME messages.
@@ -172,4 +184,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nessus_rest'
   # Nexpose Gem
   spec.add_runtime_dependency 'nexpose'
+  # Needed for NDMP sockets
+  spec.add_runtime_dependency 'xdr'
 end

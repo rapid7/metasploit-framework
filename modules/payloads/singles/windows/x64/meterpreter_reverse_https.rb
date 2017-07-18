@@ -12,7 +12,7 @@ require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
-  CachedSize = 1190467
+  CachedSize = 1189459
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -55,7 +55,8 @@ module MetasploitModule
       uuid:       opts[:uuid],
       transports: [transport_config_reverse_https(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
-      ext_init:   (datastore['EXTINIT'] || '')
+      ext_init:   (datastore['EXTINIT'] || ''),
+      stageless:  true
     }
 
     # create the configuration instance based off the parameters

@@ -9,7 +9,7 @@ require 'msf/core/payload/linux/reverse_tcp'
 
 module MetasploitModule
 
-  CachedSize = 71
+  CachedSize = 99
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux::ReverseTcp
@@ -18,7 +18,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'        => 'Reverse TCP Stager',
       'Description' => 'Connect back to the attacker',
-      'Author'      => [ 'skape', 'egypt' ],
+      'Author'      => [ 'skape', 'egypt', 'tkmru' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'linux',
       'Arch'        => ARCH_X86,

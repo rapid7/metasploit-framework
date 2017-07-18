@@ -139,8 +139,12 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
   end
 
   def disconnect(share)
-    ok = self.client.tree_disconnect(self.shares[share])
-    self.shares.delete(share)
+    if self.shares[share]
+      ok = self.client.tree_disconnect(self.shares[share])
+      self.shares.delete(share)
+      return ok
+    end
+    false
   end
 
 

@@ -91,3 +91,4 @@ docker-compose.local*
 
 # Ignore python bytecode
 *.pyc
+rspec.failures

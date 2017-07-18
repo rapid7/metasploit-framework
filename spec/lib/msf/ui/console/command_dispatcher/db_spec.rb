@@ -288,7 +288,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       it "should list default workspace" do
         db.cmd_workspace
         expect(@output).to match_array [
-          "* default"
+          "%red* default%clr"
         ]
       end
 
@@ -298,7 +298,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         db.cmd_workspace
         expect(@output).to match_array [
           "  default",
-          "* foo"
+          "%red* foo%clr"
         ]
       end
     end

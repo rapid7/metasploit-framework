@@ -7,10 +7,10 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_kernel32
+class Def_windows_kernel32
 
-  def self.create_dll(constant_manager, dll_path = 'kernel32')
-    dll = DLL.new(dll_path, constant_manager)
+  def self.create_library(constant_manager, library_path = 'kernel32')
+    dll = Library.new(library_path, constant_manager)
 
     dll.add_function( 'GetConsoleWindow', 'LPVOID',[])
 

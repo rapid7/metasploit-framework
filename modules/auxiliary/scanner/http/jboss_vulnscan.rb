@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def bypass_auth(app)
-    print_status("#{rhost}:#{rport} Check for verb tampering (HEAD)")
+    print_status("#{rhost}:#{rport} Check for verb tampering (#{datastore['VERB']})")
 
     res = send_request_raw({
       'uri'       => app,

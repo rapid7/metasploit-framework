@@ -14,7 +14,8 @@ class Creds
 
   include Msf::Ui::Console::CommandDispatcher
   include Metasploit::Credential::Creation
-  
+  include Msf::Ui::Console::CommandDispatcher::Common
+
   #
   # The dispatcher's name.
   #
@@ -30,11 +31,11 @@ class Creds
       "creds" => "List all credentials in the database"
     }
   end
-  
+
   def allowed_cred_types
     %w(password ntlm hash)
   end
-  
+
   #
   # Returns true if the db is connected, prints an error and returns
   # false if not.
@@ -50,7 +51,7 @@ class Creds
     end
     true
   end
-  
+
   #
   # Miscellaneous option helpers
   #
@@ -83,22 +84,22 @@ class Creds
     end
     return true
   end
-  
+
   #
   # Can return return active or all, on a certain host or range, on a
   # certain port or range, and/or on a service name.
   #
   def cmd_creds(*args)
     return unless active?
-    
+
     # Short-circuit help
     if args.delete "-h"
       cmd_creds_help
       return
     end
-    
+
     subcommand = args.shift
-    
+
     case subcommand
     when 'help'
       cmd_creds_help
@@ -111,7 +112,7 @@ class Creds
     end
 
   end
-  
+
   #
   # TODO: this needs to be cleaned up to use the new syntax
   #
@@ -158,7 +159,7 @@ class Creds
     print_line "   creds add user:other hash:d19c32489b870735b5f587d76b934283"
     print_line "   # Add a NonReplayableHash"
     print_line "   creds add hash:d19c32489b870735b5f587d76b934283"
-    
+
     print_line
     print_line "General options"
     print_line "  -h,--help             Show this help information"
@@ -188,7 +189,7 @@ class Creds
     print_line "  creds -d -s smb"
     print_line
   end
-  
+
   # @param private_type [Symbol] See `Metasploit::Credential::Creation#create_credential`
   # @param username [String]
   # @param password [String]
@@ -200,35 +201,35 @@ class Creds
       hsh[opt[0]] = opt[1..-1].join(':') # everything before the first : is the key, reasembling everything after the colon. why ntlm hashes
       hsh
     end
-    
+
     begin
       params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name')
     rescue ArgumentError => e
       print_error(e.message)
     end
-    
+
     # Verify we only have one type of private
     if params.slice('password','ntlm','ssh-key','hash').length > 1
       private_keys = params.slice('password','ntlm','ssh-key','hash').keys
       print_error("You can only specify a single Private type. Private types given: #{private_keys.join(', ')}")
       return
     end
-    
+
     login_keys = params.slice('address','port','protocol','service-name')
     if login_keys.any? and login_keys.length < 3
       missing_login_keys = ['host','port','proto','service-name'] - login_keys.keys
       print_error("Creating a login requires a address, a port, and a protocol. Missing params: #{missing_login_keys}")
       return
     end
-   
+
     data = {
       workspace_id: framework.db.workspace,
       origin_type: :import,
       filename: 'msfconsole'
     }
-    
+
     data[:username] = params['user'] if params.key? 'user'
-    
+
     if params.key? 'realm'
       if params.key? 'realm-type'
         if Metasploit::Model::Realm::Key::SHORT_NAMES.key? params['realm-type']
@@ -267,7 +268,7 @@ class Creds
       data[:private_type] = :nonreplayable_hash
       data[:private_data] = params['hash']
     end
-        
+
     begin
       if login_keys.any?
         data[:address] = params['address']
@@ -282,7 +283,7 @@ class Creds
       print_error("Failed to add #{data['private_type']}: #{e}")
     end
   end
-  
+
   def creds_search(*args)
     host_ranges   = []
     origin_ranges = []
@@ -296,6 +297,7 @@ class Creds
     cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type' ]
     user = nil
     delete_count = 0
+    search_term = nil
 
     while (arg = args.shift)
       case arg
@@ -346,6 +348,8 @@ class Creds
           return
         end
         arg_host_range(hosts, origin_ranges)
+      when '-S', '--search-term'
+        search_term = args.shift
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -375,7 +379,8 @@ class Creds
     svcs.flatten!
     tbl_opts = {
       'Header'  => "Credentials",
-      'Columns' => cred_table_columns
+      'Columns' => cred_table_columns,
+      'SearchTerm' => search_term
     }
 
     tbl = Rex::Text::Table.new(tbl_opts)
@@ -513,8 +518,8 @@ class Creds
     end
     return tabs
   end
-  
-  
+
+
 end
 
 end end end end

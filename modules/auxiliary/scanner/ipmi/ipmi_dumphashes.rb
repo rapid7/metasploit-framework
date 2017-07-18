@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def ipmi_good(msg)
-    vprint_good("#{rhost}:#{rport} - IPMI - #{msg}")
+    print_good("#{rhost}:#{rport} - IPMI - #{msg}")
   end
 
   def run_host(ip)
