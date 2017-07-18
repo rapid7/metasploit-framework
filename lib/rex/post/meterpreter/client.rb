@@ -81,7 +81,6 @@ class Client
   # which communication with the server will be performed.
   #
   def initialize(sock, opts={})
-    STDERR.puts("init in client\n")
     init_meterpreter(sock, opts)
   end
 
@@ -89,6 +88,16 @@ class Client
   # Cleans up the meterpreter instance, terminating the dispatcher thread.
   #
   def cleanup_meterpreter
+    self.pivots.keys.each do |k|
+      pivot = self.pivots[k]
+      pivot.pivoted_session.kill('Pivot closed')
+      pivot.pivoted_session.shutdown_passive_dispatcher
+    end
+
+    if self.pivot_session
+      self.pivot_session.remove_pivot(self.session_guid)
+    end
+
     if not self.skip_cleanup
       ext.aliases.each_value do | extension |
         extension.cleanup if extension.respond_to?( 'cleanup' )
@@ -108,7 +117,6 @@ class Client
   # Initializes the meterpreter client instance
   #
   def init_meterpreter(sock,opts={})
-    STDERR.puts("init_meterpreter in client.rb\n")
     self.sock         = sock
     self.parser       = PacketParser.new
     self.ext          = ObjectAliases.new
@@ -136,11 +144,6 @@ class Client
       self.retry_wait   = opts[:retry_wait]
       self.passive_dispatcher = opts[:passive_dispatcher]
     end
-
-    STDERR.puts("Expr; #{self.expiration.inspect}\n")
-    STDERR.puts("Comm: #{self.comm_timeout.inspect}\n")
-    STDERR.puts("TOT:  #{self.retry_total.inspect}\n")
-    STDERR.puts("Wait: #{self.retry_wait.inspect}\n")
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
     self.send_keepalives  = true

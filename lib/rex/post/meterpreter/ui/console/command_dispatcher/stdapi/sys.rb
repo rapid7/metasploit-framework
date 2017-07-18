@@ -903,7 +903,6 @@ class Console::CommandDispatcher::Stdapi::Sys
     )
 
     privs = client.sys.config.getprivs
-    STDERR.puts(privs.inspect+"\n")
     client.sys.config.getprivs.each do |priv|
       table << [priv[:priv], priv[:enabled].to_s]
     end

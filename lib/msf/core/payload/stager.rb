@@ -89,7 +89,6 @@ module Msf::Payload::Stager
   #
   # @return [String,nil]
   def stage_payload(opts = {})
-    STDERR.puts("In stager stage_payload: #{opts.inspect}\n")
     if module_info['Stage']
       return module_info['Stage']['Payload']
     end

@@ -40,12 +40,19 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     true
   end
 
+  def tunnel_to_s
+    if self.pivot_session
+      "Pivot via [#{self.pivot_session.tunnel_to_s}]"
+    else
+      super
+    end
+  end
+
   #
   # Initializes a meterpreter session instance using the supplied rstream
   # that is to be used as the client's connection to the server.
   #
   def initialize(rstream, opts={})
-    STDERR.puts("init in meterpreter\n")
     super
 
     opts[:capabilities] = {
@@ -116,12 +123,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def bootstrap(datastore={})
     session = self
 
-    STDERR.puts("meterpreter session on_session\n")
-
     # Defer the session initialization to the Session Manager scheduler
     framework.sessions.schedule Proc.new {
 
-    STDERR.puts("meterpreter options on_session proc running 1\n")
     # Configure unicode encoding before loading stdapi
     session.encode_unicode = datastore['EnableUnicodeEncoding']
 
@@ -129,9 +133,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     valid = true
 
-    STDERR.puts("meterpreter options on_session proc running 2: #{session.core.inspect}\n")
     session.tlv_enc_key = session.core.negotiate_tlv_encryption
-    STDERR.puts("meterpreter options on_session proc running 3\n")
 
     unless datastore['AutoVerifySession'] == false
       unless session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
@@ -140,10 +142,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       end
     end
 
-    STDERR.puts("meterpreter options on_session proc running 4\n")
     if valid
       # always make sure that the new session has a new guid if it's not already known
-      STDERR.puts("meterpreter options on_session proc running 5\n")
       guid = session.session_guid
       if guid == "\x00" * 16
         guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
@@ -156,9 +156,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
       unless datastore['AutoLoadStdapi'] == false
 
-        STDERR.puts("meterpreter options on_session proc running 6\n")
         session.load_stdapi
-        STDERR.puts("meterpreter options on_session proc running 7\n")
 
         unless datastore['AutoSystemInfo'] == false
           session.load_session_info
@@ -344,14 +342,14 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Terminates the session
   #
-  def kill
+  def kill(reason='')
     begin
       cleanup_meterpreter
       self.sock.close if self.sock
     rescue ::Exception
     end
     # deregister will actually trigger another cleanup
-    framework.sessions.deregister(self)
+    framework.sessions.deregister(self, reason)
   end
 
   #

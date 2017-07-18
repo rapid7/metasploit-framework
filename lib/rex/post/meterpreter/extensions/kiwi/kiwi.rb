@@ -80,7 +80,6 @@ class Kiwi < Extension
       elsif output =~ /^ERROR.*SamLookupNamesInDomain/m
         result[:error] = 'Invalid user.'
       else
-        STDERR.puts(output)
         result[:error] = 'Unknown error.'
       end
     else
