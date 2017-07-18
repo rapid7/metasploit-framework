@@ -14,7 +14,7 @@ Don't worry about it.  Metasploit Project uses msftidy as the minimum barrier to
 ## So what suggestions should you take to heart?
 
 #### Spacing
-White space affects code readability, and we'd like to try and maintain (or establish) an continual look and feel.  If Rubocop complains about whitespace, please take it to heart.
+White space affects code readability, and we'd like to try and maintain (or establish) a continual look and feel.  If Rubocop complains about whitespace, please take it to heart.
 
 #### Parentheticals, braces, and brackets
 Rubocop likes aligned parentheses, spaces around brackets, and is picky about spacing around most encapsulating syntax elements.  As a big fan of Python, I agree wholeheartedly with these alignment and spacing suggestions, as it makes me feel like I'm home.  Others will disagree about importance, but no one will complain if you do it right, only varying volumes of complaining when doing it wrong.
