@@ -40,12 +40,19 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     true
   end
 
+  def tunnel_to_s
+    if self.pivot_session
+      "Pivot via [#{self.pivot_session.tunnel_to_s}]"
+    else
+      super
+    end
+  end
+
   #
   # Initializes a meterpreter session instance using the supplied rstream
   # that is to be used as the client's connection to the server.
   #
   def initialize(rstream, opts={})
-    STDERR.puts("init in meterpreter\n")
     super
 
     opts[:capabilities] = {
@@ -327,14 +334,14 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Terminates the session
   #
-  def kill
+  def kill(reason='')
     begin
       cleanup_meterpreter
       self.sock.close if self.sock
     rescue ::Exception
     end
     # deregister will actually trigger another cleanup
-    framework.sessions.deregister(self)
+    framework.sessions.deregister(self, reason)
   end
 
   #

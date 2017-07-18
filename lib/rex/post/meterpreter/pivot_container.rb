@@ -25,7 +25,7 @@ module PivotContainer
   # session guid.
   #
   def add_pivot(pivot)
-    self.pivots[pivot.pivot_session_guid] = pivot
+    self.pivots[pivot.pivoted_session.session_guid] = pivot
   end
 
   def add_pivot_listener(listener)
@@ -48,6 +48,10 @@ module PivotContainer
   #
   def remove_pivot(pivot_session_guid)
     return self.pivots.delete(pivot_session_guid)
+  end
+
+  def remove_pivot_listener(listener_id)
+    return self.pivot_listeners.delete(listener_id)
   end
 
   #

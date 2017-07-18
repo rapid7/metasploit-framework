@@ -12,9 +12,12 @@ class PivotListener
 
   attr_accessor :session_class
 
-  def initialize(session_class)
+  attr_accessor :display_name
+
+  def initialize(session_class, display_name)
     self.id = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
     self.session_class = session_class
+    self.display_name = display_name
   end
 end
 
@@ -25,10 +28,7 @@ class Pivot
   #
   attr_accessor :client
 
-  attr_accessor :pivot_session_guid
-
   attr_accessor :pivoted_session
-
 
   # Class modifications to support global pivot message
   # dispatching without having to register a per-instance handler
@@ -39,17 +39,35 @@ class Pivot
     # to the appropriate class instance's DIO handler
     def request_handler(client, packet)
       if packet.method == 'core_pivot_session_new'
-        STDERR.puts("Received pivot packet! #{packet.inspect}\n")
         session_guid = packet.get_tlv_value(TLV_TYPE_SESSION_GUID)
         listener_id = packet.get_tlv_value(TLV_TYPE_PIVOT_ID)
-        Pivot.new(client, session_guid, listener_id)
+        client.add_pivot(Pivot.new(client, session_guid, listener_id))
+      elsif packet.method == 'core_pivot_session_died'
+        session_guid = packet.get_tlv_value(TLV_TYPE_SESSION_GUID)
+        pivot = client.find_pivot(session_guid)
+        if pivot
+          pivot.pivoted_session.kill('Died')
+          client.remove_pivot(session_guid)
+        end
       end
       true
     end
   end
 
+  def Pivot.get_listeners(client)
+    client.pivot_listeners
+  end
+
+  def Pivot.remove_listener(client, listener_id)
+    if client.find_pivot_listener(listener_id)
+      request = Packet.create_request('core_pivot_remove')
+      request.add_tlv(TLV_TYPE_PIVOT_ID, listener_id)
+      client.send_request(request)
+      client.remove_pivot_listener(listener_id)
+    end
+  end
+
   def Pivot.create_named_pipe_listener(client, opts={})
-    STDERR.puts("Create listener: #{opts}\n")
     request = Packet.create_request('core_pivot_add')
     request.add_tlv(TLV_TYPE_PIVOT_NAMED_PIPE_NAME, opts[:pipe_name])
 
@@ -63,25 +81,15 @@ class Pivot
     when 'windows'
       # Include the appropriate reflective dll injection module for the target process architecture...
       if opts[:arch] == ARCH_X86
-        STDERR.puts("Including Meterp Loader x86\n")
         c.include(::Msf::Payload::Windows::MeterpreterLoader)
       elsif opts[:arch] == ARCH_X64
-        STDERR.puts("Including Meterp Loader x64\n")
         c.include(::Msf::Payload::Windows::MeterpreterLoader_x64)
       else
-        STDERR.puts("Not including a loader for #{opts[:arch]}\n")
+        STDERR.puts("Not including a loader for '#{opts[:arch]}'\n")
       end
     end
 
-    # TODO: should we be generating configuration inside Meterpreter like
-    # we do for migration, or just having a fixed one like we are now?
-    #uuid = Msf::Payload::UUID.new({
-    #  arch: opts[:arch],
-    #  platform: opts[:platform]
-    #})
-
     stage_opts = {
-      #uuid: uuid,
       arch: opts[:arch],
       force_write_handle: true,
       null_session_guid: true,
@@ -100,11 +108,10 @@ class Pivot
     stager = c.new()
 
     stage_opts[:transport_config] = [stager.transport_config_reverse_named_pipe(stage_opts)]
-    #STDERR.puts("Stager: #{stager.inspect}\n")
     stage = stager.stage_payload(stage_opts)
-    #STDERR.puts("Stage: #{stage.inspect}\n")
 
-    pivot_listener = PivotListener.new(::Msf::Sessions::Meterpreter_x86_Win)
+    display_name = "pipe://#{opts[:pipe_host]}/#{opts[:pipe_name]} (#{opts[:arch]}/#{opts[:platform]})"
+    pivot_listener = PivotListener.new(::Msf::Sessions::Meterpreter_x86_Win, display_name)
 
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)
@@ -113,11 +120,12 @@ class Pivot
     client.send_request(request)
 
     client.add_pivot_listener(pivot_listener)
+
+    pivot_listener
   end
 
   def initialize(client, session_guid, listener_id)
     self.client = client
-    self.pivot_session_guid = session_guid
 
     opts = {
       pivot_session: client,
@@ -127,17 +135,9 @@ class Pivot
     listener = client.find_pivot_listener(listener_id)
     self.pivoted_session = listener.session_class.new(nil, opts)
 
-    STDERR.puts("pivoted session instance created: #{self.pivoted_session.inspect}\n")
-
-    self.client.add_pivot(self)
-
-    STDERR.puts("Setting the framework instance\n")
     self.pivoted_session.framework = self.client.framework
-    STDERR.puts("Invoking the on_session method\n")
     self.pivoted_session.bootstrap({'AutoVerifySessionTimeout' => 30})
-    STDERR.puts("Registering the session with the framework\n")
     self.client.framework.sessions.register(self.pivoted_session)
-    STDERR.puts("done!\n")
   end
 
 protected

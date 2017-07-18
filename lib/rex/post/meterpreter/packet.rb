@@ -236,6 +236,11 @@ class Tlv
       when TLV_TYPE_SYM_KEY; "SYM-KEY"
       when TLV_TYPE_ENC_SYM_KEY; "ENC-SYM-KEY"
 
+      when TLV_TYPE_PIVOT_ID; "PIVOT-ID"
+      when TLV_TYPE_PIVOT_STAGE_DATA; "PIVOT-STAGE-DATA"
+      when TLV_TYPE_PIVOT_STAGE_DATA_SIZE; "PIVOT-STAGE-DATA-SIZE"
+      when TLV_TYPE_PIVOT_NAMED_PIPE_NAME; "PIVOT-NAMED-PIPE-NAME"
+
       #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
       #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
       #when Extensions::Stdapi::TLV_TYPE_NETMASK; 'netmask'

@@ -68,8 +68,6 @@ module Payload::Windows::MeterpreterLoader
   end
 
   def stage_payload(opts={})
-    STDERR.puts("In stage_payload: #{opts.inspect}\n")
-
     stage_meterpreter(opts) + generate_config(opts)
   end
 

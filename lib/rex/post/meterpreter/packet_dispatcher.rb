@@ -161,7 +161,6 @@ module PacketDispatcher
     if self.pivot_session
       opts[:session_guid] = self.session_guid
       opts[:tlv_enc_key] = self.tlv_enc_key
-      STDERR.puts("Pivot session, setting guid: #{self.session_guid.unpack('H*')[0]}...\n")
       return self.pivot_session.send_packet(packet, opts)
     end
 
@@ -178,15 +177,9 @@ module PacketDispatcher
       tlv_enc_key = opts[:tlv_enc_key]
     end
 
-    STDERR.puts(" Current Session GUID: #{self.session_guid.unpack('H*')[0]}\n")
-    STDERR.puts("Provided Session GUID: #{session_guid.unpack('H*')[0]}\n")
-    STDERR.puts("Using tlv_enc_key: #{tlv_enc_key.inspect}\n")
-
     bytes = 0
     raw   = packet.to_r(session_guid, tlv_enc_key)
     err   = nil
-
-    STDERR.puts("Outgoing packet is #{raw.length} bytes\n")
 
     # Short-circuit send when using a passive dispatcher
     if self.passive_service
@@ -249,45 +242,35 @@ module PacketDispatcher
   # @param timeout [Integer,nil] number of seconds to wait, or nil to wait
   #   forever
   def send_packet_wait_response(packet, timeout)
-    STDERR.puts("send_packet_wait_response entry\n")
     # First, add the waiter association for the supplied packet
     waiter = add_response_waiter(packet)
-    STDERR.puts("send_packet_wait_response 1\n")
 
     bytes_written = send_packet(packet)
-    STDERR.puts("send_packet_wait_response 2\n")
 
     # Transmit the packet
     if (bytes_written.to_i <= 0)
-      STDERR.puts("send_packet_wait_response 3\n")
       # Remove the waiter if we failed to send the packet.
       remove_response_waiter(waiter)
       return nil
     end
 
-    STDERR.puts("send_packet_wait_response 4\n")
     if not timeout
       return nil
     end
-    STDERR.puts("send_packet_wait_response 5 #{waiter.inspect}\n")
 
     # Wait for the supplied time interval
     response = waiter.wait(timeout)
-    STDERR.puts("send_packet_wait_response 6\n")
 
     # Remove the waiter from the list of waiters in case it wasn't
     # removed. This happens if the waiter timed out above.
     remove_response_waiter(waiter)
-    STDERR.puts("send_packet_wait_response 7\n")
 
     # wire in the UUID for this, as it should be part of every response
     # packet
     if response && !self.payload_uuid
-      STDERR.puts("send_packet_wait_response 8\n")
       uuid = response.get_tlv_value(TLV_TYPE_UUID)
       self.payload_uuid = Msf::Payload::UUID.new({:raw => uuid}) if uuid
     end
-    STDERR.puts("send_packet_wait_response 9\n")
 
     # Return the response packet, if any
     return response
@@ -493,11 +476,9 @@ module PacketDispatcher
   #
   def add_response_waiter(request, completion_routine = nil, completion_param = nil)
     if self.pivot_session
-      STDERR.puts("Adding waiter in pivoted session: #{self.pivot_session}\n")
       return self.pivot_session.add_response_waiter(request, completion_routine, completion_param)
     end
 
-    STDERR.puts("Adding waiting in current session: #{self.inspect}\n")
     waiter = PacketResponseWaiter.new(request.rid, completion_routine, completion_param)
 
     self.waiters << waiter
@@ -559,17 +540,12 @@ module PacketDispatcher
   def dispatch_inbound_packet(packet)
     handled = false
 
-    STDERR.puts("Inbound packet: #{packet.session_guid.unpack('H*')[0]}\n")
     pivot = self.find_pivot(packet.session_guid)
-    STDERR.puts("Pivot is: #{pivot.inspect}\n")
 
     tlv_enc_key = self.tlv_enc_key
-    STDERR.puts("Getting enc key\n")
     tlv_enc_key = pivot.pivoted_session.tlv_enc_key if pivot
-    STDERR.puts("Got enc key #{tlv_enc_key.inspect}\n")
 
     packet.from_r(tlv_enc_key)
-    STDERR.puts("Decrypted packet: #{packet.inspect}\n")
 
     # Update our last reply time
     self.last_checkin = Time.now
@@ -577,7 +553,6 @@ module PacketDispatcher
 
     # If the packet is a response, try to notify any potential
     # waiters
-    STDERR.puts("Notifying response waiter for packet")
     if packet.response? && notify_response_waiter(packet)
       return true
     end
