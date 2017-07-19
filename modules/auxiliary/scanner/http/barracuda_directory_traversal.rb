@@ -85,5 +85,4 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
   rescue ::Timeout::Error, ::Errno::EPIPE
   end
-
 end

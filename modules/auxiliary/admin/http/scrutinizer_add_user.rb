@@ -81,5 +81,4 @@ class MetasploitModule < Msf::Auxiliary
       print_line(res.body)
     end
   end
-
 end

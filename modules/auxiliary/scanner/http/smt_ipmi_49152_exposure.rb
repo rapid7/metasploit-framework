@@ -98,5 +98,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Password data from #{uri} stored to #{path}")
     end
   end
-
 end

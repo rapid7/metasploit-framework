@@ -29,5 +29,4 @@ module MetasploitModule
       'Handler'     => Msf::Handler::ReverseHttp,
       'Convention'  => 'sockedi http'))
   end
-
 end

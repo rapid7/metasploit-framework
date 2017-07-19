@@ -121,5 +121,4 @@ class MetasploitModule < Msf::Auxiliary
     percent = "%3.2f%%" % done.to_f
     print_status("Obtaining file contents - %7s done (%d/%d bytes)" % [percent, current, total])
   end
-
 end

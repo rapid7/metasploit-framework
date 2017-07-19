@@ -52,5 +52,4 @@ class MetasploitModule < Msf::Post
     vprint_status(res)
     Rex.sleep(0.1)
   end
-
 end

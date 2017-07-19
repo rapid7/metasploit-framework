@@ -87,5 +87,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good "#{peer}: detected #{counter} headers"
     end
   end
-
 end

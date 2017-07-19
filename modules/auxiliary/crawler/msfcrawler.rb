@@ -403,7 +403,6 @@ class MetasploitModule < Msf::Auxiliary
   def hashsig(hashreq)
     hashreq.to_s
   end
-
 end
 
 class BaseParser

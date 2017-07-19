@@ -63,5 +63,4 @@ class MetasploitModule < Msf::Post
       @ltype = "unix.environment"
     end
   end
-
 end

@@ -81,5 +81,4 @@ class MetasploitModule < Msf::Encoder
 
     return buf
   end
-
 end

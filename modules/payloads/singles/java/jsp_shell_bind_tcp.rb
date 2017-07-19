@@ -38,5 +38,4 @@ module MetasploitModule
   def generate
     return super + jsp_bind_tcp
   end
-
 end

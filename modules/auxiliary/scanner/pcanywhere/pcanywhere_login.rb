@@ -188,5 +188,4 @@ class MetasploitModule < Msf::Auxiliary
     header << data
     return header
   end
-
 end

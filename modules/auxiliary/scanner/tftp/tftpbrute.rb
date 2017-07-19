@@ -66,5 +66,4 @@ class MetasploitModule < Msf::Auxiliary
       udp_sock.close
     end
   end
-
 end

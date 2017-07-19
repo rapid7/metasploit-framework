@@ -184,5 +184,4 @@ class MetasploitModule < Msf::Auxiliary
 
     start_session(self, "rexec #{user}:#{pass} (#{host}:#{port})", merge_me)
   end
-
 end

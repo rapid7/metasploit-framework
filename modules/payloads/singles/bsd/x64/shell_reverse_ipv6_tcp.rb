@@ -87,5 +87,4 @@ module MetasploitModule
          OptInt.new('SCOPEID', [false, "IPv6 scope ID, for link-local addresses", 0])
       ])
   end
-
 end

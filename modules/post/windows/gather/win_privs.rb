@@ -58,5 +58,4 @@ class MetasploitModule < Msf::Post
     print_line(usr_tbl.to_s)
     print_line(privs_tbl.to_s)
   end
-
 end

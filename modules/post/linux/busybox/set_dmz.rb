@@ -35,5 +35,4 @@ class MetasploitModule < Msf::Post
 
     vprint_status(cmd_exec('iptables --list'))
   end
-
 end

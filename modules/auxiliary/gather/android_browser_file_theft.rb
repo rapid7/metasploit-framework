@@ -177,5 +177,4 @@ class MetasploitModule < Msf::Auxiliary
   def hex2bin(hex)
     hex.chars.each_slice(2).map(&:join).map { |c| c.to_i(16) }.map(&:chr).join
   end
-
 end

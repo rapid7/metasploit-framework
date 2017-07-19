@@ -181,5 +181,4 @@ class MetasploitModule < Msf::Post
     ruby_time = Time.at(unix_time)
     ruby_time.strftime("%d/%m/%Y %H:%M:%S GMT %z")
   end
-
 end

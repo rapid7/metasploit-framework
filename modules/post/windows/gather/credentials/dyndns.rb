@@ -196,5 +196,4 @@ class MetasploitModule < Msf::Post
     # Store data
     do_report(config)
   end
-
 end

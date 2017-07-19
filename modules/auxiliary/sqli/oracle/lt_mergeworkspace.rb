@@ -97,5 +97,4 @@ class MetasploitModule < Msf::Auxiliary
     prepare_exec(clean)
 
   end
-
 end

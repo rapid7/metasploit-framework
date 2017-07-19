@@ -263,6 +263,5 @@ class MetasploitModule < Msf::Auxiliary
       print_status("The target appears to be safe")
     end
   end
-
 end
 

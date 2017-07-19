@@ -93,5 +93,4 @@ class MetasploitModule < Msf::Post
     f = store_loot('enumerated.artifacts', 'text/plain', session, str, name)
     print_status("#{name} stored in: #{f}")
   end
-
 end

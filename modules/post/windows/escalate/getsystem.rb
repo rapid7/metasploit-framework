@@ -51,5 +51,4 @@ class MetasploitModule < Msf::Post
       print_error("Failed to obtain SYSTEM access")
     end
   end
-
 end

@@ -33,5 +33,4 @@ class MetasploitModule < Msf::Nop
 
     opty.generate_sled(length)
   end
-
 end

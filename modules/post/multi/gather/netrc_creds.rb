@@ -95,5 +95,4 @@ class MetasploitModule < Msf::Post
       print_status("Credentials stored in: #{p.to_s}")
     end
   end
-
 end

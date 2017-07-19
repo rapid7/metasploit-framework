@@ -333,5 +333,4 @@ class MetasploitModule < Msf::Post
       migrate(@old_pid)
     end
   end
-
 end

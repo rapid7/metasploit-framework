@@ -61,5 +61,4 @@ module MetasploitModule
   def dll_string
     return datastore['DLL'] || ''
   end
-
 end

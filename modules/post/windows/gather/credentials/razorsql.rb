@@ -208,7 +208,6 @@ class MetasploitModule < Msf::Post
 
     aes.update(enc) + aes.final
   end
-
 end
 
 =begin

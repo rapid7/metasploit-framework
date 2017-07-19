@@ -176,5 +176,4 @@ class MetasploitModule < Msf::Auxiliary
 
     arguments
   end
-
 end

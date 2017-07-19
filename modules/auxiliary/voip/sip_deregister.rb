@@ -122,5 +122,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return true # set response to true
   end
-
 end

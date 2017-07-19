@@ -282,7 +282,6 @@ class MetasploitModule < Msf::Post
     save(:account, account_data) if not account_data.nil? and not account_data.empty?
     save(:chatlogs, chatlogs) if not chatlogs.nil? and not chatlogs.empty?
   end
-
 end
 
 =begin

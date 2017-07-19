@@ -137,5 +137,4 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{rhost}:#{rport} - File saved in: #{path}")
 
   end
-
 end

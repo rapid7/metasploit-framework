@@ -86,5 +86,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("You can bypass auth by doing: #{bypass_string}")
     end
   end
-
 end

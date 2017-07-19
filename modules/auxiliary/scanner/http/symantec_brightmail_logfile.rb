@@ -143,5 +143,4 @@ class MetasploitModule < Msf::Auxiliary
     fname = datastore['FILENAME']
     download_file(sid, fname)
   end
-
 end

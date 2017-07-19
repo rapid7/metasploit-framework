@@ -60,5 +60,4 @@ class MetasploitModule < Msf::Encoder::Xor
   def saved_registers
     Rex::Arch::X86.register_names_to_ids(datastore['SaveRegisters'])
   end
-
 end

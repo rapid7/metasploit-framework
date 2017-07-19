@@ -165,5 +165,4 @@ module MetasploitModule
     temp = Rex::Text.rand_text_alphanumeric(9)
     data.gsub("msf_stage_xxxxxxxxx.bin", "msf_stage_#{temp}.bin")
   end
-
 end

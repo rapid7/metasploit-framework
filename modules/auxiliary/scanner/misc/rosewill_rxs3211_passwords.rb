@@ -119,5 +119,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return pkt[0][333,12] if pkt[0][6,4] == "\x01\x06\xff\xf9"
   end
-
 end

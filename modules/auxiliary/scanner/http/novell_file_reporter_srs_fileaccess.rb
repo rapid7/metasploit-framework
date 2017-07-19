@@ -68,6 +68,5 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Failed to retrieve the file contents")
     end
   end
-
 end
 

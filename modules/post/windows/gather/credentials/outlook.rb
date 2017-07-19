@@ -385,5 +385,4 @@ class MetasploitModule < Msf::Post
 
     print_status("Complete")
   end
-
 end

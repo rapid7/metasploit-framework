@@ -394,5 +394,4 @@ class MetasploitModule < Msf::Auxiliary
       nil
     end
   end
-
 end

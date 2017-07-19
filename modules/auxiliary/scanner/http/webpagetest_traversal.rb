@@ -69,5 +69,4 @@ class MetasploitModule < Msf::Auxiliary
     p = store_loot('webpagetest.traversal.file', 'application/octet-stream', ip, res.body, File.basename(file))
     print_good("File saved as: #{p}")
   end
-
 end

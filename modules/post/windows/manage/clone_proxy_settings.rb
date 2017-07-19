@@ -155,5 +155,4 @@ class MetasploitModule < Msf::Post
     target_settings(dst_root_key, dst_base_key)
 
   end
-
 end

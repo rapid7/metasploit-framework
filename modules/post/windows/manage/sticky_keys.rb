@@ -117,5 +117,4 @@ class MetasploitModule < Msf::Post
       print_good("'Sticky keys' removed from registry key #{target_key}.")
     end
   end
-
 end

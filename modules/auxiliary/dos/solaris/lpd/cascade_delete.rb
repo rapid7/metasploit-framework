@@ -100,5 +100,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status(sprintf("     Uploaded %.4d bytes >> #{name}", data.length))
     return true
   end
-
 end

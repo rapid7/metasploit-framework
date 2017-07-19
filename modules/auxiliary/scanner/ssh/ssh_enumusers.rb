@@ -191,5 +191,4 @@ class MetasploitModule < Msf::Auxiliary
       user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
     end
   end
-
 end

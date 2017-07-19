@@ -73,5 +73,4 @@ module MetasploitModule
 
     second_stage.stage_payload(opts)
   end
-
 end

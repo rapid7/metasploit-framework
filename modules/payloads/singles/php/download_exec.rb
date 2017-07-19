@@ -78,5 +78,4 @@ module MetasploitModule
   def generate
     return php_exec_file
   end
-
 end

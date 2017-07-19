@@ -56,5 +56,4 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
       badchars
     ) ? false : true)
   end
-
 end

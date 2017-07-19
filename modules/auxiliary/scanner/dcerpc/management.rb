@@ -84,5 +84,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Error: #{e}")
     end
   end
-
 end

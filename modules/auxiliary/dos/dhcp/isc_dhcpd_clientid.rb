@@ -63,5 +63,4 @@ class MetasploitModule < Msf::Auxiliary
     req[28,6] = chaddr
     req + payload
   end
-
 end

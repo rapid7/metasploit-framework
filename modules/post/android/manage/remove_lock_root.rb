@@ -40,6 +40,5 @@ class MetasploitModule < Msf::Post
 
     print_status("Device should be unlocked or no longer require a pin")
   end
-
 end
 

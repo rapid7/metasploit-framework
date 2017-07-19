@@ -242,5 +242,4 @@ class MetasploitModule < Msf::Nop
 
     return sled
   end
-
 end

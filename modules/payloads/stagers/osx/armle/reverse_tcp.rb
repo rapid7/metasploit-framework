@@ -126,5 +126,4 @@ module MetasploitModule
 
     return true
   end
-
 end

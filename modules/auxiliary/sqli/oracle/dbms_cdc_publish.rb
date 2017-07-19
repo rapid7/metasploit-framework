@@ -68,5 +68,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Done! Removing function '#{name}'...")
     prepare_exec(clean)
   end
-
 end

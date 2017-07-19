@@ -93,5 +93,4 @@ module MetasploitModule
 
     super
   end
-
 end

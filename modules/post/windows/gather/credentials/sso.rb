@@ -150,6 +150,5 @@ class MetasploitModule < Msf::Post
 
     system_users.find{|r| user.to_s.match(r)}
   end
-
 end
 

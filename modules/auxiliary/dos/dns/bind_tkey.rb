@@ -83,5 +83,4 @@ class MetasploitModule < Msf::Auxiliary
     query << txt_length  # TXT Length
     query << txt         # TXT
   end
-
 end

@@ -73,5 +73,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Deltas: #{deltas.map{|x| "%.8x" % x}.join(", ")}")
     end
   end
-
 end

@@ -155,5 +155,4 @@ class MetasploitModule < Msf::Post
     move_file(sc_path, target_path)
     target_path
   end
-
 end

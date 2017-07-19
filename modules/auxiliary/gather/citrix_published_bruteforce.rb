@@ -176,5 +176,4 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect_udp
   end
-
 end

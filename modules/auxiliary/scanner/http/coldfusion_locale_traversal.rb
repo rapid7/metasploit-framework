@@ -191,7 +191,6 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
   rescue ::Timeout::Error, ::Errno::EPIPE
   end
-
 end
 
 # URLs that may work for you:

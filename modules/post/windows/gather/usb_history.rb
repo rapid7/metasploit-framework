@@ -208,5 +208,4 @@ class MetasploitModule < Msf::Post
     out << sprintf("%25s\t%50s\n", "Driver", hash['Driver'])
     return out
   end
-
 end

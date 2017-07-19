@@ -88,5 +88,4 @@ class MetasploitModule < Msf::Auxiliary
       disconnect_snmp
     end
   end
-
 end

@@ -72,5 +72,4 @@ class MetasploitModule < Msf::Post
     print_status("Enumerating applications installed on #{sysinfo['Computer']}")
     app_list
   end
-
 end

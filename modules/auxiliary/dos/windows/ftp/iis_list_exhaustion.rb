@@ -112,5 +112,4 @@ class MetasploitModule < Msf::Auxiliary
     ret = [ ret, data ]
     ret
   end
-
 end

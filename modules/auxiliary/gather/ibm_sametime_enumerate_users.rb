@@ -304,5 +304,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("No users discovered")
     end
   end
-
 end

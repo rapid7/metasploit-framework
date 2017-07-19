@@ -78,5 +78,4 @@ module MetasploitModule
       "\x48\x89\xE6" +                    # mov rsi,rsp
       "\x0F\x05"                          # loadall286
   end
-
 end

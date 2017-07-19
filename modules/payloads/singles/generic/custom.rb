@@ -60,5 +60,4 @@ module MetasploitModule
 
     return encoders2
   end
-
 end

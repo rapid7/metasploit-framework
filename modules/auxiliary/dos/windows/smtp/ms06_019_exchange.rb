@@ -107,5 +107,4 @@ class MetasploitModule < Msf::Auxiliary
     print "<< " + (sock.get_once || '')
     disconnect
   end
-
 end

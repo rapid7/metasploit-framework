@@ -71,5 +71,4 @@ class MetasploitModule < Msf::Post
       print_good("RubyGems API key stored in #{loot_path}")
     end
   end
-
 end

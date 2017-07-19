@@ -77,5 +77,4 @@ class MetasploitModule < Msf::Auxiliary
       :exploited_at => Time.now.utc
     )
   end
-
 end

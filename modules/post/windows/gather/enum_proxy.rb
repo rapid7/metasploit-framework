@@ -97,5 +97,4 @@ class MetasploitModule < Msf::Post
     print_status "AutoConfigURL: #{autoconfigurl}" if autoconfigurl != ""
 
   end
-
 end

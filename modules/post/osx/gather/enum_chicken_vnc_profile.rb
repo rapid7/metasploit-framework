@@ -104,5 +104,4 @@ class MetasploitModule < Msf::Post
       save(plist) if not plist.nil?
     end
   end
-
 end

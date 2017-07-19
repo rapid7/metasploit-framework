@@ -289,5 +289,4 @@ class MetasploitModule < Msf::Auxiliary
   def print_error(msg='')
     super("#{peer} - #{msg}")
   end
-
 end

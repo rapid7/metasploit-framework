@@ -340,6 +340,5 @@ class MetasploitModule < Msf::Post
     end
     return data
   end
-
 end
 

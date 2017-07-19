@@ -50,5 +50,4 @@ class MetasploitModule < Msf::Post
     print_status psh_exec(script)
     print_good 'Finished!'
   end
-
 end

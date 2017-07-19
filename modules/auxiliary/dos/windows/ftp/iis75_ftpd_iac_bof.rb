@@ -64,7 +64,6 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
   rescue ::Rex::ConnectionError
   end
-
 end
 
 =begin

@@ -177,5 +177,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Cleanup was successful")
     end
   end
-
 end

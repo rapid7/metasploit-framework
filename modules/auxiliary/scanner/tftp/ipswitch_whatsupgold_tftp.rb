@@ -108,7 +108,6 @@ class MetasploitModule < Msf::Auxiliary
     pkt << [block].pack("n") # Block Id
 
   end
-
 end
 
 =begin

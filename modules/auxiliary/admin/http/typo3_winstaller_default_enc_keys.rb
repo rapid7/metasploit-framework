@@ -197,5 +197,4 @@ class MetasploitModule < Msf::Auxiliary
   print_error("Maybe try checking the ACTIONS - Currently using  #{action.name}")
 
   end
-
 end

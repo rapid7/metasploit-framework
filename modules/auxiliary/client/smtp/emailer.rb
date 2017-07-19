@@ -217,5 +217,4 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Email sent..")
   end
-
 end

@@ -41,5 +41,4 @@ class MetasploitModule < Msf::Post
       files.each do |script| stage_psh_env(datastore['FOLDER'] + script) end
     end
   end
-
 end

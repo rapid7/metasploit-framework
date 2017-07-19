@@ -28,5 +28,4 @@ module MetasploitModule
   def generate_stage(opts={})
     stage_payload(opts)
   end
-
 end

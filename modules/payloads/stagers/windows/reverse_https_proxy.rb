@@ -157,6 +157,5 @@ module MetasploitModule
   def wfs_delay
     20
   end
-
 end
 

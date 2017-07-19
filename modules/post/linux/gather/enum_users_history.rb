@@ -115,5 +115,4 @@ class MetasploitModule < Msf::Post
     vim_hist = cat_file("#{home}/.viminfo")
     save("Vim history for #{user}", vim_hist) unless vim_hist.blank? || vim_hist =~ /No such file or directory/
   end
-
 end

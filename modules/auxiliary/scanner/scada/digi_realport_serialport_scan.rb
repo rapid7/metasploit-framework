@@ -80,5 +80,4 @@ class MetasploitModule < Msf::Auxiliary
 
     realport_disconnect
   end
-
 end

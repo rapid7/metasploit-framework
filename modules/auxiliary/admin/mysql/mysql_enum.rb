@@ -240,5 +240,4 @@ class MetasploitModule < Msf::Auxiliary
 
     mysql_logoff
   end
-
 end

@@ -63,5 +63,4 @@ class MetasploitModule < Msf::Encoder::Xor
   def encode_end(state)
     state.encoded += [ state.key.to_i ].pack('N')
   end
-
 end

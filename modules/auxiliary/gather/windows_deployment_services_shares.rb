@@ -249,6 +249,5 @@ class MetasploitModule < Msf::Auxiliary
       proof: domain
     )
   end
-
 end
 

@@ -222,5 +222,4 @@ class MetasploitModule < Msf::Auxiliary
     report_oracle_sid(ip,sid) if guess
     return guess
   end
-
 end

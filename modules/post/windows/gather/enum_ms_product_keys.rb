@@ -126,5 +126,4 @@ class MetasploitModule < Msf::Post
     print_status("Finding Microsoft key on #{sysinfo['Computer']}")
     app_list
   end
-
 end

@@ -208,5 +208,4 @@ class MetasploitModule < Msf::Encoder
     state.encoded.sub!(marker_str, enc_len_str)
     state.encoded.sub!(marker_str, xor_key_str)
   end
-
 end

@@ -69,5 +69,4 @@ class MetasploitModule < Msf::Post
     # Save the raw version of the plist
     save(pref)
   end
-
 end

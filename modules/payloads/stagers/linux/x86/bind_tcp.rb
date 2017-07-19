@@ -26,5 +26,4 @@ module MetasploitModule
       'Stager'      => { 'RequiresMidstager' => true }
     ))
   end
-
 end

@@ -423,5 +423,4 @@ class MetasploitModule < Msf::Auxiliary
     print(tbl.to_s)
 
   end
-
 end

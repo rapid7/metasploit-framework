@@ -136,5 +136,4 @@ module MetasploitModule
 
     p
   end
-
 end

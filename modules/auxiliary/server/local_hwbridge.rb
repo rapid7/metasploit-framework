@@ -270,5 +270,4 @@ class MetasploitModule < Msf::Auxiliary
     @server_started = Time.now
     exploit
   end
-
 end

@@ -131,5 +131,4 @@ class MetasploitModule < Msf::Auxiliary
 
     bruteforce(ip)
   end
-
 end

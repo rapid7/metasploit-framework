@@ -60,5 +60,4 @@ class MetasploitModule < Msf::Post
     print_status("Finished transmitting")
     set_mode("idle")
   end
-
 end

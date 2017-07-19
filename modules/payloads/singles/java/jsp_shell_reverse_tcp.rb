@@ -43,5 +43,4 @@ module MetasploitModule
 
     return super + jsp_reverse_tcp
   end
-
 end

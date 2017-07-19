@@ -442,5 +442,4 @@ class MetasploitModule < Msf::Auxiliary
     print("\n") if @displaymodem
     return banner
   end
-
 end

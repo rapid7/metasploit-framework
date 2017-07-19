@@ -213,5 +213,4 @@ class MetasploitModule < Msf::Post
       print_line(cred_tbl.to_s)
     end
   end
-
 end

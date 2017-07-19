@@ -188,5 +188,4 @@ class MetasploitModule < Msf::Auxiliary
 
     bruteforce(ip) unless @scanner.version.blank?
   end
-
 end

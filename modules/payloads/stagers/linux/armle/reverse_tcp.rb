@@ -124,5 +124,4 @@ def handle_intermediate_stage(conn, payload)
 
     return true
   end
-
 end

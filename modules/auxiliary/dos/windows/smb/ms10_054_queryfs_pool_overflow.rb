@@ -110,5 +110,4 @@ class MetasploitModule < Msf::Auxiliary
     select(nil, nil, nil, 0.5)
 
   end
-
 end

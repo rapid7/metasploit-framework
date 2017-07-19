@@ -56,5 +56,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Target is down")
     end
   end
-
 end

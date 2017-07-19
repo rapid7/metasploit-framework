@@ -304,5 +304,4 @@ class MetasploitModule < Msf::Auxiliary
   def cleanup
     disconnect rescue nil
   end
-
 end

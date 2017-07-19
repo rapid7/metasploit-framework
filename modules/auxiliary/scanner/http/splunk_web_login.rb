@@ -198,5 +198,4 @@ class MetasploitModule < Msf::Auxiliary
       return :abort
     end
   end
-
 end

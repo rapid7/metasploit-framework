@@ -76,5 +76,4 @@ class MetasploitModule < Msf::Post
       print_good("#{rhost} - Audio recording saved: #{p}")
     end
   end
-
 end

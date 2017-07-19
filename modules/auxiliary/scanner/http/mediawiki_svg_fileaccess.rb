@@ -278,5 +278,4 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     accessfile(ip)
   end
-
 end

@@ -73,5 +73,4 @@ class MetasploitModule < Msf::Post
 
     print_status("Nimbuzz user credentials saved in: #{path}")
   end
-
 end

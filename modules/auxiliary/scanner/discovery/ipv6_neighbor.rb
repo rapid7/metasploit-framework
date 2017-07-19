@@ -213,5 +213,4 @@ class MetasploitModule < Msf::Auxiliary
     return unless p.payload[0,2] == "\x88\x00"
     p
   end
-
 end

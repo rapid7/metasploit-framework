@@ -27,5 +27,4 @@ module MetasploitModule
       'Stager'      => {'Payload' => ""}
     ))
   end
-
 end

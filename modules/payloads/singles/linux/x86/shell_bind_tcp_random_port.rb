@@ -59,5 +59,4 @@ module MetasploitModule
         }
       ))
   end
-
 end

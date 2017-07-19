@@ -57,5 +57,4 @@ module MetasploitModule
   def command_string
     return datastore['CMD'] || ''
   end
-
 end

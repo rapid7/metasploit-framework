@@ -72,5 +72,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     return reply
   end
-
 end

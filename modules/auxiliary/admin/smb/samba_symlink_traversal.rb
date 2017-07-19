@@ -59,5 +59,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("\t\\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['SMBTARGET']}\\")
     print_line("")
   end
-
 end

@@ -97,5 +97,4 @@ class MetasploitModule < Msf::Post
       create_credential_login(login_data.merge(service_data))
     end
   end
-
 end

@@ -85,7 +85,6 @@ class MetasploitModule < Msf::Auxiliary
   def test_request
     return winrm_wql_msg("Select Name,Status from Win32_Service")
   end
-
 end
 
 =begin

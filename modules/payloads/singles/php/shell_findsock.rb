@@ -84,5 +84,4 @@ END_OF_PHP_CODE
   def generate
     return php_findsock
   end
-
 end

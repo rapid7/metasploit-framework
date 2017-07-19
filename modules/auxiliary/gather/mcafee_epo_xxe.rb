@@ -253,5 +253,4 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good("The decrypted password for the keystore, 'sa' SQL user (if using local instance), and possibly 'admin' is: #{passphrase}")
   end
-
 end

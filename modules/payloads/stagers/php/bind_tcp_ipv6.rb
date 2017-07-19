@@ -33,5 +33,4 @@ module MetasploitModule
   def use_ipv6
     true
   end
-
 end

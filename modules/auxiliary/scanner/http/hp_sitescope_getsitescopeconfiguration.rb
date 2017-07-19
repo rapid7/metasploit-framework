@@ -128,6 +128,5 @@ class MetasploitModule < Msf::Auxiliary
 
     print_error("Failed to retrieve the SiteScope Configuration")
   end
-
 end
 

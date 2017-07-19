@@ -125,6 +125,5 @@ class MetasploitModule < Msf::Post
 
     return webcams
   end
-
 end
 

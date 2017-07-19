@@ -40,5 +40,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status(" | #{row.join(" | ")} |")
     end
   end
-
 end

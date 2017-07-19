@@ -253,5 +253,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
   end
-
 end

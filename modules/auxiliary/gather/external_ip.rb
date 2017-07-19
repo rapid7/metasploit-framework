@@ -48,5 +48,4 @@ end
       report_host(our_addr) if datastore['REPORT_HOST']
     end
   end
-
 end

@@ -82,5 +82,4 @@ module MetasploitModule
   def generate
     return super + php_bind_shell
   end
-
 end

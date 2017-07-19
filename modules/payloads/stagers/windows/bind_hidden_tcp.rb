@@ -74,5 +74,4 @@ module MetasploitModule
       OptAddress.new('AHOST', [true, "IP address allowed", nil])
     ])
   end
-
 end

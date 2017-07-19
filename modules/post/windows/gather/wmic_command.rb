@@ -62,5 +62,4 @@ class MetasploitModule < Msf::Post
 
     print_status("Command output saved to: #{command_log}")
   end
-
 end

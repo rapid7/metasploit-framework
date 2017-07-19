@@ -77,5 +77,4 @@ class MetasploitModule < Msf::Auxiliary
   def rport
     datastore['RPORT']
   end
-
 end

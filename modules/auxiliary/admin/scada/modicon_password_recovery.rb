@@ -243,5 +243,4 @@ class MetasploitModule < Msf::Auxiliary
     # )
     print_line logins.to_s
   end
-
 end

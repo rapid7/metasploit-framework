@@ -55,7 +55,6 @@ class MetasploitModule < Msf::Auxiliary
     path = store_loot("winrm.wql_results", "text/csv", ip, resp_tbl.to_csv, "winrm_wql_results.csv", "WinRM WQL Query Results")
     print_status "Results saved to #{path}"
   end
-
 end
 
 =begin

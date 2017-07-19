@@ -79,5 +79,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     exploit
   end
-
 end

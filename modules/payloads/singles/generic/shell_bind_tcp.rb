@@ -23,5 +23,4 @@ module MetasploitModule
       'Session'       => Msf::Sessions::CommandShell
       ))
   end
-
 end

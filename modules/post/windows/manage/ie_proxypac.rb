@@ -192,5 +192,4 @@ class MetasploitModule < Msf::Post
 
     return true
   end
-
 end

@@ -46,5 +46,4 @@ class MetasploitModule < Rex::Encoder::BloXor
 
     super( state )
   end
-
 end

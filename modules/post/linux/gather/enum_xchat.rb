@@ -149,7 +149,6 @@ class MetasploitModule < Msf::Post
     save(:configs, configs)   unless configs.empty?
     save(:chatlogs, chatlogs) unless chatlogs.empty?
   end
-
 end
 
 =begin

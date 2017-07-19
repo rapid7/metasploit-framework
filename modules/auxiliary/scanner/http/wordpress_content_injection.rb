@@ -212,5 +212,4 @@ class MetasploitModule < Msf::Auxiliary
   def route_rest_api(rest_api)
     normalize_uri(path_from_uri(rest_api), 'wp/v2')
   end
-
 end

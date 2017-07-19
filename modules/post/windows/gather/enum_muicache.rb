@@ -256,5 +256,4 @@ class MetasploitModule < Msf::Post
     print_status("Results stored as: #{loot}")
     print_status("Execution finished.")
   end
-
 end

@@ -114,5 +114,4 @@ module MetasploitModule
 
       payload
   end
-
 end

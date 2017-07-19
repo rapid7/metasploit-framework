@@ -317,6 +317,5 @@ class MetasploitModule < Msf::Auxiliary
 
     result
   end
-
 end
 

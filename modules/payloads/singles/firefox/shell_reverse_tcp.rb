@@ -68,5 +68,4 @@ module MetasploitModule
 
     EOS
   end
-
 end

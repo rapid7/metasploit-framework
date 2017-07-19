@@ -269,5 +269,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     report_cred(ora_info)
   end
-
 end

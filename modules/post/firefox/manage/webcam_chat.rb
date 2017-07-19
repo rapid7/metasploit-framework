@@ -106,5 +106,4 @@ class MetasploitModule < Msf::Post
       })(this.send);
     |
   end
-
 end

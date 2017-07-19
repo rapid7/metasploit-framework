@@ -35,5 +35,4 @@ class MetasploitModule < Msf::Post
     p = store_loot('busybox.enum.network', 'text/plain', session, results, 'ping_results.txt', 'BusyBox Device Network Range Enumeration')
     print_good("Results saved to #{p}.")
   end
-
 end

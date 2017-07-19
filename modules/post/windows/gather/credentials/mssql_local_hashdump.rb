@@ -181,5 +181,4 @@ class MetasploitModule < Msf::Post
         return false
     end
   end
-
 end

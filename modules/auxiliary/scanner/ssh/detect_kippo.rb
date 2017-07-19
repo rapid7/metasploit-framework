@@ -47,5 +47,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("#{ip}:#{rport} - #{banner.strip} detected")
     end
   end
-
 end

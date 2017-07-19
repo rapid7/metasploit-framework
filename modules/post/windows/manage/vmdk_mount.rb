@@ -254,5 +254,4 @@ class MetasploitModule < Msf::Post
 
     true
   end
-
 end

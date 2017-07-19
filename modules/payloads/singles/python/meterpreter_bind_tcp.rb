@@ -42,5 +42,4 @@ module MetasploitModule
     met = stage_meterpreter(opts)
     py_create_exec_stub(met)
   end
-
 end

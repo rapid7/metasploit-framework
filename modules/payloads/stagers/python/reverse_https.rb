@@ -34,5 +34,4 @@ module MetasploitModule
   def generate
     super({scheme: 'https'})
   end
-
 end

@@ -120,5 +120,4 @@ class MetasploitModule < Msf::Auxiliary
   rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
   rescue ::Timeout::Error, ::Errno::EPIPE
   end
-
 end

@@ -73,5 +73,4 @@ class MetasploitModule < Msf::Post
     end
     return found
   end
-
 end

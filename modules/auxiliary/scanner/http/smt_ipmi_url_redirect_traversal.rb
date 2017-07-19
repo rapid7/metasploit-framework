@@ -142,5 +142,4 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_good("File saved in: #{path}")
   end
-
 end

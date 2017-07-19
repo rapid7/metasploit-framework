@@ -154,5 +154,4 @@ class MetasploitModule < Msf::Post
     print_status("Done")
     set_mode("IDLE")
   end
-
 end

@@ -137,5 +137,4 @@ class MetasploitModule < Msf::Post
     end
     return nil
   end
-
 end

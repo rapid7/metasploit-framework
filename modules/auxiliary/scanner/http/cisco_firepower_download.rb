@@ -161,5 +161,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Remote file not found: #{datastore['FILEPATH']}")
     end
   end
-
 end

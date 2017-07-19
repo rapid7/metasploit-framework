@@ -81,5 +81,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("target not vulnerable to GHOST")
     end
   end
-
 end

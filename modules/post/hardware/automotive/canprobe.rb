@@ -54,5 +54,4 @@ class MetasploitModule < Msf::Post
     end
     print_status("Probe Complete")
   end
-
 end

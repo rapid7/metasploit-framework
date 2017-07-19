@@ -30,5 +30,4 @@ class MetasploitModule < Msf::Post
       client.automotive.cansend(datastore['CANBUS'], "510", "10AD013CF048120B")
     end
   end
-
 end

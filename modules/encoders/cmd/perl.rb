@@ -121,5 +121,4 @@ class MetasploitModule < Msf::Encoder
     # ends up unquoted so the shell doesn't try to expand a path.
     "qq#{sep}H#{hex.length}#{sep},qq#{sep}#{hex}#{sep}"
   end
-
 end

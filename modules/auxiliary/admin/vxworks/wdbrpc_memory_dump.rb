@@ -102,5 +102,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Dumped #{"0x%.8x" % idx} bytes.")
     wdbrpc_client_disconnect
   end
-
 end

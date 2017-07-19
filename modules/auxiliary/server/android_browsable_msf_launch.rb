@@ -49,5 +49,4 @@ location.href = "intent://my_host#Intent;scheme=metasploit;action=android.intent
     print_status("Sending HTML...")
     send_response(cli, html)
   end
-
 end

@@ -41,5 +41,4 @@ module MetasploitModule
       "\x01\x90\x01\xa9\x92\x1a\x0b\x27\x01\xdf" + cmd
 
   end
-
 end

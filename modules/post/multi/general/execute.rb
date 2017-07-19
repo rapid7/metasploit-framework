@@ -26,5 +26,4 @@ class MetasploitModule < Msf::Post
     print_status("Response: #{res}")
 
   end
-
 end

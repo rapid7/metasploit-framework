@@ -267,5 +267,4 @@ class MetasploitModule < Msf::Auxiliary
       NDR.long(hive)
     return stub
   end
-
 end

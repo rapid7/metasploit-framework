@@ -138,5 +138,4 @@ EOS
     stub[-1, state.decoder_key_size] = [ real_key.to_i ].pack(state.decoder_key_pack)
     return stub
   end
-
 end

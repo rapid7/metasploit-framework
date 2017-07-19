@@ -170,5 +170,4 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({'uri'=>dashboard_uri})
     !! (res && res.code == 200 && res.body.to_s =~ /<title>Zabbix .*: Dashboard<\/title>/)
   end
-
 end

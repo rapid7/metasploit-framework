@@ -72,5 +72,4 @@ class MetasploitModule < Msf::Post
 
     unshadowed
   end
-
 end

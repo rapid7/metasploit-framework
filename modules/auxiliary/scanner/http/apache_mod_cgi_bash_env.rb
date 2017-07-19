@@ -129,5 +129,4 @@ class MetasploitModule < Msf::Auxiliary
   def marker
     @marker ||= Rex::Text.rand_text_alphanumeric(rand(42) + 1)
   end
-
 end

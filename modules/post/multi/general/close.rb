@@ -20,5 +20,4 @@ class MetasploitModule < Msf::Post
     print_status("Closing session #{session.inspect}...")
     session.kill
   end
-
 end

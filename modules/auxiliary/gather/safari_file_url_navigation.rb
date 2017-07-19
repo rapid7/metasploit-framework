@@ -340,5 +340,4 @@ class MetasploitModule < Msf::Auxiliary
     rescue
     end
   end
-
 end

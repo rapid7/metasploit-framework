@@ -24,5 +24,4 @@ module MetasploitModule
       'Handler'     => Msf::Handler::ReverseTcp,
       'Stager'      => { 'Payload' => '' }))
   end
-
 end

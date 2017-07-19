@@ -89,7 +89,6 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Request failed due to some unknown reason")
     end
   end
-
 end
 
 =begin

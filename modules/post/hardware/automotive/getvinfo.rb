@@ -99,5 +99,4 @@ class MetasploitModule < Msf::Post
       print_status("Cleared DTCs and reseting MIL")
     end
   end
-
 end

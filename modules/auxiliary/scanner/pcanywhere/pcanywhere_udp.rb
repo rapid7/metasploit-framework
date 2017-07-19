@@ -91,5 +91,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

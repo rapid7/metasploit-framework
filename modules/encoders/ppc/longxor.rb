@@ -63,5 +63,4 @@ class MetasploitModule < Msf::Encoder::Xor
 
     stub
   end
-
 end

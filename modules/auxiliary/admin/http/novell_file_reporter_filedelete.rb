@@ -59,5 +59,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("File not deleted")
     end
   end
-
 end

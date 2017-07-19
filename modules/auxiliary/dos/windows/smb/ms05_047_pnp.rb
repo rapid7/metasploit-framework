@@ -102,5 +102,4 @@ long function_0a (
 
     disconnect
   end
-
 end

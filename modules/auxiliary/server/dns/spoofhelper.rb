@@ -98,5 +98,4 @@ class MetasploitModule < Msf::Auxiliary
       @sock.close
     end
   end
-
 end

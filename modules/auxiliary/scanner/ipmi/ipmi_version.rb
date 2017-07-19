@@ -75,5 +75,4 @@ class MetasploitModule < Msf::Auxiliary
     # - Report a vulnerability if info.ipmi_user_null has been set (null username)
 
   end
-
 end

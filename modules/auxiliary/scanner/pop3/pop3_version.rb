@@ -34,5 +34,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("#{ip}:#{rport} - #{e} #{e.backtrace}")
     end
   end
-
 end

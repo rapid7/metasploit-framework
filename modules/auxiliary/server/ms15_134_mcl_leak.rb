@@ -168,5 +168,4 @@ for (var i=0; i < files.length; i++) {
     vprint_status("File collected: #{file[:fname]}\n\n#{Rex::Text.to_hex_dump(file[:data])}")
 
   end
-
 end

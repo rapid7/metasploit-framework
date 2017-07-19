@@ -23,5 +23,4 @@ class MetasploitModule < Msf::Encoder
   def encode_block(state, buf)
     buf
   end
-
 end

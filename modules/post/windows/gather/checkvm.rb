@@ -328,5 +328,4 @@ class MetasploitModule < Msf::Post
       print_status("#{sysinfo['Computer']} appears to be a Physical Machine")
     end
   end
-
 end

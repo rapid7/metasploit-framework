@@ -28,5 +28,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error(e.message)
     end
   end
-
 end

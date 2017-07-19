@@ -253,5 +253,4 @@ class MetasploitModule < Msf::Encoder
   def is_badchar(state, val)
     ((val >= 0x41 and val <= 0x5a) or val >= 0x80) or Rex::Text.badchar_index([val].pack('C'), state.badchars)
   end
-
 end

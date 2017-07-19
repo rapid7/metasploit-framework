@@ -115,5 +115,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unknown error: #{e.class} #{e.backtrace}")
     end
   end
-
 end

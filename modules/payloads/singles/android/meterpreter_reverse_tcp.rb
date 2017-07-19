@@ -43,5 +43,4 @@ module MetasploitModule
     opts[:stageless] = true
     super(opts)
   end
-
 end

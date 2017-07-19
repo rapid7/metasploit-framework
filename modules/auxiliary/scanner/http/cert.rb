@@ -109,5 +109,4 @@ class MetasploitModule < Msf::Auxiliary
     return if(e.to_s =~ /execution expired/)
     print_error("Error: '#{ip}' '#{e.class}' '#{e}' '#{e.backtrace}'")
   end
-
 end

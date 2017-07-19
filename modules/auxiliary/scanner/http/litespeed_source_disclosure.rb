@@ -93,5 +93,4 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
-
 end

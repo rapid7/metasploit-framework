@@ -109,5 +109,4 @@ class MetasploitModule < Msf::Auxiliary
       cli.send_response(response)
     end
   end
-
 end

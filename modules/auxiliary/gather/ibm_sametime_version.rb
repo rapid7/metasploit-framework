@@ -321,5 +321,4 @@ class MetasploitModule < Msf::Auxiliary
 
     report unless @version_info.empty?
   end
-
 end

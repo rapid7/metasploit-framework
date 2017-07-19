@@ -209,5 +209,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{rhost}:#{rport} Hash Table has been saved: #{path}")
 
   end
-
 end

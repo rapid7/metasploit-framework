@@ -159,5 +159,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     return :fail
   end
-
 end

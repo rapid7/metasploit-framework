@@ -61,5 +61,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{ip}:#{rport} - Saved #{path} as #{res}")
     end
   end
-
 end

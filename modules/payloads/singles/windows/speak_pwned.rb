@@ -84,5 +84,4 @@ module MetasploitModule
     # EXITFUNC is not supported :/
     deregister_options('EXITFUNC')
   end
-
 end

@@ -188,5 +188,4 @@ class MetasploitModule < Msf::Auxiliary
     # Close capture
     close_pcap()
   end
-
 end

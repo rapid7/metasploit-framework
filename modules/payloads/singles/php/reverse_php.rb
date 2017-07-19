@@ -128,5 +128,4 @@ module MetasploitModule
   def generate
     return super + php_reverse_shell
   end
-
 end

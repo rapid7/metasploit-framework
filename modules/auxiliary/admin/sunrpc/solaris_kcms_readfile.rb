@@ -155,5 +155,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("TTDB reply: 0x%x, %d" % arr)
     sunrpc_destroy
   end
-
 end

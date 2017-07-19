@@ -61,5 +61,4 @@ class MetasploitModule < Msf::Post
       print_status(out)
     end
   end
-
 end

@@ -151,5 +151,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Video request sent. Duration set: #{datastore['TIME']} seconds")
     play_video_uri
   end
-
 end

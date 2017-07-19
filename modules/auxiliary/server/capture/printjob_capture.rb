@@ -270,5 +270,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Loot filename: %s" % loot)
     end
   end
-
 end

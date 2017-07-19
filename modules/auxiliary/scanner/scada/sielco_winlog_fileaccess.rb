@@ -144,5 +144,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{ip}:#{rport} - File saved in: #{path}")
 
   end
-
 end

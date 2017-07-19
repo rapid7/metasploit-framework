@@ -171,6 +171,5 @@ puts hash.hexdigest
       print_error "No salt found. Cannot continue without salt, exiting"
     end
   end
-
 end
 

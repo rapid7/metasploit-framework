@@ -65,6 +65,5 @@ module MetasploitModule
     # return the binary version of it
     config.to_b
   end
-
 end
 

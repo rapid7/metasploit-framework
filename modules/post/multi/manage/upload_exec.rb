@@ -47,6 +47,5 @@ class MetasploitModule < Msf::Post
     end
     rm_f(rfile)
   end
-
 end
 

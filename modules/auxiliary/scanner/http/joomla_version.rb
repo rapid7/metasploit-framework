@@ -65,5 +65,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unable to find Joomla version.")
     end
   end
-
 end

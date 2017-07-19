@@ -97,5 +97,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("Timeout error")
       return
   end
-
 end

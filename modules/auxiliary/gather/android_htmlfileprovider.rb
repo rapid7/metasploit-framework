@@ -174,5 +174,4 @@ EOS
   def run
     exploit()
   end
-
 end

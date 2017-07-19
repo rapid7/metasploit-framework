@@ -163,5 +163,4 @@ class MetasploitModule < Msf::Auxiliary
     print_line
     disconnect
   end
-
 end

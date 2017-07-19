@@ -67,5 +67,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{shost}:#{sport} Reboot Status: " + Rex::Proto::ADDP.reply_to_string(@results[shost]))
     end
   end
-
 end

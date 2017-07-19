@@ -137,5 +137,4 @@ class MetasploitModule < Msf::Auxiliary
   def per_run_token
     @token ||= Rex::Text.rand_text_alpha(rand(2)+1)
   end
-
 end

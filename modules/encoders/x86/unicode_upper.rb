@@ -59,5 +59,4 @@ class MetasploitModule < Msf::Encoder::Alphanum
   def to_native(buffer)
     Rex::Text.to_unicode(buffer)
   end
-
 end

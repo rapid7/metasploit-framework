@@ -149,5 +149,4 @@ class MetasploitModule < Msf::Auxiliary
       send_response(cli, get_html)
     end
   end
-
 end

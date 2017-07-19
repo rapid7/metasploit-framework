@@ -83,5 +83,4 @@ module MetasploitModule
             "\xff\xd6"              #   call    *%esi                      #
         }))
   end
-
 end

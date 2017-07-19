@@ -216,5 +216,4 @@ class MetasploitModule < Msf::Auxiliary
     # Create full sid
     "0x#{domain_sid}#{principal_id}"
   end
-
 end

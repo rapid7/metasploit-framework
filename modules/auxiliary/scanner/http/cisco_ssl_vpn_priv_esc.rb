@@ -272,5 +272,4 @@ class MetasploitModule < Msf::Auxiliary
     login_data.merge!(service_data)
     create_credential_login(login_data)
   end
-
 end

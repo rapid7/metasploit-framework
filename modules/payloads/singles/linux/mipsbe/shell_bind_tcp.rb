@@ -122,5 +122,4 @@ module MetasploitModule
 
     return super + shellcode
   end
-
 end

@@ -56,5 +56,4 @@ class MetasploitModule < Msf::Auxiliary
 
     close_pcap
   end
-
 end

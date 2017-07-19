@@ -269,5 +269,4 @@ class MetasploitModule < Msf::Auxiliary
 
     start_session(self, "RSH #{user} from #{luser} (#{host}:#{port})", merge_me)
   end
-
 end

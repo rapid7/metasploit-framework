@@ -172,7 +172,6 @@ class SizeCalculator
   def round_up_to_nop(opcode)
     BYTE_NOPS.find { |nop| opcode <= nop }
   end
-
 end
 
 class MetasploitModule < Msf::Encoder

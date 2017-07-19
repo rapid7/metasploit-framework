@@ -83,5 +83,4 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, e)
     end
   end
-
 end

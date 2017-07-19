@@ -124,6 +124,5 @@ class MetasploitModule < Msf::Auxiliary
   def on_client_close(c)
     stop_service
   end
-
 end
 

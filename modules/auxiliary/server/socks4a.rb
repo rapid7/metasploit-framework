@@ -65,5 +65,4 @@ class MetasploitModule < Msf::Auxiliary
 
     @socks4a.join
   end
-
 end

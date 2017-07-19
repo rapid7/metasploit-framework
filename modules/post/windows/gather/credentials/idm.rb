@@ -91,5 +91,4 @@ class MetasploitModule < Msf::Post
     end
     return pass.pack("C*")
   end
-
 end

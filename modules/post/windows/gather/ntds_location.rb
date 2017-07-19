@@ -41,5 +41,4 @@ class MetasploitModule < Msf::Post
       print_error("NTDS.DIT is reportedly located at `#{ntds}', but the file does not appear to exist")
     end
   end
-
 end

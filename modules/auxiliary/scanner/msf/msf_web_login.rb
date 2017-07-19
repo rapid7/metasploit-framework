@@ -163,5 +163,4 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
   end
-
 end

@@ -110,5 +110,4 @@ class MetasploitModule < Msf::Auxiliary
     pdf << "%%EOF" << eol
 
   end
-
 end

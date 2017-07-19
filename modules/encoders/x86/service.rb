@@ -128,5 +128,4 @@ class MetasploitModule < Msf::Encoder
 
         return push_registers + code_service + pop_registers + block
     end
-
 end

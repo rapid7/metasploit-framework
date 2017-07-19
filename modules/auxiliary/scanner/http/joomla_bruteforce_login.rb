@@ -289,5 +289,4 @@ class MetasploitModule < Msf::Auxiliary
 
     valor_input_id
   end
-
 end

@@ -410,5 +410,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     @listener.abort_on_exception = true
   end
-
 end

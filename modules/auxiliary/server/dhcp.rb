@@ -45,5 +45,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Stopping DHCP server...")
     @dhcp.stop
   end
-
 end

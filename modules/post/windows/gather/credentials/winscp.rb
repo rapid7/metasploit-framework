@@ -187,5 +187,4 @@ class MetasploitModule < Msf::Post
 
     create_credential_login(login_data)
   end
-
 end

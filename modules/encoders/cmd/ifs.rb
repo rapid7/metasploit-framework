@@ -40,5 +40,4 @@ class MetasploitModule < Msf::Encoder
     buf.gsub!(/\s/, '${IFS}')
     return buf
   end
-
 end

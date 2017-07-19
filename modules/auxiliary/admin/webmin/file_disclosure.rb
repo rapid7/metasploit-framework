@@ -73,5 +73,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("No response from the server")
     end
   end
-
 end

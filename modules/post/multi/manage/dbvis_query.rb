@@ -218,6 +218,5 @@ class MetasploitModule < Msf::Post
     end
     return error
   end
-
 end
 

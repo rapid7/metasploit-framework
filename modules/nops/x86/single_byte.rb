@@ -140,5 +140,4 @@ SINGLE_BYTE_SLED =
 
     return out_sled
   end
-
 end

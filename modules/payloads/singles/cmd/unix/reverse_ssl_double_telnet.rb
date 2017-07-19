@@ -57,5 +57,4 @@ module MetasploitModule
       " >/dev/null 2>&1 &)'"
     return cmd
   end
-
 end

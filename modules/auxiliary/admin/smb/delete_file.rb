@@ -67,5 +67,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unable to login: #{e.message}")
     end
   end
-
 end

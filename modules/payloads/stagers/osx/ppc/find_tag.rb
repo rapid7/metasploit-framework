@@ -56,5 +56,4 @@ module MetasploitModule
 
     return false
   end
-
 end

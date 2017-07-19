@@ -92,5 +92,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("Fail to obtain file for some unknown reason")
     end
   end
-
 end

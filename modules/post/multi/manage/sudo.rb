@@ -128,5 +128,4 @@ class MetasploitModule < Msf::Post
       print_error "Timed out during sudo cleanup."
     end
   end
-
 end

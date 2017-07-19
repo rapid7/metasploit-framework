@@ -141,5 +141,4 @@ class MetasploitModule < Msf::Post
       print_good("#{peer} - #{e[:filename]} stored as: #{p}")
     end
   end
-
 end

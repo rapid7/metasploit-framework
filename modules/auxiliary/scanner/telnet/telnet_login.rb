@@ -110,5 +110,4 @@ class MetasploitModule < Msf::Auxiliary
 
     start_session(self, "TELNET #{user}:#{pass} (#{host}:#{port})", merge_me, true, scanner.sock)
   end
-
 end

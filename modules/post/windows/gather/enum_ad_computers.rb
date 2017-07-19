@@ -147,6 +147,5 @@ class MetasploitModule < Msf::Post
       print_status("Results saved to: #{stored_path}")
     end
   end
-
 end
 

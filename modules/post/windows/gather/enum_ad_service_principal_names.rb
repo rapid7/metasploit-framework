@@ -121,6 +121,5 @@ class MetasploitModule < Msf::Post
 
     rows
   end
-
 end
 

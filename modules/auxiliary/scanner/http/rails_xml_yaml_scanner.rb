@@ -87,5 +87,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("#{rhost}:#{rport} is not likely to be vulnerable or URIPATH & HTTP_METHOD must be set")
     end
   end
-
 end

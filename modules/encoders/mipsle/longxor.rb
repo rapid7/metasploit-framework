@@ -140,5 +140,4 @@ EOS
 
     return decoder
   end
-
 end

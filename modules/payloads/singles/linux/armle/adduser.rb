@@ -58,5 +58,4 @@ module MetasploitModule
       str + pwdir
 
   end
-
 end

@@ -406,5 +406,4 @@ class MetasploitModule < Msf::Auxiliary
   def msg
     "#{vhost}:#{rport} OWA -"
   end
-
 end

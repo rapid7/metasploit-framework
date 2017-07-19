@@ -73,5 +73,4 @@ class MetasploitModule < Msf::Encoder
 
     return ret
   end
-
 end

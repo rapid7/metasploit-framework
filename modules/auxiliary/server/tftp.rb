@@ -75,5 +75,4 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Stopping TFTP server")
     @tftp.stop
   end
-
 end

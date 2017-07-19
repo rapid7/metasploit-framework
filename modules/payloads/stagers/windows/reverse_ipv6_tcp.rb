@@ -65,5 +65,4 @@ module MetasploitModule
         OptInt.new("SCOPEID", [false, "The IPv6 Scope ID, required for link-layer addresses", 0])
       ])
   end
-
 end

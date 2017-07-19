@@ -136,5 +136,4 @@ class MetasploitModule < Msf::Auxiliary
       return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
     end
   end
-
 end

@@ -110,5 +110,4 @@ end;
 
     # Probably should do a 'drop package #{name}'
   end
-
 end

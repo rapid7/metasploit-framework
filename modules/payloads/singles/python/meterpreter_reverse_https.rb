@@ -44,5 +44,4 @@ module MetasploitModule
 
     py_create_exec_stub(met)
   end
-
 end

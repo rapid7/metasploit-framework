@@ -329,5 +329,4 @@ class MetasploitModule < Msf::Auxiliary
     start_session(self, info, merge_me)
 
   end
-
 end

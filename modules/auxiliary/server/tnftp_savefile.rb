@@ -81,5 +81,4 @@ class MetasploitModule < Msf::Auxiliary
   def sploit
     "|#{datastore['CMD']}"
   end
-
 end

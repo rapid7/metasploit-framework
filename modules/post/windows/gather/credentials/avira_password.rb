@@ -53,5 +53,4 @@ class MetasploitModule < Msf::Post
     print_good("MD5(Unicode) hash found: #{passwd}")
     print_good("Info: Password length is limited to 20 characters.")
   end
-
 end

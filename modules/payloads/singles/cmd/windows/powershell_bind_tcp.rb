@@ -43,5 +43,4 @@ module MetasploitModule
   def generate
     generate_powershell_code("Bind")
   end
-
 end

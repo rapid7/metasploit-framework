@@ -91,5 +91,4 @@ class MetasploitModule < Msf::Post
 
     print_error("No working target found")
   end
-
 end

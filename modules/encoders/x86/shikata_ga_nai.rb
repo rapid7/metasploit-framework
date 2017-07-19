@@ -311,5 +311,4 @@ protected
   def dec(regnum)
     [0x48 + regnum].pack('C')
   end
-
 end

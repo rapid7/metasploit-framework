@@ -42,5 +42,4 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
   def encode_end(state)
     state.encoded += [ state.key ].pack(state.decoder_key_pack)
   end
-
 end

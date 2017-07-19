@@ -255,5 +255,4 @@ class MetasploitModule < Msf::Auxiliary
   def grab_key
     @grab_key ||= Rex::Text.rand_text_alphanumeric(8)
   end
-
 end

@@ -109,5 +109,4 @@ class MetasploitModule < Msf::Auxiliary
     return unless pkt.arp_opcode == 2
     pkt
   end
-
 end

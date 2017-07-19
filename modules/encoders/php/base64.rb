@@ -94,5 +94,4 @@ class MetasploitModule < Msf::Encoder
 
     return "eval(base64_decode(" + b64 + "));"
   end
-
 end

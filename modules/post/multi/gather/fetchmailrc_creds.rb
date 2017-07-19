@@ -155,5 +155,4 @@ class MetasploitModule < Msf::Post
     # return all found credentials
     creds
   end
-
 end

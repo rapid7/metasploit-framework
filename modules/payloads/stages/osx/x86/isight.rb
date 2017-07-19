@@ -86,5 +86,4 @@ module MetasploitModule
 
     super(session)
   end
-
 end

@@ -208,5 +208,4 @@ class MetasploitModule < Msf::Auxiliary
       users << user_attributes
     end
   end
-
 end

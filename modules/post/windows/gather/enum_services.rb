@@ -123,5 +123,4 @@ class MetasploitModule < Msf::Post
     p = store_loot("windows.services", "text/plain", session, results_table.to_s, "windows_services.txt", "Windows Services")
     print_good("Loot file stored in: #{p.to_s}")
   end
-
 end

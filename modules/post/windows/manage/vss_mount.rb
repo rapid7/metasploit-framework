@@ -50,5 +50,4 @@ class MetasploitModule < Msf::Post
     r = session.sys.process.execute("cmd.exe /C mklink /D #{datastore['DEVICE']} #{datastore['PATH']}", nil, {'Hidden' => true})
 
   end
-
 end

@@ -50,5 +50,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Error: #{e.class} #{e}")
     end
   end
-
 end

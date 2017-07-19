@@ -50,5 +50,4 @@ class MetasploitModule < Msf::Post
     open_key.delete_key(certtoremove)
     print_good("Successfully deleted CA: #{certtoremove}")
   end
-
 end

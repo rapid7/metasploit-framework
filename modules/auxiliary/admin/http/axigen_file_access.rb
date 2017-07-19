@@ -172,5 +172,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return false
   end
-
 end

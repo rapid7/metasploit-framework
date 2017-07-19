@@ -80,5 +80,4 @@ class MetasploitModule < Msf::Post
     end
 
   end
-
 end

@@ -33,5 +33,4 @@ module MetasploitModule
   def include_send_uuid
     true
   end
-
 end

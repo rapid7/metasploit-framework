@@ -835,5 +835,4 @@ class MetasploitModule < Msf::Auxiliary
     # TODO: return hash with data
     true
   end
-
 end

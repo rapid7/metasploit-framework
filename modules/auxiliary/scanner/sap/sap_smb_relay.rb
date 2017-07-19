@@ -248,5 +248,4 @@ class MetasploitModule < Msf::Auxiliary
         run_clba_update_file_remote
     end
   end
-
 end

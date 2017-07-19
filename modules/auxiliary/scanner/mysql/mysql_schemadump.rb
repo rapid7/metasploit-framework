@@ -124,5 +124,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     return tables
   end
-
 end

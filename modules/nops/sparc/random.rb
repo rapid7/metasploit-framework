@@ -203,5 +203,4 @@ class MetasploitModule < Msf::Nop
       rand(len - 1) + 1
     ].pack('N')
   end
-
 end

@@ -209,5 +209,4 @@ class MetasploitModule < Msf::Auxiliary
     save_array = words.split(/\r?\n/)
     return save_array
   end
-
 end

@@ -154,7 +154,6 @@ class MetasploitModule < Msf::Post
     save(:preferences, prefs) if not prefs.nil? and not prefs.empty?
     save(:chatlogs, chatlogs) if not chatlogs.nil? and not chatlogs.empty?
   end
-
 end
 
 =begin

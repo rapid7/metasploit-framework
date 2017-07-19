@@ -535,5 +535,4 @@ class MetasploitModule < Msf::Auxiliary
     e.get_elements(name)[0].get_text ) ?
     e.get_elements(name)[0].get_text.to_s : ""
   end
-
 end

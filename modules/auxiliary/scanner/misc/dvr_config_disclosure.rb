@@ -263,5 +263,4 @@ class MetasploitModule < Msf::Auxiliary
     report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => "DVR NAME: #{dvr_name}")
     print_good("#{rhost}:#{rport} DVR #{dvr_name} found")
   end
-
 end

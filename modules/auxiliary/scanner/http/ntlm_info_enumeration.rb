@@ -134,5 +134,4 @@ class MetasploitModule < Msf::Auxiliary
       :new_offset => offset + size
     }
   end
-
 end

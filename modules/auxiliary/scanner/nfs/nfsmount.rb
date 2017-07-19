@@ -80,5 +80,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error(e.to_s)
     end
   end
-
 end

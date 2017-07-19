@@ -95,5 +95,4 @@ class MetasploitModule < Msf::Post
       print_good("CA inserted!")
     end
   end
-
 end

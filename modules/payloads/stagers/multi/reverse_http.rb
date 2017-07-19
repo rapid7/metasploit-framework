@@ -26,5 +26,4 @@ module MetasploitModule
       'Stager'      => {'Payload' => ''},
       'Convention'  => 'http'))
   end
-
 end

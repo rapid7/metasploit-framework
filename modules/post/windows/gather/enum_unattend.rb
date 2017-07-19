@@ -170,5 +170,4 @@ class MetasploitModule < Msf::Post
       return unless datastore['GETALL']
     end
   end
-
 end

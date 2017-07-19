@@ -215,5 +215,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status [rtarget,msg].join
     end
   end
-
 end

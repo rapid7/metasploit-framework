@@ -189,5 +189,4 @@ class MetasploitModule < Msf::Auxiliary
     print_good(roomtbl.to_s)
 
   end
-
 end

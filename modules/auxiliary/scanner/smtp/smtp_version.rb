@@ -28,5 +28,4 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{ip}:#{rport} SMTP #{banner_sanitized}")
     report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
   end
-
 end

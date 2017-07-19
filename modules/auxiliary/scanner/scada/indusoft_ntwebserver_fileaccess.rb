@@ -102,6 +102,5 @@ class MetasploitModule < Msf::Auxiliary
 
     print_error("#{rhost}:#{rport} - Failed to retrieve file")
   end
-
 end
 

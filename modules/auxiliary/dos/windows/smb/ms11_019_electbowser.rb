@@ -169,5 +169,4 @@ class MetasploitModule < Msf::Auxiliary
     ret << svc
     ret
   end
-
 end

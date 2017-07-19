@@ -473,5 +473,4 @@ class MetasploitModule < Msf::Auxiliary
     # XXX: We should subtract the timing from the target to us (calculated based on 0.50 of our non-recursive query times)
     avg_count
   end
-
 end

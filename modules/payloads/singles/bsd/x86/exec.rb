@@ -44,5 +44,4 @@ module MetasploitModule
   def generate_stage(opts={})
     bsd_x86_exec_payload
   end
-
 end

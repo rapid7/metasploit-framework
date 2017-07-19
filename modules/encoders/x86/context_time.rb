@@ -182,5 +182,4 @@ protected
       Rex::Arch::X86::ESP,
       Rex::Arch::X86::ECX ], nil, state.badchars)
   end
-
 end

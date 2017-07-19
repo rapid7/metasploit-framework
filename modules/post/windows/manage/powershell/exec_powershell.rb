@@ -117,6 +117,5 @@ class MetasploitModule < Msf::Post
     # That's it
     print_good('Finished!')
   end
-
 end
 

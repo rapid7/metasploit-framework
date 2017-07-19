@@ -57,5 +57,4 @@ class MetasploitModule < Msf::Nop
 
     return ("\x60" * length)[0, length]
   end
-
 end

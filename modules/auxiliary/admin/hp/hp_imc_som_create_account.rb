@@ -268,5 +268,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Use it to log into #{login_url}")
     end
   end
-
 end

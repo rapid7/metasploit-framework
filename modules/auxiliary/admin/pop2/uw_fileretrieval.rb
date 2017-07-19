@@ -49,5 +49,4 @@ class MetasploitModule < Msf::Auxiliary
     send_cmd( ['QUIT'] , true)
     disconnect
   end
-
 end

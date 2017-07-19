@@ -85,5 +85,4 @@ module MetasploitModule
     end
     return false
   end
-
 end

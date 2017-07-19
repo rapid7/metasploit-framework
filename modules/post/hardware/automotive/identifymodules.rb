@@ -46,5 +46,4 @@ class MetasploitModule < Msf::Post
       print_line("  #{"%3x" % id}")
     end
   end
-
 end

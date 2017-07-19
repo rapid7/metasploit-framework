@@ -56,5 +56,4 @@ module MetasploitModule
     encoded_cmd = Rex::Text.encode_base64(obfuscated_cmd)
     "python -c \"exec('#{encoded_cmd}'.decode('base64'))\""
   end
-
 end

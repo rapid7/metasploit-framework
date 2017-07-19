@@ -365,5 +365,4 @@ class MetasploitModule < Msf::Post
   def iteration_count
     datastore['ITERATION_COUNT'] || 10
   end
-
 end

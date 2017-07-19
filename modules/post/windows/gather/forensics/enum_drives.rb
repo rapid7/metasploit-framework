@@ -93,5 +93,4 @@ class MetasploitModule < Msf::Post
       print_device(devname)
     end
   end
-
 end

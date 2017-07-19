@@ -99,5 +99,4 @@ module MetasploitModule
 
     "powershell -w hidden -nop -c #{powershell}"
   end
-
 end

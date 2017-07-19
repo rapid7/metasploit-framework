@@ -71,5 +71,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Credentials decoded: #{creds}") unless creds.empty?
     end
   end
-
 end

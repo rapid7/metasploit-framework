@@ -76,5 +76,4 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Go check your SMB relay or capture module for goodies!")
 
   end
-
 end

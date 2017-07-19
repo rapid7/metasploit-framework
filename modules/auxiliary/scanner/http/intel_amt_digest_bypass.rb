@@ -113,5 +113,4 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
   end
-
 end

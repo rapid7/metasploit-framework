@@ -45,5 +45,4 @@ class MetasploitModule < Msf::Encoder::Xor
 
     return decoder
   end
-
 end

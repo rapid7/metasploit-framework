@@ -52,5 +52,4 @@ class MetasploitModule < Msf::Auxiliary
     pjl.end_job
     disconnect
   end
-
 end

@@ -193,5 +193,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{ip}:#{rport} - #{status[1]}")
     end
   end
-
 end

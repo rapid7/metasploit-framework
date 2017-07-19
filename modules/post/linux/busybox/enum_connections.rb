@@ -54,5 +54,4 @@ class MetasploitModule < Msf::Post
       print_error("Nothing read from file #{file}, file may be empty")
     end
   end
-
 end

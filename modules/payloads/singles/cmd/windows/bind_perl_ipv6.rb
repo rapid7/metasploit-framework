@@ -50,5 +50,4 @@ module MetasploitModule
 
     return cmd
   end
-
 end

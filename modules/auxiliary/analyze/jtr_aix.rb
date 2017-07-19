@@ -93,5 +93,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status "Hashes Written out to #{hashlist.path}"
     hashlist.path
   end
-
 end

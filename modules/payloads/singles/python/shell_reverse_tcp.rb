@@ -64,6 +64,5 @@ module MetasploitModule
 
     cmd
   end
-
 end
 

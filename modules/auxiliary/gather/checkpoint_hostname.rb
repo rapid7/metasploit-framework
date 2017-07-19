@@ -90,5 +90,4 @@ class MetasploitModule < Msf::Auxiliary
     }
     report_service(svc_info)
   end
-
 end

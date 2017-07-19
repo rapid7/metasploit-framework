@@ -69,6 +69,5 @@ class MetasploitModule < Msf::Post
       print_error("The Intent could not be started: #{result}")
     end
   end
-
 end
 

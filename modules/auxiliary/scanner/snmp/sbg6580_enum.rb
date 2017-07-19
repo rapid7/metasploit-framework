@@ -308,5 +308,4 @@ class MetasploitModule < Msf::Auxiliary
       output_data["RADIUS Key"] = radius_key.to_s
     end
   end
-
 end

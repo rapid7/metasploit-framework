@@ -152,5 +152,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     loop { netbios_service }
   end
-
 end

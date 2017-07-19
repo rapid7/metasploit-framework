@@ -123,5 +123,4 @@ class MetasploitModule < Msf::Post
     aes.iv = iv if iv != nil
     aes.update(encrypted_data) + aes.final
   end
-
 end

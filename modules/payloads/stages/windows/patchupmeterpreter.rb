@@ -41,5 +41,4 @@ module MetasploitModule
   def library_path
     MetasploitPayloads.meterpreter_path('metsrv','x86.dll')
   end
-
 end

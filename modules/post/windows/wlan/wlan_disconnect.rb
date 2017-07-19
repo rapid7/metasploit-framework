@@ -346,5 +346,4 @@ class MetasploitModule < Msf::Post
     sguid << "-" + aguid[20,12] + "}"
     return sguid
   end
-
 end

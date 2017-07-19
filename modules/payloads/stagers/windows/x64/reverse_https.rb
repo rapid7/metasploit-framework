@@ -26,5 +26,4 @@ module MetasploitModule
       'Convention'  => 'sockrdi https',
       'Stager'      => { 'Payload' => '' }))
   end
-
 end

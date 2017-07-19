@@ -50,5 +50,4 @@ module MetasploitModule
       "\x05"
 
   end
-
 end

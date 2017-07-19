@@ -137,6 +137,5 @@ class MetasploitModule < Msf::Post
       linux_zip
     end
   end
-
 end
 

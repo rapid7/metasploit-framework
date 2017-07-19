@@ -64,5 +64,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("#{ip}:#{rport} - Connection failed: #{e.class}: #{e}")
     end
   end
-
 end

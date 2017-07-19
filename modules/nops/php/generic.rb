@@ -25,5 +25,4 @@ class MetasploitModule < Msf::Nop
     # Default to just spaces for now
     " " * length
   end
-
 end
