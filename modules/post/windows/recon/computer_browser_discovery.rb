@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Post
       print_error("No systems found of that type")
       return
     end
-    print_status("Found #{result['totalentries']} systems.")
+    print_good("Found #{result['totalentries']} systems.")
 
     endofline = 0
     i = nameiterator

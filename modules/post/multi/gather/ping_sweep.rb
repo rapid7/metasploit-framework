@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Post
               r = cmd_exec(cmd, count + ip_add)
             end
             if r =~ /(TTL|Alive)/i
-              print_status "\t#{ip_add} host found"
+              print_good "\t#{ip_add} host found"
               ip_found << ip_add
             else
               vprint_status("\t#{ip_add} host not found")

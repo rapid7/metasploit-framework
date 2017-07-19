@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "MS Hyper-V" },
         :update => :unique_data
         )
-      print_status("This is a Hyper-V Virtual Machine")
+      print_good("This is a Hyper-V Virtual Machine")
       return "MS Hyper-V"
     end
   end
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "VMware" },
         :update => :unique_data
         )
-      print_status("This is a VMware Virtual Machine")
+      print_good("This is a VMware Virtual Machine")
       return "VMWare"
     end
   end
@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "VirtualPC" },
         :update => :unique_data
         )
-      print_status("This is a VirtualPC Virtual Machine")
+      print_good("This is a VirtualPC Virtual Machine")
       return "VirtualPC"
     end
   end
@@ -223,7 +223,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "VirtualBox" },
         :update => :unique_data
         )
-      print_status("This is a Sun VirtualBox Virtual Machine")
+      print_good("This is a Sun VirtualBox Virtual Machine")
       return "VirtualBox"
     end
   end
@@ -280,7 +280,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "Xen" },
         :update => :unique_data
         )
-      print_status("This is a Xen Virtual Machine")
+      print_good("This is a Xen Virtual Machine")
       return "Xen"
     end
   end
@@ -309,6 +309,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "Qemu/KVM" },
         :update => :unique_data
         )
+      print_good("This is a Qemu/KVM Virtual Machine")
       return "Qemu/KVM"
     end
   end
