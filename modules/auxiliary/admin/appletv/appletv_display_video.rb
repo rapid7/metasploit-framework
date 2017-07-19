@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         recommended. Also, if you're playing a video, the URL must be an IP
         address. Some AppleTV devices are actually password-protected; in that
         case please set the PASSWORD datastore option. For password
-        bruteforcing, please see the module auxiliary/scanner/http/appletv_login.
+        brute forcing, please see the module auxiliary/scanner/http/appletv_login.
       ),
       'Author'         =>
         [

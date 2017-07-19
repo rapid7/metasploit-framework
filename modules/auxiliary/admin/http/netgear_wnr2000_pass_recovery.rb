@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         The NETGEAR WNR2000 router has a vulnerability in the way it handles password recovery.
         This vulnerability can be exploited by an unauthenticated attacker who is able to guess
         the value of a certain timestamp which is in the configuration of the router.
-        Bruteforcing the timestamp token might take a few minutes, a few hours, or days, but
+        Brute forcing the timestamp token might take a few minutes, a few hours, or days, but
         it is guaranteed that it can be bruteforced.
         This module works very reliably and it has been tested with the WNR2000v5, firmware versions
         1.0.0.34 and 1.0.0.18. It should also work with the hardware revisions v4 and v3, but this

@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface,
         and should only work against version 3.1.1 or older, because these versions do not
-        have any default protections against bruteforcing.
+        have any default protections against brute forcing.
       },
       'Author'         => [ 'sinn3r' ],
       'License'        => MSF_LICENSE

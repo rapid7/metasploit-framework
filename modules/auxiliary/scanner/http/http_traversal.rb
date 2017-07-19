@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CHECK',    {'Description' => 'Check for basic directory traversal'}],
           ['WRITABLE', {'Description' => 'Check if a traversal bug allows us to write anywhere'}],
-          ['DOWNLOAD', {'Description' => 'Attempt to download files after bruteforcing a trigger'}],
+          ['DOWNLOAD', {'Description' => 'Attempt to download files after brute forcing a trigger'}],
           ['PHPSOURCE', {'Description' => 'Attempt to retrieve php source code files'}]
         ],
       'DefaultAction'  => 'CHECK'

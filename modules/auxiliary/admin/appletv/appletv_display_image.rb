@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q(
         This module will show an image on an AppleTV device for a period of time.
         Some AppleTV devices are actually password-protected, in that case please
-        set the PASSWORD datastore option. For password bruteforcing, please see
+        set the PASSWORD datastore option. For password brute forcing, please see
         the module auxiliary/scanner/http/appletv_login.
       ),
       'Author'         =>
