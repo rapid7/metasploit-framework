@@ -113,6 +113,6 @@ class MetasploitModule < Msf::Auxiliary
     loot_filename = "eaton_nsm_creds.csv"
     loot_desc     = "Eaton Network Shutdown Module Credentials"
     p = store_loot(loot_name, loot_type, datastore['RHOST'], cred_table.to_csv, loot_filename, loot_desc)
-    print_status("Credentials saved in: #{p.to_s}")
+    print_good("Credentials saved in: #{p.to_s}")
   end
 end

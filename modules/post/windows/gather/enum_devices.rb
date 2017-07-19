@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Post
     vprint_line("\n" + results)
 
     path = store_loot("host.hardware", "text/plain", session, results, "hardware.txt", "Host Hardware")
-    print_status("Results saved in: #{path}")
+    print_good("Results saved in: #{path}")
   end
 
   def run

@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto => 'tcp'
           )
     p = store_loot('mysql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mysql_schema.txt", "MySQL Schema", this_service)
-    print_status("Schema stored in: #{p}")
+    print_good("Schema stored in: #{p}")
     print_good output if datastore['DISPLAY_RESULTS']
   end
 

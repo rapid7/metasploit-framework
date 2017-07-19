@@ -220,7 +220,7 @@ class MetasploitModule < Msf::Auxiliary
             print_good("#{rhost}:#{rport} - File retrieved successfully!")
 
             path = store_loot('ePMP_config', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 device config')
-            print_status("#{rhost}:#{rport} - File saved in: #{path}")
+            print_good("#{rhost}:#{rport} - File saved in: #{path}")
           else
             print_error("#{rhost}:#{rport} - Failed to retrieve configuration")
             return

@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Post
 
     if datastore['STORE_LOOT']
       stored_path = store_loot('bitlocker.recovery', 'text/plain', session, results_table.to_csv)
-      print_status("Results saved to: #{stored_path}")
+      print_good("Results saved to: #{stored_path}")
     end
   end
 end

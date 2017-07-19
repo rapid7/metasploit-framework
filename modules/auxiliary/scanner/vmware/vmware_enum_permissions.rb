@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good tmp_perms.to_s
 
         f = store_loot('host.vmware.permissions', "text/plain", datastore['RHOST'], tmp_perms.to_csv , "#{datastore['RHOST']}_esx_permissions.txt", "VMWare ESX Permissions")
-        vprint_status("Permission info stored in: #{f}")
+        vprint_good("Permission info stored in: #{f}")
       end
     else
       print_error "Login Failure on #{ip}"

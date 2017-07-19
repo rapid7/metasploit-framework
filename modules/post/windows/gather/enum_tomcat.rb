@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Post
     print_line(tbl_services.to_s)
     print_line(tbl_users.to_s)
     p = store_loot("host.webservers.tomcat", "text/plain", session, tbl_services.to_s + "\n" + tbl_users.to_s, "tomcat.txt", "Tomcat Server Enum")
-    print_status("Results stored in: #{p}")
+    print_good("Results stored in: #{p}")
   end
 
   ### initial identification methods ###

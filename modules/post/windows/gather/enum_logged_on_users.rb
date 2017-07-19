@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Post
 
     print_line("\n" + tbl.to_s + "\n")
     p = store_loot("host.users.active", "text/plain", session, tbl.to_s, "active_users.txt", "Active Users")
-    print_status("Results saved in: #{p}")
+    print_good("Results saved in: #{p}")
   end
 
   def run

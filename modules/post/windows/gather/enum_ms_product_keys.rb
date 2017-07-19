@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
       results = tbl.to_csv
       print_line("\n" + tbl.to_s + "\n")
       path = store_loot("host.ms_keys", "text/plain", session, results, "ms_keys.txt", "Microsoft Product Key and Info")
-      print_status("Keys stored in: #{path.to_s}")
+      print_good("Keys stored in: #{path.to_s}")
     end
   end
 

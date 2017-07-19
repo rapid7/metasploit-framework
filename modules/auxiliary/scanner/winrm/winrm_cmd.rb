@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good streams['stdout']
     if datastore['SAVE_OUTPUT']
       path = store_loot("winrm.cmd_results", "text/plain", ip, streams['stdout'], "winrm_cmd_results.txt", "WinRM CMD Results")
-      print_status "Results saved to #{path}"
+      print_good "Results saved to #{path}"
     end
   end
 

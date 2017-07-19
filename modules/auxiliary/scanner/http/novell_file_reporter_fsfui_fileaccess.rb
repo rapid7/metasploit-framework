@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       loot = $1
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('novell.filereporter.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_status("#{datastore['RFILE']} saved in #{path}")
+      print_good("#{datastore['RFILE']} saved in #{path}")
     else
       print_error("Failed to retrieve the file contents")
     end

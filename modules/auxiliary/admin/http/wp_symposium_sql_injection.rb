@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
 
     unless credentials.empty?
       loot = store_loot("wp_symposium.http","text/plain", rhost, credentials)
-      vprint_status("Credentials saved in: #{loot}")
+      vprint_good("Credentials saved in: #{loot}")
     end
   end
 end

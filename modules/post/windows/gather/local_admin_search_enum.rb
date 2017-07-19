@@ -250,6 +250,6 @@ class MetasploitModule < Msf::Post
   # Write to loot database
   def db_loot(host, user, type)
     p = store_loot(type, 'text/plain', host, "#{host}:#{user}", 'hosts_localadmin.txt', user)
-    vprint_status("User data stored in: #{p}")
+    vprint_good("User data stored in: #{p}")
   end
 end

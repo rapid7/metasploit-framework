@@ -211,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
   def loot_unattend(archi, data)
     return if data.empty?
     p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
-    print_status("Raw version of #{archi} saved as: #{p}")
+    print_good("Raw version of #{archi} saved as: #{p}")
   end
 
   def report_cred(opts)

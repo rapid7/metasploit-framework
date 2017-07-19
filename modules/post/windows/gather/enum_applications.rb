@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Post
     print_line("\n" + results + "\n")
 
     p = store_loot("host.applications", "text/plain", session, results, "applications.txt", "Installed Applications")
-    print_status("Results stored in: #{p}")
+    print_good("Results stored in: #{p}")
   end
 
   def run

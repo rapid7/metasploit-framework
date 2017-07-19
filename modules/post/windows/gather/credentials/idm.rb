@@ -73,8 +73,7 @@ class MetasploitModule < Msf::Post
           'idm_user_creds.csv',
           'Internet Download Manager User Credentials'
         )
-
-        print_status("IDM user credentials saved in: #{path}")
+        print_good("IDM user credentials saved in: #{path}")
 
       rescue ::Exception => e
         print_error("An error has occurred: #{e.to_s}")

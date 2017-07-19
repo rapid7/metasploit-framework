@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good output
 
       f = store_loot('vmware_host_details', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_vmware_host.txt", "VMWare Host Details")
-      vprint_status("Host details stored in: #{f}")
+      vprint_good("Host details stored in: #{f}")
     else
       print_error "Login Failure on #{ip}"
       return

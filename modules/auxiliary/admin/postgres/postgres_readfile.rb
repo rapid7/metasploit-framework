@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       }
       # No idea what the actual ctype will be, text/plain is just a guess
       path = store_loot('postgres.file', 'text/plain', rhost, loot, datastore['RFILE'])
-      print_status("#{rhost}:#{rport} Postgres - #{datastore['RFILE']} saved in #{path}")
+      print_good("#{rhost}:#{rport} Postgres - #{datastore['RFILE']} saved in #{path}")
       vprint_good  "#{rhost}:#{rport} Postgres - Command complete."
     end
     postgres_logout if self.postgres_conn

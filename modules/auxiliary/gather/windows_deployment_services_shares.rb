@@ -236,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
   def loot_unattend(data)
     return if data.empty?
     path = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
-    print_status("Stored unattend.xml in #{path}")
+    print_good("Stored unattend.xml in #{path}")
   end
 
   def report_creds(domain, user, pass)

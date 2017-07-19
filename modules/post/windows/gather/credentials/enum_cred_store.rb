@@ -280,7 +280,7 @@ class MetasploitModule < Msf::Post
         creds,
         'credstore_user_creds.txt',
         'Microsoft Credential Store Contents')
-      print_status("Data saved in: #{path}")
+      print_good("Data saved in: #{path}")
     end
   end
 end

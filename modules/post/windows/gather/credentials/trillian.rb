@@ -79,8 +79,7 @@ class MetasploitModule < Msf::Post
         'trillian_user_creds.csv',
         'Trillian Instant Messenger User Credentials'
         )
-
-      print_status("Trillian Instant Messenger user credentials saved in: #{path}")
+      print_good("Trillian Instant Messenger user credentials saved in: #{path}")
 
     rescue ::Exception => e
       print_error("An error has occured: #{e.to_s}")

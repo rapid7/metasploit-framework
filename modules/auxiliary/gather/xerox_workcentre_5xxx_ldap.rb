@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     loot_filename = 'ldap-creds.text'
     loot_desc     = 'LDAP Pass-back Harvester'
     p = store_loot(loot_name, loot_type, datastore['RHOST'], @data, loot_filename, loot_desc)
-    print_status("Credentials saved in: #{p}")
+    print_good("Credentials saved in: #{p}")
 
     register_creds('ldap', rhost, @ldap_port, ldap_binary_creds[0], ldap_binary_creds[1])
   end

@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
 
     print_good("Wordlist with #{ordered_dict.length} entries built")
     stored_path = store_loot('ad.wordlist', 'text/plain', session, ordered_dict.join("\n"))
-    print_status("Results saved to: #{stored_path}")
+    print_good("Results saved to: #{stored_path}")
   end
 
   def search_words(field)

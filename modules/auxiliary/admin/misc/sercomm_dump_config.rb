@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     loot_file = store_loot("router.config", "text/plain", rhost, config[:data], "#{rhost}router_config.txt", "Router Configurations")
-    print_status("Router configuration dump stored in: #{loot_file}")
+    print_good("Router configuration dump stored in: #{loot_file}")
 
     parse_configuration(config[:data])
   end

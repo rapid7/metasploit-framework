@@ -266,7 +266,7 @@ class MetasploitModule < Msf::Auxiliary
 
     f = ::File.basename(datastore['RFILE'])
     path = store_loot('mediawiki.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-    print_status("#{peer} MediaWiki - #{datastore['RFILE']} saved in #{path}")
+    print_good("#{peer} MediaWiki - #{datastore['RFILE']} saved in #{path}")
   end
 
   def run

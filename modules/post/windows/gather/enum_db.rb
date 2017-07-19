@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
 
     print_line(tbl.to_s)
     p = store_loot("host.databases", "text/plain", session, tbl.to_s, "databases.txt", "Running Databases")
-    print_status("Results stored in: #{p}")
+    print_good("Results stored in: #{p}")
 
   end
 

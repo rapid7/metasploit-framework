@@ -517,7 +517,7 @@ class MetasploitModule < Msf::Auxiliary
         nil,
         'OpenSSL Heartbleed server memory'
       )
-      print_status("Heartbeat data stored in #{path}")
+      print_good("Heartbeat data stored in #{path}")
     end
 
     # Convert non-printable characters to periods

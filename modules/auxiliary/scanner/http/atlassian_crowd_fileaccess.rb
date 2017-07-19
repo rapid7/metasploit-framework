@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         f = ::File.basename(datastore['RFILE'])
         path = store_loot('atlassian.crowd.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-        print_status("#{rhost}:#{rport} Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
+        print_good("#{rhost}:#{rport} Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
         return
       end
     end

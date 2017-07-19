@@ -199,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
       if resp
         dump(resp.to_s)
         loot_path = store_loot('iis.ms15034', 'application/octet-stream', ip, resp, nil, 'MS15-034 HTTP.SYS Memory Dump')
-        print_status("Memory dump saved to #{loot_path}")
+        print_good("Memory dump saved to #{loot_path}")
       else
         print_error("Disclosure unsuccessful (must be 8.1, 2012, or 2012R2)")
       end

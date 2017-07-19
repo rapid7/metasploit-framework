@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("File retrieved from: #{ip}")
       p = store_loot("vmware.traversal.file", "application/octet-stream", rhost, res.to_s, fname)
-      print_status("File stored in: #{p}")
+      print_good("File stored in: #{p}")
     end
   end
 end

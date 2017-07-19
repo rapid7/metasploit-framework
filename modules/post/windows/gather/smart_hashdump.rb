@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Post
     host = Rex::FileUtils.clean_path(sysinfo["Computer"])
     hash_file = store_loot("windows.hashes", "text/plain", session, "", "#{host}_hashes.txt", "Windows Hashes")
     print_status("Hashes will be saved to the database if one is connected.")
-    print_status("Hashes will be saved in loot in JtR password file format to:")
+    print_good("Hashes will be saved in loot in JtR password file format to:")
     print_status(hash_file)
     smart_hash_dump(datastore['GETSYSTEM'], hash_file)
   end

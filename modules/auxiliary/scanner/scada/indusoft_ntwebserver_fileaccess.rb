@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('indusoft.webstudio.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_status("#{rhost}:#{rport} - #{datastore['RFILE']} saved in #{path}")
+      print_good("#{rhost}:#{rport} - #{datastore['RFILE']} saved in #{path}")
       return
     end
 

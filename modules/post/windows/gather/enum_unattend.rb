@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
     t = cred_table
     vprint_line("\n#{t.to_s}\n")
     p = store_loot('windows.unattended.creds', 'text/plain', session, t.to_csv, t.header, t.header)
-    print_status("#{t.header} saved as: #{p}")
+    print_good("#{t.header} saved as: #{p}")
   end
 
 
@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Post
     return if data.empty?
     fname = ::File.basename(xmlpath)
     p = store_loot('windows.unattended.raw', 'text/plain', session, data)
-    print_status("Raw version of #{fname} saved as: #{p}")
+    print_good("Raw version of #{fname} saved as: #{p}")
   end
 
 

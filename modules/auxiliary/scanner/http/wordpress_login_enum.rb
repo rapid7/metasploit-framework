@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if not usernames.empty?
       p = store_loot('wordpress.users', 'text/plain', rhost, usernames * "\n", "#{rhost}_wordpress_users.txt")
-      print_status("#{target_uri} - Usernames stored in: #{p}")
+      print_good("#{target_uri} - Usernames stored in: #{p}")
     end
 
     return usernames

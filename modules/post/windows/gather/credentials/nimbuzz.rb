@@ -70,7 +70,6 @@ class MetasploitModule < Msf::Post
       'nimbuzz_user_creds.csv',
       'Nimbuzz User Credentials'
     )
-
-    print_status("Nimbuzz user credentials saved in: #{path}")
+    print_good("Nimbuzz user credentials saved in: #{path}")
   end
 end

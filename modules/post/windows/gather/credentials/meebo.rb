@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Post
           'meebo_user_creds.csv',
           'Meebo Notifier User Credentials'
         )
-        print_status("Meebo Notifier user credentials saved in: #{path}")
+        print_good("Meebo Notifier user credentials saved in: #{path}")
       end
 
     rescue ::Exception => e

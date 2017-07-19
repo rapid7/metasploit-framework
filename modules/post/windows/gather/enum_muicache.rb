@@ -253,7 +253,7 @@ class MetasploitModule < Msf::Post
     print_status("Phase 3: Processing results...")
     loot = store_loot("muicache_info", "text/plain", session, table.to_s, nil, "MUICache Information")
     print_line("\n" + table.to_s + "\n")
-    print_status("Results stored as: #{loot}")
+    print_good("Results stored as: #{loot}")
     print_status("Execution finished.")
   end
 end

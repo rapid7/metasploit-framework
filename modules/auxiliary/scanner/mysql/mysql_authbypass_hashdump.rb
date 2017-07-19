@@ -206,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
   def report_hashes(hash_loot,service)
     filename= "#{rhost}-#{rport}_mysqlhashes.txt"
     path = store_loot("mysql.hashes", "text/plain", rhost, hash_loot, filename, "MySQL Hashes", service)
-    print_status("#{rhost}:#{rport} Hash Table has been saved: #{path}")
+    print_good("#{rhost}:#{rport} Hash Table has been saved: #{path}")
 
   end
 end

@@ -75,8 +75,7 @@ class MetasploitModule < Msf::Post
         'imvu_user_creds.csv',
         'IMVU User Credentials'
       )
-
-      print_status("IMVU user credentials saved in: #{path}")
+      print_good("IMVU user credentials saved in: #{path}")
     end
 
   end

@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Post
       print_line results_table.to_s
       if datastore['STORE_LOOT']
         stored_path = store_loot('ad.orgchart', 'text/csv', session, results_table.to_csv)
-        print_status("CSV Organisational Chart Information saved to: #{stored_path}")
+        print_good("CSV Organisational Chart Information saved to: #{stored_path}")
       end
     end
   end

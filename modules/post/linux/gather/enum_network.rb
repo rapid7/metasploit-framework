@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Post
   def save(msg, data, ctype="text/plain")
     ltype = "linux.enum.network"
     loot = store_loot(ltype, ctype, session, data, nil, msg)
-    print_status("#{msg} stored in #{loot.to_s}")
+    print_good("#{msg} stored in #{loot.to_s}")
   end
 
   # Get host name

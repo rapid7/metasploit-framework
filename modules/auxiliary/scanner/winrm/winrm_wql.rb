@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     resp_tbl = parse_wql_response(resp)
     print_good resp_tbl.to_s
     path = store_loot("winrm.wql_results", "text/csv", ip, resp_tbl.to_csv, "winrm_wql_results.csv", "WinRM WQL Query Results")
-    print_status "Results saved to #{path}"
+    print_good "Results saved to #{path}"
   end
 end
 

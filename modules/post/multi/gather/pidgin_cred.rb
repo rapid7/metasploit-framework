@@ -210,8 +210,8 @@ class MetasploitModule < Msf::Post
       end
 
       if otr_key !~ /No such file/
-        print_status("OTR Key: #{otr_key.to_s}")
         store_loot("otr.private_key", "text/plain", session, otr_key.to_s, "otr.private_key", "otr.private_key")
+        print_good("OTR Key: #{otr_key.to_s}")
       end
 
 

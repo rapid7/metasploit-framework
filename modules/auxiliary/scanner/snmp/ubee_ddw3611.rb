@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
      loot_filename = "ubee_wifi.txt"
      loot_desc     = "Ubee Wifi configuration data"
      p = store_loot(loot_name, loot_type, datastore['RHOST'], wifiinfo , loot_filename, loot_desc)
-     print_status("WIFI Data saved: #{p}")
+     print_good("WiFi Data saved: #{p}")
 
      rescue ::SNMP::UnsupportedVersion
      rescue ::SNMP::RequestTimeout

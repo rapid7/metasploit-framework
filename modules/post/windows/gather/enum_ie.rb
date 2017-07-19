@@ -382,7 +382,7 @@ class MetasploitModule < Msf::Post
         @hist_table,
         'ie_history.txt',
         'Internet Explorer Browsing History')
-      print_status("Data saved in: #{path}")
+      print_good("Data saved in: #{path}")
     end
 
     if not @cook_table.rows.empty?
@@ -394,7 +394,7 @@ class MetasploitModule < Msf::Post
         @cook_table,
         'ie_cookies.txt',
         'Internet Explorer Cookies')
-      print_status("Data saved in: #{path}")
+      print_good("Data saved in: #{path}")
     end
 
     if not cred_table.rows.empty?
@@ -407,7 +407,7 @@ class MetasploitModule < Msf::Post
         'ie_creds.txt',
         'Internet Explorer User Credentials')
 
-      print_status("Data saved in: #{path}")
+      print_good("Data saved in: #{path}")
       #print creds
       print_line("")
       print_line(cred_table.to_s)

@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       if res.code == 200
         img = res.body
         ss_path = store_loot("host.vmware.screenshot", "image/png", datastore['RHOST'], img, name , "Screenshot of VM #{name}")
-        print_status "Screenshot saved to #{ss_path}"
+        print_good "Screenshot saved to #{ss_path}"
       else
         print_error "Failed to retrieve screenshot at #{path} HTTP Response code #{res.code} "
       end

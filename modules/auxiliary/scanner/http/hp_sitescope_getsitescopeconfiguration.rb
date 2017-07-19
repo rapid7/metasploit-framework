@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       path = store_loot('hp.sitescope.configuration', 'application/octet-stream', rhost, loot, cid, "#{rhost} HP SiteScope Configuration")
-      print_status("HP SiteScope Configuration saved in #{path}")
+      print_good("HP SiteScope Configuration saved in #{path}")
       print_status("HP SiteScope Configuration is saved as Java serialization data")
       return
     end

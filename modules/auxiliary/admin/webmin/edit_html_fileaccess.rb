@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       loot = $1
       f = ::File.basename(datastore['RPATH'])
       path = store_loot('webmin.file', 'application/octet-stream', rhost, loot, f, datastore['RPATH'])
-      print_status("#{datastore['RPATH']} saved in #{path}")
+      print_good("#{datastore['RPATH']} saved in #{path}")
     else
       print_error("Failed to retrieve the file")
       return
