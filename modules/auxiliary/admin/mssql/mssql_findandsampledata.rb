@@ -448,7 +448,7 @@ class MetasploitModule < Msf::Auxiliary
     if (save_loot=="yes")
       filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
       path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results",this_service)
-      print_status("Query results have been saved to: #{path}")
+      print_good("Query results have been saved to: #{path}")
     end
 
   end

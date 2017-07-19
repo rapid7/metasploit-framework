@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       report_service(conf)
-      print_status("Discovered #{data[:app]} on #{k} (#{data[:info]})")
+      print_good("Discovered #{data[:app]} on #{k} (#{data[:info]})")
     end
   end
 

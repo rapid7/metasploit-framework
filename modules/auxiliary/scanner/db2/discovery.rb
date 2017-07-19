@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
         :info => "#{res[2]}_#{res[1]}"
       )
 
-      print_status("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] )
+      print_good("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] )
 
     rescue ::Rex::ConnectionError
     rescue ::Errno::EPIPE

@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
 
       create_credential_login(login_data.merge(service_data))
     end
-    print_status("Hash Table has been saved")
+    print_good("Hash Table has been saved")
   end
 
 

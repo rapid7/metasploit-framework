@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
         password: @state[c][:pass],
         proof: arg
       )
-      print_status("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_good("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
       @state[c][:pass] = data.strip
       c.put "+OK\r\n"
       return

@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
         password: @state[c][:pass],
         proof: arg
       )
-      print_status("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_good("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
     end
 
     c.put "503 Server Error\r\n"

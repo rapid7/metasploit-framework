@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
           fail_with(Failure::Unknown, 'Could not resolve database server hostname.')
         end
 
-        print_status("Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
+        print_good("Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
         return
       end
     else

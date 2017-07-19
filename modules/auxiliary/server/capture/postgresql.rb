@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
         password: @state[c][:password],
         proof: @state[c][:database]
       )
-      print_status("PostgreSQL LOGIN #{@state[c][:name]} #{@state[c][:username]} / #{@state[c][:password]} / #{@state[c][:database]}")
+      print_good("PostgreSQL LOGIN #{@state[c][:name]} #{@state[c][:username]} / #{@state[c][:password]} / #{@state[c][:database]}")
       # send failure message
       sdata = [ 0x45, 97 - 8 + @state[c][:username].length].pack("CN")
       sdata << "SFATAL"

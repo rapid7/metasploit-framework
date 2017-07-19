@@ -224,7 +224,7 @@ class MetasploitModule < Msf::Auxiliary
         :data     => req.resource.to_s,
         :update => :unique_data
       )
-      print_status("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
+      print_good("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
     end
 
 

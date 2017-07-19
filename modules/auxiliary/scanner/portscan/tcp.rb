@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
               }
             )
             if s
-              print_status("#{ip}:#{port} - TCP OPEN")
+              print_good("#{ip}:#{port} - TCP OPEN")
               r << [ip,port,"open"]
             end
           rescue ::Rex::ConnectionRefused

@@ -264,11 +264,11 @@ class MetasploitModule < Msf::Auxiliary
           nil,
           "OpenSSL Heartbleed client memory"
         )
-        print_status("#{@state[c][:name]} Heartbeat data stored in #{path}")
+        print_good("#{@state[c][:name]} Heartbeat data stored in #{path}")
       rescue ::Interrupt
         raise $!
       rescue ::Exception
-        print_status("#{@state[c][:name]} Heartbeat data could not be stored: #{$!.class} #{$!}")
+        print_error("#{@state[c][:name]} Heartbeat data could not be stored: #{$!.class} #{$!}")
       end
 
       # Report the memory disclosure as a vulnerability on the host

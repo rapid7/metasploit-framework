@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
 
       report_service(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :info => info)
       report_note(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
-      print_status("#{ip}:#{datastore['RPORT']} #{info}")
+      print_good("#{ip}:#{datastore['RPORT']} #{info}")
     end
   end
 

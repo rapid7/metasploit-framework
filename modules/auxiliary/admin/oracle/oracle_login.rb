@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
           user: "#{datastore['SID']}/#{datastore['DBUSER']}",
           password: datastore['DBPASS']
         )
-        print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
+        print_good("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
       end
     end
   end
