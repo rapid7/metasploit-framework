@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
         cookies = res.get_cookies
         if cookies && cookies.match(/(.*); path=\//)
           cookie= $1
-          print_status("Got cookie #{cookie}. Password reset was successful!\n")
+          print_good("Got cookie #{cookie}. Password reset was successful!\n")
         end
       end
     end

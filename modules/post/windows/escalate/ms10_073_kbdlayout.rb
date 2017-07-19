@@ -317,7 +317,7 @@ EOS
       print_error("Unable to ResumeThread")
       return
     end
-    print_status("Successfully executed syscall wrapper!")
+    print_good("Successfully executed syscall wrapper!")
 
     # Now, send some input to cause ring0 payload execution...
     print_status("Attempting to cause the ring0 payload to execute...");

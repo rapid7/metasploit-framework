@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     rescue
-      print_error ("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
+      print_error("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
       return
     end
   end

@@ -121,11 +121,11 @@ class MetasploitModule < Msf::Auxiliary
               :socket         => s,
               :db             => nil
               })
-            print_status "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
+            print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << x
           rescue RbMysql::AccessDeniedError
           rescue Exception => e
-            print_status "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
+            print_bad "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
           end
         end
 

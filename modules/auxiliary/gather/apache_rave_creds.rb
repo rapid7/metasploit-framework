@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
       if cookie.nil?
         print_error("#{rhost}:#{rport} - Login failed.")
       else
-        print_good("#{rhost}:#{rport} - Login successful. Proceeding...")
+        print_good("#{rhost}:#{rport} - Login Successful. Proceeding...")
       end
     end
 
@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status("#{rhost}:#{rport} - Login with the #{user} default account...")
         cookie = login(user, password)
         unless cookie.nil?
-          print_good("#{rhost}:#{rport} - Login successful. Proceeding...")
+          print_good("#{rhost}:#{rport} - Login Successful. Proceeding...")
           break
         end
       }

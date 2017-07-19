@@ -87,9 +87,9 @@ class MetasploitModule < Msf::Auxiliary
 
 
       if (res and res.headers['Location'] =~ %r(pwned=java.lang.UNIXProcess))
-        print_status("Exploited successfully")
+        print_good("Exploited successfully")
       else
-        print_status("Exploit failed.")
+        print_error("Exploit failed")
       end
     else
       print_error("Target appears not vulnerable!")

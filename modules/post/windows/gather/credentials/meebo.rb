@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Post
         protocol = $2.to_i
         username = $3
       else
-        print_status("Regex failed...")
+        print_error("Regex failed...")
         return
       end
 

@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status "Connected to telnet service"
       packet = sock.read(200)
       if packet.nil?
-        print_status "Failed to get initial packet from telnet service."
+        print_error "Failed to get initial packet from telnet service."
       else
         print_status "Got initial packet from telnet service: " + packet.inspect
       end

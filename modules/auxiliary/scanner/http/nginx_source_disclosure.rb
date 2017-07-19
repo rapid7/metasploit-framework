@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
           save_source.puts(res.body.to_s)
           save_source.close
 
-          print_status("#{full_uri} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exist?("#{path_save}#{uri}"))
+          print_good("#{full_uri} - nginx - File successfully saved: #{path_save}#{uri}") if (File.exist?("#{path_save}#{uri}"))
 
         else
           print_error("http://#{vhost}:#{rport} - nginx - Unrecognized #{res.code} response")

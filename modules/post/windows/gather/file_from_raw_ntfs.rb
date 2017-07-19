@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Post
     end
 
     @handle = r['return']
-    vprint_status("Successfuly opened #{drive}")
+    vprint_good("Successfuly opened #{drive}")
     begin
       @bytes_read = 0
       fs = Rex::Parser::NTFS.new(self)

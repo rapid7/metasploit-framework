@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
       # We know the credentials worked and have admin access because we got the hashes
       login_data[:access_level] = 'Admin'
       create_credential_login(login_data)
-      print_status("Query appears to have run successfully")
+      print_good("Query appears to have run successfully")
     end
 
 

@@ -345,9 +345,9 @@ class MetasploitModule < Msf::Auxiliary
     begin
       result = mssql_query(sql, false) if mssql_login_datastore
       column_data = result[:rows]
-      print_status("Successfully connected to #{rhost}:#{rport}")
+      print_good("Successfully connected to #{rhost}:#{rport}")
     rescue
-      print_status ("Failed to connect to #{rhost}:#{rport}.")
+      print_error("Failed to connect to #{rhost}:#{rport}.")
     return
     end
 

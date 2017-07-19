@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Post
     end
 
     if(! session.incognito)
-      print_status("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 
@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Post
     end
 
     if(! session.incognito)
-      print_error("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 

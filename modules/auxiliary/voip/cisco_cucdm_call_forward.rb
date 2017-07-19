@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
       if res && res.body && res.body && res.body.to_s =~ /CFA/
         print_good("Call forwarded successfully for #{fintnumber}")
       else
-        print_status("Call forward failed.")
+        print_error("Call forward failed.")
       end
     end
   end

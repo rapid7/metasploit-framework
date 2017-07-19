@@ -111,12 +111,12 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         self.simple.client.create("")
-        print_status('Server Answered, DoS unsuccessful')
+        print_error('Server Answered, DoS unsuccessful')
       rescue Timeout::Error
         print_good('Server timed out, this is expected')
         return
       rescue Rex::Proto::SMB::Exceptions::InvalidType
-        print_status('Server Answered, DoS unsuccessful')
+        print_error('Server Answered, DoS unsuccessful')
       end
       disconnect()
     end

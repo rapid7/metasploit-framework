@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
       begin
         subkeys = registry_enumkeys("HKU\\#{k}\\Software\\DownloadManager\\Passwords\\")
         if subkeys.nil? or subkeys.empty?
-          print_status ("IDM not installed for this user.")
+          print_status("IDM not installed for this user.")
           return
         end
 

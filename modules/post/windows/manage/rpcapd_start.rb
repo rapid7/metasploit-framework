@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Post
   end
 
   def fw_enable(prog)
-    print_status ("Enabling rpcapd.exe in Windows Firewall")
+    print_status("Enabling rpcapd.exe in Windows Firewall")
     begin
       if file_exist?(prog)
         cmd_exec("netsh","firewall add allowedprogram \"#{prog}\" \"Windows Service\" ENABLE ",30)

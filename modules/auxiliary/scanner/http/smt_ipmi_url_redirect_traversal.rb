@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Failed to login, check credentials.")
       return
     else
-      print_good("Login successful, session: #{session}")
+      print_good("Login Successful, session: #{session}")
     end
 
     contents = read_file(datastore['FILEPATH'], session)

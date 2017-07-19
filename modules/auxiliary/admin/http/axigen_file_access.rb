@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("Trying to login")
     if login
-      print_good("Login successful")
+      print_good("Login Successful")
     else
       print_error("Login failed, review USERNAME and PASSWORD options")
       return

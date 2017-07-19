@@ -215,7 +215,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Unable to connect")
       return nil
     rescue ::Errno::ECONNRESET
-      print_status("DoS packet successful, host not responding.")
+      print_good("DoS packet successful, host not responding.")
       return nil
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       print_status("Couldn't connect")

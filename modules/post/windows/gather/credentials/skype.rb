@@ -144,7 +144,7 @@ puts hash.hexdigest
   def get_config_creds(salt)
     users = []
     appdatapath = expand_path("%AppData%") + "\\Skype"
-    print_status ("Checking for config files in %APPDATA%")
+    print_status("Checking for config files in %APPDATA%")
     users = get_config_users(appdatapath)
     if users.any?
       users.each do |user|

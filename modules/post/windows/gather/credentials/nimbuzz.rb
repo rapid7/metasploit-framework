@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Post
       subkeys = registry_enumkeys("HKU\\#{k}\\Software\\Nimbuzz\\")
 
       if subkeys == nil or subkeys == ""
-        print_status ("Nimbuzz Instant Messenger not installed for this user.")
+        print_status("Nimbuzz Instant Messenger not installed for this user.")
         return
       end
 

@@ -89,11 +89,11 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         state = Msf::ServiceState::Closed
-        vprint_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
+        vprint_error("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
       end
     else
       state = Msf::ServiceState::Closed
-      vprint_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
+      vprint_error("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
     end
 
     report_service(

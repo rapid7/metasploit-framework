@@ -416,7 +416,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status(filedata.to_s)
       end
     else
-      print_status("Attack failed or empty config file encountered ...")
+      print_error("Attack failed or empty config file encountered ...")
     end
   end
 end

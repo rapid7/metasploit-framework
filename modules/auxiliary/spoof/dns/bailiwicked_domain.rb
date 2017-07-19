@@ -368,7 +368,7 @@ class MetasploitModule < Msf::Auxiliary
             answer = Resolv::DNS::Message.decode(answer)
             answer.each_answer do |name, ttl, data|
               if((name.to_s + ".") == domain and data.name.to_s == newdns)
-                print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{domain} == #{newdns}")
+                print_good("Poisoning successful after #{queries} queries and #{responses} responses: #{domain} == #{newdns}")
                 srv_sock.close
                 close_pcap
                 return

@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("#{ip}:#{rport} - Backdoor not detected.")
       end
     rescue Rex::ConnectionError => e
-      vprint_status("#{ip}:#{rport} - Connection failed: #{e.class}: #{e}")
+      vprint_error("#{ip}:#{rport} - Connection failed: #{e.class}: #{e}")
     end
   end
 end

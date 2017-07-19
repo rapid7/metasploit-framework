@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status("Successfully deleted #{datastore['RPATH']} >:-]")
+    print_good("Successfully deleted #{datastore['RPATH']} >:-]")
     sock1.close
   end
 

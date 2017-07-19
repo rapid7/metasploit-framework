@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return unless target_available
 
-    print_status "Target is still responsive, DoS was unsuccessful."
+    print_error "Target is still responsive, DoS was unsuccessful."
 
   end
 end

@@ -305,7 +305,7 @@ class MetasploitModule < Msf::Auxiliary
       if resp.code == 401
         print_error("Auth not successful, returned a 401")
       else
-        print_status("Auth successful, saving server response in database")
+        print_good("Auth successful, saving server response in database")
       end
       vprint_status(resp.to_s)
     end

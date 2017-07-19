@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect
 
-    print_status "File retrieved successfully!"
+    print_good "File retrieved successfully!"
     fname = File.basename(datastore['FILEPATH'])
     path = store_loot(
       'novell.zenworks_configuration_management',

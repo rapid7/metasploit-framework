@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if (res and res.code == 500)
 
-        print_status("Request appears successful on #{rhost}:#{rport}! Response: #{res.code}")
+        print_good("Request appears successful on #{rhost}:#{rport}! Response: #{res.code}")
 
         file = send_request_raw(
           {

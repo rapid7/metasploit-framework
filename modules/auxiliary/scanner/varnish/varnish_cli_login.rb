@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if !require_auth?
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: No Authentication Required"
+        print_good "#{ip}:#{rport} - Login Successful: No Authentication Required"
         close_session
         disconnect
         return
@@ -88,10 +88,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential.private}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential.private}"
       else
         invalidate_login(credential_data)
-        vprint_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential.private}"
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential.private}"
       end
     end
   end

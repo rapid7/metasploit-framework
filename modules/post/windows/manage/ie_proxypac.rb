@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Post
       next if k.include? "_Classes"
       key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings\\Connections"
       if change_connection(16,'0D',key)
-        print_good ("Automatically Detect Settings on.")
+        print_good("Automatically Detect Settings on.")
         auto_detect_enabled = true
       end
     end

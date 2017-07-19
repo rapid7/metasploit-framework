@@ -174,7 +174,7 @@ class MetasploitModule < Msf::Auxiliary
       ret, = resp[8,4].unpack('V')
 
       if ret == 0
-        print_status("File #{args[0]} successfully deleted.")
+        print_good("File #{args[0]} successfully deleted.")
       else
         print_error("An error occurred while deleting #{args[0]}: #{ret}.")
       end
@@ -212,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
 
     serverprotect_closehandle(handle)
 
-    print_status("File #{args[0]} successfully downloaded.")
+    print_good("File #{args[0]} successfully downloaded.")
   end
 
 
@@ -245,7 +245,7 @@ class MetasploitModule < Msf::Auxiliary
 
     serverprotect_closehandle(handle)
 
-    print_status("File #{args[1]} successfully uploaded.")
+    print_good("File #{args[1]} successfully uploaded.")
   end
 
 

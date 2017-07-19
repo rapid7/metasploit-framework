@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
         Net::SSH.start(ip, user, opts)
       end
       if ssh
-        print_good("#{ip}:#{rport}- Login Successful with '#{user}:#{pass}'")
+        print_good("#{ip}:#{rport} - Login Successful ('#{user}:#{pass})'")
       else
         print_error "#{ip}:#{rport} - Unknown error"
       end

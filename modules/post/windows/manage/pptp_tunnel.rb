@@ -86,14 +86,14 @@ class MetasploitModule < Msf::Post
     conf_conn += "IpPrioritizeRemote=0\r\n" unless mim
 
     if write_file(pbk_file,conf_conn)
-      print_good ("PhoneBook configuration written to #{pbk_file}")
+      print_good("PhoneBook configuration written to #{pbk_file}")
       return pbk_file
     end
   end
 
 
   def run_rasdial(pbk,user,pass,vpn_host,pbk_name)
-    print_status ("Establishing connection ...")
+    print_status("Establishing connection ...")
     cmd_exec("rasdial","/disconnect")
     output_run = cmd_exec("rasdial","#{pbk_name} #{user} #{pass} /PHONE:#{vpn_host} /PHONEBOOK:#{pbk}")
     output_view = cmd_exec("rasdial", nil)

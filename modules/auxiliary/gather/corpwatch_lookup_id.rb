@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 25)
 
       if res == nil
-        print_error ("Server down or bad response")
+        print_error("Server down or bad response")
         return
       end
 

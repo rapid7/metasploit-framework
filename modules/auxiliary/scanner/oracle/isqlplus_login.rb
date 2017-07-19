@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
           print_status("Incorrect SID -- please set a correct (or blank) SID")
           return :abort
         elsif
-          print_status("Unknown response, assuming failed. (Supported languages are English, German, and Danish)")
+          print_error("Unknown response, assuming failed. (Supported languages are English, German, and Danish)")
           success = false
         end
       elsif res.code == 302
@@ -201,7 +201,7 @@ class MetasploitModule < Msf::Auxiliary
       report_isqlauth_info(target_host,user,pass,sid)
       return :next_user
     else
-      vprint_status "#{msg} username and password failed"
+      vprint_error "#{msg} username and password failed"
       return :failed
     end
   end

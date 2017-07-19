@@ -75,9 +75,9 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         if datastore['VERBOSE']
-          vprint_good "#{peer} - LOGIN SUCCESSFUL: #{result.credential} (#{result.status}: #{result.proof})"
+          vprint_good "#{peer} - Login Successful: #{result.credential} (#{result.status}: #{result.proof})"
         else
-          print_good "#{peer} - LOGIN SUCCESSFUL: #{result.credential}"
+          print_good "#{peer} - Login Successful: #{result.credential}"
         end
       when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
         vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

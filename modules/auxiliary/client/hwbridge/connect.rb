@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status "HW Specialty: #{self.hw_specialty}  Capabilities: #{self.hw_capabilities}"
       print_disclaimer
     else
-      print_bad "Could not connect to API"
+      print_error "Could not connect to API"
     end
   end
 

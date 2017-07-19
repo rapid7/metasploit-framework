@@ -166,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
         extract(major, minor, authkey)
       end
     rescue ::Rex::ConnectionError
-      print_error("Login Connection failed.")
+      print_error("Login Connection failed")
     end
   end
 
@@ -220,7 +220,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     else
-      print_status('No AuthKey returned possible causes Authentication failed or unsupported Konica model')
+      print_error('No AuthKey returned possible causes Authentication failed or unsupported Konica model')
       return
     end
   end

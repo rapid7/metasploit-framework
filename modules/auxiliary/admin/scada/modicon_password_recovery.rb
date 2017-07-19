@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return true
     else
-      print_status("#{ip}:#{rport} - FTP - Login failed")
+      print_error("#{ip}:#{rport} - FTP - Login failed")
       return false
     end
   end

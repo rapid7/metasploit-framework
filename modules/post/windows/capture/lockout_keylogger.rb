@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Post
       session.ui.keyscan_start
       return true
     rescue
-      print_status("Failed to start Keylogging!")
+      print_error("Failed to start Keylogging!")
       return false
     end
   end
@@ -183,7 +183,7 @@ class MetasploitModule < Msf::Post
         print_error("Unable to migrate, try getsystem first")
         return
       end
-      print_status("Migrated to WINLOGON PID: #{targetpid} successfully")
+      print_good("Migrated to WINLOGON PID: #{targetpid} successfully")
     end
 
     # Override SystemParametersInfo Railgun call to check for Screensaver

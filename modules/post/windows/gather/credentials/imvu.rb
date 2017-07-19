@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
       vprint_status("Looking at Key #{hive['HKU']}")
       subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\IMVU\\")
       if subkeys.nil? or subkeys.empty?
-        print_status ("IMVU not installed for this user.")
+        print_status("IMVU not installed for this user.")
         next
       end
       user = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\username\\", "")

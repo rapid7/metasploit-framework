@@ -221,7 +221,7 @@ class MetasploitModule < Msf::Auxiliary
 
     buff = decrypt_data(c, data[5, data.length-5])
     unless buff
-      print_status("#{@state[c][:name]} Failed to decrypt, giving up on this client")
+      print_error("#{@state[c][:name]} Failed to decrypt, giving up on this client")
       c.close
       return
     end
@@ -410,7 +410,7 @@ class MetasploitModule < Msf::Auxiliary
         return buff[0, buff.length-20]
       end
     rescue ::OpenSSL::Cipher::CipherError => e
-      print_status("#{@state[c][:name]} Decryption failed: #{e}")
+      print_error("#{@state[c][:name]} Decryption failed: #{e}")
     end
 
     nil

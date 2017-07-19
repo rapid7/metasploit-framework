@@ -367,7 +367,7 @@ class MetasploitModule < Msf::Auxiliary
             answer = Resolv::DNS::Message.decode(answer)
             answer.each_answer do |name, ttl, data|
               if((name.to_s + ".") == hostname)
-                print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{name} == #{address}")
+                print_good("Poisoning successful after #{queries} queries and #{responses} responses: #{name} == #{address}")
                 print_status("TTL: #{ttl} DATA: #{data}")
                 close_pcap
                 return

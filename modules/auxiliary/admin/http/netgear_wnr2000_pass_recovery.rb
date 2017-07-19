@@ -208,7 +208,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # no result? let's just go on and bruteforce the timestamp
-    print_bad("#{peer} - Well that didn't work... let's do it the hard way.")
+    print_error("#{peer} - Well that didn't work... let's do it the hard way.")
 
     # get the current date from the router and parse it
     end_time = get_current_time
