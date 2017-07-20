@@ -34,6 +34,7 @@ class Console::CommandDispatcher::RFtransceiver
       'deviation'         => 'sets the deviation',
       'sync_word'         => 'sets the sync word',
       'preamble'          => 'sets the preamble number',
+      'lowball'          => 'sets lowball'
       'power'             => 'sets the power level',
       'maxpower'          => 'sets max power'
     }
@@ -525,6 +526,20 @@ class Console::CommandDispatcher::RFtransceiver
       return
     end
     r = client.rftransceiver.set_number_preamble(idx, preamble)
+    print_success(r)
+  end
+
+  def cmd_lowball_help
+    print_line("Lowball is frequency dependent.  Set frequency first")
+  end
+
+  def cmd_lowball(*args)
+    self.idx ||= 0
+    if args.length.positive?
+      cmd_lowball_help
+      return
+    end
+    r = client.rftransceiver.set_lowball(idx)
     print_success(r)
   end
 
