@@ -14,8 +14,7 @@ New bugs and feature requests should be directed to:
 API documentation for writing modules can be found at:
   https://rapid7.github.io/metasploit-framework/api
 
-Questions and suggestions can be sent to:
-  https://lists.sourceforge.net/lists/listinfo/metasploit-hackers
+Questions and suggestions can be sent to: Freenode IRC channel or e-mail the metasploit-hackers mailing list
 
 Installing
 --
