@@ -631,19 +631,19 @@ class MetasploitModule < Msf::Auxiliary
   def key_from_pqe(p, q, e)
     # Returns an RSA Private Key from Factors
     key = OpenSSL::PKey::RSA.new()
+    key.set_factors(p, q)
 
-    key.p = p
-    key.q = q
-
-    key.n = key.p*key.q
-    key.e = e
-
+    n = key.p * key.q
     phi = (key.p - 1) * (key.q - 1 )
-    key.d = key.e.mod_inverse(phi)
+    d = OpenSSL::BN.new(e).mod_inverse(phi)
 
-    key.dmp1 = key.d % (key.p - 1)
-    key.dmq1 = key.d % (key.q - 1)
-    key.iqmp = key.q.mod_inverse(key.p)
+    key.set_key(n, e, d)
+
+    dmp1 = key.d % (key.p - 1)
+    dmq1 = key.d % (key.q - 1)
+    iqmp = key.q.mod_inverse(key.p)
+
+    key.set_crt_params(dmp1, dmq1, iqmp)
 
     return key
   end
