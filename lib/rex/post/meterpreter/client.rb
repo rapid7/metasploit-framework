@@ -88,14 +88,14 @@ class Client
   # Cleans up the meterpreter instance, terminating the dispatcher thread.
   #
   def cleanup_meterpreter
+    if self.pivot_session
+      self.pivot_session.remove_pivot(self.session_guid)
+    end
+
     self.pivots.keys.each do |k|
       pivot = self.pivots[k]
       pivot.pivoted_session.kill('Pivot closed')
       pivot.pivoted_session.shutdown_passive_dispatcher
-    end
-
-    if self.pivot_session
-      self.pivot_session.remove_pivot(self.session_guid)
     end
 
     if not self.skip_cleanup
@@ -177,9 +177,7 @@ class Client
     register_inbound_handler(Rex::Post::Meterpreter::Channel)
     register_inbound_handler(Rex::Post::Meterpreter::Pivot)
 
-    unless opts[:passive_dispatcher] || opts[:pivot_session]
-      monitor_socket 
-    end
+    monitor_socket 
   end
 
   def swap_sock_plain_to_ssl
