@@ -304,6 +304,24 @@ module PacketDispatcher
   # Reception
   #
   ##
+
+  def pivot_keepalive_start
+    return unless self.send_keepalives
+    self.receiver_thread = Rex::ThreadFactory.spawn("PivotKeepalive", false) do
+      while self.alive
+        begin
+          Rex::sleep(PING_TIME)
+          keepalive
+        rescue ::Exception => e
+          dlog("Exception caught in pivot keepalive: #{e.class}: #{e}", 'meterpreter', LEV_1)
+          dlog("Call stack: #{e.backtrace.join("\n")}", 'meterpreter', LEV_2)
+          self.alive = false
+          break
+        end
+      end
+    end
+  end
+
   #
   # Monitors the PacketDispatcher's sock for data in its own
   # thread context and parsers all inbound packets.
@@ -312,6 +330,9 @@ module PacketDispatcher
 
     # Skip if we are using a passive dispatcher
     return if self.passive_service
+
+    # redirect to pivot keepalive if we're a pivot session
+    return pivot_keepalive_start if self.pivot_session
 
     self.comm_mutex = ::Mutex.new
 
