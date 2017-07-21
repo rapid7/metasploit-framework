@@ -37,11 +37,11 @@ class MetasploitModule < Msf::Auxiliary
       vim_sessions = vim_get_session_list
       case vim_sessions
       when :noresponse
-        print_error "Connection Error - Recieved No Reply from #{ip}"
+        print_error "Connection error - Received no reply from #{ip}"
       when :error
-        print_error "An error has occured"
+        print_error "An error has occurred"
       when :expired
-        print_error "The Session is no longer Authenticated"
+        print_error "The session is no longer authenticated"
       else
         output = ''
         vim_sessions.each do |vsession|
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     else
-      print_error "Login Failure on #{ip}"
+      print_error "Login failure on #{ip}"
       return
     end
   end

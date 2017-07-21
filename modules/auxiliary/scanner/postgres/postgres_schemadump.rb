@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     # Error handling routine here, borrowed heavily from todb
     case res.keys[0]
     when :conn_error
-      print_error("A Connection Error occured")
+      print_error("A Connection Error Occurred")
       return
     when :sql_error
       case res[:sql_error]

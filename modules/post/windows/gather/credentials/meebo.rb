@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Post
       end
 
     rescue ::Exception => e
-      print_error("An error has occured: #{e.to_s}")
+      print_error("An error has occurred: #{e.to_s}")
     end
   end
 

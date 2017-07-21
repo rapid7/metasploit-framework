@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Post
       print_good("Trillian Instant Messenger user credentials saved in: #{path}")
 
     rescue ::Exception => e
-      print_error("An error has occured: #{e.to_s}")
+      print_error("An error has occurred: #{e.to_s}")
     end
   end
 

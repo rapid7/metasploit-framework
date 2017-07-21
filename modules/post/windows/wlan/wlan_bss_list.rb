@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Post
           bss['physical'] = "Unknown Association Type"
       end
 
-      #Get the Recieved Signal Strength Indicator
+      #Get the Received Signal Strength Indicator
       pointer = (pointer + 4)
       rssi = @host_process.memory.read(pointer,4)
       rssi = getle_signed_int(rssi)

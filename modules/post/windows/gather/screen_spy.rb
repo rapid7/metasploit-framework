@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Post
           print_good("Migration successful")
           return p['pid']
         rescue
-          print_bad("Migration failed.")
+          print_bad("Migration failed")
           return nil
         end
       end

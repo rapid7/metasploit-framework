@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     ver = prepare_exec(query)
 
     if ver.nil?
-      print_error("An Error has occured, check your OPTIONS")
+      print_error("An Error has occurred, check your OPTIONS")
       return
     end
 
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
 
       end
     rescue => e
-      print_error("An error occured. The supplied credentials may not have proper privs")
+      print_error("An error occurred. The supplied credentials may not have proper privs")
       return
     end
     print_status("Hash table :\n #{tbl}")
@@ -130,8 +130,5 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_good("Hash Table has been saved")
   end
-
-
-
 
 end
