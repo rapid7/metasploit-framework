@@ -34,7 +34,7 @@ class Console::CommandDispatcher::RFtransceiver
       'deviation'         => 'sets the deviation',
       'sync_word'         => 'sets the sync word',
       'preamble'          => 'sets the preamble number',
-      'lowball'          => 'sets lowball'
+      'lowball'           => 'sets lowball',
       'power'             => 'sets the power level',
       'maxpower'          => 'sets max power'
     }
