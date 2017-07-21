@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res.body =~ /dwr.engine._remoteHandleCallback/
-      fail_with Failure::UnexpectedReply, "#{peer} Export failed."
+      fail_with Failure::UnexpectedReply, "#{peer} Export failed"
     end
 
     config_data = res.body.scan(/dwr.engine._remoteHandleCallback\('\d*','\d*',"(.+)"\);/).flatten.first

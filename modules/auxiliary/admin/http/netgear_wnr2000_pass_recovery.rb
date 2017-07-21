@@ -249,7 +249,7 @@ class MetasploitModule < Msf::Auxiliary
       start_time -= datastore['TIME_OFFSET']
       if start_time < 0
         if end_time <= datastore['TIME_OFFSET']
-          fail_with(Failure::Unknown, "#{peer} - Exploit failed.")
+          fail_with(Failure::Unknown, "#{peer} - Exploit failed")
         end
         start_time = 0
       end

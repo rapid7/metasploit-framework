@@ -149,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
           :exploited_at => Time.now.utc
         )
       else
-        print_error("#{ip}: File doesn't seem to exist. The upload probably failed.")
+        print_error("#{ip}: File doesn't seem to exist. The upload probably failed")
       end
 
     when 'DELETE'

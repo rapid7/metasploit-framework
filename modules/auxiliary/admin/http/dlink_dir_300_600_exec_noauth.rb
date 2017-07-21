@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       print_line("#{rhost}:#{rport} - Command: #{datastore['CMD']}\n")
       print_line("#{rhost}:#{rport} - Output: #{res.body}")
     else
-      print_error("#{rhost}:#{rport} - Exploit failed.")
+      print_error("#{rhost}:#{rport} - Exploit failed")
     end
   end
 end

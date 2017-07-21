@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Post
               end
             end
           rescue
-            print_error("Cannot open #{path} you probably don't have permission to open the file or parsing failed.")
+            print_error("Cannot open #{path} you probably don't have permission to open the file or parsing failed")
           end
         end
       end
@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Post
               end
             end
           rescue
-            print_status("Cannot open #{path} you probably don't have permission to open the file or parsing failed.")
+            print_status("Cannot open #{path} you probably don't have permission to open the file or parsing failed")
           end
         end
       end

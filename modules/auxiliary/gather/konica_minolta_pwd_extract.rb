@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     rescue ::Rex::ConnectionError
-      print_error("Version check Connection failed.")
+      print_error("Version check Connection failed")
   end
 
   # This section logs on and retrieves AuthKey token

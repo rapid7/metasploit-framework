@@ -264,7 +264,7 @@ class MetasploitModule < Msf::Auxiliary
       }, datastore['TIMEOUT'].to_i)
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("Connection failed.")
+      print_error("Connection failed")
     end
 
     res

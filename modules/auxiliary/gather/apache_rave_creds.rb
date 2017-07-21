@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{rhost}:#{rport} - Login with the provided credentials...")
       cookie = login(datastore["USERNAME"], datastore["PASSWORD"])
       if cookie.nil?
-        print_error("#{rhost}:#{rport} - Login failed.")
+        print_error("#{rhost}:#{rport} - Login failed")
       else
         print_good("#{rhost}:#{rport} - Login Successful. Proceeding...")
       end
