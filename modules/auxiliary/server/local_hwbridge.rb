@@ -1,6 +1,6 @@
 ##
 #
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 # TODO: SSL Support, Authentication, Listen to localhost only by default
