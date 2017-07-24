@@ -1,6 +1,6 @@
 ##
 #
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 # TODO: SSL Support, Authentication, Listen to localhost only by default
@@ -8,7 +8,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -271,5 +270,4 @@ class MetasploitModule < Msf::Auxiliary
     @server_started = Time.now
     exploit
   end
-
 end

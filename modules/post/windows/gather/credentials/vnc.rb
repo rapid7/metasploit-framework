@@ -1,7 +1,5 @@
-# post/windows/gather/enum_vnc_pw.rb
-
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,7 +7,6 @@ require 'msf/core/auxiliary/report'
 require 'rex/proto/rfb'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles

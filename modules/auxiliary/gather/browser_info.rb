@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::BrowserExploitServer
 
   def initialize(info={})
@@ -61,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def print_target_info(cli, target_info)
-    print_status("#{cli.peerhost} - We have found the following interesting information:")
+    print_good("#{cli.peerhost} - We have found the following interesting information:")
     report_host_info(target_info)
     ignore_items!(target_info)
     target_info.each_pair do |key, value|
@@ -80,5 +79,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     exploit
   end
-
 end

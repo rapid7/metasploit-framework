@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -131,5 +129,4 @@ class MetasploitModule < Msf::Auxiliary
     e.get_elements(name)[0].get_text ) ?
     e.get_elements(name)[0].get_text.to_s  : ""
   end
-
 end

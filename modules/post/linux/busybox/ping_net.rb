@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
   def initialize
@@ -36,5 +35,4 @@ class MetasploitModule < Msf::Post
     p = store_loot('busybox.enum.network', 'text/plain', session, results, 'ping_results.txt', 'BusyBox Device Network Range Enumeration')
     print_good("Results saved to #{p}.")
   end
-
 end

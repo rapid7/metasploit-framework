@@ -1,11 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 # Fake Telnet Service - Kris Katterjohn 09/28/2008
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -123,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
       c.put "\x00\r\n"
     end
 
-    print_status("TELNET LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+    print_good("TELNET LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
     c.put "\r\nLogin failed\r\n\r\n"
     report_cred(
       ip: @state[c][:ip],

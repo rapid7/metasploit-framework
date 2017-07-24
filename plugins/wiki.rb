@@ -1,6 +1,6 @@
 ##
 #
-# This plugin requires Metasploit: http://metasploit.com/download
+# This plugin requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 ##

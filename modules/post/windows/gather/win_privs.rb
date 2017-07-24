@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -59,5 +58,4 @@ class MetasploitModule < Msf::Post
     print_line(usr_tbl.to_s)
     print_line(privs_tbl.to_s)
   end
-
 end

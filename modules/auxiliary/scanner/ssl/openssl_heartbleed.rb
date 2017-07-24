@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,6 @@
 # TODO: Extract the relevant functions and include them in the framework
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -518,7 +517,7 @@ class MetasploitModule < Msf::Auxiliary
         nil,
         'OpenSSL Heartbleed server memory'
       )
-      print_status("Heartbeat data stored in #{path}")
+      print_good("Heartbeat data stored in #{path}")
     end
 
     # Convert non-printable characters to periods
@@ -836,5 +835,4 @@ class MetasploitModule < Msf::Auxiliary
     # TODO: return hash with data
     true
   end
-
 end

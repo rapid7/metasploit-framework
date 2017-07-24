@@ -1,8 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 require 'msf/core/payload/windows/dllinject'
 require 'msf/base/sessions/meterpreter_x86_win'
@@ -42,5 +41,4 @@ module MetasploitModule
   def library_path
     MetasploitPayloads.meterpreter_path('metsrv','x86.dll')
   end
-
 end

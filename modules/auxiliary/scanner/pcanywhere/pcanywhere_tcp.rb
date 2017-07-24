@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -46,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 =end
 
       report_service(:host => rhost, :port => rport, :name => "pcanywhere_data", :info => "")
-      print_status("#{rhost}:#{rport} pcAnywhere data service")
+      print_good("#{rhost}:#{rport} pcAnywhere data service")
 
     rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET
     rescue ::Exception => e

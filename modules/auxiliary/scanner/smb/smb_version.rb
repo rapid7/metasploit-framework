@@ -1,8 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 require 'recog'
 
@@ -128,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
           match_conf['host.domain'] = conf[:SMBDomain]
         end
 
-        print_status("Host is running #{desc}")
+        print_good("Host is running #{desc}")
 
         # Report the service with a friendly banner
         report_service(
@@ -189,5 +188,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     end
   end
-
 end
