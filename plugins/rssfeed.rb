@@ -37,10 +37,14 @@ class Plugin::EventRSS < Msf::Plugin
   end
 
   def create_session_item(session, status)
-    status = "created" ? select(nil, nil, nil, 25) : ""
+    if status == "created" 
+      select(nil, nil, nil, 25)
+    end
     title = "#{session.type} session - #{session.sid} #{status}."
     content = ""
-    session.workspace ? content << "Workspace:\t#{session.workspace}\n" : ""
+    if session.workspace
+      content << "Workspace:\t#{session.workspace}\n"
+    end
     content << "Session Information: #{session.info}"
     add_event({title: title, date: Time.now.to_s, link: "https://metasploit.com", content: content})
   end
@@ -65,7 +69,7 @@ class Plugin::EventRSS < Msf::Plugin
   end
 
   def start_event_queue
-    self.queue_thread = Thread.new do
+    self.queue_thread = Rex::ThreadFactory.spawn("rss_plugin", false) do
       begin
       while(true)
         while(event = self.queue.shift)
@@ -82,7 +86,7 @@ class Plugin::EventRSS < Msf::Plugin
   def stop_event_queue
     self.queue_thread.kill if self.queue_thread
     self.queue_thread = nil
-    self.queue = []
+    self.queue.clear
   end
 
 
@@ -91,7 +95,7 @@ class Plugin::EventRSS < Msf::Plugin
     super
 
     @items = []
-    self.queue = []
+    self.queue = Queue.new
     self.framework.events.add_session_subscriber(self)
     start_event_queue
 
