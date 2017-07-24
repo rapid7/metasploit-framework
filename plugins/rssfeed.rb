@@ -23,7 +23,7 @@ class Plugin::EventRSS < Msf::Plugin
       maker.channel.updated = Time.new.to_s
       maker.channel.about = "https://metasploit.com"
       maker.channel.title = "msfconsole rss feed"
-      
+
       items.each do |rssitem|
         maker.items.new_item do |item|
           item.link = rssitem[:link]
@@ -118,5 +118,3 @@ class Plugin::EventRSS < Msf::Plugin
 
 end
 end
-
-
