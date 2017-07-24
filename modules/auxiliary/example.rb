@@ -10,21 +10,21 @@
 #
 ###
 class MetasploitModule < Msf::Auxiliary
-
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'Sample Auxiliary Module',
-      # The description can be multiple lines, but does not preserve formatting.
-      'Description' => 'Sample Auxiliary Module',
-      'Author'      => ['Joe Module <joem@example.com>'],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          ['Default Action'],
-          ['Another Action']
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'        => 'Sample Auxiliary Module',
+        # The description can be multiple lines, but does not preserve formatting.
+        'Description' => 'Sample Auxiliary Module',
+        'Author'      => ['Joe Module <joem@example.com>'],
+        'License'     => MSF_LICENSE,
+        'Actions'     => [
+          [ 'Default Action' ],
+          [ 'Another Action' ]
         ]
-    ))
-
+      )
+    )
   end
 
   def run
@@ -34,11 +34,10 @@ class MetasploitModule < Msf::Auxiliary
   # auxiliary modules can register new commands, they all call cmd_* to
   # dispatch them
   def auxiliary_commands
-    return { "aux_extra_command" => "Run this auxiliary test commmand" }
+    { "aux_extra_command" => "Run this auxiliary test commmand" }
   end
 
   def cmd_aux_extra_command(*args)
-    print_status("Running inside aux_extra_command(#{args.join(" ")})")
+    print_status("Running inside aux_extra_command(#{args.join(' ')})")
   end
-
 end
