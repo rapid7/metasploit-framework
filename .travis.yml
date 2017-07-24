@@ -16,8 +16,6 @@ rvm:
   - '2.4.1'
 
 env:
-# TODO: restore these tests when the code passes them!
-#  - CMD='bundle exec rake cucumber cucumber:boot CREATE_BINSTUBS=true'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
 
