@@ -9,7 +9,7 @@ module Msf
 
 ###
 #
-# Complex reverse TCP payload generation for Linux ARCH_X86
+# Complex reverse TCP payload generation for Linux ARCH_X64
 #
 ###
 
