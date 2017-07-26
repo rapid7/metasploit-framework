@@ -195,19 +195,15 @@ class Dir < Rex::Post::Dir
   # Downloads the contents of a remote directory a
   # local directory, optionally in a recursive fashion.
   #
-  def Dir.download(dst, src, opts, force = true, glob = nil, &stat)
-    recursive = false
-    continue = false
-    tries = false
-    tries_no = 0
+  def Dir.download(dst, src, opts = {}, force = true, glob = nil, &stat)
     tries_cnt = 0
-    if opts
-      timestamp = opts["timestamp"]
-      recursive = true if opts["recursive"]
-      continue = true if opts["continue"]
-      tries = true if opts["tries"]
-      tries_no = opts["tries_no"]
-    end
+
+    continue =  opts["continue"]
+    recursive = opts["recursive"]
+    timestamp = opts["timestamp"]
+    tries_no = opts["tries_no"] || 0
+    tries = opts["tries"]
+
     begin
       dir_files = self.entries(src, glob)
     rescue Rex::TimeoutError

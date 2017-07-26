@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
     reg_view = sysinfo['Architecture'] =~ /x64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_32_BIT
     reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings', reg_view)
     if reg_vals.nil?
-      print_status('Failed to enumerate EMET Protected.')
+      print_error('Failed to enumerate EMET Protected.')
     else
       print_status('Found protected processes:')
       reg_vals.each do |path|

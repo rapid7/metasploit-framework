@@ -1,9 +1,13 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core/post/common'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/netapi'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Common
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::NetAPI
@@ -85,6 +89,5 @@ class MetasploitModule < Msf::Post
       end
     end
   end
-
 end
 

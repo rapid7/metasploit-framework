@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -73,5 +73,4 @@ module MetasploitModule
 
     second_stage.stage_payload(opts)
   end
-
 end

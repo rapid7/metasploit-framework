@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Nmap
   include Msf::Auxiliary::AuthBrute
@@ -195,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
             @oracle_reported = true
           end
           user = extract_creds(oline)[0]
-          print_status "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
+          print_good "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
           report_cred(
             ip: addr,
             port: port,
@@ -209,5 +208,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

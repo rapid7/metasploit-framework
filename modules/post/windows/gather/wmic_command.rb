@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::WMIC
 
   def initialize(info={})
@@ -63,5 +62,4 @@ class MetasploitModule < Msf::Post
 
     print_status("Command output saved to: #{command_log}")
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::WmapScanServer
@@ -117,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
 
       case retcode
         when /^200/
-          print_status("#{info} FrontPage ACCESS ALLOWED [#{retcode}]")
+          print_good("#{info} FrontPage ACCESS ALLOWED [#{retcode}]")
           # Report a note or vulnerability or something
           # Not really this one, but close
           report_vuln(
@@ -146,5 +143,4 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect
   end
-
 end

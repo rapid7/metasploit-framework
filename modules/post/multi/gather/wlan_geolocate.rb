@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Post
       else
         store_loot("host.windows.wlan.networks", "text/plain", session, listing, "wlan_networks.txt", "Available Wireless LAN Networks")
         # The wireless output does not lend itself to displaying on screen for this platform.
-        print_status("Wireless list saved to loot.")
+        print_good("Wireless list saved to loot.")
         if datastore['GEOLOCATE']
           wlan_list = parse_wireless_win(listing)
           perform_geolocation(wlan_list)
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Post
         return nil
       else
         store_loot("host.osx.wlan.networks", "text/plain", session, listing, "wlan_networks.txt", "Available Wireless LAN Networks")
-        print_status("Target's wireless networks:\n\n#{listing}\n")
+        print_good("Target's wireless networks:\n\n#{listing}\n")
         if datastore['GEOLOCATE']
           wlan_list = parse_wireless_osx(listing)
           perform_geolocation(wlan_list)
@@ -146,7 +146,7 @@ class MetasploitModule < Msf::Post
       else
         store_loot("host.linux.wlan.networks", "text/plain", session, listing, "wlan_networks.txt", "Available Wireless LAN Networks")
         # The wireless output does not lend itself to displaying on screen for this platform.
-        print_status("Wireless list saved to loot.")
+        print_good("Wireless list saved to loot.")
         if datastore['GEOLOCATE']
           wlan_list = parse_wireless_linux(listing)
           perform_geolocation(wlan_list)
@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Post
         return nil
       else
         store_loot("host.solaris.wlan.networks", "text/plain", session, listing, "wlan_networks.txt", "Available Wireless LAN Networks")
-        print_status("Target's wireless networks:\n\n#{listing}\n")
+        print_good("Target's wireless networks:\n\n#{listing}\n")
         print_error("Geolocation is not supported on this platform.\n\n") if datastore['GEOLOCATE']
         return
       end
@@ -177,7 +177,7 @@ class MetasploitModule < Msf::Post
         return nil
       else
         store_loot("host.bsd.wlan.networks", "text/plain", session, listing, "wlan_networks.txt", "Available Wireless LAN Networks")
-        print_status("Target's wireless networks:\n\n#{listing}\n")
+        print_good("Target's wireless networks:\n\n#{listing}\n")
         print_error("Geolocation is not supported on this platform.\n\n") if datastore['GEOLOCATE']
         return
       end

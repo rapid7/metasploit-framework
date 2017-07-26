@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -76,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect
 
-    print_status "File retrieved successfully!"
+    print_good "File retrieved successfully!"
     fname = File.basename(datastore['FILEPATH'])
     path = store_loot(
       'novell.zenworks_configuration_management',
@@ -87,5 +86,4 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_status("File saved in: #{path}")
   end
-
 end
