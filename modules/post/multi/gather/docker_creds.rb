@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
     # Array#select! is only in 1.9
     paths = paths.select { |d| directory?(d) }
 
-    if paths.nil? or paths.empty?
+    if paths.nil? || paths.empty?
       print_error("No users found with a .docker directory")
       return
     end
@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Post
       file = "config.json"
       target = "#{path}/#{file}"
 
-      if file?(target)
+      if file? target
         print_status("Downloading #{target} -> #{file}")
         extract(target)
       end
