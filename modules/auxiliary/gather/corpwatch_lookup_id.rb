@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -161,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 25)
 
       if res == nil
-        print_error ("Server down or bad response")
+        print_error("Server down or bad response")
         return
       end
 
@@ -536,5 +535,4 @@ class MetasploitModule < Msf::Auxiliary
     e.get_elements(name)[0].get_text ) ?
     e.get_elements(name)[0].get_text.to_s : ""
   end
-
 end

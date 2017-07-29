@@ -14,6 +14,22 @@ Metrics/ClassLength:
   Exclude:
     - 'modules/**/*'
 
+Metrics/AbcSize:
+  Enabled: false
+  Description: 'This is often a red-herring'
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+  Description: 'This is often a red-herring'
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+  Description: 'This is often a red-herring'
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+  Description: 'We cannot support this yet without a lot of things breaking'
+
 Style/Documentation:
   Enabled: true
   Description: 'Most Metasploit modules do not have class documentation.'

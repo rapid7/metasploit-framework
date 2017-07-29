@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Post
 
       # Store the captured data in the loot.
       loot_file = store_loot(ltype, ctype, session, loot.join("\n"), nil, datastore['GROUP'])
-      print_status("User list stored in #{loot_file}")
+      print_good("User list stored in #{loot_file}")
     else
       print_error("No members found for #{datastore['GROUP']}")
     end

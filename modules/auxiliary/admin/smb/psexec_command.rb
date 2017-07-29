@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SMB::Client::Psexec
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -175,8 +174,7 @@ class MetasploitModule < Msf::Auxiliary
     if left.any?
       print_error("Unable to cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
     else
-      print_status("Cleanup was successful")
+      print_good("Cleanup was successful")
     end
   end
-
 end

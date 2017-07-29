@@ -1,7 +1,11 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Services
 
@@ -139,7 +143,7 @@ class MetasploitModule < Msf::Post
               end
             end
           rescue
-            print_status("Cannot open #{path} you probably don't have permission to open the file or parsing failed.")
+            print_error("Cannot open #{path} you probably don't have permission to open the file or parsing failed")
           end
         end
       end
@@ -169,7 +173,7 @@ class MetasploitModule < Msf::Post
               end
             end
           rescue
-            print_status("Cannot open #{path} you probably don't have permission to open the file or parsing failed.")
+            print_status("Cannot open #{path} you probably don't have permission to open the file or parsing failed")
           end
         end
       end

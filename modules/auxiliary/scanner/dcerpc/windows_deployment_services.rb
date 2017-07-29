@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,6 @@ require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -212,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
   def loot_unattend(archi, data)
     return if data.empty?
     p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
-    print_status("Raw version of #{archi} saved as: #{p}")
+    print_good("Raw version of #{archi} saved as: #{p}")
   end
 
   def report_cred(opts)

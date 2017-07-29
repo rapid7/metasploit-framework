@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -56,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       result = res.body.scan(datastore['PATTERN']).flatten.map{ |s| s.strip }.uniq
 
       result.each do |u|
-        print_status("[#{target_host}] #{tpath} [#{u}]")
+        print_good("[#{target_host}] #{tpath} [#{u}]")
 
         report_note(
           :host    => target_host,

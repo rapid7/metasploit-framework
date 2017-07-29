@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'json'
 require 'nokogiri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner

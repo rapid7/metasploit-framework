@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,7 +12,6 @@ require 'rex/exploitation/js/detect'
 require 'rex/exploitation/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})
@@ -1073,5 +1072,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     super
   end
-
 end

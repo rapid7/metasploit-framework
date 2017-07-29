@@ -17,5 +17,9 @@ if [[ -z "$MSF_PATH" ]]; then
   MSF_PATH=$(dirname $(dirname $path))
 fi
 
+if [[ -n "$MSF_BUILD" ]]; then
+  docker-compose -f $MSF_PATH/docker-compose.yml build
+fi
+
 cd $MSF_PATH
 docker-compose run --rm --service-ports ms ./msfvenom "$@"

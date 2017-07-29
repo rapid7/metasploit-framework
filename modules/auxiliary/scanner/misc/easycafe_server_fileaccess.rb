@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       contents << sock.get_once
     end
 
-    print_status("File retrieved successfully (#{contents.length} bytes)!")
+    print_good("File retrieved successfully (#{contents.length} bytes)!")
     contents
   end
 
