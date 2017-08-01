@@ -561,16 +561,16 @@ module PacketDispatcher
   def dispatch_inbound_packet(packet)
     handled = false
 
-    pivot = self.find_pivot(packet.session_guid)
+    pivot_session = self.find_pivot_session(packet.session_guid)
 
     tlv_enc_key = self.tlv_enc_key
-    tlv_enc_key = pivot.pivoted_session.tlv_enc_key if pivot
+    tlv_enc_key = pivot_session.pivoted_session.tlv_enc_key if pivot_session
 
     packet.from_r(tlv_enc_key)
 
     # Update our last reply time
     self.last_checkin = Time.now
-    pivot.pivoted_session.last_checkin = self.last_checkin if pivot
+    pivot_session.pivoted_session.last_checkin = self.last_checkin if pivot_session
 
     # If the packet is a response, try to notify any potential
     # waiters

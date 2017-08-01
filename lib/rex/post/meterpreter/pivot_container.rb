@@ -16,7 +16,7 @@ module PivotContainer
   # Initializes the pivot association hash
   #
   def initialize_pivots
-    self.pivots = {}
+    self.pivot_sessions = {}
     self.pivot_listeners = {}
   end
 
@@ -24,8 +24,8 @@ module PivotContainer
   # Adds a pivot to the container that is indexed by the pivoted
   # session guid.
   #
-  def add_pivot(pivot)
-    self.pivots[pivot.pivoted_session.session_guid] = pivot
+  def add_pivot_session(pivot)
+    self.pivot_sessions[pivot.pivoted_session.session_guid] = pivot
   end
 
   def add_pivot_listener(listener)
@@ -35,8 +35,8 @@ module PivotContainer
   #
   # Looks up a pivot instance based on its pivoted session guid.
   #
-  def find_pivot(pivot_session_guid)
-    return self.pivots[pivot_session_guid]
+  def find_pivot_session(pivot_session_guid)
+    return self.pivot_sessions[pivot_session_guid]
   end
 
   def find_pivot_listener(listener_id)
@@ -46,8 +46,8 @@ module PivotContainer
   #
   # Removes a pivot based on its pivoted session guid.
   #
-  def remove_pivot(pivot_session_guid)
-    return self.pivots.delete(pivot_session_guid)
+  def remove_pivot_session(pivot_session_guid)
+    return self.pivot_sessions.delete(pivot_session_guid)
   end
 
   def remove_pivot_listener(listener_id)
@@ -55,15 +55,15 @@ module PivotContainer
   end
 
   #
-  # The hash of pivots.
+  # The hash of pivot sessions.
   #
-  attr_reader :pivots
+  attr_reader :pivot_sessions
 
   attr_reader :pivot_listeners
 
 protected
 
-  attr_writer :pivots # :nodoc:
+  attr_writer :pivot_sessions # :nodoc:
 
   attr_writer :pivot_listeners # :nodoc:
 
