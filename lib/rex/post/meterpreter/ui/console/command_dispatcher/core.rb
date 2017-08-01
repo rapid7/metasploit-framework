@@ -202,16 +202,20 @@ class Console::CommandDispatcher::Core
       Pivot.remove_listener(client, listener_id)
       print_good("Successfully removed pivot: #{opts[:guid]}")
     when 'list', 'show', 'print'
-      tbl = Rex::Text::Table.new(
-        'Header'  => 'Currently active pivot listeners',
-        'Indent'  => 4,
-        'Columns' => ['Id', 'URL', 'Stage'])
+      if client.pivot_listeners.length > 0
+        tbl = Rex::Text::Table.new(
+          'Header'  => 'Currently active pivot listeners',
+          'Indent'  => 4,
+          'Columns' => ['Id', 'URL', 'Stage'])
 
-      client.pivot_listeners.each do |k, v|
-        tbl << v.to_row
+        client.pivot_listeners.each do |k, v|
+          tbl << v.to_row
+        end
+        print_line
+        print_line(tbl.to_s)
+      else
+        print_status('There are no active pivot listeners')
       end
-      print_line
-      print_line(tbl.to_s)
     when 'add'
       unless opts[:type]
         print_error('Pivot type must be specified (-t)')

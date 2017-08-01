@@ -118,8 +118,8 @@ class Pivot
     stage = stager.stage_payload(stage_opts)
 
     url = "pipe://#{opts[:pipe_host]}/#{opts[:pipe_name]}"
-    stage = "#{opts[:arch]}/#{opts[:platform]}"
-    pivot_listener = PivotListener.new(::Msf::Sessions::Meterpreter_x86_Win, url, stage)
+    stage_config = "#{opts[:arch]}/#{opts[:platform]}"
+    pivot_listener = PivotListener.new(::Msf::Sessions::Meterpreter_x86_Win, url, stage_config)
 
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)

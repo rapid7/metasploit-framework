@@ -98,7 +98,7 @@ class Client
       pivot.pivoted_session.shutdown_passive_dispatcher
     end
 
-    if not self.skip_cleanup
+    unless self.skip_cleanup
       ext.aliases.each_value do | extension |
         extension.cleanup if extension.respond_to?( 'cleanup' )
       end
@@ -106,7 +106,7 @@ class Client
 
     dispatcher_thread.kill if dispatcher_thread
 
-    if not self.skip_cleanup
+    unless self.skip_cleanup
       core.shutdown rescue nil
     end
 
