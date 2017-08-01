@@ -8,7 +8,6 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
 
-
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Linux Gather Virtual Environment Detection',
@@ -16,7 +15,7 @@ class MetasploitModule < Msf::Post
           This module attempts to determine whether the system is running
           inside of a virtual environment and if so, which one. This
           module supports detection of Hyper-V, VMWare, VirtualBox, Xen,
-          and QEMU/KVM.},
+          QEMU/KVM, LXC, and Docker.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform'      => [ 'linux' ],
@@ -140,7 +139,7 @@ class MetasploitModule < Msf::Post
       when /vmware virtual ide|vmware pvscsi|vmware virtual platform/i
         vm = "VMware"
       when /xen_mem|xen-vbd/i
-        vm =  "Xen"
+        vm = "Xen"
       when /qemu virtual cpu version/i
         vm = "Qemu/KVM"
       when /\/dev\/vmnet/
@@ -148,11 +147,29 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Check for .dockerenv file
+    if not vm
+      if file?("/.dockerenv")
+        vm = "Docker"
+      end
+    end
+
+    # Check cgroup on PID 1
+    if not vm
+      cgroup = read_file("/proc/1/cgroup") rescue ""
+      case cgroup.gsub("\n", " ")
+      when /docker/i
+        vm = "Docker"
+      when /lxc/i
+        vm = "LXC"
+      end
+    end
+
     if vm
-      print_good("This appears to be a '#{vm}' virtual machine")
+      print_good("This appears to be a '#{vm}' virtual environment")
       report_vm(vm)
     else
-      print_status("This does not appear to be a virtual machine")
+      print_status("This does not appear to be a virtual environment")
     end
 
   end
