@@ -36,6 +36,14 @@ Style/Documentation:
   Exclude:
     - 'modules/**/*'
 
+Style/IndentHeredoc:
+  Enabled: false
+  Description: 'We need to leave this disabled for Ruby 2.2 compat, remove in 2018'
+
+Style/GuardClause:
+  Enabled: false
+  Description: 'This often introduces bugs in tested code'
+
 Style/Encoding:
   Enabled: true
   Description: 'We prefer binary to UTF-8.'
