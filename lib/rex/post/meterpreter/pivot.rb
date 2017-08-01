@@ -19,6 +19,10 @@ class PivotListener
     self.session_class = session_class
     self.display_name = display_name
   end
+
+  def to_row
+    [self.id.unpack('H*')[0], display_name]
+  end
 end
 
 class Pivot
@@ -41,13 +45,13 @@ class Pivot
       if packet.method == 'core_pivot_session_new'
         session_guid = packet.get_tlv_value(TLV_TYPE_SESSION_GUID)
         listener_id = packet.get_tlv_value(TLV_TYPE_PIVOT_ID)
-        client.add_pivot(Pivot.new(client, session_guid, listener_id))
+        client.add_pivot_session(Pivot.new(client, session_guid, listener_id))
       elsif packet.method == 'core_pivot_session_died'
         session_guid = packet.get_tlv_value(TLV_TYPE_SESSION_GUID)
-        pivot = client.find_pivot(session_guid)
+        pivot = client.find_pivot_session(session_guid)
         if pivot
           pivot.pivoted_session.kill('Died')
-          client.remove_pivot(session_guid)
+          client.remove_pivot_session(session_guid)
         end
       end
       true
