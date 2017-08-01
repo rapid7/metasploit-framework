@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Services
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Post
         OptBool.new(  'ENABLE',   [ false, 'Enable the RDP Service and Firewall Exception.', true]),
         OptBool.new(  'FORWARD', [ false, 'Forward remote port 3389 to local Port.', false]),
         OptInt.new(   'LPORT',    [ false,  'Local port to forward remote connection.', 3389])
-      ], self.class)
+      ])
   end
 
   def run

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
-## Current source: https://github.com/rapid7/metasploit-framework
-###
-
-require 'msf/core'
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
       [
         OptString.new('TARGETURI', [ true, 'Full vulnerable URI with [NoSQLi] where the injection point is', '/index.php?age=50[NoSQLi]'])
-      ], self.class)
+      ])
   end
 
   def syntaxes

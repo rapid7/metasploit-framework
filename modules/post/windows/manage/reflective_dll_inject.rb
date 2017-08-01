@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/post/windows/reflective_dll_injection'
-require 'rex'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::ReflectiveDLLInjection
 
   def initialize(info={})
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('PATH',[true, 'Reflective DLL to inject into memory of a process.']),
         OptInt.new('PID',[true, 'Process Identifier to inject of process to inject payload.']),
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

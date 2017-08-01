@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
 
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('DOMAIN', [ true, 'Domain name for host file manipulation.' ]),
         OptString.new('IP', [ true, 'IP address to point domain name to.' ])
-      ], self.class)
+      ])
   end
 
 

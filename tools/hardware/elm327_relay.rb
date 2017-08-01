@@ -3,7 +3,7 @@
 # ELM327 and STN1100 MCU interface to the Metasploit HWBridge
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -249,6 +249,10 @@ module ELM327HWBridgeRelay
       send_cmd(data)
       @packets_sent += 1
       @last_sent = Time.now()
+      if resp == "CAN ERROR"
+        result["success"] = false
+        return result
+      end
       result["success"] = true
       result
     end
@@ -265,14 +269,18 @@ module ELM327HWBridgeRelay
       result["success"] = false
       srcid = "%03X" % srcid.to_i(16)
       dstid = "%03X" % dstid.to_i(16)
-      send_cmd("ATMCAF1")  # Turn on ISO-TP formatting
+      send_cmd("ATCAF1")  # Turn on ISO-TP formatting
       send_cmd("ATR1")  # Turn on responses
-      send_cmd("ATSTH#{srcid}")  # Src Header
+      send_cmd("ATSH#{srcid}")  # Src Header
       send_cmd("ATCRA#{dstid}")  # Resp Header
       send_cmd("ATCFC1") # Enable flow control
       resp = send_cmd(data)
       @packets_sent += 1
       @last_sent = Time.now()
+      if resp == "CAN ERROR"
+        result["success"] = false
+        return result
+      end
       result["Packets"] = []
       resp.split(/\r/).each do |line|
         pkt = {}

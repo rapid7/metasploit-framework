@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
 
@@ -22,7 +19,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('RESOURCE', [true, 'Full path to resource file to read commands from.', nil])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -44,9 +41,9 @@ class MetasploitModule < Msf::Post
           vprint_status tmpout
           command_log = store_loot("host.command", "text/plain", session,tmpout ,
             "#{cmd.gsub(/\.|\/|\s/,"_")}.txt", "Command Output \'#{cmd.chomp}\'")
-          print_status("Command output saved to: #{command_log}")
+          print_good("Command output saved to: #{command_log}")
         rescue ::Exception => e
-          print_status("Error Running Command #{cmd.chomp}: #{e.class} #{e}")
+          print_bad("Error Running Command #{cmd.chomp}: #{e.class} #{e}")
         end
       end
     end

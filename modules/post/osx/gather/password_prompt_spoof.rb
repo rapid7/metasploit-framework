@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -55,7 +52,7 @@ class MetasploitModule < Msf::Post
         ]
       ),
       OptInt.new('TIMEOUT', [true, 'Timeout for user to enter credentials', 60])
-    ], self.class)
+    ])
   end
 
 #  def cmd_exec(str, args)

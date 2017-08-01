@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Exploit::JSObfu
   include Msf::Auxiliary::Report
@@ -60,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
         "A URL to inject into a script tag in the context of the target URLs.",
         ''
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)
@@ -144,5 +141,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     exploit
   end
-
 end

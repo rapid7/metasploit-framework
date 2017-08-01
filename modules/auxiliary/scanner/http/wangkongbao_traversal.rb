@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(85),
         OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/shadow']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 10])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -62,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
         },
     }, 25)
 
-    print_status "File retreived successfully!"
+    print_good "File retreived successfully"
 
     # Show data if needed
     if res and res.code == 200

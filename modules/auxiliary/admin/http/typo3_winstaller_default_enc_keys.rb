@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -55,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('URI', [true, "TYPO3 Path", "/"]),
         OptString.new('RFILE', [true, "The remote file to download", 'typo3conf/localconf.php']),
         OptString.new('ENC_KEY', [false, "Encryption key if known", '']),
-      ], self.class)
+      ])
 
   end
 
@@ -200,5 +197,4 @@ class MetasploitModule < Msf::Auxiliary
   print_error("Maybe try checking the ACTIONS - Currently using  #{action.name}")
 
   end
-
 end

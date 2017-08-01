@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/http'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -32,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CENSYS_SECRET', [true, 'The Censys API SECRET']),
       OptString.new('CENSYS_DORK', [true, 'The Censys Search Dork']),
       OptEnum.new('CENSYS_SEARCHTYPE', [true, 'The Censys Search Type', 'certificates', ['certificates', 'ipv4', 'websites']])
-    ], self.class)
+    ])
   end
 
   def basic_auth_header(username, password)

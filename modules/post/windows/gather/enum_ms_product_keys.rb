@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
 
   def initialize(info={})
@@ -79,7 +75,7 @@ class MetasploitModule < Msf::Post
       results = tbl.to_csv
       print_line("\n" + tbl.to_s + "\n")
       path = store_loot("host.ms_keys", "text/plain", session, results, "ms_keys.txt", "Microsoft Product Key and Info")
-      print_status("Keys stored in: #{path.to_s}")
+      print_good("Keys stored in: #{path.to_s}")
     end
   end
 
@@ -130,5 +126,4 @@ class MetasploitModule < Msf::Post
     print_status("Finding Microsoft key on #{sysinfo['Computer']}")
     app_list
   end
-
 end

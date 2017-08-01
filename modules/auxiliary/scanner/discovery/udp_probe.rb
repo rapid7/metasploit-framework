@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Module::Deprecated
@@ -26,12 +23,12 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::CHOST,
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('RANDOMIZE_PORTS', [false, 'Randomize the order the ports are probed', true])
-      ], self.class)
+      ])
 
     # Intialize the probes array
     @probes = []
@@ -128,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       report_service(conf)
-      print_status("Discovered #{data[:app]} on #{k} (#{data[:info]})")
+      print_good("Discovered #{data[:app]} on #{k} (#{data[:info]})")
     end
   end
 
@@ -358,7 +355,7 @@ class MetasploitModule < Msf::Auxiliary
       :info  => inf
     )
 
-    print_status("Discovered #{app} on #{pkt[1]}:#{pkt[2]} (#{inf})")
+    print_good("Discovered #{app} on #{pkt[1]}:#{pkt[2]} (#{inf})")
 
   end
 
@@ -535,5 +532,4 @@ class MetasploitModule < Msf::Auxiliary
   def probe_pkt_pca_nq(ip)
     return ["NQ", 5632]
   end
-
 end

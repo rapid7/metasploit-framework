@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'socket'
 
 class MetasploitModule < Msf::Auxiliary
@@ -39,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(2067),
         OptInt.new('LEAK_AMOUNT', [true, 'The number of bytes to store before shutting down.', 1024])
-      ], self.class)
+      ])
   end
 
   def get_response(size = 72)

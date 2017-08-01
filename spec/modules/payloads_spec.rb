@@ -448,6 +448,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/mainframe/reverse_shell_jcl'
   end
 
+  context 'cmd/mainframe/apf_privesc_jcl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/mainframe/apf_privesc_jcl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/mainframe/apf_privesc_jcl'
+  end
+
   context 'cmd/unix/bind_awk' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -636,6 +646,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_lua'
+  end
+
+  context 'cmd/unix/reverse_ncat_ssl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/reverse_ncat_ssl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_ncat_ssl'
   end
 
   context 'cmd/unix/reverse_netcat' do
@@ -1418,136 +1438,6 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/exec'
-  end
-
-  context 'linux/x86/meterpreter/bind_ipv6_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/bind_ipv6_tcp',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/bind_ipv6_tcp'
-  end
-
-  context 'linux/x86/meterpreter/bind_ipv6_tcp_uuid' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/bind_ipv6_tcp_uuid',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/bind_ipv6_tcp_uuid'
-  end
-
-  context 'linux/x86/meterpreter/bind_nonx_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/bind_nonx_tcp',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/bind_nonx_tcp'
-  end
-
-  context 'linux/x86/meterpreter/bind_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/bind_tcp',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/bind_tcp'
-  end
-
-  context 'linux/x86/meterpreter/bind_tcp_uuid' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/bind_tcp_uuid',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/bind_tcp_uuid'
-  end
-
-  context 'linux/x86/meterpreter/find_tag' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/find_tag',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/find_tag'
-  end
-
-  context 'linux/x86/meterpreter/reverse_ipv6_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/reverse_ipv6_tcp',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/reverse_ipv6_tcp'
-  end
-
-  context 'linux/x86/meterpreter/reverse_nonx_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/reverse_nonx_tcp',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/reverse_nonx_tcp'
-  end
-
-  context 'linux/x86/meterpreter/reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/reverse_tcp',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/reverse_tcp'
-  end
-
-  context 'linux/x86/meterpreter/reverse_tcp_uuid' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'stagers/linux/x86/reverse_tcp_uuid',
-                              'stages/linux/x86/meterpreter'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/meterpreter/reverse_tcp_uuid'
-  end
-
-  context 'linux/x86/metsvc_bind_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/x86/metsvc_bind_tcp'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/metsvc_bind_tcp'
-  end
-
-  context 'linux/x86/metsvc_reverse_tcp' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/linux/x86/metsvc_reverse_tcp'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/metsvc_reverse_tcp'
   end
 
   context 'linux/x86/read_file' do
@@ -4280,290 +4170,530 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/meterpreter/reverse_winhttps'
   end
 
-  context 'linux/aarch64/mettle_reverse_tcp' do
+  context 'linux/aarch64/meterpreter_reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/aarch64/mettle_reverse_tcp'
+                            'singles/linux/aarch64/meterpreter_reverse_http'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/aarch64/mettle_reverse_tcp'
+                          reference_name: 'linux/aarch64/meterpreter_reverse_http'
   end
 
-  context 'linux/armbe/mettle_reverse_tcp' do
+  context 'linux/aarch64/meterpreter_reverse_https' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/armbe/mettle_reverse_tcp'
+                            'singles/linux/aarch64/meterpreter_reverse_https'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/armbe/mettle_reverse_tcp'
+                          reference_name: 'linux/aarch64/meterpreter_reverse_https'
   end
 
-  context 'linux/armle/mettle/bind_tcp' do
+  context 'linux/armbe/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armbe/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armbe/meterpreter_reverse_http'
+  end
+
+  context 'linux/armbe/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armbe/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armbe/meterpreter_reverse_https'
+  end
+
+  context 'linux/armle/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armle/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/meterpreter_reverse_http'
+  end
+
+  context 'linux/armle/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armle/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/meterpreter_reverse_https'
+  end
+
+  context 'linux/mips64/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mips64/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mips64/meterpreter_reverse_http'
+  end
+
+  context 'linux/mips64/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mips64/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mips64/meterpreter_reverse_https'
+  end
+
+  context 'linux/mipsbe/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mipsbe/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mipsbe/meterpreter_reverse_http'
+  end
+
+  context 'linux/mipsbe/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mipsbe/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mipsbe/meterpreter_reverse_https'
+  end
+
+  context 'linux/mipsle/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mipsle/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mipsle/meterpreter_reverse_http'
+  end
+
+  context 'linux/mipsle/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/mipsle/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/mipsle/meterpreter_reverse_https'
+  end
+
+  context 'linux/ppc/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/ppc/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppc/meterpreter_reverse_http'
+  end
+
+  context 'linux/ppc/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/ppc/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppc/meterpreter_reverse_https'
+  end
+
+  context 'linux/ppc64le/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/ppc64le/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppc64le/meterpreter_reverse_http'
+  end
+
+  context 'linux/ppc64le/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/ppc64le/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppc64le/meterpreter_reverse_https'
+  end
+
+  context 'linux/x64/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/x64/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/meterpreter_reverse_http'
+  end
+
+  context 'linux/x64/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/x64/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/meterpreter_reverse_https'
+  end
+
+  context 'linux/x86/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/x86/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/meterpreter_reverse_http'
+  end
+
+  context 'linux/x86/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/x86/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/meterpreter_reverse_https'
+  end
+
+  context 'linux/x86/metsvc_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/x86/metsvc_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/metsvc_bind_tcp'
+  end
+
+  context 'linux/x86/metsvc_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/x86/metsvc_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/metsvc_reverse_tcp'
+  end
+
+  context 'linux/zarch/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/zarch/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/zarch/meterpreter_reverse_http'
+  end
+
+  context 'linux/zarch/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/zarch/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/zarch/meterpreter_reverse_https'
+  end
+
+  context 'linux/aarch64/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/aarch64/meterpreter_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/meterpreter_reverse_tcp'
+  end
+
+  context 'linux/armbe/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armbe/meterpreter_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armbe/meterpreter_reverse_tcp'
+  end
+
+  context 'linux/armle/meterpreter/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/armle/bind_tcp',
-                            'stages/linux/armle/mettle'
+                            'stages/linux/armle/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/armle/mettle/bind_tcp'
+                          reference_name: 'linux/armle/meterpreter/bind_tcp'
   end
 
-  context 'linux/armle/mettle/reverse_tcp' do
+  context 'linux/armle/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/armle/reverse_tcp',
-                            'stages/linux/armle/mettle'
+                            'stages/linux/armle/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/armle/mettle/reverse_tcp'
+                          reference_name: 'linux/armle/meterpreter/reverse_tcp'
   end
 
-  context 'linux/armle/mettle_reverse_tcp' do
+  context 'linux/armle/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/armle/mettle_reverse_tcp'
+                            'singles/linux/armle/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/armle/mettle_reverse_tcp'
+                          reference_name: 'linux/armle/meterpreter_reverse_tcp'
   end
 
-  context 'linux/mips64/mettle_reverse_tcp' do
+  context 'linux/mips64/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/mips64/mettle_reverse_tcp'
+                            'singles/linux/mips64/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/mips64/mettle_reverse_tcp'
+                          reference_name: 'linux/mips64/meterpreter_reverse_tcp'
   end
 
-  context 'linux/mipsbe/mettle/reverse_tcp' do
+  context 'linux/mipsbe/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/mipsbe/reverse_tcp',
-                            'stages/linux/mipsbe/mettle'
+                            'stages/linux/mipsbe/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/mipsbe/mettle/reverse_tcp'
+                          reference_name: 'linux/mipsbe/meterpreter/reverse_tcp'
   end
 
-  context 'linux/mipsbe/mettle_reverse_tcp' do
+  context 'linux/mipsbe/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/mipsbe/mettle_reverse_tcp'
+                            'singles/linux/mipsbe/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/mipsbe/mettle_reverse_tcp'
+                          reference_name: 'linux/mipsbe/meterpreter_reverse_tcp'
   end
 
-  context 'linux/mipsle/mettle/reverse_tcp' do
+  context 'linux/mipsle/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/mipsle/reverse_tcp',
-                            'stages/linux/mipsle/mettle'
+                            'stages/linux/mipsle/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/mipsle/mettle/reverse_tcp'
+                          reference_name: 'linux/mipsle/meterpreter/reverse_tcp'
   end
 
-  context 'linux/mipsle/mettle_reverse_tcp' do
+  context 'linux/mipsle/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/mipsle/mettle_reverse_tcp'
+                            'singles/linux/mipsle/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/mipsle/mettle_reverse_tcp'
+                          reference_name: 'linux/mipsle/meterpreter_reverse_tcp'
   end
 
-  context 'linux/ppc/mettle_reverse_tcp' do
+  context 'linux/ppc/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/ppc/mettle_reverse_tcp'
+                            'singles/linux/ppc/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc/mettle_reverse_tcp'
+                          reference_name: 'linux/ppc/meterpreter_reverse_tcp'
   end
 
-  context 'linux/ppc64le/mettle_reverse_tcp' do
+  context 'linux/ppc64le/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/ppc64le/mettle_reverse_tcp'
+                            'singles/linux/ppc64le/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/ppc64le/mettle_reverse_tcp'
+                          reference_name: 'linux/ppc64le/meterpreter_reverse_tcp'
   end
 
-  context 'linux/x64/mettle/bind_tcp' do
+  context 'linux/x64/meterpreter/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x64/bind_tcp',
-                            'stages/linux/x64/mettle'
+                            'stages/linux/x64/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x64/mettle/bind_tcp'
+                          reference_name: 'linux/x64/meterpreter/bind_tcp'
   end
 
-  context 'linux/x64/mettle/reverse_tcp' do
+  context 'linux/x64/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x64/reverse_tcp',
-                            'stages/linux/x64/mettle'
+                            'stages/linux/x64/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x64/mettle/reverse_tcp'
+                          reference_name: 'linux/x64/meterpreter/reverse_tcp'
   end
 
-  context 'linux/x64/mettle_reverse_tcp' do
+  context 'linux/x64/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/x64/mettle_reverse_tcp'
+                            'singles/linux/x64/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x64/mettle_reverse_tcp'
+                          reference_name: 'linux/x64/meterpreter_reverse_tcp'
   end
 
-  context 'linux/x86/mettle/bind_ipv6_tcp' do
+  context 'linux/x86/meterpreter/bind_ipv6_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/bind_ipv6_tcp',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/bind_ipv6_tcp'
+                          reference_name: 'linux/x86/meterpreter/bind_ipv6_tcp'
   end
 
-  context 'linux/x86/mettle/bind_ipv6_tcp_uuid' do
+  context 'linux/x86/meterpreter/bind_ipv6_tcp_uuid' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/bind_ipv6_tcp_uuid',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/bind_ipv6_tcp_uuid'
+                          reference_name: 'linux/x86/meterpreter/bind_ipv6_tcp_uuid'
   end
 
-  context 'linux/x86/mettle/bind_nonx_tcp' do
+  context 'linux/x86/meterpreter/bind_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/bind_nonx_tcp',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/bind_nonx_tcp'
+                          reference_name: 'linux/x86/meterpreter/bind_nonx_tcp'
   end
 
-  context 'linux/x86/mettle/bind_tcp' do
+  context 'linux/x86/meterpreter/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/bind_tcp',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/bind_tcp'
+                          reference_name: 'linux/x86/meterpreter/bind_tcp'
   end
 
-  context 'linux/x86/mettle/bind_tcp_uuid' do
+  context 'linux/x86/meterpreter/bind_tcp_uuid' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/bind_tcp_uuid',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/bind_tcp_uuid'
+                          reference_name: 'linux/x86/meterpreter/bind_tcp_uuid'
   end
 
-  context 'linux/x86/mettle/find_tag' do
+  context 'linux/x86/meterpreter/find_tag' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/find_tag',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/find_tag'
+                          reference_name: 'linux/x86/meterpreter/find_tag'
   end
 
-  context 'linux/x86/mettle/reverse_ipv6_tcp' do
+  context 'linux/x86/meterpreter/reverse_ipv6_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/reverse_ipv6_tcp',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/reverse_ipv6_tcp'
+                          reference_name: 'linux/x86/meterpreter/reverse_ipv6_tcp'
   end
 
-  context 'linux/x86/mettle/reverse_nonx_tcp' do
+  context 'linux/x86/meterpreter/reverse_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/reverse_nonx_tcp',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/reverse_nonx_tcp'
+                          reference_name: 'linux/x86/meterpreter/reverse_nonx_tcp'
   end
 
-  context 'linux/x86/mettle/reverse_tcp' do
+  context 'linux/x86/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/reverse_tcp',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/reverse_tcp'
+                          reference_name: 'linux/x86/meterpreter/reverse_tcp'
   end
 
-  context 'linux/x86/mettle/reverse_tcp_uuid' do
+  context 'linux/x86/meterpreter/reverse_tcp_uuid' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
                             'stagers/linux/x86/reverse_tcp_uuid',
-                            'stages/linux/x86/mettle'
+                            'stages/linux/x86/meterpreter'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle/reverse_tcp_uuid'
+                          reference_name: 'linux/x86/meterpreter/reverse_tcp_uuid'
   end
 
-  context 'linux/x86/mettle_reverse_tcp' do
+  context 'linux/x86/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/x86/mettle_reverse_tcp'
+                            'singles/linux/x86/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/x86/mettle_reverse_tcp'
+                          reference_name: 'linux/x86/meterpreter_reverse_tcp'
   end
 
-  context 'linux/zarch/mettle_reverse_tcp' do
+  context 'linux/zarch/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
-                            'singles/linux/zarch/mettle_reverse_tcp'
+                            'singles/linux/zarch/meterpreter_reverse_tcp'
                           ],
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
-                          reference_name: 'linux/zarch/mettle_reverse_tcp'
+                          reference_name: 'linux/zarch/meterpreter_reverse_tcp'
   end
 
 end

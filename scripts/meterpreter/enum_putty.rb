@@ -91,7 +91,7 @@ def enum_saved_sessions(reg_key_base)
     end
   end
 end
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   hkcu_base.each do |hkb|
     if check_putty(hkb)
       enum_known_ssh_hosts(hkb)

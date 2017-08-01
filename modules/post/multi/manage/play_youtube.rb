@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
   PLAY_OPTIONS = 'autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0'
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('VID', [true, 'The video ID to the YouTube video'])
-      ], self.class)
+      ])
   end
 
   #
@@ -132,5 +129,4 @@ class MetasploitModule < Msf::Post
     end
 
   end
-
 end

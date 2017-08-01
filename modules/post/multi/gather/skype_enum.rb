@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'csv'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::OSX::System
@@ -29,7 +26,7 @@ class MetasploitModule < Msf::Post
       [
         # Set as an advanced option since it can only be useful in shell sessions.
         OptInt.new('TIMEOUT', [true ,'Timeout in seconds when downloading main.db on a shell session.', 90]),
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

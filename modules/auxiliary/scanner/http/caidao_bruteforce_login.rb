@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/caidao'
 
@@ -36,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           'The file that contains a list of of probable passwords.',
           File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
         ])
-      ], self.class)
+      ])
 
     # caidao does not have an username, there's only password
     deregister_options('HttpUsername', 'HttpPassword', 'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS')

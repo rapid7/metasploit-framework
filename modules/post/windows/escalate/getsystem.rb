@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
 
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -28,7 +24,7 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-4), otherwise try them all", 0])
-    ], self.class)
+    ])
 
   end
 
@@ -55,5 +51,4 @@ class MetasploitModule < Msf::Post
       print_error("Failed to obtain SYSTEM access")
     end
   end
-
 end

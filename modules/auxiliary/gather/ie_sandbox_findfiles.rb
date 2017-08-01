@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://www.metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info={})
@@ -44,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('SHARENAME', [ true, "The name of the top-level share.", "falcon" ]),
         OptString.new('PATHS', [ true, "The list of files to check (comma separated).", "Testing/Not/Found/Check.txt, Windows/System32/calc.exe, Program Files (x86)/Mozilla Firefox/firefox.exe, Program Files/VMware/VMware Tools/TPAutoConnSvc.exe" ]),
-      ], self.class)
+      ])
 
     # no SSL
     deregister_options('SSL', 'SSLVersion', 'SSLCert', 'SRVPORT', 'URIPATH')

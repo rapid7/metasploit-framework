@@ -1,4 +1,4 @@
-linux/x86/meterpreter/reverse_tcp is the most pouplar payload against the Linux platform. It allows
+linux/x86/meterpreter/reverse_tcp is the most popular payload against the Linux platform. It allows
 you to remotely take over the compromised system, having control of the file system, collect
 sensitive information such as credentials using post modules, etc.
 
@@ -209,7 +209,7 @@ meterpreter > help
 
 ## Using a Post module
 
-One of the best things about Meterprter is you have access to a variety of post modules that
+One of the best things about Meterpreter is you have access to a variety of post modules that
 "shell" sessions might not have. Post modules provide you with more capabilities to collect data
 from the remote machine automatically. For example, stealing credentials from the system or
 third-party applications, or modify settings, etc.

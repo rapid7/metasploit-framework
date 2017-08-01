@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/windows/powershell'
 
 class MetasploitModule < Msf::Post
@@ -16,9 +14,9 @@ class MetasploitModule < Msf::Post
         'Name'         => 'Windows \'Run As\' Using Powershell',
         'Description'  => %q( This module will start a process as another user using powershell. ),
         'License'      => MSF_LICENSE,
-        'Author'       => [ 'p3nt4' ],
-        'Platform'     => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'Author'       => ['p3nt4'],
+        'Platform'     => ['win'],
+        'SessionTypes' => ['meterpreter']
       )
     )
     register_options(
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('CHANNELIZE', [true, 'Chanelize output, required for reading output or interracting', true]),
         OptBool.new('INTERACTIVE', [true, 'Run interactively', true]),
         OptBool.new('HIDDEN', [true, 'Hide the window', true])
-      ], self.class)
+      ])
   end
 
   def run
@@ -41,28 +39,32 @@ class MetasploitModule < Msf::Post
     user = datastore['user']
     pass = datastore['pass']
     domain = datastore['domain']
-    exe = datastore['exe'].gsub("\\", "\\\\\\\\")
+    exe = datastore['exe'].gsub('\\', '\\\\\\\\')
     inter = datastore['interactive']
     args = datastore['args']
-    path = datastore['path'].gsub("\\", "\\\\\\\\")
+    path = datastore['path'].gsub('\\', '\\\\\\\\')
     channelized = datastore['channelize']
     hidden = datastore['hidden']
+    if user.include? '\\'
+      domain = user.split('\\')[0]
+      user = user.split('\\')[1]
+    end
     # Check if session is interactive
-    if (!session.interacting and inter)
-      print_error("Interactive mode can only be used in a meterpreter console")
+    if !session.interacting && inter
+      print_error('Interactive mode can only be used in a meterpreter console')
       print_error("Use 'run post/windows/manage/run_as_psh USER=x PASS=X EXE=X' or 'SET INTERACTIVE false'")
       raise 'Invalide console'
     end
     # Prepare powershell script
     scr = "$pw = convertto-securestring '#{pass}' -asplaintext -force; "
-    scr << "$pp = new-object -typename System.Management.Automation.PSCredential -argumentlist '#{domain}\\\\#{user}',$pw; "
+    scr << "$pp = new-object -typename System.Management.Automation.PSCredential -argumentlist '#{domain}\\#{user}',$pw; "
     scr << "Start-process '#{exe}' -WorkingDirectory '#{path}' -Credential $pp"
-    if (args and args != '')
+    if args && args != ''
       scr << " -argumentlist '#{args}' "
     end
     if hidden
-      print_status("Hidden mode may not work on older powershell versions, if it fails, try HIDDEN=false")
-      scr << " -WindowStyle hidden"
+      print_status('Hidden mode may not work on older powershell versions, if it fails, try HIDDEN=false')
+      scr << ' -WindowStyle hidden'
     end
     scr = " -c \"#{scr}\""
     # Execute script
@@ -75,12 +77,12 @@ class MetasploitModule < Msf::Post
       'InMemory'    => false,
       'UseThreadToken' => false)
     print_status("Process #{p.pid} created.")
-    print_status("Channel #{p.channel.cid} created.") if (p.channel)
+    print_status("Channel #{p.channel.cid} created.") if p.channel
     # Process output
-    if (inter and p.channel)
+    if inter && p.channel
       client.console.interact_with_channel(p.channel)
     elsif p.channel
-      data = p.channel.read()
+      data = p.channel.read
       print_line(data) if data
     end
   end

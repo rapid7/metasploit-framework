@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'base64'
 
 class MetasploitModule < Msf::Post
@@ -29,7 +27,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [OptString.new('RPATH', [false, 'Path of the MDaemon installation', false]) # If software is installed on a rare directory
-    ], self.class)
+    ])
   end
 
   def run
@@ -198,7 +196,7 @@ class MetasploitModule < Msf::Post
       login_data.merge!(service_data)
       create_credential_login(login_data)
 
-      print_status ("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
+      print_status("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
     end
 
     # report the goods!
@@ -242,7 +240,7 @@ class MetasploitModule < Msf::Post
       login_data.merge!(service_data)
       create_credential_login(login_data)
 
-      print_status ("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
+      print_status("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
     end
 
     # report the goods!
@@ -286,7 +284,7 @@ class MetasploitModule < Msf::Post
       login_data.merge!(service_data)
       create_credential_login(login_data)
 
-      print_status ("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
+      print_status("    Extracted: #{credential_data[:username]}:#{credential_data[:private_data]}")
     end
 
     # report the goods!

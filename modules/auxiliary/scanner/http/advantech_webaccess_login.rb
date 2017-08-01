@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/advantech_webaccess'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'The base path to Advantech WebAccess', '/']),
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:[empty]', false])
-      ], self.class)
+      ])
   end
 
 
@@ -136,5 +134,4 @@ class MetasploitModule < Msf::Auxiliary
 
     bruteforce(ip)
   end
-
 end

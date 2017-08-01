@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize
@@ -30,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptInt.new('SID_MAX', [true, 'Maximum Session ID', 100])
-      ], self.class)
+      ])
   end
 
   def run

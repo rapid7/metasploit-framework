@@ -6,9 +6,9 @@ This module is a scanner which enumerates WiFi access points visible from a Goog
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```run```
 
-## Sample Output
+## Scenarios
 
-Of note, all 3 of the devices are the 1st generation Google Chromecast (USB stick looking, not circular)
+### All 3 of the devices are the 1st generation Google Chromecast (USB stick looking, not circular)
 
 ```
 msf > use auxiliary/scanner/http/chromecast_wifi 

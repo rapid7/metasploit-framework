@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [ true,  "The URI path to the web application", "/rips/"]),
         OptString.new('FILEPATH', [true, "The path to the file to read", "/etc/passwd"]),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 5 ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

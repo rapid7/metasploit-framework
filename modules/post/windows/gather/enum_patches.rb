@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/extapi'
 
@@ -46,7 +44,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('MSFLOCALS', [ true, 'Search for missing patchs for which there is a MSF local module', true]),
         OptString.new('KB',  [ true, 'A comma separated list of KB patches to search for', 'KB2871997, KB2928120'])
-      ], self.class)
+      ])
   end
 
   # The sauce starts here

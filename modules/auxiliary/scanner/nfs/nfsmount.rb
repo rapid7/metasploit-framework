@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SunRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -58,11 +54,11 @@ class MetasploitModule < Msf::Auxiliary
       exports = resp[3,1].unpack('C')[0]
       if (exports == 0x01)
         shares = []
-        while XDR.decode_int!(resp) == 1 do
-          dir = XDR.decode_string!(resp)
+        while Rex::Encoder::XDR.decode_int!(resp) == 1 do
+          dir = Rex::Encoder::XDR.decode_string!(resp)
           grp = []
-          while XDR.decode_int!(resp) == 1 do
-            grp << XDR.decode_string!(resp)
+          while Rex::Encoder::XDR.decode_int!(resp) == 1 do
+            grp << Rex::Encoder::XDR.decode_string!(resp)
           end
           print_good("#{ip} NFS Export: #{dir} [#{grp.join(", ")}]")
           shares << [dir, grp]
@@ -84,5 +80,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error(e.to_s)
     end
   end
-
 end

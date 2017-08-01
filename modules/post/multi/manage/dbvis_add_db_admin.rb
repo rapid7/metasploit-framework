@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Post
         OptString.new('DBALIAS', [true,'Use dbvis_enum module to find out databases and aliases', 'localhost']),
         OptString.new('DBUSERNAME', [true,'The user you want to add to the remote database', 'msf']),
         OptString.new('DBPASSWORD', [true,'User password to set', 'msfRocks'])
-      ], self.class)
+      ])
 
   end
 
@@ -243,5 +241,4 @@ class MetasploitModule < Msf::Post
     end
     return nil
   end
-
 end

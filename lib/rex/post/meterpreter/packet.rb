@@ -105,9 +105,7 @@ TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 441
 
 TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
 TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
-
-TLV_TYPE_CIPHER_NAME         = TLV_META_TYPE_STRING | 500
-TLV_TYPE_CIPHER_PARAMETERS   = TLV_META_TYPE_GROUP  | 501
+TLV_TYPE_SESSION_GUID        = TLV_META_TYPE_RAW    | 462
 
 #
 # Core flags
@@ -215,6 +213,7 @@ class Tlv
       when TLV_TYPE_TRANS_RETRY_WAIT; "TRANS-RETRY-WAIT"
       when TLV_TYPE_MACHINE_ID; "MACHINE-ID"
       when TLV_TYPE_UUID; "UUID"
+      when TLV_TYPE_SESSION_GUID; "SESSION-GUID"
 
       #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
       #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'

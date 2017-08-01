@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::WmapScanServer
@@ -38,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CHECKURL', [ true, 'The web site to test via alleged web proxy', 'http://www.google.com' ]),
         OptString.new('VALIDCODES', [ true, "Valid HTTP code for a successfully request", '200,302' ]),
         OptString.new('VALIDPATTERN', [ true, "Valid pattern match (case-sensitive into the headers and HTML body) for a successfully request", '<TITLE>302 Moved</TITLE>' ]),
-      ], self.class)
+      ])
 
     register_wmap_options({
       'OrderID' => 1,

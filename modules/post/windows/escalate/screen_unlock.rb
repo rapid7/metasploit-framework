@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
-
 
 class MetasploitModule < Msf::Post
 
@@ -32,7 +29,7 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptBool.new('REVERT', [false, "Enable this option to revert the in-memory patch and enable locking again", false])
-    ], self.class)
+    ])
 
   end
 
@@ -94,5 +91,4 @@ class MetasploitModule < Msf::Post
 
     print_error("No working target found")
   end
-
 end

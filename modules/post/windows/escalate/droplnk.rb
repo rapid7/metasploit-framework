@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
 
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Post
         OptString.new("LNKFILENAME", [ true, "Shortcut's filename", "Words.lnk"]),
         OptString.new("SHARENAME", [ true, "Share name on LHOST", "share1"]),
         OptString.new("ICONFILENAME", [ true, "File name on LHOST's share", "icon.png"])
-      ], self.class)
+      ])
   end
 
   def run

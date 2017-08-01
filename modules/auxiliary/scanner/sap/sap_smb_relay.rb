@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,10 +20,7 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -55,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CLIENT',   [true,  'SAP client', '001']),
       OptString.new('HttpUsername', [false, 'Username (Ex SAP*)']),
       OptString.new('HttpPassword', [false, 'Password (Ex 06071992)']),
-      OptAddress.new('LHOST',   [true,  'Server IP or hostname of the SMB Capture system']),
+      OptAddressLocal.new('LHOST',   [true,  'Server IP or hostname of the SMB Capture system']),
       OptEnum.new('ABUSE',      [true,  'SMB Relay abuse to use', "MMR",
         [
           "MMR",
@@ -64,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
           "CLBA_UPDATE_FILE_REMOTE_HOST"
         ]
       ]),
-    ], self.class)
+    ])
 
   end
 
@@ -251,5 +248,4 @@ class MetasploitModule < Msf::Auxiliary
         run_clba_update_file_remote
     end
   end
-
 end

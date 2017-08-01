@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DisclosureDate' => "Oct 05 2009" ))
 
-    register_options([Opt::RPORT(7902)], self.class)
+    register_options([Opt::RPORT(7902)])
   end
 
   def run

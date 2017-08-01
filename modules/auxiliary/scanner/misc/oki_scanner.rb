@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 # TODO: Split this module into two seperate SNMP and HTTP modules.
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -29,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPort.new('SNMPPORT', [true, 'The SNMP Port', 161]),
         OptPort.new('HTTPPORT', [true, 'The HTTP Port', 80])
-      ], self.class)
+      ])
 
     deregister_options('RPORT', 'VHOST')
   end

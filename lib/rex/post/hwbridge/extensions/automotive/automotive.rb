@@ -37,10 +37,10 @@ class Automotive < Extension
   # @param bus [String] bus name
   #
   # @return [Boolean] return true if bus is valid
-  def is_valid_bus? bus
+  def is_valid_bus?(bus)
     valid = false
-    get_supported_buses if self.buses == nil
-    if not bus.blank?
+    get_supported_buses if buses.nil?
+    unless bus.blank?
       self.buses.each do |b|
         valid = true if b["bus_name"] == bus
       end
@@ -55,10 +55,10 @@ class Automotive < Extension
   #
   # @return [Hash] client.send_request response with "Error" if any exist
   def check_for_errors(data)
-    if data and data.has_key? "Packets"
+    if data && (data.key? "Packets")
       if data["Packets"].size == 1
-        if data["Packets"][0]["DATA"].size > 3 and data["Packets"][0]["DATA"][1].hex == 0x7F
-          if ERR_MNEMONIC.has_key? data["Packets"][0]["DATA"][3].hex
+        if data["Packets"][0]["DATA"].size > 3 && data["Packets"][0]["DATA"][1].hex == 0x7F
+          if ERR_MNEMONIC.key? data["Packets"][0]["DATA"][3].hex
             err = data["Packets"][0]["DATA"][3].hex
             data["error"] = { ERR_MNEMONIC[err] => ERR_DESC[ERR_MNEMONIC[err]] }
           else
@@ -78,7 +78,7 @@ class Automotive < Extension
   # @return [Array] Array of Hex string equivalents
   def array2hex(arr)
     # We give the flexibility of sending Integers or string hexes in the array
-    arr.map { |b| "%02x" % (b.respond_to?("hex") ? b.hex : b )}
+    arr.map { |b| "%02x" % (b.respond_to?("hex") ? b.hex : b ) }
   end
 
   def set_active_bus(bus)
@@ -103,21 +103,23 @@ class Automotive < Extension
     client.send_request("/automotive/#{bus}/cansend?id=#{id}&data=#{data}")
   end
 
-  def send_isotp_and_wait_for_response(bus, srcId, dstId, data, opt={})
-    # TODO Implement sending ISO-TP > 8 bytes
+  def send_isotp_and_wait_for_response(bus, src_id, dst_id, data, opt = {})
+    # TODO: Implement sending ISO-TP > 8 bytes
     data = [ data ] if data.is_a? Integer
     if data.size < 8
       data = array2hex(data).join
-      request_str = "/automotive/#{bus}/isotpsend_and_wait?srcid=#{srcId}&dstid=#{dstId}&data=#{data}"
-      request_str += "&timeout=#{opt["TIMEOUT"]}" if opt.has_key? "TIMEOUT"
-      request_str += "&maxpkts=#{opt["MAXPKTS"]}" if opt.has_key? "MAXPKTS"
+      request_str = "/automotive/#{bus}/isotpsend_and_wait?srcid=#{src_id}&dstid=#{dst_id}&data=#{data}"
+      request_str += "&timeout=#{opt['TIMEOUT']}" if opt.key? "TIMEOUT"
+      request_str += "&maxpkts=#{opt['MAXPKTS']}" if opt.key? "MAXPKTS"
       return check_for_errors(client.send_request(request_str))
     end
-    return nil
+    nil
   end
 
   attr_reader :buses, :active_bus
-private
+
+  private
+
   attr_writer :buses, :active_bus
 
 end

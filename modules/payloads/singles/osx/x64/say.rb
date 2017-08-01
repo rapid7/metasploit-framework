@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
 
 module MetasploitModule
 
@@ -26,7 +23,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('TEXT',  [ true,  "The text to say", "Hello\!"]),
-    ], self.class)
+    ])
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD

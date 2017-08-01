@@ -1,12 +1,9 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
 
@@ -23,7 +20,7 @@ class MetasploitModule < Msf::Post
       [
         OptAddress.new("ADDRESS" , [ false, "Enumerate currently configured shares"]),
         OptAddressRange.new("RANGE"  , [ false, "Enumerate Recently mapped shares"])
-      ], self.class)
+      ])
 
   end
 
@@ -51,6 +48,5 @@ class MetasploitModule < Msf::Post
       end
     end
   end
-
 end
 

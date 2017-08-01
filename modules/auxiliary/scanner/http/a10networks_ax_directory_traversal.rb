@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -45,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILE', [true, 'The file to obtain', '/a10data/key/mydomain.tld']),
         OptInt.new('DEPTH', [true, 'The max traversal depth to root directory', 10]),
         OptBool.new('CONFIRM_DELETE', [true, 'Run the module, even when it will delete files', false]),
-      ], self.class)
+      ])
   end
 
   def run
@@ -95,5 +92,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("Fail to obtain file for some unknown reason")
     end
   end
-
 end

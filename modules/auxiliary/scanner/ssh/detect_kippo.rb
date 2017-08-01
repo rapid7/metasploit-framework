@@ -1,7 +1,9 @@
-require 'msf/core'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -45,5 +47,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("#{ip}:#{rport} - #{banner.strip} detected")
     end
   end
-
 end

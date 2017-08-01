@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::BrowserAutopwn2
 
   def initialize(info={})
@@ -69,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
         OptRegexp.new('INCLUDE_PATTERN', [false, 'Pattern search to include specific modules']),
         OptRegexp.new('EXCLUDE_PATTERN', [false, 'Pattern search to exclude specific modules']),
 
-      ], self.class)
+      ])
 
     register_advanced_options([
         OptInt.new('ExploitReloadTimeout', [false, 'Number of milliseconds before trying the next exploit', 3000]),
@@ -78,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
         OptAddressRange.new('AllowedAddresses', [false, "A range of IPs you're interested in attacking"]),
         OptInt.new('MaxSessionCount', [false, 'Number of sessions to get', -1]),
         OptBool.new('ShowExploitList', [true, "Show which exploits will actually be served to each client", false])
-      ] ,self.class)
+      ])
   end
 
   def get_advanced_options
@@ -100,5 +98,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     exploit
   end
-
 end

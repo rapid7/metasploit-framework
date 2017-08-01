@@ -1,8 +1,9 @@
-require 'msf/core'
-require 'rex'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
 
@@ -28,7 +29,7 @@ class MetasploitModule < Msf::Post
     [
       OptString.new('PASSWORD',  [true, 'Password of the support user account', 'password']),
       OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', false])
-    ], self.class)
+    ])
   end
 
   def run

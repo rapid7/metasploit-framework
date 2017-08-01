@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'enumerable'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -45,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('TYPE', [true, 'Specify UID or EMAIL', 'UID', ['UID', 'EMAIL'] ]),
         OptPath.new('DICT', [ false,  'Path to dictionary file to use', '']),
         OptInt.new('MAXDEPTH', [ true,  'Maximum depth to check during bruteforce', 2])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -54,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SUFFIX', [ false,  'Defines set post for each quess (e.g. _adm)', '']),
         OptInt.new('TIMING', [ true,  'Set pause between requests', 0]),
         OptInt.new('Threads', [ true,  'Number of test threads', 10])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -307,5 +304,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("No users discovered")
     end
   end
-
 end

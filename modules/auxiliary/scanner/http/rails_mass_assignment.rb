@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('QUERY', [ false, "HTTP URI Query", nil]),
         OptString.new('DATA', [ false, "HTTP Body Data", '']),
         OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

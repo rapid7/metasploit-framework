@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 require 'openssl'
 require 'digest/md5'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
   include Msf::Auxiliary::Report
@@ -367,5 +365,4 @@ class MetasploitModule < Msf::Post
   def iteration_count
     datastore['ITERATION_COUNT'] || 10
   end
-
 end

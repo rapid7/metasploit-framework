@@ -46,7 +46,8 @@ class RPC_Session < RPC_Base
         'username'     => s.username.to_s,
         'uuid'         => s.uuid.to_s,
         'exploit_uuid' => s.exploit_uuid.to_s,
-        'routes'       => s.routes.join(",")
+        'routes'       => s.routes.join(","),
+        'arch'         => s.arch.to_s
       }
       if(s.type.to_s == "meterpreter")
         res[s.sid]['platform'] = s.platform.to_s

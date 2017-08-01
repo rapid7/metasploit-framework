@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/dns'
 require 'resolv'
 
@@ -34,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           OptBool.new('CHECK_AUTHORITY',  [ false, 'Set this to true to verify authority records', false ]),
           OptBool.new('CHECK_ADDITIONAL', [ false, 'Set this to true to verify additional records', false ]),
 
-        ], self.class)
+        ])
 
   end
 
@@ -173,5 +172,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

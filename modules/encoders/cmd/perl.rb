@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Encoder
-
   Rank = NormalRanking
 
   def initialize
@@ -126,5 +121,4 @@ class MetasploitModule < Msf::Encoder
     # ends up unquoted so the shell doesn't try to expand a path.
     "qq#{sep}H#{hex.length}#{sep},qq#{sep}#{hex}#{sep}"
   end
-
 end

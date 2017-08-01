@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'nexpose'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('USERNAME', [true, "The Nexpose user", nil]),
       OptString.new('PASSWORD', [true, "The Nexpose password", nil]),
       OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"])
-    ], self.class)
+    ])
   end
 
   def report_cred(opts)
@@ -154,5 +152,4 @@ class MetasploitModule < Msf::Auxiliary
     path = store_loot('nexpose.file','text/plain', rhost, doc.root.elements["//host"].first.to_s, "File from Nexpose server #{rhost}")
     print_good("File saved to path: " << path)
   end
-
 end

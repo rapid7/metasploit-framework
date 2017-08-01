@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 require 'thread'
 
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           ]
         )
 
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -45,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
         OptInt.new('TestThreads', [ true, "Number of test threads", 25])
 
-      ], self.class)
+      ])
 
   end
 
@@ -157,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
               :name   => 'directory'
             )
 
-            print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
+            print_good("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
 
             if res.code.to_i == 401
               print_status("#{wmap_base_url}#{tpath}#{testfdir} requires authentication: #{res.headers['WWW-Authenticate']}")

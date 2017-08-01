@@ -84,7 +84,8 @@ module Payload::Windows::MeterpreterLoader_x64
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
       transports: opts[:transport_config] || [transport_config(opts)],
-      extensions: []
+      extensions: [],
+      stageless:  opts[:stageless] == true
     }
 
     # create the configuration instance based off the parameters

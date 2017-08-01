@@ -364,7 +364,7 @@ killfw = false
   end
 }
 # get the version of windows
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   wnvr = session.sys.config.sysinfo["OS"]
   print_status("Running Getcountermeasure on the target...")
   check(session,avs,killbt)

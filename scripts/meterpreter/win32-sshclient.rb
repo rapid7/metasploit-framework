@@ -307,7 +307,7 @@ downloaded = nil
 }
 
 # Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+wrong_meter_version(meter_type) if meter_type != 'windows'
 
 
 if not rhost or not username

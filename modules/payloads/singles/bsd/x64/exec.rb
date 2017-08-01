@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 ###
 #
@@ -35,7 +31,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('CMD',  [ true,  "The command string to execute" ]),
-      ], self.class)
+      ])
   end
 
   #
@@ -71,5 +67,4 @@ module MetasploitModule
       "\x48\x83\xc8\x3b" +                            # or rax, 0x3b (execve)
       "\x0f\x05"                                      # syscall
   end
-
 end

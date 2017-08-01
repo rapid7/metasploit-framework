@@ -12,6 +12,7 @@
 
 # Sanity check this version of ruby
 require 'msf/sanity'
+require 'backports'
 
 # The framework-core depends on Rex
 require 'rex'

@@ -1,4 +1,9 @@
 ##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+##
 # This is a prototype JCL command payload for z/OS - mainframe.
 #   It submits the IEFBR14 standard z/OS program, which does nothing
 #   but complete successfully and return code 0.
@@ -7,7 +12,6 @@
 #   for more information on IEFBR14
 ##
 
-require 'msf/core'
 require 'msf/core/handler/find_shell'
 require 'msf/base/sessions/mainframe_shell'
 require 'msf/base/sessions/command_shell_options'

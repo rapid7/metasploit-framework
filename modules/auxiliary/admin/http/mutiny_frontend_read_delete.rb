@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -47,13 +44,13 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [ true, 'The user to authenticate as', 'superadmin@mutiny.com' ]),
         OptString.new('PASSWORD', [ true, 'The password to authenticate with', 'password' ]),
         OptString.new('PATH',     [ true, 'The file to read or delete' ]),
-      ], self.class)
+      ])
   end
 
   def run
     print_status("Trying to login")
     if login
-      print_good("Login successful")
+      print_good("Login Successful")
     else
       print_error("Login failed, review USERNAME and PASSWORD options")
       return
@@ -172,5 +169,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return false
   end
-
 end

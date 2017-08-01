@@ -1,16 +1,13 @@
 ##
 #
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 # TODO: SSL Support, Authentication, Listen to localhost only by default
 #
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -37,23 +34,25 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultAction'  => 'WebServer'))
 
     @operational_status = 0   # 0=unk, 1=connected, 2=not connected
-    @last_errors = Hash.new
+    @last_errors = {}
     @server_started = Time.new
-    @can_interfaces = Array.new
+    @can_interfaces = []
     @pkt_response = {}  # Candump returned packets
+    @packets_sent = 0
+    @last_sent = nil
   end
 
-  def detect_can()
-    @can_interfaces = Array.new
+  def detect_can
+    @can_interfaces = []
     Socket.getifaddrs.each do |i|
-      if i.name =~ /^can\d+$/ or i.name =~ /^vcan\d+$/ or i.name =~ /^slcan\d+$/
+      if i.name =~ /^can\d+$/ || i.name =~ /^vcan\d+$/ || i.name =~ /^slcan\d+$/
         @can_interfaces << i.name
       end
     end
   end
 
-  def get_status()
-    status = Hash.new
+  def get_status
+    status = {}
     status["operational"] = @operational_status
     status["hw_specialty"] = {}
     status["hw_capabilities"] = {}
@@ -61,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     status["api_version"] = HWBRIDGE_API_VERSION
     status["fw_version"] = "not supported"
     status["hw_version"] = "not supported"
-    if @can_interfaces.size > 0
+    unless @can_interfaces.empty?
       status["hw_specialty"]["automotive"] = true
       status["hw_capabilities"]["can"] = true
     end
@@ -69,33 +68,33 @@ class MetasploitModule < Msf::Auxiliary
     status
   end
 
-  def get_statistics()
-    stats = Hash.new
+  def get_statistics
+    stats = {}
     stats["uptime"] = Time.now - @server_started
-    stats["packet_stats"] = "not supported"
-    stats["last_request"] = "not supported"
+    stats["packet_stats"] = @packets_sent
+    stats["last_request"] = @last_sent if @last_sent
     stats["voltage"] = "not supported"
     stats
   end
 
-  def get_datetime()
+  def get_datetime
     { "system_datetime" => Time.now }
   end
 
-  def get_timezone()
+  def get_timezone
     { "system_timezone" => Time.now.getlocal.zone }
   end
 
-  def get_ip_config()
+  def get_ip_config
   end
 
   #
   # Stub fucntion to test custom methods
   # Defines a method "sample_cmd" with one argument "data" which is required
   #
-  def get_custom_methods()
-    m = Hash.new
-    m["Methods"] = Array.new
+  def get_custom_methods
+    m = {}
+    m["Methods"] = []
     meth = { "method_name" => "custom/sample_cmd", "method_desc" => "Sample HW test command", "args" => [] }
     arg = { "arg_name" => "data", "arg_type" => "string", "required" => true }
     meth["args"] << arg
@@ -104,9 +103,9 @@ class MetasploitModule < Msf::Auxiliary
     m
   end
 
-  def get_auto_supported_buses()
+  def get_auto_supported_buses
     detect_can()
-    buses = Array.new
+    buses = []
     @can_interfaces.each do |can|
       buses << { "bus_name" => can }
     end
@@ -127,13 +126,15 @@ class MetasploitModule < Msf::Auxiliary
       return result
     end
     `which cansend`
-    if not $?.success?
+    unless $?.success?
       print_error("cansend from can-utils not found in path")
       return result
     end
     @can_interfaces.each do |can|
       if can == bus
         system("cansend #{bus} #{id}##{bytes.join}")
+        @packets_sent += 1
+        @last_sent = Time.now.to_i
         result["Success"] = true if $?.success?
       end
     end
@@ -146,11 +147,11 @@ class MetasploitModule < Msf::Auxiliary
     hash["Packets"] = []
     lines = str_packets.split(/\n/)
     lines.each do |line|
-      if line=~/\w+\s+(\w+)   \[\d\]  (.+)$/
+      if line =~ /\w+\s+(\w+)   \[\d\]  (.+)$/
         id = $1
         str_data = $2
         data = str_data.split
-        hash["Packets"] << {"ID" => id, "DATA" => data}
+        hash["Packets"] << { "ID" => id, "DATA" => data }
       end
     end
     hash
@@ -160,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
     $candump_sniffer = Thread.new do
       output = `candump #{bus},#{id}:FFFFFF -T #{timeout} -n #{maxpkts}`
       @pkt_response = candump2hash(output)
-      Thread::exit()
+      Thread::exit
     end
   end
 
@@ -171,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
   # data = string of hex bytes to send
   # timeout = optional int to timeout on lack of response
   # maxpkts = max number of packets to recieve
-  def isotp_send_and_wait(bus, srcid, dstid, data, timeout=2000, maxpkts=3)
+  def isotp_send_and_wait(bus, srcid, dstid, data, timeout = 2000, maxpkts = 3)
     result = {}
     result["Success"] = false
     srcid = srcid.to_i(16).to_s(16)
@@ -186,18 +187,20 @@ class MetasploitModule < Msf::Auxiliary
     end
     # Should we ever require isotpsend for this?
     `which cansend`
-    if not $?.success?
+    unless $?.success?
       print_error("cansend from can-utils not found in path")
       return result
     end
     @can_interfaces.each do |can|
       if can == bus
-        candump(bus,dstid,timeout,maxpkts)
+        candump(bus, dstid, timeout, maxpkts)
         system("cansend #{bus} #{srcid}##{bytes}")
+        @packets_sent += 1
+        @last_sent = Time.now.to_i
         result["Success"] = true if $?.success?
         result["Packets"] = []
         $candump_sniffer.join
-        if not @pkt_response.empty?
+        unless @pkt_response.empty?
           result = @pkt_response
         end
       end
@@ -216,43 +219,43 @@ class MetasploitModule < Msf::Auxiliary
     res
   end
 
-  def not_supported()
+  def not_supported
     { "status" => "not supported" }
   end
 
   def on_request_uri(cli, request)
     if request.uri =~ /status$/i
-      print_status("Sending status...")
+      print_status("Sending status...") if datastore['VERBOSE']
       send_response_html(cli, get_status().to_json(), { 'Content-Type' => 'application/json' })
-    elsif request.uri =~/statistics$/i
-      print_status("Sending statistics...")
+    elsif request.uri =~ /statistics$/i
+      print_status("Sending statistics...") if datastore['VERBOSE']
       send_response_html(cli, get_statistics().to_json(), { 'Content-Type' => 'application/json' })
-    elsif request.uri =~/settings\/datetime\/get$/i
-      print_status("Sending Datetime")
+    elsif request.uri =~ /settings\/datetime\/get$/i
+      print_status("Sending Datetime") if datastore['VERBOSE']
       send_response_html(cli, get_datetime().to_json(), { 'Content-Type' => 'application/json' })
-    elsif request.uri =~/settings\/timezone\/get$/i
-      print_status("Sending Timezone")
+    elsif request.uri =~ /settings\/timezone\/get$/i
+      print_status("Sending Timezone") if datastore['VERBOSE']
       send_response_html(cli, get_timezone().to_json(), { 'Content-Type' => 'application/json' })
-    elsif request.uri =~/custom_methods$/i
-      print_status("Sending custom methods")
+    elsif request.uri =~ /custom_methods$/i
+      print_status("Sending custom methods") if datastore['VERBOSE']
       send_response_html(cli, get_custom_methods().to_json(), { 'Content-Type' => 'application/json' })
-    elsif request.uri=~/custom\/sample_cmd\?data=(\S+)$/
-      print_status("Request for custom command with args #{$1}")
+    elsif request.uri =~ /custom\/sample_cmd\?data=(\S+)$/
+      print_status("Request for custom command with args #{$1}") if datastore['VERBOSE']
       send_response_html(cli, sample_custom_method($1).to_json(), { 'Content-Type' => 'application/json' })
-    elsif request.uri =~/automotive/i
+    elsif request.uri =~ /automotive/i
       if request.uri =~ /automotive\/supported_buses/
-        print_status("Sending known buses...")
+        print_status("Sending known buses...") if datastore['VERBOSE']
         send_response_html(cli, get_auto_supported_buses().to_json, { 'Content-Type' => 'application/json' })
-      elsif request.uri =~/automotive\/(\w+)\/cansend\?id=(\w+)&data=(\w+)/
-        print_status("Request to send CAN packets for #{$1} => #{$2}##{$3}")
+      elsif request.uri =~ /automotive\/(\w+)\/cansend\?id=(\w+)&data=(\w+)/
+        print_status("Request to send CAN packets for #{$1} => #{$2}##{$3}") if datastore['VERBOSE']
         send_response_html(cli, cansend($1, $2, $3).to_json(), { 'Content-Type' => 'application/json' })
-      elsif request.uri =~/automotive\/(\w+)\/isotpsend_and_wait\?srcid=(\w+)&dstid=(\w+)&data=(\w+)/
+      elsif request.uri =~ /automotive\/(\w+)\/isotpsend_and_wait\?srcid=(\w+)&dstid=(\w+)&data=(\w+)/
         bus = $1; srcid = $2; dstid = $3; data = $4
-        print_status("Request to send ISO-TP packet and wait for response  #{srcid}##{data} => #{dstid}")
+        print_status("Request to send ISO-TP packet and wait for response  #{srcid}##{data} => #{dstid}") if datastore['VERBOSE']
         timeout = 1500
         maxpkts = 3
-        timeout = $1 if request.uri=~/&timeout=(\d+)/
-        maxpkts = $1 if request.uri=~/&maxpkts=(\d+)/
+        timeout = $1 if request.uri =~ /&timeout=(\d+)/
+        maxpkts = $1 if request.uri =~ /&maxpkts=(\d+)/
         send_response_html(cli, isotp_send_and_wait(bus, srcid, dstid, data, timeout, maxpkts).to_json(),  { 'Content-Type' => 'application/json' })
       else
         send_response_html(cli, not_supported().to_json(), { 'Content-Type' => 'application/json' })
@@ -263,9 +266,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    detect_can()
+    detect_can
     @server_started = Time.now
-    exploit()
+    exploit
   end
-
 end

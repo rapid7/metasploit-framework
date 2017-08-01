@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Post
       [
       OptString.new('DBALIAS', [true,'Use dbvis_enum module to find out databases and aliases', 'localhost']),
       OptString.new('QUERY', [true,'The query you want to execute on the remote database', '']),
-      ], self.class)
+      ])
 
   end
 
@@ -220,6 +218,5 @@ class MetasploitModule < Msf::Post
     end
     return error
   end
-
 end
 

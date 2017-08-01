@@ -13,15 +13,14 @@ module Msf
         class Modules
 
           include Msf::Ui::Console::CommandDispatcher
+          include Msf::Ui::Console::CommandDispatcher::Common
 
           # Constant for a retry timeout on using modules before they're loaded
           CMD_USE_TIMEOUT = 3
 
-          # Constant for disclosure date formatting in search functions
-          DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
-
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h" => [ false, "Help banner."]
+            "-h" => [ false, "Help banner."],
+            "-S" => [ true, "Row search filter."],
           )
 
           def commands
@@ -52,6 +51,7 @@ module Msf
             @cache_payloads = nil
             @previous_module = nil
             @module_name_stack = []
+            @dangerzone_map = nil
           end
 
           #
@@ -379,63 +379,34 @@ module Msf
           #
           def cmd_search(*args)
             match   = ''
+            search_term = nil
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
                 when "-t"
                   print_error("Deprecated option.  Use type:#{val} instead")
                   cmd_search_help
                   return
+                when "-S", "--search"
+                  search_term = val
                 when "-h"
                   cmd_search_help
                   return
+                when "-S"
+                  search_term = val
                 else
                   match += val + " "
               end
             }
 
-            if framework.db
-              if framework.db.migrated && framework.db.modules_cached
-                search_modules_sql(match)
-                return
-              else
-                print_warning("Module database cache not built yet, using slow search")
-              end
-            else
-              print_warning("Database not connected, using slow search")
-            end
-
-            tbl = generate_module_table("Matching Modules")
-            [
-              framework.exploits,
-              framework.auxiliary,
-              framework.post,
-              framework.payloads,
-              framework.nops,
-              framework.encoders
-            ].each do |mset|
-              mset.each do |m|
-                o = mset.create(m[0]) rescue nil
-
-                # Expected if modules are loaded without the right pre-requirements
-                next if not o
-
-                if not o.search_filter(match)
-                  tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
-                end
-              end
-            end
-            print_line(tbl.to_s)
-
-          end
-
-          # Prints table of modules matching the search_string.
-          #
-          # @param (see Msf::DBManager#search_modules)
-          # @return [void]
-          def search_modules_sql(search_string)
-            tbl = generate_module_table("Matching Modules")
-            framework.db.search_modules(search_string).each do |o|
-              tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), RankingName[o.rank].to_s, o.name ]
+            # Display the table of matches
+            tbl = generate_module_table("Matching Modules", search_term)
+            framework.search(match, logger: self).each do |m|
+              tbl << [
+                m.fullname,
+                m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
+                RankingName[m.rank].to_s,
+                m.name
+              ]
             end
             print_line(tbl.to_s)
           end
@@ -595,6 +566,9 @@ module Msf
               return false
             end
 
+            # Divert logic for dangerzone mode
+            args = dangerzone_codename_to_module(args)
+
             # Try to create an instance of the supplied module name
             mod_name = args[0]
 
@@ -676,7 +650,7 @@ module Msf
           #
           # Command to take to the previously active module
           #
-          def cmd_previous()
+          def cmd_previous(*args)
             if @previous_module
               self.cmd_use(@previous_module.fullname)
             else
@@ -873,7 +847,84 @@ module Msf
               end
             end
 
+            return dangerzone_modules_to_codenames(res.sort) if dangerzone_active?
             return res.sort
+          end
+
+          #
+          # Convert squirrel names back to regular module names
+          #
+          def dangerzone_codename_to_module(args)
+            return args unless dangerzone_active? && args.length > 0 && args[0].length > 0
+            return args unless args[0] =~ /^[A-Z]/
+            args[0] = dangerzone_codename_to_module_name(args[0])
+            args
+          end
+
+          #
+          # Determine if dangerzone mode is active via date or environment variable
+          #
+          def dangerzone_active?
+            active = Time.now.strftime("%m%d") == "0401" || Rex::Compat.getenv('DANGERZONE').to_i > 0
+            if active && @dangerzone_map.nil?
+              dangerzone_build_map
+            end
+            active
+          end
+
+          #
+          # Convert module names to squirrel names
+          #
+          def dangerzone_modules_to_codenames(names)
+            (names + @dangerzone_map.keys.grep(/^[A-Z]+/)).sort
+          end
+
+          def dangerzone_codename_to_module_name(cname)
+            @dangerzone_map[cname] || cname
+          end
+
+          def dangerzone_module_name_to_codename(mname)
+            @dangerzone_map[mname] || mname
+          end
+
+          def dangerzone_build_map
+            return unless @dangerzone_map.nil?
+
+            @dangerzone_map = {}
+
+            res = []
+            %W{exploit auxiliary}.each do |mtyp|
+              mset = framework.modules.module_names(mtyp)
+              mset.each do |mref|
+                res << mtyp + '/' + mref
+              end
+            end
+
+            words_a = ::File.readlines(::File.join(
+              ::Msf::Config.data_directory, "wordlists", "dangerzone_a.txt"
+              )).map{|line| line.strip.upcase}
+
+            words_b = ::File.readlines(::File.join(
+              ::Msf::Config.data_directory, "wordlists", "dangerzone_b.txt"
+              )).map{|line| line.strip.upcase}
+
+            aidx = -1
+            bidx = -1
+
+            res.sort.each do |mname|
+              word_a = words_a[ (aidx += 1) % words_a.length ]
+              word_b = words_b[ (bidx += 1) % words_b.length ]
+              cname = word_a + word_b
+
+              while @dangerzone_map[cname]
+                aidx += 1
+                word_a = words_a[ (aidx += 1) % words_a.length ]
+                cname = word_a + word_b
+              end
+
+              @dangerzone_map[mname] = cname
+              @dangerzone_map[cname] = mname
+            end
           end
 
           #
@@ -914,44 +965,6 @@ module Msf
 
           def show_post(regex = nil, minrank = nil, opts = nil) # :nodoc:
             show_module_set("Post", framework.post, regex, minrank, opts)
-          end
-
-          def show_options(mod) # :nodoc:
-            mod_opt = Serializer::ReadableText.dump_options(mod, '   ')
-            print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
-
-            # If it's an exploit and a payload is defined, create it and
-            # display the payload's options
-            if (mod.exploit? and mod.datastore['PAYLOAD'])
-              p = framework.payloads.create(mod.datastore['PAYLOAD'])
-
-              if (!p)
-                print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
-                return
-              end
-
-              p.share_datastore(mod.datastore)
-
-              if (p)
-                p_opt = Serializer::ReadableText.dump_options(p, '   ')
-                print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
-              end
-            end
-
-            # Print the selected target
-            if (mod.exploit? and mod.target)
-              mod_targ = Serializer::ReadableText.dump_exploit_target(mod, '   ')
-              print("\nExploit target:\n\n#{mod_targ}\n") if (mod_targ and mod_targ.length > 0)
-            end
-
-            # Print the selected action
-            if mod.kind_of?(Msf::Module::HasActions) && mod.action
-              mod_action = Serializer::ReadableText.dump_module_action(mod, '   ')
-              print("\n#{mod.type.capitalize} action:\n\n#{mod_action}\n") if (mod_action and mod_action.length > 0)
-            end
-
-            # Uncomment this line if u want target like msf2 format
-            #print("\nTarget: #{mod.target.name}\n\n")
           end
 
           def show_missing(mod) # :nodoc:
@@ -1104,7 +1117,12 @@ module Msf
                     end
                   end
                   if (opts == nil or show == true)
-                    tbl << [ refname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
+                    tbl << [
+                      refname,
+                      o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
+                      o.rank_to_s,
+                      o.name
+                    ]
                   end
                 end
               end
@@ -1113,13 +1131,14 @@ module Msf
             print(tbl.to_s)
           end
 
-          def generate_module_table(type) # :nodoc:
+          def generate_module_table(type, search_term = nil) # :nodoc:
             Table.new(
               Table::Style::Default,
-              'Header'  => type,
-              'Prefix'  => "\n",
-              'Postfix' => "\n",
-              'Columns' => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ]
+              'Header'     => type,
+              'Prefix'     => "\n",
+              'Postfix'    => "\n",
+              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ],
+              'SearchTerm' => search_term
             )
           end
 

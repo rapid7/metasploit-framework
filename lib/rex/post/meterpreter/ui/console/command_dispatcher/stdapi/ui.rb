@@ -39,7 +39,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "enumdesktops"  => [ "stdapi_ui_desktop_enum" ],
       "getdesktop"    => [ "stdapi_ui_desktop_get" ],
       "idletime"      => [ "stdapi_ui_get_idle_time" ],
-      "keyscan_dump"  => [ "stdapi_ui_get_keys" ],
+      "keyscan_dump"  => [ "stdapi_ui_get_keys_utf8" ],
       "keyscan_start" => [ "stdapi_ui_start_keyscan" ],
       "keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
       "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
@@ -49,19 +49,7 @@ class Console::CommandDispatcher::Stdapi::Ui
         "stdapi_ui_enable_keyboard"
       ]
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
@@ -293,8 +281,28 @@ class Console::CommandDispatcher::Stdapi::Ui
   # Start the keyboard sniffer
   #
   def cmd_keyscan_start(*args)
-    print_line("Starting the keystroke sniffer...")
-    client.ui.keyscan_start
+    trackwin = false
+
+    keyscan_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner." ],
+      "-v" => [ false, "Verbose logging: tracks the current active window in which keystrokes are occuring." ]
+    )
+
+    keyscan_opts.parse( args ) { | opt |
+      case opt
+       when "-h"
+        print_line("Usage: keyscan_start <options>")
+        print_line("Starts the key logger")
+        print_line(keyscan_opts.usage)
+        return
+       when "-v"
+        print_line("Verbose logging selected ...")
+        trackwin = true
+       end
+    }
+
+    print_line("Starting the keystroke sniffer ...")
+    client.ui.keyscan_start(trackwin)
     return true
   end
 
@@ -313,8 +321,9 @@ class Console::CommandDispatcher::Stdapi::Ui
   def cmd_keyscan_dump(*args)
     print_line("Dumping captured keystrokes...")
     data = client.ui.keyscan_dump
-    print_line(client.ui.keyscan_extract(data))
-
+    print_line(data + "\n")      # the additional newline is to keep the resulting output
+                                 # from crowding the Meterpreter command prompt, which
+                                 # is visually frustrating without color
     return true
   end
 

@@ -20,6 +20,7 @@ module Metasploit::Framework::Spec::Constants
   # and not dynamically loaded code
   PERSISTENT_CHILD_CONSTANT_NAMES = %w{
     Error
+    External
     Loader
     MetasploitClassCompatibilityError
     Namespace

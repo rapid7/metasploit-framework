@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/smb'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
@@ -59,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ]),
         OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', true])
-      ], self.class)
+      ])
 
   end
 
@@ -79,15 +77,6 @@ class MetasploitModule < Msf::Auxiliary
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
-      smb_verify_signature: datastore['SMB::VerifySignature'],
-      use_ntlmv2: datastore['NTLM::UseNTLMv2'],
-      use_ntlm2_session: datastore['NTLM::UseNTLM2_session'],
-      send_lm: datastore['NTLM::SendLM'],
-      use_lmkey: datastore['NTLM::UseLMKey'],
-      send_ntlm: datastore['NTLM::SendNTLM'],
-      smb_native_os: datastore['SMB::Native_OS'],
-      smb_native_lm: datastore['SMB::Native_LM'],
-      send_spn: datastore['NTLM::SendSPN'],
     )
 
     if datastore['DETECT_ANY_AUTH']

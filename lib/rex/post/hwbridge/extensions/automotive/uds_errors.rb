@@ -8,6 +8,7 @@ module Automotive
 
 module UDSErrors
 
+# Negative Response Codes (NDC)
 ERR_MNEMONIC = {
   0x10 => "GR",
   0x11 => "SNS",
@@ -54,7 +55,25 @@ ERR_MNEMONIC = {
   0x73 => "WBSC",
   0x78 => "RCRRP",
   0x7E => "SFNSIAS",
-  0x7F => "SNSIAS"
+  0x7F => "SNSIAS",
+  0x81 => "RPMTH",
+  0x82 => "RPMTL",
+  0x83 => "EIR",
+  0x84 => "EINR",
+  0x85 => "ERTTL",
+  0x86 => "TTH",
+  0x87 => "TTL",
+  0x88 => "VSTH",
+  0x89 => "VSTL",
+  0x8A => "TPTH",
+  0x8B => "TPTL",
+  0x8C => "TRNIN",
+  0x8D => "TRNIG",
+  0x8F => "BSNC",
+  0x90 => "SLNIP",
+  0x91 => "TCCL",
+  0x92 => "VTH",
+  0x93 => "VTL"
 }
 
 ERR_DESC = {
@@ -80,7 +99,25 @@ ERR_DESC = {
   "WBSC" => "Wrong Block Sequence Counter",
   "RCRRP" => "Request Correctly Received, but Response is Pending",
   "SFNSIAS" => "Sub-Function Not Supoorted In Active Session",
-  "SNSIAS" => "Service Not Supported In Active Session"
+  "SNSIAS" => "Service Not Supported In Active Session",
+  "RPMTH" => "RPM Too High",
+  "RPMTL" => "RPM Too Low",
+  "EIR" => "Engine is Running",
+  "EINR" => "Engine is not Running",
+  "ERTTL" => "Engine Run Time Too Low",
+  "TTH" => "Temperature Too High",
+  "TTL" => "Temperature Too Low",
+  "VSTH" => "Vehicle Speed Too High",
+  "VSTL" => "Vehicle Speed Too Low",
+  "TPTH" => "Throttle Pedal Too High",
+  "TPTL" => "Throttle Pedal Too Low",
+  "TRNIN" => "Transmission Range Not in Neutral",
+  "TRNIG" => "Transmission Range Not in Gear",
+  "BSNC" => "Brake Switch Not Closed",
+  "SLNIP" => "Shifter Lever Not In Park",
+  "TCCL" => "Torque Converter Clutch Locked",
+  "VTH" => "Voltage Too High",
+  "VTL" => "Voltage Too Low"
 }
 
 end

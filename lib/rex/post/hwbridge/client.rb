@@ -64,10 +64,32 @@ class Client
   end
 
   #
+  # Gets the devices statistics
+  #
+  def get_statistics
+    send_request("/statistics")
+  end
+
+  #
   # Fetches custom methods from HW, if any
   #
   def get_custom_methods
     send_request("/custom_methods")
+  end
+
+  #
+  # Sends a reset signal to the device to perform a software bounce or a full
+  # factory reset.  Depends on how the device decided to handle it.
+  #
+  def reset
+    send_request("/control/factory_reset")
+  end
+
+  #
+  # Sends a reboot signal to reboot the device.
+  #
+  def reboot
+    send_request("/control/reboot")
   end
 
   ##

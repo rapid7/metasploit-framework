@@ -1,11 +1,9 @@
 ##
-# auxiliary/admin/cisco/cisco_asa_extrabacon.rb
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Cisco
 
@@ -46,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptEnum.new('ASAVER', [ false, 'Target ASA version (default autodetect)', 'auto', ['auto']+@offsets.keys]),
-    ], self.class)
+    ])
 
     deregister_options("VERSION")
     datastore['VERSION'] = '2c' # SNMP v. 2c required it seems
@@ -221,5 +219,4 @@ class MetasploitModule < Msf::Auxiliary
 
     ver
   end
-
 end

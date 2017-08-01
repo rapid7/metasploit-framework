@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanServer
   include Msf::Auxiliary::Scanner
@@ -30,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8180), # 8180 is default for FreeBSD.  All other OSes it's 8080
         OptString.new('TOMCAT_USER', [ false, 'The username to authenticate as', '']),
         OptString.new('TOMCAT_PASS', [ false, 'The password for the specified username', '']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

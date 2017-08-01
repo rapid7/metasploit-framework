@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'rex/parser/fs/bitlocker'
 
 class MetasploitModule < Msf::Post
@@ -30,7 +35,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('DRIVE_LETTER', [true, 'Dump informations from the DRIVE_LETTER encrypted with Bitlocker', nil]),
         OptString.new('RECOVERY_KEY', [false, 'Use the recovery key provided to decrypt the Bitlocker master key (FVEK)', nil])
-      ], self.class)
+      ])
   end
 
   def run
@@ -100,7 +105,7 @@ class MetasploitModule < Msf::Post
           id_key_tmp = id_key_tmp[1]
           print_good("Recovery key generated successfuly : #{recovery_key}")
         else
-          print_status('Recovery Key generation failed')
+          print_error('Recovery Key generation failed')
           print_status('No recovery key can be used')
           return
         end
@@ -118,7 +123,7 @@ class MetasploitModule < Msf::Post
         print_good("Successfuly extract FVEK in #{stored_path}")
         print_good('This hard drive could later be decrypted using : dislocker -k <key_file> ...')
       else
-        print_bad('Failed to generate FVEK, wrong recovery key?')
+        print_error('Failed to generate FVEK, wrong recovery key?')
       end
     ensure
       unless id_key_tmp.nil?

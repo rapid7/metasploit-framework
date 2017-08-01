@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Exploit::Remote::HttpClient
@@ -84,15 +82,15 @@ class MetasploitModule < Msf::Auxiliary
         OptAddress.new('RHOST', [ true, "The target address" ]),
         OptBool.new('ENUM_DOMAIN', [ true, "Automatically enumerate AD domain using NTLM authentication", true]),
         OptBool.new('AUTH_TIME', [ false, "Check HTTP authentication response time", true])
-      ], self.class)
+      ])
 
 
     register_advanced_options(
       [
         OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", ''])
-      ], self.class)
+      ])
 
-    deregister_options('BLANK_PASSWORDS', 'RHOSTS','PASSWORD','USERNAME')
+    deregister_options('BLANK_PASSWORDS', 'RHOSTS')
   end
 
   def setup
@@ -408,5 +406,4 @@ class MetasploitModule < Msf::Auxiliary
   def msg
     "#{vhost}:#{rport} OWA -"
   end
-
 end

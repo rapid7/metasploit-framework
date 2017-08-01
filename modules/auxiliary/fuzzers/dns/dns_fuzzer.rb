@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'bit-struct'
+require 'bindata'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Fuzzer
@@ -50,47 +47,37 @@ class MetasploitModule < Msf::Auxiliary
       # RR accepted values: KEY,GPOS,LOC,NXT,EID,NIMLOC,ATMA,KX,CERT,A6,DNAME,SINK,OPT,APL,SSHFP,IPSECKEY
       # RR accepted values: DHCID,HIP,NINFO,RKEY,TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG,IXFR,AXFR,MAILB
       # RR accepted values: MAIL,*,TA,DLV,RESERVED
-    ], self.class)
+    ])
   end
 
-  class Dns_header < BitStruct
-    unsigned :txid, 16, { :default => rand(0xffff) }
-    unsigned :qr, 1, { :default => 0 }
-    unsigned :opcode, 4, { :default => 0 }
-    unsigned :aa, 1, { :default => 0 }
-    unsigned :tc, 1, { :default => 0 }
-    unsigned :rd, 1, { :default => 0 }
-    unsigned :ra, 1, { :default => 0 }
-    unsigned :z, 3, { :default => 0 }
-    unsigned :rcode, 4, { :default => 0 }
-    unsigned :questions, 16, { :default => 1 }
-    unsigned :answerRR, 16, { :default => 0 }
-    unsigned :authorityRR, 16, { :default => 0 }
-    unsigned :additionalRR, 16, { :default => 0 }
-    rest :payload
-
-    def initialize(*args)
-      @options = []
-      super
-    end
-
+  class Dns_header < BinData::Record
+    endian :big
+    uint16 :txid, initial_value: rand(0xffff)
+    bit1   :qr
+    bit4   :opcode
+    bit1   :aa
+    bit1   :tc
+    bit1   :rd
+    bit1   :ra
+    bit3   :z
+    bit4   :rcode
+    uint16 :questions, initial_value: 1
+    uint16 :answerRR
+    uint16 :authorityRR
+    uint16 :additionalRR
+    rest   :payload
   end
 
-  class Dns_add_rr < BitStruct
-    unsigned :name, 8, { :default => 0 }
-    unsigned :type, 16, { :default => 0x0029 }
-    unsigned :payloadsize, 16, { :default => 0x1000 }
-    unsigned :highercode, 8, { :default => 0 }
-    unsigned :ednsversion, 8, { :default => 0 }
-    unsigned :zlow, 8, { :default => 0 }
-    unsigned :zhigh,8, { :default => 0x80 }
-    unsigned :datalength, 16, { :default => 0 }
-
-    def initialize(*args)
-      @options = []
-      super
-    end
-
+  class Dns_add_rr < BinData::Record
+    endian :big
+    uint8  :name
+    uint16 :rr_type, initial_value: 0x0029
+    uint16 :payloadsize, initial_value: 0x1000
+    uint8  :highercode
+    uint8  :ednsversion
+    uint8  :zlow
+    uint8  :zhigh, initial_value: 0x80
+    uint16 :datalength
   end
 
   def msg
@@ -124,21 +111,24 @@ class MetasploitModule < Msf::Auxiliary
       domain << "."
       domain << @domain
     end
+
     splitFQDN = domain.split('.')
     payload = splitFQDN.inject("") { |a,x| a + [x.length,x].pack("CA*") }
     pkt = Dns_header.new
     pkt.txid = rand(0xffff)
     pkt.opcode = 0x0000
     pkt.payload = payload + "\x00" + "\x00\x01" + "\x00\x01"
-    testingPkt = pkt.to_s
-    udp_sock.put(testingPkt) if method == "UDP"
-    sock.put(testingPkt) if method == "TCP"
+    testingPkt = pkt.to_binary_s
 
-    res, addr = udp_sock.recvfrom(65535,5) if method == "UDP"
-    res, addr = sock.get_once(-1,5) if method == "TCP"
-
-    disconnect_udp if method == "UDP"
-    disconnect if method == "TCP"
+    if method == "UDP"
+      udp_sock.put(testingPkt)
+      res, addr = udp_sock.recvfrom(65535)
+      disconnect_udp
+    elsif method == "TCP"
+      sock.put(testingPkt)
+      res, addr = sock.get_once(-1, 20)
+      disconnect
+    end
 
     if res && res.empty?
       print_error("#{msg} The remote server is not responding to DNS requests.")
@@ -275,9 +265,9 @@ class MetasploitModule < Msf::Auxiliary
     if dnssec
       dnssecpkt = Dns_add_rr.new
       pkt.additionalRR = 1
-      pkt = pkt + dnssecpkt
+      pkt.payload = dnssecpkt.to_binary_s
     end
-    return pkt
+    return pkt.to_binary_s
   end
 
   def dns_send(data,method)
@@ -302,7 +292,12 @@ class MetasploitModule < Msf::Auxiliary
         return true
       elsif @failCount >= 3
         if dns_alive(method) == false
-          print_error("#{msg} DNS is DOWN since the request:\n#{@lastdata.unpack('H*')}")
+          if @lastdata
+            print_error("#{msg} DNS is DOWN since the request:")
+            print_error(lastdata.unpack('H*'))
+          else
+            print_error("#{msg} DNS is DOWN")
+          end
           return false
         else
           return true

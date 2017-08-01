@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -40,12 +37,12 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to login as', 'admin']),
         OptString.new('PASSWORD', [true, 'Password for the specified username', 'admin']),
         OptString.new('FILEPATH', [false, 'Path of the file to download minus the drive letter', '/Windows/System32/calc.exe']),
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptInt.new('DEPTH', [false, 'Max depth to traverse', 15])
-      ], self.class)
+      ])
   end
 
   def authenticate

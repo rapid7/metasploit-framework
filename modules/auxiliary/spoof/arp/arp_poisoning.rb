@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
 
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new(  'BIDIRECTIONAL',	[true, 'Spoof also the source with the dest',false]),
       OptBool.new(  'AUTO_ADD',	[true, 'Auto add new host when discovered by the listener',false]),
       OptBool.new(  'LISTENER',    	[true, 'Use an additional thread that will listen for arp requests to reply as fast as possible', true])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('LOCALSMAC',    	[false, 'The MAC address of the local interface to use for hosts detection, this is usefull only if you want to spoof to another host with SMAC']),
@@ -45,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data during host detection', 2]),
       # This mode will generate address ip conflict pop up  on most systems
       OptBool.new(  'BROADCAST',    	[true, 'If set, the module will send replies on the broadcast address witout consideration of DHOSTS', false])
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST','GATEWAY_PROBE_PORT')
   end
@@ -182,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
         next if not reply.is_arp?
         # Without this check any arp request would be added to the cache
         if @dhosts.include? reply.arp_saddr_ip
-          print_status("#{reply.arp_saddr_ip} appears to be up.")
+          print_good("#{reply.arp_saddr_ip} appears to be up.")
           report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
@@ -195,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
       while(reply = getreply())
         next if not reply.is_arp?
         if @dhosts.include? reply.arp_saddr_ip
-          print_status("#{reply.arp_saddr_ip} appears to be up.")
+          print_good("#{reply.arp_saddr_ip} appears to be up.")
           report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
@@ -219,7 +216,7 @@ class MetasploitModule < Msf::Auxiliary
         while(reply = getreply())
           next if not reply.is_arp?
           if @shosts.include? reply.arp_saddr_ip
-            print_status("#{reply.arp_saddr_ip} appears to be up.")
+            print_good("#{reply.arp_saddr_ip} appears to be up.")
             report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end
@@ -232,7 +229,7 @@ class MetasploitModule < Msf::Auxiliary
         while(reply = getreply())
           next if not reply.is_arp?
           if @shosts.include? reply.arp_saddr_ip
-            print_status("#{reply.arp_saddr_ip} appears to be up.")
+            print_good("#{reply.arp_saddr_ip} appears to be up.")
             report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end
@@ -413,5 +410,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     @listener.abort_on_exception = true
   end
-
 end

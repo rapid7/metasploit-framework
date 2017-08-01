@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
 
@@ -22,7 +19,7 @@ class MetasploitModule < Msf::Post
 
         OptAddressRange.new('RHOSTS', [true, 'IP Range to perform ping sweep against.']),
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -65,7 +62,7 @@ class MetasploitModule < Msf::Post
               r = cmd_exec(cmd, count + ip_add)
             end
             if r =~ /(TTL|Alive)/i
-              print_status "\t#{ip_add} host found"
+              print_good "\t#{ip_add} host found"
               ip_found << ip_add
             else
               vprint_status("\t#{ip_add} host not found")

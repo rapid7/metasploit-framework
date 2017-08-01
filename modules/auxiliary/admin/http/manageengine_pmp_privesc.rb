@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -46,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to login as', 'guest']),
         OptString.new('PASSWORD', [true, 'Password for the specified username', 'guest']),
         OptString.new('TARGETURI', [ true,  "Password Manager Pro application URI", '/'])
-      ], self.class)
+      ])
   end
 
 

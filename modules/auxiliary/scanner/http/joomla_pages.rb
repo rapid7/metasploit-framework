@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -24,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -99,5 +97,4 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("Timeout error")
       return
   end
-
 end

