@@ -127,7 +127,7 @@ module Rex
         def connect_login
           ftpsock = connect
 
-          if !(self.user and self.pass)
+          if !(self.user && self.pass)
             print_error("No username and password were supplied, unable to login")
             return false
           end
@@ -135,7 +135,7 @@ module Rex
           print_status("Authenticating as #{user} with password #{pass}...") if self.verbose
           res = send_user(user, ftpsock)
 
-          if (res !~ /^(331|2)/)
+          if res !~ /^(331|2)/
             print_error("The server rejected our username") if self.verbose
             return false
           end
@@ -143,7 +143,7 @@ module Rex
           if pass
             print_status("Sending password...") if self.verbose
             res = send_pass(pass, ftpsock)
-            if (res !~ /^2/)
+            if res !~ /^2/
               print_error("The server rejected our password") if self.verbose
               return false
             end
@@ -224,6 +224,70 @@ module Rex
         def send_quit(nsock = self.sock)
           raw_send("QUIT\r\n", nsock)
           recv_ftp_resp(nsock)
+        end
+
+        #
+        # This method transmits the command in args and receives / uploads DATA via data channel
+        # For commands not needing data, it will fall through to the original send_cmd
+        #
+        # For commands that send data only, the return will be the server response.
+        # For commands returning both data and a server response, an array will be returned.
+        #
+        # NOTE: This function always waits for a response from the server.
+        #
+        def send_cmd_data(args, data, mode = 'a', nsock = self.sock)
+          type = nil
+          # implement some aliases for various commands
+          if args[0] =~ /^DIR$/i || args[0] =~ /^LS$/i
+            # TODO || args[0] =~ /^MDIR$/i || args[0] =~ /^MLS$/i
+            args[0] = "LIST"
+            type = "get"
+          elsif args[0] =~ /^GET$/i
+            args[0] = "RETR"
+            type = "get"
+          elsif args[0] =~ /^PUT$/i
+            args[0] = "STOR"
+            type = "put"
+          end
+
+          # fall back if it's not a supported data command
+          if !type
+            return send_cmd(args, true, nsock)
+          end
+
+          # Set the transfer mode and connect to the remove server
+          return nil if !data_connect(mode)
+
+          # Our pending command should have got a connection now.
+          res = send_cmd(args, true, nsock)
+          # make sure could open port
+          return nil unless res =~ /^(150|125) /
+
+          # dispatch to the proper method
+          if type == "get"
+            # failed listings jsut disconnect..
+            begin
+              data = self.datasocket.get_once(-1, ftp_timeout)
+            rescue ::EOFError
+              data = nil
+            end
+          else
+            sent = self.datasocket.put(data)
+          end
+
+          # close data channel so command channel updates
+          data_disconnect
+
+          # get status of transfer
+          ret = nil
+          if type == "get"
+            ret = recv_ftp_resp(nsock)
+            ret = [ ret, data ]
+          else
+            ret = recv_ftp_resp(nsock)
+          end
+
+          ret
         end
 
         #
