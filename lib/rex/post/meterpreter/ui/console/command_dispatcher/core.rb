@@ -205,12 +205,13 @@ class Console::CommandDispatcher::Core
       tbl = Rex::Text::Table.new(
         'Header'  => 'Currently active pivot listeners',
         'Indent'  => 4,
-        'Columns' => ['Id', 'Detail'])
+        'Columns' => ['Id', 'URL', 'Stage'])
 
       client.pivot_listeners.each do |k, v|
         tbl << v.to_row
       end
-      print_line("\n#{tbl}\n")
+      print_line
+      print_line(tbl.to_s)
     when 'add'
       unless opts[:type]
         print_error('Pivot type must be specified (-t)')

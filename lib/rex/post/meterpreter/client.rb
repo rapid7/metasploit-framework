@@ -89,11 +89,11 @@ class Client
   #
   def cleanup_meterpreter
     if self.pivot_session
-      self.pivot_session.remove_pivot(self.session_guid)
+      self.pivot_session.remove_pivot_session(self.session_guid)
     end
 
-    self.pivots.keys.each do |k|
-      pivot = self.pivots[k]
+    self.pivot_sessions.keys.each do |k|
+      pivot = self.pivot_sessions[k]
       pivot.pivoted_session.kill('Pivot closed')
       pivot.pivoted_session.shutdown_passive_dispatcher
     end

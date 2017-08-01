@@ -12,16 +12,19 @@ class PivotListener
 
   attr_accessor :session_class
 
-  attr_accessor :display_name
+  attr_accessor :url
 
-  def initialize(session_class, display_name)
+  attr_accessor :stage
+
+  def initialize(session_class, url, stage)
     self.id = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
     self.session_class = session_class
-    self.display_name = display_name
+    self.url = url
+    self.stage = stage
   end
 
   def to_row
-    [self.id.unpack('H*')[0], display_name]
+    [self.id.unpack('H*')[0], url, stage]
   end
 end
 
@@ -114,8 +117,9 @@ class Pivot
     stage_opts[:transport_config] = [stager.transport_config_reverse_named_pipe(stage_opts)]
     stage = stager.stage_payload(stage_opts)
 
-    display_name = "pipe://#{opts[:pipe_host]}/#{opts[:pipe_name]} (#{opts[:arch]}/#{opts[:platform]})"
-    pivot_listener = PivotListener.new(::Msf::Sessions::Meterpreter_x86_Win, display_name)
+    url = "pipe://#{opts[:pipe_host]}/#{opts[:pipe_name]}"
+    stage = "#{opts[:arch]}/#{opts[:platform]}"
+    pivot_listener = PivotListener.new(::Msf::Sessions::Meterpreter_x86_Win, url, stage)
 
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
     request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)
