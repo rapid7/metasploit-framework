@@ -8,6 +8,9 @@
 
 # inherit_from: .rubocop_todo.yml
 
+AllCops:
+  TargetRubyVersion: 2.2
+
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
   Enabled: true
