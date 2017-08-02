@@ -7,10 +7,6 @@ gemspec name: 'metasploit-framework'
 # XXX https://github.com/alexdalitz/dnsruby/pull/134
 gem 'dnsruby', git: 'https://github.com/alexdalitz/dnsruby'
 
-# XXX https://github.com/ConnorAtherton/rb-readline/commit/fd882edcd145c26681f9971be5f6675c7f6d1970
-gem 'rb-readline', git: 'https://github.com/ConnorAtherton/rb-readline' if [
- 'x86_64-linux', 'x86-linux', 'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
