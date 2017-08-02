@@ -33,7 +33,7 @@ module UDS
       end
       left2combine = hash["Packets"].size
       counter = 0
-      while left2combine.positive? && (bad_count < (hash["Packets"].size * 2))
+      while left2combine > 0 && (bad_count < (hash["Packets"].size * 2))
         # print_line("DEBUG Current status combine=#{left2combine} data=#{data.inspect}")
         hash["Packets"].each do |pkt|
           if (pkt.key? "ID") && pkt["ID"].hex == id.hex
