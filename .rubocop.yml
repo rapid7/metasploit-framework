@@ -47,6 +47,10 @@ Style/GuardClause:
   Enabled: false
   Description: 'This often introduces bugs in tested code'
 
+Style/NegatedIf:
+  Enabled: false
+  Description: 'This often introduces bugs in tested code'
+
 Style/ConditionalAssignment:
   Enabled: false
   Description: 'This is confusing for folks coming from other languages'
