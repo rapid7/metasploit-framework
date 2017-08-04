@@ -8,8 +8,9 @@ Rubocop is a great tool for beginning and experienced Ruby coders if you treat t
 ## Running Rubocop
 Run ```rubocop <ruby file>```
 
-## What is Cyclomatic Complexity?
-Don't worry about it.  Metasploit Project uses msftidy as the minimum barrier to submitting code, but we strongly encourage contributors to run their ruby code through Rubocop.  Where Msftidy does the bare minimum, Rubocop sometimes goes too far.  Treat the output of Rubocop as a suggestion, not really as a black and white rule.  Part of that reason is because at best, the Metasploit team probably only agrees on 50% of the suggestions from Rubocop.  Other suggestions can bleed into snide comments, coding holy wars, and Nerf battles that last until we forget why we were fighting.
+## What suggestions should you ignore?
+
+We have an evolving set of suggestion tweaks from the default rubocop that is checked into the latest tree https://github.com/rapid7/metasploit-framework/blob/master/.rubocop.yml. A lot of the suggestions that often lead to _worse_ code (especially when applied after a module is tested originally) have been disabled, along with ones that are more subjective or go against established Metasploit norms. This is prone to change over time. For now, we try to support the syntax that works with the latest supported versions of Ruby, which at this writing are Ruby 2.2 through 2.4.
 
 ## So what suggestions should you take to heart?
 
