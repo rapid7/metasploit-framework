@@ -20,14 +20,22 @@ White space affects code readability, and we'd like to try and maintain (or esta
 Rubocop likes aligned parentheses, spaces around brackets, and is picky about spacing around most encapsulating syntax elements.  As a big fan of Python, I agree wholeheartedly with these alignment and spacing suggestions, as it makes me feel like I'm home.  Others will disagree about importance, but no one will complain if you do it right, only varying volumes of complaining when doing it wrong.
 
 #### Code Complexity
-As stated above, Rubocops's code complexity warnings are less useful than we'd like.  Please keep functions below 100 lines (50 is better).  Otherwise, just be clear.  If two lines will be readable, use two lines.  Someone will be coming along behind you.  Please do not make that person hate you.
+As stated above, Rubocops's code complexity warnings are less useful than we'd like.  Please keep functions below 100 lines (50 is better).  Otherwise, just be clear.  If two lines will be readable, use two lines.  Someone will be coming along behind you.  Please do not make that person hate you. We do have most of the rubocop warnings disabled, but use your head.
 
 #### Conditional Statements
 Rubocop encourages single-line incomprehensible conditional statements that reek of blatant, painful, Ruby exhibitionism.  Again, as a non-native Ruby coder that has to go back and figure out what old modules do, I humbly request that you please ignore those warnings.  Make your conditional statements easy to read and understand, make them stand out as conditional, and please, never, ever use `unless`.  I've watched `unless` screw up very good, talented, experienced coders.  I've also watched senior members of our team snap and `git grep` through the codebase ripping out `unless` statements and muttering unpleasant things the entire time.
 If your conditional statement takes up two whole lines, so be it.  If two nested conditional statements can be replaced with a single, unreadable and impossible to debug multi-line complex statement, please leave the two statements in place.
 
 #### Ternary Operations
-This is likely never to come up, but if it does, please don't use ternary operators.
+This is likely never to come up, but if it does, please don't use ternary operators. If you do use them, think about the case where there might be a backtrace - will you know which path was taken? Note that if you're just trying to assign based on conditional, ruby also supports this syntax which can be clearer if your branches are complex:
+
+```
+a = if x = y
+      foo
+    else
+      bar
+    end
+```
 
 #### But I copied it from another module!
-Consistency is a virtue only when it is correct.  (In all seriousness, use your best judgement here, and don't be afraid to ask.)
+Consistency is a virtue only when it is correct.  (In all seriousness, use your best judgement here, and don't be afraid to ask.). Also, we allow cleaning up other modules too, though be forewarned, have a way to actually test modules you cleanup.
