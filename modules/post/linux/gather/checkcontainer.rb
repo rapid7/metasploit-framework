@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{
           This module attempts to determine whether the system is running
           inside of a container and if so, which one. This module supports
-          detection of LXC and Docker.},
+          detection of Docker, LXC, and systemd nspawn.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'James Otten <jamesotten1[at]gmail.com>'],
         'Platform'      => [ 'linux' ],
@@ -41,6 +41,17 @@ class MetasploitModule < Msf::Post
         when /lxc/i
           container = "LXC"
         end
+      end
+    end
+
+    # Check for the "container" environment variable
+    if container.nil?
+      container_variable = get_env("container")
+      case container_variable
+      when "lxc"
+        container = "LXC"
+      when "systemd-nspawn"
+        container = "systemd nspawn"
       end
     end
 
