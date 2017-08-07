@@ -47,9 +47,8 @@ class MetasploitModule < Msf::Post
 
     keys = [
       'HKLM\\SOFTWARE\\Alt-N Technologies\\MDaemon', # 64 bit. Has AppPath
-      # "HKLM\\SOFTWARE\\Wise Solutions\\WiseUpdate\\Apps\\MDaemon Server" # 32 bit on 64-bit system. Won't find path on register
     ]
-    
+
     if datastore['RPATH'].nil?
       locations << datastore['RPATH']
     end
@@ -308,3 +307,4 @@ class MetasploitModule < Msf::Post
     report_imap(result[2])
   end
 end
+
