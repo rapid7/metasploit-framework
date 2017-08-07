@@ -13,7 +13,11 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module will escalate an Oracle DB user to DBA by creating a function-based index on a table owned by a more-privileged user. Credits to David Litchfield for publishing the technique.
       },
-      'Author'         => [ 'Moshe Kaplan' ],
+      'Author'         =>
+        [
+          'David Litchfield', # Vulnerability discovery and exploit
+          'Moshe Kaplan',     # Metasploit module
+        ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
@@ -29,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    return if not check_dependencies
+    return if !check_dependencies
 
     name = Rex::Text.rand_text_alpha(rand(5) + 1)
 
