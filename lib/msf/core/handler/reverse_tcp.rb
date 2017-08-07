@@ -45,10 +45,26 @@ module ReverseTcp
     # XXX: Not supported by all modules
     register_advanced_options(
       [
-        OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
-        OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
-      ], Msf::Handler::ReverseTcp)
+        OptInt.new(
+          'StagerRetryCount',
+          [ true, 'The number of connection attempts to try before exiting the process', 10 ],
+          aliases: ['ReverseConnectRetries']
+        ),
+        OptFloat.new(
+          'StagerRetryWait',
+          [ false, 'Number of seconds to wait for the stager between reconnect attempts', 5.0 ]
+        ),
+        OptAddress.new(
+          'ReverseListenerBindAddress',
+          [ false, 'The specific IP address to bind to on the local system' ]
+        ),
+        OptBool.new(
+          'ReverseListenerThreaded',
+          [ true, 'Handle every connection in a new thread (experimental)', false ]
+        )
+      ],
+      Msf::Handler::ReverseTcp
+    )
 
     self.conn_threads = []
   end

