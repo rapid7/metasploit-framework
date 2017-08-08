@@ -131,19 +131,19 @@ class MetasploitModule < Msf::Auxiliary
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        print_brute :level => :good, :ip => ip, :msg => "#{ip}:#{rport} - Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         session_setup(result, scanner.ssh_socket)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+        vprint_brute :level => :verror, :ip => ip, :msg => "#{ip}:#{rport} - Could not connect: #{result.proof}"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         invalidate_login(credential_data)
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
-        vprint_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        vprint_brute :level => :verror, :ip => ip, :msg => "#{ip}:#{rport} - Failed: '#{result.credential}'"
         invalidate_login(credential_data)
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       else
