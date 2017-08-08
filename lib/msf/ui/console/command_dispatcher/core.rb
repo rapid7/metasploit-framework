@@ -41,7 +41,7 @@ class Core
     "-c"  => [ true,  "Run a command on the session given with -i, or all"             ],
     "-C"  => [ true,  "Run a Meterpreter Command on the session given with -i, or all" ],
     "-h"  => [ false, "Help banner"                                                    ],
-    "-i"  => [ true,  "Interact with the supplied session ID   "                       ],
+    "-i"  => [ true,  "Interact with the supplied session ID"                          ],
     "-l"  => [ false, "List all active sessions"                                       ],
     "-v"  => [ false, "List sessions in verbose mode"                                  ],
     "-q"  => [ false, "Quiet mode"                                                     ],
@@ -51,8 +51,9 @@ class Core
     "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
-    "-S"  => [ true, "Row search filter."                                              ],
-    "-x" =>  [ false, "Show extended information in the session table"                 ])
+    "-S"  => [ true,  "Row search filter."                                             ],
+    "-x" =>  [ false, "Show extended information in the session table"                 ],
+    "-n" =>  [ true,  "Name or rename a session by ID"                                 ])
 
   @@threads_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -1142,6 +1143,7 @@ class Core
     reset_ring = false
     response_timeout = 15
     search_term = nil
+    session_name = nil
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1204,8 +1206,9 @@ class Core
           if val.to_s =~ /^\d+$/
             response_timeout = val.to_i
           end
-        when "-S", "--search"
-          search_term = val
+        when "-n", "--name"
+          method = 'name'
+          session_name = val
         else
           extra << val
         end
@@ -1473,6 +1476,27 @@ class Core
       print_line
       print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose, :search_term => search_term))
       print_line
+    when 'name'
+      if session_name.nil? || session_name.blank?
+        print_error('Please specify a valid session name')
+        return false
+      end
+
+      sessions = sid ? session_list : nil
+
+      if sessions.nil? || sessions.empty?
+        print_error("Please specify valid session identifier(s) using -i")
+        return false
+      end
+
+      sessions.each do |s|
+        if framework.sessions[s].respond_to?(:name=)
+          framework.sessions[s].name = session_name
+          print_status("Session #{s} named to #{session_name}")
+        else
+          print_error("Session #{s} cannot be named")
+        end
+      end
     end
 
     rescue IOError, EOFError, Rex::StreamClosedError
