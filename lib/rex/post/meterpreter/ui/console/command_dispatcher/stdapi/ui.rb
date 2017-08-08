@@ -281,8 +281,28 @@ class Console::CommandDispatcher::Stdapi::Ui
   # Start the keyboard sniffer
   #
   def cmd_keyscan_start(*args)
-    print_line("Starting the keystroke sniffer...")
-    client.ui.keyscan_start
+    trackwin = false
+
+    keyscan_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner." ],
+      "-v" => [ false, "Verbose logging: tracks the current active window in which keystrokes are occuring." ]
+    )
+
+    keyscan_opts.parse( args ) { | opt |
+      case opt
+       when "-h"
+        print_line("Usage: keyscan_start <options>")
+        print_line("Starts the key logger")
+        print_line(keyscan_opts.usage)
+        return
+       when "-v"
+        print_line("Verbose logging selected ...")
+        trackwin = true
+       end
+    }
+
+    print_line("Starting the keystroke sniffer ...")
+    client.ui.keyscan_start(trackwin)
     return true
   end
 
@@ -301,8 +321,9 @@ class Console::CommandDispatcher::Stdapi::Ui
   def cmd_keyscan_dump(*args)
     print_line("Dumping captured keystrokes...")
     data = client.ui.keyscan_dump
-    print_line(data)
-
+    print_line(data + "\n")      # the additional newline is to keep the resulting output
+                                 # from crowding the Meterpreter command prompt, which
+                                 # is visually frustrating without color
     return true
   end
 

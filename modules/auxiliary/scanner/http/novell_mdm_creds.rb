@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -133,5 +132,4 @@ class MetasploitModule < Msf::Auxiliary
       return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
     end
   end
-
 end

@@ -1,9 +1,10 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::TcpServer
@@ -75,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     loot_filename = 'ldap-creds.text'
     loot_desc     = 'LDAP Pass-back Harvester'
     p = store_loot(loot_name, loot_type, datastore['RHOST'], @data, loot_filename, loot_desc)
-    print_status("Credentials saved in: #{p}")
+    print_good("Credentials saved in: #{p}")
 
     register_creds('ldap', rhost, @ldap_port, ldap_binary_creds[0], ldap_binary_creds[1])
   end
@@ -263,7 +264,7 @@ class MetasploitModule < Msf::Auxiliary
       }, datastore['TIMEOUT'].to_i)
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("Connection failed.")
+      print_error("Connection failed")
     end
 
     res

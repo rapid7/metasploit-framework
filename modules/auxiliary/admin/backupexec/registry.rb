@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DCERPC
   include Msf::Post::Windows::Registry
 
@@ -270,5 +267,4 @@ class MetasploitModule < Msf::Auxiliary
       NDR.long(hive)
     return stub
   end
-
 end

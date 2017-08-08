@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -69,5 +69,4 @@ class MetasploitModule < Msf::Post
     # Save the raw version of the plist
     save(pref)
   end
-
 end

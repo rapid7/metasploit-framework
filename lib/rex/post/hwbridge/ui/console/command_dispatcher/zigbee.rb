@@ -44,7 +44,7 @@ class Console::CommandDispatcher::Zigbee
       return
     end
     devices = devices["devices"]
-    unless devices.size.positive?
+    unless devices.size > 0
       print_line("none")
       return
     end

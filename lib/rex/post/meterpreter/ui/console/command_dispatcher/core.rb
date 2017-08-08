@@ -605,25 +605,24 @@ class Console::CommandDispatcher::Core
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
-    '-t'  => [true, "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}"],
-    '-l'  => [true, 'LHOST parameter (for reverse transports)'],
-    '-p'  => [true, 'LPORT parameter'],
-    '-i'  => [true, 'Specify transport by index (currently supported: remove)'],
-    '-u'  => [true, 'Custom URI for HTTP/S transports (used when removing transports)'],
-    '-lu' => [true, 'Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)'],
-    '-ua' => [true, 'User agent for HTTP/S transports (optional)'],
-    '-ph' => [true, 'Proxy host for HTTP/S transports (optional)'],
-    '-pp' => [true, 'Proxy port for HTTP/S transports (optional)'],
-    '-pu' => [true, 'Proxy username for HTTP/S transports (optional)'],
-    '-ps' => [true, 'Proxy password for HTTP/S transports (optional)'],
-    '-pt' => [true, 'Proxy type for HTTP/S transports (optional: http, socks; default: http)'],
-    '-c'  => [true, 'SSL certificate path for https transport verification (optional)'],
-    '-to' => [true, 'Comms timeout (seconds) (default: same as current session)'],
-    '-ex' => [true, 'Expiration timout (seconds) (default: same as current session)'],
-    '-rt' => [true, 'Retry total time (seconds) (default: same as current session)'],
-    '-rw' => [true, 'Retry wait time (seconds) (default: same as current session)'],
-    '-v'  => [false, 'Show the verbose format of the transport list'],
-    '-h'  => [false, 'Help menu'])
+    '-t' => [true, "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}"],
+    '-l' => [true, 'LHOST parameter (for reverse transports)'],
+    '-p' => [true, 'LPORT parameter'],
+    '-i' => [true, 'Specify transport by index (currently supported: remove)'],
+    '-u' => [true, 'Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)'],
+    '-c' => [true, 'SSL certificate path for https transport verification (optional)'],
+    '-A' => [true, 'User agent for HTTP/S transports (optional)'],
+    '-H' => [true, 'Proxy host for HTTP/S transports (optional)'],
+    '-P' => [true, 'Proxy port for HTTP/S transports (optional)'],
+    '-U' => [true, 'Proxy username for HTTP/S transports (optional)'],
+    '-N' => [true, 'Proxy password for HTTP/S transports (optional)'],
+    '-B' => [true, 'Proxy type for HTTP/S transports (optional: http, socks; default: http)'],
+    '-C' => [true, 'Comms timeout (seconds) (default: same as current session)'],
+    '-X' => [true, 'Expiration timout (seconds) (default: same as current session)'],
+    '-T' => [true, 'Retry total time (seconds) (default: same as current session)'],
+    '-W' => [true, 'Retry wait time (seconds) (default: same as current session)'],
+    '-v' => [false, 'Show the verbose format of the transport list'],
+    '-h' => [false, 'Help menu'])
 
   #
   # Display help for transport management.
@@ -667,7 +666,6 @@ class Console::CommandDispatcher::Core
       :transport    => nil,
       :lhost        => nil,
       :lport        => nil,
-      :uri          => nil,
       :ua           => nil,
       :proxy_host   => nil,
       :proxy_port   => nil,
@@ -688,31 +686,29 @@ class Console::CommandDispatcher::Core
       case opt
       when '-c'
         opts[:cert] = val
-      when '-u'
-        opts[:uri] = val
       when '-i'
         transport_index = val.to_i
-      when '-lu'
+      when '-u'
         opts[:luri] = val
-      when '-ph'
+      when '-H'
         opts[:proxy_host] = val
-      when '-pp'
+      when '-P'
         opts[:proxy_port] = val.to_i
-      when '-pt'
+      when '-B'
         opts[:proxy_type] = val
-      when '-pu'
+      when '-U'
         opts[:proxy_user] = val
-      when '-ps'
+      when '-N'
         opts[:proxy_pass] = val
-      when '-ua'
+      when '-A'
         opts[:ua] = val
-      when '-to'
+      when '-C'
         opts[:comm_timeout] = val.to_i if val
-      when '-ex'
+      when '-X'
         opts[:session_exp] = val.to_i if val
-      when '-rt'
+      when '-T'
         opts[:retry_total] = val.to_i if val
-      when '-rw'
+      when '-W'
         opts[:retry_wait] = val.to_i if val
       when '-p'
         opts[:lport] = val.to_i if val

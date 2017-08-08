@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -73,7 +72,7 @@ class MetasploitModule < Msf::Post
     end
 
     if(! session.incognito)
-      print_status("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 
@@ -154,7 +153,7 @@ class MetasploitModule < Msf::Post
     end
 
     if(! session.incognito)
-      print_error("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+      print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
       return false
     end
 

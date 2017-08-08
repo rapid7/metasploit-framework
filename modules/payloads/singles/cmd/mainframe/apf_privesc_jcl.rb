@@ -1,7 +1,12 @@
 ##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+##
 # This is a JCL command payload for z/OS - mainframe.
-#   It will escalate privilages of an account on the system if the user
-#   can identify a writeable APF authoried library "APFLIB"
+#   It will escalate privileges of an account on the system if the user
+#   can identify a writable APF authorised library "APFLIB"
 #
 #   See https://www.ibm.com/support/knowledgecenter/zosbasics/com.ibm.zos.zsecurity/zsecc_060.htm
 #   for more information on APF Authorized Libraries
@@ -9,8 +14,8 @@
 #   Thank you to Ayoub & The Brummie for the assembler ideas.
 #
 #   To-do (BeS 4/11/17)
-#     Add options for privilages that can be added.
-#     Auto scan for writeable APF authorized library.
+#     Add options for privileges that can be added.
+#     Auto scan for writable APF authorized library.
 ##
 
 require 'msf/core/handler/find_shell'
@@ -25,8 +30,8 @@ module MetasploitModule
   def initialize(info = {})
     super(merge_info(
       info,
-      'Name'          => 'JCL to Escalate Privilages',
-      'Description'   => %q{(Elevate privilages for user. Adds
+      'Name'          => 'JCL to Escalate Privileges',
+      'Description'   => %q{(Elevate privileges for user. Adds
          SYSTEM SPECIAL and BPX.SUPERUSER to user profile. Does this by using
          an unsecured/updateable APF authorized library (APFLIB) and updating
          the user's ACEE using this program/library.  Note: This privesc only

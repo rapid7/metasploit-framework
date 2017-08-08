@@ -33,7 +33,7 @@ module UDS
       end
       left2combine = hash["Packets"].size
       counter = 0
-      while left2combine.positive? && (bad_count < (hash["Packets"].size * 2))
+      while left2combine > 0 && (bad_count < (hash["Packets"].size * 2))
         # print_line("DEBUG Current status combine=#{left2combine} data=#{data.inspect}")
         hash["Packets"].each do |pkt|
           if (pkt.key? "ID") && pkt["ID"].hex == id.hex
@@ -100,11 +100,13 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Array] All supported pids from Mode $01 get current data
-  def get_current_data_pids(bus, src_id, dst_id)
+  def get_current_data_pids(bus, src_id, dst_id, opt={})
     pids = []
-    packets = get_current_data(bus, src_id, dst_id, 0, { "MAXPKTS" => 1 })
+    opt['MAXPKTS'] = 1
+    packets = get_current_data(bus, src_id, dst_id, 0, opt)
     return pids if packets.nil?
     if (packets.key? "Packets") && !packets["Packets"].empty?
       hexpids = packets["Packets"][0]["DATA"][3, 6]
@@ -114,7 +116,7 @@ module UDS
       end
     end
     if pids.include? 0x20
-      packets = get_current_data(bus, src_id, dst_id, 0x20, { "MAXPKTS" => 1 })
+      packets = get_current_data(bus, src_id, dst_id, 0x20, opt)
       if (packets.key? "Packets") && !packets["Packets"].empty?
         hexpids = packets["Packets"][0]["DATA"][3, 6]
         hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
@@ -124,7 +126,7 @@ module UDS
       end
     end
     if pids.include? 0x40
-      packets = get_current_data(bus, src_id, dst_id, 0x40, { "MAXPKTS" => 1 })
+      packets = get_current_data(bus, src_id, dst_id, 0x40, opt)
       if (packets.key? "Packets") && !packets["Packets"].empty?
         hexpids = packets["Packets"][0]["DATA"][3, 6]
         hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
@@ -134,7 +136,7 @@ module UDS
       end
     end
     if pids.include? 0x60
-      packets = get_current_data(bus, src_id, dst_id, 0x60, { "MAXPKTS" => 1 })
+      packets = get_current_data(bus, src_id, dst_id, 0x60, opt)
       if (packets.key? "Packets") && !packets["Packets"].empty?
         hexpids = packets["Packets"][0]["DATA"][3, 6]
         hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
@@ -144,7 +146,7 @@ module UDS
       end
     end
     if pids.include? 0x80
-      packets = get_current_data(bus, src_id, dst_id, 0x80, { "MAXPKTS" => 1 })
+      packets = get_current_data(bus, src_id, dst_id, 0x80, opt)
       if (packets.key? "Packets") && !packets["Packets"].empty?
         hexpids = packets["Packets"][0]["DATA"][3, 6]
         hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
@@ -154,7 +156,7 @@ module UDS
       end
     end
     if pids.include? 0xA0
-      packets = get_current_data(bus, src_id, dst_id, 0xA0, { "MAXPKTS" => 1 })
+      packets = get_current_data(bus, src_id, dst_id, 0xA0, opt)
       if (packets.key? "Packets") && !packets["Packets"].empty?
         hexpids = packets["Packets"][0]["DATA"][3, 6]
         hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
@@ -164,7 +166,7 @@ module UDS
       end
     end
     if pids.include? 0xC0
-      packets = get_current_data(bus, src_id, dst_id, 0xC0, { "MAXPKTS" => 1 })
+      packets = get_current_data(bus, src_id, dst_id, 0xC0, opt)
       if (packets.key? "Packets") && !packets["Packets"].empty?
         hexpids = packets["Packets"][0]["DATA"][3, 6]
         hexpids = hexpids.join.hex.to_s(2).rjust(32, '0').split('') # Array of 1s and 0s
@@ -182,10 +184,12 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Hash] Packet Hash with { "MIL" => true|false "DTC_COUNT" => 0 }
-  def get_monitor_status(bus, src_id, dst_id)
-    packets = get_current_data(bus, src_id, dst_id, 0x01, { "MAXPKTS" => 1 })
+  def get_monitor_status(bus, src_id, dst_id, opt = {})
+    opt['MAXPKTS'] = 1
+    packets = get_current_data(bus, src_id, dst_id, 0x01, opt)
     return {} if packets.nil?
     return packets if packets.key? "error"
     return packets unless packets.key? "Packets"
@@ -200,10 +204,12 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Hash] Packet Hash with { "TEMP_C" => <Celcious Temp>, "TEMP_F" => <Fahrenheit TEmp> }
-  def get_engine_coolant_temp(bus, src_id, dst_id)
-    packets = get_current_data(bus, src_id, dst_id, 0x05, { "MAXPKTS" => 1 })
+  def get_engine_coolant_temp(bus, src_id, dst_id, opt = {})
+    opt['MAXPKTS'] = 1
+    packets = get_current_data(bus, src_id, dst_id, 0x05, opt)
     return {} if packets.nil?
     return packets if packets.key? "error"
     return packets unless packets.key? "Packets"
@@ -220,10 +226,12 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Hash] Packet Hash with { "RPM" => <RPMs> }
-  def get_rpms(bus, src_id, dst_id)
-    packets = get_current_data(bus, src_id, dst_id, 0x0C, { "MAXPKTS" => 1 })
+  def get_rpms(bus, src_id, dst_id, opt = {})
+    opt['MAXPKTS'] = 1
+    packets = get_current_data(bus, src_id, dst_id, 0x0C, opt)
     return {} if packets.nil?
     return packets if packets.key? "error"
     return packets unless packets.key? "Packets"
@@ -237,10 +245,12 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Hash] Packet Hash with { "SPEED_K" => <km/h>, "SPEED_M" => <mph> }
-  def get_vehicle_speed(bus, src_id, dst_id)
-    packets = get_current_data(bus, src_id, dst_id, 0x0D, { "MAXPKTS" => 1 })
+  def get_vehicle_speed(bus, src_id, dst_id, opt = {})
+    opt['MAXPKTS'] = 1
+    packets = get_current_data(bus, src_id, dst_id, 0x0D, opt)
     return {} if packets.nil?
     return packets if packets.key? "error"
     return packets unless packets.key? "Packets"
@@ -256,10 +266,12 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [String] Description of standard
-  def get_obd_standards(bus, src_id, dst_id)
-    packets = get_current_data(bus, src_id, dst_id, 0x1C, { "MAXPKTS" => 1 })
+  def get_obd_standards(bus, src_id, dst_id, opt = {})
+    opt['MAXPKTS'] = 1
+    packets = get_current_data(bus, src_id, dst_id, 0x1C, opt)
     return "" if packets.nil?
     if packets.key? "error"
       print_error("OBD ERR: #{packets['error']}")
@@ -532,11 +544,13 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [Array] Array of PIDS supported by Mode $09
-  def get_vinfo_supported_pids(bus, src_id, dst_id)
+  def get_vinfo_supported_pids(bus, src_id, dst_id, opt = {})
+    opt['MAXPKTS'] = 1
     pids = []
-    packets = get_vehicle_info(bus, src_id, dst_id, 0, { "MAXPKTS" => 1 })
+    packets = get_vehicle_info(bus, src_id, dst_id, 0, opt)
     return pids if packets.nil?
     if (packets.key? "Packets") && !packets["Packets"].empty?
       unless packets["Packets"][0]["DATA"][1].hex == 0x49
@@ -558,10 +572,11 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [String] VIN as ASCII
-  def get_vin(bus, src_id, dst_id)
-    packets = get_vehicle_info(bus, src_id, dst_id, 0x02)
+  def get_vin(bus, src_id, dst_id, opt = {})
+    packets = get_vehicle_info(bus, src_id, dst_id, 0x02, opt)
     return "" if packets.nil?
     return "UDS ERR: #{packets['error']}" if packets.key? "error"
     data = response_hash_to_data_array(dst_id.to_s(16), packets)
@@ -575,10 +590,11 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [String] Calibration ID as ASCII
-  def get_calibration_id(bus, src_id, dst_id)
-    packets = get_vehicle_info(bus, src_id, dst_id, 0x04)
+  def get_calibration_id(bus, src_id, dst_id, opt = {})
+    packets = get_vehicle_info(bus, src_id, dst_id, 0x04, opt)
     return "" if packets.nil?
     return "UDS ERR: #{packets['error']}" if packets.key? "error"
     data = response_hash_to_data_array(dst_id.to_s(16), packets)
@@ -592,10 +608,11 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
+  # @param opt [Hash] Additional options to be passed to automotive.send_isotp_and_wait_for_response
   #
   # @return [String] ECU Name as ASCII
-  def get_ecu_name(bus, src_id, dst_id)
-    packets = get_vehicle_info(bus, src_id, dst_id, 0x0A)
+  def get_ecu_name(bus, src_id, dst_id, opt = {})
+    packets = get_vehicle_info(bus, src_id, dst_id, 0x0A, opt)
     return "" if packets.nil?
     return "UDS ERR: #{packets['error']}" if packets.key? "error"
     data = response_hash_to_data_array(dst_id.to_s(16), packets)
@@ -616,9 +633,10 @@ module UDS
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param level [Integer] The desired DSC level
+  # @param opt [Hash] Optional arguments.  PADDING if set uses this hex value for padding
   #
   # @return [Hash] client.automtoive response
-  def set_dsc(bus, src_id, dst_id, level)
+  def set_dsc(bus, src_id, dst_id, level, opt = {})
     unless client.automotive
       print_error("Not an automotive hwbridge session")
       return {}
@@ -631,9 +649,12 @@ module UDS
       print_line("No active bus, use 'connect' or specify bus via the options")
       return {}
     end
+    padding = nil
+    padding = opt['PADDING'] if opt.key? 'PADDING'
     opt = {}
     opt["TIMEOUT"] = 20
     opt["MAXPKTS"] = 1
+    opt["PADDING"] = padding unless padding.nil?
     client.automotive.send_isotp_and_wait_for_response(bus, src_id, dst_id, [0x10, level], opt)
   end
 
@@ -674,10 +695,11 @@ module UDS
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param id [Array] 2 Bytes in an array of the identifier.  Example [ 0xF1, 0x90 ]
-  # @param show_error [Boolean] If an error, return the Packet hash instead, Default false
+  # @param opt [Hash] Additional Options.  SHOW_ERROR (Returns packet hash instead, default false)
+  #                                        PADDING if set uses this hex value for padding
   #
   # @return [Array] Data retrieved.  If show_error is true and an error is detected, then packet hash will be returned instead
-  def read_data_by_id(bus, src_id, dst_id, id, show_error = false)
+  def read_data_by_id(bus, src_id, dst_id, id, opt = {})
     data = []
     unless client.automotive
       print_error("Not an automotive hwbridge session")
@@ -702,14 +724,22 @@ module UDS
       print_line("No active bus, use 'connect' or specify bus via the options")
       return {}
     end
+    show_error = false
+    padding = nil
+    show_error = true if opt.key? 'SHOW_ERROR'
+    padding = opt['PADDING'] if opt.key? 'PADDING'
     opt = {}
     opt["MAXPKTS"] = 15
+    opt["PADDING"] = padding unless padding.nil?
     packets = client.automotive.send_isotp_and_wait_for_response(bus, src_id, dst_id, [0x22] + id, opt)
     return [] if packets.nil?
     if packets.key? "error"
       return packets if show_error
     else
       data = response_hash_to_data_array(dst_id, packets)
+      if id.size > 1  # Remove IDs from return
+        data = data[(id.size-1)..data.size]
+      end
     end
     data
   end
@@ -723,9 +753,10 @@ module UDS
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param level [Integer] Requested security access level. Default is 1
+  # @param opt [Hash] Optional settings.  PADDING if set uses this hex value for padding
   #
   # @return [Hash] Packet Hash with { "SEED" => [ XX, XX ] }
-  def get_security_token(bus, src_id, dst_id, level = 1)
+  def get_security_token(bus, src_id, dst_id, level = 1, opt = {})
     unless client.automotive
       print_error("Not an automotive hwbridge session")
       return {}
@@ -738,8 +769,11 @@ module UDS
       print_line("No active bus, use 'connect' or specify bus via the options")
       return {}
     end
+    padding = nil
+    padding = opt['PADDING'] if opt.key? 'PADDING'
     opt = {}
-    opt["MAXPKTS"] = 1
+    opt["MAXPKTS"] = 2
+    opt["PADDING"] = padding unless padding.nil?
     packets = client.automotive.send_isotp_and_wait_for_response(bus, src_id, dst_id, [0x27, level], opt)
     return {} if packets.nil?
     unless packets.key? "error"
@@ -754,11 +788,12 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
-  # param key [Array] Array of Hex to be used as the key.  Same size as the seed
+  # @param key [Array] Array of Hex to be used as the key.  Same size as the seed
   # @param response_level [Integer] Requested security access level response. Usually level + 1. Default is 2
+  # @param opt [Hash] Optional settings. PADDING if set uses this hex value for padding
   #
   # @return [Hash] packet response from client.automotoive
-  def send_security_token_response(bus, src_id, dst_id, key, response_level = 2)
+  def send_security_token_response(bus, src_id, dst_id, key, response_level = 2, opt = {})
     unless client.automotive
       print_error("Not an automotive hwbridge session")
       return {}
@@ -776,8 +811,11 @@ module UDS
       print_line("No active bus, use 'connect' or specify bus via the options")
       return {}
     end
+    padding = nil
+    padding = opt['PADDING'] if opt.key? 'PADDING'
     opt = {}
-    opt["MAXPKTS"] = 1
+    opt["MAXPKTS"] = 2
+    opt["PADDING"] = padding unless padding.nil?
     client.automotive.send_isotp_and_wait_for_response(bus, src_id, dst_id, [0x27, response_level] + key, opt)
   end
 
@@ -791,9 +829,10 @@ module UDS
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
   # @param id [Array] 2 Bytes in an array of the identifier.  Example [ 0xF1, 0x90 ]
   # @param data [Array] Array of bytes to write
+  # @param opt [Hash] Optional settings. PADDING if set uses this hex value for padding
   #
   # @return [Hash] Packet hash from client.automotive
-  def write_data_by_id(bus, src_id, dst_id, id, data)
+  def write_data_by_id(bus, src_id, dst_id, id, data, opt = {})
     unless client.automotive
       print_error("Not an automotive hwbridge session")
       return {}
@@ -815,8 +854,11 @@ module UDS
       print_line("No active bus, use 'connect' or specify bus via the options")
       return {}
     end
+    padding = nil
+    padding = opt['PADDING'] if opt.key? 'PADDING'
     opt = {}
     opt["MAXPKTS"] = 1
+    opt["PADDING"] = padding unless padding.nil?
     client.automotive.send_isotp_and_wait_for_response(bus, src_id, dst_id, [0x27] + id + data, opt)
   end
 
@@ -871,10 +913,11 @@ module UDS
   # @param bus [String] unique CAN bus identifier
   # @param src_id [Integer] Integer representation of the Sending CAN ID
   # @param dst_id [Integer] Integer representation of the receiving CAN ID
-  # @param suppress_response [Boolean] By default suppress ACK from ECU.  Set to false if you want confirmation
+  # @param opt [Hash] Optional arguments such as: PADDING if set uses this hex value for padding
+  #    SUPPRESS_RESPONSE By default suppress ACK from ECU.  Set to false if you want confirmation
   #
   # @return [Hash] Packet hash from client.automotive.  Typically blank unless suppress_response is false
-  def send_tester_present(bus, src_id, dst_id, suppress_response = true)
+  def send_tester_present(bus, src_id, dst_id, opt = {})
     unless client.automotive
       print_error("Not an automotive hwbridge session")
       return {}
@@ -886,10 +929,13 @@ module UDS
       print_line("No active bus, use 'connect' or specify bus via the options")
       return {}
     end
+    padding = nil
     suppress = 0x80
-    suppress = 0 unless suppress_response
+    suppress = 0 unless (opt.key? 'SUPRESS_RESPONSE') && opt['SUPRESS_RESPONSE'] == false
+    padding = opt['PADDING'] if opt.key? 'PADDING'
     opt = {}
     opt["MAXPKTS"] = 1
+    opt["PADDING"] = padding unless padding.nil?
     client.automotive.send_isotp_and_wait_for_response(bus, src_id, dst_id, [0x3E, suppress], opt)
   end
 

@@ -18,9 +18,6 @@ module Msf
           # Constant for a retry timeout on using modules before they're loaded
           CMD_USE_TIMEOUT = 3
 
-          # Constant for disclosure date formatting in search functions
-          DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
-
           @@search_opts = Rex::Parser::Arguments.new(
             "-h" => [ false, "Help banner."],
             "-S" => [ true, "Row search filter."],
@@ -401,49 +398,15 @@ module Msf
               end
             }
 
-            if framework.db
-              if framework.db.migrated && framework.db.modules_cached
-                search_modules_sql(match, search_term)
-                return
-              else
-                print_warning("Module database cache not built yet, using slow search")
-              end
-            else
-              print_warning("Database not connected, using slow search")
-            end
-
+            # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            [
-              framework.exploits,
-              framework.auxiliary,
-              framework.post,
-              framework.payloads,
-              framework.nops,
-              framework.encoders
-            ].each do |mset|
-              mset.each do |m|
-                o = mset.create(m[0]) rescue nil
-
-                # Expected if modules are loaded without the right pre-requirements
-                next if not o
-
-                if not o.search_filter(match)
-                  tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
-                end
-              end
-            end
-            print_line(tbl.to_s)
-
-          end
-
-          # Prints table of modules matching the search_string.
-          #
-          # @param (see Msf::DBManager#search_modules)
-          # @return [void]
-          def search_modules_sql(search_string, search_term = nil)
-            tbl = generate_module_table("Matching Modules", search_term)
-            framework.db.search_modules(search_string).each do |o|
-              tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), RankingName[o.rank].to_s, o.name ]
+            framework.search(match, logger: self).each do |m|
+              tbl << [
+                m.fullname,
+                m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
+                RankingName[m.rank].to_s,
+                m.name
+              ]
             end
             print_line(tbl.to_s)
           end
@@ -687,7 +650,7 @@ module Msf
           #
           # Command to take to the previously active module
           #
-          def cmd_previous()
+          def cmd_previous(*args)
             if @previous_module
               self.cmd_use(@previous_module.fullname)
             else
@@ -1154,7 +1117,12 @@ module Msf
                     end
                   end
                   if (opts == nil or show == true)
-                    tbl << [ refname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
+                    tbl << [
+                      refname,
+                      o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
+                      o.rank_to_s,
+                      o.name
+                    ]
                   end
                 end
               end

@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'zlib'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})
@@ -111,5 +110,4 @@ class MetasploitModule < Msf::Auxiliary
     pdf << "%%EOF" << eol
 
   end
-
 end

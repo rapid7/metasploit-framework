@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
 
@@ -125,5 +122,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return true # set response to true
   end
-
 end

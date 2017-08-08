@@ -106,7 +106,7 @@ require 'msf/core/exe/segment_appender'
   # @return           [String]
   # @return           [NilClass]
   def self.to_executable(framework, arch, plat, code = '', opts = {})
-    if elf? code
+    if elf? code or macho? code
       return code
     end
 
@@ -2148,15 +2148,19 @@ require 'msf/core/exe/segment_appender'
         end
       end
     when 'macho', 'osx-app'
-      macho = case arch
-      when ARCH_X86,nil
-        to_osx_x86_macho(framework, code, exeopts)
-      when ARCH_X64
-        to_osx_x64_macho(framework, code, exeopts)
-      when ARCH_ARMLE
-        to_osx_arm_macho(framework, code, exeopts)
-      when ARCH_PPC
-        to_osx_ppc_macho(framework, code, exeopts)
+      if macho? code
+        macho = code
+      else
+        macho = case arch
+        when ARCH_X86,nil
+          to_osx_x86_macho(framework, code, exeopts)
+        when ARCH_X64
+          to_osx_x64_macho(framework, code, exeopts)
+        when ARCH_ARMLE
+          to_osx_arm_macho(framework, code, exeopts)
+        when ARCH_PPC
+          to_osx_ppc_macho(framework, code, exeopts)
+        end
       end
       fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho
     when 'vba'
@@ -2282,6 +2286,10 @@ require 'msf/core/exe/segment_appender'
 
   def self.elf?(code)
     code[0..3] == "\x7FELF"
+  end
+
+  def self.macho?(code)
+    code[0..3] == "\xCF\xFA\xED\xFE" || code[0..3] == "\xCE\xFA\xED\xFE" || code[0..3] == "\xCA\xFE\xBA\xBE" 
   end
 
 end
