@@ -55,7 +55,7 @@ meterpreter > pwd
 
 **cd**
 
-The cd command allows you to change directories. Example:
+The ```cd``` command allows you to change directories. Example:
 
 ```
 meterpreter > cd /tmp
@@ -63,7 +63,7 @@ meterpreter > cd /tmp
 
 **cat**
 
-The cat command allows you to see the content of a file:
+The ```cat``` command allows you to see the content of a file:
 
 ```
 meterpreter > cat /tmp/data.txt
@@ -98,7 +98,7 @@ interfaces on the remote machine.
 
 **getuid**
 
-The getuid command tells you the current user that Meterpreter is running on. For example:
+The ```getuid``` command tells you the current user that Meterpreter is running on. For example:
 
 ```
 meterpreter > getuid
@@ -121,7 +121,7 @@ The ```ps``` command lists the running processes on the remote machine.
 
 **shell**
 
-The shell command allows you to interact with the remote machine's terminal (or shell). For
+The ```shell``` command allows you to interact with the remote machine's terminal (or shell). For
 example:
 
 ```
@@ -139,7 +139,7 @@ If you wish to get back to Meterpreter, do [CTRL]+[Z] to background the channel 
 
 **sysinfo**
 
-The sysinfo command shows you basic information about the remote machine. Such as:
+The ```sysinfo``` command shows you basic information about the remote machine. Such as:
 
 * Computer name
 * OS name
