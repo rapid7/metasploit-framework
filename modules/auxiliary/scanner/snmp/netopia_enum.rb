@@ -1,10 +1,9 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -86,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
      loot_filename = "netopia_wifi.txt"
      loot_desc     = "Netopia Wifi configuration data"
      p = store_loot(loot_name, loot_type, datastore['RHOST'], wifiinfo , loot_filename, loot_desc)
-     print_status("WIFI Data saved: #{p}")
+     print_good("WiFi Data saved: #{p}")
 
      rescue ::SNMP::UnsupportedVersion
      rescue ::SNMP::RequestTimeout

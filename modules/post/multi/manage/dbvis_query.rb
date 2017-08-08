@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Unix
 
@@ -219,6 +218,5 @@ class MetasploitModule < Msf::Post
     end
     return error
   end
-
 end
 

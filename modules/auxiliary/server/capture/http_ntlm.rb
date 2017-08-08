@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,7 +12,6 @@ NTLM_CRYPT = Rex::Proto::NTLM::Crypt
 MESSAGE = Rex::Proto::NTLM::Message
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 

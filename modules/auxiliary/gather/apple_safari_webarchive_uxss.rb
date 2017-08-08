@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'msf/core/exploit/format/webarchive'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Exploit::Format::Webarchive

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        print_good("#{ip}:#{rport} - ACPP LOGIN SUCCESSFUL: #{password}")
+        print_good("#{ip}:#{rport} - ACPP Login Successful: #{password}")
         report_vuln(
           host: ip,
           port: rport,

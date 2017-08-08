@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
 
 class MetasploitModule < Msf::Encoder::Xor
 
@@ -62,5 +60,4 @@ class MetasploitModule < Msf::Encoder::Xor
   def saved_registers
     Rex::Arch::X86.register_names_to_ids(datastore['SaveRegisters'])
   end
-
 end

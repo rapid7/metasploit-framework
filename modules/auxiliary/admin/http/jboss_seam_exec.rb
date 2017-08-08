@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -88,9 +87,9 @@ class MetasploitModule < Msf::Auxiliary
 
 
       if (res and res.headers['Location'] =~ %r(pwned=java.lang.UNIXProcess))
-        print_status("Exploited successfully")
+        print_good("Exploited successfully")
       else
-        print_status("Exploit failed.")
+        print_error("Exploit failed")
       end
     else
       print_error("Target appears not vulnerable!")

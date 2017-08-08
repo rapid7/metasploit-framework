@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res.body =~ /dwr.engine._remoteHandleCallback/
-      fail_with Failure::UnexpectedReply, "#{peer} Export failed."
+      fail_with Failure::UnexpectedReply, "#{peer} Export failed"
     end
 
     config_data = res.body.scan(/dwr.engine._remoteHandleCallback\('\d*','\d*',"(.+)"\);/).flatten.first

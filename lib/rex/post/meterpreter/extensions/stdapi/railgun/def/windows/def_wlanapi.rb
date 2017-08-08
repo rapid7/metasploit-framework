@@ -7,10 +7,10 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_wlanapi
+class Def_windows_wlanapi
 
-  def self.create_dll(constant_manager, dll_path = 'wlanapi')
-    dll = DLL.new(dll_path, constant_manager)
+  def self.create_library(constant_manager, library_path = 'wlanapi')
+    dll = Library.new(library_path, constant_manager)
 
 
     dll.add_function( 'WlanOpenHandle', 'DWORD',[

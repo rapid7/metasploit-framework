@@ -7,10 +7,10 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_iphlpapi
+class Def_windows_iphlpapi
 
-  def self.create_dll(constant_manager, dll_path = 'iphlpapi')
-    dll = DLL.new(dll_path, constant_manager)
+  def self.create_library(constant_manager, library_path = 'iphlpapi')
+    dll = Library.new(library_path, constant_manager)
 
     dll.add_function('CancelIPChangeNotify', 'BOOL',[
       ["PBLOB","notifyOverlapped","in"],

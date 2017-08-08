@@ -512,7 +512,7 @@ class Console::CommandDispatcher::Android
       '-h' => [ false, 'Help Banner' ],
       '-d' => [ true, 'Destination number' ],
       '-t' => [ true, 'SMS body text' ],
-      '-dr' => [ false, 'Wait for delivery report' ]
+      '-r' => [ false, 'Wait for delivery report' ]
     )
 
     dest = ''
@@ -530,7 +530,7 @@ class Console::CommandDispatcher::Android
         dest = val
       when '-t'
         body = val
-      when '-dr'
+      when '-r'
         dr = true
       end
     end

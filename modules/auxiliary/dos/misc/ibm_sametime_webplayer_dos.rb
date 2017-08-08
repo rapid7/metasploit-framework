@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -216,7 +215,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Unable to connect")
       return nil
     rescue ::Errno::ECONNRESET
-      print_status("DoS packet successful, host not responding.")
+      print_good("DoS packet successful, host not responding.")
       return nil
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
       print_status("Couldn't connect")

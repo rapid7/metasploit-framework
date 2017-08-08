@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -50,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         result = res.body.scan(urlregex).uniq
 
         result.each do |u|
-          print_status("Found file or directory in WebDAV response (#{target_host}) #{u}")
+          print_good("Found file or directory in WebDAV response (#{target_host}) #{u}")
 
           report_note(
             :host	=> target_host,

@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 
@@ -33,6 +32,8 @@ class MetasploitModule < Msf::Auxiliary
           ],
       'References'     =>
         [
+          [ 'AKA', 'DOUBLEPULSAR' ],
+          [ 'AKA', 'ETERNALBLUE' ],
           [ 'CVE', '2017-0143'],
           [ 'CVE', '2017-0144'],
           [ 'CVE', '2017-0145'],
@@ -94,9 +95,9 @@ class MetasploitModule < Msf::Auxiliary
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
-        print_bad("Host does NOT appear vulnerable.")
+        print_error("Host does NOT appear vulnerable.")
       else
-        print_bad("Unable to properly detect if host is vulnerable.")
+        print_error("Unable to properly detect if host is vulnerable.")
       end
 
     rescue ::Interrupt

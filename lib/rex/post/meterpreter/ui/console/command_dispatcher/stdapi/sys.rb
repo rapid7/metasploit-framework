@@ -259,7 +259,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
         cmd_execute("-f", path, "-c", "-H", "-i")
       end
-    when 'linux'
+    when 'linux', 'osx'
       # Don't expand_path() this because it's literal anyway
       path = "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")

