@@ -12,7 +12,7 @@ module Msf
     end
 
     def normalize(value)
-      if value.to_s.match?(/^0x[a-fA-F\d]+$/)
+      if value.to_s.match(/^0x[a-fA-F\d]+$/)
         value.to_i(16)
       elsif value.present?
         value.to_i
