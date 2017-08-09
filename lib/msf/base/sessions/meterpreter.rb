@@ -174,7 +174,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       end
 
       ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
-        unless datastore[key].empty?
+        unless datastore[key].nil? || datastore[key].empty?
           args = Shellwords.shellwords(datastore[key])
           print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
           session.execute_script(args.shift, *args)
