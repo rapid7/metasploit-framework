@@ -36,6 +36,7 @@ RUN apk update && \
       ncurses-dev \
       git \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
+    && gem install bundler \
     && bundle install --system $BUNDLER_ARGS \
     && apk del .ruby-builddeps \
     && rm -rf /var/cache/apk/*
