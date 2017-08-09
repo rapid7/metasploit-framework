@@ -13,7 +13,7 @@
   Example steps in this format (is also in the PR):
 
   1. Start msfconsole
-  1. Do: `use auxiliary/dos/smb/smb_lorris`
+  1. Do: `use auxiliary/dos/smb/smb_loris`
   1. Do: `set RHOST [IP]`
   1. Do: `run`
   1. Target should allocate increasing amounts of memory.

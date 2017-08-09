@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
           nsock.setsockopt(Socket::Option.int(:INET, :TCP, :KEEPINTVL, 10))
           nsock.setsockopt(linger)
           nsock.write(header.to_binary_s)
-          sockets[src_port] = nsock       g
+          sockets[src_port] = nsock
         rescue ::Exception => e
           print_error "Exception sending packet: #{e.message}"
         end
