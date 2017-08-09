@@ -95,7 +95,6 @@ class ClientCore < Extension
       }
     }
 
-    # Create the migrate stager
     stager = c.new()
 
     stage_opts[:transport_config] = [stager.transport_config_reverse_named_pipe(stage_opts)]
@@ -651,7 +650,7 @@ class ClientCore < Extension
       # Sleep for 5 seconds to allow the full handoff, this prevents
       # the original process from stealing our loadlib requests
       ::IO.select(nil, nil, nil, 5.0)
-    else
+    elsif client.pivot_session.nil?
       # Prevent new commands from being sent while we finish migrating
       client.comm_mutex.synchronize do
         # Disable the socket request monitor
