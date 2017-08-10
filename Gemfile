@@ -3,10 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-# These pull in pre-release gems in order to fix specific issues.
-# XXX https://github.com/alexdalitz/dnsruby/pull/134
-gem 'dnsruby', git: 'https://github.com/alexdalitz/dnsruby'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
