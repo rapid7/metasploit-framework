@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.15.6)
+    metasploit-framework (4.15.7)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -135,7 +135,7 @@ GEM
       multi_json (~> 1.11)
       os (~> 0.9)
       signet (~> 0.7)
-    grpc (1.4.1)
+    grpc (1.4.5)
       google-protobuf (~> 3.1)
       googleauth (~> 0.5.1)
     hashery (2.1.2)
@@ -159,7 +159,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-credential (2.0.11)
+    metasploit-credential (2.0.12)
       metasploit-concern
       metasploit-model
       metasploit_data_models
@@ -306,7 +306,7 @@ GEM
     rspec-mocks (3.6.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.6.0)
-    rspec-rails (3.6.0)
+    rspec-rails (3.6.1)
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       railties (>= 3.0)
