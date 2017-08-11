@@ -1,12 +1,9 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -44,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWD', [ true, 'The default Admin password', '7654321']),
         OptInt.new('TIMEOUT', [true, 'Timeout for printer probe', 20])
 
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -141,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
     loot_filename = "Canon-addressbook.text"
     loot_desc     = "Canon Addressbook Harvester"
     p = store_loot(loot_name, loot_type, datastore['RHOST'], address_book , loot_filename, loot_desc)
-    print_status("Credentials saved in: #{p}")
+    print_good("Credentials saved in: #{p}")
 
     harvest_ldif(address_book, ip)
   end
@@ -211,5 +208,4 @@ class MetasploitModule < Msf::Auxiliary
       users << user_attributes
     end
   end
-
 end

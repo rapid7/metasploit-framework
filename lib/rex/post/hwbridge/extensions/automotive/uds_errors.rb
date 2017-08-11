@@ -56,8 +56,8 @@ ERR_MNEMONIC = {
   0x78 => "RCRRP",
   0x7E => "SFNSIAS",
   0x7F => "SNSIAS",
-  0x81 => "RTH",
-  0x82 => "RTL",
+  0x81 => "RPMTH",
+  0x82 => "RPMTL",
   0x83 => "EIR",
   0x84 => "EINR",
   0x85 => "ERTTL",
@@ -100,8 +100,8 @@ ERR_DESC = {
   "RCRRP" => "Request Correctly Received, but Response is Pending",
   "SFNSIAS" => "Sub-Function Not Supoorted In Active Session",
   "SNSIAS" => "Service Not Supported In Active Session",
-  "RTH" => "RPM Too High",
-  "RTL" => "RPM Too Low",
+  "RPMTH" => "RPM Too High",
+  "RPMTL" => "RPM Too Low",
   "EIR" => "Engine is Running",
   "EINR" => "Engine is not Running",
   "ERTTL" => "Engine Run Time Too Low",
@@ -117,7 +117,7 @@ ERR_DESC = {
   "SLNIP" => "Shifter Lever Not In Park",
   "TCCL" => "Torque Converter Clutch Locked",
   "VTH" => "Voltage Too High",
-  "VTL" => "Voltage Too Low" 
+  "VTL" => "Voltage Too Low"
 }
 
 end

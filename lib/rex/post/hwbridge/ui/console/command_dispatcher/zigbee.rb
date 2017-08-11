@@ -100,7 +100,7 @@ class Console::CommandDispatcher::Zigbee
         chan = val.to_i
       end
     end
-    if !dev
+    unless dev
       print_line("You must specify or set a target device")
       return
     end

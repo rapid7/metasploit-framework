@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -26,12 +24,12 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH',  [ true,  "The test path to find trace.axd file", '/']),
         OptBool.new('TRACE_DETAILS', [ true,  "Display trace.axd details", true ])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('StoreFile', [ false,  "Store all information into a file", './trace_axd.log'])
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)
@@ -51,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
 
       if res and res.body.include?("<td><h1>Application Trace</h1></td>")
-        print_status("[#{target_host}] #{tpath}trace.axd FOUND.")
+        print_good("[#{target_host}] #{tpath}trace.axd FOUND.")
 
         report_note(
             :host	=> target_host,
@@ -86,26 +84,26 @@ class MetasploitModule < Msf::Auxiliary
                 /<td>Via<\/td><td>(\w+.*)<\/td>/,/<td>LOCAL_ADDR<\/td><td>(\w+.*)<\/td>/,
                 /<td>ALL_RAW<\/td><td>((.+\n)+)<\/td>/
               ]
-              print_status ("DETAIL: #{turl}")
+              print_status("DETAIL: #{turl}")
               reg_info.each do |reg|
                 result = res.body.scan(reg).flatten.map{|s| s.strip}.uniq
                 str = result.to_s.chomp
 
 
                 if reg.to_s.include?"APPL_PHYSICAL_PATH"
-                  print_status ("Physical Path: #{str}")
+                  print_status("Physical Path: #{str}")
                 elsif reg.to_s.include?"UserId"
-                  print_status ("User ID: #{str}")
+                  print_status("User ID: #{str}")
                 elsif reg.to_s.include?"Password"
-                  print_status ("Password: #{str}")
+                  print_status("Password: #{str}")
                 elsif reg.to_s.include?"AspFilterSessionId"
-                  print_status ("Session ID: #{str}")
+                  print_status("Session ID: #{str}")
                 elsif reg.to_s.include?"LOCAL_ADDR"
-                  print_status ("Local Address: #{str}")
+                  print_status("Local Address: #{str}")
                 elsif result.include?"Via"
-                  print_status ("VIA: #{str}")
+                  print_status("VIA: #{str}")
                 elsif reg.to_s.include?"ALL_RAW"
-                  print_status ("Headers: #{str}")
+                  print_status("Headers: #{str}")
                 end
               end
             end

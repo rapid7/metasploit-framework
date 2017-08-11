@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
 
@@ -34,7 +29,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptInt.new('SIZE', [ true, 'Size in bytes to set for Max Storage'])
-      ], self.class)
+      ])
 
   end
 

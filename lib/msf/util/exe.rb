@@ -106,7 +106,7 @@ require 'msf/core/exe/segment_appender'
   # @return           [String]
   # @return           [NilClass]
   def self.to_executable(framework, arch, plat, code = '', opts = {})
-    if elf? code
+    if elf? code or macho? code
       return code
     end
 
@@ -887,9 +887,10 @@ require 'msf/core/exe/segment_appender'
     zip = Rex::Zip::Archive.new
     zip.add_file("#{app_name}/", '')
     zip.add_file("#{app_name}/Contents/", '')
-    zip.add_file("#{app_name}/Contents/MacOS/", '')
     zip.add_file("#{app_name}/Contents/Resources/", '')
-    zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe)
+    zip.add_file("#{app_name}/Contents/MacOS/", '')
+    # Add the macho and mark it as executable
+    zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe).last.attrs = 0x10
     zip.add_file("#{app_name}/Contents/Info.plist", info_plist)
     zip.add_file("#{app_name}/Contents/PkgInfo", 'APPLaplt')
     zip.pack
@@ -1048,7 +1049,18 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_x64_linux.bin", code)
   end
 
-  # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
+  # Create a 32-bit x86 Linux ELF_DYN containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_x86_elf_dll(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_x86_linux_dll.bin", code)
+  end
+
+  # Create a 64-bit x86_64 Linux ELF_DYN containing the payload provided in +code+
   #
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -1059,7 +1071,7 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_x64_linux_dll.bin", code)
   end
 
-  # self.to_linux_mipsle_elf
+  # Create a 32-bit ARMLE Linux ELF containing the payload provided in +code+
   #
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -1070,7 +1082,18 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_armle_linux.bin", code)
   end
 
-  # self.to_linux_mipsle_elf
+  # Create a 32-bit ARMLE Linux ELF_DYN containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_armle_elf_dll(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_armle_linux_dll.bin", code)
+  end
+
+  # Create a 32-bit MIPSLE Linux ELF containing the payload provided in +code+
   # Little Endian
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -1081,7 +1104,7 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
   end
 
-  # self.to_linux_mipsbe_elf
+  # Create a 32-bit MIPSBE Linux ELF containing the payload provided in +code+
   # Big Endian
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -2116,20 +2139,28 @@ require 'msf/core/exe/segment_appender'
       end
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
+        when ARCH_X86
+          to_linux_x86_elf_dll(framework, code, exeopts)
         when ARCH_X64
           to_linux_x64_elf_dll(framework, code, exeopts)
+        when ARCH_ARMLE
+          to_linux_armle_elf_dll(framework, code, exeopts)
         end
       end
     when 'macho', 'osx-app'
-      macho = case arch
-      when ARCH_X86,nil
-        to_osx_x86_macho(framework, code, exeopts)
-      when ARCH_X64
-        to_osx_x64_macho(framework, code, exeopts)
-      when ARCH_ARMLE
-        to_osx_arm_macho(framework, code, exeopts)
-      when ARCH_PPC
-        to_osx_ppc_macho(framework, code, exeopts)
+      if macho? code
+        macho = code
+      else
+        macho = case arch
+        when ARCH_X86,nil
+          to_osx_x86_macho(framework, code, exeopts)
+        when ARCH_X64
+          to_osx_x64_macho(framework, code, exeopts)
+        when ARCH_ARMLE
+          to_osx_arm_macho(framework, code, exeopts)
+        when ARCH_PPC
+          to_osx_ppc_macho(framework, code, exeopts)
+        end
       end
       fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho
     when 'vba'
@@ -2255,6 +2286,10 @@ require 'msf/core/exe/segment_appender'
 
   def self.elf?(code)
     code[0..3] == "\x7FELF"
+  end
+
+  def self.macho?(code)
+    code[0..3] == "\xCF\xFA\xED\xFE" || code[0..3] == "\xCE\xFA\xED\xFE" || code[0..3] == "\xCA\xFE\xBA\xBE" 
   end
 
 end

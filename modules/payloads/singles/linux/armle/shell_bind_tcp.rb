@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -115,7 +114,7 @@ module MetasploitModule
       [
         OptString.new('SHELL', [ true, "The shell to execute.", "/system/bin/sh" ]),
         OptString.new('ARGV0', [ false, "argv[0] to pass to execve", "sh" ]) # mostly used for busybox
-      ], self.class)
+      ])
   end
 
   def generate
@@ -137,5 +136,4 @@ module MetasploitModule
 
     p
   end
-
 end

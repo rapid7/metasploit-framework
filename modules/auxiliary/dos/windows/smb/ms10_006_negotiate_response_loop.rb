@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Auxiliary::Dos
 
@@ -32,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptPort.new('SRVPORT', [ true, "The SMB port to listen on", 445 ])
-    ], self.class)
+    ])
   end
 
   def run

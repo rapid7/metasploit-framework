@@ -27,26 +27,13 @@ class Console::CommandDispatcher::Lanattacks::Tftp
       "tftp_reset"    => "Reset the TFTP server",
       "tftp_add_file" => "Add a file to the TFTP server"
     }
-
     reqs = {
       "tftp_start"    => [ "lanattacks_start_tftp" ],
       "tftp_stop"     => [ "lanattacks_stop_tftp" ],
       "tftp_reset"    => [ "lanattacks_reset_tftp" ],
       "tftp_add_file" => [ "lanattacks_add_tftp_file" ],
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #

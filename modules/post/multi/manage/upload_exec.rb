@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
       [
         OptPath.new('LFILE', [true,'Local file to upload and execute']),
         OptString.new('RFILE', [false,'Name of file on target (default is basename of LFILE)']),
-      ], self.class)
+      ])
   end
 
   def rfile
@@ -47,6 +47,5 @@ class MetasploitModule < Msf::Post
     end
     rm_f(rfile)
   end
-
 end
 

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('WEBACCESSUSER', [true, 'Username for Advantech WebAccess', 'admin']),
         OptString.new('WEBACCESSPASS', [false, 'Password for Advantech WebAccess', '']),
         OptString.new('TARGETURI', [true, 'The base path to Advantech WebAccess', '/']),
-      ], self.class)
+      ])
   end
 
   def do_login
@@ -171,5 +168,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

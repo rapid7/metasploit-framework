@@ -1,11 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
 require 'msf/core/auxiliary/report'
 
@@ -126,5 +123,4 @@ class MetasploitModule < Msf::Post
     aes.iv = iv if iv != nil
     aes.update(encrypted_data) + aes.final
   end
-
 end

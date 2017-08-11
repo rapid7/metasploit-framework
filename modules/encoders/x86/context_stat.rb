@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/poly'
-require 'msf/core'
 
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
           "STAT key from target host (see tools/context/stat-key utility)",
           "0x00000000" ]),
         OptString.new('STAT_FILE', [ true, "name of file to stat(2)", "/bin/ls" ]),
-      ], self.class)
+      ])
   end
 
   def obtain_key(buf, badchars, state)
@@ -197,5 +196,4 @@ protected
       Rex::Arch::X86::ESP,
       Rex::Arch::X86::ECX ], nil, state.badchars)
   end
-
 end

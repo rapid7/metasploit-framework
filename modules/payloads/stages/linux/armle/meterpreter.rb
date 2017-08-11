@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -81,6 +81,7 @@ module MetasploitModule
   end
 
   def generate_stage(opts = {})
-    MetasploitPayloads::Mettle.new('armv5l-linux-musleabi', generate_config(opts)).to_binary :process_image
+    MetasploitPayloads::Mettle.new('armv5l-linux-musleabi',
+      generate_config(opts.merge({scheme: 'tcp'}))).to_binary :process_image
   end
 end

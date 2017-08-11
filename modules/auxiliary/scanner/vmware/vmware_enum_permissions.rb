@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ntlm/message'
-
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
@@ -19,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'VMWare Enumerate Permissions',
       'Description'    => %Q{
         This module will log into the Web API of VMWare and try to enumerate
-        all the user/group permissions. Unlike enum suers this is only
+        all the user/group permissions. Unlike enum users this is only
         users and groups that specifically have permissions defined within
         the VMware product
       },
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
-      ], self.class)
+      ])
   end
 
 
@@ -43,11 +40,11 @@ class MetasploitModule < Msf::Auxiliary
       esx_roles = vim_get_roles
       case esx_roles
       when :noresponse
-        print_error "Recieved no Response from #{ip}"
+        print_error "Received no response from #{ip}"
       when :expired
         print_error "The login session appears to have expired on #{ip}"
       when :error
-        print_error "An error occured while trying to enumerate the roles on #{ip}"
+        print_error "An error occurred while trying to enumerate the roles on #{ip}"
       else
         esx_roles.each do |role|
           role_map[role['roleId']] = {
@@ -61,11 +58,11 @@ class MetasploitModule < Msf::Auxiliary
       esx_permissions = vim_get_all_permissions
       case esx_permissions
       when :noresponse
-        print_error "Recieved no Response from #{ip}"
+        print_error "Received no response from #{ip}"
       when :expired
         print_error "The login session appears to have expired on #{ip}"
       when :error
-        print_error "An error occured while trying to enumerate the permissions on #{ip}"
+        print_error "An error occurred while trying to enumerate the permissions on #{ip}"
       else
         tmp_perms = Rex::Text::Table.new(
             'Header'  => "Permissions for VMWare #{ip}",
@@ -80,12 +77,11 @@ class MetasploitModule < Msf::Auxiliary
         print_good tmp_perms.to_s
 
         f = store_loot('host.vmware.permissions', "text/plain", datastore['RHOST'], tmp_perms.to_csv , "#{datastore['RHOST']}_esx_permissions.txt", "VMWare ESX Permissions")
-        vprint_status("Permission info stored in: #{f}")
+        vprint_good("Permission info stored in: #{f}")
       end
     else
-      print_error "Login Failure on #{ip}"
+      print_error "Login failure on #{ip}"
       return
     end
   end
-
 end

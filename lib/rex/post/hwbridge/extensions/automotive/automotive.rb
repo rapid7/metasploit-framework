@@ -41,7 +41,7 @@ class Automotive < Extension
     valid = false
     get_supported_buses if buses.nil?
     unless bus.blank?
-      buses.each do |b|
+      self.buses.each do |b|
         valid = true if b["bus_name"] == bus
       end
     end
@@ -81,13 +81,25 @@ class Automotive < Extension
     arr.map { |b| "%02x" % (b.respond_to?("hex") ? b.hex : b ) }
   end
 
+  #
+  # Pad the end of a packet with a set byte until it is 8 bytes long
+  #
+  # @param data [Array] Packet to padd
+  # @param padding [Integer] Expected single byte 0x00 style argument
+  # @return [Array] Packet as data
+  def padd_packet(data, padding)
+    return data if padding.nil?
+    return data if data.size > 7
+    data + [ padding ] * (8 - data.size)
+  end
+
   def set_active_bus(bus)
     self.active_bus = bus
   end
 
   def get_supported_buses
-    buses = client.send_request("/automotive/supported_buses")
-    buses
+    self.buses = client.send_request("/automotive/supported_buses")
+    self.buses
   end
 
   def get_bus_config(bus)
@@ -107,6 +119,7 @@ class Automotive < Extension
     # TODO: Implement sending ISO-TP > 8 bytes
     data = [ data ] if data.is_a? Integer
     if data.size < 8
+      data = padd_packet(data, opt['PADDING']) if opt.key? 'PADDING'
       data = array2hex(data).join
       request_str = "/automotive/#{bus}/isotpsend_and_wait?srcid=#{src_id}&dstid=#{dst_id}&data=#{data}"
       request_str += "&timeout=#{opt['TIMEOUT']}" if opt.key? "TIMEOUT"

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -74,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     counter = 0;
     headers_uppercase.each do |h|
       header_string = "#{h[0]}: #{h[1]}"
-      print_status "#{peer}: #{header_string}"
+      print_good "#{peer}: #{header_string}"
 
       report_note(
         :type => "http.header.#{rport}.#{counter}",
@@ -90,5 +87,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good "#{peer}: detected #{counter} headers"
     end
   end
-
 end

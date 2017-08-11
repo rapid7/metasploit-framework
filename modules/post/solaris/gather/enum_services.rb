@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Solaris::System
 
@@ -34,7 +30,7 @@ class MetasploitModule < Msf::Post
     print_good("\t#{distro[:kernel]}")
     installed_pkg = get_services()
     pkg_loot = store_loot("solaris.services", "text/plain", session, installed_pkg, "configured_services.txt", "Solaris Configured Services")
-    print_status("Service list saved to loot file: #{pkg_loot}")
+    print_good("Service list saved to loot file: #{pkg_loot}")
     if datastore['VERBOSE']
       print_good("Services:")
 

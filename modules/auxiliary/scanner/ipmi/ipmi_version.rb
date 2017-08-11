@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ipmi'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(623)
-    ], self.class)
+    ])
 
   end
 
@@ -78,5 +75,4 @@ class MetasploitModule < Msf::Auxiliary
     # - Report a vulnerability if info.ipmi_user_null has been set (null username)
 
   end
-
 end

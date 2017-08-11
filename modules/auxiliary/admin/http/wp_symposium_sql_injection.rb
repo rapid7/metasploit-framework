@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('URI_PLUGIN', [true, 'The WordPress Symposium Plugin URI', 'wp-symposium'])
-      ], self.class)
+      ])
   end
 
   def check
@@ -144,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
 
     unless credentials.empty?
       loot = store_loot("wp_symposium.http","text/plain", rhost, credentials)
-      vprint_status("Credentials saved in: #{loot}")
+      vprint_good("Credentials saved in: #{loot}")
     end
   end
 end

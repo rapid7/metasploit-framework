@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
 
@@ -25,7 +21,7 @@ class MetasploitModule < Msf::Post
         OptBool.new("CURRENT" , [ true, "Enumerate currently configured shares"                  , true]),
         OptBool.new("RECENT"  , [ true, "Enumerate Recently mapped shares"                       , true]),
         OptBool.new("ENTERED" , [ true, "Enumerate Recently entered UNC Paths in the Run Dialog" , true])
-      ], self.class)
+      ])
 
   end
 
@@ -176,5 +172,4 @@ class MetasploitModule < Msf::Post
     end
 
   end
-
 end

@@ -214,8 +214,9 @@ module Session
 
     dstr  = sprintf("%.4d%.2d%.2d", dt.year, dt.mon, dt.mday)
     rhost = session_host.gsub(':', '_')
+    sname = name.to_s.gsub(/\W+/,'_')
 
-    "#{dstr}_#{rhost}_#{type}"
+    "#{dstr}_#{sname}_#{rhost}_#{type}"
   end
 
   #
@@ -384,6 +385,10 @@ module Session
   # The unique machine identifier for the host that created this session
   #
   attr_accessor :machine_id
+  #
+  # The guid that identifies an active Meterpreter session
+  #
+  attr_accessor :guid
   #
   # The actual exploit module instance that created this session
   #

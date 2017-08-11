@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require "net/dns/resolver"
 
 class MetasploitModule < Msf::Auxiliary
@@ -30,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         # OptAddressRange.new('RHOSTS', [false, "The target address, range, or CIDR identifier"]),
         OptString.new('HTTPBL_APIKEY', [ true, "Your HTTP:BL api key"])
-      ], self.class)
+      ])
   end
 
   # Not compatible today

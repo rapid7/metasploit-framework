@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options([
       OptString.new('KCPASSWORD_PATH', [true, 'Path to kcpassword file', '/private/etc/kcpassword'])
-    ], self.class)
+    ])
   end
 
   def run

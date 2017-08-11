@@ -516,26 +516,16 @@ module Msf
             return
           when '-S', '--search'
             search_term = /#{args.shift}/nmi
+          else
+            type = arg
           end
         end
 
         if !nessus_verify_token
           return
         end
-        case args.length
-        when 1
-          type = args[0]
-        else
-          print_status("Usage: ")
-          print_status("nessus_template_list <scan> | <policy>")
-          print_status("Example:> nessus_template_list scan")
-          print_status("OR")
-          print_status("nessus_template_list policy")
-          print_status("Returns a list of information about the scan or policy templates..")
-          return
-        end
         if type.in?(['scan', 'policy'])
-          list=@n.list_template(type)
+          list=@n.list_templates(type)
         else
           print_error("Only scan and policy are valid templates")
           return

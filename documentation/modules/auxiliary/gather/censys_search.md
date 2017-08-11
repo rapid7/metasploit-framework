@@ -9,9 +9,9 @@ The module use the Censys REST API to access the same data accessible through we
 5: Do: `set CENSYS_DORK rapid7`
 6: Do: `run`
 
-## Sample Output
+## Scenarios
 
-#### Certificates Search
+### Certificates Search
 
 ```
 msf auxiliary(censys_search) > set CENSYS_DORK rapid7

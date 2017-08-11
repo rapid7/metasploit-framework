@@ -69,7 +69,8 @@ module Payload::Java::MeterpreterLoader
       arch:       opts[:uuid].arch,
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: opts[:transport_config] || [transport_config(opts)]
+      transports: opts[:transport_config] || [transport_config(opts)],
+      stageless:  opts[:stageless] == true
     }
 
     # create the configuration instance based off the parameters

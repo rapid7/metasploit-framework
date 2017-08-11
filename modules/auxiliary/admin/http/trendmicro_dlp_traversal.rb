@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -43,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSL', [true, 'Use SSL', true]),
         OptPath.new('SENSITIVE_FILES', [ true, "File containing senstive files, one per line",
         File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-      ], self.class)
+      ])
   end
 
   def extract_words(wordfile)

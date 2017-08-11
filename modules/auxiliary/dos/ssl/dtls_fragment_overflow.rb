@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Dos
   include Exploit::Remote::Udp
 
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(4433),
       OptInt.new('VERSION', [true,  "SSl/TLS version", 0xFEFF])
-    ], self.class)
+    ])
 
   end
 

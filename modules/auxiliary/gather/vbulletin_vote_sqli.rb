@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -43,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new("NODE", [false, 'Valid Node ID']),
         OptInt.new("MINNODE", [true, 'Valid Node ID', 1]),
         OptInt.new("MAXNODE", [true, 'Valid Node ID', 100])
-      ], self.class)
+      ])
   end
 
   def exists_node?(id)

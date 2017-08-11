@@ -1,14 +1,12 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/dcerpc'
 require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(445),
         OptString.new('SMBDomain', [ false, "SMB Domain", '']),
-      ], self.class)
+      ])
 
     deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
   end
@@ -238,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
   def loot_unattend(data)
     return if data.empty?
     path = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
-    print_status("Stored unattend.xml in #{path}")
+    print_good("Stored unattend.xml in #{path}")
   end
 
   def report_creds(domain, user, pass)
@@ -251,6 +249,5 @@ class MetasploitModule < Msf::Auxiliary
       proof: domain
     )
   end
-
 end
 

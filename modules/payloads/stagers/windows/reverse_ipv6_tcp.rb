@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
 
@@ -64,7 +63,6 @@ module MetasploitModule
     register_options(
       [
         OptInt.new("SCOPEID", [false, "The IPv6 Scope ID, required for link-layer addresses", 0])
-      ], self.class)
+      ])
   end
-
 end

@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Encoder
   Rank = GreatRanking
@@ -98,5 +94,4 @@ class MetasploitModule < Msf::Encoder
 
     return "eval(base64_decode(" + b64 + "));"
   end
-
 end

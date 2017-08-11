@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 #
 # May I reuse some methods?
 #
@@ -13,7 +11,7 @@ require 'cgi'
 
 
 
-  class MetasploitModule < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
     include Msf::Exploit::Remote::HttpClient
     include Msf::Auxiliary::WmapScanServer
@@ -39,7 +37,7 @@ require 'cgi'
         OptString.new('DOMAIN', [ true,  "Domain name", '']),
         OptString.new('HEADERS', [ false,  "HTTP Headers", '']),
         OptPath.new('SUBDOM_LIST', [false, "Path to text file with subdomains"]),
-      ], self.class)
+      ])
 
     end
 
@@ -120,7 +118,7 @@ require 'cgi'
           if res and noexistsres
 
             if res.body !=  noexistsres.body
-              print_status("[#{ip}] Vhost found  #{thost} ")
+              print_good("[#{ip}] Vhost found  #{thost} ")
 
               report_note(
                 :host	=> ip,

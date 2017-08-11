@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/windows/mssql'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::MSSQL
 
   def initialize(info={})
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Post
         OptString.new('DB_PASSWORD',  [true, 'Password for new sysadmin login', '']),
         OptString.new('INSTANCE',  [false, 'Name of target SQL Server instance', nil]),
         OptBool.new('REMOVE_LOGIN',  [true, 'Remove DB_USERNAME login from database', false])
-      ], self.class)
+      ])
   end
 
   def run

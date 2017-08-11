@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   DEFAULT_ADMIN_TARGETS = [ 'services.exe', 'wininit.exe', 'svchost.exe', 'lsm.exe', 'lsass.exe', 'winlogon.exe' ]
@@ -40,7 +36,7 @@ class MetasploitModule < Msf::Post
         OptString.new('NAME',   [false, 'Process to migrate to. For sessions with User rights. (See Module Description.)']),
         OptBool.new(  'KILL',   [true, 'Kill original session process.', false]),
         OptBool.new(  'NOFAIL', [true,  'Migrate to user level process if Admin migration fails. May downgrade privileged shells.', false])
-      ], self.class)
+      ])
   end
 
   def run

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::OSX::System
   include Msf::Exploit::FileDropper
 
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('GETPASS_AUTO_ACCEPT', [false, 'Attempt to auto-accept any prompts when collecting passwords.', true]),
         OptInt.new('GETPASS_TIMEOUT', [false, 'Maximum time to wait on all passwords to be dumped.', 999999]),
         OptString.new('WritableDir', [true, 'Writable directory', '/.Trashes'])
-      ], self.class)
+      ])
   end
 
   def list_keychains

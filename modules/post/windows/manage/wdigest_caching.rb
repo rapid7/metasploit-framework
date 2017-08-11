@@ -1,5 +1,8 @@
-require 'msf/core'
-require 'rex'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -25,7 +28,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('ENABLE',[false,'Enable the WDigest Credential Cache.',true])
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued

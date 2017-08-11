@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -34,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'=> MSF_LICENSE,
       'References' => [
         [ 'URL', 'http://sourceforge.net/projects/smbexec' ],
-        [ 'URL', 'http://www.accuvant.com/blog/2012/11/13/owning-computers-without-shell-access' ]
+        [ 'URL', 'https://www.optiv.com/blog/owning-computers-without-shell-access' ]
       ]
     ))
 
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('VSCPATH', [false, 'The path to the target Volume Shadow Copy', '']),
       OptString.new('WINPATH', [true, 'The name of the Windows directory (examples: WINDOWS, WINNT)', 'WINDOWS']),
       OptBool.new('CREATE_NEW_VSC', [false, 'If true, attempts to create a volume shadow copy', false]),
-    ], self.class)
+    ])
 
   end
 
@@ -251,9 +249,8 @@ class MetasploitModule < Msf::Auxiliary
     if left.any?
       print_error("Unable to cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
     else
-      print_status("Cleanup was successful")
+      print_good("Cleanup was successful")
     end
     simple.disconnect("\\\\#{@ip}\\#{@smbshare}")
   end
-
 end

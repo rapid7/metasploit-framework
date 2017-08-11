@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -38,11 +35,11 @@ class MetasploitModule < Msf::Auxiliary
       OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
         File.join(Msf::Config.data_directory, "wordlists", "idrac_default_pass.txt") ]),
       OptInt.new('RPORT', [true, "Default remote port", 443])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptBool.new('SSL', [true, "Negotiate SSL connection", true])
-    ], self.class)
+    ])
   end
 
   def target_url
@@ -139,5 +136,4 @@ class MetasploitModule < Msf::Auxiliary
       return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
     end
   end
-
 end

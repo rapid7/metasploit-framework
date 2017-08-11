@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
   include Msf::Post::File
 
@@ -40,13 +36,13 @@ class MetasploitModule < Msf::Post
         OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID',
                 'explorer', ['explorer','winlogon','pid']])
 
-      ], self.class)
+      ])
     register_advanced_options(
       [
         OptBool.new('ShowKeystrokes',   [false, 'Show captured keystrokes', false]),
         OptEnum.new('TimeOutAction', [true, 'Action to take when session response timeout occurs.',
                 'wait', ['wait','exit']])
-      ], self.class)
+      ])
   end
 
   def run

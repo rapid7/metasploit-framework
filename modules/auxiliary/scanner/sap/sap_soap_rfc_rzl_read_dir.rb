@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,7 +20,6 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
@@ -54,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
       OptString.new('HttpPassword', [true, 'Password', '06071992']),
       OptString.new('DIR',[true,'Directory path (e.g. /etc)','/etc'])
-    ], self.class)
+    ])
   end
 
   def parse_xml(xml_data)

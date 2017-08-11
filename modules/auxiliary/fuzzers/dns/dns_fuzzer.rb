@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'bindata'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Fuzzer
@@ -50,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       # RR accepted values: KEY,GPOS,LOC,NXT,EID,NIMLOC,ATMA,KX,CERT,A6,DNAME,SINK,OPT,APL,SSHFP,IPSECKEY
       # RR accepted values: DHCID,HIP,NINFO,RKEY,TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG,IXFR,AXFR,MAILB
       # RR accepted values: MAIL,*,TA,DLV,RESERVED
-    ], self.class)
+    ])
   end
 
   class Dns_header < BinData::Record

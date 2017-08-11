@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Ftp
@@ -37,12 +35,12 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(21),
         OptString.new('FTPUSER', [true, "The backdoor account to use for login", 'ftpuser']),
         OptString.new('FTPPASS', [true, "The backdoor password to use for login", 'password'])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('RUN_CHECK', [false, "Check if the device is really a Modicon device", true])
-      ], self.class)
+      ])
 
   end
 
@@ -121,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status "#{ip}:#{rport} - FTP - Connecting"
     conn = connect_login
     if conn
-      print_status("#{ip}:#{rport} - FTP - Login succeeded")
+      print_good("#{ip}:#{rport} - FTP - Login succeeded")
       report_cred(
         ip: ip,
         port: rport,
@@ -132,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return true
     else
-      print_status("#{ip}:#{rport} - FTP - Login failed")
+      print_error("#{ip}:#{rport} - FTP - Login failed")
       return false
     end
   end
@@ -245,5 +243,4 @@ class MetasploitModule < Msf::Auxiliary
     # )
     print_line logins.to_s
   end
-
 end

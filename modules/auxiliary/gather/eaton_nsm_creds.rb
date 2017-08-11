@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -38,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(4679)
-      ], self.class)
+      ])
   end
 
   def execute_php_code(code, opts = {})
@@ -116,6 +113,6 @@ class MetasploitModule < Msf::Auxiliary
     loot_filename = "eaton_nsm_creds.csv"
     loot_desc     = "Eaton Network Shutdown Module Credentials"
     p = store_loot(loot_name, loot_type, datastore['RHOST'], cred_table.to_csv, loot_filename, loot_desc)
-    print_status("Credentials saved in: #{p.to_s}")
+    print_good("Credentials saved in: #{p.to_s}")
   end
 end

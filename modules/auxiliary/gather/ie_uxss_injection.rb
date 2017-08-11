@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer
 
   def initialize(info={})
@@ -43,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ]),
       OptString.new('CUSTOMJS', [ false, 'Custom JavaScript' ])
-    ], self.class)
+    ])
   end
 
   def setup
@@ -152,5 +149,4 @@ class MetasploitModule < Msf::Auxiliary
       send_response(cli, get_html)
     end
   end
-
 end

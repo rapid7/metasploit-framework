@@ -64,6 +64,13 @@ class Client
   end
 
   #
+  # Gets the devices statistics
+  #
+  def get_statistics
+    send_request("/statistics")
+  end
+
+  #
   # Fetches custom methods from HW, if any
   #
   def get_custom_methods

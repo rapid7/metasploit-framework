@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(11460)
-      ], self.class)
+      ])
   end
 
   def tv_pkt(opcode, p1="", p2="", p3="")
@@ -74,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(p)
     print_status("Packet sent!")
   rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => ex
-    print_status("Exploit failed: #{ex.class} #{ex.message}")
+    print_error("Exploit failed: #{ex.class} #{ex.message}")
     elog("#{ex.class} #{ex.message}\n#{ex.backtrace * "\n"}")
   ensure
     disconnect

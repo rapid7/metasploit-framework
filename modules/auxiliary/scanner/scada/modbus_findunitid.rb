@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
@@ -44,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('UNIT_ID_TO', [true, "ModBus Unit Identifier scan to value [UNIT_ID_FROM..254]", 254]),
         OptInt.new('BENICE', [true, "Seconds to sleep between StationID-probes, just for beeing nice", 1]),
         OptInt.new('TIMEOUT', [true, 'Timeout for the network probe, 0 means no timeout', 2])
-      ], self.class)
+      ])
   end
 
   def run
@@ -100,7 +98,7 @@ For testing purposes:
   http://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx
   and a modbus/tcp PLC simulator from plcsimulator.org
   and the Modbus SLAVE from http://www.modbustools.com/
-  
+
   Mission is to find Unit-ID/stationID of the modbus-endpoint:
   RHOST=IP of the modbus-service (PLC)
   RPORT=Usually 502

@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/hardware/automotive/uds'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Hardware::Automotive::UDS
 
   def initialize(info={})
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Post
       OptInt.new('STARTID', [true, "Start scan from this ID", 0x600]),
       OptInt.new('ENDID', [true, "End scan at this ID", 0x7F7]),
       OptString.new('CANBUS', [false, "CAN Bus to perform scan on, defaults to connected bus", nil])
-    ], self.class)
+    ])
     @found_id = []
   end
 
@@ -49,5 +46,4 @@ class MetasploitModule < Msf::Post
       print_line("  #{"%3x" % id}")
     end
   end
-
 end

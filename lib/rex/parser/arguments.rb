@@ -43,20 +43,20 @@ module Rex
             next
           end
 
-          if arg[0] == '-'
-            cfs = arg[0..2]
+          if arg.length > 1 && arg[0] == '-' && arg[1] != '-'
+            arg.split('').each do |flag|
+              fmt.each_pair do |fmtspec, val|
+                next if fmtspec != "-#{flag}"
 
-            fmt.each_pair do |fmtspec, val|
-              next if fmtspec != cfs
+                param = nil
 
-              param = nil
+                if val[0]
+                  param = args[idx + 1]
+                  skip_next = true
+                end
 
-              if val[0]
-                param = args[idx + 1]
-                skip_next = true
+                yield fmtspec, idx, param
               end
-
-              yield fmtspec, idx, param
             end
           else
             yield nil, idx, arg

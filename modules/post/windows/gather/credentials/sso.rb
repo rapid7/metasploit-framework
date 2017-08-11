@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/post/windows/priv'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 
@@ -152,6 +150,5 @@ class MetasploitModule < Msf::Post
 
     system_users.find{|r| user.to_s.match(r)}
   end
-
 end
 

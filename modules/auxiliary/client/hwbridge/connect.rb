@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/base/sessions/hwbridge'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -149,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status "HW Specialty: #{self.hw_specialty}  Capabilities: #{self.hw_capabilities}"
       print_disclaimer
     else
-      print_bad "Could not connect to API"
+      print_error "Could not connect to API"
     end
   end
 

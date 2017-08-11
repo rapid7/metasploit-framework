@@ -1,10 +1,9 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -33,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('TIMEOUT', [true, 'Timeout for printer connection probe.', 20]),
         OptInt.new('TCPDELAY', [true, 'Number of seconds the tcp server will wait before termination.', 20]),
         OptString.new('NewLDAPServer', [true, 'The IP address of the LDAP server you want the printer to connect back to.'])
-      ], self.class)
+      ])
   end
 
   def run
@@ -77,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     loot_filename = 'ldap-creds.text'
     loot_desc     = 'LDAP Pass-back Harvester'
     p = store_loot(loot_name, loot_type, datastore['RHOST'], @data, loot_filename, loot_desc)
-    print_status("Credentials saved in: #{p}")
+    print_good("Credentials saved in: #{p}")
 
     register_creds('ldap', rhost, @ldap_port, ldap_binary_creds[0], ldap_binary_creds[1])
   end
@@ -265,7 +264,7 @@ class MetasploitModule < Msf::Auxiliary
       }, datastore['TIMEOUT'].to_i)
 
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      print_error("Connection failed.")
+      print_error("Connection failed")
     end
 
     res

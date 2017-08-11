@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
   include Msf::Exploit::Remote::Ipv6
   include Msf::Auxiliary::Report
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       OptInt.new('TIMEOUT_NEIGHBOR', [true, "Time (seconds) to listen for a solicitation response.", 1])
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN', 'FILTER', 'RHOST', 'PCAPFILE')
   end
@@ -191,5 +188,4 @@ class MetasploitModule < Msf::Auxiliary
     # Close capture
     close_pcap()
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 32 ]),
         OptString.new('PATH', [ true, "Path to the file to disclose, releative to the root dir.", 'boot.ini'])
-      ], self.class)
+      ])
 
   end
 

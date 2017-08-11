@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       OptInt.new('LENGTH', [false, 'Payload length', 2500]),
-    ], self.class)
+    ])
   end
 
   def length
@@ -83,5 +81,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("target not vulnerable to GHOST")
     end
   end
-
 end

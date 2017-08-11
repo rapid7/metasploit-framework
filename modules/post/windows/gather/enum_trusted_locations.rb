@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/common'
 
 class MetasploitModule < Msf::Post
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Post
       arch = registry_arch == REGISTRY_VIEW_64_BIT ? ARCH_X64 : ARCH_X86
       reg_keys = registry_enumkeys(OFFICE_REGISTRY_PATH, registry_arch)
       if reg_keys.nil?
-        print_status("Failed to enumerate Office in #{arch} registry hive.")
+        print_error("Failed to enumerate Office in #{arch} registry hive.")
         return
       end
 

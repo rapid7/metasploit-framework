@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
@@ -31,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
-      ], self.class)
+      ])
 
     register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
   end
@@ -92,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       if res.code == 200
         img = res.body
         ss_path = store_loot("host.vmware.screenshot", "image/png", datastore['RHOST'], img, name , "Screenshot of VM #{name}")
-        print_status "Screenshot saved to #{ss_path}"
+        print_good "Screenshot saved to #{ss_path}"
       else
         print_error "Failed to retrieve screenshot at #{path} HTTP Response code #{res.code} "
       end
@@ -101,5 +96,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

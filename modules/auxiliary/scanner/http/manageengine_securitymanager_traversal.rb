@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The URI path to the web application', '/']),
         OptString.new('FILE',      [true, 'The file to obtain', '/etc/passwd']),
         OptInt.new('DEPTH',        [true, 'The max traversal depth to root directory', 10])
-      ], self.class)
+      ])
   end
 
 
@@ -86,5 +83,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Fail to obtain file for some unknown reason")
     end
   end
-
 end

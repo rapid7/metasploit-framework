@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/hardware/zigbee/utils'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Hardware::Zigbee::Utils
 
   def initialize(info={})
@@ -26,7 +23,7 @@ class MetasploitModule < Msf::Post
       OptInt.new('LOOP', [false, "How many times to loop over the channels (-1 will run in an endless loop)", 1]),
       OptInt.new('DELAY', [false, "Delay in seconds to listen on each channel", 2]),
       OptString.new('DEVICE', [false, "ZigBee device ID, defaults to target device", nil])
-    ], self.class)
+    ])
     @seq = 0
     @channel = 11
     @stumbled = {}
@@ -99,5 +96,4 @@ class MetasploitModule < Msf::Post
       end
     end
   end
-
 end

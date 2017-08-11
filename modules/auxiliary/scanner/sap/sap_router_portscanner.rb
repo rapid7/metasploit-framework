@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -50,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         # 8355,8357,8351-8353,8366,1090,1095,20201,1099,1089,443NN,444NN
         OptInt.new('CONCURRENCY', [true, 'The number of concurrent ports to check per host', 10]),
         OptEnum.new('RESOLVE',[true,'Where to resolve TARGETS','local',['remote','local']])
-      ], self.class)
+      ])
 
   end
 
@@ -426,5 +423,4 @@ class MetasploitModule < Msf::Auxiliary
     print(tbl.to_s)
 
   end
-
 end

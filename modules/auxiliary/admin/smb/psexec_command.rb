@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SMB::Client::Psexec
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -35,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     => [
         [ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
         [ 'OSVDB', '3106'],
-        [ 'URL', 'http://www.accuvant.com/blog/2012/11/13/owning-computers-without-shell-access' ],
+        [ 'URL', 'https://www.optiv.com/blog/owning-computers-without-shell-access' ],
         [ 'URL', 'http://sourceforge.net/projects/smbexec/' ],
         [ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
       ]
@@ -46,13 +43,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('COMMAND', [true, 'The command you want to execute on the remote host', 'net group "Domain Admins" /domain']),
       OptString.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('WINPATH', [true, 'The name of the remote Windows directory', 'WINDOWS']),
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('FILEPREFIX', [false, 'Add a custom prefix to the temporary files','']),
       OptInt.new('DELAY', [true, 'Wait this many seconds before reading output and cleaning up', 0]),
       OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
-    ], self.class)
+    ])
 
     deregister_options('RHOST')
   end
@@ -177,8 +174,7 @@ class MetasploitModule < Msf::Auxiliary
     if left.any?
       print_error("Unable to cleanup. Maybe you'll need to manually remove #{left.join(", ")} from the target.")
     else
-      print_status("Cleanup was successful")
+      print_good("Cleanup was successful")
     end
   end
-
 end

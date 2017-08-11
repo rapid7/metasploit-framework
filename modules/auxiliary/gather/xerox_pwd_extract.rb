@@ -1,12 +1,9 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -30,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('RPORT', [true, 'Web management console port for the printer', 80]),
         OptPort.new('JPORT', [true, 'Jetdirect port', 9100]),
          OptInt.new('TIMEOUT', [true, 'Timeout to wait for printer job to run', 45])
-      ], self.class)
+      ])
   end
 
   def jport
@@ -55,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       loot_filename = 'xerox_password.text'
       loot_desc     = 'Xerox password harvester'
       p = store_loot(loot_name, loot_type, datastore['RHOST'], passwd, loot_filename, loot_desc)
-      print_status("#{rhost}:#{jport} - Credentials saved in: #{p}")
+      print_good("#{rhost}:#{jport} - Credentials saved in: #{p}")
 
       register_creds('Xerox-HTTP', rhost, rport, 'Admin', passwd)
 

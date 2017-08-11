@@ -171,17 +171,24 @@ class ClientRequest
     req << set_uri_append()
     req << set_uri_version_spacer()
     req << set_version
-    req << set_host_header
+
+    # Set a default Host header if one wasn't passed in
+    if opts['headers'] && opts['headers'].keys.map(&:downcase).include?('host')
+      host = opts['headers'].keys.each { |k| break opts['headers'][k] if k =~ /host/i }
+      req << set_formatted_header('Host', host)
+    else
+      req << set_host_header
+    end
 
     # If an explicit User-Agent header is set, then use that instead of
     # the default
-    unless opts['headers'] and opts['headers'].keys.map{|x| x.downcase }.include?('user-agent')
+    unless opts['headers'] && opts['headers'].keys.map { |x| x.downcase }.include?('user-agent')
       req << set_agent_header
     end
 
     # Similar to user-agent, only add an automatic auth header if a
     # manual one hasn't been provided
-    unless opts['headers'] and opts['headers'].keys.map{|x| x.downcase }.include?('authorization')
+    unless opts['headers'] && opts['headers'].keys.map { |x| x.downcase }.include?('authorization')
       req << set_auth_header
     end
 

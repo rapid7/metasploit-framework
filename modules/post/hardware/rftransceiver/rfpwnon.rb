@@ -1,12 +1,16 @@
-class MetasploitModule < Msf::Post
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
+class MetasploitModule < Msf::Post
   include Msf::Post::Hardware::RFTransceiver::RFTransceiver
 
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Brute Force AM/OOK (ie: Garage Doors)',
         'Description'   => %q{ Post Module for HWBridge RFTranscievers.  Brute forces AM OOK or raw
-                               binary signals.  This is a port of the LegacySecurityGroup.com rfpwnon tool.
+                               binary signals.  This is a port of the rfpwnon tool by Corey Harding.
                                (https://github.com/exploitagency/github-rfpwnon/blob/master/rfpwnon.py)
         },
         'License'       => MSF_LICENSE,
@@ -26,7 +30,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('EXTRAVERBOSE', [false, "More verbose", false]),
       OptInt.new('INDEX', [false, "USB Index to use", 0]),
       OptInt.new('DELAY', [false, "Delay in milliseconds between transmissions", 500])
-    ], self.class)
+    ])
     @zeropwm = "1110"
     @onepwm = "1000"
     @brutechar = "01"
@@ -150,5 +154,4 @@ class MetasploitModule < Msf::Post
     print_status("Done")
     set_mode("IDLE")
   end
-
 end

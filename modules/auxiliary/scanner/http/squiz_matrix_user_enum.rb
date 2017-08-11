@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The path to users Squiz Matrix installation', '/']),
         OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1]),
         OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

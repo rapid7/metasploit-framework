@@ -16,9 +16,9 @@ wininfo = client.sys.config.sysinfo
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h" => [ false,"Help menu."                        ],
-  "-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
+  "-c" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
   "-f" => [ true,"File where to saved output of command."],
-  "-rc" => [ true,"Text file with list of commands, one per line."]
+  "-r" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
 commands = []
@@ -77,9 +77,9 @@ end
 @@exec_opts.parse(args) { |opt, idx, val|
   case opt
 
-  when "-cl"
+  when "-c"
     commands = val.split(",")
-  when "-rc"
+  when "-r"
     script = val
     if not ::File.exist?(script)
       raise "Command List File does not exists!"

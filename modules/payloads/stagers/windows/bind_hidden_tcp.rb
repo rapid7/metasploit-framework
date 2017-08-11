@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 
 
@@ -76,5 +74,4 @@ module MetasploitModule
       OptAddress.new('AHOST', [true, "IP address allowed", nil])
     ])
   end
-
 end

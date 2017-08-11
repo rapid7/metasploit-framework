@@ -1,5 +1,9 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'metasm'
-require 'msf/core'
 
 class MetasploitModule < Msf::Encoder
 
@@ -124,5 +128,4 @@ class MetasploitModule < Msf::Encoder
 
         return push_registers + code_service + pop_registers + block
     end
-
 end

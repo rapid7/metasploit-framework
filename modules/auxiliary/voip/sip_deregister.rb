@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Scanner
 
@@ -31,12 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SRCADDR', [true, "The sip address the spoofed deregister request is coming from",'192.168.1.1']),
         OptString.new('EXTENSION', [true, "The specific extension or name to target", '100']),
         OptString.new('DOMAIN', [true, "Use a specific SIP domain", 'example.com'])
-      ],  self.class)
+      ])
     register_advanced_options(
       [
         OptAddress.new('SIP_PROXY_NAME', [false, "Use a specific SIP proxy", nil]),
         OptPort.new('SIP_PROXY_PORT', [false, "SIP Proxy port to use", 5060])
-      ],  self.class)
+      ])
   end
 
 
@@ -127,5 +122,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return true # set response to true
   end
-
 end

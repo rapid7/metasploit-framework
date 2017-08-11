@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptInt.new('MAXDRIVES',[false,'Maximum physical drive number',10])
-      ], self.class)
+      ])
   end
 
   def print_device(devname)
@@ -93,5 +93,4 @@ class MetasploitModule < Msf::Post
       print_device(devname)
     end
   end
-
 end

