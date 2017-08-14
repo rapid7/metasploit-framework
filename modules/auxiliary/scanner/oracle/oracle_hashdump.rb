@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         unless results.empty?
           results.each do |result|
             row= result.split(/,/)
-            row[2] = 'No'
+            next unless row.length == 2
             tbl << row
           end
         end
