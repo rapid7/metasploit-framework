@@ -26,7 +26,25 @@ class MetasploitModule < Msf::Post
 
   def gathernix
     print_status("Unix OS detected")
-    return cmd_exec('locate settings.xml').split("\n")
+    files = cmd_exec('locatte settings.xml').split("\n")
+    # Handle case where locate does not exist (error is returned in first element)
+    if files.length == 1 && !directory?(files.first)
+      files = []
+      paths = enum_user_directories.map {|d| d}
+      if paths.nil? || paths.empty?
+        print_error("No users directory found")
+        return
+      end
+      paths.each do |path|
+        path.chomp!
+        file = "settings.xml"
+        target = "#{path}/#{file}"
+        if file? target
+          files.push(target)
+        end
+      end
+    end
+    return files
   end
 
   def gatherwin
@@ -44,7 +62,7 @@ class MetasploitModule < Msf::Post
         files = gathernix
       end
     else
-       printerror('Incompatible session type, sysinfo is not available.')
+       printerror("Incompatible session type, sysinfo is not available.")
        return
     end
     if files.nil? || files.empty?
