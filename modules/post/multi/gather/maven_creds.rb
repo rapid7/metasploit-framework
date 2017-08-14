@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
 
   def gathernix
     print_status("Unix OS detected")
-    files = cmd_exec('locatte settings.xml').split("\n")
+    files = cmd_exec('locate settings.xml').split("\n")
     # Handle case where locate does not exist (error is returned in first element)
     if files.length == 1 && !directory?(files.first)
       files = []
