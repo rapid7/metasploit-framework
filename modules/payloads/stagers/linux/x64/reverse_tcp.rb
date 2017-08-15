@@ -8,10 +8,10 @@ require 'msf/core/payload/linux/x64/reverse_tcp'
 
 module MetasploitModule
 
-  CachedSize = 96
+  CachedSize = 127
 
   include Msf::Payload::Stager
-  include Msf::Payload::Linux::ReverseTcp
+  include Msf::Payload::Linux::ReverseTcp_x64
 
   def initialize(info = {})
     super(merge_info(info,

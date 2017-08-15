@@ -14,7 +14,7 @@ module Msf
 ###
 
 
-module Payload::Linux::ReverseTcp
+module Payload::Linux::ReverseTcp_x86
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Linux
