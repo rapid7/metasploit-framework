@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
@@ -17,7 +22,6 @@ def initialize (info ={})
 			'Roberto Focke'  #Metasploit version
 			],
 		'License'	=>	MSF_LICENSE,
-		
 		'References'	=> 
 				[
 					['CVE', '2017-8295'],
@@ -30,7 +34,6 @@ def initialize (info ={})
 		],
 		],
 		'DisclosureDate'	=> '03/05/2017'))
-
 	register_options(
       [
         OptInt.new('RPORT', [ true, 'remote port',  '80']),
@@ -50,14 +53,13 @@ def run
 		if (res.nil?)
 				print_error("no response for #{rhost}:#{rport}")
 				return
-			elsif ( res.code == 200)
+		elsif ( res.code == 200)
 				print_good("we received the 200 printing response body")
 				print_good("#{res.body}")
-			elsif
+		elsif
 				print_error("Received a #{res.code} for the request")
 				print_error("#{res.headers}")
 				return
-		end
-			
-end
+		end			
+	end
 end
