@@ -12,7 +12,7 @@ include Msf::Auxiliary::Report
 
 def initialize (info ={})
  	super(update_info(info,
-		'Name'		=>	'Unauthorized Password Reset',
+		'Name'		=>	'password reset',
 		'version'	=>	'$Revision: 1$',
 		'Description'	=>	'Wordpress has a password reset feature that contains a vulnerability which might in some cases allow attackers to get hold of the password reset link without previous authentication. Such attack could lead to an attacker gaining unauthorised access to a victim\'s WordPress account. https://exploitbox.io/vuln/WordPress-Exploit-4-7-Unauth-Password-Reset-0day-CVE-2017-8295.html',
 		'Author'	=>
