@@ -753,9 +753,9 @@ class Packet < GroupTlv
     if self.raw.length >= PACKET_HEADER_SIZE
       # return a value based on the length of the data indicated by
       # the header
-      xor_key = self.raw.unpack('A4')[0]
+      xor_key = self.raw.unpack('a4')[0]
       decoded_bytes = xor_bytes(xor_key, raw[0, PACKET_HEADER_SIZE])
-      _, _, _, length, _ = decoded_bytes.unpack('A4A16NNN')
+      _, _, _, length, _ = decoded_bytes.unpack('a4a16NNN')
       length + PACKET_HEADER_SIZE - HEADER_SIZE - self.raw.length
     else
       # Otherwise ask for the remaining bytes for the metadata to get the packet length
@@ -834,9 +834,9 @@ class Packet < GroupTlv
   end
 
   def parse_header!
-    xor_key = self.raw.unpack('A4')[0]
+    xor_key = self.raw.unpack('a4')[0]
     data = xor_bytes(xor_key, self.raw[0..PACKET_HEADER_SIZE])
-    _, self.session_guid, self.encrypt_flags, self.length, self.type = data.unpack('A4A16NNN')
+    _, self.session_guid, self.encrypt_flags, self.length, self.type = data.unpack('a4a16NNN')
   end
 
   #
@@ -847,7 +847,7 @@ class Packet < GroupTlv
   #
   def from_r(key=nil)
     self.parse_header!
-    xor_key = self.raw.unpack('A4')[0]
+    xor_key = self.raw.unpack('a4')[0]
     data = xor_bytes(xor_key, self.raw[PACKET_HEADER_SIZE..-1])
     raw = decrypt_packet(key, self.encrypt_flags, data)
     super([self.length, self.type, raw].pack('NNA*'))
