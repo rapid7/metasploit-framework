@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Post
     iexplore_path = "C:\\Program Files\\Internet Explorer\\iexplore.exe"
     begin
       session.sys.process.execute(iexplore_path, "-k #{YOUTUBE_BASE_URL}#{id}?#{PLAY_OPTIONS}")
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::Meterpreter::RequestError
       return false
     end
 
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Post
     intenturl = "intent://youtube.com/watch?v=#{id}&autoplay=1#Intent;scheme=http;action=android.intent.action.VIEW;end"
     begin
       session.android.activity_start(intenturl)
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::Meterpreter::RequestError
       return false
     end
     true
