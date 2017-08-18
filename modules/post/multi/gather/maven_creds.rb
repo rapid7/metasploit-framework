@@ -55,15 +55,13 @@ class MetasploitModule < Msf::Post
   def run
     print_status("Finding user directories")
     files = ""
-    if sysinfo
-      if sysinfo['OS'].include? "Windows"
+    case session.platform
+      when 'windows'
         files = gatherwin
-      else
+      when 'unix', 'linux', 'bsd', 'osx'
         files = gathernix
-      end
-    else
-       printerror("Incompatible session type, sysinfo is not available.")
-       return
+      else
+        print_error("Incompatible platform.")
     end
     if files.nil? || files.empty?
       print_error("No settings.xml file found")

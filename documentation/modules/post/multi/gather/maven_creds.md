@@ -5,8 +5,8 @@ This module seeks all settings.xml (Maven configuration file) on the target file
 
 This module was successfully tested against:
 
-- Ubuntu 14.04 and Maven 3.0.5
-- Debian 9 and Maven 3.0.5
+- Ubuntu 14.04 and Maven 3.0.5 with shell and meterpreter as session type
+- Debian 9 and Maven 3.0.5 with shell and meterpreter as session type
 
 ## Verification Steps
 
