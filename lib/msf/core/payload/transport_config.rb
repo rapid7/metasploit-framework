@@ -56,16 +56,17 @@ module Msf::Payload::TransportConfig
 
     ds = opts[:datastore] || datastore
     {
-      scheme:      ds['OverrideScheme'] || 'http',
-      lhost:       opts[:lhost] || ds['LHOST'],
-      lport:       (opts[:lport] || ds['LPORT']).to_i,
-      uri:         uri,
-      ua:          ds['MeterpreterUserAgent'],
-      proxy_host:  ds['PayloadProxyHost'],
-      proxy_port:  ds['PayloadProxyPort'],
-      proxy_type:  ds['PayloadProxyType'],
-      proxy_user:  ds['PayloadProxyUser'],
-      proxy_pass:  ds['PayloadProxyPass']
+      scheme:          ds['OverrideScheme'] || 'http',
+      lhost:           opts[:lhost] || ds['LHOST'],
+      lport:           (opts[:lport] || ds['LPORT']).to_i,
+      uri:             uri,
+      ua:              ds['MeterpreterUserAgent'],
+      proxy_host:      ds['PayloadProxyHost'],
+      proxy_port:      ds['PayloadProxyPort'],
+      proxy_type:      ds['PayloadProxyType'],
+      proxy_user:      ds['PayloadProxyUser'],
+      proxy_pass:      ds['PayloadProxyPass'],
+      custom_headers:  get_custom_headers(ds)
     }.merge(timeout_config(opts))
   end
 
@@ -79,6 +80,13 @@ module Msf::Payload::TransportConfig
   end
 
 private
+
+  def get_custom_headers(ds)
+    headers = ""
+    headers << "Host: #{ds['HttpHost']}\r\n" if ds['HttpHost']
+    headers << "Cookie: #{ds['HttpCookie']}\r\n" if ds['HttpCookie']
+    headers << "Referer: #{ds['HttpReferer']}\r\n" if ds['HttpReferer']
+  end
 
   def timeout_config(opts={})
     ds = opts[:datastore] || datastore

