@@ -676,6 +676,8 @@ class Packet < GroupTlv
   PACKET_TYPE_SIZE = 4
   PACKET_HEADER_SIZE = XOR_KEY_SIZE + SESSION_GUID_SIZE + ENCRYPTED_FLAGS_SIZE + PACKET_LENGTH_SIZE + PACKET_TYPE_SIZE
 
+  SESSION_NULL_GUID = "\x00" * SESSION_GUID_SIZE
+
   AES_IV_SIZE = 16
 
   ENC_FLAG_NONE   = 0x0
@@ -802,7 +804,7 @@ class Packet < GroupTlv
   def to_r(session_guid = nil, key = nil)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
-    raw = session_guid.dup
+    raw = (session_guid || SESSION_NULL_GUID).dup
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
     if key && key[:key] && key[:type] == ENC_FLAG_AES256

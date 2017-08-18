@@ -464,7 +464,7 @@ module PacketDispatcher
     packet = parser.recv(self.sock)
     if packet
       packet.parse_header!
-      if self.session_guid == "\x00" * 16
+      if self.session_guid == NULL_GUID
         self.session_guid = packet.session_guid.dup
       end
     end
