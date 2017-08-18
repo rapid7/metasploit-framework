@@ -106,10 +106,8 @@ class MetasploitModule < Msf::Post
       print_status("Reading settings.xml file from #{target}")
       data = ""
       if session.type == "shell"
-        type = :shell
         data = session.shell_command("cat #{target}")
       else
-        type = :meterp
         settings = session.fs.file.new("#{target}", "rb")
         until settings.eof?
           data << settings.read
