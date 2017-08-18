@@ -129,6 +129,11 @@ LOAD_LIBRARY_FLAG_ON_DISK   = (1 << 0)
 LOAD_LIBRARY_FLAG_EXTENSION = (1 << 1)
 LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 
+#
+# Sane defaults
+#
+NULL_GUID = "\x00" * 16
+
 ###
 #
 # Base TLV (Type-Length-Value) class
@@ -799,7 +804,7 @@ class Packet < GroupTlv
   # the serialized TLV content, and then returns the key plus the
   # scrambled data as the payload.
   #
-  def to_r(session_guid=nil, key=nil)
+  def to_r(session_guid=NULL_GUID, key=nil)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
     raw = session_guid.dup
