@@ -241,7 +241,7 @@ password = nil
   end
 
 }
-if client.platform != 'windows'
+if client.platform == 'windows'
   if helpcall == 1
     usage()
   elsif cmd == nil && file == nil
