@@ -31,7 +31,7 @@ GIT
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.13)
+    metasploit-framework (4.14.15)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -172,7 +172,7 @@ GEM
     factory_girl_rails (4.8.0)
       factory_girl (~> 4.8.0)
       railties (>= 3.0.0)
-    faraday (0.12.0.1)
+    faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
     ffi (1.9.18)
     filesize (0.1.1)
@@ -187,7 +187,7 @@ GEM
       multi_json (~> 1.11)
       os (~> 0.9)
       signet (~> 0.7)
-    grpc (1.2.2)
+    grpc (1.2.5)
       google-protobuf (~> 3.1)
       googleauth (~> 0.5.1)
     i18n (0.8.1)
