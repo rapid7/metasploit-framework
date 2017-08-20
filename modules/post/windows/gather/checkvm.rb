@@ -324,7 +324,7 @@ class MetasploitModule < Msf::Post
     found ||= xenchk(session)
     found ||= qemuchk(session)
     if found
-      report_vm(found)
+      report_virtualization(found)
     else
       print_status("#{sysinfo['Computer']} appears to be a Physical Machine")
     end
