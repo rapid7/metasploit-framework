@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.15.8)
+    metasploit-framework (4.16.0)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -121,7 +121,7 @@ GEM
     factory_girl_rails (4.8.0)
       factory_girl (~> 4.8.0)
       railties (>= 3.0.0)
-    faraday (0.13.0)
+    faraday (0.13.1)
       multipart-post (>= 1.2, < 3)
     ffi (1.9.18)
     filesize (0.1.1)
@@ -247,7 +247,7 @@ GEM
     recog (2.1.11)
       nokogiri
     redcarpet (3.4.0)
-    rex-arch (0.1.9)
+    rex-arch (0.1.11)
       rex-text
     rex-bin_tools (0.1.4)
       metasm
@@ -375,4 +375,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.15.3
+   1.15.4
