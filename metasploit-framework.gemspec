@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
   spec.version       = Metasploit::Framework::GEM_VERSION
   spec.authors       = ['Metasploit Hackers']
-  spec.email         = ['metasploit-hackers@lists.sourceforge.net']
+  spec.email         = ['msfdev@metasploit.com']
   spec.summary       = 'metasploit-framework'
   spec.description   = 'metasploit-framework'
   spec.homepage      = 'https://www.metasploit.com'

