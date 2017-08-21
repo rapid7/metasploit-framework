@@ -126,35 +126,14 @@ GEM
     ffi (1.9.18)
     filesize (0.1.1)
     fivemat (1.3.5)
-    google-protobuf (3.4.0.2)
-    googleauth (0.5.3)
-      faraday (~> 0.12)
-      jwt (~> 1.4)
-      logging (~> 2.0)
-      memoist (~> 0.12)
-      multi_json (~> 1.11)
-      os (~> 0.9)
-      signet (~> 0.7)
-    grpc (1.4.5)
-      google-protobuf (~> 3.1)
-      googleauth (~> 0.5.1)
     hashery (2.1.2)
     i18n (0.8.6)
     jsobfu (0.4.2)
       rkelly-remix
     json (2.1.0)
-    jwt (1.5.6)
-    little-plugger (1.1.4)
-    logging (2.2.2)
-      little-plugger (~> 1.1)
-      multi_json (~> 1.10)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
-    memoist (0.16.0)
     metasm (1.0.3)
-    metasploit-aggregator (0.2.1)
-      grpc
-      rex-arch
     metasploit-concern (2.0.5)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -188,7 +167,6 @@ GEM
     mini_portile2 (2.2.0)
     minitest (5.10.3)
     msgpack (1.1.0)
-    multi_json (1.12.1)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
     net-ssh (4.1.0)
@@ -200,7 +178,6 @@ GEM
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
-    os (0.9.6)
     packetfu (1.1.13)
       pcaprub
     patch_finder (1.0.2)
@@ -328,11 +305,6 @@ GEM
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
-    signet (0.7.3)
-      addressable (~> 2.3)
-      faraday (~> 0.9)
-      jwt (~> 1.5)
-      multi_json (~> 1.10)
     simplecov (0.15.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -362,7 +334,6 @@ PLATFORMS
 DEPENDENCIES
   factory_girl_rails
   fivemat
-  metasploit-aggregator
   metasploit-framework!
   octokit
   pry
