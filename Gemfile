@@ -3,10 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-# These pull in pre-release gems in order to fix specific issues.
-# XXX https://github.com/alexdalitz/dnsruby/pull/134
-gem 'dnsruby', git: 'https://github.com/alexdalitz/dnsruby'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -22,9 +18,9 @@ group :development do
   gem 'pry'
   # module documentation
   gem 'octokit'
-  # metasploit-aggregator as a framework only option for now
   # Metasploit::Aggregator external session proxy
-  gem 'metasploit-aggregator'
+  # Disabled for now for crypttlv updates
+  # gem 'metasploit-aggregator'
 end
 
 group :development, :test do

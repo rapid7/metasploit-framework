@@ -119,4 +119,4 @@ already way ahead of the curve, so keep it up!
 [YARD]:http://yardoc.org
 [Issues]:https://github.com/rapid7/metasploit-framework/issues
 [Freenode IRC channel]:http://webchat.freenode.net/?channels=%23metasploit&uio=d4
-[metasploit-hackers]:https://lists.sourceforge.net/lists/listinfo/metasploit-hackers
+[metasploit-hackers]:https://groups.google.com/forum/#!forum/metasploit-hackers

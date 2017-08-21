@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Build the local src hosts cache
     if datastore['BIDIRECTIONAL']
-      print_status("Building the source hosts cache for unknow source hosts...")
+      print_status("Building the source hosts cache for unknown source hosts...")
       @shosts.each do |shost|
         if @dsthosts_cache.has_key? shost
           vprint_status("Adding #{shost} from destination cache")
