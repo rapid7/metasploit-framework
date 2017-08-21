@@ -43,6 +43,8 @@ module MeterpreterOptions
 
     valid = true
 
+    session.tlv_enc_key = session.core.negotiate_tlv_encryption
+
     if datastore['AutoVerifySession']
       if not session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
         print_error("Meterpreter session #{session.sid} is not valid and will be closed")
@@ -52,14 +54,13 @@ module MeterpreterOptions
 
     if valid
       # always make sure that the new session has a new guid if it's not already known
-      guid = session.core.get_session_guid
+      guid = session.session_guid
       if guid == '00000000-0000-0000-0000-000000000000'
         guid = SecureRandom.uuid
         session.core.set_session_guid(guid)
-        session.guid = guid
+        session.session_guid = guid
         # TODO: New statgeless session, do some account in the DB so we can track it later.
       else
-        session.guid = guid
         # TODO: This session was either staged or previously known, and so we shold do some accounting here!
       end
 
