@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
   include Msf::Post::File
+  include Msf::Post::Windows::ExtAPI
 
   def initialize(info={})
     super(update_info(info,
@@ -115,6 +116,7 @@ class MetasploitModule < Msf::Post
     unless session_compat?
       return false
     end
+    load_extapi
     return true
   end
 
