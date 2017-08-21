@@ -786,7 +786,7 @@ class Packet < GroupTlv
   def to_r(session_guid = nil, key = nil)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
-    raw = [(session_guid || "0" * SESSION_GUID_SIZE).gsub(/-/, '')].pack('H*')
+    raw = [(session_guid || '00' * SESSION_GUID_SIZE).gsub(/-/, '')].pack('H*')
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
     if key && key[:key] && key[:type] == ENC_FLAG_AES256
