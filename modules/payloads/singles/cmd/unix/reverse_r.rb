@@ -37,7 +37,7 @@ module MetasploitModule
 
   def prepends(r_string)
    return "R -e \"#{r_string}\""
-  end 
+  end
 
   def r_string
     lhost = datastore['LHOST']
