@@ -22,6 +22,7 @@ module MetasploitModule
         {
           'Payload' =>
           [
+            # Generated from external/source/shellcode/linux/aarch64/stage_shell.s
             0xaa0c03e0,          #  mov	x0, x12
             0xd2800002,          #  mov	x2, #0x0                   	// #0
             0xd2800001,          #  mov	x1, #0x0                   	// #0

