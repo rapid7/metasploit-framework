@@ -16,6 +16,7 @@ RSpec.describe Rex::Post::Meterpreter::PacketParser do
     begin
       parsed_packet = parser.recv(@sock)
     end while parsed_packet.nil?
+    parsed_packet.from_r
     expect(parsed_packet).to be_a Rex::Post::Meterpreter::Packet
     expect(parsed_packet.type).to eq Rex::Post::Meterpreter::PACKET_TYPE_REQUEST
     expect(parsed_packet.method?("test_method")).to eq true
