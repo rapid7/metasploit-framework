@@ -85,10 +85,10 @@ module Accounts
   #      :user_not_found   - User specified does not exist on the given server
   #      :access_denied    - You do not have permission to delete the given user
   #
-  #   OR nil if there was an exceptional windows error (example: ran out of memory)
+  #   OR nil if there was an exceptional Windows error (example: ran out of memory)
   #
   # Caveats:
-  #   nil is returned if there is an *exceptional* windows error. That error is printed.
+  #   nil is returned if there is an *exceptional* Windows error. That error is printed.
   #   Everything other than ':success' signifies failure
   ##
   def delete_user(username, server_name = nil)
@@ -141,12 +141,12 @@ module Accounts
   #     :mapped => There was a mapping found for the SID
   #   }
   #
-  #   OR nil if there was an exceptional windows error (example: ran out of memory)
+  #   OR nil if there was an exceptional Windows error (example: ran out of memory)
   #
   # Caveats:
   #   If a valid mapping is not found, only { :mapped => false } will be returned
-  #   nil is returned if there is an *exceptional* windows error. That error is printed.
-  #   If an invalid system_name is provided, there will be a windows error and nil returned
+  #   nil is returned if there is an *exceptional* Windows error. That error is printed.
+  #   If an invalid system_name is provided, there will be a Windows error and nil returned
   ##
   def resolve_sid(sid, system_name = nil)
     adv = client.railgun.advapi32;
@@ -163,8 +163,11 @@ module Accounts
       when client.railgun.const('ERROR_INVALID_SID')
         # An invalid SID was supplied
         return { :type => :invalid, :mapped => false }
+      when client.railgun.const('ERROR_NONE_MAPPED')
+        # There were no accounts associated with this SID
+        return { :mapped => false }
       else
-        print_error "Unexpected windows error #{error}"
+        print_error "Unexpected Windows error #{error} resolving SID #{sid}"
         return nil
       end
     end
@@ -198,7 +201,7 @@ module Accounts
                                       cch_referenced_domain_name,
                                       1)
       elsif !lookup['return']
-        print_error "Unexpected windows error #{lookup['GetLastError']}"
+        print_error "Unexpected Windows error #{lookup['GetLastError']}"
         return nil
       end
     ensure
@@ -218,7 +221,7 @@ module Accounts
         # There were no accounts associated with this SID
         return { :mapped => false }
       else
-        print_error "Unexpected windows error #{error}"
+        print_error "Unexpected Windows error #{error} resolving SID #{sid}"
         return nil
       end
     end
