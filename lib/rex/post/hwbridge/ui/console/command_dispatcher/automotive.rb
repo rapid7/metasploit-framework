@@ -269,7 +269,7 @@ class Console::CommandDispatcher::Automotive
       return
     end
     if id.blank? && !stop
-      if self.tpjobs.size.positive?
+      if self.tpjobs.size > 0
         print_line("TesterPresent is currently active")
         self.tpjobs.each_index do |jid|
           if self.tpjobs[jid]

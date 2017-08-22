@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 54058
+  CachedSize = 56486
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -40,5 +40,4 @@ module MetasploitModule
     met = stage_meterpreter(opts)
     py_create_exec_stub(met)
   end
-
 end

@@ -1,7 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
-#
+##
+
+##
 # Fuzzer written by corelanc0d3r - <peter.ve [at] corelan.be>
 # http://www.corelan.be:8800/index.php/2010/10/12/death-of-an-ftp-client/
 #
@@ -9,7 +11,6 @@
 
 
 class MetasploitModule < Msf::Auxiliary
-
   include Exploit::Remote::TcpServer
 
   def initialize()

@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -133,13 +132,12 @@ class MetasploitModule < Msf::Auxiliary
         end
         f = ::File.basename(datastore['RFILE'])
         path = store_loot('atlassian.crowd.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-        print_status("#{rhost}:#{rport} Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
+        print_good("#{rhost}:#{rport} Atlassian Crowd - #{datastore['RFILE']} saved in #{path}")
         return
       end
     end
 
     print_error("#{rhost}#{rport} Failed to retrieve file from #{rhost}:#{rport}")
   end
-
 end
 

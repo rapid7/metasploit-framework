@@ -279,6 +279,16 @@ module RFTransceiver
   end
 
   #
+  # Sets lowball.  Ensure you set the frequency first before using this
+  # @return [Boolean] success value
+  def set_lowball
+    return false unless is_rf?
+    self.index ||= 0
+    r = client.rftransceiver.set_lowball(self.index)
+    return_success(r)
+  end
+
+  #
   # Set power level
   # @param level [Integer] Power level
   # @return [Boolean] success value

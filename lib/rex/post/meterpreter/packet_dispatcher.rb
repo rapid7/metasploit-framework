@@ -57,6 +57,11 @@ module PacketDispatcher
   # active migration. Unused if this is a passive dispatcher
   attr_accessor :comm_mutex
 
+  # The guid that identifies an active Meterpreter session
+  attr_accessor :session_guid
+
+  # This contains the key material used for TLV encryption
+  attr_accessor :tlv_enc_key
 
   # Passive Dispatching
   #
@@ -71,10 +76,10 @@ module PacketDispatcher
   attr_accessor :recv_queue
 
   def initialize_passive_dispatcher
-    self.send_queue = []
-    self.recv_queue = []
-    self.waiters    = []
-    self.alive      = true
+    self.send_queue   = []
+    self.recv_queue   = []
+    self.waiters      = []
+    self.alive        = true
 
     # Ensure that there is only one leading and trailing slash on the URI
     resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
@@ -131,7 +136,8 @@ module PacketDispatcher
       resp.body = ""
       if req.body and req.body.length > 0
         packet = Packet.new(0)
-        packet.from_r(req.body)
+        packet.add_raw(req.body)
+        packet.from_r(self.tlv_enc_key)
         dispatch_inbound_packet(packet)
       end
       cli.send_response(resp)
@@ -157,7 +163,7 @@ module PacketDispatcher
     end
 
     bytes = 0
-    raw   = packet.to_r
+    raw   = packet.to_r(self.session_guid, self.tlv_enc_key)
     err   = nil
 
     # Short-circuit send when using a passive dispatcher
@@ -166,8 +172,7 @@ module PacketDispatcher
       return raw.size # Lie!
     end
 
-    if (raw)
-
+    if raw
       self.comm_mutex.synchronize do
         begin
           bytes = self.sock.write(raw)
@@ -420,7 +425,15 @@ module PacketDispatcher
   # once a full packet has been received.
   #
   def receive_packet
-    return parser.recv(self.sock)
+    packet = parser.recv(self.sock)
+    if packet
+      packet.from_r(self.tlv_enc_key)
+      if self.session_guid == '00000000-0000-0000-0000-000000000000'
+        parts = packet.session_guid.unpack('H*')[0]
+        self.session_guid = [parts[0, 8], parts[8, 4], parts[12, 4], parts[16, 4], parts[20, 12]].join('-')
+      end
+    end
+    packet
   end
 
   #

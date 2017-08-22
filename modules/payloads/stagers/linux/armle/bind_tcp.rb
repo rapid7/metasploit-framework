@@ -1,8 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 require 'msf/core/handler/bind_tcp'
 
@@ -113,5 +112,4 @@ module MetasploitModule
 
     return true
   end
-
 end

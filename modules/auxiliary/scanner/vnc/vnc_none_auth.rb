@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/rfb'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       ver = "#{vnc.majver}.#{vnc.minver}"
-      print_status("#{target_host}:#{rport} - VNC server protocol version: #{ver}")
+      print_good("#{target_host}:#{rport} - VNC server protocol version: #{ver}")
       svc = report_service(
         :host => rhost,
         :port => rport,

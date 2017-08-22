@@ -1,5 +1,9 @@
-class MetasploitModule < Msf::Post
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
+class MetasploitModule < Msf::Post
   include Msf::Post::Hardware::RFTransceiver::RFTransceiver
 
   def initialize(info={})
@@ -150,5 +154,4 @@ class MetasploitModule < Msf::Post
     print_status("Done")
     set_mode("IDLE")
   end
-
 end

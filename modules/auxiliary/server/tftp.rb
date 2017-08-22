@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'rex/proto/tftp'
 require 'tmpdir'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TFTPServer
   include Msf::Auxiliary::Report
 
@@ -76,5 +75,4 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Stopping TFTP server")
     @tftp.stop
   end
-
 end

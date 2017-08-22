@@ -469,8 +469,9 @@ class Console::CommandDispatcher::Core
   # Get the session GUID
   #
   def cmd_guid(*args)
-    client.guid = client.core.get_session_guid unless client.guid
-    print_good("Session GUID: #{client.guid}")
+    parts = client.session_guid.unpack('H*')[0]
+    guid = [parts[0, 8], parts[8, 4], parts[12, 4], parts[16, 4], parts[20, 12]].join('-')
+    print_good("Session GUID: #{guid}")
   end
 
   #

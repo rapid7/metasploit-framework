@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -79,5 +79,4 @@ module MetasploitModule
     "\xb0\x0b"             +#   mov al,0xb (execve)
     "\xcd\x80"              #   int 0x80
   end
-
 end

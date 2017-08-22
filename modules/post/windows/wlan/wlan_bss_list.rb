@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Post
           bss['physical'] = "Unknown Association Type"
       end
 
-      #Get the Recieved Signal Strength Indicator
+      #Get the Received Signal Strength Indicator
       pointer = (pointer + 4)
       rssi = @host_process.memory.read(pointer,4)
       rssi = getle_signed_int(rssi)
@@ -254,5 +254,4 @@ class MetasploitModule < Msf::Post
     sguid << "-" + aguid[20,12] + "}"
     return sguid
   end
-
 end
