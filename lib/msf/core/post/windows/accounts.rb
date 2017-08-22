@@ -311,7 +311,7 @@ module Accounts
     if (f['return'] and f["lpnLengthNeeded"] <= buffer_size)
       sd = f["pSecurityDescriptor"]
     elsif (f['GetLastError'] == 122) # ERROR_INSUFFICIENT_BUFFER
-      f = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
+      sd = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
     elsif (f['GetLastError'] == 2)
       vprint_error("The system cannot find the file specified: #{dir}")
       return nil
