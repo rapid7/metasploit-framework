@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
       },
       'License'        => MSF_LICENSE,
       'Author'         => ['elenoir'],
-      'Platform'       => %w{ bsd linux osx unix },
+      'Platform'       => %w{ bsd linux osx unix win },
       'SessionTypes'   => ['shell','meterpreter']
     ))
   end
@@ -93,10 +93,21 @@ class MetasploitModule < Msf::Post
       print_status("    Id: %s" % id)
       print_status("    Username: %s" % username)
       print_status("    Password: %s" % password)
-      loot_path = store_loot("maven.credentials", "text/plain", session, "#{username} #{password}",
-          "settings.xml", "Maven credentials from #{target} and id #{id}")
-      print_good("Saved credentials to #{loot_path}")
       print_line("")
+
+      credential_data = {
+          origin_type: :import,
+          module_fullname: self.fullname,
+          filename: target,
+          service_name: 'maven',
+          realm_value: id,
+          realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+          private_type: :password,
+          private_data: password,
+          username: username,
+          workspace_id: myworkspace_id
+      }
+      create_credential(credential_data)
     end
   end
 

