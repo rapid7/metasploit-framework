@@ -24,7 +24,7 @@
 ## Verification Steps
   1. Do: ```use auxiliary/scanner/portscan/tcp```
   2. Do: ```set RHOSTS [IP]```
-  3. Do: ```set RPORT [IP]```
+  3. Do: ```set PORT [PORT]```
   4. Do: ```run```
   
 ## Scenarios
