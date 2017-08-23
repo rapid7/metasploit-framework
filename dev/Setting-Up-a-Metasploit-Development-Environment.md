@@ -138,17 +138,10 @@ gem install bundler
 ## Configure Gnome Terminal to use RVM
 
 Gnome Terminal is a jerk and doesn't make your shell a login shell by
-default, so RVM won't work there without a config tweak. To always use
-RVM's version of ruby in Gnome Terminal, run the following as your
-non-root user:
+default, so RVM won't work there without a config tweak, like so:
 
-```
-gconftool-2 --set --type boolean /apps/gnome-terminal/profiles/Default/login_shell true
-```
-
-Or, you can navigate to Edit > Profiles >
-Highlight Default > Edit > Title and Command > Check **[ ] Run command
-as a login shell**. It looks like this:
+Navigate to Edit > Profiles > Highlight Default > Edit > Title and Command > Check **[ ] Run command
+as a login shell**. It looks something like this, depending on your specific version of Gnome:
 
 [[/screens/kali-gnome-terminal.png]]
 
@@ -156,6 +149,12 @@ Finally, see that you're now running the Ruby version in [`.ruby-version`](https
 
 ```
 ruby -v
+```
+
+If you're *still* not running the `.ruby-version` defined version of ruby, you probably need to restart your terminal. Make sure you've added rvm to your terminal startup if your initial install of RVM didn't already with something like:
+
+```bash
+echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"' >> .bashrc
 ```
 
 # Install Bundled Gems
