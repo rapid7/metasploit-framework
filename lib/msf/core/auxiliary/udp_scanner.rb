@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'ipaddress'
-
 module Msf
 
 ###
@@ -129,7 +127,8 @@ module Auxiliary::UDPScanner
     resend_count = 0
 
     begin
-      unless IPAddress(ip).multicast?
+      addrinfo = Addrinfo.ip(ip)
+      unless addrinfo.ipv4_multicast? || addrinfo.ipv6_multicast?
         sock = udp_socket(ip, port, bind_peer: true)
         sock.send(data, 0)
       else

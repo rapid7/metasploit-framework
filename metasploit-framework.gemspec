@@ -54,8 +54,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'backports'
   # Needed for some admin modules (cfme_manageiq_evm_pass_reset.rb)
   spec.add_runtime_dependency 'bcrypt'
-  # Address manipulation (TODO: evaluate to replace rex-socket address handling)
-  spec.add_runtime_dependency 'ipaddress'
   # Needed for Javascript obfuscation
   spec.add_runtime_dependency 'jsobfu'
   # Needed for some admin modules (scrutinizer_add_user.rb)
