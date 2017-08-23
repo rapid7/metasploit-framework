@@ -31,41 +31,42 @@ module MeterpreterOptions
   # advanced option is set to true.
   #
   def on_session(session)
-    super
+    init_session = Proc.new do
+      # Configure unicode encoding before loading stdapi
+      session.encode_unicode = datastore['EnableUnicodeEncoding']
 
-    # Defer the session initialization to the Session Manager scheduler
-    framework.sessions.schedule Proc.new {
+      session.init_ui(self.user_input, self.user_output)
 
-    # Configure unicode encoding before loading stdapi
-    session.encode_unicode = datastore['EnableUnicodeEncoding']
+      print_good("negotiating tlv encryption")
+      session.tlv_enc_key = session.core.negotiate_tlv_encryption
+      print_good("negotiated tlv encryption")
 
-    session.init_ui(self.user_input, self.user_output)
-
-    valid = true
-
-    session.tlv_enc_key = session.core.negotiate_tlv_encryption
-
-    if datastore['AutoVerifySession']
-      if not session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
-        print_error("Meterpreter session #{session.sid} is not valid and will be closed")
-        valid = false
+      if datastore['AutoVerifySession']
+        if !session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
+          print_error("Meterpreter session #{session.sid} is not valid and will be closed")
+          # Terminate the session without cleanup if it did not validate
+          session.skip_cleanup = true
+          session.kill
+          return nil
+        end
       end
-    end
+      print_good("negotiated tlv encryption")
 
-    if valid
       # always make sure that the new session has a new guid if it's not already known
       guid = session.session_guid
       if guid == '00000000-0000-0000-0000-000000000000'
         guid = SecureRandom.uuid
         session.core.set_session_guid(guid)
         session.session_guid = guid
-        # TODO: New statgeless session, do some account in the DB so we can track it later.
+        # TODO: New stageless session, do some account in the DB so we can track it later.
       else
         # TODO: This session was either staged or previously known, and so we shold do some accounting here!
       end
 
-      if datastore['AutoLoadStdapi']
+      # Call registered on_session callbacks
+      super
 
+      if datastore['AutoLoadStdapi']
         session.load_stdapi
 
         if datastore['AutoSystemInfo']
@@ -91,16 +92,9 @@ module MeterpreterOptions
       end
     end
 
-    # Terminate the session without cleanup if it did not validate
-    if not valid
-      session.skip_cleanup = true
-      session.kill
-    end
-
-    }
-
+    # Defer the session initialization to the Session Manager scheduler
+    framework.sessions.schedule init_session
   end
-
 end
 end
 end
