@@ -29,7 +29,6 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
       "dhcp_load_options" => "Load DHCP optionis from a datastore",
       "dhcp_log"          => "Log DHCP server activity"
     }
-
     reqs = {
       "dhcp_start"        => [ "lanattacks_start_dhcp" ],
       "dhcp_stop"         => [ "lanattacks_stop_dhcp" ],
@@ -38,19 +37,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
       "dhcp_load_options" => [ "lanattacks_set_dhcp_option" ],
       "dhcp_log"          => [ "lanattacks_dhcp_log" ]
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #

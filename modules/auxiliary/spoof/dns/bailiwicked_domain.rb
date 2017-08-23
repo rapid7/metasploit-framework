@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'net/dns'
 require 'resolv'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
 
   def initialize(info = {})
@@ -369,7 +368,7 @@ class MetasploitModule < Msf::Auxiliary
             answer = Resolv::DNS::Message.decode(answer)
             answer.each_answer do |name, ttl, data|
               if((name.to_s + ".") == domain and data.name.to_s == newdns)
-                print_status("Poisoning successful after #{queries} queries and #{responses} responses: #{domain} == #{newdns}")
+                print_good("Poisoning successful after #{queries} queries and #{responses} responses: #{domain} == #{newdns}")
                 srv_sock.close
                 close_pcap
                 return
@@ -477,5 +476,4 @@ class MetasploitModule < Msf::Auxiliary
     # XXX: We should subtract the timing from the target to us (calculated based on 0.50 of our non-recursive query times)
     avg_count
   end
-
 end

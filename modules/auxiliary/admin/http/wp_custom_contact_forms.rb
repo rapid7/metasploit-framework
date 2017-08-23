@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -97,12 +97,11 @@ class MetasploitModule < Msf::Auxiliary
 
     # login successful
     if cookie
-      print_status("User #{username} with password #{password} successfully created")
+      print_good("User #{username} with password #{password} successfully created")
       store_valid_credential(user: username, private: password, proof: cookie)
     else
       print_error("User creation failed")
       return
     end
   end
-
 end

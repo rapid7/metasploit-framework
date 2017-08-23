@@ -15,12 +15,12 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{ This module will test railgun api functions },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Spencer McIntyre' ],
-      'Platform'      => [ 'linux', 'windows' ]
+      'Platform'      => [ 'linux', 'osx', 'windows' ]
     ))
   end
 
-  def test_api_function_calls_linux
-    return unless session.platform == 'linux'
+  def test_api_function_calls_libc
+    return unless session.platform == 'linux' || session.platform == 'osx'
 
     buffer = nil
     buffer_size = 128
@@ -55,22 +55,22 @@ class MetasploitModule < Msf::Post
       ret &&= result['return'] != 0
       ret &&= result['dst'][0...8] == '10.0.0.1'
       # then test the inout parameter type
-      result = session.railgun.libc.memfrob('metasploit', 10)
+      result = session.railgun.libc.strcat("meta\x00\x00\x00\x00\x00\x00\x00", 'sploit')
       ret &&= result['GetLastError'] == 0
       ret &&= result['return'] != 0
-      ret &&= result['mem'] == 'GO^KYZFEC^'
+      ret &&= result['to'] == 'metasploit'
     end
 
     it "Should support calling multiple functions at once" do
       ret = true
       multi_rail = [
         ['libc', 'getpid', []],
-        ['libc', 'memfrob', ['metasploit', 10]]
+        ['libc', 'strcat', ["meta\x00\x00\x00\x00\x00\x00\x00", 'sploit']]
       ]
       results = session.railgun.multi(multi_rail)
       ret &&= results.length == multi_rail.length
       ret &&= results[0]['return'] == session.sys.process.getpid
-      ret &&= results[1]['mem'] == 'GO^KYZFEC^'
+      ret &&= results[1]['to'] == 'metasploit'
     end
 
     it "Should support writing memory" do

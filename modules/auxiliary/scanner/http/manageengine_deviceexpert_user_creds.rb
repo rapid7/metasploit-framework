@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
       cred_table << [user, pass, hash, role, mail, salt]
 
       if pass
-        print_status("Found weak credentials (#{user}:#{pass})")
+        print_good("Found weak credentials (#{user}:#{pass})")
         credential_data = {
           origin_type: :service,
           module_fullname: self.fullname,

@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'timeout'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -187,5 +186,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return reply
   end
-
 end

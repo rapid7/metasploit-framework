@@ -17,8 +17,6 @@ RUN apk update && \
       nmap-scripts \
       nmap-nselibs \
       postgresql-libs \
-      # needed as long as metasploit-framework.gemspec contains a 'git ls'
-      git \
       ncurses \
       libcap \
     && apk add --virtual .ruby-builddeps \
@@ -26,7 +24,6 @@ RUN apk update && \
       bison \
       build-base \
       ruby-dev \
-      libffi-dev\
       openssl-dev \
       readline-dev \
       sqlite-dev \
@@ -37,7 +34,9 @@ RUN apk update && \
       yaml-dev \
       zlib-dev \
       ncurses-dev \
+      git \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
+    && gem install bundler \
     && bundle install --system $BUNDLER_ARGS \
     && apk del .ruby-builddeps \
     && rm -rf /var/cache/apk/*

@@ -51,6 +51,7 @@ class Core
     "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
+    "-S"  => [ true, "Row search filter."                                              ],
     "-x" =>  [ false, "Show extended information in the session table"                 ])
 
   @@threads_opts = Rex::Parser::Arguments.new(
@@ -85,6 +86,10 @@ class Core
     "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
     "-c" => [ false, "Only print a count of matching lines."          ])
 
+  @@search_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-S" => [ true, "Row search filter."                              ])
+
   @@history_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
@@ -94,7 +99,6 @@ class Core
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
-
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -170,9 +174,6 @@ class Core
     end
     driver.update_prompt
   end
-
-
-
 
   def cmd_cd_help
     print_line "Usage: cd <directory>"
@@ -870,10 +871,12 @@ class Core
 
     when "add", "remove", "del"
       subnet = args.shift
-      netmask = nil
-      if subnet
-        subnet, cidr_mask = subnet.split("/")
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i) if cidr_mask
+      subnet,cidr_mask = subnet.split("/")
+      if Rex::Socket.is_ipv4?(args.first)
+        netmask = args.shift
+      else
+        cidr_mask = '32' if cidr_mask.nil?
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
       end
 
       netmask = args.shift if netmask.nil?
@@ -1075,7 +1078,6 @@ class Core
     print_line("Saved configuration to: #{Msf::Config.config_file}")
   end
 
-
   def cmd_spool_help
     print_line "Usage: spool <off>|<filename>"
     print_line
@@ -1140,6 +1142,7 @@ class Core
     script   = nil
     reset_ring = false
     response_timeout = 15
+    search_term = nil
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1152,53 +1155,58 @@ class Core
       # Parse the command options
       @@sessions_opts.parse(args) do |opt, idx, val|
         case opt
-        when '-q'
+        when "-q"
           quiet = true
         # Run a command on all sessions, or the session given with -i
-        when '-c'
+        when "-c"
           method = 'cmd'
           cmds << val if val
-        when '-C'
+        when "-C"
             method = 'meterp-cmd'
             cmds << val if val
-        when '-x'
+        when "-x"
           show_extended = true
-        when '-v'
+        when "-v"
           verbose = true
         # Do something with the supplied session identifier instead of
         # all sessions.
-        when '-i'
+        when "-i"
           sid = val
         # Display the list of active sessions
-        when '-l'
+        when "-l"
           method = 'list'
-        when '-k'
+        when "-k"
           method = 'kill'
           sid = val || false
-        when '-K'
+        when "-K"
           method = 'killall'
         # Run a script on all meterpreter sessions
-        when '-s'
+        when "-s"
           unless script
             method = 'scriptall'
             script = val
           end
         # Upload and exec to the specific command session
-        when '-u'
+        when "-u"
           method = 'upexec'
           sid = val || false
+        # Search for specific session
+        when "-S", "--search"
+          search_term = val
         # Reset the ring buffer read pointer
-        when '-r'
+        when "-r"
           reset_ring = true
           method = 'reset_ring'
         # Display help banner
-        when '-h'
+        when "-h"
           cmd_sessions_help
           return false
-        when '-t'
+        when "-t"
           if val.to_s =~ /^\d+$/
             response_timeout = val.to_i
           end
+        when "-S", "--search"
+          search_term = val
         else
           extra << val
         end
@@ -1464,7 +1472,7 @@ class Core
       end
     when 'list',nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose))
+      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose, :search_term => search_term))
       print_line
     end
 
@@ -1953,7 +1961,6 @@ class Core
 
   alias cmd_unsetg_help cmd_unset_help
 
-
   #
   # Returns the revision of the framework and console library
   #
@@ -2411,7 +2418,6 @@ class Core
     ]
     return binary_paths.include? Msf::Config.install_root
   end
-
 
   #
   # Returns an array of lines at the provided line number plus any before and/or after lines requested

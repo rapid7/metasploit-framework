@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -54,5 +54,4 @@ class MetasploitModule < Msf::Post
     client.fs.file.upload_file('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', meterp_temp)
     print_good("Done!")
   end
-
 end

@@ -7,12 +7,12 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_libc
+class Def_linux_libc
 
-  def self.create_dll(constant_manager, dll_path = 'libc.so.6')
-    dll = DLL.new(dll_path, constant_manager)
+  def self.create_library(constant_manager, library_path = 'libc.so.6')
+    lib = Library.new(library_path, constant_manager)
 
-    dll.add_function(
+    lib.add_function(
       'calloc',
       'LPVOID',
       [
@@ -22,7 +22,7 @@ class Def_libc
       nil,
       'cdecl'
     )
-    dll.add_function(
+    lib.add_function(
       'free',
       'VOID',
       [
@@ -31,14 +31,14 @@ class Def_libc
       nil,
       'cdecl',
     )
-    dll.add_function(
+    lib.add_function(
       'getpid',
       'DWORD',
       [],
       nil,
       'cdecl'
     )
-    dll.add_function(
+    lib.add_function(
       'inet_ntop',
       'LPVOID',
       [
@@ -50,7 +50,7 @@ class Def_libc
       nil,
       'cdecl'
     )
-    dll.add_function(
+    lib.add_function(
       'inet_pton',
       'DWORD',
       [
@@ -61,14 +61,14 @@ class Def_libc
       nil,
       'cdecl'
     )
-    dll.add_function(
+    lib.add_function(
       'malloc',
       'LPVOID',
       [['SIZE_T', 'size', 'in']],
       nil,
       'cdecl'
     )
-    dll.add_function(
+    lib.add_function(
       'memfrob',
       'LPVOID',
       [
@@ -78,7 +78,7 @@ class Def_libc
       nil,
       'cdecl'
     )
-    dll.add_function(
+    lib.add_function(
       'mmap',
       'LPVOID',
       [
@@ -92,7 +92,7 @@ class Def_libc
       nil,
       'cdecl'
     )
-    dll.add_function(
+    lib.add_function(
       'mprotect',
       'DWORD',
       [
@@ -103,7 +103,7 @@ class Def_libc
       nil,
       'cdecl'
     )
-    dll.add_function(
+    lib.add_function(
       'munmap',
       'DWORD',
       [
@@ -113,7 +113,17 @@ class Def_libc
       nil,
       'cdecl'
     )
-    return dll
+    lib.add_function(
+      'strcat',
+      'LPVOID',
+      [
+        ['PCHAR', 'to', 'inout'],
+        ['PCHAR', 'from', 'in']
+      ],
+      nil,
+      'cdecl'
+    )
+    return lib
   end
 
 end

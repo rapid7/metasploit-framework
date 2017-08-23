@@ -459,7 +459,7 @@ class Utils
     # Microsoft network server : Server SPN target name validation level is set to <Required from client>
     # otherwise it send an STATUS_ACCESS_DENIED packet
     if spnopt[:use_spn]
-      spn= Rex::Text.to_unicode("cifs/#{spnopt[:name] || 'unknow'}")
+      spn= Rex::Text.to_unicode("cifs/#{spnopt[:name] || 'unknown'}")
       addr_list  << [9, spn.length].pack('vv') + spn
     end
 

@@ -99,25 +99,21 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.info', 'exploit', 'windows/smb/ms08_067_netapi')
   def rpc_info(mtype, mname)
     m = _find_module(mtype,mname)
-    res = {}
-
-    res['name'] = m.name
-    res['description'] = m.description
+    res = module_short_info(m)
+    res['description'] = Rex::Text.compress(m.description)
     res['license'] = m.license
     res['filepath'] = m.file_path
-    res['rank'] = m.rank.to_i
+    res['arch'] = m.arch.map { |x| x.to_s }
+    res['platform'] = m.platform.platforms.map { |x| x.to_s }
+    res['authors'] = m.author.map { |a| a.to_s }
+    res['privileged'] = m.privileged?
 
     res['references'] = []
     m.references.each do |r|
       res['references'] << [r.ctx_id, r.ctx_val]
     end
 
-    res['authors'] = []
-    m.each_author do |a|
-      res['authors'] << a.to_s
-    end
-
-    if(m.type == "exploit")
+    if m.type == 'exploit'
       res['targets'] = {}
       m.targets.each_index do |i|
         res['targets'][i] = m.targets[i].name
@@ -126,22 +122,61 @@ class RPC_Module < RPC_Base
       if (m.default_target)
         res['default_target'] = m.default_target
       end
+
+      # Some modules are a combination, which means they are actually aggressive
+      res['stance'] = m.stance.to_s.index('aggressive') ? 'aggressive' : 'passive'
     end
 
-    if(m.type == "auxiliary")
+    if m.type == 'auxiliary' || m.type == 'post'
       res['actions'] = {}
       m.actions.each_index do |i|
         res['actions'][i] = m.actions[i].name
       end
 
-      if (m.default_action)
+      if m.default_action
         res['default_action'] = m.default_action
       end
+
+      if m.type == 'auxiliary'
+        res['stance'] = m.passive? ? 'passive' : 'aggressive'
+      end
     end
+
+    opts = {}
+    m.options.each_key do |k|
+      o = m.options[k]
+      opts[k] = {
+        'type'     => o.type,
+        'required' => o.required,
+        'advanced' => o.advanced,
+        'desc'     => o.desc
+      }
+
+      opts[k]['default'] = o.default unless o.default.nil?
+      opts[k]['enums'] = o.enums if o.enums.length > 1
+    end
+    res['options'] = opts
 
     res
   end
 
+  def module_short_info(m)
+    res = {}
+    res['type'] = m.type
+    res['name'] = m.name
+    res['fullname'] = m.fullname
+    res['rank'] = RankingName[m.rank].to_s
+    res['disclosuredate'] = m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d")
+    res
+  end
+
+  def rpc_search(match)
+    matches = []
+    self.framework.search(match).each do |m|
+      matches << module_short_info(m)
+    end
+    matches
+  end
 
   # Returns the compatible payloads for a specific exploit.
   #
@@ -386,7 +421,7 @@ class RPC_Module < RPC_Base
 
       # How to warn?
       #if exeopts[:fellback]
-      #	$stderr.puts(OutError + "Warning: Falling back to default template: #{exeopts[:fellback]}")
+      #  $stderr.puts(OutError + "Warning: Falling back to default template: #{exeopts[:fellback]}")
       #end
 
       { "encoded" => output.to_s }

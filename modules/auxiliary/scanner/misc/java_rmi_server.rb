@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/java/serialization'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Java::Rmi::Client
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -21,8 +20,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           # RMI protocol specification
           [ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html'],
-          # Placeholder reference for matching
-          [ 'MSF', 'java_rmi_server']
+          [ 'URL', 'http://www.securitytracker.com/id?1026215'],
+          [ 'CVE', '2011-3556']
         ],
       'DisclosureDate' => 'Oct 15 2011'
     )
@@ -80,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     return_value = recv_return
 
     if return_value.nil?
-      print_error("Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
+      print_good("Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
       return
     end
@@ -177,5 +176,4 @@ class MetasploitModule < Msf::Auxiliary
 
     arguments
   end
-
 end

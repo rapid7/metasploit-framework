@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
@@ -107,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         uri = "http://#{rhost}:#{datastore['HTTP_PORT']}"
-        print_status("Confirmed IE ActiveX HTTP interface (#{v}): #{uri}")
+        print_good("Confirmed IE ActiveX HTTP interface (#{v}): #{uri}")
 
         report_service(
           :host => rhost,
@@ -215,5 +214,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

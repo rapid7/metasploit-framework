@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner
@@ -19,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
           third party.
       },
       'Author'      => [ 'xistence <xistence[at]0x90.nl>'], # Original scanner module
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'References'  =>
+          [
+              ['CVE', '2006-0987'],
+              ['CVE', '2006-0988'],
+          ]
     )
 
     register_options( [
@@ -124,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => datastore['RPORT'],
           :proto => 'udp', :name => "DNS",
           :info => "DNS amplification -  #{data.length} bytes [#{amp.round(2)}x Amplification]",
-          :refs => [ "CVE-2006-0987", "CVE-2006-0988" ])
+          :refs => self.references)
       end
 
       # If these flags are set, we get a valid response but recursion is not available

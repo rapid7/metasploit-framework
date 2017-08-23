@@ -16,9 +16,8 @@ rvm:
   - '2.4.1'
 
 env:
-  - CMD=bundle exec rake "cucumber cucumber:boot" CREATE_BINSTUBS=true
-  - CMD=bundle exec rake spec SPEC_OPTS="--tag content"
-  - CMD=bundle exec rake spec SPEC_OPTS="--tag ~content"
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
 
 matrix:
   fast_finish: true
@@ -32,14 +31,18 @@ before_install:
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
+  # Update the bundler
+  - gem install bundler
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
-script:
   # fail build if db/schema.rb update is not committed
-  - git diff --exit-code db/schema.rb && $CMD
+  - git diff --exit-code db/schema.rb
+script:
+  - echo "${CMD}"
+  - bash -c "${CMD}"
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
