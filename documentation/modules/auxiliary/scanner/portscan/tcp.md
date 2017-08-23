@@ -1,6 +1,6 @@
 ## Description
   
-   This module will Enumerate open TCP services by performing a full TCP     connect on each port. This will establish a complete three-way handshake (SYN -> SYN/ACK -> ACK) on the target port. This does not need administrative privileges on the sourcemachine, which may be useful if pivoting.
+   This module will enumerate open TCP services by performing a full TCP connect on each port. This will establish a complete three-way handshake (SYN -> SYN/ACK -> ACK) on the target port. This does not need administrative privileges on the source machine, which may be useful if pivoting.
 
 ## Vulnerable Application
 
@@ -10,12 +10,12 @@
 
   **PORTS**
   This is the list of ports to test for TCP Scan on each host.
-  Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported.Default
+  Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported. Default
   options is to scan `1-10000` ports.
  
   **ConnectTimeout**
   This options states the maximum number of seconds to establish a tcp 
-  connection. Default value if 10.
+  connection. Default value if `10`.
  
   **VERBOSE**
   Gives detailed message about the scan of all the ports. It also shows the
@@ -26,12 +26,10 @@
   2. Do: ```set RHOSTS [IP]```
   3. Do: ```set RPORT [IP]```
   4. Do: ```run```
-  5. If any of the TCP ports were open they will be discovered , status     will   be printed indicating as such.
-
+  
 ## Scenarios
   Example run against
-  * Metaspliotable2-Linux:192.168.45.159
-  * Ubuntu 14.04: 192.168.45.137
+  ### Metaspliotable 2
   
 ```	
 msf > use auxiliary/scanner/portscan/tcp
@@ -67,3 +65,4 @@ msf auxiliary(tcp) > run
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
+
