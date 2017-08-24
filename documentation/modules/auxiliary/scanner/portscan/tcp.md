@@ -9,27 +9,31 @@
 ## Options
 
   **PORTS**
+
   This is the list of ports to test for TCP Scan on each host.
   Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported. Default
   options is to scan `1-10000` ports.
  
   **ConnectTimeout**
+
   This options states the maximum number of seconds to establish a tcp 
   connection. Default value if `10`.
  
   **VERBOSE**
+
   Gives detailed message about the scan of all the ports. It also shows the
   ports that were closed.
 
 ## Verification Steps
+
   1. Do: ```use auxiliary/scanner/portscan/tcp```
   2. Do: ```set RHOSTS [IP]```
   3. Do: ```set PORTS [PORTS]```
   4. Do: ```run```
   
 ## Scenarios
-  Example run against
-  ### Metaspliotable 2
+
+### Metaspliotable 2
   
 ```	
 msf > use auxiliary/scanner/portscan/tcp
