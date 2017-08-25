@@ -2,6 +2,8 @@
 
 [Maven](https://maven.apache.org/) a software project management.
 This module seeks all settings.xml (Maven configuration file) on the target file system to extract credentials from them.
+Credentials are store in the <server> tag ; the module also tries to cross the identifier found with the <mirror> or
+<repository> tag in order to find the full realm the credentials belong to.
 
 This module was successfully tested against:
 
@@ -29,15 +31,34 @@ msf post(maven_creds) > run
 [*] Downloading /home/user/settings.xml
 [*] Reading settings.xml file from /home/user/settings.xml
 [*] Collected the following credentials:
-[*]     Id: server-nexus
-[*]     Username: deploynexus
-[*]     Password: password
+[*]     Id: server-nexus-dev
+[*]     Username: deploynexus-dev
+[*]     Password: password-dev
+[*] Try to find url from id...
+[*] No url found, id will be set as realm
+
+[*] Collected the following credentials:
+[*]     Id: server-nexus-int
+[*]     Username: deploynexus-int
+[*]     Password: password-int
+[*] Try to find url from id...
+[*] Found url in mirror : http://www.myhost.com/int
+
+[*] Collected the following credentials:
+[*]     Id: server-nexus-prd
+[*]     Username: deploynexus-prd
+[*]     Password: password-prd
+[*] Try to find url from id...
+[*] Found url in repository : http://www.myhost.com/prd
+
 
 msf post(maven_creds) > creds
 
 Credentials
 ===========
 
-host  origin  service  public          private     realm           private_type
-----  ------  -------  ------          -------     -----           ------------
-                       deploynexus     password    server-nexus    Password
+host  origin  service  public              private         realm                        private_type
+----  ------  -------  ------              -------         -----                        ------------
+                       deploynexus-dev     password-dev    server-nexus-dev             Password
+                       deploynexus-int     password-int    http://www.myhost.com/int    Password
+                       deploynexus-prd     password-prd    http://www.myhost.com/prd    Password
