@@ -1477,7 +1477,7 @@ class Core
       print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose, :search_term => search_term))
       print_line
     when 'name'
-      if session_name.nil? || session_name.blank?
+      if session_name.blank?
         print_error('Please specify a valid session name')
         return false
       end
