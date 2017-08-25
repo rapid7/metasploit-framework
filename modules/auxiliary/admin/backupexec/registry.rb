@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This modules exploits a remote registry access flaw in the BackupExec Windows
       Server RPC service. This vulnerability was discovered by Pedram Amini and is based
-      on the NDR stub information information posted to openrce.org.
+      on the NDR stub information posted to openrce.org.
       Please see the action list for the different attack modes.
 
       },
