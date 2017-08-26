@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Post
       when 'unix', 'linux', 'bsd', 'osx'
         files = gathernix
       else
-        print_error("Incompatible platform.")
+        print_error("Incompatible platform")
     end
     if files.nil? || files.empty?
       print_error("No settings.xml file found")
@@ -97,6 +97,7 @@ class MetasploitModule < Msf::Post
 
       print_status("Try to find url from id...")
       realm = ""
+
       xml_doc.xpath("//mirror[id = '#{id}']").each do |mirror|
         realm = mirror.xpath("url").text
         print_status("Found url in mirror : #{realm}")
