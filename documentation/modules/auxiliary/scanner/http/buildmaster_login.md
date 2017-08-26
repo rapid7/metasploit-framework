@@ -1,4 +1,4 @@
-This module allows you to authenticate to Inedo BuildMaster, an application release automation tool. The default credentials for BuildMaster are Admin/Admin. Gaining privileged access to a BuildMaster can lead to remote code execution.
+This module allows you to authenticate to Inedo BuildMaster, an application release automation tool. The default credentials for BuildMaster are Admin/Admin. Gaining privileged access to BuildMaster can lead to remote code execution.
 
 ## Verification Steps
 
