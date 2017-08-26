@@ -13,7 +13,7 @@ This module allows you to authenticate to Inedo BuildMaster, an application rele
 
 Attempt to login with the default credentials.
 ```
-msf > use auxiliary/scanner/http/buildmaster_login 
+msf > use auxiliary/scanner/http/buildmaster_login
 msf auxiliary(buildmaster_login) > set RHOSTS 10.0.0.8
 RHOSTS => 10.0.0.8
 msf auxiliary(buildmaster_login) > run
@@ -26,7 +26,8 @@ msf auxiliary(buildmaster_login) > run
 msf auxiliary(buildmaster_login) >
 ```
 Brute force with credentials from file.
-```msf > use auxiliary/scanner/http/buildmaster_login 
+```
+msf > use auxiliary/scanner/http/buildmaster_login 
 msf auxiliary(buildmaster_login) > options
 
 Module options (auxiliary/scanner/http/buildmaster_login):
