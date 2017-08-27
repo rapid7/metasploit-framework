@@ -23,7 +23,8 @@ module Auxiliary::UDPScanner
     [
       Opt::RPORT,
       OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-      OptInt.new('THREADS', [true, "The number of concurrent threads", 10])
+      OptInt.new('THREADS', [true, "The number of concurrent threads", 10]),
+      OptString.new('INTERFACE', [false, 'The name of the interface'])
     ], self.class)
 
     register_advanced_options(
@@ -101,7 +102,7 @@ module Auxiliary::UDPScanner
   end
 
   # Send a spoofed packet to a given host and port
-  def scanner_spoof_send(data, ip, port, srcip, num_packets=1)
+  def scanner_spoof_send(data, ip, port, srcip, num_packets = 1)
     open_pcap
     p = PacketFu::UDPPacket.new
     p.ip_saddr = srcip
@@ -111,7 +112,11 @@ module Auxiliary::UDPScanner
     p.udp_dst = port
     p.payload = data
     p.recalc
-    print_status("Sending #{num_packets} packet(s) to #{ip} from #{srcip}")
+    if num_packets != 1
+      vprint_status("Sending #{num_packets} packets to #{ip} from #{srcip}")
+    else
+      vprint_status("Sending 1 packet to #{ip} from #{srcip}")
+    end
     1.upto(num_packets) do |x|
       break unless capture_sendto(p, ip)
     end
@@ -244,7 +249,11 @@ module Auxiliary::UDPScanner
 
   # Called before the scan block
   def scanner_prescan(batch)
-    vprint_status("Sending probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+    if batch.length > 1
+      vprint_status("Scanning #{batch[0]}-#{batch[-1]} (#{batch.length} hosts)")
+    else
+      vprint_status("Scanning #{batch[0]} (#{batch.length} host)")
+    end
     @results = {}
   end
 
