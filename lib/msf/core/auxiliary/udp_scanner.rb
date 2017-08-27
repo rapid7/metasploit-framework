@@ -151,6 +151,16 @@ module Auxiliary::UDPScanner
     rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED
       # This fires for host unreachable, net unreachable, and broadcast sends
       # We can safely ignore all of these for UDP sends
+
+    rescue Rex::BindFailed
+      # Handle an unbound CHOST
+      begin
+        scanner_spoof_send(build_probe, ip, rport, datastore['CHOST'])
+      rescue RuntimeError => e
+        print_error "Cannot send to #{ip}: #{e.message}"
+        raise ::Rex::BindFailed
+        return false
+      end
     end
 
     @interval_mutex.synchronize do

@@ -36,22 +36,12 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(53),
-      OptAddress.new('SRC_ADDR', [false, 'Source address to spoof'])
     ])
 
     deregister_options('PCAPFILE', 'FILTER', 'SNAPLEN', 'TIMEOUT')
   end
 
-  def scan_host(ip)
-    if datastore['SRC_ADDR']
-      scanner_spoof_send(payload, ip, rport, datastore['SRC_ADDR'])
-    else
-      print_status("Sending packet to #{ip}")
-      scanner_send(payload, ip, rport)
-    end
-  end
-
-  def payload
+  def build_probe
     name = Rex::Text.rand_text_alphanumeric(rand(42) + 1)
     txt  = Rex::Text.rand_text_alphanumeric(rand(42) + 1)
 
