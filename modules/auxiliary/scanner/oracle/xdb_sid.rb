@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'Oracle XML DB SID Discovery',
       'Description' => %q{
-          This module simply makes a authenticated request to retrieve
+          This module simply makes an authenticated request to retrieve
           the sid from the Oracle XML DB httpd server.
       },
       'References'  =>

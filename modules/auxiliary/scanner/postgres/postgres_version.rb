@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'PostgreSQL Version Probe',
       'Description'    => %q{
-        Enumerates the verion of PostgreSQL servers.
+        Enumerates the version of PostgreSQL servers.
       },
       'Author'         => [ 'todb' ],
       'License'        => MSF_LICENSE,
