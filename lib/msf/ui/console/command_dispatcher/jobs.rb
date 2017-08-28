@@ -339,7 +339,7 @@ module Msf
               framework.jobs[job_id.to_s].send(:name=, job_name)
             end
 
-            print_status "Payload Handler Started as Job #{job_id}"
+            print_status "Payload handler running as background job #{job_id}."
           end
         end
       end
