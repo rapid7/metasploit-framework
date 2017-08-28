@@ -26,19 +26,19 @@ class Robots
       io.each do |line|
         next if line =~ /^\s*(#.*|$)/
         arr = line.split(":")
-        key = arr.shift
+        key = arr.shift.to_s.downcase
         value = arr.join(":").strip
         value.strip!
         case key
-        when "User-agent"
+        when "user-agent"
           agent = to_regex(value)
-        when "Allow"
+        when "allow"
           @allows[agent] ||= []
           @allows[agent] << to_regex(value)
-        when "Disallow"
+        when "disallow"
           @disallows[agent] ||= []
           @disallows[agent] << to_regex(value)
-        when "Crawl-delay"
+        when "crawl-delay"
           @delays[agent] = value.to_i
         else
           @other[key] ||= []
