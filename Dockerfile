@@ -42,10 +42,6 @@ RUN apk update && \
     && apk del .ruby-builddeps \
     && rm -rf /var/cache/apk/*
 
-# fix for robots gem not readable (known bug)
-# https://github.com/rapid7/metasploit-framework/issues/6068
-RUN chmod o+r /usr/local/bundle/gems/robots-*/lib/robots.rb
-
 RUN adduser -g msfconsole -D $MSF_USER
 
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
