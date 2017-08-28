@@ -58,7 +58,6 @@ PATH
       rex-struct2
       rex-text
       rex-zip
-      robots
       ruby_smb
       rubyntlm
       rubyzip
@@ -271,7 +270,6 @@ GEM
     rex-zip (0.1.3)
       rex-text
     rkelly-remix (0.0.7)
-    robots (0.10.1)
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
       rspec-expectations (~> 3.6.0)
