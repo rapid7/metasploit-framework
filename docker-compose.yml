@@ -4,7 +4,7 @@ services:
     image: metasploit
     build:
       context: .
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./Dockerfile
     environment:
       DATABASE_URL: postgres://postgres@db:5432/msf
     links:
