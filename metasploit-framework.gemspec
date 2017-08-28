@@ -171,8 +171,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-exploitation'
   # Command line editing, history, and tab completion in msfconsole
   spec.add_runtime_dependency 'rb-readline'
-  # Needed by anemone crawler
-  spec.add_runtime_dependency 'robots'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
   # Needed for some post modules
