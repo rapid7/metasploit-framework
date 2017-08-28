@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Post
       return false
     end
     if is_domain_controller?
-      print_status "Sessions is on a Domain Controller"
+      print_status "Session is on a Domain Controller"
     else
       print_error "This does not appear to be an AD Domain Controller"
       return false
