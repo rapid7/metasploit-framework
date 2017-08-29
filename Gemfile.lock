@@ -169,7 +169,7 @@ GEM
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
     net-ssh (4.1.0)
-    network_interface (0.0.1)
+    network_interface (0.0.2)
     nexpose (6.1.1)
     nokogiri (1.8.0)
       mini_portile2 (~> 2.2.0)
