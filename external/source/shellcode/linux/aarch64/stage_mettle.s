@@ -2,9 +2,6 @@
 .equ SYS_MMAP, 0xde
 .equ SYS_EXIT, 0x5d
 
-.equ SIZE, 0xeeeeeeee
-.equ ENTRY, 0xffffffff
-
 start:
     adr    x2, size
     ldr    w2, [x2]
@@ -94,8 +91,8 @@ failed:
 
 .balign 16
 size:
-        .word SIZE
+        .word 0
         .word 0
 entry:
-        .word ENTRY
+        .word 0
         .word 0

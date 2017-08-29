@@ -37,7 +37,7 @@ start:
     mov    x2, #4
     mov    x8, SYS_READ
     svc    0
-    cmn	   x0, #0x1
+    cmn    x0, #0x1
     beq    failed
 
     ldr    w2, [sp,#0]
@@ -56,7 +56,7 @@ start:
     mov    x5, xzr
     mov    x8, SYS_MMAP
     svc    0
-    cmn	   x0, #0x1
+    cmn    x0, #0x1
     beq    failed
 
     /* Grab the saved size, save the address */
@@ -75,7 +75,7 @@ read_loop:
     mov    x2, x4
     mov    x8, SYS_READ
     svc    0
-    cmn	   x0, #0x1
+    cmn    x0, #0x1
     beq    failed
     add    x3, x3, x0
     subs   x4, x4, x0
