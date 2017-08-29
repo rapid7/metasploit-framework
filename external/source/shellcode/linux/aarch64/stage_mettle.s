@@ -60,28 +60,28 @@ read_loop:
     mov    x1, #109
     str    x1, [sp]
     mov    x1, sp
-    stp    x0, x1, [sp, #-16]!
 
-    /* argc = 2, argv[1] = 'x12 (sockfd)' */
     mov    x2, x12
     mov    x3, 0
-    stp    x2, x3, [sp, #-16]!
 
     mov    x4, 0
     mov    x5, #7 /* AT_BASE */
-    stp    x4, x5, [sp, #-16]!
 
     mov    x6, x10
     mov    x7, #6 /* AT_PAGESZ */
-    stp    x6, x7, [sp, #-16]!
 
     mov    x8, #0x1000
     mov    x9, #25 /* AT_RANDOM */
-    stp    x8, x9, [sp, #-16]!
 
     mov    x10, x10
     mov    x11, #0 /* AT_NULL */
+
     stp    x10, x11, [sp, #-16]!
+    stp    x8, x9, [sp, #-16]!
+    stp    x6, x7, [sp, #-16]!
+    stp    x4, x5, [sp, #-16]!
+    stp    x2, x3, [sp, #-16]!
+    stp    x0, x1, [sp, #-16]!
 
     mov    x29, #0
     mov    x30, #0

