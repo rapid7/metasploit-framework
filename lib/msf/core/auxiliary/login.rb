@@ -44,7 +44,7 @@ module Auxiliary::Login
         Unable    | Error    | Denied    | Reject   |
         Refuse    | Close    | Closing   | %\ Bad   |
         Sorry     |
-        \<\/body\>\<\/html\> |
+        ^http | html |
         Not\ on\ system\ console |
         Enter\ username\ and\ password |
         Auto\ Apply\ On |
