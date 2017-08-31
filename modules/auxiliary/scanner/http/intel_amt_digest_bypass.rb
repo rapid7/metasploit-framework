@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         This module scans for Intel Active Management Technology endpoints and attempts
         to bypass authentication using a blank HTTP digest (CVE-2017-5689). This service
-        can be found on ports 16992, 16993 (tls), 623, and 624(tls).
+        can be found on ports 16992, 16993 (tls), 623, and 624 (tls).
       },
       'Author'      => 'hdm',
       'License'     => MSF_LICENSE,

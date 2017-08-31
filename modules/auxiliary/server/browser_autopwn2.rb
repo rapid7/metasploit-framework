@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         if you wish to load just Adobe Flash exploits, then you can set Include to 'adobe_flash'.
 
         The EXCLUDE_PATTERN option will ignore exploits. For example, if you don't want any Adobe Flash
-        exploits, you can set this. Also note that the Exclude option will always be evaludated
+        exploits, you can set this. Also note that the Exclude option will always be evaluated
         after the Include option.
 
         The MaxExploitCount option specifies the max number of exploits to load by Browser Autopwn.
