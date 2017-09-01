@@ -42,7 +42,7 @@ module Payload::Windows::MeterpreterLoader_x64
           push rbp              ; save rbp
           mov rbp, rsp          ; set up a new stack frame
           sub rsp, 32           ; allocate some space for calls.
-          and rsp, ~0xF         ; Ensure RSP is 16 byte aligned 
+          and rsp, ~0xF         ; Ensure RSP is 16 byte aligned
         ; GetPC
           call $+5              ; relative call to get location
           pop rbx               ; pop return value
