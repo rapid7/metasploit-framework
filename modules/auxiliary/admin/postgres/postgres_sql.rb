@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'PostgreSQL Server Generic Query',
       'Description'    => %q{
           This module will allow for simple SQL statements to be executed against a
-          PostgreSQL instance given the appropiate credentials.
+          PostgreSQL instance given the appropriate credentials.
       },
       'Author'         => [ 'todb' ],
       'License'        => MSF_LICENSE,

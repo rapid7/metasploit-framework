@@ -573,11 +573,11 @@ module Msf
             mod_name = args[0]
 
             # Ensure we have a reference name and not a path
-            if mod_name.start_with?('modules/', '/')
-              mod_name.sub!(/^(?:modules)?\//, '')
+            if mod_name.start_with?('./', 'modules/')
+              mod_name.sub!(/^(?:\.\/)?modules\//, '')
             end
-            if mod_name.end_with?('.', '.r', '.rb')
-              mod_name.sub!(/\.(?:rb?)?$/, '')
+            if mod_name.end_with?('.rb')
+              mod_name.sub!(/\.rb$/, '')
             end
 
             begin

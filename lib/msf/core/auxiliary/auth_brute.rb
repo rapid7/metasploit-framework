@@ -607,7 +607,7 @@ module Auxiliary::AuthBrute
     else
       complete_message = ''
       unless ip.blank? && port.blank?
-        complete_message << "#{ip}:#{rport}"
+        complete_message << "#{ip}:#{port}"
       else
         complete_message << proto || 'Bruteforce'
       end
