@@ -135,7 +135,6 @@ LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 GUID_SIZE = 16
 NULL_GUID = "\x00" * GUID_SIZE
 
-
 ###
 #
 # Base TLV (Type-Length-Value) class
@@ -809,7 +808,6 @@ class Packet < GroupTlv
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
     raw = (session_guid || NULL_GUID).dup
-
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
     if key && key[:key] && key[:type] == ENC_FLAG_AES256
