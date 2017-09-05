@@ -9,7 +9,7 @@ require 'msf/core/payload/windows/reverse_named_pipe'
 
 module MetasploitModule
 
-  CachedSize = 281
+  CachedSize = 276
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseNamedPipe
