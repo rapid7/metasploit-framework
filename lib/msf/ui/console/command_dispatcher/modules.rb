@@ -78,11 +78,15 @@ module Msf
           #
           # Edit the currently active module
           #
-          def cmd_edit
-            if active_module
-              editor = local_editor
-              path   = active_module.file_path
+          def cmd_edit(*args)
+            if args.length > 0
+              path = args[0]
+            elsif active_module
+              path = active_module.file_path
+            end
 
+            if path
+              editor = local_editor
               if editor.nil?
                 editor = 'vim'
                 print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
@@ -90,6 +94,10 @@ module Msf
 
               print_status("Launching #{editor} #{path}")
               system(editor, path)
+              
+              if args.length > 0
+                load args[0]
+              end
             else
               print_error('Nothing to edit -- try using a module first.')
             end
