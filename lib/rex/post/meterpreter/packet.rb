@@ -129,6 +129,13 @@ LOAD_LIBRARY_FLAG_ON_DISK   = (1 << 0)
 LOAD_LIBRARY_FLAG_EXTENSION = (1 << 1)
 LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 
+#
+# Sane defaults
+#
+GUID_SIZE = 16
+NULL_GUID = "\x00" * GUID_SIZE
+
+
 ###
 #
 # Base TLV (Type-Length-Value) class
@@ -670,11 +677,10 @@ class Packet < GroupTlv
   ###
 
   XOR_KEY_SIZE = 4
-  SESSION_GUID_SIZE = 16
   ENCRYPTED_FLAGS_SIZE = 4
   PACKET_LENGTH_SIZE = 4
   PACKET_TYPE_SIZE = 4
-  PACKET_HEADER_SIZE = XOR_KEY_SIZE + SESSION_GUID_SIZE + ENCRYPTED_FLAGS_SIZE + PACKET_LENGTH_SIZE + PACKET_TYPE_SIZE
+  PACKET_HEADER_SIZE = XOR_KEY_SIZE + GUID_SIZE + ENCRYPTED_FLAGS_SIZE + PACKET_LENGTH_SIZE + PACKET_TYPE_SIZE
 
   AES_IV_SIZE = 16
 
@@ -802,7 +808,8 @@ class Packet < GroupTlv
   def to_r(session_guid = nil, key = nil)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
-    raw = [(session_guid || '00' * SESSION_GUID_SIZE).gsub(/-/, '')].pack('H*')
+    raw = (session_guid || NULL_GUID).dup
+
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
     if key && key[:key] && key[:type] == ENC_FLAG_AES256
