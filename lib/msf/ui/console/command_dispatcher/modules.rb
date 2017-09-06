@@ -66,12 +66,12 @@ module Msf
           end
 
           def cmd_edit_help
-            msg = "Edit the currently active module"
+            msg = "Edit a local file or the currently active module"
             msg = "#{msg} #{local_editor ? "with #{local_editor}" : "(LocalEditor or $VISUAL/$EDITOR should be set first)"}."
-            print_line "Usage: edit"
+            print_line "Usage: edit [file/to/edit.rb]"
             print_line
             print_line msg
-            print_line "When done editing, you must reload the module with 'reload' or 'rerun'."
+            print_line "When done editing, you can reload the module with 'reload' or 'rerun'."
             print_line
           end
 
