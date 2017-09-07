@@ -120,7 +120,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   end
 
-  def bootstrap(datastore={})
+  def bootstrap(datastore = {}, handler = nil)
     session = self
 
     init_session = Proc.new do
@@ -182,9 +182,12 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       end
 
       # Process the auto-run scripts for this session
-      if self.respond_to?('process_autoruns')
+      if self.respond_to?(:process_autoruns)
         self.process_autoruns(datastore)
       end
+
+      # Tell the handler that we have a session
+      handler.on_session(self) if handler
     end
 
     # Defer the session initialization to the Session Manager scheduler
