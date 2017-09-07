@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-  Any system exposing the Cisco Smart Install protocoll, SMI, typically on 4786/TCP.
+  Any system exposing the Cisco Smart Install (SMI) protocol, which typically runs on TCP port 4786.
 
 ## Verification Steps
 
