@@ -170,7 +170,10 @@ class Config
     ret = []
     res = client.send_request(req)
     res.each(TLV_TYPE_PRIVILEGE) do |p|
-      ret << p.value
+      ret << {
+        priv:    p.get_tlv_value(TLV_TYPE_PRIVILEGE_NAME),
+        enabled: p.get_tlv_value(TLV_TYPE_PRIVILEGE_ENABLED),
+      }
     end
     ret
   end
