@@ -9,7 +9,9 @@ module HostServlet
     app.post HostServlet.api_path, &report_host
   end
 
+  #######
   private
+  #######
 
   def self.get_host
     lambda {

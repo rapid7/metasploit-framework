@@ -10,6 +10,8 @@ module DataProxyAutoLoader
   autoload :WebDataProxy, 'metasploit/framework/data_service/proxy/web_data_proxy'
   autoload :WebDataProxy, 'metasploit/framework/data_service/proxy/web_data_proxy'
   autoload :ServiceDataProxy, 'metasploit/framework/data_service/proxy/service_data_proxy'
+  autoload :SessionDataProxy, 'metasploit/framework/data_service/proxy/session_data_proxy'
+  autoload :ExploitDataProxy, 'metasploit/framework/data_service/proxy/exploit_data_proxy'
   include ServiceDataProxy
   include HostDataProxy
   include VulnDataProxy
@@ -17,4 +19,6 @@ module DataProxyAutoLoader
   include WorkspaceDataProxy
   include NoteDataProxy
   include WebDataProxy
+  include SessionDataProxy
+  include ExploitDataProxy
 end

@@ -8,7 +8,9 @@ module ServiceServlet
     app.post ServiceServlet.api_path, &report_service
   end
 
+  #######
   private
+  #######
 
   def self.get_host
     lambda {

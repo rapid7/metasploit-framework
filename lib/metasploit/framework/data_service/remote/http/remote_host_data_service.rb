@@ -7,23 +7,23 @@ module RemoteHostDataService
   HOST_SEARCH_PATH = HOST_PATH + "/search"
 
   def hosts(opts)
-    json_to_open_struct_object(self.get_data(opts, HOST_PATH), [])
+    json_to_open_struct_object(self.get_data(HOST_PATH, opts), [])
   end
 
   def report_host(opts)
-    self.post_data_async(opts, HOST_PATH)
+    self.post_data_async(HOST_PATH, opts)
   end
 
   def find_or_create_host(opts)
-    json_to_open_struct_object(self.post_data(host, HOST_PATH))
+    json_to_open_struct_object(self.post_data(HOST_PATH, host))
   end
 
   def report_hosts(hosts)
-    self.post_data(hosts, HOST_PATH)
+    self.post_data(HOST_PATH, hosts)
   end
 
   def do_host_search(search)
-    response = self.post_data(search, HOST_SEARCH_PATH)
+    response = self.post_data(HOST_SEARCH_PATH, search)
     return response.body
   end
 end

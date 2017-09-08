@@ -14,9 +14,9 @@ module ServletHelper
     [200,  '']
   end
 
-  def set_json_response(data)
+  def set_json_response(data, includes = nil)
     headers = {'Content-Type' => 'application/json'}
-    [200, headers, to_json(data)]
+    [200, headers, to_json(data, includes)]
   end
 
   def parse_json_request(request, strict = false)
@@ -58,9 +58,9 @@ module ServletHelper
   private
   #######
 
-  def to_json(data)
+  def to_json(data, includes = nil)
     return '{}' if data.nil?
-    json = data.to_json
+    json = includes.nil? ? data.to_json : data.to_json(include:  includes)
     return json.to_s
   end
 

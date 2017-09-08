@@ -53,4 +53,14 @@ module WorkspaceDataProxy
       puts"Call to  #{data_service.class}#workspaces threw exception: #{e.message}"
     end
   end
+
+  def workspace_associations_counts()
+    begin
+      data_service = self.get_data_service()
+      data_service.workspace_associations_counts()
+    rescue  Exception => e
+      puts"Call to  #{data_service.class}#workspace_associations_counts threw exception: #{e.message}"
+    end
+  end
+
 end

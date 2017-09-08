@@ -6,6 +6,6 @@ module RemoteNoteDataService
   NOTE_API_PATH = '/api/1/msf/note'
 
   def report_note(opts)
-    self.post_data_async(opts, NOTE_API_PATH)
+    self.post_data_async(NOTE_API_PATH, opts)
   end
 end

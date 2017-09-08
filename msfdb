@@ -26,4 +26,4 @@ require 'pathname'
 # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/generators/rails/app/templates/script/rails#L3-L5
 require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
 require 'msf/core/db_manager/http/http_db_manager_service'
-HttpDBManagerService.new().start(:Port => '8080', :Host => '127.0.0.1')
+HttpDBManagerService.new().start(:Port => '8080', :Host => '0.0.0.0')

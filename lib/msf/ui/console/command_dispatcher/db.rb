@@ -49,7 +49,7 @@ class Db
       "db_nmap"       => "Executes nmap and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache",
       "test_data_service_host" => "Blah",
-      "add_goliath_service" => "Blah",
+      "add_data_service" => "Blah",
       "list_data_services" => "Blah",
       "set_data_service" => "Blah",
       "nl_search" => "Blah"
@@ -88,8 +88,8 @@ class Db
   end
 
   def cmd_set_data_service(service_id)
-    data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
-    data_service_manager.set_data_service(service_id)
+    data_proxy = Metasploit::Framework::DataService::DataProxy.instance
+    data_proxy.set_data_service(service_id)
   end
 
   def cmd_list_data_services()
@@ -97,7 +97,7 @@ class Db
     data_service_manager.print_data_services
   end
 
-  def cmd_add_goliath_service(*args)
+  def cmd_add_data_service(*args)
       while (arg = args.shift)
         case arg
           when '-h'
@@ -111,6 +111,24 @@ class Db
       remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(remote_service_endpoint)
       data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
       data_service_manager.register_data_service(remote_data_service)
+  end
+
+  def cmd_test_data_service_host(*args)
+    host = {}
+    while (arg = args.shift)
+      case arg
+        when '-h'
+          host[:host] = args.shift
+        when '-n'
+          host[:name] = args.shift
+        when '-o'
+          host[:os_name] = args.shift
+      end
+    end
+
+    puts 'Reporting test host to data service'
+    data_service = Metasploit::Framework::DataService::DataProxy.instance
+    data_service.report_host host
   end
 
   def cmd_workspace_help
@@ -128,8 +146,6 @@ class Db
 
   def cmd_workspace(*args)
     return unless active?
-    search_term = nil
-  ::ActiveRecord::Base.connection_pool.with_connection {
     search_term = nil
     while (arg = args.shift)
       case arg
@@ -163,45 +179,17 @@ class Db
       end
       framework.db.workspace = workspace
     elsif deleting and names
-      delete_workspaces(names)
+      framework.db.delete_workspaces(names)
     elsif delete_all
-      delete_workspaces(framework.db.workspaces.map(&:name))
+      framework.db.delete_all_workspaces()
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
         return
       end
+
       old, new = names
-
-      workspace = framework.db.find_workspace(old)
-
-      old_is_active = (framework.db.workspace == workspace)
-      recreate_default = workspace.default?
-
-      if workspace.nil?
-        print_error("Workspace not found: #{name}")
-        return
-      end
-
-      if framework.db.find_workspace(new)
-        print_error("Workspace exists: #{new}")
-        return
-      end
-
-      workspace.name = new
-      workspace.save!
-
-      # Recreate the default workspace to avoid errors
-      if recreate_default
-        framework.db.add_workspace(old)
-        print_status("Recreated default workspace after rename")
-      end
-
-      # Switch to new workspace if old name was active
-      if old_is_active
-        framework.db.workspace = workspace
-        print_status("Switched workspace: #{framework.db.workspace.name}")
-      end
+      framework.db.rename_workspace(old, new)
     elsif names
       name = names.last
       # Switch workspace
@@ -240,48 +228,22 @@ class Db
       )
 
       # List workspaces
-      framework.db.workspaces.each do |ws|
+      framework.db.workspace_associations_counts.each do |ws|
         tbl << [
-          ws == workspace ? '*' : '',
-          ws.name,
-          ws.hosts.count,
-          ws.services.count,
-          ws.vulns.count,
-          ws.core_credentials.count,
-          ws.loots.count,
-          ws.notes.count
+          ws[:name] == workspace.name ? '*' : '',
+          ws[:name],
+          ws[:hosts_count],
+          ws[:services_count],
+          ws[:vulns_count],
+          ws[:creds_count],
+          ws[:loots_count],
+          ws[:notes_count]
         ]
       end
 
       print_line
       print_line(tbl.to_s)
     end
-  }
-  end
-
-  def delete_workspaces(names)
-    switched = false
-    # Delete workspaces
-    names.each do |name|
-      workspace = framework.db.find_workspace(name)
-      if workspace.nil?
-        print_error("Workspace not found: #{name}")
-      elsif workspace.default?
-        workspace.destroy
-        workspace = framework.db.add_workspace(name)
-        print_status("Deleted and recreated the default workspace")
-      else
-        # switch to the default workspace if we're about to delete the current one
-        if framework.db.workspace.name == workspace.name
-          framework.db.workspace = framework.db.default_workspace
-          switched = true
-        end
-        # now destroy the named workspace
-        workspace.destroy
-        print_status("Deleted workspace: #{name}")
-      end
-    end
-    print_status("Switched workspace: #{framework.db.workspace.name}") if switched
   end
 
   def cmd_workspace_tabs(str, words)
@@ -348,50 +310,55 @@ class Db
       return
     end
 
+    opts = Hash.new()
+    opts[:workspace] = framework.db.workspace
+    opts[:tag_name] = tag_name
+
     rws.each do |rw|
       rw.each do |ip|
-        wspace = framework.db.workspace
-        host = framework.db.get_host(:workspace => wspace, :address => ip)
-        if host
-          possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
-          tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
-          tag.name = tag_name
-          tag.hosts = [host]
-          tag.save! if tag.changed?
-        end
+        opts[:ip] = ip
+        framework.db.add_host_tag(opts)
       end
     end
   end
 
+  def find_hosts_with_tag(workspace_id, host_address, tag_name)
+    opts = Hash.new()
+    opts[:workspace_id] = workspace_id
+    opts[:host_address] = host_address
+    opts[:tag_name] = tag_name
+
+    framework.db.find_hosts_with_tag(opts)
+  end
+
+  def find_host_tags(workspace_id, host_address)
+    opts = Hash.new()
+    opts[:workspace_id] = workspace_id
+    opts[:host_address] = host_address
+
+    framework.db.find_host_tags(opts)
+  end
+
   def delete_host_tag(rws, tag_name)
-    wspace = framework.db.workspace
-    tag_ids = []
+    opts = Hash.new()
+    opts[:workspace] = framework.db.workspace
+    opts[:tag_name] = tag_name
+
     if rws == [nil]
-      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name)
-      found_tags.each do |t|
-        tag_ids << t.id
-      end
+      framework.db.delete_host_tag(opts)
     else
       rws.each do |rw|
         rw.each do |ip|
-          found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name)
-            found_tags.each do |t|
-            tag_ids << t.id
-          end
+          opts[:ip] = ip
+          framework.db.delete_host_tag(opts)
         end
       end
     end
 
-    tag_ids.each do |id|
-      tag = Mdm::Tag.find_by_id(id)
-      tag.hosts.delete
-      tag.destroy
-    end
   end
 
   def cmd_hosts(*args)
     return unless active?
-  #::ActiveRecord::Base.connection_pool.with_connection {
     onlyup = false
     set_rhosts = false
     mode = []
@@ -574,8 +541,7 @@ class Db
       framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
         if search_term
           next unless (
-            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } ||
-            !Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).references(:hosts).order("tags.id DESC").empty?
+            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } || !find_hosts_with_tag(framework.db.workspace.id, host.address, search_term.source).empty?
           )
         end
 
@@ -587,7 +553,7 @@ class Db
             when "vulns";     host.vuln_count
             when "workspace"; host.workspace.name
             when "tags"
-              found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
+              found_tags = find_host_tags(framework.db.workspace.id, host.address)
               tag_names = []
               found_tags.each { |t| tag_names << t.name }
               found_tags * ", "
@@ -630,7 +596,6 @@ class Db
     set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 
     print_status("Deleted #{delete_count} hosts") if delete_count > 0
-  #}
   end
 
   def cmd_services_help
@@ -641,14 +606,19 @@ class Db
 
   def cmd_services(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
     mode = :search
     onlyup = false
     output_file = nil
     set_rhosts = false
     col_search = ['port', 'proto', 'name', 'state', 'info']
-    default_columns = ::Mdm::Service.column_names.sort
-    default_columns.delete_if {|v| (v[-2,2] == "id")}
+    default_columns = [
+    'created_at',
+    'info',
+    'name',
+    'port',
+    'proto',
+    'state',
+    'updated_at']
 
     host_ranges  = []
     port_ranges  = []
@@ -823,7 +793,6 @@ class Db
 
     print_status("Deleted #{delete_count} services") if delete_count > 0
 
-  }
   end
 
   def cmd_vulns_help
@@ -846,7 +815,6 @@ class Db
 
   def cmd_vulns(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
 
     host_ranges = []
     port_ranges = []
@@ -936,7 +904,6 @@ class Db
     # Finally, handle the case where the user wants the resulting list
     # of hosts to go into RHOSTS.
     set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-  }
   end
 
   def cmd_notes_help

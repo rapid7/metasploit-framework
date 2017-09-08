@@ -29,8 +29,8 @@ class RemoteHTTPDataService
   #
   # POST data and don't wait for the endpoint to process the data before getting a response
   #
-  def post_data_async(data_hash, path)
-    post_data(data_hash.merge(EXEC_ASYNC), path)
+  def post_data_async(path, data_hash)
+    post_data(path, data_hash.merge(EXEC_ASYNC))
   end
 
   #
@@ -41,7 +41,7 @@ class RemoteHTTPDataService
   #
   # @return A wrapped response (ResponseWrapper), see below.
   #
-  def post_data(data_hash, path)
+  def post_data(path, data_hash)
     begin
       raise 'Data to post to remote service cannot be null or empty' if (data_hash.nil? or data_hash.empty?)
 
@@ -57,6 +57,8 @@ class RemoteHTTPDataService
         puts "POST request: #{path} with body: #{json_body} failed with code: #{response.code} message: #{response.body}"
         return FailedResponse.new(response)
       end
+    rescue Exception => e
+      puts "Problem with POST request: #{e.message}"
     ensure
       @client_pool << client
     end
@@ -65,12 +67,12 @@ class RemoteHTTPDataService
   #
   # GET data from the HTTP endpoint
   #
-  # @param data_hash - A hash representation of the object to be posted. Cann be nil or empty.
   # @param path - The URI path to post to
+  # @param data_hash - A hash representation of the object to be posted. Can be nil or empty.
   #
   # @return A wrapped response (ResponseWrapper), see below.
   #
-  def get_data(data_hash, path)
+  def get_data(path, data_hash = nil)
     begin
       client =  @client_pool.pop()
       request_opts = build_request_opts(GET_REQUEST, data_hash, path)
@@ -84,6 +86,8 @@ class RemoteHTTPDataService
         puts "GET request: #{path} failed with code: #{response.code} message: #{response.body}"
         return FailedResponse.new(response)
       end
+    rescue Exception => e
+        puts "Problem with GET request: #{e.message}"
     ensure
       @client_pool << client
     end
@@ -184,7 +188,7 @@ class RemoteHTTPDataService
       workspace = data_hash.delete(:wspace)
     end
 
-    if (workspace and workspace.is_a?(OpenStruct))
+    if (workspace and (workspace.is_a?(OpenStruct) or workspace.is_a?(::Mdm::Workspace)))
       data_hash['workspace'] = workspace.name
     end
 

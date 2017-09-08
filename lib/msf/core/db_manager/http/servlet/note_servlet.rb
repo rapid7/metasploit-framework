@@ -8,7 +8,9 @@ module NoteServlet
     app.post NoteServlet.api_path, &report_note
   end
 
+  #######
   private
+  #######
 
   def self.report_note
     lambda {

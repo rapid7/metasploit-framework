@@ -8,7 +8,9 @@ module EventServlet
     app.post EventServlet.api_path, &report_event
   end
 
+  #######
   private
+  #######
 
   def self.report_event
     lambda {

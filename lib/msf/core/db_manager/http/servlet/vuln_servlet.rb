@@ -8,8 +8,9 @@ module VulnServlet
     app.post VulnServlet.api_path, &report_vuln
   end
 
-
+  #######
   private
+  #######
 
   def self.report_vuln
     lambda {

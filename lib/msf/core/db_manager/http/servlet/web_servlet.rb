@@ -8,7 +8,9 @@ module WebServlet
     app.post WebServlet.api_path, &report_web
   end
 
+  #######
   private
+  #######
 
   def self.report_web
     lambda {

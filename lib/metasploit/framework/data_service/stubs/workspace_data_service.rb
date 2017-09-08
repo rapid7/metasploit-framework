@@ -9,11 +9,11 @@ module WorkspaceDataService
   end
 
   def default_workspace
-    raise 'WorkspaceDataService#add_workspace is not implemented'
+    raise 'WorkspaceDataService#default_workspace is not implemented'
   end
 
   def workspace
-    raise 'WorkspaceDataService#add_workspace is not implemented'
+    raise 'WorkspaceDataService#workspace is not implemented'
   end
 
   def workspace=(workspace)
@@ -21,7 +21,15 @@ module WorkspaceDataService
   end
 
   def workspaces
-    raise 'WorkspaceDataService#add_workspace is not implemented'
+    raise 'WorkspaceDataService#workspaces is not implemented'
+  end
+
+  def workspace_associations_counts()
+    raise 'WorkspaceDataService#workspace_associations_counts is not implemented'
+  end
+
+  def rename_workspace(from_name, to_name)
+    raise 'WorkspaceDataService#rename_workspace is not implemented'
   end
 
 end

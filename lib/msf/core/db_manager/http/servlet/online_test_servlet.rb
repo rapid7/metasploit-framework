@@ -8,7 +8,9 @@ module OnlineTestServlet
     app.get OnlineTestServlet.api_path, &get_active
   end
 
+  #######
   private
+  #######
 
   def self.get_active
     lambda {

@@ -28,6 +28,67 @@ module Msf::DBManager::Host
     report_host(opts)
   end
 
+  def add_host_tag(opts)
+    workspace = opts[:workspace]
+    if workspace.kind_of? String
+      workspace = find_workspace(workspace)
+    end
+
+    ip = opts[:ip]
+    tag_name = opts[:tag_name]
+
+    host = framework.db.get_host(:workspace => workspace, :address => ip)
+    if host
+      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+      tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
+      tag.name = tag_name
+      tag.hosts = [host]
+      tag.save! if tag.changed?
+    end
+  end
+
+  def find_hosts_with_tag(opts)
+    workspace_id = opts[:workspace_id]
+    host_address = opts[:host_address]
+    tag_name = opts[:tag_name]
+    Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace_id, host_address, tag_name).references(:hosts).order("tags.id DESC")
+  end
+
+  def find_host_tags(opts)
+    workspace_id = opts[:workspace_id]
+    host_address = opts[:host_address]
+    Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", workspace.id, host_address).order("tags.id DESC")
+  end
+
+  def delete_host_tag(opts)
+    workspace = opts[:workspace]
+    if workspace.kind_of? String
+      workspace = find_workspace(workspace)
+    end
+
+    ip = opts[:rws]
+    tag_name = opts[:tag_name]
+
+    tag_ids = []
+    if ip.nil?
+      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and tags.name = ?", workspace.id, tag_name)
+      found_tags.each do |t|
+        tag_ids << t.id
+      end
+    else
+      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace.id, ip, tag_name)
+      found_tags.each do |t|
+        tag_ids << t.id
+      end
+    end
+
+    tag_ids.each do |id|
+      tag = Mdm::Tag.find_by_id(id)
+      tag.hosts.delete
+      tag.destroy
+    end
+  end
+
   #
   # Find a host.  Performs no database writes.
   #

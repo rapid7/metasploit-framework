@@ -3,6 +3,7 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteWorkspaceDataService
   include ResponseDataHelper
 
+  WORKSPACE_COUNTS_API_PATH = '/api/1/msf/workspace/counts'
   WORKSPACE_API_PATH = '/api/1/msf/workspace'
   DEFAULT_WORKSPACE_NAME = 'default'
 
@@ -10,12 +11,13 @@ module RemoteWorkspaceDataService
     workspace = workspace_cache[workspace_name]
     return workspace unless (workspace.nil?)
 
-    workspace = json_to_open_struct_object(self.get_data({:workspace_name => workspace_name}, WORKSPACE_API_PATH))
+    workspace = json_to_open_struct_object(self.get_data(WORKSPACE_API_PATH, {:workspace_name => workspace_name}))
     workspace_cache[workspace_name] = workspace
   end
 
   def add_workspace(workspace_name)
-    self.post_data({:workspace_name => workspace_name}, WORKSPACE_API_PATH)
+    response = self.post_data(WORKSPACE_API_PATH, {:workspace_name => workspace_name})
+    json_to_open_struct_object(response, nil)
   end
 
   def default_workspace
@@ -31,10 +33,16 @@ module RemoteWorkspaceDataService
   end
 
   def workspaces
-    json_to_open_struct_object(self.get_data({:all => true}, WORKSPACE_API_PATH), [])
+    json_to_open_struct_object(self.get_data(WORKSPACE_API_PATH, {:all => true}), [])
   end
 
+  def workspace_associations_counts()
+    json_to_open_struct_object(self.get_data(WORKSPACE_COUNTS_API_PATH), [])
+  end
+
+  #########
   protected
+  #########
 
   def workspace_cache
     @workspace_cache ||= {}
@@ -43,4 +51,5 @@ module RemoteWorkspaceDataService
   def current_workspace_name
     @current_workspace_name ||= DEFAULT_WORKSPACE_NAME
   end
+
 end

@@ -6,6 +6,6 @@ module RemoteWebDataService
   WEB_API_PATH = '/api/1/msf/web'
 
   def report_web_site(opts)
-    self.post_data_async(opts, WEB_API_PATH)
+    self.post_data_async(WEB_API_PATH, opts)
   end
 end
