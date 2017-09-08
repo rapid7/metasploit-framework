@@ -1,6 +1,6 @@
 ## Description
   
-    This module will attempt to initiate a three-way handshake with every 
+This module will attempt to initiate a three-way handshake with every 
 on the victim machine. It is done by sending a SYN packet and if victim replies with a SYN/ACK packet that means the port is open. Then the attacker sends a RST packet as a result 
 
 ## Vulnerable Application
@@ -10,18 +10,22 @@ on the victim machine. It is done by sending a SYN packet and if victim replies 
 ## Options
 
   **PORTS**
+  
   This is the list of ports to test for TCP Scan on each host.
   Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported.Default
   options is to scan `1-10000` ports.
 
   **TIMEOUT**
+  
    Maximum time (seconds) to wait for a response. The default value is 500.
  
   **ConnectTimeout**
+  
   This options states the maximum number of seconds to establish a tcp 
   connection. Default value if 10.
  
   **VERBOSE**
+  
   Gives detailed message about the scan of all the ports. It also shows the
   ports that were closed.
 
