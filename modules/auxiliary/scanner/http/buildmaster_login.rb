@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(81),
         OptString.new('USERNAME', [false, 'Username to authenticate as', 'Admin']),
         OptString.new('PASSWORD', [false, 'Password to authenticate with', 'Admin'])
-      ], self.class
+      ]
     )
   end
 
@@ -67,19 +67,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def buildmaster?
     begin
-      res = send_request_cgi(
-        {
-          'uri' => '/log-in',
-          'method' => 'GET'
-        }
-      )
+      res = send_request_cgi('uri' => '/log-in')
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{rhost}:#{rport} - HTTP Connection Failed")
       return false
     end
 
     if res && res.code == 200 && res.body.include?('BuildMaster_Version')
-      version = res.body.scan(/<span id="BuildMaster_Version">(.*)<\/span>/).flatten[0]
+      version = res.body.scan(%r{<span id="BuildMaster_Version">(.*)</span>}).flatten.first
       print_good("#{rhost}:#{rport} - Identified BuildMaster #{version}")
       return true
     else
@@ -93,14 +88,9 @@ class MetasploitModule < Msf::Auxiliary
       body = JSON.parse(res.body)
       return body.key?('succeeded') && body['succeeded']
     end
-    return false
-  end
-
-  def service_name
-    if ssl
-      'https'
-    end
-    'http'
+    false
+  rescue
+    false
   end
 
   def do_login(user, pass)
@@ -128,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
       report_cred(
         ip: rhost,
         port: rport,
-        service_name: service_name,
+        service_name: ssl ? 'https' : 'http',
         user: user,
         password: pass
       )
