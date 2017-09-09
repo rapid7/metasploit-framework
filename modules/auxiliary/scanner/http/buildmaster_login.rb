@@ -69,16 +69,16 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi('uri' => '/log-in')
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      print_error("#{rhost}:#{rport} - HTTP Connection Failed")
+      print_error("#{peer} - HTTP Connection Failed")
       return false
     end
 
     if res && res.code == 200 && res.body.include?('BuildMaster_Version')
       version = res.body.scan(%r{<span id="BuildMaster_Version">(.*)</span>}).flatten.first
-      print_good("#{rhost}:#{rport} - Identified BuildMaster #{version}")
+      print_good("#{peer} - Identified BuildMaster #{version}")
       return true
     else
-      print_error("#{rhost}:#{rport} - Application does not appear to be BuildMaster")
+      print_error("#{peer} - Application does not appear to be BuildMaster")
       return false
     end
   end
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user, pass)
-    print_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
+    print_status("#{peer} - Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
         {
@@ -109,12 +109,12 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      vprint_error("#{peer} - HTTP Connection Failed...")
       return :abort
     end
 
     if login_succeeded?(res)
-      print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+      print_good("SUCCESSFUL LOGIN - #{peer} - #{user.inspect}:#{pass.inspect}")
       report_cred(
         ip: rhost,
         port: rport,
@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
         password: pass
       )
     else
-      print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+      print_error("FAILED LOGIN - #{peer} - #{user.inspect}:#{pass.inspect}")
     end
   end
 end

