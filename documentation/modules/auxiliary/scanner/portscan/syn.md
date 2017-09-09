@@ -1,7 +1,6 @@
 ## Description
   
-This module will attempt to initiate a three-way handshake with every 
-on the victim machine. It is done by sending a SYN packet and if victim replies with a SYN/ACK packet that means the port is open. Then the attacker sends a RST packet as a result 
+This module will attempt to initiate a TCP/IP connection with every possible port on the victim machine. It is done by sending a SYN packet and if victim replies with a SYN/ACK packet that means the port is open. Then the attacker sends a RST packet as a result victim's machine assumes that there is a communication error. So attacker now knows the state of port without a full tcp connection. Major benefit of TCP SYN scan is that most logging applications do not log the TCP/RST by default.
 
 ## Vulnerable Application
 
@@ -11,19 +10,14 @@ on the victim machine. It is done by sending a SYN packet and if victim replies 
 
   **PORTS**
   
-  This is the list of ports to test for TCP Scan on each host.
-  Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported.Default
+  This is the list of TCP ports to test on each host.
+  Formats like  `1-3`, `1,2,3`, `1,2-3`, etc. are all supported. Default
   options is to scan `1-10000` ports.
 
   **TIMEOUT**
   
-   Maximum time (seconds) to wait for a response. The default value is 500.
- 
-  **ConnectTimeout**
+   Maximum time to wait for a response. The default value is 500 milliseconds.
   
-  This options states the maximum number of seconds to establish a tcp 
-  connection. Default value if 10.
- 
   **VERBOSE**
   
   Gives detailed message about the scan of all the ports. It also shows the
@@ -31,11 +25,11 @@ on the victim machine. It is done by sending a SYN packet and if victim replies 
 
 ## Verification Steps
 
-  1. Do: `use auxiliary/scanner/portscan/tcp`
+  1. Do: `use auxiliary/scanner/portscan/syn`
   2. Do: `set RHOSTS [IP]`
-  3. Do: `set RPORT [PORTS]`
+  3. Do: `set RPORTS [PORTS]`
   4. Do: `run`
-  5. If any of the TCP ports were open they will be discovered, status will be printed indicated as such.
+  5. If any of the TCP ports were open they will be discovered, status will be printed indicating as such.
 
 ## Scenarios
   
