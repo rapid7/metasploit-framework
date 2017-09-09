@@ -27,7 +27,7 @@ This module will attempt to initiate a TCP/IP connection with every possible por
 
   1. Do: `use auxiliary/scanner/portscan/syn`
   2. Do: `set RHOSTS [IP]`
-  3. Do: `set RPORTS [PORTS]`
+  3. Do: `set PORTS [PORTS]`
   4. Do: `run`
   5. If any of the TCP ports were open they will be discovered, status will be printed indicating as such.
 
