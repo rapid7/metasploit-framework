@@ -1,10 +1,8 @@
 ## Description
   
-This module will attempt to initiate a TCP/IP connection with every possible port on the victim machine. It is done by sending a SYN packet and if victim replies with a SYN/ACK packet that means the port is open. Then the attacker sends a RST packet as a result victim's machine assumes that there is a communication error. So attacker now knows the state of port without a full tcp connection. Major benefit of TCP SYN scan is that most logging applications do not log the TCP/RST by default.
-
-## Vulnerable Application
-
-  Any reachable TCP endpoint is a potential target.
+This module will attempt to initiate a TCP/IP connection with ports on the victim machine. It is this done by sending a SYN packet, and if victim replies with a SYN/ACK packet 
+that means the port is open. Then the attacker sends a RST packet, and as a result the victim's machine assumes that there is a communication error. 
+The attacker now knows the state of port without a full tcp connection. Major benefit of TCP SYN scan is that most logging applications do not log the TCP/RST by default.
 
 ## Options
 
