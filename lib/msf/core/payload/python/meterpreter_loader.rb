@@ -98,6 +98,7 @@ module Payload::Python::MeterpreterLoader
     # The callback URL can be different to the one that we're receiving from the interface
     # so we need to generate it
     # TODO: move this to somewhere more common so that it can be used across payload types
+    uri = "/#{(opts[:uri].to_s == '' ? opts[:url] : opts[:uri].to_s).split('/').reject(&:empty?)[-1]}"
     callback_url = [
       opts[:url].split(':')[0],
       '://',
@@ -105,7 +106,7 @@ module Payload::Python::MeterpreterLoader
       ':',
       (ds['OverrideRequestHost'] == true ? ds['OverrideRequestLPORT'] : ds['LPORT']).to_s,
       ds['LURI'].to_s,
-      opts[:uri].to_s,
+      uri,
       '/'
     ].join('')
 
