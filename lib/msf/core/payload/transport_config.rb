@@ -83,9 +83,15 @@ private
 
   def get_custom_headers(ds)
     headers = ""
-    headers << "Host: #{ds['HttpHost']}\r\n" if ds['HttpHost']
-    headers << "Cookie: #{ds['HttpCookie']}\r\n" if ds['HttpCookie']
-    headers << "Referer: #{ds['HttpReferer']}\r\n" if ds['HttpReferer']
+    headers << "Host: #{ds['HttpHeaderHost']}\r\n" if ds['HttpHeaderHost']
+    headers << "Cookie: #{ds['HttpHeaderCookie']}\r\n" if ds['HttpHeaderCookie']
+    headers << "Referer: #{ds['HttpHeaderReferer']}\r\n" if ds['HttpHeaderReferer']
+
+    if headers.length > 0
+      headers
+    else
+      nil
+    end
   end
 
   def timeout_config(opts={})
