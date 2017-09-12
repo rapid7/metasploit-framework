@@ -15,7 +15,6 @@ def hashit(inp)
   hackit(sum)
 end
 
-
 def hackit(sum)
   magic = 31695317
   res = ((sum * magic) & 0xffffffff).to_s
@@ -29,4 +28,3 @@ end
 
 input = ARGV.shift || "flintstone"
 $stderr.puts "[*] Hash for password '#{input}' is #{hashit(input)}"
-
