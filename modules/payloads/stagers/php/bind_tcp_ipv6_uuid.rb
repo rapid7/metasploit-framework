@@ -8,7 +8,7 @@ require 'msf/core/payload/php/bind_tcp'
 
 module MetasploitModule
 
-  CachedSize = 1361
+  CachedSize = 1511
 
   include Msf::Payload::Stager
   include Msf::Payload::Php::BindTcp
