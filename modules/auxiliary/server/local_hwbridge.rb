@@ -226,7 +226,9 @@ class MetasploitModule < Msf::Auxiliary
                 @last_sent = Time.now.to_i
                 $candump_sniffer.join
                 unless @pkt_response.empty?
-                  result.merge!(@pkt_response)
+                  if @pkt_response.key?("Packets") && @pkt_response["Packets"].size > 0
+                    result["Packets"] += @pkt_response["Packets"]
+                  end
                 end
               end
             end
