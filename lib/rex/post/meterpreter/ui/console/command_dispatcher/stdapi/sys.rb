@@ -894,13 +894,21 @@ class Console::CommandDispatcher::Stdapi::Sys
     if args.include? "-h"
       cmd_getprivs_help
     end
-    print_line("=" * 60)
-    print_line("Enabled Process Privileges")
-    print_line("=" * 60)
+
+    table = Rex::Text::Table.new(
+      'Header'    => 'Enabled Process Privileges',
+      'Indent'    => 0,
+      'SortIndex' => 1,
+      'Columns'   => ['Priv Name', 'Enabled']
+    )
+
+    privs = client.sys.config.getprivs
     client.sys.config.getprivs.each do |priv|
-      print_line("  #{priv}")
+      table << [priv[:priv], priv[:enabled].to_s]
     end
-    print_line("")
+
+    print_line
+    print_line(table.to_s)
   end
 
   #

@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Microsoft SQL Server Generic Query',
       'Description'    => %q{
           This module will allow for simple SQL statements to be executed against a
-          MSSQL/MSDE instance given the appropiate credentials.
+          MSSQL/MSDE instance given the appropriate credentials.
       },
       'Author'         => [ 'tebo <tebo[at]attackresearch.com>' ],
       'License'        => MSF_LICENSE,

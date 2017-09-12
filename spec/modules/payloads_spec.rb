@@ -4442,6 +4442,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/zarch/meterpreter_reverse_https'
   end
 
+  context 'linux/aarch64/meterpreter/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/aarch64/reverse_tcp',
+                            'stages/linux/aarch64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/meterpreter/reverse_tcp'
+  end
+
   context 'linux/aarch64/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

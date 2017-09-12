@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %Q{
           This module attempts to extract the schema from a MSSQL Server
           Instance. It will disregard builtin and example DBs such
-          as master,model,msdb, and tempdb. The  module will create
+          as master, model, msdb, and tempdb. The module will create
           a note for each DB found, and store a YAML formatted output
           as loot for easy reading.
       },

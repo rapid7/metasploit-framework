@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.LT.REMOVEWORKSPACE',
       'Description'    => %q{
-        This module exploits an sql injection flaw in the REMOVEWORKSPACE
+        This module exploits a sql injection flaw in the REMOVEWORKSPACE
         procedure of the PL/SQL package SYS.LT. Any user with execute
         privilege on the vulnerable package can exploit this vulnerability.
       },

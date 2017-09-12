@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         models with attributes not protected by attr_protected or attr_accessible.
         After attempting to assign a non-existent field, the default rails with
         active_record setup will raise an ActiveRecord::UnknownAttributeError
-        exeption, and reply with HTTP code 500.
+        exception, and reply with HTTP code 500.
       },
 
       'References'     =>

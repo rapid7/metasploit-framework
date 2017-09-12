@@ -18,10 +18,10 @@ class MetasploitModule < Msf::Auxiliary
           Metasploit to interact with Hardware Devices.  This extends
           the normal exploit capabilities to the non-ethernet realm and
           enables direct hardware and alternative bus manipulations.  You
-          mush have compatible bridging hardware attached to this machine or
+          must have compatible bridging hardware attached to this machine or
           reachable on your network to use any HWBridge exploits.
 
-          Use this exploit module to connect the the physical HWBridge which
+          Use this exploit module to connect the physical HWBridge which
           will start an interactive hwbridge session.  You can launch a hwbridge
           server locally by using compliant hardware and executing the local_hwbridge
           module.  After that module has started, pass the HWBRIDGE_BASE_URL

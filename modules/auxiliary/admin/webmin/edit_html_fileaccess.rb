@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
           This module exploits a directory traversal in Webmin 1.580. The vulnerability
         exists in the edit_html.cgi component and allows an authenticated user with access
         to the File Manager Module to access arbitrary files with root privileges. The
-        module has been tested successfully with Webim 1.580 over Ubuntu 10.04.
+        module has been tested successfully with Webmin 1.580 over Ubuntu 10.04.
       },
       'Author'         => [
         'Unknown', # From American Information Security Group
