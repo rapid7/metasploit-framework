@@ -95,10 +95,6 @@ The latest OS X installer package can also be downloaded directly here: https://
 
 The latest Windows installer is located here: https://windows.metasploit.com/metasploitframework-latest.msi, with the last 10 builds archived at https://windows.metasploit.com/. To install, simply download the .msi package, adjust your Antivirus as-needed to ignore c:\metasploit-framework, double-click and enjoy. The msfconsole command and all related tools will be added to the system %PATH% environment variable.
 
-# Detailed installation guide
-
-You can access a detailed installation guide here: https://community.rapid7.com/docs/DOC-3163
-
 # Improving these installers
 
 The source code to these installers is located here: https://github.com/rapid7/metasploit-omnibus
