@@ -233,7 +233,7 @@ class MetasploitModule < Msf::Auxiliary
               end
             end
           end
-          
+
         else
           candump(bus, dstid, timeout, maxpkts)
           system("cansend #{bus} #{srcid}##{bytes}")
