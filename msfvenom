@@ -16,7 +16,6 @@ require 'msf/ui'
 require 'msf/base'
 require 'msf/core/payload_generator'
 
-
 class MsfVenomError < StandardError; end
 class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
