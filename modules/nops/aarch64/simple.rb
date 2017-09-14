@@ -41,3 +41,4 @@ class MetasploitModule < Msf::Nop
     return ([nops[0]].pack("V*") * (length/4))
   end
 end
+
