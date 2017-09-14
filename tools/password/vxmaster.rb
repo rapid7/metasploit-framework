@@ -12,7 +12,6 @@
 # $Revision$
 #
 
-
 # VxWorks converts the clear-text password into single integer value. This value
 # can only be one of about 210,000 possible options. The method below emulates
 # what the vxencrypt utility does and was implemented based on publicly indexed
@@ -128,7 +127,6 @@ seeds = []
 end
 seedsets << seeds
 
-
 seeds = []
 8.upto(12) do |slen|
   0x23.upto(0x7c) do |cset|
@@ -165,7 +163,6 @@ seeds = []
 end
 seedsets << seeds
 
-
 # Calculate passwords and their hashes for all possible outputs
 1.upto(209656) do |i|
   found = false
@@ -200,4 +197,3 @@ seedsets << seeds
     exit(0)
   end
 end
-
