@@ -43,7 +43,7 @@ class RemoteHTTPDataService
   #
   def post_data(path, data_hash)
     begin
-      raise 'Data to post to remote service cannot be null or empty' if (data_hash.nil? or data_hash.empty?)
+      raise 'Data to post to remote service cannot be null or empty' if (data_hash.nil? || data_hash.empty?)
 
       client =  @client_pool.pop()
       request_opts = build_request_opts(POST_REQUEST, data_hash, path)
@@ -188,7 +188,7 @@ class RemoteHTTPDataService
       workspace = data_hash.delete(:wspace)
     end
 
-    if (workspace and (workspace.is_a?(OpenStruct) or workspace.is_a?(::Mdm::Workspace)))
+    if (workspace && (workspace.is_a?(OpenStruct) || workspace.is_a?(::Mdm::Workspace)))
       data_hash['workspace'] = workspace.name
     end
 
@@ -205,12 +205,12 @@ class RemoteHTTPDataService
         'ctype' => 'application/json',
         'uri' => path}
 
-    if (not data_hash.nil? and not data_hash.empty?)
+    if (!data_hash.nil? && !data_hash.empty?)
       json_body = append_workspace(data_hash).to_json
       request_opts['data'] = json_body
     end
 
-    if (not @headers.nil? and not @header.empty?)
+    if (!@headers.nil? && !@headers.empty?)
       request_opts['headers'] = @headers
     end
 

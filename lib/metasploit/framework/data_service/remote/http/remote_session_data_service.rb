@@ -11,7 +11,7 @@ module RemoteSessionDataService
     end
 
     #TODO: Fix
-    opts[:time_stamp] = 1504200469610 #Time.now.utc
+    opts[:time_stamp] = Time.now.utc
     self.post_data_async(SESSION_API_PATH, opts)
   end
 
