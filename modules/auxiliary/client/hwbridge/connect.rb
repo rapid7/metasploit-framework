@@ -104,6 +104,10 @@ class MetasploitModule < Msf::Auxiliary
     if self.hw_specialty.has_key? 'rftransceiver'
       sess.load_rftransceiver if self.hw_specialty['rftransceiver'] == true
     end
+    sess.api_version = self.api_version if self.api_version
+    sess.fw_version = self.fw_version if self.fw_version
+    sess.hw_version = self.hw_version if self.hw_version
+    sess.device_name = self.device_name if self.device_name
   end
 
   #
@@ -129,6 +133,18 @@ class MetasploitModule < Msf::Auxiliary
         if data.key? 'hw_capabilities'
           self.hw_capabilities = data['hw_capabilities']
         end
+        if data.key? 'api_version'
+          self.api_version = data['api_version']
+        end
+        if data.key? 'fw_version'
+          self.fw_version = data['fw_version']
+        end
+        if data.key? 'hw_vesrion'
+          self.hw_version = data['hw_version']
+        end
+        if data.key? 'device_name'
+          self.device_name = data['device_name']
+        end
       end
     end
   end
@@ -153,9 +169,17 @@ class MetasploitModule < Msf::Auxiliary
 
   attr_reader :hw_specialty
   attr_reader :hw_capabilities
+  attr_reader :api_version
+  attr_reader :fw_version
+  attr_reader :hw_version
+  attr_reader :device_name
 
   protected
 
   attr_writer :hw_specialty
   attr_writer :hw_capabilities
+  attr_writer :api_version
+  attr_writer :fw_version
+  attr_writer :hw_version
+  attr_writer :device_name
 end
