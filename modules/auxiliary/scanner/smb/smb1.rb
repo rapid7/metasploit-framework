@@ -26,13 +26,13 @@ class MetasploitModule < Msf::Auxiliary
     register_options([ Opt::RPORT(445) ])
   end
 
-  # Skeleton for this section taken from smb2.rb module by @hdm
+  # Modified from smb2 module by @hdm
   # Fingerprint a single host
   def run_host(ip)
     begin
       connect
 
-      # Only accept NT LM 0.12 dialect
+      # Only accept NT LM 0.12 dialect and WfW3.0
       dialects = ['Windows for Workgroups 3.0a', 'NT LM 0.12']
       data     = dialects.collect { |dialect| "\x02" + dialect + "\x00" }.join('')
 
