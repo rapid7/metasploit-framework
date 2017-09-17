@@ -37,7 +37,7 @@ class ClientCore < Extension
   UNIX_PATH_MAX = 108
   DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
 
-  METERPRETER_TRANSPORT_SSL   = 0
+  METERPRETER_TRANSPORT_TCP   = 0
   METERPRETER_TRANSPORT_HTTP  = 1
   METERPRETER_TRANSPORT_HTTPS = 2
 
@@ -47,10 +47,10 @@ class ClientCore < Extension
   TIMEOUT_RETRY_WAIT = 10      # 10 seconds
 
   VALID_TRANSPORTS = {
-    'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
+    'reverse_tcp'   => METERPRETER_TRANSPORT_TCP,
     'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
     'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
-    'bind_tcp'      => METERPRETER_TRANSPORT_SSL
+    'bind_tcp'      => METERPRETER_TRANSPORT_TCP
   }
 
   include Rex::Payloads::Meterpreter::UriChecksum
