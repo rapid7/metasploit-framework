@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
         'Name'          => 'Multi Manage System Remote TCP Shell Session',
         'Description'   => %q{
           This module will create a Reverse TCP Shell on the target system
-          using the system own scripting enviroments installed on the
+          using the system own scripting environments installed on the
           target.
         },
         'License'       => MSF_LICENSE,
