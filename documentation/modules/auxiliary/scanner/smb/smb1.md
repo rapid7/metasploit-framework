@@ -33,7 +33,7 @@ Services
 
 host        port  proto  name  state  info
 ----        ----  -----  ----  -----  ----
-10.10.2.99  445   tcp    smb1  open
+x.x.x.x 445   tcp    smb1  open
 ```
 
 #### A host that does not support SMBv1
@@ -41,7 +41,7 @@ host        port  proto  name  state  info
 ```
 msf auxiliary(smb1) > use auxiliary/scanner/smb/smb1
 msf auxiliary(smb1) > set RHOSTS y.y.y.y
-RHOSTS => 10.10.48.14
+RHOSTS => y.y.y.y
 msf auxiliary(smb1) > run
 
 [*] Scanned 1 of 1 hosts (100% complete)
