@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Auxiliary
       connect
 
       # Only accept NT LM 0.12 dialect and WfW3.0
-      dialects = ['NT LM 0.12']
+      dialects = ['PC NETWORK PROGRAM 1.0',
+                  'LANMAN1.0',
+                  'Windows for Workgroups 3.1a',
+                  'LM1.2X002',
+                  'LANMAN2.1',
+                  'NT LM 0.12']
       data     = dialects.collect { |dialect| "\x02" + dialect + "\x00" }.join('')
 
       pkt = Rex::Proto::SMB::Constants::SMB_NEG_PKT.make_struct
