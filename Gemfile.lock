@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.7)
+    metasploit-framework (4.16.8)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -170,7 +170,7 @@ GEM
     nessus_rest (0.1.6)
     net-ssh (4.2.0)
     network_interface (0.0.2)
-    nexpose (7.0.0)
+    nexpose (7.0.1)
     nokogiri (1.8.0)
       mini_portile2 (~> 2.2.0)
     octokit (4.7.0)
@@ -214,7 +214,7 @@ GEM
       activesupport (= 4.2.9)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    rake (12.0.0)
+    rake (12.1.0)
     rb-readline (0.5.5)
     rbnacl (4.0.2)
       ffi
@@ -303,7 +303,7 @@ GEM
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
-    simplecov (0.15.0)
+    simplecov (0.15.1)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
