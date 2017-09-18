@@ -49,6 +49,7 @@ class Db
       "db_nmap"       => "Executes nmap and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache",
       "test_data_service_host" => "Blah",
+      "test_data_service_loot" => "Blah",
       "add_data_service" => "Blah",
       "list_data_services" => "Blah",
       "set_data_service" => "Blah",
@@ -129,6 +130,30 @@ class Db
     puts 'Reporting test host to data service'
     data_service = Metasploit::Framework::DataService::DataProxy.instance
     data_service.report_host host
+  end
+
+  def cmd_test_data_service_loot(*args)
+    loot = {}
+    while (arg = args.shift)
+      case arg
+        when '-h'
+          loot[:host] = args.shift
+        when '-n'
+          loot[:name] = args.shift
+        when '-s'
+          loot[:service] = args.shift
+        when '-t'
+          loot[:type] = args.shift
+        when '-i'
+          loot[:info] = args.shift
+        when '-p'
+          loot[:path] = args.shift
+      end
+    end
+
+    puts 'Reporting test loot to data service'
+    data_service = Metasploit::Framework::DataService::DataProxy.instance
+    data_service.report_loot loot
   end
 
   def cmd_workspace_help
