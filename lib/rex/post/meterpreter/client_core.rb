@@ -37,21 +37,17 @@ class ClientCore < Extension
   UNIX_PATH_MAX = 108
   DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
 
-  METERPRETER_TRANSPORT_TCP   = 0
-  METERPRETER_TRANSPORT_HTTP  = 1
-  METERPRETER_TRANSPORT_HTTPS = 2
-
   TIMEOUT_SESSION = 24*3600*7  # 1 week
   TIMEOUT_COMMS = 300          # 5 minutes
   TIMEOUT_RETRY_TOTAL = 60*60  # 1 hour
   TIMEOUT_RETRY_WAIT = 10      # 10 seconds
 
-  VALID_TRANSPORTS = {
-    'reverse_tcp'   => METERPRETER_TRANSPORT_TCP,
-    'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
-    'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
-    'bind_tcp'      => METERPRETER_TRANSPORT_TCP
-  }
+  VALID_TRANSPORTS = [
+    'reverse_tcp',
+    'reverse_http',
+    'reverse_https',
+    'bind_tcp'
+  ]
 
   include Rex::Payloads::Meterpreter::UriChecksum
 
@@ -722,11 +718,8 @@ class ClientCore < Extension
   # Indicates if the given transport is a valid transport option.
   #
   def valid_transport?(transport)
-    if transport
-      VALID_TRANSPORTS.has_key?(transport.downcase)
-    else
-      false
-    end
+    return false if transport.nil?
+    VALID_TRANSPORTS.include?(transport.downcase)
   end
 
   #
@@ -830,11 +823,11 @@ private
       opts[:lhost] = nil
     end
 
-    transport = VALID_TRANSPORTS[opts[:transport]]
+    transport = opts[:transport].downcase
 
     request = Packet.create_request(method)
 
-    scheme = opts[:transport].split('_')[1]
+    scheme = transport.split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
 
     if opts[:luri] && opts[:luri].length > 0
@@ -864,7 +857,7 @@ private
     end
 
     # do more magic work for http(s) payloads
-    unless opts[:transport].ends_with?('tcp')
+    unless transport.ends_with?('tcp')
       if opts[:uri]
         url << '/' unless opts[:uri].start_with?('/')
         url << opts[:uri]
@@ -878,7 +871,7 @@ private
       opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
-      if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
+      if transport == 'reverse_https' && opts[:cert]
         hash = Rex::Socket::X509Certificate.get_cert_file_hash(opts[:cert])
         request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
       end
