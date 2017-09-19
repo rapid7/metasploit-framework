@@ -142,7 +142,7 @@ class Console::CommandDispatcher::Core
     print_line(@@pivot_opts.usage)
     print_line
     print_line('Supported pivot types:')
-    print_line('     - pipe (using named pipes over SMB)') 
+    print_line('     - pipe (using named pipes over SMB)')
     print_line('Supported arhiectures:')
     @@pivot_supported_archs.each do |a|
       print_line('     - ' + a)
@@ -757,7 +757,7 @@ class Console::CommandDispatcher::Core
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
-    '-t' => [true, "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}"],
+    '-t' => [true, "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.join(', ')}"],
     '-l' => [true, 'LHOST parameter (for reverse transports)'],
     '-p' => [true, 'LPORT parameter'],
     '-i' => [true, 'Specify transport by index (currently supported: remove)'],
