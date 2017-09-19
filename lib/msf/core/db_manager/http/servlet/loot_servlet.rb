@@ -17,7 +17,7 @@ module LootServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db().hosts(opts)
+        data = get_db().loots(opts)
         set_json_response(data)
       rescue Exception => e
         set_error_on_response(e)
@@ -27,7 +27,7 @@ module LootServlet
 
   def self.report_loot
     lambda {
-      job = lambda { |opts| get_db().report_host(opts) }
+      job = lambda { |opts| get_db().report_loot(opts) }
       exec_report_job(request, &job)
     }
   end

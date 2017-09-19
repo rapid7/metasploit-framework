@@ -6,7 +6,7 @@ module RemoteLootDataService
   LOOT_PATH = '/api/1/msf/loot'
   LOOT_SEARCH_PATH = LOOT_PATH + "/search"
 
-  def loot(opts)
+  def loot(opts = {})
     json_to_open_struct_object(self.get_data(LOOT_PATH, opts), [])
   end
 
@@ -22,7 +22,7 @@ module RemoteLootDataService
     self.post_data(LOOT_PATH, loot)
   end
 
-  def do_host_search(search)
+  def do_loot_search(search)
     response = self.post_data(LOOT_SEARCH_PATH, search)
     return response.body
   end

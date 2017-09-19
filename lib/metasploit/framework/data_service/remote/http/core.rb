@@ -59,6 +59,7 @@ class RemoteHTTPDataService
       end
     rescue Exception => e
       puts "Problem with POST request: #{e.message}"
+      puts "#{e.backtrace}"
     ensure
       @client_pool << client
     end
