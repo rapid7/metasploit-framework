@@ -34,11 +34,6 @@ module Meterpreter
 ###
 class ClientCore < Extension
 
-  TIMEOUT_SESSION = 24*3600*7  # 1 week
-  TIMEOUT_COMMS = 300          # 5 minutes
-  TIMEOUT_RETRY_TOTAL = 60*60  # 1 hour
-  TIMEOUT_RETRY_WAIT = 10      # 10 seconds
-
   VALID_TRANSPORTS = [
     'reverse_tcp',
     'reverse_http',
