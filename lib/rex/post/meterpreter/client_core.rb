@@ -34,9 +34,6 @@ module Meterpreter
 ###
 class ClientCore < Extension
 
-  UNIX_PATH_MAX = 108
-  DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
-
   TIMEOUT_SESSION = 24*3600*7  # 1 week
   TIMEOUT_COMMS = 300          # 5 minutes
   TIMEOUT_RETRY_TOTAL = 60*60  # 1 hour
@@ -573,45 +570,11 @@ class ClientCore < Extension
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
-    if client.platform == 'linux'
-      if writable_dir.to_s.strip.empty?
-        writable_dir = tmp_folder
-      end
-
-      stat_dir = client.fs.filestat.new(writable_dir)
-
-      unless stat_dir.directory?
-        raise RuntimeError, "Directory #{writable_dir} not found", caller
-      end
-      # Rex::Post::FileStat#writable? isn't available
-    end
-
     migrate_stub = generate_migrate_stub(target_process)
     migrate_payload = generate_migrate_payload(target_process)
 
     # Build the migration request
     request = Packet.create_request('core_migrate')
-
-    if client.platform == 'linux'
-      socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
-
-      if socket_path.length > UNIX_PATH_MAX - 1
-        raise RuntimeError, 'The writable dir is too long', caller
-      end
-
-      pos = migrate_payload.index(DEFAULT_SOCK_PATH)
-
-      if pos.nil?
-        raise RuntimeError, 'The meterpreter binary is wrong', caller
-      end
-
-      migrate_payload[pos, socket_path.length + 1] = socket_path + "\x00"
-
-      ep = elf_ep(migrate_payload)
-      request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
-      request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
-      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
-    end
 
     request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
     request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length)
@@ -895,24 +858,7 @@ private
     request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
     request.add_tlv(TLV_TYPE_TRANS_URL, url)
 
-    return request
-  end
-
-
-  #
-  # Create a full migration payload specific to the target process.
-  #
-  def generate_migrate_payload(target_process)
-    case client.platform
-    when 'windows'
-      blob = generate_migrate_windows_payload(target_process)
-    when 'linux'
-      blob = generate_migrate_linux_payload
-    else
-      raise RuntimeError, "Unsupported platform '#{client.platform}'"
-    end
-
-    blob
+    request
   end
 
   #
@@ -938,34 +884,18 @@ private
   end
 
   #
-  # Create a full Linux-specific migration payload specific to the target process.
+  # Create a full migration payload specific to the target process.
   #
-  def generate_migrate_linux_payload
-    MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
-  end
-
-  #
-  # Determine the elf entry poitn for the given payload.
-  #
-  def elf_ep(payload)
-    elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
-    ep = elf.elf_header.e_entry
-    return ep
-  end
-
-  #
-  # Get the tmp folder for the session.
-  #
-  def tmp_folder
-    tmp = client.sys.config.getenv('TMPDIR')
-
-    if tmp.to_s.strip.empty?
-      tmp = '/tmp'
+  def generate_migrate_payload(target_process)
+    case client.platform
+    when 'windows'
+      blob = generate_migrate_windows_payload(target_process)
+    else
+      raise RuntimeError, "Unsupported platform '#{client.platform}'"
     end
 
-    tmp
+    blob
   end
-
 end
 
 end; end; end
