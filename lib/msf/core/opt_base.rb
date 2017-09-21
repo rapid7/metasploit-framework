@@ -36,7 +36,11 @@ module Msf
         self.required = required
         self.desc     = attrs.is_a?(String) ? attrs : desc
         self.enums    = [ *(enums) ].map { |x| x.to_s }
-        self.default  = default || enums[0]
+        if default.nil? && enums.length > 0
+          self.default  = enums[0]
+        else
+          self.default = default
+        end
         regex_temp    = regex
       else
         self.required = attrs[0] || required
