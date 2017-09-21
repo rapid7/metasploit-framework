@@ -21,7 +21,7 @@ module Msf
       return false if check_empty && empty_required_value?(value)
       return true if value.nil? && !required?
 
-      (value && enums.include?(value.to_s))
+      !value.nil? && enums.include?(value.to_s)
     end
 
     def normalize(value = self.value)

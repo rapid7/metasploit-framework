@@ -18,6 +18,8 @@ module Msf
 
     def valid?(value, check_empty: true)
       return false if check_empty && empty_required_value?(value)
+      return true if value.nil? && !required?
+
       !(value.nil? ||
         value.to_s.empty? ||
         value.to_s.match(ANY_REGEX).nil?)
