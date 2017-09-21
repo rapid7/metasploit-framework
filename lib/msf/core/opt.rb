@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 module Msf
-
   #
   # Builtin framework options with shortcut methods
   #
@@ -59,17 +58,6 @@ module Msf
       )
     end
 
-    # These are unused but remain for historical reasons
-    class << self
-      alias builtin_chost CHOST
-      alias builtin_cport CPORT
-      alias builtin_lhost LHOST
-      alias builtin_lport LPORT
-      alias builtin_proxies Proxies
-      alias builtin_rhost RHOST
-      alias builtin_rport RPORT
-    end
-
     CHOST = CHOST()
     CPORT = CPORT()
     LHOST = LHOST()
@@ -79,5 +67,4 @@ module Msf
     RPORT = RPORT()
     SSLVersion = SSLVersion()
   end
-
 end
