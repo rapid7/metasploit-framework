@@ -59,8 +59,7 @@ module Msf
 
     # @return [OptEnum]
     def self.SSLVersion
-      Msf::OptEnum.new(
-        'SSLVersion',
+      Msf::OptEnum.new('SSLVersion',
         'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23 are auto-negotiate)',
         enums: self.ssl_supported_options
       )
@@ -68,14 +67,12 @@ module Msf
 
     def self.stager_retry_options
       [
-        OptInt.new(
-          'StagerRetryCount',
+        OptInt.new('StagerRetryCount',
           'The number of times the stager should retry if the first connect fails',
           default: 10,
           aliases: ['ReverseConnectRetries']
         ),
-        OptInt.new(
-          'StagerRetryWait',
+        OptInt.new('StagerRetryWait',
           'Number of seconds to wait for the stager between reconnect attempts',
           default: 5
         )
@@ -84,29 +81,19 @@ module Msf
 
     def self.http_proxy_options
       [
-        OptString.new(
-          'HttpProxyHost',
-          'An optional proxy server IP address or hostname',
+        OptString.new('HttpProxyHost', 'An optional proxy server IP address or hostname',
           aliases: ['PayloadProxyHost']
         ),
-        OptPort.new(
-          'HttpProxyPort',
-          'An optional proxy server port',
+        OptPort.new('HttpProxyPort', 'An optional proxy server port',
           aliases: ['PayloadProxyPort']
         ),
-        OptString.new(
-          'HttpProxyUser',
-          'An optional proxy server username',
+        OptString.new('HttpProxyUser', 'An optional proxy server username',
           aliases: ['PayloadProxyUser']
         ),
-        OptString.new(
-          'HttpProxyPass',
-          'An optional proxy server password',
+        OptString.new('HttpProxyPass', 'An optional proxy server password',
           aliases: ['PayloadProxyPass']
         ),
-        OptEnum.new(
-          'HttpProxyType',
-          'The type of HTTP proxy',
+        OptEnum.new('HttpProxyType', 'The type of HTTP proxy',
           enums: ['HTTP', 'SOCKS'],
           aliases: ['PayloadProxyType']
         )
@@ -115,18 +102,9 @@ module Msf
 
     def self.http_header_options
       [
-        OptString.new(
-          'HttpHeaderHost',
-          'An optional value to use for the Host HTTP header'
-        ),
-        OptString.new(
-          'HttpHeaderCookie',
-          'An optional value to use for the Cookie HTTP header'
-        ),
-        OptString.new(
-          'HttpHeaderReferer',
-          'An optional value to use for the Referer HTTP header'
-        )
+        OptString.new('HttpHostHeader', 'An optional value to use for the Host HTTP header'),
+        OptString.new('HttpCookie', 'An optional value to use for the Cookie HTTP header'),
+        OptString.new('HttpReferer', 'An optional value to use for the Referer HTTP header')
       ]
     end
 

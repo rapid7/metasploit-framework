@@ -28,9 +28,9 @@ module Payload::Python::ReverseHttp
       proxy_host:     ds['HttpProxyHost'],
       proxy_port:     ds['HttpProxyPort'],
       user_agent:     ds['HttpUserAgent'],
-      header_host:    ds['HttpHeaderHost'],
-      header_cookie:  ds['HttpHeaderCookie'],
-      header_referer: ds['HttpHeaderReferer']
+      header_host:    ds['HttpHostHeader'],
+      header_cookie:  ds['HttpCookie'],
+      header_referer: ds['HttpReferer']
     })
     opts[:scheme] = 'http' if opts[:scheme].nil?
 

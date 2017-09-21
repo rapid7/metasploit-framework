@@ -83,9 +83,9 @@ private
 
   def get_custom_headers(ds)
     headers = ""
-    headers << "Host: #{ds['HttpHeaderHost']}\r\n" if ds['HttpHeaderHost']
-    headers << "Cookie: #{ds['HttpHeaderCookie']}\r\n" if ds['HttpHeaderCookie']
-    headers << "Referer: #{ds['HttpHeaderReferer']}\r\n" if ds['HttpHeaderReferer']
+    headers << "Host: #{ds['HttpHostHeader']}\r\n" if ds['HttpHostHeader']
+    headers << "Cookie: #{ds['HttpCookie']}\r\n" if ds['HttpCookie']
+    headers << "Referer: #{ds['HttpReferer']}\r\n" if ds['HttpReferer']
 
     if headers.length > 0
       headers
