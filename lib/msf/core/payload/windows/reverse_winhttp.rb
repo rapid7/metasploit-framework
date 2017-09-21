@@ -21,7 +21,7 @@ module Payload::Windows::ReverseWinHttp
   def initialize(*args)
     super
     register_advanced_options([
-        OptBool.new('PayloadProxyIE', [false, 'Enable use of IE proxy settings', true])
+        OptBool.new('HttpProxyIE', 'Enable use of IE proxy settings', default: true, aliases: ['PayloadProxyIE'])
       ], self.class)
   end
 
@@ -41,13 +41,13 @@ module Payload::Windows::ReverseWinHttp
       conf[:uri]              = luri + generate_uri
       conf[:exitfunk]         = ds['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]
-      conf[:proxy_host]       = ds['PayloadProxyHost']
-      conf[:proxy_port]       = ds['PayloadProxyPort']
-      conf[:proxy_user]       = ds['PayloadProxyUser']
-      conf[:proxy_pass]       = ds['PayloadProxyPass']
-      conf[:proxy_type]       = ds['PayloadProxyType']
+      conf[:proxy_host]       = ds['HttpProxyHost']
+      conf[:proxy_port]       = ds['HttpProxyPort']
+      conf[:proxy_user]       = ds['HttpProxyUser']
+      conf[:proxy_pass]       = ds['HttpProxyPass']
+      conf[:proxy_type]       = ds['HttpProxyType']
       conf[:retry_count]      = ds['StagerRetryCount']
-      conf[:proxy_ie]         = ds['PayloadProxyIE']
+      conf[:proxy_ie]         = ds['HttpProxyIE']
       conf[:custom_headers]   = get_custom_headers(ds)
     else
       # Otherwise default to small URIs

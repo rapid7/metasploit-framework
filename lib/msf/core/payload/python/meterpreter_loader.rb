@@ -88,9 +88,9 @@ module Payload::Python::MeterpreterLoader
     end
     met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'")
 
-    http_user_agent = opts[:http_user_agent] || ds['MeterpreterUserAgent']
-    http_proxy_host = opts[:http_proxy_host] || ds['PayloadProxyHost'] || ds['PROXYHOST']
-    http_proxy_port = opts[:http_proxy_port] || ds['PayloadProxyPort'] || ds['PROXYPORT']
+    http_user_agent = opts[:http_user_agent] || ds['HttpUserAgent']
+    http_proxy_host = opts[:http_proxy_host] || ds['HttpProxyHost'] || ds['PROXYHOST']
+    http_proxy_port = opts[:http_proxy_port] || ds['HttpProxyPort'] || ds['PROXYPORT']
     http_header_host = opts[:header_host] || ds['HttpHeaderHost']
     http_header_cookie = opts[:header_cookie] || ds['HttpHeaderCookie']
     http_header_referer = opts[:header_referer] || ds['HttpHeaderReferer']

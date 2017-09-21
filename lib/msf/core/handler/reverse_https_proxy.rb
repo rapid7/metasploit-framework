@@ -38,13 +38,13 @@ module ReverseHttpsProxy
 
     register_options(
       [
-        OptAddressLocal.new('LHOST', [ true, "The local listener hostname" ,"127.0.0.1"]),
-        OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
-        OptString.new('PayloadProxyHost', [true, "The proxy server's IP address", "127.0.0.1"]),
-        OptPort.new('PayloadProxyPort', [true, "The proxy port to connect to", 8080 ]),
-        OptEnum.new('PayloadProxyType', [true, 'The proxy type, HTTP or SOCKS', 'HTTP', ['HTTP', 'SOCKS']]),
-        OptString.new('PayloadProxyUser', [ false, "An optional username for HTTP proxy authentication"]),
-        OptString.new('PayloadProxyPass', [ false, "An optional password for HTTP proxy authentication"])
+        OptAddressLocal.new('LHOST', "The local listener hostname", default: "127.0.0.1"),
+        OptPort.new('LPORT', "The local listener port", default: 8443),
+        OptString.new('HttpProxyHost', "The proxy server's IP address", required: true, default: "127.0.0.1", aliases: ['PayloadProxyHost']),
+        OptPort.new('HttpProxyPort', "The proxy port to connect to", required: true, default: 8080, aliases: ['PayloadProxyPort']),
+        OptEnum.new('HttpProxyType', 'The proxy type, HTTP or SOCKS', enums: ['HTTP', 'SOCKS'], aliases: ['PayloadProxyType']),
+        OptString.new('HttpProxyUser', "An optional username for HTTP proxy authentication", aliases: ['PayloadProxyUser']),
+        OptString.new('HttpProxyPass', "An optional password for HTTP proxy authentication", aliases: ['PayloadProxyPass'])
       ], Msf::Handler::ReverseHttpsProxy)
 
     register_advanced_options(

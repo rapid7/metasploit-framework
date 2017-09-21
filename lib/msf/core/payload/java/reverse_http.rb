@@ -67,7 +67,7 @@ module Payload::Java::ReverseHttp
 
     c =  ''
     c << "Spawn=#{ds["Spawn"] || 2}\n"
-    c << "HeaderUser-Agent=#{ds["MeterpreterUserAgent"]}\n" if ds["MeterpreterUserAgent"]
+    c << "HeaderUser-Agent=#{ds["HttpUserAgent"]}\n" if ds["HttpUserAgent"]
     c << "HeaderHost=#{ds["HttpHeaderHost"]}\n" if ds["HttpHeaderHost"]
     c << "HeaderReferer=#{ds["HttpHeaderReferer"]}\n" if ds["HttpHeaderReferer"]
     c << "HeaderCookie=#{ds["HttpHeaderCookie"]}\n" if ds["HttpHeaderCookie"]

@@ -32,14 +32,14 @@ module Payload::Windows::ReverseHttp_x64
         OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10],
           aliases: ['ReverseConnectRetries']),
         OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5]),
-        OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
-        OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
-        OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
-        OptString.new('PayloadProxyPass', [false, 'An optional proxy server password']),
-        OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']]),
-        OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
-        OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
-        OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header'])
+        OptString.new('HttpProxyHost', 'An optional proxy server IP address or hostname', aliases: ['PayloadProxyHost']),
+        OptPort.new('HttpProxyPort', 'An optional proxy server port', aliases: ['PayloadProxyPort']),
+        OptString.new('HttpProxyUser', 'An optional proxy server username', aliases: ['PayloadProxyUser']),
+        OptString.new('HttpProxyPass', 'An optional proxy server password', aliases: ['PayloadProxyPass']),
+        OptEnum.new('HttpProxyType', 'The type of HTTP proxy (HTTP or SOCKS)', enums: ['HTTP', 'SOCKS'], aliases: ['PayloadProxyType']),
+        OptString.new('HttpHeaderHost', 'An optional value to use for the Host HTTP header'),
+        OptString.new('HttpHeaderCookie', 'An optional value to use for the Cookie HTTP header'),
+        OptString.new('HttpHeaderReferer', 'An optional value to use for the Referer HTTP header')
       ], self.class)
   end
 
@@ -65,12 +65,12 @@ module Payload::Windows::ReverseHttp_x64
     if self.available_space.nil? || required_space <= self.available_space
       conf[:url]        = luri + generate_uri(opts)
       conf[:exitfunk]   = ds['EXITFUNC']
-      conf[:ua]         = ds['MeterpreterUserAgent']
-      conf[:proxy_host] = ds['PayloadProxyHost']
-      conf[:proxy_port] = ds['PayloadProxyPort']
-      conf[:proxy_user] = ds['PayloadProxyUser']
-      conf[:proxy_pass] = ds['PayloadProxyPass']
-      conf[:proxy_type] = ds['PayloadProxyType']
+      conf[:ua]         = ds['HttpUserAgent']
+      conf[:proxy_host] = ds['HttpProxyHost']
+      conf[:proxy_port] = ds['HttpProxyPort']
+      conf[:proxy_user] = ds['HttpProxyUser']
+      conf[:proxy_pass] = ds['HttpProxyPass']
+      conf[:proxy_type] = ds['HttpProxyType']
       conf[:custom_headers] = get_custom_headers(ds)
      else
       # Otherwise default to small URIs

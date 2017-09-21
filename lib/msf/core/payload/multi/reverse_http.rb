@@ -23,14 +23,13 @@ module Payload::Multi::ReverseHttp
   def initialize(*args)
     super
     register_advanced_options([
-        OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
-        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10],
-          aliases: ['ReverseConnectRetries']),
-        OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
-        OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
-        OptString.new('PayloadProxyUser', [false, 'An optional proxy server username']),
-        OptString.new('PayloadProxyPass', [false, 'An optional proxy server password']),
-        OptEnum.new('PayloadProxyType', [false, 'The type of HTTP proxy (HTTP or SOCKS)', 'HTTP', ['HTTP', 'SOCKS']])
+        OptInt.new('StagerURILength', 'The URI length for the stager (at least 5 bytes)'),
+        OptInt.new('StagerRetryCount', 'The number of times the stager should retry if the first connect fails', default: 10, aliases: ['ReverseConnectRetries']),
+        OptString.new('HttpProxyHost', 'An optional proxy server IP address or hostname', aliases: ['PayloadProxyHost']),
+        OptPort.new('HttpProxyPort', 'An optional proxy server port', aliases: ['PayloadProxyPort']),
+        OptString.new('HttpProxyUser', 'An optional proxy server username', aliases: ['PayloadProxyUser']),
+        OptString.new('HttpProxyPass', 'An optional proxy server password', aliases: ['PayloadProxyPass']),
+        OptEnum.new('HttpProxyType', 'The type of HTTP proxy (HTTP or SOCKS)', enums: ['HTTP', 'SOCKS'], aliases: ['PayloadProxyType'])
       ])
   end
 
@@ -67,4 +66,3 @@ module Payload::Multi::ReverseHttp
 end
 
 end
-

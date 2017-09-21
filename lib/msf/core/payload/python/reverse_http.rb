@@ -13,8 +13,8 @@ module Payload::Python::ReverseHttp
     super(info)
     register_options(
       [
-        OptString.new('PayloadProxyHost', [ false, "The proxy server's IP address" ]),
-        OptPort.new('PayloadProxyPort', [ true, "The proxy port to connect to", 8080 ]),
+        OptString.new('HttpProxyHost', [ false, "The proxy server's IP address" ], aliases: ['PayloadProxyHost']),
+        OptPort.new('HttpProxyPort', [ true, "The proxy port to connect to", 8080 ], aliases: ['PayloadProxyHost']),
         OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
         OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
         OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header'])
@@ -29,9 +29,9 @@ module Payload::Python::ReverseHttp
     opts.merge!({
       host:           ds['LHOST'] || '127.127.127.127',
       port:           ds['LPORT'],
-      proxy_host:     ds['PayloadProxyHost'],
-      proxy_port:     ds['PayloadProxyPort'],
-      user_agent:     ds['MeterpreterUserAgent'],
+      proxy_host:     ds['HttpProxyHost'],
+      proxy_port:     ds['HttpProxyPort'],
+      user_agent:     ds['HttpUserAgent'],
       header_host:    ds['HttpHeaderHost'],
       header_cookie:  ds['HttpHeaderCookie'],
       header_referer: ds['HttpHeaderReferer']

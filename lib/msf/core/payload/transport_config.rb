@@ -60,12 +60,12 @@ module Msf::Payload::TransportConfig
       lhost:           opts[:lhost] || ds['LHOST'],
       lport:           (opts[:lport] || ds['LPORT']).to_i,
       uri:             uri,
-      ua:              ds['MeterpreterUserAgent'],
-      proxy_host:      ds['PayloadProxyHost'],
-      proxy_port:      ds['PayloadProxyPort'],
-      proxy_type:      ds['PayloadProxyType'],
-      proxy_user:      ds['PayloadProxyUser'],
-      proxy_pass:      ds['PayloadProxyPass'],
+      ua:              ds['HttpUserAgent'],
+      proxy_host:      ds['HttpProxyHost'],
+      proxy_port:      ds['HttpProxyPort'],
+      proxy_type:      ds['HttpProxyType'],
+      proxy_user:      ds['HttpProxyUser'],
+      proxy_pass:      ds['HttpProxyPass'],
       custom_headers:  get_custom_headers(ds)
     }.merge(timeout_config(opts))
   end
