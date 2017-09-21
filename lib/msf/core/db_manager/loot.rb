@@ -24,16 +24,25 @@ module Msf::DBManager::Loot
   #
   # This methods returns a list of all loot in the database
   #
-  def loots(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.loots
-  }
+  def loots(opts)
+    wspace = opts[:workspace] || opts[:wspace] || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace.loots
+    }
   end
+  alias_method :loot, :loots
 
   def report_loot(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = opts.delete(:workspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
     path = opts.delete(:path) || (raise RuntimeError, "A loot :path is required")
 
     host = nil

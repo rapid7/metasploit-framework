@@ -1272,32 +1272,34 @@ class Db
 
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-        host.loots.each do |loot|
-          next if(types and types.index(loot.ltype).nil?)
-          if search_term
-          next unless(
-            loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
-            loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
-          )
-          end
-          row = []
-          row.push( (loot.host ? loot.host.address : "") )
-          if (loot.service)
-            svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
-            row.push svc
-          else
-            row.push ""
-          end
-          row.push(loot.ltype)
-          row.push(loot.name || "")
-          row.push(loot.content_type)
-          row.push(loot.info || "")
-          row.push(loot.path)
+        if host.loots
+          host.loots.each do |loot|
+            next if(types and types.index(loot.ltype).nil?)
+            if search_term
+            next unless(
+              loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
+              loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
+            )
+            end
+            row = []
+            row.push( (loot.host ? loot.host.address : "") )
+            if (loot.service)
+              svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
+              row.push svc
+            else
+              row.push ""
+            end
+            row.push(loot.ltype)
+            row.push(loot.name || "")
+            row.push(loot.content_type)
+            row.push(loot.info || "")
+            row.push(loot.path)
 
-          tbl << row
-          if (mode == :delete)
-            loot.destroy
-            delete_count += 1
+            tbl << row
+            if (mode == :delete)
+              loot.destroy
+              delete_count += 1
+            end
           end
         end
       end
@@ -1305,8 +1307,9 @@ class Db
 
     # Handle hostless loot
     if host_ranges.compact.empty? # Wasn't a host search
-      hostless_loot = framework.db.loots.where(host_id: nil)
+      hostless_loot = framework.db.loot(framework.db.workspace)
       hostless_loot.each do |loot|
+        next unless loot.host_id = nil
         row = []
         row.push("")
         row.push("")
