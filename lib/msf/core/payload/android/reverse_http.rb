@@ -23,11 +23,7 @@ module Payload::Android::ReverseHttp
   #
   def initialize(*args)
     super
-    register_advanced_options([
-        OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
-        OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
-        OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header'])
-      ], self.class)
+    register_advanced_options(Msf::Opt::http_header_options)
   end
 
   #

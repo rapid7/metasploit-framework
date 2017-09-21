@@ -28,13 +28,20 @@ module Payload::Python::MeterpreterLoader
       'Stager'        => {'Payload' => ""}
     ))
 
-    register_advanced_options([
-      OptBool.new('MeterpreterTryToFork', [ true, 'Fork a new process if the functionality is available', true ]),
-      OptBool.new('PythonMeterpreterDebug', [ true, 'Enable debugging for the Python meterpreter', false ]),
-      OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
-      OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
-      OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header'])
-    ], self.class)
+    register_advanced_options(
+      [
+        OptBool.new(
+          'MeterpreterTryToFork',
+          'Fork a new process if the functionality is available',
+          default: true
+        ),
+        OptBool.new(
+          'PythonMeterpreterDebug',
+          'Enable debugging for the Python meterpreter'
+        ),
+      ] +
+      Msf::Opt::http_header_options
+    )
   end
 
   def stage_payload(opts={})

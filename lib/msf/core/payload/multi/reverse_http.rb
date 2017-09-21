@@ -22,15 +22,12 @@ module Payload::Multi::ReverseHttp
   #
   def initialize(*args)
     super
-    register_advanced_options([
-        OptInt.new('StagerURILength', 'The URI length for the stager (at least 5 bytes)'),
-        OptInt.new('StagerRetryCount', 'The number of times the stager should retry if the first connect fails', default: 10, aliases: ['ReverseConnectRetries']),
-        OptString.new('HttpProxyHost', 'An optional proxy server IP address or hostname', aliases: ['PayloadProxyHost']),
-        OptPort.new('HttpProxyPort', 'An optional proxy server port', aliases: ['PayloadProxyPort']),
-        OptString.new('HttpProxyUser', 'An optional proxy server username', aliases: ['PayloadProxyUser']),
-        OptString.new('HttpProxyPass', 'An optional proxy server password', aliases: ['PayloadProxyPass']),
-        OptEnum.new('HttpProxyType', 'The type of HTTP proxy (HTTP or SOCKS)', enums: ['HTTP', 'SOCKS'], aliases: ['PayloadProxyType'])
-      ])
+    register_advanced_options(
+      [ OptInt.new('StagerURILength', 'The URI length for the stager (at least 5 bytes)') ] +
+      Msf::Opt::stager_retry_options +
+      Msf::Opt::http_header_options +
+      Msf::Opt::http_proxy_options
+    )
   end
 
   #

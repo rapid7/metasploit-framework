@@ -27,20 +27,12 @@ module Payload::Windows::ReverseHttp_x64
   #
   def initialize(*args)
     super
-    register_advanced_options([
-        OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
-        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10],
-          aliases: ['ReverseConnectRetries']),
-        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5]),
-        OptString.new('HttpProxyHost', 'An optional proxy server IP address or hostname', aliases: ['PayloadProxyHost']),
-        OptPort.new('HttpProxyPort', 'An optional proxy server port', aliases: ['PayloadProxyPort']),
-        OptString.new('HttpProxyUser', 'An optional proxy server username', aliases: ['PayloadProxyUser']),
-        OptString.new('HttpProxyPass', 'An optional proxy server password', aliases: ['PayloadProxyPass']),
-        OptEnum.new('HttpProxyType', 'The type of HTTP proxy (HTTP or SOCKS)', enums: ['HTTP', 'SOCKS'], aliases: ['PayloadProxyType']),
-        OptString.new('HttpHeaderHost', 'An optional value to use for the Host HTTP header'),
-        OptString.new('HttpHeaderCookie', 'An optional value to use for the Cookie HTTP header'),
-        OptString.new('HttpHeaderReferer', 'An optional value to use for the Referer HTTP header')
-      ], self.class)
+    register_advanced_options(
+      [ OptInt.new('StagerURILength', 'The URI length for the stager (at least 5 bytes)') ] +
+      Msf::Opt::stager_retry_options +
+      Msf::Opt::http_header_options +
+      Msf::Opt::http_proxy_options
+    )
   end
 
   def transport_config(opts={})

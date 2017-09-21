@@ -11,14 +11,10 @@ module Payload::Python::ReverseHttp
 
   def initialize(info = {})
     super(info)
-    register_options(
-      [
-        OptString.new('HttpProxyHost', [ false, "The proxy server's IP address" ], aliases: ['PayloadProxyHost']),
-        OptPort.new('HttpProxyPort', [ true, "The proxy port to connect to", 8080 ], aliases: ['PayloadProxyHost']),
-        OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
-        OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
-        OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header'])
-      ], self.class)
+    register_advanced_options(
+      Msf::Opt::http_header_options +
+      Msf::Opt::http_proxy_options
+    )
   end
 
   #

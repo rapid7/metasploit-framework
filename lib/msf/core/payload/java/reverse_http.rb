@@ -23,13 +23,13 @@ module Payload::Java::ReverseHttp
   #
   def initialize(*args)
     super
-    register_advanced_options([
-      OptInt.new('Spawn', [true, 'Number of subprocesses to spawn', 2]),
-      OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
-      OptString.new('HttpHeaderHost', [false, 'An optional value to use for the Host HTTP header']),
-      OptString.new('HttpHeaderCookie', [false, 'An optional value to use for the Cookie HTTP header']),
-      OptString.new('HttpHeaderReferer', [false, 'An optional value to use for the Referer HTTP header']),
-    ])
+    register_advanced_options(
+      [
+        OptInt.new('Spawn', [true, 'Number of subprocesses to spawn', 2]),
+        OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
+      ] +
+      Msf::Opt::http_header_options
+    )
   end
 
   #
