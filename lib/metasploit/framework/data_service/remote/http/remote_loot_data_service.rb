@@ -15,10 +15,10 @@ module RemoteLootDataService
   end
 
   def find_or_create_loot(opts)
-    json_to_open_struct_object(self.post_data(LOOT_PATH, loot))
+    json_to_open_struct_object(self.post_data(LOOT_PATH, opts))
   end
 
-  def report_loot(loot)
+  def report_loots(loot)
     self.post_data(LOOT_PATH, loot)
   end
 
