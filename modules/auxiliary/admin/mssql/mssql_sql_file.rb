@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module will allow for multiple SQL queries contained within a specified
         file to be executed against a Microsoft SQL (MSSQL) Server instance, given
-        the appropiate credentials.
+        the appropriate credentials.
       },
       'Author'         => [ 'j0hn__f : <jf[at]tinternet.org.uk>' ],
       'License'        => MSF_LICENSE

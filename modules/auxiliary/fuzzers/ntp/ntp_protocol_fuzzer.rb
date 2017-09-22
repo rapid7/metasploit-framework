@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     @versions.each do |version|
       print_status("#{host}:#{rport} fuzzing version #{version} control messages (mode 6)")
       @mode_6_operations.each do |op|
-        request = Rex::Proto::NTP.ntp_control(version, op)
+        request = Rex::Proto::NTP.ntp_control(version, op).to_binary_s
         what = "#{request.size}-byte version #{version} mode 6 op #{op} message"
         vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
         responses = probe(host, datastore['RPORT'].to_i, request)
@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{host}:#{rport} fuzzing version #{version} private messages (mode 7)")
       @mode_7_implementations.each do |implementation|
         @mode_7_request_codes.each do |request_code|
-          request = Rex::Proto::NTP.ntp_private(version, implementation, request_code, "\0" * 188)
+          request = Rex::Proto::NTP.ntp_private(version, implementation, request_code, "\0" * 188).to_binary_s
           what = "#{request.size}-byte version #{version} mode 7 imp #{implementation} req #{request_code} message"
           vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
           responses = probe(host, datastore['RPORT'].to_i, request)
@@ -164,6 +164,7 @@ class MetasploitModule < Msf::Auxiliary
           # TODO: is there a better way to pick this size?  Should more than one be tried?
           request.payload = SecureRandom.random_bytes(16)
         end
+        request = request.to_binary_s
         what = "#{request.size}-byte #{short ? 'short ' : nil}version #{version} mode #{mode} message"
         vprint_status("#{host}:#{rport} probing with #{what}")
         responses = probe(host, datastore['RPORT'].to_i, request)

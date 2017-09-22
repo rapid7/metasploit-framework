@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module exploits a file download vulnerability found in Oracle
         Demantra 12.2.1 in combination with an authentication bypass. By
-        combining these exposures, an unauthenticated user can retreive any file
+        combining these exposures, an unauthenticated user can retrieve any file
         on the system by referencing the full file path to any file a vulnerable
         machine.
       },

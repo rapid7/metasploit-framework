@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'          => 'Intersil (Boa) HTTPd Basic Authentication Password Reset',
       'Description'   => %q{
-          The Intersil extention in the Boa HTTP Server 0.93.x - 0.94.11
+          The Intersil extension in the Boa HTTP Server 0.93.x - 0.94.11
           allows basic authentication bypass when the user string is greater
           than 127 bytes long.  The long string causes the password to be
           overwritten in memory, which enables the attacker to reset the
