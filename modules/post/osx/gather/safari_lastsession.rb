@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
         to find the credential for Gmail. The Gmail's last session state may contain the
         user's credential if his/her first login attempt failed (likely due to a typo),
         and then the page got refreshed or another login attempt was made. This also means
-        the stolen credential might contains typos.
+        the stolen credential might contain typos.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],

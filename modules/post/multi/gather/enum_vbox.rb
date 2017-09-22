@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
       'Description'    => %q{
         This module will attempt to enumerate any VirtualBox VMs on the target machine.
         Due to the nature of VirtualBox, this module can only enumerate VMs registered
-        for the current user, thereforce, this module needs to be invoked from a user context.
+        for the current user, therefore, this module needs to be invoked from a user context.
       },
       'License'        => MSF_LICENSE,
       'Author'         => ['theLightCosine'],

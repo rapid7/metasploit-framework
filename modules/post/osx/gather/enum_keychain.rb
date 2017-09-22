@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
         This module presents a way to quickly go through the current user's keychains and
         collect data such as email accounts, servers, and other services.  Please note:
         when using the GETPASS and GETPASS_AUTO_ACCEPT option, the user may see an authentication
-        alert flash briefly on their screen that gets dismissed by a programatically triggered click.
+        alert flash briefly on their screen that gets dismissed by a programmatically triggered click.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'ipwnstuff <e[at]ipwnstuff.com>', 'joev' ],
