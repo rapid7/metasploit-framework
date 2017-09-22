@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,9 +14,9 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'WebNMS Framework Server Credential Disclosure',
         'Description' => %q(
 This module abuses two vulnerabilities in WebNMS Framework Server 5.2 to extract
-all user credentials. The first vulnerability is a unauthenticated file download
+all user credentials. The first vulnerability is an unauthenticated file download
 in the FetchFile servlet, which is used to download the file containing the user
-credentials. The second vulnerability is that the the passwords in the file are
+credentials. The second vulnerability is that the passwords in the file are
 obfuscated with a very weak algorithm which can be easily reversed.
 This module has been tested with WebNMS Framework Server 5.2 and 5.2 SP1 on
 Windows and Linux.

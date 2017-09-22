@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'rex/encoder/alpha2/alpha_upper'
 
-
 class MetasploitModule < Msf::Encoder::Alphanum
-
   Rank = LowRanking
 
   def initialize

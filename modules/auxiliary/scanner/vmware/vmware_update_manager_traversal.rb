@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -64,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("File retrieved from: #{ip}")
       p = store_loot("vmware.traversal.file", "application/octet-stream", rhost, res.to_s, fname)
-      print_status("File stored in: #{p}")
+      print_good("File stored in: #{p}")
     end
   end
 end

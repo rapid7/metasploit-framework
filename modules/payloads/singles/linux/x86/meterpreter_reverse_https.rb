@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_x86_linux'
 
 module MetasploitModule
 
-  CachedSize = 744060
+  CachedSize = 772828
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions

@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -12,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'Adobe XML External Entity Injection',
       'Description' => %q{
-          Multiple Adobe Products -- XML External Entity Injection. Affected Sofware: BlazeDS 3.2 and
+          Multiple Adobe Products -- XML External Entity Injection. Affected Software: BlazeDS 3.2 and
         earlier versions, LiveCycle 9.0, 8.2.1, and 8.0.1, LiveCycle Data Services 3.0, 2.6.1, and
         2.5.1, Flex Data Services 2.0.1, ColdFusion 9.0, 8.0.1, 8.0, and 7.0.2
       },

@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
 
 ###
 #
@@ -46,5 +44,4 @@ module MetasploitModule
   def generate_stage(opts={})
     bsd_x86_exec_payload
   end
-
 end

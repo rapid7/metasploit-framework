@@ -1,9 +1,10 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -141,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     rescue ::Rex::ConnectionError
-      print_error("Version check Connection failed.")
+      print_error("Version check Connection failed")
   end
 
   # This section logs on and retrieves AuthKey token
@@ -165,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
         extract(major, minor, authkey)
       end
     rescue ::Rex::ConnectionError
-      print_error("Login Connection failed.")
+      print_error("Login Connection failed")
     end
   end
 
@@ -219,7 +220,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     else
-      print_status('No AuthKey returned possible causes Authentication failed or unsupported Konica model')
+      print_error('No AuthKey returned possible causes Authentication failed or unsupported Konica model')
       return
     end
   end

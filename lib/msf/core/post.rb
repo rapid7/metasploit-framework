@@ -19,6 +19,12 @@ class Msf::Post < Msf::Module
   require 'msf/core/post/android'
   require 'msf/core/post/hardware'
 
+  class Complete < RuntimeError
+  end
+
+  class Failed < RuntimeError
+  end
+
   include Msf::PostMixin
 
   def setup
@@ -66,4 +72,10 @@ class Msf::Post < Msf::Module
       nil
     end
   end
+
+  # Override Msf::Module#fail_with for Msf::Simple::Post::job_run_proc
+  def fail_with(reason, msg = nil)
+    raise Msf::Post::Failed, "#{reason.to_s}: #{msg}"
+  end
+
 end

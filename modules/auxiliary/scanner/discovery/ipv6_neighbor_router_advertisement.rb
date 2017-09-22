@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
   include Msf::Exploit::Remote::Ipv6
   include Msf::Auxiliary::Report
@@ -14,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     'Description' => %q{
         Send a spoofed router advertisement with high priority to force hosts to
         start the IPv6 address auto-config. Monitor for IPv6 host advertisements,
-        and try to guess the link-local address by concatinating the prefix, and
+        and try to guess the link-local address by concatenating the prefix, and
         the host portion of the IPv6 address.  Use NDP host solicitation to
         determine if the IP address is valid'
     },
@@ -189,5 +188,4 @@ class MetasploitModule < Msf::Auxiliary
     # Close capture
     close_pcap()
   end
-
 end

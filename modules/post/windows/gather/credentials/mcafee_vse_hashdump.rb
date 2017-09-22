@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Post
 
       # Store McAfee password hash as loot
       loot_path = store_loot('mcafee.hash', 'text/plain', session, "mcafee:#{hash}", 'mcafee_hashdump.txt', 'McAfee Password Hash')
-      print_status("McAfee VSE password hash saved in: #{loot_path}")
+      print_good("McAfee VSE password hash saved in: #{loot_path}")
     end
   end
 end

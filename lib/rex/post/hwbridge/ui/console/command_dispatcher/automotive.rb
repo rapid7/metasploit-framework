@@ -174,6 +174,8 @@ class Console::CommandDispatcher::Automotive
     data = ''
     timeout = nil
     maxpackets = nil
+    flowcontrol = false
+    padding = nil
     cansend_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-b' => [ true, 'Target bus'],
@@ -181,6 +183,8 @@ class Console::CommandDispatcher::Automotive
       '-R' => [ true, 'Return ID'],
       '-D' => [ true, 'Data packet in Hex (Do not include ISOTP command size)'],
       '-t' => [ true, 'Timeout value'],
+      '-p' => [ true, 'Padding value, none if not specified'],
+      '-C' => [ false, 'Force flow control'],
       '-m' => [ true, 'Max packets to receive']
     )
     cansend_opts.parse(args) do |opt, _idx, val|
@@ -199,6 +203,10 @@ class Console::CommandDispatcher::Automotive
         data = val
       when '-t'
         timeout = val.to_i
+      when '-p'
+        padding = val
+      when '-C'
+        flowcontrol = true
       when '-m'
         maxpackets = val.to_i
       end
@@ -224,6 +232,8 @@ class Console::CommandDispatcher::Automotive
     opt = {}
     opt['TIMEOUT'] = timeout unless timeout.nil?
     opt['MAXPKTS'] = maxpackets unless maxpackets.nil?
+    opt['PADDING'] = padding unless padding.nil?
+    opt['FC'] = true unless flowcontrol == false
     result = client.automotive.send_isotp_and_wait_for_response(bus, id, ret, bytes, opt)
     if result.key? 'Packets'
       result['Packets'].each do |pkt|
@@ -269,7 +279,7 @@ class Console::CommandDispatcher::Automotive
       return
     end
     if id.blank? && !stop
-      if self.tpjobs.size.positive?
+      if self.tpjobs.size > 0
         print_line("TesterPresent is currently active")
         self.tpjobs.each_index do |jid|
           if self.tpjobs[jid]

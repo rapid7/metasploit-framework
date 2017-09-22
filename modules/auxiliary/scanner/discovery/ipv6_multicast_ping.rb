@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
   include Msf::Exploit::Remote::Ipv6
   include Msf::Auxiliary::Report
@@ -99,5 +98,4 @@ class MetasploitModule < Msf::Auxiliary
     # Close capture
     close_pcap()
   end
-
 end

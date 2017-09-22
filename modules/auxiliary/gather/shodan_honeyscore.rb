@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif score == 1.0
       print_good("#{tgt} is definitely a honeypot")
     else  # We shouldn't ever get here as the previous checks should catch an unexpected response
-      print_error('An unexpected error occured.')
+      print_error('An unexpected error occurred.')
       return
     end
     print_score(score)

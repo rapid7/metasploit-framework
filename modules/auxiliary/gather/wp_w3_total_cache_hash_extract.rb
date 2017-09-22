@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -13,9 +13,9 @@ class MetasploitModule < Msf::Auxiliary
       'Name'          => 'WordPress W3-Total-Cache Plugin 0.9.2.4 (or before) Username and Hash Extract',
       'Description'   =>
         "The W3-Total-Cache Wordpress Plugin <= 0.9.2.4 can cache database statements
-        and it's results in files for fast access. Version 0.9.2.4 has been fixed afterwards
+        and its results in files for fast access. Version 0.9.2.4 has been fixed afterwards
         so it can be vulnerable. These cache files are in the webroot of the Wordpress
-        installation and can be downloaded if the name is guessed. This modules tries to
+        installation and can be downloaded if the name is guessed. This module tries to
         locate them with brute force in order to find usernames and password hashes in these
         files. W3 Total Cache must be configured with Database Cache enabled and Database
         Cache Method set to Disk to be vulnerable",

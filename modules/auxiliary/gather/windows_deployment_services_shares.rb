@@ -1,5 +1,5 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'rex/proto/dcerpc'
 require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
@@ -21,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
           This module will search remote file shares for unattended installation files that may contain
           domain credentials. This is often used after discovering domain credentials with the
-          auxilliary/scanner/dcerpc/windows_deployment_services module or in cases where you already
+          auxiliary/scanner/dcerpc/windows_deployment_services module or in cases where you already
           have domain credentials. This module will connect to the RemInst share and any Microsoft
           Deployment Toolkit shares indicated by the share name comments.
       },
@@ -237,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
   def loot_unattend(data)
     return if data.empty?
     path = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
-    print_status("Stored unattend.xml in #{path}")
+    print_good("Stored unattend.xml in #{path}")
   end
 
   def report_creds(domain, user, pass)
@@ -250,6 +249,5 @@ class MetasploitModule < Msf::Auxiliary
       proof: domain
     )
   end
-
 end
 

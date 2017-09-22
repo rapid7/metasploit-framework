@@ -301,8 +301,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # If a block is given, it will be called before each file is downloaded and
   # again when each download is complete.
   #
-  def File.download(dest, src_files, opts = nil, &stat)
-    timestamp = opts["timestamp"] if opts
+  def File.download(dest, src_files, opts = {}, &stat)
+    timestamp = opts["timestamp"]
     [*src_files].each { |src|
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
@@ -324,18 +324,15 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Download a single file.
   #
-  def File.download_file(dest_file, src_file, opts = nil, &stat)
-    continue=false
-    tries=false
-    tries_no=0
+  def File.download_file(dest_file, src_file, opts = {}, &stat)
     stat ||= lambda { |a,b,c| }
 
-    if opts
-      continue = true if opts["continue"]
-      adaptive = true if opts['adaptive']
-      tries = true if opts["tries"]
-      tries_no = opts["tries_no"]
-    end
+    adaptive = opts["adaptive"]
+    block_size = opts["block_size"] || 1024 * 1024
+    continue = opts["continue"]
+    tries_no = opts["tries_no"]
+    tries = opts["tries"]
+
     src_fd = client.fs.file.new(src_file, "rb")
 
     # Check for changes
@@ -373,7 +370,6 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     end
 
     # Keep transferring until EOF is reached...
-    block_size = opts['block_size'] || 1024 * 1024
     begin
       if tries
         # resume when timeouts encountered

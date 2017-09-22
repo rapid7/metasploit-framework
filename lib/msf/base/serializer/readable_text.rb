@@ -541,6 +541,7 @@ class ReadableText
     columns << 'Id'
     columns << 'Type'
     columns << 'Checkin?' if show_extended
+    columns << 'Enc?' if show_extended
     columns << 'Local URI' if show_extended
     columns << 'Information'
     columns << 'Connection'
@@ -575,7 +576,13 @@ class ReadableText
           row << '?'
         end
 
-        if session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
+        if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
+          row << "Y"
+        else
+          row << 'N'
+        end
+
+        if session.exploit_datastore && session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
           row << " (#{session.exploit_datastore['LURI']})"
         else
           row << '?'
@@ -615,13 +622,17 @@ class ReadableText
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
       sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
-      sess_luri    = session.exploit_datastore['LURI'] || ""
+      sess_luri    = session.exploit_datastore['LURI'] || "" if session.exploit_datastore
+      sess_enc     = false
+      if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
+        sess_enc   = true
+      end
 
       sess_checkin = "<none>"
       sess_registration = "No"
 
-      if session.respond_to? :platform
-        sess_type << (" " + session.platform)
+      if session.respond_to?(:platform)
+        sess_type << " " + session.platform
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin
@@ -640,10 +651,11 @@ class ReadableText
       out << "        Info: #{sess_info}\n"
       out << "      Tunnel: #{sess_tunnel}\n"
       out << "         Via: #{sess_via}\n"
+      out << "   Encrypted: #{sess_enc}\n"
       out << "        UUID: #{sess_uuid}\n"
       out << "     CheckIn: #{sess_checkin}\n"
       out << "  Registered: #{sess_registration}\n"
-      unless sess_luri.empty?
+      unless (sess_luri || '').empty?
         out << "        LURI: #{sess_luri}\n"
       end
 
