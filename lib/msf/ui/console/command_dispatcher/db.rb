@@ -1282,7 +1282,7 @@ class Db
             )
             end
             row = []
-            row.push( (loot.host ? loot.host.address : "") )
+            row.push( (host.address ? host.address : "") )
             if (loot.service)
               svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
               row.push svc
