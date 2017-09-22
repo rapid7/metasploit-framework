@@ -11,6 +11,9 @@ class Msf::Modules::External::Shim
       remote_exploit_cmd_stager(mod)
     when 'capture_server'
       capture_server(mod)
+    else
+      # TODO have a nice load error show up in the logs
+      ''
     end
   end
 
