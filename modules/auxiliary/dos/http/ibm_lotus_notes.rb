@@ -14,7 +14,6 @@ class MetasploitModule < Msf::Auxiliary
         'Description'    => %q(
           This module exploits a vulnerability in the native browser that comes with IBM Lotus Notes.
           If successful,it could cause the Notes client to hang and have to be restarted.
-		  http://www-01.ibm.com/support/docview.wss?uid=swg21999385
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
@@ -24,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EXPLOIT-DB', '42602'],
           [ 'CVE', '2017-1129' ]
         ],
-        'DisclosureDate' => "August 31 2017",
+        'DisclosureDate' => 'Aug 31 2017',
         'Actions'        => [[ 'WebServer' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
@@ -57,4 +56,3 @@ while (true) try {
     send_response(cli, @html)
   end
 end
-
