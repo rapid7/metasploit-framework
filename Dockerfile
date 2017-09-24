@@ -1,4 +1,4 @@
-FROM ruby:2.4.1-alpine
+FROM ruby:2.4.2-alpine
 MAINTAINER Rapid7
 
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
