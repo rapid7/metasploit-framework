@@ -691,13 +691,16 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Get list local path information for lls command
   #
   def list_local_path(path, sort, order, search_term = nil)
+    # Single file as path
     if !::File.directory?(path)
       perms = pretty_perms(path)
       stat = ::File.stat(path)
       print_line("#{perms}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
       return
     end
- 
+
+    # Enumerate each item...
+    # No need to sort as Table will do it for us
     columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
     tbl = Rex::Text::Table.new(
       'Header'  => "Listing Local: #{path}",
