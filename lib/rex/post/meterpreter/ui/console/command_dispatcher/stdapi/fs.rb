@@ -690,6 +690,13 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Get list local path information for lls command
   #
   def list_local_path(path, sort, order)
+    if !::File.directory?(path)
+      perms = pretty_perms(path)
+      stat = ::File.stat(path)
+      print_line("#{perms}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
+      return
+    end
+ 
     columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
     tbl = Rex::Text::Table.new(
       'Header'  => "Listing Local: #{path}",
@@ -698,32 +705,19 @@ class Console::CommandDispatcher::Stdapi::Fs
       'Columns' => columns)
 
     items = 0
-
     files = ::Dir.entries(path)
 
     files.each do |file|
       file_path = ::File.join(path, file)
-      m  = ::File.stat(file_path).mode
-      om = '%04o' % m
-      perms = ''
 
-      3.times {
-        perms = ((m & 01) == 01 ? 'x' : '-') + perms
-        perms = ((m & 02) == 02 ? 'w' : '-') + perms
-        perms = ((m & 04) == 04 ? 'r' : '-') + perms
-        m >>= 3
-      }
-
-      perm = "#{om}/#{perms}"
-      size = ::File.stat(file_path).size
-      ftype = ::File.stat(file_path).ftype[0,3]
-      mtime = ::File.stat(file_path).mtime
+      perms = pretty_perms(file_path)
+      stat = ::File.stat(file_path)
 
       row = [
-        perm ? perm        : '',
-        size ? size.to_s   : '',
-        ftype ? ftype[0,3] : '',
-        mtime ? mtime      : '',
+        perms ? perms                : '',
+        stat.size ? stat.size.to_s   : '',
+        stat.ftype ? stat.ftype[0,3] : '',
+        stat.mtime ? stat.mtime      : '',
         file
       ]
       if file != '.' && file != '..'
@@ -736,6 +730,23 @@ class Console::CommandDispatcher::Stdapi::Fs
     else
       print_line("No entries exist in #{path}")
     end
+  end
+
+  # Code from prettymode in lib/rex/post/file_stat.rb
+  # adapted for local file usage
+  def pretty_perms(path)
+    m  = ::File.stat(path).mode
+    om = '%04o' % m
+    perms = ''
+
+    3.times {
+      perms = ((m & 01) == 01 ? 'x' : '-') + perms
+      perms = ((m & 02) == 02 ? 'w' : '-') + perms
+      perms = ((m & 04) == 04 ? 'r' : '-') + perms
+      m >>= 3
+    }
+
+    return "#{om}/#{perms}"
   end
 
   #
@@ -773,7 +784,6 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Alias the lls command to dir, for those of us who have windows muscle-memory
   #
   alias cmd_ldir cmd_lls
-
 
   #
   # Make one or more directory.
