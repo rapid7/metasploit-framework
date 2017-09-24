@@ -54,10 +54,11 @@ class Console::CommandDispatcher::Stdapi::Fs
     "-R" => [ false, "Recursively list subdirectories encountered" ])
 
   #
-  # Options for the ls command
+  # Options for the lls command
   #
   @@lls_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
+    "-S" => [ true,  "Search string." ],
     "-t" => [ false, "Sort by time" ],
     "-s" => [ false, "Sort by size" ],
     "-r" => [ false, "Reverse sort order" ])
@@ -689,7 +690,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   # Get list local path information for lls command
   #
-  def list_local_path(path, sort, order)
+  def list_local_path(path, sort, order, search_term = nil)
     if !::File.directory?(path)
       perms = pretty_perms(path)
       stat = ::File.stat(path)
@@ -721,8 +722,10 @@ class Console::CommandDispatcher::Stdapi::Fs
         file
       ]
       if file != '.' && file != '..'
-        tbl << row
-        items += 1
+        if row.join(' ') =~ /#{search_term}/
+          tbl << row
+          items += 1
+        end
       end
     end
     if items > 0
@@ -753,9 +756,11 @@ class Console::CommandDispatcher::Stdapi::Fs
   # List local files
   #
   def cmd_lls(*args)
+    # Set Defaults
     path = ::Dir.pwd
     sort = 'Name'
     order = :forward
+    search_term = nil
 
     # Parse the args
     @@lls_opts.parse(args) { |opt, idx, val|
@@ -768,6 +773,15 @@ class Console::CommandDispatcher::Stdapi::Fs
       # Output options
       when '-r'
         order = :reverse
+      # Search
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        else
+          search_term = /#{search_term}/nmi
+        end
       # Help and path
       when "-h"
         cmd_lls_help
@@ -777,7 +791,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       end
     }
 
-    list_local_path(path, sort, order)
+    list_local_path(path, sort, order, search_term)
   end
 
   #
