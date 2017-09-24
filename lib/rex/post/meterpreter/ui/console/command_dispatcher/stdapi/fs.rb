@@ -39,6 +39,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@upload_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
     "-r" => [ false, "Upload recursively." ])
+  
   #
   # Options for the ls command
   #
@@ -51,6 +52,12 @@ class Console::CommandDispatcher::Stdapi::Fs
     "-x" => [ false, "Show short file names" ],
     "-l" => [ false, "List in long format (default)" ],
     "-R" => [ false, "Recursively list subdirectories encountered" ])
+
+  #
+  # Options for the ls command
+  #
+  @@lls_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner." ])
 
   #
   # List of supported commands.
@@ -69,6 +76,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'lcd'        => 'Change local working directory',
       'lpwd'       => 'Print local working directory',
       'ls'         => 'List files',
+      'lls'        => 'List local files',
       'mkdir'      => 'Make directory',
       'pwd'        => 'Print working directory',
       'rm'         => 'Delete the specified file',
@@ -93,6 +101,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'lcd'        => [],
       'lpwd'       => [],
       'ls'         => ['stdapi_fs_stat', 'stdapi_fs_ls'],
+      'lls'        => [],
       'mkdir'      => ['stdapi_fs_mkdir'],
       'pwd'        => ['stdapi_fs_getwd'],
       'rmdir'      => ['stdapi_fs_delete_dir'],
@@ -666,6 +675,92 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Alias the ls command to dir, for those of us who have windows muscle-memory
   #
   alias cmd_dir cmd_ls
+
+  def cmd_lls_help
+    print_line "Usage: lls [options]"
+    print_line
+    print_line "Lists contents of a local directory or file info"
+    print_line @@lls_opts.usage
+  end
+
+  #
+  # Get list local path information for lls command
+  #
+  def list_local_path(path)
+    columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
+    tbl = Rex::Text::Table.new(
+      'Header'  => "Listing Local: #{path}",
+      'SortIndex' => columns.index("Name"),
+      'SortOrder' => :forward,
+      'Columns' => columns)
+
+    items = 0
+
+    files = ::Dir.entries(path)
+
+    files.each do |file|
+      file_path = ::File.join(path, file)
+      m  = ::File.stat(file_path).mode
+      om = '%04o' % m
+      perms = ''
+
+      3.times {
+        perms = ((m & 01) == 01 ? 'x' : '-') + perms
+        perms = ((m & 02) == 02 ? 'w' : '-') + perms
+        perms = ((m & 04) == 04 ? 'r' : '-') + perms
+        m >>= 3
+      }
+
+      perm = "#{om}/#{perms}"
+      size = ::File.stat(file_path).size
+      ftype = ::File.stat(file_path).ftype[0,3]
+      mtime = ::File.stat(file_path).mtime
+
+      row = [
+        perm ? perm        : '',
+        size ? size.to_s   : '',
+        ftype ? ftype[0,3] : '',
+        mtime ? mtime      : '',
+        file
+      ]
+      if file != '.' && file != '..'
+        tbl << row
+        items += 1
+      end
+    end
+    if items > 0
+      print_line(tbl.to_s)
+    else
+      print_line("No entries exist in #{path}")
+    end
+  end
+
+  #
+  # List local files
+  #
+  def cmd_lls(*args)
+    path = ::Dir.pwd
+
+    # Parse the args
+    @@lls_opts.parse(args) { |opt, idx, val|
+      case opt
+      # Help and path
+      when "-h"
+        cmd_lls_help
+        return 0
+      when nil
+        path = val
+      end
+    }
+
+    list_local_path(path)
+  end
+
+  #
+  # Alias the lls command to dir, for those of us who have windows muscle-memory
+  #
+  alias cmd_ldir cmd_lls
+
 
   #
   # Make one or more directory.
