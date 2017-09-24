@@ -57,7 +57,10 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Options for the ls command
   #
   @@lls_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ])
+    "-h" => [ false, "Help banner." ],
+    "-t" => [ false, "Sort by time" ],
+    "-s" => [ false, "Sort by size" ],
+    "-r" => [ false, "Reverse sort order" ])
 
   #
   # List of supported commands.
@@ -686,12 +689,12 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   # Get list local path information for lls command
   #
-  def list_local_path(path)
+  def list_local_path(path, sort, order)
     columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
     tbl = Rex::Text::Table.new(
       'Header'  => "Listing Local: #{path}",
-      'SortIndex' => columns.index("Name"),
-      'SortOrder' => :forward,
+      'SortIndex' => columns.index(sort),
+      'SortOrder' => order,
       'Columns' => columns)
 
     items = 0
@@ -740,10 +743,20 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   def cmd_lls(*args)
     path = ::Dir.pwd
+    sort = 'Name'
+    order = :forward
 
     # Parse the args
     @@lls_opts.parse(args) { |opt, idx, val|
       case opt
+      # Sort options
+      when '-s'
+        sort = 'Size'
+      when '-t'
+        sort = 'Last modified'
+      # Output options
+      when '-r'
+        order = :reverse
       # Help and path
       when "-h"
         cmd_lls_help
@@ -753,7 +766,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       end
     }
 
-    list_local_path(path)
+    list_local_path(path, sort, order)
   end
 
   #
