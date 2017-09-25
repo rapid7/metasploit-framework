@@ -79,21 +79,29 @@ class Auxiliary
     jobify  = false
     quiet   = false
 
-    @@auxiliary_opts.parse(args) { |opt, idx, val|
+    @@auxiliary_opts.parse(args) do |opt, idx, val|
       case opt
-        when '-j'
-          jobify = true
-        when '-o'
-          opt_str = val
-        when '-a'
-          action = val
-        when '-q'
-          quiet  = true
-        when '-h'
+      when '-j'
+        jobify = true
+      when '-o'
+        opt_str = val
+      when '-a'
+        action = val
+      when '-q'
+        quiet  = true
+      when '-h'
+        cmd_run_help
+        return false
+      else
+        (key, val) = val.split('=')
+        if key && val
+          mod.datastore[key] = val
+        else
           cmd_run_help
           return false
+        end
       end
-    }
+    end
 
     # Always run passive modules in the background
     if mod.is_a?(Msf::Module::HasActions) &&
