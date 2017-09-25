@@ -117,6 +117,11 @@ module Msf
                   @@generate_opts.usage
                 )
                 return true
+              else
+                (key, val) = val.split('=')
+                if key && val
+                  mod.datastore[key] = val
+                end
               end
             end
             if encoder_name.nil? && mod.datastore['ENCODER']
