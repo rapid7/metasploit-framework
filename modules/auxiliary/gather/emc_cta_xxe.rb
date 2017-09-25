@@ -30,10 +30,10 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(443),
         OptBool.new('SSL', [true, 'Use SSL', true]),
-        OptString.new('SSLVersion', [true, 'SSL version', 'TLS1']),
         OptString.new('TARGETURI', [ true, "Base directory path", '/']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/shadow"]),
-      ])
+      ]
+    )
   end
 
   def run
