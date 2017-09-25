@@ -20,7 +20,7 @@ module Msf
           @@generate_opts = Rex::Parser::Arguments.new(
             "-p" => [ true,  "The platform of the payload" ],
             "-n" => [ true,  "Prepend a nopsled of [length] size on to the payload" ],
-            "-f" => [ true,  "Output format: #{supported_formats.join(',')}" ],
+            "-f" => [ true,  "Output format: #{@@supported_formats.join(',')}" ],
             "-E" => [ false, "Force encoding" ],
             "-e" => [ true,  "The encoder to use" ],
             "-s" => [ true,  "NOP sled length."                                     ],
@@ -67,6 +67,13 @@ module Msf
             "Payload"
           end
 
+          def cmd_generate_help
+            print_line "Usage: generate [options]"
+            print_line
+            print_line "Generates a payload."
+            print @@generate_opts.usage
+          end
+
           #
           # Generates a payload.
           #
@@ -111,16 +118,15 @@ module Msf
               when '-x'
                 template = val
               when '-h'
-                print(
-                  "Usage: generate [options]\n\n" \
-                  "Generates a payload.\n" +
-                  @@generate_opts.usage
-                )
-                return true
+                cmd_generate_help
+                return false
               else
                 (key, val) = val.split('=')
                 if key && val
                   mod.datastore[key] = val
+                else
+                  cmd_generate_help
+                  return false
                 end
               end
             end
