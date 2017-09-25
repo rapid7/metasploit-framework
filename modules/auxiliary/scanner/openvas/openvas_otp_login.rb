@@ -13,8 +13,8 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'OpenVAS OTP Login Utility',
       'Description' => 'This module attempts to authenticate to an OpenVAS OTP service.',
-      'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE
+      'Author'      => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License'     => MSF_LICENSE
     )
     register_options(
       [
