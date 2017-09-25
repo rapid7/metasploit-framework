@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Post
       target_info = cmd_exec('uname -ms')
       vprint_status("target_info= #{target_info}")
       vprint_status("Platform: Linux")
-      if target_info =~ /linux/i 
+      if target_info =~ /linux/i
         platform = 'linux'
         lplat = [Msf::Platform::Linux]
         if target_info =~ /86/
