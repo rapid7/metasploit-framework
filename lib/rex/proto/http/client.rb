@@ -191,7 +191,7 @@ class Client
   # Closes the connection to the remote server.
   #
   def close
-    if (self.conn and !self.conn.closed?)
+    if self.conn && !self.conn.closed?
       self.conn.shutdown
       self.conn.close
     end
