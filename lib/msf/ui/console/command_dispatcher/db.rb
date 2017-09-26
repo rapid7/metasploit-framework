@@ -1272,8 +1272,9 @@ class Db
 
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-        if host.loots
-          host.loots.each do |loot|
+        loots = framework.db.loots(framework.db.workspace, {:host_id => host.id})
+        if loots
+          loots.each do |loot|
             next if(types and types.index(loot.ltype).nil?)
             if search_term
             next unless(
@@ -1307,9 +1308,8 @@ class Db
 
     # Handle hostless loot
     if host_ranges.compact.empty? # Wasn't a host search
-      hostless_loot = framework.db.loot(framework.db.workspace)
+      hostless_loot = framework.db.loots(framework.db.workspace, {:host_id => nil})
       hostless_loot.each do |loot|
-        next unless loot.host_id = nil
         row = []
         row.push("")
         row.push("")

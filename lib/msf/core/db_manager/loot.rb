@@ -25,13 +25,13 @@ module Msf::DBManager::Loot
   # This methods returns a list of all loot in the database
   #
   def loots(opts)
-    wspace = opts[:workspace] || opts[:wspace] || workspace
+    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
     if wspace.kind_of? String
       wspace = find_workspace(wspace)
     end
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      wspace.loots
+      wspace.loots.where(opts)
     }
   end
   alias_method :loot, :loots
