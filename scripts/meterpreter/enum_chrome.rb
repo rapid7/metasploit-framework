@@ -145,7 +145,7 @@ def process_files(username)
       db.close
       rows.map! do |row|
         res = Hash[*columns.zip(row).flatten]
-        if item[:encrypted_fields] && client.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
+        if item[:encrypted_fields] && !client.sys.config.is_system?
           if @host_info['Architecture'] !~ /x64/
             item[:encrypted_fields].each do |field|
               print_good("decrypting field '#{field}'...")
