@@ -125,8 +125,6 @@ module Parser
       if @args[:blacklist]
         return false if @args[:blacklist].include?(@report_data[:host])
       end
-      return false unless @report_data[:ports]
-      return false if @report_data[:ports].empty?
       return true
     end
 
