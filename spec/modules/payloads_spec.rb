@@ -2929,6 +2929,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/meterpreter/reverse_ipv6_tcp'
   end
 
+  context 'windows/meterpreter/reverse_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_named_pipe',
+                              'stages/windows/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/reverse_named_pipe'
+  end
+
   context 'windows/meterpreter/reverse_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3886,6 +3897,17 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/meterpreter/reverse_https'
+  end
+
+  context 'windows/x64/meterpreter/reverse_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_named_pipe',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/reverse_named_pipe'
   end
 
   context 'windows/x64/meterpreter/reverse_tcp' do
