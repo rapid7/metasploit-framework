@@ -159,7 +159,7 @@ class Console::CommandDispatcher::Mimikatz
   end
 
   def system_check
-    unless (client.sys.config.is_system?)
+    unless client.sys.config.is_system?
       print_warning("Not currently running as SYSTEM")
       return false
     end
