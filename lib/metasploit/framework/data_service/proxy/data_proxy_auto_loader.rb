@@ -13,6 +13,7 @@ module DataProxyAutoLoader
   autoload :SessionDataProxy, 'metasploit/framework/data_service/proxy/session_data_proxy'
   autoload :ExploitDataProxy, 'metasploit/framework/data_service/proxy/exploit_data_proxy'
   autoload :LootDataProxy, 'metasploit/framework/data_service/proxy/loot_data_proxy'
+  autoload :SessionEventDataProxy, 'metasploit/framework/data_service/proxy/session_event_data_proxy'
   include ServiceDataProxy
   include HostDataProxy
   include VulnDataProxy
@@ -23,4 +24,5 @@ module DataProxyAutoLoader
   include SessionDataProxy
   include ExploitDataProxy
   include LootDataProxy
+  include SessionEventDataProxy
 end

@@ -1184,7 +1184,7 @@ class Db
 
   def cmd_loot(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
+
     mode = :search
     host_ranges = []
     types = nil
@@ -1329,7 +1329,6 @@ class Db
     print_line
     print_line(tbl.to_s)
     print_status("Deleted #{delete_count} loots") if delete_count > 0
-  }
   end
 
   # :category: Deprecated Commands

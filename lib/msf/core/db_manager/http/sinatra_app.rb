@@ -12,6 +12,7 @@ require 'msf/core/db_manager/http/servlet/service_servlet'
 require 'msf/core/db_manager/http/servlet/session_servlet'
 require 'msf/core/db_manager/http/servlet/exploit_servlet'
 require 'msf/core/db_manager/http/servlet/loot_servlet'
+require 'msf/core/db_manager/http/servlet/session_event_servlet'
 
 class SinatraApp < Sinatra::Base
 
@@ -31,5 +32,6 @@ class SinatraApp < Sinatra::Base
   register SessionServlet
   register ExploitServlet
   register LootServlet
+  register SessionEventServlet
 
 end
