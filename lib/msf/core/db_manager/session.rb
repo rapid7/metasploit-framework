@@ -50,7 +50,7 @@ module Msf::DBManager::Session
   #     created, but the Mdm::Host will have been.   (There is no transaction
   #       to rollback the Mdm::Host creation.)
   #   @see #find_or_create_host
-  #   @see #normalize_host
+  #   @see #Msf::Util::Host.normalize_host
   #   @see #report_exploit_success
   #   @see #report_vuln
   #
@@ -234,7 +234,7 @@ module Msf::DBManager::Session
 
       wspace = opts[:workspace] || find_workspace(session.workspace)
       h_opts = { }
-      h_opts[:host]      = normalize_host(session)
+      h_opts[:host]      = Msf::Util::Host.normalize_host(session)
       h_opts[:arch]      = session.arch if session.respond_to?(:arch) and session.arch
       h_opts[:workspace] = wspace
       host = find_or_create_host(h_opts)

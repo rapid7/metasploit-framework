@@ -389,7 +389,7 @@ module Auxiliary::Report
       ext = "txt"
     end
     # This method is available even if there is no database, don't bother checking
-    host = framework.db.normalize_host(host)
+    host = Msf::Util::Host.normalize_host(host)
 
     ws = (db ? myworkspace.name[0,16] : 'default')
     name =

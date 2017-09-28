@@ -118,7 +118,7 @@ module Msf::DBManager::Vuln
       host = opts[:host]
     else
       host = report_host({:workspace => wspace, :host => opts[:host]})
-      addr = normalize_host(opts[:host])
+      addr = Msf::Util::Host.normalize_host(opts[:host])
     end
 
     ret = {}
