@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         server has a .htaccess file with an invalid Limit method defined.
       },
       'Author' => [
-        'Hanno Böck', # Vulnerability discovery
+        'Hanno Bock', # Vulnerability discovery
         'h00die', # Metasploit module
       ],
       'References' => [
@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     if res
       if res.headers['Allow']
         return res.headers['Allow']
-      else #now allow header returned
+      else
         fail_with(Failure::UnexpectedReply, "#{peer} - No Allow header identified")
       end
     else
@@ -56,39 +56,42 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    # Apache bug 61207 regex
     bug_61207 = /^[a-zA-Z]+(-[a-zA-Z]+)? *(, *[a-zA-Z]+(-[a-zA-Z]+)? *)*$/
+    # Launchpad bug 1717682 regex
     bug_1717682 = /^[a-zA-Z]+(-[a-zA-Z]+)? *( +[a-zA-Z]+(-[a-zA-Z]+)? *)+$/
     uniques = []
+    already_reported = false
+
     for counter in 1..datastore['REPEAT']
       allows = get_allow_header(ip)
-      if !uniques.include?(allows)
+      unless uniques.include?(allows) # no need to re-process non-new items
         uniques << allows
         if allows =~ bug_61207
-          if allows.split(',').length > allows.split(',').uniq.length
+          if allows.split(',').length > allows.split(',').uniq.length # check for repeat items
             if datastore['BUGS']
-              print_status('Some methods were sent multiple times in the list.
-                       This is a bug, but harmless. It may be Apache bug #61207.')
+              print_status('Some methods were sent multiple times in the list. ' +
+                           'This is a bug, but harmless. It may be Apache bug #61207.')
             end
           else
-            vprint_status('Normal Response')
+            vprint_status("Request #{counter}: [Standard Response] -> #{allows}")
           end
-        elsif allows =~ bug_1717682
-          if datastore['BUGS']
-            print_status('The list of methods was space-separated instead of comma-separated.
-                       This is a bug, but harmless. It may be Launchpad bug #1717682.')
-          end
+        elsif allows =~ bug_1717682 && datastore['BUGS']
+          print_status('The list of methods was space-separated instead of comma-separated. ' +
+                       'This is a bug, but harmless. It may be Launchpad bug #1717682.')
         else
-          print_good('Options Bleed Response')
+          print_good("Request #{counter}: [OptionsBleed Response] -> #{allows}")
+          unless already_reported
+            report_vuln(
+              :host => ip,
+              :port => rport,
+              :name => self.name,
+              :refs => self.references
+            )
+            already_reported = true
+          end
         end
-        print_good("New Unique Response on Request #{counter}: #{allows}")
-      end
-    end
-    if uniques.length > 1
-      print_good("More than one Accept header received.  #{peer} is Most likely vulnerable")
-      uniques.each do |allow|
-        print_good(allow.to_s)
       end
     end
   end
-
 end
