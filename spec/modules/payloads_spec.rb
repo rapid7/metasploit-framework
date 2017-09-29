@@ -438,6 +438,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/mainframe/generic_jcl'
   end
 
+  context 'cmd/mainframe/bind_shell_jcl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/mainframe/bind_shell_jcl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/mainframe/bind_shell_jcl'
+  end
+
   context 'cmd/mainframe/reverse_shell_jcl' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
