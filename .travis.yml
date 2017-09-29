@@ -49,7 +49,7 @@ before_script:
 script:
   - echo "${CMD}"
     # we need travis_wait because the Docker build job can take longer than 10 minutes
-  - if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait "${CMD}"; else bash -c "${CMD}"; fi
+  - if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
