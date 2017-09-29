@@ -14,7 +14,6 @@ module Msf
         return host if defined?(::Mdm) && host.kind_of?(::Mdm::Host)
         norm_host = nil
 
-        puts "in normalize host. host is #{host}"
         if (host.kind_of? String)
 
           if Rex::Socket.is_ipv4?(host)
