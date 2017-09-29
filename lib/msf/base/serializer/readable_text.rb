@@ -539,6 +539,7 @@ class ReadableText
 
     columns = []
     columns << 'Id'
+    columns << 'Name'
     columns << 'Type'
     columns << 'Checkin?' if show_extended
     columns << 'Enc?' if show_extended
@@ -562,6 +563,7 @@ class ReadableText
 
       row = []
       row << session.sid.to_s
+      row << session.sname.to_s
       row << session.type.to_s
       if session.respond_to?(:session_type)
         row[-1] << (" " + session.session_type)
@@ -617,6 +619,7 @@ class ReadableText
 
       sess_info    = session.info.to_s
       sess_id      = session.sid.to_s
+      sess_name    = session.sname.to_s
       sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
       sess_via     = session.via_exploit.to_s
       sess_type    = session.type.to_s
@@ -647,6 +650,7 @@ class ReadableText
       end
 
       out << "  Session ID: #{sess_id}\n"
+      out << "        Name: #{sess_name}\n"
       out << "        Type: #{sess_type}\n"
       out << "        Info: #{sess_info}\n"
       out << "      Tunnel: #{sess_tunnel}\n"
