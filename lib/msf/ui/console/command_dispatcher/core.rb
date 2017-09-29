@@ -139,10 +139,8 @@ class Core
   def initialize(driver)
     super
 
-    @dscache = {}
     @cache_payloads = nil
     @previous_module = nil
-    @module_name_stack = []
     @history_limit = 100
   end
 
@@ -2288,7 +2286,11 @@ class Core
   # Provide valid payload options for the current exploit
   #
   def option_values_payloads
-    return @cache_payloads if @cache_payloads
+    if @cache_payloads && active_module == @previous_module
+      return @cache_payloads
+    else
+      @previous_module = active_module
+    end
 
     @cache_payloads = active_module.compatible_payloads.map { |refname, payload|
       refname
