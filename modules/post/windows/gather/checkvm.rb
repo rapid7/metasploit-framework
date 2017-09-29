@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{
         This module attempts to determine whether the system is running
         inside of a virtual environment and if so, which one. This
-        module supports detectoin of Hyper-V, VMWare, Virtual PC,
+        module supports detection of Hyper-V, VMWare, Virtual PC,
         VirtualBox, Xen, and QEMU.
       },
       'License'       => MSF_LICENSE,

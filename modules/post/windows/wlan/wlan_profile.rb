@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
       'Name'          => 'Windows Gather Wireless Profile',
       'Description'   => %q{
         This module extracts saved Wireless LAN profiles. It will also try to decrypt
-        the network key material. Behaviour is slightly different between OS versions
+        the network key material. Behavior is slightly different between OS versions
         when it comes to WPA. In Windows Vista/7 we will get the passphrase. In
         Windows XP we will get the PBKDF2 derived key.
       },

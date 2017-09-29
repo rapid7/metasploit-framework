@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
 
         To use this module you will need to send an initial ICMP echo request containing the
         specific start trigger (defaults to '^BOF') this can be followed by the filename being sent (or
-        a random filename can be assisnged). All data received from this source will automatically
+        a random filename can be assigned). All data received from this source will automatically
         be added to the receive buffer until an ICMP echo request containing a specific end trigger
         (defaults to '^EOL') is received.
 

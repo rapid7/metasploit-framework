@@ -1528,6 +1528,10 @@ class Db
   }
   end
 
+  def find_nmap_path
+    Rex::FileUtils.find_full_path("nmap") || Rex::FileUtils.find_full_path("nmap.exe")
+  end
+
   #
   # Import Nmap data from a file
   #
@@ -1553,11 +1557,8 @@ class Db
       end
     end
 
-    nmap =
-      Rex::FileUtils.find_full_path("nmap") ||
-      Rex::FileUtils.find_full_path("nmap.exe")
-
-    if (not nmap)
+    nmap = find_nmap_path
+    unless nmap
       print_error("The nmap executable could not be found")
       return
     end
@@ -1607,9 +1608,11 @@ class Db
   end
 
   def cmd_db_nmap_help
-    nmap =
-        Rex::FileUtils.find_full_path('nmap') ||
-        Rex::FileUtils.find_full_path('nmap.exe')
+    nmap = find_nmap_path
+    unless nmap
+      print_error("The nmap executable could not be found")
+      return
+    end
 
     stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
 
@@ -1625,9 +1628,10 @@ class Db
   end
 
   def cmd_db_nmap_tabs(str, words)
-    nmap =
-        Rex::FileUtils.find_full_path('nmap') ||
-        Rex::FileUtils.find_full_path('nmap.exe')
+    nmap = find_nmap_path
+    unless nmap
+      return
+    end
 
     stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
     tabs = []

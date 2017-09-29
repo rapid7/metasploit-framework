@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Allen-Bradley/Rockwell Automation EtherNet/IP CIP Commands',
       'Description'    => %q{
-        The EtnerNet/IP CIP protocol allows a number of unauthenticated commands to a PLC which
+        The EtherNet/IP CIP protocol allows a number of unauthenticated commands to a PLC which
         implements the protocol.  This module implements the CPU STOP command, as well as
         the ability to crash the Ethernet card in an affected device.
 

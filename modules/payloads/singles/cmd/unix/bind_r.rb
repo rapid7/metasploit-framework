@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 516
+  CachedSize = 132
 
   include Msf::Payload::Single
   include Msf::Payload::R
@@ -27,7 +27,7 @@ module MetasploitModule
       'Handler'     => Msf::Handler::BindTcp,
       'Session'     => Msf::Sessions::CommandShell,
       'PayloadType' => 'cmd',
-      'RequiredCmd' => 'ruby',
+      'RequiredCmd' => 'R',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }
     ))
   end

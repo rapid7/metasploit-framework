@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         (self.signed) version using the information from the remote version. The module
         then Outputs (PEM|DER) format private key / certificate and a combined version
         for use in Apache or other Metasploit modules requiring SSLCert Inputs for private
-        key / CA cert have been provided for those with diginator certs hanging about!
+        key / CA cert have been provided for those with DigiNotar certs hanging about!
       }
     ))
 

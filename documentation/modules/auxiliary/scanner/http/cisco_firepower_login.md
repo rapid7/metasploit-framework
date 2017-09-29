@@ -17,7 +17,7 @@ https://software.cisco.com/download/release.html?mdfid=286259687&softwareid=2862
 
 1. Make sure Cisco Firepower Management console's HTTPS service is running
 2. Start ```msfconsole```
-3. ```use auxiliary/scanner/http/cisco_firepower_login.rb
+3. ```use auxiliary/scanner/http/cisco_firepower_login.rb```
 4. ```set RHOSTS [IP]```
 5. Set credentials
 6. ```run```

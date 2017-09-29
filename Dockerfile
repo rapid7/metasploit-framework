@@ -1,4 +1,4 @@
-FROM ruby:2.4.1-alpine
+FROM ruby:2.4.2-alpine
 MAINTAINER Rapid7
 
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
@@ -36,14 +36,11 @@ RUN apk update && \
       ncurses-dev \
       git \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
+    && gem update --system \
     && gem install bundler \
     && bundle install --system $BUNDLER_ARGS \
     && apk del .ruby-builddeps \
     && rm -rf /var/cache/apk/*
-
-# fix for robots gem not readable (known bug)
-# https://github.com/rapid7/metasploit-framework/issues/6068
-RUN chmod o+r /usr/local/bundle/gems/robots-*/lib/robots.rb
 
 RUN adduser -g msfconsole -D $MSF_USER
 

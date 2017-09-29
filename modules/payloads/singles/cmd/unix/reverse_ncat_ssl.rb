@@ -17,7 +17,7 @@ module MetasploitModule
   def initialize(info = {})
     super(merge_info(info,
       'Name'        => 'Unix Command Shell, Reverse TCP (via ncat)',
-      'Description' => 'Creates an interactive shell via ncat, utilising ssl mode',
+      'Description' => 'Creates an interactive shell via ncat, utilizing ssl mode',
       'Author'      => 'C_Sto',
       'License'     => MSF_LICENSE,
       'Platform'    => 'unix',

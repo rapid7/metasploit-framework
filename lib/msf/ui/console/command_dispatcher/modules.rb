@@ -66,23 +66,26 @@ module Msf
           end
 
           def cmd_edit_help
-            msg = "Edit the currently active module"
-            msg = "#{msg} #{local_editor ? "with #{local_editor}" : "(LocalEditor or $VISUAL/$EDITOR should be set first)"}."
-            print_line "Usage: edit"
+            print_line "Usage: edit [file/to/edit.rb]"
             print_line
-            print_line msg
-            print_line "When done editing, you must reload the module with 'reload' or 'rerun'."
+            print_line "Edit a local file or the currently active module with #{local_editor}"
+            print_line "If a file path is specified it will automatically be reloaded after editing"
+            print_line "Otherwise, you can reload the active module with 'reload' or 'rerun'."
             print_line
           end
 
           #
           # Edit the currently active module
           #
-          def cmd_edit
-            if active_module
-              editor = local_editor
-              path   = active_module.file_path
+          def cmd_edit(*args)
+            if args.length > 0
+              path = args[0]
+            elsif active_module
+              path = active_module.file_path
+            end
 
+            if path
+              editor = local_editor
               if editor.nil?
                 editor = 'vim'
                 print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
@@ -90,6 +93,10 @@ module Msf
 
               print_status("Launching #{editor} #{path}")
               system(editor, path)
+              
+              if args.length > 0
+                load args[0]
+              end
             else
               print_error('Nothing to edit -- try using a module first.')
             end

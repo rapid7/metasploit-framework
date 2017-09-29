@@ -10,8 +10,8 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.LT.FINDRICSET Evil Cursor Method',
       'Description'    => %q{
-          This module will escalate a Oracle DB user to DBA by exploiting
-          an sql injection bug in the SYS.LT.FINDRICSET package via Evil
+          This module will escalate an Oracle DB user to DBA by exploiting
+          a sql injection bug in the SYS.LT.FINDRICSET package via Evil
           Cursor technique. Tested on oracle 10.1.0.3.0 -- should work on
           thru 10.1.0.5.0 and supposedly on 11g. Fixed with Oracle Critical
           Patch update October 2007.
