@@ -2288,9 +2288,9 @@ class Core
   def option_values_payloads
     if @cache_payloads && active_module == @previous_module
       return @cache_payloads
-    else
-      @previous_module = active_module
     end
+
+    @previous_module = active_module
 
     @cache_payloads = active_module.compatible_payloads.map { |refname, payload|
       refname
