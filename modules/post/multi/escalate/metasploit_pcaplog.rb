@@ -61,6 +61,7 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status "Setting up the victim's /tmp dir"
+    fail_with(Failure::NotFound, '/etc/passwd not found on system') unless file_exist?('/etc/passwd')
     initial_size = read_file("/etc/passwd").lines.count
     print_status "/etc/passwd is currently #{initial_size} lines long"
     i = 0
