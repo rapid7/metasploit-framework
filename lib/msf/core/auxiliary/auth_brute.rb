@@ -547,17 +547,17 @@ module Auxiliary::AuthBrute
   end
 
   def vprint_status(msg='')
-    print_brute :level => :vstatus
+    print_brute :level => :vstatus, :msg => msg
   end
 
   def vprint_error(msg='')
-    print_brute :level => :verror
+    print_brute :level => :verror, :msg => msg
   end
 
   alias_method :vprint_bad, :vprint_error
 
   def vprint_good(msg='')
-    print_brute :level => :vgood
+    print_brute :level => :vgood, :msg => msg
   end
 
   # Provides a consistant way to display messages about AuthBrute-mixed modules.
