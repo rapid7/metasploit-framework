@@ -416,6 +416,7 @@ module Auxiliary::Report
       conf[:workspace] = myworkspace
       conf[:name] = filename if filename
       conf[:info] = info if info
+      conf[:data] = data if data
 
       if service and service.kind_of?(::Mdm::Service)
         conf[:service] = service if service
