@@ -21,7 +21,8 @@ class MetasploitModule < Msf::Post
 
       register_options(
         [
-        OptBool.new('GEOLOCATE', [ false, 'Use Google APIs to geolocate Linux, Windows, and OS X targets.', false])
+        OptBool.new('GEOLOCATE', [ false, 'Use Google APIs to geolocate Linux, Windows, and OS X targets.', false]),
+        OptString.new('APIKEY', [ false, 'Key for Google APIs if error is received without one.', '']),
         ])
 
   end
@@ -83,13 +84,16 @@ class MetasploitModule < Msf::Post
 
   def perform_geolocation(wlan_list)
     if wlan_list.blank?
-      print_error("Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.")
+      print_error('Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.')
+      return
+    elsif datastore['APIKEY'].empty?
+      print_error("Google API key is required.")
       return
     end
     g = Rex::Google::Geolocation.new
-
+    g.set_api_key(datastore['APIKEY'])
     wlan_list.each do |wlan|
-      g.add_wlan(*wlan)
+      g.add_wlan(wlan[0], wlan[2]) # bssid, signalstrength
     end
 
     begin
