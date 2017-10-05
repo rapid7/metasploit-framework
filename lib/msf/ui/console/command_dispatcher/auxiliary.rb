@@ -74,7 +74,7 @@ class Auxiliary
   # Executes an auxiliary module
   #
   def cmd_run(*args)
-    opt_str = nil
+    opts    = []
     action  = mod.datastore['ACTION']
     jobify  = false
     quiet   = false
@@ -84,7 +84,7 @@ class Auxiliary
       when '-j'
         jobify = true
       when '-o'
-        opt_str = val
+        opts.push(val)
       when '-a'
         action = val
       when '-q'
@@ -93,9 +93,8 @@ class Auxiliary
         cmd_run_help
         return false
       else
-        (key, val) = val.split('=')
-        if key && val
-          mod.datastore[key] = val
+        if val[0] != '-' && val.match?('=')
+          opts.push(val)
         else
           cmd_run_help
           return false
@@ -112,7 +111,7 @@ class Auxiliary
     begin
       mod.run_simple(
         'Action'         => action,
-        'OptionStr'      => opt_str,
+        'OptionStr'      => opts.join(','),
         'LocalInput'     => driver.input,
         'LocalOutput'    => driver.output,
         'RunAsJob'       => jobify,
