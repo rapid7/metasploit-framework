@@ -139,10 +139,9 @@ class Core
   def initialize(driver)
     super
 
-    @dscache = {}
     @cache_payloads = nil
     @previous_module = nil
-    @module_name_stack = []
+    @previous_target = nil
     @history_limit = 100
   end
 
@@ -1627,12 +1626,6 @@ class Core
     # Set the supplied name to the supplied value
     name  = args[0]
     value = args[1, args.length-1].join(' ')
-    if (name.upcase == "TARGET")
-      # Different targets can have different architectures and platforms
-      # so we need to rebuild the payload list whenever the target
-      # changes.
-      @cache_payloads = nil
-    end
 
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
@@ -2288,11 +2281,16 @@ class Core
   # Provide valid payload options for the current exploit
   #
   def option_values_payloads
-    return @cache_payloads if @cache_payloads
+    if @cache_payloads && active_module == @previous_module && active_module.target == @previous_target
+      return @cache_payloads
+    end
 
-    @cache_payloads = active_module.compatible_payloads.map { |refname, payload|
+    @previous_module = active_module
+    @previous_target = active_module.target
+
+    @cache_payloads = active_module.compatible_payloads.map do |refname, payload|
       refname
-    }
+    end
 
     @cache_payloads
   end
