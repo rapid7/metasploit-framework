@@ -51,7 +51,7 @@ module Payload::Windows::Powershell
         executionpolicy: 'bypass'
     }
     cli =  Rex::Powershell::Command.generate_psh_command_line(command_args)
-    return "#{cli} '&([scriptblock]::create(#{script})'"
+    return "#{cli} \"#{script}\""
   end
 
   def generate
