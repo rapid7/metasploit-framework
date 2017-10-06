@@ -43,7 +43,7 @@ module RemoteSessionDataService
   def parse_session_data(msf_session)
     hash = Hash.new()
     # TODO: what to do with this shiz
-    # hash[:datastore] = msf_session.exploit_datastore.to_h
+    hash[:datastore] = msf_session.exploit_datastore.to_h
     hash[:desc] = msf_session.info
     hash[:local_id] = msf_session.sid
     hash[:platform] = msf_session.session_type
@@ -58,7 +58,7 @@ module RemoteSessionDataService
     hash = Hash.new()
     hash[:host] = msf_session.session_host
     hash[:arch] = msf_session.arch if msf_session.respond_to?(:arch) and msf_session.arch
-    hash[:workspace] = msf_session[:workspace] || msf_session.workspace
+    hash[:workspace] = msf_session.workspace || msf_session[:workspace]
     return hash
   end
 

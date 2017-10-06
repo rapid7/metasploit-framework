@@ -120,7 +120,6 @@ module Msf::DBManager::Session
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       workspace = find_workspace(session_dto[:workspace])
-
       host_data = session_dto[:host_data]
       h_opts = {}
       h_opts[:host]      = host_data[:host]
@@ -144,7 +143,7 @@ module Msf::DBManager::Session
           via_payload: session_data[:via_payload],
       }
 
-      if sess_data[:via_exploit] == 'exploit/multi/handler' and sess_data[:datastore]['ParentModule']
+      if sess_data[:via_exploit] == 'exploit/multi/handler' and sess_data[:datastore] and sess_data[:datastore]['ParentModule']
         sess_data[:via_exploit] = sess_data[:datastore]['ParentModule']
       end
 

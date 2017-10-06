@@ -55,7 +55,7 @@ module LootServlet
             ext = "txt"
         end
         # This method is available even if there is no database, don't bother checking
-        host = Msf::Util::Host.normalize_host(host)
+        host = Msf::Util::Host.normalize_host(opts[:host])
 
         ws = (opts[:workspace] ? opts[:workspace] : 'default')
         name =

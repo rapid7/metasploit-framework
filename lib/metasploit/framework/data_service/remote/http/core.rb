@@ -45,6 +45,7 @@ class RemoteHTTPDataService
     begin
       raise 'Data to post to remote service cannot be null or empty' if (data_hash.nil? || data_hash.empty?)
 
+      puts "#{Time.now} - Posting #{data_hash} to #{path}"
       client =  @client_pool.pop()
       request_opts = build_request_opts(POST_REQUEST, data_hash, path)
       request = client.request_raw(request_opts)
@@ -77,6 +78,8 @@ class RemoteHTTPDataService
   #
   def get_data(path, data_hash = nil)
     begin
+
+      puts "#{Time.now} - Getting #{path} with #{data_hash ? data_hash : "nil"}"
       client =  @client_pool.pop()
       request_opts = build_request_opts(GET_REQUEST, data_hash, path)
       request = client.request_raw(request_opts)
@@ -192,11 +195,11 @@ class RemoteHTTPDataService
     end
 
     if (workspace && (workspace.is_a?(OpenStruct) || workspace.is_a?(::Mdm::Workspace)))
-      data_hash['workspace'] = workspace.name
+      data_hash[:workspace] = workspace.name
     end
 
     if (workspace.nil?)
-      data_hash['workspace'] = current_workspace_name
+      data_hash[:workspace] = current_workspace_name
     end
 
     data_hash
@@ -206,9 +209,19 @@ class RemoteHTTPDataService
     request_opts = {
         'method' => request_type,
         'ctype' => 'application/json',
-        'uri' => path}
+        'uri' => path
+    }
 
     if (!data_hash.nil? && !data_hash.empty?)
+      data_hash.each do |k,v|
+        if v.is_a?(Msf::Session)
+          puts "#{Time.now} - DEBUG: Dropping Msf::Session object before converting to JSON."
+          puts "data_hash is #{data_hash}"
+          puts "Callstack:"
+          caller.each { |line| puts "#{line}\n"}
+          data_hash.delete(k)
+        end
+      end
       json_body = append_workspace(data_hash).to_json
       request_opts['data'] = json_body
     end
