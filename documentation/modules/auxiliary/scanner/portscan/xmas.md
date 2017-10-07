@@ -1,8 +1,6 @@
 # Description
 
-This module is used to determine if the ports on target machine are closed. In this scan sends probes containing the FIN, PSH and URG flags. 
-
-This scan is faster and stealthier compared to some other scans.Following action are performed depending on the state of ports -
+This module is used to determine if the ports on target machine are closed. It sends probes containing the FIN, PSH and URG flags. Scan is faster and stealthier compared to some other scans. Following action are performed depending on the state of ports -
 
 #### Open Port:
 Detects an open port via no response to the segment
