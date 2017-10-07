@@ -1,22 +1,22 @@
-#Description
+# Description
 
 This module is used to determine if the ports on target machine are closed. In this scan sends probes containing the FIN, PSH and URG flags. 
 
 This scan is faster and stealthier compared to some other scans.Following action are performed depending on the state of ports -
 
-####Open Port:
+#### Open Port:
 Detects an open port via no response to the segment
 
-####Closed Port: 
+#### Closed Port: 
 Detects that a closed via a RST received in response to the FIN
 
-####Filtered Port:
+#### Filtered Port:
 Cannot distinguish between a filtered port and an open port
 
-####Unfiltered Port:
+#### Unfiltered Port:
 Cannot distinguish between an unfiltered port and a non-stateful filtered port
 
-#Vulnerable Application
+# Vulnerable Application
 
   XMAS scan requires the use of raw sockets, and thus cannot be performed from some Windows
   systems (Windows XP SP 2, for example). On Unix and Linux, raw socket manipulations require root privileges.
@@ -48,7 +48,7 @@ Cannot distinguish between an unfiltered port and a non-stateful filtered port
   2. Do: `set RHOSTS [IP]`
   3. Do: `set PORTS [PORTS]`
   4. Do: `run`
-  5. The open/filtered ports will be discovered, status will be printed     indicating as such.
+  5. The open/filtered ports will be discovered, status will be printed indicating as such.
 
 # Scenarios
   
