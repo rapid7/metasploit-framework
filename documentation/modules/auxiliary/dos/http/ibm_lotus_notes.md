@@ -1,16 +1,30 @@
 ## Vulnerable Application
 
-This module exploits a vulnerability in, inbuilt web-browser of IBM lotus notes, the code uses java-script based URI encoding,
-and create a object instance of encode URI due to the infinite loop it leads to Denial of Service.
+This module exploits a vulnerability in the built-in web-browser of IBM Lotus Notes client application.
 
-## Working of Module
+JavaScript is used to create an object instance of encode URI within an infinite loop,
+leading to a Denial of Service of the IBM Lotus Notes app itself.
+
+Vulnerable app versions include:
+* IBM Notes 9.0.1 to 9.0.1 FP8IF1
+* IBM Notes 9.0 to 9.0 IF4.
+* IBM Notes 8.5.3 to 8.5.3 FP6 IF13.
+* IBM Notes 8.5.2 to 8.5.2 FP4 IF3.
+* IBM Notes 8.5.1. to 8.5.1 FP5 IF5.
+* IBM Notes 8.5 release
+
+Related security bulletin from IBM: http://www-01.ibm.com/support/docview.wss?uid=swg21999385
+
+## Verification
 
 1. Start msfconsole
-2. `use auxiliary/dos/http/ibm_lotus_notes.rb`
-3. Set `SRVHOST`
-4. Set `SRVPORT`
-5. run (Server started)
-6. Visit server URL in web-browser of IBM
+1. `use auxiliary/dos/http/ibm_lotus_notes.rb`
+1. Set `SRVHOST`
+1. Set `SRVPORT`
+1. run (Server started)
+1. Visit server URL in the built-in web-browser of IBM Notes client application
+
+## Scenarios
 
 ```
 msf > use auxiliary/dos/http/ibm_lotus_notes 
@@ -46,4 +60,4 @@ msf auxiliary(ibm_lotus_notes) >
 msf auxiliary(ibm_lotus_notes) > 
 ```
 
-Security Bulletin: http://www-01.ibm.com/support/docview.wss?uid=swg21999385
+At this point, the target should use the built-in web browser of their IBM Lotus Notes client to navigate to the above "Using URL" value.  And then they should see their Notes app become unresponsive.

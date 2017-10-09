@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name'           => "IBM Notes encodeURI DOS",
         'Description'    => %q(
           This module exploits a vulnerability in the native browser that comes with IBM Lotus Notes.
-          If successful,it could cause the Notes client to hang and have to be restarted.
+          If successful, it could cause the Notes client to hang and have to be restarted.
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
@@ -21,7 +21,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References'     => [
           [ 'EXPLOIT-DB', '42602'],
-          [ 'CVE', '2017-1129' ]
+          [ 'CVE', '2017-1129' ],
+          [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21999385' ]
         ],
         'DisclosureDate' => 'Aug 31 2017',
         'Actions'        => [[ 'WebServer' ]],
