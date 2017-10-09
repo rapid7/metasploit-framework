@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,7 +14,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Firefox XPCOM Execute Command',
       'Description'   => %Q|
-        This module runs a shell command on the target OS withough touching the disk.
+        This module runs a shell command on the target OS without touching the disk.
         On Windows, this command will flash the command prompt momentarily.
         This can be avoided by setting WSCRIPT to true, which drops a jscript
         "launcher" to disk that hides the prompt.

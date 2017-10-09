@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'thread'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -138,5 +137,4 @@ class MetasploitModule < Msf::Auxiliary
   print_error("#{rhost}:#{rport} [Typo3-SA-2010-020] Failed to retrieve file #{datastore['RFILE']}")
 
   end
-
 end

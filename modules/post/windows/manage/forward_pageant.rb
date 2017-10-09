@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
                          This module forwards SSH agent requests from a local socket to a remote Pageant instance.
                          If a target Windows machine is compromised and is running Pageant, this will allow the
                          attacker to run normal OpenSSH commands (e.g. ssh-add -l) against the Pageant host which are
-                         tunnelled through the meterpreter session. This could therefore be used to authenticate
+                         tunneled through the meterpreter session. This could therefore be used to authenticate
                          with a remote host using a private key which is loaded into a remote user's Pageant instance,
                          without ever having knowledge of the private key itself.
 

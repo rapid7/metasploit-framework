@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'rex/proto/http'
 require 'cgi'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -26,6 +25,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'  =>
         [
+          ['CVE', '2015-8103'], # see link and validate, https://highon.coffee/blog/jenkins-api-unauthenticated-rce-exploit/ states this is another issue
+          ['URL', 'https://jenkins.io/security/advisory/2015-11-11/'],
           ['URL', 'https://www.pentestgeek.com/penetration-testing/hacking-jenkins-servers-with-no-password/'],
           ['URL', 'https://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Script+Console'],
         ],

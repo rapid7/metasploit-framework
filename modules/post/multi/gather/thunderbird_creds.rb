@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 
@@ -16,7 +15,7 @@ class MetasploitModule < Msf::Post
         the necessary files such as 'signons.sqlite', 'key3.db', and 'cert8.db' for
         offline decryption with third party tools.
 
-          If necessary, you may also set the PARSE optioin to true to parse the sqlite
+          If necessary, you may also set the PARSE option to true to parse the sqlite
         file, which contains sensitive information such as the encrypted username/password.
         However, this feature is not enabled by default, because it requires SQLITE3 gem
         to be installed on your machine.

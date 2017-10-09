@@ -51,7 +51,8 @@ module Msf::Payload::Android
       arch:       opts[:uuid].arch,
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: opts[:transport_config] || [transport_config(opts)]
+      transports: opts[:transport_config] || [transport_config(opts)],
+      stageless:  opts[:stageless] == true
     }
 
     config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b

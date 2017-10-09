@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MSSQL
 
   def initialize(info = {})
@@ -13,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Microsoft SQL Server Generic Query',
       'Description'    => %q{
           This module will allow for simple SQL statements to be executed against a
-          MSSQL/MSDE instance given the appropiate credentials.
+          MSSQL/MSDE instance given the appropriate credentials.
       },
       'Author'         => [ 'tebo <tebo[at]attackresearch.com>' ],
       'License'        => MSF_LICENSE,

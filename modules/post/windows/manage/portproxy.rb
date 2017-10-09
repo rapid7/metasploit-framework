@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Post
   end
 
   def fw_enable_ports
-    print_status ("Setting port #{datastore['LOCAL_PORT']} in Windows Firewall ...")
+    print_status("Setting port #{datastore['LOCAL_PORT']} in Windows Firewall ...")
     if sysinfo["OS"] =~ /Windows 7|Vista|2008|2012/
       cmd_exec("netsh","advfirewall firewall add rule name=\"Windows Service\" dir=in protocol=TCP action=allow localport=\"#{datastore['LOCAL_PORT']}\"")
     else

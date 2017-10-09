@@ -11,7 +11,8 @@ This module dumps memory contents using a crafted Range header and affects only 
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
+
 ```
 msf > use auxiliary/scanner/http/ms15_034_http_sys_memory_dump
 msf auxiliary(ms15_034_http_sys_memory_dump) > set RHOSTS 10.1.1.125

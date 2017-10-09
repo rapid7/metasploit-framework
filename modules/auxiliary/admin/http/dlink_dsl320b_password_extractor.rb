@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -74,7 +73,6 @@ class MetasploitModule < Msf::Auxiliary
                 private_type: :password,
                 workspace_id: myworkspace_id,
                 proof: line,
-                last_attempted_at: DateTime.now, # kept in refactor may not be valid, obtained but do not attempted here
                 status: Metasploit::Model::Login::Status::UNTRIED
             }.merge(service_details)
             create_credential_and_login(connection_details)

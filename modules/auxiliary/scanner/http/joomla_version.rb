@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HTTP::Joomla
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -54,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if version
-      print_status("Joomla version: #{version}")
+      print_good("Joomla version: #{version}")
       report_note(
         host: ip,
         port: datastore['RPORT'],
@@ -66,5 +65,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unable to find Joomla version.")
     end
   end
-
 end

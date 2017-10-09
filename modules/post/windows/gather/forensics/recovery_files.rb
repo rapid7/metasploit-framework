@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -113,7 +112,7 @@ class MetasploitModule < Msf::Post
 
       # If file is resident
       if data[0] == 0
-        print_status ("The file is resident. Saving #{name} ... ")
+        print_status("The file is resident. Saving #{name} ... ")
         path = store_loot("resident.file", "application/octet-stream", session, data[1], name.downcase, nil)
         print_good("File saved on #{path}")
 
@@ -122,7 +121,7 @@ class MetasploitModule < Msf::Post
         # Due to the size of the non-resident files we have to store small chunks of data as we go through each of the data runs
         # that make up the file (save_file function).
         size = get_size(rf['lpBuffer'][56..-1])
-        print_status ("The file is not resident. Saving #{name} ... (#{size} bytes)")
+        print_status("The file is not resident. Saving #{name} ... (#{size} bytes)")
         base = 0
         # Go through each of the data runs to save the file
         file_data = ""

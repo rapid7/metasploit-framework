@@ -7,7 +7,7 @@ module Stdapi
 module Railgun
 module Def
 
-class Def_advapi32
+class Def_windows_advapi32
 
   CREDENTIAL = [
     [:Flags, :DWORD],
@@ -24,8 +24,8 @@ class Def_advapi32
     [:UserName, :LPTSTR]
   ]
 
-  def self.create_dll(constant_manager, dll_path = 'advapi32')
-    dll = DLL.new(dll_path, constant_manager)
+  def self.create_library(constant_manager, library_path = 'advapi32')
+    dll = Library.new(library_path, constant_manager)
 
     dll.add_function('QueryServiceStatus', 'DWORD', [
         ['LPVOID', 'hService', 'in'],

@@ -2,7 +2,7 @@
 --exclude samples/
 --exclude \.ut\.rb/
 --exclude \.ts\.rb/
---files CONTRIBUTING.md,COPYING,HACKING,LICENSE
+--files CONTRIBUTING.md,COPYING,LICENSE
 app/**/*.rb
 lib/msf/**/*.rb
 lib/metasploit/**/*.rb

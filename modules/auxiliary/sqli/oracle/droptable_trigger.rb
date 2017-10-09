@@ -1,17 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection in MDSYS.SDO_TOPO_DROP_FTBL Trigger',
       'Description'    => %q{
-          This module will escalate a Oracle DB user to MDSYS by exploiting an sql injection bug in
+          This module will escalate an Oracle DB user to MDSYS by exploiting a sql injection bug in
           the MDSYS.SDO_TOPO_DROP_FTBL trigger. After that exploit escalate user to DBA using "CREATE ANY TRIGGER" privilege
           given to MDSYS user by creating evil trigger in system scheme (2-stage attack).
       },
@@ -110,5 +109,4 @@ class MetasploitModule < Msf::Auxiliary
 
 
   end
-
 end

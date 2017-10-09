@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-class MetasploitModule < Msf::Auxiliary
 
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Failed to login, check credentials.")
       return
     else
-      print_good("Login successful, session: #{session}")
+      print_good("Login Successful, session: #{session}")
     end
 
     contents = read_file(datastore['FILEPATH'], session)
@@ -142,5 +142,4 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_good("File saved in: #{path}")
   end
-
 end

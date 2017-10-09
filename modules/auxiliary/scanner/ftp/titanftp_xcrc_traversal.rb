@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -17,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'           => 'Titan FTP XCRC Directory Traversal Information Disclosure',
       'Description'    => %q{
-          This module exploits a directory traversal vulnreability in the XCRC command
+          This module exploits a directory traversal vulnerability in the XCRC command
         implemented in versions of Titan FTP up to and including 8.10.1125. By making
         sending multiple XCRC command, it is possible to disclose the contents of any
         file on the drive with a simple CRC "brute force" attack.
@@ -97,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
 
     fname = datastore['PATH'].gsub(/[\/\\]/, '_')
     p = store_loot("titanftp.traversal", "text/plain", ip, file_data, fname)
-    print_status("Saved in: #{p}")
+    print_good("Saved in: #{p}")
     vprint_status(file_data.inspect)
 
     disconnect
@@ -122,5 +121,4 @@ class MetasploitModule < Msf::Auxiliary
     percent = "%3.2f%%" % done.to_f
     print_status("Obtaining file contents - %7s done (%d/%d bytes)" % [percent, current, total])
   end
-
 end

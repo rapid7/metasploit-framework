@@ -34,18 +34,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
       "webcam_stream" => [ "webcam_start", "webcam_get_frame", "webcam_stop" ],
       "record_mic"    => [ "webcam_audio_record" ]
     }
-
-    all.delete_if do |cmd, _desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
         'Name'         => 'Linux DoS Xen 4.2.0 2012-5525',
         'Description'  => %q(
         This module causes a hypervisor crash in Xen 4.2.0 when invoked from a
-        paravirtualised VM, including from dom0.  Successfully tested on Debian 7
+        paravirtualized VM, including from dom0.  Successfully tested on Debian 7
         3.2.0-4-amd64 with Xen 4.2.0.),
         'References'   => [ ['CVE', '2012-5525'] ],
         'License'      => MSF_LICENSE,

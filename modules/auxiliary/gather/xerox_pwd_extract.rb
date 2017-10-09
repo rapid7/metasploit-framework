@@ -1,10 +1,9 @@
-#
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -53,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       loot_filename = 'xerox_password.text'
       loot_desc     = 'Xerox password harvester'
       p = store_loot(loot_name, loot_type, datastore['RHOST'], passwd, loot_filename, loot_desc)
-      print_status("#{rhost}:#{jport} - Credentials saved in: #{p}")
+      print_good("#{rhost}:#{jport} - Credentials saved in: #{p}")
 
       register_creds('Xerox-HTTP', rhost, rport, 'Admin', passwd)
 

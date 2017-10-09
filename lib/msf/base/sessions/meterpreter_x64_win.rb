@@ -21,6 +21,10 @@ class Meterpreter_x64_Win < Msf::Sessions::Meterpreter
   def lookup_error(code)
     Msf::WindowsError.description(code)
   end
+
+  def supports_ssl?
+    false
+  end
 end
 
 end

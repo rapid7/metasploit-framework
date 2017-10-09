@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'msf/core/payload/php/bind_tcp'
 
 module MetasploitModule
 
-  CachedSize = 1188
+  CachedSize = 1338
 
   include Msf::Payload::Stager
   include Msf::Payload::Php::BindTcp
@@ -25,5 +25,4 @@ module MetasploitModule
       'Stager'        => { 'Payload' => "" }
       ))
   end
-
 end

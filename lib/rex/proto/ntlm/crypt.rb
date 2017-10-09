@@ -301,7 +301,7 @@ BASE = Rex::Proto::NTLM::Base
       end
       calculatedhash = self.ntlm2_session(argntlm,optntlm).join[24,24]
     else
-      raise ArgumentError,"ntlm_ver is of unknow type"
+      raise ArgumentError,"ntlm_ver is of unknown type"
     end
     hash == calculatedhash
   end

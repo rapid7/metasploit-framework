@@ -68,6 +68,7 @@ class Priv < Extension
 
     if( response.result == 0 and technique != nil )
       client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
+      client.update_session_info
       client.sys.config.getprivs
       if client.framework.db and client.framework.db.active
         client.framework.db.report_note(

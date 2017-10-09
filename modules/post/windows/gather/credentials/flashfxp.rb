@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'rex/parser/ini'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -16,7 +15,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'          => 'Windows Gather FlashFXP Saved Password Extraction',
       'Description'   => %q{
-        This module extracts weakly encrypted saved FTP Passwords  from FlashFXP. It
+        This module extracts weakly encrypted saved FTP Passwords from FlashFXP. It
         finds saved FTP connections in the Sites.dat file. },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'theLightCosine'],
