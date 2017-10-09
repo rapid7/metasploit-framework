@@ -705,6 +705,7 @@ class Packet < GroupTlv
   def Packet.create_response(request = nil)
     response_type = PACKET_TYPE_RESPONSE
     method = nil
+    id = nil
 
     if (request)
       if (request.type?(PACKET_TYPE_PLAIN_REQUEST))
@@ -712,9 +713,19 @@ class Packet < GroupTlv
       end
 
       method = request.method
+
+      if request.has_tlv?(TLV_TYPE_REQUEST_ID)
+        id = request.get_tlv_value(TLV_TYPE_REQUEST_ID)
+      end
     end
 
-    Packet.new(response_type, method)
+    packet = Packet.new(response_type, method)
+
+    if id
+      packet.add_tlv(TLV_TYPE_REQUEST_ID, id)
+    end
+
+    packet
   end
 
   ##
