@@ -88,7 +88,7 @@ module Msf
               editor = local_editor
 
               if editor.nil?
-                editor = 'ed'
+                editor = 'vim'
                 print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
               end
 
