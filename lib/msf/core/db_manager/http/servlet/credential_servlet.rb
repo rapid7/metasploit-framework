@@ -13,7 +13,7 @@ module CredentialServlet
   private
   #######
 
-  def self.get_loot
+  def self.get_credentials
     lambda {
       begin
         opts = parse_json_request(request, false)
