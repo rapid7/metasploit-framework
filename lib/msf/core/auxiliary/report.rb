@@ -31,7 +31,8 @@ module Auxiliary::Report
 
   def create_credential(opts={})
     if active_db?
-      super(opts)
+      framework.db.create_credential(opts)
+      #super(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
