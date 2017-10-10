@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'           => 'Octopus Deploy Login Utility',
       'Description'    => %q{
-        This module simply attempts to login to a Octopus Deploy server using a specific
+        This module simply attempts to login to an Octopus Deploy server using a specific
         username and password. It has been confirmed to work on version 3.4.4
       },
       'Author'         => [ 'James Otten <jamesotten1[at]gmail.com>' ],

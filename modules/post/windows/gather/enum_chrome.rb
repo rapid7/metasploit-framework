@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Post
 
       rows.map! do |row|
         res = Hash[*columns.zip(row).flatten]
-        if item[:encrypted_fields] && session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
+        if item[:encrypted_fields] && !session.sys.config.is_system?
 
           item[:encrypted_fields].each do |field|
             name = (res["name_on_card"] == nil) ? res["username_value"] : res["name_on_card"]

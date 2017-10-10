@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         task in Novell ZENworks Asset Management 7.5. The vulnerability exists in the Web
         Console and can be triggered by sending a specially crafted request to the rtrlet component,
         allowing a remote unauthenticated user to retrieve the configuration parameters of
-        Nozvell Zenworks Asset Managmment, including the database credentials in clear text.
+        Novell Zenworks Asset Managment, including the database credentials in clear text.
         This module has been successfully tested on Novell ZENworks Asset Management 7.5.
       },
       'License'        => MSF_LICENSE,

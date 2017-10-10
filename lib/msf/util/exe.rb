@@ -165,6 +165,14 @@ require 'msf/core/exe/segment_appender'
       # XXX: Add remaining ARMLE systems here
     end
 
+    if arch.index(ARCH_AARCH64)
+      if plat.index(Msf::Module::Platform::Linux)
+        return to_linux_aarch64_elf(framework, code)
+      end
+
+      # XXX: Add remaining AARCH64 systems here
+    end
+
     if arch.index(ARCH_PPC)
       if plat.index(Msf::Module::Platform::OSX)
         return to_osx_ppc_macho(framework, code)
@@ -1069,6 +1077,17 @@ require 'msf/core/exe/segment_appender'
   # @return           [String] Returns an elf
   def self.to_linux_x64_elf_dll(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_x64_linux_dll.bin", code)
+  end
+
+  # Create a 64-bit AARCH64 Linux ELF containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_aarch64_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_aarch64_linux.bin", code)
   end
 
   # Create a 32-bit ARMLE Linux ELF containing the payload provided in +code+
@@ -2113,6 +2132,8 @@ require 'msf/core/exe/segment_appender'
           to_linux_x86_elf(framework, code, exeopts)
         when ARCH_X64
           to_linux_x64_elf(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_linux_aarch64_elf(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf(framework, code, exeopts)
         when ARCH_MIPSBE

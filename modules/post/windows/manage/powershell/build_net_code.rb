@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Havent figured this one out yet, but we need a PID owned by a user, can't steal tokens either
-    if client.sys.config.getuid == 'NT AUTHORITY\SYSTEM'
+    if client.sys.config.is_system?
       print_error "Cannot run as system"
       return 0
     end

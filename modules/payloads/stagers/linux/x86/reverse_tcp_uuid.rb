@@ -11,7 +11,7 @@ module MetasploitModule
   CachedSize = 166
 
   include Msf::Payload::Stager
-  include Msf::Payload::Linux::ReverseTcp
+  include Msf::Payload::Linux::ReverseTcp_x86
 
   def self.handler_type_alias
     'reverse_tcp_uuid'

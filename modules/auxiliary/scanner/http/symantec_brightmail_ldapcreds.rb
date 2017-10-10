@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Symantec Messaging Gateway 10 Exposure of Stored AD Password Vulnerability',
       'Description'    => %q{
-        This module will  grab the AD account saved in Symantec Messaging Gateway and then
+        This module will grab the AD account saved in Symantec Messaging Gateway and then
         decipher it using the disclosed Symantec PBE key.  Note that authentication is required
         in order to successfully grab the LDAP credentials, and you need at least a read account.
         Version 10.6.0-7 and earlier are affected

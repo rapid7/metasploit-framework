@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
       'Description'    => %q{
           This module exploits a directory traversal vulnerability present in
-        serveral Barracuda products, including the Barracuda Spam and Virus Firewall,
+        several Barracuda products, including the Barracuda Spam and Virus Firewall,
         Barracuda SSL VPN, and the Barracuda Web Application Firewall. By default,
         this module will attempt to download the Barracuda configuration file.
       },

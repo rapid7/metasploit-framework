@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
   spec.version       = Metasploit::Framework::GEM_VERSION
   spec.authors       = ['Metasploit Hackers']
-  spec.email         = ['metasploit-hackers@lists.sourceforge.net']
+  spec.email         = ['msfdev@metasploit.com']
   spec.summary       = 'metasploit-framework'
   spec.description   = 'metasploit-framework'
   spec.homepage      = 'https://www.metasploit.com'
@@ -70,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.2.46'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.3.9'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.14'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.2.2'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -171,8 +171,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-exploitation'
   # Command line editing, history, and tab completion in msfconsole
   spec.add_runtime_dependency 'rb-readline'
-  # Needed by anemone crawler
-  spec.add_runtime_dependency 'robots'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
   # Needed for some post modules

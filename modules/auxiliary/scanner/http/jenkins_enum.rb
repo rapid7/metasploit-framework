@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Jenkins-CI Enumeration',
       'Description' => %q{
         This module enumerates a remote Jenkins-CI installation in an unauthenticated manner, including
-        host operating system and and Jenkins installation details.
+        host operating system and Jenkins installation details.
       },
       'Author'      => 'Jeff McCutchan',
       'License'     => MSF_LICENSE

@@ -12,9 +12,9 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Foxit Reader Authorization Bypass',
       'Description'    => %q{
-          This module exploits a authorization bypass vulnerability in Foxit Reader
-        build 1120. When a attacker creates a specially crafted pdf file containing
-        a Open/Execute action, arbitrary commands can be executed without confirmation
+          This module exploits an authorization bypass vulnerability in Foxit Reader
+        build 1120. When an attacker creates a specially crafted pdf file containing
+        an Open/Execute action, arbitrary commands can be executed without confirmation
         from the victim.
       },
       'License'        => MSF_LICENSE,

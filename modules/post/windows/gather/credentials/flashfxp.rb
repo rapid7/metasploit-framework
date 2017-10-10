@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'          => 'Windows Gather FlashFXP Saved Password Extraction',
       'Description'   => %q{
-        This module extracts weakly encrypted saved FTP Passwords  from FlashFXP. It
+        This module extracts weakly encrypted saved FTP Passwords from FlashFXP. It
         finds saved FTP connections in the Sites.dat file. },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'theLightCosine'],

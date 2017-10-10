@@ -20,7 +20,7 @@ module MetasploitModule
       'Name'          => 'Windows Command Shell, Hidden Bind TCP Inline',
       'Description'   => 'Listen for a connection from certain IP and spawn a command shell.
                           The shellcode will reply with a RST packet if the connections is not
-                          comming from the IP defined in AHOST. This way the port will appear
+                          coming from the IP defined in AHOST. This way the port will appear
                           as "closed" helping us to hide the shellcode.',
       'Author'        =>
         [

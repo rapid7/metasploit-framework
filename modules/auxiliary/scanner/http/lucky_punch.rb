@@ -16,8 +16,8 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'HTTP Microsoft SQL Injection Table XSS Infection',
       'Description'    => %q{
         This module implements the mass SQL injection attack in
-        use lately by concatenation of HTML string that forces a persistant
-        XSS attack to redirect user browser to a attacker controller website.
+        use lately by concatenation of HTML string that forces a persistent
+        XSS attack to redirect user browser to an attacker controller website.
       },
       'Author'         => [ 'et' ],
       'License'        => BSD_LICENSE))
