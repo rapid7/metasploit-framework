@@ -6,7 +6,7 @@ module CredentialServlet
 
   def self.registered(app)
     app.get LootServlet.api_path, &get_credentials
-    app.post LootServlet.api_path, &create_credentail
+    app.post LootServlet.api_path, &create_credential
   end
 
   #######
