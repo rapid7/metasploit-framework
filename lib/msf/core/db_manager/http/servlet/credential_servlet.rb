@@ -27,7 +27,7 @@ module CredentialServlet
 
   def self.create_credential
     lambda {
-      job = lambda { |opts| get_db().report_host(opts) }
+      job = lambda { |opts| get_db().report_credential(opts) }
       exec_report_job(request, &job)
     }
   end
