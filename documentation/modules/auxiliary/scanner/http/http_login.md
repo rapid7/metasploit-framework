@@ -11,7 +11,7 @@ This module attempts to authenticate to an HTTP service. It is a brute-force log
 
 ## Scenarios
 
-### Running the scanner
+### Running the scanner :
 
 ```
 msf > use auxiliary/scanner/http/http_login
@@ -57,7 +57,7 @@ msf auxiliary(http_login) > run
 msf auxiliary(http_login) >
 ```
 
-### Checking the credentials stored
+### Checking the credentials stored :
 
 ```
 msf auxiliary(http_login) > creds
