@@ -1,6 +1,6 @@
 ## Description
 
-This module attempts to authenticate to an HTTP service. It is a brute-force login scanner that attempts to authenticate to a system using HTTP authentication.
+This module is a brute-force login scanner that attempts to authenticate to a system using HTTP authentication.
 
 ## Verification Steps
 
