@@ -1,10 +1,10 @@
 ## Description
 
-This module is a brute-force login scanner that attempts to authenticate to a system using HTTP authentication.
+This module displays the version information about each system.
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/http/http_login```
+1. Do: ```use auxiliary/scanner/http/http_version```
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
