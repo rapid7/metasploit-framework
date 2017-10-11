@@ -11,7 +11,7 @@ This module shows HTTP Headers returned by the scanned systems.
 
 ## Scenarios
 
-### Running the scanner :
+**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/http/http_header 
