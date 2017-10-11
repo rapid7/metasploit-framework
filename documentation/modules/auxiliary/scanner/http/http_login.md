@@ -54,8 +54,10 @@ msf auxiliary(http_login) > run
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf auxiliary(http_login) >
-
+```
+```
 msf auxiliary(http_login) > creds
+
 Credentials
 ===========
 
