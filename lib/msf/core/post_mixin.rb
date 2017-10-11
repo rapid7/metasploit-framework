@@ -20,7 +20,8 @@ module Msf::PostMixin
     ] , Msf::Post)
 
     # Default stance is active
-    self.passive = (info['Passive'] and info['Passive'] == true) || false
+    self.passive = info['Passive'] || false
+    self.session_types = info['SessionTypes'] || []
   end
 
   #
@@ -161,8 +162,8 @@ module Msf::PostMixin
     return false if s.nil?
 
     # Can't be compatible if it's the wrong type
-    if self.module_info["SessionTypes"]
-      return false unless self.module_info["SessionTypes"].include?(s.type)
+    if session_types
+      return false unless session_types.include?(s.type)
     end
 
     # Types are okay, now check the platform.
@@ -189,9 +190,16 @@ module Msf::PostMixin
   # @see passive?
   attr_reader :passive
 
+  #
+  # A list of compatible session types
+  #
+  # @return [Array]
+  attr_reader :session_types
+
 protected
 
   attr_writer :passive
+  attr_writer :session_types
 
   def session_changed?
     @ds_session ||= datastore["SESSION"]
