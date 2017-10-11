@@ -11,7 +11,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | ------------------------------------------------- | -------------------------------------------------- |
 | [@acammack-r7](https://github.com/acammack-r7)    | [acammackr7](https://keybase.io/acammackr7)        |
 | [@bcoles](https://github.com/bcoles)              | [bcoles](https://keybase.io/bcoles)                |
-| [@bcook-r7](https://github.com/bcook-r7)          | [busterb](https://keybase.io/busterb)              |
+| [@busterb](https://github.com/busterb)            | [busterb](https://keybase.io/busterb)              |
 | [@bpatterson-r7](https://github.com/bpatterson-r7)| [bpatterson](https://keybase.io/bpatterson)        |
 | [@bwatters-r7](https://github.com/bwatters-r7)    | [bwatters](https://keybase.io/bwatters)            |
 | [@dmohanty-r7](https://github.com/dmohanty-r7)    | [debuasca](https://keybase.io/debuasca)            |
