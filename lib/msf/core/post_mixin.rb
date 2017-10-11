@@ -39,8 +39,6 @@ module Msf::PostMixin
       print_warning('SESSION may not be compatible with this module.')
     end
 
-    super
-
     check_for_session_readiness() if session.type == "meterpreter"
 
     @session.init_ui(self.user_input, self.user_output)
