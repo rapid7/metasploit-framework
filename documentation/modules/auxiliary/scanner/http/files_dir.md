@@ -11,7 +11,7 @@ This module identifies the existence of interesting files in a given directory p
 
 ## Scenarios
 
-### Running the scanner :
+**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/http/files_dir 
