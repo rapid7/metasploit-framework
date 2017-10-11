@@ -113,7 +113,6 @@ module Rex
 
             paths.uniq.each do |path|
 
-              print_status("Setting MACE attributes on #{path}")
               # If any one of the four times were specified, change them.
               if modified || accessed || creation || emodified
                 print_status("Setting specific MACE attributes on #{path}")
