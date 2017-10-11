@@ -38,5 +38,3 @@ msf auxiliary(http_version) > run
 
 msf auxiliary(http_version) > 
 ```
-
-
