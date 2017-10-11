@@ -11,7 +11,7 @@ This module displays the version information about each system.
 
 ## Scenarios
 
-### Running the scanner :
+**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/http/http_version 
