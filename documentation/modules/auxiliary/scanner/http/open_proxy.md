@@ -1,6 +1,6 @@
 ## Description
 
-Checks if an HTTP proxy is open. False positive are avoided by verifying the HTTP return code and matching a pattern. The CONNECT method is verified only by the return code. HTTP headers are shown regarding the use of proxy or load balancer.
+Checks if an HTTP proxy is open. False positives are avoided by verifying the HTTP return code and matching a pattern. The CONNECT method is verified only by the return code. HTTP headers are shown regarding the use of proxies or load balancers.
 
 ## Verification Steps
 
