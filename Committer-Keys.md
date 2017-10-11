@@ -3,8 +3,7 @@ can be used to verify merge commits made to https://github.com/rapid7/metasploit
 
 ### Keybase.io identities
 
-Keybase.io is currently in public beta, but we'll go ahead and treat it as
-production ready, since it seems like an easy way to verify identities.
+Keybase.io is used by Metasploit as an easy way to verify identities of committers.
 
 If you're a committer on metasploit-framework, and you need an invite, just ask.
 
