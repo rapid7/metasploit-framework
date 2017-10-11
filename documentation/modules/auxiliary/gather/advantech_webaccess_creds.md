@@ -24,7 +24,7 @@ http://advcloudfiles.advantech.com/web/Download/webaccess/8.1/AdvantechWebAccess
 ## Verification Steps
 
 1. Start msfconsole
-2. ```use auxiliary/gahter/advantech_webaccess_creds```
+2. ```use auxiliary/gather/advantech_webaccess_creds```
 3. ```set WEBACCESSUSER [USER]```
 4. ```set WEBACCESSPASS [PASS]```
 5. ```run```

@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-class MetasploitModule < Msf::Auxiliary
 
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'   		=> 'HTTP Error Based SQL Injection Scanner',
       'Description'	=> %q{
-        This module identifies the existence of Error Based SQL injection issues. Still requires alot of work
+        This module identifies the existence of Error Based SQL injection issues. Still requires a lot of work
 
       },
       'Author' 		=> [ 'et [at] cyberspace.org' ],

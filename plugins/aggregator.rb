@@ -124,7 +124,7 @@ module Msf
 
         group = "default"
 
-        if (@host && @host.length.positive?) && (@port && @port.length.positive? && @port.to_i > 0)
+        if (@host && @host.length > 0) && (@port && @port.length > 0 && @port.to_i > 0)
           config = { "#{group}" => { 'server' => @host, 'port' => @port } }
           ::File.open("#{Aggregator_yaml}", "wb") { |f| f.puts YAML.dump(config) }
           print_good("#{Aggregator_yaml} created.")
@@ -376,7 +376,7 @@ module Msf
 
       def aggregator_login
 
-        if !((@host && @host.length.positive?) && (@port && @port.length.positive? && @port.to_i > 0))
+        if !((@host && @host.length > 0) && (@port && @port.length > 0 && @port.to_i > 0))
           usage_connect
           return
         end

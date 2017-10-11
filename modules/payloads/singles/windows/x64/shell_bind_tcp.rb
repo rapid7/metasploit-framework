@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -68,5 +68,4 @@ module MetasploitModule
         }
       ))
   end
-
 end

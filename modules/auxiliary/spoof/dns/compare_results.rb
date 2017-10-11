@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         This module can be used to determine differences
       in the cache entries between two DNS servers. This is
       primarily useful for detecting cache poisoning attacks,
-      but can also be used to detect geo-location loadbalancing.
+      but can also be used to detect geo-location load balancing.
       },
       'Author'         => [ 'hdm' ],
       'License'        => MSF_LICENSE,
@@ -172,5 +172,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

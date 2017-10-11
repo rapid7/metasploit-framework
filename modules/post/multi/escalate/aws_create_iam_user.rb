@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'metasploit/framework/aws/client'
 require 'json'
 
 class MetasploitModule < Msf::Post
-
   include Metasploit::Framework::Aws::Client
 
   def initialize(info = {})

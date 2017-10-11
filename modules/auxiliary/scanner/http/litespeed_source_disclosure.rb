@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -72,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
 
           print_good("#{target_url} - LiteSpeed - Getting the source of page #{uri}")
           p = store_loot("litespeed.source", "text/plain", rhost, res.body, path_save)
-          print_status("#{target_url} - LiteSpeed - File successfully saved: #{p}")
+          print_good("#{target_url} - LiteSpeed - File successfully saved: #{p}")
 
         else
           print_error("http://#{vhost}:#{rport} - LiteSpeed - Unrecognized #{res.code} response")
@@ -94,5 +93,4 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
-
 end

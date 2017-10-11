@@ -19,7 +19,8 @@ module Payload::Python::ReverseTcp
   def initialize(*args)
     super
     register_advanced_options([
-        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10],
+          aliases: ['ReverseConnectRetries']),
         OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5])
       ], self.class)
   end
@@ -32,7 +33,7 @@ module Payload::Python::ReverseTcp
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],
       retry_count: datastore['StagerRetryCount'],
-      retry_wait:  datastore['StagerRetryWait'],
+      retry_wait:  datastore['StagerRetryWait']
     }
 
     generate_reverse_tcp(conf)

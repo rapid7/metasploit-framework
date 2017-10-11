@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/socket'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
 
   def initialize
@@ -164,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
             algorithm= ( auth_tokens['algorithm'] ? auth_tokens['algorithm'] : "MD5" )
             username = auth_tokens['username']
             proof = "client: #{client_ip}; username: #{username}; nonce: #{datastore['NONCE']}; response: #{response}; algorithm: #{algorithm}"
-            print_status("SIP LOGIN: #{proof}")
+            print_good("SIP LOGIN: #{proof}")
 
             report_cred(
               ip: @requestor[:ip],

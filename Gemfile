@@ -18,9 +18,9 @@ group :development do
   gem 'pry'
   # module documentation
   gem 'octokit'
-  # metasploit-aggregator as a framework only option for now
   # Metasploit::Aggregator external session proxy
-  gem 'metasploit-aggregator'
+  # Disabled for now for crypttlv updates
+  # gem 'metasploit-aggregator'
 end
 
 group :development, :test do
@@ -33,14 +33,10 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails'
+  gem 'rspec-rerun'
 end
 
 group :test do
-  # cucumber extension for testing command line applications, like msfconsole
-  gem 'aruba'
-  # cucumber + automatic database cleaning with database_cleaner
-  gem 'cucumber-rails', :require => false
-  gem 'shoulda-matchers'
   # Manipulate Time.now in specs
   gem 'timecop'
 end

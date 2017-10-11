@@ -11,6 +11,7 @@ Metasploit::Framework::Require.optionally_active_record_railtie
 
 begin
   require 'rspec/core'
+  require 'rspec-rerun/tasks'
 rescue LoadError
   puts "rspec not in bundle, so can't set up spec tasks.  " \
        "To run specs ensure to install the development and test groups."

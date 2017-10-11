@@ -47,7 +47,8 @@ This module will test FTP logins on a range of machines and report successful lo
 3. Do: ```set RPORT [IP]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
+
 ```
 msf> use auxiliary/scanner/ftp/ftp_login
 msf auxiliary(ftp_login) > set RHOSTS ftp.openbsd.org

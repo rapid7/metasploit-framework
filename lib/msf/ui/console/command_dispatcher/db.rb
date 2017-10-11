@@ -3,7 +3,6 @@
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
-require 'msf/ui/console/command_dispatcher/db_common'
 
 module Msf
 module Ui
@@ -15,8 +14,8 @@ class Db
   require 'tempfile'
 
   include Msf::Ui::Console::CommandDispatcher
-  include Msf::Ui::Console::CommandDispatcher::DbCommon
-  
+  include Msf::Ui::Console::CommandDispatcher::Common
+ 
   #
   # The dispatcher's name.
   #
@@ -94,7 +93,9 @@ class Db
 
   def cmd_workspace(*args)
     return unless active?
+    search_term = nil
   ::ActiveRecord::Base.connection_pool.with_connection {
+    search_term = nil
     while (arg = args.shift)
       case arg
       when '-h','--help'
@@ -108,8 +109,10 @@ class Db
         delete_all = true
       when '-r','--rename'
         renaming = true
-      when '-v'
+      when '-v','--verbose'
         verbose = true
+      when '-S', '--search'
+        search_term = args.shift
       else
         names ||= []
         names << arg
@@ -179,19 +182,26 @@ class Db
       workspace = framework.db.workspace
 
       unless verbose
-        framework.db.workspaces.each do |ws|
-          pad = (ws == workspace) ? '* ' : '  '
-          print_line("#{pad}#{ws.name}")
+        current = nil
+        framework.db.workspaces.sort_by {|s| s.name}.each do |s|
+          if s.name == workspace.name
+            current = s.name
+          else
+            print_line("  #{s.name}")
+          end
         end
+        print_line("%red* #{current}%clr") unless current.nil?
         return
       end
+      workspace = framework.db.workspace
 
       col_names = %w{current name hosts services vulns creds loots notes}
 
       tbl = Rex::Text::Table.new(
-        'Header'    => 'Workspaces',
-        'Columns'   => col_names,
-        'SortIndex' => -1
+        'Header'     => 'Workspaces',
+        'Columns'    => col_names,
+        'SortIndex'  => -1,
+        'SearchTerm' => search_term
       )
 
       # List workspaces
@@ -456,15 +466,20 @@ class Db
       return
     end
 
+    cp_hsh = {}
+    col_names.map do |col|
+      cp_hsh[col] = { 'MaxChar' => 52 }
+    end
     # If we got here, we're searching.  Delete implies search
     tbl = Rex::Text::Table.new(
       {
-        'Header'    => "Hosts",
-        'Columns'   => col_names,
+        'Header'  => "Hosts",
+        'Columns' => col_names,
+        'ColProps' => cp_hsh,
         'SortIndex' => order_by
       })
 
-    # Sentinal value meaning all
+    # Sentinel value meaning all
     host_ranges.push(nil) if host_ranges.empty?
 
     case
@@ -527,7 +542,12 @@ class Db
           rhosts << addr
         end
         if mode == [:delete]
-          host.destroy
+          begin
+            host.destroy
+          rescue # refs suck
+            print_error("Forcibly deleting #{host.address}")
+            host.delete
+          end
           delete_count += 1
         end
       end
@@ -697,7 +717,7 @@ class Db
         'SortIndex' => order_by
       })
 
-    # Sentinal value meaning all
+    # Sentinel value meaning all
     host_ranges.push(nil) if host_ranges.empty?
     ports = nil if ports.empty?
 
@@ -1095,7 +1115,7 @@ class Db
   def cmd_loot_help
     print_line "Usage: loot <options>"
     print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
-    print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]"
+    print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]"
     print_line "  Del: loot -d [addr1 addr2 ...]"
     print_line
     print_line "  -a,--add          Add loot to the list of addresses, instead of listing"
@@ -1167,34 +1187,38 @@ class Db
         'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
       })
 
-    # Sentinal value meaning all
+    # Sentinel value meaning all
     host_ranges.push(nil) if host_ranges.empty?
 
-  if mode == :add
-    if info.nil?
-      print_error("Info required")
-      return
-    end
-    if filename.nil?
-      print_error("Loot file required")
-      return
-    end
-    if types.nil? or types.size != 1
-      print_error("Exactly one loot type is required")
-      return
-    end
-    type = types.first
-    name = File.basename(filename)
-    host_ranges.each do |range|
-      range.each do |host|
-        file = File.open(filename, "rb")
-        contents = file.read
-        lootfile = framework.db.find_or_create_loot(:type => type, :host => host, :info => info, :data => contents, :path => filename, :name => name)
-        print_status("Added loot for #{host} (#{lootfile})")
+    if mode == :add
+      if host_ranges.compact.empty?
+        print_error('Address list required')
+        return
       end
+      if info.nil?
+        print_error("Info required")
+        return
+      end
+      if filename.nil?
+        print_error("Loot file required")
+        return
+      end
+      if types.nil? or types.size != 1
+        print_error("Exactly one loot type is required")
+        return
+      end
+      type = types.first
+      name = File.basename(filename)
+      file = File.open(filename, "rb")
+      contents = file.read
+      host_ranges.each do |range|
+        range.each do |host|
+          lootfile = framework.db.find_or_create_loot(:type => type, :host => host, :info => info, :data => contents, :path => filename, :name => name)
+          print_status("Added loot for #{host} (#{lootfile})")
+        end
+      end
+      return
     end
-    return
-  end
 
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
@@ -1479,6 +1503,10 @@ class Db
   }
   end
 
+  def find_nmap_path
+    Rex::FileUtils.find_full_path("nmap") || Rex::FileUtils.find_full_path("nmap.exe")
+  end
+
   #
   # Import Nmap data from a file
   #
@@ -1489,6 +1517,8 @@ class Db
       print_status("Usage: db_nmap [--save | [--help | -h]] [nmap options]")
       return
     end
+
+    save = false
     arguments = []
     while (arg = args.shift)
       case arg
@@ -1502,11 +1532,8 @@ class Db
       end
     end
 
-    nmap =
-      Rex::FileUtils.find_full_path("nmap") ||
-      Rex::FileUtils.find_full_path("nmap.exe")
-
-    if (not nmap)
+    nmap = find_nmap_path
+    unless nmap
       print_error("The nmap executable could not be found")
       return
     end
@@ -1556,9 +1583,11 @@ class Db
   end
 
   def cmd_db_nmap_help
-    nmap =
-        Rex::FileUtils.find_full_path('nmap') ||
-        Rex::FileUtils.find_full_path('nmap.exe')
+    nmap = find_nmap_path
+    unless nmap
+      print_error("The nmap executable could not be found")
+      return
+    end
 
     stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
 
@@ -1574,9 +1603,10 @@ class Db
   end
 
   def cmd_db_nmap_tabs(str, words)
-    nmap =
-        Rex::FileUtils.find_full_path('nmap') ||
-        Rex::FileUtils.find_full_path('nmap.exe')
+    nmap = find_nmap_path
+    unless nmap
+      return
+    end
 
     stdout, stderr = Open3.capture3([nmap, 'nmap'], '--help')
     tabs = []
@@ -1591,7 +1621,7 @@ class Db
       print_error(err_line.strip)
     end
 
-    tabs
+    return tabs
   end
 
   #
@@ -1809,55 +1839,6 @@ class Db
   # Miscellaneous option helpers
   #
 
-  # Parse +arg+ into a {Rex::Socket::RangeWalker} and append the result into +host_ranges+
-  #
-  # @note This modifies +host_ranges+ in place
-  #
-  # @param arg [String] The thing to turn into a RangeWalker
-  # @param host_ranges [Array] The array of ranges to append
-  # @param required [Boolean] Whether an empty +arg+ should be an error
-  # @return [Boolean] true if parsing was successful or false otherwise
-  def arg_host_range(arg, host_ranges, required=false)
-    if (!arg and required)
-      print_error("Missing required host argument")
-      return false
-    end
-    begin
-      rw = Rex::Socket::RangeWalker.new(arg)
-    rescue
-      print_error("Invalid host parameter, #{arg}.")
-      return false
-    end
-
-    if rw.valid?
-      host_ranges << rw
-    else
-      print_error("Invalid host parameter, #{arg}.")
-      return false
-    end
-    return true
-  end
-
-  #
-  # Parse +arg+ into an array of ports and append the result into +port_ranges+
-  #
-  # Returns true if parsing was successful or nil otherwise.
-  #
-  # NOTE: This modifies +port_ranges+
-  #
-  def arg_port_range(arg, port_ranges, required=false)
-    if (!arg and required)
-      print_error("Argument required for -p")
-      return
-    end
-    begin
-      port_ranges << Rex::Socket.portspec_to_portlist(arg)
-    rescue
-      print_error("Invalid port parameter, #{arg}.")
-      return
-    end
-    return true
-  end
 
   #
   # Takes +host_ranges+, an Array of RangeWalkers, and chunks it up into

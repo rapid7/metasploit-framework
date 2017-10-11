@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -50,5 +50,4 @@ class MetasploitModule < Msf::Post
     open_key.delete_key(certtoremove)
     print_good("Successfully deleted CA: #{certtoremove}")
   end
-
 end

@@ -11,31 +11,35 @@ module Msf::Payload::TransportConfig
   include Msf::Payload::UUID::Options
 
   def transport_config_reverse_tcp(opts={})
+    ds = opts[:datastore] || datastore
     config = transport_config_bind_tcp(opts)
-    config[:lhost] = datastore['LHOST']
+    config[:lhost] = ds['LHOST']
     config
   end
 
   def transport_config_reverse_ipv6_tcp(opts={})
+    ds = opts[:datastore] || datastore
     config = transport_config_reverse_tcp(opts)
     config[:scheme] = 'tcp6'
-    config[:scope_id] = datastore['SCOPEID']
+    config[:scope_id] = ds['SCOPEID']
     config
   end
 
   def transport_config_bind_tcp(opts={})
+    ds = opts[:datastore] || datastore
     {
       scheme: 'tcp',
-      lhost:  datastore['LHOST'],
-      lport:  datastore['LPORT'].to_i
-    }.merge(timeout_config)
+      lhost:  ds['LHOST'],
+      lport:  ds['LPORT'].to_i
+    }.merge(timeout_config(opts))
   end
 
   def transport_config_reverse_https(opts={})
+    ds = opts[:datastore] || datastore
     config = transport_config_reverse_http(opts)
-    config[:scheme] = datastore['OverrideScheme'] || 'https'
-    config[:ssl_cert_hash] = get_ssl_cert_hash(datastore['StagerVerifySSLCert'],
-                                               datastore['HandlerSSLCert'])
+    config[:scheme] = ds['OverrideScheme'] || 'https'
+    config[:ssl_cert_hash] = get_ssl_cert_hash(ds['StagerVerifySSLCert'],
+                                               ds['HandlerSSLCert'])
     config
   end
 
@@ -50,27 +54,38 @@ module Msf::Payload::TransportConfig
       uri = luri + generate_uri_uuid(sum, opts[:uuid])
     end
 
+    ds = opts[:datastore] || datastore
     {
-      scheme:      datastore['OverrideScheme'] || 'http',
-      lhost:       opts[:lhost] || datastore['LHOST'],
-      lport:       (opts[:lport] || datastore['LPORT']).to_i,
+      scheme:      ds['OverrideScheme'] || 'http',
+      lhost:       opts[:lhost] || ds['LHOST'],
+      lport:       (opts[:lport] || ds['LPORT']).to_i,
       uri:         uri,
-      ua:          datastore['MeterpreterUserAgent'],
-      proxy_host:  datastore['PayloadProxyHost'],
-      proxy_port:  datastore['PayloadProxyPort'],
-      proxy_type:  datastore['PayloadProxyType'],
-      proxy_user:  datastore['PayloadProxyUser'],
-      proxy_pass:  datastore['PayloadProxyPass']
-    }.merge(timeout_config)
+      ua:          ds['MeterpreterUserAgent'],
+      proxy_host:  ds['PayloadProxyHost'],
+      proxy_port:  ds['PayloadProxyPort'],
+      proxy_type:  ds['PayloadProxyType'],
+      proxy_user:  ds['PayloadProxyUser'],
+      proxy_pass:  ds['PayloadProxyPass']
+    }.merge(timeout_config(opts))
+  end
+
+  def transport_config_reverse_named_pipe(opts={})
+    ds = opts[:datastore] || datastore
+    {
+      scheme: 'pipe',
+      lhost:  ds[:pipe_host] || ds['PIPEHOST'],
+      uri:    "/#{ds[:pipe_host] || ds['PIPENAME']}"
+    }.merge(timeout_config(opts))
   end
 
 private
 
-  def timeout_config
+  def timeout_config(opts={})
+    ds = opts[:datastore] || datastore
     {
-      comm_timeout: datastore['SessionCommunicationTimeout'].to_i,
-      retry_total:  datastore['SessionRetryTotal'].to_i,
-      retry_wait:   datastore['SessionRetryWait'].to_i
+      comm_timeout: (ds[:comm_timeout] || ds['SessionCommunicationTimeout']).to_i,
+      retry_total:  (ds[:retry_total] || ds['SessionRetryTotal']).to_i,
+      retry_wait:   (ds[:retry_wait] || ds['SessionRetryWait']).to_i
     }
   end
 

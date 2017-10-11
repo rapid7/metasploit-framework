@@ -42,7 +42,8 @@ class Msf::Payload::UUID
     23 => ARCH_ZARCH,
     24 => ARCH_AARCH64,
     25 => ARCH_MIPS64,
-    26 => ARCH_PPC64LE
+    26 => ARCH_PPC64LE,
+    27 => ARCH_R
   }
 
   Platforms = {
@@ -69,7 +70,8 @@ class Msf::Payload::UUID
     20 => 'js',
     21 => 'python',
     22 => 'nodejs',
-    23 => 'firefox'
+    23 => 'firefox',
+    24 => 'r'
   }
 
   # The raw length of the UUID structure

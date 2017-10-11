@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
@@ -76,5 +73,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Deltas: #{deltas.map{|x| "%.8x" % x}.join(", ")}")
     end
   end
-
 end

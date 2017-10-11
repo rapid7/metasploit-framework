@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: https://www.metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'msf/core/payload/python/reverse_tcp_ssl'
 
 module MetasploitModule
 
-  CachedSize = 378
+  CachedSize = 470
 
   include Msf::Payload::Stager
   include Msf::Payload::Python::ReverseTcpSsl
@@ -25,5 +25,4 @@ module MetasploitModule
       'Stager'        => {'Payload' => ""}
       ))
   end
-
 end

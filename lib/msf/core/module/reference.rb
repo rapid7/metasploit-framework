@@ -95,26 +95,28 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     self.ctx_id  = in_ctx_id
     self.ctx_val = in_ctx_val
 
-    if (in_ctx_id == 'CVE')
+    if in_ctx_id == 'CVE'
       self.site = "https://cvedetails.com/cve/CVE-#{in_ctx_val}/"
-    elsif (in_ctx_id == 'CWE')
+    elsif in_ctx_id == 'CWE'
       self.site = "https://cwe.mitre.org/data/definitions/#{in_ctx_val}.html"
-    elsif (in_ctx_id == 'BID')
+    elsif in_ctx_id == 'BID'
       self.site = "http://www.securityfocus.com/bid/#{in_ctx_val}"
-    elsif (in_ctx_id == 'MSB')
+    elsif in_ctx_id == 'MSB'
       self.site = "https://technet.microsoft.com/en-us/library/security/#{in_ctx_val}"
-    elsif (in_ctx_id == 'EDB')
+    elsif in_ctx_id == 'EDB'
       self.site = "https://www.exploit-db.com/exploits/#{in_ctx_val}"
-    elsif (in_ctx_id == 'US-CERT-VU')
+    elsif in_ctx_id == 'US-CERT-VU'
       self.site = "https://www.kb.cert.org/vuls/id/#{in_ctx_val}"
-    elsif (in_ctx_id == 'ZDI')
+    elsif in_ctx_id == 'ZDI'
       self.site = "http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}"
-    elsif (in_ctx_id == 'WPVDB')
+    elsif in_ctx_id == 'WPVDB'
       self.site = "https://wpvulndb.com/vulnerabilities/#{in_ctx_val}"
-    elsif (in_ctx_id == 'PACKETSTORM')
+    elsif in_ctx_id == 'PACKETSTORM'
       self.site = "https://packetstormsecurity.com/files/#{in_ctx_val}"
-    elsif (in_ctx_id == 'URL')
+    elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
+    elsif in_ctx_id == 'AKA'
+      self.site = "Also known as: #{in_ctx_val}"
     else
       self.site  = in_ctx_id
       self.site += " (#{in_ctx_val})" if (in_ctx_val)

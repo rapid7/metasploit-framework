@@ -186,6 +186,10 @@ class RFTransceiver < Extension
     client.send_request("/rftransceiver/#{idx}/set_number_preamble?num=#{num}")
   end
 
+  def set_lowball(idx)
+    client.send_request("/rftransceiver/#{idx}/set_lowball")
+  end
+
   def set_maxpower(idx)
     client.send_request("/rftransceiver/#{idx}/set_maxpower")
   end

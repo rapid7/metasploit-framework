@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -14,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Bitweaver overlay_type Directory Traversal',
       'Description'    => %q{
           This module exploits a directory traversal vulnerability found in Bitweaver.
-        When hanlding the 'overlay_type' parameter, view_overlay.php fails to do any
+        When handling the 'overlay_type' parameter, view_overlay.php fails to do any
         path checking/filtering, which can be abused to read any file outside the
         virtual directory.
       },
@@ -90,7 +89,6 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Request failed due to some unknown reason")
     end
   end
-
 end
 
 =begin

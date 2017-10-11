@@ -31,7 +31,7 @@ class Meterpreter_Multi < Msf::Sessions::Meterpreter
       return Msf::Sessions::Meterpreter_Java_Android.new(rstream, opts)
     when 'php'
       require 'msf/base/sessions/meterpreter_php'
-      return Msf::Sessions::Meterpreter_Php_Java.new(rstream, opts)
+      return Msf::Sessions::Meterpreter_Php_Php.new(rstream, opts)
     when 'windows'
       if opts[:payload_uuid].arch == ARCH_X86
         require 'msf/base/sessions/meterpreter_x86_win'
@@ -42,6 +42,8 @@ class Meterpreter_Multi < Msf::Sessions::Meterpreter
     end
 
     # TODO: what should we do when we get here?
+    # For now lets return a generic for basic functionality with http(s) communication
+    Msf::Sessions::Meterpreter.new(rstream, opts)
   end
 end
 

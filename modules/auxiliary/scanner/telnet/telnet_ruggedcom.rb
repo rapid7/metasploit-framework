@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Telnet
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,12 +39,12 @@ class MetasploitModule < Msf::Auxiliary
 
 
   def mac_to_password(mac)
-    print_status ("MAC Address: #{mac}")
+    print_status("MAC Address: #{mac}")
     mac_clean = mac.gsub("-","")
     mac_reverse = mac_clean.each_char.each_slice(2).to_a.reverse.join
     mac_reverse << "0000"
     pass = mac_reverse.hex % 999999929
-    print_status ("Password: #{pass}")
+    print_status("Password: #{pass}")
     return pass.to_s
   end
 

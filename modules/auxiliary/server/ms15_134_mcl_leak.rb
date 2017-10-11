@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'cgi'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
@@ -169,5 +168,4 @@ for (var i=0; i < files.length; i++) {
     vprint_status("File collected: #{file[:fname]}\n\n#{Rex::Text.to_hex_dump(file[:data])}")
 
   end
-
 end

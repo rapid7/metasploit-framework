@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -21,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         recommended. Also, if you're playing a video, the URL must be an IP
         address. Some AppleTV devices are actually password-protected; in that
         case please set the PASSWORD datastore option. For password
-        bruteforcing, please see the module auxiliary/scanner/http/appletv_login.
+        brute forcing, please see the module auxiliary/scanner/http/appletv_login.
       ),
       'Author'         =>
         [
@@ -152,5 +151,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Video request sent. Duration set: #{datastore['TIME']} seconds")
     play_video_uri
   end
-
 end

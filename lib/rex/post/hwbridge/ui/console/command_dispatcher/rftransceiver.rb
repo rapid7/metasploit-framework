@@ -34,6 +34,7 @@ class Console::CommandDispatcher::RFtransceiver
       'deviation'         => 'sets the deviation',
       'sync_word'         => 'sets the sync word',
       'preamble'          => 'sets the preamble number',
+      'lowball'           => 'sets lowball',
       'power'             => 'sets the power level',
       'maxpower'          => 'sets max power'
     }
@@ -48,7 +49,7 @@ class Console::CommandDispatcher::RFtransceiver
       return
     end
     indexes = indexes['indexes']
-    unless indexes.size.positive?
+    unless indexes.size > 0
       print_line('none')
       return
     end
@@ -528,6 +529,20 @@ class Console::CommandDispatcher::RFtransceiver
     print_success(r)
   end
 
+  def cmd_lowball_help
+    print_line("Lowball is frequency dependent.  Set frequency first")
+  end
+
+  def cmd_lowball(*args)
+    self.idx ||= 0
+    if args.length > 0
+      cmd_lowball_help
+      return
+    end
+    r = client.rftransceiver.set_lowball(idx)
+    print_success(r)
+  end
+
   def cmd_maxpower_help
     print_line("Max power is frequency dependent.  Set frequency first")
   end
@@ -537,7 +552,7 @@ class Console::CommandDispatcher::RFtransceiver
   #
   def cmd_maxpower(*args)
     self.idx ||= 0
-    if args.length.positive?
+    if args.length > 0
       cmd_maxpower_help
       return
     end

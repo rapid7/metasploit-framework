@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -15,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'           => 'OpenVAS gsad Web Interface Login Utility',
       'Description'    => %q{
-        This module simply attempts to login to a OpenVAS gsad interface
+        This module simply attempts to login to an OpenVAS gsad interface
         using a specific user/pass.
       },
       'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],

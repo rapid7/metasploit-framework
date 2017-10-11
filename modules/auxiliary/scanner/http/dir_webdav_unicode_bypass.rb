@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -161,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
           }, 20)
 
           if (res and res.code.to_i == 207)
-            print_status("\tFound vulnerable WebDAV Unicode bypass target #{wmap_base_url}#{tpath}%c0%af#{testfdir} #{res.code} (#{wmap_target_host})")
+            print_good("\tFound vulnerable WebDAV Unicode bypass target #{wmap_base_url}#{tpath}%c0%af#{testfdir} #{res.code} (#{wmap_target_host})")
 
             # Unable to use report_web_vuln as method is PROPFIND and is not part of allowed
             # list in db.rb

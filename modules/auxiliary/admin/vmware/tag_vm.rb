@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
@@ -43,25 +40,24 @@ class MetasploitModule < Msf::Auxiliary
         result = vim_log_event_vm(vm_ref, datastore['MSG'])
         case result
         when :noresponse
-          print_error "Recieved no Response"
+          print_error "Received no response"
         when :expired
           print_error "The login session appears to have expired"
         when :error
-          print_error "An error occured"
+          print_error "An error occurred"
         else
-          print_good "User Event logged"
+          print_good "User Event Logged"
         end
       when :noresponse
-        print_error "Recieved no Response"
+        print_error "Received no response"
       when :expired
         print_error "The login session appears to have expired"
       when :error
         print_error @vim_soap_error
       end
     else
-      print_error "Login Failure on #{datastore['RHOST']}"
+      print_error "Login failure on #{datastore['RHOST']}"
       return
     end
   end
-
 end

@@ -13,15 +13,14 @@ module Msf
         class Modules
 
           include Msf::Ui::Console::CommandDispatcher
+          include Msf::Ui::Console::CommandDispatcher::Common
 
           # Constant for a retry timeout on using modules before they're loaded
           CMD_USE_TIMEOUT = 3
 
-          # Constant for disclosure date formatting in search functions
-          DISCLOSURE_DATE_FORMAT = "%Y-%m-%d"
-
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h" => [ false, "Help banner."]
+            "-h" => [ false, "Help banner."],
+            "-S" => [ true, "Row search filter."],
           )
 
           def commands
@@ -49,7 +48,6 @@ module Msf
             super
 
             @dscache = {}
-            @cache_payloads = nil
             @previous_module = nil
             @module_name_stack = []
             @dangerzone_map = nil
@@ -67,23 +65,26 @@ module Msf
           end
 
           def cmd_edit_help
-            msg = "Edit the currently active module"
-            msg = "#{msg} #{local_editor ? "with #{local_editor}" : "(LocalEditor or $VISUAL/$EDITOR should be set first)"}."
-            print_line "Usage: edit"
+            print_line "Usage: edit [file/to/edit.rb]"
             print_line
-            print_line msg
-            print_line "When done editing, you must reload the module with 'reload' or 'rerun'."
+            print_line "Edit a local file or the currently active module with #{local_editor}"
+            print_line "If a file path is specified it will automatically be reloaded after editing"
+            print_line "Otherwise, you can reload the active module with 'reload' or 'rerun'."
             print_line
           end
 
           #
           # Edit the currently active module
           #
-          def cmd_edit
-            if active_module
-              editor = local_editor
-              path   = active_module.file_path
+          def cmd_edit(*args)
+            if args.length > 0
+              path = args[0]
+            elsif active_module
+              path = active_module.file_path
+            end
 
+            if path
+              editor = local_editor
               if editor.nil?
                 editor = 'vim'
                 print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
@@ -91,6 +92,10 @@ module Msf
 
               print_status("Launching #{editor} #{path}")
               system(editor, path)
+              
+              if args.length > 0
+                load args[0]
+              end
             else
               print_error('Nothing to edit -- try using a module first.')
             end
@@ -380,63 +385,34 @@ module Msf
           #
           def cmd_search(*args)
             match   = ''
+            search_term = nil
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
                 when "-t"
                   print_error("Deprecated option.  Use type:#{val} instead")
                   cmd_search_help
                   return
+                when "-S", "--search"
+                  search_term = val
                 when "-h"
                   cmd_search_help
                   return
+                when "-S"
+                  search_term = val
                 else
                   match += val + " "
               end
             }
 
-            if framework.db
-              if framework.db.migrated && framework.db.modules_cached
-                search_modules_sql(match)
-                return
-              else
-                print_warning("Module database cache not built yet, using slow search")
-              end
-            else
-              print_warning("Database not connected, using slow search")
-            end
-
-            tbl = generate_module_table("Matching Modules")
-            [
-              framework.exploits,
-              framework.auxiliary,
-              framework.post,
-              framework.payloads,
-              framework.nops,
-              framework.encoders
-            ].each do |mset|
-              mset.each do |m|
-                o = mset.create(m[0]) rescue nil
-
-                # Expected if modules are loaded without the right pre-requirements
-                next if not o
-
-                if not o.search_filter(match)
-                  tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
-                end
-              end
-            end
-            print_line(tbl.to_s)
-
-          end
-
-          # Prints table of modules matching the search_string.
-          #
-          # @param (see Msf::DBManager#search_modules)
-          # @return [void]
-          def search_modules_sql(search_string)
-            tbl = generate_module_table("Matching Modules")
-            framework.db.search_modules(search_string).each do |o|
-              tbl << [ o.fullname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), RankingName[o.rank].to_s, o.name ]
+            # Display the table of matches
+            tbl = generate_module_table("Matching Modules", search_term)
+            framework.search(match, logger: self).each do |m|
+              tbl << [
+                m.fullname,
+                m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
+                RankingName[m.rank].to_s,
+                m.name
+              ]
             end
             print_line(tbl.to_s)
           end
@@ -603,11 +579,11 @@ module Msf
             mod_name = args[0]
 
             # Ensure we have a reference name and not a path
-            if mod_name.start_with?('modules/', '/')
-              mod_name.sub!(/^(?:modules)?\//, '')
+            if mod_name.start_with?('./', 'modules/')
+              mod_name.sub!(/^(?:\.\/)?modules\//, '')
             end
-            if mod_name.end_with?('.', '.r', '.rb')
-              mod_name.sub!(/\.(?:rb?)?$/, '')
+            if mod_name.end_with?('.rb')
+              mod_name.sub!(/\.rb$/, '')
             end
 
             begin
@@ -668,7 +644,6 @@ module Msf
               active_module.datastore.update(@dscache[active_module.fullname])
             end
 
-            @cache_payloads = nil
             mod.init_ui(driver.input, driver.output)
 
             # Update the command prompt
@@ -680,7 +655,7 @@ module Msf
           #
           # Command to take to the previously active module
           #
-          def cmd_previous()
+          def cmd_previous(*args)
             if @previous_module
               self.cmd_use(@previous_module.fullname)
             else
@@ -997,44 +972,6 @@ module Msf
             show_module_set("Post", framework.post, regex, minrank, opts)
           end
 
-          def show_options(mod) # :nodoc:
-            mod_opt = Serializer::ReadableText.dump_options(mod, '   ')
-            print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
-
-            # If it's an exploit and a payload is defined, create it and
-            # display the payload's options
-            if (mod.exploit? and mod.datastore['PAYLOAD'])
-              p = framework.payloads.create(mod.datastore['PAYLOAD'])
-
-              if (!p)
-                print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
-                return
-              end
-
-              p.share_datastore(mod.datastore)
-
-              if (p)
-                p_opt = Serializer::ReadableText.dump_options(p, '   ')
-                print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
-              end
-            end
-
-            # Print the selected target
-            if (mod.exploit? and mod.target)
-              mod_targ = Serializer::ReadableText.dump_exploit_target(mod, '   ')
-              print("\nExploit target:\n\n#{mod_targ}\n") if (mod_targ and mod_targ.length > 0)
-            end
-
-            # Print the selected action
-            if mod.kind_of?(Msf::Module::HasActions) && mod.action
-              mod_action = Serializer::ReadableText.dump_module_action(mod, '   ')
-              print("\n#{mod.type.capitalize} action:\n\n#{mod_action}\n") if (mod_action and mod_action.length > 0)
-            end
-
-            # Uncomment this line if u want target like msf2 format
-            #print("\nTarget: #{mod.target.name}\n\n")
-          end
-
           def show_missing(mod) # :nodoc:
             mod_opt = Serializer::ReadableText.dump_options(mod, '   ', true)
             print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
@@ -1185,7 +1122,12 @@ module Msf
                     end
                   end
                   if (opts == nil or show == true)
-                    tbl << [ refname, o.disclosure_date.nil? ? "" : o.disclosure_date.strftime(DISCLOSURE_DATE_FORMAT), o.rank_to_s, o.name ]
+                    tbl << [
+                      refname,
+                      o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
+                      o.rank_to_s,
+                      o.name
+                    ]
                   end
                 end
               end
@@ -1194,13 +1136,14 @@ module Msf
             print(tbl.to_s)
           end
 
-          def generate_module_table(type) # :nodoc:
+          def generate_module_table(type, search_term = nil) # :nodoc:
             Table.new(
               Table::Style::Default,
-              'Header'  => type,
-              'Prefix'  => "\n",
-              'Postfix' => "\n",
-              'Columns' => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ]
+              'Header'     => type,
+              'Prefix'     => "\n",
+              'Postfix'    => "\n",
+              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ],
+              'SearchTerm' => search_term
             )
           end
 

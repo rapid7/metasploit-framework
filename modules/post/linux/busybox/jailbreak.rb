@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
     super(
       'Name'         => 'BusyBox Jailbreak ',
       'Description'  => %q{
-        This module will send a set of commands to a open session that is connected to a
+        This module will send a set of commands to an open session that is connected to a
         BusyBox limited shell (i.e. a router limited shell). It will try different known
         tricks to jailbreak the limited shell and get a full BusyBox shell.
       },
@@ -63,5 +63,4 @@ class MetasploitModule < Msf::Post
 
       false
   end
-
 end

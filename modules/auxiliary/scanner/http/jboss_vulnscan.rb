@@ -1,9 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -13,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'                  => 'JBoss Vulnerability Scanner',
       'Description'           => %q(
-        This module scans a JBoss instance for a few vulnerablities.
+        This module scans a JBoss instance for a few vulnerabilities.
       ),
       'Author'                =>
         [
@@ -185,7 +186,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def bypass_auth(app)
-    print_status("#{rhost}:#{rport} Check for verb tampering (HEAD)")
+    print_status("#{rhost}:#{rport} Check for verb tampering (#{datastore['VERB']})")
 
     res = send_request_raw({
       'uri'       => app,

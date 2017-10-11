@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::VIMSoap
@@ -70,11 +67,10 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       f = store_loot('host.vmware.vms', "text/plain", datastore['RHOST'], YAML.dump(virtual_machines) , "#{datastore['RHOST']}_esx_vms.txt", "VMWare ESX Virtual Machines")
-      vprint_status("VM info stored in: #{f}")
+      vprint_good("VM info stored in: #{f}")
     else
       print_error "Login Failure on #{ip}"
       return
     end
   end
-
 end

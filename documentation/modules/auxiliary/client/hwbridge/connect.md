@@ -28,13 +28,14 @@ Bluetooth HWBridge adapters, depending on the Operating System, may take several
 The following steps were [recorded during the testing of this module](https://github.com/rapid7/metasploit-framework/pull/7795#issuecomment-274302326)
 on setting up the [BAFX 34t5](https://bafxpro.com/products/obdreader) with Kali Linux 2016.2 (rolling).
 
-1. Ensure no locks on the Bluetooth device via: `rfkill list` (and subsequent `unblock` commands)
-2. Make sure Bluetooth service is started: `/etc/init.d/bluetooth start`, or `bluetoothd`
-3. Start bluetoothctl: `bluetoothctl`
-4. Turn on scanning: `scan on`
-5. Turn on agent: `agent on`
-6. Make sure we can see OBDII: `devices`
-7. Attempt to pair: `[bluetooth]# pair 00:0D:18:AA:AA:AA`
+1. Most Bluetooth HWBridge adapters, speak serial. So you will need to get the ruby gem "serialport": ```gem install serialport```
+2. Ensure no locks on the Bluetooth device via: `rfkill list` (and subsequent `unblock` commands)
+3. Make sure Bluetooth service is started: `/etc/init.d/bluetooth start`, or `bluetoothd`
+4. Start bluetoothctl: `bluetoothctl`
+5. Turn on scanning: `scan on`
+6. Turn on agent: `agent on`
+7. Make sure we can see OBDII: `devices`
+8. Attempt to pair: `[bluetooth]# pair 00:0D:18:AA:AA:AA`
 
   ```
   Attempting to pair with 00:0D:18:AA:AA:AA

@@ -1,4 +1,5 @@
-Meteocontrol WEB'Log Data Loggers are affected with an authentication bypass vulnerability. The module exploits this vulnerability to remotely extract Administrator password for the device management portal.
+Meteocontrol WEB'Log Data Loggers are affected with an authentication bypass vulnerability.
+The module exploits this vulnerability to remotely extract Administrator password for the device management portal.
 
 Note: In some versions, 'Website password' page is renamed or not present. Therefore, password can not be extracted. Manual verification will be required in such cases.
 
@@ -9,7 +10,7 @@ Note: In some versions, 'Website password' page is renamed or not present. There
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/meteocontrol_weblog_extractadmin

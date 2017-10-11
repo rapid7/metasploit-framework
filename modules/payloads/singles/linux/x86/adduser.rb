@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
 
 ###
 #
@@ -55,5 +53,4 @@ module MetasploitModule
       "\x59\x8b\x51\xfc\x6a\x04\x58\xcd\x80\x6a\x01\x58" +
       "\xcd\x80"
   end
-
 end

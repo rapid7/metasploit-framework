@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core/post/windows/reflective_dll_injection'
-class MetasploitModule < Msf::Post
 
+class MetasploitModule < Msf::Post
   include Msf::Post::Windows::ReflectiveDLLInjection
 
   def initialize(info={})

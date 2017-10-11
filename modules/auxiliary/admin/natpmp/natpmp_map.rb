@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::NATPMP
@@ -116,5 +115,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unknown error: #{e.class} #{e.backtrace}")
     end
   end
-
 end

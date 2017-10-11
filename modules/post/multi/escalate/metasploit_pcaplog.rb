@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{
           Metasploit < 4.4 contains a vulnerable 'pcap_log' plugin which, when used with the default settings,
           creates pcap files in /tmp with predictable file names. This exploits this by hard-linking these
-          filenames to /etc/passwd, then sending a packet with a priviliged user entry contained within.
+          filenames to /etc/passwd, then sending a packet with a privileged user entry contained within.
           This, and all the other packets, are appended to /etc/passwd.
 
           Successful exploitation results in the creation of a new superuser account.

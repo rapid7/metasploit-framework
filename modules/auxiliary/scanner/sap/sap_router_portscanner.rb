@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -424,5 +423,4 @@ class MetasploitModule < Msf::Auxiliary
     print(tbl.to_s)
 
   end
-
 end

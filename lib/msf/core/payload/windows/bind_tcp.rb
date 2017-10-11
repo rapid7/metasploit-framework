@@ -35,7 +35,7 @@ module Payload::Windows::BindTcp
 
     # Generate the more advanced stager if we have the space
     if self.available_space && required_space <= self.available_space
-      conf[:exitfunk] = datastore['EXITFUNC'],
+      conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end
 

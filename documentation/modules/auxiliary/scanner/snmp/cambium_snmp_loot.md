@@ -1,6 +1,8 @@
-Cambium devices (ePMP, PMP, Force, others) can be administered using SNMP. The device configuration contains IP addresses, keys, and passwords, amongst other information. This module uses SNMP to extract Cambium ePMP device configuration. On certain software versions, specific device configuration values can be accessed using SNMP RO string, even though only SNMP RW string should be able to access them, according to MIB documentation.
+Cambium devices (ePMP, PMP, Force, others) can be administered using SNMP. The device configuration contains IP addresses, keys, and passwords, amongst other information.
+This module uses SNMP to extract Cambium ePMP device configuration. On certain software versions, specific device configuration values can be accessed using SNMP RO string, even though only SNMP RW string should be able to access them, according to MIB documentation.
 
-The module also triggers full configuration backup, and retrieves the backup url. The configuration file can then be downloaded without authentication. The module has been tested primarily on Cambium ePMP current version (3.2.x, as of today), PMP, and Force units.
+The module also triggers full configuration backup, and retrieves the backup url. The configuration file can then be downloaded without authentication.
+The module has been tested primarily on Cambium ePMP current version (3.2.x, as of today), PMP, and Force units.
 
 Note: If the backup url is not retrieved, it is recommended to increase the TIMEOUT and reduce the THREADS. Backup url can also be retrieved by quering the OID as follows:
 
@@ -16,7 +18,7 @@ snmpget -v2c -c public 1.3.3.7 1.3.6.1.4.1.17713.21.6.4.13.0
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/snmp/epmp_snmp_loot

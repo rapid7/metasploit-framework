@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -269,5 +268,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Use it to log into #{login_url}")
     end
   end
-
 end

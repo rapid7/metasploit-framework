@@ -1,11 +1,13 @@
-This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration. A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication.
+This module scans for Carlo Gavazzi Energy Meters login portals, performs a login brute force attack, enumerates device firmware version, and attempt to extract the SMTP configuration.
+A valid, admin privileged user is required to extract the SMTP password. In some older firmware versions, the SMTP config can be retrieved without any authentication.
 
-The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db. This db file contains information such as power/energy utilization data, tariffs, and revenue statistics.
+The module also exploits an access control vulnerability which allows an unauthenticated user to remotely dump the database file EWplant.db.
+This db file contains information such as power/energy utilization data, tariffs, and revenue statistics.
 
 Vulnerable firmware versions include:
 
-VMU-C EM prior to firmware Version A11_U05
-VMU-C PV prior to firmware Version A17.
+* VMU-C EM prior to firmware Version A11_U05
+* VMU-C PV prior to firmware Version A17.
 
 ## Verification Steps
 
@@ -14,7 +16,7 @@ VMU-C PV prior to firmware Version A17.
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/gavazzi_em_login_loot

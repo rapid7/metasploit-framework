@@ -41,7 +41,7 @@ class Core
     "-c"  => [ true,  "Run a command on the session given with -i, or all"             ],
     "-C"  => [ true,  "Run a Meterpreter Command on the session given with -i, or all" ],
     "-h"  => [ false, "Help banner"                                                    ],
-    "-i"  => [ true,  "Interact with the supplied session ID   "                       ],
+    "-i"  => [ true,  "Interact with the supplied session ID"                          ],
     "-l"  => [ false, "List all active sessions"                                       ],
     "-v"  => [ false, "List sessions in verbose mode"                                  ],
     "-q"  => [ false, "Quiet mode"                                                     ],
@@ -51,7 +51,9 @@ class Core
     "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
-    "-x" =>  [ false, "Show extended information in the session table"                 ])
+    "-S"  => [ true,  "Row search filter."                                             ],
+    "-x" =>  [ false, "Show extended information in the session table"                 ],
+    "-n" =>  [ true,  "Name or rename a session by ID"                                 ])
 
   @@threads_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -85,6 +87,10 @@ class Core
     "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
     "-c" => [ false, "Only print a count of matching lines."          ])
 
+  @@search_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-S" => [ true, "Row search filter."                              ])
+
   @@history_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
@@ -94,7 +100,6 @@ class Core
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
-
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -134,10 +139,9 @@ class Core
   def initialize(driver)
     super
 
-    @dscache = {}
     @cache_payloads = nil
     @previous_module = nil
-    @module_name_stack = []
+    @previous_target = nil
     @history_limit = 100
   end
 
@@ -170,9 +174,6 @@ class Core
     end
     driver.update_prompt
   end
-
-
-
 
   def cmd_cd_help
     print_line "Usage: cd <directory>"
@@ -869,10 +870,12 @@ class Core
 
     when "add", "remove", "del"
       subnet = args.shift
-      netmask = nil
-      if subnet
-        subnet, cidr_mask = subnet.split("/")
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i) if cidr_mask
+      subnet,cidr_mask = subnet.split("/")
+      if Rex::Socket.is_ipv4?(args.first)
+        netmask = args.shift
+      else
+        cidr_mask = '32' if cidr_mask.nil?
+        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
       end
 
       netmask = args.shift if netmask.nil?
@@ -1074,7 +1077,6 @@ class Core
     print_line("Saved configuration to: #{Msf::Config.config_file}")
   end
 
-
   def cmd_spool_help
     print_line "Usage: spool <off>|<filename>"
     print_line
@@ -1139,6 +1141,8 @@ class Core
     script   = nil
     reset_ring = false
     response_timeout = 15
+    search_term = nil
+    session_name = nil
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1151,53 +1155,59 @@ class Core
       # Parse the command options
       @@sessions_opts.parse(args) do |opt, idx, val|
         case opt
-        when '-q'
+        when "-q"
           quiet = true
         # Run a command on all sessions, or the session given with -i
-        when '-c'
+        when "-c"
           method = 'cmd'
           cmds << val if val
-        when '-C'
+        when "-C"
             method = 'meterp-cmd'
             cmds << val if val
-        when '-x'
+        when "-x"
           show_extended = true
-        when '-v'
+        when "-v"
           verbose = true
         # Do something with the supplied session identifier instead of
         # all sessions.
-        when '-i'
+        when "-i"
           sid = val
         # Display the list of active sessions
-        when '-l'
+        when "-l"
           method = 'list'
-        when '-k'
+        when "-k"
           method = 'kill'
           sid = val || false
-        when '-K'
+        when "-K"
           method = 'killall'
         # Run a script on all meterpreter sessions
-        when '-s'
+        when "-s"
           unless script
             method = 'scriptall'
             script = val
           end
         # Upload and exec to the specific command session
-        when '-u'
+        when "-u"
           method = 'upexec'
           sid = val || false
+        # Search for specific session
+        when "-S", "--search"
+          search_term = val
         # Reset the ring buffer read pointer
-        when '-r'
+        when "-r"
           reset_ring = true
           method = 'reset_ring'
         # Display help banner
-        when '-h'
+        when "-h"
           cmd_sessions_help
           return false
-        when '-t'
+        when "-t"
           if val.to_s =~ /^\d+$/
             response_timeout = val.to_i
           end
+        when "-n", "--name"
+          method = 'name'
+          session_name = val
         else
           extra << val
         end
@@ -1463,8 +1473,29 @@ class Core
       end
     when 'list',nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose))
+      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose, :search_term => search_term))
       print_line
+    when 'name'
+      if session_name.blank?
+        print_error('Please specify a valid session name')
+        return false
+      end
+
+      sessions = sid ? session_list : nil
+
+      if sessions.nil? || sessions.empty?
+        print_error("Please specify valid session identifier(s) using -i")
+        return false
+      end
+
+      sessions.each do |s|
+        if framework.sessions[s].respond_to?(:name=)
+          framework.sessions[s].name = session_name
+          print_status("Session #{s} named to #{session_name}")
+        else
+          print_error("Session #{s} cannot be named")
+        end
+      end
     end
 
     rescue IOError, EOFError, Rex::StreamClosedError
@@ -1595,12 +1626,6 @@ class Core
     # Set the supplied name to the supplied value
     name  = args[0]
     value = args[1, args.length-1].join(' ')
-    if (name.upcase == "TARGET")
-      # Different targets can have different architectures and platforms
-      # so we need to rebuild the payload list whenever the target
-      # changes.
-      @cache_payloads = nil
-    end
 
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
@@ -1952,7 +1977,6 @@ class Core
 
   alias cmd_unsetg_help cmd_unset_help
 
-
   #
   # Returns the revision of the framework and console library
   #
@@ -2257,11 +2281,16 @@ class Core
   # Provide valid payload options for the current exploit
   #
   def option_values_payloads
-    return @cache_payloads if @cache_payloads
+    if @cache_payloads && active_module == @previous_module && active_module.target == @previous_target
+      return @cache_payloads
+    end
 
-    @cache_payloads = active_module.compatible_payloads.map { |refname, payload|
+    @previous_module = active_module
+    @previous_target = active_module.target
+
+    @cache_payloads = active_module.compatible_payloads.map do |refname, payload|
       refname
-    }
+    end
 
     @cache_payloads
   end
@@ -2410,7 +2439,6 @@ class Core
     ]
     return binary_paths.include? Msf::Config.install_root
   end
-
 
   #
   # Returns an array of lines at the provided line number plus any before and/or after lines requested

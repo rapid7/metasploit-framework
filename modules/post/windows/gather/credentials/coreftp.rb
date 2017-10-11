@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
       begin
         subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\FTPware\\CoreFTP\\Sites")
         if subkeys.nil? or subkeys.empty?
-          print_status ("CoreFTP not installed for this user.")
+          print_status("CoreFTP not installed for this user.")
           next
         end
 

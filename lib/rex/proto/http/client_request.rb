@@ -173,7 +173,10 @@ class ClientRequest
     req << set_version
 
     # Set a default Host header if one wasn't passed in
-    unless opts['headers'] && opts['headers'].keys.map { |x| x.downcase }.include?('host')
+    if opts['headers'] && opts['headers'].keys.map(&:downcase).include?('host')
+      host = opts['headers'].keys.each { |k| break opts['headers'][k] if k =~ /host/i }
+      req << set_formatted_header('Host', host)
+    else
       req << set_host_header
     end
 

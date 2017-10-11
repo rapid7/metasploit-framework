@@ -70,7 +70,6 @@ $args = Rex::Parser::Arguments.new(
   "-d" => [ true,  "The domain (machine) name    (NETLMv2/NETNTLMv2 type only)"     	],
   "-h" => [ false, "Display this help information"                                                   	])
 
-
 $args.parse(ARGV) { |opt, idx, val|
   case opt
     when "-t"
@@ -121,7 +120,6 @@ else
     usage
   end
 end
-
 
 if type == "HALFLM" or type == "LM" or type == "NTLM" then
   if srvchal != nil or clichal != nil or user != nil or domain != nil  then
@@ -872,5 +870,3 @@ else
   $stderr.puts "type must be of type : HALFLM/LM/NTLM/HALFNETLMv1/NETLMv1/NETNTLMv1/NETNTLM2_SESSION/NETLMv2/NETNTLMv2"
   exit
 end
-
-

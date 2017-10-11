@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
@@ -125,6 +124,5 @@ class MetasploitModule < Msf::Auxiliary
   def on_client_close(c)
     stop_service
   end
-
 end
 

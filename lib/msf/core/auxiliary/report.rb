@@ -274,7 +274,28 @@ module Auxiliary::Report
         :workspace => myworkspace,
         :task => mytask
     }.merge(opts)
-    framework.db.report_vuln(opts)
+    vuln = framework.db.report_vuln(opts)
+
+    # add vuln attempt audit details here during report
+
+    timestamp  = opts[:timestamp]
+    username   = opts[:username]
+    mname      = self.fullname # use module name when reporting attempt for correlation
+
+    # report_vuln is only called in an identified case, consider setting value reported here
+    attempt_info = {
+        :vuln_id      => vuln.id,
+        :attempted_at => timestamp || Time.now.utc,
+        :exploited    => false,
+        :fail_detail  => 'vulnerability identified',
+        :fail_reason  => 'Untried', # Mdm::VulnAttempt::Status::UNTRIED, avoiding direct dependency on Mdm, used elsewhere in this module
+        :module       => mname,
+        :username     => username  || "unknown",
+    }
+
+    vuln.vuln_attempts.create(attempt_info)
+
+    vuln
   end
 
   # This will simply log a deprecation warning, since report_exploit()

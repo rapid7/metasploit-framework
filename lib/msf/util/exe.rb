@@ -106,7 +106,7 @@ require 'msf/core/exe/segment_appender'
   # @return           [String]
   # @return           [NilClass]
   def self.to_executable(framework, arch, plat, code = '', opts = {})
-    if elf? code
+    if elf? code or macho? code
       return code
     end
 
@@ -163,6 +163,14 @@ require 'msf/core/exe/segment_appender'
       end
 
       # XXX: Add remaining ARMLE systems here
+    end
+
+    if arch.index(ARCH_AARCH64)
+      if plat.index(Msf::Module::Platform::Linux)
+        return to_linux_aarch64_elf(framework, code)
+      end
+
+      # XXX: Add remaining AARCH64 systems here
     end
 
     if arch.index(ARCH_PPC)
@@ -2134,6 +2142,8 @@ require 'msf/core/exe/segment_appender'
           to_linux_x86_elf(framework, code, exeopts)
         when ARCH_X64
           to_linux_x64_elf(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_linux_aarch64_elf(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf(framework, code, exeopts)
         when ARCH_MIPSBE
@@ -2160,20 +2170,28 @@ require 'msf/core/exe/segment_appender'
       end
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
+        when ARCH_X86
+          to_linux_x86_elf_dll(framework, code, exeopts)
         when ARCH_X64
           to_linux_x64_elf_dll(framework, code, exeopts)
+        when ARCH_ARMLE
+          to_linux_armle_elf_dll(framework, code, exeopts)
         end
       end
     when 'macho', 'osx-app'
-      macho = case arch
-      when ARCH_X86,nil
-        to_osx_x86_macho(framework, code, exeopts)
-      when ARCH_X64
-        to_osx_x64_macho(framework, code, exeopts)
-      when ARCH_ARMLE
-        to_osx_arm_macho(framework, code, exeopts)
-      when ARCH_PPC
-        to_osx_ppc_macho(framework, code, exeopts)
+      if macho? code
+        macho = code
+      else
+        macho = case arch
+        when ARCH_X86,nil
+          to_osx_x86_macho(framework, code, exeopts)
+        when ARCH_X64
+          to_osx_x64_macho(framework, code, exeopts)
+        when ARCH_ARMLE
+          to_osx_arm_macho(framework, code, exeopts)
+        when ARCH_PPC
+          to_osx_ppc_macho(framework, code, exeopts)
+        end
       end
       fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho
     when 'vba'
@@ -2299,6 +2317,10 @@ require 'msf/core/exe/segment_appender'
 
   def self.elf?(code)
     code[0..3] == "\x7FELF"
+  end
+
+  def self.macho?(code)
+    code[0..3] == "\xCF\xFA\xED\xFE" || code[0..3] == "\xCE\xFA\xED\xFE" || code[0..3] == "\xCA\xFE\xBA\xBE" 
   end
 
 end

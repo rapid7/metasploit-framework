@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -16,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         The BVSMWeb portal in the web framework in Cisco Unified Communications Domain Manager
         (CDM), before version 10, doesn't implement access control properly, which allows remote
         attackers to modify user information. This module exploits the vulnerability to make
-        unauthorized speeddial entity manipulations.
+        unauthorized speed dial entity manipulations.
       },
       'Author'        => 'fozavci',
       'References'    =>

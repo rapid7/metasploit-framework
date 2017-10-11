@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'metasploit/framework/login_scanner/smb'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated

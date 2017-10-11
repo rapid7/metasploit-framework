@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::WDBRPC_Client
 
   def initialize(info = {})
@@ -105,5 +102,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Dumped #{"0x%.8x" % idx} bytes.")
     wdbrpc_client_disconnect
   end
-
 end

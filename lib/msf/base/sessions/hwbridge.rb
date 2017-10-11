@@ -196,6 +196,10 @@ class HWBridge  < Rex::Post::HWBridge::Client
 
   attr_accessor :console # :nodoc:
   attr_accessor :alive # :nodoc:
+  attr_accessor :api_version
+  attr_accessor :fw_version
+  attr_accessor :hw_version
+  attr_accessor :device_name
 private
   attr_accessor :rstream # :nodoc:
 
