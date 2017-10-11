@@ -65,13 +65,3 @@ host           origin         service        public  private  realm  private_typ
 
 msf auxiliary(http_login) >
 ```
-
-
-
-
-
-
-
-
-
-
