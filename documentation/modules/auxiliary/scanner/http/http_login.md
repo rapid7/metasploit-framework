@@ -11,6 +11,7 @@ This module attempts to authenticate to an HTTP service. It is a brute-force log
 
 ## Scenarios
 
+### Running the scanner
 ```
 msf > use auxiliary/scanner/http/http_login
 msf auxiliary(http_login) > show options
@@ -64,3 +65,13 @@ host           origin         service        public  private  realm  private_typ
 
 msf auxiliary(http_login) >
 ```
+
+
+
+
+
+
+
+
+
+
