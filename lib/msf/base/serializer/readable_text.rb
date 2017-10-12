@@ -165,6 +165,7 @@ class ReadableText
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
     output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
@@ -275,10 +276,19 @@ class ReadableText
 
     # Authors
     output << "Provided by:\n"
-    mod.each_author { |author|
+    mod.each_author.each do |author|
       output << indent + author.to_s + "\n"
-    }
+    end
     output << "\n"
+
+    # Compatible session types
+    if mod.session_types
+      output << "Compatible session types:\n"
+      mod.session_types.sort.each do |type|
+        output << indent + type.capitalize + "\n"
+      end
+      output << "\n"
+    end
 
     # Actions
     if mod.action
