@@ -194,7 +194,7 @@ class MetasploitModule < Msf::Post
     when /windows/
       user_profiles |= grab_user_profiles
     else
-      print_error "OS not recognized: #{os}"
+      print_error "OS not recognized: #{session.platform}"
     end
     user_profiles
   end
