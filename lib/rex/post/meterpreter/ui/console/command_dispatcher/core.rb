@@ -1151,8 +1151,16 @@ class Console::CommandDispatcher::Core
         gem_path = MetasploitPayloads.local_meterpreter_dir
         [msf_path, gem_path].each do |path|
           ::Dir.entries(path).each { |f|
-            if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-              exts.add($1)
+            if (::File.file?(::File.join(path, f)))
+              client.binary_suffix.each { |s|
+                if (f =~ /ext_server_(.*)\.#{s}/ )
+                  if (client.binary_suffix.size > 1)
+                    exts.add($1 + ".#{s}")
+                  else
+                    exts.add($1)
+                  end
+                end
+              }
             end
           }
         end
@@ -1168,7 +1176,16 @@ class Console::CommandDispatcher::Core
     # Load each of the modules
     args.each { |m|
       md = m.downcase
+      modulenameprovided = md
 
+      if client.binary_suffix.size > 1
+        client.binary_suffix.each { |s|
+          if (md =~ /(.*)\.#{s}/ )
+            md = $1
+            break
+          end
+        }
+      end
       if (extensions.include?(md))
         print_error("The '#{md}' extension has already been loaded.")
         next
@@ -1178,7 +1195,7 @@ class Console::CommandDispatcher::Core
 
       begin
         # Use the remote side, then load the client-side
-        if (client.core.use(md) == true)
+        if (client.core.use(modulenameprovided) == true)
           add_extension_client(md)
         end
       rescue
@@ -1199,10 +1216,16 @@ class Console::CommandDispatcher::Core
     gem_path = MetasploitPayloads.local_meterpreter_dir
     [msf_path, gem_path].each do |path|
     ::Dir.entries(path).each { |f|
-      if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-        if (not extensions.include?($1))
-          tabs.add($1)
-        end
+      if (::File.file?(::File.join(path, f)))
+        client.binary_suffix.each { |s|
+          if (f =~ /ext_server_(.*)\.#{s}/ )
+            if (client.binary_suffix.size > 1 && !extensions.include?($1 + ".#{s}"))
+              tabs.add($1 + ".#{s}")
+            elsif (!extensions.include?($1))
+              tabs.add($1)
+            end
+          end
+        }
       end
     }
     end

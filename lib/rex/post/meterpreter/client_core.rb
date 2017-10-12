@@ -249,7 +249,14 @@ class ClientCore < Extension
       # path of the local and target so that it gets loaded with a random
       # name
       if opts['Extension']
-        library_path = "ext#{rand(1000000)}.#{client.binary_suffix}"
+        if client.binary_suffix.size > 1
+          m = /(.*)\.(.*)/.match(library_path)
+          suffix = $2
+        else
+          suffix = client.binary_suffix
+        end
+
+        library_path = "ext#{rand(1000000)}.#{suffix}"
         target_path  = library_path
       end
     end
@@ -296,6 +303,20 @@ class ClientCore < Extension
       raise RuntimeError, "No modules were specified", caller
     end
 
+    modnameprovided = mod
+    suffix = nil
+    if client.binary_suffix.size > 1
+      client.binary_suffix.each { |s|
+        if (mod =~ /(.*)\.#{s}/ )
+          mod = $1
+          suffix = s
+          break
+        end
+      }
+    else
+      suffix = client.binary_suffix.first
+    end
+
     # Query the remote instance to see if commands for the extension are
     # already loaded
     commands = get_loaded_extension_commands(mod.downcase)
@@ -306,14 +327,14 @@ class ClientCore < Extension
       # Get us to the installation root and then into data/meterpreter, where
       # the file is expected to be
       modname = "ext_server_#{mod.downcase}"
-      path = MetasploitPayloads.meterpreter_path(modname, client.binary_suffix)
+      path = MetasploitPayloads.meterpreter_path(modname, suffix)
 
       if opts['ExtensionPath']
         path = ::File.expand_path(opts['ExtensionPath'])
       end
 
       if path.nil?
-        raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
+        raise RuntimeError, "No module of the name #{modnameprovided} found", caller
       end
 
       # Load the extension DLL
