@@ -76,8 +76,8 @@ The following table contains the file types associated with the characters:
 
 ```
 msf > use auxiliary/scanner/gopher/gopher_gophermap 
-msf auxiliary(gopher_gophermap) > set rhosts 192.168.2.137
-rhosts => 192.168.2.137
+msf auxiliary(gopher_gophermap) > set rhosts 1.1.1.1
+rhosts => 1.1.1.1
 msf auxiliary(gopher_gophermap) > set verbose true
 verbose => true
 msf auxiliary(gopher_gophermap) > run
