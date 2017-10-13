@@ -34,7 +34,7 @@ class Msf::Post < Msf::Module
       raise Msf::MissingActionError, "Please use: #{m.actions.collect {|e| e.name} * ", "}"
     end
 
-    # PostMixin
+    # Msf::Module(Msf::PostMixin)#setup
     super
   end
 
