@@ -248,8 +248,8 @@ protected
       session.bootstrap(datastore, self)
     else
       # Process the auto-run scripts for this session
-      if self.respond_to?(:process_autoruns)
-        self.process_autoruns(datastore)
+      if session.respond_to?(:process_autoruns)
+        session.process_autoruns(datastore)
       end
       on_session(session)
     end
