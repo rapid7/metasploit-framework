@@ -10,7 +10,6 @@ module RemoteSessionDataService
       opts[:host] = opts[:host].address
     end
 
-    #TODO: Fix
     opts[:time_stamp] = Time.now.utc
     self.post_data_async(SESSION_API_PATH, opts)
   end
@@ -43,7 +42,7 @@ module RemoteSessionDataService
   def parse_session_data(msf_session)
     hash = Hash.new()
     # TODO: what to do with this shiz
-    # hash[:datastore] = msf_session.exploit_datastore.to_h
+    hash[:datastore] = msf_session.exploit_datastore.to_h
     hash[:desc] = msf_session.info
     hash[:local_id] = msf_session.sid
     hash[:platform] = msf_session.session_type

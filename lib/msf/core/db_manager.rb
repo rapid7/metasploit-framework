@@ -131,9 +131,7 @@ class Msf::DBManager
       return
     end
 
-    init_success = initialize_database_support
-
-    return init_success
+    return initialize_database_support
   end
 
   #

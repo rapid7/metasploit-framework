@@ -23,7 +23,6 @@ group :development do
   # module documentation
   gem 'octokit'
   # Metasploit::Aggregator external session proxy
-
   # Disabled for now for crypttlv updates
   # gem 'metasploit-aggregator'
 end

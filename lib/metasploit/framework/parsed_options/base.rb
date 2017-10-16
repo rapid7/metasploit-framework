@@ -137,7 +137,7 @@ class Metasploit::Framework::ParsedOptions::Base
         options.database.config = path
       end
 
-      option_parser.on('-dbrp', 'Run database as a remote process') do
+      option_parser.on('-dbrp', 'Run database as a separate local process') do
         options.database.remote_process = true
       end
 
