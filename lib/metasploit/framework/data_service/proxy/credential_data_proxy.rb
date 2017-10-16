@@ -12,11 +12,10 @@ module CredentialDataProxy
     end
   end
 
-  def credentials(opts = {})
+  def creds(opts = {})
     begin
       data_service = self.get_data_service
-      opts[:wspace] = wspace
-      data_service.loot(opts)
+      data_service.creds(opts)
     rescue Exception => e
       puts "Call to #{data_service.class}#credentials threw exception: #{e.message}"
       e.backtrace.each { |line| puts "#{line}\n" }

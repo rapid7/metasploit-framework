@@ -5,8 +5,8 @@ module CredentialServlet
   end
 
   def self.registered(app)
-    app.get LootServlet.api_path, &get_credentials
-    app.post LootServlet.api_path, &create_credential
+    app.get CredentialServlet.api_path, &get_credentials
+    app.post CredentialServlet.api_path, &create_credential
   end
 
   #######
@@ -17,8 +17,16 @@ module CredentialServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db().credentials(opts)
-        set_json_response(data)
+        data = get_db().creds(opts)
+        includes = [:logins, :public, :private, :origin, :realm]
+        # Need to append the human attribute into the private sub-object before converting to json
+        # This is normally pulled from a class method from the MetasploitCredential class
+        response = []
+        data.each do |cred|
+          json = cred.as_json(include: includes).merge('human' => cred.private.class.model_name.human)
+          response << json
+        end
+        set_json_response(response)
       rescue Exception => e
         set_error_on_response(e)
       end
@@ -27,7 +35,7 @@ module CredentialServlet
 
   def self.create_credential
     lambda {
-      job = lambda { |opts| get_db().report_credential(opts) }
+      job = lambda { |opts| get_db().report_cred(opts) }
       exec_report_job(request, &job)
     }
   end

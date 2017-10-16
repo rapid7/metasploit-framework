@@ -5,7 +5,7 @@ module RemoteCredentialDataService
 
   CREDENTIAL_PATH = '/api/1/msf/credential'
 
-  def credential(opts = {})
+  def creds(opts = {})
     json_to_open_struct_object(self.get_data(CREDENTIAL_PATH, opts), [])
   end
 
