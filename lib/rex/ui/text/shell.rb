@@ -42,7 +42,7 @@ module Shell
     # Set the stop flag to false
     self.stop_flag      = false
     self.disable_output = false
-    self.stop_count	    = 0
+    self.stop_count     = 0
 
     # Initialize the prompt
     self.init_prompt = prompt
@@ -132,9 +132,10 @@ module Shell
         if framework
           if input.prompt.include?("%T")
             t = Time.now
-            if framework.datastore['PromptTimeFormat']
-              t = t.strftime(framework.datastore['PromptTimeFormat'])
-            end
+            # This %T is the strftime shorthand for %H:%M:%S
+            format = framework.datastore['PromptTimeFormat'] || "%T"
+            t = t.strftime(format)
+            # This %T is the marker in the prompt where we need to place the time
             input.prompt.gsub!(/%T/, t.to_s)
           end
 
