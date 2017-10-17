@@ -51,7 +51,6 @@ module MetasploitModule
 
    # base64
    cmd = "exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))"
-   
    cmd
  end
 end
