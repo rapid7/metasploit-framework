@@ -1,4 +1,4 @@
-Port of a brute force utility by LegacySecurityGroup, the original can be found
+Port of a brute force utility by Corey Harding of LegacySecurityGroup.com, the original can be found
 [here](https://github.com/exploitagency/github-rfpwnon/blob/master/rfpwnon.py).
 It's a generic AM/OOK brute forcer with PWM translations.  It has been
 demonstrated to work against static key garage door openers.

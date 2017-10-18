@@ -148,7 +148,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "Usage: loot <options>",
           " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
-          "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]",
+          "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]",
           "  Del: loot -d [addr1 addr2 ...]",
           "  -a,--add          Add loot to the list of addresses, instead of listing",
           "  -d,--delete       Delete *all* loot matching host and type",

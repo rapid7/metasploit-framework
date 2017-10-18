@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -17,7 +17,6 @@ require 'zip'
 # Project
 #
 require 'msf/core/auxiliary/report'
-
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -45,5 +45,4 @@ module MetasploitModule
       Rex::Arch::X86.call(cmd.length + 1) + cmd + "\x00"     +
       "\x57\x53\x89\xe1\xcd\x80"
   end
-
 end

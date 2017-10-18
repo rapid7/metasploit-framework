@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -150,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
           :exploited_at => Time.now.utc
         )
       else
-        print_error("#{ip}: File doesn't seem to exist. The upload probably failed.")
+        print_error("#{ip}: File doesn't seem to exist. The upload probably failed")
       end
 
     when 'DELETE'
@@ -186,5 +185,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

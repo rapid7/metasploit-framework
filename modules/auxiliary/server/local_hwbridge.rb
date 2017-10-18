@@ -1,6 +1,6 @@
 ##
 #
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 # TODO: SSL Support, Authentication, Listen to localhost only by default
@@ -8,11 +8,10 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
-  HWBRIDGE_API_VERSION = "0.0.1"
+  HWBRIDGE_API_VERSION = "0.0.4"
 
   def initialize(info = {})
     super(update_info(info,
@@ -171,13 +170,24 @@ class MetasploitModule < Msf::Auxiliary
   # srcid = hex id of the sent packet
   # dstid = hex id of the return packets
   # data = string of hex bytes to send
-  # timeout = optional int to timeout on lack of response
-  # maxpkts = max number of packets to recieve
-  def isotp_send_and_wait(bus, srcid, dstid, data, timeout = 2000, maxpkts = 3)
+  # OPT = Options
+  #    timeout = optional int to timeout on lack of response
+  #    maxpkts = max number of packets to recieve
+  #    padding = append bytes to end of packet (Doesn't increase reported ISO-TP size)
+  #    fc = flow control, if true forces flow control packets
+  def isotp_send_and_wait(bus, srcid, dstid, data, opt = {})
     result = {}
     result["Success"] = false
     srcid = srcid.to_i(16).to_s(16)
     dstid = dstid.to_i(16).to_s(16)
+    timeout = 2000
+    maxpkts = 3
+    flowcontrol = nil
+    padding = nil
+    timeout = opt['TIMEOUT'] if opt.key? 'TIMEOUT'
+    maxpkts = opt['MAXPKTS'] if opt.key? 'MAXPKTS'
+    padding = opt['PADDING'] if opt.key? 'PADDING'
+    flowcontrol = opt['FC'] if opt.key? 'FC'
     bytes = data.scan(/../)
     if bytes.size > 8
       print_error("Data section currently has to be less than 8 bytes")
@@ -185,6 +195,10 @@ class MetasploitModule < Msf::Auxiliary
     else
       sz = "%02x" % bytes.size
       bytes = sz + bytes.join
+    end
+    if padding && bytes.size < 16 # 16 == 8 bytes because of ascii size
+      padding = "%02x" % padding.to_i
+      bytes += ([ padding ] * (16 - bytes.size)).join
     end
     # Should we ever require isotpsend for this?
     `which cansend`
@@ -194,15 +208,43 @@ class MetasploitModule < Msf::Auxiliary
     end
     @can_interfaces.each do |can|
       if can == bus
-        candump(bus, dstid, timeout, maxpkts)
-        system("cansend #{bus} #{srcid}##{bytes}")
-        @packets_sent += 1
-        @last_sent = Time.now.to_i
-        result["Success"] = true if $?.success?
-        result["Packets"] = []
-        $candump_sniffer.join
-        unless @pkt_response.empty?
-          result = @pkt_response
+        if flowcontrol
+          candump(bus, dstid, timeout, 1)
+          system("cansend #{bus} #{srcid}##{bytes}")
+          @packets_sent += 1
+          @last_sent = Time.now.to_i
+          result["Success"] = true if $?.success?
+          result["Packets"] = []
+          $candump_sniffer.join
+          unless @pkt_response.empty?
+            result = @pkt_response
+            if result.key?("Packets") && result["Packets"].size > 0 && result["Packets"][0].key?("DATA")
+              if result["Packets"][0]["DATA"][0] == "10"
+                system("cansend #{bus} #{srcid}#3000000000000000")
+                candump(bus, dstid, timeout, maxpkts)
+                @packets_sent += 1
+                @last_sent = Time.now.to_i
+                $candump_sniffer.join
+                unless @pkt_response.empty?
+                  if @pkt_response.key?("Packets") && @pkt_response["Packets"].size > 0
+                    result["Packets"] += @pkt_response["Packets"]
+                  end
+                end
+              end
+            end
+          end
+
+        else
+          candump(bus, dstid, timeout, maxpkts)
+          system("cansend #{bus} #{srcid}##{bytes}")
+          @packets_sent += 1
+          @last_sent = Time.now.to_i
+          result["Success"] = true if $?.success?
+          result["Packets"] = []
+          $candump_sniffer.join
+          unless @pkt_response.empty?
+            result = @pkt_response
+          end
         end
       end
     end
@@ -253,11 +295,12 @@ class MetasploitModule < Msf::Auxiliary
       elsif request.uri =~ /automotive\/(\w+)\/isotpsend_and_wait\?srcid=(\w+)&dstid=(\w+)&data=(\w+)/
         bus = $1; srcid = $2; dstid = $3; data = $4
         print_status("Request to send ISO-TP packet and wait for response  #{srcid}##{data} => #{dstid}") if datastore['VERBOSE']
-        timeout = 1500
-        maxpkts = 3
-        timeout = $1 if request.uri =~ /&timeout=(\d+)/
-        maxpkts = $1 if request.uri =~ /&maxpkts=(\d+)/
-        send_response_html(cli, isotp_send_and_wait(bus, srcid, dstid, data, timeout, maxpkts).to_json(),  { 'Content-Type' => 'application/json' })
+        opt = {}
+        opt['TIMEOUT'] = $1 if request.uri =~ /&timeout=(\d+)/
+        opt['MAXPKTS'] = $1 if request.uri =~ /&maxpkts=(\d+)/
+        opt['PADDING'] = $1 if request.uri =~ /&padding=(\d+)/
+        opt['FC'] = true if request.uri =~ /&fc=true/i
+        send_response_html(cli, isotp_send_and_wait(bus, srcid, dstid, data, opt).to_json(),  { 'Content-Type' => 'application/json' })
       else
         send_response_html(cli, not_supported().to_json(), { 'Content-Type' => 'application/json' })
       end
@@ -271,5 +314,4 @@ class MetasploitModule < Msf::Auxiliary
     @server_started = Time.now
     exploit
   end
-
 end

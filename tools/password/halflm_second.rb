@@ -39,7 +39,6 @@ $args = Rex::Parser::Arguments.new(
   "-s" => [ true,  "The server challenge (default value 1122334455667788)"            ],
   "-h" => [ false, "Display this help information"                                      ])
 
-
 $args.parse(ARGV) { |opt, idx, val|
   case opt
     when "-n"
@@ -81,8 +80,6 @@ if(pass.length != 7)
   exit
 end
 
-
-
 pass = pass.upcase
 hash = hash.downcase
 
@@ -122,7 +119,6 @@ puts "[*] Trying three characters (eta: #{etime * cset.length * cset.length} sec
 end
 end
 end
-
 
 puts "[*] Trying four characters (eta: #{etime * cset.length * cset.length * cset.length} seconds)..."
 0.upto(cset.length-1) do |c1|

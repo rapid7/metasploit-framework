@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -17,14 +17,13 @@ require 'pathname'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
       'Name'			=> 'Metasploit Web Crawler',
-      'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjuntion with wmap (someday) or standalone.',
+      'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjunction with wmap (someday) or standalone.',
       'Author'			=> 'et',
       'License'			=> MSF_LICENSE
     ))
@@ -404,7 +403,6 @@ class MetasploitModule < Msf::Auxiliary
   def hashsig(hashreq)
     hashreq.to_s
   end
-
 end
 
 class BaseParser

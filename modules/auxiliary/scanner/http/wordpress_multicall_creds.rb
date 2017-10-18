@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/wordpress_multicall'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -69,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_setup
     version = wordpress_version
-    vprint_status("Found Wordpress version: #{version}")
+    vprint_good("Found Wordpress version: #{version}")
 
     if !wordpress_and_online?
       print_error("#{peer}:#{rport}#{target_uri} does not appear to be running Wordpress or you got blocked! (Do Manual Check)")
@@ -134,5 +133,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

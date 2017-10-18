@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(target_host)
-    print_status("Trying ip #{target_host}")
+    print_status("Trying #{target_host}")
     if wordpress_and_online?
       version = wordpress_version
       version_string = version ? version : '(no version detected)'

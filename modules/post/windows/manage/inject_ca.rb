@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -89,11 +89,10 @@ class MetasploitModule < Msf::Post
     rescue
       open_key = nil
       open_key = client.sys.registry.create_key(root_key, base_key, KEY_WRITE + 0x0000)
-      print_status("Successfully created key: #{entire_key}")
+      print_good("Successfully created key: #{entire_key}")
 
       open_key.set_value('Blob', REG_BINARY, blob)
       print_good("CA inserted!")
     end
   end
-
 end

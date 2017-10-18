@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -74,8 +74,8 @@ class MetasploitModule < Msf::Post
   end
 
   def init_railgun_defs
-    unless session.railgun.dlls.has_key?('libgnome_keyring')
-      session.railgun.add_dll('libgnome_keyring', 'libgnome-keyring.so.0')
+    unless session.railgun.libraries.has_key?('libgnome_keyring')
+      session.railgun.add_library('libgnome_keyring', 'libgnome-keyring.so.0')
     end
     session.railgun.add_function(
       'libgnome_keyring',

@@ -1,6 +1,5 @@
-# encoding: binary
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -68,7 +67,7 @@ class MetasploitModule < Msf::Post
     user_dirs = enum_user_directories
     if user_dirs.empty?
       print_error('No user directories found')
-      return
+      return creds
     end
 
     vprint_status("Searching for Remmina creds in #{user_dirs.size} user directories")
@@ -182,5 +181,4 @@ class MetasploitModule < Msf::Post
 
     create_credential(credential_data)
   end
-
 end

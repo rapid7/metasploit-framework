@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
 
-        print_status("SSH server version: #{ident}#{info}")
+        print_good("SSH server version: #{ident}#{info}")
         report_service(host: rhost, port: rport, name: 'ssh', proto: 'tcp', info: ident)
       end
     rescue Timeout::Error

@@ -1,8 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_x86_win'
@@ -33,5 +32,4 @@ module MetasploitModule
         }
       ))
   end
-
 end

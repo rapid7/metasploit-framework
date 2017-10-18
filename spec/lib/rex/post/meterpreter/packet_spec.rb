@@ -462,7 +462,8 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
       rid = packet.rid
       meth = packet.method
       raw = packet.to_r
-      packet.from_r(raw)
+      packet.add_raw(raw)
+      packet.from_r
       expect(packet.rid).to eq rid
       expect(packet.method).to eq meth
     end

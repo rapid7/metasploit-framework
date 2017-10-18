@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
 
@@ -375,13 +374,13 @@ class MetasploitModule < Msf::Post
       if lsa_vista_style?
         print_status("Hash are in MSCACHE_VISTA format. (mscash2)")
         p = store_loot("mscache2.creds", "text/csv", session, @credentials.to_csv, "mscache2_credentials.txt", "MSCACHE v2 Credentials")
-        print_status("MSCACHE v2 saved in: #{p}")
+        print_good("MSCACHE v2 saved in: #{p}")
 
         john = "# mscash2\n" + john
       else
         print_status("Hash are in MSCACHE format. (mscash)")
         p = store_loot("mscache.creds", "text/csv", session, @credentials.to_csv, "mscache_credentials.txt", "MSCACHE v1 Credentials")
-        print_status("MSCACHE v1 saved in: #{p}")
+        print_good("MSCACHE v1 saved in: #{p}")
         john = "# mscash\n" + john
       end
 

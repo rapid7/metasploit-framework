@@ -53,7 +53,7 @@ private
 
     # if no session guid is given then we'll just pass the blank
     # guid through. this is important for stageless payloads
-    if opts[:stageless] == true
+    if opts[:stageless] == true || opts[:null_session_guid] == true
       session_guid = "\x00" * 16
     else
       session_guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
@@ -67,7 +67,7 @@ private
       session_guid        # the Session GUID
     ]
 
-    session_data.pack('VVVA*A*')
+    session_data.pack('QVVA*A*')
   end
 
   def transport_block(opts)
@@ -78,7 +78,8 @@ private
       lhost = "[#{lhost}]"
     end
 
-    url = "#{opts[:scheme]}://#{lhost}:#{opts[:lport]}"
+    url = "#{opts[:scheme]}://#{lhost}"
+    url << ":#{opts[:lport]}" if opts[:lport]
     url << "#{opts[:uri]}/" if opts[:uri]
     url << "?#{opts[:scope_id]}" if opts[:scope_id]
 

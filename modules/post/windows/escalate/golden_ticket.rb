@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'msf/core/post/windows/netapi'
 require 'msf/core/post/windows/kiwi'
 require 'msf/core/post/windows/error'

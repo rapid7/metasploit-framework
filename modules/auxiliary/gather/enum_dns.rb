@@ -1,6 +1,5 @@
-
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q(
         This module can be used to gather information about a domain from a
         given DNS server by performing various DNS queries such as zone
-        transfers, reverse lookups, SRV record bruteforcing, and other techniques.
+        transfers, reverse lookups, SRV record brute forcing, and other techniques.
     ),
       'Author'         => [
         'Carlos Perez <carlos_perez[at]darkoperator.com>',

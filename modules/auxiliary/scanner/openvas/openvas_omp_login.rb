@@ -1,32 +1,27 @@
-# This module requires Metasploit: http://metasploit.com/download
+##
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
   def initialize
-  super(
-    'Name'        => 'OpenVAS OMP Login Utility',
-    'Description' => 'This module attempts to authenticate to an OpenVAS OMP service.',
-    'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-    'License'        => MSF_LICENSE
-  )
-  register_options(
-    [
-      Opt::RPORT(9390),
-      OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
-    ])
-
-  register_advanced_options(
-  [
-    OptBool.new('SSL', [ true, "Negotiate SSL for outgoing connections", true]),
-    OptString.new('SSLVersion', [ true, " Specify the version of SSL that should be used", "TLS1"])
-  ])
+    super(
+      'Name'        => 'OpenVAS OMP Login Utility',
+      'Description' => 'This module attempts to authenticate to an OpenVAS OMP service.',
+      'Author'      => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License'     => MSF_LICENSE
+    )
+    register_options(
+      [
+        Opt::RPORT(9390),
+        OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false])
+      ]
+    )
   end
 
   def run_host(ip)

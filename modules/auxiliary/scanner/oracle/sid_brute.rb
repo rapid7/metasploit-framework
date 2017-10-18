@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TNS
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -14,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle TNS Listener SID Bruteforce',
       'Description'    => %q{
-        This module queries the TNS listner for a valid Oracle database
+        This module queries the TNS listener for a valid Oracle database
         instance name (also known as a SID).
         Any response other than a "reject" will be considered a success.
         If a specific SID is provided, that SID will be attempted. Otherwise,

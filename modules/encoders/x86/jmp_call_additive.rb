@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
 
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
@@ -44,5 +42,4 @@ class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
   def encode_end(state)
     state.encoded += [ state.key ].pack(state.decoder_key_pack)
   end
-
 end

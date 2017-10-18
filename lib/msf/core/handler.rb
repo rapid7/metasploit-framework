@@ -244,11 +244,14 @@ protected
     framework.sessions.register(session)
 
     # Call the handler's on_session() method
-    on_session(session)
-
-    # Process the auto-run scripts for this session
-    if session.respond_to?('process_autoruns')
-      session.process_autoruns(datastore)
+    if session.respond_to?(:bootstrap)
+      session.bootstrap(datastore, self)
+    else
+      # Process the auto-run scripts for this session
+      if session.respond_to?(:process_autoruns)
+        session.process_autoruns(datastore)
+      end
+      on_session(session)
     end
 
     # If there is an exploit associated with this payload, then let's notify

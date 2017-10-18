@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -195,9 +195,9 @@ class MetasploitModule < Msf::Post
     vprint_status("[#{num}:WINAPI] Connecting to #{remote}:#{proto}/#{dport}")
     r = winapi_make_connection(remote, dport, socket_handle['return'], proto)
     if r['GetLastError'] == 0
-      vprint_status("[#{num}:WINAPI] Connection packet sent successfully #{proto}/#{dport}")
+      vprint_good("[#{num}:WINAPI] Connection packet sent successfully #{proto}/#{dport}")
     else
-      vprint_status("[#{num}:WINAPI] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
+      vprint_bad("[#{num}:WINAPI] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
     end
 
     client.railgun.ws2_32.closesocket(socket_handle['return'])

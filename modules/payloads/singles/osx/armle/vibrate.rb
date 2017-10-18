@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
 
 module MetasploitModule
 
@@ -33,5 +31,4 @@ module MetasploitModule
       0x03ea4444  #  Parameter: 0x03ea
     ].pack("V*")
   end
-
 end

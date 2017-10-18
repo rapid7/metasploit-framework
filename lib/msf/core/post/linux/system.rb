@@ -86,12 +86,18 @@ module System
       version = read_file("/etc/gentoo-release").gsub(/\n|\\n|\\l/,'')
       system_data[:distro] = "gentoo"
       system_data[:version] = version
-    else
 
-      # Others
+    # Generic
+    elsif etc_files.include?("issue")
       version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
       system_data[:distro] = "linux"
       system_data[:version] = version
+
+    # Others, could be a mismatch like ssh_login to cisco device
+    else
+      system_data[:distro] = "linux"
+      system_data[:version] = ''
+
     end
     return system_data
   end

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -79,7 +79,6 @@ class CPassword
   end
 end
 
-
 #
 # Shows script usage
 #
@@ -88,14 +87,12 @@ def usage
   exit
 end
 
-
 #
 # Prints a status message
 #
 def print_status(msg='')
   $stderr.puts "[*] #{msg}"
 end
-
 
 #
 # Prints an error message
@@ -104,14 +101,12 @@ def print_error(msg='')
   $stderr.puts "[-] #{msg}"
 end
 
-
 #
 # Prints a good message
 #
 def print_good(msg='')
   $stderr.puts "[+] #{msg}"
 end
-
 
 #
 # main

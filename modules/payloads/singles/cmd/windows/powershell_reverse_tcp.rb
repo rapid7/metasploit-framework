@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/core/handler/reverse_tcp_ssl'
 
 module MetasploitModule
 
-  CachedSize = 1526
+  CachedSize = 1509
 
   include Msf::Payload::Single
   include Rex::Powershell::Command
@@ -50,5 +50,4 @@ module MetasploitModule
   def generate
     generate_powershell_code("Reverse")
   end
-
 end

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,7 +14,6 @@
 
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
 
@@ -194,5 +193,4 @@ class BaseProtocolParser
     return "%s:%d-%s:%d" % [pkt.ip_saddr,pkt.udp_sport,pkt.ip_daddr,pkt.udp_dport] if pkt.is_udp?
     return "%s:%d-%s:%d" % [pkt.ip_saddr,0,pkt.ip_daddr,0]
   end
-
 end

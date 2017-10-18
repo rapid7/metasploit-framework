@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_helper'
 
 module Rex
 module Post
@@ -14,7 +14,7 @@ module Railgun
 class  Util
 
   # Bring in some useful string manipulation utility functions
-  include DLLHelper
+  include LibraryHelper
 
   # Data type size info: http://msdn.microsoft.com/en-us/library/s3f49ktz(v=vs.80).aspx
   PRIMITIVE_TYPE_SIZES = {

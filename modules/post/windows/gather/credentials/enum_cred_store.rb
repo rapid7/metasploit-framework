@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -280,7 +280,7 @@ class MetasploitModule < Msf::Post
         creds,
         'credstore_user_creds.txt',
         'Microsoft Credential Store Contents')
-      print_status("Data saved in: #{path}")
+      print_good("Data saved in: #{path}")
     end
   end
 end

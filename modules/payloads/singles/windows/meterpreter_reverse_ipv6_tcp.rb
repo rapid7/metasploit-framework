@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,7 +12,7 @@ require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
-  CachedSize = 956991
+  CachedSize = 179267
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -66,6 +66,5 @@ module MetasploitModule
     # return the binary version of it
     config.to_b
   end
-
 end
 

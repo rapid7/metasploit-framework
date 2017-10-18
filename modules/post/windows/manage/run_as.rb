@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
         This module will login with the specified username/password and execute the
         supplied command as a hidden process. Output is not returned by default, by setting
         CMDOUT to false output will be redirected to a temp file and read back in to
-        display.By setting advanced option SETPASS to true, it will reset the users
+        display. By setting advanced option SETPASS to true, it will reset the users
         password and then execute the command.
                             ),
       'License'              => MSF_LICENSE,

@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'nokogiri'
 
 class MetasploitModule < Msf::Post
@@ -35,7 +40,7 @@ class MetasploitModule < Msf::Post
       credential_core = create_credential(credential_data)
 
       if not port.is_a? Integer
-        print_status('Failed to detect port, defaulting to 8080 for creds database')
+        print_error('Failed to detect port, defaulting to 8080 for creds database')
         port = 8080
       end
 

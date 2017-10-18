@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         'Name'          => 'Multi Gather DNS Service Record Lookup Scan',
         'Description'   => %q{
-          Enumerates know SRV Records for a given domaon using target host DNS query tool.
+          Enumerates known SRV Records for a given domain using target host DNS query tool.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
 
-        OptString.new('DOMAIN', [true, 'Domain ro perform SRV query against.'])
+        OptString.new('DOMAIN', [true, 'Domain to perform SRV query against.'])
 
       ])
   end

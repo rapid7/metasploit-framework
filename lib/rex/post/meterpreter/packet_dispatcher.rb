@@ -57,6 +57,11 @@ module PacketDispatcher
   # active migration. Unused if this is a passive dispatcher
   attr_accessor :comm_mutex
 
+  # The guid that identifies an active Meterpreter session
+  attr_accessor :session_guid
+
+  # This contains the key material used for TLV encryption
+  attr_accessor :tlv_enc_key
 
   # Passive Dispatching
   #
@@ -71,10 +76,10 @@ module PacketDispatcher
   attr_accessor :recv_queue
 
   def initialize_passive_dispatcher
-    self.send_queue = []
-    self.recv_queue = []
-    self.waiters    = []
-    self.alive      = true
+    self.send_queue   = []
+    self.recv_queue   = []
+    self.waiters      = []
+    self.alive        = true
 
     # Ensure that there is only one leading and trailing slash on the URI
     resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
@@ -131,7 +136,8 @@ module PacketDispatcher
       resp.body = ""
       if req.body and req.body.length > 0
         packet = Packet.new(0)
-        packet.from_r(req.body)
+        packet.add_raw(req.body)
+        packet.parse_header!
         dispatch_inbound_packet(packet)
       end
       cli.send_response(resp)
@@ -151,13 +157,28 @@ module PacketDispatcher
   #
   # Sends a packet without waiting for a response.
   #
-  def send_packet(packet, completion_routine = nil, completion_param = nil)
-    if (completion_routine)
-      add_response_waiter(packet, completion_routine, completion_param)
+  def send_packet(packet, opts={})
+    if self.pivot_session
+      opts[:session_guid] = self.session_guid
+      opts[:tlv_enc_key] = self.tlv_enc_key
+      return self.pivot_session.send_packet(packet, opts)
+    end
+
+    if opts[:completion_routine]
+      add_response_waiter(packet, opts[:completion_routine], opts[:completion_param])
+    end
+
+    session_guid = self.session_guid
+    tlv_enc_key = self.tlv_enc_key
+
+    # if a session guid is provided, use all the details provided
+    if opts[:session_guid]
+      session_guid = opts[:session_guid]
+      tlv_enc_key = opts[:tlv_enc_key]
     end
 
     bytes = 0
-    raw   = packet.to_r
+    raw   = packet.to_r(session_guid, tlv_enc_key)
     err   = nil
 
     # Short-circuit send when using a passive dispatcher
@@ -166,8 +187,7 @@ module PacketDispatcher
       return raw.size # Lie!
     end
 
-    if (raw)
-
+    if raw
       self.comm_mutex.synchronize do
         begin
           bytes = self.sock.write(raw)
@@ -284,6 +304,24 @@ module PacketDispatcher
   # Reception
   #
   ##
+
+  def pivot_keepalive_start
+    return unless self.send_keepalives
+    self.receiver_thread = Rex::ThreadFactory.spawn("PivotKeepalive", false) do
+      while self.alive
+        begin
+          Rex::sleep(PING_TIME)
+          keepalive
+        rescue ::Exception => e
+          dlog("Exception caught in pivot keepalive: #{e.class}: #{e}", 'meterpreter', LEV_1)
+          dlog("Call stack: #{e.backtrace.join("\n")}", 'meterpreter', LEV_2)
+          self.alive = false
+          break
+        end
+      end
+    end
+  end
+
   #
   # Monitors the PacketDispatcher's sock for data in its own
   # thread context and parsers all inbound packets.
@@ -292,6 +330,9 @@ module PacketDispatcher
 
     # Skip if we are using a passive dispatcher
     return if self.passive_service
+
+    # redirect to pivot keepalive if we're a pivot session
+    return pivot_keepalive_start if self.pivot_session
 
     self.comm_mutex = ::Mutex.new
 
@@ -365,7 +406,7 @@ module PacketDispatcher
         backlog.each do |pkt|
 
           begin
-          if ! dispatch_inbound_packet(pkt)
+          unless dispatch_inbound_packet(pkt)
             # Keep Packets in the receive queue until a handler is registered
             # for them. Packets will live in the receive queue for up to
             # PACKET_TIMEOUT seconds, after which they will be dropped.
@@ -420,19 +461,26 @@ module PacketDispatcher
   # once a full packet has been received.
   #
   def receive_packet
-    return parser.recv(self.sock)
+    packet = parser.recv(self.sock)
+    if packet
+      packet.parse_header!
+      if self.session_guid == NULL_GUID
+        self.session_guid = packet.session_guid.dup
+      end
+    end
+    packet
   end
 
   #
   # Stop the monitor
   #
   def monitor_stop
-    if(self.receiver_thread)
+    if self.receiver_thread
       self.receiver_thread.kill
       self.receiver_thread = nil
     end
 
-    if(self.dispatcher_thread)
+    if self.dispatcher_thread
       self.dispatcher_thread.kill
       self.dispatcher_thread = nil
     end
@@ -448,6 +496,10 @@ module PacketDispatcher
   # Adds a waiter association with the supplied request packet.
   #
   def add_response_waiter(request, completion_routine = nil, completion_param = nil)
+    if self.pivot_session
+      return self.pivot_session.add_response_waiter(request, completion_routine, completion_param)
+    end
+
     waiter = PacketResponseWaiter.new(request.rid, completion_routine, completion_param)
 
     self.waiters << waiter
@@ -460,6 +512,10 @@ module PacketDispatcher
   # if anyone.
   #
   def notify_response_waiter(response)
+    if self.pivot_session
+      return self.pivot_session.notify_response_waiter(response)
+    end
+
     handled = false
     self.waiters.each() { |waiter|
       if (waiter.waiting_for?(response))
@@ -476,7 +532,11 @@ module PacketDispatcher
   # Removes a waiter from the list of waiters.
   #
   def remove_response_waiter(waiter)
-    self.waiters.delete(waiter)
+    if self.pivot_session
+      self.pivot_session.remove_response_waiter(waiter)
+    else
+      self.waiters.delete(waiter)
+    end
   end
 
   ##
@@ -501,15 +561,21 @@ module PacketDispatcher
   def dispatch_inbound_packet(packet)
     handled = false
 
+    pivot_session = self.find_pivot_session(packet.session_guid)
+
+    tlv_enc_key = self.tlv_enc_key
+    tlv_enc_key = pivot_session.pivoted_session.tlv_enc_key if pivot_session
+
+    packet.from_r(tlv_enc_key)
+
     # Update our last reply time
     self.last_checkin = Time.now
+    pivot_session.pivoted_session.last_checkin = self.last_checkin if pivot_session
 
     # If the packet is a response, try to notify any potential
     # waiters
-    if packet.response?
-      if (notify_response_waiter(packet))
-        return true
-      end
+    if packet.response? && notify_response_waiter(packet)
+      return true
     end
 
     # Enumerate all of the inbound packet handlers until one handles

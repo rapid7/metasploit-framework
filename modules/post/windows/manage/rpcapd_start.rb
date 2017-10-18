@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Services
@@ -87,7 +86,7 @@ class MetasploitModule < Msf::Post
   end
 
   def fw_enable(prog)
-    print_status ("Enabling rpcapd.exe in Windows Firewall")
+    print_status("Enabling rpcapd.exe in Windows Firewall")
     begin
       if file_exist?(prog)
         cmd_exec("netsh","firewall add allowedprogram \"#{prog}\" \"Windows Service\" ENABLE ",30)

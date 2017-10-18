@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/core/handler/bind_tcp'
 
 module MetasploitModule
 
-  CachedSize = 1518
+  CachedSize = 1501
 
   include Msf::Payload::Single
   include Rex::Powershell::Command
@@ -43,5 +43,4 @@ module MetasploitModule
   def generate
     generate_powershell_code("Bind")
   end
-
 end

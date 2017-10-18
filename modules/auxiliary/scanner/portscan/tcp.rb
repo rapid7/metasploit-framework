@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
 
   include Msf::Auxiliary::Report
@@ -79,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
               }
             )
             if s
-              print_status("#{ip}:#{port} - TCP OPEN")
+              print_good("#{ip}:#{port} - TCP OPEN")
               r << [ip,port,"open"]
             end
           rescue ::Rex::ConnectionRefused
@@ -109,5 +107,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

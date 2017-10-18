@@ -353,6 +353,14 @@ class Msf::Module::Platform
   end
 
   #
+  # R
+  #
+  class R < Msf::Module::Platform
+    Rank = 100
+    Alias = "r"
+  end
+
+  #
   # Ruby
   #
   class Ruby < Msf::Module::Platform

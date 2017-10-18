@@ -13,18 +13,20 @@ end
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'metasploit/framework/version'
 require 'metasploit/framework/rails_version_constraint'
+require 'msf/util/helper'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
   spec.version       = Metasploit::Framework::GEM_VERSION
   spec.authors       = ['Metasploit Hackers']
-  spec.email         = ['metasploit-hackers@lists.sourceforge.net']
+  spec.email         = ['msfdev@metasploit.com']
   spec.summary       = 'metasploit-framework'
   spec.description   = 'metasploit-framework'
   spec.homepage      = 'https://www.metasploit.com'
   spec.license       = 'BSD-3-clause'
 
-  if File.directory?(File.join(File.dirname(__FILE__), ".git"))
+  # only do a git ls-files if the .git folder exists and we have a git binary in PATH
+  if File.directory?(File.join(File.dirname(__FILE__), ".git")) && Msf::Util::Helper.which("git")
     spec.files         = `git ls-files`.split($/).reject { |file|
       file =~ /^documentation|^external/
     }
@@ -68,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.2.37'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.3.9'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.1.10'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.2.2'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -112,10 +114,19 @@ Gem::Specification.new do |spec|
   end
 
   #
+  # File Parsing Libraries
+  #
+  # Needed by auxiliary/gather/http_pdf_authors module
+  spec.add_runtime_dependency 'pdf-reader'
+
+  #
   # Protocol Libraries
   #
   spec.add_runtime_dependency 'dnsruby'
   spec.add_runtime_dependency 'net-ssh'
+  spec.add_runtime_dependency 'rbnacl', ['< 5.0.0']
+  spec.add_runtime_dependency 'rbnacl-libsodium'
+  spec.add_runtime_dependency 'bcrypt_pbkdf'
   spec.add_runtime_dependency 'ruby_smb'
 
   #
@@ -128,7 +139,7 @@ Gem::Specification.new do |spec|
   # Library for Generating Randomized strings valid as Identifiers such as variable names
   spec.add_runtime_dependency 'rex-random_identifier'
   # library for creating Powershell scripts for exploitation purposes
-  spec.add_runtime_dependency 'rex-powershell'
+  spec.add_runtime_dependency 'rex-powershell', ["< 0.1.73"]
   # Library for processing and creating Zip compatbile archives
   spec.add_runtime_dependency 'rex-zip'
   # Library for parsing offline Windows Registry files
@@ -160,8 +171,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-exploitation'
   # Command line editing, history, and tab completion in msfconsole
   spec.add_runtime_dependency 'rb-readline'
-  # Needed by anemone crawler
-  spec.add_runtime_dependency 'robots'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
   # Needed for some post modules

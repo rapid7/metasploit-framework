@@ -24,7 +24,15 @@ PIDs to ASCII.
 
   **CLEAR_DTCS***
 
-  If any Diagnostic Trouble Codes (DTCs) are present it will clear those and reset the MIL (Enginge Light)
+  If any Diagnostic Trouble Codes (DTCs) are present it will clear those and reset the MIL (Engine Light).
+
+  **PADDING**
+
+  Optional byte-value to use for padding all CAN bus packets to an 8-byte length.  Padding is disabled by default.
+
+  **FC**
+
+  Optional.  If true forces sending flow control packets on all multibyte ISO-TP requests
 
 ## Scenarios
 

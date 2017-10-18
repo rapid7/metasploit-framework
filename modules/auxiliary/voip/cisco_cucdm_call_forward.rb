@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -139,9 +138,8 @@ class MetasploitModule < Msf::Auxiliary
       if res && res.body && res.body && res.body.to_s =~ /CFA/
         print_good("Call forwarded successfully for #{fintnumber}")
       else
-        print_status("Call forward failed.")
+        print_error("Call forward failed")
       end
     end
   end
-
 end

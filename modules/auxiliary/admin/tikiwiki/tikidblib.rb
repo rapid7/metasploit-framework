@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -12,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'TikiWiki Information Disclosure',
       'Description'    => %q{
           A vulnerability has been reported in Tikiwiki, which can be exploited by
-        a anonymous user to dump the MySQL user & passwd just by creating a mysql
+        an anonymous user to dump the MySQL user & passwd just by creating a mysql
         error with the "sort_mode" var.
 
         The vulnerability was reported in Tikiwiki version 1.9.5.

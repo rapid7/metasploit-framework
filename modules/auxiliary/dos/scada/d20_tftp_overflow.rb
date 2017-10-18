@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -132,5 +132,4 @@ class MetasploitModule < Msf::Auxiliary
       "\x80\x80\x81\xFA\x80\x80\x81\xFB\x80\x80\x81\xFC\x80\x80\x81\xFD\x80\x80\x81\xFE" +
       "\x80\x80\x82\x80\x80\x80\x82\x81"
   end
-
 end

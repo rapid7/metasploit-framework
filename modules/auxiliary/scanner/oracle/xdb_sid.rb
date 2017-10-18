@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -13,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'Oracle XML DB SID Discovery',
       'Description' => %q{
-          This module simply makes a authenticated request to retrieve
+          This module simply makes an authenticated request to retrieve
           the sid from the Oracle XML DB httpd server.
       },
       'References'  =>

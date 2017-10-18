@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -166,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
       begin
         alert = sock.get_once(-1, 2)
       rescue EOFError
-        print_status("DoS successful. process on #{rhost} did not respond.")
+        print_good("DoS successful. process on #{rhost} did not respond.")
         success = true
         break
       end
@@ -176,7 +176,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if success == false
-      print_status("DoS unsuccessful.")
+      print_error("DoS unsuccessful.")
     end
   end
 

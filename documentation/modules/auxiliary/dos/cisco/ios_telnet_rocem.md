@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
   1. Obtain a Cisco switch of any model indicated here that is running vulnerable firmware: https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170317-cmp. Note that the vulnerability spans many years. We tested two firmwares 10 years apart and were able to verify exploitability.
-  2. Enable telnet access and verify that you can reach the swith normally via that mode.
+  2. Enable telnet access and verify that you can reach the switch normally via that mode.
 
 ## Verification Steps
 

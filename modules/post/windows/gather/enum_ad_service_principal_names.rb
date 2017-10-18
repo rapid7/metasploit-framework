@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
@@ -90,7 +89,7 @@ class MetasploitModule < Msf::Post
 
     print_line results_table.to_s
     stored_path = store_loot('ad.computers', 'text/plain', session, results_table.to_csv)
-    print_status("Results saved to: #{stored_path}")
+    print_good("Results saved to: #{stored_path}")
   end
 
   def parse_result(result, fields)
@@ -122,6 +121,5 @@ class MetasploitModule < Msf::Post
 
     rows
   end
-
 end
 

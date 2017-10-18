@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
@@ -16,7 +15,7 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{
         This module attempts to determine whether the system is running
         inside of a virtual environment and if so, which one. This
-        module supports detectoin of Hyper-V, VMWare, Virtual PC,
+        module supports detection of Hyper-V, VMWare, Virtual PC,
         VirtualBox, Xen, and QEMU.
       },
       'License'       => MSF_LICENSE,
@@ -71,7 +70,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "MS Hyper-V" },
         :update => :unique_data
         )
-      print_status("This is a Hyper-V Virtual Machine")
+      print_good("This is a Hyper-V Virtual Machine")
       return "MS Hyper-V"
     end
   end
@@ -121,7 +120,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "VMware" },
         :update => :unique_data
         )
-      print_status("This is a VMware Virtual Machine")
+      print_good("This is a VMware Virtual Machine")
       return "VMWare"
     end
   end
@@ -157,7 +156,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "VirtualPC" },
         :update => :unique_data
         )
-      print_status("This is a VirtualPC Virtual Machine")
+      print_good("This is a VirtualPC Virtual Machine")
       return "VirtualPC"
     end
   end
@@ -224,7 +223,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "VirtualBox" },
         :update => :unique_data
         )
-      print_status("This is a Sun VirtualBox Virtual Machine")
+      print_good("This is a Sun VirtualBox Virtual Machine")
       return "VirtualBox"
     end
   end
@@ -281,7 +280,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "Xen" },
         :update => :unique_data
         )
-      print_status("This is a Xen Virtual Machine")
+      print_good("This is a Xen Virtual Machine")
       return "Xen"
     end
   end
@@ -310,6 +309,7 @@ class MetasploitModule < Msf::Post
         :data   => { :hypervisor => "Qemu/KVM" },
         :update => :unique_data
         )
+      print_good("This is a Qemu/KVM Virtual Machine")
       return "Qemu/KVM"
     end
   end
@@ -324,10 +324,9 @@ class MetasploitModule < Msf::Post
     found ||= xenchk(session)
     found ||= qemuchk(session)
     if found
-      report_vm(found)
+      report_virtualization(found)
     else
       print_status("#{sysinfo['Computer']} appears to be a Physical Machine")
     end
   end
-
 end

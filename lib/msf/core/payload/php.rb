@@ -103,7 +103,7 @@ module Msf::Payload::Php
       }else"
     proc_open = "
       if(#{is_callable}('proc_open')and!#{in_array}('proc_open',#{dis})){
-        $handle=proc_open(#{cmd},array(array(pipe,'r'),array(pipe,'w'),array(pipe,'w')),$pipes);
+        $handle=proc_open(#{cmd},array(array('pipe','r'),array('pipe','w'),array('pipe','w')),$pipes);
         #{output}=NULL;
         while(!feof($pipes[1])){
           #{output}.=fread($pipes[1],1024);

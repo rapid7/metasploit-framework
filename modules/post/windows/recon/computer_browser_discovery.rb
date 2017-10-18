@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -15,7 +14,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network.
           LTYPE should be set to one of the following values: WK (all workstations), SVR (all servers),
           SQL (all SQL servers), DC (all Domain Controllers), DCBKUP (all Domain Backup Servers),
-          NOVELL (all Novell servers), PRINTSVR (all Print Que servers), MASTERBROWSER (all Master Browswers),
+          NOVELL (all Novell servers), PRINTSVR (all Print Que servers), MASTERBROWSER (all Master Browsers),
           WINDOWS (all Windows hosts), or UNIX (all Unix hosts).
           },
         'License'       => MSF_LICENSE,
@@ -101,7 +100,7 @@ class MetasploitModule < Msf::Post
       print_error("No systems found of that type")
       return
     end
-    print_status("Found #{result['totalentries']} systems.")
+    print_good("Found #{result['totalentries']} systems.")
 
     endofline = 0
     i = nameiterator

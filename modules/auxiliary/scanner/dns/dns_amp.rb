@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner
@@ -15,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'DNS Amplification Scanner',
       'Description' => %q{
           This module can be used to discover DNS servers which expose recursive
-          name lookups which can be used in an amplication attack against a
+          name lookups which can be used in an amplification attack against a
           third party.
       },
       'Author'      => [ 'xistence <xistence[at]0x90.nl>'], # Original scanner module

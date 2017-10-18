@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report
 
@@ -49,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # if a version was identified, then out and store to DB
     if ver
-      print_status("#{pkt[1]} - Found Jenkins Server #{ver} Version")
+      print_good("#{pkt[1]} - Found Jenkins Server #{ver} Version")
       report_host(
         host: pkt[1],
         info: "Jenkins v.#{ver} (port typically 8080)"

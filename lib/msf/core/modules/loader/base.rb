@@ -173,7 +173,8 @@ class Msf::Modules::Loader::Base
       true
     }
 
-    loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload, &try_eval_module)
+    loaded = namespace_module_transaction(type + "/" + module_reference_name,
+      :reload => reload, &try_eval_module)
     unless loaded
       return false
     end

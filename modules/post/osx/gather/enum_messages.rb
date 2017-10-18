@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
@@ -142,5 +141,4 @@ class MetasploitModule < Msf::Post
       print_good("#{peer} - #{e[:filename]} stored as: #{p}")
     end
   end
-
 end

@@ -12,20 +12,24 @@ addons:
 language: ruby
 rvm:
   - '2.2'
-  - '2.3.4'
-  - '2.4.1'
+  - '2.3.5'
+  - '2.4.2'
 
 env:
-# TODO: restore these tests when the code passes them!
-#  - CMD='bundle exec rake cucumber cucumber:boot CREATE_BINSTUBS=true'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
 
 matrix:
   fast_finish: true
+
+jobs:
+  # build docker image
   include:
-  - rvm: ruby-head
-    env: CMD="docker-compose -f $TRAVIS_BUILD_DIR/docker-compose.yml build"
+  - env: CMD="docker-compose -f $TRAVIS_BUILD_DIR/docker-compose.yml build" DOCKER="true"
+    # we do not need any setup
+    before_install: skip
+    install: skip
+    before_script: skip
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
@@ -44,7 +48,8 @@ before_script:
   - git diff --exit-code db/schema.rb
 script:
   - echo "${CMD}"
-  - bash -c "${CMD}"
+    # we need travis_wait because the Docker build job can take longer than 10 minutes
+  - if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
 
 notifications:
   irc: "irc.freenode.org#msfnotify"

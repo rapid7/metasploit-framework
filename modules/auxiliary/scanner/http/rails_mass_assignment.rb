@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'rex/proto/http'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
@@ -21,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         models with attributes not protected by attr_protected or attr_accessible.
         After attempting to assign a non-existent field, the default rails with
         active_record setup will raise an ActiveRecord::UnknownAttributeError
-        exeption, and reply with HTTP code 500.
+        exception, and reply with HTTP code 500.
       },
 
       'References'     =>

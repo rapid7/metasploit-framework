@@ -135,7 +135,7 @@ module Msf::DBManager::Host
   # +:arch+::         -- one of the ARCH_* constants
   # +:mac+::          -- the host's MAC address
   # +:scope+::        -- interface identifier for link-local IPv6
-  # +:virtual_host+:: -- the name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
+  # +:virtual_host+:: -- the name of the virtualization software, eg "VMWare", "QEMU", "Xen", "Docker", etc.
   #
   def report_host(opts)
 

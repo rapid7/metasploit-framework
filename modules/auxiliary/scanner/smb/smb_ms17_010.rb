@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 
@@ -48,6 +47,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'        => MSF_LICENSE
     ))
+
+    register_options(
+      [
+        OptBool.new('CHECK_DOPU', [true, 'Check for DOUBLEPULSAR on vulnerable hosts', true])
+      ])
   end
 
   # algorithm to calculate the XOR Key for DoublePulsar knocks
@@ -81,24 +85,26 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         # vulnerable to MS17-010, check for DoublePulsar infection
-        code, signature1, signature2 = do_smb_doublepulsar_probe(tree_id)
+        if datastore['CHECK_DOPU']
+          code, signature1, signature2 = do_smb_doublepulsar_probe(tree_id)
 
-        if code == 0x51
-          xor_key = calculate_doublepulsar_xor_key(signature1).to_s(16).upcase
-          arch = calculate_doublepulsar_arch(signature2)
-          print_warning("Host is likely INFECTED with DoublePulsar! - Arch: #{arch}, XOR Key: 0x#{xor_key}")
-          report_vuln(
-            host: ip,
-            name: "MS17-010 DoublePulsar Infection",
-            refs: self.references,
-            info: "MultiPlexID += 0x10 on Trans2 request - Arch: #{arch}, XOR Key: 0x#{xor_key}"
-          )
+          if code == 0x51
+            xor_key = calculate_doublepulsar_xor_key(signature1).to_s(16).upcase
+            arch = calculate_doublepulsar_arch(signature2)
+            print_warning("Host is likely INFECTED with DoublePulsar! - Arch: #{arch}, XOR Key: 0x#{xor_key}")
+            report_vuln(
+              host: ip,
+              name: "MS17-010 DoublePulsar Infection",
+              refs: self.references,
+              info: "MultiPlexID += 0x10 on Trans2 request - Arch: #{arch}, XOR Key: 0x#{xor_key}"
+            )
+          end
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
-        print_bad("Host does NOT appear vulnerable.")
+        print_error("Host does NOT appear vulnerable.")
       else
-        print_bad("Unable to properly detect if host is vulnerable.")
+        print_error("Unable to properly detect if host is vulnerable.")
       end
 
     rescue ::Interrupt

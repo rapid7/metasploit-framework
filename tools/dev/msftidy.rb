@@ -43,9 +43,10 @@ end
 class Msftidy
 
   # Status codes
-  OK       = 0x00
-  WARNINGS = 0x10
-  ERRORS   = 0x20
+  OK       = 0
+  INFO     = 1
+  WARNING  = 2
+  ERROR    = 3
 
   # Some compiles regexes
   REGEX_MSF_EXPLOIT = / \< Msf::Exploit/
@@ -73,7 +74,7 @@ class Msftidy
   # error.
   def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
-    @status == ERRORS ? @status = ERRORS : @status = WARNINGS
+    @status += WARNING
   end
 
   #
@@ -85,7 +86,7 @@ class Msftidy
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
-    @status = ERRORS
+    @status += ERROR
   end
 
   # Currently unused, but some day msftidy will fix errors for you.
@@ -101,6 +102,7 @@ class Msftidy
     return if SUPPRESS_INFO_MESSAGES
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
+    @status += INFO
   end
 
   ##
@@ -643,7 +645,7 @@ class Msftidy
   end
 
   # At one point in time, somebody committed a module with a bad metasploit.com URL
-  # in the header -- http//metasploit.com/download rather than http://metasploit.com/download.
+  # in the header -- http//metasploit.com/download rather than https://metasploit.com/download.
   # This module then got copied and committed 20+ times and is used in numerous other places.
   # This ensures that this stops.
   def check_invalid_url_scheme

@@ -22,7 +22,7 @@ module Msf
     # attrs[3] = possible enum values
     # attrs[4] = Regex to validate the option
     #
-    def initialize(in_name, attrs = [])
+    def initialize(in_name, attrs = [], aliases: [])
       self.name     = in_name
       self.advanced = false
       self.evasion  = false
@@ -45,6 +45,7 @@ module Msf
           raise("Invalid Regex #{regex_temp}: #{e}")
         end
       end
+      self.aliases = aliases
     end
 
     #
@@ -159,6 +160,10 @@ module Msf
     # A optional regex to validate the option value
     #
     attr_accessor :regex
+    #
+    # Aliases for this option for backward compatibility
+    #
+    attr_accessor :aliases
 
     protected
 

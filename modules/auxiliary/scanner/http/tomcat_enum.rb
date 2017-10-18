@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -116,13 +113,12 @@ class MetasploitModule < Msf::Auxiliary
       return :abort
     end
   end
-
 end
 
 =begin
 
 If your Tomcat doesn't have the admin package by default, download it here:
-http://archive.apache.org/dist/tomcat/	
+http://archive.apache.org/dist/tomcat/
 
 The package name should look something like: apache-tomcat-[version]-admin.zip
 

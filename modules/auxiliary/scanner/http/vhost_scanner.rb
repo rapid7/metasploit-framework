@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,7 +11,7 @@ require 'cgi'
 
 
 
-  class MetasploitModule < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
     include Msf::Exploit::Remote::HttpClient
     include Msf::Auxiliary::WmapScanServer
@@ -118,7 +118,7 @@ require 'cgi'
           if res and noexistsres
 
             if res.body !=  noexistsres.body
-              print_status("[#{ip}] Vhost found  #{thost} ")
+              print_good("[#{ip}] Vhost found  #{thost} ")
 
               report_note(
                 :host	=> ip,
