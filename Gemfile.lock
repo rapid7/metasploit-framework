@@ -363,7 +363,7 @@ PLATFORMS
 DEPENDENCIES
   factory_girl_rails
   fivemat
-  metasploit-aggregator (~> 1.0.0)
+  metasploit-aggregator
   metasploit-framework!
   octokit
   pry
