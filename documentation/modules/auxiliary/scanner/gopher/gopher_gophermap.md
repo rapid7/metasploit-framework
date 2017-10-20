@@ -103,6 +103,9 @@ The following table contains the file types associated with the characters:
 
 ### Docker Gopher Server
 ```
+msf > use auxiliary/scanner/gopher/gopher_gophermap
+msf auxiliary(gopher_gophermap) > set RHOSTS localhost
+RHOSTS => localhost
 msf auxiliary(gopher_gophermap) > run
 
 [+] 127.0.0.1:70          -   Text file: README.md
