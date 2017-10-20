@@ -32,6 +32,13 @@ $ date > test.txt
 $ echo HELLO > README.md
 ```
 
+*NOTE*: Don't forget to `docker stop` the container ID returned from the `docker run` command just run above:
+```
+$ docker stop X
+X
+```
+
+
 ### Ubuntu 16.04 Install
 
 First we need to install the server:
