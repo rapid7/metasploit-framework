@@ -7,7 +7,7 @@
 
 ### Docker Install
 
-A dockerized gopher server, written in Go of all things, is available.  To install and run this, with content being
+A [dockerized gopher server written in Go](https://hub.docker.com/r/prodhe/gopher/) is available.  To install and run this, with content being
 served out of a temporary directory in which you'll be left:
 
 ```
