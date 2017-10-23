@@ -156,6 +156,7 @@ module Msf::DBManager::Session
         # This is a live session, we know the host is vulnerable to something.
         infer_vuln_from_session_dto(session_dto, session_db_record, workspace)
       end
+      session_db_record
     }
   end
 

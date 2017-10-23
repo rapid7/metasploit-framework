@@ -3,8 +3,9 @@ module RemoteSessionDataService
   SESSION_API_PATH = '/api/1/msf/session'
 
   def report_session(opts)
-    if (opts[:session].kind_of? Msf::Session)
-      opts = convert_msf_session_to_hash(opts[:session])
+    session = opts[:session]
+    if (session.kind_of? Msf::Session)
+      opts = convert_msf_session_to_hash(session)
       opts[:session_dto] = true
     elsif (opts[:host])
       opts[:host] = opts[:host].address
@@ -12,8 +13,13 @@ module RemoteSessionDataService
 
     #TODO: Fix
     opts[:time_stamp] = Time.now.utc
-    self.post_data_async(SESSION_API_PATH, opts)
+    sess_db = json_to_open_struct_object(self.post_data(SESSION_API_PATH, opts))
+    session.db_record = sess_db
   end
+
+  # def get_session(opts = {})
+  #   json_to_open_struct_object(self.get_data(SESSION_API_PATH, opts), [])
+  # end
 
   #######
   private
