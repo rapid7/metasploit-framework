@@ -1,8 +1,10 @@
 require 'json'
 require 'msf/core/db_manager/http/db_manager_proxy'
 require 'msf/core/db_manager/http/job_processor'
+require 'metasploit/framework/data_service/remote/http/response_data_helper'
 
 module ServletHelper
+  include ResponseDataHelper
 
   def set_error_on_response(error)
     puts "Error handling request: #{error.message}"

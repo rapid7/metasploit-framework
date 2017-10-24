@@ -17,10 +17,6 @@ module RemoteSessionDataService
     session.db_record = sess_db
   end
 
-  # def get_session(opts = {})
-  #   json_to_open_struct_object(self.get_data(SESSION_API_PATH, opts), [])
-  # end
-
   #######
   private
   #######

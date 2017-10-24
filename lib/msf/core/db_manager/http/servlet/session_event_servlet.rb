@@ -27,7 +27,9 @@ module SessionEventServlet
 
   def self.report_session_event
     lambda {
-      job = lambda { |opts| get_db().report_session_event(opts) }
+      job = lambda { |opts|
+        opts[:session] = open_struct(opts[:session][:table])
+        get_db().report_session_event(opts) }
       exec_report_job(request, &job)
     }
   end

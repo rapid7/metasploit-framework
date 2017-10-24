@@ -10,6 +10,7 @@ module RemoteSessionEventDataService
   end
 
   def report_session_event(opts)
+    opts[:session] = opts[:session].db_record
     self.post_data_async(SESSION_EVENT_PATH, opts)
   end
 end
