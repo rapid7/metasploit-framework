@@ -1,29 +1,10 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 #
-# This user interface provides users with a command console interface to the
-# framework.
-#
+# Starts the HTTP DB Service interface
 
-#
-# Standard Library
-#
-
-# msfbase = __FILE__
-# while File.symlink?(msfbase)
-#   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
-# end
-#
-# $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-# require 'msfenv'
 
 require 'pathname'
-
-#
-# Project
-#
-
-# @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/generators/rails/app/templates/script/rails#L3-L5
 require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
 require 'msf/core/db_manager/http/http_db_manager_service'
 HttpDBManagerService.new().start(:Port => '8080', :Host => '0.0.0.0')

@@ -61,14 +61,6 @@ def peer
   super.ljust(21)
 end
 
-  def formatted_duration (total_seconds)
-    hours = total_seconds / (60 * 60)
-    minutes = (total_seconds / 60) % 60
-    seconds = total_seconds % 60
-
-    " #{ hours } h #{ minutes } m #{ seconds } s"
-  end
-
 #
 # The command handler when launched from the console
 #
@@ -120,8 +112,6 @@ def run
   end
 
   if (self.respond_to?('run_host'))
-
-    start_time = Time.now.to_i
 
     loop do
       # Stop scanning if we hit a fatal error
@@ -180,8 +170,6 @@ def run
       @range_done += (tla - tlb)
       scanner_show_progress() if @show_progress
     end
-
-    puts "Time to scan hosts: #{formatted_duration(Time.now.to_i - start_time)}"
 
     scanner_handle_fatal_errors
     return

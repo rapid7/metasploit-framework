@@ -107,16 +107,16 @@ class ThreadManager < Array
           )
           elog("Call Stack\n#{e.backtrace.join("\n")}")
           raise e
-        # ensure
-        #   if framework.db and framework.db.active
-        #     # NOTE: despite the Deprecation Warning's advice, this should *NOT*
-        #     # be ActiveRecord::Base.connection.close which causes unrelated
-        #     # threads to raise ActiveRecord::StatementInvalid exceptions at
-        #     # some point in the future, presumably due to the pool manager
-        #     # believing that the connection is still usable and handing it out
-        #     # to another thread.
-        #     ::ActiveRecord::Base.connection_pool.release_connection
-        #   end
+        ensure
+          if framework.db and framework.db.active framework.db.is_local?
+            # NOTE: despite the Deprecation Warning's advice, this should *NOT*
+            # be ActiveRecord::Base.connection.close which causes unrelated
+            # threads to raise ActiveRecord::StatementInvalid exceptions at
+            # some point in the future, presumably due to the pool manager
+            # believing that the connection is still usable and handing it out
+            # to another thread.
+            ::ActiveRecord::Base.connection_pool.release_connection
+          end
         end
       end
     else

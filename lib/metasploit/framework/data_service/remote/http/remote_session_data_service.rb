@@ -11,7 +11,6 @@ module RemoteSessionDataService
       opts[:host] = opts[:host].address
     end
 
-    #TODO: Fix
     opts[:time_stamp] = Time.now.utc
     sess_db = json_to_open_struct_object(self.post_data(SESSION_API_PATH, opts))
     session.db_record = sess_db

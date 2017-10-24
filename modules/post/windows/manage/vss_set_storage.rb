@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'                 => "Windows Manage Set Shadow Copy Storage Space",
       'Description'          => %q{
-        This module will attempt to change the ammount of space
+        This module will attempt to change the amount of space
         for volume shadow copy storage. This is based on the
         VSSOwn Script originally posted by Tim Tomes and
         Mark Baggett.

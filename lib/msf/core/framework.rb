@@ -232,7 +232,7 @@ class Framework
   def search(match, logger: nil)
     # Check if the database is usable
     use_db = true
-    if self.db
+    if self.db and self.db.is_local?
       if !(self.db.migrated && self.db.modules_cached)
         logger.print_warning("Module database cache not built yet, using slow search") if logger
         use_db = false
@@ -336,19 +336,19 @@ class FrameworkEventSubscriber
 
   include ::Msf::UiEventSubscriber
   ##
-  # :category: ::Msf::Uips -ef | EventSubscriber implementors
+  # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_command(command)
-    # if framework.db.active
-    #   report_event(:name => "ui_command", :info => {:command => command})
-    # end
+    if (framework.db and framework.db.active)
+      report_event(:name => "ui_command", :info => {:command => command})
+    end
   end
 
   ##
   # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_stop()
-    # if framework.db.active
-    #   report_event(:name => "ui_stop")
-    # end
+    if (framework.db and framework.db.active)
+      report_event(:name => "ui_stop")
+    end
   end
 
   ##

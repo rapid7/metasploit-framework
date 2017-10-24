@@ -29,6 +29,14 @@ class DataProxy
     return "none"
   end
 
+  def is_local?
+    if (@data_service)
+      return (@data_service.name == 'local_db_service')
+    end
+
+    return false
+  end
+
   #
   # Determines if the data service is active
   #
@@ -117,7 +125,7 @@ class DataProxy
   # Used to bridge the local db
   #
   def method_missing(method, *args, &block)
-    puts "Attempting to delegate method: #{method}"
+    #puts "Attempting to delegate method: #{method}"
     unless @data_service.nil?
       @data_service.send(method, *args, &block)
     end

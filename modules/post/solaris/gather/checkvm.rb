@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{
           This module attempts to determine whether the system is running
           inside of a virtual environment and if so, which one. This
-          module supports detectoin of Solaris Zone, VMWare, VirtualBox, Xen,
+          module supports detection of Solaris Zone, VMWare, VirtualBox, Xen,
           and QEMU/KVM.},
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
