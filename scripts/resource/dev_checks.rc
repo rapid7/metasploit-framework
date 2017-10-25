@@ -91,7 +91,7 @@ def main
           'multi/http/vbulletin_unserialize':     [ Exploit::CheckCode::Appears ],
           'unix/webapp/vbulletin_vote_sqli_exec': [ Exploit::CheckCode::Appears ],
           'multi/misc/java_jmx_server':           [ Exploit::CheckCode::Appears,
-						    Exploit::CheckCode::Detected ] }.each do |mod,ret_val|
+                                                    Exploit::CheckCode::Detected ] }.each do |mod,ret_val|
             check_exploit(host: host,
                 mod_name: mod.to_s,
                 vuln_check_ret_val: ret_val)
