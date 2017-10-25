@@ -70,45 +70,46 @@ def main
         print_line("Checking IP: #{host.address}, OS: #{host.os_name}...")
 
         check_exploit(host: host,
-        mod_name: 'multi/misc/nodejs_v8_debugger',
-        vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
+            mod_name: 'multi/misc/nodejs_v8_debugger',
+            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
 
         check_exploit(host: host,
-        mod_name: 'unix/misc/distcc_exec',
-        vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
+            mod_name: 'unix/misc/distcc_exec',
+            vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
 
         check_exploit(host: host,
-        mod_name: 'unix/misc/qnx_qconn_exec',
-        vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
+            mod_name: 'unix/misc/qnx_qconn_exec',
+            vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
 
         check_exploit(host: host,
-        mod_name: 'linux/misc/jenkins_java_deserialize',
-        vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
+            mod_name: 'linux/misc/jenkins_java_deserialize',
+            vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
 
         check_exploit(host: host,
-        mod_name: 'linux/http/github_enterprise_secret',
-        vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
+            mod_name: 'linux/http/github_enterprise_secret',
+            vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
 
         check_exploit(host: host,
-        mod_name: 'multi/http/traq_plugin_exec',
-        vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
+            mod_name: 'multi/http/traq_plugin_exec',
+            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
 
         check_exploit(host: host,
-        mod_name: 'multi/http/builderengine_upload_exec',
-        vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
+            mod_name: 'multi/http/builderengine_upload_exec',
+            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
 
         check_exploit(host: host,
-        mod_name: 'multi/http/mantisbt_php_exec',
-        vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
+            mod_name: 'multi/http/mantisbt_php_exec',
+            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
 
         check_exploit(host: host,
-        mod_name: 'multi/http/vbulletin_unserialize',
-        vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
+            mod_name: 'multi/http/vbulletin_unserialize',
+            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
 
         check_exploit(host: host,
-        mod_name: 'unix/webapp/vbulletin_vote_sqli_exec',
-        vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
+            mod_name: 'unix/webapp/vbulletin_vote_sqli_exec',
+            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
     end
+
     wait_until_jobs_done
 end
 
