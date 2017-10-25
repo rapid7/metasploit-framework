@@ -20,7 +20,7 @@
 @job_ids = []
 
 def wait_until_jobs_done
-    while true
+    loop do
         @job_ids.each do |job_id|
             current_job_ids = framework.jobs.keys.map { |e| e.to_i }
             sleep 1 if current_job_ids.include?(job_id)
