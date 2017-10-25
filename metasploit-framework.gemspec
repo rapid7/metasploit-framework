@@ -139,7 +139,7 @@ Gem::Specification.new do |spec|
   # Library for Generating Randomized strings valid as Identifiers such as variable names
   spec.add_runtime_dependency 'rex-random_identifier'
   # library for creating Powershell scripts for exploitation purposes
-  spec.add_runtime_dependency 'rex-powershell', ["< 0.1.78"]
+  spec.add_runtime_dependency 'rex-powershell', ["< 0.1.73"]
   # Library for processing and creating Zip compatbile archives
   spec.add_runtime_dependency 'rex-zip'
   # Library for parsing offline Windows Registry files
