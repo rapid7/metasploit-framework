@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EXPLOIT-DB', '42604'],
           [ 'CVE', '2017-1130' ]
         ],
-        'DisclosureDate' => 'August 31 2017',
+        'DisclosureDate' => 'Aug 31 2017',
         'Actions'        => [[ 'WebServer' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
