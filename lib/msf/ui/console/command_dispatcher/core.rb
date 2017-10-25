@@ -1443,14 +1443,9 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if ['shell', 'powershell'].include?(session.type)
-              session.init_ui(driver.input, driver.output)
-              session.execute_script('post/multi/manage/shell_to_meterpreter')
-              session.reset_ui
-            else
-              print_error("Session #{sess_id} is not a command shell session, it is #{session.type}, skipping...")
-              next
-            end
+            session.init_ui(driver.input, driver.output)
+            session.execute_script('post/multi/manage/shell_to_meterpreter')
+            session.reset_ui
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
