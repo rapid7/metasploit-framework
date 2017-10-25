@@ -12,8 +12,9 @@
 # It is worth noting that ONLY CHECKS are performed, no active exploiting.
 # This makes it safe to run in many environments.
 #
-# Author:
-# pbarry-r7
+# Authors:
+# * pbarry-r7
+# * dmohanty-r7
 #
 
 @job_ids = []
@@ -26,6 +27,17 @@ def wait_until_jobs_done
         end
 
         return
+    end
+end
+
+def run_scanner(host:, mod_name:)
+    begin
+        mod = framework.auxiliary.create(mod_name)
+        mod.datastore['RHOSTS'] = host.address
+        print_line("Running the #{mod.name}...")
+        result = mod.run_simple({'RunAsJob': true, 'LocalOutput': self.output})
+    rescue ::Exception => e
+        print_error(e.message)
     end
 end
 
@@ -53,9 +65,7 @@ end
 
 def setup
     # Test and see if we have a database connected
-    begin
-        framework.db.hosts
-    rescue ::ActiveRecord::ConnectionNotEstablished
+    if not (framework.db and framework.db.active)
         print_error("Database connection isn't established")
         return false
     end
@@ -69,45 +79,28 @@ def main
     framework.db.workspace.hosts.each do |host|
         print_line("Checking IP: #{host.address}, OS: #{host.os_name}...")
 
-        check_exploit(host: host,
-            mod_name: 'multi/misc/nodejs_v8_debugger',
-            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
+        # Modules
+        { 'multi/misc/nodejs_v8_debugger':        [ Exploit::CheckCode::Appears ],
+          'unix/misc/distcc_exec':                [ Exploit::CheckCode::Vulnerable ],
+          'unix/misc/qnx_qconn_exec':             [ Exploit::CheckCode::Vulnerable ],
+          'linux/misc/jenkins_java_deserialize':  [ Exploit::CheckCode::Vulnerable ],
+          'linux/http/github_enterprise_secret':  [ Exploit::CheckCode::Vulnerable ],
+          'multi/http/traq_plugin_exec':          [ Exploit::CheckCode::Appears ],
+          'multi/http/builderengine_upload_exec': [ Exploit::CheckCode::Appears ],
+          'multi/http/mantisbt_php_exec':         [ Exploit::CheckCode::Appears ],
+          'multi/http/vbulletin_unserialize':     [ Exploit::CheckCode::Appears ],
+          'unix/webapp/vbulletin_vote_sqli_exec': [ Exploit::CheckCode::Appears ],
+          'multi/misc/java_jmx_server':           [ Exploit::CheckCode::Appears,
+						    Exploit::CheckCode::Detected ] }.each do |mod,ret_val|
+            check_exploit(host: host,
+                mod_name: mod.to_s,
+                vuln_check_ret_val: ret_val)
+        end
 
-        check_exploit(host: host,
-            mod_name: 'unix/misc/distcc_exec',
-            vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
-
-        check_exploit(host: host,
-            mod_name: 'unix/misc/qnx_qconn_exec',
-            vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
-
-        check_exploit(host: host,
-            mod_name: 'linux/misc/jenkins_java_deserialize',
-            vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
-
-        check_exploit(host: host,
-            mod_name: 'linux/http/github_enterprise_secret',
-            vuln_check_ret_val: [ Exploit::CheckCode::Vulnerable ])
-
-        check_exploit(host: host,
-            mod_name: 'multi/http/traq_plugin_exec',
-            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
-
-        check_exploit(host: host,
-            mod_name: 'multi/http/builderengine_upload_exec',
-            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
-
-        check_exploit(host: host,
-            mod_name: 'multi/http/mantisbt_php_exec',
-            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
-
-        check_exploit(host: host,
-            mod_name: 'multi/http/vbulletin_unserialize',
-            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
-
-        check_exploit(host: host,
-            mod_name: 'unix/webapp/vbulletin_vote_sqli_exec',
-            vuln_check_ret_val: [ Exploit::CheckCode::Appears ])
+        # Scanners
+        [ 'scanner/misc/java_rmi_server' ].each do |mod|
+            run_scanner(host: host, mod_name: mod.to_s)
+        end
     end
 
     wait_until_jobs_done
