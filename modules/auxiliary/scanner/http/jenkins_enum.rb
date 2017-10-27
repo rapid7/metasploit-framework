@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     version = res.headers['X-Jenkins']
-    print_good("Jenkins Version - #{version}")
+    print_good("#{rhost}:#{rport} Jenkins Version - #{version}")
     report_service(
       :host  => rhost,
       :port  => rport,
