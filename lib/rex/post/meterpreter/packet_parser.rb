@@ -30,24 +30,20 @@ class PacketParser
   # Reads data from the wire and parse as much of the packet as possible.
   #
   def recv(sock)
-    bytes_left = self.packet.raw_bytes_required
-
-    if bytes_left > 0
-      raw = sock.read(bytes_left)
-      if raw
+    if self.packet.raw_bytes_required
+      while (raw = sock.read(self.packet.raw_bytes_required))
         self.packet.add_raw(raw)
-      else
-        raise EOFError
+        break if self.packet.raw_bytes_required == 0
       end
     end
 
-    if self.packet.raw_bytes_required == 0
-      packet = self.packet
-      reset
-      return packet
+    if self.packet.raw_bytes_required > 0
+      return nil
     end
 
-    nil
+    packet = self.packet
+    reset
+    packet
   end
 
 protected
