@@ -47,7 +47,7 @@ class Core
     "-q"  => [ false, "Quiet mode"                                                     ],
     "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
     "-K"  => [ false, "Terminate all sessions"                                         ],
-    "-s"  => [ true,  "Run a script on the session given with -i, or all"              ],
+    "-s"  => [ true,  "Run a script or module on the session given with -i, or all"    ],
     "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
@@ -1180,10 +1180,10 @@ class Core
           sid = val || false
         when "-K"
           method = 'killall'
-        # Run a script on all meterpreter sessions
+        # Run a script or module on specified sessions
         when "-s"
           unless script
-            method = 'scriptall'
+            method = 'script'
             script = val
           end
         # Upload and exec to the specific command session
@@ -1389,15 +1389,11 @@ class Core
           sid = nil
         end
       end
-    when 'scriptall'
+    when 'script'
       unless script
-        print_error("No script specified!")
+        print_error("No script or module specified!")
         return false
       end
-      script_paths = {}
-      script_paths['meterpreter'] = Msf::Sessions::Meterpreter.find_script_path(script)
-      script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
-
       sessions = sid ? session_list : framework.sessions.keys.sort
 
       sessions.each do |sess_id|
@@ -1413,15 +1409,13 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if script_paths[session.type]
-              print_status("Session #{sess_id} (#{session.session_host}):")
-              print_status("Running script #{script} on #{session.type} session" +
-                            " #{sess_id} (#{session.session_host})")
-              begin
-                session.execute_file(script_paths[session.type], extra)
-              rescue ::Exception => e
-                log_error("Error executing script: #{e.class} #{e}")
-              end
+            print_status("Session #{sess_id} (#{session.session_host}):")
+            print_status("Running #{script} on #{session.type} session" +
+                          " #{sess_id} (#{session.session_host})")
+            begin
+              session.execute_script(script, *extra)
+            rescue ::Exception => e
+              log_error("Error executing script or module: #{e.class} #{e}")
             end
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
