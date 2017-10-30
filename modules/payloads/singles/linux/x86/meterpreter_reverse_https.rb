@@ -24,7 +24,8 @@ module MetasploitModule
         'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
         'Author'        => [
           'Adam Cammack <adam_cammack[at]rapid7.com>',
-          'Brent Cook <brent_cook[at]rapid7.com>'
+          'Brent Cook <brent_cook[at]rapid7.com>',
+          'timwr'
         ],
         'Platform'      => 'linux',
         'Arch'          => ARCH_X86,

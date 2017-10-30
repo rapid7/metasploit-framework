@@ -252,7 +252,7 @@ GEM
     recog (2.1.16)
       nokogiri
     redcarpet (3.4.0)
-    rex-arch (0.1.11)
+    rex-arch (0.1.13)
       rex-text
     rex-bin_tools (0.1.4)
       metasm

