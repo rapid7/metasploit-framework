@@ -165,7 +165,7 @@ def nmap_add_ports
   if nmap_validate_arg(port_arg)
     self.nmap_args << port_arg
   else
-    raise RunTimeError, "Argument is invalid"
+    raise "Argument is invalid"
   end
 end
 
