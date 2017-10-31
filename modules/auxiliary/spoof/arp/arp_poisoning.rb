@@ -72,8 +72,8 @@ class MetasploitModule < Msf::Auxiliary
       @interface = get_interface_guid(@interface)
       @smac = datastore['SMAC']
       @smac ||= get_mac(@interface) if @netifaces
-      raise RuntimeError, 'SMAC is not defined and can not be guessed' unless @smac
-      raise RuntimeError, 'Source MAC is not in correct format' unless is_mac?(@smac)
+      raise 'SMAC is not defined and can not be guessed' unless @smac
+      raise 'Source MAC is not in correct format' unless is_mac?(@smac)
 
       @sip = datastore['LOCALSIP']
       @sip ||= get_ipv4_addr(@interface) if @netifaces
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def arp_poisoning
     lsmac = datastore['LOCALSMAC'] || @smac
-    raise RuntimeError, 'Local Source Mac is not in correct format' unless is_mac?(lsmac)
+    raise 'Local Source Mac is not in correct format' unless is_mac?(lsmac)
 
     dhosts_range = Rex::Socket::RangeWalker.new(datastore['DHOSTS'])
     @dhosts = []
@@ -199,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       Kernel.select(nil, nil, nil, 0.50)
     end
-    raise RuntimeError, "No hosts found" unless @dsthosts_cache.length > 0
+    raise "No hosts found" unless @dsthosts_cache.length > 0
 
     # Build the local src hosts cache
     if datastore['BIDIRECTIONAL']
@@ -236,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
         end
         Kernel.select(nil, nil, nil, 0.50)
       end
-      raise RuntimeError, "No hosts found" unless @srchosts_cache.length > 0
+      raise "No hosts found" unless @srchosts_cache.length > 0
     end
 
     if datastore['AUTO_ADD']
