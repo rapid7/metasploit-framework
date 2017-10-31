@@ -28,4 +28,5 @@ module DataProxyAutoLoader
   include LootDataProxy
   include SessionEventDataProxy
   include CredentialDataProxy
+  include NmapDataProxy
 end
