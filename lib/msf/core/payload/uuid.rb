@@ -43,7 +43,8 @@ class Msf::Payload::UUID
     24 => ARCH_AARCH64,
     25 => ARCH_MIPS64,
     26 => ARCH_PPC64LE,
-    27 => ARCH_R
+    27 => ARCH_R,
+    28 => ARCH_PPCE500V2
   }
 
   Platforms = {
