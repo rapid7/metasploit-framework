@@ -464,7 +464,7 @@ module DispatcherShell
     inst = dispatcher.new(self)
     self.dispatcher_stack.each { |disp|
       if (disp.name == inst.name)
-        raise RuntimeError.new("Attempting to load already loaded dispatcher #{disp.name}")
+        raise "Attempting to load already loaded dispatcher #{disp.name}"
       end
     }
     self.dispatcher_stack.push(inst)
