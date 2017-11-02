@@ -147,9 +147,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
         session.core.set_session_guid(guid)
         session.session_guid = guid
-        # TODO: New statgeless session, do some account in the DB so we can track it later.
+        # TODO: New stageless session, do some account in the DB so we can track it later.
       else
-        # TODO: This session was either staged or previously known, and so we shold do some accounting here!
+        # TODO: This session was either staged or previously known, and so we should do some accounting here!
       end
 
       unless datastore['AutoLoadStdapi'] == false
