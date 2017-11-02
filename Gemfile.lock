@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.14)
+    metasploit-framework (4.16.15)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -130,25 +130,25 @@ GEM
     google-protobuf (3.4.1.1)
     googleapis-common-protos-types (1.0.0)
       google-protobuf (~> 3.0)
-    googleauth (0.5.3)
+    googleauth (0.6.1)
       faraday (~> 0.12)
-      jwt (~> 1.4)
+      jwt (>= 1.4, < 3.0)
       logging (~> 2.0)
       memoist (~> 0.12)
       multi_json (~> 1.11)
       os (~> 0.9)
       signet (~> 0.7)
-    grpc (1.7.0)
+    grpc (1.7.2)
       google-protobuf (~> 3.1)
       googleapis-common-protos-types (~> 1.0.0)
-      googleauth (~> 0.5.1)
+      googleauth (>= 0.5.1, < 0.7)
     hashery (2.1.2)
     i18n (0.9.0)
       concurrent-ruby (~> 1.0)
     jsobfu (0.4.2)
       rkelly-remix
     json (2.1.0)
-    jwt (1.5.6)
+    jwt (2.1.0)
     little-plugger (1.1.4)
     logging (2.2.2)
       little-plugger (~> 1.1)
@@ -378,4 +378,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.15.4
+   1.16.0
