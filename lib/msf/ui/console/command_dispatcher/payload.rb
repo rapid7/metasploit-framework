@@ -153,22 +153,39 @@ module Msf
           end
 
           def cmd_generate_tabs(str, words)
+            fmt = {
+              '-b' => [ true                                              ],
+              '-E' => [ nil,                                              ],
+              '-e' => [ framework.encoders.map { |refname, mod| refname } ],
+              '-h' => [ nil,                                              ],
+              '-o' => [ true,                                             ],
+              '-s' => [ true,                                             ],
+              '-f' => [ :file,                                            ],
+              '-t' => [ @@supported_formats,                              ],
+              '-p' => [ true,                                             ],
+              '-k' => [ nil,                                              ],
+              '-x' => [ :file,                                            ],
+              '-i' => [ true,                                             ]
+            }
+            tab_complete_spec(fmt, str, words)
+          end
+
+          def tab_complete_spec(fmt, str, words)
             last_word = words[-1]
-            fmt = @@generate_opts.fmt
             fmt = fmt.select { |key, value| last_word == key || !words.include?(key) }
 
-            option = fmt[last_word]
-            return fmt.keys if !option || !option[0]
+            val = fmt[last_word]
+            return fmt.keys if !val  # the last word does not look like a fmtspec
+            arg = val[0]
+            return fmt.keys if !arg  # the last word is a fmtspec that takes no argument
 
             tabs = []
-            case last_word
-              when '-e'
-                tabs = framework.encoders.map { |refname, mod| refname }
-              when '-f'
-                tabs = tab_complete_filenames(str, words)
-              when '-t'
-                tabs = @@supported_formats
+            if arg.to_s.to_sym == :file
+              tabs = tab_complete_filenames(str, words)
+            elsif arg.kind_of?(Array)
+              tabs = arg.map {|a| a.to_s}
             end
+            tabs
           end
         end
       end
