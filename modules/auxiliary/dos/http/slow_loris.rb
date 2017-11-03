@@ -47,12 +47,12 @@ class MetasploitModule < Msf::Auxiliary
   def run
       starting_thread = 1
       header = "GET / HTTP/1.1\r\n"
+      threads = []
     
       while true do
         ubound = [thread_count].min
         print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
-
-        threads = []
+        
         1.upto(ubound) do |i|
           threads << framework.threads.spawn("Module(#{self.refname})-request#{(starting_thread - 1) + i}", false, i) do |i|
             begin
@@ -66,9 +66,7 @@ class MetasploitModule < Msf::Auxiliary
             end
           end
         end
-
         threads.each(&:join)
-        print_good("Finished executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}")
         starting_thread += ubound
       end
   end
