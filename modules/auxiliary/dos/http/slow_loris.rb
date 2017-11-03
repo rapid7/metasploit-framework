@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       info,
       'Name'            => 'Slow Loris DoS',
       'Description'     => %q{Slowloris tries to keep many connections to the target web server open and hold them open as long as possible.
-                              It accomplishes this by opening connections to the target web server and sending a partial request. 
+                              It accomplishes this by opening connections to the target web server and sending a partial request.
                               Periodically, it will send subsequent requests, adding to but never completing the request.},
       'License'         => MSF_LICENSE,
       'Author'          =>
