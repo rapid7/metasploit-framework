@@ -52,11 +52,6 @@ class MetasploitModule < Msf::Post
   def run
     print_status("Upgrading session ID: #{datastore['SESSION']}")
 
-    if session.type =~ /meterpreter/
-      print_error("Shell is already Meterpreter.")
-      return nil
-    end
-
     # Try hard to find a valid LHOST value in order to
     # make running 'sessions -u' as robust as possible.
     if datastore['LHOST']

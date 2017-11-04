@@ -55,6 +55,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    return nil unless res
     vprint_status(res)
     store_path = store_loot('virtualbox_vms', "text/plain", session, res, "virtualbox_vms.txt", "Virtualbox Virtual Machines")
     print_good("#{peer} - File successfully retrieved and saved on #{store_path}")
