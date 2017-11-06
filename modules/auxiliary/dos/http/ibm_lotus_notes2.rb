@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           'Dhiraj Mishra',
         ],
         'References'     => [
-          [ 'EXPLOIT-DB', '42604'],
+          ['EDB', '42604'],
           [ 'CVE', '2017-1130' ]
         ],
         'DisclosureDate' => 'Aug 31 2017',
