@@ -36,7 +36,8 @@ RUN apk update && \
       ncurses-dev \
       git \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
-    && gem update --system \
+    # this currently fails: https://github.com/rubygems/rubygems/issues/2064
+    # && gem update --system \
     && gem install bundler \
     && bundle install --system $BUNDLER_ARGS \
     && apk del .ruby-builddeps \
