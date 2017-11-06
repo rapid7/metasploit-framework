@@ -39,4 +39,4 @@ a = if x = y
 ```
 
 #### But I copied it from another module!
-Consistency is a virtue only when it is correct.  (In all seriousness, use your best judgement here, and don't be afraid to ask.). Also, we allow cleaning up other modules too, though be forewarned, have a way to actually test modules you cleanup.
+Consistency is a virtue only when it is correct.  (In all seriousness, use your best judgement here, and don't be afraid to ask.). Also, we allow cleaning up other modules too, though be forewarned, please have a way to test any modules you clean up.
