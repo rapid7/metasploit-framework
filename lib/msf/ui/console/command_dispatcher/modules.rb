@@ -416,14 +416,26 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            framework.search(match, logger: self).each do |m|
-              tbl << [
-                m.fullname,
-                m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
-                RankingName[m.rank].to_s,
-                m.name
-              ]
+            if (framework.db.active)
+              framework.search(match, logger: self).each do |m|
+                tbl << [
+                  m.fullname,
+                  m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
+                  RankingName[m.rank].to_s,
+                  m.name
+                ]
+              end
+            else
+              Msf::Modules::Metadata::Cache.instance.find(match).each do |m|
+                tbl << [
+                    m.full_name,
+                    m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
+                    Msf::RankingName[m.rank].to_s,
+                    m.name
+                ]
+              end
             end
+
             print_line(tbl.to_s)
           end
 

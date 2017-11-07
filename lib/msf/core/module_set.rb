@@ -205,6 +205,8 @@ class Msf::ModuleSet < Hash
 
     self[reference_name] = klass
 
+    Msf::Modules::Metadata::Cache.instance.cache_module_metadata(klass)
+
     klass
   end
 

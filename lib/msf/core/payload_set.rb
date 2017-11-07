@@ -197,6 +197,8 @@ class PayloadSet < ModuleSet
     # our own evil purposes.
     instance = build_payload(payload_module).new
 
+    Msf::Modules::Metadata::Cache.instance.cache_module_metadata(instance)
+
     # Create an array of information about this payload module
     pinfo =
       [

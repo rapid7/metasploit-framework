@@ -21,7 +21,7 @@ module Msf::Module::FullName
     #
 
     def fullname
-      type + '/' + refname
+      type + '/' + (refname.nil? ? "" : refname)
     end
 
     def shortname
