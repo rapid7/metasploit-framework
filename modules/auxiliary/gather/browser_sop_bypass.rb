@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
-  Rank = GoodRanking
 
   def initialize(info = {})
     super(
@@ -19,8 +18,8 @@ class MetasploitModule < Msf::Auxiliary
         'Author'         => [
           'Dhiraj Mishra',
         ],
-        'References'     => [
-     		[ 'URL', 'http://fr.0day.today/exploit/description/28434'],
+        'References'     => 
+        ['URL', 'http://fr.0day.today/exploit/description/28434'],
         ],
         'DisclosureDate' => "Nov 09 2017",
         'Actions'        => [[ 'WebServer' ]],
