@@ -1,4 +1,4 @@
-Vulnerable Application
+## Vulnerable Application
 
 This module tries to keep many connections to the target web server open and hold them open as long as possible.
 
@@ -9,7 +9,7 @@ Vulnerable app versions include:
 
 Download the Metasploitable 2 vulnerable Linux virtual machine from [https://sourceforge.net/projects/metasploitable/files/Metasploitable2/](https://sourceforge.net/projects/metasploitable/files/Metasploitable2/).
 
-Verification Steps
+## Verification Steps
 
 1. Start msfconsole
 2. Do: use auxiliary/dos/http/slow_loris
@@ -17,9 +17,9 @@ Verification Steps
 4. Do: run
 5. Visit server URL in your web-browser.
 
-Scenarios
+## Scenarios
 
-Apache/2.2.8 - Ubuntu 8.04
+### Apache/2.2.8 - Ubuntu 8.04
 
 ```
 msf > use auxiliary/dos/http/slow_loris.rb
