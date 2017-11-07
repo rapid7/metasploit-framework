@@ -634,7 +634,8 @@ module Metasploit
           if idx > 0
             encryption_mode = resp[idx, 1].unpack("C")[0]
           else
-            raise "Unable to parse encryption req during pre-login, this may not be a MSSQL server"
+            framework_module.print_error("Unable to parse encryption req " \
+              "during pre-login, this may not be a MSSQL server")
             encryption_mode = ENCRYPT_NOT_SUP
           end
 
@@ -681,7 +682,9 @@ module Metasploit
             if idx > 0
               encryption_mode = resp[idx, 1].unpack("C")[0]
             else
-              raise "Unable to parse encryption req during pre-login, this may not be a MSSQL server"
+              framework_module.print_error("Unable to parse encryption req " \
+                "during pre-login, this may not be a MSSQL server")
+              encryption_mode = ENCRYPT_NOT_SUP
             end
           end
           encryption_mode
