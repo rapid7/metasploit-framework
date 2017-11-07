@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author'         => [
           'Dhiraj Mishra',
         ],
-        'References'     => 
+        'References'     => [
         ['URL', 'http://fr.0day.today/exploit/description/28434'],
         ],
         'DisclosureDate' => "Nov 09 2017",
