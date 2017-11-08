@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         where WebDAV is enabled on the IIS6 server, and any protected folder
         requires either Basic, Digest or NTLM authentication.
       },
-      'Author' 		=> [ 'patrick' ],
+      'Author' 		=> [ 'aushack' ],
       'License'		=> MSF_LICENSE,
       'References'     =>
         [
@@ -154,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
             'ctype'		=> 'application/xml',
             'headers' 	=>
               {
-                #'Translate'	 => 'f', # Not required in PROPFIND, only GET - patrickw 20091518
+                #'Translate'	 => 'f', # Not required in PROPFIND, only GET - aushack 20091518
               },
             'data'		=> webdav_req + "\r\n\r\n",
           }, 20)

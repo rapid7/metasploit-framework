@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         This module will crash the web server, however it is likely exploitable
         under certain conditions.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [

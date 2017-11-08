@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '17388' ],
           [ 'BID', '48225' ],
         ],
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Jan 9 2009'
     )
