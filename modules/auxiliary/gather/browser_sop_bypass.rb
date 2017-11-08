@@ -10,9 +10,10 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "Browser SOP Bypass",
+        'Name'           => "Samsung Internet Browser SOP Bypass",
         'Description'    => %q(
-          This module do a server-redirect combined with a data-URI end up bypassing the Same Origin Policy,which leads to all kind of vulnerabilities like stealing user passwords.
+          This module opens up and does a server-redirect to child tab using document.body.innerHTML funtion, the child tab creates a fake pop up asking email ID, Password. 
+          Once entered the credentials is passed back to the parent tab, In this case the address bar points to google.com/csi which actually can be used to trick some one.
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
@@ -21,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'References'     => [
         ['URL', 'http://fr.0day.today/exploit/description/28434'],
         ],
-        'DisclosureDate' => "Nov 09 2017",
+        'DisclosureDate' => "Nov 08 2017",
         'Actions'        => [[ 'WebServer' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
