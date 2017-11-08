@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       (Remote Access Services). Kernel memory is overwritten resulting in a BSOD.
       Code execution may be possible however this module is only a DoS.
       },
-      'Author' 	=> [ 'patrick' ],
+      'Author' 	=> [ 'aushack' ],
       'License'       => MSF_LICENSE,
       'References'    =>
       [

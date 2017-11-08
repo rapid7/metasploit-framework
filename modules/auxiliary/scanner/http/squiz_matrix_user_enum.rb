@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         ASSETBEGIN and ASSETEND values for greater results, or set VERBOSE.
         Information gathered may be used for later bruteforce attacks.
       },
-      'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'patrick' ],
+      'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
