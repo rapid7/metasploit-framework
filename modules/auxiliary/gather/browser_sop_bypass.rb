@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name'           => "Samsung Internet Browser SOP Bypass",
         'Description'    => %q(
-          This module opens up and does a server-redirect to child tab using document.body.innerHTML funtion, the child tab creates a fake pop up asking email ID, Password. 
+          This module opens up and does a server-redirect to child tab using document.body.innerHTML funtion, the child tab creates a fake pop up asking email ID, Password.
           Once entered the credentials is passed back to the parent tab, In this case the address bar points to google.com/csi which actually can be used to trick some one.
         ),
         'License'        => MSF_LICENSE,
