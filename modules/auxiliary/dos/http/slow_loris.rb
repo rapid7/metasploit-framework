@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(
       info,
       'Name'            => 'Slow Loris DoS',
-      'Description'     => %q{Slowloris tries to keep many connections to the target web server open and hold them open as long as possible. 
+      'Description'     => %q{Slowloris tries to keep many connections to the target web server open and hold them open as long as possible.
                               It accomplishes this by opening connections to the target web server and sending a partial request.
                               Periodically, it will send subsequent requests, adding to but never completing the request.},
       'License'         => MSF_LICENSE,
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(80),
         OptInt.new('THREADS', [true, 'The number of concurrent threads', 1000]),
         OptInt.new('HEADERS', [true, 'The number of custom headers sent by each thread', 10]),
-		OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 15])
+        OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 15])
       ])
   end
 
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
   def headers
     datastore['HEADERS']
   end
-  
+
   def timeout
     datastore['TIMEOUT']
   end
