@@ -94,7 +94,7 @@ module Msf
               print_status("Launching #{editor} #{path}")
               system(editor, path)
 
-              # XXX: This will try to reload *anything* and break on modules
+              # XXX: This will try to reload *any* .rb and break on modules
               if args.length > 0 && path.end_with?('.rb')
                 print_status("Reloading #{path}")
                 load path
