@@ -155,17 +155,17 @@ module Msf
           def cmd_generate_tabs(str, words)
             fmt = {
               '-b' => [ true                                              ],
-              '-E' => [ nil,                                              ],
+              '-E' => [ nil                                               ],
               '-e' => [ framework.encoders.map { |refname, mod| refname } ],
-              '-h' => [ nil,                                              ],
-              '-o' => [ true,                                             ],
-              '-s' => [ true,                                             ],
-              '-f' => [ :file,                                            ],
-              '-t' => [ @@supported_formats,                              ],
-              '-p' => [ true,                                             ],
-              '-k' => [ nil,                                              ],
-              '-x' => [ :file,                                            ],
-              '-i' => [ true,                                             ]
+              '-h' => [ nil                                               ],
+              '-o' => [ true                                              ],
+              '-s' => [ true                                              ],
+              '-f' => [ :file                                             ],
+              '-t' => [ @@supported_formats                               ],
+              '-p' => [ true                                              ],
+              '-k' => [ nil                                               ],
+              '-x' => [ :file                                             ],
+              '-i' => [ true                                              ]
             }
             tab_complete_generic(fmt, str, words)
           end

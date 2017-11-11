@@ -259,7 +259,7 @@ module DispatcherShell
 
       tabs = []
       if arg.to_s.to_sym == :address
-        tabs = tab_complete_source_addresses
+        tabs = tab_complete_source_address
       elsif arg.to_s.to_sym == :bool
         tabs = ['true', 'false']
       elsif arg.to_s.to_sym == :file
