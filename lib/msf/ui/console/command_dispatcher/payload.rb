@@ -167,25 +167,7 @@ module Msf
               '-x' => [ :file,                                            ],
               '-i' => [ true,                                             ]
             }
-            tab_complete_spec(fmt, str, words)
-          end
-
-          def tab_complete_spec(fmt, str, words)
-            last_word = words[-1]
-            fmt = fmt.select { |key, value| last_word == key || !words.include?(key) }
-
-            val = fmt[last_word]
-            return fmt.keys if !val  # the last word does not look like a fmtspec
-            arg = val[0]
-            return fmt.keys if !arg  # the last word is a fmtspec that takes no argument
-
-            tabs = []
-            if arg.to_s.to_sym == :file
-              tabs = tab_complete_filenames(str, words)
-            elsif arg.kind_of?(Array)
-              tabs = arg.map {|a| a.to_s}
-            end
-            tabs
+            tab_complete_generic(fmt, str, words)
           end
         end
       end
