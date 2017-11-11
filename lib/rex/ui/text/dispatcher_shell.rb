@@ -248,6 +248,18 @@ module DispatcherShell
       matches
     end
 
+    #
+    # Provide a generic tab completion function based on the specification
+    # pass as fmt. The fmt argument in a hash where values are an array
+    # defining how the command should be completed. The first element of the
+    # array can be one of:
+    #   nil      - This argument is a flag and takes no option.
+    #   true     - This argument takes an option with no suggestions.
+    #   :address - This option is a source address.
+    #   :bool    - This option is a boolean.
+    #   :file    - This option is a file path.
+    #   Array    - This option is an array of possible values.
+    #
     def tab_complete_generic(fmt, str, words)
       last_word = words[-1]
       fmt = fmt.select { |key, value| last_word == key || !words.include?(key) }
@@ -270,6 +282,9 @@ module DispatcherShell
       tabs
     end
 
+    #
+    # Return a list of possible source addresses for tab completion.
+    #
     def tab_complete_source_address
       addresses = [Rex::Socket.source_address]
       # getifaddrs was introduced in 2.1.2
