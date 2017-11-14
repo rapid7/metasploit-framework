@@ -24,6 +24,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@jmartin-r7](https://github.com/jmartin-r7)      | [jmartinr7](https://keybase.io/jmartinr7)          |
 | [@lsato-r7](https://github.com/lsato-r7)          | [louissato](https://keybase.io/lsato)              |
 | [@Meatballs1](https://github.com/Meatballs1)      | [meatballs](https://keybase.io/meatballs)          |
+| [@mkienow-r7](https://github.com/mkienow-r7)      | [inokii](https://keybase.io/inokii)                |
 | [@mubix](https://github.com/mubix)                | [mubix](https://keybase.io/mubix)                  |
 | [@OJ](https://github.com/OJ)                      | [oj](https://keybase.io/oj)                        |
 | [@pbarry-r7](https://github.com/pbarry-r7)        | [pbarry](https://keybase.io/pbarry)                |
