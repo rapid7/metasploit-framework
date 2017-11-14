@@ -15,7 +15,7 @@ class RemoteHTTPDataService
   include DataServiceAutoLoader
 
   ONLINE_TEST_URL = "/api/1/msf/online"
-  EXEC_ASYNC = {:exec_async => true}
+  EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
 
@@ -32,7 +32,7 @@ class RemoteHTTPDataService
   # POST data and don't wait for the endpoint to process the data before getting a response
   #
   def post_data_async(path, data_hash)
-    post_data(path, data_hash.merge(EXEC_ASYNC))
+    make_request(POST_REQUEST, path, data_hash.merge(EXEC_ASYNC))
   end
 
   #
@@ -44,30 +44,7 @@ class RemoteHTTPDataService
   # @return A wrapped response (ResponseWrapper), see below.
   #
   def post_data(path, data_hash)
-    begin
-      raise 'Data to post to remote service cannot be null or empty' if (data_hash.nil? || data_hash.empty?)
-
-      puts "#{Time.now} - Posting #{data_hash} to #{path}"
-      client =  @client_pool.pop()
-      request = Net::HTTP::Post.new(path)
-      request = build_request(request, data_hash)
-      response = client.request(request)
-
-      if response.code == "200"
-        #puts "POST request: #{path} with body: #{json_body} sent successfully"
-        return SuccessResponse.new(response)
-      else
-        puts "POST request: #{path} with body: #{request.body} failed with code: #{response.code} message: #{response.body}"
-        return FailedResponse.new(response)
-      end
-    rescue Exception => e
-      puts "Problem with POST request: #{e.message}"
-      e.backtrace.each do |line|
-        puts "#{line}\n"
-      end
-    ensure
-      @client_pool << client
-    end
+    make_request(POST_REQUEST, path, data_hash)
   end
 
   #
@@ -79,24 +56,34 @@ class RemoteHTTPDataService
   # @return A wrapped response (ResponseWrapper), see below.
   #
   def get_data(path, data_hash = nil)
-    begin
+    make_request(GET_REQUEST, path, data_hash)
+  end
 
-      puts "#{Time.now} - Getting #{path} with #{data_hash ? data_hash : "nil"}"
+  def make_request(request_type, path, data_hash = nil)
+    begin
+      puts "#{Time.now} - HTTP #{request_type} request to #{path} with #{data_hash ? data_hash : "nil"}"
       client =  @client_pool.pop()
-      request = Net::HTTP::Get.new(path)
-      request = build_request(request, data_hash)
-      response = client.request(request)
+      case request_type
+        when GET_REQUEST
+          request = Net::HTTP::Get.new(path)
+        when POST_REQUEST
+          request = Net::HTTP::Post.new(path)
+        else
+          raise Exception, 'A request_type must be specified'
+      end
+      built_request = build_request(request, data_hash)
+      response = client.request(built_request)
 
       if response.code == "200"
         # puts 'request sent successfully'
         return SuccessResponse.new(response)
       else
-        puts "GET request: #{path} failed with code: #{response.code} message: #{response.body}"
+        puts "HTTP #{request_type} request: #{path} failed with code: #{response.code} message: #{response.body}"
         return FailedResponse.new(response)
       end
     rescue Exception => e
-        puts "Problem with GET request: #{e.message}"
-        e.backtrace.each {|line| puts "#{line}\n"}
+      puts "Problem with HTTP #{request_type} request: #{e.message}"
+      e.backtrace.each { |line| puts "#{line}\n" }
     ensure
       @client_pool << client
     end
