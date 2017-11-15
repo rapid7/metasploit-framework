@@ -1,5 +1,7 @@
+require 'msf/core/modules/metadata'
+
 #
-# Simple accessor object for storing module metadata.
+# Simple object for storing a modules metadata.
 #
 module Msf
 module Modules
@@ -20,14 +22,17 @@ class Obj
   attr_reader :arch
   attr_reader :rport
   attr_reader :targets
+  attr_reader :mod_time
+  attr_reader :is_install_path
+  attr_reader :ref_name
 
   def initialize(module_instance)
     @name = module_instance.name
     @full_name = module_instance.fullname
     @disclosure_date = module_instance.disclosure_date
-    @rank = module_instance.rank
+    @rank = module_instance.rank.to_i
     @type = module_instance.type
-    @description = module_instance.description
+    @description = module_instance.description.to_s.strip
     @author = module_instance.author.map{|x| x.to_s}
     @references = module_instance.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
     @is_server = (module_instance.respond_to?(:stance) and module_instance.stance == "aggressive")
@@ -35,10 +40,26 @@ class Obj
     @platform = module_instance.platform_to_s
     @arch = module_instance.arch_to_s
     @rport = module_instance.datastore['RPORT'].to_s
+    @path = module_instance.file_path
+    @mod_time = ::File.mtime(@path) rescue Time.now
+    @ref_name = module_instance.refname
+    install_path = Msf::Config.install_root.to_s
+    if (@path.to_s.include? (install_path))
+      @path = @path.sub(install_path, '')
+      @is_install_path = true
+    end
 
     if module_instance.respond_to?(:targets) and module_instance.targets
       @targets = module_instance.targets.map{|x| x.name}
     end
+  end
+
+  def path
+    if @is_install_path
+      return ::File.join(Msf::Config.install_root, @path)
+    end
+
+    @path
   end
 end
 end

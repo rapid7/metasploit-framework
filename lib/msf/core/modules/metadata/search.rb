@@ -1,3 +1,5 @@
+require 'msf/core/modules/metadata'
+
 #
 # Provides search operations on the module metadata cache.
 #
@@ -8,7 +10,7 @@ module Msf::Modules::Metadata::Search
   def find(search_string)
     search_results = []
 
-    get_module_metadata_cache.values.each { |module_metadata|
+    get_metadata.each { |module_metadata|
       if is_match(search_string, module_metadata)
         search_results << module_metadata
       end
@@ -115,3 +117,4 @@ module Msf::Modules::Metadata::Search
     true
   end
 end
+

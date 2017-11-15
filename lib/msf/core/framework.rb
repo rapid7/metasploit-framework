@@ -91,8 +91,6 @@ class Framework
     events.add_general_subscriber(subscriber)
     events.add_db_subscriber(subscriber)
     events.add_ui_subscriber(subscriber)
-
-    Msf::Modules::Metadata::Cache.instance.init(self)
   end
 
   def inspect
