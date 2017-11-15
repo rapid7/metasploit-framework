@@ -634,7 +634,6 @@ class ReadableText
       sess_via     = session.via_exploit.to_s
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
-      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
       sess_luri    = session.exploit_datastore['LURI'] || "" if session.exploit_datastore
       sess_enc     = false
       if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
