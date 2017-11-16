@@ -37,12 +37,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return unless (res && res.code == 200)
 
-    begin
-      json = JSON.parse(res.body)
-    rescue JSON::ParserError
-      return
-    end
-
+    json = res.get_json_document
     name, ssid = json['name'], json['ssid']
 
     if name && ssid

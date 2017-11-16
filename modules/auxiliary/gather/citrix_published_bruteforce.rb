@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to brute force program names within the Citrix
         Metaframe ICA server.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'References'     =>
         [
           [ 'OSVDB', '50617' ],

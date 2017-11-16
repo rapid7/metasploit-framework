@@ -71,6 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       port: rport,
       local_port: datastore['CPORT'],
       stop_on_success: datastore['STOP_ON_SUCCESS'],
+      proxies: datastore['PROXIES'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: 5,
       max_send_size: datastore['TCP::max_send_size'],

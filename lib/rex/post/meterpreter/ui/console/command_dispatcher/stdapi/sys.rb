@@ -899,12 +899,12 @@ class Console::CommandDispatcher::Stdapi::Sys
       'Header'    => 'Enabled Process Privileges',
       'Indent'    => 0,
       'SortIndex' => 1,
-      'Columns'   => ['Priv Name', 'Enabled']
+      'Columns'   => ['Name']
     )
 
     privs = client.sys.config.getprivs
     client.sys.config.getprivs.each do |priv|
-      table << [priv[:priv], priv[:enabled].to_s]
+      table << [priv]
     end
 
     print_line

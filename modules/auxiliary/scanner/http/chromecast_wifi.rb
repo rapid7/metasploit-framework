@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       'SortIndex' => -1
     )
 
-    JSON.parse(res.body).each do |wap|
+    res.get_json_document.each do |wap|
       waps_table << [
         wap['bssid'],
         wap['signal_level'],

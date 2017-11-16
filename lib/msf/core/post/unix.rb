@@ -40,14 +40,17 @@ module Msf::Post::Unix
   #
   def get_groups
     groups = []
-    cmd_out = read_file("/etc/group").split("\n")
-    cmd_out.each do |l|
-      entry = {}
-      user_field = l.split(":")
-      entry[:name] = user_field[0]
-      entry[:gid] = user_field[2]
-      entry[:users] = user_field[3]
-      groups << entry
+    group = '/etc/group'
+    if file_exist?(group)
+      cmd_out = read_file(group).split("\n")
+      cmd_out.each do |l|
+        entry = {}
+        user_field = l.split(":")
+        entry[:name] = user_field[0]
+        entry[:gid] = user_field[2]
+        entry[:users] = user_field[3]
+        groups << entry
+      end
     end
     return groups
   end
@@ -59,8 +62,11 @@ module Msf::Post::Unix
     user_dirs = []
 
     # get all user directories from /etc/passwd
-    read_file("/etc/passwd").each_line do |passwd_line|
-      user_dirs << passwd_line.split(/:/)[5]
+    passwd = '/etc/passwd'
+    if file_exist?(passwd)
+      read_file(passwd).each_line do |passwd_line|
+        user_dirs << passwd_line.split(/:/)[5]
+      end
     end
 
     # also list other common places for home directories in the event that

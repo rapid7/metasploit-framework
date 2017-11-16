@@ -78,13 +78,13 @@ module Rex
                 creation  = str_to_time(val)
                 emodified = str_to_time(val)
               when "-f"
-                print_status("Setting MACE attributes on #{path} from #{val}")
-                hash = client.priv.fs.get_file_mace(path)
+                print_status("Pulling MACE attributes from #{val}")
+                hash = client.priv.fs.get_file_mace(val)
                 if hash
-                  modified = str_to_time(hash['Modified'])
-                  accessed = str_to_time(hash['Accessed'])
-                  creation = str_to_time(hash['Created'])
-                  emodified = str_to_time(hash['Entry Modified'])
+                  modified = hash['Modified']
+                  accessed = hash['Accessed']
+                  creation = hash['Created']
+                  emodified = hash['Entry Modified']
                 end
               when "-b"
                 blank_file_mace = true
@@ -112,6 +112,7 @@ module Rex
             end
 
             paths.uniq.each do |path|
+
               # If any one of the four times were specified, change them.
               if modified || accessed || creation || emodified
                 print_status("Setting specific MACE attributes on #{path}")

@@ -41,18 +41,19 @@ class Core
     "-c"  => [ true,  "Run a command on the session given with -i, or all"             ],
     "-C"  => [ true,  "Run a Meterpreter Command on the session given with -i, or all" ],
     "-h"  => [ false, "Help banner"                                                    ],
-    "-i"  => [ true,  "Interact with the supplied session ID   "                       ],
+    "-i"  => [ true,  "Interact with the supplied session ID"                          ],
     "-l"  => [ false, "List all active sessions"                                       ],
     "-v"  => [ false, "List sessions in verbose mode"                                  ],
     "-q"  => [ false, "Quiet mode"                                                     ],
     "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
     "-K"  => [ false, "Terminate all sessions"                                         ],
-    "-s"  => [ true,  "Run a script on the session given with -i, or all"              ],
+    "-s"  => [ true,  "Run a script or module on the session given with -i, or all"    ],
     "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
-    "-S"  => [ true, "Row search filter."                                              ],
-    "-x" =>  [ false, "Show extended information in the session table"                 ])
+    "-S"  => [ true,  "Row search filter."                                             ],
+    "-x" =>  [ false, "Show extended information in the session table"                 ],
+    "-n" =>  [ true,  "Name or rename a session by ID"                                 ])
 
   @@threads_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -138,10 +139,9 @@ class Core
   def initialize(driver)
     super
 
-    @dscache = {}
     @cache_payloads = nil
     @previous_module = nil
-    @module_name_stack = []
+    @previous_target = nil
     @history_limit = 100
   end
 
@@ -1142,6 +1142,7 @@ class Core
     reset_ring = false
     response_timeout = 15
     search_term = nil
+    session_name = nil
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1179,10 +1180,10 @@ class Core
           sid = val || false
         when "-K"
           method = 'killall'
-        # Run a script on all meterpreter sessions
+        # Run a script or module on specified sessions
         when "-s"
           unless script
-            method = 'scriptall'
+            method = 'script'
             script = val
           end
         # Upload and exec to the specific command session
@@ -1204,8 +1205,9 @@ class Core
           if val.to_s =~ /^\d+$/
             response_timeout = val.to_i
           end
-        when "-S", "--search"
-          search_term = val
+        when "-n", "--name"
+          method = 'name'
+          session_name = val
         else
           extra << val
         end
@@ -1387,15 +1389,11 @@ class Core
           sid = nil
         end
       end
-    when 'scriptall'
+    when 'script'
       unless script
-        print_error("No script specified!")
+        print_error("No script or module specified!")
         return false
       end
-      script_paths = {}
-      script_paths['meterpreter'] = Msf::Sessions::Meterpreter.find_script_path(script)
-      script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
-
       sessions = sid ? session_list : framework.sessions.keys.sort
 
       sessions.each do |sess_id|
@@ -1411,15 +1409,13 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if script_paths[session.type]
-              print_status("Session #{sess_id} (#{session.session_host}):")
-              print_status("Running script #{script} on #{session.type} session" +
-                            " #{sess_id} (#{session.session_host})")
-              begin
-                session.execute_file(script_paths[session.type], extra)
-              rescue ::Exception => e
-                log_error("Error executing script: #{e.class} #{e}")
-              end
+            print_status("Session #{sess_id} (#{session.session_host}):")
+            print_status("Running #{script} on #{session.type} session" +
+                          " #{sess_id} (#{session.session_host})")
+            begin
+              session.execute_script(script, *extra)
+            rescue ::Exception => e
+              log_error("Error executing script or module: #{e.class} #{e}")
             end
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
@@ -1441,14 +1437,9 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if ['shell', 'powershell'].include?(session.type)
-              session.init_ui(driver.input, driver.output)
-              session.execute_script('post/multi/manage/shell_to_meterpreter')
-              session.reset_ui
-            else
-              print_error("Session #{sess_id} is not a command shell session, it is #{session.type}, skipping...")
-              next
-            end
+            session.init_ui(driver.input, driver.output)
+            session.execute_script('post/multi/manage/shell_to_meterpreter')
+            session.reset_ui
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
@@ -1473,6 +1464,27 @@ class Core
       print_line
       print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose, :search_term => search_term))
       print_line
+    when 'name'
+      if session_name.blank?
+        print_error('Please specify a valid session name')
+        return false
+      end
+
+      sessions = sid ? session_list : nil
+
+      if sessions.nil? || sessions.empty?
+        print_error("Please specify valid session identifier(s) using -i")
+        return false
+      end
+
+      sessions.each do |s|
+        if framework.sessions[s].respond_to?(:name=)
+          framework.sessions[s].name = session_name
+          print_status("Session #{s} named to #{session_name}")
+        else
+          print_error("Session #{s} cannot be named")
+        end
+      end
     end
 
     rescue IOError, EOFError, Rex::StreamClosedError
@@ -1603,12 +1615,6 @@ class Core
     # Set the supplied name to the supplied value
     name  = args[0]
     value = args[1, args.length-1].join(' ')
-    if (name.upcase == "TARGET")
-      # Different targets can have different architectures and platforms
-      # so we need to rebuild the payload list whenever the target
-      # changes.
-      @cache_payloads = nil
-    end
 
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
@@ -2264,11 +2270,16 @@ class Core
   # Provide valid payload options for the current exploit
   #
   def option_values_payloads
-    return @cache_payloads if @cache_payloads
+    if @cache_payloads && active_module == @previous_module && active_module.target == @previous_target
+      return @cache_payloads
+    end
 
-    @cache_payloads = active_module.compatible_payloads.map { |refname, payload|
+    @previous_module = active_module
+    @previous_target = active_module.target
+
+    @cache_payloads = active_module.compatible_payloads.map do |refname, payload|
       refname
-    }
+    end
 
     @cache_payloads
   end
