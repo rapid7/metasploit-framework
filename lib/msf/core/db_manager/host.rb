@@ -120,6 +120,15 @@ module Msf::DBManager::Host
     norm_host
   end
 
+  def host_updated(host)
+    begin
+      framework.events.on_db_host_state(host)
+    rescue ::Exception => e
+      wlog("Exception in on_db_host_state event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+  end
+
   #
   # Report a host's attributes such as operating system and service pack
   #
@@ -207,9 +216,17 @@ module Msf::DBManager::Host
     host.comm        = ''        if !host.comm
     host.workspace   = wspace    if !host.workspace
 
+    begin
+      framework.events.on_db_host(host) if host.new_record?
+    rescue ::Exception => e
+      wlog("Exception in on_db_host event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
     if host.changed?
       msf_import_timestamps(opts,host)
       host.save!
+      host_updated(host)
     end
 
     if opts[:task]
@@ -334,6 +351,7 @@ module Msf::DBManager::Host
 
     if host.changed?
       host.save!
+      host_updated(host)
     end
 
     host

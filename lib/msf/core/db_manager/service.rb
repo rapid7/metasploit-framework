@@ -99,9 +99,22 @@ module Msf::DBManager::Service
     service.state ||= Msf::ServiceState::Open
     service.info  ||= ""
 
+    begin
+      framework.events.on_db_service(service) if service.new_record?
+    rescue ::Exception => e
+      wlog("Exception in on_db_service event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
     if (service and service.changed?)
       msf_import_timestamps(opts,service)
       service.save!
+      begin
+        framework.events.on_db_service_state(service)
+      rescue ::Exception => e
+        wlog("Exception in on_db_service_state event handler: #{e.class}: #{e}")
+        wlog("Call Stack\n#{e.backtrace.join("\n")}")
+      end
     end
 
     if opts[:task]
