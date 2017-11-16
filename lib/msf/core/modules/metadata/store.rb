@@ -40,8 +40,7 @@ module Msf::Modules::Metadata::Store
       @module_metadata_cache = @store.transaction(true) { @store[:module_metadata]}
       validate_data(copied) if (!@module_metadata_cache.nil? && @module_metadata_cache.size > 0)
       @module_metadata_cache = {} if @module_metadata_cache.nil?
-      puts "module size #{@module_metadata_cache.size}"
-    rescue
+    rescue Exception => e
       retries +=1
 
       # Try to handle the scenario where the file is corrupted
@@ -49,7 +48,7 @@ module Msf::Modules::Metadata::Store
         FileUtils.remove(@path_to_user_metadata, true)
         retry
       else
-        @console.print_warning('Unable to load module metadata')
+        @console.print_warning("Unable to load module metadata: #{e.message}")
       end
     end
 
@@ -71,20 +70,20 @@ module Msf::Modules::Metadata::Store
   def configure_user_store
     copied = false
     @path_to_user_metadata =  ::File.join(Msf::Config.config_directory, UserMetaDataFile)
-    @path_to_base_metadata = ::File.join(Msf::Config.install_root, "db", BaseMetaDataFile)
+    path_to_base_metadata = ::File.join(Msf::Config.install_root, "db", BaseMetaDataFile)
 
     if (!::File.exist?(path_to_base_metadata))
       wlog("Missing base module metadata file: #{path_to_base_metadata}")
     else
       if (!::File.exist?(@path_to_user_metadata))
-        FileUtils.cp(@path_to_base_metadata, @path_to_user_metadata)
+        FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
         copied = true
         dlog('Created user based module store')
 
        # Update the user based module store if an updated base file is created/pushed
       elsif (::File.mtime(path_to_base_metadata).to_i > ::File.mtime(@path_to_user_metadata).to_i)
         FileUtils.remove(@path_to_user_metadata, true)
-        FileUtils.cp(@path_to_base_metadata, @path_to_user_metadata)
+        FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
         copied = true
         dlog('Updated user based module store')
       end
