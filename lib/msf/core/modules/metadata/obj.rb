@@ -54,6 +54,10 @@ class Obj
     end
   end
 
+  def update_mod_time(mod_time)
+    @mod_time = mod_time
+  end
+
   def path
     if @is_install_path
       return ::File.join(Msf::Config.install_root, @path)
