@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.puts(SMI_PROBE)
     response = sock.get_once(-1)
     if response
-      if SMI_RE.match?(response)
+      if SMI_RE.match(response)
         print_good("Fingerprinted the Cisco Smart Install protocol")
         return true
       else
