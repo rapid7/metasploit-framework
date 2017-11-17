@@ -13,7 +13,7 @@ module Msf::Modules::Metadata::Store
   UserMetaDataFile = 'modules_metadata.pstore'
 
   #
-  # Initializes from user store (under ~/.msf4) if it exists. else base file (under $INSTALL_ROOT/db) is copied and loaded.
+  # Initializes from user store (under ~/store/.msf4) if it exists. else base file (under $INSTALL_ROOT/db) is copied and loaded.
   #
   def init_store
     load_metadata
@@ -23,8 +23,12 @@ module Msf::Modules::Metadata::Store
   # Update the module meta cache disk store
   #
   def update_store
-    @store.transaction do
-      @store[:module_metadata] = @module_metadata_cache
+    begin
+      @store.transaction do
+        @store[:module_metadata] = @module_metadata_cache
+      end
+    rescue Excepion => e
+      elog("Unable to update metadata store: #{e.message}")
     end
   end
 
@@ -45,10 +49,12 @@ module Msf::Modules::Metadata::Store
 
       # Try to handle the scenario where the file is corrupted
       if (retries < 2 && ::File.exist?(@path_to_user_metadata))
-        FileUtils.remove(@path_to_user_metadata, true)
+        elog('Possible corrupt user metadata store, attempting restore')
+        FileUtils.remove(@path_to_user_metadata)
         retry
       else
-        @console.print_warning("Unable to load module metadata: #{e.message}")
+        @console.print_warning('Unable to load module metadata from disk see error log')
+        elog("Unable to load module metadata: #{e.message}")
       end
     end
 
@@ -69,27 +75,37 @@ module Msf::Modules::Metadata::Store
 
   def configure_user_store
     copied = false
-    @path_to_user_metadata =  ::File.join(Msf::Config.config_directory, UserMetaDataFile)
+    @path_to_user_metadata = get_user_store
     path_to_base_metadata = ::File.join(Msf::Config.install_root, "db", BaseMetaDataFile)
+    user_file_exists = ::File.exist?(@path_to_user_metadata)
+    base_file_exists = ::File.exist?(path_to_base_metadata)
 
-    if (!::File.exist?(path_to_base_metadata))
+    if (!base_file_exists)
       wlog("Missing base module metadata file: #{path_to_base_metadata}")
-    else
-      if (!::File.exist?(@path_to_user_metadata))
-        FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
-        copied = true
-        dlog('Created user based module store')
+      return copied if !user_file_exists
+    end
 
-       # Update the user based module store if an updated base file is created/pushed
-      elsif (::File.mtime(path_to_base_metadata).to_i > ::File.mtime(@path_to_user_metadata).to_i)
-        FileUtils.remove(@path_to_user_metadata, true)
-        FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
-        copied = true
-        dlog('Updated user based module store')
-      end
+    if (!user_file_exists)
+      FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
+      copied = true
+
+      dlog('Created user based module store')
+
+     # Update the user based module store if an updated base file is created/pushed
+    elsif (::File.mtime(path_to_base_metadata).to_i > ::File.mtime(@path_to_user_metadata).to_i)
+      FileUtils.remove(@path_to_user_metadata)
+      FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
+      copied = true
+      dlog('Updated user based module store')
     end
 
     return copied
+  end
+
+  def get_user_store
+    store_dir = ::File.join(Msf::Config.config_directory, "store")
+    FileUtils.mkdir(store_dir) if !::File.exist?(store_dir)
+    return ::File.join(store_dir, UserMetaDataFile)
   end
 
 end

@@ -4,7 +4,6 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
   end
 
   let(:metadata_cache) do
-    # Msf::Modules::Metadata::Cache.instance.init(framework)
     Msf::Modules::Metadata::Cache.instance
   end
 
