@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(4786),
         OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ]),
-        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 60]),
+        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 10]),
         OptInt.new('DELAY', [ true, "Time to wait till requesting config to prevent service from becomming unresponsive.", 60])
       ]
     )
