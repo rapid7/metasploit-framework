@@ -2,19 +2,24 @@ include Msf::Auxiliary::Report
 
 module Msf::Module::External
   def wait_status(mod)
-    while mod.running
-      m = mod.get_status
-      if m
-        case m.method
-        when :message
-          log_output(m)
-        when :report
-          process_report(m)
-        when :reply
-          # we're done
-          break
+    begin
+      while mod.running
+        m = mod.get_status
+        if m
+          case m.method
+          when :message
+            log_output(m)
+          when :report
+            process_report(m)
+          when :reply
+            # we're done
+            break
+          end
         end
       end
+    rescue Exception => e #Msf::Modules::External::Bridge::Error => e
+      elog e.backtrace.join("\n")
+      fail_with Failure::UNKNOWN, e.message
     end
   end
 
