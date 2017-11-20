@@ -42,8 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(4786),
         OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ]),
-        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 10]),
-        OptInt.new('DELAY', [ true, "Time to wait till requesting config to prevent service from becomming unresponsive.", 60])
+        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 10])
       ]
     )
   end
@@ -134,8 +133,7 @@ class MetasploitModule < Msf::Auxiliary
           return unless smi?
           disconnect # cant send any additional packets, so closing
           connect
-          print_status("Waiting #{datastore['DELAY']} seconds before requesting config")
-          Rex.sleep(datastore['DELAY'])
+          print_status("Requesting configuration from device...")
           send_packet
           print_status("Waiting #{datastore['SLEEP']} seconds for configuration")
           Rex.sleep(datastore['SLEEP'])
