@@ -99,7 +99,7 @@ module Msf::ModuleManager::Cache
   end
 
   # @overload refresh_cache_from_module_files
-  #   Rebuilds module metadat store and in-memory cache for all modules.
+  #   Rebuilds module metadata store and in-memory cache for all modules.
   #
   #   @return [void]
   # @overload refresh_cache_from_module_files(module_class_or_instance)
