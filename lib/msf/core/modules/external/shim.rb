@@ -11,6 +11,8 @@ class Msf::Modules::External::Shim
       remote_exploit_cmd_stager(mod)
     when 'capture_server'
       capture_server(mod)
+    when 'dos'
+      dos(mod)
     else
       # TODO have a nice load error show up in the logs
       ''
@@ -65,5 +67,13 @@ class Msf::Modules::External::Shim
   def self.capture_server(mod)
     meta = mod_meta_common(mod)
     render_template('capture_server.erb', meta)
+  end
+
+  def self.dos(mod)
+    meta = mod_meta_common(mod)
+    meta[:date] = mod.meta['date'].dump
+    meta[:references] = mod.meta['references'].map do |r|
+      "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
+    render_template('dos.erb', meta)
   end
 end
