@@ -74,6 +74,8 @@ class Msf::Modules::External::Shim
     meta[:date] = mod.meta['date'].dump
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
+    end.join(",\n          ")
+
     render_template('dos.erb', meta)
   end
 end
