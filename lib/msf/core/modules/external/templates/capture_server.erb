@@ -1,0 +1,26 @@
+require 'msf/core/modules/external/bridge'
+require 'msf/core/module/external'
+
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Module::External
+
+  def initialize
+    super({
+	  <%= common_metadata meta %>
+      'Actions'     => [ ['Capture'] ],
+      'PassiveActions' => ['Capture'],
+      'DefaultAction'  => 'Capture'
+      })
+
+      register_options([
+        <%= meta[:options] %>
+      ])
+  end
+
+  def run
+    print_status("Starting server...")
+    mod = Msf::Modules::External::Bridge.open(<%= meta[:path] %>)
+    mod.run(datastore)
+    wait_status(mod)
+  end
+end
