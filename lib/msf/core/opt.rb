@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 module Msf
-
   #
   # Builtin framework options with shortcut methods
   #
@@ -51,22 +50,19 @@ module Msf
       Msf::OptPort.new(__method__.to_s, [ required, desc, default ])
     end
 
-    # @return [OptEnum]
-    def self.SSLVersion
-      Msf::OptEnum.new('SSLVersion', [ false,
-        'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23 are auto-negotiate)', 'Auto',
-        ['Auto', 'SSL2', 'SSL3', 'SSL23', 'TLS', 'TLS1', 'TLS1.1', 'TLS1.2']])
+    def self.ssl_supported_options
+      @m ||= ['Auto', 'TLS'] + OpenSSL::SSL::SSLContext::METHODS \
+             .select{|m| !m.to_s.include?('client') && !m.to_s.include?('server')} \
+             .select{|m| OpenSSL::SSL::SSLContext.new(m) && true rescue false} \
+             .map{|m| m.to_s.sub(/v/, '').sub('_', '.')}
     end
 
-    # These are unused but remain for historical reasons
-    class << self
-      alias builtin_chost CHOST
-      alias builtin_cport CPORT
-      alias builtin_lhost LHOST
-      alias builtin_lport LPORT
-      alias builtin_proxies Proxies
-      alias builtin_rhost RHOST
-      alias builtin_rport RPORT
+    # @return [OptEnum]
+    def self.SSLVersion
+      Msf::OptEnum.new('SSLVersion',
+        'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23 are auto-negotiate)',
+        enums: self.ssl_supported_options
+      )
     end
 
     CHOST = CHOST()
@@ -78,5 +74,4 @@ module Msf
     RPORT = RPORT()
     SSLVersion = SSLVersion()
   end
-
 end
