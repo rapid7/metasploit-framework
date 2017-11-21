@@ -257,7 +257,7 @@ class ClientCore < Extension
         end
 
         library_path = "ext#{rand(1000000)}.#{suffix}"
-        target_path  = library_path
+        target_path  = "/tmp/#{library_path}"
       end
     end
 
