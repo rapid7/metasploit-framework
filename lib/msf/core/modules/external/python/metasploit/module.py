@@ -21,15 +21,15 @@ def report_service(ip, opts={}):
     }})
 
 
-def run(metadata, exploit):
+def run(metadata, module_callback):
     req = json.loads(os.read(0, 10000))
     if req['method'] == 'describe':
         rpc_send({'jsonrpc': '2.0', 'id': req['id'], 'response': metadata})
     elif req['method'] == 'run':
         args = req['params']
-        exploit(args)
+        module_callback(args)
         rpc_send({'jsonrpc': '2.0', 'id': req['id'], 'response': {
-            'message': 'Exploit completed'
+            'message': 'Module completed'
         }})
 
 def rpc_send(req):
