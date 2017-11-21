@@ -1,4 +1,10 @@
 RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
+
+  # Wait for data to be loaded
+  before(:all) do
+    Msf::Modules::Metadata::Cache.instance.get_metadata
+  end
+
   let(:parent_path) do
     parent_pathname.to_path
   end
