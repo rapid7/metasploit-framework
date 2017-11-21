@@ -17,9 +17,11 @@ module Msf::Module::External
           end
         end
       end
-    rescue Exception => e #Msf::Modules::External::Bridge::Error => e
+    rescue Interrupt => e
+      raise e
+    rescue Exception => e
       elog e.backtrace.join("\n")
-      fail_with Failure::UNKNOWN, e.message
+      fail_with Msf::Module::Failure::Unknown, e.message
     end
   end
 
