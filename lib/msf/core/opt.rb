@@ -50,11 +50,18 @@ module Msf
       Msf::OptPort.new(__method__.to_s, [ required, desc, default ])
     end
 
+    def self.ssl_supported_options
+      @m ||= ['Auto', 'TLS'] + OpenSSL::SSL::SSLContext::METHODS \
+             .select{|m| !m.to_s.include?('client') && !m.to_s.include?('server')} \
+             .select{|m| OpenSSL::SSL::SSLContext.new(m) && true rescue false} \
+             .map{|m| m.to_s.sub(/v/, '').sub('_', '.')}
+    end
+
     # @return [OptEnum]
     def self.SSLVersion
       Msf::OptEnum.new('SSLVersion',
         'Specify the version of SSL/TLS to be used (Auto, TLS and SSL23 are auto-negotiate)',
-        enums: ['Auto', 'SSL2', 'SSL3', 'SSL23', 'TLS', 'TLS1', 'TLS1.1', 'TLS1.2']
+        enums: self.ssl_supported_options
       )
     end
 
