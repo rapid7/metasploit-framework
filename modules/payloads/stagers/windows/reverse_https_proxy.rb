@@ -8,7 +8,7 @@ require 'msf/core/handler/reverse_https_proxy'
 
 module MetasploitModule
 
-  CachedSize = 397
+  CachedSize = 384
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
