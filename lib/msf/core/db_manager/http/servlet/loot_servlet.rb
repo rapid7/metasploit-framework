@@ -27,12 +27,11 @@ module LootServlet
 
   def self.report_loot
     lambda {
-
       job = lambda { |opts|
         if opts[:data]
           filename = File.basename(opts[:path])
           local_path = File.join(Msf::Config.loot_directory, filename)
-          process_file(opts[:data], local_path)
+          opts[:path] = process_file(opts[:data], local_path)
         end
 
         get_db().report_loot(opts)

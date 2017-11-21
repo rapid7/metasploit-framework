@@ -6,7 +6,16 @@ module RemoteLootDataService
   LOOT_PATH = '/api/1/msf/loot'
 
   def loot(opts = {})
-    json_to_open_struct_object(self.get_data(LOOT_PATH, opts), [])
+    # TODO: Add an option to toggle whether the file data is returned or not
+    loots = json_to_open_struct_object(self.get_data(LOOT_PATH, opts), [])
+    # Save a local copy of the file
+    loots.each do |loot|
+      if loot.data
+        local_path = File.join(Msf::Config.loot_directory, File.basename(loot.path))
+        loot.path = process_file(loot.data, local_path)
+      end
+    end
+    loots
   end
 
   def report_loot(opts)

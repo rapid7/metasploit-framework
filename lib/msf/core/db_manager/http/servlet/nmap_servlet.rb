@@ -16,7 +16,7 @@ module NmapServlet
     lambda {
 
       job = lambda { |opts|
-        nmap_file = opts[:filename].split('/').last
+        nmap_file = File.basename(opts[:filename])
         nmap_file_path = File.join(Msf::Config.local_directory, nmap_file)
         opts[:filename] = process_file(opts[:data], nmap_file_path)
         get_db().import_nmap_xml_file(opts)
