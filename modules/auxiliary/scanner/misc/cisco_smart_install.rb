@@ -98,13 +98,13 @@ class MetasploitModule < Msf::Auxiliary
     name = info[:file][:name]
     data = info[:file][:data]
     from = info[:from]
-    return if not (name and data)
+    return if not (name && data && from)
 
     # Trim off IPv6 mapped IPv4 if necessary
     from = from[0].dup
     from.gsub!('::ffff:', '')
 
-    print_status("Incoming file from #{from} - #{name} #{data.length} bytes")
+    print_status("Incoming file from #{from} - #{name} (#{data.length} bytes)")
     cisco_ios_config_eater(from, 4786, data)
   end
 
