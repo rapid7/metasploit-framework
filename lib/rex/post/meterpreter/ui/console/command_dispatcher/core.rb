@@ -1178,7 +1178,7 @@ class Console::CommandDispatcher::Core
       md = m.downcase
       modulenameprovided = md
 
-      if client.binary_suffix.size > 1
+      if client.binary_suffix and client.binary_suffix.size > 1
         client.binary_suffix.each { |s|
           if (md =~ /(.*)\.#{s}/ )
             md = $1

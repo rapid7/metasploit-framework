@@ -305,7 +305,9 @@ class ClientCore < Extension
 
     modnameprovided = mod
     suffix = nil
-    if client.binary_suffix.size > 1
+    if not client.binary_suffix
+      suffix = ''
+    elsif client.binary_suffix.size > 1
       client.binary_suffix.each { |s|
         if (mod =~ /(.*)\.#{s}/ )
           mod = $1

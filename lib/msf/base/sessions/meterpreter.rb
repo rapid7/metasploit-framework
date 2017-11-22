@@ -647,6 +647,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         ["#{self.arch}.dll"]
       when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
         ['bin', 'elf']
+      when 'osx'
+        ['elf']
       when 'android', 'java'
         ['jar']
       when 'php'
