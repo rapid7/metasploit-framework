@@ -81,8 +81,8 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Providing some time for transfers to complete...")
       ::IO.select(nil, nil, nil, 5.0)
 
-      print_status("Shutting down the TFTP service...")
       if @tftp
+        print_status("Shutting down the TFTP service...")
         @tftp.close rescue nil
         @tftp = nil
       end
