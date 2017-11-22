@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     if ::Thread.current == @main_thread
       # Wait 5 seconds for background transfers to complete
       print_status("Providing some time for transfers to complete...")
-      ::IO.select(nil, nil, nil, 5.0)
+      sleep(5)
 
       if @tftp
         print_status("Shutting down the TFTP service...")
