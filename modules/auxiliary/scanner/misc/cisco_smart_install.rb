@@ -93,7 +93,6 @@ class MetasploitModule < Msf::Auxiliary
   # Callback for incoming files
   #
   def process_incoming(info)
-    @config_recieved = true
     return if not info[:file]
     name = info[:file][:name]
     data = info[:file][:data]
