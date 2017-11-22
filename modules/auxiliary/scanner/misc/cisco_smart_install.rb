@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
     from.gsub!('::ffff:', '')
 
     print_status("Incoming file from #{from} - #{name} (#{data.length} bytes)")
-    cisco_ios_config_eater(from, 4786, data)
+    cisco_ios_config_eater(from, rport, data)
   end
 
   def decode_hex(string)
