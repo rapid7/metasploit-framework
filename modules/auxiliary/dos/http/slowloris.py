@@ -54,9 +54,9 @@ def init_socket(host, port, use_ssl=False, rand_user_agent=True):
 
     s.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
 
-    agent = user_agent.most_common
+    agent = user_agent.most_common()
     if rand_user_agent:
-        agent = user_agent.random
+        agent = user_agent.random()
     s.send("User-Agent: {}\r\n".format(agent).encode("utf-8"))
 
     s.send("{}\r\n".format("Accept-language: en-US,en,q=0.5").encode("utf-8"))
