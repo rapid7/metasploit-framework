@@ -249,9 +249,11 @@ class ClientCore < Extension
       # path of the local and target so that it gets loaded with a random
       # name
       if opts['Extension']
-        if client.binary_suffix.size > 1
+        if client.binary_suffix and client.binary_suffix.size > 1
           m = /(.*)\.(.*)/.match(library_path)
           suffix = $2
+        elsif client.binary_suffix.size == 1
+          suffix = client.binary_suffix[0]
         else
           suffix = client.binary_suffix
         end
