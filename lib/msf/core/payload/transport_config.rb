@@ -66,6 +66,9 @@ module Msf::Payload::TransportConfig
       proxy_type:      ds['HttpProxyType'],
       proxy_user:      ds['HttpProxyUser'],
       proxy_pass:      ds['HttpProxyPass'],
+      host:            ds['HttpHostHeader'],
+      cookie:          ds['HttpCookie'],
+      referer:         ds['HttpReferer'],
       custom_headers:  get_custom_headers(ds)
     }.merge(timeout_config(opts))
   end
