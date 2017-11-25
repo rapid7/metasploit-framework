@@ -65,6 +65,49 @@ module Msf
       )
     end
 
+    def self.stager_retry_options
+      [
+        OptInt.new('StagerRetryCount',
+          'The number of times the stager should retry if the first connect fails',
+          default: 10,
+          aliases: ['ReverseConnectRetries']
+        ),
+        OptInt.new('StagerRetryWait',
+          'Number of seconds to wait for the stager between reconnect attempts',
+          default: 5
+        )
+      ]
+    end
+
+    def self.http_proxy_options
+      [
+        OptString.new('HttpProxyHost', 'An optional proxy server IP address or hostname',
+          aliases: ['PayloadProxyHost']
+        ),
+        OptPort.new('HttpProxyPort', 'An optional proxy server port',
+          aliases: ['PayloadProxyPort']
+        ),
+        OptString.new('HttpProxyUser', 'An optional proxy server username',
+          aliases: ['PayloadProxyUser']
+        ),
+        OptString.new('HttpProxyPass', 'An optional proxy server password',
+          aliases: ['PayloadProxyPass']
+        ),
+        OptEnum.new('HttpProxyType', 'The type of HTTP proxy',
+          enums: ['HTTP', 'SOCKS'],
+          aliases: ['PayloadProxyType']
+        )
+      ]
+    end
+
+    def self.http_header_options
+      [
+        OptString.new('HttpHostHeader', 'An optional value to use for the Host HTTP header'),
+        OptString.new('HttpCookie', 'An optional value to use for the Cookie HTTP header'),
+        OptString.new('HttpReferer', 'An optional value to use for the Referer HTTP header')
+      ]
+    end
+
     CHOST = CHOST()
     CPORT = CPORT()
     LHOST = LHOST()
