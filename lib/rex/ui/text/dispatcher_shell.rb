@@ -249,6 +249,56 @@ module DispatcherShell
       matches
     end
 
+    #
+    # Provide a generic tab completion function based on the specification
+    # pass as fmt. The fmt argument in a hash where values are an array
+    # defining how the command should be completed. The first element of the
+    # array can be one of:
+    #   nil      - This argument is a flag and takes no option.
+    #   true     - This argument takes an option with no suggestions.
+    #   :address - This option is a source address.
+    #   :bool    - This option is a boolean.
+    #   :file    - This option is a file path.
+    #   Array    - This option is an array of possible values.
+    #
+    def tab_complete_generic(fmt, str, words)
+      last_word = words[-1]
+      fmt = fmt.select { |key, value| last_word == key || !words.include?(key) }
+
+      val = fmt[last_word]
+      return fmt.keys if !val  # the last word does not look like a fmtspec
+      arg = val[0]
+      return fmt.keys if !arg  # the last word is a fmtspec that takes no argument
+
+      tabs = []
+      if arg.to_s.to_sym == :address
+        tabs = tab_complete_source_address
+      elsif arg.to_s.to_sym == :bool
+        tabs = ['true', 'false']
+      elsif arg.to_s.to_sym == :file
+        tabs = tab_complete_filenames(str, words)
+      elsif arg.kind_of?(Array)
+        tabs = arg.map {|a| a.to_s}
+      end
+      tabs
+    end
+
+    #
+    # Return a list of possible source addresses for tab completion.
+    #
+    def tab_complete_source_address
+      addresses = [Rex::Socket.source_address]
+      # getifaddrs was introduced in 2.1.2
+      if Socket.respond_to?(:getifaddrs)
+        ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
+          ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
+            ifaddr.addr &&
+            ifaddr.addr.ip?
+        end
+        addresses += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+      end
+      addresses
+    end
   end
 
   #
