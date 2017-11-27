@@ -13,7 +13,7 @@ module Rex::UserAgent
   # This list is in the order of most common to least common.
   #
   def self.agents
-    @@agents ||= File.binread(File.join(Msf::Config.data_directory, "user_agents.txt")).split("\n")
+    @@agents ||= File.binread(File.join(File.dirname(__FILE__),'..','..','data', "user_agents.txt")).split("\n")
   end
 
   #
