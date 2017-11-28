@@ -99,7 +99,7 @@ module Msf
                 print_status("Reloading #{path}")
                 load path
               else
-                print_error('Only Ruby files can be reloaded')
+                print_error('Only Ruby files can be reloaded (use reload/rerun for modules)')
               end
             else
               print_error('Nothing to edit -- try using a module first.')
