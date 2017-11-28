@@ -42,7 +42,7 @@ module Msf
 
     # @return [OptAddress]
     def self.RHOST(default=nil, required=true, desc="The target address")
-      Msf::OptAddress.new(__method__.to_s, [ required, desc, default ])
+      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
     # @return [OptPort]
