@@ -1826,6 +1826,8 @@ class Db
     if (path)
       auth, dest = path.split('@')
       (dest = auth and auth = nil) if not dest
+      # remove optional scheme in database url
+      auth = auth.sub(/^\w+:\/\//, "") if auth
       res[:user],res[:pass] = auth.split(':') if auth
       targ,name = dest.split('/')
       (name = targ and targ = nil) if not name
