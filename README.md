@@ -20,7 +20,7 @@ Installing
 --
 
 Generally, you should use [the free installer](https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers),
-which contains all of the dependencies and will get you up and running with a
+which contains all of the dependencies and will get you up and run with a
 few clicks. See the [Dev Environment Setup](https://r-7.co/MSF-DEV) if
 you'd like to deal with dependencies on your own.
 
