@@ -634,7 +634,6 @@ class ReadableText
       sess_via     = session.via_exploit.to_s
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
-      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
       sess_luri    = session.exploit_datastore['LURI'] || "" if session.exploit_datastore
       sess_enc     = false
       if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
@@ -652,10 +651,10 @@ class ReadableText
         sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
       end
 
-      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+      if session.payload_uuid.registered
         sess_registration = "Yes"
-        if uuid_info['name']
-          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        if session.payload_uuid.name
+          sess_registration << " - Name=\"#{session.payload_uuid.name}\""
         end
       end
 
