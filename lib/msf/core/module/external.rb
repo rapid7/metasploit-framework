@@ -1,6 +1,6 @@
-include Msf::Auxiliary::Report
-
 module Msf::Module::External
+  include Msf::Auxiliary::Report
+
   def wait_status(mod)
     begin
       while mod.running
