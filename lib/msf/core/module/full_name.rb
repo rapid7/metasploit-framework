@@ -25,8 +25,7 @@ module Msf::Module::FullName
     end
 
     def promptname
-      elements = refname.split('/')
-      "#{elements[-2]}/#{elements[-1]}"
+      refname
     end
 
     def shortname
