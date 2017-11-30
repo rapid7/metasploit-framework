@@ -661,7 +661,7 @@ module Msf
             # Update the command prompt
             prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
             prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
           end
 
           #
