@@ -188,11 +188,7 @@ class Client
       raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
     end
 
-    if is_file
-      file = File.read(data_or_lpath)
-    else
-      file = data_or_lpath
-    end
+    file = is_file ? File.read(data_or_lpath) : data_or_lpath
 
     @sock.put(
       %Q{#{FSDOWNLOAD} FORMAT:BINARY SIZE=#{file.length} NAME = "#{rpath}"\n}
