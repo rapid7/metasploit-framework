@@ -14,6 +14,6 @@ module RemoteNmapDataService
 
     opts[:data] = Base64.urlsafe_encode64(data)
 
-    self.post_data_async(NMAP_PATH, opts)
+    self.post_data(NMAP_PATH, opts)
   end
 end
