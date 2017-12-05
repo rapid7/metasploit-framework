@@ -212,8 +212,9 @@ class RemoteHTTPDataService
     end
 
     if (!@headers.nil? && !@headers.empty?)
-      #TODO: This probably needs to be converted for the net/http client
-      request['headers'] = @headers
+      @headers.each do |key, value|
+        request[key] = value
+      end
     end
 
     request
