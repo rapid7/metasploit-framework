@@ -1,6 +1,8 @@
 require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/data_service_auto_loader'
+require 'net/http'
+require 'net/https'
 
 #
 # Parent data service for managing metasploit data in/on a separate process/machine over HTTP(s)
@@ -13,7 +15,7 @@ class RemoteHTTPDataService
   include DataServiceAutoLoader
 
   ONLINE_TEST_URL = "/api/1/msf/online"
-  EXEC_ASYNC = {:exec_async => true}
+  EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
 
@@ -30,7 +32,7 @@ class RemoteHTTPDataService
   # POST data and don't wait for the endpoint to process the data before getting a response
   #
   def post_data_async(path, data_hash)
-    post_data(path, data_hash.merge(EXEC_ASYNC))
+    make_request(POST_REQUEST, path, data_hash.merge(EXEC_ASYNC))
   end
 
   #
@@ -42,30 +44,7 @@ class RemoteHTTPDataService
   # @return A wrapped response (ResponseWrapper), see below.
   #
   def post_data(path, data_hash)
-    begin
-      raise 'Data to post to remote service cannot be null or empty' if (data_hash.nil? || data_hash.empty?)
-
-      puts "#{Time.now} - Posting #{data_hash} to #{path}"
-      client =  @client_pool.pop()
-      request_opts = build_request_opts(POST_REQUEST, data_hash, path)
-      request = client.request_raw(request_opts)
-      response = client._send_recv(request)
-
-      if response.code == 200
-        #puts "POST request: #{path} with body: #{json_body} sent successfully"
-        return SuccessResponse.new(response)
-      else
-        puts "POST request: #{path} with body: #{json_body} failed with code: #{response.code} message: #{response.body}"
-        return FailedResponse.new(response)
-      end
-    rescue Exception => e
-      puts "Problem with POST request: #{e.message}"
-      e.backtrace.each do |line|
-        puts "#{line}\n"
-      end
-    ensure
-      @client_pool << client
-    end
+    make_request(POST_REQUEST, path, data_hash)
   end
 
   #
@@ -77,23 +56,34 @@ class RemoteHTTPDataService
   # @return A wrapped response (ResponseWrapper), see below.
   #
   def get_data(path, data_hash = nil)
+    make_request(GET_REQUEST, path, data_hash)
+  end
+
+  def make_request(request_type, path, data_hash = nil)
     begin
-
-      puts "#{Time.now} - Getting #{path} with #{data_hash ? data_hash : "nil"}"
+      puts "#{Time.now} - HTTP #{request_type} request to #{path} with #{data_hash ? data_hash : "nil"}"
       client =  @client_pool.pop()
-      request_opts = build_request_opts(GET_REQUEST, data_hash, path)
-      request = client.request_raw(request_opts)
-      response = client._send_recv(request)
+      case request_type
+        when GET_REQUEST
+          request = Net::HTTP::Get.new(path)
+        when POST_REQUEST
+          request = Net::HTTP::Post.new(path)
+        else
+          raise Exception, 'A request_type must be specified'
+      end
+      built_request = build_request(request, data_hash)
+      response = client.request(built_request)
 
-      if (response.code == 200)
+      if response.code == "200"
         # puts 'request sent successfully'
         return SuccessResponse.new(response)
       else
-        puts "GET request: #{path} failed with code: #{response.code} message: #{response.body}"
+        puts "HTTP #{request_type} request: #{path} failed with code: #{response.code} message: #{response.body}"
         return FailedResponse.new(response)
       end
     rescue Exception => e
-        puts "Problem with GET request: #{e.message}"
+      puts "Problem with HTTP #{request_type} request: #{e.message}"
+      e.backtrace.each { |line| puts "#{line}\n" }
     ensure
       @client_pool << client
     end
@@ -205,13 +195,8 @@ class RemoteHTTPDataService
     data_hash
   end
 
-  def build_request_opts(request_type, data_hash, path)
-    request_opts = {
-        'method' => request_type,
-        'ctype' => 'application/json',
-        'uri' => path
-    }
-
+  def build_request(request, data_hash)
+    request.content_type = 'application/json'
     if (!data_hash.nil? && !data_hash.empty?)
       data_hash.each do |k,v|
         if v.is_a?(Msf::Session)
@@ -223,25 +208,24 @@ class RemoteHTTPDataService
         end
       end
       json_body = append_workspace(data_hash).to_json
-      request_opts['data'] = json_body
+      request.body = json_body
     end
 
     if (!@headers.nil? && !@headers.empty?)
-      request_opts['headers'] = @headers
+      @headers.each do |key, value|
+        request[key] = value
+      end
     end
 
-    request_opts
+    request
   end
 
   def build_client_pool(size)
     @client_pool = Queue.new()
     (1..size).each {
-      @client_pool << Rex::Proto::Http::Client.new(
-          @endpoint.host,
-          @endpoint.port,
-          {},
-          @endpoint.use_ssl,
-          @endpoint.ssl_version)
+      http = Net::HTTP.new(@endpoint.host, @endpoint.port)
+      http.use_ssl = true if @endpoint.use_ssl
+      @client_pool << http
     }
   end
 
