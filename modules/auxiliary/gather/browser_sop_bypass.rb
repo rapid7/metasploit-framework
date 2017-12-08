@@ -12,8 +12,12 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name'           => "Samsung Internet Browser SOP Bypass",
         'Description'    => %q(
-          This module opens up and does a server-redirect to child tab using document.body.innerHTML funtion, the child tab creates a fake pop up asking email ID, Password.
-          Once entered the credentials is passed back to the parent tab, In this case the address bar points to google.com/csi which actually can be used to trick some one.
+          This module takes advantage of a Same-Origin Policy (SOP) bypass vulnerability in the
+          Samsung Internet Browser, a popular mobile browser shipping with Samsung Android devices.
+          It initiates a server-redirect to a child tab using the document.body.innerHTML
+          function, which causes the child tab to create a fake pop-up. This pop-up prompts the user
+          for a username and password which appears to originate from the targeted URL's domain. Once
+          entered, the credentials are passed to the parent tab as well as stored locally.
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
