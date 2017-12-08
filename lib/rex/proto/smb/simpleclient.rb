@@ -14,6 +14,7 @@ require 'rex/proto/smb/utils'
 require 'rex/proto/smb/client'
 require 'rex/proto/smb/simpleclient/open_file'
 require 'rex/proto/smb/simpleclient/open_pipe'
+require 'ruby_smb'
 
 # Some short-hand class aliases
 CONST = Rex::Proto::SMB::Constants
@@ -32,7 +33,13 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
   def initialize(socket, direct = false)
     self.socket = socket
     self.direct = direct
-    self.client = Rex::Proto::SMB::Client.new(socket)
+
+    self.client = RubySMB::Client.new(RubySMB::Dispatcher::Socket.new(self.socket, read_timeout: 60),
+                                      username: '',
+                                      password: '')#Rex::Proto::SMB::Client.new(socket)
+    self.client.class.module_eval { attr_accessor :evasion_opts}
+    self.client.evasion_opts = {}
+
     self.shares = { }
     self.server_max_buffer_size = 1024 # 4356 (workstation) or 16644 (server) expected
   end
@@ -135,7 +142,13 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
 
   def connect(share)
     ok = self.client.tree_connect(share)
-    tree_id = ok['Payload']['SMB'].v['TreeID']
+
+    if ok.respond_to?(:id)
+      tree_id = ok.id
+    else
+      tree_id = ok['Payload']['SMB'].v['TreeID']
+    end
+
     self.shares[share] = tree_id
     self.last_share = share
   end
@@ -168,7 +181,13 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
   def create_pipe(path, perm = 'c')
     disposition = UTILS.create_mode_to_disposition(perm)
     ok = self.client.create_pipe(path, disposition)
-    file_id = ok['Payload'].v['FileID']
+    if ok.respond_to? :guid
+      file_id = ok.guid
+    elsif ok.respond_to? :fid
+      file_id = ok.fid
+    else
+      file_id = ok['Payload'].v['FileID']
+    end
     fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id)
   end
 
