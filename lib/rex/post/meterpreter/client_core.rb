@@ -194,6 +194,10 @@ class ClientCore < Extension
   #	LibraryFilePath
   #		The path to the library that is to be loaded
   #
+  #	LibraryFileImage
+  #		Binary object containing the library to be loaded
+  #		(can be used instead of LibraryFilePath)
+  #
   #	TargetFilePath
   #		The target library path when uploading
   #
@@ -209,12 +213,13 @@ class ClientCore < Extension
   #
   def load_library(opts)
     library_path = opts['LibraryFilePath']
+    library_image = opts['LibraryFileImage']
     target_path  = opts['TargetFilePath']
     load_flags   = LOAD_LIBRARY_FLAG_LOCAL
 
     # No library path, no cookie.
-    if library_path.nil?
-      raise ArgumentError, 'No library file path was supplied', caller
+    if library_path.nil? && library_image.nil?
+      raise ArgumentError, 'No library file path or image was supplied', caller
     end
 
     # Set up the proper loading flags
@@ -233,14 +238,17 @@ class ClientCore < Extension
 
     # If we must upload the library, do so now
     if (load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL
-      image = ''
+      if library_image.nil?
+        # Caller did not provide the image, load it from the path
+        library_image = ''
 
-      ::File.open(library_path, 'rb') { |f|
-        image = f.read
-      }
+        ::File.open(library_path, 'rb') { |f|
+          library_image = f.read
+        }
+      end
 
-      if image
-        request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
+      if library_image
+        request.add_tlv(TLV_TYPE_DATA, library_image, false, client.capabilities[:zlib])
       else
         raise RuntimeError, "Failed to serialize library #{library_path}.", caller
       end
@@ -328,22 +336,31 @@ class ClientCore < Extension
     # if there are existing commands for the given extension, then we can use
     # what's already there
     unless commands.length > 0
-      # Get us to the installation root and then into data/meterpreter, where
-      # the file is expected to be
-      modname = "ext_server_#{mod.downcase}"
-      path = MetasploitPayloads.meterpreter_path(modname, suffix)
+      image = nil
+      path = nil
+      # If client.sys isn't setup, it's a Windows meterpreter 
+      if client.respond_to?(:sys) && !client.sys.config.sysinfo['BuildTuple'].blank?
+        # Query the payload gem directly for the extension image
+        image = MetasploitPayloads::Mettle.load_extension(client.sys.config.sysinfo['BuildTuple'], mod.downcase, suffix)
+      else
+        # Get us to the installation root and then into data/meterpreter, where
+        # the file is expected to be
+        modname = "ext_server_#{mod.downcase}"
+        path = MetasploitPayloads.meterpreter_path(modname, suffix)
 
-      if opts['ExtensionPath']
-        path = ::File.expand_path(opts['ExtensionPath'])
+        if opts['ExtensionPath']
+          path = ::File.expand_path(opts['ExtensionPath'])
+        end
       end
 
-      if path.nil?
+      if path.nil? and image.nil?
         raise RuntimeError, "No module of the name #{modnameprovided} found", caller
       end
 
       # Load the extension DLL
       commands = load_library(
           'LibraryFilePath' => path,
+          'LibraryFileImage' => image,
           'UploadLibrary'   => true,
           'Extension'       => true,
           'SaveToDisk'      => opts['LoadFromDisk'])
