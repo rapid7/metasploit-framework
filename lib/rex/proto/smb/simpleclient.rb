@@ -168,7 +168,13 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
     access = UTILS.open_mode_to_access(perm)
 
     ok = self.client.open(path, mode, access)
-    file_id = ok['Payload'].v['FileID']
+    file_id = if ok.respond_to?(:guid)
+                ok.guid
+              elsif ok.respond_to?(:fid)
+                ok.fid
+              else
+                ok['Payload'].v['FileID']
+              end
     fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id)
     fh.chunk_size = chunk_size
     fh
