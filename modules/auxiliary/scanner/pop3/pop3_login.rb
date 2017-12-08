@@ -65,6 +65,7 @@ class MetasploitModule < Msf::Auxiliary
     scanner = Metasploit::Framework::LoginScanner::POP3.new(
       host: ip,
       port: rport,
+      proxies: datastore['PROXIES'],
       ssl: datastore['SSL'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],

@@ -18,7 +18,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Windows Command, Double Reverse TCP Connection (via Perl)',
       'Description'   => 'Creates an interactive shell via perl',
-      'Author'        => ['cazz', 'patrick'],
+      'Author'        => ['cazz', 'aushack'],
       'License'       => BSD_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_CMD,

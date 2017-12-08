@@ -47,7 +47,7 @@ class Core
     "-q"  => [ false, "Quiet mode"                                                     ],
     "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
     "-K"  => [ false, "Terminate all sessions"                                         ],
-    "-s"  => [ true,  "Run a script on the session given with -i, or all"              ],
+    "-s"  => [ true,  "Run a script or module on the session given with -i, or all"    ],
     "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
@@ -139,10 +139,9 @@ class Core
   def initialize(driver)
     super
 
-    @dscache = {}
     @cache_payloads = nil
     @previous_module = nil
-    @module_name_stack = []
+    @previous_target = nil
     @history_limit = 100
   end
 
@@ -1108,7 +1107,7 @@ class Core
     if active_module
       # intentionally += and not << because we don't want to modify
       # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
+      prompt += " #{active_module.type}(%bld%red#{active_module.promptname}%clr)"
     end
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
     driver.update_prompt("#{prompt} ", prompt_char, true)
@@ -1181,10 +1180,10 @@ class Core
           sid = val || false
         when "-K"
           method = 'killall'
-        # Run a script on all meterpreter sessions
+        # Run a script or module on specified sessions
         when "-s"
           unless script
-            method = 'scriptall'
+            method = 'script'
             script = val
           end
         # Upload and exec to the specific command session
@@ -1390,15 +1389,11 @@ class Core
           sid = nil
         end
       end
-    when 'scriptall'
+    when 'script'
       unless script
-        print_error("No script specified!")
+        print_error("No script or module specified!")
         return false
       end
-      script_paths = {}
-      script_paths['meterpreter'] = Msf::Sessions::Meterpreter.find_script_path(script)
-      script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
-
       sessions = sid ? session_list : framework.sessions.keys.sort
 
       sessions.each do |sess_id|
@@ -1414,15 +1409,13 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if script_paths[session.type]
-              print_status("Session #{sess_id} (#{session.session_host}):")
-              print_status("Running script #{script} on #{session.type} session" +
-                            " #{sess_id} (#{session.session_host})")
-              begin
-                session.execute_file(script_paths[session.type], extra)
-              rescue ::Exception => e
-                log_error("Error executing script: #{e.class} #{e}")
-              end
+            print_status("Session #{sess_id} (#{session.session_host}):")
+            print_status("Running #{script} on #{session.type} session" +
+                          " #{sess_id} (#{session.session_host})")
+            begin
+              session.execute_script(script, *extra)
+            rescue ::Exception => e
+              log_error("Error executing script or module: #{e.class} #{e}")
             end
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
@@ -1444,14 +1437,9 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if ['shell', 'powershell'].include?(session.type)
-              session.init_ui(driver.input, driver.output)
-              session.execute_script('post/multi/manage/shell_to_meterpreter')
-              session.reset_ui
-            else
-              print_error("Session #{sess_id} is not a command shell session, it is #{session.type}, skipping...")
-              next
-            end
+            session.init_ui(driver.input, driver.output)
+            session.execute_script('post/multi/manage/shell_to_meterpreter')
+            session.reset_ui
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
@@ -1627,12 +1615,6 @@ class Core
     # Set the supplied name to the supplied value
     name  = args[0]
     value = args[1, args.length-1].join(' ')
-    if (name.upcase == "TARGET")
-      # Different targets can have different architectures and platforms
-      # so we need to rebuild the payload list whenever the target
-      # changes.
-      @cache_payloads = nil
-    end
 
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
@@ -2216,16 +2198,7 @@ class Core
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
         else
-          res << Rex::Socket.source_address
-          # getifaddrs was introduced in 2.1.2
-          if Socket.respond_to?(:getifaddrs)
-            ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
-              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
-                ifaddr.addr &&
-                ifaddr.addr.ip?
-            end
-            res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
-          end
+          res += tab_complete_source_address
         end
       else
       end
@@ -2288,11 +2261,16 @@ class Core
   # Provide valid payload options for the current exploit
   #
   def option_values_payloads
-    return @cache_payloads if @cache_payloads
+    if @cache_payloads && active_module == @previous_module && active_module.target == @previous_target
+      return @cache_payloads
+    end
 
-    @cache_payloads = active_module.compatible_payloads.map { |refname, payload|
+    @previous_module = active_module
+    @previous_target = active_module.target
+
+    @cache_payloads = active_module.compatible_payloads.map do |refname, payload|
       refname
-    }
+    end
 
     @cache_payloads
   end

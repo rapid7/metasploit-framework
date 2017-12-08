@@ -29,9 +29,13 @@ class Msf::Post < Msf::Module
 
   def setup
     m = replicant
+
     if m.actions.length > 0 && !m.action
       raise Msf::MissingActionError, "Please use: #{m.actions.collect {|e| e.name} * ", "}"
     end
+
+    # Msf::Module(Msf::PostMixin)#setup
+    super
   end
 
   def type

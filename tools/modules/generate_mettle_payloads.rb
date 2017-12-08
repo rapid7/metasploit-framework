@@ -12,18 +12,19 @@ schemes = [
 ]
 
 arches = [
-  ['aarch64','Linux', 'aarch64-linux-musl'],
-  ['armbe',  'Linux', 'armv5b-linux-musleabi'],
-  ['armle',  'Linux', 'armv5l-linux-musleabi'],
-  ['mips64', 'Linux', 'mips64-linux-muslsf'],
-  ['mipsbe', 'Linux', 'mips-linux-muslsf'],
-  ['mipsle', 'Linux', 'mipsel-linux-muslsf'],
-  ['ppc',    'Linux', 'powerpc-linux-muslsf'],
-  ['ppc64le','Linux', 'powerpc64le-linux-musl'],
-  ['x64',    'Linux', 'x86_64-linux-musl'],
-  ['x86',    'Linux', 'i486-linux-musl'],
-  ['zarch',  'Linux', 's390x-linux-musl'],
-  ['x64',    'OSX',   'x86_64-apple-darwin'],
+  ['aarch64',   'Linux', 'aarch64-linux-musl'],
+  ['armbe',     'Linux', 'armv5b-linux-musleabi'],
+  ['armle',     'Linux', 'armv5l-linux-musleabi'],
+  ['mips64',    'Linux', 'mips64-linux-muslsf'],
+  ['mipsbe',    'Linux', 'mips-linux-muslsf'],
+  ['mipsle',    'Linux', 'mipsel-linux-muslsf'],
+  ['ppc',       'Linux', 'powerpc-linux-muslsf'],
+  ['ppce500v2', 'Linux', 'powerpc-e500v2-linux-musl'],
+  ['ppc64le',   'Linux', 'powerpc64le-linux-musl'],
+  ['x64',       'Linux', 'x86_64-linux-musl'],
+  ['x86',       'Linux', 'i486-linux-musl'],
+  ['zarch',     'Linux', 's390x-linux-musl'],
+  ['x64',       'OSX',   'x86_64-apple-darwin'],
 ]
 
 arch = ''

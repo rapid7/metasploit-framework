@@ -26,7 +26,7 @@ module Msf
           def commands
             {
               "back"       => "Move back from the current context",
-              "edit"       => "Edit the current module with the preferred editor",
+              "edit"       => "Edit the current module or a file with the preferred editor",
               "advanced"   => "Displays advanced options for one or more modules",
               "info"       => "Displays information about one or more modules",
               "options"    => "Displays global options or for one or more modules",
@@ -48,7 +48,6 @@ module Msf
             super
 
             @dscache = {}
-            @cache_payloads = nil
             @previous_module = nil
             @module_name_stack = []
             @dangerzone_map = nil
@@ -68,14 +67,14 @@ module Msf
           def cmd_edit_help
             print_line "Usage: edit [file/to/edit.rb]"
             print_line
-            print_line "Edit a local file or the currently active module with #{local_editor}"
-            print_line "If a file path is specified it will automatically be reloaded after editing"
+            print_line "Edit the currently active module or a local file with #{local_editor}."
+            print_line "If a file path is specified, it will automatically be reloaded after editing."
             print_line "Otherwise, you can reload the active module with 'reload' or 'rerun'."
             print_line
           end
 
           #
-          # Edit the currently active module
+          # Edit the currently active module or a local file
           #
           def cmd_edit(*args)
             if args.length > 0
@@ -86,6 +85,7 @@ module Msf
 
             if path
               editor = local_editor
+
               if editor.nil?
                 editor = 'vim'
                 print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
@@ -93,13 +93,24 @@ module Msf
 
               print_status("Launching #{editor} #{path}")
               system(editor, path)
-              
-              if args.length > 0
-                load args[0]
+
+              # XXX: This will try to reload *any* .rb and break on modules
+              if args.length > 0 && path.end_with?('.rb')
+                print_status("Reloading #{path}")
+                load path
+              else
+                print_error('Only Ruby files can be reloaded (use reload/rerun for modules)')
               end
             else
               print_error('Nothing to edit -- try using a module first.')
             end
+          end
+
+          #
+          # Tab completion for the edit command
+          #
+          def cmd_edit_tabs(str, words)
+            tab_complete_filenames(str, words)
           end
 
           def cmd_advanced_help
@@ -645,13 +656,12 @@ module Msf
               active_module.datastore.update(@dscache[active_module.fullname])
             end
 
-            @cache_payloads = nil
             mod.init_ui(driver.input, driver.output)
 
             # Update the command prompt
             prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
             prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
           end
 
           #

@@ -27,7 +27,7 @@ module Scriptable
 
       # Scan all of the path combinations
       check_paths.each { |path|
-        if ::File.exist?(path)
+        if ::File.file?(path)
           full_path = path
           break
         end
@@ -150,7 +150,7 @@ module Scriptable
           # session
           local_exploit_opts = local_exploit_opts.merge(opts)
 
-          new_session = mod.exploit_simple(
+          mod.exploit_simple(
             'Payload'       => local_exploit_opts.delete('payload'),
             'Target'        => local_exploit_opts.delete('target'),
             'LocalInput'    => self.user_input,
