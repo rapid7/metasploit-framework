@@ -4,7 +4,7 @@ This auxiliary module will brute-force a WordPress installation and first determ
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/http/verb_auth_bypass```
+1. Do: ```use auxiliary/scanner/http/wordpress_login_enum```
 2. Do: ```set URI [URI]```
 3. Do: ```set PASS_FILE [password file]```
 4. Do: ```set USER_FILE [username list file]```

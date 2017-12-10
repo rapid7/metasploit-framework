@@ -4,7 +4,7 @@ This auxiliary module scans a host or range of hosts for servers that disclose t
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/http/verb_auth_bypass	```
+1. Do: ```use auxiliary/scanner/http/webdav_website_content```
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```run```
 
