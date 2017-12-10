@@ -360,7 +360,6 @@ protected
 
         # Damn you, python! Ruining my perfect world!
         url += "\x00" unless uuid.arch == ARCH_PYTHON
-        uri = URI(payload_uri(req) + conn_id)
 
         # TODO: does this have to happen just for windows, or can we set it for all?
         resp['Content-Type'] = 'application/octet-stream' if uuid.platform == 'windows'
