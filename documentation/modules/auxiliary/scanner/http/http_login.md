@@ -1,6 +1,6 @@
 ## Description
 
-This module is a brute-force login scanner that attempts to authenticate to a system using HTTP authentication.
+This module is a brute-force login scanner that attempts to authenticate to a system using HTTP authentication. More info can be found [here](https://www.cvedetails.com/cve/cve-1999-0502).
 
 ## Verification Steps
 
