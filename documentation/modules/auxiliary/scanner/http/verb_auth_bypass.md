@@ -5,13 +5,13 @@ This module scans a server or range of servers and attempts to bypass authentica
 ## Verification Steps
 
 1. Do: ```use auxiliary/scanner/http/verb_auth_bypass	```
-2. Do: ```set PATH /xampp/```
+2. Do: ```set PATH [auth page]```
 3. Do: ```set RHOSTS [IP]```
 4. Do: ```run```
 
 We configure this module by setting the path to the page requiring authentication, set our RHOSTS value and let the scanner run.
 
-## Seenarios
+## Scenarios
 
 **Running the scanner**
 
