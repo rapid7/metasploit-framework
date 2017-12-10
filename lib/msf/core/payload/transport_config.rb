@@ -37,7 +37,11 @@ module Msf::Payload::TransportConfig
   def transport_config_reverse_https(opts={})
     ds = opts[:datastore] || datastore
     config = transport_config_reverse_http(opts)
-    config[:scheme] = ds['OverrideScheme'] || 'https'
+    if ds['OverrideRequestHost']
+      config[:scheme] = ds['OverrideScheme'] || 'https'
+    else
+      config[:scheme] = 'https'
+    end
     config[:ssl_cert_hash] = get_ssl_cert_hash(ds['StagerVerifySSLCert'],
                                                ds['HandlerSSLCert'])
     config
@@ -55,10 +59,20 @@ module Msf::Payload::TransportConfig
     end
 
     ds = opts[:datastore] || datastore
+
+    scheme = 'http'
+    lhost = ds['LHOST']
+    lport = ds['LPORT']
+    if ds['OverrideRequestHost']
+      scheme = ds['OverrideScheme'] || 'http'
+      lhost = ds['OverrideLHOST'] || ds['LHOST']
+      lport = ds['OverrideLPORT'] || ds['LPORT']
+    end
+
     {
-      scheme:          ds['OverrideScheme'] || 'http',
-      lhost:           opts[:lhost] || ds['LHOST'],
-      lport:           (opts[:lport] || ds['LPORT']).to_i,
+      scheme:          scheme,
+      lhost:           lhost,
+      lport:           lport.to_i,
       uri:             uri,
       ua:              ds['HttpUserAgent'],
       proxy_host:      ds['HttpProxyHost'],

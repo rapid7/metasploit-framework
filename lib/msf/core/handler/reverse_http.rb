@@ -369,8 +369,6 @@ protected
           blob = self.generate_stage(
             url:   url,
             uuid:  uuid,
-            lhost: uri.host,
-            lport: uri.port,
             uri:   conn_id
           )
 
