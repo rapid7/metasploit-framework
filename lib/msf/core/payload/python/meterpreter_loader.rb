@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/core/payload/uuid/options'
 
@@ -16,6 +17,7 @@ module Payload::Python::MeterpreterLoader
 
   include Msf::Payload::Python
   include Msf::Payload::UUID::Options
+  include Msf::Payload::TransportConfig
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
@@ -106,17 +108,11 @@ module Payload::Python::MeterpreterLoader
     # so we need to generate it
     # TODO: move this to somewhere more common so that it can be used across payload types
     unless opts[:url].to_s == ''
+
+      # Build the callback URL (TODO: share this logic with TransportConfig
       uri = "/#{opts[:url].split('/').reject(&:empty?)[-1]}"
-
-      scheme = opts[:url].to_s.split(':')[0]
-      lhost = ds['LHOST']
-      lport = ds['LPORT']
-      if ds['OverrideRequestHost']
-        scheme = ds['OverrideScheme'] || scheme
-        lhost = ds['OverrideLHOST'] || lhost
-        lport = ds['OverrideLPORT'] || lport
-      end
-
+      opts[:scheme] ||= opts[:url].to_s.split(':')[0]
+      scheme, lhost, lport = transport_uri_components(opts)
       callback_url = "#{scheme}://#{lhost}:#{lport}#{ds['LURI']}#{uri}/"
 
       # patch in the various payload related configuration
