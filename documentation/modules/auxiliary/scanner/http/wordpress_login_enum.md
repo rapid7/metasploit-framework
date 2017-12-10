@@ -1,6 +1,6 @@
 ## Descriptions
 
-This auxiliary module will brute-force a WordPress installation and first determine valid usernames and then perform a password-guessing attack. WordPress and WordPress MU before 2.8.1 exhibit different behavior for a failed login attempt depending on whether the user account exists, which allows remote attackers to enumerate valid usernames. NOTE: the vendor reportedly disputes the significance of this issue, indicating that the behavior exists for "user convenience." More infomation can be found (here)[https://www.cvedetails.com/cve/cve-2009-2335].
+This auxiliary module will brute-force a WordPress installation and first determine valid usernames and then perform a password-guessing attack. WordPress and WordPress MU before 2.8.1 exhibit different behavior for a failed login attempt depending on whether the user account exists, which allows remote attackers to enumerate valid usernames. NOTE: the vendor reportedly disputes the significance of this issue, indicating that the behavior exists for "user convenience." More infomation can be found [here](https://www.cvedetails.com/cve/cve-2009-2335).
 
 ## Verification Steps
 
