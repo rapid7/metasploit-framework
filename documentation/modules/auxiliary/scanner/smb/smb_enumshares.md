@@ -4,7 +4,7 @@ The smb_enumshares module, as would be expected, enumerates any SMB shares that 
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/smb/smb2```
+1. Do: ```use auxiliary/scanner/smb/smb_enumshares```
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
