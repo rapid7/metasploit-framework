@@ -44,7 +44,7 @@ module Msf::DBManager::Report
 
     unless artifact.valid?
       errors = artifact.errors.full_messages.join('; ')
-      raise RuntimeError "Artifact to be imported is not valid: #{errors}"
+      raise "Artifact to be imported is not valid: #{errors}"
     end
     artifact.save
   end
@@ -66,7 +66,7 @@ module Msf::DBManager::Report
 
     unless report.valid?
       errors = report.errors.full_messages.join('; ')
-      raise RuntimeError "Report to be imported is not valid: #{errors}"
+      raise "Report to be imported is not valid: #{errors}"
     end
     report.state = :complete # Presume complete since it was exported
     report.save

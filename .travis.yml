@@ -25,7 +25,7 @@ matrix:
 jobs:
   # build docker image
   include:
-  - env: CMD="docker-compose -f $TRAVIS_BUILD_DIR/docker-compose.yml build" DOCKER="true"
+  - env: CMD="docker-compose build" DOCKER="true"
     # we do not need any setup
     before_install: skip
     install: skip

@@ -22,15 +22,39 @@ module Msf
     # attrs[3] = possible enum values
     # attrs[4] = Regex to validate the option
     #
-    def initialize(in_name, attrs = [], aliases: [])
+    # Attrs can also be specified explicitly via named parameters, or attrs can
+    # also be a string as standin for the required description field.
+    #
+    def initialize(in_name, attrs = [],
+                   required: false, desc: nil, default: nil, enums: [], regex: nil, aliases: [])
       self.name     = in_name
       self.advanced = false
       self.evasion  = false
-      self.required = attrs[0] || false
-      self.desc     = attrs[1]
-      self.default  = attrs[2]
-      self.enums    = [ *(attrs[3]) ].map { |x| x.to_s }
-      regex_temp    = attrs[4] || nil
+      self.aliases  = aliases
+
+      if attrs.is_a?(String) || attrs.length == 0
+        self.required = required
+        self.desc     = attrs.is_a?(String) ? attrs : desc
+        self.enums    = [ *(enums) ].map { |x| x.to_s }
+        if default.nil? && enums.length > 0
+          self.default = enums[0]
+        else
+          self.default = default
+        end
+        regex_temp = regex
+      else
+        if attrs[0].nil?
+          self.required = required
+        else
+          self.required = attrs[0]
+        end
+        self.desc     = attrs[1] || desc
+        self.default  = attrs[2] || default
+        self.enums    = attrs[3] || enums
+        self.enums    = [ *(self.enums) ].map { |x| x.to_s }
+        regex_temp    = attrs[4] || regex
+      end
+
       if regex_temp
         # convert to string
         regex_temp = regex_temp.to_s if regex_temp.is_a? Regexp
@@ -45,35 +69,34 @@ module Msf
           raise("Invalid Regex #{regex_temp}: #{e}")
         end
       end
-      self.aliases = aliases
     end
 
     #
     # Returns true if this is a required option.
     #
     def required?
-      return required
+      required
     end
 
     #
     # Returns true if this is an advanced option.
     #
     def advanced?
-      return advanced
+      advanced
     end
 
     #
     # Returns true if this is an evasion option.
     #
     def evasion?
-      return evasion
+      evasion
     end
 
     #
     # Returns true if the supplied type is equivalent to this option's type.
     #
     def type?(in_type)
-      return (type == in_type)
+      type == in_type
     end
 
     #
@@ -94,7 +117,7 @@ module Msf
       if regex
         return !!value.match(regex)
       end
-      return true
+      true
     end
 
     #
@@ -102,7 +125,7 @@ module Msf
     # a valid value
     #
     def empty_required_value?(value)
-      return (required? and value.nil?)
+      required? && value.nil?
     end
 
     #
@@ -169,6 +192,4 @@ module Msf
 
     attr_writer   :required, :desc, :default # :nodoc:
   end
-
 end
-

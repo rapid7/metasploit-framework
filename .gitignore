@@ -88,6 +88,7 @@ data/meterpreter/ext_server_pivot.*.dll
 
 # local docker compose overrides
 docker-compose.local*
+.env
 
 # Ignore python bytecode
 *.pyc
