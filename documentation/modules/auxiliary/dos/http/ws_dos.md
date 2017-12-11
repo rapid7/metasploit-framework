@@ -1,26 +1,22 @@
 ## Vulnerable Application
- 
-   [ws < 1.1.5 || (2.0.0 , 3.3.1)]
-   (https://nodesecurity.io/advisories/550)
+ws < 1.1.5 || (2.0.0 , 3.3.1)
+https://nodesecurity.io/advisories/550
 
 ## Vulnerable Analysis
-
-	This module exploits a Denial of Service vulnerability in npm module "ws".
-	By sending a specially crafted value of the Sec-WebSocket-Extensions header 
-	on the initial WebSocket upgrade request, the ws component will crash.
+This module exploits a Denial of Service vulnerability in npm module "ws".
+By sending a specially crafted value of the Sec-WebSocket-Extensions header 
+on the initial WebSocket upgrade request, the ws component will crash.
 
 ## Verification Steps
-
 1. Start the vulnerable server using the sample server code below `node server.js`
 2. Start `msfconsole`
 3. `use auxiliary/dos/http/ws_dos`
-4. `set RHOST XXX.XXX.XXX.XXX`
+4. `set RHOST <IP>
 5. `run`
 6. The server should crash
 
 ## Options
-
-	None.
+None.
 
 ## Scenarios
 

