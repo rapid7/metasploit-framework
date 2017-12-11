@@ -4,7 +4,7 @@ This auxiliary module is a brute-force login tool for MySQL servers.
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/http/mysql_login```
+1. Do: ```use auxiliary/scanner/mysql/mysql_login```
 2. Do: ```set PASS_FILE [file containing passwords]```
 3. Do: ```set RHOSTS [IP]```
 4. Do: ```set USER_FILE [file containing usernames]```
