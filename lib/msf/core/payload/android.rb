@@ -56,7 +56,12 @@ module Msf::Payload::Android
     }
 
     config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
-    config[0] = "\x01" if opts[:stageless]
+    flags = 0
+    flags |= 1 if opts[:stageless]
+    flags |= 2 if ds['AndroidMeterpreterDebug']
+    flags |= 4 if ds['AndroidWakelock']
+    flags |= 8 if ds['AndroidHideAppIcon']
+    config[0] = flags.chr
     config
   end
 
