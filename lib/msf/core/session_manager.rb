@@ -20,7 +20,7 @@ class SessionManager < Hash
 
   include Framework::Offspring
 
-  LAST_SEEN_INTERVAL  = 60 * 2.5
+  LAST_SEEN_INTERVAL = 60 * 2.5
   SCHEDULER_THREAD_COUNT = 5
 
   def initialize(framework)
@@ -98,12 +98,10 @@ class SessionManager < Hash
           end
         end
 
-
         #
         # Skip the database cleanup code below if there is no database
         #
-        next if not (framework.db and framework.db.active and framework.db.is_local?)
-
+        next unless framework.db && framework.db.active && framework.db.is_local?
 
         #
         # Mark all open session as alive every LAST_SEEN_INTERVAL
@@ -114,6 +112,7 @@ class SessionManager < Hash
           # processing time for large session lists from skewing our update interval.
 
           last_seen_timer = Time.now.utc
+
           if framework.db.active
             ::ActiveRecord::Base.connection_pool.with_connection do
               values.each do |s|
@@ -129,20 +128,12 @@ class SessionManager < Hash
           end
         end
 
-
         #
         # Clean out any stale sessions that have been orphaned by a dead
         # framework instance.
         #
-        ::ActiveRecord::Base.connection_pool.with_connection do |conn|
-          ::Mdm::Session.where(closed_at: nil).each do |db_session|
-            if db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2*LAST_SEEN_INTERVAL))
-              db_session.closed_at    = db_session.last_seen || Time.now.utc
-              db_session.close_reason = "Orphaned"
-              db_session.save
-            end
-          end
-        end
+        framework.db.remove_stale_sessions(LAST_SEEN_INTERVAL)
+
       end
 
       #
