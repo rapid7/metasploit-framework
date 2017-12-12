@@ -121,7 +121,6 @@ class MetasploitModule < Msf::Auxiliary
     if not u.nil? and not u.empty? and not p.nil? and not p.empty?
       print_good("#{cli.peerhost}: Collected credential for '#{datastore['TARGET_URL']}' #{u}:#{p}")
       store_cred(u,p)
-      # Do some cred storage here
     else
       print_good("#{cli.peerhost}: POST data received from #{datastore['TARGET_URL']}: #{request.body}")
     end
