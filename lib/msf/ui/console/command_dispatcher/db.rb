@@ -100,17 +100,21 @@ module Msf
           end
 
           def cmd_add_data_service(*args)
+            protocol = "http"
             while (arg = args.shift)
               case arg
                 when '-h'
                   host = args.shift
                 when '-p'
                   port = args.shift
+                when '-s'
+                  protocol = "https"
+                  args.shift
               end
             end
 
-            remote_service_endpoint = Metasploit::Framework::DataService::RemoteServiceEndpoint.new(host, port)
-            remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(remote_service_endpoint)
+            endpoint = "#{protocol}://#{host}:#{port}"
+            remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint)
             data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
             data_service_manager.register_data_service(remote_data_service)
           end

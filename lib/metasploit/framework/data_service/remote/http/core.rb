@@ -20,11 +20,11 @@ class RemoteHTTPDataService
   POST_REQUEST = 'POST'
 
   #
-  # @param endpoint - A RemoteServiceEndpoint. Cannot be nil
+  # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
   def initialize(endpoint)
     validate_endpoint(endpoint)
-    @endpoint = endpoint
+    @endpoint = URI.parse(endpoint)
     build_client_pool(5)
   end
 
@@ -175,7 +175,6 @@ class RemoteHTTPDataService
 
   def validate_endpoint(endpoint)
     raise 'Endpoint cannot be nil' if endpoint.nil?
-    raise "Endpoint: #{endpoint.class} not of type RemoteServiceEndpoint" unless endpoint.is_a?(RemoteServiceEndpoint)
   end
 
   def append_workspace(data_hash)
@@ -224,7 +223,10 @@ class RemoteHTTPDataService
     @client_pool = Queue.new()
     (1..size).each {
       http = Net::HTTP.new(@endpoint.host, @endpoint.port)
-      http.use_ssl = true if @endpoint.use_ssl
+      if @endpoint.is_a?(URI::HTTPS)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
       @client_pool << http
     }
   end

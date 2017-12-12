@@ -199,7 +199,7 @@ class DataProxy
     @pid = wait_t[0].pid
     puts "Started process with pid #{@pid}"
 
-    endpoint = Metasploit::Framework::DataService::RemoteServiceEndpoint.new('localhost', 8080)
+    endpoint = URI.parse('http://localhost:8080')
     remote_host_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint)
     register_data_service(remote_host_data_service, true)
   end
