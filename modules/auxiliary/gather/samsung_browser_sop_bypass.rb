@@ -21,7 +21,9 @@ class MetasploitModule < Msf::Auxiliary
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
-          'Dhiraj Mishra',
+          'Dhiraj Mishra', # Original discovery, disclosure
+          'Tod Beardsley', # Metasploit module
+          'Jeffrey Martin' # Metasploit module
         ],
         'References'     => [
         ['URL', 'http://fr.0day.today/exploit/description/28434'],
@@ -37,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGET_URL', [
         true,
         "The URL to spoof origin from.",
-        'http://example.com'
+        'http://example.com/'
       ]),
       OptString.new('CUSTOM_HTML', [
         true,
