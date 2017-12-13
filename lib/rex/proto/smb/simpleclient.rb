@@ -79,7 +79,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
       # always a string
       pass ||= ''
 
-      ok = self.client.session_setup(user, pass, domain)
+      ok = self.client.session_setup(user, pass, domain, true)
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
@@ -187,13 +187,13 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
   def create_pipe(path, perm = 'c')
     disposition = UTILS.create_mode_to_disposition(perm)
     ok = self.client.create_pipe(path, disposition)
-    if ok.respond_to? :guid
-      file_id = ok.guid
-    elsif ok.respond_to? :fid
-      file_id = ok.fid
-    else
-      file_id = ok['Payload'].v['FileID']
-    end
+    file_id = if ok.respond_to? :guid
+                ok.guid
+              elsif ok.respond_to? :fid
+                ok.fid
+              else
+                ok['Payload'].v['FileID']
+              end
     fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id)
   end
 
