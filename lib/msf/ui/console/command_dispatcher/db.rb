@@ -354,6 +354,8 @@ class Db
     end
   end
 
+  @@hosts_columns = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
+
   def cmd_hosts(*args)
     return unless active?
   ::ActiveRecord::Base.connection_pool.with_connection {
@@ -371,7 +373,7 @@ class Db
     default_columns << 'tags' # Special case
     virtual_columns = [ 'svcs', 'vulns', 'workspace', 'tags' ]
 
-    col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
+    col_search = @@hosts_columns
 
     default_columns.delete_if {|v| (v[-2,2] == "id")}
     while (arg = args.shift)
@@ -380,7 +382,7 @@ class Db
         mode << :add
       when '-d','--delete'
         mode << :delete
-      when '-c'
+      when '-c','-C'
         list = args.shift
         if(!list)
           print_error("Invalid column list")
@@ -394,6 +396,10 @@ class Db
             return
           end
         }
+        if (arg == '-C')
+          @@hosts_columns = col_search
+        end
+ 
       when '-u','--up'
         onlyup = true
       when '-o'
@@ -426,6 +432,7 @@ class Db
         print_line "  -a,--add          Add the hosts instead of searching"
         print_line "  -d,--delete       Delete the hosts instead of searching"
         print_line "  -c <col1,col2>    Only show the given columns (see list below)"
+        print_line "  -C <col1,col2>    Only show the given columns until the next restart (see list below)"
         print_line "  -h,--help         Show this help information"
         print_line "  -u,--up           Only show hosts which are up"
         print_line "  -o <file>         Send output to a file in csv format"
@@ -1826,6 +1833,8 @@ class Db
     if (path)
       auth, dest = path.split('@')
       (dest = auth and auth = nil) if not dest
+      # remove optional scheme in database url
+      auth = auth.sub(/^\w+:\/\//, "") if auth
       res[:user],res[:pass] = auth.split(':') if auth
       targ,name = dest.split('/')
       (name = targ and targ = nil) if not name

@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         Server versions 0.9.21 and earlier. By sending a malformed PORT command
         then LIST command, the server attempts to write to a NULL pointer.
       },
-      'Author' 		=> [ 'patrick' ],
+      'Author' 		=> [ 'aushack' ],
       'License'        	=> MSF_LICENSE,
       'References'     =>
         [

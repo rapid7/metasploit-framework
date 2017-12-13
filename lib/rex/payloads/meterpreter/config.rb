@@ -108,15 +108,19 @@ private
       cert_hash = "\x00" * CERT_HASH_SIZE
       cert_hash = opts[:ssl_cert_hash] if opts[:ssl_cert_hash]
 
+      custom_headers = opts[:custom_headers] || ''
+      custom_headers = to_str(custom_headers, custom_headers.length + 1)
+
       # add the HTTP specific stuff
-      transport_data << proxy_host  # Proxy host name
-      transport_data << proxy_user  # Proxy user name
-      transport_data << proxy_pass  # Proxy password
-      transport_data << ua          # HTTP user agent
-      transport_data << cert_hash   # SSL cert hash for verification
+      transport_data << proxy_host      # Proxy host name
+      transport_data << proxy_user      # Proxy user name
+      transport_data << proxy_pass      # Proxy password
+      transport_data << ua              # HTTP user agent
+      transport_data << cert_hash       # SSL cert hash for verification
+      transport_data << custom_headers  # any custom headers that the client needs
 
       # update the packing spec
-      pack << 'A*A*A*A*A*'
+      pack << 'A*A*A*A*A*A*'
     end
 
     # return the packed transport information

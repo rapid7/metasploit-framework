@@ -143,8 +143,7 @@ class Msf::Module::Platform
 
     if (not mod.const_defined?('Names'))
       elog("Failed to instantiate the platform list for module #{mod}")
-      raise RuntimeError.new("Failed to instantiate the platform list for module #{mod}")
-      return nil
+      raise "Failed to instantiate the platform list for module #{mod}"
     end
 
     abbrev   = mod.const_get('Abbrev')
