@@ -12,8 +12,12 @@ License: BSD-3-clause
 #
 # This license does not apply to third-party components detailed below.
 #
-# Last updated: 2013-Nov-04
+# Last updated: 2017-Dec-12
 #
+
+Files: external/lorcon/*
+Copyright: 2009, dragorn and Joshua Wright
+License: GPL-2
 
 Files: data/templates/to_mem_pshreflection.ps1.template
 Copyright: 2012, Matthew Graeber
