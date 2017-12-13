@@ -16,12 +16,14 @@ class HttpDBManagerService
 
     require_environment!(parsed_options)
 
-    ssl_opts = {}
-    ssl_opts[:private_key_file] = '/Users/jbarnett/rapid7/goliath/key.pem'
-    ssl_opts[:cert_chain_file] = '/Users/jbarnett/rapid7/goliath/cert.pem'
-    ssl_opts[:verify_peer] = false
-    opts[:ssl] = true
-    opts[:ssl_opts] = ssl_opts
+    if opts[:ssl]
+      ssl_opts = {}
+      ssl_opts[:private_key_file] = opts[:ssl_key]
+      ssl_opts[:cert_chain_file] = opts[:ssl_cert]
+      ssl_opts[:verify_peer] = false
+      opts[:ssl] = true
+      opts[:ssl_opts] = ssl_opts
+    end
 
     init_db
     start_http_server(opts)
@@ -41,6 +43,7 @@ class HttpDBManagerService
       }
 
       if opts[:ssl] && opts[:ssl] = true
+        puts "Starting in HTTPS mode"
         server.ssl = true
         server.ssl_options = opts[:ssl_opts]
       end
