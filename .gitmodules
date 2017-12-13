@@ -1,3 +1,6 @@
 [submodule "external/source/ReflectiveDLLInjection"]
 	path = external/source/ReflectiveDLLInjection
 	url = https://github.com/rapid7/ReflectiveDLLInjection.git
+[submodule "external/lorcon"]
+	path = external/lorcon
+	url = https://github.com/kismetwireless/lorcon
