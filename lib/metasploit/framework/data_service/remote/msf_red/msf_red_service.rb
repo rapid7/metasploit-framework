@@ -1,6 +1,5 @@
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'
-require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 
 class MSFRedService
   JOB_CHECK_INTERVAL_SEC = 5

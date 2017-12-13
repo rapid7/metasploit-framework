@@ -6,7 +6,6 @@ require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'
-require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 
 module Msf
   module Ui

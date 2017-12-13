@@ -1,4 +1,3 @@
-require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/data_service_auto_loader'
 require 'net/http'

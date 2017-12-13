@@ -4,7 +4,6 @@ require 'rex/ui'
 require 'rex/logging'
 require 'msf/core/db_manager'
 require 'metasploit/framework/data_service/remote/http/core'
-require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 require 'metasploit/framework/data_service/proxy/data_proxy_auto_loader'
 
 #
