@@ -9,25 +9,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'ua-parser-js npm module ReDoS',
-      'Description'    => %q{
+      'Name'        => 'ua-parser-js npm module ReDoS',
+      'Description' => %q{
         This module exploits a Regular Expression Denial of Service vulnerability
         in the npm module "ua-parser-js". Server-side applications that use
         "ua-parser-js" for parsing the browser user-agent string will be vulnerable
         if they call the "getOS" or "getResult" functions. This vulnerability was
         fixed as of version 0.7.16.
       },
-      'References'     =>
+      'References'  =>
         [
           ['URL', 'https://github.com/faisalman/ua-parser-js/commit/25e143ee7caba78c6405a57d1d06b19c1e8e2f79'],
           ['CWE', '400'],
         ],
-      'Author'         =>
+      'Author'      =>
         [
           'Ryan Knell,  Sonatype Security Research',
           'Nick Starke, Sonatype Security Research',
         ],
-      'License'        =>  MSF_LICENSE
+      'License'     =>  MSF_LICENSE
     )
 
     register_options([

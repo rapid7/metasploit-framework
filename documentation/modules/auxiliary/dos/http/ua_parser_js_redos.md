@@ -1,10 +1,14 @@
 ## Vulnerable Application
+
 This auxiliary module exploits a Regular Expression Denial of Service vulnerability
 in the npm module `ua-parser-js`.  Versions before 0.7.16 are vulnerable.  
 Any application that uses a vulnerable version of this module and calls the `getOS`
 or `getResult` functions will be vulnerable to this module.  An example server is provided
 below.
 
+## How to Install
+
+To install a vulnerable version of `ua-parser-js`, run:
 ```
 npm i ua-parser-js@0.7.15
 ```
@@ -21,7 +25,7 @@ Example steps in this format (is also in the PR):
 7. Open up a new terminal.
 8. Start msfconsole.
 9. `use auxiliary/dos/http/ua_parser_js_redos`.
-10. `set RHOSTS <IP>`.
+10. `set RHOST <IP>`.
 11. `run`.
 12. In vulnerable installations, Module should have positive output and the test application should accept no further requests.
 13. In non-vulnerable installations, module should have negative output and the test application should accept further requests.
