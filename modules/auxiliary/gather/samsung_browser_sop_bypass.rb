@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
   register_advanced_options([
     OptString.new('CUSTOM_JS', [
       false,
-      'Custom Javascript to inject as the go() function. Use the variable 'x' to refer to the new tab.',
+      "Custom Javascript to inject as the go() function. Use the variable 'x' to refer to the new tab.",
       ''
     ])
   ])
@@ -123,6 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{cli.peerhost}: POST data received from #{datastore['TARGET_URL']}: #{request.body}")
     else
       print_good("#{cli.peerhost}: Collected credential for '#{datastore['TARGET_URL']}' #{u}:#{p}")
+      store_cred(u,p)
     end
   end
 
