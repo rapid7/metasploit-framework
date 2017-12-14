@@ -160,6 +160,21 @@ module Msf::DBManager::Session
     }
   end
 
+  # Clean out any stale sessions that have been orphaned by a dead framework instance.
+  # @param last_seen_interval [Integer] interval, in seconds, open sessions are marked as alive
+  def remove_stale_sessions(last_seen_interval)
+    return unless active
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      ::Mdm::Session.where(closed_at: nil).each do |db_session|
+        next unless db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2 * last_seen_interval))
+        db_session.closed_at    = db_session.last_seen || Time.now.utc
+        db_session.close_reason = "Orphaned"
+        db_session.save
+      end
+    }
+  end
+
   #########
   protected
   #########
