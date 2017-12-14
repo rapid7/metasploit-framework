@@ -16,6 +16,7 @@ npm i ua-parser-js@0.7.15
 ## Verification Steps
 
 Example steps in this format (is also in the PR):
+
 1. Create a new directory for test application.
 2. Copy below example server into test application directory as `server.js`.
 3. Run `npm i express` to install express in the test application directory.
@@ -25,7 +26,7 @@ Example steps in this format (is also in the PR):
 7. Open up a new terminal.
 8. Start msfconsole.
 9. `use auxiliary/dos/http/ua_parser_js_redos`.
-10. `set RHOST <IP>`.
+10. `set RHOST [IP]`.
 11. `run`.
 12. In vulnerable installations, Module should have positive output and the test application should accept no further requests.
 13. In non-vulnerable installations, module should have negative output and the test application should accept further requests.
