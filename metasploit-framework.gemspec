@@ -187,4 +187,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
   spec.add_runtime_dependency 'xdr'
+  # Library for Lorcon2
+  spec.add_runtime_dependency 'ruby-lorcon'
+
 end
