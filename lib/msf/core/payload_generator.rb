@@ -298,7 +298,7 @@ module Msf
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
       payload_module = framework.payloads.create(payload)
-      payload_module.datastore.merge!(datastore)
+      payload_module.datastore.import_options_from_hash(datastore)
       case format
       when "raw", "jar"
         if payload_module.respond_to? :generate_jar

@@ -1107,7 +1107,7 @@ class Core
     if active_module
       # intentionally += and not << because we don't want to modify
       # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
+      prompt += " #{active_module.type}(%bld%red#{active_module.promptname}%clr)"
     end
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
     driver.update_prompt("#{prompt} ", prompt_char, true)
@@ -2198,16 +2198,7 @@ class Core
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
         else
-          res << Rex::Socket.source_address
-          # getifaddrs was introduced in 2.1.2
-          if Socket.respond_to?(:getifaddrs)
-            ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
-              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
-                ifaddr.addr &&
-                ifaddr.addr.ip?
-            end
-            res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
-          end
+          res += tab_complete_source_address
         end
       else
       end

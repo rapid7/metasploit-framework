@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         when running, will overwrite the stack with our string and generate an
         exception. The FileZilla FTP Server itself will continue functioning.
       },
-      'Author' 		=> [ 'patrick' ],
+      'Author' 		=> [ 'aushack' ],
       'License'        	=> MSF_LICENSE,
       'References'     =>
         [
