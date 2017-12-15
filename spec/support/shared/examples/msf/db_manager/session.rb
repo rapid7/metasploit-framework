@@ -33,7 +33,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
           end
 
           let(:host) do
-            FactoryGirl.create(:mdm_host, :workspace => session_workspace)
+            FactoryBot.create(:mdm_host, :workspace => session_workspace)
           end
 
           let(:module_instance) do
@@ -50,7 +50,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
           end
 
           let(:options_workspace) do
-            FactoryGirl.create(:mdm_workspace)
+            FactoryBot.create(:mdm_workspace)
           end
 
           let(:parent_module_fullname) do
@@ -95,7 +95,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
           end
 
           let(:session_workspace) do
-            FactoryGirl.create(:mdm_workspace)
+            FactoryBot.create(:mdm_workspace)
           end
 
           before(:example) do
@@ -115,7 +115,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
                 }
             )
 
-            FactoryGirl.create(
+            FactoryBot.create(
                 :mdm_module_detail,
                 :fullname => parent_module_fullname,
                 :name => parent_module_name
@@ -128,11 +128,11 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
             end
 
             let(:match_set) do
-              FactoryGirl.create(:automatic_exploitation_match_set, user: session_workspace.owner,workspace:session_workspace)
+              FactoryBot.create(:automatic_exploitation_match_set, user: session_workspace.owner,workspace:session_workspace)
             end
 
             let(:run) do
-              FactoryGirl.create(:automatic_exploitation_run, workspace: session_workspace, match_set_id: match_set.id)
+              FactoryBot.create(:automatic_exploitation_run, workspace: session_workspace, match_set_id: match_set.id)
             end
 
             let(:user_data) do
@@ -189,7 +189,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
 
               context 'with session responds to arch' do
                 let(:arch) do
-                  FactoryGirl.generate :mdm_host_arch
+                  FactoryBot.generate :mdm_host_arch
                 end
 
                 before(:example) do
@@ -320,7 +320,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
                     end
 
                     let(:service) do
-                      FactoryGirl.create(
+                      FactoryBot.create(
                         :mdm_service,
                         :host => host
                       )
@@ -532,7 +532,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
 
               context 'with session responds to arch' do
                 let(:arch) do
-                  FactoryGirl.generate :mdm_host_arch
+                  FactoryBot.generate :mdm_host_arch
                 end
 
                 before(:example) do
@@ -663,7 +663,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
                     end
 
                     let(:service) do
-                      FactoryGirl.create(
+                      FactoryBot.create(
                           :mdm_service,
                           :host => host
                       )
@@ -846,7 +846,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
 
           context 'with Mdm::Host' do
             let(:host) do
-              FactoryGirl.create(:mdm_host)
+              FactoryBot.create(:mdm_host)
             end
 
             context 'created Mdm::Session' do
@@ -951,7 +951,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
 
               context 'with :routes' do
                 let(:routes) do
-                  FactoryGirl.build_list(
+                  FactoryBot.build_list(
                       :mdm_route,
                       1,
                       :session => nil
