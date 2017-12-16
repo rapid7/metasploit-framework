@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Auxiliary
           'Jeffrey Martin' # Metasploit module
         ],
         'References'     => [
-        [ 'CVE', '2017-17692' ]
-        ['URL', 'http://fr.0day.today/exploit/description/28434'],
+        [ 'CVE', '2017-17692' ],
+        ['URL', 'http://fr.0day.today/exploit/description/28434']
         ],
         'DisclosureDate' => 'Nov 08 2017',
         'Actions'        => [[ 'WebServer' ]],
