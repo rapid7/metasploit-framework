@@ -1,6 +1,5 @@
 ## Description
-This module takes advantage of a Same-Origin Policy (SOP) bypass vulnerability in the Samsung Internet Browser, a popular mobile browser shipping with Samsung Android devices.
-By default, it initiates a redirect to a child tab, and rewrites the innerHTML to gather credentials via a fake pop-up and the gather credentials is stored in `creds`
+This module takes advantage of a Same-Origin Policy (SOP) bypass vulnerability in the Samsung Internet Browser (CVE-2017-17692), a popular mobile browser shipping with Samsung Android devices. By default, it initiates a redirect to a child tab, and rewrites the innerHTML to gather credentials via a fake pop-up and the gather credentials is stored in `creds`
 
 ## Vulnerable Application
 This Modules was tested on Samsung Internet Browser 5.4.02.3 during development of this module.
