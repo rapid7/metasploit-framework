@@ -10,7 +10,9 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Cambium ePMP 1000 Login Scanner',
       'Description' => %{
-        This module scans for Cambium ePMP 1000 management login portal(s), and attempts to identify valid credentials. Default login credentials are - admin/admin, installer/installer, home/home and readonly/readonly.
+        This module scans for Cambium ePMP 1000 management login portal(s), and
+        attempts to identify valid credentials. Default login credentials are -
+        admin/admin, installer/installer, home/home and readonly/readonly.
       },
       'Author' =>
         [

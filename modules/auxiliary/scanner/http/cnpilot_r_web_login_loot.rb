@@ -10,9 +10,15 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Cambium cnPilot r200/r201 Login Scanner and Config Dump',
       'Description' => %{
-        This module scans for Cambium cnPilot r200/r201 management login portal(s), attempts to identify valid credentials, and dump device configuration.
+        This module scans for Cambium cnPilot r200/r201 management login
+        portal(s), attempts to identify valid credentials, and dump device
+        configuration.
 
-        The device has at least two (2) users - admin and user. Due to an access control vulnerability, it is possible for 'user' account to access full device config. All information, including passwords, and keys, is stored insecurely, in clear-text form, thus allowing unauthorized admin access to any user.
+        The device has at least two (2) users - admin and user. Due to an
+        access control vulnerability, it is possible for 'user' account to access full
+        device config. All information, including passwords, and keys, is stored
+        insecurely, in clear-text form, thus allowing unauthorized admin access to any
+        user.
       },
       'Author' =>
         [

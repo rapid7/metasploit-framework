@@ -10,7 +10,10 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => "Cambium ePMP 1000 'get_chart' Command Injection (v3.1-3.5-RC7)",
       'Description' => %{
-          This module exploits an OS Command Injection vulnerability in Cambium ePMP 1000 (v3.1-3.5-RC7) device management portal. It requires any one of the following login credentials - admin/admin, installer/installer, home/home - to execute arbitrary system commands.
+          This module exploits an OS Command Injection vulnerability in Cambium
+          ePMP 1000 (v3.1-3.5-RC7) device management portal. It requires any one of the
+          following login credentials - admin/admin, installer/installer, home/home - to
+          execute arbitrary system commands.
       },
       'Author' =>
         [

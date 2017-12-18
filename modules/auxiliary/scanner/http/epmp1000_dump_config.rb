@@ -10,7 +10,11 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Cambium ePMP 1000 Dump Device Config',
       'Description' => %{
-          This module dumps Cambium ePMP 1000 device configuration file. An ePMP 1000 box has four (4) login accounts - admin/admin, installer/installer, home/home, and readonly/readonly. This module requires any one of the following login credentials - admin / installer / home - to dump device configuration file.
+          This module dumps Cambium ePMP 1000 device configuration file. An
+          ePMP 1000 box has four (4) login accounts - admin/admin, installer/installer,
+          home/home, and readonly/readonly. This module requires any one of the following
+          login credentials - admin / installer / home - to dump device configuration
+          file.
       },
       'Author' =>
         [

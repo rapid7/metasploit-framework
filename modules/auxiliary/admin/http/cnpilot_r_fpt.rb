@@ -10,7 +10,9 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Cambium cnPilot r200/r201 File Path Traversal',
       'Description' => %{
-        This module exploits a File Path Traversal vulnerability in Cambium cnPilot r200/r201 to read arbitrary files off the file system. Affected versions - 4.3.3-R4 and prior.
+        This module exploits a File Path Traversal vulnerability in Cambium
+        cnPilot r200/r201 to read arbitrary files off the file system. Affected
+        versions - 4.3.3-R4 and prior.
       },
       'Author' =>
         [

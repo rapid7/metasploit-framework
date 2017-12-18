@@ -10,7 +10,10 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => "Cambium cnPilot r200/r201 Command Execution as 'root'",
       'Description' => %{
-        Cambium cnPilot r200/r201 device software versions 4.2.3-R4 to 4.3.3-R4, contain an undocumented, backdoor 'root' shell. This shell is accessible via a specific url, to any authenticated user. The module uses this shell to execute arbitrary system commands as 'root'.
+        Cambium cnPilot r200/r201 device software versions 4.2.3-R4 to
+        4.3.3-R4, contain an undocumented, backdoor 'root' shell. This shell is
+        accessible via a specific url, to any authenticated user. The module uses this
+        shell to execute arbitrary system commands as 'root'.
       },
       'Author' =>
         [

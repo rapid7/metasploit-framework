@@ -10,7 +10,11 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name' => 'Cambium ePMP 1000 Account Password Reset',
       'Description' => %{
-          This module exploits an access control vulnerability in Cambium ePMP device management portal. It requires any one of the following non-admin login credentials - installer/installer, home/home - to reset password of other existing user(s) including 'admin'. All versions <=3.5 are affected. This module works on versions 3.0-3.5-RC7.
+          This module exploits an access control vulnerability in Cambium ePMP
+          device management portal. It requires any one of the following non-admin login
+          credentials - installer/installer, home/home - to reset password of other
+          existing user(s) including 'admin'. All versions <=3.5 are affected. This
+          module works on versions 3.0-3.5-RC7.
       },
       'Author' =>
         [

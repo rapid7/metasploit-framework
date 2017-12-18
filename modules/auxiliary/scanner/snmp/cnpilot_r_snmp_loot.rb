@@ -12,7 +12,11 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'Cambium cnPilot r200/r201 SNMP Enumeration',
       'Description' => %{
-        Cambium cnPilot r200/r201 devices can be administered using SNMP. The device configuration contains IP addresses, keys, passwords, & lots of juicy information. This module exploits an access control flaw, which allows remotely extracting sensitive information such as account passwords, WiFI PSK, & SIP credentials via SNMP Read-Only (RO) community string.
+        Cambium cnPilot r200/r201 devices can be administered using SNMP. The
+        device configuration contains IP addresses, keys, passwords, & lots of juicy
+        information. This module exploits an access control flaw, which allows remotely
+        extracting sensitive information such as account passwords, WiFI PSK, & SIP
+        credentials via SNMP Read-Only (RO) community string.
       },
       'Author' => ['Karn Ganeshen'],
       'References' =>

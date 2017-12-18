@@ -12,7 +12,15 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'Cambium ePMP 1000 SNMP Enumeration',
       'Description' => %{
-        Cambium devices (ePMP, PMP, Force, & others) can be administered using SNMP. The device configuration contains IP addresses, keys, and passwords, amongst other information. This module uses SNMP to extract Cambium ePMP device configuration. On certain software versions, specific device configuration values can be accessed using SNMP RO string, even though only SNMP RW string should be able to access them, according to MIB documentation. The module also triggers full configuration backup, and retrieves the backup url. The configuration file can then be downloaded without authentication. The module has been tested on Cambium ePMP versions 3.5 & prior.
+        Cambium devices (ePMP, PMP, Force, & others) can be administered using
+        SNMP. The device configuration contains IP addresses, keys, and passwords,
+        amongst other information. This module uses SNMP to extract Cambium ePMP device
+        configuration. On certain software versions, specific device configuration
+        values can be accessed using SNMP RO string, even though only SNMP RW string
+        should be able to access them, according to MIB documentation. The module also
+        triggers full configuration backup, and retrieves the backup url. The
+        configuration file can then be downloaded without authentication. The module
+        has been tested on Cambium ePMP versions 3.5 & prior.
       },
       'References' =>
         [
