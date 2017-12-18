@@ -34,13 +34,13 @@ msf auxiliary(cnpilot_r_snmp_loot) > run
 [+] SNMP read-only community name: public
 [+] SNMP read-write community name: private
 [+] SNMP Trap Community: trap
-[+] SNMP Trap Server IP Address: 
+[+] SNMP Trap Server IP Address:
 
 [*] Fetching WIFI Information...
 
 [+] Wireless Interface SSID: wifi_ssid
 [+] Wireless Interface Encryption Key: wifi_secret_key
-[+] Wireless Interface Encryption (1 - Open mode, 2 - wpa2 mode, 3 - EAP-TTLS): WPA2PSK 
+[+] Wireless Interface Encryption (1 - Open mode, 2 - wpa2 mode, 3 - EAP-TTLS): WPA2PSK
 
 [*] Fetching SIP Account Information...
 

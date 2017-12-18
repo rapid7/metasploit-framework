@@ -1,5 +1,5 @@
 This module scans for Cambium cnPilot r200/r201 management login portal(s), attempts to identify valid credentials, and dump device configuration.
-        
+
 The device has at least two (2) users - admin and user. Due to an access control vulnerability, it is possible for 'user' account to access full device config. All information, including passwords, and keys, is stored insecurely, in clear-text form, thus allowing unauthorized 'admin' access to any user.
 
 ## Verification Steps

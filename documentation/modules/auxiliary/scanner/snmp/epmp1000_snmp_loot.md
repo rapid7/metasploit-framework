@@ -27,20 +27,20 @@ msf auxiliary(epmp1000_snmp_loot) > run
 [+] SNMP System Name: Cambium
 [+] SNMP System Description: Cambium
 [+] Device UpTime: 0021:08:36:45
-[+] U-boot version: U-Boot 9350_PX 1.1.4.e (Feb 24 2016 - 20:14:38) 
+[+] U-boot version: U-Boot 9350_PX 1.1.4.e (Feb 24 2016 - 20:14:38)
 
 [*] Fetching SNMP Information...
 
 [+] SNMP read-only community name: public
 [+] SNMP read-write community name: private
 [+] SNMP Trap Community: cambiumtrap
-[+] SNMP Trap Server IP Address: Null 
+[+] SNMP Trap Server IP Address: Null
 
 [*] Fetching WIFI Information...
 
 [+] Wireless Interface SSID: SSID
 [+] Wireless Interface Encryption Key: secretkey
-[+] Wireless Interface Encryption (1 - Open mode, 2 - wpa2 mode, 3 - EAP-TTLS): 2 
+[+] Wireless Interface Encryption (1 - Open mode, 2 - wpa2 mode, 3 - EAP-TTLS): 2
 
 [*] Fetching WIFI Radius Information...
 
@@ -48,7 +48,7 @@ msf auxiliary(epmp1000_snmp_loot) > run
 [+] RADIUS server port: Null
 [+] RADIUS server secret: Null
 [+] Wireless Radius Username: cambium-station
-[+] Wireless Radius Password: cambium 
+[+] Wireless Radius Password: cambium
 
 [*] Fetching Network PPPoE Information...
 
