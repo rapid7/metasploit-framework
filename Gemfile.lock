@@ -37,7 +37,6 @@ PATH
       railties
       rb-readline
       rbnacl (< 5.0.0)
-      rbnacl-libsodium
       recog
       redcarpet
       rex-arch
@@ -247,8 +246,6 @@ GEM
     rb-readline (0.5.5)
     rbnacl (4.0.2)
       ffi
-    rbnacl-libsodium (1.0.16)
-      rbnacl (>= 3.0.1)
     recog (2.1.17)
       nokogiri
     redcarpet (3.4.0)
