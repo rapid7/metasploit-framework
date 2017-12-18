@@ -21,7 +21,8 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => ['Karn Ganeshen'],
       'References' =>
         [
-          ['CVE', '2017-5262']
+          ['CVE', '2017-5262'],
+          ['URL', 'https://blog.rapid7.com/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities']
         ],
       'License' => MSF_LICENSE
     )
