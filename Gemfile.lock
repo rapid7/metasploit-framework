@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.23)
+    metasploit-framework (4.16.24)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -247,7 +247,7 @@ GEM
     rb-readline (0.5.5)
     rbnacl (4.0.2)
       ffi
-    rbnacl-libsodium (1.0.15.1)
+    rbnacl-libsodium (1.0.16)
       rbnacl (>= 3.0.1)
     recog (2.1.17)
       nokogiri
