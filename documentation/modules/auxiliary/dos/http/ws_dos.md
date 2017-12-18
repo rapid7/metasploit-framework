@@ -11,7 +11,7 @@ on the initial WebSocket upgrade request, the ws component will crash.
 1. Start the vulnerable server using the sample server code below `node server.js`
 2. Start `msfconsole`
 3. `use auxiliary/dos/http/ws_dos`
-4. `set RHOST <IP>
+4. `set RHOST <IP>`
 5. `run`
 6. The server should crash
 
