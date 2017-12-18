@@ -26,7 +26,7 @@ module Metasploit
         end
 
 
-        # Returns the latest sid from Symantec Web Gateway.
+        # Returns the latest sid from DirectAdmin Control Panel  
         #
         # @return [String] The PHP Session ID for DirectAdmin Web Control login
         def get_last_sid
