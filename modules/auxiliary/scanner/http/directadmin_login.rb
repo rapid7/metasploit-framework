@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         This module will attempt to authenticate to a DirectAdmin Web Control Panel.
       },
-      'Author'      => [ 'Nick Marcoccio "1oopho1e" remembermodems[at]gmail.com' ],
+      'Author'      => [ 'Nick Marcoccio "1oopho1e" <iremembermodems[at]gmail.com>' ],
       'License'     => MSF_LICENSE,
       'DefaultOptions' =>
         {
