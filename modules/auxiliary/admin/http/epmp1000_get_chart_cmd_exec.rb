@@ -80,8 +80,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if good_response
-      vprint_line("#{res.body}")
-
       path = store_loot('ePMP_cmd_exec', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 Command Exec Results')
       print_status("#{rhost}:#{rport} - File saved in: #{path}")
     else

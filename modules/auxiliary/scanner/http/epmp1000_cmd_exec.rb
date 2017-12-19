@@ -231,8 +231,6 @@ class MetasploitModule < Msf::Auxiliary
             }
           )
 
-          vprint_line("#{res.body}")
-
           # Extract ePMP version
           res = send_request_cgi(
             {

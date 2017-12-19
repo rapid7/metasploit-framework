@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       results = res.body
 
       if results.size.zero?
-        vprint_status('File not found.')
+        print_status('File not found.')
       else
         print_good("#{results}")
 
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved in: #{p}")
       end
     else
-      vprint_error("#{rhost}:#{rport} - Could not read file. You can manually check by accessing #{final_url}.")
+      print_error("#{rhost}:#{rport} - Could not read file. You can manually check by accessing #{final_url}.")
       return
     end
   end

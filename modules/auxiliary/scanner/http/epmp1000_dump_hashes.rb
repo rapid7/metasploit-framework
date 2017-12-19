@@ -104,10 +104,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if good_response
-        vprint_status('++++++++++++++++++++++++++++++++++++++')
         vprint_status("#{rhost}:#{rport} - Dumping password hashes")
-        print_line("#{res.body}")
-        vprint_status('++++++++++++++++++++++++++++++++++++++')
 
         path = store_loot('ePMP_passwd', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 password hashes')
         print_status("#{rhost}:#{rport} - Hashes saved in: #{path}")

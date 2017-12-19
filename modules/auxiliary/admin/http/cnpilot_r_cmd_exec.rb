@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       search_result = html.search('textarea').text
 
       if search_result.nil?
-        vprint_status('Command run did not return any results or invalid command. Note that cnPilot devices only have a restricted *nix command-set.')
+        print_status('Command run did not return any results or invalid command. Note that cnPilot devices only have a restricted *nix command-set.')
       else
         print_good("#{search_result}")
 
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved in: #{p}")
       end
     else
-      vprint_error("#{rhost}:#{rport} - Backdoor 'root' shell not found. Affected versions are - v4.2.3-R4 and newer. You can try to verify the shell at #{root_shell}")
+      print_error("#{rhost}:#{rport} - Backdoor 'root' shell not found. Affected versions are - v4.2.3-R4 and newer. You can try to verify the shell at #{root_shell}")
       return
     end
   end

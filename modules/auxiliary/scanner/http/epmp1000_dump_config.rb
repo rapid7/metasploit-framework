@@ -47,9 +47,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Dump config
   def dump_config(config_uri, cookie)
-    vprint_status('++++++++++++++++++++++++++++++++++++++')
-    vprint_status("#{rhost}:#{rport} - Attempting to dump configuration...")
-    vprint_status('++++++++++++++++++++++++++++++++++++++')
+    print_status("#{rhost}:#{rport} - Attempting to dump configuration...")
     res = send_request_cgi(
       {
         'method' => 'GET',
