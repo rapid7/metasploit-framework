@@ -195,6 +195,10 @@ class ClientCore < Extension
   #	LibraryFilePath
   #		The path to the library that is to be loaded
   #
+  #	LibraryFileImage
+  #		Binary object containing the library to be loaded
+  #		(can be used instead of LibraryFilePath)
+  #
   #	TargetFilePath
   #		The target library path when uploading
   #
@@ -210,12 +214,13 @@ class ClientCore < Extension
   #
   def load_library(opts)
     library_path = opts['LibraryFilePath']
+    library_image = opts['LibraryFileImage']
     target_path  = opts['TargetFilePath']
     load_flags   = LOAD_LIBRARY_FLAG_LOCAL
 
     # No library path, no cookie.
-    if library_path.nil?
-      raise ArgumentError, 'No library file path was supplied', caller
+    if library_path.nil? && library_image.nil?
+      raise ArgumentError, 'No library file path or image was supplied', caller
     end
 
     # Set up the proper loading flags
@@ -234,14 +239,17 @@ class ClientCore < Extension
 
     # If we must upload the library, do so now
     if (load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL
-      image = ''
+      if library_image.nil?
+        # Caller did not provide the image, load it from the path
+        library_image = ''
 
-      ::File.open(library_path, 'rb') { |f|
-        image = f.read
-      }
+        ::File.open(library_path, 'rb') { |f|
+          library_image = f.read
+        }
+      end
 
-      if image
-        request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
+      if library_image
+        request.add_tlv(TLV_TYPE_DATA, library_image, false, client.capabilities[:zlib])
       else
         raise RuntimeError, "Failed to serialize library #{library_path}.", caller
       end
@@ -250,8 +258,17 @@ class ClientCore < Extension
       # path of the local and target so that it gets loaded with a random
       # name
       if opts['Extension']
-        library_path = "ext#{rand(1000000)}.#{client.binary_suffix}"
-        target_path  = library_path
+        if client.binary_suffix and client.binary_suffix.size > 1
+          m = /(.*)\.(.*)/.match(library_path)
+          suffix = $2
+        elsif client.binary_suffix.size == 1
+          suffix = client.binary_suffix[0]
+        else
+          suffix = client.binary_suffix
+        end
+
+        library_path = "ext#{rand(1000000)}.#{suffix}"
+        target_path  = "/tmp/#{library_path}"
       end
     end
 
@@ -297,6 +314,22 @@ class ClientCore < Extension
       raise RuntimeError, "No modules were specified", caller
     end
 
+    modnameprovided = mod
+    suffix = nil
+    if not client.binary_suffix
+      suffix = ''
+    elsif client.binary_suffix.size > 1
+      client.binary_suffix.each { |s|
+        if (mod =~ /(.*)\.#{s}/ )
+          mod = $1
+          suffix = s
+          break
+        end
+      }
+    else
+      suffix = client.binary_suffix.first
+    end
+
     # Query the remote instance to see if commands for the extension are
     # already loaded
     commands = get_loaded_extension_commands(mod.downcase)
@@ -304,22 +337,31 @@ class ClientCore < Extension
     # if there are existing commands for the given extension, then we can use
     # what's already there
     unless commands.length > 0
-      # Get us to the installation root and then into data/meterpreter, where
-      # the file is expected to be
-      modname = "ext_server_#{mod.downcase}"
-      path = MetasploitPayloads.meterpreter_path(modname, client.binary_suffix)
+      image = nil
+      path = nil
+      # If client.sys isn't setup, it's a Windows meterpreter 
+      if client.respond_to?(:sys) && !client.sys.config.sysinfo['BuildTuple'].blank?
+        # Query the payload gem directly for the extension image
+        image = MetasploitPayloads::Mettle.load_extension(client.sys.config.sysinfo['BuildTuple'], mod.downcase, suffix)
+      else
+        # Get us to the installation root and then into data/meterpreter, where
+        # the file is expected to be
+        modname = "ext_server_#{mod.downcase}"
+        path = MetasploitPayloads.meterpreter_path(modname, suffix)
 
-      if opts['ExtensionPath']
-        path = ::File.expand_path(opts['ExtensionPath'])
+        if opts['ExtensionPath']
+          path = ::File.expand_path(opts['ExtensionPath'])
+        end
       end
 
-      if path.nil?
-        raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
+      if path.nil? and image.nil?
+        raise RuntimeError, "No module of the name #{modnameprovided} found", caller
       end
 
       # Load the extension DLL
       commands = load_library(
           'LibraryFilePath' => path,
+          'LibraryFileImage' => image,
           'UploadLibrary'   => true,
           'Extension'       => true,
           'SaveToDisk'      => opts['LoadFromDisk'])
