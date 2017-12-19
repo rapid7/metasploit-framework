@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => true })
+      'License' => MSF_LICENSE
+     )
     )
 
     register_options(

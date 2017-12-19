@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['URL', 'http://ipositivesecurity.com/2015/11/28/cambium-epmp-1000-multiple-vulnerabilities/']
         ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => true })
+      'License' => MSF_LICENSE
+     )
     )
 
     register_options(

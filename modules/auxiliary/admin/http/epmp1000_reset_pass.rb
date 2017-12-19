@@ -25,8 +25,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2017-5254'],
           ['URL', 'https://blog.rapid7.com/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities']
         ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => true })
+      'License' => MSF_LICENSE
+     )
     )
 
     register_options(
