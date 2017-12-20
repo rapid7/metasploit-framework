@@ -65,5 +65,5 @@ module Msf
       def mqtt_disconnect(client)
         client.disconnect
       end
-    end
+  end
 end
