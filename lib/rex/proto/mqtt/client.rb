@@ -29,7 +29,7 @@ module Rex
         end
 
         def connect?
-          connect.return_code == 0
+          connect.return_code.zero?
         end
 
         def disconnect
