@@ -313,8 +313,6 @@ class Driver < Msf::Ui::Driver
       return
     end
 
-    self.active_resource = resource_file
-
     # Process ERB directives first
     print_status "Processing #{path} for ERB directives."
     erb = ERB.new(resource_file)
@@ -362,8 +360,6 @@ class Driver < Msf::Ui::Driver
         run_single(line)
       end
     end
-
-    self.active_resource = nil
   end
 
   #
@@ -507,10 +503,6 @@ class Driver < Msf::Ui::Driver
   # The active session associated with the driver.
   #
   attr_accessor :active_session
-  #
-  # The active resource file being processed by the driver
-  #
-  attr_accessor :active_resource
 
   def stop
     framework.events.on_ui_stop()
