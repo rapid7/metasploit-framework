@@ -305,11 +305,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   # Runs the Meterpreter script or resource file
   #
   def execute_file(full_path, args)
-    # Infer a Meterpreter script by it either having the .rb extension, or it
-    # containing a reference to the client object. This is for backward
-    # compatibility, since the API is not explicit to the user whether this
-    # should be a resource file or a Meterpreter script.
-    if File.extname(full_path) == ".rb" || File.read(full_path).match?(/\s*client\./)
+    # Infer a Meterpreter script by it having an .rb extension
+    if File.extname(full_path) == ".rb"
       Rex::Script::Meterpreter.new(self, full_path).run(args)
     else
       console.load_resource(full_path)
