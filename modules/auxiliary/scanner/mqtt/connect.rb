@@ -30,9 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'DefaultOptions' =>
         {
-          'BLANK_PASSWORDS' => true,
-          'USERNAME' => '',
-          'PASSWORD' => ''
+          'BLANK_PASSWORDS' => true
         }
     )
   end
@@ -89,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("#{ip}:#{rport} - MQTT Login Successful: #{username}/#{password}")
       else
         invalidate_login(credential_data)
-        vprint_error("#{ip}:#{rport} - MQTT LOGIN FAILED: #{username}/#{password} (#{result.status}: #{result.proof})")
+        vprint_error("#{ip}:#{rport} - MQTT LOGIN FAILED: #{username}/#{password} (#{result.proof})")
       end
     end
   end
