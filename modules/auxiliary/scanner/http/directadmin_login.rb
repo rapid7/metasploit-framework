@@ -61,63 +61,23 @@ class MetasploitModule < Msf::Auxiliary
     }.call
   end
 
-
-  def report_good_cred(ip, port, result)
-    service_data = {
-      address: ip,
-      port: port,
-      service_name: 'http',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      module_fullname: self.fullname,
-      origin_type: :service,
-      private_data: result.credential.private,
-      private_type: :password,
-      username: result.credential.public,
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      last_attempted_at: DateTime.now,
-      status: result.status,
-      proof: result.proof
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
-
-  def report_bad_cred(ip, rport, result)
-    invalidate_login(
-      address: ip,
-      port: rport,
-      protocol: 'tcp',
-      public: result.credential.public,
-      private: result.credential.private,
-      realm_key: result.credential.realm_key,
-      realm_value: result.credential.realm,
-      status: result.status,
-      proof: result.proof
-    )
-  end
-
-
   # Attempts to login
   def bruteforce(ip)
     scanner(ip).scan! do |result|
+      credential_data = result.to_h.merge({
+        workspace_id: myworkspace_id,
+        module_fullname: self.fullname,
+      })
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
-        report_good_cred(ip, rport, result)
+        create_credential_and_login(credential_data)
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
-        report_bad_cred(ip, rport, result)
+        invalidate_login(credential_data)
       when Metasploit::Model::Login::Status::INCORRECT
         vprint_brute(:level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'")
-        report_bad_cred(ip, rport, result)
+        invalidate_login(credential_data)
       end
     end
   end

@@ -8,7 +8,6 @@ module Metasploit
 
         DEFAULT_PORT  = 443 
         PRIVATE_TYPES = [ :password ]
-        LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
         # Checks if the target is Direct Admin Web Control Panel. The login module should call this.
@@ -73,7 +72,7 @@ module Metasploit
           })
 
           unless res
-            return {:status => LOGIN_STATUS::UNABLE_TO_CONNECT, :proof => res.to_s}
+            return {:status => Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, :proof => res.to_s}
           end
 
           # After login, the application should give us a new SID
@@ -82,10 +81,10 @@ module Metasploit
           @last_sid = sid # Update our SID
 
           if res.headers['Location'].to_s.include?('/') && !sid.blank?
-            return {:status => LOGIN_STATUS::SUCCESSFUL, :proof => res.to_s}
+            return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.to_s}
           end
 
-          {:status => LOGIN_STATUS::INCORRECT, :proof => res.to_s}
+          {:status => Metasploit::Model::Login::Status::INCORRECT, :proof => res.to_s}
         end
 
 
@@ -100,14 +99,15 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            service_name: ssl ? 'https' : 'http'
           }
 
           begin
             result_opts.merge!(get_login_state(credential.public, credential.private))
           rescue ::Rex::ConnectionError => e
             # Something went wrong during login. 'e' knows what's up.
-            result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
+            result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e.message)
           end
 
           Result.new(result_opts)
