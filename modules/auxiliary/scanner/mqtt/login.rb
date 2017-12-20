@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       user_file: datastore['USER_FILE'],
       userpass_file: datastore['USERPASS_FILE'],
       username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS'],
+      user_as_pass: datastore['USER_AS_PASS']
     )
 
     cred_collection = prepend_db_passwords(cred_collection)
