@@ -10,6 +10,8 @@ require 'msf/base/sessions/meterpreter_aarch64_apple_ios'
 
 module MetasploitModule
 
+  CachedSize = 692552
+
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
   include Msf::Sessions::MettleConfig
