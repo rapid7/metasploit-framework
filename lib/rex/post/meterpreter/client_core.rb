@@ -34,12 +34,16 @@ module Meterpreter
 ###
 class ClientCore < Extension
 
-  VALID_TRANSPORTS = [
-    'reverse_tcp',
-    'reverse_http',
-    'reverse_https',
-    'bind_tcp'
-  ]
+  METERPRETER_TRANSPORT_TCP   = 0
+  METERPRETER_TRANSPORT_HTTP  = 1
+  METERPRETER_TRANSPORT_HTTPS = 2
+
+  VALID_TRANSPORTS = {
+      'reverse_tcp'   => METERPRETER_TRANSPORT_TCP,
+      'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
+      'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
+      'bind_tcp'      => METERPRETER_TRANSPORT_TCP
+  }
 
   include Rex::Payloads::Meterpreter::UriChecksum
 
@@ -721,7 +725,7 @@ class ClientCore < Extension
   #
   def valid_transport?(transport)
     return false if transport.nil?
-    VALID_TRANSPORTS.include?(transport.downcase)
+    VALID_TRANSPORTS.has_key?(transport.downcase)
   end
 
   #
@@ -875,7 +879,7 @@ private
       opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
-      if transport == 'reverse_https' && opts[:cert]
+      if transport == 'reverse_https' && opts[:cert] # currently only https transport offers ssl
         hash = Rex::Socket::X509Certificate.get_cert_file_hash(opts[:cert])
         request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
       end
@@ -896,7 +900,7 @@ private
 
     end
 
-    request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
+    request.add_tlv(TLV_TYPE_TRANS_TYPE, VALID_TRANSPORTS[transport])
     request.add_tlv(TLV_TYPE_TRANS_URL, url)
 
     request
