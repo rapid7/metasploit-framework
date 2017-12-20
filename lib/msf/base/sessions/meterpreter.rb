@@ -309,7 +309,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # containing a reference to the client object. This is for backward
     # compatibility, since the API is not explicit to the user whether this
     # should be a resource file or a Meterpreter script.
-    if File.extname(full_path) == ".rb" || File.read(full_path).match?(/\s*client\/./)
+    if File.extname(full_path) == ".rb" || File.read(full_path).match?(/\s*client\./)
       Rex::Script::Meterpreter.new(self, full_path).run(args)
     else
       console.load_resource(full_path)
