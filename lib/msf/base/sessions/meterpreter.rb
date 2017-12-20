@@ -635,24 +635,26 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # Platform-agnostic archs go first
     case self.arch
     when 'java'
-      'jar'
+      ['jar']
     when 'php'
-      'php'
+      ['php']
     when 'python'
-      'py'
+      ['py']
     else
       # otherwise we fall back to the platform
       case self.platform
       when 'windows'
-        "#{self.arch}.dll"
+        ["#{self.arch}.dll"]
       when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
-        'lso'
+        ['bin', 'elf']
+      when 'osx'
+        ['elf']
       when 'android', 'java'
-        'jar'
+        ['jar']
       when 'php'
-        'php'
+        ['php']
       when 'python'
-        'py'
+        ['py']
       else
         nil
       end
