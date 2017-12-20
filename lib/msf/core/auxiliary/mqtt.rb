@@ -5,8 +5,6 @@ require 'rex/proto/mqtt'
 
 module Msf
   module Auxiliary::MQTT
-      include Exploit::Remote::Tcp
-
       def initialize(info = {})
         super
 
@@ -25,7 +23,7 @@ module Msf
           ]
         )
 
-        register_autofilter_ports([Rex::Proto::MQTT::DEFAULT_PORT])
+        register_autofilter_ports([Rex::Proto::MQTT::DEFAULT_PORT, Rex::Proto::MQTT::DEFAULT_PORT])
       end
 
       def setup
@@ -44,9 +42,10 @@ module Msf
         datastore['CLIENT_ID'] || Rex::Text.rand_text_alpha(1 + rand(10))
       end
 
+      # creates a new mqtt client for use against the connected socket
       def mqtt_client
         client_opts = {
-          client_id: client_id().to_s,
+          client_id: client_id.to_s,
           username: datastore['USERNAME'],
           password: datastore['PASSWORD'],
           read_timeout: read_timeout
@@ -59,7 +58,7 @@ module Msf
       end
 
       def mqtt_connect?(client)
-        mqtt_connect(client).return_code == 0
+        client.connect?
       end
 
       def mqtt_disconnect(client)
