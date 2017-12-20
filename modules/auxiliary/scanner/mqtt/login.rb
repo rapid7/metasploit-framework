@@ -31,6 +31,8 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'BLANK_PASSWORDS' => true
+          'USERNAME' => '',
+          'PASSWORD' => ''
         }
     )
   end
