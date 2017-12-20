@@ -36,11 +36,24 @@ module Msf::Payload::TransportConfig
 
   def transport_config_reverse_https(opts={})
     ds = opts[:datastore] || datastore
+    opts[:scheme] ||= 'https'
     config = transport_config_reverse_http(opts)
-    config[:scheme] = ds['OverrideScheme'] || 'https'
     config[:ssl_cert_hash] = get_ssl_cert_hash(ds['StagerVerifySSLCert'],
                                                ds['HandlerSSLCert'])
     config
+  end
+
+  def transport_uri_components(opts={})
+    ds = opts[:datastore] || datastore
+    scheme = opts[:scheme]
+    lhost = ds['LHOST']
+    lport = ds['LPORT']
+    if ds['OverrideRequestHost']
+      scheme = ds['OverrideScheme'] || scheme
+      lhost = ds['OverrideLHOST'] || lhost
+      lport = ds['OverrideLPORT'] || lport
+    end
+    [scheme, lhost, lport]
   end
 
   def transport_config_reverse_http(opts={})
@@ -55,10 +68,13 @@ module Msf::Payload::TransportConfig
     end
 
     ds = opts[:datastore] || datastore
+    opts[:scheme] ||= 'http'
+    scheme, lhost, lport = transport_uri_components(opts)
+
     {
-      scheme:          ds['OverrideScheme'] || 'http',
-      lhost:           opts[:lhost] || ds['LHOST'],
-      lport:           (opts[:lport] || ds['LPORT']).to_i,
+      scheme:          scheme,
+      lhost:           lhost,
+      lport:           lport.to_i,
       uri:             uri,
       ua:              ds['HttpUserAgent'],
       proxy_host:      ds['HttpProxyHost'],

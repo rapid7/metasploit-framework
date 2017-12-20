@@ -339,6 +339,13 @@ protected
 
     self.pending_connections += 1
 
+    resp.body = ''
+    resp.code = 200
+    resp.message = 'OK'
+
+    url = payload_uri(req) + conn_id
+    url << '/' unless url[-1] == '/'
+
     # Process the requested resource.
     case info[:mode]
       when :init_connect
@@ -354,59 +361,27 @@ protected
         pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
         resp.body = pkt.to_r
 
-      when :init_python, :init_native, :init_java
+      when :init_python, :init_native, :init_java, :connect
         # TODO: at some point we may normalise these three cases into just :init
-        url = payload_uri(req) + conn_id + '/'
 
-        # Damn you, python! Ruining my perfect world!
-        url += "\x00" unless uuid.arch == ARCH_PYTHON
-        uri = URI(payload_uri(req) + conn_id)
+        if info[:mode] == :connect
+          print_status("Attaching orphaned/stageless session...")
+        else
+          begin
+            blob = self.generate_stage(url: url, uuid: uuid, uri: conn_id)
+            blob = encode_stage(blob) if self.respond_to?(:encode_stage)
 
-        # TODO: does this have to happen just for windows, or can we set it for all?
-        resp['Content-Type'] = 'application/octet-stream' if uuid.platform == 'windows'
+            print_status("Staging #{uuid.arch} payload (#{blob.length} bytes) ...")
 
-        begin
-          blob = self.generate_stage(
-            url:   url,
-            uuid:  uuid,
-            uri:   conn_id
-          )
+            resp['Content-Type'] = 'application/octet-stream'
+            resp.body = blob
 
-          blob = encode_stage(blob) if self.respond_to?(:encode_stage)
-
-          print_status("Staging #{uuid.arch} payload (#{blob.length} bytes) ...")
-
-          resp.body = blob
-
-          # Short-circuit the payload's handle_connection processing for create_session
-          create_session(cli, {
-            :passive_dispatcher => self.service,
-            :conn_id            => conn_id,
-            :url                => url,
-            :expiration         => datastore['SessionExpirationTimeout'].to_i,
-            :comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-            :retry_total        => datastore['SessionRetryTotal'].to_i,
-            :retry_wait         => datastore['SessionRetryWait'].to_i,
-            :ssl                => ssl?,
-            :payload_uuid       => uuid
-          })
-        rescue NoMethodError
-          print_error("Staging failed. This can occur when stageless listeners are used with staged payloads.")
-          return
+          rescue NoMethodError
+            print_error("Staging failed. This can occur when stageless listeners are used with staged payloads.")
+            return
+          end
         end
 
-      when :connect
-        print_status("Attaching orphaned/stageless session...")
-
-        resp.body = ''
-
-        url = payload_uri(req) + conn_id
-        url << '/' unless url[-1] == '/'
-
-        # Damn you, python! Ruining my perfect world!
-        url += "\x00" unless uuid.arch == ARCH_PYTHON
-
-        # Short-circuit the payload's handle_connection processing for create_session
         create_session(cli, {
           :passive_dispatcher => self.service,
           :conn_id            => conn_id,
@@ -423,8 +398,6 @@ protected
         unless [:unknown_uuid, :unknown_uuid_url].include?(info[:mode])
           print_status("Unknown request to #{request_summary}")
         end
-        resp.code    = 200
-        resp.message = 'OK'
         resp.body    = datastore['HttpUnknownRequestResponse'].to_s
         self.pending_connections -= 1
     end
@@ -436,6 +409,5 @@ protected
   end
 
 end
-
 end
 end
