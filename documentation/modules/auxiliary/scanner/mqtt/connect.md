@@ -27,7 +27,7 @@ $  docker run -i -p 1883:1883  toke/mosquitto
 Msquitto can be configured to require credentials.  To run in this way:
 
   1. Create a simple configuration file:
-  ````
+  ```
   $  mkdir -p config && cat > config/mosquitto.conf
   password_file /mqtt/config/passwd
   allow_anonymous false
