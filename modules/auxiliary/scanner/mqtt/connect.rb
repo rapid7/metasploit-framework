@@ -31,7 +31,9 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'BLANK_PASSWORDS' => false,
-          'USER_AS_PASS' => true
+          'USER_AS_PASS' => true,
+          'USER_FILE' => 'data/wordlists/unix_users.txt',
+          'PASS_FILE' => 'data/wordlists/unix_passwords.txt'
         }
     )
   end
