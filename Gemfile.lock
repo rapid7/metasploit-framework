@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.26)
+    metasploit-framework (4.16.27)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -375,4 +375,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.16.0
+   1.16.1
