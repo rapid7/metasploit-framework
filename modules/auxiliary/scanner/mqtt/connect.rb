@@ -30,13 +30,42 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'DefaultOptions' =>
         {
-          'BLANK_PASSWORDS' => true
+          'BLANK_PASSWORDS' => false,
+          'USER_AS_PASS' => true
         }
     )
   end
 
+  def test_login(username, password)
+    client_opts = {
+      username: username,
+      password: password,
+      read_timeout: read_timeout,
+      client_id: client_id
+    }
+    connect
+    client = Rex::Proto::MQTT::Client.new(sock, client_opts)
+    connect_res = client.connect
+    client.disconnect
+    connect_res.return_code.zero?
+  end
+
+  def default_login
+    vprint_status("Testing without credentials")
+    if test_login('', '')
+      print_good("Does not require authentication")
+    end
+
+  end
+
   def run_host(ip)
-    vprint_status("#{ip}:#{rport} - Starting MQTT login sweep")
+    unless default_login
+      brute
+    end
+  end
+
+  def brute
+    vprint_status("Starting MQTT login sweep")
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
@@ -51,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::MQTT.new(
-      host: ip,
+      host: rhost,
       port: rport,
       read_timeout: datastore['READ_TIMEOUT'],
       client_id: client_id(),
@@ -84,10 +113,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        print_good("#{ip}:#{rport} - MQTT Login Successful: #{username}/#{password}")
+        print_good("MQTT Login Successful: #{username}/#{password}")
       else
         invalidate_login(credential_data)
-        vprint_error("#{ip}:#{rport} - MQTT LOGIN FAILED: #{username}/#{password} (#{result.proof})")
+        vprint_error("MQTT LOGIN FAILED: #{username}/#{password} (#{result.proof})")
       end
     end
   end

@@ -57,6 +57,7 @@ module Metasploit
             }
             client = Rex::Proto::MQTT::Client.new(sock, client_opts)
             connect_res = client.connect
+            client.disconnect
 
             if connect_res.return_code == 0
               status = Metasploit::Model::Login::Status::SUCCESSFUL
