@@ -560,4 +560,12 @@ class Msf::Module::Platform
     Alias = "hardware"
   end
 
+  #
+  # Apple iOS
+  #
+  class Apple_iOS < Msf::Module::Platform
+    Rank = 100
+    Alias = "apple_ios"
+  end
+
 end

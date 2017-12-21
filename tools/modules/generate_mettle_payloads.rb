@@ -25,6 +25,7 @@ arches = [
   ['x86',       'Linux', 'i486-linux-musl'],
   ['zarch',     'Linux', 's390x-linux-musl'],
   ['x64',       'OSX',   'x86_64-apple-darwin'],
+  ['aarch64',   'Apple_iOS',   'aarch64-iphone-darwin'],
 ]
 
 arch = ''
@@ -42,7 +43,7 @@ arches.each do |a, pl, pa|
 
     template = File::read(File::join(cwd, "meterpreter_reverse.erb"))
     renderer = ERB.new(template)
-    filename = File::join('modules', 'payloads', 'singles', platform, arch, "meterpreter_reverse_#{scheme}.rb")
+    filename = File::join('modules', 'payloads', 'singles', platform.downcase, arch, "meterpreter_reverse_#{scheme}.rb")
     File::write(filename, renderer.result())
   end
 end

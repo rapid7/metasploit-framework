@@ -758,7 +758,7 @@ class Console::CommandDispatcher::Core
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
-    '-t' => [true, "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.join(', ')}"],
+    '-t' => [true, "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}"],
     '-l' => [true, 'LHOST parameter (for reverse transports)'],
     '-p' => [true, 'LPORT parameter'],
     '-i' => [true, 'Specify transport by index (currently supported: remove)'],
