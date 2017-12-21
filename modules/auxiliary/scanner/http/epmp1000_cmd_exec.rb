@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       if good_response
-        sysauth_value = res.get_cookies.scan(/((.*)[$ ])/).flatten[0] || ''
+        sysauth_value = res.get_cookies_parsed.scan(/((.*)[$ ])/).flatten[0] || ''
 
         cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
 
@@ -179,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
       good_response = (
         res &&
         res.code == 200 &&
-        res.get_cookies.scan(/(stok=(.*))/).flatten[0]
+        res.get_cookies_parsed.scan(/(stok=(.*))/).flatten[0]
       )
 
       if good_response
