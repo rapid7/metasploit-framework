@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.25)
+    metasploit-framework (4.16.26)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -201,7 +201,7 @@ GEM
     nexpose (7.1.1)
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
-    octokit (4.7.0)
+    octokit (4.8.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
