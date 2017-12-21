@@ -32,9 +32,9 @@ Msquitto can be configured to require credentials.  To run in this way:
   password_file /mqtt/config/passwd
   allow_anonymous false
   ```
-  2. Create a password file for mosquitto (this example creates a user test_user with password test_pass)
+  2. Create a password file for mosquitto (this example creates a user admin wtth password admin)
   ```
-  $  touch config/passwd && mosquitto_passwd -b config/passwd test_user test_pass
+  $  touch config/passwd && mosquitto_passwd -b config/passwd admin admin
   ```
   1. Now run the dockerized mosquitto instance, mounting the configuration files from above for use at runtime:
   ```
@@ -66,9 +66,32 @@ Msquitto can be configured to require credentials.  To run in this way:
 ## Scenarios
 
 ### Docker MQTT Server Without Credentials
+
+Configure MQTT in a Docker container without credentials as described above.
+
 ```
+> use auxiliary/scanner/mqtt/connect
+> set VERBOSE false
+VERBOSE => false
+> set RHOSTS localhost
+RHOSTS => localhost
+> run
+[+] 127.0.0.1:1883        - Does not require authentication
+[*] Scanned 1 of 1 hosts (100% complete)
 ```
 
 ### Docker MQTT Server With Credentials
+
+Configure MQTT in a Docker container with credentials as described above.
+
 ```
+> use auxiliary/scanner/mqtt/connect
+> set VERBOSE false
+FALSE => false
+resource (mqtt.rc)> set RHOSTS localhost
+RHOSTS => localhost
+resource (mqtt.rc)> run
+...
+[+] 127.0.0.1:1883        - MQTT Login Successful: admin/admin
+
 ```
