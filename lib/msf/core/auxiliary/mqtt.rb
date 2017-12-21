@@ -43,7 +43,7 @@ module Msf
       # creates a new mqtt client for use against the connected socket
       def mqtt_client
         client_opts = {
-          client_id: client_id.to_s,
+          client_id: client_id,
           username: datastore['USERNAME'],
           password: datastore['PASSWORD'],
           read_timeout: read_timeout
