@@ -10,9 +10,7 @@ module Msf
 
         register_options(
           [
-            Opt::RPORT(Rex::Proto::MQTT::DEFAULT_PORT),
-            OptString.new('USERNAME', [false, 'The user to authenticate as']),
-            OptString.new('PASSWORD', [false, 'The password to authenticate with'])
+            Opt::RPORT(Rex::Proto::MQTT::DEFAULT_PORT)
           ]
         )
 
@@ -39,7 +37,7 @@ module Msf
       end
 
       def client_id
-        datastore['CLIENT_ID'] || Rex::Text.rand_text_alpha(1 + rand(10))
+        datastore['CLIENT_ID'] || 'mqtt-' + Rex::Text.rand_text_alpha(1 + rand(10))
       end
 
       # creates a new mqtt client for use against the connected socket
