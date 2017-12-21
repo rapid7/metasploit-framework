@@ -21,7 +21,7 @@ module Msf
           ]
         )
 
-        register_autofilter_ports([Rex::Proto::MQTT::DEFAULT_PORT, Rex::Proto::MQTT::DEFAULT_PORT])
+        register_autofilter_ports([Rex::Proto::MQTT::DEFAULT_PORT, Rex::Proto::MQTT::DEFAULT_SSL_PORT])
       end
 
       def setup
