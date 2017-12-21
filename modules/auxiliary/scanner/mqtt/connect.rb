@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     unless default_login
       brute
     end
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
       host: rhost,
       port: rport,
       read_timeout: datastore['READ_TIMEOUT'],
-      client_id: client_id(),
+      client_id: client_id,
       proxies: datastore['PROXIES'],
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
