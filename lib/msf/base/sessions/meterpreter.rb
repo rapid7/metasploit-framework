@@ -302,11 +302,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Runs the meterpreter script in the context of a script container
+  # Runs the Meterpreter script or resource file
   #
   def execute_file(full_path, args)
-    o = Rex::Script::Meterpreter.new(self, full_path)
-    o.run(args)
+    # Infer a Meterpreter script by it having an .rb extension
+    if File.extname(full_path) == ".rb"
+      Rex::Script::Meterpreter.new(self, full_path).run(args)
+    else
+      console.load_resource(full_path)
+    end
   end
 
 
