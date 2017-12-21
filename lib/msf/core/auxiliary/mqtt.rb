@@ -26,9 +26,10 @@ module Msf
 
       def setup
         fail_with(Failure::BadConfig, 'READ_TIMEOUT must be > 0') if read_timeout <= 0
+
         client_id_arg = datastore['CLIENT_ID']
-        if client_id_arg
-          fail_with(Failure::BadConfig, 'CLIENT_ID must be a non-empty string') if client_id_arg.blank?
+        if client_id_arg && client_id_arg.blank?
+          fail_with(Failure::BadConfig, 'CLIENT_ID must be a non-empty string')
         end
       end
 
