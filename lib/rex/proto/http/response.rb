@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'cgi'
 require 'uri'
 require 'rex/proto/http'
 require 'nokogiri'
@@ -82,6 +83,18 @@ class Response < Packet
     end
 
     return cookies.strip
+  end
+
+  #
+  # Gets cookies from the Set-Cookie header in a parsed format
+  #
+  def get_cookies_parsed
+    if (self.headers.include?('Set-Cookie'))
+      ret = CGI::Cookie::parse(self.headers['Set-Cookie'])
+    else
+      ret = {}
+    end
+    ret
   end
 
 
