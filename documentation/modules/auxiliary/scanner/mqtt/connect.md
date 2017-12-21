@@ -63,6 +63,10 @@ Msquitto can be configured to require credentials.  To run in this way:
   not all MQTT implementation support this, some, like mosquitto, support filtering by client ID and
   this option can be used in those scenarios.  By default, a random ID is selected.
 
+  **READ_TIMEOUT**
+
+  The amount of time, in seconds, to wait for responses from the MQTT endpoint.
+
 ## Scenarios
 
 ### Docker MQTT Server With Anonymous Authentication
