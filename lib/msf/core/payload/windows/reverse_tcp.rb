@@ -87,9 +87,6 @@ module Payload::Windows::ReverseTcp
     # Start with our cached default generated size
     space = cached_size
 
-    # Bind port bytes, adds 35 bytes.
-    space += 50
-
     # EXITFUNK 'thread' is the biggest by far, adds 29 bytes.
     space += 29
 
