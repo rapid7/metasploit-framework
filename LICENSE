@@ -15,6 +15,11 @@ License: BSD-3-clause
 # Last updated: 2013-Nov-04
 #
 
+Files: data/exploits/mysql/lib_mysqludf_sys_*.so
+Copyright: 2007  Roland Bouman
+           2008-2010  Roland Bouman and Bernardo Damele A. G.
+License: LGPL-2.1
+
 Files: data/templates/to_mem_pshreflection.ps1.template
 Copyright: 2012, Matthew Graeber
 License: BSD-3-clause
