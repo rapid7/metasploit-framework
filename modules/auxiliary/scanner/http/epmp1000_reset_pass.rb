@@ -78,7 +78,8 @@ class MetasploitModule < Msf::Auxiliary
       res &&
       res.code == 200 &&
       res.headers.include?('Content-Type') &&
-      res.headers['Content-Type'].include?('application/json')
+      res.headers['Content-Type'].include?('application/json')&&
+      res.body.include?('config_id')
     )
 
     if good_response

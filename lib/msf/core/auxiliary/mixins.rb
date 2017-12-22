@@ -31,3 +31,9 @@ require 'msf/core/auxiliary/pii'
 require 'msf/core/auxiliary/redis'
 require 'msf/core/auxiliary/sms'
 require 'msf/core/auxiliary/mms'
+
+#
+# Custom HTTP modules
+#
+require 'msf/core/exploit/http/cnpilot'
+require 'msf/core/exploit/http/epmp'
