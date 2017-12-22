@@ -35,5 +35,5 @@ require 'msf/core/auxiliary/mms'
 #
 # Custom HTTP modules
 #
-require 'msf/core/exploit/http/cnpilot'
-require 'msf/core/exploit/http/epmp'
+require 'msf/core/auxiliary/cnpilot'
+require 'msf/core/auxiliary/epmp'
