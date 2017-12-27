@@ -15,20 +15,16 @@ module Msf::DBManager::Host
       wspace = find_workspace(wspace)
     end
 
-    dlog("delete_host(): wspace=#{wspace}, opts=#{opts}")
-    puts("delete_host(): wspace=#{wspace}, opts=#{opts}")
-
     ::ActiveRecord::Base.connection_pool.with_connection {
       hosts = []
-      if opts[:host] || opts[:address]
-        opts_host = opts[:host] || opts[:address]
-        host = wspace.hosts.find_by_address(opts_host)
+      if opts[:address] || opts[:host]
+        opt_addr = opts[:address] || opts[:host]
+        host = wspace.hosts.find_by_address(opt_addr)
         return { error: { message: "Unable to find host by specified address" } } if host.nil? || host.class != ::Mdm::Host
         hosts << host
       elsif opts[:addresses]
         return { error: { message: "Unable to find host by specified addresses" } } if opts[:addresses].class != Array
-        conditions = { address: opts[:addresses] }
-        hosts = wspace.hosts.where(conditions)
+        hosts = wspace.hosts.where(address: opts[:addresses])
         return { error: { message: "Unable to find hosts for specified addresses" } } if hosts.nil?
       end
 
@@ -38,8 +34,7 @@ module Msf::DBManager::Host
           host.destroy
           deleted << host.address.to_s
         rescue # refs suck
-          dlog("Forcibly deleting #{host.address}")
-          puts("delete_host(): Forcibly deleting #{host.address}...")
+          elog("Forcibly deleting #{host.address}")
           host.delete
           deleted << host.address.to_s
         end
