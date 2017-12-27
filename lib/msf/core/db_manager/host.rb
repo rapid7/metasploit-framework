@@ -22,8 +22,9 @@ module Msf::DBManager::Host
       hosts = []
       if opts[:host] || opts[:address]
         opts_host = opts[:host] || opts[:address]
-        hosts = wspace.hosts.find_by_address(opts_host)
-        return { error: { message: "Unable to find host by specified address" } } if hosts.nil? || hosts.class != ::Mdm::Host
+        host = wspace.hosts.find_by_address(opts_host)
+        return { error: { message: "Unable to find host by specified address" } } if host.nil? || host.class != ::Mdm::Host
+        hosts << host
       elsif opts[:addresses]
         return { error: { message: "Unable to find host by specified addresses" } } if opts[:addresses].class != Array
         conditions = { address: opts[:addresses] }
