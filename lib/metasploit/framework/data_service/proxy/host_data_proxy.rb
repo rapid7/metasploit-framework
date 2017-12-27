@@ -1,6 +1,6 @@
 module HostDataProxy
 
-  def hosts(wspace, non_dead = false, addresses = nil)
+  def hosts(wspace = workspace, non_dead = false, addresses = nil)
     begin
       data_service = self.get_data_service()
       opts = {}
@@ -8,8 +8,8 @@ module HostDataProxy
       opts[:non_dead] = non_dead
       opts[:addresses] = addresses
       data_service.hosts(opts)
-    rescue  Exception => e
-      puts"Call to  #{data_service.class}#hosts threw exception: #{e.message}"
+    rescue Exception => e
+      puts "Call to #{data_service.class}#hosts threw exception: #{e.message}"
     end
   end
 
@@ -24,9 +24,9 @@ module HostDataProxy
     begin
       data_service = self.get_data_service()
       data_service.report_host(opts)
-    rescue  Exception => e
-        puts"Call to  #{data_service.class}#report_host threw exception: #{e.message}"
-        opts.each do |key, value| puts "#{key} : #{value}" end
+    rescue Exception => e
+      puts "Call to #{data_service.class}#report_host threw exception: #{e.message}"
+      opts.each do |key, value| puts "#{key} : #{value}" end
     end
   end
 
@@ -34,8 +34,17 @@ module HostDataProxy
     begin
       data_service = self.get_data_service()
       data_service.report_hosts(hosts)
-    rescue  Exception => e
-      puts "Call to  #{data_service.class}#report_hosts threw exception: #{e.message}"
+    rescue Exception => e
+      puts "Call to #{data_service.class}#report_hosts threw exception: #{e.message}"
+    end
+  end
+
+  def delete_host(opts)
+    begin
+      data_service = self.get_data_service()
+      data_service.delete_host(opts)
+    rescue Exception => e
+      puts "Call to #{data_service.class}#delete_host threw exception: #{e.message}"
     end
   end
 
