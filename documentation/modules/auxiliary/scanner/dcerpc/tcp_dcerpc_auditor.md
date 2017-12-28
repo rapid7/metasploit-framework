@@ -15,17 +15,6 @@ To run this scanner, we just need to set our RHOSTS and THREADS values and let i
 
 **Running the scanner**
 ```
-msf > use auxiliary/scanner/dcerpc/tcp_dcerpc_auditor 
-msf auxiliary(tcp_dcerpc_auditor) > show options
-
-Module options:
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    135              yes       The target port
-   THREADS  1                yes       The number of concurrent threads
-
 msf auxiliary(tcp_dcerpc_auditor) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(tcp_dcerpc_auditor) > set THREADS 55
