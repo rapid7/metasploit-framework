@@ -1,6 +1,6 @@
 ## Description
 
-This auxiliary module probes the local network for IPv6 hosts that respond to Neighbor Solicitations with a link-local address. This module, like the arp_sweep one, will generally only work within the attacking machine’s broadcast domain.
+This auxiliary module probes the local network for IPv6 hosts that respond to Neighbor Solicitations with a link-local address. This module, like the arp_sweep one, will generally only work within the attacking machine’s broadcast domain. It serves the dual-purpose of showing what hosts are online similar to arp_sweep and then performs the IPv6 Neighbor Discovery.
 
 ## Verification Steps
 
@@ -65,5 +65,3 @@ msf auxiliary(ipv6_neighbor) > run
 [*] Auxiliary module execution completed
 msf auxiliary(ipv6_neighbor) >
 ```
-
-Looking at the module output, you can see that this scanner serves the dual-purpose of showing what hosts are online similar to arp_sweep and then performs the IPv6 Neighbor Discovery.

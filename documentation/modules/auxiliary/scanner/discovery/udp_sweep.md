@@ -1,6 +1,6 @@
 ## Description
 
-The “udp_sweep” module scans across a given range of hosts to detect commonly available UDP services.
+The `udp_sweep` module scans across a given range of hosts to detect commonly available UDP services.
 
 ## Verification Steps
 
@@ -16,16 +16,6 @@ To configure this module, just set the RHOSTS and THREADS values and run it.
 **Running the scanner**
 ```
 msf > use auxiliary/scanner/discovery/udp_sweep
-msf auxiliary(udp_sweep) > show options
-
-Module options (auxiliary/scanner/discovery/udp_sweep):
-
-   Name       Current Setting  Required  Description
-   ----       ---------------  --------  -----------
-   BATCHSIZE  256              yes       The number of hosts to probe in each set
-   RHOSTS                      yes       The target address range or CIDR identifier
-   THREADS    10               yes       The number of concurrent threads
-
 msf auxiliary(udp_sweep) > set RHOSTS 192.168.1.2-254
 RHOSTS => 192.168.1.2-254
 msf auxiliary(udp_sweep) > set THREADS 253
@@ -53,5 +43,3 @@ msf auxiliary(udp_sweep) > run
 [*] Auxiliary module execution completed
 msf auxiliary(udp_sweep) >
 ```
-
-With minimal effort, we have once again identified a wide range of services running on many different platforms within our network.
