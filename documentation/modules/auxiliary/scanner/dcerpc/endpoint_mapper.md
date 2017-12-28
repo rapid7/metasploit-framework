@@ -11,7 +11,7 @@ The endpoint_mapper module queries the EndPoint Mapper service of a remote syste
 
 In order to run the module, all we need to do is pass it a range of IP addresses, set the THREADS count, and let it go to work.
 
-## Scenarios
+### Example Windows 2003, and Windows 7 Targets
 
 **Running the scanner**
 ```
