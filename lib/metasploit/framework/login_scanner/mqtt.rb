@@ -61,10 +61,10 @@ module Metasploit
 
             if connect_res.return_code == 0
               status = Metasploit::Model::Login::Status::SUCCESSFUL
-              proof = "Succesful Connack"
+              proof = "Successful Connection (Received CONNACK packet)"
             else
               status = Metasploit::Model::Login::Status::INCORRECT
-              proof = "Failed Connack (#{connect_res.return_code})"
+              proof = "Failed Connection (#{connect_res.return_code})"
             end
 
             result_options.merge!(
