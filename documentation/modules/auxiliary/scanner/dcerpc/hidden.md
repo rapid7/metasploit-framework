@@ -14,17 +14,8 @@ As you can see, there are not many options to configure so we will just point it
 ## Scenarios
 
 **Running the scanner**
+
 ```
-msf > use auxiliary/scanner/dcerpc/hidden 
-msf auxiliary(hidden) > show options
-
-Module options:
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   RHOSTS                    yes       The target address range or CIDR identifier
-   THREADS  1                yes       The number of concurrent threads
-
 msf auxiliary(hidden) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(hidden) > set THREADS 55
@@ -72,5 +63,3 @@ msf auxiliary(hidden) > run
 [*] Auxiliary module execution completed
 msf auxiliary(hidden) >
 ```
-
-As you can see, despite the simple setup, we still gathered some additional information about one of our targets.

@@ -41,5 +41,3 @@ The connection timed out (192.168.1.205:135).
 [*] Auxiliary module execution completed
 msf auxiliary(tcp_dcerpc_auditor) >
 ```
-
-As you can see, this quick scan has turned up some available services on a number of our hosts which could warrant further investigation.

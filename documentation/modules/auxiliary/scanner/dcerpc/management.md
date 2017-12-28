@@ -11,7 +11,7 @@ The dcerpc/management module scans a range of IP addresses and obtains informati
 
 There is minimal configuration required for this module; we simply need to set our THREADS value and the range of hosts we want scanned and run the module.
 
-## Scenarios
+### Example Windows 2003, and Windows 7 Targets
 
 **Running the scanner**
 ```

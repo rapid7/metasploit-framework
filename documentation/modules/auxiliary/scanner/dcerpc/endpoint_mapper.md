@@ -15,17 +15,6 @@ In order to run the module, all we need to do is pass it a range of IP addresses
 
 **Running the scanner**
 ```
-msf > use auxiliary/scanner/dcerpc/endpoint_mapper 
-msf auxiliary(endpoint_mapper) > show options
-
-Module options:
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    135              yes       The target port
-   THREADS  1                yes       The number of concurrent threads
-
 msf auxiliary(endpoint_mapper) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(endpoint_mapper) > set THREADS 55
