@@ -15,17 +15,6 @@ There is minimal configuration required for this module; we simply need to set o
 
 **Running the scanner**
 ```
-msf > use auxiliary/scanner/dcerpc/management 
-msf auxiliary(management) > show options
-
-Module options:
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    135              yes       The target port
-   THREADS  1                yes       The number of concurrent threads
-
 msf auxiliary(management) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(management) > set THREADS 55
