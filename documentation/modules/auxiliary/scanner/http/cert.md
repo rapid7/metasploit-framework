@@ -1,6 +1,6 @@
 ## Description
 
-This module is a useful administrative scanner that allows you to cover a subnet to check whether or not server certificates are expired. Using this scanner, you can uncover issuer of certificate, issue and expiry date. If you find a expired certificate, you can exploit it.
+This module is a useful administrative scanner that allows you to cover a subnet to check whether or not server http certificates are expired. Using this scanner, you can uncover issuer of certificate, issue and expiry date.
 
 ## Verification Steps
 
@@ -17,18 +17,6 @@ Just set target RHOSTS and THREADS values and let it do its thing.
 
 ```
 msf > use auxiliary/scanner/http/cert
-msf auxiliary(cert) > show options
-
-Module options:
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   ISSUER   .*               yes       Show a warning if the Issuer doesn't match this regex
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    443              yes       The target port
-   SHOWALL  false            no        Show all certificates (issuer,time) regardless of match
-   THREADS  1                yes       The number of concurrent threads
-
 msf auxiliary(cert) > set RHOSTS 192.168.1.0/24
 RHOSTS => 192.168.1.0/24
 msf auxiliary(cert) > set THREADS 254
