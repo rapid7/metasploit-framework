@@ -1,6 +1,6 @@
 ## Description
 
-The hidden scanner connects to a given range of IP addresses and try to locate any RPC services that are not listed in the Endpoint Mapper and determine if anonymous access to the service is allowed.
+The hidden scanner connects to a given range of IP addresses and tries to locate any RPC services that are not listed in the Endpoint Mapper and determines if anonymous access to the service is allowed.
 
 ## Verification Steps
 
