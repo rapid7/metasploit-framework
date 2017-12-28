@@ -88,7 +88,15 @@ class Client
   end
 
   def authenticate(password = nil)
+    authenticate_with_user(nil, password)
+  end
+
+  def authenticate_with_user(username = nil, password = nil)
     type = negotiate_authentication
+    authenticate_with_type(type, username, password)
+  end
+
+  def authenticate_with_type(type, username = nil, password = nil)
     return false if not type
 
     # Authenticate.
@@ -98,6 +106,9 @@ class Client
 
     when AuthType::VNC
       return false if not negotiate_vnc_auth(password)
+
+    when AuthType::ARD
+      return false if not negotiate_ard_auth(username, password)
 
     end
 
@@ -176,6 +187,7 @@ class Client
     selected = nil
     selected ||= AuthType::None if @opts[:allow_none] and @auth_types.include? AuthType::None
     selected ||= AuthType::VNC if @auth_types.include? AuthType::VNC
+    selected ||= AuthType::ARD if @auth_types.include? AuthType::ARD
 
     if not selected
       @error = "No supported authentication method found."
@@ -200,6 +212,21 @@ class Client
 
     true
   end
+
+  def negotiate_ard_auth(username = nil, password = nil)
+    generator = @sock.get_once(2)
+    generator = generator.unpack("n").first
+    key_length = @sock.get_once(2)
+    key_length = key_length.unpack("n").first
+    prime_modulus = @sock.get_once(key_length)
+    peer_public_key = @sock.get_once(key_length)
+
+    response = Cipher.encrypt_ard(username, password, generator, key_length, prime_modulus, peer_public_key)
+    @sock.put(response)
+
+    true
+ end
+
 
   attr_reader :error, :majver, :minver, :auth_types
   attr_reader :view_only
