@@ -11,7 +11,7 @@ The dcerpc/tcp_dcerpc_auditor module scans a range of IP addresses to determine 
 
 To run this scanner, we just need to set our RHOSTS and THREADS values and let it run.
 
-## Scenarios
+### Example Windows 2003, and Windows 7 Targets
 
 **Running the scanner**
 ```
