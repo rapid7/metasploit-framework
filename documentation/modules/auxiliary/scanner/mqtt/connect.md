@@ -27,16 +27,21 @@ $  docker run -i -p 1883:1883  toke/mosquitto
 Msquitto can be configured to require credentials.  To run in this way:
 
   1. Create a simple configuration file:
+
   ```
   $  mkdir -p config && cat > config/mosquitto.conf
   password_file /mqtt/config/passwd
   allow_anonymous false
   ```
+
   2. Create a password file for mosquitto (this example creates a user admin wtth password admin)
+
   ```
   $  touch config/passwd && mosquitto_passwd -b config/passwd admin admin
   ```
+
   3. Now run the dockerized mosquitto instance, mounting the configuration files from above for use at runtime:
+
   ```
   $  docker run -ti -p 1883:1883 -v `pwd`/config/:/mqtt/config:ro  toke/mosquitto
   1513823564: mosquitto version 1.4.14 (build date Mon, 10 Jul 2017 23:48:43 +0100) starting
@@ -50,9 +55,9 @@ Msquitto can be configured to require credentials.  To run in this way:
 
   1. Install the application without credentials
   2. Start msfconsole
-  3. Do: ```use auxiliary/scanner/mqtt/connect```
-  4. Do: ```set rhosts [IPs]```
-  5. Do: ```run```
+  3. Do: `use auxiliary/scanner/mqtt/connect`
+  4. Do: `set rhosts [IPs]`
+  5. Do: `run`
   6. Confirm that the default or non-default credentials are discovered as configured
 
 ## Options
