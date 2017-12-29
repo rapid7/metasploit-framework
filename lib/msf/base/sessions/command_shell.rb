@@ -51,7 +51,8 @@ class CommandShell
     self.platform ||= ""
     self.arch     ||= ""
     self.max_threads = 1
-    if !opts[:datastore]["CommandShellCleanupCommand"].blank?
+    datastore = opts[:datastore]
+    if datastore && !datastore["CommandShellCleanupCommand"].blank?
       @cleanup_command = opts[:datastore]["CommandShellCleanupCommand"]
     end
     super
