@@ -118,6 +118,7 @@ Gem::Specification.new do |spec|
   #
   # Needed by auxiliary/gather/http_pdf_authors module
   spec.add_runtime_dependency 'pdf-reader'
+  spec.add_runtime_dependency 'ruby-macho'
 
   #
   # Protocol Libraries
