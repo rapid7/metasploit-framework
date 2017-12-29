@@ -84,6 +84,9 @@ class Framework
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
 
+    # Configure the SSL certificate generator
+    Rex::Socket::Ssl.cert_provider = Msf::Exploit::Remote::Ssl::CertProvider
+
     subscriber = FrameworkEventSubscriber.new(self)
     events.add_exploit_subscriber(subscriber)
     events.add_session_subscriber(subscriber)
