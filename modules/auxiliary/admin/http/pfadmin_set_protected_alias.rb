@@ -87,6 +87,7 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status('Requesting virtual_list')
     res = send_request_cgi({'uri' => postfixadmin_url_list(target_alias.split("@")[-1]), 'method' => 'GET', 'cookie' => cookie }, 10)
+    fail_with(Failure::UnexpectedReply, 'The request for the domain list failed') if res.nil?
     fail_with(Failure::NoAccess, 'Doesn\'t seem to be admin for the domain the target alias is in') if res.redirect?
     body = res.body
     vprint_status('Get token')
@@ -144,9 +145,9 @@ class MetasploitModule < Msf::Auxiliary
   #
   # @param user [String] Username
   # @param pass [String] Password
-  # @param timeout [Integer] Max seconds to wait before timeout
+  # @param timeout [Integer] Max seconds to wait before timeout, defaults to 20
   #
-  # @return [String, nil] The session cocie as single string if login was successful, nil otherwise
+  # @return [String, nil] The session cookie as single string if login was successful, nil otherwise
   def postfixadmin_login(user, pass, timeout = 20)
     res = send_request_cgi({
       'method' => 'POST',
