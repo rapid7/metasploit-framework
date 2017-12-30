@@ -217,11 +217,7 @@ protected
   # shell_write instead of operating on rstream directly.
   def _interact
     framework.events.on_session_interact(self)
-    if self.respond_to?(:ring)
-      _interact_ring
-    else
-      _interact_stream
-    end
+    _interact_stream
   end
 
   ##
