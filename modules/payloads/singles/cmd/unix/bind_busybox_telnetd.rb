@@ -16,25 +16,34 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-                     'Name'          => 'Unix Command Shell, Bind TCP (via BusyBox telnetd)',
-                     'Description'   => 'Listen for a connection and spawn a command shell via BusyBox telnetd',
-                     'Author'        => 'Matthew Kienow <matthew_kienow[AT]rapid7.com>',
-                     'License'       => MSF_LICENSE,
-                     'Platform'      => 'unix',
-                     'Arch'          => ARCH_CMD,
-                     'Handler'       => Msf::Handler::BindTcp,
-                     'Session'       => Msf::Sessions::CommandShell,
-                     'PayloadType'   => 'cmd',
-                     'RequiredCmd'   => 'telnetd',
-                     'Payload'       =>
-                         {
-                             'Offsets' => { },
-                             'Payload' => ''
-                         }
-          ))
-    register_options([
-                         OptString.new('LOGIN_CMD', [true, 'Command telnetd will execute on connect', '/bin/sh']),
-                     ])
+      'Name'          => 'Unix Command Shell, Bind TCP (via BusyBox telnetd)',
+      'Description'   => 'Listen for a connection and spawn a command shell via BusyBox telnetd',
+      'Author'        => 'Matthew Kienow <matthew_kienow[AT]rapid7.com>',
+      'License'       => MSF_LICENSE,
+      'Platform'      => 'unix',
+      'Arch'          => ARCH_CMD,
+      'Handler'       => Msf::Handler::BindTcp,
+      'Session'       => Msf::Sessions::CommandShell,
+      'PayloadType'   => 'cmd',
+      'RequiredCmd'   => 'telnetd',
+      'Payload'       =>
+        {
+          'Offsets' => { },
+          'Payload' => ''
+        }
+    ))
+
+    register_options(
+      [
+        OptString.new('LOGIN_CMD', [true, 'Command telnetd will execute on connect', '/bin/sh']),
+      ]
+    )
+
+    register_advanced_options(
+      [
+        OptString.new('CommandShellCleanupCommand', [true, 'A command to run before the session is closed', 'pkill telnetd'])
+      ]
+    )
   end
 
   #
