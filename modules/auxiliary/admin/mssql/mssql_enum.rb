@@ -509,6 +509,7 @@ class MetasploitModule < Msf::Auxiliary
     dangeroussp = [
       'sp_createorphan',
       'sp_droporphans',
+      'sp_execute_external_script',
       'sp_getschemalock',
       'sp_prepexec',
       'sp_prepexecrpc',

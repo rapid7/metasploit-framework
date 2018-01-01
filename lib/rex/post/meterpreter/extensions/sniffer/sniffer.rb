@@ -39,7 +39,13 @@ class Sniffer < Extension
     response.each(TLV_TYPE_SNIFFER_INTERFACES) { |p|
       vals  = p.tlvs.map{|x| x.value }
       iface = { }
-      ikeys = %W{idx name description type mtu wireless usable dhcp}
+      if vals.length == 8
+        # Windows
+        ikeys = %W{idx name description type mtu wireless usable dhcp}
+      else
+        # Mettle
+        ikeys = %W{idx name description usable}
+      end
       ikeys.each_index { |i| iface[ikeys[i]] = vals[i] }
       ifaces << iface
     }

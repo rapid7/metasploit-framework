@@ -34,12 +34,13 @@ class MetasploitModule < Msf::Auxiliary
   def run
     username = datastore['HttpUsername']
     password = datastore['HttpPassword']
+    auth = basic_auth(username, password) if username && password
 
     begin
       res = send_request_cgi(
         'uri'           => normalize_uri(target_uri.path),
         'method'        => 'GET',
-        'authorization' => basic_auth(username, password)
+        'authorization' => auth
       )
 
       temp = JSON.parse(res.body)

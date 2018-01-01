@@ -17,10 +17,7 @@ module Payload::Python::ReverseTcpSsl
   include Msf::Payload::Python::ReverseTcp
   def initialize(*args)
     super
-    register_advanced_options([
-        OptInt.new('StagerRetryCount', [false, 'The number of times the stager should retry if the first connect fails (zero to infinite retries)', 10]),
-        OptInt.new('StagerRetryWait', [false, 'Number of seconds to wait for the stager between reconnect attempts', 5])
-      ], self.class)
+    register_advanced_options(Msf::Opt::stager_retry_options)
   end
 
   #

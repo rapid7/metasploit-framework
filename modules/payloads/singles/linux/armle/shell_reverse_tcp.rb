@@ -112,7 +112,7 @@ module MetasploitModule
     # Register command execution options
     register_options(
       [
-        OptString.new('SHELL', [ true, "The shell to execute.", "/system/bin/sh" ]),
+        OptString.new('SHELL', [ true, "The shell to execute.", "/bin/sh" ]),
         OptString.new('ARGV0', [ false, "argv[0] to pass to execve", "sh" ]) # mostly used for busybox
       ])
   end

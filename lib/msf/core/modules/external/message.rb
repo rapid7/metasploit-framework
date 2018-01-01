@@ -2,11 +2,25 @@
 require 'msf/core/modules/external'
 require 'base64'
 require 'json'
+require 'securerandom'
 
 class Msf::Modules::External::Message
 
-  attr_reader :method, :id
-  attr_accessor :params
+  attr_reader :method
+  attr_accessor :params, :id
+
+  def self.from_module(j)
+    if j['method']
+      m = self.new(j['method'].to_sym)
+      m.params = j['params']
+      m
+    elsif j['response']
+      m = self.new(:reply)
+      m.params = j['response']
+      m.id = j['id']
+      m
+    end
+  end
 
   def initialize(m)
     self.method = m
@@ -20,5 +34,5 @@ class Msf::Modules::External::Message
 
   protected
 
-  attr_writer :method, :id
+  attr_writer :method
 end

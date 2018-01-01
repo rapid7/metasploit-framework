@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'HP LaserJet Printer SNMP Enumeration',
       'Description' => %q{
         This module allows enumeration of files previously printed.
-        It provides details as filename, client, timestamp and username informations.
+        It provides details as filename, client, timestamp and username information.
         The default community used is "public".
       },
       'References'  =>

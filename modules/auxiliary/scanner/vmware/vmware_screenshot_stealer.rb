@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %Q{
         This module uses supplied login credentials to connect to VMWare via
         the web interface. It then searches through the datastores looking for screenshots.
-        It will downlaod any screenshots it finds and save them as loot.
+        It will download any screenshots it finds and save them as loot.
       },
       'Author'         => ['theLightCosine'],
       'License'        => MSF_LICENSE

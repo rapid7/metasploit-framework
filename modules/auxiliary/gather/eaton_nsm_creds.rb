@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         This module will extract user credentials from Network Shutdown Module
         versions 3.21 and earlier by exploiting a vulnerability found in
         lib/dbtools.inc, which uses unsanitized user input inside a eval() call.
-        Please note that in order to extract credentials,the vulnerable service
+        Please note that in order to extract credentials, the vulnerable service
         must have at least one USV module (an entry in the "nodes" table in
         mgedb.db).
       },

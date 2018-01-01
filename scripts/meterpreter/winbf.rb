@@ -12,7 +12,7 @@
   "-h"  => [ false,  "\tHelp menu."],
   "-t"  => [ true,  "\tTarget IP Address"],
   "-p"  => [ true,  "\tPassword List"],
-  "-cp" => [ false,  "\tCheck Local Machine Password Policy"],
+  "-c" => [ false,  "\tCheck Local Machine Password Policy"],
   "-L"  => [ true,  "\tUsername List to be brute forced"],
   "-l"  => [ true,  "\tLogin name to be brute forced"]
 )
@@ -164,7 +164,7 @@ unsupported if client.platform != 'windows'
     userlist = val
     ulopt = 1
 
-  when "-cp"
+  when "-c"
     chkpolicy(session)
     exit
   when "-p"

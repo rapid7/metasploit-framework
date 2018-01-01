@@ -131,8 +131,8 @@ class Post
       return false
     end
 
-    if (jobify)
-      print_status("Post module running as background job")
+    if (jobify && mod.job_id)
+      print_status("Post module running as background job #{mod.job_id}.")
     else
       print_status("Post module execution completed")
     end

@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'patrick', #original module
+          'aushack', #original module
           'h00die <mike@shorebreaksecurity.com>' #updates and standardizations
         ],
       'License'        => MSF_LICENSE

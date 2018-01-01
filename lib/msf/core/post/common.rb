@@ -167,19 +167,19 @@ module Msf::Post::Common
   end
 
   #
-  # Reports to the database that the host is a virtual machine and reports
-  # the type of virtual machine it is (e.g VirtualBox, VMware, Xen)
+  # Reports to the database that the host is using virtualization and reports
+  # the type of virtualization it is (e.g VirtualBox, VMware, Xen, Docker)
   #
-  def report_vm(vm)
+  def report_virtualization(virt)
     return unless session
-    return unless vm
-    vm_normal = vm.to_s.strip
-    return if vm_normal.empty?
-    vm_data = {
+    return unless virt
+    virt_normal = virt.to_s.strip
+    return if virt_normal.empty?
+    virt_data = {
       :host => session.target_host,
-      :virtual_host => vm_normal
+      :virtual_host => virt_normal
     }
-    report_host(vm_data)
+    report_host(virt_data)
   end
 
   #

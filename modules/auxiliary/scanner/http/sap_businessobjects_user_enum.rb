@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'		   => 'SAP BusinessObjects User Enumeration',
       'Description'	=> %Q{
         This module simply attempts to enumerate SAP BusinessObjects
-        users.The dswsbobje interface is only used to verify valid
+        users. The dswsbobje interface is only used to verify valid
         users for CmcApp. Therefore, any valid users that have been
         identified can be leveraged by logging into CmcApp.
         },

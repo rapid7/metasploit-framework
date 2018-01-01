@@ -165,6 +165,7 @@ class ReadableText
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
     output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
@@ -275,10 +276,19 @@ class ReadableText
 
     # Authors
     output << "Provided by:\n"
-    mod.each_author { |author|
+    mod.each_author.each do |author|
       output << indent + author.to_s + "\n"
-    }
+    end
     output << "\n"
+
+    # Compatible session types
+    if mod.session_types
+      output << "Compatible session types:\n"
+      mod.session_types.sort.each do |type|
+        output << indent + type.capitalize + "\n"
+      end
+      output << "\n"
+    end
 
     # Actions
     if mod.action
@@ -539,8 +549,10 @@ class ReadableText
 
     columns = []
     columns << 'Id'
+    columns << 'Name'
     columns << 'Type'
     columns << 'Checkin?' if show_extended
+    columns << 'Enc?' if show_extended
     columns << 'Local URI' if show_extended
     columns << 'Information'
     columns << 'Connection'
@@ -561,6 +573,7 @@ class ReadableText
 
       row = []
       row << session.sid.to_s
+      row << session.sname.to_s
       row << session.type.to_s
       if session.respond_to?(:session_type)
         row[-1] << (" " + session.session_type)
@@ -575,7 +588,13 @@ class ReadableText
           row << '?'
         end
 
-        if session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
+        if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
+          row << "Y"
+        else
+          row << 'N'
+        end
+
+        if session.exploit_datastore && session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
           row << " (#{session.exploit_datastore['LURI']})"
         else
           row << '?'
@@ -610,40 +629,46 @@ class ReadableText
 
       sess_info    = session.info.to_s
       sess_id      = session.sid.to_s
+      sess_name    = session.sname.to_s
       sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
       sess_via     = session.via_exploit.to_s
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
-      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
-      sess_luri    = session.exploit_datastore['LURI'] || ""
+      sess_luri    = session.exploit_datastore['LURI'] || "" if session.exploit_datastore
+      sess_enc     = false
+      if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
+        sess_enc   = true
+      end
 
       sess_checkin = "<none>"
       sess_registration = "No"
 
-      if session.respond_to? :platform
-        sess_type << (" " + session.platform)
+      if session.respond_to?(:platform)
+        sess_type << " " + session.platform
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin
         sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
       end
 
-      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+      if session.payload_uuid.registered
         sess_registration = "Yes"
-        if uuid_info['name']
-          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        if session.payload_uuid.name
+          sess_registration << " - Name=\"#{session.payload_uuid.name}\""
         end
       end
 
       out << "  Session ID: #{sess_id}\n"
+      out << "        Name: #{sess_name}\n"
       out << "        Type: #{sess_type}\n"
       out << "        Info: #{sess_info}\n"
       out << "      Tunnel: #{sess_tunnel}\n"
       out << "         Via: #{sess_via}\n"
+      out << "   Encrypted: #{sess_enc}\n"
       out << "        UUID: #{sess_uuid}\n"
       out << "     CheckIn: #{sess_checkin}\n"
       out << "  Registered: #{sess_registration}\n"
-      unless sess_luri.empty?
+      unless (sess_luri || '').empty?
         out << "        LURI: #{sess_luri}\n"
       end
 

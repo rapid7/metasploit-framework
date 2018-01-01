@@ -6,29 +6,42 @@
 require 'pdf-reader'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
       'Name'        => 'Gather PDF Authors',
       'Description' => %q{
-        This module downloads PDF files and extracts the author's
+        This module downloads PDF documents and extracts the author's
         name from the document metadata.
+
+        This module expects a URL to be provided using the URL option.
+        Alternatively, multiple URLs can be provided by supplying the
+        path to a file containing a list of URLs in the URL_LIST option.
+
+        The URL_TYPE option is used to specify the type of URLs supplied.
+
+        By specifying 'pdf' for the URL_TYPE, the module will treat
+        the specified URL(s) as PDF documents. The module will
+        download the documents and extract the authors' names from the
+        document metadata.
+
+        By specifying 'html' for the URL_TYPE, the module will treat
+        the specified URL(s) as HTML pages. The module will scrape the
+        pages for links to PDF documents, download the PDF documents,
+        and extract the author's name from the document metadata.
       },
       'License'     => MSF_LICENSE,
       'Author'      => 'Brendan Coles <bcoles[at]gmail.com>'))
     register_options(
       [
-        OptString.new('URL', [ false, 'The URL of a PDF to analyse', '' ]),
-        OptString.new('URL_LIST', [ false, 'File containing a list of PDF URLs to analyze', '' ]),
-        OptString.new('OUTFILE', [ false, 'File to store output', '' ])
+        OptString.new('URL', [ false, 'The target URL', '' ]),
+        OptString.new('URL_LIST', [ false, 'File containing a list of target URLs', '' ]),
+        OptEnum.new('URL_TYPE', [ true, 'The type of URL(s) specified', 'html', [ 'pdf', 'html' ] ]),
+        OptBool.new('STORE_LOOT', [ false, 'Store authors in loot', true ])
       ])
-    register_advanced_options(
-      [
-        OptString.new('SSL_VERIFY', [ true, 'Verify SSL certificate', true ]),
-        OptString.new('PROXY', [ false, 'Proxy server to route connection. <host>:<port>', nil ]),
-        OptString.new('PROXY_USER', [ false, 'Proxy Server User', nil ]),
-        OptString.new('PROXY_PASS', [ false, 'Proxy Server Password', nil ])
-      ])
+    deregister_options 'RHOST', 'RPORT', 'VHOST'
   end
 
   def progress(current, total)
@@ -45,119 +58,117 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless File.file? datastore['URL_LIST'].to_s
-      fail_with Failure::BadConfig, "File '#{datastore['URL_LIST']}' does not exit"
+      fail_with Failure::BadConfig, "File '#{datastore['URL_LIST']}' does not exist"
     end
 
-    File.open(datastore['URL_LIST'], 'rb') {|f| f.read}.split(/\r?\n/)
+    File.open(datastore['URL_LIST'], 'rb') { |f| f.read }.split(/\r?\n/)
   end
 
   def read(data)
-    begin
+    Timeout.timeout(10) do
       reader = PDF::Reader.new data
       return parse reader
-    rescue PDF::Reader::MalformedPDFError
-      print_error "Could not parse PDF: PDF is malformed"
-      return
-    rescue PDF::Reader::UnsupportedFeatureError
-      print_error "Could not parse PDF: PDF::Reader::UnsupportedFeatureError"
-      return
-    rescue => e
-      print_error "Could not parse PDF: Unhandled exception: #{e}"
-      return
     end
+  rescue PDF::Reader::MalformedPDFError
+    print_error "Could not parse PDF: PDF is malformed (MalformedPDFError)"
+    return
+  rescue PDF::Reader::UnsupportedFeatureError
+    print_error "Could not parse PDF: PDF contains unsupported features (UnsupportedFeatureError)"
+    return
+  rescue SystemStackError
+    print_error "Could not parse PDF: PDF is malformed (SystemStackError)"
+    return
+  rescue SyntaxError
+    print_error "Could not parse PDF: PDF is malformed (SyntaxError)"
+    return
+  rescue Timeout::Error
+    print_error "Could not parse PDF: PDF is malformed (Timeout)"
+    return
+  rescue => e
+    print_error "Could not parse PDF: Unhandled exception: #{e}"
+    return
   end
 
   def parse(reader)
     # PDF
-    #print_status "PDF Version: #{reader.pdf_version}"
-    #print_status "PDF Title: #{reader.info['title']}"
-    #print_status "PDF Info: #{reader.info}"
-    #print_status "PDF Metadata: #{reader.metadata}"
-    #print_status "PDF Pages: #{reader.page_count}"
+    # print_status "PDF Version: #{reader.pdf_version}"
+    # print_status "PDF Title: #{reader.info['title']}"
+    # print_status "PDF Info: #{reader.info}"
+    # print_status "PDF Metadata: #{reader.metadata}"
+    # print_status "PDF Pages: #{reader.page_count}"
 
     # Software
-    #print_status "PDF Creator: #{reader.info[:Creator]}"
-    #print_status "PDF Producer: #{reader.info[:Producer]}"
+    # print_status "PDF Creator: #{reader.info[:Creator]}"
+    # print_status "PDF Producer: #{reader.info[:Producer]}"
 
     # Author
     reader.info[:Author].class == String ? reader.info[:Author].split(/\r?\n/).first : ''
   end
 
-  def download(url)
-    print_status "Downloading '#{url}'"
-
-    begin
-      target = URI.parse url
-      raise 'Invalid URL' unless target.scheme =~ %r{https?}
-      raise 'Invalid URL' if target.host.to_s.eql? ''
-    rescue => e
-      print_error "Could not parse URL: #{e}"
-      return
-    end
-
-    clnt = Net::HTTP::Proxy(@proxysrv, @proxyport, @proxyuser, @proxypass).new(target.host, target.port)
-
-    if target.scheme.eql? 'https'
-      clnt.use_ssl = true
-      clnt.verify_mode = datastore['SSL_VERIFY'] ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
-    end
-
-    headers = {
-      'User-Agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13'
-    }
-
-    begin
-      res = clnt.get2 target.request_uri, headers
-    rescue => e
-      print_error "Connection failed: #{e}"
-      return
-    end
-
-    unless res
-      print_error 'Connection failed'
-      return
-    end
-
-    print_status "HTTP #{res.code} -- Downloaded PDF (#{res.body.length} bytes)"
-
-    contents = StringIO.new
-    contents.puts res.body
-    contents
-  end
-
-  def write_output(data)
-    return if datastore['OUTFILE'].to_s.eql? ''
-
-    print_status "Writing data to #{datastore['OUTFILE']}..."
-    file_name = datastore['OUTFILE']
-
-    if FileTest::exist?(file_name)
-      print_status 'OUTFILE already exists, appending..'
-    end
-
-    File.open(file_name, 'ab') do |fd|
-      fd.write(data)
-    end
-  end
-
   def run
-    if datastore['PROXY']
-      @proxysrv, @proxyport = datastore['PROXY'].split(':')
-      @proxyuser = datastore['PROXY_USER']
-      @proxypass = datastore['PROXY_PASS']
-    else
-      @proxysrv, @proxyport = nil, nil
+    urls = load_urls
+
+    if datastore['URL_TYPE'].eql? 'html'
+      urls = extract_pdf_links urls
+
+      if urls.empty?
+        print_error 'Found no links to PDF files'
+        return
+      end
+
+      print_line
+      print_good "Found links to #{urls.size} PDF files:"
+      print_line urls.join "\n"
+      print_line
     end
 
-    urls = load_urls
+    authors = extract_authors urls
+
+    print_line
+
+    if authors.empty?
+      print_status 'Found no authors'
+      return
+    end
+
+    print_good "Found #{authors.size} authors: #{authors.join ', '}"
+
+    return unless datastore['STORE_LOOT']
+
+    p = store_loot 'pdf.authors', 'text/plain', nil, authors.join("\n"), 'pdf.authors.txt', 'PDF authors'
+    print_good "File saved in: #{p}"
+  end
+
+  def extract_pdf_links(urls)
     print_status "Processing #{urls.size} URLs..."
+
+    pdf_urls = []
+    urls.each_with_index do |url, index|
+      next if url.blank?
+      html = download url
+      next if html.blank?
+      doc = Nokogiri::HTML html
+      doc.search('a[href]').select { |n| n['href'][/(\.pdf$|\.pdf\?)/] }.map do |n|
+        pdf_urls << URI.join(url, n['href']).to_s
+      end
+      progress(index + 1, urls.size)
+    end
+
+    pdf_urls.uniq
+  end
+
+  def extract_authors(urls)
+    print_status "Processing #{urls.size} URLs..."
+
     authors = []
     max_len = 256
     urls.each_with_index do |url, index|
       next if url.blank?
-      contents = download url
-      next if contents.blank?
-      author = read contents
+      file = download url
+      next if file.blank?
+      pdf = StringIO.new
+      pdf.puts file
+      author = read pdf
       unless author.blank?
         print_good "PDF Author: #{author}"
         if author.length > max_len
@@ -170,14 +181,6 @@ class MetasploitModule < Msf::Auxiliary
       progress(index + 1, urls.size)
     end
 
-    print_line
-
-    if authors.empty?
-      print_status 'Found no authors'
-      return
-    end
-
-    print_good "Found #{authors.size} authors: #{authors.join ', '}"
-    write_output authors.join "\n"
+    authors.uniq
   end
 end

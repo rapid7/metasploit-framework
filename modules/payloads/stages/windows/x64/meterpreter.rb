@@ -23,8 +23,8 @@ module MetasploitModule
     super(update_info(info,
       'Name'          => 'Windows Meterpreter (Reflective Injection x64)',
       'Description'   => 'Inject the meterpreter server DLL via the Reflective Dll Injection payload (staged x64)',
-      'Author'        => ['skape','sf', 'OJ Reeves'],
-      'PayloadCompat' => { 'Convention' => 'sockrdi', },
+      'Author'        => ['skape', 'sf', 'OJ Reeves'],
+      'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi http https'},
       'License'       => MSF_LICENSE,
       'Session'       => Msf::Sessions::Meterpreter_x64_Win))
   end

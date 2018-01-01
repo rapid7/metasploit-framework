@@ -8,6 +8,9 @@
 
 # inherit_from: .rubocop_todo.yml
 
+AllCops:
+  TargetRubyVersion: 2.2
+
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
   Enabled: true
@@ -30,11 +33,31 @@ Style/FrozenStringLiteralComment:
   Enabled: false
   Description: 'We cannot support this yet without a lot of things breaking'
 
+Style/RedundantReturn:
+  Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
+  Enabled: false
+
 Style/Documentation:
   Enabled: true
   Description: 'Most Metasploit modules do not have class documentation.'
   Exclude:
     - 'modules/**/*'
+
+Layout/IndentHeredoc:
+  Enabled: false
+  Description: 'We need to leave this disabled for Ruby 2.2 compat, remove in 2018'
+
+Style/GuardClause:
+  Enabled: false
+  Description: 'This often introduces bugs in tested code'
+
+Style/NegatedIf:
+  Enabled: false
+  Description: 'This often introduces bugs in tested code'
+
+Style/ConditionalAssignment:
+  Enabled: false
+  Description: 'This is confusing for folks coming from other languages'
 
 Style/Encoding:
   Enabled: true
@@ -69,7 +92,7 @@ Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
-Style/SpaceInsideBrackets:
+Layout/SpaceInsideBrackets:
   Enabled: false
   Description: 'Until module template are final, most modules will fail this.'
 

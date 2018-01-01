@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_ppc_linux'
 
 module MetasploitModule
 
-  CachedSize = 789164
+  CachedSize = 1060552
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -24,7 +24,8 @@ module MetasploitModule
         'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
         'Author'        => [
           'Adam Cammack <adam_cammack[at]rapid7.com>',
-          'Brent Cook <brent_cook[at]rapid7.com>'
+          'Brent Cook <brent_cook[at]rapid7.com>',
+          'timwr'
         ],
         'Platform'      => 'linux',
         'Arch'          => ARCH_PPC,

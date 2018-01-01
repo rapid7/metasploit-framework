@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'                  => 'JBoss Vulnerability Scanner',
       'Description'           => %q(
-        This module scans a JBoss instance for a few vulnerablities.
+        This module scans a JBoss instance for a few vulnerabilities.
       ),
       'Author'                =>
         [

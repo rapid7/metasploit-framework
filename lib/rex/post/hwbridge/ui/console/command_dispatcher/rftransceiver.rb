@@ -49,7 +49,7 @@ class Console::CommandDispatcher::RFtransceiver
       return
     end
     indexes = indexes['indexes']
-    unless indexes.size.positive?
+    unless indexes.size > 0
       print_line('none')
       return
     end
@@ -535,7 +535,7 @@ class Console::CommandDispatcher::RFtransceiver
 
   def cmd_lowball(*args)
     self.idx ||= 0
-    if args.length.positive?
+    if args.length > 0
       cmd_lowball_help
       return
     end
@@ -552,7 +552,7 @@ class Console::CommandDispatcher::RFtransceiver
   #
   def cmd_maxpower(*args)
     self.idx ||= 0
-    if args.length.positive?
+    if args.length > 0
       cmd_maxpower_help
       return
     end

@@ -185,7 +185,7 @@ class Console::CommandDispatcher::Core
     if mod
       print_line(::Msf::Serializer::ReadableText.dump_module(mod))
       mod_opt = ::Msf::Serializer::ReadableText.dump_options(mod, '   ')
-      print_line("\nModule options (#{mod.fullname}):\n\n#{mod_opt}") if mod_opt && mod_opt.length.positive?
+      print_line("\nModule options (#{mod.fullname}):\n\n#{mod_opt}") if mod_opt && mod_opt.length > 0
     end
   end
 
@@ -204,7 +204,7 @@ class Console::CommandDispatcher::Core
   # Get the HW bridge devices status
   #
   def cmd_status(*args)
-    if args.length.positive?
+    if args.length > 0
       cmd_status_help
       return true
     end
@@ -235,7 +235,7 @@ class Console::CommandDispatcher::Core
   # Get the Hardware specialty
   #
   def cmd_specialty(*args)
-    if args.length.positive?
+    if args.length > 0
       cmd_specialty_help
       return true
     end
@@ -251,7 +251,7 @@ class Console::CommandDispatcher::Core
   # Performs a device reset or factory reset
   #
   def cmd_reset(*args)
-    if args.length.positive?
+    if args.length > 0
       cmd_reset_help
       return
     end
@@ -268,7 +268,7 @@ class Console::CommandDispatcher::Core
   # Perform a device reboot
   #
   def cmd_reboot(*args)
-    if args.length.positive?
+    if args.length > 0
       cmd_reboot_help
       return
     end
@@ -286,7 +286,7 @@ class Console::CommandDispatcher::Core
   # Loads custom methods if any exist
   #
   def cmd_load_custom_methods(*args)
-    if args.length.positive?
+    if args.length > 0
       cmd_load_custom_methods_help
       return true
     end
@@ -414,11 +414,11 @@ class Console::CommandDispatcher::Core
     if !words[1] || !words[1].match(/^\//)
       begin
         if msf_loaded?
-          tabs << tab_complete_postmods
+          tabs = tab_complete_postmods
         end
         [  # We can just use Meterpreters script path
-          ::Msf::Sessions::Meterpreter.script_base,
-          ::Msf::Sessions::Meterpreter.user_script_base
+          ::Msf::Sessions::HWBridge.script_base,
+          ::Msf::Sessions::HWBridge.user_script_base
         ].each do |dir|
           next unless ::File.exist? dir
           tabs += ::Dir.new(dir).find_all { |e|

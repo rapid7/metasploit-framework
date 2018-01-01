@@ -638,7 +638,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif nt_len == 0
       print_status("Empty hash from #{host} captured, ignoring ... ")
     else
-      print_status("Unknow hash type from #{host}, ignoring ...")
+      print_status("Unknown hash type from #{host}, ignoring ...")
     end
 
     arg[:host] = host

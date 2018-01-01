@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network.
           LTYPE should be set to one of the following values: WK (all workstations), SVR (all servers),
           SQL (all SQL servers), DC (all Domain Controllers), DCBKUP (all Domain Backup Servers),
-          NOVELL (all Novell servers), PRINTSVR (all Print Que servers), MASTERBROWSER (all Master Browswers),
+          NOVELL (all Novell servers), PRINTSVR (all Print Que servers), MASTERBROWSER (all Master Browsers),
           WINDOWS (all Windows hosts), or UNIX (all Unix hosts).
           },
         'License'       => MSF_LICENSE,

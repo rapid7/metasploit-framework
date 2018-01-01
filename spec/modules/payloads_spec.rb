@@ -438,6 +438,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/mainframe/generic_jcl'
   end
 
+  context 'cmd/mainframe/bind_shell_jcl' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/mainframe/bind_shell_jcl'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/mainframe/bind_shell_jcl'
+  end
+
   context 'cmd/mainframe/reverse_shell_jcl' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -546,6 +556,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_perl_ipv6'
+  end
+
+  context 'cmd/unix/bind_r' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/bind_r'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/bind_r'
   end
 
   context 'cmd/unix/bind_ruby' do
@@ -746,6 +766,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/reverse_python_ssl'
+  end
+
+  context 'cmd/unix/reverse_r' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/cmd/unix/reverse_r'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_r'
   end
 
   context 'cmd/unix/reverse_ruby' do
@@ -1103,6 +1133,48 @@ RSpec.describe 'modules/payloads', :content do
                           modules_pathname: modules_pathname,
                           reference_name: 'java/shell_reverse_tcp'
   end
+
+  context 'linux/aarch64/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/aarch64/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/shell_reverse_tcp'
+  end
+
+  context 'linux/aarch64/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/aarch64/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/meterpreter_reverse_http'
+  end
+
+  context 'linux/aarch64/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/aarch64/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/meterpreter_reverse_https'
+  end
+
+  context 'linux/aarch64/shell/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/aarch64/reverse_tcp',
+                            'stages/linux/aarch64/shell'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/shell/reverse_tcp'
+  end
+
 
  context 'linux/armbe/shell_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
@@ -1819,6 +1891,36 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'osx/x64/exec'
   end
 
+  context 'osx/x64/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/osx/x64/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'osx/x64/meterpreter_reverse_http'
+  end
+
+  context 'osx/x64/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/osx/x64/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'osx/x64/meterpreter_reverse_https'
+  end
+
+  context 'osx/x64/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/osx/x64/meterpreter_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'osx/x64/meterpreter_reverse_tcp'
+  end
+
   context 'osx/x64/say' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2266,6 +2368,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'python/meterpreter_reverse_tcp'
+  end
+
+  context 'python/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/python/shell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'python/shell_bind_tcp'
   end
 
   context 'python/shell_reverse_tcp' do
@@ -2835,6 +2947,17 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_ipv6_tcp'
+  end
+
+  context 'windows/meterpreter/reverse_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/reverse_named_pipe',
+                              'stages/windows/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/reverse_named_pipe'
   end
 
   context 'windows/meterpreter/reverse_nonx_tcp' do
@@ -3796,6 +3919,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/x64/meterpreter/reverse_https'
   end
 
+  context 'windows/x64/meterpreter/reverse_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'stagers/windows/x64/reverse_named_pipe',
+                              'stages/windows/x64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/x64/meterpreter/reverse_named_pipe'
+  end
+
   context 'windows/x64/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4170,66 +4304,6 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/meterpreter/reverse_winhttps'
   end
 
-  context 'linux/aarch64/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/aarch64/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/aarch64/meterpreter_reverse_http'
-  end
-
-  context 'linux/aarch64/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/aarch64/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/aarch64/meterpreter_reverse_https'
-  end
-
-  context 'linux/armbe/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/armbe/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/armbe/meterpreter_reverse_http'
-  end
-
-  context 'linux/armbe/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/armbe/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/armbe/meterpreter_reverse_https'
-  end
-
-  context 'linux/armle/meterpreter_reverse_http' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/armle/meterpreter_reverse_http'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/armle/meterpreter_reverse_http'
-  end
-
-  context 'linux/armle/meterpreter_reverse_https' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                            'singles/linux/armle/meterpreter_reverse_https'
-                          ],
-                          dynamic_size: false,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'linux/armle/meterpreter_reverse_https'
-  end
-
   context 'linux/mips64/meterpreter_reverse_http' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4308,6 +4382,36 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/ppc/meterpreter_reverse_https'
+  end
+
+  context 'linux/ppce500v2/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/ppce500v2/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppce500v2/meterpreter_reverse_http'
+  end
+
+  context 'linux/ppce500v2/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/ppce500v2/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppce500v2/meterpreter_reverse_https'
+  end
+
+  context 'linux/ppce500v2/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/ppce500v2/meterpreter_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/ppce500v2/meterpreter_reverse_tcp'
   end
 
   context 'linux/ppc64le/meterpreter_reverse_http' do
@@ -4410,6 +4514,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/zarch/meterpreter_reverse_https'
   end
 
+  context 'linux/aarch64/meterpreter/reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/linux/aarch64/reverse_tcp',
+                            'stages/linux/aarch64/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/aarch64/meterpreter/reverse_tcp'
+  end
+
   context 'linux/aarch64/meterpreter_reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -4428,6 +4543,46 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/armbe/meterpreter_reverse_tcp'
+  end
+
+  context 'linux/armbe/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armbe/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armbe/meterpreter_reverse_http'
+  end
+
+  context 'linux/armbe/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armbe/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armbe/meterpreter_reverse_https'
+  end
+
+  context 'linux/armle/meterpreter_reverse_http' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armle/meterpreter_reverse_http'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/meterpreter_reverse_http'
+  end
+
+  context 'linux/armle/meterpreter_reverse_https' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/linux/armle/meterpreter_reverse_https'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/armle/meterpreter_reverse_https'
   end
 
   context 'linux/armle/meterpreter/bind_tcp' do
@@ -4696,4 +4851,23 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/zarch/meterpreter_reverse_tcp'
   end
 
+  context 'r/shell_bind_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/r/shell_bind_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'r/shell_bind_tcp'
+  end
+
+  context 'r/shell_reverse_tcp' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/r/shell_reverse_tcp'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'r/shell_reverse_tcp'
+  end
 end

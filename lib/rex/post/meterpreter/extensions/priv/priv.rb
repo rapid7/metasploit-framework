@@ -45,9 +45,19 @@ class Priv < Extension
 
     elevator_name = Rex::Text.rand_text_alpha_lower( 6 )
 
-    elevator_path = MetasploitPayloads.meterpreter_path('elevator', client.binary_suffix)
+    elevator_path = nil
+    client.binary_suffix.each { |s|
+      elevator_path = MetasploitPayloads.meterpreter_path('elevator', s)
+      if !elevator_path.nil?
+        break
+      end
+    }
     if elevator_path.nil?
-      raise RuntimeError, "elevator.#{binary_suffix} not found", caller
+      elevators = ""
+      client.binary_suffix.each { |s|
+        elevators << "elevator.#{s}, "
+      }
+      raise RuntimeError, "#{elevators.chomp(', ')} not found", caller
     end
 
     elevator_data = ""

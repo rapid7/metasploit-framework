@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Kaillera 0.86 Server Denial of Service' ,
       'Description'    => %q{
           The Kaillera 0.86 server can be shut down by sending any malformed packet
-        after the intial "hello" packet.
+        after the initial "hello" packet.
       },
       'Author'         => ["Sil3nt_Dre4m"],
       'License'        => MSF_LICENSE,

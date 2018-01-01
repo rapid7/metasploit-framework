@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 
@@ -47,6 +48,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'        => MSF_LICENSE
     ))
+
+    register_options(
+      [
+        OptBool.new('CHECK_DOPU', [true, 'Check for DOUBLEPULSAR on vulnerable hosts', true]),
+        OptBool.new('CHECK_ARCH', [true, 'Check for architecture on vulnerable hosts', true])
+      ])
   end
 
   # algorithm to calculate the XOR Key for DoublePulsar knocks
@@ -71,27 +78,40 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Received #{status} with FID = 0")
 
       if status == "STATUS_INSUFF_SERVER_RESOURCES"
-        print_good("Host is likely VULNERABLE to MS17-010!  (#{simple.client.peer_native_os})")
+        os = simple.client.peer_native_os
+
+        if datastore['CHECK_ARCH']
+          case dcerpc_getarch
+          when ARCH_X86
+            os << ' x86 (32-bit)'
+          when ARCH_X64
+            os << ' x64 (64-bit)'
+          end
+        end
+
+        print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
         report_vuln(
           host: ip,
           name: self.name,
           refs: self.references,
-          info: 'STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$ -- (#{simple.client.peer_native_os})'
+          info: "STATUS_INSUFF_SERVER_RESOURCES for FID 0 against IPC$ - #{os}"
         )
 
         # vulnerable to MS17-010, check for DoublePulsar infection
-        code, signature1, signature2 = do_smb_doublepulsar_probe(tree_id)
+        if datastore['CHECK_DOPU']
+          code, signature1, signature2 = do_smb_doublepulsar_probe(tree_id)
 
-        if code == 0x51
-          xor_key = calculate_doublepulsar_xor_key(signature1).to_s(16).upcase
-          arch = calculate_doublepulsar_arch(signature2)
-          print_warning("Host is likely INFECTED with DoublePulsar! - Arch: #{arch}, XOR Key: 0x#{xor_key}")
-          report_vuln(
-            host: ip,
-            name: "MS17-010 DoublePulsar Infection",
-            refs: self.references,
-            info: "MultiPlexID += 0x10 on Trans2 request - Arch: #{arch}, XOR Key: 0x#{xor_key}"
-          )
+          if code == 0x51
+            xor_key = calculate_doublepulsar_xor_key(signature1).to_s(16).upcase
+            arch = calculate_doublepulsar_arch(signature2)
+            print_warning("Host is likely INFECTED with DoublePulsar! - Arch: #{arch}, XOR Key: 0x#{xor_key}")
+            report_vuln(
+              host: ip,
+              name: "MS17-010 DoublePulsar Infection",
+              refs: self.references,
+              info: "MultiPlexID += 0x10 on Trans2 request - Arch: #{arch}, XOR Key: 0x#{xor_key}"
+            )
+          end
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)

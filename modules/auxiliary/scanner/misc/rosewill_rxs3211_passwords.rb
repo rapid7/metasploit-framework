@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         executable in order to retrieve passwords, allowing remote attackers to take
         administrative control over the device.  Other similar IP Cameras such as Edimax,
         Hawking, Zonet, etc, are also believed to have the same flaw, but not fully tested.
-        The protocol deisgn issue also allows attackers to reset passwords on the device.
+        The protocol design issue also allows attackers to reset passwords on the device.
       },
       'Author'      => 'Ben Schmidt',
       'License'     => MSF_LICENSE

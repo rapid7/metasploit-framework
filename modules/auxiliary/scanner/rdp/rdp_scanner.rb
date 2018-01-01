@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(@probe)
     response = sock.get_once(-1)
     if response
-      if RDP_RE.match?(response)
+      if RDP_RE.match(response)
         # XXX: it might be helpful to decode the response and show what was selected.
         print_good("Identified RDP")
         return true

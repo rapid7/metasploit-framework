@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Post
 
     if vm
       print_good("This appears to be a '#{vm}' virtual machine")
-      report_vm(vm)
+      report_virtualization(vm)
     else
       print_status("This does not appear to be a virtual machine")
     end

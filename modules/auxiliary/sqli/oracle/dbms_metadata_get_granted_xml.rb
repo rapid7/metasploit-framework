@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.DBMS_METADATA.GET_GRANTED_XML',
       'Description'    => %q{
-        This module will escalate a Oracle DB user to DBA by exploiting an sql injection
+        This module will escalate an Oracle DB user to DBA by exploiting a sql injection
         bug in the SYS.DBMS_METADATA.GET_GRANTED_XML package/function.
       },
       'Author'         => [ 'MC' ],

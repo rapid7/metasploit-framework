@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'         => 'BNAT Scanner',
       'Description'  => %q{
           This module is a scanner which can detect Broken NAT (network address translation)
-        implementations, which could result in a inability to reach ports on remote
+        implementations, which could result in an inability to reach ports on remote
         machines. Typically, these ports will appear in nmap scans as 'filtered'/'closed'.
         },
       'Author'       =>

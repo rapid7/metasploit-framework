@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         This module exploits a directory traversal vulnerability found in ColoradoFTP server
         version <= 1.3 Build 8. This vulnerability allows an attacker to download and upload arbitrary files
         from the server GET/PUT command including file system traversal strings starting with '\\\'.
-        The server is writen in Java and therefore platform independant, however this vulnerability is only
+        The server is written in Java and therefore platform independent, however this vulnerability is only
         exploitable on the Windows version.
       },
       'Platform'       => 'win',

@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
     super( update_info(info,
       'Name'           => 'Windows Gather Process Memory Grep',
       'Description'    => %q{
-          This module allows for searching the memory space of a proccess for potentially
+          This module allows for searching the memory space of a process for potentially
         sensitive data.  Please note: When the HEAP option is enabled, the module will have
         to migrate to the process you are grepping, and will not migrate back automatically.
         This means that if the user terminates the application after using this module, you
