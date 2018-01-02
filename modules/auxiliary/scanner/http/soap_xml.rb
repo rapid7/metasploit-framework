@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to brute force SOAP/XML requests to uncover
         hidden methods.
       ),
-      'Author'      => ['patrick'],
+      'Author'      => ['aushack'],
       'License'     => MSF_LICENSE))
 
     register_options(

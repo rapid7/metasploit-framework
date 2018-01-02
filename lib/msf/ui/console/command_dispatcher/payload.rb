@@ -13,7 +13,7 @@ module Msf
           include Msf::Ui::Console::ModuleCommandDispatcher
 
           # Load supported formats
-          supported_formats = \
+          @@supported_formats = \
             Msf::Simple::Buffer.transform_formats + \
             Msf::Util::EXE.to_executable_fmt_formats
 
@@ -25,7 +25,7 @@ module Msf
             "-o" => [ true,  "A comma separated list of options in VAR=VAL format." ],
             "-s" => [ true,  "NOP sled length."                                     ],
             "-f" => [ true,  "The output file name (otherwise stdout)"              ],
-            "-t" => [ true,  "The output format: #{supported_formats.join(',')}"    ],
+            "-t" => [ true,  "The output format: #{@@supported_formats.join(',')}"    ],
             "-p" => [ true,  "The Platform for output."                             ],
             "-k" => [ false, "Keep the template executable functional"              ],
             "-x" => [ true,  "The executable template to use"                       ],
@@ -150,6 +150,24 @@ module Msf
               fd.close
             end
             true
+          end
+
+          def cmd_generate_tabs(str, words)
+            fmt = {
+              '-b' => [ true                                              ],
+              '-E' => [ nil                                               ],
+              '-e' => [ framework.encoders.map { |refname, mod| refname } ],
+              '-h' => [ nil                                               ],
+              '-o' => [ true                                              ],
+              '-s' => [ true                                              ],
+              '-f' => [ :file                                             ],
+              '-t' => [ @@supported_formats                               ],
+              '-p' => [ true                                              ],
+              '-k' => [ nil                                               ],
+              '-x' => [ :file                                             ],
+              '-i' => [ true                                              ]
+            }
+            tab_complete_generic(fmt, str, words)
           end
         end
       end

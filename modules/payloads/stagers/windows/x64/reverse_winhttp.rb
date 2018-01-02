@@ -8,7 +8,7 @@ require 'msf/core/payload/windows/x64/reverse_winhttp'
 
 module MetasploitModule
 
-  CachedSize = 532
+  CachedSize = 746
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows

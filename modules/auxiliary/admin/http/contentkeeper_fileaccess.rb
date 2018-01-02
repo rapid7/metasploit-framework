@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '54551' ],
           [ 'URL', 'http://www.aushack.com/200904-contentkeeper.txt' ],
         ],
-      'Author'      => [ 'patrick' ],
+      'Author'      => [ 'aushack' ],
       'License'     => MSF_LICENSE)
 
     register_options(

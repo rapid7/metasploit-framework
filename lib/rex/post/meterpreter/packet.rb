@@ -102,7 +102,8 @@ TLV_TYPE_TRANS_PROXY_USER    = TLV_META_TYPE_STRING | 437
 TLV_TYPE_TRANS_PROXY_PASS    = TLV_META_TYPE_STRING | 438
 TLV_TYPE_TRANS_RETRY_TOTAL   = TLV_META_TYPE_UINT   | 439
 TLV_TYPE_TRANS_RETRY_WAIT    = TLV_META_TYPE_UINT   | 440
-TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 441
+TLV_TYPE_TRANS_HEADERS       = TLV_META_TYPE_STRING | 441
+TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 442
 
 TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
 TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
@@ -705,6 +706,7 @@ class Packet < GroupTlv
   def Packet.create_response(request = nil)
     response_type = PACKET_TYPE_RESPONSE
     method = nil
+    id = nil
 
     if (request)
       if (request.type?(PACKET_TYPE_PLAIN_REQUEST))
@@ -712,9 +714,19 @@ class Packet < GroupTlv
       end
 
       method = request.method
+
+      if request.has_tlv?(TLV_TYPE_REQUEST_ID)
+        id = request.get_tlv_value(TLV_TYPE_REQUEST_ID)
+      end
     end
 
-    Packet.new(response_type, method)
+    packet = Packet.new(response_type, method)
+
+    if id
+      packet.add_tlv(TLV_TYPE_REQUEST_ID, id)
+    end
+
+    packet
   end
 
   ##

@@ -23,8 +23,10 @@ group :development do
   # module documentation
   gem 'octokit'
   # Metasploit::Aggregator external session proxy
-  # Disabled for now for crypttlv updates
-  # gem 'metasploit-aggregator'
+  gem 'metasploit-aggregator' if [
+    'x86-mingw32', 'x64-mingw32',
+    'x86_64-linux', 'x86-linux',
+    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
 end
 
 group :development, :test do

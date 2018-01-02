@@ -147,9 +147,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
         session.core.set_session_guid(guid)
         session.session_guid = guid
-        # TODO: New statgeless session, do some account in the DB so we can track it later.
+        # TODO: New stageless session, do some account in the DB so we can track it later.
       else
-        # TODO: This session was either staged or previously known, and so we shold do some accounting here!
+        # TODO: This session was either staged or previously known, and so we should do some accounting here!
       end
 
       unless datastore['AutoLoadStdapi'] == false
@@ -302,11 +302,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Runs the meterpreter script in the context of a script container
+  # Runs the Meterpreter script or resource file
   #
   def execute_file(full_path, args)
-    o = Rex::Script::Meterpreter.new(self, full_path)
-    o.run(args)
+    # Infer a Meterpreter script by it having an .rb extension
+    if File.extname(full_path) == ".rb"
+      Rex::Script::Meterpreter.new(self, full_path).run(args)
+    else
+      console.load_resource(full_path)
+    end
   end
 
 
@@ -638,24 +642,26 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # Platform-agnostic archs go first
     case self.arch
     when 'java'
-      'jar'
+      ['jar']
     when 'php'
-      'php'
+      ['php']
     when 'python'
-      'py'
+      ['py']
     else
       # otherwise we fall back to the platform
       case self.platform
       when 'windows'
-        "#{self.arch}.dll"
+        ["#{self.arch}.dll"]
       when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
-        'lso'
+        ['bin', 'elf']
+      when 'osx'
+        ['elf']
       when 'android', 'java'
-        'jar'
+        ['jar']
       when 'php'
-        'php'
+        ['php']
       when 'python'
-        'py'
+        ['py']
       else
         nil
       end
