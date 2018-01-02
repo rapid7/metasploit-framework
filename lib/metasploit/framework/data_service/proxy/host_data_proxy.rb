@@ -26,7 +26,7 @@ module HostDataProxy
       data_service.report_host(opts)
     rescue Exception => e
       puts "Call to #{data_service.class}#report_host threw exception: #{e.message}"
-      opts.each do |key, value| puts "#{key} : #{value}" end
+      opts.each { |k, v| puts "#{k} : #{v}" }
     end
   end
 
