@@ -16,6 +16,7 @@ group :development do
   gem 'yard'
   # for development and testing purposes
   gem 'pry'
+  gem 'pry-byebug'
   # module documentation
   gem 'octokit'
   # Metasploit::Aggregator external session proxy
@@ -40,3 +41,5 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
+gem 'ruby_smb', git: 'https://github.com/dmohanty-r7/ruby_smb', branch: 'add_client_methods'
