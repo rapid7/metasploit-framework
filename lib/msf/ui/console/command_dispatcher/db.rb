@@ -585,7 +585,7 @@ module Msf
                     'SortIndex' => order_by
                 })
 
-            # Sentinal value meaning all
+            # Sentinel value meaning all
             host_ranges.push(nil) if host_ranges.empty?
 
             case
@@ -615,6 +615,8 @@ module Msf
             end
 
             each_host_range_chunk(host_ranges) do |host_search|
+              break if !host_search.nil? && host_search.empty?
+
               framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
                 if search_term
                   next unless (
@@ -646,15 +648,11 @@ module Msf
                   addr = (host.scope ? host.address + '%' + host.scope : host.address)
                   rhosts << addr
                 end
-                if mode == [:delete]
-                  begin
-                    host.destroy
-                  rescue # refs suck
-                    print_error("Forcibly deleting #{host.address}")
-                    host.delete
-                  end
-                  delete_count += 1
-                end
+              end
+
+              if mode == [:delete]
+                result = framework.db.delete_host(workspace: framework.db.workspace, addresses: host_search)
+                delete_count += result[:deleted].size
               end
             end
 
@@ -826,7 +824,7 @@ module Msf
                                            'SortIndex' => order_by
                                        })
 
-            # Sentinal value meaning all
+            # Sentinel value meaning all
             host_ranges.push(nil) if host_ranges.empty?
             ports = nil if ports.empty?
 
@@ -1293,7 +1291,7 @@ module Msf
                                            'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
                                        })
 
-            # Sentinal value meaning all
+            # Sentinel value meaning all
             host_ranges.push(nil) if host_ranges.empty?
 
             if mode == :add
@@ -1952,7 +1950,7 @@ module Msf
             # Chunk it up and do the query in batches. The naive implementation
             # uses so much memory for a /8 that it's basically unusable (1.6
             # billion IP addresses take a rather long time to allocate).
-            # Chunking has roughly the same perfomance for small batches, so
+            # Chunking has roughly the same performance for small batches, so
             # don't worry about it too much.
             host_ranges.each do |range|
               if range.nil? or range.length.nil?
