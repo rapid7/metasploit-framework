@@ -10,6 +10,7 @@ PATH
       bcrypt_pbkdf
       bit-struct
       dnsruby
+      faker
       filesize
       jsobfu
       json
@@ -122,6 +123,8 @@ GEM
     factory_girl_rails (4.9.0)
       factory_girl (~> 4.9.0)
       railties (>= 3.0.0)
+    faker (1.8.7)
+      i18n (>= 0.7)
     faraday (0.13.1)
       multipart-post (>= 1.2, < 3)
     ffi (1.9.18)
@@ -287,7 +290,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.9)
+    rex-socket (0.1.10)
       rex-core
     rex-sslscan (0.1.5)
       rex-core

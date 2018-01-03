@@ -187,4 +187,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
   spec.add_runtime_dependency 'xdr'
+  # Needed for ::Msf...CertProvider
+  spec.add_runtime_dependency 'faker'
 end

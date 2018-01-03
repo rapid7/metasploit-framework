@@ -61,6 +61,7 @@ class Framework
   require 'msf/core/db_manager'
   require 'msf/core/event_dispatcher'
   require 'rex/json_hash_file'
+  require 'msf/core/cert_provider'
 
   #
   # Creates an instance of the framework context.
@@ -83,6 +84,9 @@ class Framework
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
+
+    # Configure the SSL certificate generator
+    Rex::Socket::Ssl.cert_provider = Msf::Ssl::CertProvider
 
     subscriber = FrameworkEventSubscriber.new(self)
     events.add_exploit_subscriber(subscriber)
