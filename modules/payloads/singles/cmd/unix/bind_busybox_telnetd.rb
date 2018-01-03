@@ -26,11 +26,10 @@ module MetasploitModule
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
       'RequiredCmd'   => 'telnetd',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
+      'Payload'       => {
+        'Offsets' => { },
+        'Payload' => ''
+      }
     ))
 
     register_options(
