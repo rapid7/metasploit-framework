@@ -10,7 +10,7 @@ require 'msf/base/sessions/meterpreter_x64_osx'
 
 module MetasploitModule
 
-  CachedSize = 618412
+  CachedSize = 802436
 
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
@@ -24,7 +24,8 @@ module MetasploitModule
         'Description'   => 'Run the Meterpreter / Mettle server payload (stageless)',
         'Author'        => [
           'Adam Cammack <adam_cammack[at]rapid7.com>',
-          'Brent Cook <brent_cook[at]rapid7.com>'
+          'Brent Cook <brent_cook[at]rapid7.com>',
+          'timwr'
         ],
         'Platform'      => 'osx',
         'Arch'          => ARCH_X64,

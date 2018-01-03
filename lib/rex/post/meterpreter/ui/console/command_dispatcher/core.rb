@@ -97,8 +97,9 @@ class Console::CommandDispatcher::Core
     # the OS platform rather than the meterpreter arch. When we've properly implemented
     # the platform update feature we can remove some of these conditions
     if client.platform == 'windows' || client.platform == 'linux' ||
-        client.platform == 'python' || client.platform == 'java' ||
-        client.arch == ARCH_PYTHON || client.platform == 'android'
+        client.platform == 'python' || client.arch == ARCH_PYTHON ||
+        client.platform == 'java' || client.arch == ARCH_JAVA ||
+        client.platform == 'android' || client.arch == ARCH_DALVIK
       # Yet to implement transport hopping for other meterpreters.
       c['transport'] = 'Change the current transport mechanism'
 
@@ -757,7 +758,7 @@ class Console::CommandDispatcher::Core
   # Arguments for transport switching
   #
   @@transport_opts = Rex::Parser::Arguments.new(
-    '-t' => [true, "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.join(', ')}"],
+    '-t' => [true, "Transport type: #{Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS.keys.join(', ')}"],
     '-l' => [true, 'LHOST parameter (for reverse transports)'],
     '-p' => [true, 'LPORT parameter'],
     '-i' => [true, 'Specify transport by index (currently supported: remove)'],
@@ -1146,14 +1147,27 @@ class Console::CommandDispatcher::Core
       case opt
       when '-l'
         exts = SortedSet.new
-        msf_path = MetasploitPayloads.msf_meterpreter_dir
-        gem_path = MetasploitPayloads.local_meterpreter_dir
-        [msf_path, gem_path].each do |path|
-          ::Dir.entries(path).each { |f|
-            if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-              exts.add($1)
-            end
-          }
+        if !client.sys.config.sysinfo['BuildTuple'].blank?
+          # Use API to get list of extensions from the gem
+          exts.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
+        else
+          msf_path = MetasploitPayloads.msf_meterpreter_dir
+          gem_path = MetasploitPayloads.local_meterpreter_dir
+          [msf_path, gem_path].each do |path|
+            ::Dir.entries(path).each { |f|
+              if (::File.file?(::File.join(path, f)))
+                client.binary_suffix.each { |s|
+                  if (f =~ /ext_server_(.*)\.#{s}/ )
+                    if (client.binary_suffix.size > 1)
+                      exts.add($1 + ".#{s}")
+                    else
+                      exts.add($1)
+                    end
+                  end
+                }
+              end
+            }
+          end
         end
         print(exts.to_a.join("\n") + "\n")
 
@@ -1167,7 +1181,16 @@ class Console::CommandDispatcher::Core
     # Load each of the modules
     args.each { |m|
       md = m.downcase
+      modulenameprovided = md
 
+      if client.binary_suffix and client.binary_suffix.size > 1
+        client.binary_suffix.each { |s|
+          if (md =~ /(.*)\.#{s}/ )
+            md = $1
+            break
+          end
+        }
+      end
       if (extensions.include?(md))
         print_error("The '#{md}' extension has already been loaded.")
         next
@@ -1177,7 +1200,7 @@ class Console::CommandDispatcher::Core
 
       begin
         # Use the remote side, then load the client-side
-        if (client.core.use(md) == true)
+        if (client.core.use(modulenameprovided) == true)
           add_extension_client(md)
         end
       rescue
@@ -1194,16 +1217,31 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
-    msf_path = MetasploitPayloads.msf_meterpreter_dir
-    gem_path = MetasploitPayloads.local_meterpreter_dir
-    [msf_path, gem_path].each do |path|
-    ::Dir.entries(path).each { |f|
-      if (::File.file?(::File.join(path, f)) && f =~ /ext_server_(.*)\.#{client.binary_suffix}/ )
-        if (not extensions.include?($1))
-          tabs.add($1)
+    if !client.sys.config.sysinfo['BuildTuple'].blank?
+      # Use API to get list of extensions from the gem
+      MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']).each { |f|
+        if !extensions.include?(f.split('.').first)
+          tabs.add(f)
         end
+      }
+    else
+      msf_path = MetasploitPayloads.msf_meterpreter_dir
+      gem_path = MetasploitPayloads.local_meterpreter_dir
+      [msf_path, gem_path].each do |path|
+      ::Dir.entries(path).each { |f|
+        if (::File.file?(::File.join(path, f)))
+          client.binary_suffix.each { |s|
+            if (f =~ /ext_server_(.*)\.#{s}/ )
+              if (client.binary_suffix.size > 1 && !extensions.include?($1 + ".#{s}"))
+                tabs.add($1 + ".#{s}")
+              elsif (!extensions.include?($1))
+                tabs.add($1)
+              end
+            end
+          }
+        end
+      }
       end
-    }
     end
     return tabs.to_a
   end
@@ -1529,49 +1567,73 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_resource_help
-    print_line('Usage: resource <path1> [path2 ...]')
+    print_line "Usage: resource path1 [path2 ...]"
     print_line
-    print_line('Run the commands stored in the supplied files.')
+    print_line "Run the commands stored in the supplied files (- for stdin)."
+    print_line "Resource files may also contain ERB or Ruby code between <ruby></ruby> tags."
     print_line
   end
 
   def cmd_resource(*args)
     if args.empty?
+      cmd_resource_help
       return false
     end
 
-    args.each do |glob|
-      files = ::Dir.glob(::File.expand_path(glob))
-      if files.empty?
-        print_error("No such file #{glob}")
-        next
-      end
-      files.each do |filename|
-        print_status("Reading #{filename}")
-        if (not ::File.readable?(filename))
-          print_error("Could not read file #{filename}")
-          next
-        else
-          ::File.open(filename, 'r').each_line do |line|
-            next if line.strip.length < 1
-            next if line[0,1] == '#'
-            begin
-              print_status("Running #{line}")
-              client.console.run_single(line)
-            rescue ::Exception => e
-              print_error("Error Running Command #{line}: #{e.class} #{e}")
-            end
-
+    args.each do |res|
+      good_res = nil
+      if res == '-'
+        good_res = res
+      elsif ::File.exist?(res)
+        good_res = res
+      elsif
+        # let's check to see if it's in the scripts/resource dir (like when tab completed)
+        [
+          ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
+          ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter'
+        ].each do |dir|
+          res_path = dir + ::File::SEPARATOR + res
+          if ::File.exist?(res_path)
+            good_res = res_path
+            break
           end
         end
+      end
+      if good_res
+        client.console.load_resource(good_res)
+      else
+        print_error("#{res} is not a valid resource file")
+        next
       end
     end
   end
 
   def cmd_resource_tabs(str, words)
-    return [] if words.length > 1
-
-    tab_complete_filenames(str, words)
+    tabs = []
+    #return tabs if words.length > 1
+    if ( str and str =~ /^#{Regexp.escape(::File::SEPARATOR)}/ )
+      # then you are probably specifying a full path so let's just use normal file completion
+      return tab_complete_filenames(str,words)
+    elsif (not words[1] or not words[1].match(/^\//))
+      # then let's start tab completion in the scripts/resource directories
+      begin
+        [
+          ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
+          ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
+          '.'
+        ].each do |dir|
+          next if not ::File.exist? dir
+          tabs += ::Dir.new(dir).find_all { |e|
+            path = dir + ::File::SEPARATOR + e
+            ::File.file?(path) and ::File.readable?(path)
+          }
+        end
+      rescue Exception
+      end
+    else
+      tabs += tab_complete_filenames(str,words)
+    end
+    return tabs
   end
 
   def cmd_enable_unicode_encoding

@@ -17,6 +17,7 @@ class Msf::Author
   KNOWN = {
     'amaloteaux'          => 'alex_maloteaux' + 0x40.chr + 'metasploit.com',
     'anonymous'           => 'Unknown',
+    'aushack'             => 'patrick' + 0x40.chr + 'osisecurity.com.au',
     'bannedit'            => 'bannedit' + 0x40.chr + 'metasploit.com',
     'Carlos Perez'        => 'carlos_perez' + 0x40.chr + 'darkoperator.com',
     'cazz'                => 'bmc' + 0x40.chr + 'shmoo.com',
@@ -39,7 +40,6 @@ class Msf::Author
     'mubix'               => 'mubix' + 0x40.chr + 'hak5.org',
     'natron'              => 'natron' + 0x40.chr + 'metasploit.com',
     'optyx'               => 'optyx' + 0x40.chr + 'no$email.com',
-    'patrick'             => 'patrick' + 0x40.chr + 'osisecurity.com.au',
     'pusscat'             => 'pusscat' + 0x40.chr + 'metasploit.com',
     'Ramon de C Valle'    => 'rcvalle' + 0x40.chr + 'metasploit.com',
     'sf'                  => 'stephen_fewer' + 0x40.chr + 'harmonysecurity.com',

@@ -125,6 +125,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -a,--add          Add the hosts instead of searching",
           "  -d,--delete       Delete the hosts instead of searching",
           "  -c <col1,col2>    Only show the given columns (see list below)",
+          "  -C <col1,col2>    Only show the given columns until the next restart (see list below)",
           "  -h,--help         Show this help information",
           "  -u,--up           Only show hosts which are up",
           "  -o <file>         Send output to a file in csv format",
@@ -148,7 +149,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "Usage: loot <options>",
           " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
-          "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]",
+          "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]",
           "  Del: loot -d [addr1 addr2 ...]",
           "  -a,--add          Add loot to the list of addresses, instead of listing",
           "  -d,--delete       Delete *all* loot matching host and type",

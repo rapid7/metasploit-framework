@@ -1,20 +1,37 @@
 import sys, os, json
 
 def log(message, level='info'):
-    print(json.dumps({'jsonrpc': '2.0', 'method': 'message', 'params': {
+    rpc_send({'jsonrpc': '2.0', 'method': 'message', 'params': {
         'level': level,
         'message': message
-    }}))
-    sys.stdout.flush()
+    }})
 
-def run(metadata, exploit):
+def report_host(ip, opts={}):
+    host = opts.copy()
+    host.update({'host': ip})
+    rpc_send({'jsonrpc': '2.0', 'method': 'report', 'params': {
+        'type': 'host', 'data': host
+    }})
+
+def report_service(ip, opts={}):
+    service = opts.copy()
+    service.update({'host': ip})
+    rpc_send({'jsonrpc': '2.0', 'method': 'report', 'params': {
+        'type': 'service', 'data': service
+    }})
+
+
+def run(metadata, module_callback):
     req = json.loads(os.read(0, 10000))
     if req['method'] == 'describe':
-        print(json.dumps({'jsonrpc': '2.0', 'id': req['id'], 'response': metadata}))
+        rpc_send({'jsonrpc': '2.0', 'id': req['id'], 'response': metadata})
     elif req['method'] == 'run':
         args = req['params']
-        exploit(args)
-        print(json.dumps({'jsonrpc': '2.0', 'id': req['id'], 'response': {
-            'message': 'Exploit completed'
-        }}))
-        sys.stdout.flush()
+        module_callback(args)
+        rpc_send({'jsonrpc': '2.0', 'id': req['id'], 'response': {
+            'message': 'Module completed'
+        }})
+
+def rpc_send(req):
+    print(json.dumps(req))
+    sys.stdout.flush()

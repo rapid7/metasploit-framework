@@ -437,6 +437,8 @@ module Msf
 
           end
 
+          @@hosts_columns = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
+
           def cmd_hosts(*args)
             return unless active?
             onlyup = false
@@ -480,7 +482,7 @@ module Msf
             default_columns << 'tags' # Special case
             virtual_columns = [ 'svcs', 'vulns', 'workspace', 'tags' ]
 
-            col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
+            col_search = @@hosts_columns
 
             default_columns.delete_if {|v| (v[-2,2] == "id")}
             while (arg = args.shift)
@@ -489,7 +491,7 @@ module Msf
                   mode << :add
                 when '-d','--delete'
                   mode << :delete
-                when '-c'
+                when '-c','-C'
                   list = args.shift
                   if(!list)
                     print_error("Invalid column list")
@@ -503,6 +505,10 @@ module Msf
                       return
                     end
                   }
+                  if (arg == '-C')
+                    @@hosts_columns = col_search
+                  end
+
                 when '-u','--up'
                   onlyup = true
                 when '-o'
@@ -535,6 +541,7 @@ module Msf
                   print_line "  -a,--add          Add the hosts instead of searching"
                   print_line "  -d,--delete       Delete the hosts instead of searching"
                   print_line "  -c <col1,col2>    Only show the given columns (see list below)"
+                  print_line "  -C <col1,col2>    Only show the given columns until the next restart (see list below)"
                   print_line "  -h,--help         Show this help information"
                   print_line "  -u,--up           Only show hosts which are up"
                   print_line "  -o <file>         Send output to a file in csv format"
@@ -588,7 +595,7 @@ module Msf
                     'SortIndex' => order_by
                 })
 
-            # Sentinal value meaning all
+            # Sentinel value meaning all
             host_ranges.push(nil) if host_ranges.empty?
 
             case
@@ -618,6 +625,8 @@ module Msf
             end
 
             each_host_range_chunk(host_ranges) do |host_search|
+              break if !host_search.nil? && host_search.empty?
+
               framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
                 if search_term
                   next unless (
@@ -649,15 +658,11 @@ module Msf
                   addr = (host.scope ? host.address + '%' + host.scope : host.address)
                   rhosts << addr
                 end
-                if mode == [:delete]
-                  begin
-                    host.destroy
-                  rescue # refs suck
-                    print_error("Forcibly deleting #{host.address}")
-                    host.delete
-                  end
-                  delete_count += 1
-                end
+              end
+
+              if mode == [:delete]
+                result = framework.db.delete_host(workspace: framework.db.workspace, addresses: host_search)
+                delete_count += result[:deleted].size
               end
             end
 
@@ -829,7 +834,7 @@ module Msf
                                            'SortIndex' => order_by
                                        })
 
-            # Sentinal value meaning all
+            # Sentinel value meaning all
             host_ranges.push(nil) if host_ranges.empty?
             ports = nil if ports.empty?
 
@@ -1224,7 +1229,7 @@ module Msf
           def cmd_loot_help
             print_line "Usage: loot <options>"
             print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
-            print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] [-t [type]"
+            print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]"
             print_line "  Del: loot -d [addr1 addr2 ...]"
             print_line
             print_line "  -a,--add          Add loot to the list of addresses, instead of listing"
@@ -1296,10 +1301,14 @@ module Msf
                                            'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
                                        })
 
-            # Sentinal value meaning all
+            # Sentinel value meaning all
             host_ranges.push(nil) if host_ranges.empty?
 
             if mode == :add
+              if host_ranges.compact.empty?
+                print_error('Address list required')
+                return
+              end
               if info.nil?
                 print_error("Info required")
                 return
@@ -1314,16 +1323,17 @@ module Msf
               end
               type = types.first
               name = File.basename(filename)
+              file = File.open(filename, "rb")
+              contents = file.read
               host_ranges.each do |range|
                 range.each do |host|
-                  file = File.open(filename, "rb")
-                  contents = file.read
                   lootfile = framework.db.find_or_create_loot(:type => type, :host => host, :info => info, :data => contents, :path => filename, :name => name)
                   print_status("Added loot for #{host} (#{lootfile})")
                 end
               end
               return
             end
+
 
             each_host_range_chunk(host_ranges) do |host_search|
               framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
@@ -1933,6 +1943,8 @@ module Msf
             if (path)
               auth, dest = path.split('@')
               (dest = auth and auth = nil) if not dest
+              # remove optional scheme in database url
+              auth = auth.sub(/^\w+:\/\//, "") if auth
               res[:user],res[:pass] = auth.split(':') if auth
               targ,name = dest.split('/')
               (name = targ and targ = nil) if not name
@@ -1955,7 +1967,7 @@ module Msf
             # Chunk it up and do the query in batches. The naive implementation
             # uses so much memory for a /8 that it's basically unusable (1.6
             # billion IP addresses take a rather long time to allocate).
-            # Chunking has roughly the same perfomance for small batches, so
+            # Chunking has roughly the same performance for small batches, so
             # don't worry about it too much.
             host_ranges.each do |range|
               if range.nil? or range.length.nil?

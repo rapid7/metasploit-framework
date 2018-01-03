@@ -36,11 +36,24 @@ module Msf::Payload::TransportConfig
 
   def transport_config_reverse_https(opts={})
     ds = opts[:datastore] || datastore
+    opts[:scheme] ||= 'https'
     config = transport_config_reverse_http(opts)
-    config[:scheme] = ds['OverrideScheme'] || 'https'
     config[:ssl_cert_hash] = get_ssl_cert_hash(ds['StagerVerifySSLCert'],
                                                ds['HandlerSSLCert'])
     config
+  end
+
+  def transport_uri_components(opts={})
+    ds = opts[:datastore] || datastore
+    scheme = opts[:scheme]
+    lhost = ds['LHOST']
+    lport = ds['LPORT']
+    if ds['OverrideRequestHost']
+      scheme = ds['OverrideScheme'] || scheme
+      lhost = ds['OverrideLHOST'] || lhost
+      lport = ds['OverrideLPORT'] || lport
+    end
+    [scheme, lhost, lport]
   end
 
   def transport_config_reverse_http(opts={})
@@ -55,17 +68,24 @@ module Msf::Payload::TransportConfig
     end
 
     ds = opts[:datastore] || datastore
+    opts[:scheme] ||= 'http'
+    scheme, lhost, lport = transport_uri_components(opts)
+
     {
-      scheme:      ds['OverrideScheme'] || 'http',
-      lhost:       opts[:lhost] || ds['LHOST'],
-      lport:       (opts[:lport] || ds['LPORT']).to_i,
-      uri:         uri,
-      ua:          ds['MeterpreterUserAgent'],
-      proxy_host:  ds['PayloadProxyHost'],
-      proxy_port:  ds['PayloadProxyPort'],
-      proxy_type:  ds['PayloadProxyType'],
-      proxy_user:  ds['PayloadProxyUser'],
-      proxy_pass:  ds['PayloadProxyPass']
+      scheme:          scheme,
+      lhost:           lhost,
+      lport:           lport.to_i,
+      uri:             uri,
+      ua:              ds['HttpUserAgent'],
+      proxy_host:      ds['HttpProxyHost'],
+      proxy_port:      ds['HttpProxyPort'],
+      proxy_type:      ds['HttpProxyType'],
+      proxy_user:      ds['HttpProxyUser'],
+      proxy_pass:      ds['HttpProxyPass'],
+      host:            ds['HttpHostHeader'],
+      cookie:          ds['HttpCookie'],
+      referer:         ds['HttpReferer'],
+      custom_headers:  get_custom_headers(ds)
     }.merge(timeout_config(opts))
   end
 
@@ -79,6 +99,19 @@ module Msf::Payload::TransportConfig
   end
 
 private
+
+  def get_custom_headers(ds)
+    headers = ""
+    headers << "Host: #{ds['HttpHostHeader']}\r\n" if ds['HttpHostHeader']
+    headers << "Cookie: #{ds['HttpCookie']}\r\n" if ds['HttpCookie']
+    headers << "Referer: #{ds['HttpReferer']}\r\n" if ds['HttpReferer']
+
+    if headers.length > 0
+      headers
+    else
+      nil
+    end
+  end
 
   def timeout_config(opts={})
     ds = opts[:datastore] || datastore

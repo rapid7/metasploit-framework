@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         unresponsive. IOS 11.1 -> 12.1 are reportedly vulnerable. This module
         tested successfully against a Cisco 1600 Router IOS v11.2(18)P.
       },
-      'Author' 		=> [ 'patrick' ],
+      'Author' 		=> [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [

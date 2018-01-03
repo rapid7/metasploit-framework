@@ -228,7 +228,6 @@ end
 def enum_users
   os = @client.sys.config.sysinfo['OS']
   users = []
-  user = @client.sys.config.getuid
   path4users = ""
   sysdrv = @client.sys.config.getenv('SystemDrive')
 
@@ -240,7 +239,7 @@ def enum_users
     profilepath = "\\Application Data\\VMware\\"
   end
 
-  if user == "NT AUTHORITY\\SYSTEM"
+  if @client.sys.config.is_system?
     print_status("Running as SYSTEM extracting user list..")
     @client.fs.dir.foreach(path4users) do |u|
       userinfo = {}

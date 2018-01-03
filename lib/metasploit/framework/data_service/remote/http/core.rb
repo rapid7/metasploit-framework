@@ -17,6 +17,7 @@ class RemoteHTTPDataService
   EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
+  DELETE_REQUEST = 'DELETE'
 
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
@@ -58,15 +59,29 @@ class RemoteHTTPDataService
     make_request(GET_REQUEST, path, data_hash)
   end
 
+  #
+  # Send DELETE request to delete the specified resource from the HTTP endpoint
+  #
+  # @param path - The URI path to send the delete
+  # @param data_hash - A hash representation of the object to be deleted. Cannot be nil or empty.
+  #
+  # @return A wrapped response (ResponseWrapper), see below.
+  #
+  def delete_data(path, data_hash)
+    make_request(DELETE_REQUEST, path, data_hash)
+  end
+
   def make_request(request_type, path, data_hash = nil)
     begin
       puts "#{Time.now} - HTTP #{request_type} request to #{path} with #{data_hash ? data_hash : "nil"}"
-      client =  @client_pool.pop()
+      client = @client_pool.pop()
       case request_type
         when GET_REQUEST
           request = Net::HTTP::Get.new(path)
         when POST_REQUEST
           request = Net::HTTP::Post.new(path)
+        when DELETE_REQUEST
+          request = Net::HTTP::Delete.new(path)
         else
           raise Exception, 'A request_type must be specified'
       end

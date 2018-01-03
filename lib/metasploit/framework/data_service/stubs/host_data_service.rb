@@ -15,4 +15,8 @@ module HostDataService
   def find_or_create_host(opts)
     raise 'HostDataService#find_or_create_host is not implemented'
   end
+
+  def delete_host(opts)
+    raise 'HostDataService#delete_host is not implemented'
+  end
 end

@@ -24,6 +24,10 @@ module Msf::Module::FullName
       type + '/' + refname
     end
 
+    def promptname
+      refname
+    end
+
     def shortname
       refname.split('/').last
     end
@@ -55,9 +59,16 @@ module Msf::Module::FullName
   end
 
   #
-  # Returns the module's framework short name.  This is a
-  # possibly conflicting name used for things like console
-  # prompts.
+  # Returns the module's framework prompt-friendly name.
+  #
+  # reverse_tcp
+  #
+  def promptname
+    self.class.promptname
+  end
+
+  #
+  # Returns the module's framework short name.
   #
   # reverse_tcp
   #
