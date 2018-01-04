@@ -102,6 +102,9 @@ module Msf
             protocol = "http"
             while (arg = args.shift)
               case arg
+                when '--help'
+                  cmd_add_data_service_help
+                  return
                 when '-h'
                   host = args.shift
                 when '-p'
@@ -112,10 +115,25 @@ module Msf
               end
             end
 
+            if host.nil? || port.nil?
+              print_error "Host and port are required."
+              return
+            end
+
             endpoint = "#{protocol}://#{host}:#{port}"
             remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint)
             data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
             data_service_manager.register_data_service(remote_data_service)
+          end
+
+          def cmd_add_data_service_help
+            print_line "Usage: add_data_service [ options ] -h <host IP or FQDN> -p <host port>"
+            print_line
+            print_line "OPTIONS:"
+            print_line "  -h <IP/FQDN>      The IP address or FQDN of the data service server."
+            print_line "  -p <port>         The port the data service is listening on."
+            print_line "  -s                Enable SSL. Required for HTTPS data services."
+            print_line
           end
 
           def cmd_test_data_service_host(*args)
