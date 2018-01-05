@@ -95,6 +95,11 @@ class RemoteHTTPDataService
         puts "HTTP #{request_type} request: #{path} failed with code: #{response.code} message: #{response.body}"
         return FailedResponse.new(response)
       end
+    rescue EOFError => e
+      puts "ERROR: No data was returned from the server."
+      puts "Backtrace: #{e.message}"
+      e.backtrace.each { |line| puts "#{line}\n"}
+      return FailedResponse.new("")
     rescue Exception => e
       puts "Problem with HTTP #{request_type} request: #{e.message}"
       e.backtrace.each { |line| puts "#{line}\n" }
