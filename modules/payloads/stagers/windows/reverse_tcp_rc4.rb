@@ -10,7 +10,7 @@ require 'msf/core/payload/windows/reverse_tcp_rc4'
 
 module MetasploitModule
 
-  CachedSize = 410
+  CachedSize = 398
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseTcpRc4
