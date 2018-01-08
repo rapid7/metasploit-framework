@@ -27,10 +27,11 @@ class MetasploitModule < Msf::Exploit::Remote
         ],
         'References'     =>
           [
-            [ 'URL', 'https://www.oracle.com/technetwork/topics/security/cpuoct2017-3236626.html'],
-            [ 'POC', 'https://github.com/Luffin/CVE-2017-10271'],
-            [ 'Standalone Exploit', 'https://github.com/kkirsche/CVE-2017-10271'],
-            [ 'CVE', '2017-10271']
+            ['URL', 'https://www.oracle.com/technetwork/topics/security/cpuoct2017-3236626.html'],
+            ['POC', 'https://github.com/Luffin/CVE-2017-10271'],
+            ['Standalone Exploit', 'https://github.com/kkirsche/CVE-2017-10271'],
+            ['CVE', '2017-10271'],
+            ['EDB', '43458']
           ],
         'Platform'      => %w{ win unix },
         'Arch'          => [ ARCH_CMD ],
