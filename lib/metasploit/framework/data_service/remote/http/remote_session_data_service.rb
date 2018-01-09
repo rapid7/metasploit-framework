@@ -1,6 +1,7 @@
 module RemoteSessionDataService
 
   SESSION_API_PATH = '/api/1/msf/session'
+  SESSION_MDM_CLASS = 'Mdm::Session'
 
   def report_session(opts)
     session = opts[:session]
@@ -12,7 +13,7 @@ module RemoteSessionDataService
     end
 
     opts[:time_stamp] = Time.now.utc
-    sess_db = json_to_open_struct_object(self.post_data(SESSION_API_PATH, opts))
+    sess_db = json_to_mdm_object(self.get_data(SESSION_API_PATH, opts), SESSION_MDM_CLASS, [])
     session.db_record = sess_db
   end
 

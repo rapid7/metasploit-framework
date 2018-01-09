@@ -10,14 +10,42 @@ module ResponseDataHelper
   # Converts an HTTP response to an OpenStruct object
   #
   def json_to_open_struct_object(response_wrapper, returns_on_error = nil)
-    if (response_wrapper.expected)
+    if response_wrapper.expected
       begin
         body = response_wrapper.response.body
-        if (not body.nil? and not body.empty?)
+        if not body.nil? and not body.empty?
           return JSON.parse(body, object_class: OpenStruct)
         end
       rescue Exception => e
         puts "open struct conversion failed #{e.message}"
+      end
+    end
+
+    return returns_on_error
+  end
+
+  #
+  # Converts an HTTP response to an Mdm Object
+  #
+  # @param [ResponseWrapper] A wrapped HTTP response containing a JSON body.
+  # @param [String] The Mdm class to convert the JSON to.
+  # @param [Anything] A failsafe response to return if no objects are found.
+  # @return [ActiveRecord::Base] An object of type mdm_class, which inherits from ActiveRecord::Base
+  def json_to_mdm_object(response_wrapper, mdm_class, returns_on_error = nil)
+    if response_wrapper.expected
+      begin
+        body = response_wrapper.response.body
+        if not body.nil? and not body.empty?
+          parsed_body = Array.wrap(JSON.parse(body))
+          rv = []
+          parsed_body.each do |json_object|
+            rv << to_ar(mdm_class.constantize, json_object)
+          end
+          return rv
+        end
+      rescue Exception => e
+        puts "Mdm Object conversion failed #{e.message}"
+        e.backtrace.each { |line| puts "#{line}\n" }
       end
     end
 
@@ -43,6 +71,60 @@ module ResponseDataHelper
       e.backtrace.each { |line| puts "#{line}\n"}
     end
     save_path
+  end
+
+  # Converts a Hash or JSON string to an ActiveRecord object.
+  # Importantly, this retains associated objects if they are in the JSON string.
+  #
+  # Modified from https://github.com/swdyh/toar/
+  # Credit to https://github.com/swdyh
+  #
+  # @param [String] klass The ActiveRecord class to convert the JSON/Hash to.
+  # @param [String] val The JSON string, or Hash, to convert.
+  # @param [Class] base_class The base class to build back to. Used for recursion.
+  # @return [ActiveRecord::Base] A klass object, which inherits from ActiveRecord::Base.
+  def to_ar(klass, val, base_object = nil)
+    data = val.class == Hash ? val.dup : JSON.parse(val)
+    obj = base_object || klass.new
+
+    obj_associations = klass.reflect_on_all_associations(:has_many).reduce({}) do |reflection, i|
+      reflection[i.options[:through]] = i if i.options[:through]
+      reflection
+    end
+
+    data.except(*obj.attributes.keys).each do |k, v|
+      association = klass.reflect_on_association(k)
+      next unless association
+
+      case association.macro
+        when :belongs_to
+          data.delete("#{k}_id")
+          to_ar(association.klass, v, obj.send("build_#{k}"))
+          obj.class_eval do
+            define_method("#{k}_id") { obj.send(k).id }
+          end
+        when :has_one
+          to_ar(association.klass, v, obj.send("build_#{k}"))
+        when :has_many
+          obj.send(k).proxy_association.target =
+              v.map { |i| to_ar(association.klass, i) }
+
+          as_th = obj_associations[k.to_sym]
+          if as_th
+            obj.send(as_th.name).proxy_association.target =
+                v.map { |i| to_ar(as_th.klass, i[as_th.source_reflection_name.to_s]) }
+          end
+      end
+    end
+    obj.assign_attributes(data.slice(*obj.attributes.keys))
+
+    obj.instance_eval do
+      # prevent save
+      def valid?(_context = nil)
+        false
+      end
+    end
+    obj
   end
 
   #
