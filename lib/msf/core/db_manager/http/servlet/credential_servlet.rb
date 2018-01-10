@@ -18,7 +18,7 @@ module CredentialServlet
       begin
         opts = parse_json_request(request, false)
         data = get_db().creds(opts)
-        includes = [:logins, :public, :private, :origin, :realm]
+        includes = [:logins, :public, :private, :realm]
         # Need to append the human attribute into the private sub-object before converting to json
         # This is normally pulled from a class method from the MetasploitCredential class
         response = []

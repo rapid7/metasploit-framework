@@ -13,7 +13,7 @@ module RemoteSessionDataService
     end
 
     opts[:time_stamp] = Time.now.utc
-    sess_db = json_to_mdm_object(self.get_data(SESSION_API_PATH, opts), SESSION_MDM_CLASS, [])
+    sess_db = json_to_mdm_object(self.post_data(SESSION_API_PATH, opts), SESSION_MDM_CLASS, []).first
     session.db_record = sess_db
   end
 
