@@ -165,9 +165,15 @@ class CommandShell
   def cleanup
     if rstream
       if !@cleanup_command.blank?
-        shell_command_token(@cleanup_command, 10)
+        # this is a best effort, since the session is possibly already dead
+        shell_command_token(@cleanup_command) rescue nil
+
+        # we should only ever cleanup once
+        @cleanup_command = nil
       end
-      rstream.close
+
+      # this is also a best-effort
+      rstream.close rescue nil
       rstream = nil
     end
     super
