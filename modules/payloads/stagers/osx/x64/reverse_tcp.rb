@@ -9,6 +9,7 @@ module MetasploitModule
 
   CachedSize = 154
 
+  include Msf::Payload::TransportConfig
   include Msf::Payload::Stager
 
   def initialize(info = { })
