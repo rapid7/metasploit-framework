@@ -58,7 +58,7 @@ class Framework
   require 'msf/core/module_manager'
   require 'msf/core/session_manager'
   require 'msf/core/plugin_manager'
-  require 'msf/core/db_manager'
+  require 'metasploit/framework/data_service/proxy/core'
   require 'msf/core/event_dispatcher'
   require 'rex/json_hash_file'
   require 'msf/core/cert_provider'
@@ -193,13 +193,13 @@ class Framework
   #
   attr_reader   :browser_profiles
 
-  # The framework instance's db manager. The db manager
-  # maintains the database db and handles db events
   #
-  # @return [Msf::DBManager]
+  # The framework instance's data service proxy
+  #
+  # @return [Metasploit::Framework::DataService::DataProxy]
   def db
     synchronize {
-      @db ||= Msf::DBManager.new(self, options)
+      @db ||= Metasploit::Framework::DataService::DataProxy.instance
     }
   end
 
@@ -236,7 +236,7 @@ class Framework
   def search(match, logger: nil)
     # Check if the database is usable
     use_db = true
-    if self.db
+    if self.db and self.db.is_local?
       if !(self.db.migrated && self.db.modules_cached)
         logger.print_warning("Module database cache not built yet, using slow search") if logger
         use_db = false
@@ -342,7 +342,7 @@ class FrameworkEventSubscriber
   ##
   # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_command(command)
-    if framework.db.active
+    if (framework.db and framework.db.active)
       report_event(:name => "ui_command", :info => {:command => command})
     end
   end
@@ -350,7 +350,7 @@ class FrameworkEventSubscriber
   ##
   # :category: ::Msf::UiEventSubscriber implementors
   def on_ui_stop()
-    if framework.db.active
+    if (framework.db and framework.db.active)
       report_event(:name => "ui_stop")
     end
   end

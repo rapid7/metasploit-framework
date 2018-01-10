@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+# -*- coding: binary -*-
+#
+# Starts the HTTP DB Service interface
+
+
+require 'pathname'
+require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
+require 'msf/core/db_manager/http/http_db_manager_service'
+HttpDBManagerService.new().start(:Port => '8080', :Host => '0.0.0.0')

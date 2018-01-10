@@ -131,7 +131,13 @@ module Msf::ModuleManager::Cache
   # @return [true] if migrations have been run
   # @return [false] otherwise
   def framework_migrated?
-    framework.db && framework.db.migrated
+    if (framework.db)
+      if (framework.db.is_local?)
+        return framework.db.migrated
+      end
+    end
+
+    return false
   end
 
   # @!attribute [rw] module_info_by_path

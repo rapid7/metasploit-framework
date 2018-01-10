@@ -122,12 +122,12 @@ class Driver < Msf::Ui::Driver
       enstack_dispatcher(dispatcher)
     end
 
-    # Add the database dispatcher if it is usable
-    if (framework.db.usable)
-      require 'msf/ui/console/command_dispatcher/db'
-      enstack_dispatcher(CommandDispatcher::Db)
-      require 'msf/ui/console/command_dispatcher/creds'
-      enstack_dispatcher(CommandDispatcher::Creds)
+    framework.db.init(framework, opts)
+    if (framework.db.active)
+        require 'msf/ui/console/command_dispatcher/db'
+        enstack_dispatcher(CommandDispatcher::Db)
+        require 'msf/ui/console/command_dispatcher/creds'
+        enstack_dispatcher(CommandDispatcher::Creds)
     else
       print_error("***")
       if framework.db.error == "disabled"
@@ -196,7 +196,7 @@ class Driver < Msf::Ui::Driver
       self.framework.init_module_paths(module_paths: opts['ModulePath'])
     end
 
-    if framework.db.active && !opts['DeferModuleLoads']
+    if framework.db.active && framework.db.is_local? && !opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files
       end
