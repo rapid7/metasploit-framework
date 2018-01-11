@@ -24,7 +24,7 @@ module RemoteLootDataService
   end
 
   def find_or_create_loot(opts)
-    json_to_mdm_object(self.get_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS, [])
+    json_to_mdm_object(self.post_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS, [])
   end
 
   def report_loots(loot)
