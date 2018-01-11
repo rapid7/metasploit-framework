@@ -13,6 +13,8 @@ module HostDataProxy
     end
   end
 
+  # TODO: Shouldn't this proxy to RemoteHostDataService#find_or_create_host ?
+  # It's currently skipping the "find" part
   def find_or_create_host(opts)
     puts 'Calling find host'
     report_host(opts)
