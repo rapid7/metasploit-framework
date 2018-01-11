@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # ypcat -x
   def nick_to_map(nick)
-    translation_table = {
+    {
       'ethers'    => 'ethers.byname',
       'aliases'   => 'mail.aliases',
       'services'  => 'services.byname',
@@ -161,9 +161,7 @@ class MetasploitModule < Msf::Auxiliary
       'networks'  => 'networks.byaddr',
       'group'     => 'group.byname',
       'passwd'    => 'passwd.byname'
-    }
-
-    translation_table[nick] || nick
+    }[nick] || nick
   end
 
 end
