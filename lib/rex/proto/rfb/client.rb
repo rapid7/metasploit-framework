@@ -215,11 +215,30 @@ class Client
 
   def negotiate_ard_auth(username = nil, password = nil)
     generator = @sock.get_once(2)
+    if not generator or generator.length != 2
+      @error = "Unable to obtain ARD challenge: invalid generator value"
+      return false
+    end
     generator = generator.unpack("n").first
+
     key_length = @sock.get_once(2)
+    if not key_length or key_length.length != 2
+      @error = "Unable to obtain ARD challenge: invalid key length"
+      return false
+    end
     key_length = key_length.unpack("n").first
+
     prime_modulus = @sock.get_once(key_length)
+    if not prime_modulus or prime_modulus.length != key_length
+      @error = "Unable to obtain ARD challenge: invalid prime modulus"
+      return false
+    end
+
     peer_public_key = @sock.get_once(key_length)
+    if not peer_public_key or peer_public_key.length != key_length
+      @error = "Unable to obtain ARD challenge: invalid public key"
+      return false
+    end
 
     response = Cipher.encrypt_ard(username, password, generator, key_length, prime_modulus, peer_public_key)
     @sock.put(response)

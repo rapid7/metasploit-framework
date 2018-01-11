@@ -348,7 +348,28 @@ module Msf::Post::File
     end
   end
 
+  #
+  # Delete remote directories
+  #
+  # @param remote_dirs [Array<String>] List of remote directories to
+  #   delete
+  # @return [void]
+  def rm_rf(*remote_dirs)
+    remote_dirs.each do |remote|
+      if session.type == "meterpreter"
+        session.fs.dir.rmdir(remote) if exist?(remote)
+      else
+        if session.platform == 'windows'
+          cmd_exec("rd /s /q \"#{remote}\"")
+        else
+          cmd_exec("rm -rf \"#{remote}\"")
+        end
+      end
+    end
+  end
+
   alias :file_rm :rm_f
+  alias :dir_rm :rm_rf
 
   #
   # Rename a remote file.

