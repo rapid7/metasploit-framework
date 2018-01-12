@@ -162,11 +162,13 @@ class MetasploitModule < Msf::Exploit::Remote
     until @received_request
       sleep 1
       waited += 1
-      if (waited > datastore['HTTP_DELAY'])
+      if waited > datastore['HTTP_DELAY']
+        stop_service
         return Exploit::CheckCode::Safe
       end
     end
 
+    stop_service
     return Exploit::CheckCode::Vulnerable
   end
 
