@@ -45,35 +45,37 @@ class MetasploitModule < Msf::Auxiliary
   # Creates Proc to handle incoming requests
   #
   def on_dispatch_request(cli,data)
-    req = Packet.encode_net(data)
+    return if data.strip.empty?
+    req = Packet.encode_drb(data)
     peer = "#{cli.peerhost}:#{cli.peerport}"
-    asked = req.question.map(&:qName).join(', ')
+    asked = req.question.map(&:qname).map(&:to_s).join(', ')
     vprint_status("Received request for #{asked} from #{peer}")
     answered = []
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
-      cached = service.cache.find(ques.qName, ques.qType.to_s)
+      cached = service.cache.find(ques.qname, ques.qtype.to_s)
       if cached.empty?
         next
       else
-        req.answer = (req.answer + cached).uniq
+        req.instance_variable_set(:@answer, (req.answer + cached).uniq)
         answered << ques
         cached.map do |hit|
           if hit.respond_to?(:address)
-            hit.name + ':' + hit.address.to_s + ' ' + hit.type
+            hit.name.to_s + ':' + hit.address.to_s + ' ' + hit.type.to_s
           else
-            hit.name + ' ' + hit.type
+            hit.name.to_s + ' ' + hit.type.to_s
           end
         end.each {|h| vprint_status("Cache hit for #{h}")}
       end
     end unless service.cache.nil?
     # Forward remaining requests, cache responses
     if answered.count < req.question.count and service.fwd_res
-      if !req.header.recursive?
+      if !req.header.rd
         vprint_status("Recursion forbidden in query for #{req.question.first.name} from #{peer}")
       else
         forward = req.dup
-        forward.question = req.question - answered
+        # forward.question = req.question - answered
+        forward.instance_variable_set(:@question, req.question - answered)
         forwarded = service.fwd_res.send(Packet.validate(forward))
         forwarded.answer.each do |ans|
           rstring = ans.respond_to?(:address) ? "#{ans.name}:#{ans.address}" : ans.name
@@ -81,20 +83,20 @@ class MetasploitModule < Msf::Auxiliary
           service.cache.cache_record(ans)
         end unless service.cache.nil?
         # Merge the answers and use the upstream response
-        forwarded.answer = (req.answer + forwarded.answer).uniq
+        forward.instance_variable_set(:@question, (req.answer + forwarded.answer).uniq)
         req = forwarded
       end
     end
-    service.send_response(cli, Packet.validate(Packet.generate_response(req)).data)
+    service.send_response(cli, Packet.validate(Packet.generate_response(req)).encode)
   end
 
   #
   # Creates Proc to handle outbound responses
   #
   def on_send_response(cli,data)
-    res = Packet.encode_net(data)
+    res = Packet.encode_drb(data)
     peer = "#{cli.peerhost}:#{cli.peerport}"
-    asked = res.question.map(&:qName).join(', ')
+    asked = res.question.map(&:qname).map(&:to_s).join(', ')
     vprint_status("Sending response for #{asked} to #{peer}")
     cli.write(data)
   end

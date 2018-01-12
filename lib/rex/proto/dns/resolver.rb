@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 require 'net/dns/resolver'
 
 module Rex
@@ -6,6 +8,7 @@ module DNS
 
   ##
   # Provides Rex::Sockets compatible version of Net::DNS::Resolver
+  # Modified to work with Dnsruby::Messages, their resolvers are too heavy
   ##
   class Resolver < Net::DNS::Resolver
 
@@ -112,24 +115,25 @@ module DNS
     # @param argument
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
-    def send(argument,type=Net::DNS::A,cls=Net::DNS::IN)
+    def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       if @config[:nameservers].size == 0
         raise ResolverError, "No nameservers specified!"
       end
 
       method = self.use_tcp? ? :send_tcp : :send_udp
 
-      if argument.kind_of? Net::DNS::Packet
+      case argument
+      when Dnsruby::Message
         packet = argument
-      elsif argument.kind_of? Resolv::DNS::Message
-        packet = Net::DNS::Packet.parse(argument.encode)
+      when Net::DNS::Packet, Resolv::DNS::Message
+        packet = Rex::Proto::DNS::Packet.encode_drb(argument)
       else
         packet = make_query_packet(argument,type,cls)
       end
 
       # Store packet_data for performance improvements,
-      # so methods don't keep on calling Packet#data
-      packet_data = packet.data
+      # so methods don't keep on calling Packet#encode
+      packet_data = packet.encode
       packet_size = packet_data.size
 
       # Choose whether use TCP, UDP
@@ -146,7 +150,7 @@ module DNS
         end
       end
 
-      if type == Net::DNS::AXFR
+      if type == Dnsruby::Types::AXFR
         @logger.warn "AXFR query, switching to TCP" unless method == :send_tcp
         method = :send_tcp
       end
@@ -160,9 +164,10 @@ module DNS
       end
 
       @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
-      response = Net::DNS::Packet.parse(ans[0],ans[1])
+      # response = Net::DNS::Packet.parse(ans[0],ans[1])
+      response = Dnsruby::Message.decode(ans[0])
 
-      if response.header.truncated? and not ignore_truncated?
+      if response.header.tc and not ignore_truncated?
         @logger.warn "Packet truncated, retrying using TCP"
         self.use_tcp = true
         begin
@@ -215,7 +220,7 @@ module DNS
               got_something = false
               loop do
                 buffer = ""
-                ans = socket.recv(Net::DNS::INT16SZ)
+                ans = socket.recv(2)
                 if ans.size == 0
                   if got_something
                     break #Proper exit from loop
@@ -305,7 +310,68 @@ module DNS
       end
       return ans
     end
-  end
+
+
+    #
+    # Perform search using the configured searchlist and resolvers
+    #
+    # @param name
+    # @param type [Fixnum] Type of record to look up
+    # @param cls [Fixnum] Class of question to look up
+    #
+    # @return ans [Dnsruby::Message] DNS Response
+    def search(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
+
+        return query(name,type,cls) if name.class == IPAddr
+
+        # If the name contains at least one dot then try it as is first.
+        if name.include? "."
+          @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+          ans = query(name,type,cls)
+          return ans if ans.header.ancount > 0
+        end
+
+        # If the name doesn't end in a dot then apply the search list.
+        if name !~ /\.$/ and @config[:dns_search]
+          @config[:searchlist].each do |domain|
+            newname = name + "." + domain
+            @logger.debug "Search(#{newname},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+            ans = query(newname,type,cls)
+            return ans if ans.header.ancount > 0
+          end
+        end
+
+        # Finally, if the name has no dots then try it as is.
+        @logger.debug "Search(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+        return query(name+".",type,cls)
+
+      end
+
+    end
+
+    #
+    # Perform query with default domain validation
+    #
+    # @param name
+    # @param type [Fixnum] Type of record to look up
+    # @param cls [Fixnum] Class of question to look up
+    #
+    # @return ans [Dnsruby::Message] DNS Response
+    def query(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
+
+      return send(name,type,cls) if name.class == IPAddr
+
+      # If the name doesn't contain any dots then append the default domain.
+      if name !~ /\./ and name !~ /:/ and @config[:defname]
+        name += "." + @config[:domain]
+      end
+
+      @logger.debug "Query(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+
+      return send(name,type,cls)
+
+    end
+
 
 end
 end

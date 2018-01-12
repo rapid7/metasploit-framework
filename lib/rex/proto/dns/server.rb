@@ -39,7 +39,7 @@ class Server
         )
       end.keys.map do |record|
         if search.to_s.match(MATCH_HOSTNAME) and record.name == '*'
-          record = Net::DNS::RR.new(:name => search, :address => record.address)
+          record = Dnsruby::RR.create(name: name, type: type, address: address)
         else
           record
         end
@@ -49,10 +49,10 @@ class Server
     #
     # Add record to cache, only when "running"
     #
-    # @param record [Net::DNS::RR] Record to cache
+    # @param record [Dnsruby::RR] Record to cache
     def cache_record(record)
       return unless @monitor_thread
-      if record.class.ancestors.include?(Net::DNS::RR) and
+      if record.is_a?(Dnsruby::RR) and
       (!record.respond_to?(:address) or Rex::Socket.is_ip_addr?(record.address.to_s)) and
       record.name.to_s.match(MATCH_HOSTNAME)
         add(record, Time.now.to_i + record.ttl)
@@ -73,7 +73,7 @@ class Server
         find(name, type).each do |found|
           delete(found)
         end if replace
-        add(Net::DNS::RR.new(:name => name, :address => address),0)
+        add(Dnsruby::RR.create(name: name, type: type, address: address),0)
       else
         raise "Invalid parameters for static entry - #{name}, #{address}, #{type}"
       end
@@ -120,7 +120,7 @@ class Server
     #
     # Add a record to the cache with thread safety
     #
-    # @param record [Net::DNS::RR] Record to add
+    # @param record [Dnsruby::RR] Record to add
     # @param expire [Fixnum] Time in seconds when record becomes stale
     def add(record, expire = 0)
       self.lock.synchronize do
@@ -131,7 +131,7 @@ class Server
     #
     # Delete a record from the cache with thread safety
     #
-    # @param record [Net::DNS::RR] Record to delete
+    # @param record [Dnsruby::RR] Record to delete
     def delete(record)
       self.lock.synchronize do
         self.records.delete(record)
@@ -285,11 +285,12 @@ class Server
   # @param cli [Rex::Socket::Tcp, Rex::Socket::Udp] Client sending the request
   # @param data [String] raw DNS request data
   def default_dispatch_request(cli,data)
-    req = Packet.encode_net(data)
+    return if data.strip.empty?
+    req = Packet.encode_drb(data)
     forward = req.dup
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
-      cached = self.cache.find(ques.qName, ques.qType.to_s)
+      cached = self.cache.find(ques.qname, ques.qtype.to_s)
       if cached.empty?
         next
       else
@@ -304,16 +305,31 @@ class Server
       forwarded.answer.each do |ans|
         self.cache.cache_record(ans)
       end
-      req.header.ra = 1 # Set recursion bit
+      req.header.ra = true # Set recursion bit
     end
     # Finalize answers in response
     # Check for empty response prior to sending
     if req.answer.size < 1
-      req.header.rCode = 3
+      req.header.rCode = Dnsruby::RCode::NOERROR
     end
-    req.header.qr = 1 # Set response bit
+    req.header.qr = true # Set response bit
     send_response(cli, validate_packet(req).data)
   end
+
+  #
+  # Returns the hardcore alias for the DNS service
+  #
+  def self.hardcore_alias(*args)
+    "#{(args[0] || '')}#{(args[1] || '')}"
+  end
+
+  #
+  # DNS server.
+  #
+  def alias
+    "DNS Server"
+  end
+
 
 protected
   #

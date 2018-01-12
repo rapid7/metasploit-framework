@@ -1,5 +1,8 @@
+# -*- coding: binary -*-
+
 require 'net/dns'
 require 'resolv'
+require 'dnsruby'
 
 module Rex
 module Proto
@@ -21,26 +24,26 @@ module Packet
   # Reconstructs a packet with both standard DNS libraries
   # Ensures that headers match the payload
   #
-  # @param packet [String, Net::DNS::Packet] Data to be validated
+  # @param packet [String, Net::DNS::Packet, Dnsruby::Message] Data to be validated
   #
-  # @return [Net::DNS::Packet]
+  # @return [Dnsruby::Message]
   def self.validate(packet)
-      self.encode_net(self.encode_res(self.encode_raw(packet)))
+      self.encode_drb(self.encode_net(self.encode_res(packet)))
   end
 
   #
   # Sets header values to match packet content
   #
-  # @param packet [String] Net::DNS::Packet, Resolv::DNS::Message]
+  # @param packet [String] Net::DNS::Packet, Resolv::DNS::Message,  Dnsruby::Message]
   #
-  # @return [Net::DNS::Packet]
+  # @return [Dnsruby::Message]
   def self.recalc_headers(packet)
-    packet = self.encode_net(packet)
+    packet = self.encode_drb(packet)
     {
-      :qdCount= => :question,
-      :anCount= => :answer,
-      :nsCount= => :authority,
-      :arCount= => :additional
+      :qdcount= => :question,
+      :ancount= => :answer,
+      :nscount= => :authority,
+      :arcount= => :additional
     }.each do |header,body|
       packet.header.send(header,packet.send(body).count)
     end
@@ -51,36 +54,48 @@ module Packet
   #
   # Reads a packet into the Net::DNS::Packet format
   #
-  # @param data [String, Net::DNS::Packet, Resolv::DNS::Message] Input data
+  # @param data [String, Net::DNS::Packet, Resolv::DNS::Message, Dnsruby::Message] Input data
   #
   # @return [Net::DNS::Packet]
   def self.encode_net(packet)
-    return packet if packet.respond_to?(:data)
+    return packet if packet.is_a?(Net::DNS::Packet)
     Net::DNS::Packet.parse(
-      packet.respond_to?(:encode) ? packet.encode : packet
+      self.encode_raw(packet)
     )
   end
 
   # Reads a packet into the Resolv::DNS::Message format
   #
-  # @param data [String, Net::DNS::Packet, Resolv::DNS::Message] Input data
+  # @param data [String, Net::DNS::Packet, Resolv::DNS::Message, Dnsruby::Message] Input data
   #
   # @return [Resolv::DNS::Message]
   def self.encode_res(packet)
-    return packet if packet.respond_to?(:encode)
+    return packet if packet.is_a?(Resolv::DNS::Message)
     Resolv::DNS::Message.decode(
-      packet.respond_to?(:data) ? packet.data : packet
+      self.encode_raw(packet)
+    )
+  end
+
+  # Reads a packet into the Dnsruby::Message format
+  #
+  # @param data [String, Net::DNS::Packet, Resolv::DNS::Message, Dnsruby::Message] Input data
+  #
+  # @return [Dnsruby::Message]
+  def self.encode_drb(packet)
+    return packet if packet.is_a?(Dnsruby::Message)
+    Dnsruby::Message.decode(
+      self.encode_raw(packet)
     )
   end
 
   # Reads a packet into the raw String format
   #
-  # @param data [String, Net::DNS::Packet, Resolv::DNS::Message] Input data
+  # @param data [String, Net::DNS::Packet, Resolv::DNS::Message, Dnsruby::Message] Input data
   #
-  # @return [Resolv::DNS::Message]
+  # @return [String]
   def self.encode_raw(packet)
     return packet unless packet.respond_to?(:encode) or packet.respond_to?(:data)
-    packet.respond_to?(:data) ? packet.data : packet.encode
+    (packet.respond_to?(:data) ? packet.data : packet.encode).force_encoding('binary')
   end
 
   #
@@ -91,16 +106,16 @@ module Packet
   # @param cls [Fixnum] Class of dns record to query
   # @param recurse [Fixnum] Recursive query or not
   #
-  # @return [Net::DNS::Packet] request packet
-  def self.generate_request(subject, type = Net::DNS::A, cls = Net::DNS::IN, recurse = 1)
+  # @return [Dnsruby::Message] request packet
+  def self.generate_request(subject, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN, recurse = 1)
     case subject
     when IPAddr
       name = subject.reverse
-      type = Net::DNS::PTR
+      type = Dnsruby::Types::PTR
     when /\d/ # Contains a number, try to see if it's an IP or IPv6 address
       begin
         name = IPAddr.new(subject).reverse
-        type = Net::DNS::PTR
+        type = Dnsruby::Types::PTR
       rescue ArgumentError
         name = subject if self.valid_hostname?(subject)
       end
@@ -109,9 +124,9 @@ module Packet
     end
 
     # Create the packet
-    packet = Net::DNS::Packet.new(name,type,cls)
+    packet = Dnsruby::Message.new(name, type, cls)
 
-    if packet.query?
+    if packet.header.opcode == Dnsruby::OpCode::Query
       packet.header.recursive = recurse
     end
 
@@ -128,26 +143,26 @@ module Packet
   # @param authority [Array] Set of authority records to provide in the response
   # @param additional [Array] Set of additional records to provide in the response
   #
-  # @return [Net::DNS::Packet] Response packet
+  # @return [Dnsruby::Message] Response packet
   def self.generate_response(request, answer = nil, authority = nil, additional = nil)
-    packet = self.encode_net(request)
+    packet = self.encode_drb(request)
     packet.answer = answer if answer
     packet.authority = authority if authority
     packet.additional = additional if additional
     packet = self.recalc_headers(packet)
 
     # Set error code for NXDomain or unset it if reprocessing a response
-    if packet.header.anCount < 1
-      packet.header.rCode = 3
+    if packet.header.ancount < 1
+      packet.header.rcode = Dnsruby::RCode::NXDOMAIN
     else
-      if packet.header.response? and packet.header.rCode.code == 3
-        packet.header.rCode = 0
+      if packet.header.qr and packet.header.get_header_rcode.to_i == 3
+        packet.header.rcode = Dnsruby::RCode::NOERROR
       end
     end
     # Set response bit last to allow reprocessing of responses
-    packet.header.qr = 1
+    packet.header.qr = true
     # Set recursion available bit if recursion desired
-    packet.header.ra = 1 if packet.header.recursive?
+    packet.header.ra = true if packet.header.rd
     return packet
   end
 
