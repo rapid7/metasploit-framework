@@ -78,9 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::Proto::SunRPC::RPCError
       print_error('Could not call bootparamd procedure')
       return
-    # XXX:  This bubbles up from Rex::Proto::SunRPC::Client
-    # TODO: Make it raise Rex::Proto::SunRPC::RPCTimeout
-    rescue Timeout::Error
+    rescue Rex::Proto::SunRPC::RPCTimeout
       print_error('Could not disclose NIS domain name (try another CLIENT?)')
       return
     ensure
