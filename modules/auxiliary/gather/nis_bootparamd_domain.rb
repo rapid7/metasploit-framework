@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptEnum.new('PROTOCOL',  [true, 'Protocol to use', 'udp', %w{tcp udp}]),
-      OptAddress.new('CLIENT', [true, 'Client from target\'s bootparams file'])
+      OptAddress.new('CLIENT', [true, "Client from target's bootparams file"])
     ])
 
     register_advanced_options([
@@ -52,11 +52,9 @@ class MetasploitModule < Msf::Auxiliary
         1       # Program Version: 1
       )
     rescue Rex::ConnectionError
-      print_error('Could not connect to portmapper')
-      return
+      fail_with(Failure::Unreachable, 'Could not connect to portmapper')
     rescue Rex::Proto::SunRPC::RPCError
-      print_error('Could not connect to bootparamd')
-      return
+      fail_with(Failure::Unreachable, 'Could not connect to bootparamd')
     end
 
     # Flavor: AUTH_NULL (0)
@@ -76,19 +74,17 @@ class MetasploitModule < Msf::Auxiliary
         bootparam_whoami # Boot Parameters
       )
     rescue Rex::Proto::SunRPC::RPCError
-      print_error('Could not call bootparamd procedure')
-      return
+      fail_with(Failure::NotFound, 'Could not call bootparamd procedure')
     rescue Rex::Proto::SunRPC::RPCTimeout
-      print_error('Could not disclose NIS domain name (try another CLIENT?)')
-      return
+      fail_with(Failure::NotVulnerable,
+                'Could not disclose NIS domain name (try another CLIENT?)')
     ensure
       # Shut it down! Shut it down forever!
       sunrpc_destroy
     end
 
-    if res.nil?
-      print_error('Invalid response from server')
-      return
+    unless res
+      fail_with(Failure::Unknown, 'No response from server')
     end
 
     bootparams = begin
@@ -96,13 +92,12 @@ class MetasploitModule < Msf::Auxiliary
         parse_bootparams(res)
       end
     rescue Timeout::Error
-      print_error('XDR decoding timed out (try increasing XDRTimeout?)')
-      return
+      fail_with(Failure::TimeoutExpired,
+                'XDR decoding timed out (try increasing XDRTimeout?)')
     end
 
-    if bootparams.nil? || bootparams.empty?
-      print_error('Could not parse bootparams')
-      return
+    if bootparams.blank?
+      fail_with(Failure::Unknown, 'Could not parse bootparams')
     end
 
     bootparams.each do |host, domain|

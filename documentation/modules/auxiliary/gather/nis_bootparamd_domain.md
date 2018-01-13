@@ -17,8 +17,19 @@ If the link is down, you can find it via the Wayback Machine.
 After that is done, install `bootparamd` however your OS provides it.
 
 Make sure you add a client to the `bootparams` file, which is usually at
-`/etc/bootparams`. The client should be added to `/etc/hosts` if it
-isn't already resolvable.
+`/etc/bootparams`.
+
+Here is an example `bootparams` file (courtesy of
+[@bcoles](https://github.com/bcoles)):
+
+```
+clientname root=nfsserver:/export/clientname/root
+```
+
+You can read the `bootparams(5)` man page for more info.
+
+Lastly, the client should be added to `/etc/hosts` if it isn't already
+resolvable.
 
 ## Options
 
