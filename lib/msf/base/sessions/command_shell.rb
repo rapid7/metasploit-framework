@@ -51,9 +51,10 @@ class CommandShell
     self.platform ||= ""
     self.arch     ||= ""
     self.max_threads = 1
+    @cleanup = false
     datastore = opts[:datastore]
     if datastore && !datastore["CommandShellCleanupCommand"].blank?
-      @cleanup_command = opts[:datastore]["CommandShellCleanupCommand"]
+      @cleanup_command = datastore["CommandShellCleanupCommand"]
     end
     super
   end
@@ -163,6 +164,9 @@ class CommandShell
   # Closes the shell.
   #
   def cleanup
+    return if @cleanup
+
+    @cleanup = true
     if rstream
       if !@cleanup_command.blank?
         # this is a best effort, since the session is possibly already dead
