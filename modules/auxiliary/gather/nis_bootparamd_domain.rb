@@ -133,7 +133,11 @@ class MetasploitModule < Msf::Auxiliary
           Integer  # Router Address: [redacted]
         )
 
-        host && domain ? bootparams[host] = domain : break
+        if host && domain
+          bootparams[host] = domain
+        else
+          break
+        end
       rescue Rex::ArgumentError
         vprint_status("Finished XDR decoding at #{res.inspect}")
         break
