@@ -7,7 +7,7 @@ From the `bootparamd(8)` man page:
 The module documented within will allow a tester to disclose the NIS
 domain name from a server running `bootparamd`. After knowing the domain
 name, the tester can follow up with `auxiliary/gather/nis_ypserv_map` to
-dump a map from an NIS server (running as `ypserv`).
+dump a map from a compatible NIS server (running as `ypserv`).
 
 ## Setup
 
@@ -62,7 +62,8 @@ msf auxiliary(gather/nis_bootparamd_domain) >
 ```
 
 After disclosing the domain name, you can use
-`auxiliary/gather/nis_ypserv_map` to dump a map from an NIS server.
+`auxiliary/gather/nis_ypserv_map` to dump a map from a compatible NIS
+server.
 
 ```
 msf auxiliary(gather/nis_bootparamd_domain) > use auxiliary/gather/nis_ypserv_map

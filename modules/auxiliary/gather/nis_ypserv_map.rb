@@ -136,11 +136,9 @@ class MetasploitModule < Msf::Auxiliary
           String   # Key: [redacted]
         )
 
-        if status == 1 && key && value
-          map[key] = value
-        else
-          break
-        end
+        break unless status == 1 && key && value
+
+        map[key] = value
       rescue Rex::ArgumentError
         vprint_status("Finished XDR decoding at #{res.inspect}")
         break
