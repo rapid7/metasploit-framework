@@ -61,6 +61,7 @@ If the attacker makes the mistake of either setting `LPORT` to `8443`, or leavin
 * Make sure that `LHOST` is set to a routable address from the target, and not a local listen address.
 * Make sure that `LPORT` is set to the port number that the target needs to connect to.
 * Make sure that `ReverseListenerBindPort` is set if port forwarding is enabled and the traffic is being routed to a different port.
+* Make sure that your listener's configuration matches that of the target from an architecture perspective. If you mix x64 listeners with x86 payloads (and vice versa), things will go bad.
 
 ### Not so quick things to check
 
