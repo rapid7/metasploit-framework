@@ -430,8 +430,8 @@ So, symlink like so:
 
 ```
 cd $HOME/git/metasploit-framework
-ln -sf tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
-ln -sf tools/dev/pre-commit-hook.rb .git/hooks/post-merge
+ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
+ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
 ```
 
 
