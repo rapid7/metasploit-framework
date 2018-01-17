@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res &&
        res.code == 200 &&
-       res.body.match(/Cisco Secure Desktop/)
+       res.body.include?('Cisco Secure Desktop')
 
       return true
     else
@@ -189,7 +189,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res &&
        res.code == 200 &&
-       res.body.match(/password_field/)
+       res.body.include?('password_field')
 
       return true
     else
@@ -308,8 +308,8 @@ class MetasploitModule < Msf::Auxiliary
 
       if res &&
          res.code == 200 &&
-         res.body.match(/SSL VPN Service/) &&
-         res.body.match(/webvpn_logout/i)
+         res.body.include?('SSL VPN Service') &&
+         res.body.include?('webvpn_logout')
 
         print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}:#{group.inspect}")
 
