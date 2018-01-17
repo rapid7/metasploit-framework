@@ -252,7 +252,7 @@ class MetasploitModule < Msf::Auxiliary
     if res &&
        res.code == 200
 
-      token = res.body.scan(/<token>([A-Z0-9]{24})/).flatten[0]
+      token = res.body.scan(/<token>([A-Z0-9]{24})/).flatten.first
 
     end
 
