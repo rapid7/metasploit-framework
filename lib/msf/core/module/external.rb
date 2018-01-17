@@ -3,18 +3,15 @@ module Msf::Module::External
 
   def wait_status(mod)
     begin
-      while mod.running
-        m = mod.get_status
-        if m
-          case m.method
-          when :message
-            log_output(m)
-          when :report
-            process_report(m)
-          when :reply
-            # we're done
-            break
-          end
+      while m = mod.get_status
+        case m.method
+        when :message
+          log_output(m)
+        when :report
+          process_report(m)
+        when :reply
+          # we're done
+          break
         end
       end
     rescue Interrupt => e

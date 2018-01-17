@@ -26,10 +26,11 @@ class Msf::Modules::External::Bridge
   end
 
   def get_status
-    if self.running
+    if self.running || !self.messages.empty?
       m = receive_notification
       if m.nil?
         close_ios
+        self.messages.close
         self.running = false
       end
 
