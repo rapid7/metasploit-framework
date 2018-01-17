@@ -248,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
                'Accept-Language' => 'en-US,en;q=0.5',
                'Referer' => "https://#{rhost}:#{rport}/CACHE/sdesktop/install/start.htm",
                'Cookie' => 'webvpnlogin=1; webvpnLang=en',
-              }            
+              }
           )
 
     if res &&
@@ -269,7 +269,7 @@ class MetasploitModule < Msf::Auxiliary
                'Accept-Language' => 'en-US,en;q=0.5',
                'Referer' => "https://#{rhost}:#{rport}/CACHE/sdesktop/install/start.htm",
                'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{token};"
-              }            
+              }
           )
 
     if res &&
