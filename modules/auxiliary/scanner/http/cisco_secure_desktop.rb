@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_good("Application appears to be Cisco Secure Desktop. Module will continue.")
 
-    $sdesktop_cookie = get_token_cookie()
+    @sdesktop_cookie = get_token_cookie()
 
     unless is_pwd_login_allowed?
       vprint_error("Application does not appear to allow password logins. Module will not continue.")
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  $sdesktop_cookie = nil
+  @sdesktop_cookie = nil
 
   # Verify whether the connection is working or not
   def check_conn?
@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
     headers = {
       'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language' => 'en-US,en;q=0.5',
-      'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{$sdesktop_cookie};",
+      'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{@sdesktop_cookie};",
      }
 
     res = send_request_raw(
@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
     headers = {
       'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language' => 'en-US,en;q=0.5',
-      'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{$sdesktop_cookie};",
+      'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{@sdesktop_cookie};",
      }
 
       res = send_request_raw(
@@ -204,7 +204,7 @@ class MetasploitModule < Msf::Auxiliary
             'headers' => {
                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                'Accept-Language' => 'en-US,en;q=0.5',
-               'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{$sdesktop_cookie};",
+               'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{@sdesktop_cookie};",
               }
           )
   end
@@ -302,7 +302,7 @@ class MetasploitModule < Msf::Auxiliary
                  'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                  'Accept-Language' => 'en-US,en;q=0.5',
                  'Referer' => "https://#{rhost}:#{rport}/+CSCOE+/logon.html",
-                 'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{$sdesktop_cookie};"
+                 'Cookie' => "webvpnlogin=1; webvpnLang=en; sdesktop=#{@sdesktop_cookie};"
                 }
             )
 
