@@ -5,18 +5,18 @@ from metasploit import module
 from async_timeout import timeout
 
 
-def make_study(payload='', pattern='', onmatch=None, connect_timeout=3, read_timeout=10):
-    return lambda args: start_study(payload, pattern, args, onmatch, connect_timeout=connect_timeout, read_timeout=read_timeout)
+def make_scanner(payload='', pattern='', onmatch=None, connect_timeout=3, read_timeout=10):
+    return lambda args: start_scanner(payload, pattern, args, onmatch, connect_timeout=connect_timeout, read_timeout=read_timeout)
 
 
-def start_study(payload, pattern, args, onmatch, **timeouts):
+def start_scanner(payload, pattern, args, onmatch, **timeouts):
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(run_study(payload, pattern, args, onmatch, **timeouts))
+    loop.run_until_complete(run_scanner(payload, pattern, args, onmatch, **timeouts))
 
 
-async def run_study(payload, pattern, args, onmatch, **timeouts):
-    runs = [study_host(host, int(args['rport']), payload, **timeouts) for host in args['rhosts']]
-    async for (target, res) in Study(runs):
+async def run_scanner(payload, pattern, args, onmatch, **timeouts):
+    probes = [probe_host(host, int(args['rport']), payload, **timeouts) for host in args['rhosts']]
+    async for (target, res) in Scan(probes):
         if isinstance(res, Exception):
             module.log('{}:{} - Error connecting: {}'.format(*target, res), level='error')
         elif res and re.search(pattern, res):
@@ -28,7 +28,7 @@ async def run_study(payload, pattern, args, onmatch, **timeouts):
             module.log('{}:{} - Does not match with: {}'.format(*target, res), level='debug')
 
 
-class Study:
+class Scan:
     def __init__(self, runs):
         self.queue = asyncio.queues.Queue()
         self.total = len(runs)
@@ -65,7 +65,7 @@ class Study:
         return res
 
 
-async def study_host(host, port, payload, connect_timeout, read_timeout):
+async def probe_host(host, port, payload, connect_timeout, read_timeout):
     r = None
     w = None
     buf = bytearray()

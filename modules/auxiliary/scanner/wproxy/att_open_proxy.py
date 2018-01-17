@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from metasploit import module, sonar
+from metasploit import module, probe_scanner
 
 
 metadata = {
@@ -38,7 +38,7 @@ def report_wproxy(target, response):
 
 
 if __name__ == "__main__":
-    study = sonar.make_study(
+    study = probe_scanner.make_scanner(
         # Payload and pattern are given and applied straight to the socket, so
         # they need to be bytes-like
         payload = b'\x2a\xce\x00\x00\x00\x00\x00\x00\x00\x00\x00',
