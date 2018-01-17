@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         =>
         [
           'jnqpblc <jnqpblc[at]gmail.com>', # Revision Author
-          #'Jonathan Claudius <jclaudius[at]trustwave.com>', # Original PoC Author
+          'Jonathan Claudius <jclaudius[at]trustwave.com>', # Original PoC Author
         ],
       'License'        => MSF_LICENSE,
       'DefaultOptions' =>
