@@ -32,8 +32,17 @@ metadata = {
 
 
 def report_wproxy(target, response):
+    # We don't use the response here, but if we were a banner scraper we could
+    # print or report it
     module.report_vuln(target[0], 'wproxy', port=target[0])
 
 
 if __name__ == "__main__":
-    module.run(metadata, sonar.make_study(payload = b'\x2a\xce\x00\x00\x00\x00\x00\x00\x00\x00\x00', pattern = b'^\\*\xce.{3}$', onmatch = report_wproxy))
+    study = sonar.make_study(
+        # Payload and pattern are given and applied straight to the socket, so
+        # they need to be bytes-like
+        payload = b'\x2a\xce\x00\x00\x00\x00\x00\x00\x00\x00\x00',
+        pattern = b'^\\*\xce.{3}$',
+        onmatch = report_wproxy
+    )
+    module.run(metadata, study)
