@@ -19,7 +19,10 @@ class MetasploitModule < Msf::Post
         VirtualBox, Xen, and QEMU.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+      'Author'        => [
+        'Carlos Perez <carlos_perez[at]darkoperator.com>',
+        'Aaron Soto <aaron_soto[at]rapid7.com>'
+      ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
     ))
