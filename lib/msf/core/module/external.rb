@@ -69,6 +69,20 @@ module Msf::Module::External
       service[:name] = data['name'] if data['name']
 
       report_service(service)
+    when 'vuln'
+      # Required
+      vuln = {host: data['host'], name: data['name']}
+
+      # Optional
+      vuln[:info] = data['info'] if data['info']
+      vuln[:refs] = data['refs'] if data['refs']
+      vuln[:port] = data['port'] if data['port']
+      vuln[:proto] = data['port'] if data['port']
+
+      # Metasploit magic
+      vuln[:refs] = self.references
+
+      report_vuln(vuln)
     else
       print_warning "Skipping unrecognized report type #{m.params['type']}"
     end
