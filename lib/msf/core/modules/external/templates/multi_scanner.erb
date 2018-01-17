@@ -1,0 +1,34 @@
+require 'msf/core/modules/external/bridge'
+require 'msf/core/module/external'
+
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Scanner
+  include Msf::Module::External
+
+  def initialize
+    super({
+	  <%= common_metadata meta %>
+      'References'  =>
+        [
+          <%= meta[:references] %>
+        ],
+      'DisclosureDate' => <%= meta[:date] %>,
+      })
+
+      register_options([
+        <%= meta[:options] %>
+      ])
+  end
+
+  def run_batch_size
+    200
+  end
+
+  def run_batch(ips)
+    mod = Msf::Modules::External::Bridge.open(<%= meta[:path] %>)
+    datastore.delete('RHOSTS')
+    datastore['rhosts'] = ips
+    mod.run(datastore)
+    wait_status(mod)
+  end
+end
