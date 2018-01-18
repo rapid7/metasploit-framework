@@ -77,9 +77,11 @@ module Msf
           # Edit the currently active module or a local file
           #
           def cmd_edit(*args)
+            editing_module = false
             if args.length > 0
               path = args[0]
             elsif active_module
+              editing_module = true
               path = active_module.file_path
             end
 
@@ -95,14 +97,16 @@ module Msf
               system(*editor.split, path)
 
               # XXX: This will try to reload *any* .rb and break on modules
-              if args.length > 0 && path.end_with?('.rb')
-                print_status("Reloading #{path}")
-                load path
-              else
-                print_error('Only Ruby files can be reloaded (use reload/rerun for modules)')
+              if !editing_module
+                if path.end_with?('.rb')
+                  print_status("Reloading #{path}")
+                  load path
+                else
+                  print_error("Only library files can be reloaded after editing (use reload/rerun for modules)")
+                end
               end
             else
-              print_error('Nothing to edit -- try using a module first.')
+              print_error('Nothing to edit -- try using a module first, or specifying a library file to edit.')
             end
           end
 
