@@ -23,7 +23,7 @@ module CredentialServlet
         # This is normally pulled from a class method from the MetasploitCredential class
         response = []
         data.each do |cred|
-          json = cred.as_json(include: includes).merge('human' => cred.private.class.model_name.human)
+          json = cred.as_json(include: includes).merge('private_class' => cred.private.class.to_s)
           response << json
         end
         set_json_response(response)
