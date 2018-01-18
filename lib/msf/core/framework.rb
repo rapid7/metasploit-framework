@@ -233,24 +233,8 @@ class Framework
     }
   end
 
+  # TODO: Anything still using this should be ported to use metadata::cache search
   def search(match, logger: nil)
-    # Check if the database is usable
-    use_db = true
-    if self.db
-      if !(self.db.migrated && self.db.modules_cached)
-        logger.print_warning("Module database cache not built yet, using slow search") if logger
-        use_db = false
-      end
-    else
-      logger.print_warning("Database not connected, using slow search") if logger
-      use_db = false
-    end
-
-    # Used the database for search
-    if use_db
-      return self.db.search_modules(match)
-    end
-
     # Do an in-place search
     matches = []
     [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders ].each do |mset|
