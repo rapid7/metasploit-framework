@@ -31,16 +31,14 @@ module Msf::DBManager::Host
       deleted = []
       hosts.each do |host|
         begin
-          host.destroy
-          deleted << host.address.to_s
+          deleted << host.destroy
         rescue # refs suck
           elog("Forcibly deleting #{host.address}")
-          host.delete
-          deleted << host.address.to_s
+          deleted << host.delete
         end
       end
 
-      return { deleted: deleted }
+      return deleted
     }
   end
 
