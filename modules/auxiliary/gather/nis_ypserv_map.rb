@@ -58,11 +58,9 @@ class MetasploitModule < Msf::Auxiliary
         2       # Program Version: 2
       )
     rescue Rex::ConnectionError
-      print_error('Could not connect to portmapper')
-      return
+      fail_with(Failure::Unreachable, 'Could not connect to portmapper')
     rescue Rex::Proto::SunRPC::RPCError
-      print_error('Could not connect to ypserv')
-      return
+      fail_with(Failure::Unreachable, 'Could not connect to ypserv')
     end
 
     # Flavor: AUTH_NULL (0)
@@ -80,15 +78,14 @@ class MetasploitModule < Msf::Auxiliary
         ypserv_all_call # Yellow Pages Service ALL call
       )
     rescue Rex::Proto::SunRPC::RPCError
-      print_error('Could not call ypserv procedure')
-      return
+      fail_with(Failure::NotFound, 'Could not call ypserv procedure')
     ensure
       # Shut it down! Shut it down forever!
       sunrpc_destroy
     end
 
-    if res.nil? || res.length < 8
-      print_error('Invalid response from server')
+    unless res && res.length > 8
+      fail_with(Failure::UnexpectedReply, 'Invalid response from server')
       return
     end
 
@@ -96,12 +93,10 @@ class MetasploitModule < Msf::Auxiliary
     case res[4, 4].unpack('l>').first
     # Status: YP_NOMAP (-1)
     when -1
-      print_error("Invalid map #{map_name} specified")
-      return
+      fail_with(Failure::BadConfig, "Invalid map #{map_name} specified")
     # Status: YP_NODOM (-2)
     when -2
-      print_error("Invalid domain #{domain} specified")
-      return
+      fail_with(Failure::BadConfig, "Invalid domain #{domain} specified")
     end
 
     map = begin
@@ -109,12 +104,13 @@ class MetasploitModule < Msf::Auxiliary
         parse_map(res)
       end
     rescue Timeout::Error
-      print_error('XDR decoding timed out (try increasing XDRTimeout?)')
+      fail_with(Failure::TimeoutExpired,
+                'XDR decoding timed out (try increasing XDRTimeout?)')
       return
     end
 
-    if map.nil? || map.empty?
-      print_error("Could not parse map #{map_name}")
+    if map.blank?
+      fail_with(Failure::Unknown, "Could not parse map #{map_name}")
       return
     end
 
@@ -140,7 +136,9 @@ class MetasploitModule < Msf::Auxiliary
           String   # Key: [redacted]
         )
 
-        status == 1 ? map[key] = value : break
+        break unless status == 1 && key && value
+
+        map[key] = value
       rescue Rex::ArgumentError
         vprint_status("Finished XDR decoding at #{res.inspect}")
         break
