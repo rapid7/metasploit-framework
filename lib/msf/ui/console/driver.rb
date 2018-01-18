@@ -23,7 +23,7 @@ class Driver < Msf::Ui::Driver
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
 
-  DefaultPrompt     = "%undmsf%clr"
+  DefaultPrompt     = "%undmsf5%clr"
   DefaultPromptChar = "%clr>"
 
   #
