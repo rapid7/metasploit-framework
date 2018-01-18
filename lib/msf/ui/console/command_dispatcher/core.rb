@@ -231,22 +231,17 @@ class Core
 
     avdwarn = nil
 
-    banner_trailers = {
-      :version     => "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
-      :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
-      :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
-      :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
-      :padding     => 48
-    }
+    stats       = framework.stats
+    version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
+    exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
+    pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
+    dev_note    = "** This is Metasploit 5 development branch **"
+    padding     = 48
 
-    banner << ("       =[ %-#{banner_trailers[:padding]+8}s]\n" % banner_trailers[:version])
-    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:exp_aux_pos])
-    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:pay_enc_nop])
-
-    # TODO: People who are already on a Pro install shouldn't see this.
-    # It's hard for Framework to tell the difference though since
-    # license details are only in Pro -- we can't see them from here.
-    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:free_trial])
+    banner << ("       =[ %-#{padding+8}s]\n" % version)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % dev_note)
 
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []

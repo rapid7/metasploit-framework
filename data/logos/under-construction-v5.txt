@@ -1,0 +1,25 @@
+%clr%red               .;lxO0KXXXK0Oxl:.
+           ,o0WMMMMMMMMMMMMMMMMMMKd,
+        'xNMMMMMMMMMMMMMMMMMMMMMMMMMWx,
+      :KMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMK:
+    .KMMMMMMMMMMMMMMMWNNNWMMMMMMMMMMMMMMMX,
+   lWMMMMMMMMMMMXd:..     ..;dKMMMMMMMMMMMMo
+  xMMMMMMMMMMWd.               .oNMMMMMMMMMMk
+ oMMMMMMMMMMx.                    dMMMMMMMMMMx
+.WMMMMMMMMM:                       :MMMMMMMMMM,
+xMMMMMMMMMo                         lMMMMMMMMMO
+NMMMMMMMMW                    ,cccccoMMMMMMMMMWlccccc;
+MMMMMMMMMX                     ;KMMMMMMMMMMMMMMMMMMX:
+NMMMMMMMMW.                      ;KMMMMMMMMMMMMMMX:
+xMMMMMMMMMd                        ,0MMMMMMMMMMK;
+.WMMMMMMMMMc                         'OMMMMMM0,
+ lMMMMMMMMMMk.                         .kMMO'
+  dMMMMMMMMMMWd'                         ..
+   cWMMMMMMMMMMMNxc'.%clr%whi                ##########%clr
+%red    .0MMMMMMMMMMMMMMMMWc%clr%whi            #+#    #+#%clr
+%red      ;0MMMMMMMMMMMMMMMo.%clr%whi          +:+%clr
+%red        .dNMMMMMMMMMMMMo%clr          +%whi#+%clr+:++#+
+%red           'oOWMMMMMMMMo%clr                +:+
+%red               .,cdkO0K;%clr        :+:    :+:                                
+                                :::::::+:
+           %whiMetasploit%clr %yelUnder Construction%clr
