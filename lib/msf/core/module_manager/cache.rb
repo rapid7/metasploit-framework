@@ -175,8 +175,10 @@ module Msf::ModuleManager::Cache
       # Don't want to trigger as {Msf::ModuleSet#create} so check for
       # key instead of using ||= which would call {Msf::ModuleSet#[]}
       # which would potentially call {Msf::ModuleSet#create}.
-      unless typed_module_set.has_key? reference_name
-        typed_module_set[reference_name] = Msf::SymbolicModule
+      if typed_module_set
+        unless typed_module_set.has_key?(reference_name)
+          typed_module_set[reference_name] = Msf::SymbolicModule
+        end
       end
     end
 
