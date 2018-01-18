@@ -326,15 +326,15 @@ module Msf
             print_line
             print_line "Keywords:"
             {
-              'app'         => 'Modules that are client or server attacks',
-              'author'      => 'Modules written by this author',
-              'bid'         => 'Modules with a matching Bugtraq ID',
-              'cve'         => 'Modules with a matching CVE ID',
-              'edb'         => 'Modules with a matching Exploit-DB ID',
-              'name'        => 'Modules with a matching descriptive name',
-              'platform'    => 'Modules affecting this platform',
+              'app'      => 'Modules that are client or server attacks',
+              'author'   => 'Modules written by this author',
+              'bid'      => 'Modules with a matching Bugtraq ID',
+              'cve'      => 'Modules with a matching CVE ID',
+              'edb'      => 'Modules with a matching Exploit-DB ID',
+              'name'     => 'Modules with a matching descriptive name',
+              'platform' => 'Modules affecting this platform',
               'port'        => 'Modules with a matching port',
-              'ref'         => 'Modules with a matching ref',
+              'ref'      => 'Modules with a matching ref',
               'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, post, or nop)',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 10}:  #{description}"
@@ -355,7 +355,7 @@ module Msf
               return
             end
 
-            match = ''
+            match   = ''
             search_term = nil
             output_file = nil
             @@search_opts.parse(args) { |opt, idx, val|
@@ -380,14 +380,14 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            framework.search(match, logger: self).each do |m|
-                tbl << [
-                m.fullname,
-                m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
-                    RankingName[m.rank].to_s,
-                    m.name
-                ]
-              end
+            Msf::Modules::Metadata::Cache.instance.find(match).each do |m|
+              tbl << [
+                  m.full_name,
+                  m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
+                  RankingName[m.rank].to_s,
+                  m.name
+              ]
+            end
 
             if output_file
               print_status("Wrote search results to #{output_file}")
@@ -395,8 +395,8 @@ module Msf
                 ofd.write(tbl.to_csv)
               }
             else
-              print_line(tbl.to_s)
-            end
+            print_line(tbl.to_s)
+          end
           end
 
           #
