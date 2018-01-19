@@ -110,7 +110,6 @@ module Msf
                   port = args.shift
                 when '-s', '--ssl'
                   protocol = "https"
-                  args.shift
                 else
                   host = arg
               end
