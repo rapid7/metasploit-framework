@@ -100,18 +100,19 @@ module Msf
 
           def cmd_add_data_service(*args)
             protocol = "http"
+            port = 80
             while (arg = args.shift)
               case arg
-                when '--help'
+                when '-h', '--help'
                   cmd_add_data_service_help
                   return
-                when '-h'
-                  host = args.shift
                 when '-p'
                   port = args.shift
-                when '-s'
+                when '-s', '--ssl'
                   protocol = "https"
                   args.shift
+                else
+                  host = arg
               end
             end
 
@@ -127,12 +128,12 @@ module Msf
           end
 
           def cmd_add_data_service_help
-            print_line "Usage: add_data_service [ options ] -h <host IP or FQDN> -p <host port>"
+            print_line "Usage: add_data_service [ options ] [ Remote Address]"
             print_line
             print_line "OPTIONS:"
-            print_line "  -h <IP/FQDN>      The IP address or FQDN of the data service server."
-            print_line "  -p <port>         The port the data service is listening on."
-            print_line "  -s                Enable SSL. Required for HTTPS data services."
+            print_line "  -h, --help        Show this help information."
+            print_line "  -p <port>         The port the data service is listening on. Default is 80"
+            print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
             print_line
           end
 

@@ -45,11 +45,11 @@ def parse_args(args)
     opts[:ssl] = true
   end
 
-  opt.on('-c', '--cert      <path/to/cert.pem>', String, 'Path to your SSL Certificate file') do |p|
+  opt.on('-c', '--cert      <path/to/cert.pem>', String, 'Path to SSL Certificate file') do |p|
     opts[:ssl_cert] = p
   end
 
-  opt.on('-k', '--key       <path/to/key.pem>', String, 'Path to your SSL Key file') do |p|
+  opt.on('-k', '--key       <path/to/key.pem>', String, 'Path to SSL Key file') do |p|
     opts[:ssl_key] = p
   end
 
