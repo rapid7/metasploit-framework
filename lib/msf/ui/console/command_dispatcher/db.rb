@@ -680,7 +680,7 @@ module Msf
 
               if mode == [:delete]
                 result = framework.db.delete_host(workspace: framework.db.workspace, addresses: host_search)
-                delete_count += result[:deleted].size
+                delete_count += result.size
               end
             end
 

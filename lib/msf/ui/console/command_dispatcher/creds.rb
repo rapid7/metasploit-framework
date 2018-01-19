@@ -424,16 +424,7 @@ class Creds
         public_val = core.public ? core.public.username : ""
         private_val = core.private ? core.private.data : ""
         realm_val = core.realm ? core.realm.value : ""
-        human_val = ""
-        # TODO: We shouldn't have separate code paths depending on the model we're working with
-        # This should always expect an OpenStruct.
-        if core.private
-          if core.private.is_a?(OpenStruct)
-            human_val = core.human
-          else
-            human_val = core.private.class.model_name.human
-          end
-        end
+        human_val = core.private ? core.private.class.model_name.human : ""
 
         tbl << [
           "", # host
@@ -442,7 +433,7 @@ class Creds
           public_val,
           private_val,
           realm_val,
-          human_val,
+          human_val
         ]
       else
         core.logins.each do |login|
@@ -466,22 +457,13 @@ class Creds
           public_val = core.public ? core.public.username : ""
           private_val = core.private ? core.private.data : ""
           realm_val = core.realm ? core.realm.value : ""
-          human_val = ""
-          # TODO: We shouldn't have separate code paths depending on the model we're working with
-          # This should always expect an OpenStruct.
-          if core.private
-            if core.private.is_a?(OpenStruct)
-              human_val = core.human
-            else
-              human_val = core.private.class.model_name.human
-            end
-          end
+          human_val = core.private ? core.private.class.model_name.human : ""
 
           row += [
             public_val,
             private_val,
             realm_val,
-            human_val,
+            human_val
           ]
           tbl << row
         end

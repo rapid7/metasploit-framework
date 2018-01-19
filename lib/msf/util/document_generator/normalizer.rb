@@ -78,7 +78,7 @@ module Msf
             File.open(path, 'rb') { |f| template = f.read }
             return template
           }.call
-          md_to_html(ERB.new(@md_template).result(binding()), kb.gsub(/</, '&#x3c;'))
+          md_to_html(ERB.new(@md_template).result(binding()), kb)
         end
 
 
@@ -104,14 +104,18 @@ module Msf
         # @param kb [String] Additional information to add.
         # @return [String] HTML document.
         def md_to_html(md, kb)
-          opts = {
+          extensions = {
+              escape_html: true
+          }
+
+          render_options = {
             fenced_code_blocks: true,
             no_intra_emphasis: true,
-            escape_html: true,
             tables: true
           }
 
-          r = Redcarpet::Markdown.new(Redcarpet::Render::MsfMdHTML, opts)
+          html_renderer = Redcarpet::Render::MsfMdHTML.new(extensions)
+          r = Redcarpet::Markdown.new(html_renderer, render_options)
           ERB.new(@html_template ||= lambda {
             html_template = ''
             path = File.expand_path(File.join(Msf::Config.data_directory, 'markdown_doc', HTML_TEMPLATE))
