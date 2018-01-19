@@ -634,11 +634,13 @@ class Client
   #
   def peerinfo
     if self.conn
-      pi = self.conn.peerinfo
-      return {
-        'addr' => pi.split(':')[0],
-        'port' => pi.split(':')[1].to_i
-      }
+      pi = self.conn.peerinfo || nil
+      if pi
+        return {
+          'addr' => pi.split(':')[0],
+          'port' => pi.split(':')[1].to_i
+        }
+      end
     end
     nil
   end
