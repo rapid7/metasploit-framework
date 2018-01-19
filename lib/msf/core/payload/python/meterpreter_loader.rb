@@ -132,9 +132,9 @@ module Payload::Python::MeterpreterLoader
     unless opts[:stageless_tcp_socket_setup].nil?
       socket_setup = opts[:stageless_tcp_socket_setup]
       socket_setup = socket_setup.split("\n")
-      socket_setup.map! {|line| "\t\t#{line}\n"}
+      socket_setup.map! {|line| "        #{line}\n"}
       socket_setup = socket_setup.join
-      met.sub!("\t\t# PATCH-SETUP-STAGELESS-TCP-SOCKET #", socket_setup)
+      met.sub!("        # PATCH-SETUP-STAGELESS-TCP-SOCKET #", socket_setup)
     end
 
     met
