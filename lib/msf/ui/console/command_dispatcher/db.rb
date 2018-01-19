@@ -256,9 +256,11 @@ module Msf
               end
               framework.db.workspace = workspace
             elsif deleting and names
-              framework.db.delete_workspaces(names)
+              status_msg, error_msg = framework.db.delete_workspaces(names)
+              print_msgs(status_msg, error_msg)
             elsif delete_all
-              framework.db.delete_all_workspaces()
+              status_msg, error_msg = framework.db.delete_all_workspaces()
+              print_msgs(status_msg, error_msg)
             elsif renaming
               if names.length != 2
                 print_error("Wrong number of arguments to rename")
@@ -1990,6 +1992,18 @@ module Msf
               # Restart the loop with the same RangeWalker if we didn't get
               # to the end of it in this chunk.
               redo unless end_of_range
+            end
+          end
+
+          private
+
+          def print_msgs(status_msg, error_msg)
+            status_msg.each do |s|
+              print_status(s)
+            end
+
+            error_msg.each do |e|
+              print_error(e)
             end
           end
 

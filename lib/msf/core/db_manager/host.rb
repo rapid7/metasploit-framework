@@ -56,7 +56,7 @@ module Msf::DBManager::Host
 
   # Exactly like report_host but waits for the database to create a host and returns it.
   def find_or_create_host(opts)
-    host = get_host(opts)
+    host = get_host(opts.clone)
     return host unless host.nil?
 
     report_host(opts)
