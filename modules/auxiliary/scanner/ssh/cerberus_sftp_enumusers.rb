@@ -81,7 +81,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
-    auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
+    begin
+      auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
+    rescue NoMethodError
+    end
     auth_method = auth.allowed_auth_methods.join('|')
     print_good "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
     report_service(
@@ -116,7 +119,10 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        auth.authenticate("ssh-connection", user, pass)
+        begin
+          auth.authenticate("ssh-connection", user, pass)
+        rescue NoMethodError
+        end
         auth_method = auth.allowed_auth_methods.join('|')
         if auth_method != ''
           :success
