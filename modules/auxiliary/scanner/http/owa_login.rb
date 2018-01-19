@@ -4,7 +4,6 @@
 ##
 
 require 'rex/proto/ntlm/message'
-require 'rex/socket'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -92,19 +91,6 @@ class MetasploitModule < Msf::Auxiliary
       ])
 
     deregister_options('BLANK_PASSWORDS', 'RHOSTS')
-  end
-
-  def lookup_addr(host)
-    return host if Rex::Socket.dotted_ip?(host)
-
-    begin
-      addr = Rex::Socket.resolv_to_dotted(host)
-      vprint_status("#{msg} Resolved hostname '#{host.to_s}' to address #{addr.to_s}")
-    rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
-      print_error("#{msg} Failed to lookup address for #{host}, datastore persistence skipped")
-      addr = nil
-    end
-    addr
   end
 
   def setup
@@ -211,6 +197,10 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    if res.peerinfo['addr'] != datastore['RHOST']
+      vprint_status("#{msg} Resolved hostname '#{datastore['RHOST']}' to address #{res.peerinfo['addr']}")
+    end
+
     if action.name != "OWA_2013" and res.get_cookies.empty?
         print_error("#{msg} Received invalid repsonse due to a missing cookie (possibly due to invalid version), aborting")
         return :abort
@@ -221,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
       if res.headers['location'] =~ /expiredpassword/
         print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}': NOTE password change required")
         report_cred(
-          ip: lookup_addr(datastore['RHOST']),
+          ip: res.peerinfo['addr'],
           port: datastore['RPORT'],
           service_name: 'owa',
           user: user,
@@ -235,7 +225,7 @@ class MetasploitModule < Msf::Auxiliary
       if res.headers['location'] =~ /owa/ and res.headers['location'] !~ /reason/
         print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}': NOTE a mailbox is not setup")
         report_cred(
-          ip: lookup_addr(datastore['RHOST']),
+          ip: res.peerinfo['addr'],
           port: datastore['RPORT'],
           service_name: 'owa',
           user: user,
@@ -255,7 +245,7 @@ class MetasploitModule < Msf::Auxiliary
         # Login didn't work. no point in going on, however, check if valid domain account by response time.
         if elapsed_time <= 1
           report_cred(
-            ip: lookup_addr(datastore['RHOST']),
+            ip: res.peerinfo['addr'],
             port: datastore['RPORT'],
             service_name: 'owa',
             user: user
@@ -301,7 +291,7 @@ class MetasploitModule < Msf::Auxiliary
     if res.redirect?
       if elapsed_time <= 1
         report_cred(
-          ip: lookup_addr(datastore['RHOST']),
+          ip: res.peerinfo['addr'],
           port: datastore['RPORT'],
           service_name: 'owa',
           user: user
@@ -317,7 +307,7 @@ class MetasploitModule < Msf::Auxiliary
     if res.body =~ login_check
       print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}'")
       report_cred(
-        ip: lookup_addr(datastore['RHOST']),
+        ip: res.peerinfo['addr'],
         port: datastore['RPORT'],
         service_name: 'owa',
         user: user,
@@ -327,7 +317,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       if elapsed_time <= 1
         report_cred(
-          ip: lookup_addr(datastore['RHOST']),
+          ip: res.peerinfo['addr'],
           port: datastore['RPORT'],
           service_name: 'owa',
           user: user

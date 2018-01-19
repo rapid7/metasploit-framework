@@ -238,6 +238,10 @@ class Response < Packet
   #
   attr_accessor :request
 
+  #
+  # Host address:port associated with this request/response
+  #
+  attr_accessor :peerinfo
 
   attr_accessor :code
   attr_accessor :message
