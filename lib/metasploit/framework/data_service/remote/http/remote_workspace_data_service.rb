@@ -3,8 +3,9 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteWorkspaceDataService
   include ResponseDataHelper
 
-  WORKSPACE_COUNTS_API_PATH = '/api/1/msf/workspace/counts'
-  WORKSPACE_API_PATH = '/api/1/msf/workspace'
+  # TODO: should counts be a flag in query data for the workspaces resource?
+  WORKSPACE_COUNTS_API_PATH = '/api/v1/workspaces/counts'
+  WORKSPACE_API_PATH = '/api/v1/workspaces'
   WORKSPACE_MDM_CLASS = 'Mdm::Workspace'
   DEFAULT_WORKSPACE_NAME = 'default'
 

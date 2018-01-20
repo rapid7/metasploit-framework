@@ -1,7 +1,7 @@
 module NoteServlet
 
   def self.api_path
-    '/api/1/msf/note'
+    '/api/v1/notes'
   end
 
   def self.registered(app)
