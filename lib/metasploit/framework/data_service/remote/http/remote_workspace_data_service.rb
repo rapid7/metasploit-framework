@@ -39,7 +39,7 @@ module RemoteWorkspaceDataService
   end
 
   def workspace_associations_counts()
-    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, []), WORKSPACE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(WORKSPACE_COUNTS_API_PATH, []), WORKSPACE_MDM_CLASS, [])
   end
 
   #########
