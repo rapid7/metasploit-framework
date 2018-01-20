@@ -97,7 +97,14 @@ class MetasploitModule < Msf::Auxiliary
 
       print_good "#{ip}:#{rport} is VULNERABLE"
 
-      report_service(host: ip, port: rport, proto: 'udp', name: 'infosvr', info: pkt.payload.to_s)
+      report_service host: ip, port: rport, proto: 'udp', name: 'infosvr'
+      report_vuln host: ip,
+                  port: rport,
+                  proto: 'udp',
+                  name: 'infosvr',
+                  info: "Module #{self.fullname} confirmed remote command execution via this ASUS infosvr service",
+                  refs: self.references,
+                  exploited_at: Time.now.utc
       found[ip] = true
     end
   end
