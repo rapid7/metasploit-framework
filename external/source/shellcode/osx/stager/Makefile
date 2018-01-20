@@ -9,11 +9,7 @@ GCC_BIN_OSX=`xcrun --sdk macosx -f gcc`
 GCC_BASE_OSX=$(GCC_BIN_OSX) -Os $(CFLAGS) 
 GCC_OSX=$(GCC_BASE_OSX) -arch x86_64
 
-all: clean main_ios main_osx
-
-main_ios: main.c
-	$(GCC) -o $@ $^
-	ldid -S $@
+all: clean main_osx
 
 main_osx: main.c
 	$(GCC_OSX) -o $@ $^
