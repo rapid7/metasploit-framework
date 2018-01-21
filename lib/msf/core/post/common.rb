@@ -111,14 +111,13 @@ module Msf::Post::Common
       o = ""
       # Wait up to time_out seconds for the first bytes to arrive
       while (d = process.channel.read)
+        o << d
         if d == ""
-          if (Time.now.to_i - start < time_out) && (o == '')
+          if Time.now.to_i - start < time_out
             sleep 0.1
           else
             break
           end
-        else
-          o << d
         end
       end
       o.chomp! if o
