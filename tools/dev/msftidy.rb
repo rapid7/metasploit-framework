@@ -529,10 +529,6 @@ class Msftidy
       src_ended = true if ln =~ /^__END__$/
       next if src_ended
 
-      if ln =~ /[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]/
-        error("Unicode detected: #{ln.inspect}", idx)
-      end
-
       if ln =~ /[ \t]$/
         warn("Spaces at EOL", idx)
       end
