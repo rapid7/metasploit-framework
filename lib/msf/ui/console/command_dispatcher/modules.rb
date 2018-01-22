@@ -78,6 +78,7 @@ module Msf
           #
           def cmd_edit(*args)
             editing_module = false
+
             if args.length > 0
               path = args[0]
             elsif active_module
@@ -85,28 +86,29 @@ module Msf
               path = active_module.file_path
             end
 
-            if path
-              editor = local_editor
+            if path.nil?
+              print_error('Nothing to edit. Try using a module first or specifying a library file to edit.')
+              return
+            end
 
-              if editor.nil?
-                editor = 'vim'
-                print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
-              end
+            editor = local_editor
 
-              print_status("Launching #{editor} #{path}")
-              system(*editor.split, path)
+            if editor.nil?
+              editor = 'vim'
+              print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
+            end
 
-              # XXX: This will try to reload *any* .rb and break on modules
-              if !editing_module
-                if path.end_with?('.rb')
-                  print_status("Reloading #{path}")
-                  load path
-                else
-                  print_error("Only library files can be reloaded after editing (use reload/rerun for modules)")
-                end
-              end
+            print_status("Launching #{editor} #{path}")
+            system(*editor.split, path)
+
+            return if editing_module
+
+            # XXX: This will try to reload *any* .rb and break on modules
+            if path.end_with?('.rb')
+              print_status("Reloading #{path}")
+              load path
             else
-              print_error('Nothing to edit -- try using a module first, or specifying a library file to edit.')
+              print_error('Only library files can be reloaded after editing.')
             end
           end
 
