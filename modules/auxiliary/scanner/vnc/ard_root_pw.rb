@@ -81,6 +81,9 @@ class MetasploitModule < Msf::Auxiliary
           log_credential(password)
           return
         end
+      else
+        print_error("VNC handshake failed.")
+        return
       end
       disconnect
 
@@ -92,6 +95,9 @@ class MetasploitModule < Msf::Auxiliary
           log_credential(password)
           return
         end
+      else
+        print_error("VNC handshake failed.")
+        return
       end
       disconnect
 
@@ -103,6 +109,9 @@ class MetasploitModule < Msf::Auxiliary
           log_credential('')
           return
         end
+      else
+        print_error("VNC handshake failed.")
+        return
       end
 
     ensure

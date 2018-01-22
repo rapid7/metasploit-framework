@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Looking for services on #{ip}:#{rport}...")
 
         ids = dcerpc_mgmt_inq_if_ids(rport)
-        return if not ids
+        next if not ids
 
         ids.each do |id|
           if (not servs.has_key?(id[0]+'_'+id[1]))

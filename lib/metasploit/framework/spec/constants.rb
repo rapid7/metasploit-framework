@@ -22,6 +22,7 @@ module Metasploit::Framework::Spec::Constants
     Error
     External
     Loader
+    Metadata
     MetasploitClassCompatibilityError
     Namespace
     VersionCompatibilityError

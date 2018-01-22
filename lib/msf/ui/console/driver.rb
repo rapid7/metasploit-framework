@@ -23,7 +23,7 @@ class Driver < Msf::Ui::Driver
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
 
-  DefaultPrompt     = "%undmsf%clr"
+  DefaultPrompt     = "%undmsf5%clr"
   DefaultPromptChar = "%clr>"
 
   #
@@ -196,7 +196,7 @@ class Driver < Msf::Ui::Driver
       self.framework.init_module_paths(module_paths: opts['ModulePath'])
     end
 
-    if framework.db.active && !opts['DeferModuleLoads']
+    if !opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files
       end
