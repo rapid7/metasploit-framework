@@ -118,10 +118,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        begin
-          auth.authenticate("ssh-connection", user, pass)
-        rescue NoMethodError
-        end
+        auth.authenticate("ssh-connection", user, pass)
         auth_method = auth.allowed_auth_methods.join('|')
         if auth_method != ''
           :success
