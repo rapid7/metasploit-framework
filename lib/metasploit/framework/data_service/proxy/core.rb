@@ -144,7 +144,7 @@ class DataProxy
       if !db_manager.nil?
         register_data_service(db_manager, true)
         @usable = true
-      elsif (opts['DatabaseRemoteProcess'])
+      elsif opts['DatabaseRemoteProcess']
         run_remote_db_process(opts)
         @usable = true
       else

@@ -90,13 +90,11 @@ module Msf
           end
 
           def cmd_set_data_service(service_id)
-            data_proxy = Metasploit::Framework::DataService::DataProxy.instance
-            data_proxy.set_data_service(service_id)
+            framework.db.set_data_service(service_id)
           end
 
           def cmd_list_data_services()
-            data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
-            data_service_manager.print_data_services
+            framework.db.print_data_services
           end
 
           def cmd_add_data_service(*args)
@@ -111,8 +109,7 @@ module Msf
 
             remote_service_endpoint = Metasploit::Framework::DataService::RemoteServiceEndpoint.new(host, port)
             remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(remote_service_endpoint)
-            data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
-            data_service_manager.register_data_service(remote_data_service)
+            framework.db.register_data_service(remote_data_service)
           end
 
           def cmd_test_data_service_host(*args)
@@ -129,8 +126,7 @@ module Msf
             end
 
             puts 'Reporting test host to data service'
-            data_service = Metasploit::Framework::DataService::DataProxy.instance
-            data_service.report_host host
+            framework.db.report_host host
           end
 
           def cmd_test_data_service_loot(*args)
@@ -153,8 +149,7 @@ module Msf
             end
 
             puts 'Reporting test loot to data service'
-            data_service = Metasploit::Framework::DataService::DataProxy.instance
-            data_service.report_loot loot
+            framework.db.report_loot loot
           end
 
           def cmd_perf_test_data_service_loot(*args)
@@ -198,11 +193,10 @@ module Msf
             end
 
             puts 'Reporting test loot to data service'
-            data_service = Metasploit::Framework::DataService::DataProxy.instance
             start_time = Time.now
             puts "#{start_time} - Staring loot perf test"
             loots.each do |loot|
-              data_service.report_loot loot
+              framework.db.report_loot loot
             end
             end_time = Time.now
             puts "#{end_time} - Ending loot perf test. Duration was #{end_time - start_time}"
