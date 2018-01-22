@@ -71,6 +71,8 @@ class MetasploitModule < Msf::Auxiliary
       auth_methods:  ['password', 'keyboard-interactive'],
       use_agent:     false,
       config:        false,
+      password_prompt: Net::SSH::Prompt.new,
+      non_interactive: true,
       proxies:       datastore['Proxies']
     }
 
@@ -81,10 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
-    begin
-      auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
-    rescue NoMethodError
-    end
+    auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
     auth_method = auth.allowed_auth_methods.join('|')
     print_good "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
     report_service(
