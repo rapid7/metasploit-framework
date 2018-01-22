@@ -3,7 +3,7 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteCredentialDataService
   include ResponseDataHelper
 
-  CREDENTIAL_API_PATH = '/api/1/msf/credential'
+  CREDENTIAL_API_PATH = '/api/v1/credentials'
   # "MDM_CLASS" is a little misleading since it is not in that repo but trying to keep naming consistent across DataServices
   CREDENTIAL_MDM_CLASS = 'Metasploit::Credential::Core'
 

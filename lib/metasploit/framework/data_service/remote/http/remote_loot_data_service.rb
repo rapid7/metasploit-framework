@@ -3,7 +3,7 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteLootDataService
   include ResponseDataHelper
 
-  LOOT_API_PATH = '/api/1/msf/loot'
+  LOOT_API_PATH = '/api/v1/loots'
   LOOT_MDM_CLASS = 'Mdm::Loot'
 
   def loot(opts = {})

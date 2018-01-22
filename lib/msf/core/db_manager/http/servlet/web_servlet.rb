@@ -1,7 +1,7 @@
 module WebServlet
 
   def self.api_path
-    '/api/1/msf/web'
+    '/api/v1/webs'
   end
 
   def self.registered(app)

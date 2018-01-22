@@ -1,7 +1,7 @@
 module VulnServlet
 
   def self.api_path
-    '/api/1/msf/vuln'
+    '/api/v1/vulns'
   end
 
   def self.registered(app)

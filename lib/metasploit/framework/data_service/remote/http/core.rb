@@ -15,7 +15,7 @@ class RemoteHTTPDataService
   include Metasploit::Framework::DataService
   include DataServiceAutoLoader
 
-  ONLINE_TEST_URL = "/api/1/msf/online"
+  ONLINE_TEST_URL = "/api/v1/online"
   EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
