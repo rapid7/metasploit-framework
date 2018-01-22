@@ -71,6 +71,8 @@ class MetasploitModule < Msf::Auxiliary
       auth_methods:  ['password', 'keyboard-interactive'],
       use_agent:     false,
       config:        false,
+      password_prompt: Net::SSH::Prompt.new,
+      non_interactive: true,
       proxies:       datastore['Proxies']
     }
 
@@ -116,7 +118,10 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        auth.authenticate("ssh-connection", user, pass)
+        begin
+          auth.authenticate("ssh-connection", user, pass)
+        rescue NoMethodError
+        end
         auth_method = auth.allowed_auth_methods.join('|')
         if auth_method != ''
           :success
