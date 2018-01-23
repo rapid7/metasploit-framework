@@ -101,6 +101,7 @@ module Msf
           def cmd_add_data_service(*args)
             protocol = "http"
             port = 80
+            https_opts = {}
             while (arg = args.shift)
               case arg
                 when '-h', '--help'
@@ -110,6 +111,10 @@ module Msf
                   port = args.shift
                 when '-s', '--ssl'
                   protocol = "https"
+                when '-c'
+                  https_opts[:cert] = args.shift
+                when '--skip-verify'
+                  https_opts[:skip_verify] = true
                 else
                   host = arg
               end
@@ -121,7 +126,7 @@ module Msf
             end
 
             endpoint = "#{protocol}://#{host}:#{port}"
-            remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint)
+            remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
             data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
             data_service_manager.register_data_service(remote_data_service)
           end
@@ -131,8 +136,10 @@ module Msf
             print_line
             print_line "OPTIONS:"
             print_line "  -h, --help        Show this help information."
-            print_line "  -p <port>         The port the data service is listening on. Default is 80"
+            print_line "  -p <port>         The port the data service is listening on. Default is 80."
             print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
+            print_line "  -c                Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
+            print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
             print_line
           end
 

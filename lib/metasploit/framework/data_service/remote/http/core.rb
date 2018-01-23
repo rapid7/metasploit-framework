@@ -22,9 +22,10 @@ class RemoteHTTPDataService
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
-  def initialize(endpoint)
+  def initialize(endpoint, https_opts = {})
     validate_endpoint(endpoint)
     @endpoint = URI.parse(endpoint)
+    @https_opts = https_opts
     build_client_pool(5)
   end
 
@@ -244,10 +245,37 @@ class RemoteHTTPDataService
       http = Net::HTTP.new(@endpoint.host, @endpoint.port)
       if @endpoint.is_a?(URI::HTTPS)
         http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        unless @https_opts.empty?
+          if @https_opts[:skip_verify]
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          else
+            # https://stackoverflow.com/questions/22093042/implementing-https-certificate-pubkey-pinning-with-ruby
+            user_passed_cert = OpenSSL::X509::Certificate.new(File.read(@https_opts[:cert]))
+
+            http.verify_callback = lambda do |preverify_ok, cert_store|
+              server_cert = cert_store.chain[0]
+              return true unless server_cert.to_der == cert_store.current_cert.to_der
+              same_public_key?(server_cert, user_passed_cert)
+            end
+          end
+        end
       end
       @client_pool << http
     }
+  end
+
+  # Tells us whether the private keys on the passed certificates match
+  # and use the same algo
+  def same_public_key?(ref_cert, actual_cert)
+    pkr, pka = ref_cert.public_key, actual_cert.public_key
+
+    # First check if the public keys use the same crypto...
+    return false unless pkr.class == pka.class
+    # ...and then - that they have the same contents
+    return false unless pkr.to_pem == pka.to_pem
+
+    true
   end
 
   def try_sound_effect()
