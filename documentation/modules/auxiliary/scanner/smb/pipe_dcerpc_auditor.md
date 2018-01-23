@@ -14,19 +14,6 @@ The pipe_dcerpc_auditor scanner will return the DCERPC services that can be acce
 **Running the scanner**
 ```
 msf > use auxiliary/scanner/smb/pipe_dcerpc_auditor
-msf auxiliary(pipe_dcerpc_auditor) > show options
-
-Module options:
-
-   Name       Current Setting    Required  Description
-   ----       ---------------    --------  -----------
-   RHOSTS     192.168.1.150-160  yes       The target address range or CIDR identifier
-   SMBDomain  WORKGROUP          no        The Windows domain to use for authentication
-   SMBPIPE    BROWSER            yes       The pipe name to use (BROWSER)
-   SMBPass                       no        The password for the specified username
-   SMBUser                       no        The username to authenticate as
-   THREADS    11                 yes       The number of concurrent threads
-
 msf auxiliary(pipe_dcerpc_auditor) > set RHOSTS 192.168.1.150-160
 RHOSTS => 192.168.1.150-160
 msf auxiliary(pipe_dcerpc_auditor) > set THREADS 11

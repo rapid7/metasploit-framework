@@ -43,7 +43,7 @@ msf auxiliary(pipe_auditor) > run
 
 ```
 
-We can see that running the scanner without credentials does not return a great deal of information. If, however, you have been provided with credentials as part of a pentest, you will find that the pipe_auditor scanner returns a great deal more information.
+We can see that running the scanner "###uncredentialed" does not return a great deal of information. If, however, running a "###credentialed", you will find that the pipe_auditor scanner returns a great deal more information.
 
 ```
 msf auxiliary(pipe_auditor) > set SMBPass s3cr3t
