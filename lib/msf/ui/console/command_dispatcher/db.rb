@@ -111,7 +111,7 @@ module Msf
                   port = args.shift
                 when '-s', '--ssl'
                   protocol = "https"
-                when '-c'
+                when '-c', '--cert'
                   https_opts[:cert] = args.shift
                 when '--skip-verify'
                   https_opts[:skip_verify] = true
@@ -138,7 +138,7 @@ module Msf
             print_line "  -h, --help        Show this help information."
             print_line "  -p <port>         The port the data service is listening on. Default is 80."
             print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
-            print_line "  -c                Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
+            print_line "  -c, --cert        Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
             print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
             print_line
           end
