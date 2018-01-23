@@ -66,17 +66,17 @@ class Scan:
 async def probe_host(host, port, payload, connect_timeout, read_timeout):
     buf = bytearray()
 
-    async with timeout(connect_timeout):
-        r, w = await asyncio.open_connection(host, port)
-        remote = w.get_extra_info('peername')
-        if remote[0] == host:
-            module.log('{}:{} - Connected'.format(host, port), level='debug')
-        else:
-            module.log('{}({}):{} - Connected'.format(host, *remote), level='debug')
-        w.write(payload)
-        await w.drain()
-
     try:
+        async with timeout(connect_timeout):
+            r, w = await asyncio.open_connection(host, port)
+            remote = w.get_extra_info('peername')
+            if remote[0] == host:
+                module.log('{}:{} - Connected'.format(host, port), level='debug')
+            else:
+                module.log('{}({}):{} - Connected'.format(host, *remote), level='debug')
+            w.write(payload)
+            await w.drain()
+
         async with timeout(read_timeout):
             while len(buf) < 4096:
                 data = await r.read(4096)
@@ -90,6 +90,12 @@ async def probe_host(host, port, payload, connect_timeout, read_timeout):
             pass
         else:
             raise
+    finally:
+        try:
+            w.close()
+        except Exception:
+            # Either we got something and the socket got in a bad state, or the
+            # original error will point to the root cause
+            pass
 
-    w.close()
     return buf
