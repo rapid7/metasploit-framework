@@ -41,8 +41,8 @@ if __name__ == "__main__":
     study = probe_scanner.make_scanner(
         # Payload and pattern are given and applied straight to the socket, so
         # they need to be bytes-like
-        payload = b'\x2a\xce\x00\x00\x00\x00\x00\x00\x00\x00\x00',
-        pattern = b'^\\*\xce.{3}$',
-        onmatch = report_wproxy
+        payload=b'\x2a\xce\x00\x00\x00\x00\x00\x00\x00\x00\x00',
+        pattern=b'^\\*\xce.{3}$',
+        onmatch=report_wproxy
     )
     module.run(metadata, study)
