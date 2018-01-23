@@ -17,19 +17,6 @@ To configure the module, we set the RHOSTS and THREADS values and let it run aga
 
 ```
 msf > use auxiliary/scanner/mssql/mssql_ping
-msf auxiliary(mssql_ping) > show options
-
-Module options (auxiliary/scanner/mssql/mssql_ping):
-
-   Name                 Current Setting  Required  Description
-   ----                 ---------------  --------  -----------
-   PASSWORD                              no        The password for the specified username
-   RHOSTS                                yes       The target address range or CIDR identifier
-   TDSENCRYPTION        false            yes       Use TLS/SSL for TDS data "Force Encryption"
-   THREADS              1                yes       The number of concurrent threads
-   USERNAME             sa               no        The username to authenticate as
-   USE_WINDOWS_AUTHENT  false            yes       Use windows authentification (requires DOMAIN option set)
-
 msf auxiliary(mssql_ping) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(mssql_ping) > set THREADS 20
@@ -63,5 +50,3 @@ msf auxiliary(mssql_ping) > run
 [*] Auxiliary module execution completed
 msf auxiliary(mssql_ping) >
 ```
-
-As can be seen from the module output, not only does it return the listening TCP port, it returns other valuable information such as the InstanceName and ServerName values.

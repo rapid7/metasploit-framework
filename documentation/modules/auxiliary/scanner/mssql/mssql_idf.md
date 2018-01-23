@@ -16,18 +16,6 @@ To configure the module, set it to look for field names of ‘username’ and �
 **Running the scanner**
 ```
 msf > use auxiliary/admin/mssql/mssql_idf
-msf auxiliary(mssql_idf) > show options
-
-Module options (auxiliary/admin/mssql/mssql_idf):
-
-   Name      Current Setting         Required  Description
-   ----      ---------------         --------  -----------
-   NAMES     passw|bank|credit|card  yes       Pipe separated list of column names
-   PASSWORD                          no        The password for the specified username
-   RHOST                             yes       The target address
-   RPORT     1433                    yes       The target port
-   USERNAME  sa                      no        The username to authenticate as
-
 msf auxiliary(mssql_idf) > set NAMES username|password
 NAMES => username|password
 msf auxiliary(mssql_idf) > set PASSWORD password1
@@ -55,5 +43,3 @@ logins   dbo    userpass       password              varchar   3
 [*] Auxiliary module execution completed
 msf auxiliary(mssql_idf) >
 ```
-
-As can be seen in the module output, the scanner found our ‘logins’ database with a ‘userpass’ table containing username and password columns.
