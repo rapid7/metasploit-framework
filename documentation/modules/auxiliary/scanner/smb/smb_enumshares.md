@@ -55,7 +55,7 @@ Error: 192.168.1.150 Rex::Proto::SMB::Exceptions::ErrorCode The server responded
 msf auxiliary(smb_enumshares) >
 ```
 
-As you can see, since this is an un-credentialed scan, access is denied a most of the systems that are probed. Passing user credentials to the scanner will produce much different results.
+As you can see, since this is an "###uncredentialed" scan, access is denied a most of the systems that are probed. Doing a "###credentialed" scan produces much different results.
 
 ```
 msf auxiliary(smb_enumshares) > set SMBPass s3cr3t

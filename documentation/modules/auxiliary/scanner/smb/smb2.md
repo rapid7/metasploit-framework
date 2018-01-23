@@ -14,16 +14,6 @@ The SMB2 scanner module simply scans the remote hosts and determines if they sup
 **Running the scanner**
 ```
 msf > use auxiliary/scanner/smb/smb2
-msf auxiliary(smb2) > show options
-
-Module options:
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    445              yes       The target port
-   THREADS  1                yes       The number of concurrent threads
-
 msf auxiliary(smb2) > set RHOSTS 192.168.1.150-165
 RHOSTS => 192.168.1.150-165
 msf auxiliary(smb2) > set THREADS 16
