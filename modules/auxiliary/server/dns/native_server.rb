@@ -36,6 +36,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       start_service
       service.wait
+    rescue Rex::BindFailed => e
+      print_error "Failed to bind to port #{datastore['RPORT']}: #{e.message}"
     ensure
       stop_service(true)
     end

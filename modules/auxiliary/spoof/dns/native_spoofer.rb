@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FILTER', [false, 'The filter string for capturing traffic', 'dst port 53']),
         OptAddress.new('SRVHOST', [true, 'The local host to listen on for DNS services.', '127.0.2.2'])
-      ], self.class)
+      ])
 
     deregister_options('PCAPFILE')
   end
@@ -46,6 +46,8 @@ class MetasploitModule < Msf::Auxiliary
       start_service
       capture_traffic
       service.wait
+    rescue Rex::BindFailed => e
+      print_error "Failed to bind to port #{datastore['RPORT']}: #{e.message}"
     ensure
       @capture_thread.kill if @capture_thread
       close_pcap
