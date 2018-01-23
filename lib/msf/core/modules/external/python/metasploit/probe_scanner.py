@@ -1,8 +1,9 @@
-import socket, re, functools
 import asyncio
+import functools
+import re
 
-from metasploit import module
 from async_timeout import timeout
+from metasploit import module
 
 
 def make_scanner(payload='', pattern='', onmatch=None, connect_timeout=3, read_timeout=10):
@@ -40,7 +41,6 @@ class Scan:
             target = (args['host'], args['port'])
             f.add_done_callback(functools.partial(self.__queue_result, target))
 
-
     def __queue_result(self, target, f):
         res = None
 
@@ -51,10 +51,8 @@ class Scan:
 
         self.queue.put_nowait((target, res))
 
-
     async def __aiter__(self):
         return self
-
 
     async def __anext__(self):
         if self.done == self.total:
@@ -66,8 +64,6 @@ class Scan:
 
 
 async def probe_host(host, port, payload, connect_timeout, read_timeout):
-    r = None
-    w = None
     buf = bytearray()
 
     async with timeout(connect_timeout):
