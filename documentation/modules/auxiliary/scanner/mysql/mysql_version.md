@@ -17,16 +17,6 @@ To configure the module, we simply set our RHOSTS and THREADS values and let it 
 
 ```
 msf > use auxiliary/scanner/mysql/mysql_version 
-msf auxiliary(mysql_version) > show options
-
-Module options (auxiliary/scanner/mysql/mysql_version):
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    3306             yes       The target port
-   THREADS  1                yes       The number of concurrent threads
-
 msf auxiliary(mysql_version) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(mysql_version) > set THREADS 20
