@@ -65,6 +65,12 @@ module Msf
       end
 
       def generate_config(opts={})
+        ds = opts[:datastore] || datastore
+
+        if ds['PayloadProcessCommandLine'] != ''
+          opts[:name] ||= ds['PayloadProcessCommandLine']
+        end
+
         opts[:uuid] ||= generate_payload_uuid
 
         case opts[:scheme]
@@ -85,7 +91,7 @@ module Msf
         end
         opts[:session_guid] = Base64.encode64(guid).strip
 
-        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file)
+        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name)
       end
 
     end
