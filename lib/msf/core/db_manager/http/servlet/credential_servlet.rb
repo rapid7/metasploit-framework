@@ -1,7 +1,7 @@
 module CredentialServlet
 
   def self.api_path
-    '/api/1/msf/credential'
+    '/api/v1/credentials'
   end
 
   def self.registered(app)

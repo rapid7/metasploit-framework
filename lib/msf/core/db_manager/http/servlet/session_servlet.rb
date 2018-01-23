@@ -1,6 +1,6 @@
 module SessionServlet
   def self.api_path
-    '/api/1/msf/session'
+    '/api/v1/sessions'
   end
 
   def self.registered(app)
