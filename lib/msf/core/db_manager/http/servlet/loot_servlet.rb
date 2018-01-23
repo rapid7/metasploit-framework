@@ -1,7 +1,7 @@
 module LootServlet
 
   def self.api_path
-    '/api/1/msf/loot'
+    '/api/v1/loots'
   end
 
   def self.registered(app)

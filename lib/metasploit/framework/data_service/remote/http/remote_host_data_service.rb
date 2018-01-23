@@ -3,7 +3,7 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteHostDataService
   include ResponseDataHelper
 
-  HOST_API_PATH = '/api/1/msf/host'
+  HOST_API_PATH = '/api/v1/hosts'
   HOST_SEARCH_PATH = HOST_API_PATH + "/search"
   HOST_MDM_CLASS = 'Mdm::Host'
 

@@ -1,7 +1,7 @@
 module SessionEventServlet
 
   def self.api_path
-    '/api/1/msf/session_event'
+    '/api/v1/session-events'
   end
 
   def self.registered(app)

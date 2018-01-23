@@ -1,7 +1,7 @@
 module WorkspaceServlet
 
     def self.api_path
-      '/api/1/msf/workspace'
+      '/api/v1/workspaces'
     end
 
     def self.registered(app)

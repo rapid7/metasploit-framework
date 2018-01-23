@@ -3,7 +3,7 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteNmapDataService
   include ResponseDataHelper
 
-  NMAP_PATH = '/api/1/msf/nmap'
+  NMAP_PATH = '/api/v1/nmaps'
 
   def import_nmap_xml_file(opts)
     filename = opts[:filename]

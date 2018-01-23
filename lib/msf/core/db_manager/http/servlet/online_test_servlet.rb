@@ -1,7 +1,7 @@
 module OnlineTestServlet
 
   def self.api_path
-    '/api/1/msf/online'
+    '/api/v1/online'
   end
 
   def self.registered(app)

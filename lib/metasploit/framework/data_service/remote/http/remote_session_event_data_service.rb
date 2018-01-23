@@ -3,7 +3,7 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteSessionEventDataService
   include ResponseDataHelper
 
-  SESSION_EVENT_API_PATH = '/api/1/msf/session_event'
+  SESSION_EVENT_API_PATH = '/api/v1/session-events'
   SESSION_EVENT_MDM_CLASS = 'Mdm::SessionEvent'
 
   def session_events(opts = {})

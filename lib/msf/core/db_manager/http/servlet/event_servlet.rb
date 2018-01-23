@@ -1,7 +1,7 @@
 module EventServlet
 
   def self.api_path
-    '/api/1/msf/event'
+    '/api/v1/events'
   end
 
   def self.registered(app)
