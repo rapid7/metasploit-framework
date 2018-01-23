@@ -131,8 +131,9 @@ class Msf::Modules::External::Bridge
           raise EOFError.new
         else
           fds = res[0]
-          # Preferentially drain and log stderr
-          if fds.include? err
+          # Preferentially drain and log stderr, EOF counts as activity, but
+          # stdout might have some buffered data left, so carry on
+          if fds.include?(err) && !err.eof?
             errbuf = err.readpartial(4096)
             elog "Unexpected output running #{self.path}:\n#{errbuf}"
           end
