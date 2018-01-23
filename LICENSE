@@ -75,6 +75,10 @@ Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*
 Copyright: 2006-2010 Yoann GUILLOT
 License: LGPL-2.1
 
+Files: lib/msf/core/modules/external/python/async_timeout/*
+Copyright: 2016-2017 Andrew Svetlov
+License: Apache 2.0
+
 Files: lib/net/dns.rb lib/net/dns/*
 Copyright: 2006 Marco Ceresa
 License: Ruby
