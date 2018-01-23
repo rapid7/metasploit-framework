@@ -175,6 +175,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nessus_rest'
   # Nexpose Gem
   spec.add_runtime_dependency 'nexpose'
-  # Dnsruby Gem
-  spec.add_runtime_dependency 'dnsruby'
 end
