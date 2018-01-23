@@ -89,13 +89,11 @@ module Msf
           end
 
           def cmd_set_data_service(service_id)
-            data_proxy = Metasploit::Framework::DataService::DataProxy.instance
-            data_proxy.set_data_service(service_id)
+            framework.db.set_data_service(service_id)
           end
 
           def cmd_list_data_services()
-            data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
-            data_service_manager.print_data_services
+            framework.db.print_data_services
           end
 
           def cmd_add_data_service(*args)
@@ -127,8 +125,7 @@ module Msf
 
             endpoint = "#{protocol}://#{host}:#{port}"
             remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
-            data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
-            data_service_manager.register_data_service(remote_data_service)
+            framework.db.register_data_service(remote_data_service)
           end
 
           def cmd_add_data_service_help
@@ -157,8 +154,7 @@ module Msf
             end
 
             puts 'Reporting test host to data service'
-            data_service = Metasploit::Framework::DataService::DataProxy.instance
-            data_service.report_host host
+            framework.db.report_host host
           end
 
           def cmd_test_data_service_loot(*args)
@@ -181,8 +177,7 @@ module Msf
             end
 
             puts 'Reporting test loot to data service'
-            data_service = Metasploit::Framework::DataService::DataProxy.instance
-            data_service.report_loot loot
+            framework.db.report_loot loot
           end
 
           def cmd_perf_test_data_service_loot(*args)
@@ -226,11 +221,10 @@ module Msf
             end
 
             puts 'Reporting test loot to data service'
-            data_service = Metasploit::Framework::DataService::DataProxy.instance
             start_time = Time.now
             puts "#{start_time} - Staring loot perf test"
             loots.each do |loot|
-              data_service.report_loot loot
+              framework.db.report_loot loot
             end
             end_time = Time.now
             puts "#{end_time} - Ending loot perf test. Duration was #{end_time - start_time}"
@@ -284,9 +278,11 @@ module Msf
               end
               framework.db.workspace = workspace
             elsif deleting and names
-              framework.db.delete_workspaces(names)
+              status_msg, error_msg = framework.db.delete_workspaces(names)
+              print_msgs(status_msg, error_msg)
             elsif delete_all
-              framework.db.delete_all_workspaces()
+              status_msg, error_msg = framework.db.delete_all_workspaces()
+              print_msgs(status_msg, error_msg)
             elsif renaming
               if names.length != 2
                 print_error("Wrong number of arguments to rename")
@@ -2018,6 +2014,18 @@ module Msf
               # Restart the loop with the same RangeWalker if we didn't get
               # to the end of it in this chunk.
               redo unless end_of_range
+            end
+          end
+
+          private
+
+          def print_msgs(status_msg, error_msg)
+            status_msg.each do |s|
+              print_status(s)
+            end
+
+            error_msg.each do |e|
+              print_error(e)
             end
           end
 

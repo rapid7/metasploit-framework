@@ -1,7 +1,7 @@
 module HostServlet
 
   def self.api_path
-    '/api/1/msf/host'
+    '/api/v1/hosts'
   end
 
   def self.registered(app)

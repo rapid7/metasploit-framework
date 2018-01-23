@@ -1,8 +1,6 @@
-require 'singleton'
 require 'open3'
 require 'rex/ui'
 require 'rex/logging'
-require 'msf/core/db_manager'
 require 'metasploit/framework/data_service/remote/http/core'
 require 'metasploit/framework/data_service/proxy/data_proxy_auto_loader'
 
@@ -14,10 +12,16 @@ module Metasploit
 module Framework
 module DataService
 class DataProxy
-  include Singleton
   include DataProxyAutoLoader
 
   attr_reader :usable
+
+  def initialize(opts = {})
+    @data_services = {}
+    @data_service_id = 0
+    @usable = false
+    setup(opts)
+  end
 
   #
   # Returns current error state
@@ -45,34 +49,6 @@ class DataProxy
     end
 
     return false
-  end
-
-  #
-  # Initializes the data service to be used - primarily on startup
-  #
-  def init(framework, opts)
-    @mutex.synchronize {
-      if (@initialized)
-        return
-      end
-
-      begin
-        if (opts['DisableDatabase'])
-          @error = 'disabled'
-          return
-        elsif (opts['DatabaseRemoteProcess'])
-          run_remote_db_process(opts)
-        else
-          run_local_db_process(framework, opts)
-        end
-        @usable = true
-        @initialized = true
-      rescue Exception => e
-        puts "Unable to initialize a dataservice #{e.message}"
-        return
-      end
-    }
-
   end
 
   #
@@ -130,6 +106,14 @@ class DataProxy
     end
   end
 
+  def respond_to?(method_name, include_private=false)
+    unless @data_service.nil?
+      return @data_service.respond_to?(method_name, include_private)
+    end
+
+    false
+  end
+
   #
   # Attempt to shutdown the local db process if it exists
   #
@@ -144,10 +128,6 @@ class DataProxy
     end
   end
 
-  #########
-  protected
-  #########
-
   def get_data_service
     raise 'No registered data_service' unless @data_service
     return @data_service
@@ -157,12 +137,21 @@ class DataProxy
   private
   #######
 
-  def initialize
-    @data_services = {}
-    @data_service_id = 0
-    @usable = false
-    @initialized = false
-    @mutex = Mutex.new()
+  def setup(opts)
+    begin
+      db_manager = opts.delete(:db_manager)
+      if !db_manager.nil?
+        register_data_service(db_manager, true)
+        @usable = true
+      elsif opts['DatabaseRemoteProcess']
+        run_remote_db_process(opts)
+        @usable = true
+      else
+        @error = 'disabled'
+      end
+    rescue Exception => e
+      puts "Unable to initialize a dataservice #{e.message}"
+    end
   end
 
   def validate(data_service)
@@ -181,15 +170,6 @@ class DataProxy
     return false
   end
 
-
-  def run_local_db_process(framework, opts)
-    puts 'Initializing local db process'
-    db_manager = Msf::DBManager.new(framework)
-    if (db_manager.usable and not opts['SkipDatabaseInit'])
-        register_data_service(db_manager, true)
-        db_manager.init_db(opts)
-    end
-  end
 
   def run_remote_db_process(opts)
     # started with no signal to prevent ctrl-c from taking out db

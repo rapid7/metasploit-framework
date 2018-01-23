@@ -1,6 +1,6 @@
 module RemoteSessionDataService
 
-  SESSION_API_PATH = '/api/1/msf/session'
+  SESSION_API_PATH = '/api/v1/sessions'
   SESSION_MDM_CLASS = 'Mdm::Session'
 
   def report_session(opts)

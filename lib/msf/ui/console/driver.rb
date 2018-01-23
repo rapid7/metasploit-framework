@@ -122,7 +122,6 @@ class Driver < Msf::Ui::Driver
       enstack_dispatcher(dispatcher)
     end
 
-    framework.db.init(framework, opts)
     if (framework.db.active)
         require 'msf/ui/console/command_dispatcher/db'
         enstack_dispatcher(CommandDispatcher::Db)

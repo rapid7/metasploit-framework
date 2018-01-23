@@ -393,7 +393,6 @@ class Creds
     }
 
     tbl = Rex::Text::Table.new(tbl_opts)
-    opts = {}
     opts[:wspace] = framework.db.workspace
     query = framework.db.creds(opts)
 

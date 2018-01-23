@@ -199,7 +199,7 @@ class Framework
   # @return [Metasploit::Framework::DataService::DataProxy]
   def db
     synchronize {
-      @db ||= Metasploit::Framework::DataService::DataProxy.instance
+      @db ||= get_db
     }
   end
 
@@ -268,6 +268,19 @@ protected
   attr_writer   :db # :nodoc:
   attr_writer   :uuid_db # :nodoc:
   attr_writer   :browser_profiles # :nodoc:
+
+  private
+
+  def get_db
+    if !options['DatabaseRemoteProcess'] && !options['DisableDatabase']
+      db_manager = Msf::DBManager.new(self)
+      db_manager.init_db(options)
+      options[:db_manager] = db_manager
+    end
+
+    Metasploit::Framework::DataService::DataProxy.new(options)
+  end
+
 end
 
 class FrameworkEventSubscriber

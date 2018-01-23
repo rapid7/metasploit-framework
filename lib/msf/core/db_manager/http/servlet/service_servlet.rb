@@ -1,7 +1,7 @@
 module ServiceServlet
 
   def self.api_path
-    '/api/1/msf/service'
+    '/api/v1/services'
   end
 
   def self.registered(app)

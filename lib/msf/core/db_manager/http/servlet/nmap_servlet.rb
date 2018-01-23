@@ -1,7 +1,7 @@
 module NmapServlet
 
   def self.api_path
-    '/api/1/msf/nmap'
+    '/api/v1/nmaps'
   end
 
   def self.registered(app)

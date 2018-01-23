@@ -2,6 +2,7 @@ require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/data_service_auto_loader'
 require 'net/http'
 require 'net/https'
+require 'uri'
 
 #
 # Parent data service for managing metasploit data in/on a separate process/machine over HTTP(s)
@@ -13,7 +14,7 @@ class RemoteHTTPDataService
   include Metasploit::Framework::DataService
   include DataServiceAutoLoader
 
-  ONLINE_TEST_URL = "/api/1/msf/online"
+  ONLINE_TEST_URL = "/api/v1/online"
   EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
@@ -30,71 +31,94 @@ class RemoteHTTPDataService
   end
 
   #
-  # POST data and don't wait for the endpoint to process the data before getting a response
+  # POST data to the HTTP endpoint and don't wait for the endpoint to process the data before getting a response
   #
-  def post_data_async(path, data_hash)
-    make_request(POST_REQUEST, path, data_hash.merge(EXEC_ASYNC))
+  # @param path - The URI path to send the request
+  # @param data_hash - A hash representation of the object to be posted. Cannot be nil or empty.
+  # @param query - A hash representation of the URI query data. Key-value pairs will be URL-encoded.
+  #
+  # @return A wrapped response (ResponseWrapper), see below.
+  #
+  def post_data_async(path, data_hash, query = nil)
+    make_request(POST_REQUEST, path, data_hash.merge(EXEC_ASYNC), query)
   end
 
   #
   # POST data to the HTTP endpoint
   #
+  # @param path - The URI path to send the request
   # @param data_hash - A hash representation of the object to be posted. Cannot be nil or empty.
-  # @param path - The URI path to post to
+  # @param query - A hash representation of the URI query data. Key-value pairs will be URL-encoded.
   #
   # @return A wrapped response (ResponseWrapper), see below.
   #
-  def post_data(path, data_hash)
-    make_request(POST_REQUEST, path, data_hash)
+  def post_data(path, data_hash, query = nil)
+    make_request(POST_REQUEST, path, data_hash, query)
   end
 
   #
   # GET data from the HTTP endpoint
   #
-  # @param path - The URI path to post to
-  # @param data_hash - A hash representation of the object to be posted. Can be nil or empty.
+  # @param path - The URI path to send the request
+  # @param data_hash - A hash representation of the object to be included. Can be nil or empty.
+  # @param query - A hash representation of the URI query data. Key-value pairs will be URL-encoded.
   #
   # @return A wrapped response (ResponseWrapper), see below.
   #
-  def get_data(path, data_hash = nil)
-    make_request(GET_REQUEST, path, data_hash)
+  def get_data(path, data_hash = nil, query = nil)
+    make_request(GET_REQUEST, path, data_hash, query)
   end
 
   #
   # Send DELETE request to delete the specified resource from the HTTP endpoint
   #
-  # @param path - The URI path to send the delete
+  # @param path - The URI path to send the request
   # @param data_hash - A hash representation of the object to be deleted. Cannot be nil or empty.
+  # @param query - A hash representation of the URI query data. Key-value pairs will be URL-encoded.
   #
   # @return A wrapped response (ResponseWrapper), see below.
   #
-  def delete_data(path, data_hash)
-    make_request(DELETE_REQUEST, path, data_hash)
+  def delete_data(path, data_hash, query = nil)
+    make_request(DELETE_REQUEST, path, data_hash, query)
   end
 
-  def make_request(request_type, path, data_hash = nil)
+  #
+  # Make the specified request_type
+  #
+  # @param request_type - A string representation of the HTTP method
+  # @param path - The URI path to send the request
+  # @param data_hash - A hash representation of the object to be included in the request. Cannot be nil or empty.
+  # @param query - A hash representation of the URI query data. Key-value pairs will be URL-encoded.
+  #
+  # @return A wrapped response (ResponseWrapper)
+  #
+  def make_request(request_type, path, data_hash = nil, query = nil)
     begin
-      puts "#{Time.now} - HTTP #{request_type} request to #{path} with #{data_hash ? data_hash : "nil"}"
+      query_str = (!query.nil? && !query.empty?) ? URI.encode_www_form(query) : nil
+      uri = URI::HTTP::build({path: path, query: query_str})
+      puts "#{Time.now} - HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}"
+
       client = @client_pool.pop()
       case request_type
         when GET_REQUEST
-          request = Net::HTTP::Get.new(path)
+          request = Net::HTTP::Get.new(uri.request_uri)
         when POST_REQUEST
-          request = Net::HTTP::Post.new(path)
+          request = Net::HTTP::Post.new(uri.request_uri)
         when DELETE_REQUEST
-          request = Net::HTTP::Delete.new(path)
+          request = Net::HTTP::Delete.new(uri.request_uri)
         else
           raise Exception, 'A request_type must be specified'
       end
       built_request = build_request(request, data_hash)
       response = client.request(built_request)
 
-      if response.code == "200"
-        # puts 'request sent successfully'
-        return SuccessResponse.new(response)
-      else
-        puts "HTTP #{request_type} request: #{path} failed with code: #{response.code} message: #{response.body}"
-        return FailedResponse.new(response)
+      case response
+        when Net::HTTPOK
+          # puts 'request sent successfully'
+          return SuccessResponse.new(response)
+        else
+          puts "HTTP #{request_type} request: #{uri.request_uri} failed with code: #{response.code} message: #{response.body}"
+          return FailedResponse.new(response)
       end
     rescue EOFError => e
       puts "ERROR: No data was returned from the server."
@@ -147,9 +171,7 @@ class RemoteHTTPDataService
   end
 
   def set_header(key, value)
-    if (@headers.nil?)
-      @headers = Hash.new()
-    end
+    @headers = Hash.new() if @headers.nil?
 
     @headers[key] = value
   end
@@ -199,24 +221,20 @@ class RemoteHTTPDataService
 
   def append_workspace(data_hash)
     workspace = data_hash[:workspace]
-    unless (workspace)
-      workspace = data_hash.delete(:wspace)
-    end
+    workspace = data_hash.delete(:wspace) unless workspace
 
-    if (workspace && (workspace.is_a?(OpenStruct) || workspace.is_a?(::Mdm::Workspace)))
+    if workspace && (workspace.is_a?(OpenStruct) || workspace.is_a?(::Mdm::Workspace))
       data_hash[:workspace] = workspace.name
     end
 
-    if (workspace.nil?)
-      data_hash[:workspace] = current_workspace_name
-    end
+    data_hash[:workspace] = current_workspace_name if workspace.nil?
 
     data_hash
   end
 
   def build_request(request, data_hash)
     request.content_type = 'application/json'
-    if (!data_hash.nil? && !data_hash.empty?)
+    if !data_hash.nil? && !data_hash.empty?
       data_hash.each do |k,v|
         if v.is_a?(Msf::Session)
           puts "#{Time.now} - DEBUG: Dropping Msf::Session object before converting to JSON."
@@ -230,7 +248,7 @@ class RemoteHTTPDataService
       request.body = json_body
     end
 
-    if (!@headers.nil? && !@headers.empty?)
+    if !@headers.nil? && !@headers.empty?
       @headers.each do |key, value|
         request[key] = value
       end

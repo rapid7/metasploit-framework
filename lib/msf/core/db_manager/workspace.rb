@@ -58,20 +58,23 @@ module Msf::DBManager::Workspace
   end
 
   def delete_all_workspaces()
-    delete_workspaces(workspaces.map(&:name))
+    return delete_workspaces(workspaces.map(&:name))
   end
 
   def delete_workspaces(names)
+    status_msg = []
+    error_msg = []
+
     switched = false
     # Delete workspaces
     names.each do |name|
       workspace = framework.db.find_workspace(name)
       if workspace.nil?
-        print_error("Workspace not found: #{name}")
+        error << "Workspace not found: #{name}"
       elsif workspace.default?
         workspace.destroy
         workspace = framework.db.add_workspace(name)
-        print_status("Deleted and recreated the default workspace")
+        status_msg << 'Deleted and recreated the default workspace'
       else
         # switch to the default workspace if we're about to delete the current one
         if framework.db.workspace.name == workspace.name
@@ -80,10 +83,11 @@ module Msf::DBManager::Workspace
         end
         # now destroy the named workspace
         workspace.destroy
-        print_status("Deleted workspace: #{name}")
+        status_msg << "Deleted workspace: #{name}"
       end
     end
-    print_status("Switched workspace: #{framework.db.workspace.name}") if switched
+    (status_msg << "Switched workspace: #{framework.db.workspace.name}") if switched
+    return status_msg, error_msg
   end
 
   #
