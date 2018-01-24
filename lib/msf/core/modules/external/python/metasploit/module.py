@@ -1,4 +1,7 @@
-import sys, os, json
+import json
+import os
+import sys
+
 
 def log(message, level='info'):
     rpc_send({'jsonrpc': '2.0', 'method': 'message', 'params': {
@@ -6,19 +9,23 @@ def log(message, level='info'):
         'message': message
     }})
 
-def report_host(ip, opts={}):
+
+def report_host(ip, **opts):
     host = opts.copy()
     host.update({'host': ip})
-    rpc_send({'jsonrpc': '2.0', 'method': 'report', 'params': {
-        'type': 'host', 'data': host
-    }})
+    report('host', host)
 
-def report_service(ip, opts={}):
+
+def report_service(ip, **opts):
     service = opts.copy()
     service.update({'host': ip})
-    rpc_send({'jsonrpc': '2.0', 'method': 'report', 'params': {
-        'type': 'service', 'data': service
-    }})
+    report('service', service)
+
+
+def report_vuln(ip, name, **opts):
+    vuln = opts.copy()
+    vuln.update({'host': ip, 'name': name})
+    report('vuln', vuln)
 
 
 def run(metadata, module_callback):
@@ -31,6 +38,13 @@ def run(metadata, module_callback):
         rpc_send({'jsonrpc': '2.0', 'id': req['id'], 'response': {
             'message': 'Module completed'
         }})
+
+
+def report(kind, data):
+    rpc_send({'jsonrpc': '2.0', 'method': 'report', 'params': {
+        'type': kind, 'data': data
+    }})
+
 
 def rpc_send(req):
     print(json.dumps(req))
