@@ -87,4 +87,27 @@ module Msf::DBManager::Loot
     ret[:loot] = loot
   }
   end
+
+  # Deletes Loot entries based on the IDs passed in.
+  #
+  # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the Loot entries to delete.
+  # @return [Array] Array containing the Mdm::Loot objects that were successfully deleted.
+  def delete_loot(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |loot_id|
+        loot = Mdm::Loot.find(loot_id)
+        begin
+          deleted << loot.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{loot}")
+          deleted << loot.delete
+        end
+      end
+
+      return deleted
+    }
+  end
 end

@@ -30,4 +30,8 @@ module RemoteLootDataService
   def report_loots(loot)
     self.post_data(LOOT_API_PATH, loot)
   end
+
+  def delete_loot(opts)
+    json_to_mdm_object(self.delete_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS, [])
+  end
 end

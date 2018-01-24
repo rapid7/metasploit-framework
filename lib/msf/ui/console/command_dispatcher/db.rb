@@ -1355,7 +1355,7 @@ module Msf
               return
             end
 
-
+            matched_loot_ids = []
             each_host_range_chunk(host_ranges) do |host_search|
               framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
                 loots = framework.db.loots(framework.db.workspace, {:host_id => host.id})
@@ -1383,11 +1383,9 @@ module Msf
                     row.push(loot.path)
 
                     tbl << row
-                    if (mode == :delete)
-                      loot.destroy
-                      delete_count += 1
-                    end
+                    matched_loot_ids << loot.id
                   end
+
                 end
               end
             end
@@ -1405,11 +1403,13 @@ module Msf
                 row.push(loot.info || "")
                 row.push(loot.path)
                 tbl << row
-                if (mode == :delete)
-                  loot.destroy
-                  delete_count += 1
-                end
+                matched_loot_ids << loot.id
               end
+            end
+
+            if (mode == :delete)
+              result = framework.db.delete_loot(ids: matched_loot_ids)
+              delete_count = result.size
             end
 
             print_line
