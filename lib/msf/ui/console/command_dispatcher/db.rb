@@ -6,7 +6,6 @@ require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'
-require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 
 module Msf
   module Ui
@@ -98,18 +97,47 @@ module Msf
           end
 
           def cmd_add_data_service(*args)
+            protocol = "http"
+            port = 80
+            https_opts = {}
             while (arg = args.shift)
               case arg
-                when '-h'
-                  host = args.shift
+                when '-h', '--help'
+                  cmd_add_data_service_help
+                  return
                 when '-p'
                   port = args.shift
+                when '-s', '--ssl'
+                  protocol = "https"
+                when '-c', '--cert'
+                  https_opts[:cert] = args.shift
+                when '--skip-verify'
+                  https_opts[:skip_verify] = true
+                else
+                  host = arg
               end
             end
 
-            remote_service_endpoint = Metasploit::Framework::DataService::RemoteServiceEndpoint.new(host, port)
-            remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(remote_service_endpoint)
+            if host.nil? || port.nil?
+              print_error "Host and port are required."
+              return
+            end
+
+            endpoint = "#{protocol}://#{host}:#{port}"
+            remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
             framework.db.register_data_service(remote_data_service)
+          end
+
+          def cmd_add_data_service_help
+            print_line "Usage: add_data_service [ options ] [ Remote Address]"
+            print_line
+            print_line "OPTIONS:"
+            print_line "  -h, --help        Show this help information."
+            print_line "  -p <port>         The port the data service is listening on. Default is 80."
+            print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
+            print_line "  -c, --cert        Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
+            print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
+            print_line
           end
 
           def cmd_test_data_service_host(*args)

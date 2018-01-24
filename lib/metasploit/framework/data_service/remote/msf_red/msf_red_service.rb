@@ -1,6 +1,5 @@
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'
-require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 
 class MSFRedService
   JOB_CHECK_INTERVAL_SEC = 5
@@ -42,8 +41,8 @@ class MSFRedService
   end
 
   def inject_data_service
-    remote_service_endpoint = Metasploit::Framework::DataService::RemoteServiceEndpoint.new(CONSOLE_SERVICE_HOST_NAME,  CONSOLE_SERVICE_PORT)
-    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(remote_service_endpoint)
+    endpoint = URI.parse("http://#{CONSOLE_SERVICE_HOST_NAME}:#{CONSOLE_SERVICE_PORT}")
+    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint)
     remote_data_service.set_header(SESSION_KEY_VALUE, @session_key)
     data_service_manager = Metasploit::Framework::DataService::DataProxy.instance
     data_service_manager.register_data_service(remote_data_service)

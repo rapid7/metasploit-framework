@@ -2,7 +2,6 @@ require 'open3'
 require 'rex/ui'
 require 'rex/logging'
 require 'metasploit/framework/data_service/remote/http/core'
-require 'metasploit/framework/data_service/remote/http/remote_service_endpoint'
 require 'metasploit/framework/data_service/proxy/data_proxy_auto_loader'
 
 #
@@ -179,7 +178,7 @@ class DataProxy
     @pid = wait_t[0].pid
     puts "Started process with pid #{@pid}"
 
-    endpoint = Metasploit::Framework::DataService::RemoteServiceEndpoint.new('localhost', 8080)
+    endpoint = URI.parse('http://localhost:8080')
     remote_host_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint)
     register_data_service(remote_host_data_service, true)
   end
