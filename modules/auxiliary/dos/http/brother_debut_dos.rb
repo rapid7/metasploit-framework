@@ -76,6 +76,5 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("#{peer} - Connection Refused: Success! Server will recover about #{(time + 300).strftime("%Y-%m-%d %H:%M:%S")}")
     end
-
   end
 end
