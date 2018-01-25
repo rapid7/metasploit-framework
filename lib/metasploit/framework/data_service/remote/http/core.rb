@@ -108,7 +108,7 @@ class RemoteHTTPDataService
   #
   def make_request(request_type, path, data_hash = nil, query = nil)
     begin
-      query_str = (!query.nil? && !query.empty?) ? URI.encode_www_form(query) : nil
+      query_str = (!query.nil? && !query.empty?) ? URI.encode_www_form(append_workspace(query)) : nil
       uri = URI::HTTP::build({path: path, query: query_str})
       puts "#{Time.now} - HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}"
 
