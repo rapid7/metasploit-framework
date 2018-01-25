@@ -19,6 +19,7 @@ class RemoteHTTPDataService
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
   DELETE_REQUEST = 'DELETE'
+  PUT_REQUEST = 'PUT'
 
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
@@ -83,6 +84,19 @@ class RemoteHTTPDataService
   end
 
   #
+  # Send PUT request to store data for the specified resource at the HTTP endpoint
+  #
+  # @param path - The URI path to send the request
+  # @param data_hash - A hash representation of the object to be stored. Cannot be nil or empty.
+  # @param query - A hash representation of the URI query data. Key-value pairs will be URL-encoded.
+  #
+  # @return A wrapped response (ResponseWrapper), see below.
+  #
+  def put_data(path, data_hash, query = nil)
+    make_request(PUT_REQUEST, path, data_hash, query)
+  end
+
+  #
   # Make the specified request_type
   #
   # @param request_type - A string representation of the HTTP method
@@ -106,6 +120,8 @@ class RemoteHTTPDataService
           request = Net::HTTP::Post.new(uri.request_uri)
         when DELETE_REQUEST
           request = Net::HTTP::Delete.new(uri.request_uri)
+        when PUT_REQUEST
+          request = Net::HTTP::Put.new(uri.request_uri)
         else
           raise Exception, 'A request_type must be specified'
       end
