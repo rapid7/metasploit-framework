@@ -89,6 +89,7 @@ module Msf::DBManager::Service
     proto = opts[:proto] || Msf::DBManager::DEFAULT_SERVICE_PROTO
 
     service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_initialize
+    ostate = service.state
     opts.each { |k,v|
       if (service.attribute_names.include?(k.to_s))
         service[k] = ((v and k == :name) ? v.to_s.downcase : v)
@@ -106,15 +107,16 @@ module Msf::DBManager::Service
       wlog("Call Stack\n#{e.backtrace.join("\n")}")
     end
 
+    begin
+      framework.events.on_db_service_state(service, service.port, ostate) if service.state != ostate
+    rescue ::Exception => e
+      wlog("Exception in on_db_service_state event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
     if (service and service.changed?)
       msf_import_timestamps(opts,service)
       service.save!
-      begin
-        framework.events.on_db_service_state(service)
-      rescue ::Exception => e
-        wlog("Exception in on_db_service_state event handler: #{e.class}: #{e}")
-        wlog("Call Stack\n#{e.backtrace.join("\n")}")
-      end
     end
 
     if opts[:task]
