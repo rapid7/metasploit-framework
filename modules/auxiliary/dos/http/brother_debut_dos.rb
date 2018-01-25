@@ -36,6 +36,8 @@ class MetasploitModule < Msf::Auxiliary
     },10)
 
     return !res.nil?
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
+    print_error("Couldn't connect to #{peer}")
   end
 
   def dos
@@ -59,8 +61,8 @@ class MetasploitModule < Msf::Auxiliary
         'Content-Length' => data.length + rand(10) + 10 #42
         }
       })
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
-      print_error("Couldn't connect to #{peer}")
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE
+    print_error("Couldn't connect to #{peer}")
   end
 
   def run

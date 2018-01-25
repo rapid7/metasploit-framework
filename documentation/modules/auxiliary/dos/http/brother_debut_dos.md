@@ -1,6 +1,11 @@
 ## Vulnerable Application
 
-  Version <= 1.20 of the Debut embedded httpd web server are vulnerable, which are found on Brother printers.
+  Versions <= 1.20 of the Debut embedded httpd web server in use by Brother printers are vulnerable to denial of service 
+  via a crafted HTTP request. This module will render the printer unresponsive from requests for ~300 seconds.
+  This is thought to be caused by a single threaded web server which
+  has a ~300 second timeout value.  By sending a request with a content-length larger than the actual data, the server waits
+  to receive the rest of the data, which doesn't happen until the timeout occurs.  This DoS is for all services, not just http.
+
   This module was successfully tested against a Brother HL-L2380DW series.
 
   An nmap version scan of the vulnerable service should look similar to:
@@ -19,12 +24,11 @@
 ### Brother HL-L2380DW with Debut embedded 1.20
 
 ```
-[*] Processing brother.rb for ERB directives.
-resource (brother.rb)> use auxiliary/dos/http/brother_debut_dos
-resource (brother.rb)> set rhost 192.168.2.126
-rhost => 192.168.2.126
-resource (brother.rb)> exploit
-[*] Sending malformed POST request at 2017-12-29 13:46:34.  Server will recover about 2017-12-29 13:51:34
-[+] 192.168.2.126:80 - Connection Refused: Success!
+resource (brother.rc)> use auxiliary/dos/http/brother_debut_dos
+resource (brother.rc)> set rhost 1.1.1.1
+rhost => 1.1.1.1
+resource (brother.rc)> exploit
+[*] Sending malformed POST request at 2018-01-24 20:45:52.
+[+] 1.1.1.1:80 - Connection Refused: Success! Server will recover about 2018-01-24 20:50:52
 [*] Auxiliary module execution completed
 ```
