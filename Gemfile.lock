@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.33)
+    metasploit-framework (4.16.34)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -125,7 +125,7 @@ GEM
       railties (>= 3.0.0)
     faker (1.8.7)
       i18n (>= 0.7)
-    faraday (0.13.1)
+    faraday (0.14.0)
       multipart-post (>= 1.2, < 3)
     ffi (1.9.18)
     filesize (0.1.1)
@@ -146,7 +146,7 @@ GEM
       googleapis-common-protos-types (~> 1.0.0)
       googleauth (>= 0.5.1, < 0.7)
     hashery (2.1.2)
-    i18n (0.9.1)
+    i18n (0.9.3)
       concurrent-ruby (~> 1.0)
     jsobfu (0.4.2)
       rkelly-remix
@@ -352,7 +352,7 @@ GEM
     ttfunk (1.5.1)
     tzinfo (1.2.4)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2017.3)
+    tzinfo-data (1.2018.3)
       tzinfo (>= 1.0.0)
     windows_error (0.1.2)
     xdr (2.0.0)
