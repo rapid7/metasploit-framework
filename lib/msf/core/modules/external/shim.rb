@@ -13,6 +13,8 @@ class Msf::Modules::External::Shim
       capture_server(mod)
     when 'dos'
       dos(mod)
+    when 'scanner.multi'
+      multi_scanner(mod)
     else
       # TODO have a nice load error show up in the logs
       ''
@@ -35,7 +37,7 @@ class Msf::Modules::External::Shim
     meta[:authors]     = mod.meta['authors'].map(&:dump).join(",\n          ")
 
     meta[:options]     = mod.meta['options'].map do |n, o|
-      "Opt#{o['type'].capitalize}.new(#{n.dump},
+      "Opt#{o['type'].camelize}.new(#{n.dump},
         [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
     end.join(",\n          ")
     meta
@@ -67,6 +69,16 @@ class Msf::Modules::External::Shim
   def self.capture_server(mod)
     meta = mod_meta_common(mod)
     render_template('capture_server.erb', meta)
+  end
+
+  def self.multi_scanner(mod)
+    meta = mod_meta_common(mod)
+    meta[:date] = mod.meta['date'].dump
+    meta[:references] = mod.meta['references'].map do |r|
+      "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
+    end.join(",\n          ")
+
+    render_template('multi_scanner.erb', meta)
   end
 
   def self.dos(mod)
