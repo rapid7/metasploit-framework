@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.34)
+    metasploit-framework (4.16.35)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -73,7 +73,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    Ascii85 (1.0.2)
+    Ascii85 (1.0.3)
     actionpack (4.2.10)
       actionview (= 4.2.10)
       activesupport (= 4.2.10)
@@ -105,7 +105,7 @@ GEM
     arel (6.0.4)
     arel-helpers (2.6.1)
       activerecord (>= 3.1.0, < 6)
-    backports (3.11.0)
+    backports (3.11.1)
     bcrypt (3.1.11)
     bcrypt_pbkdf (1.0.0)
     bindata (2.4.1)
@@ -195,7 +195,7 @@ GEM
     metasploit_payloads-mettle (0.3.6)
     method_source (0.9.0)
     mini_portile2 (2.3.0)
-    minitest (5.11.1)
+    minitest (5.11.3)
     mqtt (0.5.0)
     msgpack (1.2.2)
     multi_json (1.13.1)
