@@ -12,8 +12,8 @@ addons:
 language: ruby
 rvm:
   - '2.2'
-  - '2.3.5'
-  - '2.4.2'
+  - '2.3.6'
+  - '2.4.3'
 
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
