@@ -1,4 +1,4 @@
-FROM ruby:2.4.2-alpine
+FROM ruby:2.4.3-alpine3.7
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
@@ -20,6 +20,8 @@ RUN apk update && \
       nmap-scripts \
       nmap-nselibs \
       postgresql-libs \
+      python \
+      python3 \
       ncurses \
       libcap \
     && apk add --virtual .ruby-builddeps \
@@ -27,7 +29,7 @@ RUN apk update && \
       bison \
       build-base \
       ruby-dev \
-      openssl-dev \
+      libressl-dev \
       readline-dev \
       sqlite-dev \
       postgresql-dev \
