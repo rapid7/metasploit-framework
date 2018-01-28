@@ -6,6 +6,7 @@
 #include <mach-o/dyld.h>
 
 #include <sys/types.h>
+#include <sys/sysctl.h>
 
 typedef NSObjectFileImageReturnCode (*NSCreateObjectFileImageFromMemory_ptr)(void *address, unsigned long size, NSObjectFileImage *objectFileImage);
 typedef NSModule (*NSLinkModule_ptr)(NSObjectFileImage objectFileImage, const char* moduleName, unsigned long options);
@@ -222,12 +223,12 @@ int string_compare(const char* s1, const char* s2)
 
 int detect_sierra()
 {
-  uint64_t sc_sysctlbyname = 0x2000112;
-  char* name = "kern.osrelease";
+  uint64_t sc_sysctl = 0x20000ca;
+  int name[] = { CTL_KERN, KERN_OSRELEASE };
+  uint64_t nameptr = (uint64_t)&name;
+  uint64_t namelen = sizeof(name)/sizeof(name[0]);
   char osrelease[32];
   size_t size = sizeof(osrelease);
-  uint64_t nameptr = (uint64_t)name;
-  uint64_t namelen = (uint64_t)sizeof(name);
   uint64_t valptr = (uint64_t)osrelease;
   uint64_t valsizeptr = (uint64_t)&size;
   uint64_t ret = 0;
@@ -243,12 +244,15 @@ int detect_sierra()
       "syscall;\n"
       "mov %%rax, %0;\n"
       : "=g"(ret)
-      : "g"(sc_sysctlbyname), "g"(nameptr), "g"(namelen), "g"(valptr), "g"(valsizeptr)
-      : "rax", "rdi", "rdx" );
+      : "g"(sc_sysctl), "g"(nameptr), "g"(namelen), "g"(valptr), "g"(valsizeptr)
+      : );
 
   // osrelease is 16.x.x on Sierra
   if (ret == 0 && size > 2) {
-    if (osrelease[0] == '1' && osrelease[1] <= '6') {
+    if (osrelease[0] == '1' && osrelease[1] < '6') {
+      return 0;
+    }
+    if (osrelease[0] <= '9' && osrelease[1] == '.') {
       return 0;
     }
   }
