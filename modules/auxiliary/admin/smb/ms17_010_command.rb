@@ -72,6 +72,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("#{e.message}")
     rescue ::Errno::ECONNRESET,
            ::Rex::HostUnreachable,
+           ::Rex::Proto::SMB::Exceptions::LoginError,
            ::Rex::ConnectionTimeout,
            ::Rex::ConnectionRefused  => e
       print_error("#{e.class}: #{e.message}")
