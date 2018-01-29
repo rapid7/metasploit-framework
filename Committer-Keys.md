@@ -10,6 +10,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | Github Username                                   | Keybase.io Username                                |
 | ------------------------------------------------- | -------------------------------------------------- |
 | [@acammack-r7](https://github.com/acammack-r7)    | [acammackr7](https://keybase.io/acammackr7)        |
+| [@asoto-r7](https://github.com/asoto-r7)          | [asoto_r7](https://keybase.io/asoto_r7)            |
 | [@bcoles](https://github.com/bcoles)              | [bcoles](https://keybase.io/bcoles)                |
 | [@busterb](https://github.com/busterb)            | [busterb](https://keybase.io/busterb)              |
 | [@bpatterson-r7](https://github.com/bpatterson-r7)| [bpatterson](https://keybase.io/bpatterson)        |
