@@ -12,7 +12,7 @@ Mentors: @buster, @zerosteiner, @timwr, @asoto-r7, @jmartin-r7, @pbarry-r7
 Examples could include:
  * Sending keystrokes and mouse movement to a Meterpreter session
  * HTML based VNC style session control
-     e.g #9196 but accepting user input from the browser
+     e.g https://github.com/rapid7/metasploit-framework/pull/9196 but accepting user input from the browser
  * Playing (streaming?) sounds to a Meterpreter session
  * Implementing the streaming record mechanism from more Meterpreter sessions 
  * Text-to-speech and volume control
@@ -46,7 +46,7 @@ Difficulty: 3/5
 
 ### Improve the web vulnerability API
 
-This would follow up on the Arachni plugin PR #8618 and improve the Metasploit data model to better represent  modern web vulnerabilities. This project would require knowledge of data models, types of modern web vulnerabilities, and experience with web app security scanners.
+This would follow up on the Arachni plugin PR https://github.com/rapid7/metasploit-framework/pull/8618 and improve the Metasploit data model to better represent  modern web vulnerabilities. This project would require knowledge of data models, types of modern web vulnerabilities, and experience with web app security scanners.
 
 Difficulty: 4/5
 
