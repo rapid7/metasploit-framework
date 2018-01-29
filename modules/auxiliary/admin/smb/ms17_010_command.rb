@@ -38,6 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'MSB', 'MS17-010' ],
         [ 'CVE', '2017-0143'], # EternalRomance/EternalSynergy - Type confusion between WriteAndX and Transaction requests
         [ 'CVE', '2017-0146'], # EternalChampion/EternalSynergy - Race condition with Transaction requests
+        [ 'CVE', '2017-0147'], # for EternalRomance reference
         [ 'URL', 'https://github.com/worawit/MS17-010' ],
         [ 'URL', 'https://hitcon.org/2017/CMT/slide-files/d2_s2_r0.pdf' ],
         [ 'URL', 'https://blogs.technet.microsoft.com/srd/2017/06/29/eternal-champion-exploit-analysis/' ],
@@ -69,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
 
     rescue ::Msf::Exploit::Remote::SMB::Client::Psexec_MS17_010::MS17_010_Error => e
       print_error("#{e.message}")
-  rescue   ::Errno::ECONNRESET,
+    rescue ::Errno::ECONNRESET,
            ::Rex::HostUnreachable,
            ::Rex::ConnectionTimeout,
            ::Rex::ConnectionRefused  => e
