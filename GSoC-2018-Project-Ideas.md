@@ -12,7 +12,7 @@ Mentors: @buster, @zerosteiner, @timwr, @asoto-r7, @jmartin-r7, @pbarry-r7
 Examples could include:
  * Sending keystrokes and mouse movement to a Meterpreter session
  * HTML based VNC style session control
-     e.g https://github.com/rapid7/metasploit-framework/pull/9196 but accepting user input from the browser
+     e.g #9196 but accepting user input from the browser
  * Playing (streaming?) sounds to a Meterpreter session
  * Implementing the streaming record mechanism from more Meterpreter sessions 
  * Text-to-speech and volume control
