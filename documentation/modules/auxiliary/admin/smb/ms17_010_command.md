@@ -9,7 +9,7 @@ This module is highly reliable and preferred over EternalBlue where a Named Pipe
 
 ## Vulnerable Server
 
-To be able to use auxiliary/admin/smb/ms17_010_psexec:
+To be able to use auxiliary/admin/smb/ms17_010_command:
 
 1. You can OPTIONALLY use a valid username/password to bypass most of these requirements.
 2. The firewall must allow SMB traffic.
@@ -24,7 +24,7 @@ You can check all of these with the SMB MS17-010 and Pipe Auditor auxiliary scan
 At the minimum, you should be able use psexec to get a session with a valid credential using the following:
 
 ```
-msf > use auxiliary/admin/smb/ms17_010_psexec
+msf > use auxiliary/admin/smb/ms17_010_command
 msf exploit(psexec) > set RHOST 192.168.1.80
 RHOST => 192.168.1.80
 msf exploit(psexec) > exploit
@@ -32,7 +32,7 @@ msf exploit(psexec) > exploit
 
 ## Options
 
-By default, using auxiliary/admin/smb/ms17_010_psexec can be as simple as setting the RHOST option, and you're ready to go.
+By default, using auxiliary/admin/smb/ms17_010_command can be as simple as setting the RHOST option, and you're ready to go.
 
 **The NAMEDPIPE Option**
 
