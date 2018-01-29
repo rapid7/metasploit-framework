@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name'           => "Private IP Leakage to WebPage using WebRTC Function.",
         'Description'    => %q(
-          This module exploits a vulnerability in browsers using well-known property of WebRTC .
+          This module exploits a vulnerability in browsers using well-known property of WebRTC (Web Real-Time Communications) which enables Web applications and sites to capture or exchange arbitrary data between browsers without requiring an intermediary.
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
