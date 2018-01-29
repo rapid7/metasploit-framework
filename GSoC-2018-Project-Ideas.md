@@ -61,3 +61,23 @@ Difficulty: 3/5
 Connect a 3rd-party post-exploitation framework with Metasploit, such as Empire, Pupy, or Koadic, so that Metasploit can view and interact with sessions outside of its own types. Being able to use outside stagers in exploits, or adding the ability to 'upgrade' a session to an outside session type are other possibilities.
 
 Difficulty 3/5
+
+## Enhance Metasploitable3
+
+### Create a Simulated Active Directory Domain
+
+Expand functionality of the existing Windows 2008 VM to act as a domain controller. The setup should include a number of users of varying roles, multiple group policy objects and settings, and logon scripts or application deployments. Considerations should be taken on how and where to include purposeful vulnerabilities within these settings.
+
+Difficulty 2/5
+
+### Configure a Mock Corporate Network
+
+Currently metasploitable3 consists of two separate virtual machines with all currently configured vulnerable services available with a simple network connection. This should be expanded to include a larger number of VMs with services spread across them to better simulate a real world environment. Considerations must be taken for deploying this on systems with varying hardware availability, or look into different cloud providers.
+
+Difficulty 4/5
+
+### Add Monitoring Capabilities Between VMs
+
+Metasploitable3 is already a playground from an attacker's point of view, but hwo can we make it valuable from a defender's perspective. Research various network monitoring and detections solutions and implement them across the mock network. Set up a new "NOC" VM for keeping track of activity and watching for intrusion. This goal is to make it fairly simple for anyone to set up a red team vs blue team mock environment.
+
+Difficulty 5/5
