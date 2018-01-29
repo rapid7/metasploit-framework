@@ -25,14 +25,14 @@ At the minimum, you should be able use psexec to get a session with a valid cred
 
 ```
 msf > use auxiliary/admin/smb/ms17_010_command
-msf exploit(psexec) > set RHOST 192.168.1.80
-RHOST => 192.168.1.80
+msf exploit(psexec) > set RHOSTS 192.168.1.80
+RHOSTS => 192.168.1.80
 msf exploit(psexec) > exploit
 ```
 
 ## Options
 
-By default, using auxiliary/admin/smb/ms17_010_command can be as simple as setting the RHOST option, and you're ready to go.
+By default, using auxiliary/admin/smb/ms17_010_command can be as simple as setting the RHOSTS option, and you're ready to go.
 
 **The NAMEDPIPE Option**
 
