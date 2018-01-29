@@ -78,6 +78,6 @@ Difficulty 4/5
 
 ### Add Monitoring Capabilities Between VMs
 
-Metasploitable3 is already a playground from an attacker's point of view, but hwo can we make it valuable from a defender's perspective. Research various network monitoring and detections solutions and implement them across the mock network. Set up a new "NOC" VM for keeping track of activity and watching for intrusion. This goal is to make it fairly simple for anyone to set up a red team vs blue team mock environment.
+Metasploitable3 is already a playground from an attacker's point of view, but how can we make it valuable from a defender's perspective. Research various network monitoring and detections solutions and implement them across the mock network. Set up a new "NOC" VM for keeping track of activity and watching for intrusion. This goal is to make it fairly simple for anyone to set up a red team vs blue team mock environment.
 
 Difficulty 5/5
