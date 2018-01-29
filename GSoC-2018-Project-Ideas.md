@@ -81,3 +81,13 @@ Difficulty 4/5
 Metasploitable3 is already a playground from an attacker's point of view, but how can we make it valuable from a defender's perspective. Research various network monitoring and detections solutions and implement them across the mock network. Set up a new "NOC" VM for keeping track of activity and watching for intrusion. This goal is to make it fairly simple for anyone to set up a red team vs blue team mock environment.
 
 Difficulty 5/5
+
+## Goliath
+
+### Data Visualization
+
+Enhance existing Metasploit 'Goliath' dashboard that allows observation of an active engagement. Data visualization would include, but not be limited to: host node graph with activity indicators and heat maps.
+
+[Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176)
+
+Difficulty ?/5
