@@ -86,8 +86,13 @@ Difficulty 5/5
 
 ### Data Visualization
 
-Enhance existing Metasploit 'Goliath' dashboard that allows observation of an active engagement. Data visualization would include, but not be limited to: host node graph with activity indicators and heat maps.
+Enhance existing Metasploit Goliath dashboard that allows observation of an active engagement. Data visualization would include, but not be limited to: host node graph with activity indicators and heat maps.
 
 [Metasploit 'Goliath' Demo (msf-red)](https://www.youtube.com/watch?v=hvuy6A-ie1g&feature=youtu.be&t=176)
 
-Difficulty ?/5
+Difficulty 3/5
+
+### Elasticsearch Datastore
+Write Goliath data to Elasticsearch. Explore dat visualization using Kibana.
+
+Difficulty 3/5
