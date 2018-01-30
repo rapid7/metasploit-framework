@@ -90,7 +90,7 @@ Enhance existing Metasploit Goliath dashboard that allows observation of an acti
 Difficulty 3/5
 
 ### Elasticsearch Datastore
-Write Goliath data to Elasticsearch. Explore dat visualization using Kibana.
+Write Goliath data to Elasticsearch. Explore data visualization using Kibana.
 
 Difficulty 3/5
 
