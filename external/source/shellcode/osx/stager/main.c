@@ -20,7 +20,7 @@
 typedef NSObjectFileImageReturnCode (*NSCreateObjectFileImageFromMemory_ptr)(void *address, unsigned long size, NSObjectFileImage *objectFileImage);
 typedef NSModule (*NSLinkModule_ptr)(NSObjectFileImage objectFileImage, const char* moduleName, unsigned long options);
 
-uint64_t find_macho(uint64_t addr, unsigned int increment, unsigned int dereference);
+uint64_t find_macho(uint64_t addr, unsigned int increment, unsigned int pointer);
 uint64_t find_symbol(uint64_t base, char* symbol);
 uint64_t find_entry_offset(struct mach_header_64 *mh);
 int string_compare(const char* s1, const char* s2);

