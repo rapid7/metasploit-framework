@@ -1,3 +1,12 @@
+/*
+ * References:
+ * @parchedmind
+ * https://github.com/CylanceVulnResearch/osx_runbin/blob/master/run_bin.c
+ *
+ * @nologic
+ * https://github.com/nologic/shellcc
+ */
+
 #include <stdio.h>
 #include <string.h>
 

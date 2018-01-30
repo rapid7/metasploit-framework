@@ -13,16 +13,23 @@ module MetasploitModule
   include Msf::Sessions::MettleConfig
 
   def initialize(info = {})
-    super(
-      update_info(
-        info,
-        'Name'          => 'OSX Meterpreter',
-        'Description'   => 'Inject the mettle server payload (staged)',
-        'Platform'      => 'osx',
-        'Arch'          => ARCH_X64,
-        'License'       => MSF_LICENSE,
-        'Session'       => Msf::Sessions::Meterpreter_x64_OSX,
-        'Convention'    => 'sockedi',
+    super(update_info(info,
+      'Name'          => 'OSX Meterpreter',
+      'Description'   => 'Inject the mettle server payload (staged)',
+      'Platform'      => 'osx',
+      'Author'        => [
+        'parchedmind',  # osx_runbin
+        'nologic',      # shellcc
+        'timwr',        # metasploit integration
+        ],
+      'References'    => [
+          [ 'URL', 'https://github.com/CylanceVulnResearch/osx_runbin' ],
+          [ 'URL', 'https://github.com/nologic/shellcc' ]
+        ],
+      'Arch'         => ARCH_X64,
+      'License'      => MSF_LICENSE,
+      'Session'      => Msf::Sessions::Meterpreter_x64_OSX,
+      'Convention'   => 'sockedi',
       )
     )
   end
