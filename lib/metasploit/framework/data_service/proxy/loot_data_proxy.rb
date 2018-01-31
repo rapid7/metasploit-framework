@@ -12,6 +12,12 @@ module LootDataProxy
     end
   end
 
+  # TODO: Shouldn't this proxy to RemoteLootDataService#find_or_create_loot ?
+  # It's currently skipping the "find" part
+  def find_or_create_loot(opts)
+    report_loot(opts)
+  end
+
   def loots(wspace, opts = {})
     begin
       data_service = self.get_data_service
