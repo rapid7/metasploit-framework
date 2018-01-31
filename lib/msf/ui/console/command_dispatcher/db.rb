@@ -542,7 +542,7 @@ module Msf
                 when '-R', '--rhosts'
                   set_rhosts = true
                 when '-S', '--search'
-                  search_term = /#{args.shift}/nmi
+                  search_term = args.shift
                 when '-i', '--info'
                   mode << :new_info
                   info_data = args.shift
@@ -648,12 +648,12 @@ module Msf
             each_host_range_chunk(host_ranges) do |host_search|
               break if !host_search.nil? && host_search.empty?
 
-              framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
-                if search_term
-                  next unless (
-                  host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } || !find_hosts_with_tag(framework.db.workspace.id, host.address, search_term.source).empty?
-                  )
-                end
+              framework.db.hosts(framework.db.workspace, onlyup, host_search, search_term = search_term).each do |host|
+                # if search_term
+                #   next unless (
+                #   host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } || !find_hosts_with_tag(framework.db.workspace.id, host.address, search_term.source).empty?
+                #   )
+                # end
 
                 columns = col_names.map do |n|
                   # Deal with the special cases
