@@ -85,7 +85,11 @@ module Msf
           end
 
           def cmd_set_data_service(service_id)
-            framework.db.set_data_service(service_id)
+            begin
+              framework.db.set_data_service(service_id)
+            rescue Exception => e
+              print_error "Unable to set data service: #{e.message}"
+            end
           end
 
           def cmd_list_data_services()

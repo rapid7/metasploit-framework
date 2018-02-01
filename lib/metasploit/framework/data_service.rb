@@ -34,6 +34,9 @@ module DataService
     raise 'DataLService#active is not implemented';
   end
 
+  #
+  # Hold metadata about a data service
+  #
   class Metadata
     attr_reader :id
     attr_reader :name
@@ -45,14 +48,15 @@ module DataService
       self.active = active
     end
 
+    #######
     private
+    #######
+
     attr_writer  :id
     attr_writer :name
     attr_writer :active
 
   end
-
 end
-
 end
 end
