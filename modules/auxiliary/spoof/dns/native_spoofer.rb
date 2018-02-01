@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     peer = "#{cli.ip_daddr}:" << (cli.is_udp? ? "#{cli.udp_dst}" : "#{cli.tcp_dst}")
     # Deal with non DNS traffic
     begin
-      req = Packet.encode_net(data)
+      req = Packet.encode_drb(data)
     rescue => e
       print_error("Could not decode payload segment of packet from #{peer}, check log")
       dlog e.backtrace
@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
     answered = []
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
-      cached = service.cache.find(ques.qName, ques.qType.to_s)
+      cached = service.cache.find(ques.qname, ques.qtype.to_s)
       if cached.empty?
         next
       else
@@ -154,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
   def sent_info(cli,data)
     net = Packet.encode_net(data)
     peer = "#{cli.ip_daddr}:" << (cli.is_udp? ? "#{cli.udp_dst}" : "#{cli.tcp_dst}")
-    asked = net.question.map(&:qName).join(', ')
+    asked = net.question.map(&:qname).join(', ')
     vprint_good("Sent packet with header:\n#{cli.inspect}")
     vprint_good("Spoofed records for #{asked} to #{peer}")
   end
