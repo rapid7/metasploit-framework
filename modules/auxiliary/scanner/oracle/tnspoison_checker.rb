@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         This module checks the server for vulnerabilities like TNS Poison.
         Module sends a server a packet with command to register new TNS Listener and checks
         for a response indicating an error. If the registration is errored, the target is not
-        vulnearble. Otherwise, the target is vulnerable to malicious registrations.
+        vulnerable. Otherwise, the target is vulnerable to malicious registrations.
       },
       'Author'         => ['ir0njaw (Nikita Kelesis) <nikita.elkey[at]gmail.com>'], # of Digital Security [http://dsec.ru]
       'References'     =>

@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Oracle SQL Generic Query',
       'Description'    => %q{
           This module allows for simple SQL statements to be executed
-          against a Oracle instance given the appropriate credentials
+          against an Oracle instance given the appropriate credentials
           and sid.
       },
       'Author'         => [ 'MC' ],

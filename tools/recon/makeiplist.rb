@@ -12,17 +12,16 @@
 # mubix
 #
 
-
 msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
+
 require 'msfenv'
 require 'rex'
 require 'optparse'
-
 
 class OptsConsole
   def self.parse(args)
@@ -78,7 +77,6 @@ Usage: #{__FILE__} [options]|
   end
 end
 
-
 #
 # Prints IPs
 #
@@ -90,7 +88,6 @@ def make_list(in_f, out_f)
       end
     end
 end
-
 
 #
 # Returns file handles
@@ -105,7 +102,6 @@ def load_files(in_f, out_f)
 
   return handle_in, handle_out
 end
-
 
 options = OptsConsole.parse(ARGV)
 in_f, out_f = load_files(options['input'], options['output'])

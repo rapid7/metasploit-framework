@@ -209,10 +209,10 @@ module ModuleCommandDispatcher
     end
 
     rhost = instance.datastore['RHOST']
-    rport = nil
+    rport = instance.datastore['RPORT']
     peer = rhost
-    if instance.datastore['rport']
-      rport = instance.rport
+    if rport
+      rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
 

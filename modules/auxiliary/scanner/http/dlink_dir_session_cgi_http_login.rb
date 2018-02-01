@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
           This module attempts to authenticate to different D-Link HTTP management
         services. It has been tested successfully on D-Link DIR-300 Hardware revision B,
         D-Link DIR-600 Hardware revision B, D-Link DIR-815 Hardware revision A and DIR-645
-        Hardware revision A devices.It is possible that this module also works with	other
+        Hardware revision A devices. It is possible that this module also works with other
         models.
       },
       'Author'         =>

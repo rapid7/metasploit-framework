@@ -119,11 +119,16 @@ class Automotive < Extension
     # TODO: Implement sending ISO-TP > 8 bytes
     data = [ data ] if data.is_a? Integer
     if data.size < 8
-      data = padd_packet(data, opt['PADDING']) if opt.key? 'PADDING'
+      # Padding is handled differently after 0.0.3
+      if Gem::Version.new(client.api_version) < Gem::Version.new('0.0.4')
+        data = padd_packet(data, opt['PADDING']) if opt.key? 'PADDING'
+      end
       data = array2hex(data).join
       request_str = "/automotive/#{bus}/isotpsend_and_wait?srcid=#{src_id}&dstid=#{dst_id}&data=#{data}"
       request_str += "&timeout=#{opt['TIMEOUT']}" if opt.key? "TIMEOUT"
       request_str += "&maxpkts=#{opt['MAXPKTS']}" if opt.key? "MAXPKTS"
+      request_str += "&padding=#{opt['PADDING']}" if opt.key? "PADDING" # Won't hurt to use in older versions
+      request_str += "&fc=#{opt['FC']}" if opt.key? "FC" # Force flow control
       return check_for_errors(client.send_request(request_str))
     end
     nil

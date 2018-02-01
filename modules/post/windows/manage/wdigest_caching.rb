@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{
           On Windows 8/2012 or higher, the Digest Security Provider (WDIGEST) is disabled by default. This module enables/disables
           credential caching by adding/changing the value of the UseLogonCredential DWORD under the WDIGEST provider's Registry key.
-          Any subsequest logins will allow mimikatz to recover the plain text passwords from the system's memory.
+          Any subsequent logins will allow mimikatz to recover the plain text passwords from the system's memory.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Kostas Lintovois <kostas.lintovois[at]mwrinfosecurity.com>'],

@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Post
       OptInt.new('SRCID', [true, "Module ID to query", 0x7e0]),
       OptInt.new('DSTID', [false, "Expected reponse ID, defaults to SRCID + 8", 0x7e8]),
       OptInt.new('PADDING', [false, "Optinal end of packet padding", nil]),
+      OptBool.new('FC', [false, "Optinal forces flow control", nil]),
       OptBool.new('CLEAR_DTCS', [false, "Clear any DTCs and reset MIL if errors are present", false]),
       OptString.new('CANBUS', [false, "CAN Bus to perform scan on, defaults to connected bus", nil])
     ])
@@ -33,6 +34,7 @@ class MetasploitModule < Msf::Post
   def run
     opt = {}
     opt['PADDING'] = datastore["PADDING"] if datastore["PADDING"]
+    opt['FC'] = datastore['FC'] if datastore['FC']
     pids = get_current_data_pids(datastore["CANBUS"], datastore["SRCID"], datastore["DSTID"], opt)
     if pids.size == 0
       print_status("No reported PIDs. You may not be properly connected")

@@ -165,6 +165,14 @@ require 'msf/core/exe/segment_appender'
       # XXX: Add remaining ARMLE systems here
     end
 
+    if arch.index(ARCH_AARCH64)
+      if plat.index(Msf::Module::Platform::Linux)
+        return to_linux_aarch64_elf(framework, code)
+      end
+
+      # XXX: Add remaining AARCH64 systems here
+    end
+
     if arch.index(ARCH_PPC)
       if plat.index(Msf::Module::Platform::OSX)
         return to_osx_ppc_macho(framework, code)
@@ -698,6 +706,49 @@ require 'msf/core/exe/segment_appender'
     end
   end
 
+
+  # self.to_win32pe_dll
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :exe_type
+  # @option           [String] :dll
+  # @option           [String] :inject
+  # @return           [String]
+  def self.to_win32pe_dccw_gdiplus_dll(framework, code, opts = {})
+    # Allow the user to specify their own DLL template
+    set_template_default(opts, "template_x86_windows_dccw_gdiplus.dll")
+    opts[:exe_type] = :dll
+
+    if opts[:inject]
+      self.to_win32pe(framework, code, opts)
+    else
+      exe_sub_method(code,opts)
+    end
+  end
+
+  # self.to_win64pe_dll
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :exe_type
+  # @option           [String] :dll
+  # @option           [String] :inject
+  # @return           [String]
+  def self.to_win64pe_dccw_gdiplus_dll(framework, code, opts = {})
+    # Allow the user to specify their own DLL template
+    set_template_default(opts, "template_x64_windows_dccw_gdiplus.dll")
+    opts[:exe_type] = :dll
+
+    if opts[:inject]
+      raise RuntimeError, 'Template injection unsupported for x64 DLLs'
+    else
+      exe_sub_method(code,opts)
+    end
+  end
+
   # Wraps an executable inside a Windows .msi file for auto execution when run
   #
   # @param framework  [Msf::Framework]  The framework of you want to use
@@ -1049,7 +1100,7 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_x64_linux.bin", code)
   end
 
-  # Create a 32-bit x86 Linux ELF_DYN containing the payload provided in +code+
+  # Create a 32-bit Linux ELF_DYN containing the payload provided in +code+
   #
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -1060,7 +1111,7 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_x86_linux_dll.bin", code)
   end
 
-  # Create a 64-bit x86_64 Linux ELF_DYN containing the payload provided in +code+
+  # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
   #
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -1071,18 +1122,7 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_x64_linux_dll.bin", code)
   end
 
-  # Create a 64-bit AARCH64 Linux ELF containing the payload provided in +code+
-  #
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_aarch64_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_aarch64_linux.bin", code)
-  end
-
-  # Create a 32-bit ARMLE Linux ELF containing the payload provided in +code+
+  # self.to_linux_armle_elf
   #
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -1093,18 +1133,18 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_armle_linux.bin", code)
   end
 
-  # Create a 32-bit ARMLE Linux ELF_DYN containing the payload provided in +code+
+  # self.to_linux_aarch64_elf
   #
   # @param framework [Msf::Framework]
   # @param code       [String]
   # @param opts       [Hash]
   # @option           [String] :template
   # @return           [String] Returns an elf
-  def self.to_linux_armle_elf_dll(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_armle_linux_dll.bin", code)
+  def self.to_linux_aarch64_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_aarch64_linux.bin", code)
   end
 
-  # Create a 32-bit MIPSLE Linux ELF containing the payload provided in +code+
+  # self.to_linux_mipsle_elf
   # Little Endian
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -1115,7 +1155,7 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_mipsle_linux.bin", code)
   end
 
-  # Create a 32-bit MIPSBE Linux ELF containing the payload provided in +code+
+  # self.to_linux_mipsbe_elf
   # Big Endian
   # @param framework [Msf::Framework]
   # @param code       [String]

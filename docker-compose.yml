@@ -1,10 +1,7 @@
-version: '2'
+version: '3'
 services:
   ms:
-    image: metasploit
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
+    image: metasploitframework/metasploit-framework:latest
     environment:
       DATABASE_URL: postgres://postgres@db:5432/msf
     links:
@@ -16,7 +13,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   db:
-    image: postgres:9-alpine
+    image: postgres:10-alpine
     volumes:
       - pg_data:/var/lib/postgresql/data
 

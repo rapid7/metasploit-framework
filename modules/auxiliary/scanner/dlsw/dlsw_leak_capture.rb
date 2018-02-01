@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q(
         This module implements the DLSw information disclosure retrieval. There
         is a bug in Cisco's DLSw implementation affecting 12.x and 15.x trains
-        that allows an unuthenticated remote attacker to retrieve the partial
+        that allows an unauthenticated remote attacker to retrieve the partial
         contents of packets traversing a Cisco router with DLSw configured
         and active.
       ),

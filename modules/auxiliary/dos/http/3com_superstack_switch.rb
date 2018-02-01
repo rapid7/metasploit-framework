@@ -18,11 +18,11 @@ class MetasploitModule < Msf::Auxiliary
         against a 3300SM firmware v2.66. Reported to affect versions
         prior to v2.72.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          # patrickw - I am not sure if these are correct, but the closest match!
+          # aushack - I am not sure if these are correct, but the closest match!
           [ 'OSVDB', '7246' ],
           [ 'CVE', '2004-2691' ],
           [ 'URL', 'http://support.3com.com/infodeli/tools/switches/dna1695-0aaa17.pdf' ],

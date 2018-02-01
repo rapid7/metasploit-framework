@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'         => 'SAP Management Console getStartProfile',
       'Description'  => %q{
-        This module simply attempts to acces the SAP startup profile
+        This module simply attempts to access the SAP startup profile
         through the SAP Management Console SOAP Interface.
         },
       'References'   =>

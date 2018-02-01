@@ -34,18 +34,15 @@ class String
   def cyan
     "\e[1;36;40m#{self}\e[0m"
   end
-
-  def ascii_only?
-    self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
-  end
 end
 
 class Msftidy
 
   # Status codes
-  OK       = 0x00
-  WARNINGS = 0x10
-  ERRORS   = 0x20
+  OK       = 0
+  INFO     = 1
+  WARNING  = 2
+  ERROR    = 3
 
   # Some compiles regexes
   REGEX_MSF_EXPLOIT = / \< Msf::Exploit/
@@ -73,7 +70,7 @@ class Msftidy
   # error.
   def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
-    @status == ERRORS ? @status = ERRORS : @status = WARNINGS
+    @status += WARNING
   end
 
   #
@@ -85,7 +82,7 @@ class Msftidy
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
-    @status = ERRORS
+    @status += ERROR
   end
 
   # Currently unused, but some day msftidy will fix errors for you.
@@ -101,6 +98,7 @@ class Msftidy
     return if SUPPRESS_INFO_MESSAGES
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
+    @status += INFO
   end
 
   ##
@@ -316,10 +314,6 @@ class Msftidy
           end
         end
 
-        if not mod_title.ascii_only?
-          error("Please avoid unicode or non-printable characters in module title.")
-        end
-
         # Since we're looking at the module title, this line clearly cannot be
         # the author block, so no point to run more code below.
         next
@@ -351,10 +345,6 @@ class Msftidy
 
         if author_name =~ /^@.+$/
           error("No Twitter handles, please. Try leaving it in a comment instead.")
-        end
-
-        if not author_name.ascii_only?
-          error("Please avoid unicode or non-printable characters in Author")
         end
 
         unless author_name.empty?
@@ -538,10 +528,6 @@ class Msftidy
       # ignore stuff after an __END__ line
       src_ended = true if ln =~ /^__END__$/
       next if src_ended
-
-      if ln =~ /[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]/
-        error("Unicode detected: #{ln.inspect}", idx)
-      end
 
       if ln =~ /[ \t]$/
         warn("Spaces at EOL", idx)

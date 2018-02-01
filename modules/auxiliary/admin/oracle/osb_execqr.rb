@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle Secure Backup exec_qr() Command Injection Vulnerability',
       'Description'    => %q{
-          This module exploits a command injection vulnerablility in Oracle Secure Backup version 10.1.0.3 to 10.2.0.2.
+          This module exploits a command injection vulnerability in Oracle Secure Backup version 10.1.0.3 to 10.2.0.2.
       },
       'Author'         => [ 'MC' ],
       'License'        => MSF_LICENSE,

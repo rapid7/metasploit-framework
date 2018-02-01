@@ -33,20 +33,24 @@ class Config < Hash
       return val
     end
 
+    # XXX Update this when there is a need to break compatibility
+    config_dir_major = 4
+    config_dir = ".msf#{config_dir_major}"
+
     # Windows-specific environment variables
     ['HOME', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
       val = Rex::Compat.getenv(dir)
       if (val and File.directory?(val))
-        return File.join(val, ".msf#{Metasploit::Framework::Version::MAJOR}")
+        return File.join(val, config_dir)
       end
     end
 
     begin
       # First we try $HOME/.msfx
-      File.expand_path("~#{FileSep}.msf#{Metasploit::Framework::Version::MAJOR}")
+      File.expand_path("~#{FileSep}#{config_dir}")
     rescue ::ArgumentError
       # Give up and install root + ".msfx"
-      InstallRoot + ".msf#{Metasploit::Framework::Version::MAJOR}"
+      InstallRoot + config_dir
     end
   end
 

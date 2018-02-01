@@ -28,15 +28,11 @@ class MetasploitModule < Msf::Auxiliary
         this module will record successful logins and hosts so you can
         track your access.
 
-        Note that password-protected key files will not function with this
-        module -- it is designed specifically for unencrypted (passwordless)
-        keys.
-
-        Key files may be a single private (unencrypted) key, or several private
-        keys concatenated together as an ASCII text file. Non-key data should be
-        silently ignored.
+        Key files may be a single private key, or several private keys in a single
+        directory. Only a single passphrase is supported however, so it must either
+        be shared between subject keys or only belong to a single one.
       },
-      'Author'      => ['todb'],
+      'Author'      => ['todb', 'RageLtMan'],
       'License'     => MSF_LICENSE
     )
 
@@ -44,6 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(22),
         OptPath.new('KEY_PATH', [true, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped.']),
+        OptString.new('KEY_PASS', [false, 'Passphrase for SSH private key(s)']),
       ], self.class
     )
 
@@ -63,81 +60,12 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
-  def key_dir
-    datastore['KEY_DIR']
-  end
-
   def rport
     datastore['RPORT']
   end
 
   def ip
     datastore['RHOST']
-  end
-
-  def read_keyfile(file)
-    if file == :keyfile_b64
-      keyfile = datastore['SSH_KEYFILE_B64'].unpack("m*").first
-    elsif file.kind_of? Array
-      keyfile = ''
-      file.each do |dir_entry|
-        next unless File.readable? dir_entry
-        keyfile << File.open(dir_entry, "rb") {|f| f.read(f.stat.size)}
-      end
-    else
-      keyfile = File.open(file, "rb") {|f| f.read(f.stat.size)}
-    end
-    keys = []
-    this_key = []
-    in_key = false
-    keyfile.split("\n").each do |line|
-      in_key = true if(line =~ /^-----BEGIN [RD]SA PRIVATE KEY-----/)
-      this_key << line if in_key
-      if(line =~ /^-----END [RD]SA PRIVATE KEY-----/)
-        in_key = false
-        keys << (this_key.join("\n") + "\n")
-        this_key = []
-      end
-    end
-    if keys.empty?
-      print_error "#{ip}:#{rport} SSH - No keys found."
-    end
-    return validate_keys(keys)
-  end
-
-  # Validates that the key isn't total garbage. Also throws out SSH2 keys --
-  # can't use 'em for Net::SSH.
-  def validate_keys(keys)
-    keepers = []
-    keys.each do |key|
-      # Needs a beginning
-      next unless key =~ /^-----BEGIN [RD]SA PRIVATE KEY-----\x0d?\x0a/m
-      # Needs an end
-      next unless key =~ /\n-----END [RD]SA PRIVATE KEY-----\x0d?\x0a?$/m
-      # Shouldn't have binary.
-      next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff]/).empty?
-      # Add more tests to taste.
-      keepers << key
-    end
-    if keepers.empty?
-      print_error "#{ip}:#{rport} SSH - No valid keys found"
-    end
-    return keepers
-  end
-
-  def pull_cleartext_keys(keys)
-    cleartext_keys = []
-    keys.each do |key|
-      next unless key
-      next if key =~ /Proc-Type:.*ENCRYPTED/
-      this_key = key.gsub(/\x0d/,"")
-      next if cleartext_keys.include? this_key
-      cleartext_keys << this_key
-    end
-    if cleartext_keys.empty?
-      print_error "#{ip}:#{rport} SSH - No valid cleartext keys found"
-    end
-    return cleartext_keys
   end
 
   def session_setup(result, ssh_socket, fingerprint)
@@ -196,6 +124,7 @@ class MetasploitModule < Msf::Auxiliary
 
     keys = KeyCollection.new(
       key_path: datastore['KEY_PATH'],
+      password: datastore['KEY_PASS'],
       user_file: datastore['USER_FILE'],
       username: datastore['USERNAME'],
     )
@@ -289,7 +218,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     def valid_key?(key_data)
-      !!(key_data.match(/BEGIN [RD]SA PRIVATE KEY/) && !key_data.match(/Proc-Type:.*ENCRYPTED/))
+      !!(key_data.match(/BEGIN [RECD]SA PRIVATE KEY/) && !key_data.match(/Proc-Type:.*ENCRYPTED/))
     end
 
     def each
@@ -321,13 +250,7 @@ class MetasploitModule < Msf::Auxiliary
 
     def read_key(filename)
       @cache ||= {}
-      unless @cache[filename]
-        data = File.open(filename, 'rb') { |fd| fd.read(fd.stat.size) }
-        #if data.match
-
-        @cache[filename] = data
-      end
-
+      @cache[filename] ||= Net::SSH::KeyFactory.load_data_private_key(File.read(key_path), password, false, key_path).to_s
       @cache[filename]
     end
 

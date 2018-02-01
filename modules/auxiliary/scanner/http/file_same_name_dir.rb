@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         in a given directory path named as the same name of the
         directory.
 
-        Only works if PATH is differenet than '/'.
+        Only works if PATH is different than '/'.
       },
       'Author' 		=> [ 'et [at] metasploit.com' ],
       'License'		=> BSD_LICENSE))

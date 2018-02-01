@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         local files. This allows the user to read any files from the FS as the
         user Openbravo is running as (generally not root).
 
-        This module was tested againt Openbravo ERP version 3.0MP25 and 2.50MP6.
+        This module was tested against Openbravo ERP version 3.0MP25 and 2.50MP6.
       },
       'Author' =>
         [

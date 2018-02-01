@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Microsoft IIS HTTP Internal IP Disclosure',
       'Description' => %q{
-        Collect any leaked internal IPs by requesting commonly redirected locs from IIS.
+        Collect any leaked internal IPs by requesting commonly redirected locations from IIS.
       },
       'Author'       => ['Heather Pilkington'],
       'License'     => MSF_LICENSE

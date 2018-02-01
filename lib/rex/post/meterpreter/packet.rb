@@ -102,7 +102,8 @@ TLV_TYPE_TRANS_PROXY_USER    = TLV_META_TYPE_STRING | 437
 TLV_TYPE_TRANS_PROXY_PASS    = TLV_META_TYPE_STRING | 438
 TLV_TYPE_TRANS_RETRY_TOTAL   = TLV_META_TYPE_UINT   | 439
 TLV_TYPE_TRANS_RETRY_WAIT    = TLV_META_TYPE_UINT   | 440
-TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 441
+TLV_TYPE_TRANS_HEADERS       = TLV_META_TYPE_STRING | 441
+TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 442
 
 TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
 TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
@@ -114,11 +115,26 @@ TLV_TYPE_SYM_KEY             = TLV_META_TYPE_RAW    | 552
 TLV_TYPE_ENC_SYM_KEY         = TLV_META_TYPE_RAW    | 553
 
 #
+# Pivots
+#
+TLV_TYPE_PIVOT_ID              = TLV_META_TYPE_RAW    |  650
+TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  651
+TLV_TYPE_PIVOT_STAGE_DATA_SIZE = TLV_META_TYPE_UINT   |  652
+TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  653
+
+
+#
 # Core flags
 #
 LOAD_LIBRARY_FLAG_ON_DISK   = (1 << 0)
 LOAD_LIBRARY_FLAG_EXTENSION = (1 << 1)
 LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
+
+#
+# Sane defaults
+#
+GUID_SIZE = 16
+NULL_GUID = "\x00" * GUID_SIZE
 
 ###
 #
@@ -226,6 +242,11 @@ class Tlv
       when TLV_TYPE_SYM_KEY_TYPE; "SYM-KEY-TYPE"
       when TLV_TYPE_SYM_KEY; "SYM-KEY"
       when TLV_TYPE_ENC_SYM_KEY; "ENC-SYM-KEY"
+
+      when TLV_TYPE_PIVOT_ID; "PIVOT-ID"
+      when TLV_TYPE_PIVOT_STAGE_DATA; "PIVOT-STAGE-DATA"
+      when TLV_TYPE_PIVOT_STAGE_DATA_SIZE; "PIVOT-STAGE-DATA-SIZE"
+      when TLV_TYPE_PIVOT_NAMED_PIPE_NAME; "PIVOT-NAMED-PIPE-NAME"
 
       #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
       #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
@@ -624,6 +645,8 @@ class Packet < GroupTlv
   attr_accessor :created_at
   attr_accessor :raw
   attr_accessor :session_guid
+  attr_accessor :encrypt_flags
+  attr_accessor :length
 
   ##
   #
@@ -654,11 +677,10 @@ class Packet < GroupTlv
   ###
 
   XOR_KEY_SIZE = 4
-  SESSION_GUID_SIZE = 16
   ENCRYPTED_FLAGS_SIZE = 4
   PACKET_LENGTH_SIZE = 4
   PACKET_TYPE_SIZE = 4
-  PACKET_HEADER_SIZE = XOR_KEY_SIZE + SESSION_GUID_SIZE + ENCRYPTED_FLAGS_SIZE + PACKET_LENGTH_SIZE + PACKET_TYPE_SIZE
+  PACKET_HEADER_SIZE = XOR_KEY_SIZE + GUID_SIZE + ENCRYPTED_FLAGS_SIZE + PACKET_LENGTH_SIZE + PACKET_TYPE_SIZE
 
   AES_IV_SIZE = 16
 
@@ -684,6 +706,7 @@ class Packet < GroupTlv
   def Packet.create_response(request = nil)
     response_type = PACKET_TYPE_RESPONSE
     method = nil
+    id = nil
 
     if (request)
       if (request.type?(PACKET_TYPE_PLAIN_REQUEST))
@@ -691,9 +714,19 @@ class Packet < GroupTlv
       end
 
       method = request.method
+
+      if request.has_tlv?(TLV_TYPE_REQUEST_ID)
+        id = request.get_tlv_value(TLV_TYPE_REQUEST_ID)
+      end
     end
 
-    Packet.new(response_type, method)
+    packet = Packet.new(response_type, method)
+
+    if id
+      packet.add_tlv(TLV_TYPE_REQUEST_ID, id)
+    end
+
+    packet
   end
 
   ##
@@ -786,7 +819,7 @@ class Packet < GroupTlv
   def to_r(session_guid = nil, key = nil)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
 
-    raw = [(session_guid || '00' * SESSION_GUID_SIZE).gsub(/-/, '')].pack('H*')
+    raw = (session_guid || NULL_GUID).dup
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
     if key && key[:key] && key[:type] == ENC_FLAG_AES256
@@ -817,6 +850,12 @@ class Packet < GroupTlv
     end
   end
 
+  def parse_header!
+    xor_key = self.raw.unpack('a4')[0]
+    data = xor_bytes(xor_key, self.raw[0..PACKET_HEADER_SIZE])
+    _, self.session_guid, self.encrypt_flags, self.length, self.type = data.unpack('a4a16NNN')
+  end
+
   #
   # Override the function that reads from a raw byte stream so
   # that the XORing of data is included in the process prior to
@@ -824,11 +863,11 @@ class Packet < GroupTlv
   # the TLV values.
   #
   def from_r(key=nil)
+    self.parse_header!
     xor_key = self.raw.unpack('a4')[0]
-    data = xor_bytes(xor_key, self.raw)
-    _, self.session_guid, encrypt_flags, length, type = data.unpack('a4a16NNN')
-    raw = decrypt_packet(key, encrypt_flags, data[PACKET_HEADER_SIZE..-1])
-    super([length, type, raw].pack('NNA*'))
+    data = xor_bytes(xor_key, self.raw[PACKET_HEADER_SIZE..-1])
+    raw = decrypt_packet(key, self.encrypt_flags, data)
+    super([self.length, self.type, raw].pack('NNA*'))
   end
 
   #

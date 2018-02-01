@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via DBMS_EXPORT_EXTENSION',
       'Description'    => %q{
-        This module will escalate a Oracle DB user to DBA by exploiting an
+        This module will escalate an Oracle DB user to DBA by exploiting a
         sql injection bug in the DBMS_EXPORT_EXTENSION.GET_DOMAIN_INDEX_METADATA package.
 
         Note: This module has been tested against 9i, 10gR1 and 10gR2.

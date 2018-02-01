@@ -20,8 +20,8 @@ class MetasploitModule < Msf::Auxiliary
         which will cause a popup window to be used. This requires a click from the user
         and is much less stealthy, but is generally harmless-looking.
 
-        By supplying a CUSTOM_JS paramter and ensuring CLOSE_POPUP is set to false, this
-        module also allows running aribrary javascript in the context of the targeted URL.
+        By supplying a CUSTOM_JS parameter and ensuring CLOSE_POPUP is set to false, this
+        module also allows running aribtrary javascript in the context of the targeted URL.
         Some sample UXSS scripts are provided in data/exploits/uxss.
       },
       'Author'         => [

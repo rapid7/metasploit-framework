@@ -30,6 +30,10 @@ PIDs to ASCII.
 
   Optional byte-value to use for padding all CAN bus packets to an 8-byte length.  Padding is disabled by default.
 
+  **FC**
+
+  Optional.  If true forces sending flow control packets on all multibyte ISO-TP requests
+
 ## Scenarios
 
   Given a standard vehicle ECU that is connected to can2 of the HWBridge device:

@@ -70,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.3.1'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.3.28'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.2.0'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.3.6'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -123,9 +123,9 @@ Gem::Specification.new do |spec|
   # Protocol Libraries
   #
   spec.add_runtime_dependency 'dnsruby'
+  spec.add_runtime_dependency 'mqtt'
   spec.add_runtime_dependency 'net-ssh'
   spec.add_runtime_dependency 'rbnacl', ['< 5.0.0']
-  spec.add_runtime_dependency 'rbnacl-libsodium'
   spec.add_runtime_dependency 'bcrypt_pbkdf'
   spec.add_runtime_dependency 'ruby_smb'
 
@@ -139,7 +139,7 @@ Gem::Specification.new do |spec|
   # Library for Generating Randomized strings valid as Identifiers such as variable names
   spec.add_runtime_dependency 'rex-random_identifier'
   # library for creating Powershell scripts for exploitation purposes
-  spec.add_runtime_dependency 'rex-powershell', ["< 0.1.73"]
+  spec.add_runtime_dependency 'rex-powershell', ["< 0.1.78"]
   # Library for processing and creating Zip compatbile archives
   spec.add_runtime_dependency 'rex-zip'
   # Library for parsing offline Windows Registry files
@@ -171,8 +171,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rex-exploitation'
   # Command line editing, history, and tab completion in msfconsole
   spec.add_runtime_dependency 'rb-readline'
-  # Needed by anemone crawler
-  spec.add_runtime_dependency 'robots'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
   # Needed for some post modules
@@ -189,4 +187,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'nexpose'
   # Needed for NDMP sockets
   spec.add_runtime_dependency 'xdr'
+  # Needed for ::Msf...CertProvider
+  spec.add_runtime_dependency 'faker'
 end
