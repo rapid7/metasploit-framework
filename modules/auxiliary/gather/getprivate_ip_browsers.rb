@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def setup
-    @html = %|
+     @html = <<-JS
     <script>
 function userIP(onNewIP){
 var myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
@@ -64,12 +64,11 @@ ice.candidate.candidate.match(ipRegex).forEach(iterateIP);
     };
 }
 
-
 userIP(function(ip){
     alert("Your Internal IP :" + ip);
 });
 </script>
-    |
+JS
   end
 
   def on_request_uri(cli, _request)
