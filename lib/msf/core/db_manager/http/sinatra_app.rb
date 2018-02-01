@@ -1,6 +1,5 @@
 require 'sinatra/base'
 require 'msf/core/db_manager/http/servlet_helper'
-require 'msf/core/db_manager/http/aws/sns_handler'
 require 'msf/core/db_manager/http/servlet/host_servlet'
 require 'msf/core/db_manager/http/servlet/note_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_servlet'
@@ -17,8 +16,6 @@ require 'msf/core/db_manager/http/servlet/credential_servlet'
 require 'msf/core/db_manager/http/servlet/nmap_servlet'
 
 class SinatraApp < Sinatra::Base
-
-  use SNSHandler
 
   helpers ServletHelper
 

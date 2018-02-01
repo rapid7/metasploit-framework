@@ -110,7 +110,7 @@ class RemoteHTTPDataService
     begin
       query_str = (!query.nil? && !query.empty?) ? URI.encode_www_form(append_workspace(query)) : nil
       uri = URI::HTTP::build({path: path, query: query_str})
-      puts "#{Time.now} - HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}"
+      dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
       client = @client_pool.pop()
       case request_type
@@ -130,20 +130,17 @@ class RemoteHTTPDataService
 
       case response
         when Net::HTTPOK
-          # puts 'request sent successfully'
           return SuccessResponse.new(response)
         else
-          puts "HTTP #{request_type} request: #{uri.request_uri} failed with code: #{response.code} message: #{response.body}"
+          ilog "HTTP #{request_type} request: #{uri.request_uri} failed with code: #{response.code} message: #{response.body}"
           return FailedResponse.new(response)
       end
     rescue EOFError => e
-      puts "ERROR: No data was returned from the server."
-      puts "Backtrace: #{e.message}"
-      e.backtrace.each { |line| puts "#{line}\n"}
-      return FailedResponse.new("")
+      elog "No data was returned from the data service for request path : #{path}, message: #{e.message}"
+      return FailedResponse.new('')
     rescue Exception => e
-      puts "Problem with HTTP #{request_type} request: #{e.message}"
-      e.backtrace.each { |line| puts "#{line}\n" }
+      elog "Problem with HTTP request for path: #{path} message: #{e.message}"
+      return FailedResponse.new('')
     ensure
       @client_pool << client
     end
@@ -155,32 +152,6 @@ class RemoteHTTPDataService
   def active
     return true
   end
-
-  # def do_nl_search(search)
-  #   search_item = search.query.split(".")[0]
-  #   case search_item
-  #     when "host"
-  #       do_host_search(search)
-  #   end
-  # end
-
-  # def active
-  #   begin
-  #     request_opts = {'method' => 'GET', 'uri' => ONLINE_TEST_URL}
-  #     request = @client.request_raw(request_opts)
-  #     response = @client._send_recv(request)
-  #     if response.code == 200
-  #       try_sound_effect()
-  #       return true
-  #     else
-  #       puts "request failed with code: #{response.code} message: #{response.message}"
-  #       return false
-  #     end
-  #   rescue Exception => e
-  #     puts "Unable to contact goliath service: #{e.message}"
-  #     return false
-  #   end
-  # end
 
   def name
     "remote_data_service: (#{@endpoint})"
@@ -253,10 +224,10 @@ class RemoteHTTPDataService
     if !data_hash.nil? && !data_hash.empty?
       data_hash.each do |k,v|
         if v.is_a?(Msf::Session)
-          puts "#{Time.now} - DEBUG: Dropping Msf::Session object before converting to JSON."
-          puts "data_hash is #{data_hash}"
-          puts "Callstack:"
-          caller.each { |line| puts "#{line}\n"}
+          dlog('Dropping Msf::Session object before converting to JSON.')
+          dlog("data_hash is #{data_hash}")
+          dlog('Callstack:')
+          caller.each { |line| dlog("#{line}\n")}
           data_hash.delete(k)
         end
       end
@@ -310,11 +281,6 @@ class RemoteHTTPDataService
     return false unless pkr.to_pem == pka.to_pem
 
     true
-  end
-
-  def try_sound_effect()
-    sound_file = ::File.join(Msf::Config.data_directory, "sounds", "Goliath_Online_Sound_Effect.wav")
-    Rex::Compat.play_sound(sound_file)
   end
 
 end

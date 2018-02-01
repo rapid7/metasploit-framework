@@ -33,6 +33,26 @@ module DataService
   def active
     raise 'DataLService#active is not implemented';
   end
+
+  class Metadata
+    attr_reader :id
+    attr_reader :name
+    attr_reader :active
+
+    def initialize (id, name, active)
+      self.id = id
+      self.name = name
+      self.active = active
+    end
+
+    private
+    attr_writer  :id
+    attr_writer :name
+    attr_writer :active
+
+  end
+
 end
+
 end
 end
