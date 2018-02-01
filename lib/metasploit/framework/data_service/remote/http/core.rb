@@ -31,6 +31,18 @@ class RemoteHTTPDataService
     build_client_pool(5)
   end
 
+  def connection_established?
+    true
+  end
+
+  def after_establish_connection
+
+  end
+
+  def error
+    'none'
+  end
+
   #
   # POST data to the HTTP endpoint and don't wait for the endpoint to process the data before getting a response
   #

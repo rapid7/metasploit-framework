@@ -110,20 +110,6 @@ class DataProxy
     false
   end
 
-  #
-  # Attempt to shutdown the local db process if it exists
-  #
-  def exit_called
-    if @pid
-      ilog 'Shutdown called, attempting to kill db process'
-      begin
-        Process.kill('TERM', @pid)
-      rescue Exception => e
-        elog "Unable to kill db process: #{e.message}"
-      end
-    end
-  end
-
   def get_data_service
     raise 'No registered data_service' unless @current_data_service
     return @current_data_service
@@ -139,14 +125,11 @@ class DataProxy
       if !db_manager.nil?
         register_data_service(db_manager, true)
         @usable = true
-      elsif opts['DatabaseRemoteProcess']
-        run_remote_db_process(opts)
-        @usable = true
       else
         @error = 'disabled'
       end
     rescue Exception => e
-      raise "Unable to initialize a dataservice #{e.message}"
+      raise "Unable to initialize data service: #{e.message}"
     end
   end
 
@@ -164,19 +147,6 @@ class DataProxy
     }
 
     return false
-  end
-
-
-  def run_remote_db_process(opts)
-    # started with no signal to prevent ctrl-c from taking out db
-    db_script = File.join( Msf::Config.install_root, "msfdb -ns")
-    wait_t = Open3.pipeline_start(db_script)
-    @pid = wait_t[0].pid
-    dlog("Started data service process with pid #{@pid}")
-
-    endpoint = URI.parse('http://localhost:8080')
-    remote_host_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint)
-    register_data_service(remote_host_data_service, true)
   end
 
 end

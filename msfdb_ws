@@ -20,7 +20,7 @@ end
 def parse_args(args)
   opts = {}
   opt = OptionParser.new
-  banner = "msfdb - A remote database process for Metasploit Framework.\n"
+  banner = "msfdb_ws - Metasploit data store as a web service.\n"
   banner << "Usage: #{$0} [options] <var=val>"
   opt.banner = banner
   opt.separator('')

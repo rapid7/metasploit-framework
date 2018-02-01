@@ -7,14 +7,6 @@ class HttpDBManagerService
 
   def start(opts)
     parsed_options = Metasploit::Framework::ParsedOptions::RemoteDB.new
-    if (parsed_options.options.database.no_signal)
-      print_warning 'Trap handling removed'
-      opts[:signals] = false
-      @shutdown_on_interupt = false
-    else
-      @shutdown_on_interupt = true
-    end
-
     require_environment!(parsed_options)
 
     if opts[:ssl]
@@ -35,13 +27,6 @@ class HttpDBManagerService
   def start_http_server(opts)
 
     Rack::Handler::Thin.run(SinatraApp, opts) do |server|
-
-      # TODO: prevent accidental shutdown from msfconsole eg: ctrl-c
-      [:INT, :TERM].each { |sig|
-        trap(sig) {
-          server.stop if (@shutdown_on_interupt || sig == :TERM)
-        }
-      }
 
       if opts[:ssl] && opts[:ssl] = true
         print_good "SSL Enabled"

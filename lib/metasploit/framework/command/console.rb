@@ -79,7 +79,6 @@ class Metasploit::Framework::Command::Console < Metasploit::Framework::Command::
       driver_options['DatabaseEnv'] = options.environment
       driver_options['DatabaseMigrationPaths'] = options.database.migrations_paths
       driver_options['DatabaseYAML'] = options.database.config
-      driver_options['DatabaseRemoteProcess'] = options.database.remote_process
       driver_options['DeferModuleLoads'] = options.modules.defer_loads
       driver_options['DisableBanner'] = options.console.quiet
       driver_options['DisableDatabase'] = options.database.disable

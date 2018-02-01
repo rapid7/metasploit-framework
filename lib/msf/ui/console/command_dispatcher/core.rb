@@ -457,7 +457,6 @@ class Core
     forced = false
     forced = true if (args[0] and args[0] =~ /-y/i)
 
-    framework.db.exit_called
     if(framework.sessions.length > 0 and not forced)
       print_status("You have active sessions open, to exit anyway type \"exit -y\"")
       return
