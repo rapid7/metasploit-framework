@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.35)
+    metasploit-framework (4.16.36)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -108,7 +108,7 @@ GEM
     backports (3.11.1)
     bcrypt (3.1.11)
     bcrypt_pbkdf (1.0.0)
-    bindata (2.4.1)
+    bindata (2.4.2)
     bit-struct (0.16)
     builder (3.2.3)
     coderay (1.1.2)
@@ -204,7 +204,7 @@ GEM
     net-ssh (4.2.0)
     network_interface (0.0.2)
     nexpose (7.2.0)
-    nokogiri (1.8.1)
+    nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     octokit (4.8.0)
       sawyer (~> 0.8.0, >= 0.5.3)
@@ -323,7 +323,7 @@ GEM
       rspec-support (~> 3.7.0)
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
-    rspec-support (3.7.0)
+    rspec-support (3.7.1)
     ruby-rc4 (0.1.5)
     ruby_smb (0.0.18)
       bindata
