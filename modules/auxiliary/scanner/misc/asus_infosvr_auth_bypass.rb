@@ -10,8 +10,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'ASUS infosvr Scanner',
-      'Description'    => 'Discover ASUS infosvr servers vulnerable to CVE-2014-9583.',
+      'Name'           => 'ASUS infosvr Auth Bypass Scanner',
+      'Description'    => %q{
+        Discover ASUS infosvr servers on the local subnet vulnerable to
+        authentication bypass.
+      },
       'Author'         => [
         'Friedrich Postelstorfer', # Initial public disclosure and Python exploit
         'jduck', # Independent discovery and C exploit
