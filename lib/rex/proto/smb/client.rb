@@ -63,7 +63,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     #Misc
     self.spnopt = {}
-
+    self.default_max_buffer_size = 0xffdf
   end
 
   # Read a SMB packet from the socket
@@ -661,7 +661,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     pkt['Payload']['SMB'].v['WordCount'] = 10
     pkt['Payload'].v['AndX'] = 255
-    pkt['Payload'].v['MaxBuff'] = 0xffdf
+    pkt['Payload'].v['MaxBuff'] = self.default_max_buffer_size
     pkt['Payload'].v['MaxMPX'] = 2
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['PasswordLen'] = pass.length + 1
@@ -736,7 +736,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt['Payload']['SMB'].v['Flags2'] = 0x2001
     pkt['Payload']['SMB'].v['WordCount'] = 13
     pkt['Payload'].v['AndX'] = 255
-    pkt['Payload'].v['MaxBuff'] = 0xffdf
+    pkt['Payload'].v['MaxBuff'] = self.default_max_buffer_size
     pkt['Payload'].v['MaxMPX'] = 2
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
@@ -791,7 +791,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt['Payload']['SMB'].v['Flags2'] = 0x2001
     pkt['Payload']['SMB'].v['WordCount'] = 13
     pkt['Payload'].v['AndX'] = 255
-    pkt['Payload'].v['MaxBuff'] = 0xffdf
+    pkt['Payload'].v['MaxBuff'] = self.default_max_buffer_size
     pkt['Payload'].v['MaxMPX'] = 2
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
@@ -866,7 +866,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     end
     pkt['Payload']['SMB'].v['WordCount'] = 12
     pkt['Payload'].v['AndX'] = 255
-    pkt['Payload'].v['MaxBuff'] = 0xffdf
+    pkt['Payload'].v['MaxBuff'] = self.default_max_buffer_size
     pkt['Payload'].v['MaxMPX'] = 2
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['SecurityBlobLen'] = blob.length
@@ -942,7 +942,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt['Payload']['SMB'].v['WordCount'] = 12
     pkt['Payload']['SMB'].v['UserID'] = temp_user_id
     pkt['Payload'].v['AndX'] = 255
-    pkt['Payload'].v['MaxBuff'] = 0xffdf
+    pkt['Payload'].v['MaxBuff'] = self.default_max_buffer_size
     pkt['Payload'].v['MaxMPX'] = 2
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['Capabilities'] = 0x8000d05c
@@ -998,7 +998,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt['Payload']['SMB'].v['WordCount'] = 12
     pkt['Payload']['SMB'].v['UserID'] = userid
     pkt['Payload'].v['AndX'] = 255
-    pkt['Payload'].v['MaxBuff'] = 0xffdf
+    pkt['Payload'].v['MaxBuff'] = self.default_max_buffer_size
     pkt['Payload'].v['MaxMPX'] = 2
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['SecurityBlobLen'] = blob.length
@@ -1034,7 +1034,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt['Payload']['SMB'].v['Flags2'] = 0x2801
     pkt['Payload']['SMB'].v['WordCount'] = 12
     pkt['Payload'].v['AndX'] = 255
-    pkt['Payload'].v['MaxBuff'] = 0xffdf
+    pkt['Payload'].v['MaxBuff'] = self.default_max_buffer_size
     pkt['Payload'].v['MaxMPX'] = 2
     pkt['Payload'].v['VCNum'] = 1
     pkt['Payload'].v['SecurityBlobLen'] = blob.length
@@ -2043,6 +2043,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm
   attr_accessor :system_time, :system_zone
   attr_accessor :spnopt
+  attr_accessor :default_max_buffer_size
 
 # public read methods
   attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
