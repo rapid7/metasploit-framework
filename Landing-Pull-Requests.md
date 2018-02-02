@@ -39,7 +39,7 @@ So, open up `metasploit-framework/.git/config` with your favorite editor, add an
 [remote "upstream"]
   fetch = +refs/heads/*:refs/remotes/upstream/*
   fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
-  url = https://github.com/YOURNAME/metasploit-framework
+  url = https://github.com/rapid7/metasploit-framework
 ````
 
 And now it looks like this:
