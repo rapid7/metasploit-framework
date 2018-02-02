@@ -140,13 +140,16 @@ module Msf::DBManager::Host
 
     ::ActiveRecord::Base.connection_pool.with_connection {
 
-      if opts[:search_term]
-        conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Host, opts[:search_term])
-        wspace.hosts.where(conditions).order(:address)
+      conditions = {}
+      conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
+      conditions[:address] = opts[:addresses] if opts[:addresses] && !opts[:addresses].empty?
+
+      if opts[:search_term] && !opts[:search_term].empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Host, opts[:search_term])
+        tag_conditions = Arel::Nodes::Regexp.new(Mdm::Tag.arel_table[:name], Arel::Nodes.build_quoted("(?mi)#{opts[:search_term]}"))
+        search_conditions = column_search_conditions.or(tag_conditions)
+        wspace.hosts.where(conditions).where(search_conditions).includes(:tags).references(:tags).order(:address)
       else
-        conditions = {}
-        conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
-        conditions[:address] = opts[:addresses] if opts[:addresses]
         wspace.hosts.where(conditions).order(:address)
       end
     }
