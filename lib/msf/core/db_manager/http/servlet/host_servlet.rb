@@ -18,7 +18,7 @@ module HostServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db().hosts(opts)
+        data = get_db().hosts(params)
         includes = [:loots]
         set_json_response(data, includes)
       rescue Exception => e

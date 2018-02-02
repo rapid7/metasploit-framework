@@ -81,19 +81,6 @@ module Msf::DBManager::Host
     end
   end
 
-  def find_hosts_with_tag(opts)
-    workspace_id = opts[:workspace_id]
-    host_address = opts[:host_address]
-    tag_name = opts[:tag_name]
-    Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace_id, host_address, tag_name).references(:hosts).order("tags.id DESC")
-  end
-
-  def find_host_tags(opts)
-    workspace_id = opts[:workspace_id]
-    host_address = opts[:host_address]
-    Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", workspace.id, host_address).order("tags.id DESC")
-  end
-
   def delete_host_tag(opts)
     workspace = opts[:workspace]
     if workspace.kind_of? String
@@ -161,12 +148,21 @@ module Msf::DBManager::Host
       wspace = find_workspace(wspace)
     end
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    conditions = {}
-    conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
-    conditions[:address] = opts[:addresses] if opts[:addresses]
-    wspace.hosts.where(conditions).order(:address)
-  }
+    ::ActiveRecord::Base.connection_pool.with_connection {
+
+      conditions = {}
+      conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
+      conditions[:address] = opts[:addresses] if opts[:addresses] && !opts[:addresses].empty?
+
+      if opts[:search_term] && !opts[:search_term].empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Host, opts[:search_term])
+        tag_conditions = Arel::Nodes::Regexp.new(Mdm::Tag.arel_table[:name], Arel::Nodes.build_quoted("(?mi)#{opts[:search_term]}"))
+        search_conditions = column_search_conditions.or(tag_conditions)
+        wspace.hosts.where(conditions).where(search_conditions).includes(:tags).references(:tags).order(:address)
+      else
+        wspace.hosts.where(conditions).order(:address)
+      end
+    }
   end
 
   #
