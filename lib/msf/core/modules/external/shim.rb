@@ -45,8 +45,13 @@ class Msf::Modules::External::Shim
     end
 
     meta[:options]     = options.map do |n, o|
-      "Opt#{o['type'].camelize}.new(#{n.dump},
-        [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
+      if o['values']
+        "Opt#{o['type'].camelize}.new(#{n.dump},
+          [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}, #{o['values'].inspect}])"
+      else
+        "Opt#{o['type'].camelize}.new(#{n.dump},
+          [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
+      end
     end.join(",\n          ")
     meta
   end
