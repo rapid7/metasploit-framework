@@ -1376,7 +1376,7 @@ module Msf
                 )
               end
               row = []
-              row.push( (loot.host.address ? loot.host.address : "") ) if loot.host
+              row.push( ((loot.host && loot.host.address) ? loot.host.address : "") )
               if (loot.service)
                 svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
                 row.push svc
