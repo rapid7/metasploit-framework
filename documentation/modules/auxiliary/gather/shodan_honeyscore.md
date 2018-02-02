@@ -1,3 +1,4 @@
+## Introduction
 The `shodan_honeyscore` module utilizes the [Shodan](https://www.shodan.io/) API to determine whether or not a server is a honeypot or not. 
 When setting the module options, we aren't directly requesting `TARGET`, we are requesting the shodan API to analyze `TARGET` and return a honeyscore from 0.0 to 1.0. 0.0 being `not a honeypot` and 1.0 being a `honeypot`. The original website for the honeypot system can be found here: https://honeyscore.shodan.io/. 
 
@@ -11,7 +12,7 @@ In order for this module to function properly, a Shodan API key is needed. You c
   3. Do: `set TARGET <targetip>`
   4. Do: `set SHODAN_APIKEY <your apikey>`
   5. Do: `run`
-  6. If the API is up, you should recieve a score from 0.0 to 1.0.
+  6. If the API is up, you should recieve a score from 0.0 to 1.0. (1.0 being a honeypot)
 
 ## Options
 
