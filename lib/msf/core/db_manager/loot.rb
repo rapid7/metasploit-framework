@@ -29,9 +29,10 @@ module Msf::DBManager::Loot
     if wspace.kind_of? String
       wspace = find_workspace(wspace)
     end
+    opts[:workspace_id] = wspace.id
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      wspace.loots.where(opts)
+      Mdm::Loot.includes(:host).where(opts)
     }
   end
   alias_method :loot, :loots

@@ -1358,55 +1358,39 @@ module Msf
             end
 
             matched_loot_ids = []
-            each_host_range_chunk(host_ranges) do |host_search|
-              framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-                loots = framework.db.loots(framework.db.workspace, {:host_id => host.id})
-                if loots
-                  loots.each do |loot|
-                    next if(types and types.index(loot.ltype).nil?)
-                    if search_term
-                      next unless(
-                      loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
-                          loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
-                      )
-                    end
-                    row = []
-                    row.push( (host.address ? host.address : "") )
-                    if (loot.service)
-                      svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
-                      row.push svc
-                    else
-                      row.push ""
-                    end
-                    row.push(loot.ltype)
-                    row.push(loot.name || "")
-                    row.push(loot.content_type)
-                    row.push(loot.info || "")
-                    row.push(loot.path)
-
-                    tbl << row
-                    matched_loot_ids << loot.id
-                  end
-
-                end
+            loots = []
+            if host_ranges.compact.empty?
+              loots = loots + framework.db.loots(framework.db.workspace, {})
+            else
+              each_host_range_chunk(host_ranges) do |host_search|
+                loots = loots + framework.db.loots(framework.db.workspace, { :hosts => { :address => host_search } })
               end
             end
 
-            # Handle hostless loot
-            if host_ranges.compact.empty? # Wasn't a host search
-              hostless_loot = framework.db.loots(framework.db.workspace, {:host_id => nil})
-              hostless_loot.each do |loot|
-                row = []
-                row.push("")
-                row.push("")
-                row.push(loot.ltype)
-                row.push(loot.name || "")
-                row.push(loot.content_type)
-                row.push(loot.info || "")
-                row.push(loot.path)
-                tbl << row
-                matched_loot_ids << loot.id
+            loots.each do |loot|
+              next if(types and types.index(loot.ltype).nil?)
+              if search_term
+                next unless(
+                loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
+                    loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
+                )
               end
+              row = []
+              row.push( (loot.host.address ? loot.host.address : "") ) if loot.host
+              if (loot.service)
+                svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
+                row.push svc
+              else
+                row.push ""
+              end
+              row.push(loot.ltype)
+              row.push(loot.name || "")
+              row.push(loot.content_type)
+              row.push(loot.info || "")
+              row.push(loot.path)
+
+              tbl << row
+              matched_loot_ids << loot.id
             end
 
             if (mode == :delete)
