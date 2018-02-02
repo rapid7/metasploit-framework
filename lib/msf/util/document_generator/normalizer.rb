@@ -183,7 +183,7 @@ module Msf
         # @return [String]
         def normalize_authors(authors)
           if authors.kind_of?(Array)
-            authors.collect { |a| "* #{Rex::Text.html_encode(a)}" } * "\n"
+            authors.collect { |a| "* #{CGI::escapeHTML(a)}" } * "\n"
           else
             authors
           end
