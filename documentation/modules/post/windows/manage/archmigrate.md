@@ -14,14 +14,14 @@ This module was not tested against, but may work against:
 
 ## Options
 
-#### EXE
-The executable to start and migrate into. Default: `C:\windows\sysnative\svchost.exe`
+- #### EXE
+    The executable to start and migrate into. Default: `C:\windows\sysnative\svchost.exe`
 
-#### FALLBACK
-If the selected migration executable does not exist, fallback to a sysnative file. Default: `true`
+- #### FALLBACK
+    If the selected migration executable does not exist, fallback to a sysnative file. Default: `true`
 
-#### IGNORE_SYSTEM
-Migrate even if you have SYSTEM privileges. Default: `true`
+- #### IGNORE_SYSTEM
+    Migrate even if you have SYSTEM privileges. Default: `true`
 
 
 ### Verification Steps
