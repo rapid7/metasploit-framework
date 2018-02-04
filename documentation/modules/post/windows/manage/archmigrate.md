@@ -12,13 +12,28 @@ This module was not tested against, but may work against:
 
   1. Other versions of Windows that are x64.
 
-## Verification Steps
+## Options
+
+**EXE**
+
+The executable to start and migrate into. Default: `C:\windows\sysnative\svchost.exe`
+
+**FALLBACK**
+
+If the selected migration executable does not exist, fallback to a sysnative file. Default: `true`
+
+**IGNORE_SYSTEM**
+
+Migrate even if you have SYSTEM privileges. Default: `true`
+
+
+### Verification Steps
 
   1. Start msfconsole
-  2. Obatin a meterpreter session with an executable meterpreter via whatever method
-  3. Do: 'use post/windows/manage/archmigrate'
-  4. Do: 'set session #'
-  5. Do: 'run'
+  2. Obtain a meterpreter session with an executable meterpreter via whatever method
+  3. Do: `use post/windows/manage/archmigrate`
+  4. Do: `set session #`
+  5. Do: `run`
 
 ## Scenarios
 
