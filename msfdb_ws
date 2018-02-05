@@ -70,7 +70,7 @@ end
 
 begin
   opts = parse_args(ARGV)
-  raise SwitchError.new("certificate file and key file must be specified when using -s") if opts[:ssl] && (opts[:ssl_key].nil? || opts[:ssl_cert].nil?)
+  raise SwitchError.new("certificate file must be specified when using -s") if opts[:ssl] && (opts[:ssl_cert].nil?)
   HttpDBManagerService.new.start(:Port => opts[:port],
                                  :Host => opts[:interface],
                                  :ssl => opts[:ssl],
