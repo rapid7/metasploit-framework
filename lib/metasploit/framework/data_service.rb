@@ -52,7 +52,7 @@ module DataService
     private
     #######
 
-    attr_writer  :id
+    attr_writer :id
     attr_writer :name
     attr_writer :active
 

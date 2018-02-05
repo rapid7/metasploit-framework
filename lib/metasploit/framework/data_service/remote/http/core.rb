@@ -148,10 +148,10 @@ class RemoteHTTPDataService
           return FailedResponse.new(response)
       end
     rescue EOFError => e
-      elog "No data was returned from the data service for request path : #{path}, message: #{e.message}"
+      elog "No data was returned from the data service for request type/path : #{request_type}/#{path}, message: #{e.message}"
       return FailedResponse.new('')
     rescue Exception => e
-      elog "Problem with HTTP request for path: #{path} message: #{e.message}"
+      elog "Problem with HTTP request for type/path: #{request_type}/#{path} message: #{e.message}"
       return FailedResponse.new('')
     ensure
       @client_pool << client

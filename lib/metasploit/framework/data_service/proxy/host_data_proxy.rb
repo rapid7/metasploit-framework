@@ -9,7 +9,7 @@ module HostDataProxy
       opts[:addresses] = addresses
       data_service.hosts(opts)
     rescue Exception => e
-      elog "Call to #{data_service.class}#hosts threw exception: #{e.message}"
+      elog "Problem retrieving hosts: #{e.message}"
     end
   end
 
@@ -26,7 +26,7 @@ module HostDataProxy
       data_service = self.get_data_service()
       data_service.report_host(opts)
     rescue Exception => e
-      elog "Call to #{data_service.class}#report_host threw exception: #{e.message}"
+      elog "Problem reporting host: #{e.message}"
     end
   end
 
@@ -35,7 +35,7 @@ module HostDataProxy
       data_service = self.get_data_service()
       data_service.report_hosts(hosts)
     rescue Exception => e
-      elog "Call to #{data_service.class}#report_hosts threw exception: #{e.message}"
+      elog "Problem reporting hosts: #{e.message}"
     end
   end
 
@@ -44,7 +44,7 @@ module HostDataProxy
       data_service = self.get_data_service()
       data_service.delete_host(opts)
     rescue Exception => e
-      elog "Call to #{data_service.class}#delete_host threw exception: #{e.message}"
+      elog "Problem removing host: #{e.message}"
     end
   end
 
