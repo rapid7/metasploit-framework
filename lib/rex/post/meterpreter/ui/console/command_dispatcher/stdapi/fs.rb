@@ -308,7 +308,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    args.each { |f| client.fs.file.rm(f) }
+    args.each do |file_path|
+      file_path = client.fs.file.expand_path(file_path) if file_path =~ /\%(\w*)\%/
+      client.fs.file.rm(file_path)
+    end
 
     return true
   end
@@ -323,7 +326,11 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("Usage: mv oldfile newfile")
       return true
     end
-    client.fs.file.mv(args[0],args[1])
+    old_path = args[0]
+    old_path = client.fs.file.expand_path(old_path) if old_path =~ /\%(\w*)\%/
+    new_path = args[1]
+    new_path = client.fs.file.expand_path(new_path) if new_path =~ /\%(\w*)\%/
+    client.fs.file.mv(old_path, new_path)
     return true
   end
 
@@ -338,7 +345,11 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("Usage: cp oldfile newfile")
       return true
     end
-    client.fs.file.cp(args[0],args[1])
+    old_path = args[0]
+    old_path = client.fs.file.expand_path(old_path) if old_path =~ /\%(\w*)\%/
+    new_path = args[1]
+    new_path = client.fs.file.expand_path(new_path) if new_path =~ /\%(\w*)\%/
+    client.fs.file.cp(old_path, new_path)
     return true
   end
 
