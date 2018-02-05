@@ -1,13 +1,5 @@
 module SessionEventDataProxy
 
-  # def session_events
-  #   begin
-  #     data_service = self.get_data_service()
-  #   rescue  Exception => e
-  #     elog "Problem retrieving session events: #{e.message}"
-  #   end
-  # end
-
   def report_session_event(opts)
     begin
       data_service = self.get_data_service()

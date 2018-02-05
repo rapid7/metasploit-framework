@@ -1894,7 +1894,7 @@ module Msf
 
           def add_data_service(*args)
             protocol = "http"
-            port = 80
+            port = 8080
             https_opts = {}
             while (arg = args.shift)
               case arg
@@ -1953,7 +1953,7 @@ module Msf
             print_line "  -s, --set <id>              Set the data service by identifier."
             print_line "  -a, --add [ options ] host  Adds data service"
             print_line "  Add Data Service Options:"
-            print_line "  -p <port>         The port the data service is listening on. Default is 80."
+            print_line "  -p <port>         The port the data service is listening on. Default is 8080."
             print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
             print_line "  -c, --cert        Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
             print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
