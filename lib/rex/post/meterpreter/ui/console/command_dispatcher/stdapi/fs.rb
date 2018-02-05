@@ -689,10 +689,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    args.each { |dir|
-      print_line("Creating directory: #{dir}")
-
-      client.fs.dir.mkdir(dir)
+    args.each { |dir_path|
+      dir_path = client.fs.file.expand_path(dir_path) if dir_path =~ PATH_EXPAND_REGEX
+      print_line("Creating directory: #{dir_path}")
+      client.fs.dir.mkdir(dir_path)
     }
 
     return true
