@@ -7,8 +7,7 @@ module ServletHelper
   include ResponseDataHelper
 
   def set_error_on_response(error)
-    puts "Error handling request: #{error.message}"
-    error.backtrace.each { |line| puts "#{line}\n" }
+    print_error "Error handling request: #{error.message}", error
     headers = {'Content-Type' => 'text/plain'}
     [500, headers, error.message]
   end

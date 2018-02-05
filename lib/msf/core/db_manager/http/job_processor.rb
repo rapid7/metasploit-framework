@@ -21,8 +21,7 @@ class JobProcessor
         begin
           wrapper.job.call(wrapper.job_args)
         rescue Exception => e
-          puts "Error executing job #{e.message}"
-          e.backtrace.each { |line| puts "#{line}\n"}
+          print_error "Error executing job #{e.message}", e
         end
       end
     }

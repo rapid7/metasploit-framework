@@ -1,19 +1,12 @@
 require 'rack'
 require 'msf/core/db_manager/http/sinatra_app'
 require 'metasploit/framework/parsed_options/remote_db'
+require 'rex/ui/text/output/stdio'
 
 class HttpDBManagerService
 
   def start(opts)
     parsed_options = Metasploit::Framework::ParsedOptions::RemoteDB.new
-    if (parsed_options.options.database.no_signal)
-      puts 'removing trap'
-      opts[:signals] = false
-      @shutdown_on_interupt = false
-    else
-      @shutdown_on_interupt = true
-    end
-
     require_environment!(parsed_options)
 
     if opts[:ssl]
@@ -35,17 +28,12 @@ class HttpDBManagerService
 
     Rack::Handler::Thin.run(SinatraApp, opts) do |server|
 
-      # TODO: prevent accidental shutdown from msfconle eg: ctrl-c
-      [:INT, :TERM].each { |sig|
-        trap(sig) {
-          server.stop if (@shutdown_on_interupt || sig == :TERM)
-        }
-      }
-
       if opts[:ssl] && opts[:ssl] = true
-        puts "Starting in HTTPS mode"
+        print_good "SSL Enabled"
         server.ssl = true
         server.ssl_options = opts[:ssl_opts]
+      else
+        print_warning 'SSL Disabled'
       end
       server.threaded = true
     end
@@ -84,4 +72,33 @@ class HttpDBManagerService
   #   }
   # end
 
+
+
 end
+
+
+def print_line(msg)
+  $console_printer.print_line(msg)
+end
+
+def print_warning(msg)
+  $console_printer.print_warning(msg)
+end
+
+def print_good(msg)
+  $console_printer.print_good(msg)
+end
+
+def print_error(msg, exception = nil)
+  unless exception.nil?
+    msg += "\n    Call Stack:"
+    exception.backtrace.each {|line|
+      msg += "\n"
+      msg += "\t #{line}"
+    }
+  end
+
+  $console_printer.print_error(msg)
+end
+
+$console_printer = Rex::Ui::Text::Output::Stdio.new

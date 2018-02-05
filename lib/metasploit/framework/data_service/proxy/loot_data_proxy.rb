@@ -8,7 +8,7 @@ module LootDataProxy
       end
       data_service.report_loot(opts)
     rescue Exception => e
-      puts "Call to #{data_service.class}#report_loot threw exception: #{e.message}"
+      elog "Problem reporting loot: #{e.message}"
     end
   end
 
@@ -18,9 +18,9 @@ module LootDataProxy
       opts[:wspace] = wspace
       data_service.loot(opts)
     rescue Exception => e
-      puts "Call to #{data_service.class}#loots threw exception: #{e.message}"
-      e.backtrace.each { |line| puts "#{line}\n" }
+      elog "Problem retrieving loot: #{e.message}"
     end
   end
+
   alias_method :loot, :loots
 end

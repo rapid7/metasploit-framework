@@ -20,7 +20,6 @@ require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/util/document_generator'
-require 'metasploit/framework/data_service/remote/msf_red/msf_red_service'
 
 module Msf
 module Ui
@@ -108,7 +107,6 @@ class Core
       "?"          => "Help menu",
       "banner"     => "Display an awesome metasploit banner",
       "cd"         => "Change the current working directory",
-      "msf_red_connect" => "Connect to MSF Platform",
       "connect"    => "Communicate with a host",
       "color"      => "Toggle color",
       "exit"       => "Exit the console",
@@ -261,20 +259,6 @@ class Core
       avdwarn.map{|line| print_error(line) }
     end
 
-  end
-
-  def cmd_msf_red_connect(*args)
-    while (arg = args.shift)
-      case arg
-        when '-u'
-          username = args.shift
-        when '-p'
-          password = args.shift
-      end
-    end
-
-    msf_red_service = MSFRedService.new()
-    msf_red_service.launch(username, password)
   end
 
   def cmd_connect_help
@@ -473,7 +457,6 @@ class Core
     forced = false
     forced = true if (args[0] and args[0] =~ /-y/i)
 
-    framework.db.exit_called
     if(framework.sessions.length > 0 and not forced)
       print_status("You have active sessions open, to exit anyway type \"exit -y\"")
       return
