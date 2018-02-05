@@ -1,4 +1,11 @@
 #!/usr/bin/env ruby
+
+##
+#
+# This generates documentation for a module based on user prompts.
+#
+##
+
 require 'fileutils'
 
 def prompt(*args)
@@ -71,6 +78,10 @@ begin
 
   f = File.new(full_mod_path, 'w')
   f.write(md)
+
+  print_status "Doc written to #{File.expand_path(File.join(DOCS_PATH, "#{module_path}.md"))}"
+  puts
+  print_status "The doc is not done! Be sure to put example scenarios."
 rescue StandardError => e
   print_error "Unable to write documentation: #{e.class} - #{e.message}"
 end
