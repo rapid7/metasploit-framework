@@ -1307,7 +1307,7 @@ module Msf
                   end
                   types = typelist.strip().split(",")
                 when '-S', '--search'
-                  search_term = /#{args.shift}/nmi
+                  search_term = args.shift
                 when '-h','--help'
                   cmd_loot_help
                   return
@@ -1360,21 +1360,21 @@ module Msf
             matched_loot_ids = []
             loots = []
             if host_ranges.compact.empty?
-              loots = loots + framework.db.loots(framework.db.workspace, {})
+              loots = loots + framework.db.loots(framework.db.workspace, {:search_term => search_term})
             else
               each_host_range_chunk(host_ranges) do |host_search|
-                loots = loots + framework.db.loots(framework.db.workspace, { :hosts => { :address => host_search } })
+                loots = loots + framework.db.loots(framework.db.workspace, { :hosts => { :address => host_search }, :search_term => search_term })
               end
             end
 
             loots.each do |loot|
               next if(types and types.index(loot.ltype).nil?)
-              if search_term
-                next unless(
-                loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
-                    loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
-                )
-              end
+              # if search_term
+              #   next unless(
+              #   loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
+              #       loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
+              #   )
+              # end
               row = []
               row.push( ((loot.host && loot.host.address) ? loot.host.address : "") )
               if (loot.service)

@@ -32,7 +32,9 @@ module Msf::DBManager::Loot
     opts[:workspace_id] = wspace.id
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      Mdm::Loot.includes(:host).where(opts)
+      search_term = opts.delete(:search_term)
+      column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Loot, search_term)
+      Mdm::Loot.includes(:host).where(opts).where(column_search_conditions)
     }
   end
   alias_method :loot, :loots
