@@ -47,6 +47,7 @@ module Shell
     # Initialize the prompt
     self.init_prompt = prompt
     self.cont_prompt = ' > '
+    self.cont_flag = false
     self.prompt_char = prompt_char
 
     self.histfile = histfile
@@ -57,7 +58,8 @@ module Shell
 
   def init_tab_complete
     if (self.input and self.input.supports_readline)
-      self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
+      # Unless cont_flag because there's no tab complete for continuation lines
+      self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
       if Readline::HISTORY.length == 0 and histfile and File.exist?(histfile)
         File.readlines(histfile).each { |e|
           Readline::HISTORY << e.chomp
@@ -355,6 +357,7 @@ protected
     line = "\\\n"
     prompt_needs_reset = false
 
+    self.cont_flag = false
     while line =~ /(^|[^\\])\\\s*$/
       # Strip \ and all the trailing whitespace
       line.sub!(/\\\s*/, '')
@@ -362,6 +365,7 @@ protected
       if line.length > 0
         # Using update_prompt will overwrite the primary prompt
         input.prompt = output.update_prompt(self.cont_prompt)
+        self.cont_flag = true
         prompt_needs_reset = true
       end
 
@@ -370,6 +374,7 @@ protected
       output.input = nil
       log_output(input.prompt)
     end
+    self.cont_flag = false
 
     if prompt_needs_reset
       # The continuation prompt was used so reset the prompt
@@ -424,6 +429,11 @@ protected
   attr_accessor :histfile # :nodoc:
   attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
   attr_accessor :log_source, :stop_count # :nodoc:
+  attr_reader   :cont_flag # :nodoc:
+
+private
+
+  attr_writer   :cont_flag # :nodoc:
 
 end
 
