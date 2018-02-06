@@ -18,7 +18,7 @@ module LootServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db().loots(opts)
+        data = get_db().loots(params.symbolize_keys)
         includes = [:host]
         set_json_response(data, includes)
       rescue Exception => e
