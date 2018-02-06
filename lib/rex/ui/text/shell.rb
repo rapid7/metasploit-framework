@@ -46,6 +46,7 @@ module Shell
 
     # Initialize the prompt
     self.init_prompt = prompt
+    self.cont_prompt = ' > '
     self.prompt_char = prompt_char
 
     self.histfile = histfile
@@ -185,17 +186,14 @@ module Shell
           self.init_prompt = input.prompt
         end
 
-        output.input = input
-        line = input.pgets()
-        output.input = nil
-        log_output(input.prompt)
+        line = get_input_line
 
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
         if (block)
           break if (line == nil or block.call(line))
         elsif(input.eof? or line == nil)
-        # If you have sessions active, this will give you a shot to exit gravefully
+        # If you have sessions active, this will give you a shot to exit gracefully
         # If you really are ambitious, 2 eofs will kick this out
           self.stop_count += 1
           next if(self.stop_count > 1)
@@ -351,6 +349,37 @@ module Shell
 protected
 
   #
+  # Get a single line of input, following continuation directives as necessary.
+  #
+  def get_input_line
+    line = "\\\n"
+    prompt_needs_reset = false
+
+    while line =~ /(^|[^\\])\\\s*$/
+      # Strip \ and all the trailing whitespace
+      line.sub!(/\\\s*/, '')
+
+      if line.length > 0
+        # Using update_prompt will overwrite the primary prompt
+        input.prompt = output.update_prompt(self.cont_prompt)
+        prompt_needs_reset = true
+      end
+
+      output.input = input
+      line << input.pgets()
+      output.input = nil
+      log_output(input.prompt)
+    end
+
+    if prompt_needs_reset
+      # The continuation prompt was used so reset the prompt
+      update_prompt
+    end
+
+    line
+  end
+
+  #
   # Parse a line into an array of arguments.
   #
   def parse_line(line)
@@ -389,7 +418,7 @@ protected
   end
 
   attr_writer   :input, :output # :nodoc:
-  attr_accessor :stop_flag, :init_prompt # :nodoc:
+  attr_accessor :stop_flag, :init_prompt, :cont_prompt # :nodoc:
   attr_accessor :prompt # :nodoc:
   attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
   attr_accessor :histfile # :nodoc:
