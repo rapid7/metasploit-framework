@@ -22,7 +22,6 @@ module HostServlet
   def self.get_host
     lambda {
       begin
-        $stderr.puts "HostServlet.get_host(): params[:id] = #{params[:id]}" if params[:id]  # TODO: remove
         opts = parse_json_request(request, false)
         data = get_db().hosts(params.symbolize_keys)
         includes = [:loots]
@@ -50,12 +49,8 @@ module HostServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        $stderr.puts "HostServlet.update_host(): opts = #{opts}"  # TODO: remove
-        $stderr.puts "HostServlet.update_host(): params = #{params}"  # TODO: remove
-        # opts_and_params = params ? opts.merge(params.symbolize_keys) : opts
         tmp_params = params.symbolize_keys
         opts[:id] = tmp_params[:id] if tmp_params[:id]
-        $stderr.puts "HostServlet.update_host(): opts = #{opts}"  # TODO: remove
         data = get_db().update_host(opts)
         set_json_response(data)
       rescue Exception => e

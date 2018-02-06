@@ -24,7 +24,6 @@ module RemoteHostDataService
   end
 
   def update_host(opts)
-    $stderr.puts "RemoteHostDataService.update_host(): opts = #{opts}"  # TODO: remove
     path = HOST_API_PATH
     if opts && opts[:id]
       id = opts.delete(:id)

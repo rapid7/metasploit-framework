@@ -143,7 +143,6 @@ module Msf::DBManager::Host
 
   # Returns a list of all hosts in the database
   def hosts(opts)
-    $stderr.puts "DBManager::Host.hosts(): opts = #{opts}"  # TODO: remove
     wspace = opts[:workspace] || opts[:wspace] || workspace
     if wspace.kind_of? String
       wspace = find_workspace(wspace)
@@ -155,7 +154,6 @@ module Msf::DBManager::Host
       conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
       conditions[:address] = opts[:address] if opts[:address] && !opts[:address].empty?
       conditions[:id] = opts[:id] if opts[:id] && !opts[:id].empty?
-      $stderr.puts "DBManager::Host.hosts(): conditions = #{conditions}"  # TODO: remove
 
       if opts[:search_term] && !opts[:search_term].empty?
         column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Host, opts[:search_term])
@@ -272,14 +270,11 @@ module Msf::DBManager::Host
   end
 
   def update_host(opts)
-    $stderr.puts "DBManager::Host.update_host(): opts = #{opts}"  # TODO: remove
     # TODO: remove unneeded workspace from opts until it's not automatically added to remote requests
-    wspace = opts.delete(:workspace)
-    $stderr.puts "DBManager::Host.update_host(): delete workspace from opts; wspace = #{wspace}"  # TODO: remove
+    opts.delete(:workspace)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       id = opts.delete(:id)
-      $stderr.puts "DBManager::Host.update_host(): id = #{id}, opts = #{opts}"  # TODO: remove
       Mdm::Host.update(id, opts)
     }
   end

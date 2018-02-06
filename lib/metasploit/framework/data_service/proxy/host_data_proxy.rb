@@ -42,7 +42,6 @@ module HostDataProxy
 
   def update_host(opts)
     begin
-      $stderr.puts "HostDataProxy.update_host(): opts = #{opts}"  # TODO: remove
       data_service = self.get_data_service()
       data_service.update_host(opts)
     rescue Exception => e
