@@ -23,6 +23,16 @@ module RemoteHostDataService
     self.post_data(HOST_API_PATH, hosts)
   end
 
+  def update_host(opts)
+    $stderr.puts "RemoteHostDataService.update_host(): opts = #{opts}"  # TODO: remove
+    path = HOST_API_PATH
+    if opts && opts[:id]
+      id = opts.delete(:id)
+      path = "#{HOST_API_PATH}/#{id}"
+    end
+    json_to_mdm_object(self.put_data(path, opts), HOST_MDM_CLASS, [])
+  end
+
   def delete_host(opts)
     json_to_mdm_object(self.delete_data(HOST_API_PATH, opts), HOST_MDM_CLASS, [])
   end

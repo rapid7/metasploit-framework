@@ -231,17 +231,22 @@ module Msf
             cmd_hosts("-h")
           end
 
-          def change_host_info(rws, data)
-            if rws == [nil]
+          def change_host_info(host_ranges, data)
+            if host_ranges == [nil]
               print_error("In order to change the host info, you must provide a range of hosts")
               return
             end
 
-            rws.each do |rw|
-              rw.each do |ip|
-                id = framework.db.get_host(:address => ip).id
-                framework.db.hosts.update(id, :info => data)
-                framework.db.report_note(:host => ip, :type => 'host.info', :data => data)
+            $stderr.puts "Msf::Ui::Console::CommandDispatcher::Db.change_host_info(): host_ranges = #{host_ranges}"
+            each_host_range_chunk(host_ranges) do |host_search|
+              $stderr.puts "Msf::Ui::Console::CommandDispatcher::Db.change_host_info(): host_search = #{host_search}\n"
+              break if !host_search.nil? && host_search.empty?
+
+              framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+                $stderr.puts "Msf::Ui::Console::CommandDispatcher::Db.change_host_info(): host = #{host}, host.id = #{host.id}, host.address = #{host.address}, host.workspace_id = #{host.workspace_id}"
+                framework.db.update_host(id: host.id, info: data)
+                framework.db.report_note(:host => host.address, :type => 'host.info', :data => data)
+                $stderr.puts "************************************\n"
               end
             end
           end

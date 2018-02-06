@@ -6,7 +6,7 @@ module HostDataProxy
       opts = {}
       opts[:wspace] = wspace
       opts[:non_dead] = non_dead
-      opts[:addresses] = addresses
+      opts[:address] = addresses
       opts[:search_term] = search_term
       data_service.hosts(opts)
     rescue Exception => e
@@ -37,6 +37,16 @@ module HostDataProxy
       data_service.report_hosts(hosts)
     rescue Exception => e
       elog "Problem reporting hosts: #{e.message}"
+    end
+  end
+
+  def update_host(opts)
+    begin
+      $stderr.puts "HostDataProxy.update_host(): opts = #{opts}"  # TODO: remove
+      data_service = self.get_data_service()
+      data_service.update_host(opts)
+    rescue Exception => e
+      elog "Problem updating host: #{e.message}"
     end
   end
 
