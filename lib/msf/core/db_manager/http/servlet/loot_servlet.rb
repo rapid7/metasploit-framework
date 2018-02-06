@@ -11,7 +11,7 @@ module LootServlet
   def self.registered(app)
     app.get LootServlet.api_path, &get_loot
     app.post LootServlet.api_path, &report_loot
-    app.put LootServlet.api_path, &udpate_loot
+    app.put LootServlet.api_path_with_id, &update_loot
     app.delete LootServlet.api_path, &delete_loot
   end
 
@@ -51,7 +51,7 @@ module LootServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db().delete_loot(opts)
+        data = get_db().update_loot(opts)
         set_json_response(data)
       rescue Exception => e
         set_error_on_response(e)
