@@ -51,6 +51,8 @@ module LootServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
+        tmp_params = params.symbolize_keys
+        opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db().update_loot(opts)
         set_json_response(data)
       rescue Exception => e

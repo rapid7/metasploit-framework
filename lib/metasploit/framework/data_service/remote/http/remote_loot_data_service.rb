@@ -32,7 +32,6 @@ module RemoteLootDataService
   end
 
   def update_loot(opts)
-    $stderr.puts "RemoteLootDataService.update_host(): opts = #{opts}"  # TODO: remove
     path = LOOT_API_PATH
     if opts && opts[:id]
       id = opts.delete(:id)
