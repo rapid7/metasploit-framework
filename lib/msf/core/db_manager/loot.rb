@@ -91,6 +91,18 @@ module Msf::DBManager::Loot
   }
   end
 
+  def update_loot(opts)
+    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      Mdm::Loot.update(id, opts)
+    }
+  end
+
   # Deletes Loot entries based on the IDs passed in.
   #
   # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the Loot entries to delete.

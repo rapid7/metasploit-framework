@@ -4,9 +4,14 @@ module LootServlet
     '/api/v1/loots'
   end
 
+  def self.api_path_with_id
+    "#{LootServlet.api_path}/?:id?"
+  end
+
   def self.registered(app)
     app.get LootServlet.api_path, &get_loot
     app.post LootServlet.api_path, &report_loot
+    app.put LootServlet.api_path, &udpate_loot
     app.delete LootServlet.api_path, &delete_loot
   end
 
@@ -39,6 +44,18 @@ module LootServlet
         get_db().report_loot(opts)
       }
       exec_report_job(request, &job)
+    }
+  end
+
+  def self.update_loot
+    lambda {
+      begin
+        opts = parse_json_request(request, false)
+        data = get_db().delete_loot(opts)
+        set_json_response(data)
+      rescue Exception => e
+        set_error_on_response(e)
+      end
     }
   end
 

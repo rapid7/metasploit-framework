@@ -31,6 +31,16 @@ module RemoteLootDataService
     self.post_data(LOOT_API_PATH, loot)
   end
 
+  def update_loot(opts)
+    $stderr.puts "RemoteLootDataService.update_host(): opts = #{opts}"  # TODO: remove
+    path = LOOT_API_PATH
+    if opts && opts[:id]
+      id = opts.delete(:id)
+      path = "#{LOOT_API_PATH}/#{id}"
+    end
+    json_to_mdm_object(self.put_data(path, opts), LOOT_MDM_CLASS, [])
+  end
+
   def delete_loot(opts)
     json_to_mdm_object(self.delete_data(LOOT_API_PATH, opts), LOOT_MDM_CLASS, [])
   end

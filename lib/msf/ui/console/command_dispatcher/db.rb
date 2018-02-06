@@ -1308,6 +1308,8 @@ module Msf
                   types = typelist.strip().split(",")
                 when '-S', '--search'
                   search_term = args.shift
+                when '-u', '--update'
+                  mode = :update
                 when '-h','--help'
                   cmd_loot_help
                   return
@@ -1376,6 +1378,17 @@ module Msf
               #   )
               # end
               row = []
+              if mode == :update
+                begin
+                  loot.info = info if info
+                  loot.filename = filename if filename
+                  loot.ltype = types if types
+                  framework.db.update_loot(loot.as_json.symbolize_keys)
+                rescue Exception => e
+                  elog "There was an error updating loot with ID #{loot.id}: #{e.message}"
+                  next
+                end
+              end
               row.push( ((loot.host && loot.host.address) ? loot.host.address : "") )
               if (loot.service)
                 svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")

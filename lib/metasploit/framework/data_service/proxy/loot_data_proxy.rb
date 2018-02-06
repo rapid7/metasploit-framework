@@ -29,4 +29,14 @@ module LootDataProxy
     end
   end
   alias_method :loot, :loots
+
+  def update_loot(opts)
+    begin
+      data_service = self.get_data_service
+      data_service.update_loot(opts)
+    rescue Exception => e
+      puts "Call to #{data_service.class}#update_loot threw exception: #{e.message}"
+      e.backtrace.each { |line| puts "#{line}\n" }
+    end
+  end
 end
