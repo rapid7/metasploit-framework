@@ -1308,7 +1308,7 @@ module Msf
                   types = typelist.strip().split(",")
                 when '-S', '--search'
                   search_term = args.shift
-                when '-u', '--update'
+                when '-u', '--update' # TODO: This is currently undocumented because it's not officially supported.
                   mode = :update
                 when '-h','--help'
                   cmd_loot_help
@@ -1378,6 +1378,8 @@ module Msf
               #   )
               # end
               row = []
+              # TODO: This is just a temp implementation of update for the time being since it did not exist before.
+              # It should be updated to not pass all of the attributes attached to the object, only the ones being updated.
               if mode == :update
                 begin
                   loot.info = info if info
