@@ -10,13 +10,13 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Ulterius Server File Download Vulnerability',
       'Description'    => %q{
         This module exploits a directory traversal vulnerability in Ulterius Server < v1.9.5.0
-        to download files from the affected host. A file path is needed to download a file.
-        Fortunately, Ulterius indexes every file on the system, which can be stored in the 
+        to download files from the affected host. A valid file path is needed to download a file.
+        Fortunately, Ulterius indexes every file on the system, which can be stored in the
         following location:
 
           http://ulteriusURL:port/.../fileIndex.db.
 
-        This module can download and parse the fileIndex.db file. There is also an option to 
+        This module can download and parse the fileIndex.db file. There is also an option to
         download a file using a provided path.
       },
       'Author'         =>
