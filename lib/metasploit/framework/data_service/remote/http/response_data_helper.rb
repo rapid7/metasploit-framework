@@ -17,7 +17,7 @@ module ResponseDataHelper
           return JSON.parse(body, object_class: OpenStruct)
         end
       rescue Exception => e
-        puts "open struct conversion failed #{e.message}"
+        elog "open struct conversion failed #{e.message}"
       end
     end
 
@@ -44,8 +44,8 @@ module ResponseDataHelper
           return rv
         end
       rescue Exception => e
-        puts "Mdm Object conversion failed #{e.message}"
-        e.backtrace.each { |line| puts "#{line}\n" }
+        elog "Mdm Object conversion failed #{e.message}"
+        e.backtrace.each { |line| elog "#{line}\n" }
       end
     end
 
@@ -67,8 +67,8 @@ module ResponseDataHelper
         File.open(save_path, 'w+') { |file| file.write(decoded_file) }
       end
     rescue Exception => e
-      puts "There was an error writing the file: #{e}"
-      e.backtrace.each { |line| puts "#{line}\n"}
+      elog "There was an error writing the file: #{e}"
+      e.backtrace.each { |line| elog "#{line}\n"}
     end
     save_path
   end

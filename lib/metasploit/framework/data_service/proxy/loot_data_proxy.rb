@@ -8,7 +8,7 @@ module LootDataProxy
       end
       data_service.report_loot(opts)
     rescue Exception => e
-      puts "Call to #{data_service.class}#report_loot threw exception: #{e.message}"
+      elog "Call to #{data_service.class}#report_loot threw exception: #{e.message}"
     end
   end
 
@@ -24,8 +24,8 @@ module LootDataProxy
       opts[:wspace] = wspace
       data_service.loot(opts)
     rescue Exception => e
-      puts "Call to #{data_service.class}#loots threw exception: #{e.message}"
-      e.backtrace.each { |line| puts "#{line}\n" }
+      elog "Call to #{data_service.class}#loots threw exception: #{e.message}"
+      e.backtrace.each { |line| elog "#{line}\n" }
     end
   end
   alias_method :loot, :loots
@@ -35,8 +35,8 @@ module LootDataProxy
       data_service = self.get_data_service
       data_service.update_loot(opts)
     rescue Exception => e
-      puts "Call to #{data_service.class}#update_loot threw exception: #{e.message}"
-      e.backtrace.each { |line| puts "#{line}\n" }
+      elog "Call to #{data_service.class}#update_loot threw exception: #{e.message}"
+      e.backtrace.each { |line| elog "#{line}\n" }
     end
   end
 end
