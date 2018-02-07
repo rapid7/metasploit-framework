@@ -2,6 +2,7 @@
 module Rex
 module Proto
 module SMB
+
 class SimpleClient
 
 require 'rex/text'
@@ -37,10 +38,15 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
     self.client = RubySMB::Client.new(RubySMB::Dispatcher::Socket.new(self.socket, read_timeout: 60),
                                       username: '',
                                       password: '')#Rex::Proto::SMB::Client.new(socket)
-    self.client.class.module_eval { attr_accessor :evasion_opts}
-    self.client.evasion_opts = {}
-
-    self.shares = { }
+    self.client.evasion_opts = {
+      # Padding is performed between packet headers and data
+      'pad_data' => EVADE::EVASION_NONE,
+      # File path padding is performed on all open/create calls
+      'pad_file' => EVADE::EVASION_NONE,
+      # Modify the \PIPE\ string in trans_named_pipe calls
+      'obscure_trans_pipe' => EVADE::EVASION_NONE,
+    }
+    self.shares = {}
     self.server_max_buffer_size = 1024 # 4356 (workstation) or 16644 (server) expected
   end
 
@@ -188,9 +194,9 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
     disposition = UTILS.create_mode_to_disposition(perm)
     ok = self.client.create_pipe(path, disposition)
     file_id = if ok.respond_to? :guid
-                ok.guid
+                ok.guid.to_binary_s
               elsif ok.respond_to? :fid
-                ok.fid
+                ok.fid.to_binary_s
               else
                 ok['Payload'].v['FileID']
               end
