@@ -22,7 +22,7 @@ module Shell
   module InputShell
     attr_accessor :prompt, :output
 
-    def pgets()
+    def pgets
 
       output.print(prompt)
       output.flush
@@ -370,7 +370,7 @@ protected
       end
 
       output.input = input
-      line << input.pgets()
+      line << input.pgets
       output.input = nil
       log_output(input.prompt)
     end
