@@ -91,7 +91,8 @@ class OpenFile
     # Keep writing data until we run out
     while (chunk.length > 0)
       ok = self.client.write(self.file_id, fptr, chunk)
-      if ok.is_a? Integer
+      
+      if ok.is_a? BinData::Uint32le
         cl = ok
       else
         cl = ok['Payload'].v['CountLow']
