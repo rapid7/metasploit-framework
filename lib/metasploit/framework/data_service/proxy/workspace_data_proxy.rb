@@ -5,7 +5,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.find_workspace(workspace_name)
     rescue  Exception => e
-      puts"Call to  #{data_service.class}#find_workspace threw exception: #{e.message}"
+      elog "Problem finding workspace: #{e.message}"
     end
   end
 
@@ -14,7 +14,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.add_workspace(workspace_name)
     rescue  Exception => e
-      puts"Call to  #{data_service.class}#add_workspace threw exception: #{e.message}"
+      elog "Problem adding workspace: #{e.message}"
     end
   end
 
@@ -23,7 +23,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.default_workspace
     rescue  Exception => e
-      puts"Call to  #{data_service.class}#default_workspace threw exception: #{e.message}"
+      elog "Problem getting the default workspace: #{e.message}"
     end
   end
 
@@ -32,7 +32,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.workspace
     rescue  Exception => e
-      puts"Call to  #{data_service.class}#workspace threw exception: #{e.message}"
+      elog "Problem retrieving workspace: #{e.message}"
     end
   end
 
@@ -41,7 +41,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.workspace = workspace
     rescue  Exception => e
-      puts"Call to  #{data_service.class}#find_workspace threw exception: #{e.message}"
+      elog "Problem setting workspace: #{e.message}"
     end
   end
 
@@ -50,7 +50,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.workspaces
     rescue  Exception => e
-      puts"Call to  #{data_service.class}#workspaces threw exception: #{e.message}"
+      elog "Problem retrieving workspaces: #{e.message}"
     end
   end
 
@@ -59,7 +59,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.workspace_associations_counts()
     rescue  Exception => e
-      puts"Call to  #{data_service.class}#workspace_associations_counts threw exception: #{e.message}"
+      elog "Problem retrieving workspaces counts: #{e.message}"
     end
   end
 

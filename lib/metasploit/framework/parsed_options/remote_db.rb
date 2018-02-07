@@ -22,7 +22,9 @@ class Metasploit::Framework::ParsedOptions::RemoteDB < Metasploit::Framework::Pa
     @options
   end
 
+  #######
   private
+  #######
 
   def option_parser
     unless @option_parser

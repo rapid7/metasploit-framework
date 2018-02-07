@@ -8,7 +8,7 @@ module LootDataProxy
       end
       data_service.report_loot(opts)
     rescue Exception => e
-      elog "Problem creating loot: #{e.message}"
+      elog "Problem reporting loot: #{e.message}"
     end
   end
 
@@ -28,6 +28,7 @@ module LootDataProxy
       e.backtrace.each { |line| elog "#{line}\n" }
     end
   end
+
   alias_method :loot, :loots
 
   def update_loot(opts)

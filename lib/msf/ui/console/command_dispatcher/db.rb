@@ -47,13 +47,7 @@ module Msf
                 "db_export"     => "Export a file containing the contents of the database",
                 "db_nmap"       => "Executes nmap and records the output automatically",
                 "db_rebuild_cache" => "Rebuilds the database-stored module cache",
-                "test_data_service_host" => "Blah",
-                "test_data_service_loot" => "Blah",
-                "perf_test_data_service_loot" => "REMOVEME - Run a performance test against the loot data service",
-                "add_data_service" => "Blah",
-                "list_data_services" => "Blah",
-                "set_data_service" => "Blah",
-                "nl_search" => "Blah"
+                "data_services" => "Command to add, list and set a data service",
             }
 
             # Always include commands that only make sense when connected.
@@ -88,147 +82,24 @@ module Msf
             true
           end
 
-          def cmd_set_data_service(service_id)
-            framework.db.set_data_service(service_id)
-          end
-
-          def cmd_list_data_services()
-            framework.db.print_data_services
-          end
-
-          def cmd_add_data_service(*args)
-            protocol = "http"
-            port = 80
-            https_opts = {}
+          def cmd_data_services(*args)
             while (arg = args.shift)
               case arg
                 when '-h', '--help'
-                  cmd_add_data_service_help
+                  data_service_help
                   return
-                when '-p'
-                  port = args.shift
-                when '-s', '--ssl'
-                  protocol = "https"
-                when '-c', '--cert'
-                  https_opts[:cert] = args.shift
-                when '--skip-verify'
-                  https_opts[:skip_verify] = true
-                else
-                  host = arg
+                when '-a', '--add'
+                  add_data_service(*args)
+                  return
+                when '-s', '--set'
+                  set_data_service(args.shift)
+                  return
               end
             end
 
-            if host.nil? || port.nil?
-              print_error "Host and port are required."
-              return
-            end
-
-            endpoint = "#{protocol}://#{host}:#{port}"
-            remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
-            framework.db.register_data_service(remote_data_service)
+            list_data_services
           end
 
-          def cmd_add_data_service_help
-            print_line "Usage: add_data_service [ options ] [ Remote Address]"
-            print_line
-            print_line "OPTIONS:"
-            print_line "  -h, --help        Show this help information."
-            print_line "  -p <port>         The port the data service is listening on. Default is 80."
-            print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
-            print_line "  -c, --cert        Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
-            print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
-            print_line
-          end
-
-          def cmd_test_data_service_host(*args)
-            host = {}
-            while (arg = args.shift)
-              case arg
-                when '-h'
-                  host[:host] = args.shift
-                when '-n'
-                  host[:name] = args.shift
-                when '-o'
-                  host[:os_name] = args.shift
-              end
-            end
-
-            puts 'Reporting test host to data service'
-            framework.db.report_host host
-          end
-
-          def cmd_test_data_service_loot(*args)
-            loot = {}
-            while (arg = args.shift)
-              case arg
-                when '-h'
-                  loot[:host] = args.shift
-                when '-n'
-                  loot[:name] = args.shift
-                when '-s'
-                  loot[:service] = args.shift
-                when '-t'
-                  loot[:type] = args.shift
-                when '-i'
-                  loot[:info] = args.shift
-                when '-p'
-                  loot[:path] = args.shift
-              end
-            end
-
-            puts 'Reporting test loot to data service'
-            framework.db.report_loot loot
-          end
-
-          def cmd_perf_test_data_service_loot(*args)
-            host = "172.28.128.3"
-            name = SecureRandom.uuid
-            type = "file"
-            info = "file"
-            path = "/Users/jbarnett/.msf4/loot/20171005151912_default_172.28.128.3_linux.passwd_256904.txt"
-            data = File.read('/Users/jbarnett/rapid7/goliath/base64.txt')
-
-            while (arg = args.shift)
-              case arg
-                when '-h'
-                  host = args.shift
-                when '-n'
-                  name = args.shift
-                when '-s'
-                  service = args.shift
-                when '-t'
-                  type = args.shift
-                when '-i'
-                  info = args.shift
-                when '-p'
-                  path = args.shift
-                when '-d'
-                  data = args.shift
-                when '-c'
-                  count = args.shift.to_i
-              end
-            end
-
-            loots = []
-            count.times do
-              loots << { :host => host,
-                         :name => name,
-                         :type => type,
-                         :info => info,
-                         :path => path,
-                         :data => data
-              }
-            end
-
-            puts 'Reporting test loot to data service'
-            start_time = Time.now
-            puts "#{start_time} - Staring loot perf test"
-            loots.each do |loot|
-              framework.db.report_loot loot
-            end
-            end_time = Time.now
-            puts "#{end_time} - Ending loot perf test. Duration was #{end_time - start_time}"
-          end
 
           def cmd_workspace_help
             print_line "Usage:"
@@ -2006,7 +1877,77 @@ module Msf
             end
           end
 
+          #######
           private
+          #######
+
+          def add_data_service(*args)
+            protocol = "http"
+            port = 8080
+            https_opts = {}
+            while (arg = args.shift)
+              case arg
+                when '-p'
+                  port = args.shift
+                when '-s', '--ssl'
+                  protocol = "https"
+                when '-c', '--cert'
+                  https_opts[:cert] = args.shift
+                when '--skip-verify'
+                  https_opts[:skip_verify] = true
+                else
+                  host = arg
+              end
+            end
+
+            if host.nil? || port.nil?
+              print_error "Host and port are required."
+              return
+            end
+
+            endpoint = "#{protocol}://#{host}:#{port}"
+            remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
+            begin
+              framework.db.register_data_service(remote_data_service)
+              print_line "Registered data service: #{remote_data_service.name}"
+            rescue Exception => e
+              print_error "There was a problem registering the remote data service: #{e.message}"
+            end
+          end
+
+          def set_data_service(service_id)
+            begin
+              framework.db.set_data_service(service_id)
+            rescue Exception => e
+              print_error "Unable to set data service: #{e.message}"
+            end
+          end
+
+          def list_data_services()
+            framework.db.get_services_metadata.each {|metadata|
+              out = "id: #{metadata.id}, name: #{metadata.name}"
+              if metadata.active
+                out += " [active]"
+              end
+              print_line out
+            }
+          end
+
+          def data_service_help
+            print_line "Usage: data_services [ options ] - list data services by default"
+            print_line
+            print_line "OPTIONS:"
+
+            print_line "  -h, --help                  Show this help information."
+            print_line "  -s, --set <id>              Set the data service by identifier."
+            print_line "  -a, --add [ options ] host  Adds data service"
+            print_line "  Add Data Service Options:"
+            print_line "  -p <port>         The port the data service is listening on. Default is 8080."
+            print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
+            print_line "  -c, --cert        Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
+            print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
+            print_line
+          end
 
           def print_msgs(status_msg, error_msg)
             status_msg.each do |s|
