@@ -91,12 +91,12 @@ module Msf::DBManager::Loot
   }
   end
 
+  # Update the attributes of a Loot entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Loot] The updated Mdm::Loot object.
   def update_loot(opts)
-    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
       id = opts.delete(:id)
       Mdm::Loot.update(id, opts)

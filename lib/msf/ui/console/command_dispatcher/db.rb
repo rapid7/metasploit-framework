@@ -650,12 +650,6 @@ module Msf
               break if !host_search.nil? && host_search.empty?
 
               framework.db.hosts(framework.db.workspace, onlyup, host_search, search_term = search_term).each do |host|
-                # if search_term
-                #   next unless (
-                #   host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } || !find_hosts_with_tag(framework.db.workspace.id, host.address, search_term.source).empty?
-                #   )
-                # end
-
                 matched_host_ids << host.id
                 columns = col_names.map do |n|
                   # Deal with the special cases
@@ -1370,13 +1364,7 @@ module Msf
             end
 
             loots.each do |loot|
-              next if(types and types.index(loot.ltype).nil?)
-              # if search_term
-              #   next unless(
-              #   loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
-              #       loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
-              #   )
-              # end
+              next if types and types.index(loot.ltype).nil?
               row = []
               # TODO: This is just a temp implementation of update for the time being since it did not exist before.
               # It should be updated to not pass all of the attributes attached to the object, only the ones being updated.

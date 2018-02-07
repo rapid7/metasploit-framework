@@ -9,7 +9,7 @@ module Msf::DBManager::Host
   }
   end
 
-  # Deletes Loot entries based on the IDs passed in.
+  # Deletes Host entries based on the IDs passed in.
   #
   # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the Loot entries to delete.
   # @return [Array] Array containing the Mdm::Loot objects that were successfully deleted.
