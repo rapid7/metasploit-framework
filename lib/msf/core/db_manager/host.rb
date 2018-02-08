@@ -142,7 +142,8 @@ module Msf::DBManager::Host
 
       conditions = {}
       conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
-      conditions[:address] = opts[:addresses] if opts[:addresses] && !opts[:addresses].empty?
+      conditions[:address] = opts[:address] if opts[:address] && !opts[:address].empty?
+      conditions[:id] = opts[:id] if opts[:id] && !opts[:id].empty?
 
       if opts[:search_term] && !opts[:search_term].empty?
         column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Host, opts[:search_term])
@@ -256,6 +257,20 @@ module Msf::DBManager::Host
 
     host
   }
+  end
+
+  def update_host(opts)
+    # process workspace string for update if included in opts
+    wspace = opts.delete(:workspace)
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+      opts[:workspace] = wspace
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      Mdm::Host.update(id, opts)
+    }
   end
 
   def split_windows_os_name(os_name)
