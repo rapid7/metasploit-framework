@@ -1235,7 +1235,6 @@ module Msf
             end
 
             loots.each do |loot|
-              next if types and types.index(loot.ltype).nil?
               row = []
               # TODO: This is just a temp implementation of update for the time being since it did not exist before.
               # It should be updated to not pass all of the attributes attached to the object, only the ones being updated.
@@ -1243,7 +1242,11 @@ module Msf
                 begin
                   loot.info = info if info
                   loot.filename = filename if filename
-                  loot.ltype = types if types
+                  if types.size > 1
+                    print_error "May only pass 1 type when performing an update."
+                    next
+                  end
+                  loot.ltype = types.first if types
                   framework.db.update_loot(loot.as_json.symbolize_keys)
                 rescue Exception => e
                   elog "There was an error updating loot with ID #{loot.id}: #{e.message}"
