@@ -13,6 +13,8 @@ class Msf::Modules::External::Shim
       capture_server(mod)
     when 'dos'
       dos(mod)
+    when 'scanner.single'
+      single_scanner(mod)
     when 'scanner.multi'
       multi_scanner(mod)
     else
@@ -30,15 +32,26 @@ class Msf::Modules::External::Shim
     render_template('common_metadata.erb', meta)
   end
 
-  def self.mod_meta_common(mod, meta = {})
+  def self.mod_meta_common(mod, meta = {}, drop_rhost: true)
     meta[:path]        = mod.path.dump
     meta[:name]        = mod.meta['name'].dump
     meta[:description] = mod.meta['description'].dump
     meta[:authors]     = mod.meta['authors'].map(&:dump).join(",\n          ")
 
-    meta[:options]     = mod.meta['options'].map do |n, o|
-      "Opt#{o['type'].camelize}.new(#{n.dump},
-        [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
+    options = if drop_rhost
+      mod.meta['options'].reject {|n, o| n == 'rhost'}
+    else
+      mod.meta['options']
+    end
+
+    meta[:options]     = options.map do |n, o|
+      if o['values']
+        "Opt#{o['type'].camelize}.new(#{n.dump},
+          [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}, #{o['values'].inspect}])"
+      else
+        "Opt#{o['type'].camelize}.new(#{n.dump},
+          [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
+      end
     end.join(",\n          ")
     meta
   end
@@ -69,6 +82,16 @@ class Msf::Modules::External::Shim
   def self.capture_server(mod)
     meta = mod_meta_common(mod)
     render_template('capture_server.erb', meta)
+  end
+
+  def self.single_scanner(mod)
+    meta = mod_meta_common(mod, drop_rhost: true)
+    meta[:date] = mod.meta['date'].dump
+    meta[:references] = mod.meta['references'].map do |r|
+      "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
+    end.join(",\n          ")
+
+    render_template('single_scanner.erb', meta)
   end
 
   def self.multi_scanner(mod)
