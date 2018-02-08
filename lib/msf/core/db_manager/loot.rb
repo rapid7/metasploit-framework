@@ -97,6 +97,9 @@ module Msf::DBManager::Loot
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::Loot] The updated Mdm::Loot object.
   def update_loot(opts)
+    # TODO: remove unneeded workspace from opts until it's not automatically added to remote requests
+    opts.delete(:workspace)
+
     ::ActiveRecord::Base.connection_pool.with_connection {
       id = opts.delete(:id)
       Mdm::Loot.update(id, opts)
