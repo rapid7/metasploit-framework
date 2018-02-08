@@ -1253,7 +1253,7 @@ module Msf
                   next
                 end
               end
-              row.push( ((loot.host && loot.host.address) ? loot.host.address : "") )
+              row.push (loot.host && loot.host.address) ? loot.host.address : ""
               if (loot.service)
                 svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
                 row.push svc
