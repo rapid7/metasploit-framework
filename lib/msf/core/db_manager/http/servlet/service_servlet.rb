@@ -5,6 +5,7 @@ module ServiceServlet
   end
 
   def self.registered(app)
+    app.get  ServiceServlet.api_path, &get_services
     app.post ServiceServlet.api_path, &report_service
   end
 
@@ -12,11 +13,16 @@ module ServiceServlet
   private
   #######
 
-  def self.get_host
+  def self.get_services
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db().hosts(opts)
+        data = get_db().services(opts[:workspace],
+                                 opts[:only_up],
+                                 opts[:proto],
+                                 opts[:address],
+                                 opts[:ports],
+                                 opts[:names])
         set_json_response(data)
       rescue Exception => e
         set_error_on_response(e)
