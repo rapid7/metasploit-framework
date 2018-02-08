@@ -1145,7 +1145,7 @@ module Msf
                     print_error("Can't make loot with no info")
                     return
                   end
-                when '-t'
+                when '-t', '--type'
                   typelist = args.shift
                   if(!typelist)
                     print_error("Invalid type list")
@@ -1211,6 +1211,8 @@ module Msf
               loots = loots + framework.db.loots(framework.db.workspace, {:search_term => search_term})
             else
               each_host_range_chunk(host_ranges) do |host_search|
+                break if !host_search.nil? && host_search.empty?
+
                 loots = loots + framework.db.loots(framework.db.workspace, { :hosts => { :address => host_search }, :search_term => search_term })
               end
             end
@@ -1222,7 +1224,6 @@ module Msf
               if mode == :update
                 begin
                   loot.info = info if info
-                  loot.filename = filename if filename
                   if types.size > 1
                     print_error "May only pass 1 type when performing an update."
                     next
