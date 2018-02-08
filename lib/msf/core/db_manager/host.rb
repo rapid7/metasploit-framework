@@ -270,8 +270,12 @@ module Msf::DBManager::Host
   end
 
   def update_host(opts)
-    # TODO: remove unneeded workspace from opts until it's not automatically added to remote requests
-    opts.delete(:workspace)
+    # process workspace string for update if included in opts
+    wspace = opts.delete(:workspace)
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+      opts[:workspace] = wspace
+    end
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       id = opts.delete(:id)
