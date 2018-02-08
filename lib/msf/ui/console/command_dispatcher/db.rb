@@ -231,47 +231,28 @@ module Msf
             cmd_hosts("-h")
           end
 
-          def change_host_info(rws, data)
-            if rws == [nil]
-              print_error("In order to change the host info, you must provide a range of hosts")
+          # Changes the specified host data
+          #
+          # @param host_ranges - range of hosts to process
+          # @param host_data - hash of host data to be updated
+          def change_host_data(host_ranges, host_data)
+            if !host_data || host_data.length != 1
+              print_error("A single key-value data hash is required to change the host data")
+              return
+            end
+            attribute = host_data.keys[0]
+
+            if host_ranges == [nil]
+              print_error("In order to change the host #{attribute}, you must provide a range of hosts")
               return
             end
 
-            rws.each do |rw|
-              rw.each do |ip|
-                id = framework.db.get_host(:address => ip).id
-                framework.db.hosts.update(id, :info => data)
-                framework.db.report_note(:host => ip, :type => 'host.info', :data => data)
-              end
-            end
-          end
+            each_host_range_chunk(host_ranges) do |host_search|
+              break if !host_search.nil? && host_search.empty?
 
-          def change_host_name(rws, data)
-            if rws == [nil]
-              print_error("In order to change the host name, you must provide a range of hosts")
-              return
-            end
-
-            rws.each do |rw|
-              rw.each do |ip|
-                id = framework.db.get_host(:address => ip).id
-                framework.db.hosts.update(id, :name => data)
-                framework.db.report_note(:host => ip, :type => 'host.name', :data => data)
-              end
-            end
-          end
-
-          def change_host_comment(rws, data)
-            if rws == [nil]
-              print_error("In order to change the comment, you must provide a range of hosts")
-              return
-            end
-
-            rws.each do |rw|
-              rw.each do |ip|
-                id = framework.db.get_host(:address => ip).id
-                framework.db.hosts.update(id, :comments => data)
-                framework.db.report_note(:host => ip, :type => 'host.comments', :data => data)
+              framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+                framework.db.update_host(host_data.merge(id: host.id))
+                framework.db.report_note(host: host.address, type: "host.#{attribute}", data: host_data[attribute])
               end
             end
           end
@@ -492,13 +473,13 @@ module Msf
 
             case
               when mode == [:new_info]
-                change_host_info(host_ranges, info_data)
+                change_host_data(host_ranges, info: info_data)
                 return
               when mode == [:new_name]
-                change_host_name(host_ranges, name_data)
+                change_host_data(host_ranges, name: name_data)
                 return
               when mode == [:new_comment]
-                change_host_comment(host_ranges, comment_data)
+                change_host_data(host_ranges, comments: comment_data)
                 return
               when mode == [:tag]
                 begin
