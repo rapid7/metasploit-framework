@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
-          'Brendan Coles', #MSF Module 
+          'Brendan Coles', #MSF Module
           'Dhiraj Mishra'  #MSF Module
         ],
         'References'     => [
