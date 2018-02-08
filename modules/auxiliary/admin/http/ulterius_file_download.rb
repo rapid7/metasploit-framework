@@ -2,7 +2,6 @@ require 'zlib'
 require 'stringio'
 
 class MetasploitModule < Msf::Auxiliary
-  #Rank = ExcellentRanking
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -62,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     while index < parse_data.length
       index, filename = process_data(index, parse_data)
       index, directory = process_data(index, parse_data)
-      remote_files += directory + '\\' + filename + "\n"
+      remote_files << directory + '\\' + filename + "\n"
 
       #skip FFFFFFFFFFFFFFFF
       index += 8
@@ -72,10 +71,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    res = send_request_cgi({
-      'uri' => normalize_uri(target_uri.path),
-      'method' => 'GET'
-    })
+    begin
+      res = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path),
+        'method' => 'GET'
+      })
+    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
+           Rex::HostUnreachable, Errno::ECONNRESET => e
+      vprint_error("Failed: #{e.class} - #{e.message}")
+      return
+    end
     if res && res.code == 200
       if target_uri.path =~ /fileIndex\.db/i
         inflate_parse(res.body)
