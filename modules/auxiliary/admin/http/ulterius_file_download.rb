@@ -1,6 +1,3 @@
-require 'zlib'
-require 'stringio'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
