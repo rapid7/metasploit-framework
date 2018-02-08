@@ -1224,7 +1224,7 @@ module Msf
               if mode == :update
                 begin
                   loot.info = info if info
-                  if types.size > 1
+                  if types && types.size > 1
                     print_error "May only pass 1 type when performing an update."
                     next
                   end
