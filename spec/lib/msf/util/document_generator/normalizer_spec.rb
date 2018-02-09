@@ -112,7 +112,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   describe 'normalize_pull_requests' do
     context 'when a hash of pull requests are given' do
       it 'returns HTML links' do
-        expect(subject.send(:normalize_pull_requests, good_pull_requests)).to include('* <a href=')
+        expect(subject.send(:normalize_pull_requests, good_pull_requests)).to include('](https://github.com/')
       end
     end
 

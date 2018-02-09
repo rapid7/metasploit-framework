@@ -144,7 +144,7 @@ module Msf
           formatted_pr = []
 
           pull_requests.each_pair do |number, pr|
-            formatted_pr << "* <a href=\"https://github.com/rapid7/metasploit-framework/pull/#{number}\">##{number}</a> - #{pr[:title]}"
+            formatted_pr << "* [##{number} #{pr[:title]}](https://github.com/rapid7/metasploit-framework/pull/#{number})"
           end
 
           formatted_pr * "\n"
@@ -222,6 +222,7 @@ module Msf
           end
           normalized
         end
+
 
         # Returns the markdown format for module platforms.
         #
