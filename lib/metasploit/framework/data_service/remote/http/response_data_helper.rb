@@ -45,6 +45,7 @@ module ResponseDataHelper
         end
       rescue Exception => e
         elog "Mdm Object conversion failed #{e.message}"
+        e.backtrace.each { |line| elog "#{line}\n" }
       end
     end
 
@@ -66,7 +67,8 @@ module ResponseDataHelper
         File.open(save_path, 'w+') { |file| file.write(decoded_file) }
       end
     rescue Exception => e
-      elog "There was an error writing the file: #{e.message}"
+      elog "There was an error writing the file: #{e}"
+      e.backtrace.each { |line| elog "#{line}\n"}
     end
     save_path
   end

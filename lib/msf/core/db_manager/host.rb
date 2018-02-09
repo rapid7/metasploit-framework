@@ -9,27 +9,17 @@ module Msf::DBManager::Host
   }
   end
 
+  # Deletes Host entries based on the IDs passed in.
+  #
+  # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the Loot entries to delete.
+  # @return [Array] Array containing the Mdm::Loot objects that were successfully deleted.
   def delete_host(opts)
-    wspace = opts[:workspace] || opts[:wspace] || workspace
-    if wspace.is_a? String
-      wspace = find_workspace(wspace)
-    end
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      hosts = []
-      if opts[:address] || opts[:host]
-        opt_addr = opts[:address] || opts[:host]
-        host = wspace.hosts.find_by_address(opt_addr)
-        return { error: { message: "Unable to find host by specified address" } } if host.nil? || host.class != ::Mdm::Host
-        hosts << host
-      elsif opts[:addresses]
-        return { error: { message: "Unable to find host by specified addresses" } } if opts[:addresses].class != Array
-        hosts = wspace.hosts.where(address: opts[:addresses])
-        return { error: { message: "Unable to find hosts for specified addresses" } } if hosts.nil?
-      end
-
       deleted = []
-      hosts.each do |host|
+      opts[:ids].each do |host_id|
+        host = Mdm::Host.find(host_id)
         begin
           deleted << host.destroy
         rescue # refs suck
