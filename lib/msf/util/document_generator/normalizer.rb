@@ -204,9 +204,24 @@ module Msf
         # @param refs [Array] Module references.
         # @return [String]
         def normalize_references(refs)
-          refs.collect { |r| "* <a href=\"#{r}\">#{r}</a>" } * "\n"
+          normalized = ''
+          refs.each do |ref|
+            case ref.ctx_id
+            when 'AKA'
+              normalized << "* *Also known as:* #{ref.ctx_val}"
+            when 'MSB'
+              normalized << "* [#{ref.ctx_val}](#{ref.site})"
+            when 'URL'
+              normalized << "* [#{ref.site}](#{ref.site})"
+            when 'US-CERT-VU'
+              normalized << "* [VU##{ref.ctx_val}](#{ref.site})"
+            else
+              normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
+            end
+            normalized << "\n"
+          end
+          normalized
         end
-
 
         # Returns the markdown format for module platforms.
         #
