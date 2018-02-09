@@ -5,7 +5,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.find_workspace(workspace_name)
     rescue  Exception => e
-      elog "Problem finding workspace: #{e.message}"
+      self.log_error(e, "Problem finding workspace")
     end
   end
 
@@ -14,7 +14,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.add_workspace(workspace_name)
     rescue  Exception => e
-      elog "Problem adding workspace: #{e.message}"
+      self.log_error(e, "Problem adding workspace")
     end
   end
 
@@ -23,7 +23,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.default_workspace
     rescue  Exception => e
-      elog "Problem getting the default workspace: #{e.message}"
+      self.log_error(e, "Problem finding default workspace")
     end
   end
 
@@ -32,7 +32,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.workspace
     rescue  Exception => e
-      elog "Problem retrieving workspace: #{e.message}"
+      self.log_error(e, "Problem retrieving workspace")
     end
   end
 
@@ -41,7 +41,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.workspace = workspace
     rescue  Exception => e
-      elog "Problem setting workspace: #{e.message}"
+      self.log_error(e, "Problem setting workspace")
     end
   end
 
@@ -50,7 +50,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.workspaces
     rescue  Exception => e
-      elog "Problem retrieving workspaces: #{e.message}"
+      self.log_error(e, "Problem retrieving workspaces")
     end
   end
 
@@ -59,7 +59,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service()
       data_service.workspace_associations_counts()
     rescue  Exception => e
-      elog "Problem retrieving workspaces counts: #{e.message}"
+      self.log_error(e, "Problem retrieving workspace counts")
     end
   end
 

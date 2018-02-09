@@ -115,6 +115,12 @@ class DataProxy
     return @current_data_service
   end
 
+  def log_error(exception, ui_message)
+    elog "#{ui_message}: #{exception.message}"
+    exception.backtrace.each { |line| elog "#{line}" }
+    raise Exception, "#{ui_message}. See log for more details."
+  end
+
   #######
   private
   #######

@@ -5,7 +5,7 @@ module NmapDataProxy
       data_service = self.get_data_service()
       data_service.import_nmap_xml_file(args)
     rescue Exception => e
-      elog "Problem importing NMAP XML: #{e.message}"
+      self.log_error(e, "Problem importing nmap XML file")
     end
   end
 end
