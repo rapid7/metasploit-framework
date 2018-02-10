@@ -907,7 +907,7 @@ class Db
       end
     end
 
-    unless tbl.rows.empty?
+    if out_file
       File.write(output_file, tbl.to_csv)
       print_status("Wrote vulnerability information to #{output_file}")
     end
