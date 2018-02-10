@@ -265,6 +265,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "Print all vulnerabilities in the database",
           "Usage: vulns [addr range]",
           "  -h,--help             Show this help information",
+          "  -o <file>             Send output to a file in csv format",
           "  -p,--port <portspec>  List vulns matching this port spec",
           "  -s <svc names>        List vulns matching these service names",
           "  -R,--rhosts           Set RHOSTS from the results of the search",
