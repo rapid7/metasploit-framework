@@ -144,7 +144,7 @@ module Msf
           formatted_pr = []
 
           pull_requests.each_pair do |number, pr|
-            formatted_pr << "* <a href=\"https://github.com/rapid7/metasploit-framework/pull/#{number}\">##{number}</a> - #{pr[:title]}"
+            formatted_pr << "* [##{number} #{pr[:title]}](https://github.com/rapid7/metasploit-framework/pull/#{number})"
           end
 
           formatted_pr * "\n"
@@ -204,7 +204,23 @@ module Msf
         # @param refs [Array] Module references.
         # @return [String]
         def normalize_references(refs)
-          refs.collect { |r| "* <a href=\"#{r}\">#{r}</a>" } * "\n"
+          normalized = ''
+          refs.each do |ref|
+            case ref.ctx_id
+            when 'AKA'
+              normalized << "* *Also known as:* #{ref.ctx_val}"
+            when 'MSB'
+              normalized << "* [#{ref.ctx_val}](#{ref.site})"
+            when 'URL'
+              normalized << "* [#{ref.site}](#{ref.site})"
+            when 'US-CERT-VU'
+              normalized << "* [VU##{ref.ctx_val}](#{ref.site})"
+            else
+              normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
+            end
+            normalized << "\n"
+          end
+          normalized
         end
 
 
