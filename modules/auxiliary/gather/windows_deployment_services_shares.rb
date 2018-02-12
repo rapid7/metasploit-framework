@@ -193,7 +193,7 @@ class MetasploitModule < Msf::Auxiliary
         domain = ini[group]['DomainAdminDomain']
         username = ini[group]['DomainAdmin']
         password = ini[group]['DomainAdminPassword']
-      
+
     if domain.to_s.length > 0 && username.to_s.length > 0 && password.to_s.length > 0
           loot_file(data,file_path)
           print_good("Credentials: " +
@@ -204,7 +204,6 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-
 
     unattend_results.each do |file_path|
       file = simple.open(file_path, 'o').read()
