@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
         deploy_shares << "DeploymentShare$"
         deploy_shares.each do |deploy_share|
           query_share(deploy_share)
-	end
+        end
       end
 
     rescue ::Interrupt
@@ -194,12 +194,12 @@ class MetasploitModule < Msf::Auxiliary
         username = ini[group]['DomainAdmin']
         password = ini[group]['DomainAdminPassword']
       
-	if domain.to_s.length > 0 && username.to_s.length > 0 && password.to_s.length > 0
+    if domain.to_s.length > 0 && username.to_s.length > 0 && password.to_s.length > 0
           loot_file(data,file_path)
           print_good("Credentials: " +
             "Path=#{share_path}#{file_path} " +
-	    "Username=#{domain}\\#{username} " +
-	    "Password=#{password}"
+            "Username=#{domain}\\#{username} " +
+            "Password=#{password}"
           )
         end
       end
