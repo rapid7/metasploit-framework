@@ -17,6 +17,12 @@ module Msf::Payload::TransportConfig
     config
   end
 
+  def transport_config_reverse_udp(upts={})
+    config =transport_config_reverse_tcp(opts)
+    config[:scheme] = 'udp'
+    config
+  end
+
   def transport_config_reverse_ipv6_tcp(opts={})
     ds = opts[:datastore] || datastore
     config = transport_config_reverse_tcp(opts)
