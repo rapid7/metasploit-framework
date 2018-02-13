@@ -49,10 +49,10 @@ class MetasploitModule < Msf::Auxiliary
                              }
                              })
     rescue
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Unknown
     end
 
-    if res.code == 200
+    if res.code == 200 and res.body.include? '"Description":"iLO User Accounts"'
       return Exploit::CheckCode::Vulnerable
     end
 
@@ -87,23 +87,22 @@ class MetasploitModule < Msf::Auxiliary
                            })
 
     unless res
-      print_error("Unknown error while creating the user #{res.code}.")
-      return
+      fail_with(Failure::Unknown, 'Connection failed')
     end
 
-    if res.body =~ /InvalidPasswordLength/
-      print_error("Password #{datastore["PASSWORD"]} is too short.")
-      return
-    elsif res.body =~ /UserAlreadyExist/
-      print_error("The user #{datastore["USERNAME"]} already exists.")
-      return
+    if res.body.include? 'InvalidPasswordLength'
+      fail_with(Failure::BadConfig, "Password #{datastore["PASSWORD"]} is too short.")
     end
 
-    if res.code == 201
-      print_good("Account #{datastore["USERNAME"]}/#{datastore["PASSWORD"]} created successfully.")
-    else
-      print_error("Unknown error while creating the user #{res.code}.")
+    if res.body.include? 'UserAlreadyExist'
+      fail_with(Failure::BadConfig, "Unable to add login #{datastore["USERNAME"]}, user already exists")
     end
+
+    unless res.code == 201
+      fail_with(Failure::UnexpectedReply, "Unknown error while creating the user. Response: #{res.code}")
+    end
+
+    print_good("Account #{datastore["USERNAME"]}/#{datastore["PASSWORD"]} created successfully.")
   end
 end
 
