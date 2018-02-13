@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   attr_accessor :ctarget, :cport, :cssl
 
   def run
-    i, a = 0, []
+    i =0
 
     self.ctarget = datastore['RHOSTS']
     self.cport = datastore['RPORT']
