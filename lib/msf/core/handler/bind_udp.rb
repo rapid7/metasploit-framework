@@ -81,6 +81,9 @@ module BindUdp
     # Maximum number of seconds to run the handler
     ctimeout = 150
 
+    # Maximum number of seconds to await initial udp response
+    rtimeout = 5
+
     if (exploit_config and exploit_config['active_timeout'])
       ctimeout = exploit_config['active_timeout'].to_i
     end
@@ -131,7 +134,21 @@ module BindUdp
         end
 
         client.extend(Rex::IO::Stream)
-        break if client
+        begin
+          # If a connection was acknowledged, request a basic response before promoting as a session
+          if client
+            message = 'syn'
+            client.write("echo #{message}\n")
+            response = client.get(rtimeout)
+            break if response && response.include?(message)
+            client.close()
+            client = nil
+          end
+        rescue Errno::ECONNREFUSED
+          client.close()
+          client = nil
+          wlog("Connection failed in udp bind handler continuing attempts: #{$!.class} #{$!}")
+        end
 
         # Wait a second before trying again
         Rex::ThreadSafe.sleep(0.5)
