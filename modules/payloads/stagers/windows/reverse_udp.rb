@@ -7,7 +7,7 @@
 require 'msf/core/handler/reverse_udp'
 require 'msf/core/payload/windows/reverse_udp'
 
-module Metasploit4
+module MetasploitModule
 
   CachedSize = 314
 
