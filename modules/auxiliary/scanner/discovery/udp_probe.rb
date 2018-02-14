@@ -10,8 +10,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Module::Deprecated
 
-  deprecated(Date.new(2016, 11, 23), 'auxiliary/scanner/discovery/udp_sweep')
-
   def initialize
     super(
       'Name'        => 'UDP Service Prober',
