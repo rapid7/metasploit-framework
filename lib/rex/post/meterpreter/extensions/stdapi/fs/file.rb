@@ -275,17 +275,24 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     # Open the file on the remote side for writing and read
     # all of the contents of the local file
     stat.call('uploading', src_file, dest_file) if (stat)
-    dest_fd = client.fs.file.new(dest_file, "wb")
-    src_buf = ''
-
-    ::File.open(src_file, 'rb') { |f|
-      src_buf = f.read(f.stat.size)
-    }
+    dest_fd = nil
+    src_fd = nil
+    buf_size = 8 * 1024 * 1024
 
     begin
-      dest_fd.write(src_buf)
+      dest_fd = client.fs.file.new(dest_file, "wb")
+      src_fd = ::File.open(src_file, "rb")
+      src_size = src_fd.stat.size
+      while (buf = src_fd.read(buf_size))
+        dest_fd.write(buf)
+        percent = dest_fd.pos.to_f / src_size.to_f * 100.0
+        msg = "Uploaded #{Filesize.new(dest_fd.pos).pretty} of " \
+          "#{Filesize.new(src_size).pretty} (#{percent.round(2)}%)"
+        stat.call(msg, src_file, dest_file)
+      end
     ensure
-      dest_fd.close
+      src_fd.close unless src_fd.nil?
+      dest_fd.close unless dest_fd.nil?
     end
     stat.call('uploaded', src_file, dest_file) if (stat)
   end

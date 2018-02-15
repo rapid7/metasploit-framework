@@ -874,9 +874,12 @@ class Packet < GroupTlv
   # Xor a set of bytes with a given XOR key.
   #
   def xor_bytes(xor_key, bytes)
+    xor_key = xor_key.bytes
     result = ''
-    bytes.bytes.zip(xor_key.bytes.cycle).each do |b|
-      result << (b[0].ord ^ b[1].ord).chr
+    i = 0
+    bytes.each_byte do |b|
+      result << (b ^ xor_key[i % xor_key.length]).chr
+      i += 1
     end
     result
   end
