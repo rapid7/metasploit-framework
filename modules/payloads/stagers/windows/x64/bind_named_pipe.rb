@@ -8,7 +8,7 @@ require 'msf/core/payload/windows/x64/bind_named_pipe'
 
 module MetasploitModule
 
-  CachedSize = 458
+  CachedSize = 481
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::BindNamedPipe_x64
