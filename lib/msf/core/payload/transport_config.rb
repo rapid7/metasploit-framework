@@ -104,6 +104,17 @@ module Msf::Payload::TransportConfig
     }.merge(timeout_config(opts))
   end
 
+  def transport_config_bind_named_pipe(opts={})
+    ds = opts[:datastore] || datastore
+    {
+      scheme:     'pipe',
+      lhost:      '.',
+      uri:        "/#{ds['PIPENAME']}",
+    }.merge(timeout_config(opts))
+    
+  end
+
+
 private
 
   def get_custom_headers(ds)

