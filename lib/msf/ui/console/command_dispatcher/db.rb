@@ -777,6 +777,7 @@ class Db
     print_line "Usage: vulns [addr range]"
     print_line
     print_line "  -h,--help             Show this help information"
+    print_line "  -o <file>             Send output to a file in csv format"
     print_line "  -p,--port <portspec>  List vulns matching this port spec"
     print_line "  -s <svc names>        List vulns matching these service names"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
@@ -801,6 +802,7 @@ class Db
     search_term = nil
     show_info   = false
     set_rhosts  = false
+    output_file = nil
 
     # Short-circuit help
     if args.delete "-h"
@@ -817,6 +819,14 @@ class Db
       when "-h","--help"
         cmd_vulns_help
         return
+      when "-o", "--output"
+        output_file = args.shift
+        if output_file
+          output_file = File.expand_path(output_file)
+        else
+          print_error("Invalid output filename")
+          return
+        end
       when "-p","--port"
         unless (arg_port_range(args.shift, port_ranges, true))
           return
@@ -846,6 +856,10 @@ class Db
     host_ranges.push(nil) if host_ranges.empty?
     ports = port_ranges.flatten.uniq
     svcs.flatten!
+    tbl = Rex::Text::Table.new(
+        'Header' => 'Vulnerabilities',
+        'Columns' => ['Timestamp', 'Host', 'Name', 'References', 'Information']
+      )
 
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
@@ -857,25 +871,45 @@ class Db
             )
           end
           reflist = vuln.refs.map { |r| r.name }
+
           if(vuln.service)
             # Skip this one if the user specified a port and it
             # doesn't match.
             next unless ports.empty? or ports.include? vuln.service.port
             # Same for service names
             next unless svcs.empty? or svcs.include?(vuln.service.name)
-            print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
-
           else
             # This vuln has no service, so it can't match
             next unless ports.empty? and svcs.empty?
-            print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
           end
+
+          print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
+
+          if output_file
+            row = []
+            row << vuln.created_at
+            row << host.address
+            row << vuln.name
+            row << reflist * ","
+            if show_info && vuln.info
+              row << "info=#{vuln.info}"
+            else
+              row << ''
+            end
+            tbl << row
+          end
+
           if set_rhosts
             addr = (host.scope ? host.address + '%' + host.scope : host.address)
             rhosts << addr
           end
         end
       end
+    end
+
+    if output_file
+      File.write(output_file, tbl.to_csv)
+      print_status("Wrote vulnerability information to #{output_file}")
     end
 
     # Finally, handle the case where the user wants the resulting list
