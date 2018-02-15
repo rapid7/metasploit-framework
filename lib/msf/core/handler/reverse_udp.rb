@@ -51,12 +51,13 @@ module ReverseUdp
     # XXX: Not supported by all modules
     register_advanced_options(
       [
-        OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
         OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
         OptInt.new('ReverseListenerBindPort', [ false, 'The port to bind to on the local system if different from LPORT' ]),
         OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
         OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
-      ], Msf::Handler::ReverseUdp)
+      ] +
+      Msf::Opt::stager_retry_options,
+      Msf::Handler::ReverseUdp)
 
     self.conn_threads = []
   end
