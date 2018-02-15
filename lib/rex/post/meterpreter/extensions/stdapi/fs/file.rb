@@ -286,7 +286,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       while (buf = src_fd.read(buf_size))
         dest_fd.write(buf)
         percent = dest_fd.pos.to_f / src_size.to_f * 100.0
-        msg = "Uploaded #{Filesize.new(dest_fd.pos).pretty} of #{src_size} (#{percent.round(2)}%)"
+        msg = "Uploaded #{Filesize.new(dest_fd.pos).pretty} of " \
+          "#{Filesize.new(src_size).pretty} (#{percent.round(2)}%)"
         stat.call(msg, src_file, dest_file)
       end
     ensure
