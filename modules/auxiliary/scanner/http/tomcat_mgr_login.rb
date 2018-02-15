@@ -120,7 +120,8 @@ class MetasploitModule < Msf::Auxiliary
       credential_data = result.to_h
       credential_data.merge!(
           module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+          workspace_id: myworkspace_id,
+          private_type: :password
       )
       if result.success?
         credential_core = create_credential(credential_data)

