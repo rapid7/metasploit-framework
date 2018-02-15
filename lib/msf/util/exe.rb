@@ -1633,7 +1633,6 @@ require 'msf/core/exe/segment_appender'
   # target code there, setting an exception handler that calls ExitProcess
   # and finally executing the code.
   def self.win32_rwx_exec(code)
-
     stub_block = %Q^
     ; Input: The hash of the API to call and all its parameters must be pushed onto stack.
     ; Output: The return value from the API call will be in EAX.
@@ -1741,7 +1740,8 @@ require 'msf/core/exe/segment_appender'
     exitfunk:
       mov ebx, 0x0A2A1DE0    ; The EXITFUNK as specified by user...
       push 0x9DBD95A6        ; hash( "kernel32.dll", "GetVersion" )
-      call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
+      mov eax, ebp
+      call eax               ; GetVersion(); (AL will = major version and AH will = minor version)
       cmp al, byte 6         ; If we are not running on Windows Vista, 2008 or 7
       jl goodbye             ; Then just call the exit function...
       cmp bl, 0xE0           ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
