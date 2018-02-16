@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -
 # Note, works with both python 2.7 and 3
 
 
@@ -11,8 +12,8 @@ metadata = {
     'name': 'Claymore Dual GPU Miner  Format String dos attack',
 
     'description': '''
-    Claymore’s Dual GPU Miner 10.5 and below is vulnerable to a format strings vulnerability. This allows an 
-    unauthenticated attacker to read memory addresses, or immediately terminate the mining process causing 
+    Claymore’s Dual GPU Miner 10.5 and below is vulnerable to a format strings vulnerability. This allows an
+    unauthenticated attacker to read memory addresses, or immediately terminate the mining process causing
     a denial of service.
     ''',
 
