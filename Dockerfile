@@ -47,7 +47,7 @@ RUN apk update && \
     && apk del .ruby-builddeps \
     && rm -rf /var/cache/apk/*
 
-RUN adduser -g msfconsole -D $MSF_USER
+RUN adduser -g msfconsole -D $MSF_USER -u 1000
 
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)

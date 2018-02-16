@@ -27,4 +27,10 @@ if [[ $PARAMS == *"--rebuild"* ]]; then
   exit $?
 fi
 
-docker-compose run --rm --service-ports ms ./msfconsole -r docker/msfconsole.rc "$PARAMS"
+# workaround if current user id is not the same as in the container.
+# Otherwise the ~/.msf4 folder is not writeable
+if [[ $EUID -ne 1000 ]]; then
+  docker-compose run --rm -u root --service-ports ms ./msfconsole -r docker/msfconsole.rc "$PARAMS"
+else
+  docker-compose run --rm --service-ports ms ./msfconsole -r docker/msfconsole.rc "$PARAMS"
+fi
