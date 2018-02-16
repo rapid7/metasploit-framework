@@ -274,7 +274,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   def File.upload_file(dest_file, src_file, &stat)
     # Open the file on the remote side for writing and read
     # all of the contents of the local file
-    stat.call('uploading', src_file, dest_file) if (stat)
+    stat.call('uploading', src_file, dest_file) if stat
     dest_fd = nil
     src_fd = nil
     buf_size = 8 * 1024 * 1024
@@ -288,13 +288,13 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
         percent = dest_fd.pos.to_f / src_size.to_f * 100.0
         msg = "Uploaded #{Filesize.new(dest_fd.pos).pretty} of " \
           "#{Filesize.new(src_size).pretty} (#{percent.round(2)}%)"
-        stat.call(msg, src_file, dest_file)
+        stat.call(msg, src_file, dest_file) if stat
       end
     ensure
       src_fd.close unless src_fd.nil?
       dest_fd.close unless dest_fd.nil?
     end
-    stat.call('uploaded', src_file, dest_file) if (stat)
+    stat.call('uploaded', src_file, dest_file) if stat
   end
 
   def File.is_glob?(name)
