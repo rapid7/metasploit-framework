@@ -6,11 +6,9 @@ require 'rex/proto/smb/simpleclient'
 #
 # KNOWN ISSUES
 #
-# 1) Interactive channels (ie shell) do not work well/at all. Neither do pivots. Issue
-#    seems to be multiple threads writing to the pipe or some writes not being synchronized
-#    and bypassing the OpenPipeSock methods.
-# 2) A peek named pipe operation is carried out before every read to prevent blocking. This
-#    generates extra traffic.
+# 1) A peek named pipe operation is carried out before every read to prevent blocking. This
+#    generates extra traffic. SMB echo requests are also generated to force the packet
+#    dispatcher to perform a read.
 #
 
 #
@@ -22,22 +20,27 @@ require 'rex/proto/smb/simpleclient'
 # an issue when there are multiple writes since it will cause select to return which
 # triggers a read, but there is nothing to read since the pipe will already have read
 # the response. This read will then hold the mutex while the socket read waits to timeout.
+# A peek operation on the pipe fixes this.
 #
 class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
-  attr_accessor :mutex, :chunk_size, :last_comm, :write_queue, :write_thread, :read_buff
+  attr_accessor :mutex, :last_comm, :write_queue, :write_thread, :read_buff, :echo_thread, :server_max_buffer_size
 
-  def initialize(*args)
+  STATUS_BUFFER_OVERFLOW = 0x80000005
+
+  def initialize(*args, server_max_buffer_size:)
     super(*args)
     self.client = args[0]
     self.mutex = Mutex.new      # synchronize read/writes
     self.last_comm = Time.now   # last successfull read/write
     self.write_queue = Queue.new # queue message to send
     self.write_thread = Thread.new { dispatcher }
+    self.echo_thread = Thread.new { force_read }
     self.read_buff = ''
+    self.server_max_buffer_size = server_max_buffer_size
+    self.chunk_size = server_max_buffer_size - 260
   end
 
-  # Check if there are any bytes to read and return number available.
-  # Access must be synchronized.
+  # Check if there are any bytes to read and return number available. Access must be synchronized.
   def peek_named_pipe
     # 0x23 is the PeekNamedPipe operation. Last 16 bits is our pipes file id (FID).
     setup = [0x23, self.file_id].pack('vv')
@@ -46,9 +49,32 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
     avail = 0
     begin
       avail = pkt.to_s[pkt['Payload'].v['ParamOffset']+4, 2].unpack('v')[0]
+      self.last_comm = Time.now
     rescue
     end
+
+    if (avail == 0) and (pkt['Payload']['SMB'].v['ErrorClass'] == STATUS_BUFFER_OVERFLOW)
+      avail = self.client.default_max_buffer_size
+    end
+
     avail
+  end
+
+  # Send echo request to force select() to return in the packet dispatcher and read from the socket.
+  # This allows "channel -i" and "shell" to work.
+  def force_read
+    wait = 0.5                  # smaller is faster but generates more traffic
+    while true
+      elapsed = Time.now - self.last_comm
+      if elapsed > wait
+        self.mutex.synchronize do
+          self.client.echo()
+          self.last_comm = Time.now
+        end
+      else
+        Rex::ThreadSafe.sleep(wait-elapsed)
+      end
+    end
   end
 
   # Runs as a thread and synchronizes writes. Allows write operations to return
@@ -74,8 +100,8 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
   def close
     # Give the meterpreter shutdown command a chance
     self.write_queue.close
-    while self.write_queue.size > 0
-      sleep(0.1)
+    if self.write_queue.size > 0
+      sleep(1.0)
     end
     self.write_thread.kill
 
@@ -90,25 +116,32 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
   def read(count)
     data = ''
     begin
-      self.mutex.synchronize do
-        avail = peek_named_pipe 
-        if avail > 0
-          while count > 0
-            buff = super([count, self.chunk_size].min)
-            self.last_comm = Time.now
-            count -= buff.length
-            data += buff
+      if count > self.read_buff.length
+        # need more data to satisfy request
+        self.mutex.synchronize do
+          avail = peek_named_pipe 
+          if avail > 0
+            left = [count-self.read_buff.length, avail].max
+            while left > 0
+              buff = super([left, self.chunk_size].min)
+              self.last_comm = Time.now
+              left -= buff.length
+              self.read_buff += buff
+            end
           end
         end
       end
     rescue
     end
 
+    data = self.read_buff[0, [count, self.read_buff.length].min]
+    self.read_buff = self.read_buff[data.length..-1]
+
     if data.length == 0
       # avoid full throttle polling
-      Rex::ThreadSafe.sleep(0.1)
+      Rex::ThreadSafe.sleep(0.2)
     end
-    return data
+    data
   end
 
   def put (data)
@@ -157,7 +190,7 @@ class SimpleClientPipe < Rex::Proto::SMB::SimpleClient
   def create_pipe(path)
     pkt = self.client.create_pipe(path, Rex::Proto::SMB::Constants::CREATE_ACCESS_EXIST)
     file_id = pkt['Payload'].v['FileID']
-    self.pipe = OpenPipeSock.new(self.client, path, self.client.last_tree_id, file_id)
+    self.pipe = OpenPipeSock.new(self.client, path, self.client.last_tree_id, file_id, server_max_buffer_size: self.server_max_buffer_size)
   end
 end
 
@@ -202,7 +235,6 @@ module Msf
         register_advanced_options(
           [
             OptString.new('SMBDirect', [true, 'The target port is a raw SMB service (not NetBIOS)', true]),
-            OptInt.new('CHUNKSIZE', [false, 'Max pipe read/write size per request', 4096]) # > 4096 is unreliable
           ], Msf::Handler::BindNamedPipe)
 
         self.conn_threads = []
@@ -236,7 +268,6 @@ module Msf
         smbdomain = datastore['SMBDomain']
         smbdirect = datastore['SMBDirect']
         smbshare = "\\\\#{rhost}\\IPC$"
-        chunk_size = datastore['CHUNKSIZE']
 
         # Ignore this if one of the required options is missing
         return if not rhost
@@ -304,7 +335,6 @@ module Msf
             return
           end
           
-          pipe.chunk_size = chunk_size
           vprint_status("Opened pipe \\#{pipe_name}")
 
           # Increment the has connection counter

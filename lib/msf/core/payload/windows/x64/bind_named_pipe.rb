@@ -26,7 +26,11 @@ module Payload::Windows::BindNamedPipe_x64
   #
   def initialize(*args)
     super
-    register_advanced_options(Msf::Opt::stager_retry_options)
+    register_advanced_options(
+      [
+        OptInt.new('WAIT_TIMEOUT', [false, 'Seconds pipe will wait for a connection', 10])
+      ]
+    )
   end
 
   #
@@ -36,8 +40,7 @@ module Payload::Windows::BindNamedPipe_x64
     conf = {
       name:        datastore['PIPENAME'],
       host:        datastore['PIPEHOST'],
-      retry_count: datastore['StagerRetryCount'],
-      retry_wait:  datastore['StagerRetryWait'],
+      timeout:     datastore['WAIT_TIMEOUT'],
       reliable:    false,
     }
 
@@ -136,14 +139,14 @@ module Payload::Windows::BindNamedPipe_x64
   # @option opts [String]  :exitfunk The exit method to use if there is an error, one of process, thread, or seh
   # @option opts [Bool]    :reliable Whether or not to enable error handling code
   # @option opts [String]  :name Pipe name to create
-  # @option opts [Integer] :retry_count The number of times to retry a failed request before giving up
-  # @option opts [Integer] :retry_wait The seconds to wait before retry a new request
+  # @option opts [Int]     :timeout Seconds to wait for pipe connection
   #
   def asm_bind_named_pipe(opts={})
 
     reliable       = opts[:reliable]
-    retry_count    = [opts[:retry_count].to_i, 1].max
-    retry_wait     = [opts[:retry_wait].to_i, 1].max * 1000 # kernel32!Sleep takes millisecs
+    timeout        = opts[:timeout] * 1000 # convert to millisecs
+    retry_wait     = 500
+    retry_count    = timeout / retry_wait
     full_pipe_name = "\\\\\\\\.\\\\pipe\\\\#{opts[:name]}"  # double escape -> \\.\pipe\name
     chunk_size     = 0x10000    # pipe buffer size
     cleanup_funk   = reliable ? 'cleanup_file' : 'failure'
