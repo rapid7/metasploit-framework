@@ -64,7 +64,7 @@ module Payload::Windows::Rc4_x64
          mov [r8+rax], dl
          add dl, [r8+rbx]      ; DL = S[AL]+S[BL]
          mov dl, [r8+rdx]      ; DL = S[DL]
-         xor [r9], dl          ; [EBP] ^= DL
+         xor [r9], dl          ; [R9] ^= DL
          inc r9                ; advance data pointer
          dec rcx                ; reduce counter
          jnz decrypt            ; until finished
