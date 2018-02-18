@@ -135,6 +135,8 @@ class Plugin::Wmap < Msf::Plugin
             else
               print_error("Unable to create site")
             end
+          else
+            print_error("No site provided.")
           end
         when '-d'
           del_idx = args
