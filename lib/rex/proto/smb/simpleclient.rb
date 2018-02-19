@@ -23,7 +23,7 @@ XCEPT = Rex::Proto::SMB::Exceptions
 EVADE = Rex::Proto::SMB::Evasions
 
 # Public accessors
-attr_accessor :last_error
+attr_accessor :last_error, :server_max_buffer_size
 
 # Private accessors
 attr_accessor :socket, :client, :direct, :shares, :last_share
@@ -34,6 +34,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
     self.direct = direct
     self.client = Rex::Proto::SMB::Client.new(socket)
     self.shares = { }
+    self.server_max_buffer_size = 1024 # 4356 (workstation) or 16644 (server) expected
   end
 
   def login(name = '', user = '', pass = '', domain = '',
@@ -55,7 +56,8 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
       self.client.use_lanman_key =  use_lanman_key
       self.client.send_ntlm = send_ntlm
 
-      self.client.negotiate
+      ok = self.client.negotiate
+      self.server_max_buffer_size = ok['Payload'].v['MaxBuff']
 
       # Disable NTLMv2 Session for Windows 2000 (breaks authentication on some systems)
       # XXX: This in turn breaks SMB auth for Windows 2000 configured to enforce NTLMv2
