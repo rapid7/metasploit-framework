@@ -3,7 +3,6 @@ LABEL maintainer="Rapid7"
 
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
 ENV APP_HOME /usr/src/metasploit-framework/
-ENV MSF_USER msf
 ENV NMAP_PRIVILEGED=""
 ENV BUNDLE_IGNORE_MESSAGES="true"
 WORKDIR $APP_HOME
@@ -15,6 +14,7 @@ COPY lib/msf/util/helper.rb $APP_HOME/lib/msf/util/helper.rb
 
 RUN apk update && \
     apk add \
+      bash \
       sqlite-libs \
       nmap \
       nmap-scripts \
@@ -24,6 +24,7 @@ RUN apk update && \
       python3 \
       ncurses \
       libcap \
+      su-exec \
     && apk add --virtual .ruby-builddeps \
       autoconf \
       bison \
@@ -47,13 +48,16 @@ RUN apk update && \
     && apk del .ruby-builddeps \
     && rm -rf /var/cache/apk/*
 
-RUN adduser -g msfconsole -D $MSF_USER
-
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
 
-USER $MSF_USER
-
 ADD ./ $APP_HOME
+
+# we need this entrypoint to dynamically create a user
+# matching the hosts UID and GID so we can mount something
+# from the users home directory. If the IDs don't match
+# it results in access denied errors. Once docker has
+# a solution for this we can revert it back to normal
+ENTRYPOINT ["docker/entrypoint.sh"]
 
 CMD ["./msfconsole", "-r", "docker/msfconsole.rc"]
