@@ -13,7 +13,7 @@ So, you want to make a Login Scanner Module in Metasploit, eh? There are a few t
   * [The scan block](#the-scan-block)
   * [ftp_login final view](#ftp_login-final-view)
 
-###Credential Objects
+### Credential Objects
 
 Metasploit::Framework::Credential
 (lib/metasploit/framework/credential.rb)
@@ -30,7 +30,7 @@ These objects represent the most basic concept of how we now think about Credent
 
 All LoginScanners use Credential objects as the basis for their attempts.
 
-###Result Objects
+### Result Objects
 
 Metasploit::Framework::LoginScanner::Result
 (lib/metasploit/framework/login_scanner/result.rb)
