@@ -127,11 +127,16 @@ class Plugin::Wmap < Msf::Plugin
       while (arg = args.shift)
         case arg
         when '-a'
-          s = add_web_site(args.shift)
-          if s
-            print_status("Site created.")
+          site = args.shift
+          if site
+            s = add_web_site(site)
+            if s
+              print_status("Site created.")
+            else
+              print_error("Unable to create site")
+            end
           else
-            print_error("Unable to create site")
+            print_error("No site provided.")
           end
         when '-d'
           del_idx = args
