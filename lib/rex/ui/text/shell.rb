@@ -370,9 +370,14 @@ protected
       end
 
       output.input = input
-      line << input.pgets
-      output.input = nil
-      log_output(input.prompt)
+      str = input.pgets
+      if str
+        line << str
+        output.input = nil
+        log_output(input.prompt)
+      else
+        run_single("quit")
+      end
     end
     self.cont_flag = false
 
