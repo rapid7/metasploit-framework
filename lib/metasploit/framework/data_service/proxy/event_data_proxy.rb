@@ -5,7 +5,7 @@ module EventDataProxy
       data_service = self.get_data_service()
       data_service.report_event(opts)
     rescue  Exception => e
-      elog "Problem reporting event: #{e.message}"
+      self.log_error(e, "Problem reporting event")
     end
   end
 

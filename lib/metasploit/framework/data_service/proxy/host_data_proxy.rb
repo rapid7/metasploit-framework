@@ -10,7 +10,7 @@ module HostDataProxy
       opts[:search_term] = search_term
       data_service.hosts(opts)
     rescue Exception => e
-      elog "Problem retrieving hosts: #{e.message}"
+      self.log_error(e, "Problem retrieving hosts")
     end
   end
 
@@ -27,7 +27,7 @@ module HostDataProxy
       data_service = self.get_data_service()
       data_service.report_host(opts)
     rescue Exception => e
-      elog "Problem reporting host: #{e.message}"
+      self.log_error(e, "Problem reporting host")
     end
   end
 
@@ -36,7 +36,7 @@ module HostDataProxy
       data_service = self.get_data_service()
       data_service.report_hosts(hosts)
     rescue Exception => e
-      elog "Problem reporting hosts: #{e.message}"
+      self.log_error(e, "Problem reporting hosts")
     end
   end
 
@@ -45,7 +45,7 @@ module HostDataProxy
       data_service = self.get_data_service()
       data_service.update_host(opts)
     rescue Exception => e
-      elog "Problem updating host: #{e.message}"
+      self.log_error(e, "Problem updating host")
     end
   end
 
@@ -54,7 +54,7 @@ module HostDataProxy
       data_service = self.get_data_service()
       data_service.delete_host(opts)
     rescue Exception => e
-      elog "Problem removing host: #{e.message}"
+      self.log_error(e, "Problem deleting host")
     end
   end
 
