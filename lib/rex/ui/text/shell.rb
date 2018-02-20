@@ -190,17 +190,18 @@ module Shell
 
         line = get_input_line
 
-        # If a block was passed in, pass the line to it.  If it returns true,
-        # break out of the shell loop.
-        if block
-          break if line == nil || block.call(line)
-
         # If you have sessions active, this will give you a shot to exit
         # gracefully. If you really are ambitious, 2 eofs will kick this out
-        elsif input.eof? || line == nil
+        if input.eof? || line == nil
           self.stop_count += 1
           next if self.stop_count > 1
           run_single("quit")
+
+        # If a block was passed in, pass the line to it.  If it returns true,
+        # break out of the shell loop.
+        elsif block
+          break if line == nil || block.call(line)
+
 
         # Otherwise, call what should be an overriden instance method to
         # process the line.
@@ -375,13 +376,12 @@ protected
       str = input.pgets
       if str
         line << str
-        output.input = nil
-        log_output(input.prompt)
       else
-        self.stop_count += 1
-        next if self.stop_count > 1
-        run_single("quit")
+        line = nil
       end
+
+      output.input = nil
+      log_output(input.prompt)
     end
     self.cont_flag = false
 
