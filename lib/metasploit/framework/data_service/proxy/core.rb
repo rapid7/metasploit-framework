@@ -118,6 +118,8 @@ class DataProxy
   def log_error(exception, ui_message)
     elog "#{ui_message}: #{exception.message}"
     exception.backtrace.each { |line| elog "#{line}" }
+    # TODO: We should try to surface the original exception, instead of just a generic one.
+    # This should not display the full backtrace, only the message.
     raise Exception, "#{ui_message}: #{exception.message}. See log for more details."
   end
 
