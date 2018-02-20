@@ -128,7 +128,7 @@ module Shell
 
       while true
         # If the stop flag was set or we've hit EOF, break out
-        break if (self.stop_flag or self.stop_count > 1)
+        break if self.stop_flag || self.stop_count > 1
 
         init_tab_complete
 
@@ -190,19 +190,21 @@ module Shell
 
         line = get_input_line
 
+        # If you have sessions active, this will give you a shot to exit
+        # gracefully. If you really are ambitious, 2 eofs will kick this out
+        if input.eof? || line == nil
+          self.stop_count += 1
+          next if self.stop_count > 1
+          run_single("quit")
+
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
-        if (block)
-          break if (line == nil or block.call(line))
-        elsif(input.eof? or line == nil)
-        # If you have sessions active, this will give you a shot to exit gracefully
-        # If you really are ambitious, 2 eofs will kick this out
-          self.stop_count += 1
-          next if(self.stop_count > 1)
-          run_single("quit")
-        else
+        elsif block
+          break if block.call(line)
+
         # Otherwise, call what should be an overriden instance method to
         # process the line.
+        else
           ret = run_single(line)
           # don't bother saving lines that couldn't be found as a
           # command, create the file if it doesn't exist
@@ -370,7 +372,13 @@ protected
       end
 
       output.input = input
-      line << input.pgets
+      str = input.pgets
+      if str
+        line << str
+      else
+        line = nil
+      end
+
       output.input = nil
       log_output(input.prompt)
     end
