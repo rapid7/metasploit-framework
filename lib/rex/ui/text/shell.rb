@@ -128,7 +128,7 @@ module Shell
 
       while true
         # If the stop flag was set or we've hit EOF, break out
-        break if (self.stop_flag or self.stop_count > 1)
+        break if self.stop_flag || self.stop_count > 1
 
         init_tab_complete
 
@@ -378,6 +378,8 @@ protected
         output.input = nil
         log_output(input.prompt)
       else
+        self.stop_count += 1
+        next if self.stop_count > 1
         run_single("quit")
       end
     end
