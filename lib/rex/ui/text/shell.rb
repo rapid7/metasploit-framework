@@ -200,8 +200,7 @@ module Shell
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
         elsif block
-          break if line == nil || block.call(line)
-
+          break if block.call(line)
 
         # Otherwise, call what should be an overriden instance method to
         # process the line.
