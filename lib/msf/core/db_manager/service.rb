@@ -117,6 +117,10 @@ module Msf::DBManager::Service
 
   # Returns a list of all services in the database
   def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+
   ::ActiveRecord::Base.connection_pool.with_connection {
     conditions = {}
     conditions[:state] = [Msf::ServiceState::Open] if only_up

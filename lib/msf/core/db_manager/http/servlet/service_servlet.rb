@@ -16,7 +16,7 @@ module ServiceServlet
   def self.get_services
     lambda {
       begin
-        opts = parse_json_request(request, false)
+        opts = params.symbolize_keys
         data = get_db().services(opts[:workspace],
                                  opts[:only_up],
                                  opts[:proto],
