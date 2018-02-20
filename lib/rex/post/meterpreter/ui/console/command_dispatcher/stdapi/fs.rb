@@ -21,6 +21,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   CHECKSUM_ALGORITHMS = %w{ md5 sha1 }
   private_constant :CHECKSUM_ALGORITHMS
+  PATH_EXPAND_REGEX = /\%(\w*)\%/
+  private_constant :PATH_EXPAND_REGEX
 
   #
   # Options for the download command.
@@ -246,7 +248,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("Usage: cd directory")
       return true
     end
-    if args[0] =~ /\%(\w*)\%/
+    if args[0] =~ PATH_EXPAND_REGEX
       client.fs.dir.chdir(client.fs.file.expand_path(args[0].upcase))
     else
       client.fs.dir.chdir(args[0])
@@ -308,7 +310,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    args.each { |f| client.fs.file.rm(f) }
+    args.each do |file_path|
+      file_path = client.fs.file.expand_path(file_path) if file_path =~ PATH_EXPAND_REGEX
+      client.fs.file.rm(file_path)
+    end
 
     return true
   end
@@ -323,7 +328,11 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("Usage: mv oldfile newfile")
       return true
     end
-    client.fs.file.mv(args[0],args[1])
+    old_path = args[0]
+    old_path = client.fs.file.expand_path(old_path) if old_path =~ PATH_EXPAND_REGEX
+    new_path = args[1]
+    new_path = client.fs.file.expand_path(new_path) if new_path =~ PATH_EXPAND_REGEX
+    client.fs.file.mv(old_path, new_path)
     return true
   end
 
@@ -338,7 +347,11 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("Usage: cp oldfile newfile")
       return true
     end
-    client.fs.file.cp(args[0],args[1])
+    old_path = args[0]
+    old_path = client.fs.file.expand_path(old_path) if old_path =~ PATH_EXPAND_REGEX
+    new_path = args[1]
+    new_path = client.fs.file.expand_path(new_path) if new_path =~ PATH_EXPAND_REGEX
+    client.fs.file.cp(old_path, new_path)
     return true
   end
 
@@ -676,10 +689,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    args.each { |dir|
-      print_line("Creating directory: #{dir}")
-
-      client.fs.dir.mkdir(dir)
+    args.each { |dir_path|
+      dir_path = client.fs.file.expand_path(dir_path) if dir_path =~ PATH_EXPAND_REGEX
+      print_line("Creating directory: #{dir_path}")
+      client.fs.dir.mkdir(dir_path)
     }
 
     return true
@@ -703,9 +716,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    args.each { |dir|
-      print_line("Removing directory: #{dir}")
-      client.fs.dir.rmdir(dir)
+    args.each { |dir_path|
+      dir_path = client.fs.file.expand_path(dir_path) if dir_path =~ PATH_EXPAND_REGEX
+      print_line("Removing directory: #{dir_path}")
+      client.fs.dir.rmdir(dir_path)
     }
 
     return true
