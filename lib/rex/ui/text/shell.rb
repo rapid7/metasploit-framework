@@ -192,17 +192,19 @@ module Shell
 
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
-        if (block)
-          break if (line == nil or block.call(line))
-        elsif(input.eof? or line == nil)
-        # If you have sessions active, this will give you a shot to exit gracefully
-        # If you really are ambitious, 2 eofs will kick this out
+        if block
+          break if line == nil || block.call(line)
+
+        # If you have sessions active, this will give you a shot to exit
+        # gracefully. If you really are ambitious, 2 eofs will kick this out
+        elsif input.eof? || line == nil
           self.stop_count += 1
-          next if(self.stop_count > 1)
+          next if self.stop_count > 1
           run_single("quit")
-        else
+
         # Otherwise, call what should be an overriden instance method to
         # process the line.
+        else
           ret = run_single(line)
           # don't bother saving lines that couldn't be found as a
           # command, create the file if it doesn't exist
