@@ -120,6 +120,15 @@ module Msf::DBManager::Host
     norm_host
   end
 
+  def host_state_changed(host, ostate)
+    begin
+      framework.events.on_db_host_state(host, ostate)
+    rescue ::Exception => e
+      wlog("Exception in on_db_host_state event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+  end
+
   #
   # Report a host's attributes such as operating system and service pack
   #
@@ -171,6 +180,8 @@ module Msf::DBManager::Host
       host = addr
     end
 
+    ostate = host.state
+
     # Truncate the info field at the maximum field length
     if opts[:info]
       opts[:info] = opts[:info][0,65535]
@@ -206,6 +217,15 @@ module Msf::DBManager::Host
     host.state       = Msf::HostState::Alive if !host.state
     host.comm        = ''        if !host.comm
     host.workspace   = wspace    if !host.workspace
+
+    begin
+      framework.events.on_db_host(host) if host.new_record?
+    rescue ::Exception => e
+      wlog("Exception in on_db_host event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
+    host_state_changed(host, ostate) if host.state != ostate
 
     if host.changed?
       msf_import_timestamps(opts,host)
@@ -279,6 +299,8 @@ module Msf::DBManager::Host
       host = addr
     end
 
+    ostate = host.state
+
     res = {}
 
     if info['Computer']
@@ -332,9 +354,8 @@ module Msf::DBManager::Host
     host.comm        = ''        if !host.comm
     host.workspace   = wspace    if !host.workspace
 
-    if host.changed?
-      host.save!
-    end
+    host.save! if host.changed?
+    host_state_changed(host, ostate) if host.state != ostate
 
     host
   }
