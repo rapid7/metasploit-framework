@@ -152,7 +152,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 
     data = client.ui.screenshot( quality )
 
-    if( data )
+    if data
       ::File.open( path, 'wb' ) do |fd|
         fd.write( data )
       end
@@ -162,6 +162,11 @@ class Console::CommandDispatcher::Stdapi::Ui
       print_line( "Screenshot saved to: #{path}" )
 
       Rex::Compat.open_file( path ) if view
+    else
+      print_error("No screenshot data was returned.")
+      if client.platform == 'android'
+        print_error("On Android this command can only capture the application's own framebuffer.")
+      end
     end
 
     return true
