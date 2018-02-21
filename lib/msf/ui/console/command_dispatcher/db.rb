@@ -497,16 +497,12 @@ module Msf
                 return
             end
 
+            matched_host_ids = []
             each_host_range_chunk(host_ranges) do |host_search|
               break if !host_search.nil? && host_search.empty?
 
               framework.db.hosts(framework.db.workspace, onlyup, host_search, search_term = search_term).each do |host|
-                # if search_term
-                #   next unless (
-                #   host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } || !find_hosts_with_tag(framework.db.workspace.id, host.address, search_term.source).empty?
-                #   )
-                # end
-
+                matched_host_ids << host.id
                 columns = col_names.map do |n|
                   # Deal with the special cases
                   if virtual_columns.include?(n)
@@ -534,7 +530,7 @@ module Msf
               end
 
               if mode == [:delete]
-                result = framework.db.delete_host(workspace: framework.db.workspace, addresses: host_search)
+                result = framework.db.delete_host(ids: matched_host_ids)
                 delete_count += result.size
               end
             end
@@ -1183,7 +1179,7 @@ module Msf
                     print_error("Can't make loot with no info")
                     return
                   end
-                when '-t'
+                when '-t', '--type'
                   typelist = args.shift
                   if(!typelist)
                     print_error("Invalid type list")
@@ -1191,7 +1187,9 @@ module Msf
                   end
                   types = typelist.strip().split(",")
                 when '-S', '--search'
-                  search_term = /#{args.shift}/nmi
+                  search_term = args.shift
+                when '-u', '--update' # TODO: This is currently undocumented because it's not officially supported.
+                  mode = :update
                 when '-h','--help'
                   cmd_loot_help
                   return
@@ -1241,61 +1239,56 @@ module Msf
               return
             end
 
+            matched_loot_ids = []
+            loots = []
+            if host_ranges.compact.empty?
+              loots = loots + framework.db.loots(framework.db.workspace, {:search_term => search_term})
+            else
+              each_host_range_chunk(host_ranges) do |host_search|
+                break if !host_search.nil? && host_search.empty?
 
-            each_host_range_chunk(host_ranges) do |host_search|
-              framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-                loots = framework.db.loots(framework.db.workspace, {:host_id => host.id})
-                if loots
-                  loots.each do |loot|
-                    next if(types and types.index(loot.ltype).nil?)
-                    if search_term
-                      next unless(
-                      loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
-                          loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
-                      )
-                    end
-                    row = []
-                    row.push( (host.address ? host.address : "") )
-                    if (loot.service)
-                      svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
-                      row.push svc
-                    else
-                      row.push ""
-                    end
-                    row.push(loot.ltype)
-                    row.push(loot.name || "")
-                    row.push(loot.content_type)
-                    row.push(loot.info || "")
-                    row.push(loot.path)
-
-                    tbl << row
-                    if (mode == :delete)
-                      loot.destroy
-                      delete_count += 1
-                    end
-                  end
-                end
+                loots = loots + framework.db.loots(framework.db.workspace, { :hosts => { :address => host_search }, :search_term => search_term })
               end
             end
 
-            # Handle hostless loot
-            if host_ranges.compact.empty? # Wasn't a host search
-              hostless_loot = framework.db.loots(framework.db.workspace, {:host_id => nil})
-              hostless_loot.each do |loot|
-                row = []
-                row.push("")
-                row.push("")
-                row.push(loot.ltype)
-                row.push(loot.name || "")
-                row.push(loot.content_type)
-                row.push(loot.info || "")
-                row.push(loot.path)
-                tbl << row
-                if (mode == :delete)
-                  loot.destroy
-                  delete_count += 1
+            loots.each do |loot|
+              row = []
+              # TODO: This is just a temp implementation of update for the time being since it did not exist before.
+              # It should be updated to not pass all of the attributes attached to the object, only the ones being updated.
+              if mode == :update
+                begin
+                  loot.info = info if info
+                  if types && types.size > 1
+                    print_error "May only pass 1 type when performing an update."
+                    next
+                  end
+                  loot.ltype = types.first if types
+                  framework.db.update_loot(loot.as_json.symbolize_keys)
+                rescue Exception => e
+                  elog "There was an error updating loot with ID #{loot.id}: #{e.message}"
+                  next
                 end
               end
+              row.push (loot.host && loot.host.address) ? loot.host.address : ""
+              if (loot.service)
+                svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
+                row.push svc
+              else
+                row.push ""
+              end
+              row.push(loot.ltype)
+              row.push(loot.name || "")
+              row.push(loot.content_type)
+              row.push(loot.info || "")
+              row.push(loot.path)
+
+              tbl << row
+              matched_loot_ids << loot.id
+            end
+
+            if (mode == :delete)
+              result = framework.db.delete_loot(ids: matched_loot_ids)
+              delete_count = result.size
             end
 
             print_line

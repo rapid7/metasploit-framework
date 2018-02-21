@@ -4,7 +4,7 @@ module WebDataProxy
       data_service = self.get_data_service()
       data_service.report_web_site(opts)
     rescue  Exception => e
-      elog "Problem reporting web site: #{e.message}"
+      self.log_error(e, "Problem reporting website")
     end
   end
 end

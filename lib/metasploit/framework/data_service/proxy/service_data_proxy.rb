@@ -5,7 +5,7 @@ module ServiceDataProxy
       data_service = self.get_data_service()
       data_service.report_service(opts)
     rescue  Exception => e
-      elog "Problem reporting service: #{e.message}"
+      self.log_error(e, "Problem reporting service")
     end
   end
 
