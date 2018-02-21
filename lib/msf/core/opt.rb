@@ -51,7 +51,7 @@ module Msf
     end
 
     def self.ssl_supported_options
-      @m ||= ['Auto', 'TLS'] + OpenSSL::SSL::SSLContext::METHODS \
+      @m ||= ['Auto', 'TLS'] + [:TLSv1_2, :TLSv1_1, :TLSv1, :SSLv3, :SSLv23, :SSLv2] \
              .select{|m| !m.to_s.include?('client') && !m.to_s.include?('server')} \
              .select{|m| OpenSSL::SSL::SSLContext.new(m) && true rescue false} \
              .map{|m| m.to_s.sub(/v/, '').sub('_', '.')}
