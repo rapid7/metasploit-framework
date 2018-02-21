@@ -88,7 +88,7 @@ begin
     # down other background threads. This is important when there are many active
     # background jobs, such as when the user is running Karmetasploit
     #
-    def pgets()
+    def pgets
 
       line = nil
       orig = Thread.current.priority

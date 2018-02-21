@@ -71,6 +71,8 @@ class MetasploitModule < Msf::Auxiliary
       auth_methods:  ['password', 'keyboard-interactive'],
       use_agent:     false,
       config:        false,
+      password_prompt: Net::SSH::Prompt.new,
+      non_interactive: true,
       proxies:       datastore['Proxies']
     }
 

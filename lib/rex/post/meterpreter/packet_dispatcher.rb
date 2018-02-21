@@ -80,71 +80,23 @@ module PacketDispatcher
     self.recv_queue   = []
     self.waiters      = []
     self.alive        = true
-
-    # Ensure that there is only one leading and trailing slash on the URI
-    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
-
-    self.passive_service = self.passive_dispatcher
-    self.passive_service.remove_resource(resource_uri)
-    self.passive_service.add_resource(resource_uri,
-      'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
-      'VirtualDirectory' => true
-    )
   end
 
   def shutdown_passive_dispatcher
-    return if not self.passive_service
-
-    # Ensure that there is only one leading and trailing slash on the URI
-    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
-
-    self.passive_service.remove_resource(resource_uri)
-
-    # If there are no more resources registered on the service, stop it entirely
-    if self.passive_service.resources.empty?
-      Rex::ServiceManager.stop_service(self.passive_service)
-    end
-
     self.alive      = false
     self.send_queue = []
     self.recv_queue = []
     self.waiters    = []
-
-    self.passive_service = nil
   end
 
   def on_passive_request(cli, req)
-
     begin
-
-    resp = Rex::Proto::Http::Response.new(200, "OK")
-    resp['Content-Type'] = 'application/octet-stream'
-    resp['Connection']   = 'close'
-
-    self.last_checkin = Time.now
-
-    if req.method == 'GET'
-      rpkt = send_queue.shift
-      resp.body = rpkt || ''
-      begin
-        cli.send_response(resp)
-      rescue ::Exception => e
-        send_queue.unshift(rpkt) if rpkt
-        elog("Exception sending a reply to the reader request: #{cli.inspect} #{e.class} #{e} #{e.backtrace}")
-      end
-    else
-      resp.body = ""
-      if req.body and req.body.length > 0
-        packet = Packet.new(0)
-        packet.add_raw(req.body)
-        packet.parse_header!
-        dispatch_inbound_packet(packet)
-      end
+      self.last_checkin = Time.now
+      resp = send_queue.shift
       cli.send_response(resp)
-    end
-
-    rescue ::Exception => e
-      elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
+    rescue => e
+      send_queue.unshift(resp) if resp
+      elog("Exception sending a reply to the reader request: #{cli.inspect} #{e.class} #{e} #{e.backtrace}")
     end
   end
 
@@ -623,6 +575,71 @@ protected
   attr_accessor :receiver_thread # :nodoc:
   attr_accessor :dispatcher_thread # :nodoc:
   attr_accessor :waiters # :nodoc:
+end
+
+module HttpPacketDispatcher
+  def initialize_passive_dispatcher
+    super
+
+    # Ensure that there is only one leading and trailing slash on the URI
+    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+    self.passive_service = self.passive_dispatcher
+    self.passive_service.remove_resource(resource_uri)
+    self.passive_service.add_resource(resource_uri,
+      'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
+      'VirtualDirectory' => true
+    )
+  end
+
+  def shutdown_passive_dispatcher
+    if self.passive_service
+      # Ensure that there is only one leading and trailing slash on the URI
+      resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
+      self.passive_service.remove_resource(resource_uri) if self.passive_service
+
+      if self.passive_service.resources.empty?
+        Rex::ServiceManager.stop_service(self.passive_service)
+      end
+      self.passive_service = nil
+    end
+    super
+  end
+
+  def on_passive_request(cli, req)
+
+    begin
+
+    resp = Rex::Proto::Http::Response.new(200, "OK")
+    resp['Content-Type'] = 'application/octet-stream'
+    resp['Connection']   = 'close'
+
+    self.last_checkin = Time.now
+
+    if req.method == 'GET'
+      rpkt = send_queue.shift
+      resp.body = rpkt || ''
+      begin
+        cli.send_response(resp)
+      rescue ::Exception => e
+        send_queue.unshift(rpkt) if rpkt
+        elog("Exception sending a reply to the reader request: #{cli.inspect} #{e.class} #{e} #{e.backtrace}")
+      end
+    else
+      resp.body = ""
+      if req.body and req.body.length > 0
+        packet = Packet.new(0)
+        packet.add_raw(req.body)
+        packet.parse_header!
+        dispatch_inbound_packet(packet)
+      end
+      cli.send_response(resp)
+    end
+
+    rescue ::Exception => e
+      elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
+    end
+  end
+
 end
 
 end; end; end

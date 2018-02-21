@@ -29,7 +29,13 @@ class Msf::Modules::External::Message
   end
 
   def to_json
-    JSON.generate({jsonrpc: '2.0', id: self.id, method: self.method, params: self.params.to_h})
+    params =
+      if self.params.respond_to? :to_nested_values
+        self.params.to_nested_values
+      else
+        self.params.to_h
+      end
+    JSON.generate({jsonrpc: '2.0', id: self.id, method: self.method, params: params})
   end
 
   protected

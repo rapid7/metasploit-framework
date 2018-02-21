@@ -1,3 +1,5 @@
+## Introduction
+
 This module can be used to aid the generation of an organizational chart based on information
 contained in Active Directory. The module itself uses ADSI to retrieve key information from AD
 (manager, title, description etc) fields and then present it in a CSV file in the form:

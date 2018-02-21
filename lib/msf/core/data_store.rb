@@ -170,6 +170,20 @@ class DataStore < Hash
     datastore_hash
   end
 
+  # Hack on a hack for the external modules
+  def to_nested_values
+    datastore_hash = {}
+    self.keys.each do |k|
+      # TODO arbitrary depth
+      if self[k].is_a? Array
+        datastore_hash[k.to_s] = self[k].map(&:to_s)
+      else
+        datastore_hash[k.to_s] = self[k].to_s
+      end
+    end
+    datastore_hash
+  end
+
   #
   # Persists the contents of the data store to a file
   #
