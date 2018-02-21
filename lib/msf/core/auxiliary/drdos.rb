@@ -42,14 +42,14 @@ module Auxiliary::DRDoS
       this_proof += ' and '
 
       # compute bandwidth amplification
-      total_size = responses.map(&:size).reduce(:+)
-      bandwidth_amplification = total_size - request.size
+      total_size = responses.map(&:num_bytes).reduce(:+)
+      bandwidth_amplification = total_size - request.num_bytes
       if bandwidth_amplification > 0
         vulnerable = true
-        if request.size == 0
+        if request.num_bytes == 0
           multiplier = total_size
         else
-          multiplier = total_size / request.size
+          multiplier = total_size / request.num_bytes
         end
         this_proof += "a #{multiplier}x, #{bandwidth_amplification}-byte bandwidth amplification"
       else
