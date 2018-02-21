@@ -49,6 +49,8 @@ class MetasploitModule < Msf::Auxiliary
 
     ssh_opts = {
       port:            rport,
+      # The auth method is converted into a class name for instantiation,
+      # so fortinet-backdoor here becomes FortinetBackdoor from the mixin
       auth_methods:    ['fortinet-backdoor'],
       non_interactive: true,
       config:          false,
