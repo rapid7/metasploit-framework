@@ -145,7 +145,6 @@ class MetasploitModule < Msf::Post
   #-------------------------------------------------------------------------------
   def install_as_service(script_on_target)
     if  is_system? || is_admin?
-
       print_status("Installing as service..")
       nam = datastore['STARTUP_NAME'] || Rex::Text.rand_text_alpha(rand(8) + 8)
       description = datastore['SERVICE_DESC'] || Rex::Text.rand_text_alpha(8)
@@ -171,8 +170,6 @@ class MetasploitModule < Msf::Post
   # Function for writing executable to target host
   #-------------------------------------------------------------------------------
   def write_exe_to_target(rexe, rexename)
-
-
     if not datastore['LEXEPATH'].nil? 
     # check we have write permissions 
     # I made it by myself because the function filestat.writable? was not implemented yet.
