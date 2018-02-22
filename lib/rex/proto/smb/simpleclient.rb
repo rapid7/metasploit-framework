@@ -149,11 +149,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
   def connect(share)
     ok = self.client.tree_connect(share)
 
-    if ok.respond_to?(:id)
-      tree_id = ok.id
-    else
-      tree_id = ok['Payload']['SMB'].v['TreeID']
-    end
+    tree_id = ok.id
 
     self.shares[share] = tree_id
     self.last_share = share
@@ -178,8 +174,6 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
                 ok.guid
               elsif ok.respond_to?(:fid)
                 ok.fid
-              else
-                ok['Payload'].v['FileID']
               end
     fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id)
     fh.chunk_size = chunk_size

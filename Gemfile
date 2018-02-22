@@ -42,5 +42,5 @@ group :test do
   gem 'timecop'
 end
 
-gem 'ruby_smb', git: 'https://github.com/dmohanty-r7/ruby_smb', branch: 'ruby_smb_simple_client'
+gem 'ruby_smb', git: 'https://github.com/rapid7/ruby_smb', branch: 'master'
 
