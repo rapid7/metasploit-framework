@@ -232,7 +232,7 @@ class MetasploitModule < Msf::Auxiliary
       # No password change required moving on.
       # Check for valid login but no mailbox setup
       print_good("server type: #{res.headers["X-FEServer"]}")
-      if res.headers['location'] =~ /owa/
+      if res.headers['location'] =~ /owa/ and res.headers['location'] !~ /reason/
         print_good("#{msg} SUCCESSFUL LOGIN. #{elapsed_time} '#{user}' : '#{pass}'")
         report_cred(
           ip: res.peerinfo['addr'],
