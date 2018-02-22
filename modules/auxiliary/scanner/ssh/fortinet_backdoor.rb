@@ -93,6 +93,9 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     start_session(self, info, ds_merge, false, shell.lsock)
+
+    # XXX: Ruby segfaults if we don't remove the SSH socket
+    remove_socket(ssh.transport.socket)
   end
 
   def rport
