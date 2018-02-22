@@ -59,7 +59,7 @@ PATH
       rex-text
       rex-zip
       ruby-macho
-      ruby_smb
+      ruby_smb (= 0.0.18)
       rubyntlm
       rubyzip
       sqlite3
@@ -167,7 +167,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-credential (2.0.12)
+    metasploit-credential (2.0.13)
       metasploit-concern
       metasploit-model
       metasploit_data_models
