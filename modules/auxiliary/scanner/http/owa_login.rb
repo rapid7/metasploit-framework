@@ -254,6 +254,8 @@ class MetasploitModule < Msf::Auxiliary
       else
         # Login didn't work. no point in going on, however, check if valid domain account by response time.
         if elapsed_time <= 1
+          # This timing trick doesn't work when an email address is passed, only usernames.
+          # Don't save it as potentially valid in this case.
           unless user =~ /@\w+\.\w+/
             report_cred(
               ip: res.peerinfo['addr'],
