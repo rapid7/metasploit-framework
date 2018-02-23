@@ -6,16 +6,18 @@ Taking advantage of some Windows Local Users Management integrity issues, this m
 
 By using a `meterpreter` session against a Windows host, the module will try to acquire _**SYSTEM**_ privileges if needed, and will modify some attributes to hijack the permissions of an existing local account and set them to another one.
 
+For more information see [csl.com.co](http://csl.com.co/rid-hijacking/).
+
 ## Vulnerable Software
 
-This module has been tested against.
+This module has been tested against:
 
 - Windows XP, 2003. (32 bits)
 - Windows 8.1 Pro. (64 bits)
 - Windows 10. (64 bits)
 - Windows Server 2012. (64 bits)
 
-This module was not tested against, but may work against:
+This module was not tested against, but may work on:
 
 - Other versions of windows (x86 and x64).
 
@@ -23,11 +25,11 @@ This module was not tested against, but may work against:
 
 - **GETSYSTEM**: Try to get _**SYSTEM**_ privileges on the victim. Default: `false`
 
-- **GUEST_ACCOUNT**: Use the _**GUEST**_ built-in account as the destination of the privileges to be hijacked . Set this account as the _hijacker_. Default: `false`.
+- **GUEST_ACCOUNT**: Use the _**GUEST**_ built-in account as the destination of the privileges to be hijacked. Set this account as the _hijacker_. Default: `false`.
 
 - **SESSION**: The session to run this module on. Default: `none`.
 
-- **USERNAME**: Set an user account (_SAM Account Name_) of the victim host and use it as the destination of the privileges to be _hijacked_. Set this account as the _hijacker_. If **GUEST_ACCOUNT** option is set to `true`, this parameter will be ignored if defined. Default: `none`.
+- **USERNAME**: Set the user account (_SAM Account Name_) of the victim host which will be the destination of the privileges to be _hijacked_. Set this account as the _hijacker_. If **GUEST_ACCOUNT** option is set to `true`, this parameter will be ignored if defined. Default: `none`.
 
 - **PASSWORD**: Set or change the password of the account defined as the destination of the privileges to be hijacked, either _**GUEST**_ account or the user account set in **USERNAME** option. Set password to the _hijacker_ account. Default: `none`.
 
@@ -140,7 +142,3 @@ msf post(rid_hijack) > run
 [*] Setting testuser password to Password.2
 [*] Post module execution completed
 ```
-
-## Reference
-
-http://csl.com.co/rid-hijacking/
