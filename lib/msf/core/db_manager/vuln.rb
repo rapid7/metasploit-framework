@@ -242,9 +242,14 @@ module Msf::DBManager::Vuln
     end
 
     ::ActiveRecord::Base.connection_pool.with_connection {
+
       search_term = opts.delete(:search_term)
-      column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Vuln, search_term)
-      wspace.vulns.includes(:host).where(opts).where(column_search_conditions)
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Vuln, search_term)
+        wspace.vulns.includes(:host).where(opts).where(column_search_conditions)
+      else
+        wspace.vulns.includes(:host).where(opts)
+      end
     }
   end
 
