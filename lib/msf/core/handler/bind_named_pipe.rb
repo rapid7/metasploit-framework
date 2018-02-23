@@ -9,6 +9,7 @@ require 'rex/proto/smb/simpleclient'
 # 1) A peek named pipe operation is carried out before every read to prevent blocking. This
 #    generates extra traffic. SMB echo requests are also generated to force the packet
 #    dispatcher to perform a read.
+# 2) SMB1 only. Switch to ruby_smb.
 #
 
 #
@@ -23,21 +24,22 @@ require 'rex/proto/smb/simpleclient'
 # A peek operation on the pipe fixes this.
 #
 class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
-  attr_accessor :mutex, :last_comm, :write_queue, :write_thread, :read_buff, :echo_thread, :server_max_buffer_size
+  attr_accessor :mutex, :last_comm, :write_queue, :write_thread, :read_buff, :echo_thread, :simple, :server_max_buffer_size
 
   STATUS_BUFFER_OVERFLOW = 0x80000005
 
-  def initialize(*args, server_max_buffer_size:)
+  def initialize(*args, simple:, server_max_buffer_size:)
     super(*args)
-    self.client = args[0]
+    self.simple = simple
+    self.client = simple.client
     self.mutex = Mutex.new      # synchronize read/writes
     self.last_comm = Time.now   # last successfull read/write
-    self.write_queue = Queue.new # queue message to send
+    self.write_queue = Queue.new # messages to send
     self.write_thread = Thread.new { dispatcher }
     self.echo_thread = Thread.new { force_read }
     self.read_buff = ''
-    self.server_max_buffer_size = server_max_buffer_size
-    self.chunk_size = server_max_buffer_size - 260
+    self.server_max_buffer_size = server_max_buffer_size # max transaction size
+    self.chunk_size = server_max_buffer_size - 260       # max read/write size
   end
 
   # Check if there are any bytes to read and return number available. Access must be synchronized.
@@ -80,7 +82,7 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
   # Runs as a thread and synchronizes writes. Allows write operations to return
   # immediately instead of waiting for the mutex.
   def dispatcher
-    while true
+    while not self.write_queue.closed?
       data = self.write_queue.pop
       self.mutex.synchronize do
         sent = 0
@@ -100,16 +102,13 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
   def close
     # Give the meterpreter shutdown command a chance
     self.write_queue.close
-    if self.write_queue.size > 0
-      sleep(1.0)
+    if self.write_thread.join(2.0)
+      self.write_thread.kill rescue nil
     end
-    self.write_thread.kill
 
-    begin
-      # close pipe
-      super
-    rescue => e
-    end
+    # close pipe, share, and socket
+    super rescue nil
+    self.simple.disconnect(self.simple.last_share) rescue nil
     self.client.socket.close
   end
 
@@ -190,7 +189,8 @@ class SimpleClientPipe < Rex::Proto::SMB::SimpleClient
   def create_pipe(path)
     pkt = self.client.create_pipe(path, Rex::Proto::SMB::Constants::CREATE_ACCESS_EXIST)
     file_id = pkt['Payload'].v['FileID']
-    self.pipe = OpenPipeSock.new(self.client, path, self.client.last_tree_id, file_id, server_max_buffer_size: self.server_max_buffer_size)
+    self.pipe = OpenPipeSock.new(self.client, path, self.client.last_tree_id, file_id, simple: self,
+                                 server_max_buffer_size: self.server_max_buffer_size)
   end
 end
 
