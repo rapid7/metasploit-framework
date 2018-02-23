@@ -113,12 +113,23 @@ module Metasploit
           begin
             Timeout.timeout(5) do
               proof = ssh_socket.exec!("id\n").to_s
-              if(proof =~ /id=/)
+              if (proof =~ /id=/)
                 proof << ssh_socket.exec!("uname -a\n").to_s
+                if (proof =~/JUNOS /)
+                  # We're in the SSH shell for a Juniper JunOS, we can pull the version from the cli
+                  # line 2 is hostname, 3 is model, 4 is the Base OS version
+                  proof = ssh_socket.exec!("cli show version\n").split("\n")[2..4].join(", ").to_s
+                end
               else
                 # Cisco IOS
                 if proof =~ /Unknown command or computer name/
                   proof = ssh_socket.exec!("ver\n").to_s
+                # Juniper ScreenOS
+                elsif proof =~ /unknown keyword/
+                  proof = ssh_socket.exec!("get chassis\n").to_s
+                # Juniper JunOS CLI
+                elsif proof =~ /unknown command: id/
+                  proof = ssh_socket.exec!("show version\n").split("\n")[2..4].join(", ").to_s
                 else
                   proof << ssh_socket.exec!("help\n?\n\n\n").to_s
                 end
