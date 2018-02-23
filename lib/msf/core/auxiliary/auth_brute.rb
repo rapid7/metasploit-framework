@@ -32,6 +32,7 @@ module Auxiliary::AuthBrute
       OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
       OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
       OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
+      OptBool.new('PASSWORD_SPRAY', [true, "Reverse the credential pairing order. For each password, attempt every possible user.", false]),
       OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@guesses_per_service
       OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@brute_start_time
       OptInt.new('MaxGuessesPerUser', [ false, %q{
@@ -422,9 +423,17 @@ module Auxiliary::AuthBrute
     elsif user_array.empty?
       combined_array = pass_array.map {|p| ["",p] }
     else
-      user_array.each do |u|
+      if datastore['PASSWORD_SPRAY']
         pass_array.each do |p|
-          combined_array << [u,p]
+          user_array.each do |u|
+            combined_array << [u,p]
+          end
+        end
+      else
+        user_array.each do |u|
+          pass_array.each do |p|
+            combined_array << [u,p]
+          end
         end
       end
     end
