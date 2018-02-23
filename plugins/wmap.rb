@@ -140,11 +140,11 @@ class Plugin::Wmap < Msf::Plugin
           end
         when '-d'
           del_idx = args
-          if del_idx
+          if !del_idx.empty?
             delete_sites(del_idx.select {|d| d =~ /^[0-9]*$/}.map(&:to_i).uniq)
             return
           else
-            print_error("Provide index of site to delete")
+            print_error("No index provided.")
           end
         when '-l'
           view_sites
