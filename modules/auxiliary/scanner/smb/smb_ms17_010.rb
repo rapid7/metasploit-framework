@@ -90,6 +90,43 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
+        
+        
+        # Detect accessible named pipes
+        print_status("Checking for accessible named pipes")
+        target_pipes = [
+                'netlogon',
+                'lsarpc',
+                'samr',
+                'browser',
+                'atsvc',
+                'DAV RPC SERVICE',
+                'epmapper',
+                'eventlog',
+                'InitShutdown',
+                'keysvc',
+                'lsass',
+                'LSM_API_service',
+                'ntsvcs',
+                'plugplay',
+                'protected_storage',
+                'router',
+                'SapiServerPipeS-1-5-5-0-70123',
+                'scerpc',
+                'srvsvc',
+                'tapsrv',
+                'trkwks',
+                'W32TIME_ALT',
+                'wkssvc',
+                'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER',
+                'db2remotecmd'
+        ]
+
+        target_pipes.each do |pipe|
+                pipe_name = "#{pipe}"
+                pipe_handle = self.simple.create_pipe(pipe_name, 'o')
+                print_good("Found accessible named pipe: #{pipe}")
+        end
         report_vuln(
           host: ip,
           name: self.name,
