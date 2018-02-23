@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.41)
+    metasploit-framework (4.16.42)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -248,7 +248,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.0)
     rb-readline (0.5.5)
-    recog (2.1.17)
+    recog (2.1.18)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
@@ -259,12 +259,12 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.12)
+    rex-core (0.1.13)
     rex-encoder (0.1.4)
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.16)
+    rex-exploitation (0.1.17)
       jsobfu
       metasm
       rex-arch
