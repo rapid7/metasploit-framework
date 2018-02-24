@@ -127,10 +127,12 @@ class MetasploitModule < Msf::Auxiliary
                 pipe_handle = self.simple.create_pipe(pipe_name, 'o')
                 accessible_pipes << pipe
         end
+        p_pipes = "" 
         if accessible_pipes.count != 0
            accessible_pipes.each do |a_pipe|
-             print_good("Following accessible named pipe(s) found: #{a_pipe.join(",")}")
+             p_pipes += ", #{a_pipe}"  
            end
+           print_good("Following accessible named pipe(s) found: #{p_pipes}")
         else
            vprint_status("No accessible named pipes found on the target")
         end
