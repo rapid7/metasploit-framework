@@ -14,6 +14,7 @@ module Auxiliary::PIPEAudit
 
   def connect_to_pipe
 		  accessible_pipes||=[]
+	          a_pipe_handles||=[]
 		  target_pipes = [
                 'netlogon',
                 'lsarpc',
@@ -47,9 +48,10 @@ module Auxiliary::PIPEAudit
 				pipe_name = "#{pipe}"
 				pipe_handle = self.simple.create_pipe(pipe_name, 'o')
 				accessible_pipes << pipe_name
+			        a_pipe_handles << pipe_handle
 		     end
       end
-		return accessible_pipes[0], pipe_handle
+		return accessible_pipes[0], pipe_handle[0] 
   end
 end
 end
