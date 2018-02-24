@@ -1,8 +1,6 @@
 ## Description
 
-The WebDAV extension in Microsoft Internet Information Services (IIS) 5.1 and 6.0 allows remote attackers to bypass URI-based protection mechanisms, and list folders or read, create, or modify files, via a %c0%af (Unicode / character) at an arbitrary position in the URI, as demonstrated by inserting %c0%af into a "/protected/" initial pathname component to bypass the password protection on the protected\ folder, aka "IIS 5.1 and 6.0 WebDAV Authentication Bypass Vulnerability," a different vulnerability than CVE-2009-1122. More info about this vulnerability can be found [here](http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-1535).
-
-CVE: CVE-2009-1535
+The WebDAV extension in Microsoft Internet Information Services (IIS) 5.1 and 6.0 allows remote attackers to bypass URI-based protection mechanisms, and list folders or read, create, or modify files, via a %c0%af (Unicode / character) at an arbitrary position in the URI, as demonstrated by inserting %c0%af into a `/protected/` initial pathname component to bypass the password protection on the protected\ folder, aka "IIS 5.1 and 6.0 WebDAV Authentication Bypass Vulnerability," a different vulnerability than CVE-2009-1122. More info about this vulnerability can be found in [cve-2009-1535](http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-1535).
 
 ## Verification Steps
 
@@ -11,11 +9,7 @@ CVE: CVE-2009-1535
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-You can keep the default DICTIONARY and HTTP404S dictionary settings, set our RHOSTS and THREADS values and let the module run.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/http/dir_webdav_unicode_bypass
@@ -62,5 +56,3 @@ msf auxiliary(dir_webdav_unicode_bypass) > run
 [*] Auxiliary module execution completed
 msf auxiliary(dir_webdav_unicode_bypass) >
 ```
-
-The scan can find vulnerable servers. This vulnerability can potentially allow attacker to list, download, or even upload files to password protected folders.

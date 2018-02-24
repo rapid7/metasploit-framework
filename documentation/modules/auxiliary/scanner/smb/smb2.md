@@ -11,7 +11,6 @@ The SMB2 scanner module simply scans the remote hosts and determines if they sup
 
 ## Scenarios
 
-**Running the scanner**
 ```
 msf > use auxiliary/scanner/smb/smb2
 msf auxiliary(smb2) > set RHOSTS 192.168.1.150-165

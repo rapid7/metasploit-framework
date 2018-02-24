@@ -11,27 +11,10 @@ The smb_enumshares module, as would be expected, enumerates any SMB shares that 
 
 ## Scenarios
 
-**Running the scanner**
+### Uncredentialed
+
 ```
 msf > use auxiliary/scanner/smb/smb_enumshares
-msf auxiliary(smb_enumshares) > show options
-
-Module options (auxiliary/scanner/smb/smb_enumshares):
-
-   Name             Current Setting  Required  Description
-   ----             ---------------  --------  -----------
-   LogSpider        3                no        0 = disabled, 1 = CSV, 2 = table (txt), 3 = one liner (txt) (Accepted: 0, 1, 2, 3)
-   MaxDepth         999              yes       Max number of subdirectories to spider
-   RHOSTS                            yes       The target address range or CIDR identifier
-   SMBDomain        .                no        The Windows domain to use for authentication
-   SMBPass                           no        The password for the specified username
-   SMBUser                           no        The username to authenticate as
-   ShowFiles        false            yes       Show detailed information when spidering
-   SpiderProfiles   true             no        Spider only user profiles when share = C$
-   SpiderShares     false            no        Spider shares recursively
-   THREADS          1                yes       The number of concurrent threads
-   USE_SRVSVC_ONLY  false            yes       List shares only with SRVSVC
-
 msf auxiliary(smb_enumshares) > set RHOSTS 192.168.1.150-165
 RHOSTS => 192.168.1.150-165
 msf auxiliary(smb_enumshares) > set THREADS 16
@@ -55,7 +38,10 @@ Error: 192.168.1.150 Rex::Proto::SMB::Exceptions::ErrorCode The server responded
 msf auxiliary(smb_enumshares) >
 ```
 
-As you can see, since this is an "###uncredentialed" scan, access is denied a most of the systems that are probed. Doing a "###credentialed" scan produces much different results.
+### Credentialed
+
+As you can see in the previous scan, access is denied a most of the systems that are probed.
+Doing a Credentialed scan produces much different results.
 
 ```
 msf auxiliary(smb_enumshares) > set SMBPass s3cr3t

@@ -8,29 +8,10 @@ This module scans one or more web servers for interesting directories that can b
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```run```
 
-Let the default dictionary included in Metasploit set, set our target, and let the scanner run.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 > use auxiliary/scanner/http/dir_scanner
-msf auxiliary(dir_scanner) > show options
-
-Module options (auxiliary/scanner/http/dir_scanner):
-
-   Name        Current Setting                                          Required  Description
-   ----        ---------------                                          --------  -----------
-   DICTIONARY  /usr/share/metasploit-framework/data/wmap/wmap_dirs.txt  no        Path of word dictionary to use
-   PATH        /                                                        yes       The path  to identify files
-   Proxies                                                              no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS                                                               yes       The target address range or CIDR identifier
-   RPORT       80                                                       yes       The target port (TCP)
-   SSL         false                                                    no        Negotiate SSL/TLS for outgoing connections
-   THREADS     1                                                        yes       The number of concurrent threads
-   VHOST                                                                no        HTTP server virtual host
-
 msf auxiliary(dir_scanner) > set RHOSTS 192.168.1.201
 RHOSTS => 192.168.1.201
 msf auxiliary(dir_scanner) > run
@@ -51,4 +32,37 @@ msf auxiliary(dir_scanner) > run
 msf auxiliary(dir_scanner) >
 ```
 
-A quick scan has turned up a number of directories on the target server that could be certainly investigated further.
+## Confirming
+
+The following are other industry tools which can also be used.
+
+### [dirb](http://dirb.sourceforge.net/)
+
+```
+# dirb http://192.168.2.137 /usr/share/metasploit-framework/data/wmap/wmap_dirs.txt 
+
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+START_TIME: Sat Feb 24 12:56:40 2018
+URL_BASE: http://192.168.2.137/
+WORDLIST_FILES: /usr/share/metasploit-framework/data/wmap/wmap_dirs.txt
+
+-----------------
+
+GENERATED WORDS: 2351
+
+---- Scanning URL: http://192.168.2.137/ ----
+==> DIRECTORY: http://192.168.2.137/.../
+==> DIRECTORY: http://192.168.2.137/Joomla/
+==> DIRECTORY: http://192.168.2.137/cgi-bin/
+==> DIRECTORY: http://192.168.2.137/error/
+==> DIRECTORY: http://192.168.2.137/icons/
+==> DIRECTORY: http://192.168.2.137/oscommerce/
+==> DIRECTORY: http://192.168.2.137/phpmyadmin/
+==> DIRECTORY: http://192.168.2.137/security/
+==> DIRECTORY: http://192.168.2.137/webalizer/
+==> DIRECTORY: http://192.168.2.137/webdav/
+```
