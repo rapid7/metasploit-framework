@@ -9,8 +9,6 @@ This module is a useful administrative scanner that allows you to cover a subnet
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-Just set target RHOSTS and THREADS values and let it do its thing.
-
 ## Scenarios
 
 ```
@@ -32,7 +30,7 @@ msf auxiliary(cert) >
 
 ## Confirming
 
-The following are other industry tools which can also be used.
+The following are other industry tools which can also be used.  Note that the targets are not the same as those used in the previous documentation.
 
 ### [nmap](https://nmap.org/nsedoc/scripts/ssl-cert.html)
 

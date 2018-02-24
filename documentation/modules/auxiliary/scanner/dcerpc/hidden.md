@@ -9,13 +9,10 @@ The hidden scanner connects to a given range of IP addresses and tries to locate
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-As you can see, there are not many options to configure so we will just point it at some targets and let it run.
-
 ## Scenarios
 
-**Running the scanner**
-
 ```
+msf > use auxiliary/scanner/dcerpc/hidden
 msf auxiliary(hidden) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(hidden) > set THREADS 55

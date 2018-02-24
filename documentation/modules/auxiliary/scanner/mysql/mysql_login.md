@@ -10,11 +10,7 @@ This auxiliary module is a brute-force login tool for MySQL servers.
 4. Do: ```set USER_FILE [file containing usernames]```
 4. Do: ```run```
 
-Point the modules containing usernames and passwords, set our RHOSTS value, and let it run.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/mysql/mysql_login 

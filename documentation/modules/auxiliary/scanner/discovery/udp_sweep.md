@@ -9,11 +9,8 @@ The `udp_sweep` module scans across a given range of hosts to detect commonly av
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-To configure this module, just set the RHOSTS and THREADS values and run it.
-
 ## Scenarios
 
-**Running the scanner**
 ```
 msf > use auxiliary/scanner/discovery/udp_sweep
 msf auxiliary(udp_sweep) > set RHOSTS 192.168.1.2-254

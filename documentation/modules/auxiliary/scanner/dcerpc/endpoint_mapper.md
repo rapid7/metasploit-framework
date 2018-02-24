@@ -9,12 +9,10 @@ The endpoint_mapper module queries the EndPoint Mapper service of a remote syste
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-In order to run the module, all we need to do is pass it a range of IP addresses, set the THREADS count, and let it go to work.
-
 ### Example Windows 2003, and Windows 7 Targets
 
-**Running the scanner**
 ```
+msf > use auxiliary/scanner/dcerpc/endpoint_mapper
 msf auxiliary(endpoint_mapper) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(endpoint_mapper) > set THREADS 55

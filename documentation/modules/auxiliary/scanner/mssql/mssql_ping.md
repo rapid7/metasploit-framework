@@ -1,6 +1,6 @@
 ## Description
 
-The “mssql_ping” module queries a host or range of hosts on UDP port 1434 to determine the listening TCP port of any MSSQL server, if available. MSSQL randomizes the TCP port that it listens on so this is a very valuable module in the Framework.
+The `mssql_ping` module queries a host or range of hosts on UDP port 1434 to determine the listening TCP port of any MSSQL server, if available. MSSQL randomizes the TCP port that it listens on so this is a very valuable module in the Framework.
 
 ## Verification Steps
 
@@ -9,11 +9,7 @@ The “mssql_ping” module queries a host or range of hosts on UDP port 1434 to
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-To configure the module, we set the RHOSTS and THREADS values and let it run against our targets.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/mssql/mssql_ping

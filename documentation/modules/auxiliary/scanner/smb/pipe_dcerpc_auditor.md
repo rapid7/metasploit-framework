@@ -1,6 +1,6 @@
 ## Description
 
-The pipe_dcerpc_auditor scanner will return the DCERPC services that can be accessed via a SMB pipe.
+The `pipe_dcerpc_auditor` scanner will return the DCERPC services that can be accessed via a SMB pipe.
 
 ## Verification Steps
 
@@ -11,7 +11,6 @@ The pipe_dcerpc_auditor scanner will return the DCERPC services that can be acce
 
 ## Scenarios
 
-**Running the scanner**
 ```
 msf > use auxiliary/scanner/smb/pipe_dcerpc_auditor
 msf auxiliary(pipe_dcerpc_auditor) > set RHOSTS 192.168.1.150-160

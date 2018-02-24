@@ -11,27 +11,10 @@ This auxiliary module probes the local network for IPv6 hosts that respond to Ne
 5. Do: ```set THREADS [number of threads]```
 6. Do: ```run```
 
-In addition to setting our RHOSTS value, we also need to set our source MAC address(SMAC) and source host(SHOST) IP address. We then set our RHOSTS and THREADS values and let the scanner run.
-
 ## Scenarios
 
-**Running the scanner**
 ```
 msf > use auxiliary/scanner/discovery/ipv6_neighbor
-msf auxiliary(ipv6_neighbor) > show options
-
-Module options:
-
-   Name       Current Setting  Required  Description
-   ----       ---------------  --------  -----------
-   INTERFACE                   no        The name of the interface
-   PCAPFILE                    no        The name of the PCAP capture file to process
-   RHOSTS                      yes       The target address range or CIDR identifier
-   SHOST                       yes       Source IP Address
-   SMAC                        yes       Source MAC Address
-   THREADS    1                yes       The number of concurrent threads
-   TIMEOUT    500              yes       The number of seconds to wait for new data
-
 msf auxiliary(ipv6_neighbor) > set RHOSTS 192.168.1.2-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(ipv6_neighbor) > set SHOST 192.168.1.101

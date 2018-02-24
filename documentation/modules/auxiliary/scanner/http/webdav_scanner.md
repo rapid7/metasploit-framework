@@ -9,30 +9,10 @@ This module scans a server or range of servers and attempts to determine if WebD
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-The only configuration we need to do is to set our RHOSTS and THREADS values and let the scanner run.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/http/webdav_scanner
-msf auxiliary(webdav_scanner) > show options
-
-
-Module options (auxiliary/scanner/http/webdav_scanner):
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   PATH     /                yes       Path to use
-   Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    80               yes       The target port (TCP)
-   SSL      false            no        Negotiate SSL/TLS for outgoing connections
-   THREADS  1                yes       The number of concurrent threads
-   VHOST                     no        HTTP server virtual host
-
-
 msf auxiliary(webdav_scanner) > set RHOSTS 192.168.1.200-250
 RHOSTS => 192.168.1.200-250
 msf auxiliary(webdav_scanner) > set THREADS 20

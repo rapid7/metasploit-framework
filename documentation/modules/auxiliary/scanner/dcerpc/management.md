@@ -9,12 +9,12 @@ The dcerpc/management module scans a range of IP addresses and obtains informati
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-There is minimal configuration required for this module; we simply need to set our THREADS value and the range of hosts we want scanned and run the module.
+## Scenarios
 
 ### Example Windows 2003, and Windows 7 Targets
 
-**Running the scanner**
 ```
+msf > use auxiliary/scanner/dcerpc/management
 msf auxiliary(management) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(management) > set THREADS 55

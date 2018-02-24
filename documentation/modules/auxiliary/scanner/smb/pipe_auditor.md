@@ -1,6 +1,6 @@
 ## Description
 
-The pipe_auditor scanner will determine what named pipes are available over SMB. In your information gathering stage, this can provide you with some insight as to some of the services that are running on the remote system.
+The `pipe_auditor` scanner will determine what named pipes are available over SMB. In your information gathering stage, this can provide you with some insight as to some of the services that are running on the remote system.
 
 ## Verification Steps
 
@@ -9,11 +9,8 @@ The pipe_auditor scanner will determine what named pipes are available over SMB.
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-To run the scanner, just pass, at a minimum, the RHOSTS value to the module and run it.
-
 ## Scenarios
 
-**Running the scanner**
 ```
 msf > use auxiliary/scanner/smb/pipe_auditor 
 msf auxiliary(pipe_auditor) > show options

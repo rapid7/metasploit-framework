@@ -11,7 +11,7 @@ This module scans one or more web servers for interesting directories that can b
 ## Scenarios
 
 ```
-> use auxiliary/scanner/http/dir_scanner
+msf > use auxiliary/scanner/http/dir_scanner
 msf auxiliary(dir_scanner) > set RHOSTS 192.168.1.201
 RHOSTS => 192.168.1.201
 msf auxiliary(dir_scanner) > run
@@ -34,7 +34,7 @@ msf auxiliary(dir_scanner) >
 
 ## Confirming
 
-The following are other industry tools which can also be used.
+The following are other industry tools which can also be used.  Note that the targets are not the same as those used in the previous documentation.
 
 ### [dirb](http://dirb.sourceforge.net/)
 

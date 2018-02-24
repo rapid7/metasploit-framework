@@ -1,6 +1,6 @@
 ## Description
 
-The WebDAV extension in Microsoft Internet Information Services (IIS) 5.1 and 6.0 allows remote attackers to bypass URI-based protection mechanisms, and list folders or read, create, or modify files, via a %c0%af (Unicode / character) at an arbitrary position in the URI, as demonstrated by inserting %c0%af into a `/protected/` initial pathname component to bypass the password protection on the protected\ folder, aka "IIS 5.1 and 6.0 WebDAV Authentication Bypass Vulnerability," a different vulnerability than CVE-2009-1122. More info about this vulnerability can be found in [cve-2009-1535](http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-1535).
+The WebDAV extension in Microsoft Internet Information Services (IIS) 5.1 and 6.0 allows remote attackers to bypass URI-based protection mechanisms, and list folders or read, create, or modify files, via a `%c0%af` (Unicode / character) at an arbitrary position in the URI, as demonstrated by inserting `%c0%af` into a `/protected/` initial pathname component to bypass the password protection on the `protected` folder, aka "IIS 5.1 and 6.0 WebDAV Authentication Bypass Vulnerability," a different vulnerability than CVE-2009-1122. More info about this vulnerability can be found in [CVE-2009-1535](http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-1535).
 
 ## Verification Steps
 
@@ -13,23 +13,6 @@ The WebDAV extension in Microsoft Internet Information Services (IIS) 5.1 and 6.
 
 ```
 msf > use auxiliary/scanner/http/dir_webdav_unicode_bypass
-msf auxiliary(dir_webdav_unicode_bypass) > show options
-
-Module options (auxiliary/scanner/http/dir_webdav_unicode_bypass):
-
-   Name        Current Setting                                          Required  Description
-   ----        ---------------                                          --------  -----------
-   DICTIONARY  /usr/share/metasploit-framework/data/wmap/wmap_dirs.txt  no        Path of word dictionary to use
-   ERROR_CODE  404                                                      yes       Error code for non existent directory
-   HTTP404S    /usr/share/metasploit-framework/data/wmap/wmap_404s.txt  no        Path of 404 signatures to use
-   PATH        /                                                        yes       The path to identify files
-   Proxies                                                              no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS                                                               yes       The target address range or CIDR identifier
-   RPORT       80                                                       yes       The target port (TCP)
-   SSL         false                                                    no        Negotiate SSL/TLS for outgoing connections
-   THREADS     1                                                        yes       The number of concurrent threads
-   VHOST                                                                no        HTTP server virtual host
-
 msf auxiliary(dir_webdav_unicode_bypass) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(dir_webdav_unicode_bypass) > set THREADS 20

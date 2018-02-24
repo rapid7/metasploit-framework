@@ -9,11 +9,8 @@ This (Interesting Data Finder) module will connect to a remote MSSQL server usin
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-To configure the module, set it to look for field names of ‘username’ and ‘password’, along with a known password for the system, and our RHOST value.
-
 ## Scenarios
 
-**Running the scanner**
 ```
 msf > use auxiliary/admin/mssql/mssql_idf
 msf auxiliary(mssql_idf) > set NAMES username|password

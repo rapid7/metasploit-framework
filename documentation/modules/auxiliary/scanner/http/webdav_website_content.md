@@ -8,28 +8,10 @@ This auxiliary module scans a host or range of hosts for servers that disclose t
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```run```
 
-As this module can produce a lot of output, set RHOSTS to target a single machine and let it run.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/http/webdav_website_content
-msf auxiliary(webdav_website_content) > show options
-
-Module options (auxiliary/scanner/http/webdav_website_content):
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   PATH     /                yes       Path to use
-   Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    80               yes       The target port (TCP)
-   SSL      false            no        Negotiate SSL/TLS for outgoing connections
-   THREADS  1                yes       The number of concurrent threads
-   VHOST                     no        HTTP server virtual host
-
 msf auxiliary(webdav_website_content) > set RHOSTS 192.168.1.201
 RHOSTS => 192.168.1.201
 msf auxiliary(webdav_website_content) > run

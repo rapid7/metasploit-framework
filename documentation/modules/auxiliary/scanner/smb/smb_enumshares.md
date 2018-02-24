@@ -1,6 +1,6 @@
 ## Description
 
-The smb_enumshares module, as would be expected, enumerates any SMB shares that are available on a remote system.
+The `smb_enumshares` module, as would be expected, enumerates any SMB shares that are available on a remote system.
 
 ## Verification Steps
 
@@ -40,7 +40,7 @@ msf auxiliary(smb_enumshares) >
 
 ### Credentialed
 
-As you can see in the previous scan, access is denied a most of the systems that are probed.
+As you can see in the previous scan, access is denied to most of the systems that are probed.
 Doing a Credentialed scan produces much different results.
 
 ```

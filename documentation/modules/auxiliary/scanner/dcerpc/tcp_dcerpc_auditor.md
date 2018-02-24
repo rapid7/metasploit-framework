@@ -9,12 +9,12 @@ The dcerpc/tcp_dcerpc_auditor module scans a range of IP addresses to determine 
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-To run this scanner, we just need to set our RHOSTS and THREADS values and let it run.
+## Scenarios
 
 ### Example Windows 2003, and Windows 7 Targets
 
-**Running the scanner**
 ```
+msf > use auxiliary/scanner/dcerpc/tcp_dcerpc_auditor
 msf auxiliary(tcp_dcerpc_auditor) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(tcp_dcerpc_auditor) > set THREADS 55

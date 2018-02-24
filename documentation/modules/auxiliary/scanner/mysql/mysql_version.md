@@ -9,11 +9,7 @@ This module, as its name implies, scans a host or range of hosts to determine th
 3. Do: ```set THREADS [number of threads]```
 4. Do: ```run```
 
-To configure the module, we simply set our RHOSTS and THREADS values and let it run.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/mysql/mysql_version 

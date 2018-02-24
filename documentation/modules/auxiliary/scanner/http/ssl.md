@@ -9,24 +9,10 @@ This module queries a host or range of hosts and pull the SSL certificate inform
 3. Do: ```set THREADS [num of threads]```
 4. Do: ```run```
 
-Just set the number of threads and host IP and run the scanner.
-
 ## Scenarios
-
-**Running the scanner**
 
 ```
 msf > use auxiliary/scanner/http/ssl
-msf auxiliary(ssl) > show options
-
-Module options:
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   RHOSTS                    yes       The target address range or CIDR identifier
-   RPORT    443              yes       The target port
-   THREADS  1                yes       The number of concurrent threads
-
 msf auxiliary(ssl) > set RHOSTS 192.168.1.200-254
 RHOSTS => 192.168.1.200-254
 msf auxiliary(ssl) > set THREADS 20
@@ -59,4 +45,3 @@ msf auxiliary(ssl) > run
 msf auxiliary(ssl) >
 ```
 
-As you can see, the scan revealed SSL certificates installed on host along with other info like Signature algorithm etc.
