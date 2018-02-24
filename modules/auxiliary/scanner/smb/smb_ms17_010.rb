@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
         
         
         # Detect accessible named pipes
-        print_status("Checking for accessible named pipes")
+        vprint_status("Checking for accessible named pipes")
         target_pipes = [
                 'netlogon',
                 'lsarpc',
@@ -121,12 +121,20 @@ class MetasploitModule < Msf::Auxiliary
                 'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER',
                 'db2remotecmd'
         ]
-
+        accessible_pipes||=[]
         target_pipes.each do |pipe|
                 pipe_name = "#{pipe}"
                 pipe_handle = self.simple.create_pipe(pipe_name, 'o')
-                print_good("Found accessible named pipe: #{pipe}")
+                accessible_pipes << pipe
         end
+        if accessible_pipes.count != 0
+           accessible_pipes.each do |a_pipe|
+             print_good("Following accessible named pipe(s) found: #{a_pipe.join(",")}")
+           end
+        else
+           vprint_status("No accessible named pipes found on the target")
+        end
+        
         report_vuln(
           host: ip,
           name: self.name,
