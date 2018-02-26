@@ -320,9 +320,9 @@ class ClientCore < Extension
 
     modnameprovided = mod
     suffix = nil
-    if not client.binary_suffix
+    if client.binary_suffix.blank?
       suffix = ''
-    elsif client.binary_suffix.size > 1
+    else
       client.binary_suffix.each { |s|
         if (mod =~ /(.*)\.#{s}/ )
           mod = $1
@@ -330,8 +330,6 @@ class ClientCore < Extension
           break
         end
       }
-    else
-      suffix = client.binary_suffix.first
     end
 
     # Query the remote instance to see if commands for the extension are
