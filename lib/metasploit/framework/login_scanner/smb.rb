@@ -120,7 +120,7 @@ module Metasploit
             case status_code.name
               when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
                 status = Metasploit::Model::Login::Status::DENIED_ACCESS
-              when 'STATUS_SUCCESS'
+              when 'STATUS_SUCCESS', 'STATUS_PASSWORD_MUST_CHANGE'
                 status = Metasploit::Model::Login::Status::SUCCESSFUL
               when 'STATUS_ACCOUNT_LOCKED_OUT'
                 status = Metasploit::Model::Login::Status::LOCKED_OUT
