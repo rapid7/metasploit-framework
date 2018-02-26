@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
 
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('PASSWORD')
     register_options( [
       OptString.new('USERNAME', [ true, 'The username to authenticate as', "root" ])
-    ], self.class )
+    ])
   end
 
 
@@ -124,11 +121,11 @@ class MetasploitModule < Msf::Auxiliary
               :socket         => s,
               :db             => nil
               })
-            print_status "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
+            print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << x
           rescue RbMysql::AccessDeniedError
           rescue Exception => e
-            print_status "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
+            print_bad "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
           end
         end
 
@@ -209,8 +206,7 @@ class MetasploitModule < Msf::Auxiliary
   def report_hashes(hash_loot,service)
     filename= "#{rhost}-#{rport}_mysqlhashes.txt"
     path = store_loot("mysql.hashes", "text/plain", rhost, hash_loot, filename, "MySQL Hashes", service)
-    print_status("#{rhost}:#{rport} Hash Table has been saved: #{path}")
+    print_good("#{rhost}:#{rport} Hash Table has been saved: #{path}")
 
   end
-
 end

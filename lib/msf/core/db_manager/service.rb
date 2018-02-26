@@ -27,7 +27,7 @@ module Msf::DBManager::Service
   def get_service(wspace, host, proto, port)
   ::ActiveRecord::Base.connection_pool.with_connection {
     host = get_host(:workspace => wspace, :address => host)
-    return if not host
+    return if !host
     return host.services.find_by_proto_and_port(proto, port)
   }
   end
@@ -46,7 +46,7 @@ module Msf::DBManager::Service
   # +:workspace+:: the workspace for the service
   #
   def report_service(opts)
-    return if not active
+    return if !active
   ::ActiveRecord::Base.connection_pool.with_connection { |conn|
     addr  = opts.delete(:host) || return
     hname = opts.delete(:host_name)
@@ -89,15 +89,30 @@ module Msf::DBManager::Service
     proto = opts[:proto] || Msf::DBManager::DEFAULT_SERVICE_PROTO
 
     service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_initialize
+    ostate = service.state
     opts.each { |k,v|
       if (service.attribute_names.include?(k.to_s))
         service[k] = ((v and k == :name) ? v.to_s.downcase : v)
-      else
+      elsif !v.blank?
         dlog("Unknown attribute for Service: #{k}")
       end
     }
     service.state ||= Msf::ServiceState::Open
     service.info  ||= ""
+
+    begin
+      framework.events.on_db_service(service) if service.new_record?
+    rescue ::Exception => e
+      wlog("Exception in on_db_service event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
+    begin
+      framework.events.on_db_service_state(service, service.port, ostate) if service.state != ostate
+    rescue ::Exception => e
+      wlog("Exception in on_db_service_state event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
 
     if (service and service.changed?)
       msf_import_timestamps(opts,service)

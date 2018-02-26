@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::NATPMP
@@ -24,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"])
-      ], self.class)
+      ])
   end
 
   def run_host(host)
@@ -93,11 +89,11 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         state = Msf::ServiceState::Closed
-        vprint_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
+        vprint_error("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
       end
     else
       state = Msf::ServiceState::Closed
-      vprint_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
+      vprint_error("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
     end
 
     report_service(

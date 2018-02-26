@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -12,11 +12,8 @@
 ##
 
 
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Capture
 
@@ -40,13 +37,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('PROTOCOLS',	[true,	'A comma-delimited list of protocols to sniff or "all".', "all"]),
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptPath.new('ProtocolBase', [true,	'The base directory containing the protocol decoders',
         File.join(Msf::Config.data_directory, "exploits", "psnuffle")
       ]),
-    ], self.class)
+    ])
     deregister_options('RHOST')
   end
 
@@ -196,5 +193,4 @@ class BaseProtocolParser
     return "%s:%d-%s:%d" % [pkt.ip_saddr,pkt.udp_sport,pkt.ip_daddr,pkt.udp_dport] if pkt.is_udp?
     return "%s:%d-%s:%d" % [pkt.ip_saddr,0,pkt.ip_daddr,0]
   end
-
 end

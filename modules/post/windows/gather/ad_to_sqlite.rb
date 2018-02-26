@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
 require 'sqlite3'
 
 class MetasploitModule < Msf::Post
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('SHOW_USERGROUPS', [true, 'Show the user/group membership in a greppable form to the console.', false]),
       OptBool.new('SHOW_COMPUTERS', [true, 'Show basic computer information in a greppable form to the console.', false]),
       OptInt.new('THREADS', [true, 'Number of threads to spawn to gather membership of each group.', 20])
-    ], self.class)
+    ])
   end
 
   # Entry point

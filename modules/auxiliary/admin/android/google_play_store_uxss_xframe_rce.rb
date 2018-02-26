@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -61,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('HIDE_IFRAME', [
         true, "Hide the exploit iframe from the user", true
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)
@@ -180,5 +177,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     exploit
   end
-
 end

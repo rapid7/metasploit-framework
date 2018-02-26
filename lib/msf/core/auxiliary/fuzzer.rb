@@ -21,7 +21,7 @@ module Auxiliary::Fuzzer
   # Will return or yield numbers based on the presence of a block.
   #
   # @return [Array<Array>] Returns an array of arrays of numbers if there is no block given
-  # @yield [Array<Fixnum>] Yields an array of numbers if there is a block given
+  # @yield [Array<Integer>] Yields an array of numbers if there is a block given
   # @see #fuzzer_number_power2
 
   def fuzz_numbers
@@ -51,7 +51,7 @@ module Auxiliary::Fuzzer
   # Modifies each byte of the string from beginning to end, packing each element as an 8 bit character.
   #
   # @param str [String] The string the mutation will be based on.
-  # @param max [Fixnum, NilClass] Max string size.
+  # @param max [Integer, NilClass] Max string size.
   # @return [Array] Returns an array of an array of strings
   # @see #fuzzer_string_format
 
@@ -71,7 +71,7 @@ module Auxiliary::Fuzzer
   # Modifies each byte of the string from beginning to end, packing each element as an 8 bit character.
   #
   # @param str [String] The string the mutation will be based on.
-  # @param max [Fixnum, NilClass] Max string size.
+  # @param max [Integer, NilClass] Max string size.
   # @return [Array] Returns an array of an array of strings
   # @see fuzzer_string_format
 
@@ -150,7 +150,7 @@ module Auxiliary::Fuzzer
   # Generates a fuzz string If no block is set, it will retrive characters from the
   # FuzzChar datastore option.
   #
-  # @param len [Fixnum] String size.
+  # @param len [Integer] String size.
   # @return [String] Returns a string of size 1024 * 512 specified by the user
 
   def fuzzer_gen_string(len)

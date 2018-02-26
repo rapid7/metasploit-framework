@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 require 'msf/core/post/windows/mssql'
-
 
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('INSTANCE',  [false, 'Name of target SQL Server instance', nil])
-      ], self.class)
+      ])
   end
 
   def run
@@ -184,5 +181,4 @@ class MetasploitModule < Msf::Post
         return false
     end
   end
-
 end

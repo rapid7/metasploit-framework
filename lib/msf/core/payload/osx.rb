@@ -67,7 +67,7 @@ module Msf::Payload::Osx
     # Handle all x86 code here
     if (test_arch.include?(ARCH_X86))
       handle_x86_osx_opts(pre, app)
-    elsif (test_arch.include?(ARCH_X86_64))
+    elsif (test_arch.include?(ARCH_X64))
       handle_x64_osx_opts(pre, app)
     end
 

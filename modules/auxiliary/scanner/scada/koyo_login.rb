@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 # msfdev is going to want a bunch of other stuff for style/compat but this works
 # TODO: Make into a real AuthBrute module, although the password pattern is fixed
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -44,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('RECV_TIMEOUT', [false, "Time (in seconds) to wait between packets", 3]),
         OptString.new('PREFIX', [true, 'The prefix to use for the password (default: A)', "A"]),
         Opt::RPORT(28784)
-      ], self.class)
+      ])
   end
 
   @@CCITT_16 = [

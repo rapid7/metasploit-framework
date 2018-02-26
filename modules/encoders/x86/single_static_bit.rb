@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
 
 #
 # NOTE: this encoder currently has only be tested using bit 5 set to on.
@@ -211,5 +208,4 @@ class MetasploitModule < Msf::Encoder
     state.encoded.sub!(marker_str, enc_len_str)
     state.encoded.sub!(marker_str, xor_key_str)
   end
-
 end

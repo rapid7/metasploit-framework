@@ -1,6 +1,6 @@
 ##
 #
-# This plugin requires Metasploit: http://metasploit.com/download
+# This plugin requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
 ##
@@ -218,7 +218,7 @@ class Plugin::Wiki < Msf::Plugin
     # Outputs credentials in the database (within the current workspace) as a Rex table object
     # @param [Hash] opts
     # @option opts [Array<String>] :hosts contains list of hosts used to limit results
-    # @option opts [Array<Fixnum>] :ports contains list of ports used to limit results
+    # @option opts [Array<Integer>] :ports contains list of ports used to limit results
     # @option opts [String] :search limits results to those containing a provided string
     # @return [Rex::Text::Table] table containing credentials
     #

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -50,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('ROUTER_NAME', [ false, 'Name of the router', 'cisco']),
         OptString.new('WAN_DOMAIN', [ false, 'WAN Domain Name', 'test']),
         OptString.new('WAN_MTU', [ false, 'WAN MTU', '1500'])
-      ], self.class)
+      ])
   end
 
   # If the user configured LANIP, use it. Otherwise, use RHOST.

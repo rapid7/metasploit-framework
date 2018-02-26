@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
@@ -25,7 +23,7 @@ class MetasploitModule < Msf::Post
             ],
       'References'    => [ 'URL', 'https://forsec.nl/2015/02/windows-credentials-phishing-using-metasploit' ],
       'Platform'      => [ 'win' ],
-      'Arch'          => [ 'x86', 'x64' ],
+      'Arch'          => [ ARCH_X86, ARCH_X64 ],
       'SessionTypes'  => [ 'meterpreter' ]
     ))
 
@@ -33,12 +31,12 @@ class MetasploitModule < Msf::Post
     [
       OptString.new('PROCESS', [ false, 'Prompt if a specific process is started by the target. (e.g. calc.exe or specify * for all processes)' ]),
       OptString.new('DESCRIPTION', [ true, 'Message shown in the loginprompt', "{PROCESS_NAME} needs your permissions to start. Please enter user credentials"]),
-    ], self.class)
+    ])
 
     register_advanced_options(
     [
       OptInt.new('TIMEOUT', [true, 'The maximum time (in seconds) to wait for any Powershell scripts to complete', 120])
-    ], self.class)
+    ])
   end
 
   # Function to run the InvokePrompt powershell script

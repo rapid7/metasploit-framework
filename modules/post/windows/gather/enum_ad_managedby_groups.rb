@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'rex'
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
@@ -37,9 +34,9 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptString.new('ADDITIONAL_FIELDS', [false, 'Additional group fields to retrieve, comma separated.', nil]),
-      OptBool.new('RESOLVE_MANAGERS', [true, 'Query LDAP to get the account name of group managers.', TRUE]),
-      OptBool.new('SECURITY_GROUPS_ONLY', [true, 'Only include security groups.', TRUE])
-    ], self.class)
+      OptBool.new('RESOLVE_MANAGERS', [true, 'Query LDAP to get the account name of group managers.', true]),
+      OptBool.new('SECURITY_GROUPS_ONLY', [true, 'Only include security groups.', true])
+    ])
   end
 
   def run

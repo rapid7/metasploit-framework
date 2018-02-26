@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
   def initialize(info={})
@@ -16,7 +12,7 @@ class MetasploitModule < Msf::Post
       'Description'   => %q{
         This module will download the "Chicken of the VNC" client application's
         profile file,	which is used to store other VNC servers' information such
-        as as the	IP and password.
+        as the IP and password.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
@@ -108,5 +104,4 @@ class MetasploitModule < Msf::Post
       save(plist) if not plist.nil?
     end
   end
-
 end

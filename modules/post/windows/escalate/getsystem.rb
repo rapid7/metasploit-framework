@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
 
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -28,12 +24,12 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-4), otherwise try them all", 0])
-    ], self.class)
+    ])
 
   end
 
   def unsupported
-    print_error("This version of Meterpreter is not supported with this script!")
+    print_error("This platform is not supported with this script!")
     raise Rex::Script::Completed
   end
 
@@ -41,7 +37,7 @@ class MetasploitModule < Msf::Post
 
     technique = datastore['TECHNIQUE'].to_i
 
-    unsupported if client.platform !~ /win32|win64/i
+    unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)
 
     if is_system?
       print_good("This session already has SYSTEM privileges")
@@ -55,5 +51,4 @@ class MetasploitModule < Msf::Post
       print_error("Failed to obtain SYSTEM access")
     end
   end
-
 end

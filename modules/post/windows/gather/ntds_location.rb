@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Registry
 
@@ -42,5 +41,4 @@ class MetasploitModule < Msf::Post
       print_error("NTDS.DIT is reportedly located at `#{ntds}', but the file does not appear to exist")
     end
   end
-
 end

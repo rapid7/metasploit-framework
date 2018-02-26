@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
 
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Post
     [
       OptString.new('TEXT',  [true, 'The text to say', "meta-sploit\!"]),
       OptString.new('VOICE', [true, 'The voice to use', 'alex'])
-    ], self.class)
+    ])
   end
 
 
@@ -63,5 +61,4 @@ class MetasploitModule < Msf::Post
       print_status(out)
     end
   end
-
 end

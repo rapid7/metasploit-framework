@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('RELATIVE_FILE_PATH', [true, 'Relative path to the file to read', 'standalone\\configuration\\standalone.xml']),
         OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 1])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

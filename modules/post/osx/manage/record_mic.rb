@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'shellwords'
 
 class MetasploitModule < Msf::Post
@@ -42,7 +41,7 @@ class MetasploitModule < Msf::Post
         ),
         OptInt.new('RECORD_LEN', [true, 'Number of seconds to record', 30]),
         OptInt.new('SYNC_WAIT', [true, 'Wait between syncing chunks of output', 5])
-      ], self.class)
+      ])
   end
 
 

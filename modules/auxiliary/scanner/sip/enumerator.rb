@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -30,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(5060),
       Opt::CHOST,
       Opt::CPORT(5060)
-    ], self.class)
+    ])
   end
 
 
@@ -132,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
 
     case resp.to_i
     when 401
-      print_status("Found user: #{testn} [Auth]")
+      print_good("Found user: #{testn} [Auth]")
       # Add Report
       report_note(
         :host	=> rhost,
@@ -143,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
         :data	=> "Found user: #{testn} [Auth]"
       )
     when 200
-      print_status("Found user: #{testn} [Open]")
+      print_good("Found user: #{testn} [Open]")
       #Add Report
       report_note(
         :host	=> rhost,

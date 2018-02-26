@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/payload/windows/exec'
 
 
@@ -44,12 +42,12 @@ module MetasploitModule
         OptString.new('PASS', [ true, "The password for this user", "Metasploit$1" ]),
         OptString.new('CUSTOM', [ false, "Custom group name to be used instead of default", '' ]),
         OptBool.new('WMIC',	 [ true, "Use WMIC on the target to resolve administrators group", false ]),
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new("COMPLEXITY", [ true, "Check password for complexity rules", true ]),
-      ], self.class)
+      ])
 
     # Hide the CMD option...this is kinda ugly
     deregister_options('CMD')

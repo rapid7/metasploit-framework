@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/http'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
 
 
@@ -37,10 +34,10 @@ class MetasploitModule < Msf::Auxiliary
         [
           OptString.new('USERNAME', [true, 'The ZoomEye username']),
           OptString.new('PASSWORD', [true, 'The ZoomEye password']),
-          OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye Dock']),
+          OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
           OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
           OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1])
-        ], self.class)
+        ])
   end
 
   # Check to see if api.zoomeye.org resolves properly

@@ -2,12 +2,12 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# https://metasploit.com/framework/
 ##
 
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -63,7 +63,7 @@ end
 
 if rhost.nil? or rport.nil?
   usage
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   client.sys.process.get_processes().each do |m|
     if ( m['name'] =~ /HPZipm12\.exe/ )
 

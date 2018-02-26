@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/powershell'
 require 'msf/core/payload/windows/powershell'
@@ -38,11 +37,10 @@ module MetasploitModule
       ))
       register_options( [
         OptString.new('LOAD_MODULES', [ false, "A list of powershell modules seperated by a comma to download over the web", nil ]),
-      ], self.class)
+      ])
   end
 
   def generate
     generate_powershell_code("Bind")
   end
-
 end

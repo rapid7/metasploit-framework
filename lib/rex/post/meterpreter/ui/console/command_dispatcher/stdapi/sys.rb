@@ -63,12 +63,27 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options for the 'ps' command.
   #
   @@ps_opts = Rex::Parser::Arguments.new(
-    "-S" => [ true,  "String to search for (converts to regex)" ],
-    "-h" => [ false, "Help menu." ],
-    "-A" => [ true,  "Filters processes on architecture" ],
-    "-s" => [ false, "Show only SYSTEM processes" ],
-    "-c" => [ false, "Show only child processes of the current shell" ],
-    "-U" => [ true,  "Filters processes on the user using the supplied RegEx"])
+    "-S" => [ true,  "Filter on process name" ],
+    "-U" => [ true,  "Filter on user name" ],
+    "-A" => [ true,  "Filter on architecture" ],
+    "-x" => [ false, "Filter for exact matches rather than regex" ],
+    "-s" => [ false, "Filter only SYSTEM processes" ],
+    "-c" => [ false, "Filter only child processes of the current shell" ],
+    "-h" => [ false, "Help menu." ])
+
+  #
+  # Options for the 'pgrep' command.
+  #
+  @@pgrep_opts = Rex::Parser::Arguments.new(
+    "-S" => [ true,  "Filter on process name" ],
+    "-U" => [ true,  "Filter on user name" ],
+    "-A" => [ true,  "Filter on architecture" ],
+    "-x" => [ false, "Filter for exact matches rather than regex" ],
+    "-s" => [ false, "Filter only SYSTEM processes" ],
+    "-c" => [ false, "Filter only child processes of the current shell" ],
+    "-l" => [ false, "Display process name with PID" ],
+    "-f" => [ false, "Display process path and args with PID (combine with -l)" ],
+    "-h" => [ false, "Help menu." ])
 
   #
   # Options for the 'suspend' command.
@@ -92,6 +107,8 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getsid"      => "Get the SID of the user that the server is running as",
       "getenv"      => "Get one or more environment variable values",
       "kill"        => "Terminate a process",
+      "pkill"       => "Terminate processes by name",
+      "pgrep"       => "Filter processes by name",
       "ps"          => "List running processes",
       "reboot"      => "Reboots the remote computer",
       "reg"         => "Modify and interact with the remote registry",
@@ -113,6 +130,8 @@ class Console::CommandDispatcher::Stdapi::Sys
       "getsid"      => [ "stdapi_sys_config_getsid" ],
       "getenv"      => [ "stdapi_sys_config_getenv" ],
       "kill"        => [ "stdapi_sys_process_kill" ],
+      "pkill"       => [ "stdapi_sys_process_kill", "stdapi_sys_process_get_processes" ],
+      "pgrep"       => [ "stdapi_sys_process_get_processes" ],
       "ps"          => [ "stdapi_sys_process_get_processes" ],
       "reboot"      => [ "stdapi_sys_power_exitwindows" ],
       "reg"	      => [
@@ -138,19 +157,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
       "localtime"   => [ "stdapi_sys_config_localtime" ],
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
@@ -240,7 +247,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # as appropriate for the host.
   def cmd_shell(*args)
     case client.platform
-    when /win/
+    when 'windows'
       path = client.fs.file.expand_path("%COMSPEC%")
       path = (path and not path.empty?) ? path : "cmd.exe"
 
@@ -252,7 +259,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
         cmd_execute("-f", path, "-c", "-H", "-i")
       end
-    when /linux/
+    when 'linux', 'osx'
       # Don't expand_path() this because it's literal anyway
       path = "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
@@ -372,7 +379,87 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_kill_help
     print_line("Usage: kill [pid1 [pid2 [pid3 ...]]] [-s]")
     print_line("Terminate one or more processes.")
-    print_line(" -s : Kills the pid associated with the current session.")
+    print_line("     -s        Kills the pid associated with the current session.")
+  end
+
+  #
+  # Kills one or more processes by name.
+  #
+  def cmd_pkill(*args)
+    if args.include?('-h')
+      cmd_pkill_help
+      return true
+    end
+
+    all_processes = client.sys.process.get_processes
+    processes = match_processes(all_processes, args)
+
+    if processes.length == 0
+      print_line("No matching processes were found.")
+      return true
+    end
+
+    if processes.length == all_processes.length && !args.include?('-f')
+      print_error("All processes will be killed, use '-f' to force.")
+      return true
+    end
+
+    pids = processes.collect { |p| p['pid'] }.reverse
+    print_line("Killing: #{pids.join(', ')}")
+    client.sys.process.kill(*(pids.map { |x| x }))
+    true
+  end
+
+  def cmd_pkill_help
+    print_line("Usage: pkill [ options ] pattern")
+    print_line("Terminate one or more processes by name.")
+    print_line @@ps_opts.usage
+  end
+
+  #
+  # Filters processes by name
+  #
+  def cmd_pgrep(*args)
+    f_flag = false
+    l_flag = false
+
+    @@pgrep_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-h'
+        cmd_pgrep_help
+        return true
+      when '-l'
+        l_flag = true
+      when '-f'
+        f_flag = true
+      end
+    end
+
+    all_processes = client.sys.process.get_processes
+    processes = match_processes(all_processes, args, quiet: true)
+
+    if processes.length == 0 || processes.length == all_processes.length
+      return true
+    end
+
+    processes.each do |p|
+      if l_flag
+        if f_flag
+          print_line("#{p['pid']} #{p['path']}")
+        else
+          print_line("#{p['pid']} #{p['name']}")
+        end
+      else
+        print_line("#{p['pid']}")
+      end
+    end
+    true
+  end
+
+  def cmd_pgrep_help
+    print_line("Usage: pgrep [ options ] pattern")
+    print_line("Filter processes by name.")
+    print_line @@pgrep_opts.usage
   end
 
   #
@@ -418,7 +505,87 @@ class Console::CommandDispatcher::Stdapi::Sys
         valid_pids << pid
       end
     end
-    return valid_pids
+    valid_pids
+  end
+
+  def match_processes(processes, args, quiet: false)
+
+    search_proc = nil
+    search_user = nil
+    exact_match = false
+
+    # Parse opts
+    @@ps_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-S', nil
+        if val.nil? || val.empty?
+          print_error "Enter a process name"
+          processes = []
+        else
+          search_proc = val
+        end
+      when "-U"
+        if val.nil? || val.empty?
+          print_line "Enter a process user"
+          processes = []
+        else
+          search_user = val
+        end
+      when '-x'
+        exact_match = true
+      when "-A"
+        if val.nil? || val.empty?
+          print_error "Enter an architecture"
+          processes = []
+        else
+          print_line "Filtering on arch '#{val}" if !quiet
+          processes = processes.select do |p|
+            p['arch'] == val
+          end
+        end
+      when "-s"
+        print_line "Filtering on SYSTEM processes..." if !quiet
+        processes = processes.select do |p|
+          ["NT AUTHORITY\\SYSTEM", "root"].include? p['user']
+        end
+      when "-c"
+        print_line "Filtering on child processes of the current shell..." if !quiet
+        current_shell_pid = client.sys.process.getpid
+        processes = processes.select do |p|
+          p['ppid'] == current_shell_pid
+        end
+      end
+    end
+
+    unless search_proc.nil?
+      print_line "Filtering on '#{search_proc}'" if !quiet
+      if exact_match
+        processes = processes.select do |p|
+          p['name'] == search_proc
+        end
+      else
+        match = /#{search_proc}/
+        processes = processes.select do |p|
+          p['name'] =~ match
+        end
+      end
+    end
+
+    unless search_user.nil?
+      print_line "Filtering on user '#{search_user}'" if !quiet
+      if exact_match
+        processes = processes.select do |p|
+          p['user'] == search_user
+        end
+      else
+        match = /#{search_user}/
+        processes = processes.select do |p|
+          p['user'] =~ match
+        end
+      end
+    end
+
+    Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new(processes)
   end
 
   #
@@ -430,79 +597,27 @@ class Console::CommandDispatcher::Stdapi::Sys
       return true
     end
 
-    # Init vars
-    processes = client.sys.process.get_processes
-    search_term = nil
+    all_processes = client.sys.process.get_processes
+    processes = match_processes(all_processes, args)
 
-    # Parse opts
-    @@ps_opts.parse(args) { |opt, idx, val|
-      case opt
-      when '-S'
-        search_term = val
-        if search_term.nil?
-          print_error("Enter a search term")
-          return true
-        end
-      when "-A"
-        print_line "Filtering on arch..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          next if proc['arch'].nil? or proc['arch'].empty?
-          if val.nil? or val.empty?
-            return false
-          end
-          searched_procs << proc if proc["arch"] == (val == 'x64' ? 'x86_64' : val)
-        end
-        processes = searched_procs
-      when "-s"
-        print_line "Filtering on SYSTEM processes..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          searched_procs << proc if proc["user"] == "NT AUTHORITY\\SYSTEM"
-        end
-        processes = searched_procs
-      when "-c"
-        print_line "Filtering on child processes of the current shell..."
-        current_shell_pid = client.sys.process.getpid
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          searched_procs << proc if proc['ppid'] == current_shell_pid
-        end
-        processes = searched_procs
-      when "-U"
-        print_line "Filtering on user name..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          if val.nil? or val.empty?
-            print_line "You must supply a search term!"
-            return false
-          end
-          searched_procs << proc if proc["user"].match(/#{val}/)
-        end
-        processes = searched_procs
-      end
-    }
-
-    if (processes.length == 0)
-      print_line("No running processes were found.")
-    else
-      tbl = processes.to_table('SearchTerm' => search_term)
-      print_line
-      print_line(tbl.to_s)
+    if processes.length == 0
+      print_line("No matching processes were found.")
+      return true
     end
-    return true
+
+    tbl = processes.to_table
+    print_line
+    print_line(tbl.to_s)
+    true
   end
 
   def cmd_ps_help
-    print_line "Usage: ps [ options ]"
+    print_line "Usage: ps [ options ] pattern"
     print_line
     print_line "Use the command with no arguments to see all running processes."
     print_line "The following options can be used to filter those results:"
-
     print_line @@ps_opts.usage
   end
-
-
 
   #
   # Reboots the remote computer.
@@ -779,13 +894,21 @@ class Console::CommandDispatcher::Stdapi::Sys
     if args.include? "-h"
       cmd_getprivs_help
     end
-    print_line("=" * 60)
-    print_line("Enabled Process Privileges")
-    print_line("=" * 60)
+
+    table = Rex::Text::Table.new(
+      'Header'    => 'Enabled Process Privileges',
+      'Indent'    => 0,
+      'SortIndex' => 1,
+      'Columns'   => ['Name']
+    )
+
+    privs = client.sys.config.getprivs
     client.sys.config.getprivs.each do |priv|
-      print_line("  #{priv}")
+      table << [priv]
     end
-    print_line("")
+
+    print_line
+    print_line(table.to_s)
   end
 
   #
@@ -817,7 +940,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     info.each_pair do |key, value|
       print_line("#{key.ljust(width+1)}: #{value}") if value
     end
-    print_line("#{"Meterpreter".ljust(width+1)}: #{client.platform}")
+    print_line("#{"Meterpreter".ljust(width+1)}: #{client.session_type}")
 
     return true
   end

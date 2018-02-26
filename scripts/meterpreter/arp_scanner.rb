@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -102,7 +102,7 @@ cidr2scan = ""
     save2log = true
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if args.length > 0
     if save2log
       save_found(arp_scan(cidr2scan))

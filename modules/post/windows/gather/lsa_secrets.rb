@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/post/windows/priv'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/registry'
@@ -59,7 +58,7 @@ class MetasploitModule < Msf::Post
           decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
         else
           # and here
-          if sysinfo['Architecture'] =~ /wow64/i || sysinfo['Architecture'] =~ /x64/
+          if sysinfo['Architecture'] == ARCH_X64
             encrypted_secret = encrypted_secret[0x10..-1]
           else # 32 bits
             encrypted_secret = encrypted_secret[0xC..-1]

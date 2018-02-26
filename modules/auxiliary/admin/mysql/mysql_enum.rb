@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MYSQL
 
@@ -84,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("\tOld Password Hashing Algorithm #{vparm["old_passwords"]}")
     print_status("\tLoading of local files: #{vparm["local_infile"]}")
-    print_status("\tLogins with old Pre-4.1 Passwords: #{vparm["secure_auth"]}")
+    print_status("\tDeny logins with old Pre-4.1 Passwords: #{vparm["secure_auth"]}")
     print_status("\tSkipping of GRANT TABLE: #{vparm["skip_grant_tables"]}") if vparm["skip_grant_tables"]
     print_status("\tAllow Use of symlinks for Database Files: #{vparm["have_symlink"]}")
     print_status("\tAllow Table Merge: #{vparm["have_merge_engine"]}")
@@ -112,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
     if res and res.size > 0
       print_status("\tList of Accounts with Password Hashes:")
       res.each do |row|
-        print_status("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
+        print_good("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
         report_cred(
           ip: rhost,
           port: rport,
@@ -243,5 +240,4 @@ class MetasploitModule < Msf::Auxiliary
 
     mysql_logoff
   end
-
 end

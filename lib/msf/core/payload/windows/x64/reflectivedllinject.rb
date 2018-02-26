@@ -8,7 +8,7 @@ module Msf
 
 ###
 #
-# Common module stub for ARCH_X86_64 payloads that make use of Reflective DLL Injection.
+# Common module stub for ARCH_X64 payloads that make use of Reflective DLL Injection.
 #
 ###
 
@@ -28,7 +28,7 @@ module Payload::Windows::ReflectiveDllInject_x64
         [ 'URL', 'https://github.com/rapid7/ReflectiveDLLInjection' ] # customisations
       ],
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'PayloadCompat' => { 'Convention' => 'sockrdi' },
       'Stage'         => { 'Payload'   => "" }
       ))

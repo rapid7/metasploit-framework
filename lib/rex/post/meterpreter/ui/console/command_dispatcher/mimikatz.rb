@@ -26,7 +26,7 @@ class Console::CommandDispatcher::Mimikatz
   #
   def initialize(shell)
     super
-    if (client.platform =~ /x86/) and (client.sys.config.sysinfo['Architecture'] =~ /x64/)
+    if client.arch == ARCH_X86 and client.sys.config.sysinfo['Architecture'] == ARCH_X64
       print_line
       print_warning "Loaded x86 Mimikatz on an x64 architecture."
     end
@@ -159,7 +159,7 @@ class Console::CommandDispatcher::Mimikatz
   end
 
   def system_check
-    unless (client.sys.config.getuid == "NT AUTHORITY\\SYSTEM")
+    unless client.sys.config.is_system?
       print_warning("Not currently running as SYSTEM")
       return false
     end

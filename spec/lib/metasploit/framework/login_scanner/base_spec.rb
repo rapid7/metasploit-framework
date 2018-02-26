@@ -12,11 +12,27 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
     end
   }
 
+  let(:cred_collection) {
+    creds = double('Metasploit::Framework::CredentialCollection')
+    allow(creds).to receive(:pass_file)
+    allow(creds).to receive(:username).and_return('user')
+    allow(creds).to receive(:password).and_return('pass')
+    allow(creds).to receive(:user_file)
+    allow(creds).to receive(:userpass_file)
+    allow(creds).to receive(:prepended_creds).and_return([])
+    allow(creds).to receive(:additional_privates).and_return(['pass'])
+    allow(creds).to receive(:additional_publics).and_return(['user'])
+    allow(creds).to receive(:each).and_return(['user', 'pass'])
+    allow(creds).to receive(:additional_publics).and_return([])
+    allow(creds).to receive(:empty?).and_return(false)
+    creds
+  }
+
   let(:options) {
 
     {
       connection_timeout: 1,
-      cred_details: ["user", "pass"],
+      cred_details: cred_collection,
       host: '1.2.3.4',
       port: 4444,
       stop_on_success: true,

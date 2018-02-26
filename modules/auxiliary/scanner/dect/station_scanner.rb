@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::DECT_COA
 
   def initialize
@@ -47,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         if (data)
           parsed_data = parse_station(data)
           if (not @base_stations.key?(parsed_data['rfpi']))
-            print_status("Found New RFPI: #{parsed_data['rfpi']}")
+            print_good("Found New RFPI: #{parsed_data['rfpi']}")
             @base_stations[parsed_data['rfpi']] = parsed_data
           end
         end

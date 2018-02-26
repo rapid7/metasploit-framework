@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -18,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module attempts to authenticate to an English-based V-CMS login interface. It
         should only work against version v1.1 or older, because these versions do not have
-        any default protections against bruteforcing.
+        any default protections against brute forcing.
       },
       'Author'         => [ 'sinn3r' ],
       'License'        => MSF_LICENSE
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptString.new('TARGETURI', [true, 'The URI path to V-CMS', '/vcms2/'])
-      ], self.class)
+      ])
   end
 
 

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('DELAY', [true, "The delay between connections, per thread, in milliseconds", 0]),
       OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0]),
       OptString.new('INTERFACE', [false, 'The name of the interface'])
-    ], self.class)
+    ])
 
     deregister_options('FILTER','PCAPFILE')
   end
@@ -88,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
           next if not reply
 
           if (reply.is_tcp? and reply.tcp_flags.syn == 1 and reply.tcp_flags.ack == 1)
-            print_status(" TCP OPEN #{dhost}:#{dport}")
+            print_good(" TCP OPEN #{dhost}:#{dport}")
             report_service(:host => dhost, :port => dport)
           end
         rescue ::Exception
@@ -140,5 +137,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     return reply
   end
-
 end

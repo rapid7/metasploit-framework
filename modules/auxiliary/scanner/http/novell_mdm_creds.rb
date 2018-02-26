@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -34,11 +31,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to the Novell Zenworks MDM install', '/'])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptBool.new('SSL', [true, "Negotiate SSL connection", false])
-    ], self.class)
+    ])
   end
 
   def setup_session()
@@ -135,5 +132,4 @@ class MetasploitModule < Msf::Auxiliary
       return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
     end
   end
-
 end

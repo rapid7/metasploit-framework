@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,10 +8,7 @@
 # It allows to respect the order or just throw everything at it....
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Fuzzer
   include Msf::Auxiliary::Scanner
@@ -30,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(25),
-      OptInt.new("STARTLEN", [true, "Lenght of the string - start number", 100] ),
+      OptInt.new("STARTLEN", [true, "Length of the string - start number", 100] ),
       OptInt.new("INTERACTIONS", [false, "Number of interactions to run", 100] ),
       OptBool.new("RESPECTORDER", [false, "Respect order of commands", true] ),
       OptEnum.new("CMD", [true,"Command to fuzzer",'EHLO',
@@ -43,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
           'VRFY',
           'EXPN'
         ], 'EHLO'])
-    ], self.class)
+    ])
   end
 
   def smtp_send(data='', con=true)
@@ -155,5 +152,4 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
   end
-
 end

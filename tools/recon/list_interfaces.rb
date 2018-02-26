@@ -19,7 +19,6 @@ require 'msfenv'
 
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-
 if RUBY_PLATFORM == "i386-mingw32"
   begin
     require 'network_interface'

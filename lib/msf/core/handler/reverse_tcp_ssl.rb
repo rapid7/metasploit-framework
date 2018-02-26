@@ -43,7 +43,7 @@ module ReverseTcpSsl
   # if it fails to start the listener.
   #
   def setup_handler
-    if datastore['Proxies'] and not datastore['ReverseAllowProxy']
+    if !datastore['Proxies'].blank? && !datastore['ReverseAllowProxy']
       raise RuntimeError, "TCP connect-back payloads cannot be used with Proxies. Use 'set ReverseAllowProxy true' to override this behaviour."
     end
 

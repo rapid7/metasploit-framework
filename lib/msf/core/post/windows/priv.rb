@@ -194,7 +194,7 @@ module Msf::Post::Windows::Priv
   #
   def is_high_integrity?
     il = get_integrity_level
-    (il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SIDE[:system])
+    (il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SID[:system])
   end
 
   #
@@ -313,7 +313,7 @@ module Msf::Post::Windows::Priv
         md5x << pol[60,16]
       end
 
-      rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+      rc4 = OpenSSL::Cipher.new("rc4")
       rc4.key = md5x.digest
       lsa_key  = rc4.update(pol[12,48])
       lsa_key << rc4.final
@@ -363,7 +363,7 @@ module Msf::Post::Windows::Priv
       sha256x << policy_secret[28,32]
     end
 
-    aes = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+    aes = OpenSSL::Cipher.new("aes-256-cbc")
     aes.key = sha256x.digest
 
     vprint_status("digest #{sha256x.digest.unpack("H*")[0]}")
@@ -396,7 +396,7 @@ module Msf::Post::Windows::Priv
       enc_block = secret[i..i+7]
       block_key = key[j..j+6]
       des_key = convert_des_56_to_64(block_key)
-      d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+      d1 = OpenSSL::Cipher.new('des-ecb')
 
       d1.padding = 0
       d1.key = des_key

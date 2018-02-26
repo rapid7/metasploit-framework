@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -15,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'Oracle Enterprise Manager Control SID Discovery',
       'Description' => %q{
-          This module makes a request to the Oracle  Enterprise Manager Control Console
+          This module makes a request to the Oracle Enterprise Manager Control Console
         in an attempt to discover the SID.
       },
       'References'  =>
@@ -26,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    register_options([Opt::RPORT(1158),], self.class)
+    register_options([Opt::RPORT(1158),])
   end
 
   def run_host(ip)

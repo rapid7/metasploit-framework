@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('SSL', [true, 'Use SSL', true]),
       OptString.new('RFILE', [true, 'Remote File', 'windows\\win.ini']),
       OptInt.new('DEPTH', [true, 'Traversal depth', 6])
-    ], self.class)
+    ])
 
   end
 
@@ -66,11 +63,10 @@ class MetasploitModule < Msf::Auxiliary
       loot = $1
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('novell.filereporter.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_status("#{datastore['RFILE']} saved in #{path}")
+      print_good("#{datastore['RFILE']} saved in #{path}")
     else
       print_error("Failed to retrieve the file contents")
     end
   end
-
 end
 

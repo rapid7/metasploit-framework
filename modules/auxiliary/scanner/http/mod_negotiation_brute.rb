@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,10 +8,7 @@
 # http://httpd.apache.org/docs/1.3/content-negotiation.html
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
         OptPath.new('FILEPATH',[true, "path to file with file names",
           File.join(Msf::Config.data_directory, "wmap", "wmap_files.txt")])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
 
   def initialize(info = {})
@@ -27,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMAC',    	[false, 'The spoofed mac (if unset, derived from netifaces)']),
-      ], self.class)
+      ])
     deregister_options('RHOST', 'PCAPFILE')
   end
 
@@ -83,5 +80,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

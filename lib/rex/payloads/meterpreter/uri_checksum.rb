@@ -61,12 +61,12 @@ module Rex
 
         # Create a URI that matches the specified checksum and payload uuid
         #
-        # @param sum [Fixnum] A checksum mode value to use for the generated url
+        # @param sum [Integer] A checksum mode value to use for the generated url
         # @param uuid [Msf::Payload::UUID] A valid UUID object
-        # @param len [Fixnum] An optional URI length value, including the leading slash
+        # @param len [Integer] An optional URI length value, including the leading slash
         # @return [String] The URI string for connections
         def generate_uri_uuid(sum, uuid, len=nil)
-          curl_uri_len = URI_CHECKSUM_UUID_MIN_LEN+rand(URI_CHECKSUM_CONN_MAX_LEN-URI_CHECKSUM_UUID_MIN_LEN)
+          curl_uri_len = URI_CHECKSUM_UUID_MIN_LEN + rand(URI_CHECKSUM_CONN_MAX_LEN - URI_CHECKSUM_UUID_MIN_LEN)
           curl_prefix  = uuid.to_uri
 
           if len
@@ -84,8 +84,8 @@ module Rex
 
         # Create an arbitrary length URI that matches a given checksum
         #
-        # @param sum [Fixnum] The checksum value that the generated URI should match
-        # @param len [Fixnum] The length of the URI to generate
+        # @param sum [Integer] The checksum value that the generated URI should match
+        # @param len [Integer] The length of the URI to generate
         # @param prefix [String] The optional prefix to use to build the URI
         # @return [String] The URI string that checksums to the given value
         def generate_uri_checksum(sum, len=5, prefix="")
@@ -122,7 +122,7 @@ module Rex
         # Return the numerical checksum for a given mode symbol
         #
         # @param mode [Symbol] The mode symbol to lookup (:connect, :init_native, :init_python, :init_java)
-        # @return [Fixnum] The URI checksum value corresponding with the mode
+        # @return [Integer] The URI checksum value corresponding with the mode
         def uri_checksum_lookup(mode)
           sum = URI_CHECKSUM_MODES.keys.select{|ksum| URI_CHECKSUM_MODES[ksum] == mode}.first
           unless sum

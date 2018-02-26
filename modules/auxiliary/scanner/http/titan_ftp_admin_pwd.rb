@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         ]
     )
 
-    register_options([Opt::RPORT(31001)], self.class)
+    register_options([Opt::RPORT(31001)])
   end
 
   def run_host(ip)
@@ -122,5 +120,4 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
   end
-
 end

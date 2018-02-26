@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/smh'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -37,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/proxy/ssllogin']),
       OptString.new('CPQLOGIN', [true, 'The homepage of the login', '/cpqlogin.htm']),
       OptString.new('LOGIN_REDIRECT', [true, 'The URL to redirect to', '/cpqlogin'])
-    ], self.class)
+    ])
   end
 
   def get_version(res)
@@ -183,7 +181,7 @@ class MetasploitModule < Msf::Auxiliary
 
     sys_name = get_system_name(res)
     unless sys_name.blank?
-      print_status("System name detected: #{sys_name}")
+      print_good("System name detected: #{sys_name}")
       report_note(
         :host => ip,
         :type => "system.name",

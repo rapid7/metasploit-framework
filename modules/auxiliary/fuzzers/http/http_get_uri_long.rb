@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Fuzzer
 
@@ -25,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new("MAXLENGTH", [true, "The longest string length to try", 16384] ),
       OptString.new("URIBASE", [true, "The base URL to use for the request fuzzer", "/"]),
       OptString.new("VHOST", [false, "The virtual host name to use in requests"])
-    ], self.class)
+    ])
   end
 
   def do_http_get(uri='',opts={})

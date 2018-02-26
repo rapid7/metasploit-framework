@@ -20,7 +20,8 @@ module Msf::PostMixin
     ] , Msf::Post)
 
     # Default stance is active
-    self.passive = (info['Passive'] and info['Passive'] == true) || false
+    self.passive = info['Passive'] || false
+    self.session_types = info['SessionTypes'] || []
   end
 
   #
@@ -29,11 +30,17 @@ module Msf::PostMixin
   #
   # @raise [OptionValidateError] if {#session} returns nil
   def setup
-    if not session
-      raise Msf::OptionValidateError.new(["SESSION"])
+    unless session
+      # Always fail if the session doesn't exist.
+      raise Msf::OptionValidateError.new(['SESSION'])
     end
 
-    super
+    unless session_compatible?(session)
+      print_warning('SESSION may not be compatible with this module.')
+    end
+
+    # Msf::Exploit#setup for exploits, NoMethodError for post modules
+    super rescue NoMethodError
 
     check_for_session_readiness() if session.type == "meterpreter"
 
@@ -131,7 +138,7 @@ module Msf::PostMixin
   #
   # Checks the session's type against this module's
   # <tt>module_info["SessionTypes"]</tt> as well as examining platform
-  # compatibility.  +sess_or_sid+ can be a Session object, Fixnum, or
+  # compatibility.  +sess_or_sid+ can be a Session object, Integer, or
   # String.  In the latter cases it should be a key in
   # +framework.sessions+.
   #
@@ -139,14 +146,14 @@ module Msf::PostMixin
   #   value from this method does not guarantee the module will work
   #   with the session.
   #
-  # @param sess_or_sid [Msf::Session,Fixnum,String]
+  # @param sess_or_sid [Msf::Session,Integer,String]
   #   A session or session ID to compare against this module for
   #   compatibility.
   #
   def session_compatible?(sess_or_sid)
     # Normalize the argument to an actual Session
     case sess_or_sid
-    when ::Fixnum, ::String
+    when ::Integer, ::String
       s = framework.sessions[sess_or_sid.to_i]
     when ::Msf::Session
       s = sess_or_sid
@@ -156,41 +163,20 @@ module Msf::PostMixin
     return false if s.nil?
 
     # Can't be compatible if it's the wrong type
-    if self.module_info["SessionTypes"]
-      return false unless self.module_info["SessionTypes"].include?(s.type)
+    if session_types
+      return false unless session_types.include?(s.type)
     end
 
-    # XXX: Special-case java and php for now.  This sucks and Session
-    # should have a method to auto-detect the underlying platform of
-    # platform-independent sessions such as these.
-    plat = s.platform
-    if plat =~ /php|java/ and sysinfo and sysinfo["OS"]
-      plat = sysinfo["OS"]
-    end
-
-    # Types are okay, now check the platform.  This is kind of a ghetto
-    # workaround for session platforms being ad-hoc and Platform being
-    # inflexible.
+    # Types are okay, now check the platform.
     if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
-      [
-        # Add as necessary
-        "win", "linux", "osx"
-      ].each do |name|
-        if plat =~ /#{name}/
-          p = Msf::Module::PlatformList.transform(name)
-          return false unless self.platform.supports? p
-        end
-      end
-    elsif self.platform and self.platform.kind_of?(Msf::Module::Platform)
-      p_klass = Msf::Module::Platform
-      case plat.downcase
-      when /win/
-        return false unless self.platform.kind_of?(p_klass::Windows)
-      when /osx/
-        return false unless self.platform.kind_of?(p_klass::OSX)
-      when /linux/
-        return false unless self.platform.kind_of?(p_klass::Linux)
-      end
+      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
+    end
+
+    # Check to make sure architectures match
+    mod_arch = self.module_info['Arch']
+    unless mod_arch.nil?
+      mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
+      return false unless mod_arch.include?(s.arch)
     end
 
     # If we got here, we haven't found anything that definitely
@@ -205,9 +191,16 @@ module Msf::PostMixin
   # @see passive?
   attr_reader :passive
 
+  #
+  # A list of compatible session types
+  #
+  # @return [Array]
+  attr_reader :session_types
+
 protected
 
   attr_writer :passive
+  attr_writer :session_types
 
   def session_changed?
     @ds_session ||= datastore["SESSION"]

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
   def initialize(info={})
@@ -22,7 +20,7 @@ class MetasploitModule < Msf::Post
         to find the credential for Gmail. The Gmail's last session state may contain the
         user's credential if his/her first login attempt failed (likely due to a typo),
         and then the page got refreshed or another login attempt was made. This also means
-        the stolen credential might contains typos.
+        the stolen credential might contain typos.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'sinn3r'],
@@ -215,5 +213,4 @@ class MetasploitModule < Msf::Post
       print_line(cred_tbl.to_s)
     end
   end
-
 end

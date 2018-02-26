@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/redis'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
             'The file that contains a list of of probable passwords.',
             File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
           ])
-      ], self.class)
+      ])
 
     # redis does not have an username, there's only password
     deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS', 'DB_ALL_CREDS')
@@ -77,9 +75,9 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         if datastore['VERBOSE']
-          vprint_good "#{peer} - LOGIN SUCCESSFUL: #{result.credential} (#{result.status}: #{result.proof})"
+          vprint_good "#{peer} - Login Successful: #{result.credential} (#{result.status}: #{result.proof})"
         else
-          print_good "#{peer} - LOGIN SUCCESSFUL: #{result.credential}"
+          print_good "#{peer} - Login Successful: #{result.credential}"
         end
       when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
         vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

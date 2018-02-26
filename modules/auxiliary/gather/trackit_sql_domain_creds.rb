@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPort.new('RPORT',
           [true, '.NET remoting service port', 9010])
-      ], self.class)
+      ])
   end
 
 
@@ -260,7 +258,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if loot[database_pw]
-      cipher = OpenSSL::Cipher::Cipher.new("des")
+      cipher = OpenSSL::Cipher.new("des")
       cipher.decrypt
       cipher.key = 'NumaraTI'
       cipher.iv = 'NumaraTI'
@@ -274,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if loot[domain_admin_pw]
-      cipher = OpenSSL::Cipher::Cipher.new("des")
+      cipher = OpenSSL::Cipher.new("des")
       cipher.decrypt
       cipher.key = 'NumaraTI'
       cipher.iv = 'NumaraTI'

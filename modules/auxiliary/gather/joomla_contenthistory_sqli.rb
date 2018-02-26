@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -35,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The relative URI of the Joomla instance', '/'])
-      ], self.class)
+      ])
   end
 
   def check
@@ -206,5 +203,4 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
   end
-
 end

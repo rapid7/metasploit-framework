@@ -1,16 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'rex/proto/ntlm/message'
 
 
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::WinRM
   include Msf::Auxiliary::Report
 
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [ true, "The username to authenticate as"]),
         OptString.new('PASSWORD', [ true, "The password to authenticate with"]),
         OptBool.new('SAVE_OUTPUT', [true, "Store output as loot", false])
-      ], self.class)
+      ])
   end
 
 
@@ -44,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good streams['stdout']
     if datastore['SAVE_OUTPUT']
       path = store_loot("winrm.cmd_results", "text/plain", ip, streams['stdout'], "winrm_cmd_results.txt", "WinRM CMD Results")
-      print_status "Results saved to #{path}"
+      print_good "Results saved to #{path}"
     end
   end
 

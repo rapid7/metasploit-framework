@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('RPORT', [true, 'The BigIP service port to listen on', 443]),
         OptString.new('TARGETURI', [true, 'The URI path to test', '/']),
         OptInt.new('REQUESTS', [true, 'The number of requests to send', 10])
-      ], self.class)
+      ])
   end
 
   def change_endianness(value, size = 4)

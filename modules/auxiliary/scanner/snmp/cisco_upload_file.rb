@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::SNMPClient
   include Msf::Auxiliary::Cisco
   include Msf::Auxiliary::Scanner
@@ -30,8 +26,8 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options([
       OptPath.new('SOURCE', [true, "The filename to upload" ]),
-      OptAddress.new('LHOST', [ false, "The IP address of the system running this module" ])
-    ], self.class)
+      OptAddressLocal.new('LHOST', [ false, "The IP address of the system running this module" ])
+    ])
   end
 
   #
@@ -132,5 +128,4 @@ class MetasploitModule < Msf::Auxiliary
       disconnect_snmp
     end
   end
-
 end

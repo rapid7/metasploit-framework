@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
 
@@ -46,7 +43,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('VOLUME', [true, 'Name of network share volume. `set ACTION LIST` to get a list.', 'localhost']),
         OptEnum.new('PROTOCOL', [true, 'Network share protocol.', 'smb', FILE_SHARE_PROTOCOLS])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [

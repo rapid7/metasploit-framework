@@ -2,6 +2,7 @@
 require 'rex/ui'
 require 'pp'
 require 'rex/text/table'
+require 'erb'
 
 module Rex
 module Ui
@@ -60,6 +61,8 @@ module DispatcherShell
     def print_error(msg = '')
       shell.print_error(msg)
     end
+
+    alias_method :print_bad, :print_error
 
     #
     # Wraps shell.print_status
@@ -246,6 +249,56 @@ module DispatcherShell
       matches
     end
 
+    #
+    # Provide a generic tab completion function based on the specification
+    # pass as fmt. The fmt argument in a hash where values are an array
+    # defining how the command should be completed. The first element of the
+    # array can be one of:
+    #   nil      - This argument is a flag and takes no option.
+    #   true     - This argument takes an option with no suggestions.
+    #   :address - This option is a source address.
+    #   :bool    - This option is a boolean.
+    #   :file    - This option is a file path.
+    #   Array    - This option is an array of possible values.
+    #
+    def tab_complete_generic(fmt, str, words)
+      last_word = words[-1]
+      fmt = fmt.select { |key, value| last_word == key || !words.include?(key) }
+
+      val = fmt[last_word]
+      return fmt.keys if !val  # the last word does not look like a fmtspec
+      arg = val[0]
+      return fmt.keys if !arg  # the last word is a fmtspec that takes no argument
+
+      tabs = []
+      if arg.to_s.to_sym == :address
+        tabs = tab_complete_source_address
+      elsif arg.to_s.to_sym == :bool
+        tabs = ['true', 'false']
+      elsif arg.to_s.to_sym == :file
+        tabs = tab_complete_filenames(str, words)
+      elsif arg.kind_of?(Array)
+        tabs = arg.map {|a| a.to_s}
+      end
+      tabs
+    end
+
+    #
+    # Return a list of possible source addresses for tab completion.
+    #
+    def tab_complete_source_address
+      addresses = [Rex::Socket.source_address]
+      # getifaddrs was introduced in 2.1.2
+      if Socket.respond_to?(:getifaddrs)
+        ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
+          ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
+            ifaddr.addr &&
+            ifaddr.addr.ip?
+        end
+        addresses += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+      end
+      addresses
+    end
   end
 
   #
@@ -366,6 +419,73 @@ module DispatcherShell
     return items
   end
 
+  # Processes a resource script file for the console.
+  #
+  # @param path [String] Path to a resource file to run
+  # @return [void]
+  def load_resource(path)
+    if path == '-'
+      resource_file = $stdin.read
+      path = 'stdin'
+    elsif ::File.exist?(path)
+      resource_file = ::File.read(path)
+    else
+      print_error("Cannot find resource script: #{path}")
+      return
+    end
+
+    # Process ERB directives first
+    print_status "Processing #{path} for ERB directives."
+    erb = ERB.new(resource_file)
+    processed_resource = erb.result(binding)
+
+    lines = processed_resource.each_line.to_a
+    bindings = {}
+    while lines.length > 0
+
+      line = lines.shift
+      break if not line
+      line.strip!
+      next if line.length == 0
+      next if line =~ /^#/
+
+      # Pretty soon, this is going to need an XML parser :)
+      # TODO: case matters for the tag and for binding names
+      if line =~ /<ruby/
+        if line =~ /\s+binding=(?:'(\w+)'|"(\w+)")(>|\s+)/
+          bin = ($~[1] || $~[2])
+          bindings[bin] = binding unless bindings.has_key? bin
+          bin = bindings[bin]
+        else
+          bin = binding
+        end
+        buff = ''
+        while lines.length > 0
+          line = lines.shift
+          break if not line
+          break if line =~ /<\/ruby>/
+          buff << line
+        end
+        if ! buff.empty?
+          session = client
+          framework = client.framework
+
+          print_status("resource (#{path})> Ruby Code (#{buff.length} bytes)")
+          begin
+            eval(buff, bin)
+          rescue ::Interrupt
+            raise $!
+          rescue ::Exception => e
+            print_error("resource (#{path})> Ruby Error: #{e.class} #{e} #{e.backtrace}")
+          end
+        end
+      else
+        print_line("resource (#{path})> #{line}")
+        run_single(line)
+      end
+    end
+  end
+
   #
   # Run a single command line.
   #
@@ -462,7 +582,7 @@ module DispatcherShell
     inst = dispatcher.new(self)
     self.dispatcher_stack.each { |disp|
       if (disp.name == inst.name)
-        raise RuntimeError.new("Attempting to load already loaded dispatcher #{disp.name}")
+        raise "Attempting to load already loaded dispatcher #{disp.name}"
       end
     }
     self.dispatcher_stack.push(inst)

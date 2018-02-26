@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   #include Msf::Exploit::Remote::SMB::Client
   include Auxiliary::Dos
@@ -47,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(138),
         OptString.new('DOMAIN', [ true, "The name of the domain that the target controls" ])
-      ], self.class)
+      ])
   end
 
 
@@ -170,5 +169,4 @@ class MetasploitModule < Msf::Auxiliary
     ret << svc
     ret
   end
-
 end

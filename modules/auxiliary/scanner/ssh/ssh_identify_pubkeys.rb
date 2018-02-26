@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
 require 'sshkey' # TODO: Actually include this!
 require 'net/ssh/pubkey_verifier'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -386,5 +384,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

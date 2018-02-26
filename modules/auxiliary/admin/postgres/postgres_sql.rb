@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Postgres
 
   def initialize(info = {})
@@ -15,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'PostgreSQL Server Generic Query',
       'Description'    => %q{
           This module will allow for simple SQL statements to be executed against a
-          PostgreSQL instance given the appropiate credentials.
+          PostgreSQL instance given the appropriate credentials.
       },
       'Author'         => [ 'todb' ],
       'License'        => MSF_LICENSE,

@@ -123,7 +123,7 @@ require 'rex/proto/smb/exceptions'
       smb.login('*SMBSERVER', self.options['smb_user'], self.options['smb_pass'])
       smb.connect("\\\\#{self.handle.address}\\IPC$")
       self.smb = smb
-      self.smb.read_timeout = self.options['read_timeout']
+      self.smb.client.read_timeout = self.options['read_timeout']
     end
 
     f = self.smb.create_pipe(self.handle.options[0])

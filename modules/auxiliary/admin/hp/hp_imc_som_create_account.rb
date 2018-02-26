@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -42,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('USERNAME', [true, 'Username for the new account', 'msf']),
         OptString.new('PASSWORD', [true, 'Password for the new account', 'p4ssw0rd'])
-      ], self.class)
+      ])
   end
 
   def get_service_desk_strong_name
@@ -271,5 +268,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Use it to log into #{login_url}")
     end
   end
-
 end

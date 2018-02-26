@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -31,18 +28,19 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/_all_dbs']),
         OptString.new('HttpUsername', [false, 'The username to login as']),
         OptString.new('HttpPassword', [false, 'The password to login with'])
-      ], self.class)
+      ])
   end
 
   def run
     username = datastore['HttpUsername']
     password = datastore['HttpPassword']
+    auth = basic_auth(username, password) if username && password
 
     begin
       res = send_request_cgi(
         'uri'           => normalize_uri(target_uri.path),
         'method'        => 'GET',
-        'authorization' => basic_auth(username, password)
+        'authorization' => auth
       )
 
       temp = JSON.parse(res.body)

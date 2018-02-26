@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/proto/dcerpc'
 require 'rex/proto/dcerpc/wdscp'
 require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,14 +38,14 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(5040),
-      ], self.class)
+      ])
 
     deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
 
     register_advanced_options(
       [
         OptBool.new('ENUM_ARM', [true, 'Enumerate Unattend for ARM architectures (not currently supported by Windows and will cause an error in System Event Log)', false])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -213,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
   def loot_unattend(archi, data)
     return if data.empty?
     p = store_loot('windows.unattend.raw', 'text/plain', rhost, data, archi, "Windows Deployment Services")
-    print_status("Raw version of #{archi} saved as: #{p}")
+    print_good("Raw version of #{archi} saved as: #{p}")
   end
 
   def report_cred(opts)

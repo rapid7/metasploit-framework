@@ -81,6 +81,27 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
       end
     end
 
+    context "Any non group TLV_TYPE" do
+      subject(:tlv_types){
+        excludedTypes = ["TLV_TYPE_ANY", "TLV_TYPE_EXCEPTION", "TLV_TYPE_CHANNEL_DATA_GROUP", "TLV_TYPE_TRANS_GROUP"]
+        typeList = []
+        Rex::Post::Meterpreter.constants.each do |type|
+          typeList << type.to_s if type.to_s.include?("TLV_TYPE") && !excludedTypes.include?(type.to_s)
+        end
+        typeList
+      }
+
+      it "will not raise error on inspect" do
+        tlv_types.each do |type|
+          inspectable = Rex::Post::Meterpreter::Tlv.new(
+              Rex::Post::Meterpreter.const_get(type),
+              "test"
+          )
+          expect(inspectable.inspect).to be_a_kind_of String
+        end
+      end
+    end
+
     context "#to_r" do
       it "should return the raw bytes of the TLV to send over the wire" do
         tlv_bytes = "\x00\x00\x00\r\x00\x01\x00\ntest\x00"
@@ -441,7 +462,8 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
       rid = packet.rid
       meth = packet.method
       raw = packet.to_r
-      packet.from_r(raw)
+      packet.add_raw(raw)
+      packet.from_r
       expect(packet.rid).to eq rid
       expect(packet.method).to eq meth
     end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
@@ -53,7 +50,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptEnum.new('TARGET', [true, 'The target binary to add the exploit to.', 'SETHC', ['SETHC', 'UTILMAN', 'OSK', 'DISP']]),
       OptString.new('EXE', [true, 'Executable to execute when the exploit is triggered.', '%SYSTEMROOT%\system32\cmd.exe'])
-    ], self.class)
+    ])
   end
 
   #
@@ -120,5 +117,4 @@ class MetasploitModule < Msf::Post
       print_good("'Sticky keys' removed from registry key #{target_key}.")
     end
   end
-
 end

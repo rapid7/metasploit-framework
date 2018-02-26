@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
 
@@ -512,6 +509,7 @@ class MetasploitModule < Msf::Auxiliary
     dangeroussp = [
       'sp_createorphan',
       'sp_droporphans',
+      'sp_execute_external_script',
       'sp_getschemalock',
       'sp_prepexec',
       'sp_prepexecrpc',

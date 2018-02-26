@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(514),
         OptBool.new('ENABLE_STDERR', [ true, 'Enables connecting the stderr port', false ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -272,5 +269,4 @@ class MetasploitModule < Msf::Auxiliary
 
     start_session(self, "RSH #{user} from #{luser} (#{host}:#{port})", merge_me)
   end
-
 end

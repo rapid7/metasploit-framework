@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Linux::Priv
   include Msf::Post::Linux::System
@@ -154,11 +150,10 @@ class MetasploitModule < Msf::Post
 
     if vm
       print_good("This appears to be a '#{vm}' virtual machine")
-      report_vm(vm)
+      report_virtualization(vm)
     else
       print_status("This does not appear to be a virtual machine")
     end
 
   end
-
 end

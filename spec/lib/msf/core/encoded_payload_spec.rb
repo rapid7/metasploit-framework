@@ -100,7 +100,7 @@ RSpec.describe Msf::EncodedPayload do
       }
 
       it 'returns ["X86_64"]' do
-        expect(encoded_payload.arch).to eq [ARCH_X86_64]
+        expect(encoded_payload.arch).to eq [ARCH_X64]
       end
     end
   end

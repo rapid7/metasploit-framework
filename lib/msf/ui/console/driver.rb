@@ -23,8 +23,17 @@ class Driver < Msf::Ui::Driver
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
 
-  DefaultPrompt     = "%undmsf%clr"
+  DefaultPrompt     = "%undmsf5%clr"
   DefaultPromptChar = "%clr>"
+
+  #
+  # Console Command Dispatchers to be loaded after the Core dispatcher.
+  #
+  CommandDispatchers = [
+    CommandDispatcher::Modules,
+    CommandDispatcher::Jobs,
+    CommandDispatcher::Resource
+  ]
 
   #
   # The console driver processes various framework notified events.
@@ -108,11 +117,17 @@ class Driver < Msf::Ui::Driver
       print_error("***")
     end
 
+    # Load the other "core" command dispatchers
+    CommandDispatchers.each do |dispatcher|
+      enstack_dispatcher(dispatcher)
+    end
 
     # Add the database dispatcher if it is usable
     if (framework.db.usable)
       require 'msf/ui/console/command_dispatcher/db'
       enstack_dispatcher(CommandDispatcher::Db)
+      require 'msf/ui/console/command_dispatcher/creds'
+      enstack_dispatcher(CommandDispatcher::Creds)
     else
       print_error("***")
       if framework.db.error == "disabled"
@@ -120,15 +135,6 @@ class Driver < Msf::Ui::Driver
       else
         print_error("* WARNING: No database support: #{framework.db.error.class} #{framework.db.error}")
       end
-      print_error("***")
-    end
-
-    begin
-      require 'openssl'
-    rescue ::LoadError
-      print_error("***")
-      print_error("* WARNING: No OpenSSL support. This is required by meterpreter payloads and many exploits")
-      print_error("* Please install the ruby-openssl package (apt-get install libopenssl-ruby on Debian/Ubuntu")
       print_error("***")
     end
 
@@ -176,24 +182,10 @@ class Driver < Msf::Ui::Driver
         end
       end
 
-      # framework.db.active will be true if after_establish_connection ran directly when connection_established? was
-      # already true or if framework.db.connect called after_establish_connection.
-      if !! framework.db.error
-        if framework.db.error.to_s =~ /RubyGem version.*pg.*0\.11/i
-          print_error("***")
-          print_error("*")
-          print_error("* Metasploit now requires version 0.11 or higher of the 'pg' gem for database support")
-          print_error("* There a three ways to accomplish this upgrade:")
-          print_error("* 1. If you run Metasploit with your system ruby, simply upgrade the gem:")
-          print_error("*    $ rvmsudo gem install pg ")
-          print_error("* 2. Use the Community Edition web interface to apply a Software Update")
-          print_error("* 3. Uninstall, download the latest version, and reinstall Metasploit")
-          print_error("*")
-          print_error("***")
-          print_error("")
-          print_error("")
-        end
-
+      # framework.db.active will be true if after_establish_connection ran
+      # directly when connection_established? was already true or if
+      # framework.db.connect called after_establish_connection.
+      if !!framework.db.error
         print_error("Failed to connect to the database: #{framework.db.error}")
       end
     end
@@ -204,7 +196,7 @@ class Driver < Msf::Ui::Driver
       self.framework.init_module_paths(module_paths: opts['ModulePath'])
     end
 
-    if framework.db.active && !opts['DeferModuleLoads']
+    if !opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files
       end
@@ -233,108 +225,6 @@ class Driver < Msf::Ui::Driver
         run_single(c)
       }
     end
-  end
-
-  #
-  # Configure a default output path for jUnit XML output
-  #
-  def junit_setup(output_path)
-    output_path = ::File.expand_path(output_path)
-
-    ::FileUtils.mkdir_p(output_path)
-    @junit_output_path = output_path
-    @junit_error_count = 0
-    print_status("Test Output: #{output_path}")
-
-    # We need at least one test success in order to pass
-    junit_pass("framework_loaded")
-  end
-
-  #
-  # Emit a new jUnit XML output file representing an error
-  #
-  def junit_error(tname, ftype, data = nil)
-
-    if not @junit_output_path
-      raise RuntimeError, "No output path, call junit_setup() first"
-    end
-
-    data ||= framework.inspect.to_s
-
-    e = REXML::Element.new("testsuite")
-
-    c = REXML::Element.new("testcase")
-    c.attributes["classname"] = "msfrc"
-    c.attributes["name"]  = tname
-
-    f = REXML::Element.new("failure")
-    f.attributes["type"] = ftype
-
-    f.text = data
-    c << f
-    e << c
-
-    bname = ("msfrpc_#{tname}").gsub(/[^A-Za-z0-9\.\_]/, '')
-    bname << "_" + Digest::MD5.hexdigest(tname)
-
-    fname = ::File.join(@junit_output_path, "#{bname}.xml")
-    cnt   = 0
-    while ::File.exist?( fname )
-      cnt  += 1
-      fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
-    end
-
-    ::File.open(fname, "w") do |fd|
-      fd.write(e.to_s)
-    end
-
-    print_error("Test Error: #{tname} - #{ftype} - #{data}")
-  end
-
-  #
-  # Emit a new jUnit XML output file representing a success
-  #
-  def junit_pass(tname)
-
-    if not @junit_output_path
-      raise RuntimeError, "No output path, call junit_setup() first"
-    end
-
-    # Generate the structure of a test case run
-    e = REXML::Element.new("testsuite")
-    c = REXML::Element.new("testcase")
-    c.attributes["classname"] = "msfrc"
-    c.attributes["name"]  = tname
-    e << c
-
-    # Generate a unique name
-    bname = ("msfrpc_#{tname}").gsub(/[^A-Za-z0-9\.\_]/, '')
-    bname << "_" + Digest::MD5.hexdigest(tname)
-
-    # Generate the output path, allow multiple test with the same name
-    fname = ::File.join(@junit_output_path, "#{bname}.xml")
-    cnt   = 0
-    while ::File.exist?( fname )
-      cnt  += 1
-      fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
-    end
-
-    # Write to our test output location, as specified with junit_setup
-    ::File.open(fname, "w") do |fd|
-      fd.write(e.to_s)
-    end
-
-    print_good("Test Pass: #{tname}")
-  end
-
-
-  #
-  # Emit a jUnit XML output file and throw a fatal exception
-  #
-  def junit_fatal_error(tname, ftype, data)
-    junit_error(tname, ftype, data)
-    print_error("Exiting")
-    run_single("exit -y")
   end
 
   #
@@ -423,8 +313,6 @@ class Driver < Msf::Ui::Driver
       return
     end
 
-    self.active_resource = resource_file
-
     # Process ERB directives first
     print_status "Processing #{path} for ERB directives."
     erb = ERB.new(resource_file)
@@ -472,8 +360,6 @@ class Driver < Msf::Ui::Driver
         run_single(line)
       end
     end
-
-    self.active_resource = nil
   end
 
   #
@@ -578,7 +464,7 @@ class Driver < Msf::Ui::Driver
       when "prompt"
         update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
       when "promptchar"
-        update_prompt(framework.datastore['Prompt'], val, true)
+        update_prompt(framework.datastore['Prompt'] || DefaultPrompt, val, true)
     end
   end
 
@@ -617,10 +503,6 @@ class Driver < Msf::Ui::Driver
   # The active session associated with the driver.
   #
   attr_accessor :active_session
-  #
-  # The active resource file being processed by the driver
-  #
-  attr_accessor :active_resource
 
   def stop
     framework.events.on_ui_stop()
@@ -724,7 +606,7 @@ protected
     if opts['RealReadline']
       # Remove the gem version from load path to be sure we're getting the
       # stdlib readline.
-      gem_dir = Gem::Specification.find_all_by_name('rb-readline-r7').first.gem_dir
+      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
       rb_readline_path = File.join(gem_dir, "lib")
       index = $LOAD_PATH.index(rb_readline_path)
       # Bundler guarantees that the gem will be there, so it should be safe to

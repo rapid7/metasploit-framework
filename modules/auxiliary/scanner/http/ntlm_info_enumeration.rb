@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -17,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
           This module makes requests to resources on the target server in
         an attempt to find resources which permit NTLM authentication. For
         resources which permit NTLM authentication, a blank NTLM type 1 message
-        is sent to enumerate a a type 2 message from the target server. The type
+        is sent to enumerate a type 2 message from the target server. The type
         2 message is then parsed for information such as the Active Directory
         domain and NetBIOS name.  A single URI can be specified with TARGET_URI
         and/or a file of URIs can be specified with TARGET_URIS_FILE (default).
@@ -30,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGET_URI', [ false, "Single target URI", nil]),
         OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request",
           File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -136,5 +134,4 @@ class MetasploitModule < Msf::Auxiliary
       :new_offset => offset + size
     }
   end
-
 end

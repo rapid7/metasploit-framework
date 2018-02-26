@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -34,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    register_options( [ Opt::RPORT(9000) ], self.class)
+    register_options( [ Opt::RPORT(9000) ])
   end
 
   def report_cred(opts)
@@ -132,5 +128,4 @@ class MetasploitModule < Msf::Auxiliary
     report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => info)
     print_good("#{rhost}:#{rport} #{info}")
   end
-
 end

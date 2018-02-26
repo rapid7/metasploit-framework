@@ -195,19 +195,15 @@ class Dir < Rex::Post::Dir
   # Downloads the contents of a remote directory a
   # local directory, optionally in a recursive fashion.
   #
-  def Dir.download(dst, src, opts, force = true, glob = nil, &stat)
-    recursive = false
-    continue = false
-    tries = false
-    tries_no = 0
+  def Dir.download(dst, src, opts = {}, force = true, glob = nil, &stat)
     tries_cnt = 0
-    if opts
-      timestamp = opts["timestamp"]
-      recursive = true if opts["recursive"]
-      continue = true if opts["continue"]
-      tries = true if opts["tries"]
-      tries_no = opts["tries_no"]
-    end
+
+    continue =  opts["continue"]
+    recursive = opts["recursive"]
+    timestamp = opts["timestamp"]
+    tries_no = opts["tries_no"] || 0
+    tries = opts["tries"]
+
     begin
       dir_files = self.entries(src, glob)
     rescue Rex::TimeoutError
@@ -222,7 +218,11 @@ class Dir < Rex::Post::Dir
     end
 
     dir_files.each { |src_sub|
-      dst_item = dst + ::File::SEPARATOR + client.unicode_filter_encode(src_sub)
+      dst_sub = src_sub.dup
+      dst_sub.gsub!(::File::SEPARATOR, '_')                                   # '/' on all systems
+      dst_sub.gsub!(::File::ALT_SEPARATOR, '_') if ::File::ALT_SEPARATOR      # nil on Linux, '\' on Windows
+
+      dst_item = ::File.join(dst, client.unicode_filter_encode(dst_sub))
       src_item = src + client.fs.file.separator + client.unicode_filter_encode(src_sub)
 
       if (src_sub == '.' or src_sub == '..')

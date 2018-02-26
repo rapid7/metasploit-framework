@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -23,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         to be exploitable where WebDAV is enabled on the IIS6 server, and any
         protected folder requires either Basic, Digest or NTLM authentication.
       },
-      'Author' 		=> [ 'et', 'patrick' ],
+      'Author' 		=> [ 'et', 'aushack' ],
       'License'		=> MSF_LICENSE,
       'References'   =>
         [
@@ -38,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('PATH', [ true,  "The path to protected folder", '/'])
-      ], self.class)
+      ])
 
   end
 
@@ -86,13 +83,13 @@ class MetasploitModule < Msf::Auxiliary
           'ctype'		=> 'application/xml',
           'headers' 	=>
             {
-              #'Translate'	 => 'f', # Not required in PROPFIND, only GET - patrickw 20091518
+              #'Translate'	 => 'f', # Not required in PROPFIND, only GET - aushack 20091518
             },
           'data'		=> webdav_req + "\r\n\r\n",
         }, 20)
 
         if (res.code.to_i == 207)
-          print_status("#{rhost}:#{rport} \tFound vulnerable WebDAV Unicode bypass.  #{wmap_base_url}#{tpath}#{bogus}/ #{res.code} (#{wmap_target_host})")
+          print_good("#{rhost}:#{rport} \tFound vulnerable WebDAV Unicode bypass.  #{wmap_base_url}#{tpath}#{bogus}/ #{res.code} (#{wmap_target_host})")
 
 
           report_vuln(

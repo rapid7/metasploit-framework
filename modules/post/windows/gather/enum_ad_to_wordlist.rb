@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
@@ -47,7 +43,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptString.new('FIELDS', [true, 'Fields to retrieve (ie, sn, givenName, displayName, description, comment)', DEFAULT_FIELDS.join(',')]),
       OptString.new('FILTER', [true, 'Search filter.','(&(objectClass=organizationalPerson)(objectClass=user)(objectClass=person)(!(objectClass=computer)))'])
-    ], self.class)
+    ])
   end
 
   def run
@@ -83,7 +79,7 @@ class MetasploitModule < Msf::Post
 
     print_good("Wordlist with #{ordered_dict.length} entries built")
     stored_path = store_loot('ad.wordlist', 'text/plain', session, ordered_dict.join("\n"))
-    print_status("Results saved to: #{stored_path}")
+    print_good("Results saved to: #{stored_path}")
   end
 
   def search_words(field)

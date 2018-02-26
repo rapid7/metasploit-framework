@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/generic'
 
 module MetasploitModule
@@ -31,7 +30,7 @@ module MetasploitModule
       [
         OptString.new('PAYLOADFILE', [ false, "The file to read the payload from" ] ),
         OptString.new('PAYLOADSTR', [ false, "The string to use as a payload" ] )
-      ], self.class)
+      ])
   end
 
   #
@@ -42,10 +41,12 @@ module MetasploitModule
       self.arch = actual_arch
     end
 
-    if datastore['PAYLOADFILE']
-      IO.read(datastore['PAYLOADFILE'])
-    elsif datastore['PAYLOADSTR']
+    if datastore['PAYLOADSTR']
       datastore['PAYLOADSTR']
+    elsif datastore['PAYLOADFILE']
+      IO.read(datastore['PAYLOADFILE'])
+    else
+      ''
     end
   end
 
@@ -59,5 +60,4 @@ module MetasploitModule
 
     return encoders2
   end
-
 end

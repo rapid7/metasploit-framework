@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanDir
   include Msf::Auxiliary::Scanner
@@ -47,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILENAME', [true,  "The file to attempt to write or delete", "msf_http_put_test.txt"]),
         OptString.new('FILEDATA', [false, "The data to upload into the file", "msf test file"]),
         OptString.new('ACTION', [true, "PUT or DELETE", "PUT"])
-      ], self.class)
+      ])
   end
 
   #
@@ -152,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
           :exploited_at => Time.now.utc
         )
       else
-        print_error("#{ip}: File doesn't seem to exist. The upload probably failed.")
+        print_error("#{ip}: File doesn't seem to exist. The upload probably failed")
       end
 
     when 'DELETE'
@@ -188,5 +185,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

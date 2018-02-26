@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
@@ -26,7 +23,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('FILE', [true, 'The default path for chap-secrets', '/etc/ppp/chap-secrets'])
-      ], self.class)
+      ])
   end
 
 
@@ -149,5 +146,4 @@ class MetasploitModule < Msf::Post
       extract_secrets(f)
     end
   end
-
 end

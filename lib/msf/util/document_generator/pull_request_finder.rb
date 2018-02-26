@@ -11,6 +11,7 @@ module Msf
         class Exception < RuntimeError; end
 
         MANUAL_BASE_PATH = File.expand_path(File.join(Msf::Config.module_directory, '..', 'documentation', 'modules' ))
+        USER_MANUAL_BASE_PATH = File.expand_path(File.join(Msf::Config.user_module_directory, '..', 'documentation', 'modules' ))
 
         # @return [Octokit::Client] Git client
         attr_accessor :git_client

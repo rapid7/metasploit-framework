@@ -21,7 +21,7 @@ module Msf::Post::Windows::ReflectiveDLLInjection
   #   The process to inject the shellcode into.
   # @param shellcode [String] The shellcode to inject.
   #
-  # @return [Fixnum] Address of the shellcode in the target process's
+  # @return [Integer] Address of the shellcode in the target process's
   #   memory.
   def inject_into_process(process, shellcode)
     shellcode_size = shellcode.length

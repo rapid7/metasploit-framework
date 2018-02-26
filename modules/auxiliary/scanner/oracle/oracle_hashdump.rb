@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::ORACLE
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -35,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     ver = prepare_exec(query)
 
     if ver.nil?
-      print_error("An Error has occured, check your OPTIONS")
+      print_error("An Error has occurred, check your OPTIONS")
       return
     end
 
@@ -80,14 +77,14 @@ class MetasploitModule < Msf::Auxiliary
         unless results.empty?
           results.each do |result|
             row= result.split(/,/)
-            row[2] = 'No'
+            next unless row.length == 2
             tbl << row
           end
         end
 
       end
     rescue => e
-      print_error("An error occured. The supplied credentials may not have proper privs")
+      print_error("An error occurred. The supplied credentials may not have proper privs")
       return
     end
     print_status("Hash table :\n #{tbl}")
@@ -131,10 +128,7 @@ class MetasploitModule < Msf::Auxiliary
 
       create_credential_login(login_data.merge(service_data))
     end
-    print_status("Hash Table has been saved")
+    print_good("Hash Table has been saved")
   end
-
-
-
 
 end

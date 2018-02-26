@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
@@ -35,7 +31,7 @@ class MetasploitModule < Msf::Post
         OptInt.new('COUNT', [true, 'Number of screenshots to collect.', 1]),
         OptString.new('TMP_PATH', [true, 'Path to remote temp directory', '/tmp/<random>']),
         OptString.new('EXE_PATH', [true, 'Path to remote screencapture executable', '/usr/sbin/screencapture'])
-      ], self.class)
+      ])
 
   end
 

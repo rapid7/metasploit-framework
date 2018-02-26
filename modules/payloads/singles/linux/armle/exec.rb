@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 ###
 #
@@ -32,7 +30,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('CMD',  [ true,  "The command string to execute" ]),
-      ], self.class)
+      ])
   end
 
   def generate_stage(opts={})
@@ -43,5 +41,4 @@ module MetasploitModule
       "\x01\x90\x01\xa9\x92\x1a\x0b\x27\x01\xdf" + cmd
 
   end
-
 end

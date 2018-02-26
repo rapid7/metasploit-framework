@@ -61,6 +61,7 @@ class Framework
   require 'msf/core/db_manager'
   require 'msf/core/event_dispatcher'
   require 'rex/json_hash_file'
+  require 'msf/core/cert_provider'
 
   #
   # Creates an instance of the framework context.
@@ -83,6 +84,9 @@ class Framework
 
     # Configure the thread factory
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
+
+    # Configure the SSL certificate generator
+    Rex::Socket::Ssl.cert_provider = Msf::Ssl::CertProvider
 
     subscriber = FrameworkEventSubscriber.new(self)
     events.add_exploit_subscriber(subscriber)
@@ -227,6 +231,24 @@ class Framework
     synchronize {
       instance_variable_defined? :@threads
     }
+  end
+
+  # TODO: Anything still using this should be ported to use metadata::cache search
+  def search(match, logger: nil)
+    # Do an in-place search
+    matches = []
+    [ self.exploits, self.auxiliary, self.post, self.payloads, self.nops, self.encoders ].each do |mset|
+      mset.each do |m|
+        begin
+          o = mset.create(m[0])
+          if o && !o.search_filter(match)
+            matches << o
+          end
+        rescue
+        end
+      end
+    end
+    matches
   end
 
 protected

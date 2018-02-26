@@ -37,7 +37,7 @@ module Net # :nodoc:
           case cls
           when String
             return Classes.has_key?(cls)
-          when Fixnum
+          when Integer
             return Classes.invert.has_key?(cls)
           else
             raise ClassArgumentError, "Wrong class: #{cls.class}"
@@ -48,7 +48,7 @@ module Net # :nodoc:
         # given the numeric value
         def self.to_str(cls)
           case cls
-          when Fixnum
+          when Integer
             if Classes.invert.has_key? cls
               return Classes.invert[cls]
             else
@@ -73,7 +73,7 @@ module Net # :nodoc:
           when String
             # type in the form "A" or "NS"
             new_from_string(cls.upcase)
-          when Fixnum
+          when Integer
             # type in numeric form
             new_from_num(cls)
           when nil

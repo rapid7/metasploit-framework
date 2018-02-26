@@ -32,8 +32,8 @@ class MainframeShell < Msf::Sessions::CommandShell
   # initialize as mf shell session
   #
   def initialize(*args)
-    self.platform = "mainframe"
-    self.arch = "zarch"
+    self.platform = 'mainframe'
+    self.arch = ARCH_ZARCH
     self.translate_1047 = true
     super
   end

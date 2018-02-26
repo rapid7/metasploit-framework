@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
 
@@ -27,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('RFILE', [ true, 'The remote file', '/etc/passwd'])
-      ], self.class)
+      ])
 
     deregister_options( 'SQL', 'RETURN_ROWSET' )
   end
@@ -64,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       }
       # No idea what the actual ctype will be, text/plain is just a guess
       path = store_loot('postgres.file', 'text/plain', rhost, loot, datastore['RFILE'])
-      print_status("#{rhost}:#{rport} Postgres - #{datastore['RFILE']} saved in #{path}")
+      print_good("#{rhost}:#{rport} Postgres - #{datastore['RFILE']} saved in #{path}")
       vprint_good  "#{rhost}:#{rport} Postgres - Command complete."
     end
     postgres_logout if self.postgres_conn

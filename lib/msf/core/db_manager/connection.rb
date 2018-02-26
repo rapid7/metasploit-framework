@@ -124,8 +124,6 @@ module Msf::DBManager::Connection
         ActiveRecord::Base.connection.active?
       }
     rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad => error
-      elog("Connection not established: #{error.class} #{error}:\n#{error.backtrace.join("\n")}")
-
       false
     end
   end

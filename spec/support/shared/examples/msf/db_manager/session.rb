@@ -426,7 +426,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
                 it { expect(subject.last_seen).to be_within(1.second).of(Time.now.utc) }
                 it { expect(subject.local_id).to eq(session.sid) }
                 it { expect(subject.opened_at).to be_within(1.second).of(Time.now.utc) }
-                it { expect(subject.platform).to eq(session.platform) }
+                it { expect(subject.platform).to eq(session.session_type) }
                 it { expect(subject.routes).to eq([]) }
                 it { expect(subject.stype).to eq(session.type) }
                 it { expect(subject.via_payload).to eq(session.via_payload) }
@@ -769,7 +769,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
                 it { expect(subject.last_seen).to be_within(1.second).of(Time.now.utc) }
                 it { expect(subject.local_id).to eq(session.sid) }
                 it { expect(subject.opened_at).to be_within(1.second).of(Time.now.utc) }
-                it { expect(subject.platform).to eq(session.platform) }
+                it { expect(subject.platform).to eq(session.session_type) }
                 it { expect(subject.routes).to eq([]) }
                 it { expect(subject.stype).to eq(session.type) }
                 it { expect(subject.via_payload).to eq(session.via_payload) }

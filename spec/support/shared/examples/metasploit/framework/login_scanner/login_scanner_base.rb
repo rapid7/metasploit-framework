@@ -65,6 +65,20 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts 
   it { is_expected.to respond_to :proxies }
   it { is_expected.to respond_to :stop_on_success }
 
+  before do
+    creds = double('Metasploit::Framework::CredentialCollection')
+    allow(creds).to receive(:pass_file)
+    allow(creds).to receive(:username)
+    allow(creds).to receive(:password)
+    allow(creds).to receive(:user_file)
+    allow(creds).to receive(:userpass_file)
+    allow(creds).to receive(:prepended_creds).and_return([])
+    allow(creds).to receive(:additional_privates).and_return([])
+    allow(creds).to receive(:additional_publics).and_return(['user'])
+    allow(creds).to receive(:empty?).and_return(true)
+    login_scanner.cred_details = creds
+  end
+
   context 'validations' do
     context 'port' do
 
@@ -160,12 +174,34 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::Base' do | opts 
 
     context 'cred_details' do
       it 'is not valid for not set' do
+        creds = double('Metasploit::Framework::CredentialCollection')
+        allow(creds).to receive(:pass_file)
+        allow(creds).to receive(:username)
+        allow(creds).to receive(:password)
+        allow(creds).to receive(:user_file)
+        allow(creds).to receive(:userpass_file)
+        allow(creds).to receive(:prepended_creds).and_return([])
+        allow(creds).to receive(:additional_privates).and_return([])
+        allow(creds).to receive(:additional_publics).and_return([])
+        allow(creds).to receive(:empty?).and_return(true)
+        login_scanner.cred_details = creds
         expect(login_scanner).to_not be_valid
         expect(login_scanner.errors[:cred_details]).to include "can't be blank"
       end
 
       it 'is not valid for a non-array input' do
-        login_scanner.cred_details = rand(10)
+        creds = double('Metasploit::Framework::CredentialCollection')
+        allow(creds).to receive(:pass_file)
+        allow(creds).to receive(:pass_file)
+        allow(creds).to receive(:username)
+        allow(creds).to receive(:password)
+        allow(creds).to receive(:user_file)
+        allow(creds).to receive(:userpass_file)
+        allow(creds).to receive(:prepended_creds).and_return([])
+        allow(creds).to receive(:additional_privates).and_return([])
+        allow(creds).to receive(:additional_publics).and_return(['user'])
+        allow(creds).to receive(:empty?).and_return(true)
+        login_scanner.cred_details = creds
         expect(login_scanner).to_not be_valid
         expect(login_scanner.errors[:cred_details]).to include "must respond to :each"
       end

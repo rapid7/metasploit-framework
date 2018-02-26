@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -41,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('SRVPORT', [ true, "The local port to listen on.", 80 ]),
         OptString.new('REALM', [ true, "The authentication realm you'd like to present.", "Secure Site" ]),
         OptString.new('RedirectURL', [ false, "The page to redirect users to after they enter basic auth creds" ])
-      ], self.class)
+      ])
   end
 
   # Not compatible today
@@ -112,5 +109,4 @@ class MetasploitModule < Msf::Auxiliary
       cli.send_response(response)
     end
   end
-
 end

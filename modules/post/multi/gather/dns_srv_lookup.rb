@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
@@ -13,7 +10,7 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         'Name'          => 'Multi Gather DNS Service Record Lookup Scan',
         'Description'   => %q{
-          Enumerates know SRV Records for a given domaon using target host DNS query tool.
+          Enumerates known SRV Records for a given domain using target host DNS query tool.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -23,9 +20,9 @@ class MetasploitModule < Msf::Post
     register_options(
       [
 
-        OptString.new('DOMAIN', [true, 'Domain ro perform SRV query against.'])
+        OptString.new('DOMAIN', [true, 'Domain to perform SRV query against.'])
 
-      ], self.class)
+      ])
   end
 
   # Run Method for when run command is issued
@@ -56,10 +53,10 @@ class MetasploitModule < Msf::Post
     a = []
 
     case session.platform
-    when /win/i
+    when 'windows'
       ns_opt = " -query=srv "
       cmd = "nslookup"
-    when /solaris/i
+    when 'solaris'
       ns_opt = " -t srv "
       cmd = "/usr/sbin/host"
     else
@@ -74,7 +71,7 @@ class MetasploitModule < Msf::Post
           r = cmd_exec(cmd, ns_opt + "#{srv}#{domain}")
 
           case session.platform
-          when /win/
+          when 'windows'
             if r =~ /\s*internet\saddress\s\=\s/
               nslookup_srv_consume("#{srv}#{domain}", r).each do |f|
                 print_good("\t#{f[:srv]} #{f[:target]} #{f[:port]} #{f[:ip]}")

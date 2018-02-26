@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -228,7 +228,6 @@ end
 def enum_users
   os = @client.sys.config.sysinfo['OS']
   users = []
-  user = @client.sys.config.getuid
   path4users = ""
   sysdrv = @client.sys.config.getenv('SystemDrive')
 
@@ -240,7 +239,7 @@ def enum_users
     profilepath = "\\Application Data\\VMware\\"
   end
 
-  if user == "NT AUTHORITY\\SYSTEM"
+  if @client.sys.config.is_system?
     print_status("Running as SYSTEM extracting user list..")
     @client.fs.dir.foreach(path4users) do |u|
       userinfo = {}
@@ -297,7 +296,7 @@ def enum_vmwarewrk
     end
   end
 end
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if check_vmsoft
     vmware_products = check_prods()
     if vmware_products.include?("VMware VirtualCenter")

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(46824),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/WINDOWS/system32/drivers/etc/hosts']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 10])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -147,5 +144,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{ip}:#{rport} - File saved in: #{path}")
 
   end
-
 end

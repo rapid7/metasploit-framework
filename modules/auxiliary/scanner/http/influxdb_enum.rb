@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/db']),
         OptString.new('USERNAME', [true, 'The username to login as', 'root']),
         OptString.new('PASSWORD', [true, 'The password to login with', 'root'])
-      ], self.class)
+      ])
   end
 
   def run

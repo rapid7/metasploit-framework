@@ -70,7 +70,7 @@ module Auxiliary::Report
   # This method safely get the workspace ID. It handles if the db is not active
   #
   # @return [NilClass] if there is no DB connection
-  # @return [Fixnum] the ID of the current Mdm::Workspace
+  # @return [Integer] the ID of the current Mdm::Workspace
   def myworkspace_id
     if framework.db.active
       myworkspace.id
@@ -170,7 +170,7 @@ module Auxiliary::Report
   #
   # @param opts [Hash] the option hash
   # @option opts [String] :host the address of the host (also takes a Mdm::Host)
-  # @option opts [Fixnum] :port the port of the connected service
+  # @option opts [Integer] :port the port of the connected service
   # @option opts [Mdm::Service] :service an optional Service object to build the cred for
   # @option opts [String] :type What type of private credential this is (e.g. "password", "hash", "ssh_key")
   # @option opts [String] :proto Which transport protocol the service uses
@@ -274,7 +274,28 @@ module Auxiliary::Report
         :workspace => myworkspace,
         :task => mytask
     }.merge(opts)
-    framework.db.report_vuln(opts)
+    vuln = framework.db.report_vuln(opts)
+
+    # add vuln attempt audit details here during report
+
+    timestamp  = opts[:timestamp]
+    username   = opts[:username]
+    mname      = self.fullname # use module name when reporting attempt for correlation
+
+    # report_vuln is only called in an identified case, consider setting value reported here
+    attempt_info = {
+        :vuln_id      => vuln.id,
+        :attempted_at => timestamp || Time.now.utc,
+        :exploited    => false,
+        :fail_detail  => 'vulnerability identified',
+        :fail_reason  => 'Untried', # Mdm::VulnAttempt::Status::UNTRIED, avoiding direct dependency on Mdm, used elsewhere in this module
+        :module       => mname,
+        :username     => username  || "unknown",
+    }
+
+    vuln.vuln_attempts.create(attempt_info)
+
+    vuln
   end
 
   # This will simply log a deprecation warning, since report_exploit()

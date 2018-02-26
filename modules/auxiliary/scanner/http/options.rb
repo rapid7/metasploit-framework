@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -42,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 10)
 
       if (res and res.headers['Allow'])
-        print_status("#{target_host} allows #{res.headers['Allow']} methods")
+        print_good("#{target_host} allows #{res.headers['Allow']} methods")
 
         report_note(
           :host	=> target_host,
@@ -54,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
         )
 
         if(res.headers['Allow'].index('TRACE'))
-          print_status "#{target_host}:#{rport} - TRACE method allowed."
+          print_good "#{target_host}:#{rport} - TRACE method allowed."
           report_vuln(
             :host	=> target_host,
             :port	=> rport,

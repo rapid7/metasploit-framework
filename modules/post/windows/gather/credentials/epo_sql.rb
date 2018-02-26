@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'net/dns/resolver'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
@@ -159,7 +156,7 @@ class MetasploitModule < Msf::Post
 
   def decrypt46(encoded)
     encrypted_data = Rex::Text.decode_base64(encoded)
-    aes = OpenSSL::Cipher::Cipher.new('AES-128-ECB')
+    aes = OpenSSL::Cipher.new('AES-128-ECB')
     aes.padding = 0
     aes.decrypt
     # Private key extracted from ePO 4.6.0 Build 1029

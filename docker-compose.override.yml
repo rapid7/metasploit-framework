@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  ms:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        BUNDLER_ARGS: --jobs=8
+    image: metasploit:dev
+    environment:
+      DATABASE_URL: postgres://postgres@db:5432/msf_dev
+    volumes:
+      - .:/usr/src/metasploit-framework

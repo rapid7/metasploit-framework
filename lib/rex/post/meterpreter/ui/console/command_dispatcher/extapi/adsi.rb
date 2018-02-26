@@ -25,7 +25,7 @@ class Console::CommandDispatcher::Extapi::Adsi
   # List of supported commands.
   #
   def commands
-    {
+    all = {
       'adsi_user_enum'              => 'Enumerate all users on the specified domain.',
       'adsi_group_enum'             => 'Enumerate all groups on the specified domain.',
       'adsi_nested_group_user_enum' => 'Recursively enumerate users who are effectively members of the group specified.',
@@ -33,6 +33,15 @@ class Console::CommandDispatcher::Extapi::Adsi
       'adsi_dc_enum'                => 'Enumerate all domain controllers on the specified domain.',
       'adsi_domain_query'           => 'Enumerate all objects on the specified domain that match a filter.'
     }
+    reqs = {
+      "adsi_user_enum"              => [ "extapi_adsi_domain_query" ],
+      "adsi_group_enum"             => [ "extapi_adsi_domain_query" ],
+      "adsi_nested_group_user_enum" => [ "extapi_adsi_domain_query" ],
+      "adsi_computer_enum"          => [ "extapi_adsi_domain_query" ],
+      "adsi_dc_enum"                => [ "extapi_adsi_domain_query" ],
+      "adsi_domain_query"           => [ "extapi_adsi_domain_query" ],
+    }
+    filter_commands(all, reqs)
   end
 
   #

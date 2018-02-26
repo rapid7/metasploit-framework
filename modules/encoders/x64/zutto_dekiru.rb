@@ -1,18 +1,21 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'metasm'
-require 'msf/core'
 require 'rex/nop/opty2'
 
 class MetasploitModule < Msf::Encoder::Xor
-
   Rank = ManualRanking
 
   def initialize
     super(
       'Name'             => 'Zutto Dekiru',
       'Version'          => '$Revision: 14774 $',
-      'Description'      => 'Inspired by shikata_ga_nai using fxsave64 to work under x86_64 systems.',
+      'Description'      => 'Inspired by shikata_ga_nai using fxsave64 to work under x64 systems.',
       'Author'           => 'agix',
-      'Arch'             => ARCH_X86_64,
+      'Arch'             => ARCH_X64,
       'License'          => MSF_LICENSE,
       'EncoderType'      => Msf::Encoder::Type::Raw,
       'Decoder'          =>

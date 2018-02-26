@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
@@ -43,7 +42,7 @@ module MetasploitModule
 
     dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4);
     shell = <<-END_OF_PHP_CODE
-    #{php_preamble({:disabled_varname => dis})}
+    #{php_preamble(disabled_varname: dis)}
     $port=#{datastore['LPORT']};
 
     $scl='socket_create_listen';
@@ -83,5 +82,4 @@ module MetasploitModule
   def generate
     return super + php_bind_shell
   end
-
 end

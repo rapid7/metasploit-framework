@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -44,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The path of the Apache Tomcat Administration page', '/admin/j_security_check']),
         OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt") ]),
-      ], self.class)
+      ])
 
     deregister_options('PASS_FILE','USERPASS_FILE','USER_AS_PASS','STOP_ON_SUCCESS','BLANK_PASSWORDS')
   end
@@ -118,13 +113,12 @@ class MetasploitModule < Msf::Auxiliary
       return :abort
     end
   end
-
 end
 
 =begin
 
 If your Tomcat doesn't have the admin package by default, download it here:
-http://archive.apache.org/dist/tomcat/	
+http://archive.apache.org/dist/tomcat/
 
 The package name should look something like: apache-tomcat-[version]-admin.zip
 

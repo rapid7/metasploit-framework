@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -35,14 +32,14 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptBool.new('EXTENDED', [true, 'Do all the 16 extended checks', false]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
     begin
       connect
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-      print_status("SMTP #{banner_sanitized}")
+      print_good("SMTP #{banner_sanitized}")
       report_service(:host => rhost, :port => rport, :name => "smtp", :info => banner)
 
       if datastore['EXTENDED']

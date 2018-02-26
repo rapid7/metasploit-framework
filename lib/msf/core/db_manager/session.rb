@@ -177,7 +177,7 @@ module Msf::DBManager::Session
         last_seen: Time.now.utc,
         local_id: session.sid,
         opened_at: Time.now.utc,
-        platform: session.platform,
+        platform: session.session_type,
         port: session.session_port,
         routes: [],
         stype: session.type,

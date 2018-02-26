@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
@@ -14,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'         => 'BNAT Scanner',
       'Description'  => %q{
           This module is a scanner which can detect Broken NAT (network address translation)
-        implementations, which could result in a inability to reach ports on remote
+        implementations, which could result in an inability to reach ports on remote
         machines. Typically, these ports will appear in nmap scans as 'filtered'/'closed'.
         },
       'Author'       =>
@@ -35,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "21,22,23,80,443"]),
           OptString.new('INTERFACE', [true, "The name of the interface", "eth0"]),
           OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500])
-        ],self.class)
+        ])
 
     deregister_options('FILTER','PCAPFILE','RHOST','SNAPLEN')
 
@@ -98,5 +96,4 @@ class MetasploitModule < Msf::Auxiliary
 
     close_pcap
   end
-
 end

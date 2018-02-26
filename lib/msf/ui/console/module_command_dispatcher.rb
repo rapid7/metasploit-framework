@@ -122,6 +122,11 @@ module ModuleCommandDispatcher
   # Checks to see if a target is vulnerable.
   #
   def cmd_check(*args)
+    if args.first =~ /^\-h$/i
+      cmd_check_help
+      return
+    end
+
     ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     opt = Msf::OptAddressRange.new('RHOSTS')
 
@@ -162,6 +167,32 @@ module ModuleCommandDispatcher
     end
   end
 
+  def cmd_check_help
+    print_line('Usage: check [option] [IP Range]')
+    print_line
+    print_line('Options:')
+    print_line('-h  You are looking at it.')
+    print_line
+    print_line('Examples:')
+    print_line('')
+    print_line('Normally, if a RHOST is already specified, you can just run check.')
+    print_line('But here are different ways to use the command:')
+    print_line
+    print_line('Against a single host:')
+    print_line('check 192.168.1.123')
+    print_line
+    print_line('Against a range of IPs:')
+    print_line('check 192.168.1.1-192.168.1.254')
+    print_line
+    print_line('Against a range of IPs loaded from a file:')
+    print_line('check file:///tmp/ip_list.txt')
+    print_line
+    print_line('Multi-threaded checks:')
+    print_line('1. set THREADS 10')
+    print_line('2. check')
+    print_line
+  end
+
   def report_vuln(instance)
     framework.db.report_vuln(
       workspace: instance.workspace,
@@ -178,10 +209,10 @@ module ModuleCommandDispatcher
     end
 
     rhost = instance.datastore['RHOST']
-    rport = nil
+    rport = instance.datastore['RPORT']
     peer = rhost
-    if instance.datastore['rport']
-      rport = instance.rport
+    if rport
+      rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
 
@@ -192,6 +223,8 @@ module ModuleCommandDispatcher
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
           print_good("#{peer} #{code[1]}")
+          # Restore RHOST for report_vuln
+          instance.datastore['RHOST'] ||= rhost
           report_vuln(instance)
         else
           print_status("#{peer} #{code[1]}")
@@ -206,9 +239,6 @@ module ModuleCommandDispatcher
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
-    rescue Msf::OptionValidateError => e
-      print_error("{peer} - Check failed: #{e.message}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")

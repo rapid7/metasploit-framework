@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -28,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(7777),
-      ], self.class)
+      ])
   end
 
   def trojan_encode(str)
@@ -97,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     # Required to prevent the server from spinning a loop
     sock.put(trojan_command(:nop))
 
-    print_status("#{ip}:#{rport} FOUND: #{files.inspect}")
+    print_good("#{ip}:#{rport} FOUND: #{files.inspect}")
     # Add Vulnerability and Report
     report_vuln({
       :host  => ip,

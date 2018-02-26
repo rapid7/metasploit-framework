@@ -60,7 +60,7 @@ module Msf::Payload::Windows
 
     # All windows payload hint that the stack must be aligned to nop
     # generators and encoders.
-    if( info['Arch'] == ARCH_X86_64 )
+    if( info['Arch'] == ARCH_X64 )
       if( info['Alias'] )
         info['Alias'] = 'windows/x64/' + info['Alias']
       end

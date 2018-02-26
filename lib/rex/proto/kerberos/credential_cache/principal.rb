@@ -7,7 +7,7 @@ module Rex
         # This class provides a representation of a Principal stored in the Kerberos Credential Cache.
         class Principal < Element
           # @!attribute name_type
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :name_type
           # @!attribute realm
           #   @return [String]

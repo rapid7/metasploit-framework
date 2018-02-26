@@ -11,4 +11,5 @@ List the steps needed to make sure this thing works
 - [ ] ...
 - [ ] **Verify** the thing does what it should
 - [ ] **Verify** the thing does not do what it should not
+- [ ] **Document** the thing and how it works ([Example](https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/post/multi/gather/aws_keys.md))
 

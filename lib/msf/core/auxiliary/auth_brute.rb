@@ -362,7 +362,6 @@ module Auxiliary::AuthBrute
   # Note, these special username/passwords should get deprecated
   # some day. Note2: Don't use with SMB and FTP at the same time!
   def translate_proto_datastores
-    switched = false
     ['SMBUser','FTPUSER'].each do |u|
       if datastore[u] and !datastore[u].empty?
         datastore['USERNAME'] = datastore[u]
@@ -547,6 +546,20 @@ module Auxiliary::AuthBrute
     end
   end
 
+  def vprint_status(msg='')
+    print_brute :level => :vstatus, :msg => msg
+  end
+
+  def vprint_error(msg='')
+    print_brute :level => :verror, :msg => msg
+  end
+
+  alias_method :vprint_bad, :vprint_error
+
+  def vprint_good(msg='')
+    print_brute :level => :vgood, :msg => msg
+  end
+
   # Provides a consistant way to display messages about AuthBrute-mixed modules.
   # Acceptable opts are fairly self-explanatory, but :level can be tricky.
   #
@@ -568,10 +581,10 @@ module Auxiliary::AuthBrute
     end
     host_ip = opts[:ip] || opts[:rhost] || opts[:host] || (rhost rescue nil) || datastore['RHOST']
     host_port = opts[:port] || opts[:rport] || (rport rescue nil) || datastore['RPORT']
-    msg = opts[:msg] || opts[:message] || opts[:legacy_msg]
+    msg = opts[:msg] || opts[:message]
     proto = opts[:proto] || opts[:protocol] || proto_from_fullname
 
-    complete_message = build_brute_message(host_ip,host_port,proto,msg,!!opts[:legacy_msg])
+    complete_message = build_brute_message(host_ip,host_port,proto,msg)
 
     print_method = "print_#{level}"
     if self.respond_to? print_method
@@ -582,34 +595,24 @@ module Auxiliary::AuthBrute
   end
 
   # Depending on the non-nil elements, build up a standardized
-  # auth_brute message, but support the old style used by
-  # vprint_status and friends as well.
-  def build_brute_message(host_ip,host_port,proto,msg,legacy)
+  # auth_brute message.
+  def build_brute_message(host_ip,host_port,proto,msg)
     ip = host_ip.to_s.strip if host_ip
     port = host_port.to_s.strip if host_port
     complete_message = nil
-    extracted_message = nil
-    if legacy # TODO: This is all a workaround until I get a chance to get rid of the legacy messages
-      old_msg = msg.to_s.strip
-      msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
-      if old_msg.match(msg_regex) and !old_msg.match(msg_regex)[6].to_s.strip.empty?
-        complete_message = ''
-        unless ip.blank? && port.blank?
-          complete_message << "#{ip}:#{rport}"
-        else
-          complete_message << (old_msg.match(msg_regex)[4] || proto).to_s
-        end
-
-        complete_message << " - "
-        progress = tried_over_total(ip,port)
-        complete_message << progress if progress
-        complete_message << old_msg.match(msg_regex)[6].to_s.strip
-      else
-        complete_message = msg.to_s.strip
-      end
+    old_msg = msg.to_s.strip
+    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
+    if old_msg.match(msg_regex)
+      complete_message = msg.to_s.strip
     else
       complete_message = ''
-      complete_message << "#{proto.to_s.strip} - " if proto
+      unless ip.blank? && port.blank?
+        complete_message << "#{ip}:#{port}"
+      else
+        complete_message << proto || 'Bruteforce'
+      end
+
+      complete_message << " - "
       progress = tried_over_total(ip,port)
       complete_message << progress if progress
       complete_message << msg.to_s.strip
@@ -655,21 +658,6 @@ module Auxiliary::AuthBrute
   # smb_auth.
   def proto_from_fullname
     File.split(self.fullname).last.match(/^(.*)_(login|auth|identify)/)[1].upcase rescue nil
-  end
-
-  # Legacy vprint
-  def vprint_status(msg='')
-    print_brute :level => :vstatus, :legacy_msg => msg
-  end
-
-  # Legacy vprint
-  def vprint_error(msg='')
-    print_brute :level => :verror, :legacy_msg => msg
-  end
-
-  # Legacy vprint
-  def vprint_good(msg='')
-    print_brute :level => :vgood, :legacy_msg => msg
   end
 
   # This method deletes the dictionary files if requested

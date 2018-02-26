@@ -24,6 +24,8 @@ class Output
   def print_error(msg='')
   end
 
+  alias_method :print_bad, :print_error
+
   #
   # Prints a 'good' message.
   #

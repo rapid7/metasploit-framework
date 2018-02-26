@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
 
 module MetasploitModule
 
@@ -31,7 +28,7 @@ module MetasploitModule
       [
         OptString.new('URL', [true, "The pre-encoded URL to the executable" ,"https://localhost:443/evil.exe"]),
         OptString.new('EXE', [ true, "Filename to save & run executable on target system", "rund11.exe" ])
-      ], self.class)
+      ])
   end
 
   #

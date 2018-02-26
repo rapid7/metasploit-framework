@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(20111),
         OptString.new('RPATH', [ false, 'The Remote Path (required to RETR and STOR)', "" ]),
         OptPath.new('LPATH', [ false, 'The Local Path (required to STOR)' ])
-      ], self.class)
+      ])
   end
 
   def srvport
@@ -127,6 +124,5 @@ class MetasploitModule < Msf::Auxiliary
   def on_client_close(c)
     stop_service
   end
-
 end
 

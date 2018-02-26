@@ -1,4 +1,5 @@
 require 'rex'
+require 'msf/core/module/reference'
 require 'msf/util/document_generator'
 require 'msf/util/document_generator/pull_request_finder'
 
@@ -10,7 +11,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   let(:mod_shortname)     { 'ms08_067_netapi' }
   let(:mod_name)          { 'MS08-067' }
   let(:mod_pull_requests) { good_pull_requests }
-  let(:mod_refs)          { ['URL', 'http://example.com'] }
+  let(:mod_refs)          { [Msf::Module::SiteReference.new('URL', 'http://example.com')] }
   let(:mod_platforms)     { 'win' }
   let(:mod_options)       { { 'RHOST' => rhost_option } }
   let(:mod_normal_rank)   { 300 }
@@ -111,7 +112,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   describe 'normalize_pull_requests' do
     context 'when a hash of pull requests are given' do
       it 'returns HTML links' do
-        expect(subject.send(:normalize_pull_requests, good_pull_requests)).to include('* <a href=')
+        expect(subject.send(:normalize_pull_requests, good_pull_requests)).to include('](https://github.com/')
       end
     end
 
@@ -143,7 +144,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   describe 'normalize_authors' do
     context 'when an array of authors is given' do
       it 'returns the author list in markdown' do
-        expect(subject.send(:normalize_authors, Rex::Text.html_decode(msf_mod.authors))).to include('* ')
+        expect(subject.send(:normalize_authors, msf_mod.authors)).to include('* ')
       end
     end
   end
@@ -159,7 +160,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   describe 'normalize_references' do
     context 'when an array of references is given' do
       it 'returns the reference list in HTML' do
-        expect(subject.send(:normalize_references, msf_mod.references)).to include('* <a href=')
+        expect(subject.send(:normalize_references, msf_mod.references)).to include('* [http://')
       end
     end
   end

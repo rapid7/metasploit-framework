@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -43,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('TARGETURI', [false, 'URI to the site (e.g /site/) or a valid file resource (e.g /welcome.png)', '/']),
       OptBool.new('SUPPRESS_REQUEST', [ true, 'Suppress output of the requested resource', true ])
-    ], self.class)
+    ])
 
     deregister_options('VHOST')
   end
@@ -201,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
       if resp
         dump(resp.to_s)
         loot_path = store_loot('iis.ms15034', 'application/octet-stream', ip, resp, nil, 'MS15-034 HTTP.SYS Memory Dump')
-        print_status("Memory dump saved to #{loot_path}")
+        print_good("Memory dump saved to #{loot_path}")
       else
         print_error("Disclosure unsuccessful (must be 8.1, 2012, or 2012R2)")
       end

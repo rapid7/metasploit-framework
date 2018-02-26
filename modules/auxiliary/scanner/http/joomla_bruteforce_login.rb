@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USER_VARIABLE', [true, 'The name of the variable for the user field', 'username']),
         OptString.new('PASS_VARIABLE', [true, 'The name of the variable for the password field' , 'passwd']),
         OptString.new('WORD_ERROR', [true, 'The word of message for detect that login fail', 'mod-login-username'])
-      ], self.class)
+      ])
 
     register_autofilter_ports([80, 443])
   end
@@ -291,5 +289,4 @@ class MetasploitModule < Msf::Auxiliary
 
     valor_input_id
   end
-
 end

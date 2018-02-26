@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/exploit/local/linux'
 
 class MetasploitModule < Msf::Post
@@ -20,7 +18,7 @@ class MetasploitModule < Msf::Post
         'Description'   => %q{
           Metasploit < 4.4 contains a vulnerable 'pcap_log' plugin which, when used with the default settings,
           creates pcap files in /tmp with predictable file names. This exploits this by hard-linking these
-          filenames to /etc/passwd, then sending a packet with a priviliged user entry contained within.
+          filenames to /etc/passwd, then sending a packet with a privileged user entry contained within.
           This, and all the other packets, are appended to /etc/passwd.
 
           Successful exploitation results in the creation of a new superuser account.
@@ -63,6 +61,7 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status "Setting up the victim's /tmp dir"
+    fail_with(Failure::NotFound, '/etc/passwd not found on system') unless file_exist?('/etc/passwd')
     initial_size = read_file("/etc/passwd").lines.count
     print_status "/etc/passwd is currently #{initial_size} lines long"
     i = 0

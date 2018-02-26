@@ -29,6 +29,7 @@ class Output < Rex::Ui::Output
     super
   end
   attr_reader :config
+  attr_accessor :input
 
   def disable_color
     @config[:color] = false
@@ -51,6 +52,8 @@ class Output < Rex::Ui::Output
     print_line("%bld%red[-]%clr #{msg}")
   end
 
+  alias_method :print_bad, :print_error
+
   def print_good(msg = '')
     print_line("%bld%grn[+]%clr #{msg}")
   end
@@ -60,7 +63,7 @@ class Output < Rex::Ui::Output
   end
 
   def print_line(msg = '')
-    print(msg + "\n")
+   print(msg + "\n")
   end
 
   def print_warning(msg = '')

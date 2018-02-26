@@ -57,14 +57,14 @@ class Channel
       cid = packet.get_tlv_value(TLV_TYPE_CHANNEL_ID)
 
       # No channel identifier, then drop it
-      if (cid == nil)
+      if cid.nil?
         return false
       end
 
       channel = client.find_channel(cid)
 
       # No valid channel context? The channel may not be registered yet
-      if (channel == nil)
+      if channel.nil?
         return false
       end
 
@@ -72,7 +72,7 @@ class Channel
       dio = channel.dio_map(packet.method)
 
       # Supported DIO request? Dump it.
-      if (dio == nil)
+      if dio.nil?
         return true
       end
 
@@ -98,12 +98,12 @@ class Channel
     request = Packet.create_request('core_channel_open')
 
     # Set the type of channel that we're allocating
-    if (type != nil)
+    if !type.nil?
       request.add_tlv(TLV_TYPE_CHANNEL_TYPE, type)
     end
 
     # If no factory class was provided, use the default native class
-    if (klass == nil)
+    if klass.nil?
       klass = self
     end
 
@@ -112,15 +112,17 @@ class Channel
     request.add_tlvs(addends);
 
     # Transmit the request and wait for the response
-    response = client.send_request(request)
-    cid      = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
-
-    return nil unless cid
+    cid = nil
+    begin
+      response = client.send_request(request)
+      cid = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
+      if cid.nil?
+        raise Rex::Post::Meterpreter::RequestError
+      end
+    end
 
     # Create the channel instance
-    channel  = klass.new(client, cid, type, flags)
-
-    return channel
+    klass.new(client, cid, type, flags)
   end
 
   ##
@@ -169,13 +171,13 @@ class Channel
   # Reads data from the remote half of the channel.
   #
   def _read(length = nil, addends = nil)
-    if (self.cid == nil)
+    if self.cid.nil?
       raise IOError, "Channel has been closed.", caller
     end
 
     request = Packet.create_request('core_channel_read')
 
-    if (length == nil)
+    if length.nil?
       # Default block size to a higher amount for passive dispatcher
       length = self.client.passive_service ? (1024*1024) : 65536
     end
@@ -217,7 +219,7 @@ class Channel
   #
   def _write(buf, length = nil, addends = nil)
 
-    if (self.cid == nil)
+    if self.cid.nil?
       raise IOError, "Channel has been closed.", caller
     end
 
@@ -245,7 +247,14 @@ class Channel
     response = self.client.send_request(request)
     written  = response.get_tlv(TLV_TYPE_LENGTH)
 
-    return (written == nil) ? 0 : written.value
+    written.nil? ? 0 : written.value
+  end
+
+  #
+  # Wrapper around check for self.cid
+  #
+  def closed?
+    self.cid.nil?
   end
 
   #
@@ -273,7 +282,7 @@ class Channel
   # Closes the channel.
   #
   def self._close(client, cid, addends=nil)
-    if (cid == nil)
+    if cid.nil?
       raise IOError, "Channel has been closed.", caller
     end
 
@@ -302,7 +311,7 @@ class Channel
   # Enables or disables interactive mode.
   #
   def interactive(tf = true, addends = nil)
-    if (self.cid == nil)
+    if self.cid.nil?
       raise IOError, "Channel has been closed.", caller
     end
 

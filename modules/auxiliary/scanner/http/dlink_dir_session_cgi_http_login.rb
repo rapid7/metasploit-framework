@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -21,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
           This module attempts to authenticate to different D-Link HTTP management
         services. It has been tested successfully on D-Link DIR-300 Hardware revision B,
         D-Link DIR-600 Hardware revision B, D-Link DIR-815 Hardware revision A and DIR-645
-        Hardware revision A devices.It is possible that this module also works with	other
+        Hardware revision A devices. It is possible that this module also works with other
         models.
       },
       'Author'         =>
@@ -41,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME',  [ false, "Username for authentication (default: admin)","admin" ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
-      ], self.class)
+      ])
 
     deregister_options('HttpUsername', 'HttpPassword')
   end
@@ -163,5 +159,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     return :fail
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
@@ -32,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           OptString.new('SQL', [ false, 'SQL to execute.', "GRANT DBA TO #{datastore['DBUSER']}"]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -71,5 +68,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Done! Removing function '#{name}'...")
     prepare_exec(clean)
   end
-
 end

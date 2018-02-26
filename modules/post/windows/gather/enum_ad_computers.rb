@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex'
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
@@ -53,7 +50,7 @@ class MetasploitModule < Msf::Post
       OptBool.new('STORE_DB', [true, 'Store file in DB (performance hit resolving IPs).', false]),
       OptString.new('FIELDS', [true, 'FIELDS to retrieve.', 'dNSHostName,distinguishedName,description,operatingSystem,operatingSystemServicePack']),
       OptString.new('FILTER', [true, 'Search filter.', '(&(objectCategory=computer)(operatingSystem=*server*))'])
-    ], self.class)
+    ])
   end
 
   def run
@@ -147,9 +144,8 @@ class MetasploitModule < Msf::Post
     print_line results_table.to_s
     if datastore['STORE_LOOT']
       stored_path = store_loot('ad.computers', 'text/plain', session, results_table.to_csv)
-      print_status("Results saved to: #{stored_path}")
+      print_good("Results saved to: #{stored_path}")
     end
   end
-
 end
 

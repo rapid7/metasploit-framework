@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'metasm'
-
 
 class MetasploitModule < Msf::Post
 
@@ -320,7 +317,7 @@ EOS
       print_error("Unable to ResumeThread")
       return
     end
-    print_status("Successfully executed syscall wrapper!")
+    print_good("Successfully executed syscall wrapper!")
 
     # Now, send some input to cause ring0 payload execution...
     print_status("Attempting to cause the ring0 payload to execute...");

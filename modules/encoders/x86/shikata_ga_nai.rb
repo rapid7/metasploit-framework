@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'rex/poly'
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Encoder::XorAdditiveFeedback
 
@@ -314,5 +311,4 @@ protected
   def dec(regnum)
     [0x48 + regnum].pack('C')
   end
-
 end

@@ -1,18 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-##
-#
-# Tip : run "show advanced" for more options
-#
-##
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -53,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TYPES', [ true, "Field types to fuzz","text,password,inputtextbox"]),
         OptString.new('CODE', [ true, "Response code(s) indicating OK", "200,301,302,303" ] ),
         OptBool.new('HANDLECOOKIES', [ true, "Appends cookies with every request.",false])
-      ], self.class )
+      ])
   end
 
   def init_vars

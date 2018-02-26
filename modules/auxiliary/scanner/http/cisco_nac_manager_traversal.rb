@@ -1,30 +1,30 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
-      'Name'        => 'Cisco Network Access Manager Directory Traversal Vulnerability',
-      'Description' => %q{
+      'Name'           => 'Cisco Network Access Manager Directory Traversal Vulnerability',
+      'Description'    => %q{
         This module tests whether a directory traversal vulnerablity is present
         in versions of Cisco Network Access Manager 4.8.x You may wish to change
         FILE (e.g. passwd or hosts), MAXDIRS and RPORT depending on your environment.
         },
-      'References'   =>
+      'References'     =>
         [
           [ 'CVE', '2011-3305' ],
           [ 'OSVDB', '76080']
         ],
-      'Author'      => [ 'Nenad Stojanovski <nenad.stojanovski[at]gmail.com>' ],
-      'License'     => MSF_LICENSE
+      'Author'         => [ 'Nenad Stojanovski <nenad.stojanovski[at]gmail.com>' ],
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => {
+        'SSL'          => true
+      }
     )
 
     register_options(
@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('FILE', [ true, 'The file to traverse for', '/etc/passwd']),
         OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

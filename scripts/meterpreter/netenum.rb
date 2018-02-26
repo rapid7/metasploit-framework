@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -15,13 +15,13 @@
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h"  => [ false, "Help menu." ],
   "-r"  => [ true,  "The target address range or CIDR identifier" ],
-  "-ps" => [ false, "To Perform Ping Sweep on IP Range" ],
-  "-rl" => [ false, "To Perform DNS Reverse Lookup on IP Range" ],
-  "-fl" => [ false, "To Perform DNS Forward Lookup on host list and domain" ],
-  "-hl" => [ true,  "File with Host List for DNS Forward Lookup" ],
+  "-p" => [ false, "To Perform Ping Sweep on IP Range" ],
+  "-l" => [ false, "To Perform DNS Reverse Lookup on IP Range" ],
+  "-f" => [ false, "To Perform DNS Forward Lookup on host list and domain" ],
+  "-H" => [ true,  "File with Host List for DNS Forward Lookup" ],
   "-d"  => [ true,  "Domain Name for DNS Forward Lookup" ],
-  "-st" => [ false, "To Perform DNS lookup of MX and NS records for a domain" ],
-  "-sr" => [ false, "To Perform Service Record DNS lookup for a domain" ]
+  "-x" => [ false, "To Perform DNS lookup of MX and NS records for a domain" ],
+  "-s" => [ false, "To Perform Service Record DNS lookup for a domain" ]
 )
 session = client
 host,port = session.session_host, session.session_port
@@ -285,19 +285,19 @@ srvrc = nil
 # Parsing of Options
 @@exec_opts.parse(args) { |opt, idx, val|
   case opt
-  when "-sr"
+  when "-s"
     srvrc = 1
-  when "-rl"
+  when "-l"
     rvrslkp = 1
-  when "-fl"
+  when "-f"
     frdlkp = 1
-  when "-ps"
+  when "-p"
     pngsp = 1
-  when "-st"
+  when "-x"
     stdlkp = 1
   when "-d"
     dom = val
-  when "-hl"
+  when "-H"
     hostlist = val
   when "-r"
     range = val
@@ -311,7 +311,7 @@ srvrc = nil
   end
 }
 
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if  pngsp == 1
     if range != nil
       message(logs)
@@ -354,9 +354,9 @@ if client.platform =~ /win32|win64/
   else
     print("Network Enumerator Meterpreter Script\n" +
       "Usage:\n" +
-      "\tnetenum -r <value> (-ps | -rl)\n" +
-      "\tnetenum -d <value> (-st | -sr)\n" +
-      "\tnetenum -d <value> -lh <value> -fl\n" +
+      "\tnetenum -r <value> (-p | -l)\n" +
+      "\tnetenum -d <value> (-x | -s)\n" +
+      "\tnetenum -d <value> -H <value> -fl\n" +
       @@exec_opts.usage)
   end
 else

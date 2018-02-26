@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -18,7 +15,7 @@ class MetasploitModule < Msf::Post
         This module will login with the specified username/password and execute the
         supplied command as a hidden process. Output is not returned by default, by setting
         CMDOUT to false output will be redirected to a temp file and read back in to
-        display.By setting advanced option SETPASS to true, it will reset the users
+        display. By setting advanced option SETPASS to true, it will reset the users
         password and then execute the command.
                             ),
       'License'              => MSF_LICENSE,
@@ -34,12 +31,12 @@ class MetasploitModule < Msf::Post
         OptString.new('PASSWORD', [true, 'Password to login with' ]),
         OptString.new('CMD', [true, 'Command to execute' ]),
         OptBool.new('CMDOUT', [true, 'Retrieve command output', false])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('SETPASS', [true, 'Reset password', false])
-      ], self.class)
+      ])
   end
 
   # Check if sufficient privileges are present for certain actions and run getprivs for system

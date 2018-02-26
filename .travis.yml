@@ -1,24 +1,35 @@
+dist: trusty
 sudo: false
 group: stable
 bundler_args: --without coverage development pcap
 cache: bundler
 addons:
-  postgresql: '9.3'
+  postgresql: '9.6'
   apt:
     packages:
       - libpcap-dev
       - graphviz
 language: ruby
 rvm:
-  - '2.3.1'
+  - '2.2'
+  - '2.3.6'
+  - '2.4.3'
 
 env:
-  - RAKE_TASKS="cucumber cucumber:boot" CREATE_BINSTUBS=true
-  - RAKE_TASKS=spec SPEC_OPTS="--tag content"
-  - RAKE_TASKS=spec SPEC_OPTS="--tag ~content"
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
 
 matrix:
   fast_finish: true
+
+jobs:
+  # build docker image
+  include:
+  - env: CMD="docker-compose build" DOCKER="true"
+    # we do not need any setup
+    before_install: skip
+    install: skip
+    before_script: skip
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
@@ -26,14 +37,19 @@ before_install:
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
+  # Update the bundler
+  - gem install bundler
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
-script:
   # fail build if db/schema.rb update is not committed
-  - git diff --exit-code db/schema.rb && bundle exec rake $RAKE_TASKS
+  - git diff --exit-code db/schema.rb
+script:
+  - echo "${CMD}"
+    # we need travis_wait because the Docker build job can take longer than 10 minutes
+  - if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
 
 notifications:
   irc: "irc.freenode.org#msfnotify"
@@ -46,3 +62,6 @@ branches:
   except:
     - gh-pages
     - metakitty
+
+services:
+  - docker

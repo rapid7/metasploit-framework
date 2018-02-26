@@ -68,6 +68,10 @@ class PluginManager < Array
       Kernel.load(path + ".rb")
     end
 
+    # Force unloading if already loaded
+    plugin = self.find { |p| p.class == klass }
+    unload(plugin) if plugin
+
     # Create an instance of the plugin and let it initialize
     instance = klass.create(framework, opts)
 

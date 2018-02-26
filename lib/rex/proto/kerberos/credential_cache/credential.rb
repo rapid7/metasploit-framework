@@ -19,10 +19,10 @@ module Rex
           #   @return [Rex::Proto::Kerberos::CredentialCache::Time]
           attr_accessor :time
           # @!attribute is_skey
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :is_skey
           # @!attribute tkt_flags
-          #   @return [Fixnum]
+          #   @return [Integer]
           attr_accessor :tkt_flags
           # @!attribute addrs
           #   @return [Array]

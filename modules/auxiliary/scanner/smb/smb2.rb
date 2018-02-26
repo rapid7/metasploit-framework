@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -29,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    register_options([ Opt::RPORT(445) ], self.class)
+    register_options([ Opt::RPORT(445) ])
   end
 
   # Fingerprint a single host
@@ -59,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
           ctime = Rex::Proto::SMB::Utils.time_smb_to_unix(*(res[108,8].unpack("VV").reverse))
           btime = Rex::Proto::SMB::Utils.time_smb_to_unix(*(res[116,8].unpack("VV").reverse))
           utime = ctime - btime
-          print_status("#{ip} supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours")
+          print_good("#{ip} supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours")
           # Add Report
           report_note(
             :host	=> ip,
@@ -70,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
             :data	=> "supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours"
           )
         else
-          print_status("#{ip} supports SMB 2.0")
+          print_good("#{ip} supports SMB 2.0")
           # Add Report
           report_note(
             :host	=> ip,
@@ -90,5 +86,4 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
   end
-
 end

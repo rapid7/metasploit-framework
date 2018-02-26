@@ -139,7 +139,7 @@ class Client
   # List a directory
   #
   # @param path [String] Remote path
-  # @param count [Fixnum] Number of entries to list
+  # @param count [Integer] Number of entries to list
   # @return [String] Directory listing
   def fsdirlist(path, count = COUNT_MAX)
     if path !~ /^[0-2]:/

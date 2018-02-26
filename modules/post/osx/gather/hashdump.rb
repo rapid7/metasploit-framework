@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 require 'rexml/document'
 
@@ -167,7 +165,7 @@ class MetasploitModule < Msf::Post
   # reports the hash info to metasploit backend
   def report_hash(type, hash, user)
     return unless hash.present?
-    print_status("#{type}:#{user}:#{hash}")
+    print_good("#{type}:#{user}:#{hash}")
     case type
     when "NT"
       private_data = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{hash}"

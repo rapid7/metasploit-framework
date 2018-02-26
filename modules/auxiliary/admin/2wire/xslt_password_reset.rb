@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info={})
@@ -35,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       register_options(
         [
           OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin'])
-        ], self.class)
+        ])
   end
 
   def run
@@ -133,11 +130,10 @@ class MetasploitModule < Msf::Auxiliary
         cookies = res.get_cookies
         if cookies && cookies.match(/(.*); path=\//)
           cookie= $1
-          print_status("Got cookie #{cookie}. Password reset was successful!\n")
+          print_good("Got cookie #{cookie}. Password reset was successful!\n")
         end
       end
     end
 
   end
-
 end

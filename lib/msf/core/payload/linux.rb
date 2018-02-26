@@ -288,7 +288,7 @@ module Msf::Payload::Linux
                "\x44\xff\xff\x02"      #   sc                                 #
       end
 
-    elsif (test_arch.include?(ARCH_X86_64))
+    elsif (test_arch.include?(ARCH_X64))
 
       if (datastore['PrependFork'])
         # if (fork()) { exit(0); }

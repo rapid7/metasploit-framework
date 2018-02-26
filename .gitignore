@@ -78,10 +78,22 @@ data/java
 
 # Avoid checking in Meterpreter libs that are built from
 # private source. If you're interested in this functionality,
-# check out Metasploit Pro: http://metasploit.com/download
+# check out Metasploit Pro: https://metasploit.com/download
 data/meterpreter/ext_server_pivot.*.dll
 
 # Avoid checking in metakitty, the source for
 # https://rapid7.github.io/metasploit-framework. It's an orphan branch.
 /metakitty
 .vagrant
+
+# local docker compose overrides
+docker-compose.local*
+.env
+
+# Ignore python bytecode
+*.pyc
+rspec.failures
+
+
+#Ignore any base disk store files
+db/modules_metadata_base.pstore

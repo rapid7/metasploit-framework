@@ -19,5 +19,6 @@ BOOL create_anon_mapping(MemMapping* memMap);
 VOID destroy_anon_mapping(MemMapping* memMap);
 VOID invoke_hal_dispatch_pointer();
 BOOL is_driver_loaded(wchar_t* driverName);
+DWORD execute_payload(LPVOID lpPayload);
 
 #endif

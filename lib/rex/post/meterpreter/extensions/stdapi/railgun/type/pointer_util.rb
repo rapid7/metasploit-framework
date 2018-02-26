@@ -71,7 +71,7 @@ module PointerUtil
 #
 #	def self.is_unpacked_pointer?(pointer, platform)
 #		# TODO also check that the integer size is appropriate for the platform
-#		unless pointer.kind_of?(Fixnum) and pointer > 0 # and pointer <
+#		unless pointer.kind_of?(Integer) and pointer > 0 # and pointer <
 #			return false
 #		end
 #

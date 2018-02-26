@@ -137,7 +137,9 @@ module Exe
       # .text:004136C1                 add     eax, 0Ch
       pattern = "\x64\xA1\x30\x00\x00\x00\x2B\xCA\xD1\xF9\x8B\x40\x0C\x83\xC0\x0C"
       section = pe.sections.find { |s| s.name.to_s == '.text' }
-      if section && section.encoded.pattern_scan(pattern).blank?
+      if section.nil?
+        return false
+      elsif section && section.encoded.pattern_scan(pattern).blank?
         return false
       end
 

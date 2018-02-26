@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+require 'openssl'
 
 module Rex
 module Post
@@ -80,12 +81,14 @@ TLV_TYPE_EXCEPTION_STRING    = TLV_META_TYPE_STRING | 301
 TLV_TYPE_LIBRARY_PATH        = TLV_META_TYPE_STRING | 400
 TLV_TYPE_TARGET_PATH         = TLV_META_TYPE_STRING | 401
 TLV_TYPE_MIGRATE_PID         = TLV_META_TYPE_UINT   | 402
-TLV_TYPE_MIGRATE_LEN         = TLV_META_TYPE_UINT   | 403
+TLV_TYPE_MIGRATE_PAYLOAD_LEN = TLV_META_TYPE_UINT   | 403
 TLV_TYPE_MIGRATE_PAYLOAD     = TLV_META_TYPE_STRING | 404
 TLV_TYPE_MIGRATE_ARCH        = TLV_META_TYPE_UINT   | 405
 TLV_TYPE_MIGRATE_BASE_ADDR   = TLV_META_TYPE_UINT   | 407
 TLV_TYPE_MIGRATE_ENTRY_POINT = TLV_META_TYPE_UINT   | 408
 TLV_TYPE_MIGRATE_SOCKET_PATH = TLV_META_TYPE_STRING | 409
+TLV_TYPE_MIGRATE_STUB_LEN    = TLV_META_TYPE_UINT   | 410
+TLV_TYPE_MIGRATE_STUB        = TLV_META_TYPE_STRING | 411
 
 
 TLV_TYPE_TRANS_TYPE          = TLV_META_TYPE_UINT   | 430
@@ -99,13 +102,26 @@ TLV_TYPE_TRANS_PROXY_USER    = TLV_META_TYPE_STRING | 437
 TLV_TYPE_TRANS_PROXY_PASS    = TLV_META_TYPE_STRING | 438
 TLV_TYPE_TRANS_RETRY_TOTAL   = TLV_META_TYPE_UINT   | 439
 TLV_TYPE_TRANS_RETRY_WAIT    = TLV_META_TYPE_UINT   | 440
-TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 441
+TLV_TYPE_TRANS_HEADERS       = TLV_META_TYPE_STRING | 441
+TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 442
 
 TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
 TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
+TLV_TYPE_SESSION_GUID        = TLV_META_TYPE_RAW    | 462
 
-TLV_TYPE_CIPHER_NAME         = TLV_META_TYPE_STRING | 500
-TLV_TYPE_CIPHER_PARAMETERS   = TLV_META_TYPE_GROUP  | 501
+TLV_TYPE_RSA_PUB_KEY         = TLV_META_TYPE_STRING | 550
+TLV_TYPE_SYM_KEY_TYPE        = TLV_META_TYPE_UINT   | 551
+TLV_TYPE_SYM_KEY             = TLV_META_TYPE_RAW    | 552
+TLV_TYPE_ENC_SYM_KEY         = TLV_META_TYPE_RAW    | 553
+
+#
+# Pivots
+#
+TLV_TYPE_PIVOT_ID              = TLV_META_TYPE_RAW    |  650
+TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  651
+TLV_TYPE_PIVOT_STAGE_DATA_SIZE = TLV_META_TYPE_UINT   |  652
+TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  653
+
 
 #
 # Core flags
@@ -114,6 +130,12 @@ LOAD_LIBRARY_FLAG_ON_DISK   = (1 << 0)
 LOAD_LIBRARY_FLAG_EXTENSION = (1 << 1)
 LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 
+#
+# Sane defaults
+#
+GUID_SIZE = 16
+NULL_GUID = "\x00" * GUID_SIZE
+
 ###
 #
 # Base TLV (Type-Length-Value) class
@@ -121,6 +143,8 @@ LOAD_LIBRARY_FLAG_LOCAL     = (1 << 2)
 ###
 class Tlv
   attr_accessor :type, :value, :compress
+
+  HEADER_SIZE = 8
 
   ##
   #
@@ -137,7 +161,7 @@ class Tlv
 
     if (value != nil)
       if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
-        if (value.kind_of?(Fixnum))
+        if (value.kind_of?(Integer))
           @value = value.to_s
         else
           @value = value.dup
@@ -193,9 +217,14 @@ class Tlv
       when TLV_TYPE_LIBRARY_PATH; "LIBRARY-PATH"
       when TLV_TYPE_TARGET_PATH; "TARGET-PATH"
       when TLV_TYPE_MIGRATE_PID; "MIGRATE-PID"
-      when TLV_TYPE_MIGRATE_LEN; "MIGRATE-LEN"
+      when TLV_TYPE_MIGRATE_PAYLOAD_LEN; "MIGRATE-PAYLOAD-LEN"
       when TLV_TYPE_MIGRATE_PAYLOAD; "MIGRATE-PAYLOAD"
       when TLV_TYPE_MIGRATE_ARCH; "MIGRATE-ARCH"
+      when TLV_TYPE_MIGRATE_BASE_ADDR; "MIGRATE-BASE-ADDR"
+      when TLV_TYPE_MIGRATE_ENTRY_POINT; "MIGRATE-ENTRY-POINT"
+      when TLV_TYPE_MIGRATE_STUB_LEN; "MIGRATE-STUB-LEN"
+      when TLV_TYPE_MIGRATE_STUB; "MIGRATE-STUB"
+      when TLV_TYPE_MIGRATE_SOCKET_PATH; "MIGRATE-SOCKET-PATH"
       when TLV_TYPE_TRANS_TYPE; "TRANS-TYPE"
       when TLV_TYPE_TRANS_URL; "TRANS-URL"
       when TLV_TYPE_TRANS_COMM_TIMEOUT; "TRANS-COMM-TIMEOUT"
@@ -208,6 +237,16 @@ class Tlv
       when TLV_TYPE_TRANS_RETRY_WAIT; "TRANS-RETRY-WAIT"
       when TLV_TYPE_MACHINE_ID; "MACHINE-ID"
       when TLV_TYPE_UUID; "UUID"
+      when TLV_TYPE_SESSION_GUID; "SESSION-GUID"
+      when TLV_TYPE_RSA_PUB_KEY; "RSA-PUB-KEY"
+      when TLV_TYPE_SYM_KEY_TYPE; "SYM-KEY-TYPE"
+      when TLV_TYPE_SYM_KEY; "SYM-KEY"
+      when TLV_TYPE_ENC_SYM_KEY; "ENC-SYM-KEY"
+
+      when TLV_TYPE_PIVOT_ID; "PIVOT-ID"
+      when TLV_TYPE_PIVOT_STAGE_DATA; "PIVOT-STAGE-DATA"
+      when TLV_TYPE_PIVOT_STAGE_DATA_SIZE; "PIVOT-STAGE-DATA-SIZE"
+      when TLV_TYPE_PIVOT_NAMED_PIPE_NAME; "PIVOT-NAMED-PIPE-NAME"
 
       #when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
       #when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
@@ -293,7 +332,7 @@ class Tlv
     end
 
     # check if the tlv is to be compressed...
-    if( @compress )
+    if @compress
       raw_uncompressed = raw
       # compress the raw data
       raw_compressed = Rex::Text.zlib_deflate( raw_uncompressed )
@@ -309,7 +348,7 @@ class Tlv
       end
     end
 
-    return [raw.length + 8, self.type].pack("NN") + raw
+    [raw.length + HEADER_SIZE, self.type].pack("NN") + raw
   end
 
   #
@@ -328,16 +367,16 @@ class Tlv
       # tlv type to its origional, allowing for transparent data compression.
       self.type = self.type ^ TLV_META_TYPE_COMPRESSED
       # decompress the compressed data (skipping the length and type DWORD's)
-      raw_decompressed = Rex::Text.zlib_inflate( raw[8..length-1] )
-      # update the length to reflect the decompressed data length (+8 for the length and type DWORD's)
-      length = raw_decompressed.length + 8
+      raw_decompressed = Rex::Text.zlib_inflate( raw[HEADER_SIZE..length-1] )
+      # update the length to reflect the decompressed data length (+HEADER_SIZE for the length and type DWORD's)
+      length = raw_decompressed.length + HEADER_SIZE
       # update the raw buffer with the new length, decompressed data and updated type.
       raw = [length, self.type].pack("NN") + raw_decompressed
     end
 
     if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
       if (raw.length > 0)
-        self.value = raw[8..length-2]
+        self.value = raw[HEADER_SIZE..length-2]
       else
         self.value = nil
       end
@@ -355,23 +394,24 @@ class Tlv
         self.value = false
       end
     else
-      self.value = raw[8..length-1]
+      self.value = raw[HEADER_SIZE..length-1]
     end
 
-    return length;
+    length
   end
 
   protected
 
-  def htonq( value )
-    if( [1].pack( 's' ) == [1].pack( 'n' ) )
+  def htonq(value)
+    if [1].pack( 's' ) == [1].pack('n')
       return value
+    else
+      [value].pack('Q<').reverse.unpack('Q<').first
     end
-    return [ value ].pack( 'Q<' ).reverse.unpack( 'Q<' ).first
   end
 
-  def ntohq( value )
-    return htonq( value )
+  def ntohq(value)
+    htonq(value)
   end
 
 end
@@ -397,7 +437,7 @@ class GroupTlv < Tlv
   def initialize(type)
     super(type)
 
-    self.tlvs = [ ]
+    self.tlvs = []
   end
 
   ##
@@ -438,8 +478,8 @@ class GroupTlv < Tlv
   # Returns an array of TLVs for the given type.
   #
   def get_tlvs(type)
-    if (type == TLV_TYPE_ANY)
-      return self.tlvs
+    if type == TLV_TYPE_ANY
+      self.tlvs
     else
       type_tlvs = []
 
@@ -449,7 +489,7 @@ class GroupTlv < Tlv
         end
       }
 
-      return type_tlvs
+      type_tlvs
     end
   end
 
@@ -465,7 +505,7 @@ class GroupTlv < Tlv
   def add_tlv(type, value = nil, replace = false, compress=false)
 
     # If we should replace any TLVs with the same type...remove them first
-    if (replace)
+    if replace
       each(type) { |tlv|
         if (tlv.type == type)
           self.tlvs.delete(tlv)
@@ -481,14 +521,14 @@ class GroupTlv < Tlv
 
     self.tlvs << tlv
 
-    return tlv
+    tlv
   end
 
   #
   # Adds zero or more TLVs to the packet.
   #
   def add_tlvs(tlvs)
-    if (tlvs != nil)
+    if tlvs
       tlvs.each { |tlv|
         add_tlv(tlv['type'], tlv['value'])
       }
@@ -501,11 +541,12 @@ class GroupTlv < Tlv
   def get_tlv(type, index = 0)
     type_tlvs = get_tlvs(type)
 
-    if (type_tlvs.length > index)
-      return type_tlvs[index]
+    if type_tlvs.length > index
+      type_tlvs[index]
+    else
+      nil
     end
 
-    return nil
   end
 
   #
@@ -514,7 +555,7 @@ class GroupTlv < Tlv
   def get_tlv_value(type, index = 0)
     tlv = get_tlv(type, index)
 
-    return (tlv != nil) ? tlv.value : nil
+    (tlv != nil) ? tlv.value : nil
   end
 
   #
@@ -528,7 +569,7 @@ class GroupTlv < Tlv
   # Checks to see if the container has a TLV of a given type.
   #
   def has_tlv?(type)
-    return get_tlv(type) != nil
+    get_tlv(type) != nil
   end
 
   #
@@ -555,7 +596,7 @@ class GroupTlv < Tlv
       raw << tlv.to_r
     }
 
-    return [raw.length + 8, self.type].pack("NN") + raw
+    [raw.length + HEADER_SIZE, self.type].pack("NN") + raw
   end
 
   #
@@ -563,19 +604,19 @@ class GroupTlv < Tlv
   # TLVs.
   #
   def from_r(raw)
-    offset = 8
+    offset = HEADER_SIZE
 
     # Reset the TLVs array
     self.tlvs = []
     self.type = raw.unpack("NN")[1]
 
     # Enumerate all of the TLVs
-    while (offset < raw.length-1)
+    while offset < raw.length-1
 
       tlv = nil
 
       # Get the length and type
-      length, type = raw[offset..offset+8].unpack("NN")
+      length, type = raw[offset..offset+HEADER_SIZE].unpack("NN")
 
       if (type & TLV_META_TYPE_GROUP == TLV_META_TYPE_GROUP)
         tlv = GroupTlv.new(type)
@@ -602,6 +643,49 @@ end
 ###
 class Packet < GroupTlv
   attr_accessor :created_at
+  attr_accessor :raw
+  attr_accessor :session_guid
+  attr_accessor :encrypt_flags
+  attr_accessor :length
+
+  ##
+  #
+  # The Packet container itself has a custom header that is slightly different to the
+  # typical TLV packets. The header contains the following:
+  #
+  # XOR KEY        - 4 bytes
+  # Session GUID   - 16 bytes
+  # Encrypt flags  - 4 bytes
+  # Packet length  - 4 bytes
+  # Packet type    - 4 bytes
+  # Packet data    - X bytes
+  #
+  # If the encrypt flags are zero, then the Packet data is just straight TLV values as
+  # per the normal TLV packet structure.
+  #
+  # If the encrypt flags are non-zer, then the Packet data is encrypted based on the scheme.
+  #
+  # Flag == 1 (AES256)
+  #    IV             - 16 bytes
+  #    Encrypted data - X bytes
+  #
+  # The key that is required to decrypt the data is stored alongside the session data,
+  # and hence when the packet is initially parsed, only the header is accessed. The
+  # packet itself will need to be decrypted on the fly at the point that it is required
+  # and at that point the decryption key needs to be provided.
+  #
+  ###
+
+  XOR_KEY_SIZE = 4
+  ENCRYPTED_FLAGS_SIZE = 4
+  PACKET_LENGTH_SIZE = 4
+  PACKET_TYPE_SIZE = 4
+  PACKET_HEADER_SIZE = XOR_KEY_SIZE + GUID_SIZE + ENCRYPTED_FLAGS_SIZE + PACKET_LENGTH_SIZE + PACKET_TYPE_SIZE
+
+  AES_IV_SIZE = 16
+
+  ENC_FLAG_NONE   = 0x0
+  ENC_FLAG_AES256 = 0x1
 
   ##
   #
@@ -613,7 +697,7 @@ class Packet < GroupTlv
   # Creates a request with the supplied method.
   #
   def Packet.create_request(method = nil)
-    return Packet.new(PACKET_TYPE_REQUEST, method)
+    Packet.new(PACKET_TYPE_REQUEST, method)
   end
 
   #
@@ -622,6 +706,7 @@ class Packet < GroupTlv
   def Packet.create_response(request = nil)
     response_type = PACKET_TYPE_RESPONSE
     method = nil
+    id = nil
 
     if (request)
       if (request.type?(PACKET_TYPE_PLAIN_REQUEST))
@@ -629,9 +714,19 @@ class Packet < GroupTlv
       end
 
       method = request.method
+
+      if request.has_tlv?(TLV_TYPE_REQUEST_ID)
+        id = request.get_tlv_value(TLV_TYPE_REQUEST_ID)
+      end
     end
 
-    return Packet.new(response_type, method)
+    packet = Packet.new(response_type, method)
+
+    if id
+      packet.add_tlv(TLV_TYPE_REQUEST_ID, id)
+    end
+
+    packet
   end
 
   ##
@@ -648,11 +743,12 @@ class Packet < GroupTlv
   def initialize(type = nil, method = nil)
     super(type)
 
-    if (method)
+    if method
       self.method = method
     end
 
     self.created_at = ::Time.now
+    self.raw = ''
 
     # If it's a request, generate a random request identifier
     if ((type == PACKET_TYPE_REQUEST) ||
@@ -665,20 +761,99 @@ class Packet < GroupTlv
     end
   end
 
+  def add_raw(bytes)
+    self.raw << bytes
+  end
+
+  def raw_bytes_required
+    # if we have the xor bytes and length ...
+    if self.raw.length >= PACKET_HEADER_SIZE
+      # return a value based on the length of the data indicated by
+      # the header
+      xor_key = self.raw.unpack('a4')[0]
+      decoded_bytes = xor_bytes(xor_key, raw[0, PACKET_HEADER_SIZE])
+      _, _, _, length, _ = decoded_bytes.unpack('a4a16NNN')
+      length + PACKET_HEADER_SIZE - HEADER_SIZE - self.raw.length
+    else
+      # Otherwise ask for the remaining bytes for the metadata to get the packet length
+      # So we can do the rest of the calculation next time
+      PACKET_HEADER_SIZE - self.raw.length
+    end
+  end
+
+  def aes_encrypt(key, data)
+    # Create the required cipher instance
+    aes = OpenSSL::Cipher.new('AES-256-CBC')
+    # Generate a truly random IV
+    iv = aes.random_iv
+
+    # set up the encryption
+    aes.encrypt
+    aes.key = key
+    aes.iv = iv
+
+    # encrypt and return the IV along with the result
+    return iv, aes.update(data) + aes.final
+  end
+
+  def aes_decrypt(key, iv, data)
+    # Create the required cipher instance
+    aes = OpenSSL::Cipher.new('AES-256-CBC')
+    # Generate a truly random IV
+
+    # set up the encryption
+    aes.decrypt
+    aes.key = key
+    aes.iv = iv
+
+    # decrypt!
+    aes.update(data) + aes.final
+  end
+
   #
   # Override the function that creates the raw byte stream for
   # sending so that it generates an XOR key, uses it to scramble
   # the serialized TLV content, and then returns the key plus the
   # scrambled data as the payload.
   #
-  def to_r
-    raw = super
-    xor_key = rand(254) + 1
-    xor_key |= (rand(254) + 1) << 8
-    xor_key |= (rand(254) + 1) << 16
-    xor_key |= (rand(254) + 1) << 24
-    result = [xor_key].pack('N') + xor_bytes(xor_key, raw)
-    result
+  def to_r(session_guid = nil, key = nil)
+    xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
+
+    raw = (session_guid || NULL_GUID).dup
+    tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
+
+    if key && key[:key] && key[:type] == ENC_FLAG_AES256
+      # encrypt the data, but not include the length and type
+      iv, ciphertext = aes_encrypt(key[:key], tlv_data[HEADER_SIZE..-1])
+      # now manually add the length/type/iv/ciphertext
+      raw << [ENC_FLAG_AES256, iv.length + ciphertext.length + HEADER_SIZE, self.type, iv, ciphertext].pack('NNNA*A*')
+    else
+      raw << [ENC_FLAG_NONE, tlv_data].pack('NA*')
+    end
+
+    # return the xor'd result with the key
+    xor_key + xor_bytes(xor_key, raw)
+  end
+
+  #
+  # Decrypt the packet based on the content of the encryption flags.
+  #
+  def decrypt_packet(key, encrypt_flags, data)
+    # TODO: throw an error if the expected encryption isn't the same as the given
+    #       as this could be an indication of hijacking or side-channel packet addition
+    #       as highlighted by Justin Steven on github.
+    if key && key[:key] && key[:type] && encrypt_flags == ENC_FLAG_AES256 && encrypt_flags == key[:type]
+      iv = data[0, AES_IV_SIZE]
+      aes_decrypt(key[:key], iv, data[iv.length..-1])
+    else
+      data
+    end
+  end
+
+  def parse_header!
+    xor_key = self.raw.unpack('a4')[0]
+    data = xor_bytes(xor_key, self.raw[0..PACKET_HEADER_SIZE])
+    _, self.session_guid, self.encrypt_flags, self.length, self.type = data.unpack('a4a16NNN')
   end
 
   #
@@ -687,18 +862,24 @@ class Packet < GroupTlv
   # passing it on to the default functionality that can parse
   # the TLV values.
   #
-  def from_r(bytes)
-    xor_key = bytes[0,4].unpack('N')[0]
-    super(xor_bytes(xor_key, bytes[4, bytes.length]))
+  def from_r(key=nil)
+    self.parse_header!
+    xor_key = self.raw.unpack('a4')[0]
+    data = xor_bytes(xor_key, self.raw[PACKET_HEADER_SIZE..-1])
+    raw = decrypt_packet(key, self.encrypt_flags, data)
+    super([self.length, self.type, raw].pack('NNA*'))
   end
 
   #
-  # Xor a set of bytes with a given DWORD xor key.
+  # Xor a set of bytes with a given XOR key.
   #
   def xor_bytes(xor_key, bytes)
+    xor_key = xor_key.bytes
     result = ''
-    bytes.bytes.zip([xor_key].pack('V').bytes.cycle).each do |b|
-      result << (b[0].ord ^ b[1].ord).chr
+    i = 0
+    bytes.each_byte do |b|
+      result << (b ^ xor_key[i % xor_key.length]).chr
+      i += 1
     end
     result
   end

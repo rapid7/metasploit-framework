@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -11,8 +11,6 @@
 #        x64: Windows 8.1
 #
 ###
-
-require 'msf/core'
 
 module MetasploitModule
 
@@ -54,7 +52,7 @@ module MetasploitModule
     register_options(
       [
         OptString.new('VOLUMELABEL', [ false, "Set the volume label", "PwNeD" ])
-      ], self.class)
+      ])
   end
 
   def generate

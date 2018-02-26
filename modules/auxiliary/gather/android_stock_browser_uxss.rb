@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -23,8 +20,8 @@ class MetasploitModule < Msf::Auxiliary
         which will cause a popup window to be used. This requires a click from the user
         and is much less stealthy, but is generally harmless-looking.
 
-        By supplying a CUSTOM_JS paramter and ensuring CLOSE_POPUP is set to false, this
-        module also allows running aribrary javascript in the context of the targeted URL.
+        By supplying a CUSTOM_JS parameter and ensuring CLOSE_POPUP is set to false, this
+        module also allows running aribtrary javascript in the context of the targeted URL.
         Some sample UXSS scripts are provided in data/exploits/uxss.
       },
       'Author'         => [
@@ -72,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
         "When BYPASS_XFO is enabled, this closes the popup window after exfiltration.",
         true
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)
@@ -236,5 +233,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     exploit
   end
-
 end

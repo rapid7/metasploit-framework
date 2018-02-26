@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
@@ -61,7 +60,7 @@ class MetasploitModule < Msf::Post
         protocol = $2.to_i
         username = $3
       else
-        print_status("Regex failed...")
+        print_error("Regex failed...")
         return
       end
 
@@ -91,11 +90,11 @@ class MetasploitModule < Msf::Post
           'meebo_user_creds.csv',
           'Meebo Notifier User Credentials'
         )
-        print_status("Meebo Notifier user credentials saved in: #{path}")
+        print_good("Meebo Notifier user credentials saved in: #{path}")
       end
 
     rescue ::Exception => e
-      print_error("An error has occured: #{e.to_s}")
+      print_error("An error has occurred: #{e.to_s}")
     end
   end
 

@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -27,12 +27,17 @@ require 'zlib'
 #
 # Filter out sessions that this definitely won't work on.
 #
-if session.platform !~ /win32|win64|java/
+unless [ARCH_X64, ARCH_X86, ARCH_JAVA].include(session.arch)
+  print_error("#{session.arch} is not supported.")
+  raise Rex::Script::Completed
+end
+
+unless session.platform == 'windows'
   print_error("#{session.platform} is not supported.")
   raise Rex::Script::Completed
 end
 
-if session.sys.config.sysinfo["Architecture"] =~ /wow64/i
+if session.sys.config.sysinfo["Architecture"] == ARCH_X64 && session.arch == ARCH_X86
   #
   # WOW64 Filesystem Redirection prevents us opening the file directly. To make matters
   # worse, meterpreter/railgun creates things in a new thread, making it much more

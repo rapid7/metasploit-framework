@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 module MetasploitModule
 
@@ -23,7 +21,7 @@ module MetasploitModule
       'License'       => BSD_LICENSE,
       'References'    => ['URL', 'https://github.com/geyslan/SLAE/blob/master/improvements/shell_bind_tcp_random_port_x86_64.asm'],
       'Platform'      => 'linux',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Payload'       =>
         {
           'Payload' =>
@@ -60,5 +58,4 @@ module MetasploitModule
         }
       ))
   end
-
 end

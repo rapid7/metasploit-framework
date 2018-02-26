@@ -73,7 +73,7 @@ module Msf::DBManager::Host
   # address
   #
   def normalize_host(host)
-    return host if defined?(::Mdm) and host.kind_of? ::Mdm::Host
+    return host if defined?(::Mdm) && host.kind_of?(::Mdm::Host)
     norm_host = nil
 
     if (host.kind_of? String)
@@ -92,7 +92,7 @@ module Msf::DBManager::Host
       else
         norm_host = Rex::Socket.getaddress(host, true)
       end
-    elsif defined?(::Mdm) and host.kind_of? ::Mdm::Session
+    elsif defined?(::Mdm) && host.kind_of?(::Mdm::Session)
       norm_host = host.host
     elsif host.respond_to?(:session_host)
       # Then it's an Msf::Session object
@@ -103,21 +103,30 @@ module Msf::DBManager::Host
     # Msf::Session object with an empty or nil tunnel_host and tunnel_peer;
     # see if it has a socket and use its peerhost if so.
     if (
-        norm_host.nil? and
-        host.respond_to?(:sock) and
-        host.sock.respond_to?(:peerhost) and
+        norm_host.nil? &&
+        host.respond_to?(:sock) &&
+        host.sock.respond_to?(:peerhost) &&
         host.sock.peerhost.to_s.length > 0
       )
       norm_host = session.sock.peerhost
     end
     # If We got here and still don't have a real host, there's nothing left
     # to try, just log it and return what we were given
-    if not norm_host
+    if !norm_host
       dlog("Host could not be normalized: #{host.inspect}")
       norm_host = host
     end
 
     norm_host
+  end
+
+  def host_state_changed(host, ostate)
+    begin
+      framework.events.on_db_host_state(host, ostate)
+    rescue ::Exception => e
+      wlog("Exception in on_db_host_state event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
   end
 
   #
@@ -135,11 +144,11 @@ module Msf::DBManager::Host
   # +:arch+::         -- one of the ARCH_* constants
   # +:mac+::          -- the host's MAC address
   # +:scope+::        -- interface identifier for link-local IPv6
-  # +:virtual_host+:: -- the name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
+  # +:virtual_host+:: -- the name of the virtualization software, eg "VMWare", "QEMU", "Xen", "Docker", etc.
   #
   def report_host(opts)
 
-    return if not active
+    return if !active
     addr = opts.delete(:host) || return
 
     # Sometimes a host setup through a pivot will see the address as "Remote Pipe"
@@ -155,7 +164,7 @@ module Msf::DBManager::Host
 
     ret = { }
 
-    if not addr.kind_of? ::Mdm::Host
+    if !addr.kind_of? ::Mdm::Host
       addr = normalize_host(addr)
 
       unless ipv46_validator(addr)
@@ -171,6 +180,8 @@ module Msf::DBManager::Host
       host = addr
     end
 
+    ostate = host.state
+
     # Truncate the info field at the maximum field length
     if opts[:info]
       opts[:info] = opts[:info][0,65535]
@@ -181,21 +192,40 @@ module Msf::DBManager::Host
       opts[:name] = opts[:name][0,255]
     end
 
-    opts.each { |k,v|
+    if opts[:os_name]
+      os_name, os_flavor = split_windows_os_name(opts[:os_name])
+      opts[:os_name] = os_name if os_name.present?
+      if opts[:os_flavor].present?
+        opts[:os_flavor] = os_flavor + opts[:os_flavor]
+      else
+        opts[:os_flavor] = os_flavor
+      end
+    end
+
+    opts.each do |k,v|
       if (host.attribute_names.include?(k.to_s))
         unless host.attribute_locked?(k.to_s)
           host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
         end
-      else
+      elsif !v.blank?
         dlog("Unknown attribute for ::Mdm::Host: #{k}")
       end
-    }
+    end
     host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
     # Set default fields if needed
-    host.state       = Msf::HostState::Alive if not host.state
-    host.comm        = ''        if not host.comm
-    host.workspace   = wspace    if not host.workspace
+    host.state       = Msf::HostState::Alive if !host.state
+    host.comm        = ''        if !host.comm
+    host.workspace   = wspace    if !host.workspace
+
+    begin
+      framework.events.on_db_host(host) if host.new_record?
+    rescue ::Exception => e
+      wlog("Exception in on_db_host event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
+    host_state_changed(host, ostate) if host.state != ostate
 
     if host.changed?
       msf_import_timestamps(opts,host)
@@ -211,6 +241,13 @@ module Msf::DBManager::Host
 
     host
   }
+  end
+
+  def split_windows_os_name(os_name)
+    return [] if os_name.nil?
+    flavor_match = os_name.match(/Windows\s+(.*)/)
+    return [] if flavor_match.nil?
+    ["Windows", flavor_match.captures.first]
   end
 
   #
@@ -229,7 +266,7 @@ module Msf::DBManager::Host
   #
   def update_host_via_sysinfo(opts)
 
-    return if not active
+    return if !active
     addr = opts.delete(:host) || return
     info = opts.delete(:info) || return
 
@@ -244,7 +281,7 @@ module Msf::DBManager::Host
       wspace = find_workspace(wspace)
     end
 
-    if not addr.kind_of? ::Mdm::Host
+    if !addr.kind_of? ::Mdm::Host
       addr = normalize_host(addr)
       addr, scope = addr.split('%', 2)
       opts[:scope] = scope if scope
@@ -262,6 +299,8 @@ module Msf::DBManager::Host
       host = addr
     end
 
+    ostate = host.state
+
     res = {}
 
     if info['Computer']
@@ -273,7 +312,8 @@ module Msf::DBManager::Host
     end
 
     if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
-      res[:os_name]   = "Windows #{$1.strip}"
+      res[:os_name]   = "Windows"
+      res[:os_flavor] = $1.strip
       build = $2.strip
 
       if build =~ /Service Pack (\d+)/
@@ -299,25 +339,23 @@ module Msf::DBManager::Host
       res[:name] = res[:name][0,255]
     end
 
-    res.each { |k,v|
-
+    res.each do |k,v|
       if (host.attribute_names.include?(k.to_s))
         unless host.attribute_locked?(k.to_s)
           host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
         end
-      else
+      elsif !v.blank?
         dlog("Unknown attribute for Host: #{k}")
       end
-    }
+    end
 
     # Set default fields if needed
-    host.state       = Msf::HostState::Alive if not host.state
-    host.comm        = ''        if not host.comm
-    host.workspace   = wspace    if not host.workspace
+    host.state       = Msf::HostState::Alive if !host.state
+    host.comm        = ''        if !host.comm
+    host.workspace   = wspace    if !host.workspace
 
-    if host.changed?
-      host.save!
-    end
+    host.save! if host.changed?
+    host_state_changed(host, ostate) if host.state != ostate
 
     host
   }

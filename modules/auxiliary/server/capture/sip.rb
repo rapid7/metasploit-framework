@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/socket'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
 
   def initialize
@@ -32,12 +30,12 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('NONCE', [ true, "The server byte nonce", "1234" ]),
         OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
         OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
-      ], self.class)
+      ])
     register_advanced_options(
       [
         OptString.new("SRVVERSION", [ true, "The server version to report in the greeting response", "ser (3.3.0-pre1 (i386/linux))" ]),
         OptString.new('REALM', [false, "The SIP realm to which clients authenticate", nil ]),
-      ], self.class)
+      ])
   end
 
   def sip_parse_authorization(data)
@@ -165,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
             algorithm= ( auth_tokens['algorithm'] ? auth_tokens['algorithm'] : "MD5" )
             username = auth_tokens['username']
             proof = "client: #{client_ip}; username: #{username}; nonce: #{datastore['NONCE']}; response: #{response}; algorithm: #{algorithm}"
-            print_status("SIP LOGIN: #{proof}")
+            print_good("SIP LOGIN: #{proof}")
 
             report_cred(
               ip: @requestor[:ip],

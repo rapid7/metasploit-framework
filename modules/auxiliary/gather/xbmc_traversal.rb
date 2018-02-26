@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('DEPTH', [true, 'The max traversal depth', 9]),
         OptString.new('HttpUsername', [true, 'The username to use for the HTTP server', 'xbmc']),
         OptString.new('HttpPassword', [false, 'The password to use for the HTTP server', 'xbmc']),
-      ], self.class)
+      ])
   end
 
   def run

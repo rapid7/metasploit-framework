@@ -7,7 +7,7 @@ module Msf
 
 ###
 #
-# Basic send_uuid stub for Windows ARCH_X86_64 payloads
+# Basic send_uuid stub for Windows ARCH_X64 payloads
 #
 ###
 

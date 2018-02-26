@@ -35,7 +35,7 @@ module Msf::DBManager::IPAddress
       else
         raise ArgumentError, "Invalid IP address: #{ip.inspect}"
       end
-    when Fixnum
+    when Integer
       if (0..2**32-1).include? ip
         ip_x = Rex::Socket.addr_itoa(ip)
         ip_i = ip

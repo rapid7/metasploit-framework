@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'rex/proto/http'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", "ironport"])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -60,10 +58,13 @@ class MetasploitModule < Msf::Auxiliary
         'uri'       => '/',
         'method'    => 'GET'
       })
-      print_good("#{rhost}:#{rport} - Server is responsive...")
+      if res
+        print_good("#{rhost}:#{rport} - Server is responsive...")
+        return true
+      end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-      return
     end
+    false
   end
 
   #
@@ -114,31 +115,8 @@ class MetasploitModule < Msf::Auxiliary
       end
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: 'Cisco IronPort Appliance',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      last_attempted_at: DateTime.now,
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
+  def service_details
+    super.merge({service_name: 'Cisco IronPort Appliance'})
   end
 
   #
@@ -165,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
       if res and res.get_cookies.include?('authenticated=')
         print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
 
-        report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.get_cookies.inspect)
+        store_valid_credential(user: user, private: pass, proof: res.get_cookies.inspect)
         return :next_user
 
       else

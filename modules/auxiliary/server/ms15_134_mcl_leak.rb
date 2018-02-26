@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'cgi'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
@@ -44,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FILENAME', [true, 'The MCL file', 'msf.mcl']),
         OptPath.new('FILES',      [true, 'Files you wish to download', ::File.join(Msf::Config.data_directory, 'wordlists', 'sensitive_files_win.txt')])
-      ], self.class)
+      ])
   end
 
   def receiver_page
@@ -170,5 +168,4 @@ for (var i=0; i < files.length; i++) {
     vprint_status("File collected: #{file[:fname]}\n\n#{Rex::Text.to_hex_dump(file[:data])}")
 
   end
-
 end

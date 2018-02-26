@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Services
@@ -51,7 +50,7 @@ class MetasploitModule < Msf::Post
         OptEnum.new('START_TYPE',    [true,  'Start type.', 'auto', [ 'boot', 'system', 'auto', 'demand','disabled']]),
         OptEnum.new('SERVICE_TYPE',  [true,  'Service type.', 'kernel', [ 'kernel', 'file_system', 'adapter', 'recognizer']]),
         OptEnum.new('ERROR_TYPE',    [true,  'Error type.', 'ignore', [ 'ignore', 'normal', 'severe', 'critical']])
-      ], self.class)
+      ])
   end
 
   def run

@@ -1,15 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'metasm'
 
-
 class MetasploitModule < Msf::Encoder::Xor
-
   Rank = NormalRanking
 
   def initialize
@@ -142,5 +138,4 @@ EOS
     stub[-1, state.decoder_key_size] = [ real_key.to_i ].pack(state.decoder_key_pack)
     return stub
   end
-
 end

@@ -46,11 +46,11 @@ module Metasploit
         attr_accessor :evade_uri_full_url
 
         # @!attribute evade_pad_method_uri_count
-        #   @return [Fixnum] How many whitespace characters to use between the method and uri
+        #   @return [Integer] How many whitespace characters to use between the method and uri
         attr_accessor :evade_pad_method_uri_count
 
         # @!attribute evade_pad_uri_version_count
-        #   @return [Fixnum] How many whitespace characters to use between the uri and version
+        #   @return [Integer] How many whitespace characters to use between the uri and version
         attr_accessor :evade_pad_uri_version_count
 
         # @!attribute evade_pad_method_uri_type
@@ -98,7 +98,7 @@ module Metasploit
         attr_accessor :evade_pad_fake_headers
 
         # @!attribute evade_pad_fake_headers_count
-        #   @return [Fixnum] How many fake headers to insert into the HTTP request
+        #   @return [Integer] How many fake headers to insert into the HTTP request
         attr_accessor :evade_pad_fake_headers_count
 
         # @!attribute evade_pad_get_params
@@ -106,7 +106,7 @@ module Metasploit
         attr_accessor :evade_pad_get_params
 
         # @!attribute evade_pad_get_params_count
-        #   @return [Fixnum] How many fake query string variables to insert into the request
+        #   @return [Integer] How many fake query string variables to insert into the request
         attr_accessor :evade_pad_get_params_count
 
         # @!attribute evade_pad_post_params
@@ -114,7 +114,7 @@ module Metasploit
         attr_accessor :evade_pad_post_params
 
         # @!attribute evade_pad_post_params_count
-        #   @return [Fixnum] How many fake post variables to insert into the request
+        #   @return [Integer] How many fake post variables to insert into the request
         attr_accessor :evade_pad_post_params_count
 
         # @!attribute evade_uri_fake_end
@@ -207,7 +207,7 @@ module Metasploit
         #
         # @param [Hash] opts native support includes the following (also see Rex::Proto::Http::Request#request_cgi)
         # @option opts [String] 'host' The remote host
-        # @option opts [Fixnum] 'port' The remote port
+        # @option opts [Integer] 'port' The remote port
         # @option opts [Boolean] 'ssl' The SSL setting, TrueClass or FalseClass
         # @option opts [String]  'proxies' The proxies setting
         # @option opts [Credential] 'credential' A credential object

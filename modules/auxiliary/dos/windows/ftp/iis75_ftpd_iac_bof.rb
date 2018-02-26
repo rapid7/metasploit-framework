@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -18,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         FTP request containing Telnet IAC (0xff) bytes. When constructing the response,
         the Microsoft IIS FTP Service overflows the heap buffer with 0xff bytes.
 
-        This issue can be triggered pre-auth and may in fact be explotiable for
+        This issue can be triggered pre-auth and may in fact be exploitable for
         remote code execution.
       },
       'Author'         =>
@@ -41,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(21)
-      ], self.class)
+      ])
   end
 
 
@@ -67,7 +64,6 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
   rescue ::Rex::ConnectionError
   end
-
 end
 
 =begin

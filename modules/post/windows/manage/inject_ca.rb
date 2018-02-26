@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
 
@@ -23,7 +21,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CAFILE', [ true, 'Path to the certificate you wish to install as a Trusted Root CA.', ''])
-      ], self.class)
+      ])
   end
 
   def run
@@ -91,11 +89,10 @@ class MetasploitModule < Msf::Post
     rescue
       open_key = nil
       open_key = client.sys.registry.create_key(root_key, base_key, KEY_WRITE + 0x0000)
-      print_status("Successfully created key: #{entire_key}")
+      print_good("Successfully created key: #{entire_key}")
 
       open_key.set_value('Blob', REG_BINARY, blob)
       print_good("CA inserted!")
     end
   end
-
 end

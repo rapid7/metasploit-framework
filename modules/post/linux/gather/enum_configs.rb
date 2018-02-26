@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Linux::System
 
   def initialize(info={})
@@ -44,7 +41,7 @@ class MetasploitModule < Msf::Post
     ltype = "linux.enum.conf"
     fname = ::File.basename(file)
     loot = store_loot(ltype, ctype, session, data, fname)
-    print_status("#{fname} stored in #{loot.to_s}")
+    print_good("#{fname} stored in #{loot.to_s}")
   end
 
   def get_host

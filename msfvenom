@@ -16,16 +16,13 @@ require 'msf/ui'
 require 'msf/base'
 require 'msf/core/payload_generator'
 
-
 class MsfVenomError < StandardError; end
 class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
 class NoTemplateError < MsfVenomError; end
 class IncompatibleError < MsfVenomError; end
 
-
 require 'optparse'
-
 
 # Creates a new framework object.
 #
@@ -49,7 +46,6 @@ def framework
 
   @framework
 end
-
 
 def parse_args(args)
   opts = {}
@@ -206,7 +202,6 @@ def parse_args(args)
   opts
 end
 
-
 # Read a raw payload from stdin (or whatever IO object we're currently
 # using as stdin, see {#initialize})
 #
@@ -276,8 +271,6 @@ def dump_nops
 
   "\n" + tbl.to_s + "\n"
 end
-
-
 
 begin
   generator_opts = parse_args(ARGV)

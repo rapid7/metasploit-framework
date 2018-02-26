@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
         OptString.new('HttpUsername',[ true, 'User to login with', 'service']),
         OptString.new('HttpPassword',[ true, 'Password to login with', 'service'])
-      ], self.class)
+      ])
   end
 
   def extract_words(wordfile)

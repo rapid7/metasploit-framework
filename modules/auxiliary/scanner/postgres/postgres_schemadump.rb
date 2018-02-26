@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -97,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     # Error handling routine here, borrowed heavily from todb
     case res.keys[0]
     when :conn_error
-      print_error("A Connection Error occured")
+      print_error("A Connection Error Occurred")
       return
     when :sql_error
       case res[:sql_error]

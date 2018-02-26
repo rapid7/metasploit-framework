@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
@@ -38,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 1080 ]),
         OptString.new('UNCHOST',    [ false, "The address of the UNC host.", nil ])
-      ], self.class)
+      ])
   end
 
   def setup

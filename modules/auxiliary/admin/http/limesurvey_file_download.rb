@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 # for extracting files
 require 'zip'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -41,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, "The base path to the limesurvey installation", '/']),
         OptString.new('FILEPATH', [true, 'Path of the file to download', '/etc/passwd']),
         OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 15])
-      ], self.class)
+      ])
   end
 
   def filepath

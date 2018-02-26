@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/payload/osx/bundleinject'
 require 'msf/base/sessions/vncinject'
 require 'fileutils'
@@ -44,7 +43,7 @@ module MetasploitModule
             "Automatically open the picture in a browser ",
             true
           ])
-      ], self.class)
+      ])
   end
 
   def on_session(session)
@@ -87,5 +86,4 @@ module MetasploitModule
 
     super(session)
   end
-
 end

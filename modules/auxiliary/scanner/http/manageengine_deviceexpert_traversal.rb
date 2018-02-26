@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(6060),
         OptBool.new('SSL',   [true, 'Use SSL', true]),
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'windows\\win.ini'])
-      ], self.class)
+      ])
 
     deregister_options('RHOST')
   end
@@ -74,5 +71,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{ip}:#{rport} - File saved in: #{path}")
     end
   end
-
 end

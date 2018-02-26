@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Auxiliary::Report
 
   def initialize
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Post
       [
         OptAddress.new('RHOST',   [ false,  'Remote host to clone settings to, defaults to local' ]),
         OptString.new('SID',   [ false,  'SID of user to clone settings to, defaults to SYSTEM', 'S-1-5-18' ])
-      ], self.class)
+      ])
   end
 
   def parse_settings(data)
@@ -157,5 +155,4 @@ class MetasploitModule < Msf::Post
     target_settings(dst_root_key, dst_base_key)
 
   end
-
 end
