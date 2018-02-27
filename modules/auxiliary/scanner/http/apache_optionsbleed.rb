@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         server has a .htaccess file with an invalid Limit method defined.
       },
       'Author' => [
-        'Hanno Boeck', # Vulnerability discovery
+        'Hanno Böck', # Vulnerability discovery
         'h00die', # Metasploit module
       ],
       'References' => [

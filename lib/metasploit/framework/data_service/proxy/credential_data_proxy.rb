@@ -5,7 +5,7 @@ module CredentialDataProxy
       data_service = self.get_data_service()
       data_service.create_credential(opts)
     rescue Exception => e
-      elog "Problem creating credential: #{e.message}"
+      self.log_error(e, "Problem creating credential")
     end
   end
 
@@ -14,7 +14,7 @@ module CredentialDataProxy
       data_service = self.get_data_service
       data_service.creds(opts)
     rescue Exception => e
-      elog "Problem retrieving credentials: #{e.message}"
+      self.log_error(e, "Problem retrieving credentials")
     end
   end
 end

@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless ssh_socket
 
     # Create a new session
-    conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
+    conn = Net::SSH::CommandStream.new(ssh_socket)
 
     merge_me = {
       'USERPASS_FILE' => nil,

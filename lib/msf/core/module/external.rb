@@ -3,18 +3,15 @@ module Msf::Module::External
 
   def wait_status(mod)
     begin
-      while mod.running
-        m = mod.get_status
-        if m
-          case m.method
-          when :message
-            log_output(m)
-          when :report
-            process_report(m)
-          when :reply
-            # we're done
-            break
-          end
+      while m = mod.get_status
+        case m.method
+        when :message
+          log_output(m)
+        when :report
+          process_report(m)
+        when :reply
+          # we're done
+          break
         end
       end
     rescue Interrupt => e
@@ -72,6 +69,20 @@ module Msf::Module::External
       service[:name] = data['name'] if data['name']
 
       report_service(service)
+    when 'vuln'
+      # Required
+      vuln = {host: data['host'], name: data['name']}
+
+      # Optional
+      vuln[:info] = data['info'] if data['info']
+      vuln[:refs] = data['refs'] if data['refs']
+      vuln[:port] = data['port'] if data['port']
+      vuln[:proto] = data['port'] if data['port']
+
+      # Metasploit magic
+      vuln[:refs] = self.references
+
+      report_vuln(vuln)
     else
       print_warning "Skipping unrecognized report type #{m.params['type']}"
     end

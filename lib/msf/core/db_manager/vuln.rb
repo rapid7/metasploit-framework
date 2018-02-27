@@ -200,6 +200,14 @@ module Msf::DBManager::Vuln
 
         vinf[:service_id] = service.id if service
         vuln = Mdm::Vuln.create(vinf)
+
+        begin
+          framework.events.on_db_vuln(vuln) if vuln
+        rescue ::Exception => e
+          wlog("Exception in on_db_vuln event handler: #{e.class}: #{e}")
+          wlog("Call Stack\n#{e.backtrace.join("\n")}")
+        end
+
       end
     end
 

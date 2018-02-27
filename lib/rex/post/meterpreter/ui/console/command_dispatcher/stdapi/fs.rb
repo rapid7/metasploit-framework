@@ -21,6 +21,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   CHECKSUM_ALGORITHMS = %w{ md5 sha1 }
   private_constant :CHECKSUM_ALGORITHMS
+  PATH_EXPAND_REGEX = /\%(\w*)\%/
+  private_constant :PATH_EXPAND_REGEX
 
   #
   # Options for the download command.
@@ -39,6 +41,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   @@upload_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner." ],
     "-r" => [ false, "Upload recursively." ])
+  
   #
   # Options for the ls command
   #
@@ -51,6 +54,16 @@ class Console::CommandDispatcher::Stdapi::Fs
     "-x" => [ false, "Show short file names" ],
     "-l" => [ false, "List in long format (default)" ],
     "-R" => [ false, "Recursively list subdirectories encountered" ])
+
+  #
+  # Options for the lls command
+  #
+  @@lls_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner." ],
+    "-S" => [ true,  "Search string." ],
+    "-t" => [ false, "Sort by time" ],
+    "-s" => [ false, "Sort by size" ],
+    "-r" => [ false, "Reverse sort order" ])
 
   #
   # List of supported commands.
@@ -69,6 +82,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'lcd'        => 'Change local working directory',
       'lpwd'       => 'Print local working directory',
       'ls'         => 'List files',
+      'lls'        => 'List local files',
       'mkdir'      => 'Make directory',
       'pwd'        => 'Print working directory',
       'rm'         => 'Delete the specified file',
@@ -93,6 +107,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'lcd'        => [],
       'lpwd'       => [],
       'ls'         => ['stdapi_fs_stat', 'stdapi_fs_ls'],
+      'lls'        => [],
       'mkdir'      => ['stdapi_fs_mkdir'],
       'pwd'        => ['stdapi_fs_getwd'],
       'rmdir'      => ['stdapi_fs_delete_dir'],
@@ -246,7 +261,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("Usage: cd directory")
       return true
     end
-    if args[0] =~ /\%(\w*)\%/
+    if args[0] =~ PATH_EXPAND_REGEX
       client.fs.dir.chdir(client.fs.file.expand_path(args[0].upcase))
     else
       client.fs.dir.chdir(args[0])
@@ -308,7 +323,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    args.each { |f| client.fs.file.rm(f) }
+    args.each do |file_path|
+      file_path = client.fs.file.expand_path(file_path) if file_path =~ PATH_EXPAND_REGEX
+      client.fs.file.rm(file_path)
+    end
 
     return true
   end
@@ -323,7 +341,11 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("Usage: mv oldfile newfile")
       return true
     end
-    client.fs.file.mv(args[0],args[1])
+    old_path = args[0]
+    old_path = client.fs.file.expand_path(old_path) if old_path =~ PATH_EXPAND_REGEX
+    new_path = args[1]
+    new_path = client.fs.file.expand_path(new_path) if new_path =~ PATH_EXPAND_REGEX
+    client.fs.file.mv(old_path, new_path)
     return true
   end
 
@@ -338,7 +360,11 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("Usage: cp oldfile newfile")
       return true
     end
-    client.fs.file.cp(args[0],args[1])
+    old_path = args[0]
+    old_path = client.fs.file.expand_path(old_path) if old_path =~ PATH_EXPAND_REGEX
+    new_path = args[1]
+    new_path = client.fs.file.expand_path(new_path) if new_path =~ PATH_EXPAND_REGEX
+    client.fs.file.cp(old_path, new_path)
     return true
   end
 
@@ -667,6 +693,128 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   alias cmd_dir cmd_ls
 
+  def cmd_lls_help
+    print_line "Usage: lls [options]"
+    print_line
+    print_line "Lists contents of a local directory or file info"
+    print_line @@lls_opts.usage
+  end
+
+  #
+  # Get list local path information for lls command
+  #
+  def list_local_path(path, sort, order, search_term = nil)
+    # Single file as path
+    if !::File.directory?(path)
+      perms = pretty_perms(path)
+      stat = ::File.stat(path)
+      print_line("#{perms}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
+      return
+    end
+
+    # Enumerate each item...
+    # No need to sort as Table will do it for us
+    columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
+    tbl = Rex::Text::Table.new(
+      'Header'  => "Listing Local: #{path}",
+      'SortIndex' => columns.index(sort),
+      'SortOrder' => order,
+      'Columns' => columns)
+
+    items = 0
+    files = ::Dir.entries(path)
+
+    files.each do |file|
+      file_path = ::File.join(path, file)
+
+      perms = pretty_perms(file_path)
+      stat = ::File.stat(file_path)
+
+      row = [
+        perms ? perms                : '',
+        stat.size ? stat.size.to_s   : '',
+        stat.ftype ? stat.ftype[0,3] : '',
+        stat.mtime ? stat.mtime      : '',
+        file
+      ]
+      if file != '.' && file != '..'
+        if row.join(' ') =~ /#{search_term}/
+          tbl << row
+          items += 1
+        end
+      end
+    end
+    if items > 0
+      print_line(tbl.to_s)
+    else
+      print_line("No entries exist in #{path}")
+    end
+  end
+
+  # Code from prettymode in lib/rex/post/file_stat.rb
+  # adapted for local file usage
+  def pretty_perms(path)
+    m  = ::File.stat(path).mode
+    om = '%04o' % m
+    perms = ''
+
+    3.times {
+      perms = ((m & 01) == 01 ? 'x' : '-') + perms
+      perms = ((m & 02) == 02 ? 'w' : '-') + perms
+      perms = ((m & 04) == 04 ? 'r' : '-') + perms
+      m >>= 3
+    }
+
+    return "#{om}/#{perms}"
+  end
+
+  #
+  # List local files
+  #
+  def cmd_lls(*args)
+    # Set Defaults
+    path = ::Dir.pwd
+    sort = 'Name'
+    order = :forward
+    search_term = nil
+
+    # Parse the args
+    @@lls_opts.parse(args) { |opt, idx, val|
+      case opt
+      # Sort options
+      when '-s'
+        sort = 'Size'
+      when '-t'
+        sort = 'Last modified'
+      # Output options
+      when '-r'
+        order = :reverse
+      # Search
+      when '-S'
+        search_term = val
+        if search_term.nil?
+          print_error("Enter a search term")
+          return true
+        else
+          search_term = /#{search_term}/nmi
+        end
+      # Help and path
+      when "-h"
+        cmd_lls_help
+        return 0
+      when nil
+        path = val
+      end
+    }
+
+    list_local_path(path, sort, order, search_term)
+  end
+
+  #
+  # Alias the lls command to dir, for those of us who have windows muscle-memory
+  #
+  alias cmd_ldir cmd_lls
+
   #
   # Make one or more directory.
   #
@@ -676,10 +824,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    args.each { |dir|
-      print_line("Creating directory: #{dir}")
-
-      client.fs.dir.mkdir(dir)
+    args.each { |dir_path|
+      dir_path = client.fs.file.expand_path(dir_path) if dir_path =~ PATH_EXPAND_REGEX
+      print_line("Creating directory: #{dir_path}")
+      client.fs.dir.mkdir(dir_path)
     }
 
     return true
@@ -703,9 +851,10 @@ class Console::CommandDispatcher::Stdapi::Fs
       return true
     end
 
-    args.each { |dir|
-      print_line("Removing directory: #{dir}")
-      client.fs.dir.rmdir(dir)
+    args.each { |dir_path|
+      dir_path = client.fs.file.expand_path(dir_path) if dir_path =~ PATH_EXPAND_REGEX
+      print_line("Removing directory: #{dir_path}")
+      client.fs.dir.rmdir(dir_path)
     }
 
     return true

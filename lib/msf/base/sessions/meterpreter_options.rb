@@ -66,6 +66,10 @@ module Msf
             OptInt.new(
               'SessionCommunicationTimeout',
               [ false, 'The number of seconds of no activity before this session should be killed', TIMEOUT_COMMS]
+            ),
+            OptString.new(
+              'PayloadProcessCommandLine',
+              [ false, 'The displayed command line that will be used by the payload', '']
             )
           ],
           self.class

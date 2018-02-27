@@ -8,7 +8,7 @@ module LootDataProxy
       end
       data_service.report_loot(opts)
     rescue Exception => e
-      elog "Problem reporting loot: #{e.message}"
+      self.log_error(e, "Problem reporting loot")
     end
   end
 
@@ -24,8 +24,7 @@ module LootDataProxy
       opts[:wspace] = wspace
       data_service.loot(opts)
     rescue Exception => e
-      elog "Problem retrieving loot: #{e.message}"
-      e.backtrace.each { |line| elog "#{line}\n" }
+      self.log_error(e, "Problem retrieving loot")
     end
   end
 
@@ -36,8 +35,7 @@ module LootDataProxy
       data_service = self.get_data_service
       data_service.update_loot(opts)
     rescue Exception => e
-      elog "Problem updating loot: #{e.message}"
-      e.backtrace.each { |line| elog "#{line}\n" }
+      self.log_error(e, "Problem updating loot")
     end
   end
 end

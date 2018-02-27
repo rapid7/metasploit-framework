@@ -59,7 +59,7 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def directory?(path)
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       stat = session.fs.file.stat(path) rescue nil
       return false unless stat
       return stat.directory?
@@ -70,9 +70,9 @@ module Msf::Post::File
         f = session.shell_command_token("test -d \"#{path}\" && echo true")
       end
 
-      return false if f.nil? or f.empty?
+      return false if f.nil? || f.empty?
       return false unless f =~ /true/
-      return true
+      true
     end
   end
 
@@ -93,7 +93,7 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def file?(path)
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       stat = session.fs.file.stat(path) rescue nil
       return false unless stat
       return stat.file?
@@ -107,20 +107,40 @@ module Msf::Post::File
         f = session.shell_command_token("test -f \"#{path}\" && echo true")
       end
 
-      return false if f.nil? or f.empty?
+      return false if f.nil? || f.empty?
       return false unless f =~ /true/
-      return true
+      true
     end
   end
 
   alias file_exist? file?
 
   #
+  # See if +path+ on the remote system is a setuid file
+  #
+  # @param path [String] Remote filename to check
+  def setuid?(path)
+    if session.type == 'meterpreter'
+      stat = session.fs.file.stat(path) rescue nil
+      return false unless stat
+      return stat.setuid?
+    else
+      if session.platform != 'windows'
+        f = session.shell_command_token("test -u \"#{path}\" && echo true")
+      end
+
+      return false if f.nil? || f.empty?
+      return false unless f =~ /true/
+      true
+    end
+  end
+
+  #
   # Check for existence of +path+ on the remote file system
   #
   # @param path [String] Remote filename to check
   def exist?(path)
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       stat = session.fs.file.stat(path) rescue nil
       return !!(stat)
     else
@@ -130,9 +150,9 @@ module Msf::Post::File
         f = cmd_exec("test -e \"#{path}\" && echo true")
       end
 
-      return false if f.nil? or f.empty?
+      return false if f.nil? || f.empty?
       return false unless f =~ /true/
-      return true
+      true
     end
   end
 
@@ -290,7 +310,7 @@ module Msf::Post::File
       end
 
     end
-    return true
+    true
   end
 
   #
@@ -314,7 +334,7 @@ module Msf::Post::File
         _write_file_unix_shell(file_name, data, true)
       end
     end
-    return true
+    true
   end
 
   #

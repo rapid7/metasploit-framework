@@ -5,7 +5,7 @@ module SessionEventDataProxy
       data_service = self.get_data_service()
       data_service.report_session_event(opts)
     rescue Exception => e
-      elog "Problem reporting session event: #{e.message}"
+      self.log_error(e, "Problem reporting session event")
     end
   end
 end
