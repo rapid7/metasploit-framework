@@ -320,9 +320,11 @@ class ClientCore < Extension
 
     modnameprovided = mod
     suffix = nil
-    if client.binary_suffix.blank?
+    # If there is no supported suffix *or* if the one supported suffix indicates
+    # ELF, then allow ELF files which have no '.elf' suffix.
+    if client.binary_suffix.blank? || (client.binary_suffix.size == 1 && client.binary_suffix.first == 'elf')
       suffix = ''
-    else
+    elsif client.binary_suffix.size > 1
       client.binary_suffix.each { |s|
         if (mod =~ /(.*)\.#{s}/ )
           mod = $1
@@ -330,6 +332,8 @@ class ClientCore < Extension
           break
         end
       }
+    else
+      suffix = client.binary_suffix.first
     end
 
     # Query the remote instance to see if commands for the extension are
