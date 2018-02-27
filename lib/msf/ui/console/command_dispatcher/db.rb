@@ -674,12 +674,14 @@ module Msf
                 print_error("Exactly one port required")
                 return
               end
+              if host_ranges.empty?
+                print_error("Host address or range required")
+                return
+              end
               host_ranges.each do |range|
                 range.each do |addr|
-                  host = framework.db.find_or_create_host(:host => addr)
-                  next if not host
                   info = {
-                      :host => host,
+                      :host => addr,
                       :port => ports.first.to_i
                   }
                   info[:proto] = proto.downcase if proto
