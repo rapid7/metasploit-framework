@@ -17,12 +17,7 @@ module ServiceServlet
     lambda {
       begin
         opts = params.symbolize_keys
-        data = get_db().services(opts[:workspace],
-                                 opts[:only_up],
-                                 opts[:proto],
-                                 opts[:address],
-                                 opts[:ports],
-                                 opts[:names])
+        data = get_db().services(opts)
         set_json_response(data)
       rescue Exception => e
         set_error_on_response(e)
