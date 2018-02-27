@@ -1,12 +1,16 @@
 module Msf::DBManager::Service
   # Deletes a port and associated vulns matching this port
-  def del_service(wspace, address, proto, port, comm='')
-
-    host = get_host(:workspace => wspace, :address => address)
-    return unless host
+  def delete_service(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    host.services.where({:proto => proto, :port => port}).each { |s| s.destroy }
+    deleted = []
+    opts[:ids].each do |service_id|
+      service = Mdm::Service.find(service_id)
+      deleted << service.destroy
+    end
+
+    return deleted
   }
   end
 

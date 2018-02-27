@@ -708,8 +708,10 @@ module Msf
             # Sentinel value meaning all
             host_ranges.push(nil) if host_ranges.empty?
             ports = nil if ports.empty?
+            matched_service_ids = []
 
             each_host_range_chunk(host_ranges) do |host_search|
+              break if !host_search.nil? && host_search.empty?
               framework.db.services(framework.db.workspace, onlyup, proto, host_search, ports, names).each do |service|
 
                 host = service.host
@@ -719,6 +721,7 @@ module Msf
                       service.attribute_names.any? { |a| service[a.intern].to_s.match(search_term)}
                   )
                 end
+                matched_service_ids << service.id
 
                 columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
                 tbl << columns
@@ -726,12 +729,12 @@ module Msf
                   addr = (host.scope ? host.address + '%' + host.scope : host.address )
                   rhosts << addr
                 end
-
-                if (mode == :delete)
-                  service.destroy
-                  delete_count += 1
-                end
               end
+            end
+
+            if (mode == :delete)
+              result = framework.db.delete_service(ids: matched_service_ids)
+              delete_count += result.size
             end
 
             print_line

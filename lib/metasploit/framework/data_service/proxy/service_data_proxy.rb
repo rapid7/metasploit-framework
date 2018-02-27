@@ -7,12 +7,12 @@ module ServiceDataProxy
       opts[:workspace] = wspace
       opts[:only_up] = only_up
       opts[:proto] = proto
-      opts[:address] = addresses
+      opts[:addresses] = addresses
       opts[:ports] = ports
       opts[:names] = names
       data_service.services(opts)
     rescue Exception => e
-      self.log_error(e, "Problem retrieving services")
+      self.log_error(e, 'Problem retrieving services')
     end
   end
 
@@ -25,7 +25,16 @@ module ServiceDataProxy
       data_service = self.get_data_service()
       data_service.report_service(opts)
     rescue  Exception => e
-      self.log_error(e, "Problem reporting service")
+      self.log_error(e, 'Problem reporting service')
+    end
+  end
+
+  def delete_service(opts)
+    begin
+      data_service = self.get_data_service()
+      data_service.delete_service(opts)
+    rescue Exception => e
+      self.log_error(e, 'Problem deleting service')
     end
   end
 end

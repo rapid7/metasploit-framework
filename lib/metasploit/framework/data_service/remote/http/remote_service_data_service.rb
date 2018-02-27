@@ -9,4 +9,8 @@ module RemoteServiceDataService
   def report_service(opts)
     json_to_mdm_object(self.post_data(SERVICE_API_PATH, opts), SERVICE_MDM_CLASS).first
   end
+
+  def delete_service(opts)
+    json_to_mdm_object(self.delete_data(SERVICE_API_PATH, opts), SERVICE_MDM_CLASS)
+  end
 end
