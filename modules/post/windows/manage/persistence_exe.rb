@@ -41,9 +41,9 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        OptString.new('LEXEPATH', [false, 'The local exe path to run. Use temp directory as default. ']),
-        OptString.new('STARTUP_NAME',   [false, 'The name of service or registry. Random string as default.' ]),
-        OptString.new('SERVICE_DESC',   [false, 'The description of service. Random string as default.' ])
+        OptString.new('LocalExePath', [false, 'The local exe path to run. Use temp directory as default. ']),
+        OptString.new('StartupName',   [false, 'The name of service or registry. Random string as default.' ]),
+        OptString.new('ServiceDescription',   [false, 'The description of service. Random string as default.' ])
       ])
 
   end
