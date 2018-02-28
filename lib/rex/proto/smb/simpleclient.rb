@@ -70,7 +70,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
       self.client.send_ntlm = send_ntlm
 
       ok = self.client.negotiate
-      self.server_max_buffer_size = ok['Payload'].v['MaxBuff']
+      self.server_max_buffer_size = self.client.server_max_buffer_size
 
       # Disable NTLMv2 Session for Windows 2000 (breaks authentication on some systems)
       # XXX: This in turn breaks SMB auth for Windows 2000 configured to enforce NTLMv2
@@ -191,8 +191,6 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
                 ok.guid.to_binary_s
               elsif ok.respond_to? :fid
                 ok.fid.to_binary_s
-              else
-                ok['Payload'].v['FileID']
               end
     fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id)
   end
