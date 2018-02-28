@@ -87,7 +87,7 @@ class Cache
 
     @module_metadata_cache.each_value do |module_metadata|
 
-      if !module_metadata.path || !::File.exist?(module_metadata.path)
+      unless module_metadata.path && ::File.exist?(module_metadata.path)
         next
       end
 
