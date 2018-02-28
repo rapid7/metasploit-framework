@@ -107,15 +107,11 @@ class Cache
   #######
 
   def remove_from_cache(module_name)
-    @module_metadata_cache.each do |cache_key, module_metadata|
+    removed = @module_metadata_cache.delete_if {|_, module_metadata|
+      module_metadata.ref_name.eql? module_name
+    }
 
-      if module_metadata.ref_name.eql? module_name
-        @module_metadata_cache.delete cache_key
-        return true
-      end
-    end
-
-    return false
+    return !removed.empty?
   end
 
   def wait_for_load
@@ -124,21 +120,14 @@ class Cache
 
   def refresh_metadata_instance_internal(module_instance)
     metadata_obj = Obj.new(module_instance)
-    purge_duplicate(metadata_obj)
+
+    # Remove all instances of modules pointing to the same path. This prevents stale data hanging
+    # around when modules are incorrectly typed (eg: Auxilary that should be Exploit)
+    @module_metadata_cache.delete_if {|_, module_metadata|
+      module_metadata.path.eql? metadata_obj.path
+    }
+
     @module_metadata_cache[get_cache_key(module_instance)] = metadata_obj
-  end
-
-  #
-  # Remove all instances of modules pointing to the same path. This prevents stale data hanging
-  # around when modules are incorrectly typed (eg: Auxilary that should be Exploit)
-  #
-  def purge_duplicate(metadata_obj)
-    @module_metadata_cache.each do |cache_key, module_metadata|
-
-      if module_metadata.path.eql? metadata_obj.path
-        @module_metadata_cache.delete cache_key
-      end
-    end
   end
 
   def get_cache_key(module_instance)
