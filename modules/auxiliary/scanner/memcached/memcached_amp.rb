@@ -60,18 +60,39 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-
     # Check the response data for a "STAT" repsonse
     if data =~/\x00\x00\x00\x00\x00\x01\x00\x00STAT\x20/
-      amp = data.length / @memcached_probe.length.to_f
-      print_good("#{shost}:#{datastore['RPORT']} - Response is #{data.length} bytes [#{amp.round(2)}x Amplification]")
-      report_service(:host => shost, :port => datastore['RPORT'], :proto => 'udp', :name => "memcached")
-      report_vuln(
-        :host => shost,
-        :port => datastore['RPORT'],
-        :proto => 'udp', :name => "MEMCACHED",
-        :info => "MEMCACHED amplification -  #{data.length} bytes [#{amp.round(2)}x Amplification]",
-        :refs => self.references)
+      @results[shost] ||= []
+      @results[shost] << data
+    end
+  end
+
+  # Called after the scan block
+  def scanner_postscan(batch)
+    @results.keys.each do |host|
+      response_map = { @memcached_probe => @results[host] }
+      report_service(
+        :host  => host,
+        :proto => 'udp',
+        :port  => rport,
+        :name  => 'memcached'
+      )
+
+      peer = "#{host}:#{rport}"
+      vulnerable, proof = prove_amplification(response_map)
+      what = 'MEMCACHED amplification'
+      if vulnerable
+        print_good("#{peer} - Vulnerable to #{what}: #{proof}")
+        report_vuln({
+          :host  => host,
+          :port  => rport,
+          :proto => 'udp',
+          :name  => what,
+          :refs  => self.references
+        })
+      else
+        vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
+      end
     end
   end
 end
