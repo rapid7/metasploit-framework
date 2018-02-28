@@ -107,11 +107,12 @@ class Cache
   #######
 
   def remove_from_cache(module_name)
-    removed = @module_metadata_cache.delete_if {|_, module_metadata|
+    old_cache_size = @module_metadata_cache.size
+    @module_metadata_cache.delete_if {|_, module_metadata|
       module_metadata.ref_name.eql? module_name
     }
 
-    return !removed.empty?
+    return old_cache_size !=  @module_metadata_cache.size
   end
 
   def wait_for_load
