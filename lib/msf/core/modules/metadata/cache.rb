@@ -24,6 +24,7 @@ class Cache
   # Refreshes cached module metadata as well as updating the store
   #
   def refresh_metadata_instance(module_instance)
+    dlog "Refreshing #{module_instance.refname} of type: #{module_instance.type}"
     refresh_metadata_instance_internal(module_instance)
     update_store
   end
@@ -48,8 +49,22 @@ class Cache
 
       mt[1].keys.sort.each do |mn|
         next if unchanged_reference_name_set.include? mn
-        module_instance = mt[1].create(mn)
-        next if not module_instance
+
+        begin
+          module_instance = mt[1].create(mn)
+        rescue Exception => e
+          elog "Unable to create module: #{mn}"
+        end
+
+        unless module_instance
+          wlog "Removing invalid module reference from cache: #{mn}"
+          existed = remove_from_cache(mn)
+          if existed
+            has_changes = true
+          end
+          next
+        end
+
         begin
           refresh_metadata_instance_internal(module_instance)
           has_changes = true
@@ -72,7 +87,7 @@ class Cache
 
     @module_metadata_cache.each_value do |module_metadata|
 
-      unless module_metadata.path and ::File.exist?(module_metadata.path)
+      if !module_metadata.path || !::File.exist?(module_metadata.path)
         next
       end
 
@@ -91,13 +106,39 @@ class Cache
   private
   #######
 
+  def remove_from_cache(module_name)
+    @module_metadata_cache.each do |cache_key, module_metadata|
+
+      if module_metadata.ref_name.eql? module_name
+        @module_metadata_cache.delete cache_key
+        return true
+      end
+    end
+
+    return false
+  end
+
   def wait_for_load
     @load_thread.join unless @store_loaded
   end
 
   def refresh_metadata_instance_internal(module_instance)
     metadata_obj = Obj.new(module_instance)
+    purge_duplicate(metadata_obj)
     @module_metadata_cache[get_cache_key(module_instance)] = metadata_obj
+  end
+
+  #
+  # Remove all instances of modules pointing to the same path. This prevents stale data hanging
+  # around when modules are incorrectly typed (eg: Auxilary that should be Exploit)
+  #
+  def purge_duplicate(metadata_obj)
+    @module_metadata_cache.each do |cache_key, module_metadata|
+
+      if module_metadata.path.eql? metadata_obj.path
+        @module_metadata_cache.delete cache_key
+      end
+    end
   end
 
   def get_cache_key(module_instance)
