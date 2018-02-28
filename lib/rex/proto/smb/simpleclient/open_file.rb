@@ -61,14 +61,7 @@ class OpenFile
       return data
     else
       ok = self.client.read(self.file_id, offset, length)
-      data = if ok.is_a? Array
-               ok.pack('C*')
-             else
-               ok.to_s.slice(
-                   ok['Payload'].v['DataOffset'] + 4,
-                   ok['Payload'].v['DataLenLow']
-               )
-             end
+      data = ok.pack('C*')
       return data
     end
   end
@@ -91,12 +84,9 @@ class OpenFile
     # Keep writing data until we run out
     while (chunk.length > 0)
       ok = self.client.write(self.file_id, fptr, chunk)
-      
-      if ok.is_a? BinData::Uint32le
-        cl = ok
-      else
-        cl = ok['Payload'].v['CountLow']
-      end
+
+
+      cl = ok
 
       # Partial write, push the failed data back into the queue
       if (cl != chunk.length)

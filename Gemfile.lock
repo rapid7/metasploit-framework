@@ -1,3 +1,13 @@
+GIT
+  remote: https://github.com/dmohanty-r7/ruby_smb
+  revision: f1ebc6b9b0e3a018b37ae9e04079fb71966e1f4b
+  branch: simpleclient-progress
+  specs:
+    ruby_smb (0.0.21)
+      bindata
+      rubyntlm
+      windows_error
+
 PATH
   remote: .
   specs:
@@ -59,7 +69,7 @@ PATH
       rex-text
       rex-zip
       ruby-macho
-      ruby_smb (= 0.0.18)
+      ruby_smb
       rubyntlm
       rubyzip
       sqlite3
@@ -111,6 +121,7 @@ GEM
     bindata (2.4.2)
     bit-struct (0.16)
     builder (3.2.3)
+    byebug (10.0.0)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
     crass (1.0.3)
@@ -229,6 +240,9 @@ GEM
     pry (0.11.3)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
+    pry-byebug (3.6.0)
+      byebug (~> 10.0)
+      pry (~> 0.10)
     public_suffix (3.0.2)
     rack (1.6.8)
     rack-test (0.6.3)
@@ -248,7 +262,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.0)
     rb-readline (0.5.5)
-    recog (2.1.17)
+    recog (2.1.18)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
@@ -259,7 +273,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.12)
+    rex-core (0.1.13)
     rex-encoder (0.1.4)
       metasm
       rex-arch
@@ -323,10 +337,6 @@ GEM
     rspec-support (3.7.1)
     ruby-macho (1.1.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (0.0.18)
-      bindata
-      rubyntlm
-      windows_error
     rubyntlm (0.6.2)
     rubyzip (1.2.1)
     sawyer (0.8.1)
@@ -371,10 +381,12 @@ DEPENDENCIES
   metasploit-framework!
   octokit
   pry
+  pry-byebug
   rake
   redcarpet
   rspec-rails
   rspec-rerun
+  ruby_smb!
   simplecov
   timecop
   yard
