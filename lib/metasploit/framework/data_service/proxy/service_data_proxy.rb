@@ -29,6 +29,15 @@ module ServiceDataProxy
     end
   end
 
+  def update_service(opts)
+    begin
+      data_service = self.get_data_service()
+      data_service.update_service(opts)
+    rescue Exception => e
+      self.log_error(e, 'Problem updating service')
+    end
+  end
+
   def delete_service(opts)
     begin
       data_service = self.get_data_service()

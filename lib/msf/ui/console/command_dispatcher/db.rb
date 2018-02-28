@@ -587,6 +587,8 @@ module Msf
                   mode = :add
                 when '-d','--delete'
                   mode = :delete
+                when '-U', '--update'
+                  mode = :update
                 when '-u','--up'
                   onlyup = true
                 when '-c'
@@ -645,14 +647,15 @@ module Msf
                   print_line "  -d,--delete       Delete the services instead of searching"
                   print_line "  -c <col1,col2>    Only show the given columns"
                   print_line "  -h,--help         Show this help information"
-                  print_line "  -s <name1,name2>  Search for a list of service names"
-                  print_line "  -p <port1,port2>  Search for a list of ports"
+                  print_line "  -s <name>         Name of the service to add"
+                  print_line "  -p <port>         Port number of the service being added"
                   print_line "  -r <protocol>     Only show [tcp|udp] services"
                   print_line "  -u,--up           Only show services which are up"
                   print_line "  -o <file>         Send output to a file in csv format"
                   print_line "  -O <column>       Order rows by specified column number"
                   print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
                   print_line "  -S,--search       Search string to filter by"
+                  print_line "  -U,--update       Update data for existing service"
                   print_line
                   print_line "Available columns: #{default_columns.join(", ")}"
                   print_line
@@ -712,7 +715,7 @@ module Msf
 
             each_host_range_chunk(host_ranges) do |host_search|
               break if !host_search.nil? && host_search.empty?
-              framework.db.services(framework.db.workspace, onlyup, proto, host_search, ports, names).each do |service|
+              framework.db.services(framework.db.workspace, onlyup, nil, host_search, nil, nil).each do |service|
 
                 host = service.host
                 if search_term
@@ -722,6 +725,13 @@ module Msf
                   )
                 end
                 matched_service_ids << service.id
+
+                if mode == :update
+                  service.name = names.first if names
+                  service.proto = proto if proto
+                  service.port = ports.first if ports
+                  framework.db.update_service(service.as_json.symbolize_keys)
+                end
 
                 columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
                 tbl << columns

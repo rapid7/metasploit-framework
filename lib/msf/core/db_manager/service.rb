@@ -151,4 +151,16 @@ module Msf::DBManager::Service
     wspace.services.includes(:host).where(conditions).order("hosts.address, port")
   }
   end
+
+  def update_service(opts)
+    wspace = opts.delete(:workspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    id = opts.delete(:id)
+    Mdm::Service.update(id, opts)
+  }
+  end
 end
