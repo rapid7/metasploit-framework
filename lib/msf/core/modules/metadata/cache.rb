@@ -53,7 +53,7 @@ class Cache
         begin
           module_instance = mt[1].create(mn)
         rescue Exception => e
-          elog "Unable to create module: #{mn}"
+          elog "Unable to create module: #{mn}. #{e.message}"
         end
 
         unless module_instance
