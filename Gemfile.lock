@@ -365,6 +365,7 @@ PLATFORMS
 DEPENDENCIES
   factory_girl_rails
   fivemat
+  google-protobuf (= 3.5.1)
   metasploit-aggregator
   metasploit-framework!
   octokit
