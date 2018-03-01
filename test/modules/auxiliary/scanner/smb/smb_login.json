@@ -11,7 +11,7 @@
 			"TYPE":			"VIRTUAL",
 			"METHOD":		"VM_TOOLS_UPLOAD",
 			"HYPERVISOR_CONFIG":    "../JSON/esxi_config.json",
-			"NAME": 		"APT_MSF_HOST",
+			"CPE":			"cpe:/a:rapid7:metasploit:::",
 			"MSF_ARTIFACT_PATH":	"/home/msfuser/rapid7/test_artifacts",
 			"MSF_PATH":		"/home/msfuser/rapid7/metasploit-framework"
 		}
@@ -22,7 +22,7 @@
 		{
 			"TYPE":			"VIRTUAL",
 			"METHOD":		"EXPLOIT",
-			"NAME": 		"Win2008r2x64sp1",
+			"CPE":			"cpe:/o:microsoft:windows_server_2008:r2:sp1:x64",
 			"MODULES":	
 			[
 				{
@@ -37,7 +37,7 @@
 		{
 			"TYPE":			"VIRTUAL",
 			"METHOD":		"EXPLOIT",
-			"NAME": 		"Win2012x64",
+			"CPE":			"cpe:/o:microsoft:windows_server_2016:::x64",
 			"MODULES":	
 			[
 				{

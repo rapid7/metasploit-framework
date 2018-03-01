@@ -27,6 +27,10 @@ group :development do
     'x86-mingw32', 'x64-mingw32',
     'x86_64-linux', 'x86-linux',
     'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
+  gem 'google-protobuf', "3.5.1" if [
+    'x86-mingw32', 'x64-mingw32',
+    'x86_64-linux', 'x86-linux',
+    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
 end
 
 group :development, :test do
