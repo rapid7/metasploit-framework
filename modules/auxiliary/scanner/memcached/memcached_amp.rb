@@ -20,7 +20,8 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      =>
         [
           'Marek Majkowski', # Cloudflare blog and base payload
-          'xistence <xistence[at]0x90.nl>' # Metasploit scanner module
+          'xistence <xistence[at]0x90.nl>', # Metasploit scanner module
+          'Jon Hart <jon_hart@rapid7.com>', # Metasploit scanner module
         ],
       'License'     => MSF_LICENSE,
       'References'  =>
@@ -34,29 +35,9 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
-  def setup
-    super
-
+  def build_probe
     # Memcached stats probe
-    @memcached_probe = "\x00\x00\x00\x00\x00\x01\x00\x00stats\r\n"
-  end
-
-  def scanner_prescan(batch)
-    print_status("Sending Memcached stats probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
-    @results = {}
-  end
-
-  def scan_host(ip)
-    if spoofed?
-      datastore['ScannerRecvWindow'] = 0
-      scanner_spoof_send(@memcached_probe, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
-    else
-      scanner_send(@memcached_probe, ip, datastore['RPORT'])
-    end
+    @memcached_probe ||= "\x00\x00\x00\x00\x00\x01\x00\x00stats\r\n"
   end
 
   def scanner_process(data, shost, sport)
