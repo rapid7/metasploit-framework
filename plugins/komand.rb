@@ -11,7 +11,6 @@ require 'net/http'
 
 
 module Msf
-    # Nexpose_yaml = "#{Msf::Config.get_config_root}/nexpose.yaml" #location of the nexpose.yml containing saved nexpose creds
 
 class Plugin::Komand < Msf::Plugin
 
@@ -95,7 +94,7 @@ class Plugin::Komand < Msf::Plugin
     end
 
     def desc
-        "Integrates with the Rapid7 Komand orchestration and automation"
+        "Integrates with the Rapid7 Komand product"
     end
 end
 end
