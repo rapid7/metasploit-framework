@@ -94,9 +94,11 @@ module Msf::Payload::Android
     # certificate not_after times later than Jan 1st 2038, since long is 32-bit.
     # Set not_after to a random time 2~ years before the first bad date.
     #
-    # FIXME: this will break again in 2031, hopefully all 32-bit systems will
-    # be dead by then...
-    cert.not_after = Time.new("2034/01/01") + rand(3600 * 24 * 365 * 2)
+    # FIXME: this will break again randomly starting in late 2033, hopefully
+    # all 32-bit systems will be dead by then...
+    #
+    # The timestamp 0x78045d81 equates to 2033-10-22 00:00:01 UTC
+    cert.not_after = Time.at(0x78045d81 + rand(0x7fffffff - 0x78045d81))
 
     # If this line is left out, signature verification fails on OSX.
     cert.sign(key, OpenSSL::Digest::SHA1.new)
