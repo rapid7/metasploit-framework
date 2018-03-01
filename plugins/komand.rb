@@ -9,7 +9,6 @@
 require 'uri'
 require 'net/http'
 
-
 module Msf
 
 class Plugin::Komand < Msf::Plugin
@@ -32,7 +31,7 @@ class Plugin::Komand < Msf::Plugin
         #
         # Returns the hash of commands supported by this dispatcher.
         #
-        def commands 
+        def commands
             {
                 'send_asset' => "Send an asset to komand"
             }
@@ -42,24 +41,24 @@ class Plugin::Komand < Msf::Plugin
         # This method handles sending assets to Komand
         #
         def cmd_send_asset(*args)
-            
+
             if args.length < 3 || args.length > 3
                 print_line("Invalid arguments passed, format is \'send_asset <url> <api_key> <asset>\'")
             else
                 url_trigger = args[0]
                 api_key = args[1]
                 asset = args[2]
-    
+
                 url = URI(url_trigger)
-    
+
                 http = Net::HTTP.new(url.host, url.port)
-    
+
                 request = Net::HTTP::Post.new(url)
                 request["authorization"] = api_key
                 request.body = asset
-    
+
                 response = http.request(request)
-                puts response.read_body
+                print(response.read_body)
             end
         end
     end
@@ -94,7 +93,7 @@ class Plugin::Komand < Msf::Plugin
     end
 
     def desc
-        "Integrates with the Rapid7 Komand product"
+        "Integrates with the Rapid7 Komand orchestration and automation"
     end
 end
 end
