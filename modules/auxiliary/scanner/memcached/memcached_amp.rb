@@ -36,13 +36,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def build_probe
-    # Memcached stats probe
-    @memcached_probe ||= "\x00\x00\x00\x00\x00\x01\x00\x00stats\r\n"
+    # Memcached stats probe, per https://github.com/memcached/memcached/blob/master/doc/protocol.txt
+    @memcached_probe ||= [
+      rand(2**16), # random request ID
+      0, # sequence number
+      1, # number of datagrams in this sequence
+      0, # reserved; must be 0
+      "stats\r\n"
+    ].pack("nnnna*")
   end
 
   def scanner_process(data, shost, sport)
     # Check the response data for a "STAT" repsonse
-    if data =~/\x00\x00\x00\x00\x00\x01\x00\x00STAT\x20/
+    if data =~ /\x0d\x0aSTAT\x20/
       @results[shost] ||= []
       @results[shost] << data
     end
