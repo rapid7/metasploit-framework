@@ -24,7 +24,8 @@ module ServiceServlet
       begin
         opts = params.symbolize_keys
         data = get_db.services(opts)
-        set_json_response(data)
+        includes = [:host]
+        set_json_response(data, includes)
       rescue Exception => e
         set_error_on_response(e)
       end
