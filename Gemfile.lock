@@ -140,7 +140,7 @@ GEM
       multi_json (~> 1.11)
       os (~> 0.9)
       signet (~> 0.7)
-    grpc (1.9.1)
+    grpc (1.8.3)
       google-protobuf (~> 3.1)
       googleapis-common-protos-types (~> 1.0.0)
       googleauth (>= 0.5.1, < 0.7)
@@ -366,6 +366,7 @@ DEPENDENCIES
   factory_girl_rails
   fivemat
   google-protobuf (= 3.5.1)
+  grpc (= 1.8.3)
   metasploit-aggregator
   metasploit-framework!
   octokit
