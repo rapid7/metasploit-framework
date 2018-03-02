@@ -24,6 +24,7 @@ class Cache
   # Refreshes cached module metadata as well as updating the store
   #
   def refresh_metadata_instance(module_instance)
+    dlog "Refreshing #{module_instance.refname} of type: #{module_instance.type}"
     refresh_metadata_instance_internal(module_instance)
     update_store
   end
@@ -48,8 +49,22 @@ class Cache
 
       mt[1].keys.sort.each do |mn|
         next if unchanged_reference_name_set.include? mn
-        module_instance = mt[1].create(mn)
-        next if not module_instance
+
+        begin
+          module_instance = mt[1].create(mn)
+        rescue Exception => e
+          elog "Unable to create module: #{mn}. #{e.message}"
+        end
+
+        unless module_instance
+          wlog "Removing invalid module reference from cache: #{mn}"
+          existed = remove_from_cache(mn)
+          if existed
+            has_changes = true
+          end
+          next
+        end
+
         begin
           refresh_metadata_instance_internal(module_instance)
           has_changes = true
@@ -72,7 +87,7 @@ class Cache
 
     @module_metadata_cache.each_value do |module_metadata|
 
-      unless module_metadata.path and ::File.exist?(module_metadata.path)
+      unless module_metadata.path && ::File.exist?(module_metadata.path)
         next
       end
 
@@ -91,12 +106,28 @@ class Cache
   private
   #######
 
+  def remove_from_cache(module_name)
+    old_cache_size = @module_metadata_cache.size
+    @module_metadata_cache.delete_if {|_, module_metadata|
+      module_metadata.ref_name.eql? module_name
+    }
+
+    return old_cache_size !=  @module_metadata_cache.size
+  end
+
   def wait_for_load
     @load_thread.join unless @store_loaded
   end
 
   def refresh_metadata_instance_internal(module_instance)
     metadata_obj = Obj.new(module_instance)
+
+    # Remove all instances of modules pointing to the same path. This prevents stale data hanging
+    # around when modules are incorrectly typed (eg: Auxilary that should be Exploit)
+    @module_metadata_cache.delete_if {|_, module_metadata|
+      module_metadata.path.eql? metadata_obj.path
+    }
+
     @module_metadata_cache[get_cache_key(module_instance)] = metadata_obj
   end
 
