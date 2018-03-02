@@ -136,19 +136,17 @@ module Msf::DBManager::Service
 
   # Returns a list of all services in the database
   def services(opts)
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    opts.delete(:workspace) # Mdm::Service apparently doesn't have an upstream Mdm::Workspace association
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    conditions = {}
-    conditions[:state] = [Msf::ServiceState::Open] if opts[:only_up]
-    conditions[:proto] = opts[:proto] if opts[:proto]
-    conditions["hosts.address"] = opts[:addresses] if opts[:addresses]
-    conditions[:port] = opts[:ports] if opts[:ports]
-    conditions[:name] = opts[:names] if opts[:names]
-    wspace.services.includes(:host).where(conditions).order("hosts.address, port")
+    search_term = opts.delete(:search_term)
+    only_up = opts.delete(:only_up)
+    opts[:state] = [Msf::ServiceState::Open] if only_up
+    opts["hosts.address"] = opts.delete(:addresses)
+
+    opts.compact!
+    column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
+    Mdm::Service.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
   }
   end
 
@@ -156,6 +154,7 @@ module Msf::DBManager::Service
     wspace = opts.delete(:workspace) || workspace
     if wspace.kind_of? String
       wspace = find_workspace(wspace)
+      opts[:workspace] = wspace
     end
 
   ::ActiveRecord::Base.connection_pool.with_connection {

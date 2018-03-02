@@ -1,6 +1,6 @@
 module ServiceDataProxy
 
-  def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
+  def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil, search_term = nil)
     begin
       data_service = self.get_data_service()
       opts = {}
@@ -8,8 +8,9 @@ module ServiceDataProxy
       opts[:only_up] = only_up
       opts[:proto] = proto
       opts[:addresses] = addresses
-      opts[:ports] = ports
-      opts[:names] = names
+      opts[:port] = ports
+      opts[:name] = names
+      opts[:search_term] = search_term
       data_service.services(opts)
     rescue Exception => e
       self.log_error(e, 'Problem retrieving services')

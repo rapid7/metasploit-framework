@@ -637,8 +637,7 @@ module Msf
                 when '-R', '--rhosts'
                   set_rhosts = true
                 when '-S', '--search'
-                  search_term = /#{args.shift}/nmi
-
+                  search_term = args.shift
                 when '-h','--help'
                   print_line
                   print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
@@ -715,15 +714,9 @@ module Msf
 
             each_host_range_chunk(host_ranges) do |host_search|
               break if !host_search.nil? && host_search.empty?
-              framework.db.services(framework.db.workspace, onlyup, nil, host_search, nil, nil).each do |service|
+              framework.db.services(framework.db.workspace, onlyup, nil, host_search, nil, nil, search_term).each do |service|
 
                 host = service.host
-                if search_term
-                  next unless(
-                  host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term)} or
-                      service.attribute_names.any? { |a| service[a.intern].to_s.match(search_term)}
-                  )
-                end
                 matched_service_ids << service.id
 
                 if mode == :update
