@@ -173,11 +173,11 @@ class MetasploitModule < Msf::Post
     # check if we have write permission
     # I made it by myself because the function filestat.writable? was not implemented yet.
     if not datastore['LocalExePath'].nil?
-      
-      begin 
+
+      begin
         temprexe = datastore['LocalExePath'] + "\\" + rexename
         write_file_to_target(temprexe,rexe)
-      rescue Rex::Post::Meterpreter::RequestError 
+      rescue Rex::Post::Meterpreter::RequestError
         print_warning("Insufficient privileges to write in #{datastore['LocalExePath']}, writing to %TEMP%")
         temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
         write_file_to_target(temprexe,rexe)
