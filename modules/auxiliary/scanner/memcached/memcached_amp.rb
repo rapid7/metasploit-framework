@@ -12,11 +12,11 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'Memcached Stats Amplification Scanner',
-      'Description' => %q{
+      'Description' => %q(
           This module can be used to discover Memcached servers which expose the
           unrestricted UDP port 11211. A basic "stats" request is executed to check
           if an amplification attack is possible against a third party.
-      },
+      ),
       'Author'      =>
         [
           'Marek Majkowski', # Cloudflare blog and base payload
@@ -31,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
           ]
     )
 
-    register_options( [
-      Opt::RPORT(11211),
+    register_options([
+      Opt::RPORT(11211)
     ])
   end
 
@@ -60,10 +60,10 @@ class MetasploitModule < Msf::Auxiliary
     @results.keys.each do |host|
       response_map = { @memcached_probe => @results[host] }
       report_service(
-        :host  => host,
-        :proto => 'udp',
-        :port  => rport,
-        :name  => 'memcached'
+        host: host,
+        proto: 'udp',
+        port: rport,
+        name: 'memcached'
       )
 
       peer = "#{host}:#{rport}"
@@ -71,13 +71,13 @@ class MetasploitModule < Msf::Auxiliary
       what = 'memcached stats amplification'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
-        report_vuln({
-          :host  => host,
-          :port  => rport,
-          :proto => 'udp',
-          :name  => what,
-          :refs  => self.references
-        })
+        report_vuln(
+          host: host,
+          port: rport,
+          proto: 'udp',
+          name: what,
+          refs: references
+        )
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
       end
