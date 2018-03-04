@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Memcached Amplification Scanner',
+      'Name'        => 'Memcached Stats Amplification Scanner',
       'Description' => %q{
           This module can be used to discover Memcached servers which expose the
           unrestricted UDP port 11211. A basic "stats" request is executed to check
@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
           [
-            ['URL', 'https://blog.cloudflare.com/memcrashed-major-amplification-attacks-from-port-11211/']
+            ['URL', 'https://blog.cloudflare.com/memcrashed-major-amplification-attacks-from-port-11211/'],
+            ['CVE', '2018-100015']
           ]
     )
 
@@ -67,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
 
       peer = "#{host}:#{rport}"
       vulnerable, proof = prove_amplification(response_map)
-      what = 'MEMCACHED amplification'
+      what = 'memcached stats amplification'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
         report_vuln({
