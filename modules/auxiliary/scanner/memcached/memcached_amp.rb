@@ -11,57 +11,45 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Memcached Amplification Scanner',
-      'Description' => %q{
+      'Name'        => 'Memcached Stats Amplification Scanner',
+      'Description' => %q(
           This module can be used to discover Memcached servers which expose the
           unrestricted UDP port 11211. A basic "stats" request is executed to check
           if an amplification attack is possible against a third party.
-      },
+      ),
       'Author'      =>
         [
           'Marek Majkowski', # Cloudflare blog and base payload
-          'xistence <xistence[at]0x90.nl>' # Metasploit scanner module
+          'xistence <xistence[at]0x90.nl>', # Metasploit scanner module
+          'Jon Hart <jon_hart@rapid7.com>', # Metasploit scanner module
         ],
       'License'     => MSF_LICENSE,
       'References'  =>
           [
-            ['URL', 'https://blog.cloudflare.com/memcrashed-major-amplification-attacks-from-port-11211/']
+            ['URL', 'https://blog.cloudflare.com/memcrashed-major-amplification-attacks-from-port-11211/'],
+            ['CVE', '2018-100015']
           ]
     )
 
-    register_options( [
-      Opt::RPORT(11211),
+    register_options([
+      Opt::RPORT(11211)
     ])
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
-  def setup
-    super
-
-    # Memcached stats probe
-    @memcached_probe = "\x00\x00\x00\x00\x00\x01\x00\x00stats\r\n"
-  end
-
-  def scanner_prescan(batch)
-    print_status("Sending Memcached stats probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
-    @results = {}
-  end
-
-  def scan_host(ip)
-    if spoofed?
-      datastore['ScannerRecvWindow'] = 0
-      scanner_spoof_send(@memcached_probe, ip, datastore['RPORT'], datastore['SRCIP'], datastore['NUM_REQUESTS'])
-    else
-      scanner_send(@memcached_probe, ip, datastore['RPORT'])
-    end
+  def build_probe
+    # Memcached stats probe, per https://github.com/memcached/memcached/blob/master/doc/protocol.txt
+    @memcached_probe ||= [
+      rand(2**16), # random request ID
+      0, # sequence number
+      1, # number of datagrams in this sequence
+      0, # reserved; must be 0
+      "stats\r\n"
+    ].pack("nnnna*")
   end
 
   def scanner_process(data, shost, sport)
     # Check the response data for a "STAT" repsonse
-    if data =~/\x00\x00\x00\x00\x00\x01\x00\x00STAT\x20/
+    if data =~ /\x0d\x0aSTAT\x20/
       @results[shost] ||= []
       @results[shost] << data
     end
@@ -72,24 +60,24 @@ class MetasploitModule < Msf::Auxiliary
     @results.keys.each do |host|
       response_map = { @memcached_probe => @results[host] }
       report_service(
-        :host  => host,
-        :proto => 'udp',
-        :port  => rport,
-        :name  => 'memcached'
+        host: host,
+        proto: 'udp',
+        port: rport,
+        name: 'memcached'
       )
 
       peer = "#{host}:#{rport}"
       vulnerable, proof = prove_amplification(response_map)
-      what = 'MEMCACHED amplification'
+      what = 'memcached stats amplification'
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
-        report_vuln({
-          :host  => host,
-          :port  => rport,
-          :proto => 'udp',
-          :name  => what,
-          :refs  => self.references
-        })
+        report_vuln(
+          host: host,
+          port: rport,
+          proto: 'udp',
+          name: what,
+          refs: references
+        )
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")
       end
