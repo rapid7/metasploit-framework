@@ -17,10 +17,8 @@ The work being done or already done include:
   Potential Changes include (feel free to submit ideas):
   * Creation of a generic data type (for when you can't figure out which data type data belongs)
 
-***
 
-### Rationale
-
+## Rationale
 
 The current data storage mechanism couples the metasploit core framework code to the current data storage technology. Coupling causes inflexibility which are reflected via the following problems:
 * Changes to the current data model are complex
@@ -41,9 +39,7 @@ This approach enables us to:
 * Isolate component testing
 * Users of metasploit can now leverage a rigid API (documentation to provided soon) to build others tools easily
 
-***
-
-### Components
+## Components
 
 _**Metasploit Database as a Web Service**_ (msfdb_ws)
 * We have provided an example of an implementation of the current DB API which allow users to use the DB via JSON/HTTP
