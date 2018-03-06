@@ -98,17 +98,16 @@ class MetasploitModule < Msf::Auxiliary
     path = action.opts['UserPath']
     begin
       res = send_request_cgi({
-        'uri'     =>  normalize_uri(path),
+        'uri'     =>  path,
         'method'  =>  action.opts['List']
       })
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable, Errno::ECONNRESET => e
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
       print_error("Failed: #{e.class} - #{e.message}")
       return
     end
     if res && res.code == 200
       begin
-        mylist = JSON.parse(res.body)
+        mylist = res.get_json_document
       rescue JSON::ParserError => e
         print_error("Failed: #{e.class} - #{e.message}")
         return
@@ -123,17 +122,16 @@ class MetasploitModule < Msf::Auxiliary
     path = action.opts['RepoPath']
     begin
       res = send_request_cgi({
-        'uri'     =>  normalize_uri(path),
+        'uri'     =>  path,
         'method'  =>  action.opts['List']
       })
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable, Errno::ECONNRESET => e
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
       print_error("Failed: #{e.class} - #{e.message}")
       return nil
     end
     if res && res.code == 200
       begin
-        mylist = JSON.parse(res.body)
+        mylist = res.get_json_document
         return mylist
       rescue JSON::ParserError => e
         print_error("Failed: #{e.class} - #{e.message}")
@@ -155,14 +153,13 @@ class MetasploitModule < Msf::Auxiliary
     if mylist
       # Remove user from each repository
       mylist.each do |item|
-        path = action.opts['RepoPath'] + item['name'] + '/user/' + user + '/'
+        path = "#{action.opts['RepoPath']}#{item['name']}/user/#{user}/"
         begin
           res = send_request_cgi({
-            'uri'     =>  normalize_uri(path),
+            'uri'     =>  path,
             'method'  =>  action.opts['Remove']
           })
-        rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-               Rex::HostUnreachable, Errno::ECONNRESET => e
+        rescue Rex::ConnectionError, Errno::ECONNRESET => e
           print_error("Failed: #{e.class} - #{e.message}")
           return
         end
@@ -176,14 +173,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Delete the user account
-    path = action.opts['UserPath'] + user + '/'
+    path = "#{action.opts['UserPath']}#{user}/"
     begin
       res = send_request_cgi({
-        'uri'     =>  normalize_uri(path),
+        'uri'     =>  path,
         'method'  =>  action.opts['Remove']
       })
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable, Errno::ECONNRESET => e
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
       print_error("Failed: #{e.class} - #{e.message}")
       return
     end
@@ -201,15 +197,15 @@ class MetasploitModule < Msf::Auxiliary
     pass = datastore['PASSWORD']
 
     begin
-      data = 'username=' << user << '&password=' << pass
       res = send_request_cgi({
-        'uri'     =>  normalize_uri(action.opts['UserPath']),
-        'method'  =>  action.opts['Create'],
-        'encode'  =>  true,
-        'data'    =>  data
+        'uri'       =>  action.opts['UserPath'],
+        'method'    =>  action.opts['Create'],
+        'vars_post' =>  {
+          'username'  =>  user,
+          'password'  =>  pass
+        }
       })
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable, Errno::ECONNRESET => e
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
       print_error("Failed: #{e.class} - #{e.message}")
       return
     end
@@ -223,14 +219,13 @@ class MetasploitModule < Msf::Auxiliary
     mylist = get_repos
     if mylist
       mylist.each do |item|
-        path = action.opts['RepoPath'] + item['name'] + '/user/' + user + '/'
+        path = "#{action.opts['RepoPath']}#{item['name']}/user/#{user}/"
         begin
           res = send_request_cgi({
-            'uri'     =>  normalize_uri(path),
+            'uri'     =>  path,
             'method'  =>  action.opts['Create']
           })
-        rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-              Rex::HostUnreachable, Errno::ECONNRESET => e
+        rescue Rex::ConnectionError, Errno::ECONNRESET => e
           print_error("Failed: #{e.class} - #{e.message}")
           next
         end
