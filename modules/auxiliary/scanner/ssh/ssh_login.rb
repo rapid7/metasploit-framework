@@ -88,6 +88,10 @@ class MetasploitModule < Msf::Auxiliary
       s.platform = "windows"
     when /Unknown command or computer name/
       s.platform = "cisco-ios"
+    when /unknown keyword/ # ScreenOS
+      s.platform = "juniper"
+    when /JUNOS Base OS/ #JunOS
+      s.platform = "juniper"
     end
 
     s
