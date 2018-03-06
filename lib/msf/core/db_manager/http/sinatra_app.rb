@@ -14,6 +14,7 @@ require 'msf/core/db_manager/http/servlet/loot_servlet'
 require 'msf/core/db_manager/http/servlet/session_event_servlet'
 require 'msf/core/db_manager/http/servlet/credential_servlet'
 require 'msf/core/db_manager/http/servlet/nmap_servlet'
+require 'msf/core/db_manager/http/servlet/db_export_servlet'
 
 class SinatraApp < Sinatra::Base
 
@@ -34,4 +35,5 @@ class SinatraApp < Sinatra::Base
   register SessionEventServlet
   register CredentialServlet
   register NmapServlet
+  register DbExportServlet
 end

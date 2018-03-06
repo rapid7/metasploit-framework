@@ -35,10 +35,10 @@ class Export
   def to_pwdump_file(path, &block)
     exporter = Metasploit::Credential::Exporter::Pwdump.new(workspace: workspace)
 
-    File.open(path, 'w') do |file|
+    output_file = File.open(path, 'w') do |file|
       file << exporter.rendered_output
     end
-    true
+    output_file.path
   end
 
 
@@ -107,7 +107,7 @@ class Export
 
     yield(:status, "complete", "report") if block_given?
 
-    true
+    report_file.path
   end
 
   # A convenience function that bundles together host, event, and service extraction.
