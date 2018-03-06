@@ -20,7 +20,7 @@ class SessionManager < Hash
 
   include Framework::Offspring
 
-  LAST_SEEN_INTERVAL  = 60 * 2.5
+  LAST_SEEN_INTERVAL = 60 * 2.5
   SCHEDULER_THREAD_COUNT = 5
 
   def initialize(framework)
