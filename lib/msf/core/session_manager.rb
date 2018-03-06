@@ -20,7 +20,7 @@ class SessionManager < Hash
 
   include Framework::Offspring
 
-  LAST_SEEN_INTERVAL = 60 * 2.5
+  LAST_SEEN_INTERVAL  = 60 * 2.5
   SCHEDULER_THREAD_COUNT = 5
 
   def initialize(framework)
@@ -113,16 +113,14 @@ class SessionManager < Hash
 
           last_seen_timer = Time.now.utc
 
-          if framework.db.active
-            ::ActiveRecord::Base.connection_pool.with_connection do
-              values.each do |s|
-                # Update the database entry on a regular basis, marking alive threads
-                # as recently seen.  This notifies other framework instances that this
-                # session is being maintained.
-                if s.db_record
-                  s.db_record.last_seen = Time.now.utc
-                  s.db_record.save
-                end
+          ::ActiveRecord::Base.connection_pool.with_connection do
+            values.each do |s|
+              # Update the database entry on a regular basis, marking alive threads
+              # as recently seen.  This notifies other framework instances that this
+              # session is being maintained.
+              if s.db_record
+                s.db_record.last_seen = Time.now.utc
+                s.db_record.save
               end
             end
           end

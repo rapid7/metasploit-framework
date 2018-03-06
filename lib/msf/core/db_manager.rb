@@ -94,7 +94,6 @@ class Msf::DBManager
   include Msf::DBManager::Web
   include Msf::DBManager::Workspace
 
-
   # Provides :framework and other accessors
   include Msf::Framework::Offspring
 
