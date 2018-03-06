@@ -9,11 +9,11 @@ The work being done or already done include:
 * Port of the current data models to be used over HTTP / HTTPS
 * Creation of a web service that serves the metasploit data model
 * Creation of a new command in metasploit to remote (web based) data services
-* Creation of a V1 JSON/HTTP API document
+* Creation of a Metasploit Data Service API V1 document
 
 **_Stage 2_**
 * Enhance the current data model
-* Creation of a V2 JSON/HTTP API document
+* Creation of a Metasploit Data Service API V2 document
   Potential Changes include (feel free to submit ideas):
   * Creation of a generic data type (for when you can't figure out which data type data belongs)
 
@@ -25,28 +25,28 @@ The current data storage mechanism couples the metasploit core framework code to
 * The ability to support/use different data storage technologies is difficult
 * Promotes a monolithic architecture where poor performance in any segment of the software affects the entire system (large network scans)
 
-Our solution to this is a data service proxy.  A data service proxy allows us to separate core metasploit framework code from the underlying data service technology.  "framework.db" (a reference to data services) is no longer tied directly to the underlying data storage but instead all calls are proxied to an underlying implementation.
+Our solution to this is a data service proxy.  A data service proxy allows us to separate core metasploit framework code from the underlying data service technology.  The `framework.db` reference to data services is no longer tied directly to the underlying data storage, but instead all calls are proxied to an underlying implementation.
 
-Currently we plan to support the legacy data storage technology stack (RAILS/PostgreSQL) which we hope to eventually phase out.  The new implementation will use a RESTful (https://en.wikipedia.org/wiki/Representational_state_transfer) approach whereby calls to "framwork.db" can be proxied to a remote web service that supports the same data service API.  We have built a web service that runs atop the current data storage service for the community.
+Currently we plan to support the legacy data storage technology stack (RAILS/PostgreSQL) which we hope to eventually phase out.  The new implementation will use a RESTful (https://en.wikipedia.org/wiki/Representational_state_transfer) approach whereby calls to `framework.db` can be proxied to a remote web service that supports the same data service API.  We have built a web service that runs atop the current data storage service for the community.
 
 This approach enables us to:
 * More easily enhance the metasploit data model 
-* Run a web based data service independent of the metasploit framework
+* Run a web-based data service independent of the metasploit framework
     * Reduces the memory used by a metasploit framework instance using a data service by no longer requiring a DB client
     *  Increases throughput as storage calls don't necessarily need to be asynchronous
-    *  Allow teams to collaborate easily by connecting to  a centralized data service
+    *  Allow teams to collaborate easily by connecting to a centralized data service
 * Quickly build out data services that leverage different technology stacks
 * Isolate component testing
-* Users of metasploit can now leverage a rigid API (documentation to provided soon) to build others tools easily
+* Users of metasploit can now leverage a rigid API to build other tools easily (documentation to be provided soon)
 
 ## Components
 
 _**Metasploit Database as a Web Service**_ (msfdb_ws)
 * We have provided an example of an implementation of the current DB API which allow users to use the DB via JSON/HTTP
-* Usage: >./msfdb_ws -h
-* Server code path: lib/msf/core/db_manager/http
+* Usage: `./msfdb_ws -h`
+* Server code path: `lib/msf/core/db_manager/http`
 
 _**Using msfdb_ws from Metasploit Framework**_:
 * We have created a command that allows users to add/use remote data services.
-* Usage: msf5>data_services -h
-* Core client code path: lib/metasploit/framework/data_service
+* Usage: `data_services -h`
+* Core client code path: `lib/metasploit/framework/data_service`
