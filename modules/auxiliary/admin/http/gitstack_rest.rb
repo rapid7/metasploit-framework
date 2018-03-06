@@ -108,6 +108,7 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 200
       begin
         mylist = res.get_json_document
+        mylist -= ['everyone']
       rescue JSON::ParserError => e
         print_error("Failed: #{e.class} - #{e.message}")
         return
