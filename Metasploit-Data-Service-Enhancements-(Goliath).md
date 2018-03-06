@@ -6,7 +6,7 @@ This work is currently being done in 2 stages:
 
 This is currently a work in progress (which is why Goliath is currently not fully functional).
 The work being done or already done include:
-* Port of the current data models to be used over HTTP
+* Port of the current data models to be used over HTTP(S)
 * Creation of a web service that serves the metasploit data model
 * Creation of a new command in metasploit to remote (web based) data services
 * Creation of a V1 JSON/HTTP API document
