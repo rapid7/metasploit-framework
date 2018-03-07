@@ -7,7 +7,12 @@ module Msf::DBManager::Service
     deleted = []
     opts[:ids].each do |service_id|
       service = Mdm::Service.find(service_id)
-      deleted << service.destroy
+      begin
+        deleted << service.destroy
+      rescue
+        elog("Forcibly deleting #{service.name}")
+        deleted << service.delete
+      end
     end
 
     return deleted
