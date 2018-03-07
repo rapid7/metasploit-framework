@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    # Check the response data for a "STAT" repsonse
+    # Check the response data for a "VERSION" repsonse
     if /VERSION (?<version>[\d\.]+)\r\n/ =~ data
       print_good("#{shost}:#{sport}/udp memcached version #{version}")
       report_service(
