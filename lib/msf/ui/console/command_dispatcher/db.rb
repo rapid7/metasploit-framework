@@ -579,6 +579,7 @@ module Msf
             rhosts       = []
             delete_count = 0
             search_term  = nil
+            opts         = {}
 
             # option parsing
             while (arg = args.shift)
@@ -591,6 +592,7 @@ module Msf
                   mode = :update
                 when '-u','--up'
                   onlyup = true
+                  opts[:onlyup] = onlyup
                 when '-c'
                   list = args.shift
                   if(!list)
@@ -615,6 +617,7 @@ module Msf
                     return
                   end
                   proto = proto.strip
+                  opts[:proto] = proto
                 when '-s'
                   namelist = args.shift
                   if (!namelist)
@@ -622,6 +625,7 @@ module Msf
                     return
                   end
                   names = namelist.strip().split(",")
+                  opts[:name] = names
                 when '-o'
                   output_file = args.shift
                   if (!output_file)
@@ -638,6 +642,7 @@ module Msf
                   set_rhosts = true
                 when '-S', '--search'
                   search_term = args.shift
+                  opts[:search_term] = search_term
                 when '-h','--help'
                   print_line
                   print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
@@ -714,7 +719,8 @@ module Msf
 
             each_host_range_chunk(host_ranges) do |host_search|
               break if !host_search.nil? && host_search.empty?
-              framework.db.services(framework.db.workspace, onlyup, nil, host_search, nil, nil, search_term).each do |service|
+              opts[:addresses] = host_search
+              framework.db.services(framework.db.workspace, opts).each do |service|
 
                 host = service.host
                 matched_service_ids << service.id
