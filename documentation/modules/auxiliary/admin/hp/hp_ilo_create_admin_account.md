@@ -13,11 +13,11 @@ This module exploits the CVE-2017-12542 for authentication bypass on HP iLO, whi
 
   **USERNAME**
 
-  The username of the new administrator account. Defaults to msf_user
+  The username of the new administrator account. Defaults to a random string.
 
   **PASSWORD**
 
-  The password of the new administrator account. Defaults to msf_password
+  The password of the new administrator account. Defaults to a random string.
 
 ## Scenarios
 

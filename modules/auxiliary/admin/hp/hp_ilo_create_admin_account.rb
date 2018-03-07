@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module exploits an authentication bypass in HP iLO 4 1.00 to 2.50, triggered by a buffer
         overflow in the Connection HTTP header handling by the web server.
-        Exploiting this vulnerability gives full access to the Rest API, allowing arbitrary
+        Exploiting this vulnerability gives full access to the REST API, allowing arbitrary
         accounts creation.
       },
       'References'     =>
@@ -34,8 +34,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('USERNAME', [true, 'Username for the new account', 'msf_user']),
-        OptString.new('PASSWORD', [true, 'Password for the new account', 'msf_p4ssw0rd'])
+        OptString.new('USERNAME', [true, 'Username for the new account', Rex::Text.rand_text_alphanumeric(8)]),
+        OptString.new('PASSWORD', [true, 'Password for the new account', Rex::Text.rand_text_alphanumeric(12)])
       ])
   end
 
