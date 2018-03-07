@@ -44,11 +44,7 @@ class Metasploit::Framework::Command::Base
   #
   # @return (see parsed_options)
   def self.require_environment!
-    # TODO: Look into removing Rails.application (save ~20mb)
-    # return self.parsed_options if ( self.parsed_options.options.database.remote_process)
-
     parsed_options = self.parsed_options
-
     # RAILS_ENV must be set before requiring 'config/application.rb'
     parsed_options.environment!
     ARGV.replace(parsed_options.positional)
@@ -83,9 +79,7 @@ class Metasploit::Framework::Command::Base
 
   def self.start
     parsed_options = require_environment!
-    is_db_remote = false # parsed_options.options.database.remote_process
-    application = is_db_remote ? nil : Rails.application
-    new(application: application, parsed_options: parsed_options).start
+    new(application: Rails.application, parsed_options: parsed_options).start
   end
 
   #

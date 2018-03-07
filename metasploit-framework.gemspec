@@ -100,6 +100,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'redcarpet'
   # Needed for Microsoft patch finding tool (msu_finder)
   spec.add_runtime_dependency 'patch_finder'
+  # Required for msfdb_ws (Metasploit data base as a webservice)
+  spec.add_runtime_dependency 'thin'
+  spec.add_runtime_dependency 'sinatra'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
   # Gem for dealing with SSHKeys

@@ -62,8 +62,10 @@ PATH
       ruby_smb (= 0.0.18)
       rubyntlm
       rubyzip
+      sinatra
       sqlite3
       sshkey
+      thin
       tzinfo
       tzinfo-data
       windows_error
@@ -378,6 +380,7 @@ PLATFORMS
 DEPENDENCIES
   factory_girl_rails
   fivemat
+  google-protobuf (= 3.5.1)
   metasploit-aggregator
   metasploit-framework!
   octokit
@@ -387,8 +390,6 @@ DEPENDENCIES
   rspec-rails
   rspec-rerun
   simplecov
-  sinatra
-  thin
   timecop
   yard
 

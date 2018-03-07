@@ -3,10 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-
-gem 'thin'
-gem 'sinatra'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
