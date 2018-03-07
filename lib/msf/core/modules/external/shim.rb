@@ -32,7 +32,7 @@ class Msf::Modules::External::Shim
     render_template('common_metadata.erb', meta)
   end
 
-  def self.mod_meta_common(mod, meta = {}, drop_rhost: true)
+  def self.mod_meta_common(mod, meta = {}, drop_rhost: false)
     meta[:path]        = mod.path.dump
     meta[:name]        = mod.meta['name'].dump
     meta[:description] = mod.meta['description'].dump
