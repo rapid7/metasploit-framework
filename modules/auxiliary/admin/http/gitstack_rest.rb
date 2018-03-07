@@ -88,7 +88,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptInt.new('RPORT', [true, 'The target port', 80]),
         OptString.new('USERNAME', [false, 'User to create or modify', 'msf']),
         OptString.new('PASSWORD', [false, 'Password for user', 'password'])
       ])
