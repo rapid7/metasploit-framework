@@ -24,10 +24,11 @@ class MetasploitModule < Msf::Auxiliary
           'Jon Hart <jon_hart@rapid7.com>', # Metasploit scanner module
         ],
       'License'     => MSF_LICENSE,
+      'DisclosureDate' => 'Feb 27, 2018',
       'References'  =>
           [
             ['URL', 'https://blog.cloudflare.com/memcrashed-major-amplification-attacks-from-port-11211/'],
-            ['CVE', '2018-100015']
+            ['CVE', '2018-1000115']
           ]
     )
 
