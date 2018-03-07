@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
       'Targets'        =>
         [
           [ 'Windows x86', { 'Arch' => ARCH_X86 } ],
-          [ 'Windows x64', { 'Arch' => ARCH_X86_64 } ]
+          [ 'Windows x64', { 'Arch' => ARCH_X64 } ]
         ],
       'Author'               => [
         'Created by khr0x40sh',
