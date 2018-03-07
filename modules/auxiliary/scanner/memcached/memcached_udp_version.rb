@@ -22,15 +22,17 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'     => MSF_LICENSE,
       'DisclosureDate' => 'Jul 23, 2003',
-      'References'  =>
+      'References' =>
           [
-            ['URL', 'https://github.com/memcached/memcached/blob/master/doc/protocol.txt'],
+            ['URL', 'https://github.com/memcached/memcached/blob/master/doc/protocol.txt']
           ]
     )
 
-    register_options([
-      Opt::RPORT(11211)
-    ])
+    register_options(
+      [
+        Opt::RPORT(11211)
+      ]
+    )
   end
 
   def build_probe
