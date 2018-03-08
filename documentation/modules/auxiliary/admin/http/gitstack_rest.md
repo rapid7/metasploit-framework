@@ -1,6 +1,6 @@
 ## Description
 
-This module sends requests to REST API endpoints on GitStack v2.3.10. The application allows unauthenticated REST API requests to several endpoints. Earlier version of GitStack may also be affected.
+This module sends requests to REST API endpoints in GitStack v2.3.10. The application allows unauthenticated REST API requests to several endpoints. Earlier version of GitStack may also be affected.
 
 ## Vulnerable Application
 
