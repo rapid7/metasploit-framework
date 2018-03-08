@@ -14,10 +14,10 @@ class MetasploitModule < Msf::Auxiliary
     include Msf::Auxiliary::Dos
     def initialize(info = {})
         super(update_info(info, 
-            'Name'           => 'Siemens SIPROTEC 4 and SIPROTEC Compact EN100 Ethernet Module < V4.25 - Denial of Service ',
+            'Name'           => 'Siemens SIPROTEC 4 and SIPROTEC Compact EN100 Ethernet Module - Denial of Service ',
             'Description'    => %q{
                 This module sends a specially crafted packet to port 50000/UDP 
-                causing a denial of service of the affected (Siemens SIPROTEC 4 and SIPROTEC Compact) devices. 
+                causing a denial of service of the affected (Siemens SIPROTEC 4 and SIPROTEC Compact < V4.25) devices. 
                 A manual reboot is required to return the device to service. 
                 CVE-2015-5374 and a CVSS v2 base score of 7.8 have been assigned to this vulnerability.
                 
