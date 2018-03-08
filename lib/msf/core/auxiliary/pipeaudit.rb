@@ -7,15 +7,15 @@ module Auxiliary::PipeAudit
 
   def initialize(info = {})
     super
-	#register_options([
-	#		OptString.new('RPORT', [true, 'The Target port', 445])
-	#	], Msf::Auxiliary::PIPEAudit)
+    #register_options([
+    #		OptString.new('RPORT', [true, 'The Target port', 445])
+    #	], Msf::Auxiliary::PIPEAudit
   end
 
   def connect_to_pipe()
-		  accessible_pipes||=[]
-	          a_pipe_handles||=[]
-		  target_pipes = [
+    accessible_pipes||=[]
+    a_pipe_handles||=[]
+    target_pipes = [
                 'netlogon',
                 'lsarpc',
                 'samr',
@@ -41,17 +41,17 @@ module Auxiliary::PipeAudit
                 'wkssvc',
                 'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER',
                 'db2remotecmd'
-        ]
+    ]
 		
-		target_pipes.each do |pipe|
-		     begin
-				pipe_name = "#{pipe}"
-				pipe_handle = self.simple.create_pipe(pipe_name, 'o')
-				accessible_pipes << pipe_name
-			        a_pipe_handles << pipe_handle
-		     end
-      end
-		return accessible_pipes[0], pipe_handle[0] 
+    target_pipes.each do |pipe|
+       begin
+         pipe_name = "#{pipe}"
+         pipe_handle = self.simple.create_pipe(pipe_name, 'o')
+         accessible_pipes << pipe_name
+         a_pipe_handles << pipe_handle
+       end
+    end
+    return accessible_pipes[0], pipe_handle[0] 
   end
 end
 end
