@@ -8,10 +8,10 @@ require 'msf/core/post/file'
 require 'msf/core/exploit/exe'
 
 class MetasploitModule < Msf::Post
-  #include Msf::Post::File
-  #include Msf::Exploit::Powershell
-  #include Exploit::EXE
-  #include Msf::Post::Common
+  include Msf::Post::File
+  include Msf::Exploit::Powershell
+  include Exploit::EXE
+  include Msf::Post::Common
 
   def initialize(info={})
     super(update_info(info,
