@@ -1,18 +1,18 @@
 module Msf
 
-module Auxiliary::PIPEAudit
+module Auxiliary::PipeAudit
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super
-	register_options([
-			OptString.new('RPORT', [true, 'The Target port', 445])
-		], Msf::Auxiliary::PIPEAudit)
+	#register_options([
+	#		OptString.new('RPORT', [true, 'The Target port', 445])
+	#	], Msf::Auxiliary::PIPEAudit)
   end
 
-  def connect_to_pipe
+  def connect_to_pipe()
 		  accessible_pipes||=[]
 	          a_pipe_handles||=[]
 		  target_pipes = [
