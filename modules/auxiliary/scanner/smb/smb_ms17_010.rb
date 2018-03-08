@@ -123,18 +123,18 @@ class MetasploitModule < Msf::Auxiliary
         ]
         accessible_pipes||=[]
         target_pipes.each do |pipe|
-                pipe_name = "#{pipe}"
-                pipe_handle = self.simple.create_pipe(pipe_name, 'o')
-                accessible_pipes << pipe
+          pipe_name = "#{pipe}"
+          pipe_handle = self.simple.create_pipe(pipe_name, 'o')
+          accessible_pipes << pipe
         end
         p_pipes = "" 
         if accessible_pipes.count != 0
-           accessible_pipes.each do |a_pipe|
-             p_pipes += ", #{a_pipe}"  
-           end
-           print_good("Following accessible named pipe(s) found: #{p_pipes}")
+             accessible_pipes.each do |a_pipe|
+                p_pipes += ", #{a_pipe}"  
+             end
+             print_good("Following accessible named pipe(s) found: #{p_pipes}")
         else
-           vprint_status("No accessible named pipes found on the target")
+             print_status("No accessible named pipes found on the target")
         end
         
         report_vuln(
