@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/varnish/client'
 
@@ -40,8 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PASSWORD',  [ false, 'Password for CLI.  No auth will be automatically detected', '' ]),
         OptString.new('FILE',  [ false, 'File to read the first line of', '/etc/passwd' ])
-      ], self.class)
-
+      ])
   end
 
   def run_host(ip)
