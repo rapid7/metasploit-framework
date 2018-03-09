@@ -5,39 +5,22 @@ module Exploit::Remote::SMB::Client::PipeAudit
 
   def initialize(info = {})
     super
+	register_options(
+      [
+        OptPath.new('NAMED_PIPES_FILE', [ true, "List of known named pipes",
+          File.join(Msf::Config.data_directory, "wordlists", "namedpipes.txt")]),
+      ])
   end
 
   def connect_to_pipe()
     accessible_pipes||=[]
     a_pipe_handles||=[]
-    target_pipes = [
-                'netlogon',
-                'lsarpc',
-                'samr',
-                'browser',
-                'atsvc',
-                'DAV RPC SERVICE',
-                'epmapper',
-                'eventlog',
-                'InitShutdown',
-                'keysvc',
-                'lsass',
-                'LSM_API_service',
-                'ntsvcs',
-                'plugplay',
-                'protected_storage',
-                'router',
-                'SapiServerPipeS-1-5-5-0-70123',
-                'scerpc',
-                'srvsvc',
-                'tapsrv',
-                'trkwks',
-                'W32TIME_ALT',
-                'wkssvc',
-                'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER',
-                'db2remotecmd'
-    ]
-		
+    target_pipes = []
+	pipe_file = datastore['NAMED_PIPES_FILE']
+	if (!pipe_file)
+       print_error("File with named pipes is needed")
+    end
+	File.open(pipe_file, 'rb') { |f| target_pipes += f.readlines.split("\n")[0] }
     target_pipes.each do |pipe|
        begin
          pipe_name = "#{pipe}"
