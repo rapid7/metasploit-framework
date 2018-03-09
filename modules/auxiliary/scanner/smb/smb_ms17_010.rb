@@ -134,7 +134,6 @@ class MetasploitModule < Msf::Auxiliary
         else
              print_status("No accessible named pipes found on the target")
         end
-        
         report_vuln(
           host: ip,
           name: self.name,
