@@ -9,12 +9,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'         => 'GitStack v2.3.10 REST API User Requests',
+      'Name'         => 'GitStack Unauthenticated REST API Requests',
       'Description'  => %q{
-        This modules exploits unauthenticated REST API requests on GitStack v2.3.10.
+        This modules exploits unauthenticated REST API requests in GitStack through v2.3.10.
         The module supports requests for listing users of the application and listing
-        available repositories. Additionally, the module can create a user and add the
-        user to the application's repositories. Earlier versions of GitStack may be affected.
+        available repositories. Additionally, the module can create a user and add the user
+        to the application's repositories. This module has been tested against GitStack v2.3.10.
       },
       'Author'       =>
         [
