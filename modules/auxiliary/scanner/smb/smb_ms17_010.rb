@@ -90,8 +90,6 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
-        
-        
         # Detect accessible named pipes
         vprint_status("Checking for accessible named pipes")
         target_pipes = [
@@ -127,10 +125,10 @@ class MetasploitModule < Msf::Auxiliary
           pipe_handle = self.simple.create_pipe(pipe_name, 'o')
           accessible_pipes << pipe
         end
-        p_pipes = "" 
+        p_pipes = ""
         if accessible_pipes.count != 0
              accessible_pipes.each do |a_pipe|
-                p_pipes += ", #{a_pipe}"  
+                p_pipes += ", #{a_pipe}"
              end
              print_good("Following accessible named pipe(s) found: #{p_pipes}")
         else
