@@ -31,14 +31,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    
     print_status("Sending HTTP DoS packets...")
     trig = true
 
     begin
       connect
       disconnect
-    rescue 
+    rescue
       print_error("Unable to connect to #{rhost}:#{rport}")
        trig = false
     end
@@ -81,6 +80,5 @@ class MetasploitModule < Msf::Auxiliary
             break
         end
     end
-
   end
 end
