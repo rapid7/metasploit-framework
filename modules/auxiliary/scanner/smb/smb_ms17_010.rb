@@ -92,14 +92,14 @@ class MetasploitModule < Msf::Auxiliary
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
         accessible_pipes , pipe_handlers = connect_to_pipe()
-		p_pipes = ""
-        if accessible_pipes.count != 0
-             accessible_pipes.each do |a_pipe|
-                p_pipes += ", #{a_pipe}"
-             end
-             print_good("Following accessible named pipe(s) found: #{p_pipes}")
+        p_pipes = ""
+	if accessible_pipes.count != 0
+          accessible_pipes.each do |a_pipe|
+          p_pipes += ", #{a_pipe}"
+        end
+          print_good("Following accessible named pipe(s) found: #{p_pipes}")
         else
-             print_status("No accessible named pipes found on the target")
+          print_status("No accessible named pipes found on the target")
         end
         report_vuln(
           host: ip,
