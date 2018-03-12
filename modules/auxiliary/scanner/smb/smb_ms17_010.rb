@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
+  include Msf::Exploit::Remote::SMB::Client::PipeAudit
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 
@@ -90,42 +91,8 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
-        # Detect accessible named pipes
-        vprint_status("Checking for accessible named pipes")
-        target_pipes = [
-                'netlogon',
-                'lsarpc',
-                'samr',
-                'browser',
-                'atsvc',
-                'DAV RPC SERVICE',
-                'epmapper',
-                'eventlog',
-                'InitShutdown',
-                'keysvc',
-                'lsass',
-                'LSM_API_service',
-                'ntsvcs',
-                'plugplay',
-                'protected_storage',
-                'router',
-                'SapiServerPipeS-1-5-5-0-70123',
-                'scerpc',
-                'srvsvc',
-                'tapsrv',
-                'trkwks',
-                'W32TIME_ALT',
-                'wkssvc',
-                'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER',
-                'db2remotecmd'
-        ]
-        accessible_pipes||=[]
-        target_pipes.each do |pipe|
-          pipe_name = "#{pipe}"
-          pipe_handle = self.simple.create_pipe(pipe_name, 'o')
-          accessible_pipes << pipe
-        end
-        p_pipes = ""
+        accessible_pipes , pipe_handlers = connect_to_pipe()
+		p_pipes = ""
         if accessible_pipes.count != 0
              accessible_pipes.each do |a_pipe|
                 p_pipes += ", #{a_pipe}"
