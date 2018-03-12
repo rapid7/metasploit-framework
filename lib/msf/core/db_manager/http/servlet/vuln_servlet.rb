@@ -24,7 +24,7 @@ module VulnServlet
       begin
         opts = parse_json_request(request, false)
         data = get_db().vulns(params.symbolize_keys)
-        includes = [:host]
+        includes = [:host, :vulns_refs, :refs, :module_refs]
         set_json_response(data, includes)
       rescue Exception => e
         set_error_on_response(e)

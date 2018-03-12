@@ -1,3 +1,4 @@
+
 module VulnDataProxy
 
   def vulns(opts)
@@ -35,7 +36,4 @@ module VulnDataProxy
       self.log_error(e, "Problem deleting vuln")
     end
   end
-
-
-
 end

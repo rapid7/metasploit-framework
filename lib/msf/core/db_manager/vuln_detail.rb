@@ -4,6 +4,7 @@ module Msf::DBManager::VulnDetail
   # information, matched by a specific criteria
   #
   def report_vuln_details(vuln, details)
+    $stderr.puts "Msf::DBManager::VulnDetailVuln.report_vuln_details(): vuln.id=#{vuln.id}, vuln=#{vuln}, details=#{details}"  # TODO: remove
   ::ActiveRecord::Base.connection_pool.with_connection {
     detail = ::Mdm::VulnDetail.where(( details.delete(:key) || {} ).merge(:vuln_id => vuln.id)).first
     if detail

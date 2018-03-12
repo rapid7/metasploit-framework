@@ -193,26 +193,24 @@ module Msf::DBManager::Session
         mod_fullname = session.via_exploit
       end
       mod_detail = ::Mdm::Module::Detail.find_by_fullname(mod_fullname)
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session(): mod_detail=#{mod_detail}"  # TODO: remove
 
-      # temp fix: mod_detail.refs will throw exception if mod_detail.nil?
-      vuln_refs = []
       if mod_detail.nil?
         # Then the cache isn't built yet, take the hit for instantiating the
         # module
         mod_detail = framework.modules.create(mod_fullname)
-        refs = []
-      else
-        vuln_refs = mod_detail.refs.map(&:name)
-        refs = mod_detail.refs
       end
       mod_name = mod_detail.name
+
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session(): mod_detail=#{mod_detail}, mod_name=#{mod_name}"  # TODO: remove
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session(): mod_detail.references=#{mod_detail.references}" if mod_detail.references  # TODO: remove
 
       vuln_info = {
         exploited_at: Time.now.utc,
         host: host,
         info: "Exploited by #{mod_fullname} to create Session #{s.id}",
         name: mod_name,
-        refs: vuln_refs,
+        refs: mod_detail.references,
         workspace: wspace,
       }
 
@@ -221,21 +219,24 @@ module Msf::DBManager::Session
 
       vuln_info[:service] = service if service
 
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session(): calling report_vuln() with vuln_info=#{vuln_info}"  # TODO: remove
       vuln = framework.db.report_vuln(vuln_info)
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session(): report_vuln() returned vuln.id=#{vuln.id}, vuln=#{vuln}"  # TODO: remove
 
       attempt_info = {
-        host: host,
-        module: mod_fullname,
-        refs: refs,
-        service: service,
-        session_id: s.id,
-        timestamp: Time.now.utc,
-        username: session.username,
-        vuln: vuln,
-        workspace: wspace,
-        run_id: session.exploit.user_data.try(:[], :run_id)
+          host: host,
+          module: mod_fullname,
+          refs: mod_detail.references,
+          service: service,
+          session_id: s.id,
+          timestamp: Time.now.utc,
+          username: session.username,
+          vuln: vuln,
+          workspace: wspace,
+          run_id: session.exploit.user_data.try(:[], :run_id)
       }
 
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session(): calling report_exploit_success() with attempt_info=#{attempt_info}"  # TODO: remove
       framework.db.report_exploit_success(attempt_info)
 
       vuln
@@ -318,32 +319,16 @@ module Msf::DBManager::Session
 
       vuln_info_dto = session_dto[:vuln_info]
       host = session_db_record.host
-      mod_detail = ::Mdm::Module::Detail.find_by_fullname(vuln_info_dto[:mod_name])
-
-      # temp fix: mod_detail.refs will throw exception if mod_detail.nil?
-      vuln_refs = []
-      if mod_detail.nil?
-        # Then the cache isn't built yet, take the hit for instantiating the
-        # module
-        mod_detail = framework.modules.create(vuln_info_dto[:mod_name])
-      else
-        vuln_refs = mod_detail.refs.map(&:name)
-      end
-
-      if (mod_detail.nil?)
-        mod_name = 'unknown'
-        refs = []
-      else
-        mod_name = mod_detail.name
-        refs = mod_detail.refs
-      end
+      mod_name = vuln_info_dto[:mod_name] || 'unknown'
+      refs = vuln_info_dto[:mod_references] || []
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session_dto(): mod_name=#{mod_name}, refs=#{refs}"  # TODO: remove
 
       vuln_info = {
           exploited_at: session_dto[:time_stamp],
           host: host,
-          info: "Exploited by #{vuln_info_dto[:mod_name]} to create Session #{session_db_record.id}",
+          info: "Exploited by #{vuln_info_dto[:mod_fullname]} to create Session #{session_db_record.id}",
           name: mod_name,
-          refs: vuln_refs,
+          refs: refs,
           workspace: workspace,
       }
 
@@ -352,11 +337,13 @@ module Msf::DBManager::Session
 
       vuln_info[:service] = service if service
 
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session_dto(): calling report_vuln() with vuln_info=#{vuln_info}"  # TODO: remove
       vuln = framework.db.report_vuln(vuln_info)
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session_dto(): report_vuln() returned vuln.id=#{vuln.id}, vuln=#{vuln}"  # TODO: remove
 
       attempt_info = {
           host: host,
-          module: vuln_info_dto[:mod_name],
+          module: vuln_info_dto[:mod_fullname],
           refs: refs,
           service: service,
           session_id: session_db_record.id,
@@ -367,6 +354,7 @@ module Msf::DBManager::Session
           run_id: vuln_info_dto[:run_id]
       }
 
+      $stderr.puts "Msf::DBManager::Session.infer_vuln_from_session_dto(): calling report_exploit_success() with attempt_info=#{attempt_info}"  # TODO: remove
       framework.db.report_exploit_success(attempt_info)
 
       vuln
