@@ -30,11 +30,15 @@ module Msf::DBManager::Loot
       wspace = find_workspace(wspace)
     end
     opts[:workspace_id] = wspace.id
+    search_term = opts.delete(:search_term)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      search_term = opts.delete(:search_term)
-      column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Loot, search_term)
-      Mdm::Loot.includes(:host).where(opts).where(column_search_conditions)
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Loot, search_term)
+        Mdm::Loot.includes(:host).where(opts).where(column_search_conditions)
+      else
+        Mdm::Loot.includes(:host).where(opts)
+      end
     }
   end
   alias_method :loot, :loots

@@ -147,8 +147,12 @@ module Msf::DBManager::Service
     opts.compact!
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
-    Mdm::Service.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
+    if search_term && !search_term.empty?
+      column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
+      Mdm::Service.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
+    else
+      Mdm::Service.includes(:host).where(opts).order("hosts.address, port")
+    end
   }
   end
 
