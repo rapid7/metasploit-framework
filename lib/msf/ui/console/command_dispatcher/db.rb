@@ -592,7 +592,6 @@ class Db
           mode = :update
         when '-u','--up'
           onlyup = true
-          opts[:onlyup] = onlyup
         when '-c'
           list = args.shift
           if(!list)
@@ -617,7 +616,6 @@ class Db
             return
           end
           proto = proto.strip
-          opts[:proto] = proto
         when '-s'
           namelist = args.shift
           if (!namelist)
@@ -625,7 +623,6 @@ class Db
             return
           end
           names = namelist.strip().split(",")
-          opts[:name] = names
         when '-o'
           output_file = args.shift
           if (!output_file)
