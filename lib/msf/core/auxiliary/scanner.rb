@@ -28,7 +28,6 @@ def initialize(info = {})
 end
 
 def check
-  
   nmod = replicant
   nmod.datastore['RHOST'] = @original_rhost
   begin
@@ -87,11 +86,6 @@ def run
   end
 
   begin
-
-  if (self.respond_to?('run_range'))
-    # No automated progress reporting or error handling for run_range
-    return run_range(datastore['RHOSTS'])
-  end
 
   if (self.respond_to?('run_host'))
     loop do
@@ -247,7 +241,7 @@ def run
     return
   end
 
-  print_error("This module defined no run_host, run_range or run_batch methods")
+  print_error("This module defined no run_host or run_batch methods")
 
   rescue ::Interrupt
     print_status("Caught interrupt from the console...")
