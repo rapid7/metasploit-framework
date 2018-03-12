@@ -156,11 +156,7 @@ module Msf::DBManager::Service
   end
 
   def update_service(opts)
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-      opts[:workspace] = wspace
-    end
+    opts.delete(:workspace) # Workspace isn't used with Mdm::Service. So strip it if it's present.
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     id = opts.delete(:id)
