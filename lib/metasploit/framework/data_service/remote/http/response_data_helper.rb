@@ -84,6 +84,7 @@ module ResponseDataHelper
   # @param [Class] base_class The base class to build back to. Used for recursion.
   # @return [ActiveRecord::Base] A klass object, which inherits from ActiveRecord::Base.
   def to_ar(klass, val, base_object = nil)
+    return nil unless val
     data = val.class == Hash ? val.dup : JSON.parse(val)
     obj = base_object || klass.new
 
