@@ -38,6 +38,7 @@ module Msf
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Selects a module by name",
+              "loadlib"    => "Load a library file from specified path",
             }
           end
 
@@ -62,6 +63,40 @@ module Msf
 
           def local_editor
             framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
+          end
+
+          def cmd_loadlib_help
+            print_line 'Usage: loadlib [lib/to/load.rb]'
+            print_line
+            print_line 'Load a library from specified path'
+          end
+
+          #
+          # Load a library file from given path
+          #
+
+          def cmd_loadlib(*args)
+            if args.length > 0
+              path = args[0]
+            end
+            if args.include?('-h')  || args.include?('--help')
+              cmd_loadlib_help
+              return
+            end
+            if path.nil?
+              print_error('Nothing to load.')
+              return
+            end
+            if path.end_with?('.rb')
+              print_status("Reloading #{path}")
+              load path
+            else
+              print_error('Only library files can be loaded.')
+            end
+          end
+
+          def cmd_loadlib_tabs(str, words)
+            tab_complete_filenames(str, words)
           end
 
           def cmd_edit_help
