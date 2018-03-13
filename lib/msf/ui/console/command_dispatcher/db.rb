@@ -650,7 +650,7 @@ class Db
           print_line "  -h,--help         Show this help information"
           print_line "  -s <name>         Name of the service to add"
           print_line "  -p <port>         Port number of the service being added"
-          print_line "  -r <protocol>     Only show [tcp|udp] services"
+          print_line "  -r <protocol>     Protocol type of the service being added [tcp|udp]"
           print_line "  -u,--up           Only show services which are up"
           print_line "  -o <file>         Send output to a file in csv format"
           print_line "  -O <column>       Order rows by specified column number"
