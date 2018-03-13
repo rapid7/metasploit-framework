@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RHOST']
   end
 
-  def session_setup(result, scanner.ssh_socket, fingerprint)
+  def session_setup(result, scanner, fingerprint)
     return unless scanner.ssh_socket
 
     # Create a new session from the socket
