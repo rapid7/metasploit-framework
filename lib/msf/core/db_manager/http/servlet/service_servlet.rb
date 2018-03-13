@@ -35,7 +35,8 @@ module ServiceServlet
   def self.report_service
     lambda {
       job = lambda { |opts| get_db.report_service(opts) }
-      exec_report_job(request, &job)
+      includes = [:host]
+      exec_report_job(request, includes, &job)
     }
   end
 

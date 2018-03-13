@@ -32,7 +32,7 @@ module ServletHelper
     hash.deep_symbolize_keys
   end
 
-  def exec_report_job(request, &job)
+  def exec_report_job(request, includes = nil, &job)
     begin
 
       # report jobs always need data
@@ -44,7 +44,7 @@ module ServletHelper
         return set_empty_response()
       else
         data = job.call(opts)
-        return set_json_response(data)
+        return set_json_response(data, includes)
       end
 
     rescue Exception => e
