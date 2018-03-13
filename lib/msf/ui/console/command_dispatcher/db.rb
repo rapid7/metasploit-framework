@@ -579,89 +579,93 @@ class Db
     rhosts       = []
     delete_count = 0
     search_term  = nil
+    opts         = {}
 
     # option parsing
     while (arg = args.shift)
       case arg
-      when '-a','--add'
-        mode = :add
-      when '-d','--delete'
-        mode = :delete
-      when '-u','--up'
-        onlyup = true
-      when '-c'
-        list = args.shift
-        if(!list)
-          print_error("Invalid column list")
-          return
-        end
-        col_search = list.strip().split(",")
-        col_search.each { |c|
-          if not default_columns.include? c
-            print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
+        when '-a','--add'
+          mode = :add
+        when '-d','--delete'
+          mode = :delete
+        when '-U', '--update'
+          mode = :update
+        when '-u','--up'
+          onlyup = true
+        when '-c'
+          list = args.shift
+          if(!list)
+            print_error("Invalid column list")
             return
           end
-        }
-      when '-p'
-        unless (arg_port_range(args.shift, port_ranges, true))
+          col_search = list.strip().split(",")
+          col_search.each { |c|
+            if not default_columns.include? c
+              print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
+              return
+            end
+          }
+        when '-p'
+          unless (arg_port_range(args.shift, port_ranges, true))
+            return
+          end
+        when '-r'
+          proto = args.shift
+          if (!proto)
+            print_status("Invalid protocol")
+            return
+          end
+          proto = proto.strip
+        when '-s'
+          namelist = args.shift
+          if (!namelist)
+            print_error("Invalid name list")
+            return
+          end
+          names = namelist.strip().split(",")
+        when '-o'
+          output_file = args.shift
+          if (!output_file)
+            print_error("Invalid output filename")
+            return
+          end
+          output_file = ::File.expand_path(output_file)
+        when '-O'
+          if (order_by = args.shift.to_i - 1) < 0
+            print_error('Please specify a column number starting from 1')
+            return
+          end
+        when '-R', '--rhosts'
+          set_rhosts = true
+        when '-S', '--search'
+          search_term = args.shift
+          opts[:search_term] = search_term
+        when '-h','--help'
+          print_line
+          print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
+          print_line
+          print_line "  -a,--add          Add the services instead of searching"
+          print_line "  -d,--delete       Delete the services instead of searching"
+          print_line "  -c <col1,col2>    Only show the given columns"
+          print_line "  -h,--help         Show this help information"
+          print_line "  -s <name>         Name of the service to add"
+          print_line "  -p <port>         Port number of the service being added"
+          print_line "  -r <protocol>     Protocol type of the service being added [tcp|udp]"
+          print_line "  -u,--up           Only show services which are up"
+          print_line "  -o <file>         Send output to a file in csv format"
+          print_line "  -O <column>       Order rows by specified column number"
+          print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
+          print_line "  -S,--search       Search string to filter by"
+          print_line "  -U,--update       Update data for existing service"
+          print_line
+          print_line "Available columns: #{default_columns.join(", ")}"
+          print_line
           return
-        end
-      when '-r'
-        proto = args.shift
-        if (!proto)
-          print_status("Invalid protocol")
-          return
-        end
-        proto = proto.strip
-      when '-s'
-        namelist = args.shift
-        if (!namelist)
-          print_error("Invalid name list")
-          return
-        end
-        names = namelist.strip().split(",")
-      when '-o'
-        output_file = args.shift
-        if (!output_file)
-          print_error("Invalid output filename")
-          return
-        end
-        output_file = ::File.expand_path(output_file)
-      when '-O'
-        if (order_by = args.shift.to_i - 1) < 0
-          print_error('Please specify a column number starting from 1')
-          return
-        end
-      when '-R', '--rhosts'
-        set_rhosts = true
-      when '-S', '--search'
-        search_term = /#{args.shift}/nmi
-
-      when '-h','--help'
-        print_line
-        print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
-        print_line
-        print_line "  -a,--add          Add the services instead of searching"
-        print_line "  -d,--delete       Delete the services instead of searching"
-        print_line "  -c <col1,col2>    Only show the given columns"
-        print_line "  -h,--help         Show this help information"
-        print_line "  -s <name1,name2>  Search for a list of service names"
-        print_line "  -p <port1,port2>  Search for a list of ports"
-        print_line "  -r <protocol>     Only show [tcp|udp] services"
-        print_line "  -u,--up           Only show services which are up"
-        print_line "  -o <file>         Send output to a file in csv format"
-        print_line "  -O <column>       Order rows by specified column number"
-        print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
-        print_line "  -S,--search       Search string to filter by"
-        print_line
-        print_line "Available columns: #{default_columns.join(", ")}"
-        print_line
-        return
-      else
-        # Anything that wasn't an option is a host to search for
-        unless (arg_host_range(arg, host_ranges))
-          return
-        end
+        else
+          # Anything that wasn't an option is a host to search for
+          unless (arg_host_range(arg, host_ranges))
+            return
+          end
       end
     end
 
@@ -674,13 +678,15 @@ class Db
         print_error("Exactly one port required")
         return
       end
+      if host_ranges.empty?
+        print_error("Host address or range required")
+        return
+      end
       host_ranges.each do |range|
         range.each do |addr|
-          host = framework.db.find_or_create_host(:host => addr)
-          next if not host
           info = {
-            :host => host,
-            :port => ports.first.to_i
+              :host => addr,
+              :port => ports.first.to_i
           }
           info[:proto] = proto.downcase if proto
           info[:name]  = names.first.downcase if names and names.first
@@ -698,24 +704,29 @@ class Db
       col_names = col_search
     end
     tbl = Rex::Text::Table.new({
-        'Header'    => "Services",
-        'Columns'   => ['host'] + col_names,
-        'SortIndex' => order_by
-      })
+                                   'Header'    => "Services",
+                                   'Columns'   => ['host'] + col_names,
+                                   'SortIndex' => order_by
+                               })
 
     # Sentinel value meaning all
     host_ranges.push(nil) if host_ranges.empty?
     ports = nil if ports.empty?
+    matched_service_ids = []
 
     each_host_range_chunk(host_ranges) do |host_search|
-      framework.db.services(framework.db.workspace, onlyup, proto, host_search, ports, names).each do |service|
+      break if !host_search.nil? && host_search.empty?
+      opts[:addresses] = host_search
+      framework.db.services(framework.db.workspace, opts).each do |service|
 
         host = service.host
-        if search_term
-          next unless(
-          host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term)} or
-            service.attribute_names.any? { |a| service[a.intern].to_s.match(search_term)}
-          )
+        matched_service_ids << service.id
+
+        if mode == :update
+          service.name = names.first if names
+          service.proto = proto if proto
+          service.port = ports.first if ports
+          framework.db.update_service(service.as_json.symbolize_keys)
         end
 
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
@@ -724,12 +735,12 @@ class Db
           addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
         end
-
-        if (mode == :delete)
-          service.destroy
-          delete_count += 1
-        end
       end
+    end
+
+    if (mode == :delete)
+      result = framework.db.delete_service(ids: matched_service_ids)
+      delete_count += result.size
     end
 
     print_line
