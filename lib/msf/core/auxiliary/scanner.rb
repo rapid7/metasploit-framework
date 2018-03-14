@@ -89,8 +89,6 @@ def run
 
   if (self.respond_to?('run_host'))
     loop do
-      if @range_count > 0
-      end
       # Stop scanning if we hit a fatal error
       break if has_fatal_errors?
 
