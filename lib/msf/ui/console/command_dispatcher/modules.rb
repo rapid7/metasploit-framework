@@ -65,6 +65,15 @@ module Msf
             framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
           end
 
+          def reload_file(path, err_msg = 'Only library files can be loaded.')
+            if path.end_with?('.rb')
+              print_status("Reloading #{path}")
+              load path
+            else
+              print_error(err_msg)
+            end
+          end
+
           def cmd_reload_lib_help
             print_line 'Usage: reload_lib [lib/to/load.rb]'
             print_line
@@ -87,12 +96,7 @@ module Msf
               print_error('Nothing to load.')
               return
             end
-            if path.end_with?('.rb')
-              print_status("Reloading #{path}")
-              load path
-            else
-              print_error('Only library files can be loaded.')
-            end
+            reload_file(path)
           end
 
           def cmd_reload_lib_tabs(str, words)
@@ -139,12 +143,7 @@ module Msf
             return if editing_module
 
             # XXX: This will try to reload *any* .rb and break on modules
-            if path.end_with?('.rb')
-              print_status("Reloading #{path}")
-              load path
-            else
-              print_error('Only library files can be reloaded after editing.')
-            end
+            reload_file(path)
           end
 
           #
