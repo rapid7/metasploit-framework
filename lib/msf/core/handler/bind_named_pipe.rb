@@ -27,6 +27,7 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
   attr_accessor :mutex, :last_comm, :write_queue, :write_thread, :read_buff, :echo_thread, :simple, :server_max_buffer_size
 
   STATUS_BUFFER_OVERFLOW = 0x80000005
+  STATUS_PIPE_BROKEN     = 0xc000014b
 
   def initialize(*args, simple:, server_max_buffer_size:)
     super(*args)
@@ -48,6 +49,9 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
     setup = [0x23, self.file_id].pack('vv')
     # Must ignore errors since we expect STATUS_BUFFER_OVERFLOW
     pkt = self.client.trans_maxzero('\\PIPE\\', '', '', 2, setup, false, true, true)
+    if pkt['Payload']['SMB'].v['ErrorClass'] == STATUS_PIPE_BROKEN
+      raise IOError
+    end
     avail = 0
     begin
       avail = pkt.to_s[pkt['Payload'].v['ParamOffset']+4, 2].unpack('v')[0]
@@ -100,10 +104,14 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
   # Intercepts the socket.close from the session manager when the session dies.
   # Cleanly terminates the SMB session and closes the socket.
   def close
+    self.echo_thread.kill rescue nil
     # Give the meterpreter shutdown command a chance
     self.write_queue.close
-    if self.write_thread.join(2.0)
-      self.write_thread.kill rescue nil
+    begin
+      if self.write_thread.join(2.0)
+        self.write_thread.kill
+      end
+    rescue
     end
 
     # close pipe, share, and socket
@@ -114,23 +122,20 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
 
   def read(count)
     data = ''
-    begin
-      if count > self.read_buff.length
-        # need more data to satisfy request
-        self.mutex.synchronize do
-          avail = peek_named_pipe 
-          if avail > 0
-            left = [count-self.read_buff.length, avail].max
-            while left > 0
-              buff = super([left, self.chunk_size].min)
-              self.last_comm = Time.now
-              left -= buff.length
-              self.read_buff += buff
-            end
+    if count > self.read_buff.length
+      # need more data to satisfy request
+      self.mutex.synchronize do
+        avail = peek_named_pipe
+        if avail > 0
+          left = [count-self.read_buff.length, avail].max
+          while left > 0
+            buff = super([left, self.chunk_size].min)
+            self.last_comm = Time.now
+            left -= buff.length
+            self.read_buff += buff
           end
         end
       end
-    rescue
     end
 
     data = self.read_buff[0, [count, self.read_buff.length].min]
@@ -202,7 +207,7 @@ module Msf
 
       #
       # Returns the string representation of the handler type, in this case
-      # 'reverse_named_pipe'.
+      # 'bind_named_pipe'.
       #
       def self.handler_type
         "bind_named_pipe"
@@ -210,15 +215,15 @@ module Msf
 
       #
       # Returns the connection-described general handler type, in this case
-      # 'reverse'.
+      # 'bind'.
       #
       def self.general_handler_type
         "bind"
       end
 
       #
-      # Initializes the reverse handler and ads the options that are required
-      # for reverse named pipe payloads.
+      # Initializes the handler and ads the options that are required for
+      # bind named pipe payloads.
       #
       def initialize(info={})
         super
@@ -334,7 +339,7 @@ module Msf
             print_error("Failed to connect to pipe #{smbshare}")
             return
           end
-          
+
           vprint_status("Opened pipe \\#{pipe_name}")
 
           # Increment the has connection counter
