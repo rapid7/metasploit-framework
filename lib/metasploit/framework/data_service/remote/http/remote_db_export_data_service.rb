@@ -8,6 +8,6 @@ module RemoteDbExportDataService
   def run_db_export(opts)
     response = json_to_hash(self.get_data(DB_EXPORT_API_PATH, nil, opts))
 
-    process_file(response[:db_export_file], "#{opts[:path]}.#{opts[:format]}")
+    process_file(response[:db_export_file], "#{opts[:path]}")
   end
 end
