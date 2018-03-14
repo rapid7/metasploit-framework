@@ -16,9 +16,9 @@ module DbExportServlet
     lambda {
       begin
         opts = params.symbolize_keys
-        #exporter = Msf::DBManager::DbExport.new(get_db.workspace)
+	file_name = File.basename(opts[:path])
 
-        output_file = get_db.run_db_export(opts[:path], opts[:format])
+        output_file = get_db.run_db_export(File.join(Msf::Config.local_directory, file_name), opts[:format])
 
         encoded_file = Base64.urlsafe_encode64(File.read(File.expand_path(output_file)))
         response = {}
