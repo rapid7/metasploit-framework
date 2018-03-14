@@ -254,18 +254,14 @@ class MetasploitModule < Msf::Auxiliary
       else
         # Login didn't work. no point in going on, however, check if valid domain account by response time.
         if elapsed_time <= 1
-          # This timing trick doesn't work when an email address is passed, only usernames.
-          # Don't save it as potentially valid in this case.
-          unless user =~ /@\w+\.\w+/
-            report_cred(
-              ip: res.peerinfo['addr'],
-              port: datastore['RPORT'],
-              service_name: 'owa',
-              user: user
-            )
-            print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
-            return :Skip_pass
-          end
+          report_cred(
+            ip: res.peerinfo['addr'],
+            port: datastore['RPORT'],
+            service_name: 'owa',
+            user: user
+          )
+          print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
+          return :Skip_pass
         else
           vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
           return :Skip_pass
