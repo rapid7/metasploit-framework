@@ -11,6 +11,11 @@
   This module will look for the follow parameters which contain credentials:
 
   * ScreenOS
+    * admin
+    * user
+    * SNMP
+    * ppp
+    * ike
   * JunOS
     * root-authentication
     * user
