@@ -31,7 +31,8 @@ module Auxiliary::Report
 
   def create_credential(opts={})
     if active_db?
-      super(opts)
+      framework.db.create_credential(opts)
+      #super(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -389,7 +390,7 @@ module Auxiliary::Report
       ext = "txt"
     end
     # This method is available even if there is no database, don't bother checking
-    host = framework.db.normalize_host(host)
+    host = Msf::Util::Host.normalize_host(host)
 
     ws = (db ? myworkspace.name[0,16] : 'default')
     name =
@@ -416,6 +417,7 @@ module Auxiliary::Report
       conf[:workspace] = myworkspace
       conf[:name] = filename if filename
       conf[:info] = info if info
+      conf[:data] = data if data
 
       if service and service.kind_of?(::Mdm::Service)
         conf[:service] = service if service
