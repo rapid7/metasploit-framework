@@ -37,7 +37,7 @@ Difficulty: Varies
 
 ## Add meta-shell commands
 
-Shell sessions typically expose a direct connection to a remote shell, but are lacking a number of nice features such as the ability to stop a remote command, background a job, or to even lock the session. This project would implement some pre-processing hooks to shell sessions so that job control could be added by default (allowing backgrounding of commands), meta-commands like 'background' and 'sessions' could be added as well.
+Shell sessions typically expose a direct connection to a remote shell, but are lacking a number of nice features such as the ability to stop a remote command, background a command (this could be advanced or depend on the underlying session), or to even lock the session. This project would implement some pre-processing hooks to shell sessions so that job control could be added by default (allowing backgrounding of commands), meta-commands like 'background' and 'sessions' could be added as well.
 
 Difficulty: 3/5
 
