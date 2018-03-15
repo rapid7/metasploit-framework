@@ -34,33 +34,6 @@ module Msf::DBManager::Workspace
   }
   end
 
-  #
-  # Returns an array of all the associated workspace records counts.
-  #
-  def workspace_associations_counts()
-    results = Array.new()
-
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      workspaces.each do |ws|
-        results << {
-            :name  => ws.name,
-            :hosts_count => ws.hosts.count,
-            :services_count => ws.services.count,
-            :vulns_count => ws.vulns.count,
-            :creds_count => ws.core_credentials.count,
-            :loots_count => ws.loots.count,
-            :notes_count => ws.notes.count
-        }
-      end
-    }
-
-    return results
-  end
-
-  def delete_all_workspaces()
-    return delete_workspaces(workspaces.map(&:name))
-  end
-
   def delete_workspaces(names)
     status_msg = []
     error_msg = []

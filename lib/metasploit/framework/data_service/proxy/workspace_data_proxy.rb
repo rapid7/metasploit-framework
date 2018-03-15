@@ -53,14 +53,4 @@ module WorkspaceDataProxy
       self.log_error(e, "Problem retrieving workspaces")
     end
   end
-
-  def workspace_associations_counts()
-    begin
-      data_service = self.get_data_service()
-      data_service.workspace_associations_counts()
-    rescue  Exception => e
-      self.log_error(e, "Problem retrieving workspace counts")
-    end
-  end
-
 end
