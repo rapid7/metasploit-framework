@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
     p = PacketFu::UDPPacket.new
     p.ip_saddr = ip
     p.ip_daddr = ip
-    p.ip_ttl = 255
     p.udp_sport = 53
     p.udp_dport = 53
     p.payload  = "HELLO WORLD"

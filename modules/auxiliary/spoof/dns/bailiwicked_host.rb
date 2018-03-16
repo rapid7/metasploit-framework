@@ -304,8 +304,7 @@ class MetasploitModule < Msf::Auxiliary
       p = PacketFu::UDPPacket.new
       p.ip_saddr = src_ip
       p.ip_daddr = target
-      p.ip_ttl = 255
-      p.udp_sport = (rand((2**16)-1024)+1024).to_i
+      p.udp_sport = rand(1024..65535)
       p.udp_dport = 53
       p.payload = req.encode
       p.recalc

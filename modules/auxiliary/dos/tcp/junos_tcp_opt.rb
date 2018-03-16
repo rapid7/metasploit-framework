@@ -53,7 +53,6 @@ class MetasploitModule < Msf::Auxiliary
     p = PacketFu::TCPPacket.new
     p.ip_daddr = rhost
     p.ip_saddr = shost
-    p.ip_ttl = rand(128) + 128
     p.tcp_sport = sport
     p.tcp_dport = rport
     p.tcp_flags.syn = 1
