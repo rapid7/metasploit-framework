@@ -87,7 +87,6 @@ module Msf::DBManager::Vuln
   # +:details:: a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields
   #
   def report_vuln(opts)
-    $stderr.puts "Msf::DBManager::Vuln.report_vuln(): opts=#{opts}"  # TODO: remove
     return if not active
     raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
     raise ArgumentError.new("Deprecated data column for vuln, use .info instead") if opts[:data]
@@ -200,9 +199,7 @@ module Msf::DBManager::Vuln
         }
 
         vinf[:service_id] = service.id if service
-        $stderr.puts "Msf::DBManager::Vuln.report_vuln(): calling Mdm::Vuln.create() with vinf=#{vinf}"  # TODO: remove
         vuln = Mdm::Vuln.create(vinf)
-        $stderr.puts "Msf::DBManager::Vuln.report_vuln(): Mdm::Vuln.create() returned with vuln.id=#{vuln.id}, vuln=#{vuln}" if vuln  # TODO: remove
 
         begin
           framework.events.on_db_vuln(vuln) if vuln
@@ -219,14 +216,11 @@ module Msf::DBManager::Vuln
 
     # Merge the references
     if rids
-      $stderr.puts "Msf::DBManager::Vuln.report_vuln(): merging the references... vuln.refs=#{vuln.refs}" if vuln.refs  # TODO: remove
       vuln.refs << (rids - vuln.refs)
-      $stderr.puts "Msf::DBManager::Vuln.report_vuln(): vuln.refs=#{vuln.refs}" if vuln.refs  # TODO: remove
     end
 
     # Finalize
     if vuln.changed?
-      $stderr.puts "Msf::DBManager::Vuln.report_vuln(): vuln.changed; saving..."  # TODO: remove
       msf_import_timestamps(opts,vuln)
       vuln.save!
     end
