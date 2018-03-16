@@ -53,11 +53,11 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RPORT']
   end
 
-  def session_setup(result, ssh_socket)
-    return unless ssh_socket
+  def session_setup(result, scanner)
+    return unless scanner.ssh_socket
 
     # Create a new session
-    conn = Net::SSH::CommandStream.new(ssh_socket)
+    conn = Net::SSH::CommandStream.new(scanner.ssh_socket)
 
     merge_me = {
       'USERPASS_FILE' => nil,
@@ -68,31 +68,10 @@ class MetasploitModule < Msf::Auxiliary
     }
     info = "#{proto_from_fullname} #{result.credential} (#{@ip}:#{rport})"
     s = start_session(self, info, merge_me, false, conn.lsock)
-    self.sockets.delete(ssh_socket.transport.socket)
+    self.sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
-    case result.proof
-    when /Linux/
-      s.platform = "linux"
-    when /Darwin/
-      s.platform = "osx"
-    when /SunOS/
-      s.platform = "solaris"
-    when /BSD/
-      s.platform = "bsd"
-    when /HP-UX/
-      s.platform = "hpux"
-    when /AIX/
-      s.platform = "aix"
-    when /Win32|Windows/
-      s.platform = "windows"
-    when /Unknown command or computer name/
-      s.platform = "cisco-ios"
-    when /unknown keyword/ # ScreenOS
-      s.platform = "juniper"
-    when /JUNOS Base OS/ #JunOS
-      s.platform = "juniper"
-    end
+    s.platform = scanner.get_platform(result.proof)
 
     s
   end
@@ -140,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        session_setup(result, scanner.ssh_socket)
+        session_setup(result, scanner)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
