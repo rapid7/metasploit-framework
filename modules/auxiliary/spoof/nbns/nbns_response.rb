@@ -114,7 +114,6 @@ class MetasploitModule < Msf::Auxiliary
     pkt = PacketFu::UDPPacket.new
     pkt.ip_saddr = Rex::Socket.source_address(rhost)
     pkt.ip_daddr = rhost
-    pkt.ip_ttl = 255
     pkt.udp_sport = 137
     pkt.udp_dport = src_port
     pkt.payload = response

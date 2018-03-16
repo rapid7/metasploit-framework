@@ -123,11 +123,11 @@ class MetasploitModule < Msf::Auxiliary
       stderr_port = specific_port
       sd = listen_on_port(stderr_port)
     else
-      stderr_port = 1024 + rand(0x10000 - 1024)
+      stderr_port = rand(1024..65535)
       512.times {
         sd = listen_on_port(stderr_port)
         break if sd
-        stderr_port = 1024 + rand(0x10000 - 1024)
+        stderr_port = rand(1024..65535)
       }
     end
 

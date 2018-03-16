@@ -47,7 +47,6 @@ class MetasploitModule < Msf::Auxiliary
     p = PacketFu::UDPPacket.new
     p.ip_saddr = datastore['LHOST']
     p.ip_daddr = ip
-    p.ip_ttl = 255
     p.udp_src = 123
     p.udp_dst = 123
     p.payload = ["\x17", "\x97\x00\x00\x00"][rand(2)]

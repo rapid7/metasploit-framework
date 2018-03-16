@@ -107,8 +107,7 @@ module Auxiliary::UDPScanner
     p = PacketFu::UDPPacket.new
     p.ip_saddr = srcip
     p.ip_daddr = ip
-    p.ip_ttl = 255
-    p.udp_src = (rand((2**16)-1024)+1024).to_i
+    p.udp_src = rand(1024..65535)
     p.udp_dst = port
     p.payload = data
     p.recalc

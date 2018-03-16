@@ -52,8 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     p.tcp_flags.syn = 1
 
     while (num <= 0) or (sent < num)
-      p.ip_ttl = rand(128)+128
-      p.tcp_win = rand(4096)+1
+      p.tcp_win = rand(4096) + 1
       p.tcp_sport = sport
       p.tcp_seq = rand(0x100000000)
       p.recalc

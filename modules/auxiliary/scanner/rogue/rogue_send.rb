@@ -45,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
     p = PacketFu::TCPPacket.new
     p.ip_saddr = datastore['EHOST']
     p.ip_daddr = dst
-    p.ip_ttl = 255
     p.tcp_sport = datastore['CPORT'].to_i
     p.tcp_dport = datastore['RPORT'].to_i
     p.tcp_flags.syn = 1
@@ -58,7 +57,6 @@ class MetasploitModule < Msf::Auxiliary
     p = PacketFu::ICMPPacket.new
     p.ip_saddr = datastore['EHOST']
     p.ip_daddr = dst
-    p.ip_ttl = 255
     p.icmp_type = 8
     payload = Rex::Socket.addr_aton(dst) + [datastore['ECHOID']].pack('n') + Rex::Text.rand_text(26)
     p.payload = capture_icmp_echo_pack(datastore['ECHOID'],1,payload)
