@@ -39,6 +39,7 @@ metadata = {
         'Alberto Solino' # impacket example
     ],
     'date': '2014-09-27',
+    'license': 'CORE_LICENSE',
     'references': [
         {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/GetUserSPNs.py'},
         {'type': 'url', 'ref': 'https://files.sans.org/summit/hackfest2014/PDFs/Kicking%20the%20Guard%20Dog%20of%20Hades%20-%20Attacking%20Microsoft%20Kerberos%20%20-%20Tim%20Medin(1).pdf'},
