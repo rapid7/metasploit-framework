@@ -22,7 +22,10 @@ module MetasploitModule
       'Name'          => 'Windows x64 VNC Server (Reflective Injection)',
       'Description'   => 'Inject a VNC Dll via a reflective loader (Windows x64) (staged)',
       'Author'        => [ 'sf' ],
-      'Session'       => Msf::Sessions::VncInject ))
+      'Session'       => Msf::Sessions::VncInject,
+      'PayloadCompat' => { 'Convention' => 'sockedi -http -https'},
+      )
+    )
 
   end
 
