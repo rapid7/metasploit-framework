@@ -34,33 +34,29 @@ module Msf::DBManager::Workspace
   }
   end
 
-  def delete_workspaces(names)
-    status_msg = []
-    error_msg = []
+  def delete_workspaces(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    switched = false
-    # Delete workspaces
-    names.each do |name|
-      workspace = framework.db.find_workspace(name)
-      if workspace.nil?
-        error << "Workspace not found: #{name}"
-      elsif workspace.default?
-        workspace.destroy
-        workspace = framework.db.add_workspace(name)
-        status_msg << 'Deleted and recreated the default workspace'
-      else
-        # switch to the default workspace if we're about to delete the current one
-        if framework.db.workspace.name == workspace.name
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      default_deleted = false
+      opts[:ids].each do |ws_id|
+        ws = Mdm::Workspace.find(ws_id)
+        default_deleted = true if ws.default?
+        if framework.db.workspace.name == ws.name
           framework.db.workspace = framework.db.default_workspace
-          switched = true
         end
-        # now destroy the named workspace
-        workspace.destroy
-        status_msg << "Deleted workspace: #{name}"
+        begin
+          deleted << ws.destroy
+          framework.db.workspace = framework.db.add_workspace('default') if default_deleted
+        rescue
+          elog("Forcibly deleting #{workspace}")
+          deleted << ws.delete
+        end
       end
-    end
-    (status_msg << "Switched workspace: #{framework.db.workspace.name}") if switched
-    return status_msg, error_msg
+
+      return deleted
+    }
   end
 
   #

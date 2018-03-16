@@ -3,8 +3,6 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteWorkspaceDataService
   include ResponseDataHelper
 
-  # TODO: should counts be a flag in query data for the workspaces resource?
-  WORKSPACE_COUNTS_API_PATH = '/api/v1/workspaces/counts'
   WORKSPACE_API_PATH = '/api/v1/workspaces'
   WORKSPACE_MDM_CLASS = 'Mdm::Workspace'
   DEFAULT_WORKSPACE_NAME = 'default'
@@ -36,6 +34,10 @@ module RemoteWorkspaceDataService
 
   def workspaces
     json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, {:all => true}), WORKSPACE_MDM_CLASS, [])
+  end
+
+  def delete_workspaces(opts)
+    json_to_mdm_object(self.delete_data(WORKSPACE_API_PATH, opts), WORKSPACE_MDM_CLASS, [])
   end
 
   #########

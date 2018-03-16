@@ -2,7 +2,7 @@ module WorkspaceDataProxy
 
   def find_workspace(workspace_name)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.find_workspace(workspace_name)
     rescue  Exception => e
       self.log_error(e, "Problem finding workspace")
@@ -11,7 +11,7 @@ module WorkspaceDataProxy
 
   def add_workspace(workspace_name)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.add_workspace(workspace_name)
     rescue  Exception => e
       self.log_error(e, "Problem adding workspace")
@@ -20,7 +20,7 @@ module WorkspaceDataProxy
 
   def default_workspace
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.default_workspace
     rescue  Exception => e
       self.log_error(e, "Problem finding default workspace")
@@ -29,7 +29,7 @@ module WorkspaceDataProxy
 
   def workspace
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.workspace
     rescue  Exception => e
       self.log_error(e, "Problem retrieving workspace")
@@ -38,7 +38,7 @@ module WorkspaceDataProxy
 
   def workspace=(workspace)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.workspace = workspace
     rescue  Exception => e
       self.log_error(e, "Problem setting workspace")
@@ -47,10 +47,21 @@ module WorkspaceDataProxy
 
   def workspaces
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.workspaces
     rescue  Exception => e
       self.log_error(e, "Problem retrieving workspaces")
+    end
+  end
+
+  def delete_workspaces(workspace_ids)
+    begin
+      data_service = self.get_data_service
+      opts = {}
+      opts[:ids] = workspace_ids
+      data_service.delete_workspaces(opts)
+    rescue Exception => e
+      self.log_error(e, "Problem deleting workspaces")
     end
   end
 end

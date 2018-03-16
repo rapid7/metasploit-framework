@@ -149,11 +149,21 @@ class Db
       end
       framework.db.workspace = workspace
     elsif deleting and names
-      status_msg, error_msg = framework.db.delete_workspaces(names)
-      print_msgs(status_msg, error_msg)
+      ws_ids_to_delete = []
+      starting_ws = framework.db.workspace
+      names.each do |n|
+        ws_ids_to_delete << framework.db.find_workspace(n).id
+      end
+      deleted = framework.db.delete_workspaces(ws_ids_to_delete)
+      print_deleted_workspaces(deleted, starting_ws)
     elsif delete_all
-      status_msg, error_msg = framework.db.delete_all_workspaces()
-      print_msgs(status_msg, error_msg)
+      ws_ids_to_delete = []
+      starting_ws = framework.db.workspace
+      framework.db.workspaces.each do |ws|
+        ws_ids_to_delete << ws.id
+      end
+      deleted = framework.db.delete_workspaces(ws_ids_to_delete)
+      print_deleted_workspaces(deleted, starting_ws)
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
@@ -215,6 +225,18 @@ class Db
 
       print_line
       print_line(tbl.to_s)
+    end
+  end
+
+  def print_deleted_workspaces(deleted_workspaces, starting_ws)
+    deleted_workspaces.each do |ws|
+      if ws.name == 'default'
+        print_status 'Deleted and recreated the default workspace'
+      elsif ws == starting_ws
+        print_status "Switched workspace: #{framework.db.workspace.name}"
+      else
+        print_status "Deleted workspace: #{ws.name}"
+      end
     end
   end
 
