@@ -283,7 +283,7 @@ begin
 rescue HelpError => e
   $stderr.puts e.message
   exit(1)
-rescue MsfVenomError, Msf::OptionValidateError => e
+rescue MsfVenomError => e
   $stderr.puts "Error: #{e.message}"
   exit(1)
 end
