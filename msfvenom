@@ -38,6 +38,11 @@ def init_framework(create_opts={})
   create_opts[:module_types] ||= [
     ::Msf::MODULE_PAYLOAD, ::Msf::MODULE_ENCODER, ::Msf::MODULE_NOP
   ]
+
+  create_opts[:module_types].map! do |type|
+    type = Msf.const_get("MODULE_#{type.upcase}")
+  end
+
   @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
 end
 
@@ -219,7 +224,7 @@ def payload_stdin
 end
 
 def dump_payloads
-  init_framework(:module_types => [ ::Msf::MODULE_PAYLOAD ])
+  init_framework(:module_types => [ :payload ])
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Payloads (#{framework.stats.num_payloads} total)",
@@ -237,7 +242,7 @@ def dump_payloads
 end
 
 def dump_encoders(arch = nil)
-  init_framework(:module_types => [ ::Msf::MODULE_ENCODER ])
+  init_framework(:module_types => [ :encoder ])
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : ""),
@@ -260,7 +265,7 @@ def dump_encoders(arch = nil)
 end
 
 def dump_nops
-  init_framework(:module_types => [ ::Msf::MODULE_NOP ])
+  init_framework(:module_types => [ :nop ])
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework NOPs (#{framework.stats.num_nops} total)",
