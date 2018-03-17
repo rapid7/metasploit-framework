@@ -4,8 +4,6 @@
 class MsfVenomError < StandardError; end
 class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
-class NoTemplateError < MsfVenomError; end
-class IncompatibleError < MsfVenomError; end
 
 require 'optparse'
 
