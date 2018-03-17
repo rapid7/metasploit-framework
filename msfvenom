@@ -6,6 +6,7 @@ class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
 
 require 'optparse'
+require 'timeout'
 
 def require_deps
   msfbase = __FILE__
