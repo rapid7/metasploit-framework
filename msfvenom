@@ -1,21 +1,6 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-msfbase = __FILE__
-while File.symlink?(msfbase)
-  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
-end
-
-$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-require 'msfenv'
-
-$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
-
-require 'rex'
-require 'msf/ui'
-require 'msf/base'
-require 'msf/core/payload_generator'
-
 class MsfVenomError < StandardError; end
 class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
@@ -24,12 +9,33 @@ class IncompatibleError < MsfVenomError; end
 
 require 'optparse'
 
+def require_deps
+  msfbase = __FILE__
+  while File.symlink?(msfbase)
+    msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  end
+
+  $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+  require 'msfenv'
+
+  $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+  require 'rex'
+  require 'msf/ui'
+  require 'msf/base'
+  require 'msf/core/payload_generator'
+
+  @framework_loaded = true
+end
+
 # Creates a new framework object.
 #
 # @note Ignores any previously cached value.
 # @param (see ::Msf::Simple::Framework.create)
 # @return [Msf::Framework]
 def init_framework(create_opts={})
+  require_deps unless @framework_loaded
+
   create_opts[:module_types] ||= [
     ::Msf::MODULE_PAYLOAD, ::Msf::MODULE_ENCODER, ::Msf::MODULE_NOP
   ]
