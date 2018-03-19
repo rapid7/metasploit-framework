@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
 import sys
@@ -36,7 +36,8 @@ metadata = {
         This is part of the kerberoast attack research by Tim Medin (@timmedin).
     ''',
     'authors': [
-        'Alberto Solino' # impacket example
+        'Alberto Solino', # impacket example
+        'Jacob Robles'    # Metasploit module conversion
     ],
     'date': '2014-09-27',
     'license': 'CORE_LICENSE',
@@ -46,12 +47,12 @@ metadata = {
         {'type': 'aka', 'ref': 'GetUserSPNs.py'},
         {'type': 'aka', 'ref': 'Kerberoast'}
     ],
-    'type': 'scanner.single',
+    'type': 'single_scanner',
     'options': {
         'rhost': {'type': 'address', 'description': 'The target address', 'required': True, 'default': None},
-        'smbdomain': {'type': 'string', 'description': 'The target domain', 'required': True, 'default': None},
-        'smbuser': {'type': 'string', 'description': 'Username for domain authentication', 'required': True, 'default': None},
-        'smbpass': {'type': 'string', 'description': 'Password for the given user', 'required': True, 'default': None}
+        'domain': {'type': 'string', 'description': 'The target Active Directory domain', 'required': True, 'default': None},
+        'user': {'type': 'string', 'description': 'Username for a domain account', 'required': True, 'default': None},
+        'pass': {'type': 'string', 'description': 'Password for the domain user account', 'required': True, 'default': None}
     }}
 
 class GetUserSPNs:
@@ -312,7 +313,7 @@ def run(args):
 
     options = {}
     options['dc_ip'] = args['rhost']
-    executer = GetUserSPNs(args['smbuser'], args['smbpass'], args['smbdomain'], options)
+    executer = GetUserSPNs(args['user'], args['pass'], args['domain'], options)
     executer.run()
 
 if __name__ == '__main__':
