@@ -771,6 +771,7 @@ module Msf
           def cmd_vulns(*args)
             return unless active?
 
+            default_columns = ['Timestamp', 'Host', 'Name', 'References']
             host_ranges = []
             port_ranges = []
             svcs        = []
@@ -830,6 +831,10 @@ module Msf
               end
             end
 
+            if show_info
+              default_columns << 'Information'
+            end
+
             # add sentinel value meaning all if empty
             host_ranges.push(nil) if host_ranges.empty?
             # normalize
@@ -837,7 +842,7 @@ module Msf
             svcs.flatten!
             tbl = Rex::Text::Table.new(
                 'Header' => 'Vulnerabilities',
-                'Columns' => ['Timestamp', 'Host', 'Name', 'References', 'Information']
+                'Columns' => default_columns
             )
 
             matched_vuln_ids = []
@@ -871,11 +876,9 @@ module Msf
               row << vuln.created_at
               row << vuln.host.address
               row << vuln.name
-              row << reflist * ","
-              if show_info && vuln.info
+              row << reflist.join(',')
+              if show_info
                 row << vuln.info
-              else
-                row << ''
               end
               tbl << row
 
