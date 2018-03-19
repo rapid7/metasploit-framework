@@ -17,7 +17,7 @@ module RemoteWorkspaceDataService
 
   def add_workspace(workspace_name)
     response = self.post_data(WORKSPACE_API_PATH, {:workspace_name => workspace_name})
-    json_to_mdm_object(response, WORKSPACE_MDM_CLASS, nil)
+    json_to_mdm_object(response, WORKSPACE_MDM_CLASS, nil).first
   end
 
   def default_workspace
