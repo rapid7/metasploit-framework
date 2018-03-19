@@ -59,29 +59,14 @@ module Msf::DBManager::Workspace
     }
   end
 
-  #
-  # Renames a workspace
-  #
-  def rename_workspace(from_name, to_name)
-    raise "Workspace exists: #{to_name}" if framework.db.find_workspace(to_name)
+  def update_workspace(opts)
+    raise ArgumentError.new("The following options are required: :id") if opts[:id].nil?
+    workspace = opts.delete(:wspace) || opts.delete(:workspace) || workspace # TODO: Not used, but we do need to delete the key
 
-    workspace = find_workspace(from_name)
-    raise "Workspace not found: #{name}" if workspace.nil?
-
-    workspace.name = new
-    workspace.save!
-
-    # Recreate the default workspace to avoid errors
-    if workspace.default?
-      framework.db.add_workspace(from_name)
-      #print_status("Recreated default workspace after rename")
-    end
-
-    # Switch to new workspace if old name was active
-    if (@workspace_name == workspace.name)
-      framework.db.workspace = workspace
-      #print_status("Switched workspace: #{framework.db.workspace.name}")
-    end
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      Mdm::Workspace.update(id, opts)
+    }
   end
 
   def get_workspace(opts)

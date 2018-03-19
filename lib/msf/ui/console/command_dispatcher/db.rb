@@ -170,8 +170,10 @@ class Db
         return
       end
 
-      old, new = names
-      framework.db.rename_workspace(old, new)
+      opts = {}
+      opts[:id] = framework.db.find_workspace(names.first).id
+      opts[:name] = names.last
+      framework.db.update_workspace(opts)
     elsif names
       name = names.last
       # Switch workspace

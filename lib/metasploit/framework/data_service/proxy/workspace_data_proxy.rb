@@ -64,4 +64,13 @@ module WorkspaceDataProxy
       self.log_error(e, "Problem deleting workspaces")
     end
   end
+
+  def update_workspace(opts)
+    begin
+      data_service = self.get_data_service
+      data_service.update_workspace(opts)
+    rescue Exception => e
+      self.log_error(e, "Problem updating workspace")
+    end
+  end
 end
