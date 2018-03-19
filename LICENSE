@@ -115,10 +115,6 @@ Files: data/webcam/api.js
 Copyright: Copyright 2013 Muaz Khan<@muazkh>.
 License: MIT
 
-Files: modules/auxiliary/gather/get_user_spns.py
-Copyright: 2016, CORE Security Technologies
-License: Apache 1.1
-
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
