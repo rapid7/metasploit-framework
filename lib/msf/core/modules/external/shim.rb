@@ -13,9 +13,9 @@ class Msf::Modules::External::Shim
       capture_server(mod)
     when 'dos'
       dos(mod)
-    when 'scanner.single'
+    when 'single_scanner'
       single_scanner(mod)
-    when 'scanner.multi'
+    when 'multi_scanner'
       multi_scanner(mod)
     else
       # TODO have a nice load error show up in the logs
