@@ -270,7 +270,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -s <svc names>        List vulns matching these service names",
           "  -R,--rhosts           Set RHOSTS from the results of the search",
           "  -S,--search           Search string to filter by",
-          "  -i,--info             Display Vuln Info",
+          "  -i,--info             Display vuln information",
           "Examples:",
           "  vulns -p 1-65536          # only vulns with associated services",
           "  vulns -p 1-65536 -s http  # identified as http on any port"

@@ -198,6 +198,9 @@ module Msf::DBManager::Session
         # Then the cache isn't built yet, take the hit for instantiating the
         # module
         mod_detail = framework.modules.create(mod_fullname)
+        refs = mod_detail.references
+      else
+        refs = mod_detail.refs
       end
       mod_name = mod_detail.name
 
@@ -206,7 +209,7 @@ module Msf::DBManager::Session
         host: host,
         info: "Exploited by #{mod_fullname} to create Session #{s.id}",
         name: mod_name,
-        refs: mod_detail.references,
+        refs: refs,
         workspace: wspace,
       }
 
@@ -218,16 +221,16 @@ module Msf::DBManager::Session
       vuln = framework.db.report_vuln(vuln_info)
 
       attempt_info = {
-          host: host,
-          module: mod_fullname,
-          refs: mod_detail.references,
-          service: service,
-          session_id: s.id,
-          timestamp: Time.now.utc,
-          username: session.username,
-          vuln: vuln,
-          workspace: wspace,
-          run_id: session.exploit.user_data.try(:[], :run_id)
+        host: host,
+        module: mod_fullname,
+        refs: refs,
+        service: service,
+        session_id: s.id,
+        timestamp: Time.now.utc,
+        username: session.username,
+        vuln: vuln,
+        workspace: wspace,
+        run_id: session.exploit.user_data.try(:[], :run_id)
       }
 
       framework.db.report_exploit_success(attempt_info)
