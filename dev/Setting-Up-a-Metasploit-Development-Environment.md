@@ -14,7 +14,7 @@ So let's get started!
 
 * You have a Debian-based Linux environment
 * You have a user that is not `root`. In this guide, we're using `msfdev`.
-* You have a GitHub account
+* You have a GitHub account, and have associated an [ssh key][ssh-key] with it.
 
 # Install the base dev packages
 
@@ -533,8 +533,7 @@ help and feedback on this dev environment documentation guide.
 [dont-pipe]:http://www.seancassidy.me/dont-pipe-to-your-shell.html
 [ffmike-gist]: https://gist.github.com/ffmike/877447
 [forking]:https://help.github.com/articles/fork-a-repo/
-[forking]:https://help.github.com/articles/fork-a-repo/
-[generating-ssh-keys]:https://help.github.com/articles/generating-ssh-keys/
+[ssh-key]:https://help.github.com/articles/generating-ssh-keys/
 [gh-pr-refs]:https://help.github.com/articles/checking-out-pull-requests-locally/
 [gitconfig]:https://github.com/todb-r7/junkdrawer/blob/master/dotfiles/git-repos/gitconfig
 [git-horror]:http://mikegerwitz.com/papers/git-horror-story
