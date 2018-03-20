@@ -1,13 +1,15 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script cracks a half-lm challenge/response hash that uses a
 # a static challenge key. The idea is you use rainbow tables to
 # crack the first 7 chars and this script to complete a few remaining.
 # If the password is longer than 10 characters, this script will fail.
-#
-# $Revision$
 #
 
 msfbase = __FILE__

@@ -1,13 +1,16 @@
 #!/usr/bin/env ruby
 
-###
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This tool allows you to find all the pull requests for a particular file in the Metasploit
 # repository. It does not include commit history from SVN.
 #
 # Author: sinn3r
 #
-###
 
 require 'net/http'
 require 'optparse'

@@ -1,7 +1,12 @@
 #!/usr/bin/env ruby
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
-# This script takes a list of ranges and converts it to a per line ip list.
+# This script takes a list of ranges and converts it to a per line IP list.
 # Demonstration:
 # echo 192.168.100.0-50 >> rangelist.txt
 # echo 192.155-156.0.1 >> rangelist.txt
@@ -28,7 +33,7 @@ class OptsConsole
     options = {'output' => 'iplist.txt'}
 
     opts = OptionParser.new do |opts|
-      opts.banner = %Q|This script takes a list of ranges and converts it to a per line ip list.
+      opts.banner = %Q|This script takes a list of ranges and converts it to a per line IP list.
 Usage: #{__FILE__} [options]|
 
       opts.separator ""

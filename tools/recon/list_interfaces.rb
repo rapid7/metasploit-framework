@@ -1,12 +1,14 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-# $Revision$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This small utility will display all the informations about the network interfaces
 # that one can use under Windows with modules using pcaprub and having the INTERFACE option (ex: arp_poisonning, arp_sweep, ...).
-# To use th interface option under  Windows use the Index value displayed by this tool (ex: "SET INTERFACE 1")
-#
+# To use the interface option under Windows use the Index value displayed by this tool (ex: "SET INTERFACE 1")
 #
 
 msfbase = __FILE__
