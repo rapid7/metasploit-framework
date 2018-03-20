@@ -198,10 +198,10 @@ And bask in the glory that is a functioning source checkout -- and incidentally 
                       '(.,...."/
 
 
-          =[ metasploit v4.11.0-dev [core:4.11.0.pre.dev api:1.0.0]]
-    + -- --=[ 1420 exploits - 802 auxiliary - 229 post        ]
-    + -- --=[ 358 payloads - 37 encoders - 8 nops             ]
-    + -- --=[ Free Metasploit Pro trial: http://r-7.co/trymsp ]
+       =[ metasploit v5.0.0-dev-26bf96b                   ]
++ -- --=[ 1744 exploits - 1001 auxiliary - 302 post       ]
++ -- --=[ 536 payloads - 40 encoders - 10 nops            ]
++ -- --=[ ** This is Metasploit 5 development branch **   ]
 
     msf > ls ~/.msf4
     [*] exec: ls ~/.msf4
