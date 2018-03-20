@@ -154,7 +154,7 @@ ruby -v
 If you're *still* not running the `.ruby-version` defined version of ruby, you probably need to restart your terminal. Make sure you've added rvm to your terminal startup if your initial install of RVM didn't already with something like:
 
 ```bash
-echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"' >> .bashrc
+echo ''[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"' >> .bashrc
 ```
 
 # Install Bundled Gems
