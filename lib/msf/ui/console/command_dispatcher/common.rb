@@ -119,6 +119,7 @@ module Common
       if (p)
         p_opt = Serializer::ReadableText.dump_options(p, '   ')
         print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+        print("   **DisablePayloadHandler: True   (RHOST and RPORT settings will be ignored!)**\n\n") if mod.datastore['DisablePayloadHandler']
       end
     end
 
