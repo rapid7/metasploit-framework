@@ -12,28 +12,20 @@ module Msf
             return
           end
 
-          #is_remote_db = opts.delete(:is_remote_database)
           allowed_module_paths = []
-
-          #if (!is_remote_db)
-            extract_engine_module_paths(Rails.application).each do |path|
-              allowed_module_paths << path
-            end
-          #else
-          #  allowed_module_paths << "/home/chlee/rapid7/metasploit-framework/modules"
-          #end
+          extract_engine_module_paths(Rails.application).each do |path|
+            allowed_module_paths << path
+          end
 
           if Msf::Config.user_module_directory
             allowed_module_paths << Msf::Config.user_module_directory
           end
 
-          #unless (is_remote_db)
-            ::Rails::Engine.subclasses.map(&:instance).each do |engine|
-              extract_engine_module_paths(engine).each do |path|
-                allowed_module_paths << path
-              end
+          ::Rails::Engine.subclasses.map(&:instance).each do |engine|
+            extract_engine_module_paths(engine).each do |path|
+              allowed_module_paths << path
             end
-         # end
+          end
 
           # If additional module paths have been defined globally, then load them.
           # They should be separated by semi-colons.

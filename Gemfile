@@ -3,10 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-
-gem 'thin'
-gem 'sinatra'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -24,6 +20,14 @@ group :development do
   gem 'octokit'
   # Metasploit::Aggregator external session proxy
   gem 'metasploit-aggregator' if [
+    'x86-mingw32', 'x64-mingw32',
+    'x86_64-linux', 'x86-linux',
+    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
+  gem 'google-protobuf', "3.5.1" if [
+    'x86-mingw32', 'x64-mingw32',
+    'x86_64-linux', 'x86-linux',
+    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))
+  gem 'grpc', "1.8.3" if [
     'x86-mingw32', 'x64-mingw32',
     'x86_64-linux', 'x86-linux',
     'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin'))

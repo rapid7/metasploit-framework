@@ -1,7 +1,25 @@
 module RemoteServiceDataService
-  SERVICE_API_PATH = '/api/v1/services'
+  SERVICE_API_PATH  = '/api/v1/services'
+  SERVICE_MDM_CLASS = 'Mdm::Service'
+
+  def services(opts)
+    json_to_mdm_object(self.get_data(SERVICE_API_PATH, nil, opts), SERVICE_MDM_CLASS, [])
+  end
 
   def report_service(opts)
-    self.post_data_async(SERVICE_API_PATH, opts)
+    json_to_mdm_object(self.post_data(SERVICE_API_PATH, opts), SERVICE_MDM_CLASS).first
+  end
+
+  def update_service(opts)
+    path = SERVICE_API_PATH
+    if opts && opts[:id]
+      id = opts.delete(:id)
+      path = "#{SERVICE_API_PATH}/#{id}"
+    end
+    json_to_mdm_object(self.put_data(path, opts), SERVICE_MDM_CLASS)
+  end
+
+  def delete_service(opts)
+    json_to_mdm_object(self.delete_data(SERVICE_API_PATH, opts), SERVICE_MDM_CLASS)
   end
 end

