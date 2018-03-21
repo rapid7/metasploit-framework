@@ -16,7 +16,7 @@ module DbExportServlet
     lambda {
       begin
         opts = params.symbolize_keys
-	file_name = File.basename(opts[:path])
+	      file_name = File.basename(opts[:path])
 
         output_file = get_db.run_db_export(File.join(Msf::Config.local_directory, file_name), opts[:format])
 
