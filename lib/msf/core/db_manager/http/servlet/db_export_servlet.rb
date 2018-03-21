@@ -26,6 +26,9 @@ module DbExportServlet
         set_json_response(response)
       rescue Exception => e
         set_error_on_response(e)
+      ensure
+        # Ensure the temporary file gets cleaned up
+        File.delete(opts[:path])
       end
     }
   end
