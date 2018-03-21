@@ -10,7 +10,7 @@ module ResponseDataHelper
   # Converts an HTTP response to a Hash
   #
   # @param [ResponseWrapper] A wrapped HTTP response containing a JSON body.
-  # @return [Hash] An object of type mdm_class, which inherits from ActiveRecord::Base
+  # @return [Hash] A Hash interpretation of the JSON body.
   #
   def json_to_hash(response_wrapper)
     begin

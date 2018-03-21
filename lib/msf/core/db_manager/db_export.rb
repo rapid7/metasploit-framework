@@ -1,15 +1,15 @@
 require 'msf/core/db_export'
 
 module Msf::DBManager::DbExport
-  def run_db_export(path, format)
+  def run_db_export(opts)
     exporter = Msf::DBManager::Export.new(framework.db.workspace)
 
-    output_file = exporter.send("to_#{format}_file".intern, path) do |mtype, mstatus, mname|
+    output_file = exporter.send("to_#{opts[:format]}_file".intern, opts[:path]) do |mtype, mstatus, mname|
       if mtype == :status
-        if mstatus == "start"
+        if mstatus == Msf::DBManager::Export::STATUS_START
           puts("    >> Starting export of #{mname}")
         end
-        if mstatus == "complete"
+        if mstatus == Msf::DBManager::Export::STATUS_COMPLETE
           puts("    >> Finished export of #{mname}")
         end
       end
