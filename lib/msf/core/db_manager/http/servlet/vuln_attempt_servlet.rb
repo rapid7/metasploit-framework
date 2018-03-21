@@ -21,7 +21,7 @@ module VulnAttemptServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db().vuln_attempts(params.symbolize_keys)
+        data = get_db.vuln_attempts(params.symbolize_keys)
         set_json_response(data)
       rescue Exception => e
         set_error_on_response(e)
@@ -34,8 +34,8 @@ module VulnAttemptServlet
       begin
         job = lambda { |opts|
           vuln_id = opts.delete(:vuln_id)
-          vuln = get_db().vulns(id: vuln_id).first
-          get_db().report_vuln_attempt(vuln, opts)
+          vuln = get_db.vulns(id: vuln_id).first
+          get_db.report_vuln_attempt(vuln, opts)
         }
         exec_report_job(request, &job)
       rescue Exception => e
