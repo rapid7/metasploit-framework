@@ -1,4 +1,5 @@
 #### MSF-DEV Contents
+----
 
 * [Assumptions](#assumptions)
 * [Base Packages](#install-the-base-dev-packages)
@@ -11,6 +12,7 @@
 * [Aliases](#handy-aliases)
 
 #### Metasploit Wiki Pages
+----
 
 * [[Home]] Welcome to Metasploit!
 * [[Using Metasploit]] A collection of useful links for penetration testers.
