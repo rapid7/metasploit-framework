@@ -794,12 +794,6 @@ class Db
     output_file = nil
     delete_count = 0
 
-    # Short-circuit help
-    if args.delete "-h"
-      cmd_vulns_help
-      return
-    end
-
     while (arg = args.shift)
       case arg
       # when "-a","--add"
