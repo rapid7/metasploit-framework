@@ -796,14 +796,14 @@ class Db
 
     while (arg = args.shift)
       case arg
-      # when "-a","--add"
+      # when '-a', '--add'
       #   mode = :add
-      when "-d",'--delete'  # TODO: This is currently undocumented because it's not officially supported.
+      when '-d', '--delete'  # TODO: This is currently undocumented because it's not officially supported.
         mode = :delete
-      when "-h","--help"
+      when '-h', '--help'
         cmd_vulns_help
         return
-      when "-o", "--output"
+      when '-o', '--output'
         output_file = args.shift
         if output_file
           output_file = File.expand_path(output_file)
@@ -811,11 +811,11 @@ class Db
           print_error("Invalid output filename")
           return
         end
-      when "-p","--port"
+      when '-p', '--port'
         unless (arg_port_range(args.shift, port_ranges, true))
           return
         end
-      when "-s","--service"
+      when '-s', '--service'
         service = args.shift
         if (!service)
           print_error("Argument required for -s")
