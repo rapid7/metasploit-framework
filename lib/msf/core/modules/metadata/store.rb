@@ -23,6 +23,10 @@ module Msf::Modules::Metadata::Store
     load_metadata
   end
 
+  #######
+  private
+  #######
+
   #
   # Update the module meta cache disk store
   #
@@ -38,10 +42,6 @@ module Msf::Modules::Metadata::Store
       elog("Unable to update metadata store: #{e.message}")
     end
   end
-
-  #######
-  private
-  #######
 
   def load_metadata
     begin
