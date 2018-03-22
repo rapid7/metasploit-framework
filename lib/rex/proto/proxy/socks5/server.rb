@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-#
-# sf - Sept 2010 (original socks4a code)
-# zeroSteiner - March 2018 (socks 5 update)
 
 require 'thread'
 require 'rex/logging'
@@ -39,7 +36,7 @@ module Socks5
     end
 
     #
-    # Start the Socks4a server.
+    # Start the Socks5 server.
     #
     def start
       begin
@@ -77,7 +74,7 @@ module Socks5
     end
 
     #
-    # Stop the Socks4a server.
+    # Stop the Socks5 server.
     #
     def stop
       if @running

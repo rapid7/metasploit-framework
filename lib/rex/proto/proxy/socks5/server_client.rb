@@ -76,19 +76,24 @@ module Socks5
   # A client connected to the Socks5 server.
   #
   class ServerClient
-    AUTH_NONE                       = 0
-    AUTH_GSSAPI                     = 1
-    AUTH_CREDS                      = 2
-    AUTH_NO_ACCEPTABLE_METHODS      = 255
+    AUTH_NONE                        = 0
+    AUTH_GSSAPI                      = 1
+    AUTH_CREDS                       = 2
+    AUTH_NO_ACCEPTABLE_METHODS       = 255
 
-    COMMAND_CONNECT                 = 1
-    COMMAND_BIND                    = 2
-    COMMAND_UDP_ASSOCIATE           = 3
+    COMMAND_CONNECT                  = 1
+    COMMAND_BIND                     = 2
+    COMMAND_UDP_ASSOCIATE            = 3
 
-    REQUEST_GRANTED                 = 90
-    REQUEST_REJECT_FAILED           = 91
-    REQUEST_REJECT_CONNECT          = 92
-    REQUEST_REJECT_USERID           = 93
+    REPLY_SUCCEEDED                  = 0
+    REPLY_GENERAL_FAILURE            = 1
+    REPLY_NOT_ALLOWED                = 2
+    REPLY_NET_UNREACHABLE            = 3
+    REPLY_HOST_UNREACHABLE           = 4
+    REPLY_CONNECTION_REFUSED         = 5
+    REPLY_TTL_EXPIRED                = 6
+    REPLY_CMD_NOT_SUPPORTED          = 7
+    REPLY_ADDRESS_TYPE_NOT_SUPPORTED = 8
 
     #
     # Create a new client connected to the server.
@@ -147,6 +152,7 @@ module Socks5
           when COMMAND_UDP_ASSOCIATE
             response = handle_command_udp_associate(request)
         end
+
         if response.nil?
           STDERR.puts "Command did not return a proper response object"
         else
@@ -158,7 +164,7 @@ module Socks5
         STDERR.puts exception.backtrace
         # send back failure to the client
         response         = ResponsePacket.new
-        response.command = REQUEST_REJECT_FAILED
+        response.command = REPLY_GENERAL_FAILURE
         @lsock.put(response.to_binary_s)
         # raise an exception to close this client connection
         raise "Failed to handle the clients request."
@@ -176,7 +182,7 @@ module Socks5
 
       # send back the bind success to the client
       response              = ResponsePacket.new
-      response.command      = REQUEST_GRANTED
+      response.command      = REPLY_SUCCEEDED
       response.address      = bsock.localhost
       response.port         = bsock.localport
       @lsock.put(response.to_binary_s)
@@ -194,10 +200,9 @@ module Socks5
       bsock.close
 
       response              = ResponsePacket.new
-      response.version      = REPLY_VERSION
-      response.command      = REQUEST_GRANTED
-      response.address      = rpeer[HOST]
-      response.port         = rpeer[PORT]
+      response.command      = REPLY_SUCCEEDED
+      response.address      = @rsock.peerhost
+      response.port         = @rsock.peerport
       response
     end
 
@@ -211,7 +216,7 @@ module Socks5
       @rsock = Rex::Socket::Tcp.create(params)
 
       response              = ResponsePacket.new
-      response.command      = REQUEST_GRANTED
+      response.command      = REPLY_SUCCEEDED
       response.address      = @rsock.peerhost
       response.port         = @rsock.peerport
       response
@@ -228,7 +233,7 @@ module Socks5
 
       # send back the bind success to the client
       response              = ResponsePacket.new
-      response.command      = REQUEST_GRANTED
+      response.command      = REPLY_SUCCEEDED
       response.address      = @rsock.localhost
       response.port         = @rsock.localport
       response
@@ -251,14 +256,11 @@ module Socks5
           end
 
           @client_thread.kill if @client_thread and @client_thread.alive?
-
           @server.remove_client(self)
-
           @closed = true
         end
       end
     end
-
   end
 end
 end
