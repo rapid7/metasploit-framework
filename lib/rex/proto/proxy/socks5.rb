@@ -21,9 +21,12 @@ class Socks5
   # A client connected to the Socks5 server.
   #
   class Client
+    SOCKS_VERSION                   = 5
 
-    REQUEST_VERSION                 = 5
-    REPLY_VERSION                   = 0
+    AUTH_NONE                       = 0
+    AUTH_GSSAPI                     = 1
+    AUTH_CREDS                      = 2
+    AUTH_NO_ACCEPTABLE_METHODS      = 255
 
     COMMAND_CONNECT                 = 1
     COMMAND_BIND                    = 2
@@ -41,209 +44,73 @@ class Socks5
     HOST                            = 1
     PORT                            = 2
 
-    #
-    # A Socks5 packet.
-    #
-    class Packet
+    class AuthRequestPacket < BinData::Record
+      endian :big
 
-      def initialize
-        @version   = REQUEST_VERSION
-        @command   = 0
-        @dest_port = 0
-        @dest_ip   = '0.0.0.0'
-        @userid    = ''
-      end
-
-      #
-      # A helper function to recv in a Socks5 packet byte by byte.
-      #
-      # sf: we could just call raw = sock.get_once but some clients
-      #     seem to need reading this byte by byte instead.
-      #
-      def Packet.recv( sock, timeout=30 )
-        raw = ''
-        # read in the 4 byte header
-        while raw.length < 4
-          raw << sock.read(1)
-        end
-        # if its a request there will be more data
-        if raw[0..0].unpack('C').first == REQUEST_VERSION
-          # read in the userid
-          while raw[8..raw.length].index( "\x00" ) == nil
-            raw << sock.read( 1 )
-          end
-          # if a hostname is going to be present, read it in
-          ip = raw[4..7].unpack( 'N' ).first
-          if( ( ip & 0xFFFFFF00 ) == 0x00000000 and ( ip & 0x000000FF ) != 0x00 )
-            hostname = ''
-            while( hostname.index( "\x00" ) == nil )
-              hostname += sock.read( 1 )
-            end
-            raw << hostname
-          end
-        end
-        # create a packet from this raw data...
-        packet = Packet.new
-        packet.from_r( raw ) ? packet : nil
-      end
-
-      #
-      # Pack a packet into raw bytes for transmitting on the wire.
-      #
-      def to_r
-        raw = [ @version, @command, @dest_port, Rex::Socket.addr_atoi( @dest_ip ) ].pack( 'CCnN' )
-        return raw if( @userid.empty? )
-        return raw + [ @userid ].pack( 'Z*' )
-      end
-
-      #
-      # Unpack a raw packet into its components.
-      #
-      def from_r( raw )
-        return false if( raw.length < 8 )
-        @version   = raw[0..0].unpack( 'C' ).first
-        return false if( @version != REQUEST_VERSION and @version != REPLY_VERSION )
-        @command   = raw[1..1].unpack( 'C' ).first
-        @dest_port = raw[2..3].unpack( 'n' ).first
-        @dest_ip   = Rex::Socket.addr_itoa( raw[4..7].unpack( 'N' ).first )
-        if( raw.length > 8 )
-          @userid = raw[8..raw.length].unpack( 'Z*' ).first
-          # if this is a socks4a request we can resolve the provided hostname
-          if( self.is_hostname? )
-            hostname = raw[(8+@userid.length+1)..raw.length].unpack( 'Z*' ).first
-            @dest_ip = self.resolve( hostname )
-            # fail if we couldnt resolve the hostname
-            return false if( not @dest_ip )
-          end
-        else
-          @userid  = ''
-        end
-        return true
-      end
-
-      def is_bind?
-        @command == COMMAND_BIND ? true : false
-      end
-
-      def is_connect?
-        @command == COMMAND_CONNECT ? true : false
-      end
-
-      def is_udp_associate?
-        @command == COMMAND_UDP_ASSOCIATE ? true : false
-      end
-
-      attr_accessor :version, :command, :dest_port, :dest_ip, :userid
-
-      protected
-
-      #
-      # Resolve the given hostname into a dotted IP address.
-      #
-      def resolve( hostname )
-        if( not hostname.empty? )
-          begin
-            return Rex::Socket.addr_itoa( Rex::Socket.gethostbyname( hostname )[3].unpack( 'N' ).first )
-          rescue ::SocketError
-            return nil
-          end
-        end
-        return nil
-      end
-
-      #
-      # As per the Socks4a spec, check to see if the provided dest_ip is 0.0.0.XX
-      # which indicates after the @userid field contains a hostname to resolve.
-      #
-      def is_hostname?
-        ip = Rex::Socket.addr_atoi( @dest_ip )
-        if( ip & 0xFFFFFF00 == 0x00000000 )
-          return true if( ip & 0x000000FF != 0x00 )
-        end
-        return false
-      end
-
-    end
-
-
-    class AuthPacket < BinData::Record
-      endian :little
-      uint8  :version
+      uint8  :version, :initial_value => SOCKS_VERSION
       uint8  :supported_methods_length
       array  :supported_methods, :type => :uint8, :initial_length => :supported_methods_length
     end
 
+    class AuthResponsePacket < BinData::Record
+      endian :big
+
+      uint8  :version, :initial_value => SOCKS_VERSION
+      uint8  :chosen_method, :initial_value => AUTH_NONE
+    end
+
+    module AddressMixin
+      def address
+        addr = address_array.to_ary.pack('C*')
+        if address_type == ADDRESS_TYPE_IPV4 || address_type == ADDRESS_TYPE_IPV6
+          addr = Rex::Socket.addr_ntoa(addr)
+        end
+        addr
+      end
+
+      def address=(value)
+        if Rex::Socket.is_ipv4?(value)
+          address_type.assign(ADDRESS_TYPE_IPV4)
+          domainname_length.assign(0)
+        elsif Rex::Socket.is_ipv6?(value)
+          address_type.assign(ADDRESS_TYPE_IPV6)
+          domainname_length.assign(0)
+        else
+          address_type.assign(ADDRESS_TYPE_DOMAINNAME)
+          domainname_length.assign(value.length)
+        end
+        address_array.assign(Rex::Socket.addr_aton(value).unpack('C*'))
+      end
+
+      def address_length
+        case address_type
+          when ADDRESS_TYPE_IPV4
+            4
+          when ADDRESS_TYPE_DOMAINNAME
+            domainname_length
+          when ADDRESS_TYPE_IPV6
+            16
+          else
+            0
+        end
+      end
+    end
+
     class RequestPacket < BinData::Record
-      endian :little
-      uint8  :version
+      include AddressMixin
+      endian :big
+      hide   :reserved, :domainname_length
+
+      uint8  :version, :initial_value => SOCKS_VERSION
       uint8  :command
       uint8  :reserved
       uint8  :address_type
-      array  :address, :type => :uint8, :initial_length => lambda { { ADDRESS_TYPE_IPV4 => 4, ADDRESS_TYPE_IPV6 => 8 }.fetch(address_type, 0) }
+      uint8  :domainname_length, :onlyif => lambda { address_type == ADDRESS_TYPE_DOMAINNAME }
+      array  :address_array, :type => :uint8, :initial_length => lambda { address_length }
       uint16 :port
     end
 
-    #
-    # A mixin for a socket to perform a relay to another socket.
-    #
-    module Relay
-
-      #
-      # Relay data coming in from relay_sock to this socket.
-      #
-      def relay( relay_client, relay_sock )
-        @relay_client = relay_client
-        @relay_sock   = relay_sock
-        # start the relay thread (modified from Rex::IO::StreamAbstraction)
-        @relay_thread = Rex::ThreadFactory.spawn("SOCKS4AProxyServerRelay", false) do
-          loop do
-            closed = false
-            buf    = nil
-
-            begin
-              s = Rex::ThreadSafe.select( [ @relay_sock ], nil, nil, 0.2 )
-              if( s == nil || s[0] == nil )
-                next
-              end
-            rescue
-              closed = true
-            end
-
-            if( closed == false )
-              begin
-                buf = @relay_sock.sysread( 32768 )
-                closed = true if( buf == nil )
-              rescue
-                closed = true
-              end
-            end
-
-            if( closed == false )
-              total_sent   = 0
-              total_length = buf.length
-              while( total_sent < total_length )
-                begin
-                  data = buf[total_sent, buf.length]
-                  sent = self.write( data )
-                  if( sent > 0 )
-                    total_sent += sent
-                  end
-                rescue
-                  closed = true
-                  break
-                end
-              end
-            end
-
-            if( closed )
-              @relay_client.stop
-              ::Thread.exit
-            end
-          end
-        end
-
-      end
-
+    class ResponsePacket < RequestPacket
     end
 
     #
@@ -257,100 +124,125 @@ class Socks5
       @mutex         = ::Mutex.new
     end
 
-    #
     # Start handling the client connection.
     #
     def start
-      # create a thread to handle this client request so as to not block the socks4a server
+      # create a thread to handle this client request so as to not block the socks5 server
       @client_thread = Rex::ThreadFactory.spawn("SOCKS5ProxyClient", false) do
         begin
-          @server.add_client( self )
+          @server.add_client(self)
           # get the initial client request packet
-          @lsock.get_once
-          @lsock.put("\x05\x00")
-
-          request = Packet.recv(@lsock)
-          raise "Invalid Socks5 request packet received." if not request
-          # handle the request
-          begin
-            # handle socks4a conenct requests
-            if request.is_connect?
-              # perform the connection request
-              params = {
-                'PeerHost' => request.dest_ip,
-                'PeerPort' => request.dest_port,
-              }
-              params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
-
-              @rsock = Rex::Socket::Tcp.create( params )
-              # and send back success to the client
-              response         = Packet.new
-              response.version = REPLY_VERSION
-              response.command = REQUEST_GRANTED
-              @lsock.put(response.to_r)
-            # handle socks4a bind requests
-            elsif request.is_bind?
-              # create a server socket for this request
-              params = {
-                'LocalHost' => '0.0.0.0',
-                'LocalPort' => 0,
-              }
-              params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
-              bsock = Rex::Socket::TcpServer.create( params )
-              # send back the bind success to the client
-              response           = Packet.new
-              response.version   = REPLY_VERSION
-              response.command   = REQUEST_GRANTED
-              response.dest_ip   = '0.0.0.0'
-              response.dest_port = bsock.getlocalname()[PORT]
-              @lsock.put( response.to_r )
-              # accept a client connection (2 minute timeout as per spec)
-              begin
-                ::Timeout.timeout(120) do
-                  @rsock = bsock.accept
-                end
-              rescue ::Timeout::Error
-                raise "Timeout reached on accept request."
-              end
-              # close the listening socket
-              bsock.close
-              # verify the connection is from the dest_ip origionally specified by the client
-              rpeer = @rsock.getpeername_as_array
-              raise "Got connection from an invalid peer." if( rpeer[HOST] != request.dest_ip )
-              # send back the client connect success to the client
-              #
-              # sf: according to the spec we send this response back to the client, however
-              #     I have seen some clients who bawk if they get this second response.
-              #
-              response           = Packet.new
-              response.version   = REPLY_VERSION
-              response.command   = REQUEST_GRANTED
-              response.dest_ip   = rpeer[HOST]
-              response.dest_port = rpeer[PORT]
-              @lsock.put( response.to_r )
-            else
-              raise "Unknown request command received #{request.command} received."
-            end
-          rescue
-            # send back failure to the client
-            response         = Packet.new
-            response.version = REPLY_VERSION
-            response.command = REQUEST_REJECT_FAILED
-            @lsock.put( response.to_r )
-            # raise an exception to close this client connection
-            raise "Failed to handle the clients request."
+          packet = AuthRequestPacket.read(@lsock.get_once)
+          unless packet.supported_methods.include? AUTH_NONE
+            raise "Invalid Socks5 request packet received (no supported authentication methods)."
           end
+          @lsock.put(AuthResponsePacket.new.to_binary_s)
+          STDERR.puts "Sent auth reply"
+
+          packet = RequestPacket.read(@lsock.get_once)
+          STDERR.puts "Received valid request"
+          # handle the request
+          handle_command(packet)
+
           # setup the two way relay for full duplex io
-          @lsock.extend( Relay )
-          @rsock.extend( Relay )
+          @lsock.extend(Relay)
+          @rsock.extend(Relay)
           # start the socket relays...
-          @lsock.relay( self, @rsock )
-          @rsock.relay( self, @lsock )
-        rescue
-          wlog( "Client.start - #{$!}" )
+          @lsock.relay(self, @rsock)
+          @rsock.relay(self, @lsock)
+        rescue => exception
+          STDERR.puts "Error during processing: #{$!}"
+          STDERR.puts exception.backtrace
+          wlog("Client.start - #{$!}")
           self.stop
         end
       end
+    end
+
+    def handle_command(request)
+      response = nil
+      begin
+        case request.command
+          when COMMAND_BIND
+            response = handle_command_bind(request)
+          when COMMAND_CONNECT
+            response = handle_command_connect(request)
+          when COMMAND_UDP_ASSOCIATE
+            response = handle_command_udp_associate(request)
+        end
+        if response.nil?
+          STDERR.puts "Command did not return a proper response object"
+        else
+          @lsock.put(response.to_binary_s)
+          STDERR.puts "Set response to the client"
+        end
+      rescue => exception
+        STDERR.puts "Error during processing: #{$!}"
+        STDERR.puts exception.backtrace
+        # send back failure to the client
+        response         = ResponsePacket.new
+        response.command = REQUEST_REJECT_FAILED
+        @lsock.put(response.to_binary_s)
+        # raise an exception to close this client connection
+        raise "Failed to handle the clients request."
+      end
+    end
+
+    def handle_command_bind(request)
+      # create a server socket for this request
+      params = {
+        'LocalHost' => request.address,
+        'LocalPort' => request.port
+      }
+      params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
+      bsock = Rex::Socket::TcpServer.create(params)
+
+      # send back the bind success to the client
+      response              = ResponsePacket.new
+      response.command      = REQUEST_GRANTED
+      response.address_type = request.address_type
+      response.address      = bsock.getlocalname()[HOST]
+      response.port         = bsock.getlocalname()[PORT]
+      @lsock.put(response.to_binary_s)
+
+      # accept a client connection (2 minute timeout as per the socks4a spec)
+      begin
+        ::Timeout.timeout(120) do
+          @rsock = bsock.accept
+        end
+      rescue ::Timeout::Error
+        raise "Timeout reached on accept request."
+      end
+
+      # close the listening socket
+      bsock.close
+
+      response              = ResponsePacket.new
+      response.version      = REPLY_VERSION
+      response.command      = REQUEST_GRANTED
+      response.address      = rpeer[HOST]
+      response.port         = rpeer[PORT]
+      response
+    end
+
+    def handle_command_connect(request)
+      # perform the connection request
+      params = {
+        'PeerHost' => request.address,
+        'PeerPort' => request.port,
+      }
+      params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
+      @rsock = Rex::Socket::Tcp.create(params)
+
+      response              = ResponsePacket.new
+      response.command      = REQUEST_GRANTED
+      response.address      = @rsock.peerhost
+      response.port         = @rsock.peerport
+      response
+    end
+
+    def handle_command_udp_associate(packet)
+
     end
 
     #
@@ -358,8 +250,7 @@ class Socks5
     #
     def stop
       @mutex.synchronize do
-        if( not @closed )
-
+        unless @closed
           begin
             @lsock.close if @lsock
           rescue
@@ -370,9 +261,9 @@ class Socks5
           rescue
           end
 
-          @client_thread.kill if( @client_thread and @client_thread.alive? )
+          @client_thread.kill if @client_thread and @client_thread.alive?
 
-          @server.remove_client( self )
+          @server.remove_client(self)
 
           @closed = true
         end
@@ -382,11 +273,11 @@ class Socks5
   end
 
   #
-  # Create a new Socks4a server.
+  # Create a new Socks5 server.
   #
-  def initialize( opts={} )
+  def initialize(opts={})
     @opts          = { 'ServerHost' => '0.0.0.0', 'ServerPort' => 1080 }
-    @opts          = @opts.merge( opts )
+    @opts          = @opts.merge(opts)
     @server        = nil
     @clients       = ::Array.new
     @running       = false
@@ -404,29 +295,31 @@ class Socks5
   # Start the Socks4a server.
   #
   def start
-      begin
-        # create the servers main socket (ignore the context here because we don't want a remote bind)
-        @server = Rex::Socket::TcpServer.create( 'LocalHost' => @opts['ServerHost'], 'LocalPort' => @opts['ServerPort'] )
-        # signal we are now running
-        @running = true
-        # start the servers main thread to pick up new clients
-        @server_thread = Rex::ThreadFactory.spawn("SOCKS5ProxyServer", false) do
-          while( @running ) do
-            begin
-              # accept the client connection
-              sock = @server.accept
-              # and fire off a new client instance to handle it
-              Client.new( self, sock ).start
-            rescue
-              wlog( "Socks5.start - server_thread - #{$!}" )
-            end
+    begin
+      # create the servers main socket (ignore the context here because we don't want a remote bind)
+      @server = Rex::Socket::TcpServer.create('LocalHost' => @opts['ServerHost'], 'LocalPort' => @opts['ServerPort'])
+      # signal we are now running
+      @running = true
+      # start the servers main thread to pick up new clients
+      @server_thread = Rex::ThreadFactory.spawn("SOCKS5ProxyServer", false) do
+        while @running
+          begin
+            # accept the client connection
+            sock = @server.accept
+            # and fire off a new client instance to handle it
+            Client.new(self, sock).start
+          rescue
+            wlog("Socks5.start - server_thread - #{$!}")
           end
         end
-      rescue
-        wlog( "Socks5.start - #{$!}" )
-        return false
       end
-      return true
+    rescue => exception
+      STDERR.puts "Error during processing: #{$!}"
+      STDERR.puts exception.backtrace
+      wlog("Socks5.start - #{$!}")
+      return false
+    end
+    return true
   end
 
   #
@@ -440,29 +333,28 @@ class Socks5
   # Stop the Socks4a server.
   #
   def stop
-    if( @running )
+    if @running
       # signal we are no longer running
       @running = false
       # stop any clients we have (create a new client array as client.stop will delete from @clients)
-      clients = []
-      clients.concat( @clients )
+      clients = @clients.dup
       clients.each do | client |
         client.stop
       end
       # close the server socket
       @server.close if @server
       # if the server thread did not terminate gracefully, kill it.
-      @server_thread.kill if( @server_thread and @server_thread.alive? )
+      @server_thread.kill if @server_thread and @server_thread.alive?
     end
     return !@running
   end
 
-  def add_client( client )
+  def add_client(client)
     @clients << client
   end
 
-  def remove_client( client )
-    @clients.delete( client )
+  def remove_client(client)
+    @clients.delete(client)
   end
 
   attr_reader :opts
