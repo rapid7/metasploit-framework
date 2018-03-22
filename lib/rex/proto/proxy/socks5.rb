@@ -200,9 +200,8 @@ class Socks5
       # send back the bind success to the client
       response              = ResponsePacket.new
       response.command      = REQUEST_GRANTED
-      response.address_type = request.address_type
-      response.address      = bsock.getlocalname()[HOST]
-      response.port         = bsock.getlocalname()[PORT]
+      response.address      = bsock.localhost
+      response.port         = bsock.localport
       @lsock.put(response.to_binary_s)
 
       # accept a client connection (2 minute timeout as per the socks4a spec)
@@ -241,8 +240,21 @@ class Socks5
       response
     end
 
-    def handle_command_udp_associate(packet)
+    def handle_command_udp_associate(request)
+      # create a udp socket for this request
+      params = {
+        'LocalHost' => request.address,
+        'LocalPort' => request.port
+      }
+      params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
+      @rsock = Rex::Socket::Udp.create(params)
 
+      # send back the bind success to the client
+      response              = ResponsePacket.new
+      response.command      = REQUEST_GRANTED
+      response.address      = @rsock.localhost
+      response.port         = @rsock.localport
+      response
     end
 
     #
