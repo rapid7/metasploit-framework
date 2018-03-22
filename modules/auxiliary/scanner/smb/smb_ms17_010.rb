@@ -5,9 +5,9 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
-  include Msf::Exploit::Remote::SMB::Client::PipeAudit
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::SMB::Client::PipeAuditor
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -52,8 +52,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('CHECK_DOPU', [true, 'Check for DOUBLEPULSAR on vulnerable hosts', true]),
-        OptBool.new('CHECK_ARCH', [true, 'Check for architecture on vulnerable hosts', true])
+        OptBool.new('CHECK_DOPU', [false, 'Check for DOUBLEPULSAR on vulnerable hosts', true]),
+        OptBool.new('CHECK_ARCH', [false, 'Check for architecture on vulnerable hosts', true]),
+        OptBool.new('CHECK_PIPE', [false, 'Check for named pipe on vulnerable hosts', false])
       ])
   end
 
@@ -91,16 +92,6 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         print_good("Host is likely VULNERABLE to MS17-010! - #{os}")
-        accessible_pipes , pipe_handlers = connect_to_pipe()
-        p_pipes = ""
-        if accessible_pipes.count != 0
-          accessible_pipes.each do |a_pipe|
-          p_pipes += ", #{a_pipe}"
-        end
-          print_good("Following accessible named pipe(s) found: #{p_pipes}")
-        else
-          print_status("No accessible named pipes found on the target")
-        end
         report_vuln(
           host: ip,
           name: self.name,
@@ -123,6 +114,23 @@ class MetasploitModule < Msf::Auxiliary
               info: "MultiPlexID += 0x10 on Trans2 request - Arch: #{arch}, XOR Key: 0x#{xor_key}"
             )
           end
+        end
+
+        if datastore['CHECK_PIPE']
+          pipe_name, _ = check_named_pipes(return_first: true)
+
+          return unless pipe_name
+
+          print_good("Named pipe found: #{pipe_name}")
+
+          report_note(
+            host:  ip,
+            port:  rport,
+            proto: 'tcp',
+            sname: 'smb',
+            type:  'MS17-010 Named Pipe',
+            data:  pipe_name
+          )
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)
