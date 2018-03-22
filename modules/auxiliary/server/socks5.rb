@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       'ServerPort' => datastore['SRVPORT'],
       'Context' => {'Msf' => framework, 'MsfExploit' => self}
     }
-    @socks_proxy = Rex::Proto::Proxy::Socks5.new(opts)
+    @socks_proxy = Rex::Proto::Proxy::Socks5::Server.new(opts)
 
     print_status('Starting the socks5 proxy server')
     @socks_proxy.start
