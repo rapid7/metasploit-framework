@@ -194,15 +194,12 @@ module Msf::DBManager::Session
       end
       mod_detail = ::Mdm::Module::Detail.find_by_fullname(mod_fullname)
 
-      # temp fix: mod_detail.refs will throw exception if mod_detail.nil?
-      vuln_refs = []
       if mod_detail.nil?
         # Then the cache isn't built yet, take the hit for instantiating the
         # module
         mod_detail = framework.modules.create(mod_fullname)
-        refs = []
+        refs = mod_detail.references
       else
-        vuln_refs = mod_detail.refs.map(&:name)
         refs = mod_detail.refs
       end
       mod_name = mod_detail.name
@@ -212,7 +209,7 @@ module Msf::DBManager::Session
         host: host,
         info: "Exploited by #{mod_fullname} to create Session #{s.id}",
         name: mod_name,
-        refs: vuln_refs,
+        refs: refs,
         workspace: wspace,
       }
 
@@ -318,32 +315,15 @@ module Msf::DBManager::Session
 
       vuln_info_dto = session_dto[:vuln_info]
       host = session_db_record.host
-      mod_detail = ::Mdm::Module::Detail.find_by_fullname(vuln_info_dto[:mod_name])
-
-      # temp fix: mod_detail.refs will throw exception if mod_detail.nil?
-      vuln_refs = []
-      if mod_detail.nil?
-        # Then the cache isn't built yet, take the hit for instantiating the
-        # module
-        mod_detail = framework.modules.create(vuln_info_dto[:mod_name])
-      else
-        vuln_refs = mod_detail.refs.map(&:name)
-      end
-
-      if (mod_detail.nil?)
-        mod_name = 'unknown'
-        refs = []
-      else
-        mod_name = mod_detail.name
-        refs = mod_detail.refs
-      end
+      mod_name = vuln_info_dto[:mod_name] || 'unknown'
+      refs = vuln_info_dto[:mod_references] || []
 
       vuln_info = {
           exploited_at: session_dto[:time_stamp],
           host: host,
-          info: "Exploited by #{vuln_info_dto[:mod_name]} to create Session #{session_db_record.id}",
+          info: "Exploited by #{vuln_info_dto[:mod_fullname]} to create Session #{session_db_record.id}",
           name: mod_name,
-          refs: vuln_refs,
+          refs: refs,
           workspace: workspace,
       }
 
@@ -356,7 +336,7 @@ module Msf::DBManager::Session
 
       attempt_info = {
           host: host,
-          module: vuln_info_dto[:mod_name],
+          module: vuln_info_dto[:mod_fullname],
           refs: refs,
           service: service,
           session_id: session_db_record.id,
