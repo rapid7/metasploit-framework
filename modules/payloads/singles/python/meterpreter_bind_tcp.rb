@@ -11,7 +11,7 @@ require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 67282
+  CachedSize = 67206
 
   include Msf::Payload::Single
   include Msf::Payload::Python

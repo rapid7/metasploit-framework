@@ -254,14 +254,16 @@ class MetasploitModule < Msf::Auxiliary
       else
         # Login didn't work. no point in going on, however, check if valid domain account by response time.
         if elapsed_time <= 1
-          report_cred(
-            ip: res.peerinfo['addr'],
-            port: datastore['RPORT'],
-            service_name: 'owa',
-            user: user
-          )
-          print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
-          return :Skip_pass
+          unless user =~ /@\w+\.\w+/
+            report_cred(
+              ip: res.peerinfo['addr'],
+              port: datastore['RPORT'],
+              service_name: 'owa',
+              user: user
+            )
+            print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
+            return :Skip_pass
+          end
         else
           vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (HTTP redirect with reason #{reason})")
           return :Skip_pass
@@ -300,14 +302,16 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.redirect?
       if elapsed_time <= 1
-        report_cred(
-          ip: res.peerinfo['addr'],
-          port: datastore['RPORT'],
-          service_name: 'owa',
-          user: user
-        )
-        print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
-        return :Skip_pass
+        unless user =~ /@\w+\.\w+/
+          report_cred(
+            ip: res.peerinfo['addr'],
+            port: datastore['RPORT'],
+            service_name: 'owa',
+            user: user
+          )
+          print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
+          return :Skip_pass
+        end
       else
         vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (response was a #{res.code} redirect)")
         return :skip_pass
@@ -326,14 +330,16 @@ class MetasploitModule < Msf::Auxiliary
       return :next_user
     else
       if elapsed_time <= 1
-        report_cred(
-          ip: res.peerinfo['addr'],
-          port: datastore['RPORT'],
-          service_name: 'owa',
-          user: user
-        )
-        print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
-        return :Skip_pass
+        unless user =~ /@\w+\.\w+/
+          report_cred(
+            ip: res.peerinfo['addr'],
+            port: datastore['RPORT'],
+            service_name: 'owa',
+            user: user
+          )
+          print_status("#{msg} FAILED LOGIN, BUT USERNAME IS VALID. #{elapsed_time} '#{user}' : '#{pass}': SAVING TO CREDS")
+          return :Skip_pass
+        end
       else
         vprint_error("#{msg} FAILED LOGIN. #{elapsed_time} '#{user}' : '#{pass}' (response body did not match)")
         return :skip_pass
