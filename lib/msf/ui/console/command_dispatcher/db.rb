@@ -801,7 +801,7 @@ class Db
     print_line "  -s <svc names>        List vulns matching these service names"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -S,--search           Search string to filter by"
-    print_line "  -i,--info             Display Vuln Info"
+    print_line "  -i,--info             Display vuln information"
     print_line
     print_line "Examples:"
     print_line "  vulns -p 1-65536          # only vulns with associated services"
@@ -812,6 +812,7 @@ class Db
   def cmd_vulns(*args)
     return unless active?
 
+    default_columns = ['Timestamp', 'Host', 'Name', 'References']
     host_ranges = []
     port_ranges = []
     svcs        = []
@@ -821,23 +822,18 @@ class Db
     show_info   = false
     set_rhosts  = false
     output_file = nil
-
-    # Short-circuit help
-    if args.delete "-h"
-      cmd_vulns_help
-      return
-    end
+    delete_count = 0
 
     while (arg = args.shift)
       case arg
-      #when "-a","--add"
-      #	mode = :add
-      #when "-d"
-      #	mode = :delete
-      when "-h","--help"
+      # when '-a', '--add'
+      #   mode = :add
+      when '-d', '--delete'  # TODO: This is currently undocumented because it's not officially supported.
+        mode = :delete
+      when '-h', '--help'
         cmd_vulns_help
         return
-      when "-o", "--output"
+      when '-o', '--output'
         output_file = args.shift
         if output_file
           output_file = File.expand_path(output_file)
@@ -845,11 +841,11 @@ class Db
           print_error("Invalid output filename")
           return
         end
-      when "-p","--port"
+      when '-p', '--port'
         unless (arg_port_range(args.shift, port_ranges, true))
           return
         end
-      when "-s","--service"
+      when '-s', '--service'
         service = args.shift
         if (!service)
           print_error("Argument required for -s")
@@ -859,7 +855,7 @@ class Db
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
-        search_term = /#{args.shift}/nmi
+        search_term = args.shift
       when '-i', '--info'
         show_info = true
       else
@@ -870,69 +866,81 @@ class Db
       end
     end
 
-    # normalize
+    if show_info
+      default_columns << 'Information'
+    end
+
+    # add sentinel value meaning all if empty
     host_ranges.push(nil) if host_ranges.empty?
+    # normalize
     ports = port_ranges.flatten.uniq
     svcs.flatten!
     tbl = Rex::Text::Table.new(
         'Header' => 'Vulnerabilities',
-        'Columns' => ['Timestamp', 'Host', 'Name', 'References', 'Information']
+        'Columns' => default_columns
     )
 
-    each_host_range_chunk(host_ranges) do |host_search|
-      framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-        host.vulns.each do |vuln|
-          if search_term
-            next unless(
-            vuln.host.attribute_names.any? { |a| vuln.host[a.intern].to_s.match(search_term) } or
-              vuln.attribute_names.any? { |a| vuln[a.intern].to_s.match(search_term) }
-            )
-          end
-          reflist = vuln.refs.map { |r| r.name }
-          if(vuln.service)
-            # Skip this one if the user specified a port and it
-            # doesn't match.
-            next unless ports.empty? or ports.include? vuln.service.port
-            # Same for service names
-            next unless svcs.empty? or svcs.include?(vuln.service.name)
+    matched_vuln_ids = []
+    vulns = []
+    if host_ranges.compact.empty?
+      vulns = framework.db.vulns({:search_term => search_term})
+    else
+      each_host_range_chunk(host_ranges) do |host_search|
+        break if !host_search.nil? && host_search.empty?
 
-          else
-            # This vuln has no service, so it can't match
-            next unless ports.empty? and svcs.empty?
-          end
-
-          print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
-
-          if output_file
-            row = []
-            row << vuln.created_at
-            row << host.address
-            row << vuln.name
-            row << reflist * ","
-            if show_info && vuln.info
-              row << "info=#{vuln.info}"
-            else
-              row << ''
-            end
-            tbl << row
-          end
-
-          if set_rhosts
-            addr = (host.scope ? host.address + '%' + host.scope : host.address)
-            rhosts << addr
-          end
-        end
+        vulns.concat(framework.db.vulns({:hosts => { :address => host_search }, :search_term => search_term }))
       end
+    end
+
+    vulns.each do |vuln|
+      reflist = vuln.refs.map {|r| r.name}
+      if (vuln.service)
+        # Skip this one if the user specified a port and it
+        # doesn't match.
+        next unless ports.empty? or ports.include? vuln.service.port
+        # Same for service names
+        next unless svcs.empty? or svcs.include?(vuln.service.name)
+      else
+        # This vuln has no service, so it can't match
+        next unless ports.empty? and svcs.empty?
+      end
+
+      matched_vuln_ids << vuln.id
+
+      row = []
+      row << vuln.created_at
+      row << vuln.host.address
+      row << vuln.name
+      row << reflist.join(',')
+      if show_info
+        row << vuln.info
+      end
+      tbl << row
+
+      if set_rhosts
+        addr = (vuln.host.scope ? vuln.host.address + '%' + vuln.host.scope : vuln.host.address)
+        rhosts << addr
+      end
+    end
+
+    if mode == :delete
+      result = framework.db.delete_vuln(ids: matched_vuln_ids)
+      delete_count = result.size
     end
 
     if output_file
       File.write(output_file, tbl.to_csv)
       print_status("Wrote vulnerability information to #{output_file}")
+    else
+      print_line
+      print_line(tbl.to_s)
     end
 
     # Finally, handle the case where the user wants the resulting list
     # of hosts to go into RHOSTS.
     set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+
+    print_status("Deleted #{delete_count} vulnerabilities") if delete_count > 0
   end
 
   def cmd_notes_help
@@ -1545,18 +1553,7 @@ class Db
     end
 
     print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-    exporter = ::Msf::DBManager::Export.new(framework.db.workspace)
-
-    exporter.send("to_#{format}_file".intern,output) do |mtype, mstatus, mname|
-      if mtype == :status
-        if mstatus == "start"
-          print_status("    >> Starting export of #{mname}")
-        end
-        if mstatus == "complete"
-          print_status("    >> Finished export of #{mname}")
-        end
-      end
-    end
+    framework.db.run_db_export(output, format)
     print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
   }
   end

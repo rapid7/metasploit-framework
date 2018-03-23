@@ -1,28 +1,31 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
-msfbase = __FILE__
-while File.symlink?(msfbase)
-  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
-end
-
-$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
-require 'msfenv'
-
-$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
-
-require 'rex'
-require 'msf/ui'
-require 'msf/base'
-require 'msf/core/payload_generator'
-
 class MsfVenomError < StandardError; end
 class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
-class NoTemplateError < MsfVenomError; end
-class IncompatibleError < MsfVenomError; end
 
 require 'optparse'
+require 'timeout'
+
+def require_deps
+  msfbase = __FILE__
+  while File.symlink?(msfbase)
+    msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+  end
+
+  $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+  require 'msfenv'
+
+  $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+  require 'rex'
+  require 'msf/ui'
+  require 'msf/base'
+  require 'msf/core/payload_generator'
+
+  @framework_loaded = true
+end
 
 # Creates a new framework object.
 #
@@ -30,9 +33,16 @@ require 'optparse'
 # @param (see ::Msf::Simple::Framework.create)
 # @return [Msf::Framework]
 def init_framework(create_opts={})
+  require_deps unless @framework_loaded
+
   create_opts[:module_types] ||= [
     ::Msf::MODULE_PAYLOAD, ::Msf::MODULE_ENCODER, ::Msf::MODULE_NOP
   ]
+
+  create_opts[:module_types].map! do |type|
+    type = Msf.const_get("MODULE_#{type.upcase}")
+  end
+
   @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
 end
 
@@ -178,6 +188,7 @@ def parse_args(args)
       datastore[k.upcase] = v.to_s
     end
     if opts[:payload].to_s =~ /[\_\/]reverse/ and datastore['LHOST'].nil?
+      init_framework
       datastore['LHOST'] = Rex::Socket.source_address
     end
   end
@@ -214,7 +225,7 @@ def payload_stdin
 end
 
 def dump_payloads
-  init_framework(:module_types => [ ::Msf::MODULE_PAYLOAD ])
+  init_framework(:module_types => [ :payload ])
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Payloads (#{framework.stats.num_payloads} total)",
@@ -232,7 +243,7 @@ def dump_payloads
 end
 
 def dump_encoders(arch = nil)
-  init_framework(:module_types => [ ::Msf::MODULE_ENCODER ])
+  init_framework(:module_types => [ :encoder ])
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : ""),
@@ -255,7 +266,7 @@ def dump_encoders(arch = nil)
 end
 
 def dump_nops
-  init_framework(:module_types => [ ::Msf::MODULE_NOP ])
+  init_framework(:module_types => [ :nop ])
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
     'Header'  => "Framework NOPs (#{framework.stats.num_nops} total)",
@@ -277,7 +288,7 @@ begin
 rescue HelpError => e
   $stderr.puts e.message
   exit(1)
-rescue MsfVenomError, Msf::OptionValidateError => e
+rescue MsfVenomError => e
   $stderr.puts "Error: #{e.message}"
   exit(1)
 end

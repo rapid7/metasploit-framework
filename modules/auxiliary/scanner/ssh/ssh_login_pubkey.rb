@@ -68,11 +68,11 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RHOST']
   end
 
-  def session_setup(result, ssh_socket, fingerprint)
-    return unless ssh_socket
+  def session_setup(result, scanner, fingerprint)
+    return unless scanner.ssh_socket
 
     # Create a new session from the socket
-    conn = Net::SSH::CommandStream.new(ssh_socket)
+    conn = Net::SSH::CommandStream.new(scanner.ssh_socket)
 
     # Clean up the stored data - need to stash the keyfile into
     # a datastore for later reuse.
@@ -87,27 +87,10 @@ class MetasploitModule < Msf::Auxiliary
 
     info = "SSH #{result.credential.public}:#{fingerprint} (#{ip}:#{rport})"
     s = start_session(self, info, merge_me, false, conn.lsock)
-    self.sockets.delete(ssh_socket.transport.socket)
+    self.sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
-    case result.proof
-    when /Linux/
-      s.platform = "linux"
-    when /Darwin/
-      s.platform = "osx"
-    when /SunOS/
-      s.platform = "solaris"
-    when /BSD/
-      s.platform = "bsd"
-    when /HP-UX/
-      s.platform = "hpux"
-    when /AIX/
-      s.platform = "aix"
-    when /Win32|Windows/
-      s.platform = "windows"
-    when /Unknown command or computer name/
-      s.platform = "cisco-ios"
-    end
+    s.platform = scanner.get_platform(result.proof)
 
     s
   end
@@ -160,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_login(credential_data)
           tmp_key = result.credential.private
           ssh_key = SSHKey.new tmp_key
-          session_setup(result, scanner.ssh_socket, ssh_key.fingerprint)
+          session_setup(result, scanner, ssh_key.fingerprint)
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']

@@ -294,7 +294,8 @@ module Auxiliary::Report
         :username     => username  || "unknown",
     }
 
-    vuln.vuln_attempts.create(attempt_info)
+    # TODO: figure out what opts are required and why the above logic doesn't match that of the db_manager method
+    framework.db.report_vuln_attempt(vuln, attempt_info)
 
     vuln
   end

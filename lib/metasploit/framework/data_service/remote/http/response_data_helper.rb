@@ -7,13 +7,33 @@ require 'digest'
 module ResponseDataHelper
 
   #
+  # Converts an HTTP response to a Hash
+  #
+  # @param [ResponseWrapper] A wrapped HTTP response containing a JSON body.
+  # @return [Hash] A Hash interpretation of the JSON body.
+  #
+  def json_to_hash(response_wrapper)
+    begin
+      if response_wrapper.expected
+        body = response_wrapper.response.body
+        unless body.nil? && body.empty?
+          return JSON.parse(body).symbolize_keys
+        end
+      end
+    rescue Exception => e
+      elog "Error parsing response: #{e.message}"
+      e.backtrace.each { |line| elog line }
+    end
+  end
+
+  #
   # Converts an HTTP response to an OpenStruct object
   #
   def json_to_open_struct_object(response_wrapper, returns_on_error = nil)
     if response_wrapper.expected
       begin
         body = response_wrapper.response.body
-        if not body.nil? and not body.empty?
+        if !body.nil? && !body.empty?
           return JSON.parse(body, object_class: OpenStruct)
         end
       rescue Exception => e
@@ -31,11 +51,12 @@ module ResponseDataHelper
   # @param [String] The Mdm class to convert the JSON to.
   # @param [Anything] A failsafe response to return if no objects are found.
   # @return [ActiveRecord::Base] An object of type mdm_class, which inherits from ActiveRecord::Base
+  #
   def json_to_mdm_object(response_wrapper, mdm_class, returns_on_error = nil)
     if response_wrapper.expected
       begin
         body = response_wrapper.response.body
-        if not body.nil? and not body.empty?
+        if !body.nil? && !body.empty?
           parsed_body = Array.wrap(JSON.parse(body))
           rv = []
           parsed_body.each do |json_object|
@@ -84,6 +105,7 @@ module ResponseDataHelper
   # @param [Class] base_class The base class to build back to. Used for recursion.
   # @return [ActiveRecord::Base] A klass object, which inherits from ActiveRecord::Base.
   def to_ar(klass, val, base_object = nil)
+    return nil unless val
     data = val.class == Hash ? val.dup : JSON.parse(val)
     obj = base_object || klass.new
 

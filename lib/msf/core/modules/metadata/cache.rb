@@ -24,17 +24,21 @@ class Cache
   # Refreshes cached module metadata as well as updating the store
   #
   def refresh_metadata_instance(module_instance)
-    dlog "Refreshing #{module_instance.refname} of type: #{module_instance.type}"
-    refresh_metadata_instance_internal(module_instance)
-    update_store
+    @mutex.synchronize {
+      dlog "Refreshing #{module_instance.refname} of type: #{module_instance.type}"
+      refresh_metadata_instance_internal(module_instance)
+      update_store
+    }
   end
 
   #
   #  Returns the module data cache, but first ensures all the metadata is loaded
   #
   def get_metadata
-    wait_for_load
-    @module_metadata_cache.values
+    @mutex.synchronize {
+      wait_for_load
+      @module_metadata_cache.values
+    }
   end
 
   #
@@ -42,40 +46,46 @@ class Cache
   # if there are changes.
   #
   def refresh_metadata(module_sets)
-    unchanged_module_references = get_unchanged_module_references
-    has_changes = false
-    module_sets.each do |mt|
-      unchanged_reference_name_set = unchanged_module_references[mt[0]]
+    @mutex.synchronize {
+      unchanged_module_references = get_unchanged_module_references
+      has_changes = false
+      module_sets.each do |mt|
+        unchanged_reference_name_set = unchanged_module_references[mt[0]]
 
-      mt[1].keys.sort.each do |mn|
-        next if unchanged_reference_name_set.include? mn
+        mt[1].keys.sort.each do |mn|
+          next if unchanged_reference_name_set.include? mn
 
-        begin
-          module_instance = mt[1].create(mn)
-        rescue Exception => e
-          elog "Unable to create module: #{mn}. #{e.message}"
-        end
-
-        unless module_instance
-          wlog "Removing invalid module reference from cache: #{mn}"
-          existed = remove_from_cache(mn)
-          if existed
-            has_changes = true
+          begin
+            module_instance = mt[1].create(mn)
+          rescue Exception => e
+            elog "Unable to create module: #{mn}. #{e.message}"
           end
-          next
-        end
 
-        begin
-          refresh_metadata_instance_internal(module_instance)
-          has_changes = true
-        rescue Exception => e
-          elog("Error updating module details for #{module_instance.fullname}: #{$!.class} #{$!} : #{e.message}")
+          unless module_instance
+            wlog "Removing invalid module reference from cache: #{mn}"
+            existed = remove_from_cache(mn)
+            if existed
+              has_changes = true
+            end
+            next
+          end
+
+          begin
+            refresh_metadata_instance_internal(module_instance)
+            has_changes = true
+          rescue Exception => e
+            elog("Error updating module details for #{module_instance.fullname}: #{$!.class} #{$!} : #{e.message}")
+          end
         end
       end
-    end
 
-    update_store if has_changes
+      update_store if has_changes
+    }
   end
+
+  #######
+  private
+  #######
 
   #
   # Returns  a hash(type->set) which references modules that have not changed.
@@ -101,10 +111,6 @@ class Cache
 
     return skip_reference_name_set_by_module_type
   end
-
-  #######
-  private
-  #######
 
   def remove_from_cache(module_name)
     old_cache_size = @module_metadata_cache.size
@@ -140,6 +146,7 @@ class Cache
   end
 
   def initialize
+    @mutex = Mutex.new
     @module_metadata_cache = {}
     @store_loaded = false
     @console = Rex::Ui::Text::Output::Stdio.new

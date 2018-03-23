@@ -67,14 +67,17 @@ module RemoteSessionDataService
   def parse_vuln_info(msf_session)
     hash = Hash.new()
     if msf_session.via_exploit == "exploit/multi/handler" and msf_session.exploit_datastore['ParentModule']
-      hash[:mod_name] = msf_session.exploit_datastore['ParentModule']
+      hash[:mod_fullname] = msf_session.exploit_datastore['ParentModule']
     else
-      hash[:mod_name] = msf_session.via_exploit
+      hash[:mod_fullname] = msf_session.via_exploit
     end
 
     hash[:remote_port] = msf_session.exploit_datastore["RPORT"]
     hash[:username] = msf_session.username
     hash[:run_id] = msf_session.exploit.user_data.try(:[], :run_id)
+
+    hash[:mod_name] = msf_session.exploit.name
+    hash[:mod_references] = msf_session.exploit.references
     return hash
   end
 end
