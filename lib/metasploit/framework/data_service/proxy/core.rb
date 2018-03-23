@@ -96,7 +96,7 @@ class DataProxy
   # Used to bridge the local db
   #
   def method_missing(method, *args, &block)
-    dlog ("Attempting to delegate method: #{method}")
+    dlog ("Attempting to delegate method: #{method}") unless method =~ /remove_stale_sessions/
     unless @current_data_service.nil?
       @current_data_service.send(method, *args, &block)
     end

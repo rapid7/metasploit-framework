@@ -3,7 +3,8 @@ module WorkspaceDataProxy
   def find_workspace(workspace_name)
     begin
       data_service = self.get_data_service
-      data_service.find_workspace(workspace_name)
+      opts = { :name => workspace_name }
+      data_service.workspaces(opts).first
     rescue  Exception => e
       self.log_error(e, "Problem finding workspace")
     end
@@ -20,8 +21,7 @@ module WorkspaceDataProxy
 
   def default_workspace
     begin
-      data_service = self.get_data_service
-      data_service.default_workspace
+      find_workspace('default')
     rescue  Exception => e
       self.log_error(e, "Problem finding default workspace")
     end
@@ -29,26 +29,30 @@ module WorkspaceDataProxy
 
   def workspace
     begin
-      data_service = self.get_data_service
-      data_service.workspace
+      if @current_workspace_id
+        workspaces({ :id => @current_workspace_id }).first
+      else
+        default_workspace
+      end
     rescue  Exception => e
       self.log_error(e, "Problem retrieving workspace")
     end
   end
 
+  # TODO: Tracking of the current workspace should be moved out of the datastore.
+  # See MS-3095
   def workspace=(workspace)
     begin
-      data_service = self.get_data_service
-      data_service.workspace = workspace
+      @current_workspace_id = workspace.id
     rescue  Exception => e
       self.log_error(e, "Problem setting workspace")
     end
   end
 
-  def workspaces
+  def workspaces(opts = {})
     begin
       data_service = self.get_data_service
-      data_service.workspaces
+      data_service.workspaces(opts)
     rescue  Exception => e
       self.log_error(e, "Problem retrieving workspaces")
     end

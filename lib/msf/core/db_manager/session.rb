@@ -13,7 +13,7 @@ module Msf::DBManager::Session
   def get_session(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts[:workspace] || opts[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     addr   = opts[:addr] || opts[:address] || opts[:host] || return
     host = get_host(:workspace => wspace, :host => addr)
     time = opts[:opened_at] || opts[:created_at] || opts[:time] || return

@@ -173,7 +173,13 @@ class Db
       opts = {}
       opts[:id] = framework.db.find_workspace(names.first).id
       opts[:name] = names.last
-      framework.db.update_workspace(opts)
+      begin
+        framework.db.update_workspace(opts)
+      rescue Exception => e
+        puts "In db.rb, error in the update #{e.message}"
+        e.backtrace.each { |line| puts "#{line}"}
+      end
+
     elsif names
       name = names.last
       # Switch workspace
@@ -1964,6 +1970,7 @@ class Db
     begin
       framework.db.register_data_service(remote_data_service)
       print_line "Registered data service: #{remote_data_service.name}"
+      framework.db.workspace = framework.db.default_workspace
     rescue Exception => e
       print_error "There was a problem registering the remote data service: #{e.message}"
     end
@@ -1971,7 +1978,9 @@ class Db
 
   def set_data_service(service_id)
     begin
-      framework.db.set_data_service(service_id)
+      data_service = framework.db.set_data_service(service_id)
+      framework.db.workspace = framework.db.default_workspace
+      data_service
     rescue Exception => e
       print_error "Unable to set data service: #{e.message}"
     end

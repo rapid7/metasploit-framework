@@ -36,7 +36,7 @@ module Msf::DBManager::Host
   # Iterates over the hosts table calling the supplied block with the host
   # instance of each entry.
   #
-  def each_host(wspace=workspace, &block)
+  def each_host(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.hosts.each do |host|
       block.call(host)
@@ -53,17 +53,14 @@ module Msf::DBManager::Host
   end
 
   def add_host_tag(opts)
-    workspace = opts[:workspace]
-    if workspace.kind_of? String
-      workspace = find_workspace(workspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     ip = opts[:ip]
     tag_name = opts[:tag_name]
 
-    host = framework.db.get_host(:workspace => workspace, :address => ip)
+    host = framework.db.get_host(:workspace => wspace, :address => ip)
     if host
-      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
       tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
       tag.name = tag_name
       tag.hosts = [host]
@@ -74,7 +71,7 @@ module Msf::DBManager::Host
   def delete_host_tag(opts)
     workspace = opts[:workspace]
     if workspace.kind_of? String
-      workspace = find_workspace(workspace)
+      workspace = framework.db.find_workspace(workspace)
     end
 
     ip = opts[:rws]
@@ -113,10 +110,7 @@ module Msf::DBManager::Host
       return address if address.kind_of? ::Mdm::Host
     end
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     address = Msf::Util::Host.normalize_host(address)
     return wspace.hosts.find_by_address(address)
@@ -133,12 +127,8 @@ module Msf::DBManager::Host
 
   # Returns a list of all hosts in the database
   def hosts(opts)
-    wspace = opts[:workspace] || opts[:wspace] || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       conditions = {}
       conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
@@ -193,10 +183,7 @@ module Msf::DBManager::Host
     end
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     ret = { }
 
@@ -280,14 +267,11 @@ module Msf::DBManager::Host
   end
 
   def update_host(opts)
-    # process workspace string for update if included in opts
-    wspace = opts.delete(:workspace)
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-      opts[:workspace] = wspace
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      # process workspace string for update if included in opts
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts[:workspace] = wspace if wspace
+
       id = opts.delete(:id)
       Mdm::Host.update(id, opts)
     }
@@ -326,10 +310,7 @@ module Msf::DBManager::Host
     end
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     if !addr.kind_of? ::Mdm::Host
       addr = Msf::Util::Host.normalize_host(addr)

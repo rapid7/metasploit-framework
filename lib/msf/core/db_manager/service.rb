@@ -21,7 +21,7 @@ module Msf::DBManager::Service
 
   # Iterates over the services table calling the supplied block with the
   # service instance of each entry.
-  def each_service(wspace=workspace, &block)
+  def each_service(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     services(wspace).each do |service|
       block.call(service)
@@ -61,7 +61,7 @@ module Msf::DBManager::Service
     hname = opts.delete(:host_name)
     hmac  = opts.delete(:mac)
     host  = nil
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     hopts = {:workspace => wspace, :host => addr}
     hopts[:name] = hname if hname
     hopts[:mac]  = hmac  if hmac

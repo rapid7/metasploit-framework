@@ -112,7 +112,7 @@ class Driver < Msf::Ui::Driver
     # Report readline error if there was one..
     if !@rl_err.nil?
       print_error("***")
-      print_error("* WARNING: Unable to load readline: #{@rl_err}")
+      print_error("* WARNING: Unable to load readli ne: #{@rl_err}")
       print_error("* Falling back to RbReadLine")
       print_error("***")
     end

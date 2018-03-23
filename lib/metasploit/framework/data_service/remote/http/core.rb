@@ -227,7 +227,7 @@ class RemoteHTTPDataService
       data_hash[:workspace] = workspace.name
     end
 
-    data_hash[:workspace] = current_workspace_name if workspace.nil?
+    data_hash[:workspace] = framework.db.workspace.name if workspace.nil?
 
     data_hash
   end

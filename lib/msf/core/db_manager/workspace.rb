@@ -9,28 +9,47 @@ module Msf::DBManager::Workspace
   end
 
   def default_workspace
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.default
-  }
+    puts "default_workspace is being called directly from dbmanager"
+    caller.each { |line| puts "#{line}\n"}
+  # ::ActiveRecord::Base.connection_pool.with_connection {
+  #   ::Mdm::Workspace.default
+  # }
   end
 
   def find_workspace(name)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.find_by_name(name)
-  }
+    puts "find_workspace is being called directly from dbmanager"
+    caller.each { |line| puts "#{line}\n"}
+  # ::ActiveRecord::Base.connection_pool.with_connection {
+  #   ::Mdm::Workspace.find_by_name(name)
+  # }
   end
 
   def workspace
-    framework.db.find_workspace(@workspace_name)
+    puts "workspace is being called directly from dbmanager"
+    caller.each { |line| puts "#{line}\n"}
+  # ::ActiveRecord::Base.connection_pool.with_connection {
+  #   ::Mdm::Workspace.find(@workspace_id)
+  # }
   end
 
   def workspace=(workspace)
-    @workspace_name = workspace.name
+    #@workspace_id = workspace.id
+    puts "workspace= is being called directly from dbmanager"
+    caller.each { |line| puts "#{line}\n"}
   end
 
-  def workspaces
+  def workspaces(opts = {})
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.order('updated_at asc').load
+    search_term = opts.delete(:search_term)
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Workspace, search_term)
+        Mdm::Workspace.where(opts).where(column_search_conditions)
+      else
+        Mdm::Workspace.where(opts)
+      end
+    }
   }
   end
 
@@ -61,16 +80,11 @@ module Msf::DBManager::Workspace
 
   def update_workspace(opts)
     raise ArgumentError.new("The following options are required: :id") if opts[:id].nil?
-    workspace = opts.delete(:wspace) || opts.delete(:workspace) || workspace # TODO: Not used, but we do need to delete the key
+    wspace = opts.delete(:wspace) || opts.delete(:workspace) || workspace # TODO: Not used, but we do need to delete the key
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       id = opts.delete(:id)
       Mdm::Workspace.update(id, opts)
     }
-  end
-
-  def get_workspace(opts)
-    workspace = opts.delete(:wspace) || opts.delete(:workspace) || workspace
-    find_workspace(workspace) if (workspace.is_a?(String))
   end
 end

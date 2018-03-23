@@ -3,7 +3,7 @@ module Msf::DBManager::Vuln
   # This method iterates the vulns table calling the supplied block with the
   # vuln instance of each entry.
   #
-  def each_vuln(wspace=workspace,&block)
+  def each_vuln(wspace=framework.db.workspace,&block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.vulns.each do |vulns|
       block.call(vulns)
@@ -95,7 +95,7 @@ module Msf::DBManager::Vuln
 
   ::ActiveRecord::Base.connection_pool.with_connection {
 
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     exploited_at = opts[:exploited_at] || opts["exploited_at"]
     details = opts.delete(:details)
     rids = opts.delete(:ref_ids)
@@ -235,7 +235,7 @@ module Msf::DBManager::Vuln
   #
   # This methods returns a list of all vulnerabilities in the database
   #
-  def vulns(wspace=workspace)
+  def vulns(wspace=framework.db.workspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.vulns
   }

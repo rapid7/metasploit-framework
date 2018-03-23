@@ -21,13 +21,9 @@ module WorkspaceServlet
     def self.get_workspace
       lambda {
         begin
-          opts = parse_json_request(request, true)
+          opts = parse_json_request(request, false)
           includes = nil
-          if (opts[:all])
-            data = get_db.workspaces
-          else
-            data = get_db.find_workspace(opts[:workspace_name])
-          end
+          data = get_db.workspaces(params.symbolize_keys)
 
           set_json_response(data, includes)
         rescue Exception => e
