@@ -1523,18 +1523,7 @@ class Db
     end
 
     print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-    exporter = ::Msf::DBManager::Export.new(framework.db.workspace)
-
-    exporter.send("to_#{format}_file".intern,output) do |mtype, mstatus, mname|
-      if mtype == :status
-        if mstatus == "start"
-          print_status("    >> Starting export of #{mname}")
-        end
-        if mstatus == "complete"
-          print_status("    >> Finished export of #{mname}")
-        end
-      end
-    end
+    framework.db.run_db_export(output, format)
     print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
   }
   end
