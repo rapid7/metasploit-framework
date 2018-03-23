@@ -753,7 +753,6 @@ class Db
       end
     end
 
-    print_line
     if (output_file == nil)
       print_line(tbl.to_s)
     else
