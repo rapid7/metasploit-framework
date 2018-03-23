@@ -753,7 +753,6 @@ class Db
       end
     end
 
-    print_line
     if (output_file == nil)
       print_line(tbl.to_s)
     else
@@ -1104,9 +1103,10 @@ class Db
         csv_note << note.ntype
         csv_note << note.data.inspect
       end
-      print_status(msg)
       if out_file
         csv_table << csv_note
+      else
+        print_status(msg)
       end
       if mode == :delete
         note.destroy
