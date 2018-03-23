@@ -15,15 +15,15 @@ module Socks5
   #
   # A mixin for a socket to perform a relay to another socket.
   #
-  module Relay
+  module TcpRelay
     #
-    # Relay data coming in from relay_sock to this socket.
+    # TcpRelay data coming in from relay_sock to this socket.
     #
     def relay( relay_client, relay_sock )
       @relay_client = relay_client
       @relay_sock   = relay_sock
       # start the relay thread (modified from Rex::IO::StreamAbstraction)
-      @relay_thread = Rex::ThreadFactory.spawn("SOCKS4AProxyServerRelay", false) do
+      @relay_thread = Rex::ThreadFactory.spawn("SOCKS5ProxyServerTcpRelay", false) do
         loop do
           closed = false
           buf    = nil
@@ -95,6 +95,9 @@ module Socks5
     REPLY_CMD_NOT_SUPPORTED          = 7
     REPLY_ADDRESS_TYPE_NOT_SUPPORTED = 8
 
+    HOST = 1
+    PORT = 2
+
     #
     # Create a new client connected to the server.
     #
@@ -119,19 +122,10 @@ module Socks5
             raise "Invalid Socks5 request packet received (no supported authentication methods)."
           end
           @lsock.put(AuthResponsePacket.new.to_binary_s)
-          STDERR.puts "Sent auth reply"
 
           packet = RequestPacket.read(@lsock.get_once)
-          STDERR.puts "Received valid request"
           # handle the request
           handle_command(packet)
-
-          # setup the two way relay for full duplex io
-          @lsock.extend(Relay)
-          @rsock.extend(Relay)
-          # start the socket relays...
-          @lsock.relay(self, @rsock)
-          @rsock.relay(self, @lsock)
         rescue => exception
           STDERR.puts "Error during processing: #{$!}"
           STDERR.puts exception.backtrace
@@ -152,13 +146,7 @@ module Socks5
           when COMMAND_UDP_ASSOCIATE
             response = handle_command_udp_associate(request)
         end
-
-        if response.nil?
-          STDERR.puts "Command did not return a proper response object"
-        else
-          @lsock.put(response.to_binary_s)
-          STDERR.puts "Set response to the client"
-        end
+        @lsock.put(response.to_binary_s) unless response.nil?
       rescue => exception
         STDERR.puts "Error during processing: #{$!}"
         STDERR.puts exception.backtrace
@@ -183,8 +171,8 @@ module Socks5
       # send back the bind success to the client
       response              = ResponsePacket.new
       response.command      = REPLY_SUCCEEDED
-      response.address      = bsock.localhost
-      response.port         = bsock.localport
+      response.address      = bsock.getlocalname[HOST]
+      response.port         = bsock.getlocalname[PORT]
       @lsock.put(response.to_binary_s)
 
       # accept a client connection (2 minute timeout as per the socks4a spec)
@@ -199,6 +187,7 @@ module Socks5
       # close the listening socket
       bsock.close
 
+      setup_tcp_relay
       response              = ResponsePacket.new
       response.command      = REPLY_SUCCEEDED
       response.address      = @rsock.peerhost
@@ -215,28 +204,30 @@ module Socks5
       params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
       @rsock = Rex::Socket::Tcp.create(params)
 
+      setup_tcp_relay
       response              = ResponsePacket.new
       response.command      = REPLY_SUCCEEDED
-      response.address      = @rsock.peerhost
-      response.port         = @rsock.peerport
+      response.address      = @rsock.getlocalname[HOST]
+      response.port         = @rsock.getlocalname[PORT]
       response
     end
 
     def handle_command_udp_associate(request)
-      # create a udp socket for this request
-      params = {
-        'LocalHost' => request.address,
-        'LocalPort' => request.port
-      }
-      params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
-      @rsock = Rex::Socket::Udp.create(params)
-
-      # send back the bind success to the client
       response              = ResponsePacket.new
-      response.command      = REPLY_SUCCEEDED
-      response.address      = @rsock.localhost
-      response.port         = @rsock.localport
+      response.command      = REPLY_CMD_NOT_SUPPORTED
       response
+    end
+
+    #
+    # Setup the TcpRelay between lsock and rsock.
+    #
+    def setup_tcp_relay
+      # setup the two way relay for full duplex io
+      @lsock.extend(TcpRelay)
+      @rsock.extend(TcpRelay)
+      # start the socket relays...
+      @lsock.relay(self, @rsock)
+      @rsock.relay(self, @lsock)
     end
 
     #

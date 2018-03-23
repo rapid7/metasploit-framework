@@ -8,16 +8,14 @@ require 'rex/proto/proxy/socks5/server_client'
 module Rex
 module Proto
 module Proxy
-#
-# A Socks5 proxy server.
-#
+
 module Socks5
   #
-  # A Socks5 proxy server.
+  # A SOCKS5 proxy server.
   #
   class Server
     #
-    # Create a new Socks5 server.
+    # Create a new SOCKS5 server.
     #
     def initialize(opts={})
       @opts          = { 'ServerHost' => '0.0.0.0', 'ServerPort' => 1080 }
@@ -36,7 +34,7 @@ module Socks5
     end
 
     #
-    # Start the Socks5 server.
+    # Start the SOCKS5 server.
     #
     def start
       begin
@@ -53,14 +51,14 @@ module Socks5
               # and fire off a new client instance to handle it
               ServerClient.new(self, sock).start
             rescue
-              wlog("Socks5.start - server_thread - #{$!}")
+              wlog("SOCKS5.start - server_thread - #{$!}")
             end
           end
         end
       rescue => exception
         STDERR.puts "Error during processing: #{$!}"
         STDERR.puts exception.backtrace
-        wlog("Socks5.start - #{$!}")
+        wlog("SOCKS5.start - #{$!}")
         return false
       end
       return true
@@ -74,7 +72,7 @@ module Socks5
     end
 
     #
-    # Stop the Socks5 server.
+    # Stop the SOCKS5 server.
     #
     def stop
       if @running

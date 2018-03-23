@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def cleanup
     @mutex.synchronize do
-      if( @socks_proxy )
+      if @socks_proxy
         print_status('Stopping the socks5 proxy server')
         @socks_proxy.stop
         @socks_proxy = nil
@@ -56,13 +56,12 @@ class MetasploitModule < Msf::Auxiliary
     opts = {
       'ServerHost' => datastore['SRVHOST'],
       'ServerPort' => datastore['SRVPORT'],
-      'Context' => {'Msf' => framework, 'MsfExploit' => self}
+      'Context'    => { 'Msf' => framework, 'MsfExploit' => self }
     }
     @socks_proxy = Rex::Proto::Proxy::Socks5::Server.new(opts)
 
     print_status('Starting the socks5 proxy server')
     @socks_proxy.start
-
     @socks_proxy.join
   end
 end
