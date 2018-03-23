@@ -15,7 +15,7 @@ class Db
 
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
- 
+
   #
   # The dispatcher's name.
   #
@@ -399,7 +399,7 @@ class Db
         if (arg == '-C')
           @@hosts_columns = col_search
         end
- 
+
       when '-u','--up'
         onlyup = true
       when '-o'
@@ -883,8 +883,6 @@ class Db
             next unless ports.empty? and svcs.empty?
           end
 
-          print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
-
           if output_file
             row = []
             row << vuln.created_at
@@ -897,6 +895,8 @@ class Db
               row << ''
             end
             tbl << row
+          else
+            print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
           end
 
           if set_rhosts
@@ -1104,9 +1104,10 @@ class Db
         csv_note << note.ntype
         csv_note << note.data.inspect
       end
-      print_status(msg)
       if out_file
         csv_table << csv_note
+      else
+        print_status(msg)
       end
       if mode == :delete
         note.destroy
