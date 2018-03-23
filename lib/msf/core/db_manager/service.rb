@@ -1,12 +1,21 @@
 module Msf::DBManager::Service
   # Deletes a port and associated vulns matching this port
-  def del_service(wspace, address, proto, port, comm='')
-
-    host = get_host(:workspace => wspace, :address => address)
-    return unless host
+  def delete_service(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    host.services.where({:proto => proto, :port => port}).each { |s| s.destroy }
+    deleted = []
+    opts[:ids].each do |service_id|
+      service = Mdm::Service.find(service_id)
+      begin
+        deleted << service.destroy
+      rescue
+        elog("Forcibly deleting #{service.name}")
+        deleted << service.delete
+      end
+    end
+
+    return deleted
   }
   end
 
@@ -131,15 +140,28 @@ module Msf::DBManager::Service
   end
 
   # Returns a list of all services in the database
-  def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
+  def services(opts)
+    opts.delete(:workspace) # Mdm::Service apparently doesn't have an upstream Mdm::Workspace association
+    search_term = opts.delete(:search_term)
+    opts["hosts.address"] = opts.delete(:addresses)
+    opts.compact!
+
   ::ActiveRecord::Base.connection_pool.with_connection {
-    conditions = {}
-    conditions[:state] = [Msf::ServiceState::Open] if only_up
-    conditions[:proto] = proto if proto
-    conditions["hosts.address"] = addresses if addresses
-    conditions[:port] = ports if ports
-    conditions[:name] = names if names
-    wspace.services.includes(:host).where(conditions).order("hosts.address, port")
+    if search_term && !search_term.empty?
+      column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
+      Mdm::Service.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
+    else
+      Mdm::Service.includes(:host).where(opts).order("hosts.address, port")
+    end
+  }
+  end
+
+  def update_service(opts)
+    opts.delete(:workspace) # Workspace isn't used with Mdm::Service. So strip it if it's present.
+
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    id = opts.delete(:id)
+    Mdm::Service.update(id, opts)
   }
   end
 end
