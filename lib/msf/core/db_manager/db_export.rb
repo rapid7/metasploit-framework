@@ -7,10 +7,10 @@ module Msf::DBManager::DbExport
     output_file = exporter.send("to_#{opts[:format]}_file".intern, opts[:path]) do |mtype, mstatus, mname|
       if mtype == :status
         if mstatus == Msf::DBManager::Export::STATUS_START
-          puts("    >> Starting export of #{mname}")
+          ilog "    >> Starting export of #{mname}"
         end
         if mstatus == Msf::DBManager::Export::STATUS_COMPLETE
-          puts("    >> Finished export of #{mname}")
+          ilog "    >> Finished export of #{mname}"
         end
       end
     end

@@ -16,7 +16,7 @@ module DbExportServlet
     lambda {
       begin
         opts = params.symbolize_keys
-	      opts[:path] = File.join(Msf::Config.local_directory, File.basename(opts[:path]))
+	      opts[:path] = File.join(Msf::Config.local_directory, "#{File.basename(opts[:path])}-#{SecureRandom.hex}")
 
         output_file = get_db.run_db_export(opts)
 

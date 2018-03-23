@@ -33,7 +33,7 @@ module ResponseDataHelper
     if response_wrapper.expected
       begin
         body = response_wrapper.response.body
-        if not body.nil? && !body.empty?
+        if !body.nil? && !body.empty?
           return JSON.parse(body, object_class: OpenStruct)
         end
       rescue Exception => e
@@ -56,7 +56,7 @@ module ResponseDataHelper
     if response_wrapper.expected
       begin
         body = response_wrapper.response.body
-        if not body.nil? && !body.empty?
+        if !body.nil? && !body.empty?
           parsed_body = Array.wrap(JSON.parse(body))
           rv = []
           parsed_body.each do |json_object|
