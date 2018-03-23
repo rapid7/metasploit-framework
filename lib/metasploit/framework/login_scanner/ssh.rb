@@ -146,6 +146,33 @@ module Metasploit
           self.verbosity = :fatal if self.verbosity.nil?
         end
 
+        public
+
+        def get_platform(proof)
+          case proof
+          when /Linux/
+            'linux'
+          when /Darwin/
+            'osx'
+          when /SunOS/
+            'solaris'
+          when /BSD/
+            'bsd'
+          when /HP-UX/
+            'hpux'
+          when /AIX/
+            'aix'
+          when /Win32|Windows/
+            'windows'
+          when /Unknown command or computer name/
+            'cisco-ios'
+          when /unknown keyword/ # ScreenOS
+            'juniper'
+          when /JUNOS Base OS/ #JunOS
+            'juniper'
+          end
+        end
+
       end
 
     end
