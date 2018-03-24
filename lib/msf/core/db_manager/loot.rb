@@ -24,16 +24,32 @@ module Msf::DBManager::Loot
   #
   # This methods returns a list of all loot in the database
   #
-  def loots(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.loots
-  }
+  def loots(opts)
+    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+    opts[:workspace_id] = wspace.id
+    search_term = opts.delete(:search_term)
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Loot, search_term)
+        Mdm::Loot.includes(:host).where(opts).where(column_search_conditions)
+      else
+        Mdm::Loot.includes(:host).where(opts)
+      end
+    }
   end
+  alias_method :loot, :loots
 
   def report_loot(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = opts.delete(:workspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
     path = opts.delete(:path) || (raise RuntimeError, "A loot :path is required")
 
     host = nil
@@ -45,7 +61,7 @@ module Msf::DBManager::Loot
         host = opts[:host]
       else
         host = report_host({:workspace => wspace, :host => opts[:host]})
-        addr = normalize_host(opts[:host])
+        addr = Msf::Util::Host.normalize_host(opts[:host])
       end
     end
 
@@ -77,5 +93,46 @@ module Msf::DBManager::Loot
 
     ret[:loot] = loot
   }
+  end
+
+  # Update the attributes of a Loot entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Loot] The updated Mdm::Loot object.
+  def update_loot(opts)
+    wspace = opts.delete(:workspace)
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+      opts[:workspace] = wspace
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      Mdm::Loot.update(id, opts)
+    }
+  end
+
+  # Deletes Loot entries based on the IDs passed in.
+  #
+  # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the Loot entries to delete.
+  # @return [Array] Array containing the Mdm::Loot objects that were successfully deleted.
+  def delete_loot(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |loot_id|
+        loot = Mdm::Loot.find(loot_id)
+        begin
+          deleted << loot.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{loot}")
+          deleted << loot.delete
+        end
+      end
+
+      return deleted
+    }
   end
 end

@@ -1,8 +1,11 @@
 # -*- coding: binary -*-
 
+require 'json'
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
+require 'metasploit/framework/data_service'
+require 'metasploit/framework/data_service/remote/http/core'
 
 module Msf
 module Ui
@@ -15,7 +18,7 @@ class Db
 
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
- 
+
   #
   # The dispatcher's name.
   #
@@ -43,7 +46,8 @@ class Db
       "db_import"     => "Import a scan result file (filetype will be auto-detected)",
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
-      "db_rebuild_cache" => "Rebuilds the database-stored module cache"
+      "db_rebuild_cache" => "Rebuilds the database-stored module cache",
+      "data_services" => "Command to add, list and set a data service",
     }
 
     # Always include commands that only make sense when connected.
@@ -78,6 +82,25 @@ class Db
     true
   end
 
+  def cmd_data_services(*args)
+    while (arg = args.shift)
+      case arg
+        when '-h', '--help'
+          data_service_help
+          return
+        when '-a', '--add'
+          add_data_service(*args)
+          return
+        when '-s', '--set'
+          set_data_service(args.shift)
+          return
+      end
+    end
+
+    list_data_services
+  end
+
+
   def cmd_workspace_help
     print_line "Usage:"
     print_line "    workspace                  List workspaces"
@@ -93,8 +116,6 @@ class Db
 
   def cmd_workspace(*args)
     return unless active?
-    search_term = nil
-  ::ActiveRecord::Base.connection_pool.with_connection {
     search_term = nil
     while (arg = args.shift)
       case arg
@@ -128,45 +149,19 @@ class Db
       end
       framework.db.workspace = workspace
     elsif deleting and names
-      delete_workspaces(names)
+      status_msg, error_msg = framework.db.delete_workspaces(names)
+      print_msgs(status_msg, error_msg)
     elsif delete_all
-      delete_workspaces(framework.db.workspaces.map(&:name))
+      status_msg, error_msg = framework.db.delete_all_workspaces()
+      print_msgs(status_msg, error_msg)
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
         return
       end
+
       old, new = names
-
-      workspace = framework.db.find_workspace(old)
-
-      old_is_active = (framework.db.workspace == workspace)
-      recreate_default = workspace.default?
-
-      if workspace.nil?
-        print_error("Workspace not found: #{name}")
-        return
-      end
-
-      if framework.db.find_workspace(new)
-        print_error("Workspace exists: #{new}")
-        return
-      end
-
-      workspace.name = new
-      workspace.save!
-
-      # Recreate the default workspace to avoid errors
-      if recreate_default
-        framework.db.add_workspace(old)
-        print_status("Recreated default workspace after rename")
-      end
-
-      # Switch to new workspace if old name was active
-      if old_is_active
-        framework.db.workspace = workspace
-        print_status("Switched workspace: #{framework.db.workspace.name}")
-      end
+      framework.db.rename_workspace(old, new)
     elsif names
       name = names.last
       # Switch workspace
@@ -205,48 +200,22 @@ class Db
       )
 
       # List workspaces
-      framework.db.workspaces.each do |ws|
+      framework.db.workspace_associations_counts.each do |ws|
         tbl << [
-          ws == workspace ? '*' : '',
-          ws.name,
-          ws.hosts.count,
-          ws.services.count,
-          ws.vulns.count,
-          ws.core_credentials.count,
-          ws.loots.count,
-          ws.notes.count
+          ws[:name] == workspace.name ? '*' : '',
+          ws[:name],
+          ws[:hosts_count],
+          ws[:services_count],
+          ws[:vulns_count],
+          ws[:creds_count],
+          ws[:loots_count],
+          ws[:notes_count]
         ]
       end
 
       print_line
       print_line(tbl.to_s)
     end
-  }
-  end
-
-  def delete_workspaces(names)
-    switched = false
-    # Delete workspaces
-    names.each do |name|
-      workspace = framework.db.find_workspace(name)
-      if workspace.nil?
-        print_error("Workspace not found: #{name}")
-      elsif workspace.default?
-        workspace.destroy
-        workspace = framework.db.add_workspace(name)
-        print_status("Deleted and recreated the default workspace")
-      else
-        # switch to the default workspace if we're about to delete the current one
-        if framework.db.workspace.name == workspace.name
-          framework.db.workspace = framework.db.default_workspace
-          switched = true
-        end
-        # now destroy the named workspace
-        workspace.destroy
-        print_status("Deleted workspace: #{name}")
-      end
-    end
-    print_status("Switched workspace: #{framework.db.workspace.name}") if switched
   end
 
   def cmd_workspace_tabs(str, words)
@@ -262,47 +231,28 @@ class Db
     cmd_hosts("-h")
   end
 
-  def change_host_info(rws, data)
-    if rws == [nil]
-      print_error("In order to change the host info, you must provide a range of hosts")
+  # Changes the specified host data
+  #
+  # @param host_ranges - range of hosts to process
+  # @param host_data - hash of host data to be updated
+  def change_host_data(host_ranges, host_data)
+    if !host_data || host_data.length != 1
+      print_error("A single key-value data hash is required to change the host data")
+      return
+    end
+    attribute = host_data.keys[0]
+
+    if host_ranges == [nil]
+      print_error("In order to change the host #{attribute}, you must provide a range of hosts")
       return
     end
 
-    rws.each do |rw|
-      rw.each do |ip|
-        id = framework.db.get_host(:address => ip).id
-        framework.db.hosts.update(id, :info => data)
-        framework.db.report_note(:host => ip, :type => 'host.info', :data => data)
-      end
-    end
-  end
+    each_host_range_chunk(host_ranges) do |host_search|
+      break if !host_search.nil? && host_search.empty?
 
-  def change_host_name(rws, data)
-    if rws == [nil]
-      print_error("In order to change the host name, you must provide a range of hosts")
-      return
-    end
-
-    rws.each do |rw|
-      rw.each do |ip|
-        id = framework.db.get_host(:address => ip).id
-        framework.db.hosts.update(id, :name => data)
-        framework.db.report_note(:host => ip, :type => 'host.name', :data => data)
-      end
-    end
-  end
-
-  def change_host_comment(rws, data)
-    if rws == [nil]
-      print_error("In order to change the comment, you must provide a range of hosts")
-      return
-    end
-
-    rws.each do |rw|
-      rw.each do |ip|
-        id = framework.db.get_host(:address => ip).id
-        framework.db.hosts.update(id, :comments => data)
-        framework.db.report_note(:host => ip, :type => 'host.comments', :data => data)
+      framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+        framework.db.update_host(host_data.merge(id: host.id))
+        framework.db.report_note(host: host.address, type: "host.#{attribute}", data: host_data[attribute])
       end
     end
   end
@@ -313,52 +263,57 @@ class Db
       return
     end
 
+    opts = Hash.new()
+    opts[:workspace] = framework.db.workspace
+    opts[:tag_name] = tag_name
+
     rws.each do |rw|
       rw.each do |ip|
-        wspace = framework.db.workspace
-        host = framework.db.get_host(:workspace => wspace, :address => ip)
-        if host
-          possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
-          tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
-          tag.name = tag_name
-          tag.hosts = [host]
-          tag.save! if tag.changed?
-        end
+        opts[:ip] = ip
+        framework.db.add_host_tag(opts)
       end
     end
   end
 
+  def find_hosts_with_tag(workspace_id, host_address, tag_name)
+    opts = Hash.new()
+    opts[:workspace_id] = workspace_id
+    opts[:host_address] = host_address
+    opts[:tag_name] = tag_name
+
+    framework.db.find_hosts_with_tag(opts)
+  end
+
+  def find_host_tags(workspace_id, host_address)
+    opts = Hash.new()
+    opts[:workspace_id] = workspace_id
+    opts[:host_address] = host_address
+
+    framework.db.find_host_tags(opts)
+  end
+
   def delete_host_tag(rws, tag_name)
-    wspace = framework.db.workspace
-    tag_ids = []
+    opts = Hash.new()
+    opts[:workspace] = framework.db.workspace
+    opts[:tag_name] = tag_name
+
     if rws == [nil]
-      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, tag_name)
-      found_tags.each do |t|
-        tag_ids << t.id
-      end
+      framework.db.delete_host_tag(opts)
     else
       rws.each do |rw|
         rw.each do |ip|
-          found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name)
-            found_tags.each do |t|
-            tag_ids << t.id
-          end
+          opts[:ip] = ip
+          framework.db.delete_host_tag(opts)
         end
       end
     end
 
-    tag_ids.each do |id|
-      tag = Mdm::Tag.find_by_id(id)
-      tag.hosts.delete
-      tag.destroy
-    end
   end
 
   @@hosts_columns = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
 
   def cmd_hosts(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
     onlyup = false
     set_rhosts = false
     mode = []
@@ -369,7 +324,34 @@ class Db
     search_term = nil
 
     output = nil
-    default_columns = ::Mdm::Host.column_names.sort
+    default_columns = [
+        'address',
+        'arch',
+        'comm',
+        'comments',
+        'created_at',
+        'cred_count',
+        'detected_arch',
+        'exploit_attempt_count',
+        'host_detail_count',
+        'info',
+        'mac',
+        'name',
+        'note_count',
+        'os_family',
+        'os_flavor',
+        'os_lang',
+        'os_name',
+        'os_sp',
+        'purpose',
+        'scope',
+        'service_count',
+        'state',
+        'updated_at',
+        'virtual_host',
+        'vuln_count',
+        'workspace_id']
+
     default_columns << 'tags' # Special case
     virtual_columns = [ 'svcs', 'vulns', 'workspace', 'tags' ]
 
@@ -399,7 +381,7 @@ class Db
         if (arg == '-C')
           @@hosts_columns = col_search
         end
- 
+
       when '-u','--up'
         onlyup = true
       when '-o'
@@ -412,7 +394,7 @@ class Db
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
-        search_term = /#{args.shift}/nmi
+        search_term = args.shift
       when '-i', '--info'
         mode << :new_info
         info_data = args.shift
@@ -491,13 +473,13 @@ class Db
 
     case
     when mode == [:new_info]
-      change_host_info(host_ranges, info_data)
+        change_host_data(host_ranges, info: info_data)
       return
     when mode == [:new_name]
-      change_host_name(host_ranges, name_data)
+        change_host_data(host_ranges, name: name_data)
       return
     when mode == [:new_comment]
-      change_host_comment(host_ranges, comment_data)
+        change_host_data(host_ranges, comments: comment_data)
       return
     when mode == [:tag]
       begin
@@ -515,31 +497,28 @@ class Db
       return
     end
 
+    matched_host_ids = []
     each_host_range_chunk(host_ranges) do |host_search|
-      framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
-        if search_term
-          next unless (
-            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) } ||
-            !Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", framework.db.workspace.id, host.address, search_term.source).references(:hosts).order("tags.id DESC").empty?
-          )
-        end
+      break if !host_search.nil? && host_search.empty?
 
+      framework.db.hosts(framework.db.workspace, onlyup, host_search, search_term = search_term).each do |host|
+        matched_host_ids << host.id
         columns = col_names.map do |n|
           # Deal with the special cases
           if virtual_columns.include?(n)
             case n
-            when "svcs";      host.services.length
-            when "vulns";     host.vulns.length
+            when "svcs";      host.service_count
+            when "vulns";     host.vuln_count
             when "workspace"; host.workspace.name
             when "tags"
-              found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ?", framework.db.workspace.id, host.address).order("tags.id DESC")
+              found_tags = find_host_tags(framework.db.workspace.id, host.address)
               tag_names = []
               found_tags.each { |t| tag_names << t.name }
               found_tags * ", "
             end
           # Otherwise, it's just an attribute
           else
-            host.attributes[n] || ""
+            host[n] || ""
           end
         end
 
@@ -548,15 +527,11 @@ class Db
           addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
-        if mode == [:delete]
-          begin
-            host.destroy
-          rescue # refs suck
-            print_error("Forcibly deleting #{host.address}")
-            host.delete
-          end
-          delete_count += 1
-        end
+      end
+
+      if mode == [:delete]
+        result = framework.db.delete_host(ids: matched_host_ids)
+        delete_count += result.size
       end
     end
 
@@ -575,7 +550,6 @@ class Db
     set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
 
     print_status("Deleted #{delete_count} hosts") if delete_count > 0
-  }
   end
 
   def cmd_services_help
@@ -586,103 +560,112 @@ class Db
 
   def cmd_services(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
     mode = :search
     onlyup = false
     output_file = nil
     set_rhosts = false
     col_search = ['port', 'proto', 'name', 'state', 'info']
-    default_columns = ::Mdm::Service.column_names.sort
-    default_columns.delete_if {|v| (v[-2,2] == "id")}
+    default_columns = [
+        'created_at',
+        'info',
+        'name',
+        'port',
+        'proto',
+        'state',
+        'updated_at']
 
     host_ranges  = []
     port_ranges  = []
     rhosts       = []
     delete_count = 0
     search_term  = nil
+    opts         = {}
 
     # option parsing
     while (arg = args.shift)
       case arg
-      when '-a','--add'
-        mode = :add
-      when '-d','--delete'
-        mode = :delete
-      when '-u','--up'
-        onlyup = true
-      when '-c'
-        list = args.shift
-        if(!list)
-          print_error("Invalid column list")
-          return
-        end
-        col_search = list.strip().split(",")
-        col_search.each { |c|
-          if not default_columns.include? c
-            print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
+        when '-a','--add'
+          mode = :add
+        when '-d','--delete'
+          mode = :delete
+        when '-U', '--update'
+          mode = :update
+        when '-u','--up'
+          onlyup = true
+        when '-c'
+          list = args.shift
+          if(!list)
+            print_error("Invalid column list")
             return
           end
-        }
-      when '-p'
-        unless (arg_port_range(args.shift, port_ranges, true))
+          col_search = list.strip().split(",")
+          col_search.each { |c|
+            if not default_columns.include? c
+              print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
+              return
+            end
+          }
+        when '-p'
+          unless (arg_port_range(args.shift, port_ranges, true))
+            return
+          end
+        when '-r'
+          proto = args.shift
+          if (!proto)
+            print_status("Invalid protocol")
+            return
+          end
+          proto = proto.strip
+        when '-s'
+          namelist = args.shift
+          if (!namelist)
+            print_error("Invalid name list")
+            return
+          end
+          names = namelist.strip().split(",")
+        when '-o'
+          output_file = args.shift
+          if (!output_file)
+            print_error("Invalid output filename")
+            return
+          end
+          output_file = ::File.expand_path(output_file)
+        when '-O'
+          if (order_by = args.shift.to_i - 1) < 0
+            print_error('Please specify a column number starting from 1')
+            return
+          end
+        when '-R', '--rhosts'
+          set_rhosts = true
+        when '-S', '--search'
+          search_term = args.shift
+          opts[:search_term] = search_term
+        when '-h','--help'
+          print_line
+          print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
+          print_line
+          print_line "  -a,--add          Add the services instead of searching"
+          print_line "  -d,--delete       Delete the services instead of searching"
+          print_line "  -c <col1,col2>    Only show the given columns"
+          print_line "  -h,--help         Show this help information"
+          print_line "  -s <name>         Name of the service to add"
+          print_line "  -p <port>         Port number of the service being added"
+          print_line "  -r <protocol>     Protocol type of the service being added [tcp|udp]"
+          print_line "  -u,--up           Only show services which are up"
+          print_line "  -o <file>         Send output to a file in csv format"
+          print_line "  -O <column>       Order rows by specified column number"
+          print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
+          print_line "  -S,--search       Search string to filter by"
+          print_line "  -U,--update       Update data for existing service"
+          print_line
+          print_line "Available columns: #{default_columns.join(", ")}"
+          print_line
           return
-        end
-      when '-r'
-        proto = args.shift
-        if (!proto)
-          print_status("Invalid protocol")
-          return
-        end
-        proto = proto.strip
-      when '-s'
-        namelist = args.shift
-        if (!namelist)
-          print_error("Invalid name list")
-          return
-        end
-        names = namelist.strip().split(",")
-      when '-o'
-        output_file = args.shift
-        if (!output_file)
-          print_error("Invalid output filename")
-          return
-        end
-        output_file = ::File.expand_path(output_file)
-      when '-O'
-        if (order_by = args.shift.to_i - 1) < 0
-          print_error('Please specify a column number starting from 1')
-          return
-        end
-      when '-R', '--rhosts'
-        set_rhosts = true
-      when '-S', '--search'
-        search_term = /#{args.shift}/nmi
-
-      when '-h','--help'
-        print_line
-        print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
-        print_line
-        print_line "  -a,--add          Add the services instead of searching"
-        print_line "  -d,--delete       Delete the services instead of searching"
-        print_line "  -c <col1,col2>    Only show the given columns"
-        print_line "  -h,--help         Show this help information"
-        print_line "  -s <name1,name2>  Search for a list of service names"
-        print_line "  -p <port1,port2>  Search for a list of ports"
-        print_line "  -r <protocol>     Only show [tcp|udp] services"
-        print_line "  -u,--up           Only show services which are up"
-        print_line "  -o <file>         Send output to a file in csv format"
-        print_line "  -O <column>       Order rows by specified column number"
-        print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
-        print_line "  -S,--search       Search string to filter by"
-        print_line
-        print_line "Available columns: #{default_columns.join(", ")}"
-        print_line
-        return
-      else
-        # Anything that wasn't an option is a host to search for
-        unless (arg_host_range(arg, host_ranges))
-          return
-        end
+        else
+          # Anything that wasn't an option is a host to search for
+          unless (arg_host_range(arg, host_ranges))
+            return
+          end
       end
     end
 
@@ -695,13 +678,15 @@ class Db
         print_error("Exactly one port required")
         return
       end
+      if host_ranges.empty?
+        print_error("Host address or range required")
+        return
+      end
       host_ranges.each do |range|
         range.each do |addr|
-          host = framework.db.find_or_create_host(:host => addr)
-          next if not host
           info = {
-            :host => host,
-            :port => ports.first.to_i
+              :host => addr,
+              :port => ports.first.to_i
           }
           info[:proto] = proto.downcase if proto
           info[:name]  = names.first.downcase if names and names.first
@@ -719,24 +704,29 @@ class Db
       col_names = col_search
     end
     tbl = Rex::Text::Table.new({
-        'Header'    => "Services",
-        'Columns'   => ['host'] + col_names,
-        'SortIndex' => order_by
-      })
+                                   'Header'    => "Services",
+                                   'Columns'   => ['host'] + col_names,
+                                   'SortIndex' => order_by
+                               })
 
     # Sentinel value meaning all
     host_ranges.push(nil) if host_ranges.empty?
     ports = nil if ports.empty?
+    matched_service_ids = []
 
     each_host_range_chunk(host_ranges) do |host_search|
-      framework.db.services(framework.db.workspace, onlyup, proto, host_search, ports, names).each do |service|
+      break if !host_search.nil? && host_search.empty?
+      opts[:addresses] = host_search
+      framework.db.services(framework.db.workspace, opts).each do |service|
 
         host = service.host
-        if search_term
-          next unless(
-            host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term)} or
-            service.attribute_names.any? { |a| service[a.intern].to_s.match(search_term)}
-          )
+        matched_service_ids << service.id
+
+        if mode == :update
+          service.name = names.first if names
+          service.proto = proto if proto
+          service.port = ports.first if ports
+          framework.db.update_service(service.as_json.symbolize_keys)
         end
 
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
@@ -745,15 +735,14 @@ class Db
           addr = (host.scope ? host.address + '%' + host.scope : host.address )
           rhosts << addr
         end
-
-        if (mode == :delete)
-          service.destroy
-          delete_count += 1
-        end
       end
     end
 
-    print_line
+    if (mode == :delete)
+      result = framework.db.delete_service(ids: matched_service_ids)
+      delete_count += result.size
+    end
+
     if (output_file == nil)
       print_line(tbl.to_s)
     else
@@ -768,7 +757,6 @@ class Db
 
     print_status("Deleted #{delete_count} services") if delete_count > 0
 
-  }
   end
 
   def cmd_vulns_help
@@ -782,7 +770,7 @@ class Db
     print_line "  -s <svc names>        List vulns matching these service names"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -S,--search           Search string to filter by"
-    print_line "  -i,--info             Display Vuln Info"
+    print_line "  -i,--info             Display vuln information"
     print_line
     print_line "Examples:"
     print_line "  vulns -p 1-65536          # only vulns with associated services"
@@ -792,8 +780,8 @@ class Db
 
   def cmd_vulns(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
 
+    default_columns = ['Timestamp', 'Host', 'Name', 'References']
     host_ranges = []
     port_ranges = []
     svcs        = []
@@ -803,23 +791,18 @@ class Db
     show_info   = false
     set_rhosts  = false
     output_file = nil
-
-    # Short-circuit help
-    if args.delete "-h"
-      cmd_vulns_help
-      return
-    end
+    delete_count = 0
 
     while (arg = args.shift)
       case arg
-      #when "-a","--add"
-      #	mode = :add
-      #when "-d"
-      #	mode = :delete
-      when "-h","--help"
+      # when '-a', '--add'
+      #   mode = :add
+      when '-d', '--delete'  # TODO: This is currently undocumented because it's not officially supported.
+        mode = :delete
+      when '-h', '--help'
         cmd_vulns_help
         return
-      when "-o", "--output"
+      when '-o', '--output'
         output_file = args.shift
         if output_file
           output_file = File.expand_path(output_file)
@@ -827,11 +810,11 @@ class Db
           print_error("Invalid output filename")
           return
         end
-      when "-p","--port"
+      when '-p', '--port'
         unless (arg_port_range(args.shift, port_ranges, true))
           return
         end
-      when "-s","--service"
+      when '-s', '--service'
         service = args.shift
         if (!service)
           print_error("Argument required for -s")
@@ -841,7 +824,7 @@ class Db
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
-        search_term = /#{args.shift}/nmi
+        search_term = args.shift
       when '-i', '--info'
         show_info = true
       else
@@ -852,70 +835,81 @@ class Db
       end
     end
 
-    # normalize
+    if show_info
+      default_columns << 'Information'
+    end
+
+    # add sentinel value meaning all if empty
     host_ranges.push(nil) if host_ranges.empty?
+    # normalize
     ports = port_ranges.flatten.uniq
     svcs.flatten!
     tbl = Rex::Text::Table.new(
         'Header' => 'Vulnerabilities',
-        'Columns' => ['Timestamp', 'Host', 'Name', 'References', 'Information']
-      )
+        'Columns' => default_columns
+    )
 
-    each_host_range_chunk(host_ranges) do |host_search|
-      framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-        host.vulns.each do |vuln|
-          if search_term
-            next unless(
-              vuln.host.attribute_names.any? { |a| vuln.host[a.intern].to_s.match(search_term) } or
-              vuln.attribute_names.any? { |a| vuln[a.intern].to_s.match(search_term) }
-            )
-          end
-          reflist = vuln.refs.map { |r| r.name }
+    matched_vuln_ids = []
+    vulns = []
+    if host_ranges.compact.empty?
+      vulns = framework.db.vulns({:search_term => search_term})
+    else
+      each_host_range_chunk(host_ranges) do |host_search|
+        break if !host_search.nil? && host_search.empty?
 
-          if(vuln.service)
-            # Skip this one if the user specified a port and it
-            # doesn't match.
-            next unless ports.empty? or ports.include? vuln.service.port
-            # Same for service names
-            next unless svcs.empty? or svcs.include?(vuln.service.name)
-          else
-            # This vuln has no service, so it can't match
-            next unless ports.empty? and svcs.empty?
-          end
-
-          print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{(show_info && vuln.info) ? "info=#{vuln.info}" : ""}")
-
-          if output_file
-            row = []
-            row << vuln.created_at
-            row << host.address
-            row << vuln.name
-            row << reflist * ","
-            if show_info && vuln.info
-              row << "info=#{vuln.info}"
-            else
-              row << ''
-            end
-            tbl << row
-          end
-
-          if set_rhosts
-            addr = (host.scope ? host.address + '%' + host.scope : host.address)
-            rhosts << addr
-          end
-        end
+        vulns.concat(framework.db.vulns({:hosts => { :address => host_search }, :search_term => search_term }))
       end
+    end
+
+    vulns.each do |vuln|
+      reflist = vuln.refs.map {|r| r.name}
+      if (vuln.service)
+        # Skip this one if the user specified a port and it
+        # doesn't match.
+        next unless ports.empty? or ports.include? vuln.service.port
+        # Same for service names
+        next unless svcs.empty? or svcs.include?(vuln.service.name)
+      else
+        # This vuln has no service, so it can't match
+        next unless ports.empty? and svcs.empty?
+      end
+
+      matched_vuln_ids << vuln.id
+
+      row = []
+      row << vuln.created_at
+      row << vuln.host.address
+      row << vuln.name
+      row << reflist.join(',')
+      if show_info
+        row << vuln.info
+      end
+      tbl << row
+
+      if set_rhosts
+        addr = (vuln.host.scope ? vuln.host.address + '%' + vuln.host.scope : vuln.host.address)
+        rhosts << addr
+      end
+    end
+
+    if mode == :delete
+      result = framework.db.delete_vuln(ids: matched_vuln_ids)
+      delete_count = result.size
     end
 
     if output_file
       File.write(output_file, tbl.to_csv)
       print_status("Wrote vulnerability information to #{output_file}")
+    else
+      print_line
+      print_line(tbl.to_s)
     end
 
     # Finally, handle the case where the user wants the resulting list
     # of hosts to go into RHOSTS.
     set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-  }
+
+    print_status("Deleted #{delete_count} vulnerabilities") if delete_count > 0
   end
 
   def cmd_notes_help
@@ -1104,9 +1098,10 @@ class Db
         csv_note << note.ntype
         csv_note << note.data.inspect
       end
-      print_status(msg)
       if out_file
         csv_table << csv_note
+      else
+        print_status(msg)
       end
       if mode == :delete
         note.destroy
@@ -1171,7 +1166,7 @@ class Db
 
   def cmd_loot(*args)
     return unless active?
-  ::ActiveRecord::Base.connection_pool.with_connection {
+
     mode = :search
     host_ranges = []
     types = nil
@@ -1203,7 +1198,7 @@ class Db
             print_error("Can't make loot with no info")
             return
           end
-        when '-t'
+        when '-t', '--type'
           typelist = args.shift
           if(!typelist)
             print_error("Invalid type list")
@@ -1211,7 +1206,9 @@ class Db
           end
           types = typelist.strip().split(",")
         when '-S', '--search'
-          search_term = /#{args.shift}/nmi
+          search_term = args.shift
+        when '-u', '--update' # TODO: This is currently undocumented because it's not officially supported.
+          mode = :update
         when '-h','--help'
           cmd_loot_help
           return
@@ -1261,63 +1258,61 @@ class Db
       return
     end
 
-    each_host_range_chunk(host_ranges) do |host_search|
-      framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-        host.loots.each do |loot|
-          next if(types and types.index(loot.ltype).nil?)
-          if search_term
-          next unless(
-            loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
-            loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
-          )
-          end
-          row = []
-          row.push( (loot.host ? loot.host.address : "") )
-          if (loot.service)
-            svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
-            row.push svc
-          else
-            row.push ""
-          end
-          row.push(loot.ltype)
-          row.push(loot.name || "")
-          row.push(loot.content_type)
-          row.push(loot.info || "")
-          row.push(loot.path)
+    matched_loot_ids = []
+    loots = []
+    if host_ranges.compact.empty?
+      loots = loots + framework.db.loots(framework.db.workspace, {:search_term => search_term})
+    else
+      each_host_range_chunk(host_ranges) do |host_search|
+        break if !host_search.nil? && host_search.empty?
 
-          tbl << row
-          if (mode == :delete)
-            loot.destroy
-            delete_count += 1
-          end
-        end
+        loots = loots + framework.db.loots(framework.db.workspace, { :hosts => { :address => host_search }, :search_term => search_term })
       end
     end
 
-    # Handle hostless loot
-    if host_ranges.compact.empty? # Wasn't a host search
-      hostless_loot = framework.db.loots.where(host_id: nil)
-      hostless_loot.each do |loot|
-        row = []
-        row.push("")
-        row.push("")
-        row.push(loot.ltype)
-        row.push(loot.name || "")
-        row.push(loot.content_type)
-        row.push(loot.info || "")
-        row.push(loot.path)
-        tbl << row
-        if (mode == :delete)
-          loot.destroy
-          delete_count += 1
+    loots.each do |loot|
+      row = []
+      # TODO: This is just a temp implementation of update for the time being since it did not exist before.
+      # It should be updated to not pass all of the attributes attached to the object, only the ones being updated.
+      if mode == :update
+        begin
+          loot.info = info if info
+          if types && types.size > 1
+            print_error "May only pass 1 type when performing an update."
+            next
+          end
+          loot.ltype = types.first if types
+          framework.db.update_loot(loot.as_json.symbolize_keys)
+        rescue Exception => e
+          elog "There was an error updating loot with ID #{loot.id}: #{e.message}"
+          next
         end
       end
+      row.push (loot.host && loot.host.address) ? loot.host.address : ""
+      if (loot.service)
+        svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
+        row.push svc
+      else
+        row.push ""
+      end
+      row.push(loot.ltype)
+      row.push(loot.name || "")
+      row.push(loot.content_type)
+      row.push(loot.info || "")
+      row.push(loot.path)
+
+      tbl << row
+      matched_loot_ids << loot.id
+    end
+
+    if (mode == :delete)
+      result = framework.db.delete_loot(ids: matched_loot_ids)
+      delete_count = result.size
     end
 
     print_line
     print_line(tbl.to_s)
     print_status("Deleted #{delete_count} loots") if delete_count > 0
-  }
   end
 
   # :category: Deprecated Commands
@@ -1528,18 +1523,7 @@ class Db
     end
 
     print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-    exporter = ::Msf::DBManager::Export.new(framework.db.workspace)
-
-    exporter.send("to_#{format}_file".intern,output) do |mtype, mstatus, mname|
-      if mtype == :status
-        if mstatus == "start"
-          print_status("    >> Starting export of #{mname}")
-        end
-        if mstatus == "complete"
-          print_status("    >> Finished export of #{mname}")
-        end
-      end
-    end
+    framework.db.run_db_export(output, format)
     print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
   }
   end
@@ -1891,7 +1875,7 @@ class Db
     # Chunk it up and do the query in batches. The naive implementation
     # uses so much memory for a /8 that it's basically unusable (1.6
     # billion IP addresses take a rather long time to allocate).
-    # Chunking has roughly the same perfomance for small batches, so
+    # Chunking has roughly the same performance for small batches, so
     # don't worry about it too much.
     host_ranges.each do |range|
       if range.nil? or range.length.nil?
@@ -1917,6 +1901,88 @@ class Db
       # Restart the loop with the same RangeWalker if we didn't get
       # to the end of it in this chunk.
       redo unless end_of_range
+    end
+  end
+
+  #######
+  private
+  #######
+
+  def add_data_service(*args)
+    protocol = "http"
+    port = 8080
+    https_opts = {}
+    while (arg = args.shift)
+      case arg
+        when '-p'
+          port = args.shift
+        when '-s', '--ssl'
+          protocol = "https"
+        when '-c', '--cert'
+          https_opts[:cert] = args.shift
+        when '--skip-verify'
+          https_opts[:skip_verify] = true
+        else
+          host = arg
+      end
+    end
+
+    if host.nil? || port.nil?
+      print_error "Host and port are required."
+      return
+    end
+
+    endpoint = "#{protocol}://#{host}:#{port}"
+    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
+    begin
+      framework.db.register_data_service(remote_data_service)
+      print_line "Registered data service: #{remote_data_service.name}"
+    rescue Exception => e
+      print_error "There was a problem registering the remote data service: #{e.message}"
+    end
+  end
+
+  def set_data_service(service_id)
+    begin
+      framework.db.set_data_service(service_id)
+    rescue Exception => e
+      print_error "Unable to set data service: #{e.message}"
+    end
+  end
+
+  def list_data_services()
+    framework.db.get_services_metadata.each {|metadata|
+      out = "id: #{metadata.id}, name: #{metadata.name}"
+      if metadata.active
+        out += " [active]"
+      end
+      print_line out
+    }
+  end
+
+  def data_service_help
+    print_line "Usage: data_services [ options ] - list data services by default"
+    print_line
+    print_line "OPTIONS:"
+
+    print_line "  -h, --help                  Show this help information."
+    print_line "  -s, --set <id>              Set the data service by identifier."
+    print_line "  -a, --add [ options ] host  Adds data service"
+    print_line "  Add Data Service Options:"
+    print_line "  -p <port>         The port the data service is listening on. Default is 8080."
+    print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
+    print_line "  -c, --cert        Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
+    print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
+    print_line
+  end
+
+  def print_msgs(status_msg, error_msg)
+    status_msg.each do |s|
+      print_status(s)
+    end
+
+    error_msg.each do |e|
+      print_error(e)
     end
   end
 

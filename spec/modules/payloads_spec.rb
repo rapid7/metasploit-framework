@@ -2643,6 +2643,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/dllinject/bind_ipv6_tcp'
   end
 
+  context 'windows/dllinject/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_named_pipe',
+                            'stages/windows/dllinject'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/dllinject/bind_named_pipe'
+  end
+
   context 'windows/dllinject/bind_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2961,6 +2972,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/meterpreter/bind_ipv6_tcp_uuid'
   end
 
+  context 'windows/meterpreter/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_named_pipe',
+                            'stages/windows/meterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/meterpreter/bind_named_pipe'
+  end
+
   context 'windows/meterpreter/bind_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3223,6 +3245,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/patchupdllinject/bind_ipv6_tcp'
   end
 
+  context 'windows/patchupdllinject/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_named_pipe',
+                            'stages/windows/patchupdllinject'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/patchupdllinject/bind_named_pipe'
+  end
+
   context 'windows/patchupdllinject/bind_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3377,6 +3410,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/patchupmeterpreter/bind_ipv6_tcp'
   end
 
+  context 'windows/patchupmeterpreter/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_named_pipe',
+                            'stages/windows/patchupmeterpreter'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/patchupmeterpreter/bind_named_pipe'
+  end
+
   context 'windows/patchupmeterpreter/bind_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3529,6 +3573,17 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/shell/bind_ipv6_tcp'
+  end
+
+  context 'windows/shell/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_named_pipe',
+                            'stages/windows/shell'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/shell/bind_named_pipe'
   end
 
   context 'windows/shell/bind_nonx_tcp' do
@@ -3735,6 +3790,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/upexec/bind_ipv6_tcp'
   end
 
+  context 'windows/upexec/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_named_pipe',
+                            'stages/windows/upexec'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/upexec/bind_named_pipe'
+  end
+
   context 'windows/upexec/bind_nonx_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -3887,6 +3953,17 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/vncinject/bind_ipv6_tcp'
+  end
+
+  context 'windows/vncinject/bind_named_pipe' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'stagers/windows/bind_named_pipe',
+                            'stages/windows/vncinject'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/vncinject/bind_named_pipe'
   end
 
   context 'windows/vncinject/bind_nonx_tcp' do

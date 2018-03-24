@@ -18,7 +18,7 @@ module Msf::DBManager::Connection
       migrate
 
       # Set the default workspace
-      framework.db.workspace = framework.db.default_workspace
+      self.workspace = self.default_workspace
     rescue ::Exception => exception
       self.error = exception
       elog("DB.connect threw an exception: #{exception}")
