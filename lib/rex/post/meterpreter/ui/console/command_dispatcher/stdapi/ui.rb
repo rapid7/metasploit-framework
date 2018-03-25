@@ -165,7 +165,7 @@ class Console::CommandDispatcher::Stdapi::Ui
     else
       print_error("No screenshot data was returned.")
       if client.platform == 'android'
-        print_error("On Android this command can only capture the application's own framebuffer.")
+        print_error("With Android, the screenshot command can only capture the host application. If this payload is hosted in an app without a user interface (default behavior), it cannot take screenshots at all.")
       end
     end
 
