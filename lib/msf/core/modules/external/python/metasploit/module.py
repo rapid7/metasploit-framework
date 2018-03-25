@@ -29,7 +29,7 @@ def report_vuln(ip, name, **opts):
 
 
 def run(metadata, module_callback):
-    req = json.loads(os.read(0, 10000))
+    req = json.loads(os.read(0, 10000).decode("utf-8"))
     if req['method'] == 'describe':
         rpc_send({'jsonrpc': '2.0', 'id': req['id'], 'response': metadata})
     elif req['method'] == 'run':
