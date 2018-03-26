@@ -1,6 +1,6 @@
 # Metasploit Development Environment
 
-<sup>*The shortlink to this wiki page is http://r-7.co/MSF-DEV*</sup>
+<sup>*The shortlink to this wiki page is https://r-7.co/MSF-DEV*</sup>
 
 This is a guide for setting up an environment for effectively **contributing to the Metasploit Framework**. If you just want to use Metasploit for legal, authorized hacking, we recommend instead you either [download the commercial Metasploit binary installer](http://metasploit.com/download), or the [open-source packages](https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers) which will take care of all the dependencies for you. The commercial installers also include the option for upgrading to Metasploit Pro and are updated semi-weekly, while the open-source installers are updated every night.
 
