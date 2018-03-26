@@ -189,7 +189,7 @@ def parse_args(args)
       datastore[k.upcase] = v.to_s
     end
     if opts[:payload].to_s =~ /[\_\/]reverse/ and datastore['LHOST'].nil?
-      init_framework
+      require 'rex/socket'
       datastore['LHOST'] = Rex::Socket.source_address
     end
   end
