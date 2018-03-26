@@ -3,12 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/windows/priv'
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/services'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::File
@@ -191,8 +185,7 @@ class MetasploitModule < Msf::Post
     end
 
     print_good("Persistent Script written to #{temprexe}")
-    temprexe.gsub!("\\", "\\\\\\\\")
-    @clean_up_rc << "rm #{temprexe}\n"
+    @clean_up_rc << "rm #{temprexe.gsub("\\", "\\\\\\\\")}\n"
     temprexe
   end
 
