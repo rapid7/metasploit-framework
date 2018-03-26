@@ -947,11 +947,11 @@ class Db
 
     while (arg = args.shift)
       case arg
-      when '-a','--add'
+      when '-a', '--add'
         mode = :add
-      when '-d','--delete'
+      when '-d', '--delete'
         mode = :delete
-      when '-n','--note'
+      when '-n', '--note'
         data = args.shift
         if(!data)
           print_error("Can't make a note with no data")
@@ -967,12 +967,12 @@ class Db
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
-        search_term = /#{args.shift}/nmi
+        search_term = args.shift
       when '--sort'
         sort_term = args.shift
       when '-o', '--output'
         out_file = args.shift
-      when '-h','--help'
+      when '-h', '--help'
         cmd_notes_help
         return
       else
