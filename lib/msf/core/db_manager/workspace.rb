@@ -58,7 +58,7 @@ module Msf::DBManager::Workspace
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       deleted = []
-      default_deleted = false q
+      default_deleted = false
       opts[:ids].each do |ws_id|
         ws = Mdm::Workspace.find(ws_id)
         default_deleted = true if ws.default?
