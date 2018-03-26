@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     # parse the json if we got a good request back
-    if res and res.code == 200
+    if res && res.code == 200
       begin
         response = res.get_json_document
         store_loot('etcd.data', 'text/plain', rhost, response, 'etcd.keys', 'etcd keys')
@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
           'method' => 'GET'
         })
         banner = ''
-        if res and res.code == 200
+        if res && res.code == 200
           banner = res.body
         end
 
