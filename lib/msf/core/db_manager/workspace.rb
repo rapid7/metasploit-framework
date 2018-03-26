@@ -9,38 +9,38 @@ module Msf::DBManager::Workspace
   end
 
   def default_workspace
-    puts "default_workspace is being called directly from dbmanager"
-    caller.each { |line| puts "#{line}\n"}
-  # ::ActiveRecord::Base.connection_pool.with_connection {
-  #   ::Mdm::Workspace.default
-  # }
+    # Workspace tracking is handled on the client side, so attempting to call it directly from the DbManager
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Setting the workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
+    raise NotImplementedError
   end
 
   def find_workspace(name)
-    puts "find_workspace is being called directly from dbmanager"
-    caller.each { |line| puts "#{line}\n"}
-  # ::ActiveRecord::Base.connection_pool.with_connection {
-  #   ::Mdm::Workspace.find_by_name(name)
-  # }
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    ::Mdm::Workspace.find_by_name(name)
+  }
   end
 
   def workspace
-    puts "workspace is being called directly from dbmanager"
-    caller.each { |line| puts "#{line}\n"}
-  # ::ActiveRecord::Base.connection_pool.with_connection {
-  #   ::Mdm::Workspace.find(@workspace_id)
-  # }
+    # The @current_workspace is tracked on the client side, so attempting to call it directly from the DbManager
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Calling workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
+    raise NotImplementedError
   end
 
   def workspace=(workspace)
-    #@workspace_id = workspace.id
-    puts "workspace= is being called directly from dbmanager"
-    caller.each { |line| puts "#{line}\n"}
+    # The @current_workspace is tracked on the client side, so attempting to call it directly from the DbManager
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Setting the workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
+    raise NotImplementedError
   end
 
   def workspaces(opts = {})
   ::ActiveRecord::Base.connection_pool.with_connection {
     search_term = opts.delete(:search_term)
+    # Passing these values to the search will cause exceptions, so remove them if they accidentally got passed in.
+    opts.delete(:workspace)
+    opts.delete(:wspace)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       if search_term && !search_term.empty?
@@ -58,7 +58,7 @@ module Msf::DBManager::Workspace
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       deleted = []
-      default_deleted = false
+      default_deleted = false q
       opts[:ids].each do |ws_id|
         ws = Mdm::Workspace.find(ws_id)
         default_deleted = true if ws.default?

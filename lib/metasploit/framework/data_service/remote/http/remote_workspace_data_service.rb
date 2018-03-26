@@ -13,19 +13,25 @@ module RemoteWorkspaceDataService
   end
 
   def default_workspace
-    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, {:name => default}), WORKSPACE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, {:name => default}, false), WORKSPACE_MDM_CLASS, [])
   end
 
   def workspace
-    find_workspace(current_workspace_name)
+    # The @current_workspace is tracked on the client side, so attempting to call it directly from the RemoteDataService
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Calling workspace from within the RemoteDataService is no longer supported. Please call from WorkspaceDataProxy instead."
+    framework.db.workspace
   end
 
   def workspace=(workspace)
-    @current_workspace_name = workspace.name
+    # The @current_workspace is tracked on the client side, so attempting to call it directly from the RemoteDataService
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Setting the current workspace from the RemoteDataService is no longer supported. Please call from WorkspaceDataProxy instead."
+    framework.db.workspace = workspace
   end
 
   def workspaces(opts)
-    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, opts), WORKSPACE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, opts, false), WORKSPACE_MDM_CLASS, [])
   end
 
   def delete_workspaces(opts)

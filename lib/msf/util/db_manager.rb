@@ -16,7 +16,9 @@ module DBManager
   end
 
   def self.process_opts_workspace(opts, framework)
-    wspace = opts.delete(:wspace) || opts.delete(:workspace) || framework.db.workspace
+    wspace = opts.delete(:wspace) || opts.delete(:workspace)
+    raise ArgumentError.new("opts must include a valid :workspace or :wspace value.") if wspace.nil? || ((wspace.kind_of? String) && wspace.empty?)
+
     if wspace.kind_of? String
       wspace = framework.db.find_workspace(wspace)
     end
