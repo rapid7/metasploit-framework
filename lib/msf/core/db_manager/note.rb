@@ -21,10 +21,22 @@ module Msf::DBManager::Note
   #
   # This methods returns a list of all notes in the database
   #
-  def notes(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.notes
-  }
+  def notes(opts)
+    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+
+      search_term = opts.delete(:search_term)
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Note, search_term)
+        wspace.notes.includes(:host).where(opts).where(column_search_conditions)
+      else
+        wspace.notes.includes(:host).where(opts)
+      end
+    }
   end
 
   #
@@ -170,5 +182,47 @@ module Msf::DBManager::Note
     note.save!
     ret[:note] = note
   }
+  end
+
+  # Update the attributes of a note entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Note] The updated Mdm::Note object.
+  def update_note(opts)
+    # process workspace string for update if included in opts
+    wspace = opts.delete(:workspace)
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+      opts[:workspace] = wspace
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      Mdm::Note.update(id, opts)
+    }
+  end
+
+  # Deletes note entries based on the IDs passed in.
+  #
+  # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the note entries to delete.
+  # @return [Array] Array containing the Mdm::Note objects that were successfully deleted.
+  def delete_note(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |note_id|
+        note = Mdm::Note.find(note_id)
+        begin
+          deleted << note.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{note}")
+          deleted << note.delete
+        end
+      end
+
+      return deleted
+    }
   end
 end
