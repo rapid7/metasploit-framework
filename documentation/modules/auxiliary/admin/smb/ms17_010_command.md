@@ -21,6 +21,11 @@ To be able to use auxiliary/admin/smb/ms17_010_command:
 
 You can check all of these with the SMB MS17-010 and Pipe Auditor auxiliary scanner modules.
 
+If you're having trouble configuring an anonymous named pipe,
+Microsoft's
+[documentation](https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-access-named-pipes-that-can-be-accessed-anonymously)
+on the topic may be helpful.
+
 ## Verification Steps
 
 At the minimum, you should be able use psexec to get a session with a valid credential using the following:
