@@ -11,8 +11,12 @@ module Msf::DBManager::Workspace
   def default_workspace
     # Workspace tracking is handled on the client side, so attempting to call it directly from the DbManager
     # will not return the correct results. Run it back through the proxy.
+
+
     wlog "[DEPRECATION] Setting the workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
-    raise NotImplementedError
+
+    # Proxied to fix tests, will be cleaned up in remote test patch
+    framework.db.default_workspace
   end
 
   def find_workspace(name)
@@ -25,14 +29,18 @@ module Msf::DBManager::Workspace
     # The @current_workspace is tracked on the client side, so attempting to call it directly from the DbManager
     # will not return the correct results. Run it back through the proxy.
     wlog "[DEPRECATION] Calling workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
-    raise NotImplementedError
+
+    # Proxied to fix tests, will be cleaned up in remote test patch
+    framework.db.workspace
   end
 
   def workspace=(workspace)
     # The @current_workspace is tracked on the client side, so attempting to call it directly from the DbManager
     # will not return the correct results. Run it back through the proxy.
     wlog "[DEPRECATION] Setting the workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
-    raise NotImplementedError
+
+    # Proxied to fix tests, will be cleaned up in remote test patch
+    framework.db.workspace=workspace
   end
 
   def workspaces(opts = {})
