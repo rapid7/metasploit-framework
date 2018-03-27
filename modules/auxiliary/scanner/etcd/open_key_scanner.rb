@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 200
       begin
         response = res.get_json_document
-        store_loot('etcd.data', 'text/plain', rhost, response, 'etcd.keys', 'etcd keys')
+        store_loot('etcd.data', 'text/json', rhost, response, 'etcd.keys', 'etcd keys')
 
         # since we know its vulnerable, go ahead and pull the version information
         res = send_request_raw({
@@ -60,13 +60,14 @@ class MetasploitModule < Msf::Auxiliary
           :host => rhost,
           :port => rport,
           :name => 'etcd',
+          :proto => 'tcp',
           :info => banner
         })
       rescue JSON::ParserError => e
         print_error("Failed to read JSON: #{e.class} - #{e.message}}")
         return
       end
-      print_good(JSON.pretty_generate(response))
+      print_good("#{peer}\nVersion: #{banner}\nData: #{JSON.pretty_generate(response)}")
     end
   end
 end

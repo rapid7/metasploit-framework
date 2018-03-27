@@ -26,11 +26,13 @@ unauthenticated users access to the data stored via HTTP API.
 
 ```
 msf5 > use auxiliary/scanner/etcd/open_key_scanner 
-msf5 auxiliary(scanner/etcd/open_key_scanner) > set rhosts 192.168.2.248
-rhosts => 192.168.2.248
+msf5 auxiliary(scanner/etcd/open_key_scanner) > set rhosts 2.2.2.2
+rhosts => 2.2.2.2
 msf5 auxiliary(scanner/etcd/open_key_scanner) > run
 
-[+] {
+[+] 2.2.2.2:2379   
+Version: {"etcdserver":"3.2.15","etcdcluster":"3.2.0"}
+Data: {
   "action": "get",
   "node": {
     "dir": true,
@@ -44,16 +46,13 @@ msf5 auxiliary(scanner/etcd/open_key_scanner) > run
     ]
   }
 }
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-msf5 auxiliary(scanner/etcd/open_key_scanner) > loot
 
 Loot
 ====
 
 host           service  type       name       content     info       path
 ----           -------  ----       ----       -------     ----       ----
-192.168.2.248           etcd.data  etcd.keys  text/plain  etcd keys  /root/.msf4/loot/20180325144351_default_192.168.2.248_etcd.data_425280.txt
+2.2.2.2                 etcd.data  etcd.keys  text/plain  etcd keys  /root/.msf4/loot/20180325144351_default_2.2.2.2_etcd.data_425280.txt
 
 msf5 auxiliary(scanner/etcd/open_key_scanner) > services
 Services
@@ -61,5 +60,5 @@ Services
 
 host           port  proto  name  state  info
 ----           ----  -----  ----  -----  ----
-192.168.2.248  2379  tcp    etcd  open   {"etcdserver":"3.2.15","etcdcluster":"3.2.0"}
+2.2.2.2        2379  tcp    etcd  open   {"etcdserver":"3.2.15","etcdcluster":"3.2.0"}
 ```
