@@ -63,9 +63,9 @@ Gem::Specification.new do |spec|
   # Metasploit::Concern hooks
   spec.add_runtime_dependency 'metasploit-concern'
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential'
+  spec.add_runtime_dependency 'metasploit-credential', ['< 3.0.0']
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models'
+  spec.add_runtime_dependency 'metasploit_data_models', ['< 3.0.0']
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
