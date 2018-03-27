@@ -215,10 +215,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     end
     describe "-p" do
       before(:example) do
-        host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1026, name: 'Service3', proto: 'udp')
+        host = FactoryBot.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
+        FactoryBot.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
+        FactoryBot.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
+        FactoryBot.create(:mdm_service, :host => host, :port => 1026, name: 'Service3', proto: 'udp')
       end
       it "should list services that are on a given port" do
         db.cmd_services "-S", "1024|1025"
@@ -235,10 +235,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     end
     describe "-np" do
       before(:example) do
-        host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1024)
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1025)
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1026)
+        host = FactoryBot.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
+        FactoryBot.create(:mdm_service, :host => host, :port => 1024)
+        FactoryBot.create(:mdm_service, :host => host, :port => 1025)
+        FactoryBot.create(:mdm_service, :host => host, :port => 1026)
       end
       it "should list services that are not on a given port" do
         skip {
