@@ -77,7 +77,7 @@ RSpec.describe Msf::Auxiliary::Cisco do
   
   context '#cisco_ios_config_eater' do
     before(:example) do
-      expect(aux_cisco).to receive(:myworkspace).and_return(workspace)
+      expect(aux_cisco).to receive(:myworkspace).at_least(:once).and_return(workspace)
     end
     
     it 'deals with udp ports' do

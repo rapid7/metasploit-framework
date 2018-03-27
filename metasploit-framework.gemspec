@@ -70,7 +70,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.3.31'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.3.32'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.3.7'
   # Needed by msfgui and other rpc components
@@ -100,6 +100,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'redcarpet'
   # Needed for Microsoft patch finding tool (msu_finder)
   spec.add_runtime_dependency 'patch_finder'
+  # Required for msfdb_ws (Metasploit data base as a webservice)
+  spec.add_runtime_dependency 'thin'
+  spec.add_runtime_dependency 'sinatra'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
   # Gem for dealing with SSHKeys

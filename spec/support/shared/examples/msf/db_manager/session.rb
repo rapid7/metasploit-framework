@@ -172,20 +172,6 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
             end
 
             context 'with workspace from either :workspace or session' do
-              it 'should pass normalized host from session as :host to #find_or_create_host' do
-                normalized_host = double('Normalized Host')
-                expect(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
-                # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
-                expect(db_manager).to receive(:report_vuln)
-
-                expect(db_manager).to receive(:find_or_create_host).with(
-                  hash_including(
-                    :host => normalized_host
-                  )
-                ).and_return(host)
-
-                report_session
-              end
 
               context 'with session responds to arch' do
                 let(:arch) do
@@ -515,20 +501,6 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
             end
 
             context 'with workspace from either :workspace or session' do
-              it 'should pass normalized host from session as :host to #find_or_create_host' do
-                normalized_host = double('Normalized Host')
-                allow(db_manager).to receive(:normalize_host).with(session).and_return(normalized_host)
-                # stub report_vuln so its use of find_or_create_host and normalize_host doesn't interfere.
-                allow(db_manager).to receive(:report_vuln)
-
-                expect(db_manager).to receive(:find_or_create_host).with(
-                    hash_including(
-                        :host => normalized_host
-                    )
-                ).and_return(host)
-
-                report_session
-              end
 
               context 'with session responds to arch' do
                 let(:arch) do
