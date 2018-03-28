@@ -96,7 +96,7 @@ Loot
 
 host       service  type       name       content    info       path
 ----       -------  ----       ----       -------    ----       ----
-127.0.0.1           etcd.data  etcd.keys  text/json  etcd keys  /Users/jhart/.msf4/loot/20180328092245_default_127.0.0.1_etcd.data_260058.txt
+127.0.0.1           etcd.data  etcd.keys  text/json  etcd keys  /root/.msf4/loot/20180328092245_default_127.0.0.1_etcd.data_260058.txt
 
 msf5 auxiliary(scanner/etcd/open_key_scanner) > services
 Services
