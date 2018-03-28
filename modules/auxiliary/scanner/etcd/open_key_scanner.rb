@@ -10,19 +10,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Etcd Keys API Information Gathering',
+      'Name' => 'Etcd Keys API Information Gathering',
       'Description' => %q(
         This module queries the etcd API to recursively retrieve all of the stored
         key value pairs.  Etcd by default does not utilize authentication.
       ),
-      'References'  => [
+      'References' => [
         ['URL', 'https://elweb.co/the-security-footgun-in-etcd']
       ],
-      'Author'      => [
+      'Author' => [
         'Giovanni Collazo <hello@gcollazo.com>', # discovery
         'h00die' # msf module
       ],
-      'License'     => MSF_LICENSE
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(target_host)
+  def run_host(_target_host)
     path = normalize_uri(target_uri.to_s, 'v2/keys/?recursive=true')
 
     vprint_status("#{peer} - Collecting data through #{path}...")
