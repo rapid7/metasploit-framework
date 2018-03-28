@@ -225,8 +225,8 @@ class RemoteHTTPDataService
   end
 
   def append_workspace(data_hash)
-    workspace = data_hash[:workspace]
-    workspace = data_hash.delete(:wspace) unless workspace
+    # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
+    workspace = data_hash.keys.include?(:wspace) ? data_hash.delete(:wspace) : data_hash[:workspace]
 
     if workspace && (workspace.is_a?(OpenStruct) || workspace.is_a?(::Mdm::Workspace))
       data_hash[:workspace] = workspace.name

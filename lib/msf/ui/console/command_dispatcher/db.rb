@@ -192,12 +192,12 @@ class Db
         return
       end
     else
-      workspace = framework.db.workspace
+      current_workspace = framework.db.workspace
 
       unless verbose
         current = nil
         framework.db.workspaces.sort_by {|s| s.name}.each do |s|
-          if s.name == workspace.name
+          if s.name == current_workspace.name
             current = s.name
           else
             print_line("  #{s.name}")
@@ -206,8 +206,6 @@ class Db
         print_line("%red* #{current}%clr") unless current.nil?
         return
       end
-      workspace = framework.db.workspace
-
       col_names = %w{current name hosts services vulns creds loots notes}
 
       tbl = Rex::Text::Table.new(
@@ -217,17 +215,16 @@ class Db
         'SearchTerm' => search_term
       )
 
-      # List workspaces
-      framework.db.workspace_associations_counts.each do |ws|
+      framework.db.workspaces.each do |ws|
         tbl << [
-          ws[:name] == workspace.name ? '*' : '',
-          ws[:name],
-          ws[:hosts_count],
-          ws[:services_count],
-          ws[:vulns_count],
-          ws[:creds_count],
-          ws[:loots_count],
-          ws[:notes_count]
+          current_workspace.name == ws.name ? '*' : '',
+          ws.name,
+          framework.db.hosts(ws.name).count,
+          framework.db.services(ws.name).count,
+          framework.db.vulns({:workspace => ws.name}).count,
+          framework.db.creds({:workspace => ws.name}).count,
+          framework.db.loots(ws.name).count,
+          framework.db.notes({:workspace => ws.name}).count
         ]
       end
 

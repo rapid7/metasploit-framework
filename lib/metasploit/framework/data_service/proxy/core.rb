@@ -123,6 +123,11 @@ class DataProxy
     raise Exception, "#{ui_message}: #{exception.message}. See log for more details."
   end
 
+  def add_opts_workspace(opts)
+    opts[:workspace] = workspace if opts[:workspace].nil? && opts[:wspace].nil?
+    opts
+  end
+
   #######
   private
   #######

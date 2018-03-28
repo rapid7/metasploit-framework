@@ -2,7 +2,7 @@ module ServiceDataProxy
 
   def services(wspace = workspace, opts = {})
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       opts[:workspace] = wspace
       data_service.services(opts)
     rescue Exception => e
@@ -16,7 +16,8 @@ module ServiceDataProxy
 
   def report_service(opts)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
+      add_opts_workspace(opts)
       data_service.report_service(opts)
     rescue  Exception => e
       self.log_error(e, 'Problem reporting service')
@@ -25,7 +26,8 @@ module ServiceDataProxy
 
   def update_service(opts)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
+      add_opts_workspace(opts)
       data_service.update_service(opts)
     rescue Exception => e
       self.log_error(e, 'Problem updating service')
@@ -34,7 +36,8 @@ module ServiceDataProxy
 
   def delete_service(opts)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
+      add_opts_workspace(opts)
       data_service.delete_service(opts)
     rescue Exception => e
       self.log_error(e, 'Problem deleting service')
