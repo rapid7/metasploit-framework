@@ -21,7 +21,11 @@ module WorkspaceDataProxy
 
   def default_workspace
     begin
-      find_workspace('default')
+      ws = find_workspace('default')
+      if ws.nil?
+        ws = add_workspace('default')
+      end
+      ws
     rescue  Exception => e
       self.log_error(e, "Problem finding default workspace")
     end
