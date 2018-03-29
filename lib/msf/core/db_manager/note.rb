@@ -68,7 +68,7 @@ module Msf::DBManager::Note
       if opts[:host].kind_of? ::Mdm::Host
         host = opts[:host]
       else
-        addr = normalize_host(opts[:host])
+        addr = Msf::Util::Host.normalize_host(opts[:host])
         host = report_host({:workspace => wspace, :host => addr})
       end
       # Do the same for a service if that's also included.

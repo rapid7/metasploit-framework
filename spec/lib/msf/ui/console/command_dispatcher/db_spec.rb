@@ -200,27 +200,28 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -d,--delete       Delete the services instead of searching",
           "  -c <col1,col2>    Only show the given columns",
           "  -h,--help         Show this help information",
-          "  -s <name1,name2>  Search for a list of service names",
-          "  -p <port1,port2>  Search for a list of ports",
-          "  -r <protocol>     Only show [tcp|udp] services",
+          "  -s <name>         Name of the service to add",
+          "  -p <port>         Port number of the service being added",
+          "  -r <protocol>     Protocol type of the service being added [tcp|udp]",
           "  -u,--up           Only show services which are up",
           "  -o <file>         Send output to a file in csv format",
           "  -O <column>       Order rows by specified column number",
           "  -R,--rhosts       Set RHOSTS from the results of the search",
           "  -S,--search       Search string to filter by",
+          "  -U,--update       Update data for existing service",
           "Available columns: created_at, info, name, port, proto, state, updated_at"
         ]
       end
     end
     describe "-p" do
       before(:example) do
-        host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1026, name: 'Service3', proto: 'udp')
+        host = FactoryBot.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
+        FactoryBot.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
+        FactoryBot.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
+        FactoryBot.create(:mdm_service, :host => host, :port => 1026, name: 'Service3', proto: 'udp')
       end
       it "should list services that are on a given port" do
-        db.cmd_services "-p", "1024,1025"
+        db.cmd_services "-S", "1024|1025"
         expect(@output).to match_array [
           "Services",
           "========",
@@ -234,10 +235,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     end
     describe "-np" do
       before(:example) do
-        host = FactoryGirl.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1024)
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1025)
-        FactoryGirl.create(:mdm_service, :host => host, :port => 1026)
+        host = FactoryBot.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
+        FactoryBot.create(:mdm_service, :host => host, :port => 1024)
+        FactoryBot.create(:mdm_service, :host => host, :port => 1025)
+        FactoryBot.create(:mdm_service, :host => host, :port => 1026)
       end
       it "should list services that are not on a given port" do
         skip {
@@ -270,7 +271,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -s <svc names>        List vulns matching these service names",
           "  -R,--rhosts           Set RHOSTS from the results of the search",
           "  -S,--search           Search string to filter by",
-          "  -i,--info             Display Vuln Info",
+          "  -i,--info             Display vuln information",
           "Examples:",
           "  vulns -p 1-65536          # only vulns with associated services",
           "  vulns -p 1-65536 -s http  # identified as http on any port"

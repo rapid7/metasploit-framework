@@ -13,9 +13,9 @@ class Msf::Modules::External::Shim
       capture_server(mod)
     when 'dos'
       dos(mod)
-    when 'scanner.single'
+    when 'single_scanner'
       single_scanner(mod)
-    when 'scanner.multi'
+    when 'multi_scanner'
       multi_scanner(mod)
     else
       # TODO have a nice load error show up in the logs
@@ -32,7 +32,7 @@ class Msf::Modules::External::Shim
     render_template('common_metadata.erb', meta)
   end
 
-  def self.mod_meta_common(mod, meta = {}, drop_rhost: true)
+  def self.mod_meta_common(mod, meta = {}, drop_rhost: false)
     meta[:path]        = mod.path.dump
     meta[:name]        = mod.meta['name'].dump
     meta[:description] = mod.meta['description'].dump

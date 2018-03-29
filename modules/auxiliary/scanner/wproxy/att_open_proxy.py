@@ -23,7 +23,7 @@ metadata = {
         {'type': 'aka', 'ref': 'SharknAT&To'},
         {'type': 'aka', 'ref': 'sharknatto'}
      ],
-    'type': 'scanner.multi',
+    'type': 'multi_scanner',
     'options': {
         'rhosts': {'type': 'address_range', 'description': 'The target address', 'required': True, 'default': None},
         'rport': {'type': 'port', 'description': 'The target port', 'required': True, 'default': 49152},
