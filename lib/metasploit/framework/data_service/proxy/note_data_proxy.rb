@@ -9,6 +9,11 @@ module NoteDataProxy
     end
   end
 
+  # TODO: like other *DataProxy modules this currently skips the "find" part
+  def find_or_create_note(opts)
+    report_note(opts)
+  end
+
   def report_note(opts)
     begin
       data_service = self.get_data_service()
