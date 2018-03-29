@@ -230,7 +230,7 @@ class RemoteHTTPDataService
 
     # We only want to pass the workspace name, so grab it if it is currently an object.
     if data_hash[:workspace] && (data_hash[:workspace].is_a?(OpenStruct) || data_hash[:workspace].is_a?(::Mdm::Workspace))
-      data_hash[:workspace] = workspace.name
+      data_hash[:workspace] = data_hash[:workspace].name
     end
 
     # If we still don't have a :workspace value, just set it to the current workspace.
