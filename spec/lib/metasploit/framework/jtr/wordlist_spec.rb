@@ -9,9 +9,9 @@ RSpec.describe Metasploit::Framework::JtR::Wordlist do
   let(:expansion_word) { 'Foo bar_baz-bat.bam\\foo//bar' }
   let(:common_root_path) { File.expand_path('fake_common_roots.txt',FILE_FIXTURES_PATH) }
   let(:default_wordlist_path) { File.expand_path('fake_default_wordlist.txt',FILE_FIXTURES_PATH) }
-  let(:password) { FactoryGirl.create(:metasploit_credential_password) }
-  let(:public) { FactoryGirl.create(:metasploit_credential_public) }
-  let(:realm) { FactoryGirl.create(:metasploit_credential_realm) }
+  let(:password) { FactoryBot.create(:metasploit_credential_password) }
+  let(:public) { FactoryBot.create(:metasploit_credential_public) }
+  let(:realm) { FactoryBot.create(:metasploit_credential_realm) }
   let(:mutate_me) { 'password' }
   let(:mutants) {  [
       "pa55word",
