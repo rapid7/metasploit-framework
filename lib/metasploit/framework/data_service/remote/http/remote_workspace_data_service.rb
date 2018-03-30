@@ -20,6 +20,7 @@ module RemoteWorkspaceDataService
     # The @current_workspace is tracked on the client side, so attempting to call it directly from the RemoteDataService
     # will not return the correct results. Run it back through the proxy.
     wlog "[DEPRECATION] Calling workspace from within the RemoteDataService is no longer supported. Please call from WorkspaceDataProxy instead."
+    caller.each { |line| wlog "#{line}"}
     framework.db.workspace
   end
 
@@ -27,6 +28,7 @@ module RemoteWorkspaceDataService
     # The @current_workspace is tracked on the client side, so attempting to call it directly from the RemoteDataService
     # will not return the correct results. Run it back through the proxy.
     wlog "[DEPRECATION] Setting the current workspace from the RemoteDataService is no longer supported. Please call from WorkspaceDataProxy instead."
+    caller.each { |line| wlog "#{line}"}
     framework.db.workspace = workspace
   end
 

@@ -241,7 +241,6 @@ module Msf::DBManager::Import::Nmap
   #
   def import_nmap_xml_file(args={})
     filename = args[:filename]
-    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
 
     data = ""
     ::File.open(filename, 'rb') do |f|

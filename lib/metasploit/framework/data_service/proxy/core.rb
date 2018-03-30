@@ -124,7 +124,7 @@ class DataProxy
   end
 
   def add_opts_workspace(opts)
-    opts[:workspace] = workspace if opts[:workspace].nil? && opts[:wspace].nil?
+    opts[:workspace] = workspace.name if opts[:workspace].nil? && opts[:wspace].nil?
     opts
   end
 
