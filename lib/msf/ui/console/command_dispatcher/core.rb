@@ -869,7 +869,7 @@ class Core
       if Rex::Socket.is_ip_addr?(args.first)
         netmask = args.shift
       elsif Rex::Socket.is_ip_addr?(subnet)
-        netmask = Rex::Socket.addr_ctoa(cidr_mask, v6=Rex::Socket.is_ipv6?(subnet))
+        netmask = Rex::Socket.addr_ctoa(cidr_mask, v6: Rex::Socket.is_ipv6?(subnet))
       end
 
       netmask = args.shift if netmask.nil?
