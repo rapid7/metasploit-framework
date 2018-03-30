@@ -1,4 +1,4 @@
-FROM ruby:2.5.0-alpine3.7
+FROM ruby:2.5.1-alpine3.7
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
