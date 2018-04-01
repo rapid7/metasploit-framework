@@ -33,7 +33,6 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
       super.tap { |option_parser|
         option_parser.banner = "Usage: #{option_parser.program_name} [options]"
 
-        option_parser.separator ''
         option_parser.separator 'Console options:'
 
         option_parser.on('-a', '--ask', "Ask before exiting Metasploit or accept 'exit -y'") do
@@ -67,7 +66,7 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
         option_parser.on(
             '-x',
             '--execute-command COMMAND',
-            'Execute the specified string as console commands (use ; for multiples)'
+            'Execute the specified console commands (use ; for multiples)'
         ) do |commands|
           options.console.commands += commands.split(/\s*;\s*/)
         end
