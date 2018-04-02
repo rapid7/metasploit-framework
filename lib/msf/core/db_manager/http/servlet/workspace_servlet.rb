@@ -24,6 +24,7 @@ module WorkspaceServlet
             #includes = 'hosts: {only: :count}, services: {only: :count}, vulns: {only: :count}, creds: {only: :count}, loots: {only: :count}, notes: {only: :count}'
           else
             data = get_db().find_workspace(opts[:workspace_name])
+            puts "Getting data with name #{opts[:workspace_name]}"
           end
 
           set_json_response(data, includes)

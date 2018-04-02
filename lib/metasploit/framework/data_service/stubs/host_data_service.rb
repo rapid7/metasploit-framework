@@ -1,5 +1,9 @@
 module HostDataService
 
+  def get_host(opts)
+    raise 'HostDataService#get_host is not implemented'
+  end
+
   def report_host(opts)
     raise 'HostDataService#report_host is not implemented'
   end

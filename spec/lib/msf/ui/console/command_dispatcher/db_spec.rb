@@ -213,13 +213,23 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         ]
       end
     end
-    describe "-p" do
+    describe "-S" do
       before(:example) do
-        host = FactoryBot.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryBot.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
-        FactoryBot.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
-        FactoryBot.create(:mdm_service, :host => host, :port => 1026, name: 'Service3', proto: 'udp')
+        @services = []
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1024, name: 'service1', proto: 'udp'})
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1025, name: 'service2', proto: 'tcp'})
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1026, name: 'service3', proto: 'udp'})
       end
+
+      after(:example) do
+        ids = []
+        @services.each{|service|
+          ids << service.id
+        }
+
+        framework.db.delete_service({ids: ids})
+      end
+
       it "should list services that are on a given port" do
         db.cmd_services "-S", "1024|1025"
         expect(@output).to match_array [
@@ -228,17 +238,17 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "",
           "host         port  proto  name      state  info",
           "----         ----  -----  ----      -----  ----",
-          "192.168.0.1  1024  udp    Service1  open   ",
-          "192.168.0.1  1025  tcp    Service2  open   "
+          "192.168.0.1  1024  udp    service1  open   ",
+          "192.168.0.1  1025  tcp    service2  open   "
         ]
       end
     end
+
     describe "-np" do
       before(:example) do
-        host = FactoryBot.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryBot.create(:mdm_service, :host => host, :port => 1024)
-        FactoryBot.create(:mdm_service, :host => host, :port => 1025)
-        FactoryBot.create(:mdm_service, :host => host, :port => 1026)
+        framework.db.report_service({host: '192.168.0.1', port: 1024})
+        framework.db.report_service({host: '192.168.0.1', port: 1025})
+        framework.db.report_service({host: '192.168.0.1', port: 1026})
       end
       it "should list services that are not on a given port" do
         skip {

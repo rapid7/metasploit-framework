@@ -31,6 +31,16 @@ class RemoteHTTPDataService
     build_client_pool(5)
   end
 
+  def online?
+    begin
+      response = get_data(ONLINE_TEST_URL)
+      return response.expected
+    rescue Exception => e
+    end
+
+    return false
+  end
+
   def connection_established?
     true
   end

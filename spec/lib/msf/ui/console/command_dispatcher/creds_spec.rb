@@ -5,6 +5,11 @@ require 'msf/ui'
 require 'msf/ui/console/command_dispatcher/creds'
 
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
+
+  if ENV['REMOTE_DB']
+    before {skip("Awaiting credentials port")}
+  end
+
   include_context 'Msf::DBManager'
   include_context 'Msf::UIDriver'
 
