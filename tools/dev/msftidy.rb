@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
+
 #
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
 # by jduck, todb, and friends
 #
+
 require 'fileutils'
 require 'find'
 require 'time'
@@ -216,7 +218,7 @@ class Msftidy
   end
 
   # See if 'require "rubygems"' or equivalent is used, and
-  # warn if so.  Since Ruby 1.9 this has not been necessary and
+  # warn if so. Since Ruby 1.9 this has not been necessary and
   # the framework only suports 1.9+
   def check_rubygems
     @lines.each do |line|

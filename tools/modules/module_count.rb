@@ -1,6 +1,13 @@
 #!/usr/bin/env ruby
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+#
 # Lists the current count of modules, by type, and outputs a bare CSV.
+#
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
@@ -39,7 +46,7 @@ $framework.modules.each do |name, mod|
   [:exploit, :auxiliary, :post, :payload, :encoder, :nop].each do |meth|
     interrogative = "#{meth}?".intern
     if this_mod.send(interrogative)
-      module_types[meth] += 1 
+      module_types[meth] += 1
     end
   end
 end
