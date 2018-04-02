@@ -1,4 +1,6 @@
 module Msf::DBManager::Workspace
+
+  DEFAULT_WORKSPACE_NAME = 'default'
   #
   # Creates a new workspace in the database
   #
@@ -75,7 +77,7 @@ module Msf::DBManager::Workspace
         end
         begin
           deleted << ws.destroy
-          framework.db.workspace = framework.db.add_workspace('default') if default_deleted
+          framework.db.workspace = framework.db.add_workspace(DEFAULT_WORKSPACE_NAME) if default_deleted
         rescue
           elog("Forcibly deleting #{workspace}")
           deleted << ws.delete

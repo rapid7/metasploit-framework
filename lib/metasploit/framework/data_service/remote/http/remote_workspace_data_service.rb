@@ -5,7 +5,6 @@ module RemoteWorkspaceDataService
 
   WORKSPACE_API_PATH = '/api/v1/workspaces'
   WORKSPACE_MDM_CLASS = 'Mdm::Workspace'
-  DEFAULT_WORKSPACE_NAME = 'default'
 
   def add_workspace(workspace_name)
     response = self.post_data(WORKSPACE_API_PATH, {:workspace_name => workspace_name})
@@ -13,7 +12,7 @@ module RemoteWorkspaceDataService
   end
 
   def default_workspace
-    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, {:name => default}, false), WORKSPACE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, {:name => Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME}, false), WORKSPACE_MDM_CLASS, [])
   end
 
   def workspace

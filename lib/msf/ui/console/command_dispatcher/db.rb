@@ -235,7 +235,7 @@ class Db
 
   def print_deleted_workspaces(deleted_workspaces, starting_ws)
     deleted_workspaces.each do |ws|
-      if ws.name == 'default'
+      if ws.name == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
         print_status 'Deleted and recreated the default workspace'
       elsif ws == starting_ws
         print_status "Switched workspace: #{framework.db.workspace.name}"

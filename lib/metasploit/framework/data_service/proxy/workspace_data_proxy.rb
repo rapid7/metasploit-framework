@@ -21,9 +21,9 @@ module WorkspaceDataProxy
 
   def default_workspace
     begin
-      ws = find_workspace('default')
+      ws = find_workspace(Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME)
       if ws.nil?
-        ws = add_workspace('default')
+        ws = add_workspace(Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME)
       end
       ws
     rescue  Exception => e
