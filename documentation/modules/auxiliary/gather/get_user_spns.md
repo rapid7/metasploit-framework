@@ -4,10 +4,13 @@ This module will try to find Service Principal Names (SPN) that are associated w
 
 ## Verification Steps
 
-- [ ] Install [impacket](https://github.com/CoreSecurity/impacket) library with requirements
-- [ ] Have a domain user account credentials
-- [ ] `./msfconsole -q -x 'use auxiliary/gather/get_user_spns; set rhosts <dc-ip> ; set smbuser <user> ; set smbpass <password> ; set smbdomain <domain> ; run'`
-- [ ] Get Hashes
+To avoid library/version conflict, it would be useful to have a pipenv virtual environment.
+
+* `pipenv --two && pipenv shell`
+* Follow the [impacket installation steps](https://github.com/CoreSecurity/impacket#installing) to install the required libraries.
+* Have a domain user account credentials
+* `./msfconsole -q -x 'use auxiliary/gather/get_user_spns; set rhosts <dc-ip> ; set smbuser <user> ; set smbpass <password> ; set smbdomain <domain> ; run'`
+* Get Hashes
 
 ## Scenarios
 
