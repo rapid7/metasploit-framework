@@ -114,7 +114,7 @@ rspec-rerun, 1.1.0, MIT
 rspec-support, 3.7.1, MIT
 ruby-macho, 1.1.0, MIT
 ruby-rc4, 0.1.5, MIT
-ruby_smb, 0.0.18, "New BSD"
+ruby_smb, 0.0.23, "New BSD"
 rubyntlm, 0.6.2, MIT
 rubyzip, 1.2.1, "Simplified BSD"
 sawyer, 0.8.1, MIT

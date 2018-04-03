@@ -59,7 +59,7 @@ PATH
       rex-text
       rex-zip
       ruby-macho
-      ruby_smb (= 0.0.18)
+      ruby_smb
       rubyntlm
       rubyzip
       sinatra
@@ -304,7 +304,7 @@ GEM
     rspec-support (3.7.1)
     ruby-macho (1.1.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (0.0.18)
+    ruby_smb (0.0.23)
       bindata
       rubyntlm
       windows_error
