@@ -130,7 +130,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'mqtt'
   spec.add_runtime_dependency 'net-ssh'
   spec.add_runtime_dependency 'bcrypt_pbkdf'
-  spec.add_runtime_dependency 'ruby_smb', '0.0.18'
+  spec.add_runtime_dependency 'ruby_smb'
 
   #
   # REX Libraries
