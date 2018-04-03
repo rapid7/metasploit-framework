@@ -109,12 +109,6 @@ class Msftidy
   #
   ##
 
-  def check_mode
-    unless (@stat.mode & 0111).zero?
-      warn("Module should not be marked executable")
-    end
-  end
-
   def check_shebang
     if @lines.first =~ /^#!/
       warn("Module should not have a #! line")
@@ -683,7 +677,6 @@ class Msftidy
   # Run all the msftidy checks.
   #
   def run_checks
-    check_mode
     check_shebang
     check_nokogiri
     check_rubygems
@@ -757,6 +750,8 @@ if __FILE__ == $PROGRAM_NAME
         next if full_filepath =~ /\.git[\x5c\x2f]/
         next unless File.file? full_filepath
         next unless full_filepath =~ /\.rb$/
+        # Executable files are now assumed to be external modules
+        next if File.executable?(full_filepath)
         msftidy = Msftidy.new(full_filepath)
         msftidy.run_checks
         @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
