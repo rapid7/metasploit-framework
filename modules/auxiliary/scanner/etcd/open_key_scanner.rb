@@ -23,7 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         'Giovanni Collazo <hello@gcollazo.com>', # discovery
         'h00die' # msf module
       ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'DisclosureDate' => "Mar 16 2018"
     )
   end
 
