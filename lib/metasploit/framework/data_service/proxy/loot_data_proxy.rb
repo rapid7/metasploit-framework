@@ -22,7 +22,7 @@ module LootDataProxy
   def loots(wspace, opts = {})
     begin
       data_service = self.get_data_service
-      opts[:wspace] = wspace
+      add_opts_workspace(opts, wspace)
       data_service.loot(opts)
     rescue Exception => e
       self.log_error(e, "Problem retrieving loot")

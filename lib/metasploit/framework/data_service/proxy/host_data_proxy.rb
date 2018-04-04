@@ -1,10 +1,10 @@
 module HostDataProxy
 
-  def hosts(wspace = workspace, non_dead = false, addresses = nil, search_term = nil)
+  def hosts(wspace = workspace.name, non_dead = false, addresses = nil, search_term = nil)
     begin
       data_service = self.get_data_service
       opts = {}
-      opts[:wspace] = wspace
+      add_opts_workspace(opts, wspace)
       opts[:non_dead] = non_dead
       opts[:address] = addresses
       opts[:search_term] = search_term

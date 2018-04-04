@@ -12,7 +12,7 @@ module RemoteWorkspaceDataService
   end
 
   def default_workspace
-    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, {:name => Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME}, false), WORKSPACE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, {:name => Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME}), WORKSPACE_MDM_CLASS, [])
   end
 
   def workspace
@@ -32,7 +32,7 @@ module RemoteWorkspaceDataService
   end
 
   def workspaces(opts)
-    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, opts, false), WORKSPACE_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, opts), WORKSPACE_MDM_CLASS, [])
   end
 
   def delete_workspaces(opts)

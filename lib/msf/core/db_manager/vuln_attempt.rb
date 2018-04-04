@@ -24,7 +24,7 @@ module Msf::DBManager::VulnAttempt
   def vuln_attempts(opts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     # 'workspace' is not a valid attribute for Mdm::VulnAttempt. Remove it.
-    Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    Msf::Util::DBManager.delete_opts_workspace(opts)
 
     search_term = opts.delete(:search_term)
     if search_term && !search_term.empty?

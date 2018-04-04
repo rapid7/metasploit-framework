@@ -79,8 +79,8 @@ class RemoteHTTPDataService
   #
   # @return A wrapped response (ResponseWrapper), see below.
   #
-  def get_data(path, data_hash = nil, query = nil, add_workspace = true)
-    make_request(GET_REQUEST, path, data_hash, query, add_workspace)
+  def get_data(path, data_hash = nil, query = nil)
+    make_request(GET_REQUEST, path, data_hash, query)
   end
 
   #
@@ -119,14 +119,11 @@ class RemoteHTTPDataService
   #
   # @return A wrapped response (ResponseWrapper)
   #
-  def make_request(request_type, path, data_hash = nil, query = nil, add_workspace = true)
+  def make_request(request_type, path, data_hash = nil, query = nil)
     begin
       # simplify query by removing nil values
-      add_workspace = true
       query_str = nil
-      if add_workspace
-        query_str = (!query.nil? && !query.empty?) ? append_workspace(query).compact.to_query : nil
-      end
+      query_str = (!query.nil? && !query.empty?) ? query.compact.to_query : nil
       uri = URI::HTTP::build({path: path, query: query_str})
       dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
@@ -224,21 +221,6 @@ class RemoteHTTPDataService
     raise 'Endpoint cannot be nil' if endpoint.nil?
   end
 
-  def append_workspace(data_hash)
-    # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
-    data_hash[:workspace] = data_hash.delete(:wspace) unless data_hash[:wspace].nil?
-
-    # We only want to pass the workspace name, so grab it if it is currently an object.
-    if data_hash[:workspace] && (data_hash[:workspace].is_a?(OpenStruct) || data_hash[:workspace].is_a?(::Mdm::Workspace))
-      data_hash[:workspace] = data_hash[:workspace].name
-    end
-
-    # If we still don't have a :workspace value, just set it to the current workspace.
-    data_hash[:workspace] = @framework.db.workspace.name if data_hash[:workspace].nil?
-
-    data_hash
-  end
-
   def build_request(request, data_hash, add_workspace = true)
     request.content_type = 'application/json'
     if !data_hash.nil? && !data_hash.empty?
@@ -251,7 +233,7 @@ class RemoteHTTPDataService
           data_hash.delete(k)
         end
       end
-      json_body = append_workspace(data_hash).to_json if add_workspace
+      json_body = data_hash.to_json
       request.body = json_body
     end
 

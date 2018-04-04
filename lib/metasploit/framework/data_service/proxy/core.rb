@@ -123,8 +123,23 @@ class DataProxy
     raise Exception, "#{ui_message}: #{exception.message}. See log for more details."
   end
 
-  def add_opts_workspace(opts)
-    opts[:workspace] = workspace.name if opts[:workspace].nil? && opts[:wspace].nil?
+  def add_opts_workspace(opts, wspace = nil)
+    # opts[:workspace] = workspace.name if opts[:workspace].nil? && opts[:wspace].nil?
+    # opts
+
+    opts[:workspace] = wspace if wspace
+
+    # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
+    opts[:workspace] = opts.delete(:wspace) unless opts[:wspace].nil?
+
+    # We only want to pass the workspace name, so grab it if it is currently an object.
+    if opts[:workspace] && opts[:workspace].is_a?(::Mdm::Workspace)
+      opts[:workspace] = opts[:workspace].name
+    end
+
+    # If we still don't have a :workspace value, just set it to the current workspace.
+    opts[:workspace] = workspace.name if opts[:workspace].nil?
+
     opts
   end
 
