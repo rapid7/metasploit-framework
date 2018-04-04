@@ -70,7 +70,7 @@ module Msf::DBManager::Workspace
     names.each do |name|
       workspace = framework.db.find_workspace(name)
       if workspace.nil?
-        error << "Workspace not found: #{name}"
+        error_msg << "Workspace not found: #{name}"
       elsif workspace.default?
         workspace.destroy
         workspace = framework.db.add_workspace(name)
