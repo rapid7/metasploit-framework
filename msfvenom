@@ -135,7 +135,7 @@ def parse_args(args)
   end
 
   opt.on('-b', '--bad-chars     <list>', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
-    require 'rex/text'
+    init_framework()
     opts[:badchars] = Rex::Text.hex_to_raw(b)
   end
 
@@ -189,7 +189,7 @@ def parse_args(args)
       datastore[k.upcase] = v.to_s
     end
     if opts[:payload].to_s =~ /[\_\/]reverse/ and datastore['LHOST'].nil?
-      require 'rex/socket'
+      init_framework()
       datastore['LHOST'] = Rex::Socket.source_address
     end
   end
