@@ -19,6 +19,17 @@ module Kernel
   end
 
   #
+  # Returns the kernel modules
+  #
+  # @return [String]
+  #
+  def kernel_modules
+    cmd_exec('cat /proc/modules').to_s
+  rescue
+    raise 'Could not determine kernel modules'
+  end
+
+  #
   # Returns true if kernel and hardware supports Supervisor Mode Access Prevention (SMAP), false if not.
   #
   # @return [Boolean]
