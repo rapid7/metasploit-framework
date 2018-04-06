@@ -160,6 +160,10 @@ module System
     end
   end
 
+  #
+  # Gets basic information about the system's CPU.
+  # @return [Hash]
+  #
   def get_cpu_info
     info = {}
     begin
@@ -175,6 +179,58 @@ module System
       raise "Could not get CPU information"
     end
   end
+
+  #
+  # Gets the hostname of the system
+  # @return [String]
+  #
+  def get_hostname
+    begin
+      cmd_exec('uname -n')
+    rescue
+      raise 'Unable to retrieve hostname'
+    end
+  end
+
+  #
+  # Gets the name of the current shell
+  # @return [String]
+  #
+  def get_shell_name
+    begin
+      cmd_exec('ps -p $$ | tail -1 | awk \'{ print $4 }\'')
+    rescue
+      raise 'Unable to gather shell name'
+    end
+  end
+
+  #
+  # Checks if the system has gcc installed
+  # @return [Boolean]
+  #
+  def has_gcc?
+    begin
+      result = cmd_exec('which gcc')
+      false if result.empty?
+      true
+    rescue
+      raise 'Unable to check for gcc'
+    end
+  end
+
+  #
+  # Gets the version of gcc
+  # @return [Gem::Version]
+  #
+  def gcc_version
+    begin
+      return Gem::Version.new(cmd_exec('gcc --version | head -n 1 | awk \'{print $4}\'')) if has_gcc?
+      raise 'System does not have gcc installed'
+    rescue
+      raise 'Unable to get gcc version'
+    end
+  end
+
 
 end # System
 end # Linux
