@@ -10,21 +10,21 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "Private IP Leakage to WebPage using WebRTC Function",
-       'Description'    => %q{
+        'Name'           => "Private IP Leakage to WebPage using WebRTC Function.",
+        'Description'    => %q(
         This module uses WebRTC component to gather complete client information and browser can
         disclose a private IP address in a STUN request.
-      },
+        ),
         'License'        => MSF_LICENSE,
         'Author'         => [
+          'Daniel Roesler', #JS Code
           'Dhiraj Mishra'  #MSF Module
-          'Daniel Roesler'  #JS Code
         ],
         'References'     => [
           [ 'CVE', '2018-6849' ],
           ['URL', 'https://datarift.blogspot.in/p/private-ip-leakage-using-webrtc.html']
         ],
-        'DisclosureDate' => 'Sep 5 2013',
+        'DisclosureDate' => 'Sep 05 2013',
         'Actions'        => [[ 'WebServer' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
