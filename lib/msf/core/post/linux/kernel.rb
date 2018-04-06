@@ -21,10 +21,10 @@ module Kernel
   #
   # Returns the kernel modules
   #
-  # @return [String]
+  # @return [Array]
   #
   def kernel_modules
-    cmd_exec('cat /proc/modules').to_s
+    cmd_exec('cat /proc/modules').to_s.scan(/^[^ ]+/)
   rescue
     raise 'Could not determine kernel modules'
   end
