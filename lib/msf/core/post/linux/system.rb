@@ -102,6 +102,79 @@ module System
     return system_data
   end
 
+  #
+  # Returns all listening services along with their ports
+  # @param portsonly Return the listening ports without their associated service
+  # @return [Hash]
+  # 
+  def get_listening_services(portsonly = false)
+    services = {}
+    begin
+      lines = cmd_exec('netstat -tulpn | wc -l')
+      cmd = "netstat -tulpn | tail -n #{lines - 2} | awk '{print $7}'"
+      cmd << " | cut -f1 -d '/'" if portsonly
+      full = cmd_exec(cmd)
+      full.delete!(':') # Only happens when getting services
+
+      if portsonly
+        ports = []
+        full.split("\n").each do |p|
+          ports << p
+        end
+        ports
+      else
+        full.split("\n").each do |s|
+          split = s.split('/')
+          services[:"#{split[0]}"] = split[1]
+        end
+      end
+
+      services
+    rescue
+      raise 'Could not gather listening ports'
+    end
+  end
+
+  #
+  # Gathers all SUID files on the filesystem.
+  # NOTE: This uses the Linux `find` command. It will most likely take a while to get all files.
+  # Consider specifying a more narrow find path.
+  # @param findpath The path on the system to start searching
+  # @return [Array]
+  def get_suid_files(findpath = '/')
+    begin
+      cmd_exec("find #{findpath} -perm -4000 -print").split("\n")
+    rescue
+      raise "Could not retrieve all SUID files"
+    end
+  end
+
+  #
+  # Gets the $PATH environment variable
+  #
+  def get_path
+    begin
+      cmd_exec('echo $PATH')
+    rescue
+      raise "Unable to determine path"
+    end
+  end
+
+  def get_cpu_info
+    info = {}
+    begin
+      cpuinfo = cmd_exec("lshw | grep -A9 '*-cpu' | tr -d '          '") # Holy hack
+      # This is probably a more platform independent way to parse the results (compared to splitting and assigning preset indices to values)
+      cpuinfo.split("\n").each do |l|
+        info[:speed]   = l.split(':')[1] if l =~ /capacity:/
+        info[:product] = l.split(':')[1] if l =~ /product:/
+        info[:vendor]  = l.split(':')[1] if l =~ /vendor:/
+      end
+      info
+    rescue
+      raise "Could not get CPU information"
+    end
+  end
 
 end # System
 end # Linux
