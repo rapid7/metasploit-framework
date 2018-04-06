@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name'           => "Private IP Leakage to WebPage using WebRTC Function.",
         'Description'    => %q(
         This module uses WebRTC component to gather complete client information and browser can
-        disclose a private IP address in a STUN request.
+        disclose a private IP address in a STUN request
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
@@ -130,13 +130,13 @@ getIPs(function(ip){
   def on_request_uri(cli, request)
     case request.method.downcase
     when 'get'
-      print_good("#{cli.peerhost}: Sending response (#{@html.size} bytes)")
+      print_status("#{cli.peerhost}: Sending response (#{@html.size} bytes)")
       send_response(cli, @html)
     when 'post'
-      print_good("#{cli.peerhost}: Received reply:")
-      puts request.to_s
+      print_status("#{cli.peerhost}: Received reply:")
+      print_line("#{puts request.to_s}")
     else
-      print_good("#{cli.peerhost}: Unhandled method: #{request.method}")
+      print_error("#{cli.peerhost}: Unhandled method: #{request.method}")
     end
   end
 end
