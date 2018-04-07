@@ -106,20 +106,21 @@ module System
   # Returns all listening services along with their ports
   # @param portsonly Return the listening ports without their associated service
   # @return [Hash]
-  # 
+  #
   def get_listening_services(portsonly = false)
     services = {}
     begin
-      lines = cmd_exec('netstat -tulpn | wc -l')
-      cmd = "netstat -tulpn | tail -n #{lines - 2} | awk '{print $7}'"
-      cmd << " | cut -f1 -d '/'" if portsonly
+      init = cmd_exec('netstat -tulpn')
+      raise "You must be root to get listening ports" if init =~ /\(No info could be read/
+      lines = full.split("\n").size
+      cmd = "netstat -tulpn | tail -n #{lines - 2}"
       full = cmd_exec(cmd)
       full.delete!(':') # Only happens when getting services
 
       if portsonly
         ports = []
         full.split("\n").each do |p|
-          ports << p
+          ports << p.split('/')[1]
         end
         ports
       else
@@ -142,22 +143,18 @@ module System
   # @param findpath The path on the system to start searching
   # @return [Array]
   def get_suid_files(findpath = '/')
-    begin
-      cmd_exec("find #{findpath} -perm -4000 -print").split("\n")
-    rescue
-      raise "Could not retrieve all SUID files"
-    end
+    cmd_exec("find #{findpath} -perm -4000 -print -xdev").to_s.split("\n")
+  rescue
+    raise "Could not retrieve all SUID files"
   end
 
   #
   # Gets the $PATH environment variable
   #
   def get_path
-    begin
-      cmd_exec('echo $PATH')
-    rescue
-      raise "Unable to determine path"
-    end
+    cmd_exec('echo $PATH').to_s
+  rescue
+    raise "Unable to determine path"
   end
 
   #
@@ -166,18 +163,18 @@ module System
   #
   def get_cpu_info
     info = {}
-    begin
-      cpuinfo = cmd_exec("lshw | grep -A9 '*-cpu' | tr -d '          '") # Holy hack
-      # This is probably a more platform independent way to parse the results (compared to splitting and assigning preset indices to values)
-      cpuinfo.split("\n").each do |l|
-        info[:speed]   = l.split(':')[1] if l =~ /capacity:/
-        info[:product] = l.split(':')[1] if l =~ /product:/
-        info[:vendor]  = l.split(':')[1] if l =~ /vendor:/
-      end
-      info
-    rescue
-      raise "Could not get CPU information"
+    cpuinfo = cmd_exec("cat /proc/cpuinfo").to_s
+    cpuinfo = cpuinfo.split("\n\n")[0]
+    # This is probably a more platform independent way to parse the results (compared to splitting and assigning preset indices to values)
+    cpuinfo.split("\n").each do |l|
+      info[:speed_mhz]   = l.split(': ')[1].to_i if l =~ /cpu_MHz/
+      info[:product]     = l.split(': ')[1]      if l =~ /model name/
+      info[:vendor]      = l.split(': ')[1]      if l =~ /vendor_id/
     end
+    info[:cores] = cpuinfo.size
+    info
+  rescue
+    raise "Could not get CPU information"
   end
 
   #
@@ -185,11 +182,9 @@ module System
   # @return [String]
   #
   def get_hostname
-    begin
-      cmd_exec('uname -n')
-    rescue
-      raise 'Unable to retrieve hostname'
-    end
+    cmd_exec('uname -n').to_s
+  rescue
+    raise 'Unable to retrieve hostname'
   end
 
   #
@@ -197,11 +192,10 @@ module System
   # @return [String]
   #
   def get_shell_name
-    begin
-      cmd_exec('ps -p $$ | tail -1 | awk \'{ print $4 }\'')
-    rescue
-      raise 'Unable to gather shell name'
-    end
+    psout = cmd_exec('ps -p $$').to_s
+    psout.split("\n").last.split(' ')[3]
+  rescue
+    raise 'Unable to gather shell name'
   end
 
   #
@@ -209,26 +203,43 @@ module System
   # @return [Boolean]
   #
   def has_gcc?
-    begin
-      result = cmd_exec('which gcc')
-      false if result.empty?
-      true
-    rescue
-      raise 'Unable to check for gcc'
-    end
+    command_exists? 'gcc'
+  rescue
+    raise 'Unable to check for gcc'
   end
 
   #
   # Gets the version of gcc
-  # @return [Gem::Version]
+  # @return [String]
   #
   def gcc_version
-    begin
-      return Gem::Version.new(cmd_exec('gcc --version | head -n 1 | awk \'{print $4}\'')) if has_gcc?
-      raise 'System does not have gcc installed'
-    rescue
-      raise 'Unable to get gcc version'
+    return cmd_exec('gcc --version | head -n 1').to_s.split(' ')[3] if has_gcc?
+    raise 'System does not have gcc installed'
+  rescue
+    raise 'Unable to get gcc version'
+  end
+
+  #
+  # Checks if the `cmd` is installed on the system
+  # @return [Boolean]
+  # 
+  def command_exists?(cmd)
+    cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
+  rescue
+    raise "Unable to check if command `#{cmd}` exists"
+  end
+
+  #
+  # Gets the process id(s) of `program`
+  # @return [Array]
+  # 
+  def pidof(program)
+    pids = []
+    full = cmd_exec('ps aux').to_s
+    full.split("\n").each do |p|
+      pids << p.split(' ')[1].to_i if p =~ program
     end
+    pids
   end
 
 
