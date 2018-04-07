@@ -9,7 +9,6 @@ RSpec.describe Msf::Module do
 
   it { is_expected.to respond_to :check }
   it { is_expected.to respond_to :debugging? }
-  it { is_expected.to respond_to_protected :derived_implementor? }
   it { is_expected.to respond_to :fail_with }
   it { is_expected.to respond_to :file_path }
   it { is_expected.to respond_to :framework }
