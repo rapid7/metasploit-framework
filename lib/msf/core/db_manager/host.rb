@@ -269,7 +269,7 @@ module Msf::DBManager::Host
   def update_host(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       # process workspace string for update if included in opts
-      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)

@@ -35,7 +35,7 @@ module HostDataProxy
   def report_hosts(hosts)
     begin
       data_service = self.get_data_service
-      add_opts_workspace(opts)
+      add_opts_workspace(hosts)
       data_service.report_hosts(hosts)
     rescue Exception => e
       self.log_error(e, "Problem reporting hosts")
@@ -45,7 +45,6 @@ module HostDataProxy
   def update_host(opts)
     begin
       data_service = self.get_data_service
-      add_opts_workspace(opts)
       data_service.update_host(opts)
     rescue Exception => e
       self.log_error(e, "Problem updating host")
@@ -55,7 +54,6 @@ module HostDataProxy
   def delete_host(opts)
     begin
       data_service = self.get_data_service
-      add_opts_workspace(opts)
       data_service.delete_host(opts)
     rescue Exception => e
       self.log_error(e, "Problem deleting host")

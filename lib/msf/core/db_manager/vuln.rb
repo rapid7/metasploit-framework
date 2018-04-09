@@ -255,8 +255,8 @@ module Msf::DBManager::Vuln
   # @return [Mdm::Vuln] The updated Mdm::Vuln object.
   def update_vuln(opts)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-    opts[:workspace] = wspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+    opts[:workspace] = wspace if wspace
     id = opts.delete(:id)
     Mdm::Vuln.update(id, opts)
   }

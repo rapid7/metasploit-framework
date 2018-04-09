@@ -22,12 +22,8 @@ module Msf::DBManager::Note
   # This methods returns a list of all notes in the database
   #
   def notes(opts)
-    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       search_term = opts.delete(:search_term)
       if search_term && !search_term.empty?
@@ -206,14 +202,10 @@ module Msf::DBManager::Note
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::Note] The updated Mdm::Note object.
   def update_note(opts)
-    # process workspace string for update if included in opts
-    wspace = opts.delete(:workspace)
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-      opts[:workspace] = wspace
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts[:workspace] = wspace if wspace
+
       id = opts.delete(:id)
       Mdm::Note.update(id, opts)
     }

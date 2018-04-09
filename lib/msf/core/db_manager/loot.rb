@@ -1,20 +1,5 @@
 module Msf::DBManager::Loot
   #
-  # Loot collection
-  #
-  #
-  # This method iterates the loot table calling the supplied block with the
-  # instance of each entry.
-  #
-  def each_loot(wspace=framework.db.workspace, &block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.loots.each do |note|
-      block.call(note)
-    end
-  }
-  end
-
-  #
   # Find or create a loot matching this type/data
   #
   def find_or_create_loot(opts)
@@ -97,7 +82,7 @@ module Msf::DBManager::Loot
   # @return [Mdm::Loot] The updated Mdm::Loot object.
   def update_loot(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
-      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)

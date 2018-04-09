@@ -21,10 +21,10 @@ module DBManager
     condition_set.reduce { |conditions, condition| conditions.or(condition).expr }
   end
 
-  def self.process_opts_workspace(opts, framework)
+  def self.process_opts_workspace(opts, framework, required = true)
     wspace = delete_opts_workspace(opts)
-    if wspace.nil? || ((wspace.kind_of? String) && wspace.empty?)
-      raise ArgumentError.new("opts must include a valid :workspace.")
+    if required && (wspace.nil? || ((wspace.kind_of? String) && wspace.empty?))
+      raise ArgumentError.new("opts must include a valid :workspace")
     end
 
     if wspace.kind_of? String
