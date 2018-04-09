@@ -73,7 +73,8 @@ def run(args):
         elif tree.xpath('//input[@name="HTTPPassword"]/@value') != []:
             pwd_hash = tree.xpath('//input[@name="HTTPPassword"]/@value')[0]
         else:
-            pwd_hash = ''
+            logging.error('Password hash not found for {}'.format(username))
+            continue
         logging.info(username + ':' + pwd_hash)
 
 if __name__ == '__main__':
