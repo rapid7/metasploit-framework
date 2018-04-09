@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
       'Description'          => %q(
         This module will login with the specified username/password and execute the
         supplied command as a hidden process. Output is not returned by default, by setting
-        CMDOUT to false output will be redirected to a temp file and read back in to
+        CMDOUT to true output will be redirected to a temp file and read back in to
         display. By setting advanced option SETPASS to true, it will reset the users
         password and then execute the command.
                             ),
@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Post
     outpath = "#{system_temp}\\#{Rex::Text.rand_text_alpha(8)}.txt"
 
     # Create output file and set permissions so everyone can access
-    touch(outpath)
+    touch(outpath) if cmdout
 
     cmdstr = "cmd.exe /c #{cmd}"
     cmdstr = "cmd.exe /c #{cmd} > #{outpath}" if cmdout
@@ -121,7 +121,9 @@ class MetasploitModule < Msf::Post
       vprint_status("Thread Id: #{pi[:thread_id]}")
       print_status("Command output:\r\n#{tmpout}") unless tmpout.nil?
     end
+
     print_status("Cleaning up...")
+    print_status("Removing temp file #{outpath}")
     rm_f(outpath)
   end
 end
