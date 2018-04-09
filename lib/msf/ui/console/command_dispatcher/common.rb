@@ -12,7 +12,7 @@ module CommandDispatcher
   # These are functions that are used in two or more command dispatchers.
 
 module Common
-  
+
   # Parse +arg+ into a {Rex::Socket::RangeWalker} and append the result into +host_ranges+
   #
   # @note This modifies +host_ranges+ in place
@@ -41,7 +41,7 @@ module Common
     end
     return true
   end
-  
+
   #
   # Parse +arg+ into an array of ports and append the result into +port_ranges+
   #
@@ -62,7 +62,7 @@ module Common
     end
     return true
   end
-  
+
   #
   # Set RHOSTS in the +active_module+'s (or global if none) datastore from an array of addresses
   #
@@ -119,6 +119,7 @@ module Common
       if (p)
         p_opt = Serializer::ReadableText.dump_options(p, '   ')
         print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
+        print("   **DisablePayloadHandler: True   (RHOST and RPORT settings will be ignored!)**\n\n") if mod.datastore['DisablePayloadHandler']
       end
     end
 
@@ -137,8 +138,8 @@ module Common
     # Uncomment this line if u want target like msf2 format
     #print("\nTarget: #{mod.target.name}\n\n")
   end
-  
-  
+
+
 end
 
 end
