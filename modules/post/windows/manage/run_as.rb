@@ -121,5 +121,7 @@ class MetasploitModule < Msf::Post
       vprint_status("Thread Id: #{pi[:thread_id]}")
       print_status("Command output:\r\n#{tmpout}") unless tmpout.nil?
     end
+    print_status("Cleaning up...")
+    rm_f(outpath)
   end
 end
