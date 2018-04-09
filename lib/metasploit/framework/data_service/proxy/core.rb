@@ -96,7 +96,6 @@ class DataProxy
   # Used to bridge the local db
   #
   def method_missing(method, *args, &block)
-    dlog ("Attempting to delegate method: #{method}")
     unless @current_data_service.nil?
       @current_data_service.send(method, *args, &block)
     end
