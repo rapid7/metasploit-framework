@@ -67,11 +67,11 @@ def run(args):
         tree = html.fromstring(r.content)
         username = tree.xpath('//input[@name="$dspShortName"]/@value')[0]
         if tree.xpath('//input[@name="$dspHTTPPassword"]/@value') != []:
-            pwd_hash = tree.xpath('//input[@name="$dspHTTPPassword"]/@value')
+            pwd_hash = tree.xpath('//input[@name="$dspHTTPPassword"]/@value')[0]
         elif tree.xpath('//input[@name="dspHTTPPassword"]/@value') != []:
-            pwd_hash = tree.xpath('//input[@name="dspHTTPPassword"]/@value')
+            pwd_hash = tree.xpath('//input[@name="dspHTTPPassword"]/@value')[0]
         elif tree.xpath('//input[@name="HTTPPassword"]/@value') != []:
-            pwd_hash = tree.xpath('//input[@name="HTTPPassword"]/@value')
+            pwd_hash = tree.xpath('//input[@name="HTTPPassword"]/@value')[0]
         else:
             pwd_hash = ''
         logging.info(username + ':' + pwd_hash)
