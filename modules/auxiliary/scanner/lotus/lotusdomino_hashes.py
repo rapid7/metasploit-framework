@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# standard module
+# standard modules
 import re
 import logging
 
@@ -55,7 +55,6 @@ def run(args):
     except requests.exceptions.RequestException as e:
         logging.error('Requests exception - {}'.format(e))
         return
-
 
     tmplist = re.findall(r'<a href="(/names\.nsf/[0-9a-z]*/[0-9a-z]*\?OpenDocument)', r.text)
     sresults = list(set(tmplist))
