@@ -858,6 +858,7 @@ class Core
   # which session a given subnet should route through.
   #
   def cmd_route(*args)
+   begin
     args << 'print' if args.length == 0
 
     action = args.shift
@@ -992,6 +993,9 @@ class Core
     else
       cmd_route_help
     end
+   rescue => error
+     print_error(error.message)
+   end
   end
 
   #
