@@ -252,6 +252,10 @@ module System
     raise 'Unable to check for noexec volume'
   end
 
+  #
+  # Checks if `mount_path` is mounted with nosuid
+  # @return [Boolean]
+  #
   def nosuid?(mount_path)
     cmd_exec("mount | grep --color=never ' #{mount_path} '").to_s.include? 'nosuid'
   rescue
