@@ -75,10 +75,6 @@ msf5 auxiliary(scanner/etcd/open_key_scanner) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
 msf5 auxiliary(scanner/etcd/open_key_scanner) > run
 
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
-msf5 auxiliary(scanner/etcd/open_key_scanner) > run
-
 [+] 127.0.0.1:2379
 Version: {"etcdserver":"3.1.3","etcdcluster":"3.1.0"}
 Data: {

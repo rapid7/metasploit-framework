@@ -26,7 +26,7 @@ begin
       self.extend(::Readline)
 
       if (tab_complete_proc)
-        ::Readline.basic_word_break_characters = "\x00"
+        ::Readline.basic_word_break_characters = ""
         ::Readline.completion_proc = tab_complete_proc
         @rl_saved_proc = tab_complete_proc
       end
