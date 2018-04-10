@@ -163,15 +163,15 @@ module System
   #
   def get_cpu_info
     info = {}
-    cpuinfo = cmd_exec("cat /proc/cpuinfo").to_s
-    cpuinfo = cpuinfo.split("\n\n")[0]
+    orig = cmd_exec("cat /proc/cpuinfo").to_s
+    cpuinfo = orig.split("\n\n")[0]
     # This is probably a more platform independent way to parse the results (compared to splitting and assigning preset indices to values)
     cpuinfo.split("\n").each do |l|
-      info[:speed_mhz]   = l.split(': ')[1].to_i if l =~ /cpu_MHz/
+      info[:speed_mhz]   = l.split(': ')[1].to_i if l =~ /cpu MHz/
       info[:product]     = l.split(': ')[1]      if l =~ /model name/
       info[:vendor]      = l.split(': ')[1]      if l =~ /vendor_id/
     end
-    info[:cores] = cpuinfo.size
+    info[:cores] = orig.split("\n\n").size
     info
   rescue
     raise "Could not get CPU information"
