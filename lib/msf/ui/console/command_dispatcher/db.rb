@@ -1653,8 +1653,8 @@ class Db
   # Database management
   #
   def db_check_driver
-    if(not framework.db.driver)
-      print_error("No database driver installed. Try 'gem install pg'")
+    unless framework.db.driver
+      print_error("No database driver installed.")
       return false
     end
     true
@@ -1909,6 +1909,12 @@ class Db
   #######
 
   def add_data_service(*args)
+    # database is required to use Mdm objects
+    unless framework.db.active
+      print_error("Database not connected; connect to an existing database with db_connect before using data_services")
+      return
+    end
+
     protocol = "http"
     port = 8080
     https_opts = {}
