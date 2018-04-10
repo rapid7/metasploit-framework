@@ -259,7 +259,7 @@ module System
   def nosuid?(mount_path)
     cmd_exec("mount | grep --color=never ' #{mount_path} '").to_s.include? 'nosuid'
   rescue
-    raise 'Unable to check for noexec volume'
+    raise 'Unable to check for nosuid volume'
   end
 
 
