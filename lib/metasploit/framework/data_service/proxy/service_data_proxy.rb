@@ -3,6 +3,7 @@ module ServiceDataProxy
   def services(wspace = workspace.name, opts = {})
     begin
       data_service = self.get_data_service
+      add_opts_workspace(opts, wspace)
       data_service.services(opts)
     rescue Exception => e
       self.log_error(e, 'Problem retrieving services')

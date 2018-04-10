@@ -141,7 +141,7 @@ module Msf::DBManager::Service
 
   # Returns a list of all services in the database
   def services(opts)
-    wspace = Msf::Util::DBManager.delete_opts_workspace(opts) # Mdm::Service apparently doesn't have an upstream Mdm::Workspace association
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     search_term = opts.delete(:search_term)
     opts["hosts.address"] = opts.delete(:addresses)

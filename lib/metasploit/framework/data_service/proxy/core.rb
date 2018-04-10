@@ -123,9 +123,6 @@ class DataProxy
   end
 
   def add_opts_workspace(opts, wspace = nil)
-    # opts[:workspace] = workspace.name if opts[:workspace].nil? && opts[:wspace].nil?
-    # opts
-
     opts[:workspace] = wspace if wspace
 
     # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
