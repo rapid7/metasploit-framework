@@ -138,7 +138,7 @@ getIPs(function(ip){
       values.each do |value|
          begin
             ip = IPAddr.new value
-	    print_line("Fetched Private IP: #{ip.to_s}")
+            print_line("Fetched Private IP: #{ip.to_s}")
          rescue
          end
      end
