@@ -132,9 +132,9 @@ module Msf
       @var_name   = opts.fetch(:var_name, 'buf')
       @smallest   = opts.fetch(:smallest, false)
       @encoder_space = opts.fetch(:encoder_space, @space)
-      @encryption_format = opts.fetch(:encryption_format, 'base64')
-      @encryption_key = opts.fetch(:encryption_key, '')
-      @encryption_iv = opts.fetch(:encryption_iv, '')
+      @encryption_format = opts.fetch(:encryption_format, nil)
+      @encryption_key = opts.fetch(:encryption_key, nil)
+      @encryption_iv = opts.fetch(:encryption_iv, nil)
 
       @framework  = opts.fetch(:framework)
 
@@ -288,11 +288,10 @@ module Msf
     # @param shellcode [String] the processed shellcode to be formatted
     # @return [String] The final formatted form of the payload
     def format_payload(shellcode)
-      encryption_opts = {
-        format: encryption_format,
-        iv: encryption_iv,
-        key: encryption_key
-      }
+      encryption_opts = {}
+      encryption_opts[:format] = encryption_format if encryption_format
+      encryption_opts[:iv] = encryption_iv if encryption_iv
+      encryption_opts[:key] = encryption_key if encryption_key
 
       case format.downcase
         when "js_be"
