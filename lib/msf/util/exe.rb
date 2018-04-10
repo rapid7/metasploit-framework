@@ -20,6 +20,7 @@ require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
 require 'msf/core/exe/segment_appender'
+require 'msf/core/payload_generator'
 
   # Generates a default template
   #
