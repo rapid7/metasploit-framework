@@ -110,8 +110,8 @@ module System
   def get_listening_services(portsonly = false)
     services = {}
     begin
-      init = cmd_exec('netstat -tulpn')
-      raise "You must be root to get listening ports" if init =~ /\(No info could be read/
+      full = cmd_exec('netstat -tulpn')
+      raise "You must be root to get listening ports" if full =~ /\(No info could be read/
       lines = full.split("\n").size
       cmd = "netstat -tulpn | tail -n #{lines - 2}"
       full = cmd_exec(cmd)
@@ -222,7 +222,7 @@ module System
   #
   # Checks if the `cmd` is installed on the system
   # @return [Boolean]
-  # 
+  #
   def command_exists?(cmd)
     cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
   rescue
@@ -232,14 +232,30 @@ module System
   #
   # Gets the process id(s) of `program`
   # @return [Array]
-  # 
+  #
   def pidof(program)
     pids = []
     full = cmd_exec('ps aux').to_s
-    full.split("\n").each do |p|
-      pids << p.split(' ')[1].to_i if p =~ program
+    full.split("\n").each do |pid|
+      pids << pid.split(' ')[1].to_i if pid =~ /#{program}/
     end
     pids
+  end
+
+  #
+  # Checks if `mount_path` is mounted with noexec
+  # @return [Boolean]
+  #
+  def noexec?(mount_path)
+    cmd_exec("mount | grep --color=never ' #{mount_path} '").to_s.include? 'noexec'
+  rescue
+    raise 'Unable to check for noexec volume'
+  end
+
+  def nosuid?(mount_path)
+    cmd_exec("mount | grep --color=never ' #{mount_path} '").to_s.include? 'nosuid'
+  rescue
+    raise 'Unable to check for noexec volume'
   end
 
 
