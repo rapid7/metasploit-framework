@@ -121,7 +121,7 @@ def parse_args(args)
     opts[:encryption_key] = e
   end
 
-  opt.on('--encrypt-iv      <value>', String, 'An init vector for the encryption') do |e|
+  opt.on('--encrypt-iv      <value>', String, 'An initialization vector for the encryption') do |e|
     opts[:encryption_iv] = e
   end
 

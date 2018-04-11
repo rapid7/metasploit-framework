@@ -140,12 +140,26 @@ module Buffer
 
     case encryption_opts[:format]
     when 'aes256'
+      if encryption_opts[:iv].blank?
+        raise ArgumentError, 'Initialization vector is missing'
+      elsif encryption_opts[:key].blank?
+        raise ArgumentError, 'Encryption key is missing'
+      end
+
       buf = Rex::Text.encrypt_aes256(encryption_opts[:iv], encryption_opts[:key], value)
     when 'base64'
       buf = Rex::Text.encode_base64(value)
     when 'xor'
+      if encryption_opts[:key].blank?
+        raise ArgumentError, 'XOR key is missing'
+      end
+
       buf = Rex::Text.xor(encryption_opts[:key], value)
     when 'rc4'
+      if encryption_opts[:key].blank?
+        raise ArgumentError, 'Encryption key is missing'
+      end
+
       buf = Rex::Text.rc4(encryption_opts[:key], value)
     else
       raise ArgumentError, "Unsupported encryption format: #{encryption_opts[:format]}", caller
