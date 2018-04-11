@@ -42,5 +42,6 @@ msf auxiliary(gather/browser_lanipleak) >
 [*] Using URL: http://192.168.1.104:8080/mIV1EgzDiEEIMT
 [*] Server started.
 
-msf auxiliary(gather/browser_lanipleak) >
+[*] 192.168.1.104: Sending response (2523 bytes)
+[+] 192.168.1.104: Found IP address: X.X.X.X
 ```
