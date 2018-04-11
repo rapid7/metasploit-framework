@@ -20,7 +20,6 @@ require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
 require 'msf/core/exe/segment_appender'
-require 'msf/core/payload_generator'
 
   # Generates a default template
   #
@@ -642,6 +641,7 @@ require 'msf/core/payload_generator'
       opts[:payload] = 'stdin'
       opts[:encoder] = '@x86/service,'+(opts[:serviceencoder] || '')
 
+      require 'msf/core/payload_generator'
       venom_generator = Msf::PayloadGenerator.new(opts)
       code_service = venom_generator.multiple_encode_payload(code)
       return to_winpe_only(framework, code_service, opts)
