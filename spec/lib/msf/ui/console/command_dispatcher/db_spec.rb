@@ -173,16 +173,15 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -a,--add                  Add a note to the list of addresses, instead of listing",
           "  -d,--delete               Delete the hosts instead of searching",
           "  -n,--note <data>          Set the data for a new note (only with -a)",
-          "  -t <type1,type2>          Search for a list of types",
+          "  -t,--type <type1,type2>   Search for a list of types, or set single type for add",
           "  -h,--help                 Show this help information",
           "  -R,--rhosts               Set RHOSTS from the results of the search",
-          "  -S,--search               Regular expression to match for search",
+          "  -S,--search               Search string to filter by",
           "  -o,--output               Save the notes to a csv file",
-          "  --sort <field1,field2>    Fields to sort by (case sensitive)",
           "Examples:",
           "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
           "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41",
-          "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
+          "  notes -S 'nmap.nse.(http|rtsp)'"
         ]
 
       end
