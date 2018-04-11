@@ -359,15 +359,6 @@ class Module
     self.module_store = {}
   end
 
-  #
-  # Checks to see if a derived instance of a given module implements a method
-  # beyond the one that is provided by a base class.  This is a pretty lame
-  # way of doing it, but I couldn't find a better one, so meh.
-  #
-  def derived_implementor?(parent, method_name)
-    (self.method(method_name).to_s.match(/#{parent}[^:]/)) ? false : true
-  end
-
   attr_writer   :platform, :references # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
