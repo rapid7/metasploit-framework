@@ -551,7 +551,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 
   def cmd_ls_help
-    print_line "Usage: ls [options] [mask]"
+    print_line "Usage: ls [options] [glob/path]"
     print_line
     print_line "Lists contents of directory or file info, searchable"
     print_line @@ls_opts.usage
