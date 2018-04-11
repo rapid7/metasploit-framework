@@ -923,12 +923,11 @@ class Db
     print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
     print_line "  -S,--search               Search string to filter by"
     print_line "  -o,--output               Save the notes to a csv file"
-    print_line "  --sort <field1,field2>    Fields to sort by (case sensitive)"
     print_line
     print_line "Examples:"
     print_line "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
     print_line "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
-    print_line "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
+    print_line "  notes -S 'nmap.nse.(http|rtsp)'"
     print_line
   end
 
@@ -969,8 +968,6 @@ class Db
         set_rhosts = true
       when '-S', '--search'
         search_term = args.shift
-      when '--sort'
-        sort_term = args.shift
       when '-o', '--output'
         output_file = args.shift
       when '-u', '--update'  # TODO: This is currently undocumented because it's not officially supported.
@@ -1039,42 +1036,6 @@ class Db
         opts = {hosts: {address: host_search}, workspace: framework.db.workspace, search_term: search_term}
         opts[:ntype] = types if mode != :update && types && !types.empty?
         note_list.concat(framework.db.notes(opts))
-      end
-    end
-
-    # Sort the notes based on the sort_term provided
-    if sort_term != nil
-      sort_terms = sort_term.split(",")
-      note_list.sort_by! do |note|
-        orderlist = []
-        sort_terms.each do |term|
-          term = "ntype" if term == "type"
-          term = "created_at" if term == "Time"
-          if term == nil
-            orderlist << ""
-          elsif term == "service"
-            if note.service != nil
-              orderlist << make_sortable(note.service.name)
-            end
-          elsif term == "port"
-            if note.service != nil
-              orderlist << make_sortable(note.service.port)
-            end
-          elsif term == "output"
-            orderlist << make_sortable(note.data["output"])
-          elsif note.respond_to?(term, true)
-            orderlist << make_sortable(note.send(term))
-          elsif note.respond_to?(term.to_sym, true)
-            orderlist << make_sortable(note.send(term.to_sym))
-          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term, true)
-            orderlist << make_sortable(note.send("data").send(term))
-          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term.to_sym, true)
-            orderlist << make_sortable(note.send("data").send(term.to_sym))
-          else
-            orderlist << ""
-          end
-        end
-        orderlist
       end
     end
 
