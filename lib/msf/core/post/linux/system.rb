@@ -247,7 +247,11 @@ module System
   # @return [Boolean]
   #
   def noexec?(mount_path)
-    cmd_exec("mount | grep --color=never ' #{mount_path} '").to_s.include? 'noexec'
+    mount = cmd_exec('cat /proc/mounts').to_s
+    mount.lines.each do |l|
+      true if l =~ Regexp.new("#{mount_path} (.*)noexec(.*)")
+    end
+    false
   rescue
     raise 'Unable to check for noexec volume'
   end
@@ -257,7 +261,11 @@ module System
   # @return [Boolean]
   #
   def nosuid?(mount_path)
-    cmd_exec("mount | grep --color=never ' #{mount_path} '").to_s.include? 'nosuid'
+    mount = cmd_exec('cat /proc/mounts').to_s
+    mount.lines.each do |l|
+      true if l =~ Regexp.new("#{mount_path} (.*)nosuid(.*)")
+    end
+    false
   rescue
     raise 'Unable to check for nosuid volume'
   end
