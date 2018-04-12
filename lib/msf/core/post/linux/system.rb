@@ -111,7 +111,7 @@ module System
     services = {}
     begin
       full = cmd_exec('netstat -tulpn')
-      raise "You must be root to get listening ports" if full =~ /\(No info could be read/
+      raise "You must be root to get listening ports" if full.include? '(No info could be read'
       lines = full.split("\n").size
       cmd = "netstat -tulpn | tail -n #{lines - 2}"
       full = cmd_exec(cmd)
@@ -122,7 +122,7 @@ module System
         full.split("\n").each do |p|
           ports << p.split('/')[1]
         end
-        ports
+        return ports
       else
         full.split("\n").each do |s|
           split = s.split('/')
@@ -167,9 +167,9 @@ module System
     cpuinfo = orig.split("\n\n")[0]
     # This is probably a more platform independent way to parse the results (compared to splitting and assigning preset indices to values)
     cpuinfo.split("\n").each do |l|
-      info[:speed_mhz]   = l.split(': ')[1].to_i if l =~ /cpu MHz/
-      info[:product]     = l.split(': ')[1]      if l =~ /model name/
-      info[:vendor]      = l.split(': ')[1]      if l =~ /vendor_id/
+      info[:speed_mhz]   = l.split(': ')[1].to_i if l.include? 'cpu MHz'
+      info[:product]     = l.split(': ')[1]      if l.include? 'model name'
+      info[:vendor]      = l.split(': ')[1]      if l.include? 'vendor_id'
     end
     info[:cores] = orig.split("\n\n").size
     info
@@ -237,7 +237,7 @@ module System
     pids = []
     full = cmd_exec('ps aux').to_s
     full.split("\n").each do |pid|
-      pids << pid.split(' ')[1].to_i if pid =~ /#{program}/
+      pids << pid.split(' ')[1].to_i if pid.include? program
     end
     pids
   end
@@ -249,7 +249,7 @@ module System
   def noexec?(mount_path)
     mount = cmd_exec('cat /proc/mounts').to_s
     mount.lines.each do |l|
-      true if l =~ Regexp.new("#{mount_path} (.*)noexec(.*)")
+      return true if l =~ Regexp.new("#{mount_path} (.*)noexec(.*)")
     end
     false
   rescue
@@ -263,11 +263,31 @@ module System
   def nosuid?(mount_path)
     mount = cmd_exec('cat /proc/mounts').to_s
     mount.lines.each do |l|
-      true if l =~ Regexp.new("#{mount_path} (.*)nosuid(.*)")
+      return true if l =~ Regexp.new("#{mount_path} (.*)nosuid(.*)")
     end
     false
   rescue
     raise 'Unable to check for nosuid volume'
+  end
+
+  #
+  # Checks for protected hardlinks on the system
+  # @return [Boolean]
+  #
+  def protected_hardlinks?
+    read_file('/proc/sys/fs/protected_hardlinks').to_s.eql? '1'
+  rescue
+    raise 'Could not determine protected_hardlinks status'
+  end
+
+  #
+  # Checks for protected symlinks on the system
+  # @return [Boolean]
+  #
+  def protected_symlinks?
+    read_file('/proc/sys/fs/protected_symlinks').to_s.eql? '1'
+  rescue
+    raise 'Could not determine protected_symlinks status'
   end
 
 
