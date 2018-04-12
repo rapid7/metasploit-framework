@@ -1130,22 +1130,6 @@ class Db
     end
   end
 
-  def make_sortable(input)
-    case input
-    when String
-      input = input.downcase
-    when Integer
-      input = "%016" % input
-    when Time
-      input = input.strftime("%Y%m%d%H%M%S%L")
-    when NilClass
-      input = ""
-    else
-      input = input.inspect.downcase
-    end
-    input
-  end
-
   def cmd_loot_help
     print_line "Usage: loot <options>"
     print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
