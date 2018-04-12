@@ -297,9 +297,7 @@ module System
   # @return [String]
   #
   def glibc_version
-    if !command_exists? 'ldd'
-      raise 'glibc is not installed'
-    end
+    raise 'glibc is not installed' unless command_exists? 'ldd'
     cmd_exec('ldd --version').scan(/^ldd\s+\(.*\)\s+([\d.]+)/).flatten.first
   rescue
     raise 'Could not determine glibc version'
