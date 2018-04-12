@@ -51,7 +51,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :db_parse_db_uri_postgresql }
   it { is_expected.to respond_to :deprecated_commands }
   it { is_expected.to respond_to :each_host_range_chunk }
-  it { is_expected.to respond_to :make_sortable }
   it { is_expected.to respond_to :name }
   it { is_expected.to respond_to :set_rhosts_from_addrs }
 
