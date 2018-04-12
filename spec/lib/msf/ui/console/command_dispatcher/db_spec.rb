@@ -177,6 +177,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -R,--rhosts               Set RHOSTS from the results of the search",
           "  -S,--search               Search string to filter by",
           "  -o,--output               Save the notes to a csv file",
+          "  -O <column>               Order rows by specified column number",
           "Examples:",
           "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
           "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41",

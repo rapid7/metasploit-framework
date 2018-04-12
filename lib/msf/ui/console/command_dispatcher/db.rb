@@ -923,6 +923,7 @@ class Db
     print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
     print_line "  -S,--search               Search string to filter by"
     print_line "  -o,--output               Save the notes to a csv file"
+    print_line "  -O <column>               Order rows by specified column number"
     print_line
     print_line "Examples:"
     print_line "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
@@ -970,6 +971,11 @@ class Db
         search_term = args.shift
       when '-o', '--output'
         output_file = args.shift
+      when '-O'
+        if (order_by = args.shift.to_i - 1) < 0
+          print_error('Please specify a column number starting from 1')
+          return
+        end
       when '-u', '--update'  # TODO: This is currently undocumented because it's not officially supported.
         mode = :update
       when '-h', '--help'
@@ -1043,7 +1049,8 @@ class Db
     table = Rex::Text::Table.new(
       'Header'  => 'Notes',
       'Indent'  => 1,
-      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data']
+      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data'],
+      'SortIndex' => order_by
     )
 
     matched_note_ids = []
