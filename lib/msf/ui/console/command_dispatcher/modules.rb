@@ -410,7 +410,7 @@ module Msf
           end
 
           def cmd_search_help
-            print_line "Usage: search [keywords]"
+            print_line "Usage: search <keywords>"
             print_line
             print_line "Keywords:"
             {
@@ -437,10 +437,11 @@ module Msf
           #
           def cmd_search(*args)
             if args.empty?
-              print_error("Argument required")
+              print_error("Argument required\n")
               cmd_search_help
               return
             end
+
             match   = ''
             search_term = nil
             @@search_opts.parse(args) { |opt, idx, val|
