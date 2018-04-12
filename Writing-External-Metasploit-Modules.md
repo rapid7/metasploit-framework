@@ -28,7 +28,7 @@ Describe
   "properties": {
     "jsonrpc": {"enum": ["2.0"]},
     "id": {"type": "string"},
-    "response": {
+    "result": {
       "type": "object",
       "required": ["options", "meta", "capabilities"],
       "properties": {
@@ -123,7 +123,7 @@ Run
   "properties": {
     "jsonrpc": {"enum": ["2.0"]},
     "id": {"type": "string"},
-    "response": {
+    "result": {
       "type": "object",
       "required": ["message"]
       "properties": {
