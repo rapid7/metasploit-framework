@@ -243,11 +243,12 @@ module System
   end
 
   #
-  # Checks if `mount_path` is mounted with noexec
+  # Checks if `file_path` is mounted on a noexec mount point
   # @return [Boolean]
   #
-  def noexec?(mount_path)
+  def noexec?(file_path)
     mount = cmd_exec('cat /proc/mounts').to_s
+    mount_path = get_mount_path(file_path)
     mount.lines.each do |l|
       return true if l =~ Regexp.new("#{mount_path} (.*)noexec(.*)")
     end
@@ -257,11 +258,12 @@ module System
   end
 
   #
-  # Checks if `mount_path` is mounted with nosuid
+  # Checks if `file_path` is mounted on a nosuid mount point
   # @return [Boolean]
   #
-  def nosuid?(mount_path)
+  def nosuid?(file_path)
     mount = cmd_exec('cat /proc/mounts').to_s
+    mount_path = get_mount_path(file_path)
     mount.lines.each do |l|
       return true if l =~ Regexp.new("#{mount_path} (.*)nosuid(.*)")
     end
@@ -288,6 +290,30 @@ module System
     read_file('/proc/sys/fs/protected_symlinks').to_s.eql? '1'
   rescue
     raise 'Could not determine protected_symlinks status'
+  end
+
+  #
+  # Gets the version of glibc
+  # @return [String]
+  #
+  def glibc_version
+    if !command_exists? 'ldd'
+      raise 'glibc is not installed'
+    end
+    cmd_exec('ldd --version').scan(/^ldd\s+\(.*\)\s+([\d.]+)/).flatten.first
+  rescue
+    raise 'Could not determine glibc version'
+  end
+
+  #
+  # Gets the mount point of `filepath`
+  # @param [String] filepath The filepath to get the mount point
+  # @return [String]
+  #
+  def get_mount_path_of(filepath)
+    cmd_exec("df \"#{filepath}\" | tail -1").split(' ')[5]
+  rescue
+    raise "Unable to get mount path of #{filepath}"
   end
 
 
