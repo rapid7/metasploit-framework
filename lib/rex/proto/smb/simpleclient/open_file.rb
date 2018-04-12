@@ -84,13 +84,16 @@ class OpenFile
     # Keep writing data until we run out
     while (chunk.length > 0)
       ok = self.client.write(self.file_id, fptr, chunk)
-
-
       cl = ok
 
       # Partial write, push the failed data back into the queue
       if (cl != chunk.length)
-        data = chunk.slice(cl - 1, chunk.length - cl) + data
+        begin
+          data = chunk.slice(cl - 1, chunk.length - cl) + data
+        rescue
+          self.write(data, offset)
+          return
+        end
       end
 
       # Increment our painter and grab the next chunk
