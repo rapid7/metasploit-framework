@@ -351,7 +351,7 @@ if generator_opts[:list_options]
   $stderr.puts "Advanced options for #{payload_mod.fullname}:\n\n"
   $stdout.puts ::Msf::Serializer::ReadableText.dump_advanced_options(payload_mod, '    ')
 
-  $stderr.puts "encrypt options for #{payload_mod.fullname}:\n\n"
+  $stderr.puts "Encryption options for #{payload_mod.fullname}:\n\n"
   $stdout.puts ::Msf::Serializer::ReadableText.dump_encrypt_options(payload_mod, '    ')
   exit(0)
 end
