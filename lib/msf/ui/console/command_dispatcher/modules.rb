@@ -436,6 +436,11 @@ module Msf
           # Searches modules for specific keywords
           #
           def cmd_search(*args)
+            if args.empty?
+              print_error("Argument required")
+              cmd_search_help
+              return
+            end
             match   = ''
             search_term = nil
             @@search_opts.parse(args) { |opt, idx, val|
