@@ -649,7 +649,7 @@ class Db
           print_line "  -c <col1,col2>    Only show the given columns"
           print_line "  -h,--help         Show this help information"
           print_line "  -s <name>         Name of the service to add"
-          print_line "  -p <port>         Port number of the service being added"
+          print_line "  -p <port>         Search for a list of ports"
           print_line "  -r <protocol>     Protocol type of the service being added [tcp|udp]"
           print_line "  -u,--up           Only show services which are up"
           print_line "  -o <file>         Send output to a file in csv format"
@@ -717,6 +717,7 @@ class Db
     each_host_range_chunk(host_ranges) do |host_search|
       break if !host_search.nil? && host_search.empty?
       opts[:addresses] = host_search
+      opts[:port] = ports if ports
       framework.db.services(framework.db.workspace, opts).each do |service|
 
         host = service.host
@@ -1653,8 +1654,8 @@ class Db
   # Database management
   #
   def db_check_driver
-    if(not framework.db.driver)
-      print_error("No database driver installed. Try 'gem install pg'")
+    unless framework.db.driver
+      print_error("No database driver installed.")
       return false
     end
     true
@@ -1909,6 +1910,12 @@ class Db
   #######
 
   def add_data_service(*args)
+    # database is required to use Mdm objects
+    unless framework.db.active
+      print_error("Database not connected; connect to an existing database with db_connect before using data_services")
+      return
+    end
+
     protocol = "http"
     port = 8080
     https_opts = {}

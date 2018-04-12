@@ -27,11 +27,15 @@ module DataService
   include LootDataService
 
   def name
-    raise 'DataLService#name is not implemented';
+    raise 'DataService#name is not implemented';
   end
 
   def active
-    raise 'DataLService#active is not implemented';
+    raise 'DataService#active is not implemented';
+  end
+
+  def is_local?
+    raise 'DataService#is_local? is not implemented';
   end
 
   #
@@ -41,11 +45,14 @@ module DataService
     attr_reader :id
     attr_reader :name
     attr_reader :active
+    attr_reader :is_local
 
-    def initialize (id, name, active)
+    def initialize (id, name, active, is_local)
       self.id = id
       self.name = name
       self.active = active
+      self.is_local = is_local
+
     end
 
     #######
@@ -55,6 +62,7 @@ module DataService
     attr_writer :id
     attr_writer :name
     attr_writer :active
+    attr_writer :is_local
 
   end
 end

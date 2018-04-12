@@ -23,7 +23,7 @@ module Msf::DBManager::Service
   # service instance of each entry.
   def each_service(wspace=workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    services(wspace).each do |service|
+    wspace.services.each do |service|
       block.call(service)
     end
   }
@@ -141,7 +141,10 @@ module Msf::DBManager::Service
 
   # Returns a list of all services in the database
   def services(opts)
-    opts.delete(:workspace) # Mdm::Service apparently doesn't have an upstream Mdm::Workspace association
+    wspace = opts.delete(:workspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
     search_term = opts.delete(:search_term)
     opts["hosts.address"] = opts.delete(:addresses)
     opts.compact!
@@ -149,9 +152,9 @@ module Msf::DBManager::Service
   ::ActiveRecord::Base.connection_pool.with_connection {
     if search_term && !search_term.empty?
       column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
-      Mdm::Service.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
+      wspace.services.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
     else
-      Mdm::Service.includes(:host).where(opts).order("hosts.address, port")
+      wspace.services.includes(:host).where(opts).order("hosts.address, port")
     end
   }
   end

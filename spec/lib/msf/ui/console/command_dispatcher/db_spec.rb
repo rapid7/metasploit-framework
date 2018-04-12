@@ -201,7 +201,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -c <col1,col2>    Only show the given columns",
           "  -h,--help         Show this help information",
           "  -s <name>         Name of the service to add",
-          "  -p <port>         Port number of the service being added",
+          "  -p <port>         Search for a list of ports",
           "  -r <protocol>     Protocol type of the service being added [tcp|udp]",
           "  -u,--up           Only show services which are up",
           "  -o <file>         Send output to a file in csv format",
