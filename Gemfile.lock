@@ -56,7 +56,7 @@ PATH
       rex-socket
       rex-sslscan
       rex-struct2
-      rex-text
+      rex-text (< 0.2.18)
       rex-zip
       ruby-macho
       ruby_smb (= 0.0.18)
@@ -105,7 +105,7 @@ GEM
     arel (6.0.4)
     arel-helpers (2.6.1)
       activerecord (>= 3.1.0, < 6)
-    backports (3.11.1)
+    backports (3.11.2)
     bcrypt (3.1.11)
     bcrypt_pbkdf (1.0.0)
     bindata (2.4.3)
@@ -238,7 +238,7 @@ GEM
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.17)
+    rex-exploitation (0.1.19)
       jsobfu
       metasm
       rex-arch
