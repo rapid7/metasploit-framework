@@ -30,12 +30,12 @@ module Metasploit
       req = JSON.parse($stdin.readpartial(10000), symbolize_names: true)
       if req[:method] == 'describe'
         rpc_send({
-          jsonrpc: '2.0', id: req[:id], response: metadata
+          jsonrpc: '2.0', id: req[:id], result: metadata
         })
       elsif req[:method] == 'run'
         callback.call req[:params]
         rpc_send({
-          jsonrpc: '2.0', id: req[:id], response: {
+          jsonrpc: '2.0', id: req[:id], result: {
             message: 'Module completed'
           }
         })
