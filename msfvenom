@@ -168,7 +168,7 @@ def parse_args(args)
   end
 
   opt.on('-t', '--timeout       <second>', Integer, "The number of seconds to timeout when reading payload from STDIN (30s as default).") do |x|
-    opts[:timeout] = x || 30
+    opts[:timeout] = x
   end
 
 
@@ -206,6 +206,7 @@ def parse_args(args)
   if opts[:payload] == 'stdin' and not opts[:list]
     $stderr.puts "Attempting to read payload from STDIN..."
     begin
+      opts[:timeout] ||= 30
       ::Timeout.timeout(opts[:timeout]) do
         opts[:stdin] = payload_stdin
       end
