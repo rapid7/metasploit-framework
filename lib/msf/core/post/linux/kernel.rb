@@ -99,6 +99,86 @@ module Kernel
     raise 'Could not determine userns status'
   end
 
+  #
+  # Returns true if ASLR is enabled
+  #
+  # @return [Boolean]
+  #
+  def aslr_enabled?
+    aslr = cmd_exec('cat /proc/sys/kernel/randomize_va_space').to_s
+    (aslr.eql?('1') || aslr.eql?('2'))
+  rescue
+    raise 'Could not determine ASLR status'
+  end
+
+  #
+  # Returns true if unprivileged bpf is disabled
+  #
+  # @return [Boolean]
+  #
+  def unprivileged_bpf_disabled?
+    cmd_exec('cat /proc/sys/kernel/unprivileged_bpf_disabled').to_s.eql? '1' 
+  rescue
+    raise 'Could not determine kernel.unprivileged_bpf_disabled status'
+  end
+
+  #
+  # Returns true if kernel pointer restriction is enabled
+  #
+  # @return [Boolean]
+  #
+  def kptr_restrict?
+    cmd_exec('cat /proc/sys/kernel/kptr_restrict').to_s.eql? '1' 
+  rescue
+    raise 'Could not determine kernel.kptr_restrict status'
+  end
+
+  #
+  # Returns true if dmesg restriction is enabled
+  #
+  # @return [Boolean]
+  #
+  def dmesg_restrict?
+    cmd_exec('cat /proc/sys/kernel/dmesg_restrict').to_s.eql? '1' 
+  rescue
+    raise 'Could not determine kernel.dmesg_restrict status'
+  end
+
+  #
+  # Returns mmap minimum address
+  #
+  # @return [Integer]
+  #
+  def mmap_min_addr
+    mmap_min_addr = cmd_exec('cat /proc/sys/vm/mmap_min_addr').to_s
+    return 0 unless mmap_min_addr =~ /\A\d+\z/
+    mmap_min_addr
+  rescue
+    raise 'Could not determine system mmap_min_addr'
+  end
+
+  #
+  # Returns true if SELinux is installed
+  #
+  # @return [Boolean]
+  #
+  def selinux_installed?
+    cmd_exec('id').to_s.include? 'context='
+  rescue
+    raise 'Could not determine SELinux status'
+  end
+
+  #
+  # Returns true if SELinux is in enforcing mode
+  #
+  # @return [Boolean]
+  #
+  def selinux_enforcing?
+    cmd_exec('/usr/sbin/getenforce').to_s.include? 'Enforcing'
+  rescue
+    raise 'Could not determine SELinux encforcing status'
+  end
+
 end # Kernel
 end # Linux
 end # Post
