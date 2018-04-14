@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Exploit::Remote
       return CheckCode::Unknown
     end
 
-    unless res.body =~ /Mantis ([0-9]+.[0-9]+.[0-9]+)/
+    unless res.body =~ /Mantis ([0-9]+\.[0-9]+\.[0-9]+)/
       vprint_error('Cannot determine Mantis version!')
       return CheckCode::Unknown
     end
@@ -66,11 +66,11 @@ class MetasploitModule < Msf::Exploit::Remote
 
     vprint_status("Mantis version #{version.to_s} detected")
 
-    unless res.code == 200 && version > Gem::Version.new('1.1.3')
-      return CheckCode::Appears
+    if res.code == 200 && version <= Gem::Version.new('1.1.3')
+      return CheckCode::Safe
     end
 
-    CheckCode::Safe
+    CheckCode::Appears
   end
 
   def login
@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Exploit::Remote
       fail_with(Failure::Unknown, 'Cannot access host to log in!')
     end
     fail_with(Failure::NoAccess, 'Login failed!') unless res.code == 302
-    fail_with(Failure::NoAccess, 'Wrong credentials!') unless !res.redirection.to_s.include?('login_page.php')
+    fail_with(Failure::NoAccess, 'Wrong credentials!') if res.redirection.to_s.include?('login_page.php')
     res.get_cookies
   end
 
