@@ -88,6 +88,17 @@ module Kernel
   end
 
   #
+  # Returns true if Kernel Address Isolation (KAISER) is enabled
+  #
+  # @return [Boolean]
+  #
+  def kaiser_enabled?
+    cmd_exec('cat /proc/cpuinfo').to_s.include? 'kaiser'
+  rescue
+    raise 'Could not determine KAISER status'
+  end
+
+  #
   # Returns true if user namespaces are enabled, false if not.
   #
   # @return [Boolean]
@@ -100,7 +111,18 @@ module Kernel
   end
 
   #
-  # Returns true if ASLR is enabled
+  # Returns true if Kernel Address Space Layout Randomization (KASLR) is enabled
+  #
+  # @return [Boolean]
+  #
+  def kaslr_enabled?
+    cmd_exec('cat /proc/cmdline').include? 'kaslr'
+  rescue
+    raise 'Could not determine KASLR status'
+  end
+
+  #
+  # Returns true if Address Space Layout Randomization (ASLR) is enabled
   #
   # @return [Boolean]
   #
