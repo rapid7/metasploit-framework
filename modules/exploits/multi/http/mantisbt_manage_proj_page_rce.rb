@@ -67,10 +67,10 @@ class MetasploitModule < Msf::Exploit::Remote
     vprint_status("Mantis version #{version.to_s} detected")
 
     if res.code == 200 && version <= Gem::Version.new('1.1.3')
-      return CheckCode::Safe
+      return CheckCode::Appears
     end
 
-    CheckCode::Appears
+    CheckCode::Safe
   end
 
   def login
