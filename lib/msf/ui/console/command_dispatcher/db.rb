@@ -1010,7 +1010,7 @@ class Db
         range.each { |addr|
           note = framework.db.find_or_create_note(host: addr, type: type, data: data)
           break if not note
-          print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+          print_status("Time: #{note.created_at} Note: host=#{addr} type=#{note.ntype} data=#{note.data}")
         }
       }
       return
