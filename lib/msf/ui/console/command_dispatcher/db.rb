@@ -951,12 +951,12 @@ class Db
     print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
     print_line "  -S,--search               Search string to filter by"
     print_line "  -o,--output               Save the notes to a csv file"
-    print_line "  --sort <field1,field2>    Fields to sort by (case sensitive)"
+    print_line "  -O <column>               Order rows by specified column number"
     print_line
     print_line "Examples:"
     print_line "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
     print_line "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
-    print_line "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
+    print_line "  notes -S 'nmap.nse.(http|rtsp)'"
     print_line
   end
 
@@ -997,10 +997,13 @@ class Db
         set_rhosts = true
       when '-S', '--search'
         search_term = args.shift
-      when '--sort'
-        sort_term = args.shift
       when '-o', '--output'
         output_file = args.shift
+      when '-O'
+        if (order_by = args.shift.to_i - 1) < 0
+          print_error('Please specify a column number starting from 1')
+          return
+        end
       when '-u', '--update'  # TODO: This is currently undocumented because it's not officially supported.
         mode = :update
       when '-h', '--help'
@@ -1035,7 +1038,7 @@ class Db
         range.each { |addr|
           note = framework.db.find_or_create_note(host: addr, type: type, data: data)
           break if not note
-          print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+          print_status("Time: #{note.created_at} Note: host=#{addr} type=#{note.ntype} data=#{note.data}")
         }
       }
       return
@@ -1070,47 +1073,12 @@ class Db
       end
     end
 
-    # Sort the notes based on the sort_term provided
-    if sort_term != nil
-      sort_terms = sort_term.split(",")
-      note_list.sort_by! do |note|
-        orderlist = []
-        sort_terms.each do |term|
-          term = "ntype" if term == "type"
-          term = "created_at" if term == "Time"
-          if term == nil
-            orderlist << ""
-          elsif term == "service"
-            if note.service != nil
-              orderlist << make_sortable(note.service.name)
-            end
-          elsif term == "port"
-            if note.service != nil
-              orderlist << make_sortable(note.service.port)
-            end
-          elsif term == "output"
-            orderlist << make_sortable(note.data["output"])
-          elsif note.respond_to?(term, true)
-            orderlist << make_sortable(note.send(term))
-          elsif note.respond_to?(term.to_sym, true)
-            orderlist << make_sortable(note.send(term.to_sym))
-          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term, true)
-            orderlist << make_sortable(note.send("data").send(term))
-          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term.to_sym, true)
-            orderlist << make_sortable(note.send("data").send(term.to_sym))
-          else
-            orderlist << ""
-          end
-        end
-        orderlist
-      end
-    end
-
     # Now display them
     table = Rex::Text::Table.new(
       'Header'  => 'Notes',
       'Indent'  => 1,
-      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data']
+      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data'],
+      'SortIndex' => order_by
     )
 
     matched_note_ids = []
@@ -1195,22 +1163,6 @@ class Db
     rescue Errno::EACCES => e
       print_error("Unable to save notes. #{e.message}")
     end
-  end
-
-  def make_sortable(input)
-    case input
-    when String
-      input = input.downcase
-    when Integer
-      input = "%016" % input
-    when Time
-      input = input.strftime("%Y%m%d%H%M%S%L")
-    when NilClass
-      input = ""
-    else
-      input = input.inspect.downcase
-    end
-    input
   end
 
   def cmd_loot_help
@@ -1718,8 +1670,8 @@ class Db
   # Database management
   #
   def db_check_driver
-    if(not framework.db.driver)
-      print_error("No database driver installed. Try 'gem install pg'")
+    unless framework.db.driver
+      print_error("No database driver installed.")
       return false
     end
     true
@@ -1974,6 +1926,12 @@ class Db
   #######
 
   def add_data_service(*args)
+    # database is required to use Mdm objects
+    unless framework.db.active
+      print_error("Database not connected; connect to an existing database with db_connect before using data_services")
+      return
+    end
+
     protocol = "http"
     port = 8080
     https_opts = {}

@@ -51,7 +51,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :db_parse_db_uri_postgresql }
   it { is_expected.to respond_to :deprecated_commands }
   it { is_expected.to respond_to :each_host_range_chunk }
-  it { is_expected.to respond_to :make_sortable }
   it { is_expected.to respond_to :name }
   it { is_expected.to respond_to :set_rhosts_from_addrs }
 
@@ -178,11 +177,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -R,--rhosts               Set RHOSTS from the results of the search",
           "  -S,--search               Search string to filter by",
           "  -o,--output               Save the notes to a csv file",
-          "  --sort <field1,field2>    Fields to sort by (case sensitive)",
+          "  -O <column>               Order rows by specified column number",
           "Examples:",
           "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
           "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41",
-          "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
+          "  notes -S 'nmap.nse.(http|rtsp)'"
         ]
 
       end

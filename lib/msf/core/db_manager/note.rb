@@ -26,31 +26,14 @@ module Msf::DBManager::Note
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       search_term = opts.delete(:search_term)
+      results = wspace.notes.includes(:host).where(opts)
       if search_term && !search_term.empty?
-        all_columns_except_data_expression = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Note, search_term, ["data"])
-
-        # The data column is serialized so an Arel regex-based search is created following
-        # somewhat from the Mdm search scope. If data appears to be serialized it is decoded for the regex match.
-        # The Mdm search scope used 'BAh7%' which doesn't appears to result in matches against simple string
-        # values that have been serialized, so this was changed to 'BAh%'. The decoded binary data is then
-        # converted to a text value to be used for the regex match.
-        serialized_prefix = 'BAh%'
-        re_search_term = "(?mi)#{search_term}"
-        arel_table = Mdm::Note.arel_table
-        regex_data = Arel::Nodes::Regexp.new(arel_table[:data], Arel::Nodes.build_quoted(re_search_term))
-        data_no_base64_expression = arel_table.grouping(arel_table[:data].does_not_match(serialized_prefix).and(regex_data))
-
-        decode_func = Arel::Nodes::NamedFunction.new("decode", [arel_table[:data], Arel::Nodes.build_quoted('base64')])
-        convert_from_func = Arel::Nodes::NamedFunction.new("convert_from", [decode_func, Arel::Nodes.build_quoted('UTF8')])
-        regex_data_base64 = Arel::Nodes::Regexp.new(convert_from_func, Arel::Nodes.build_quoted(re_search_term))
-        data_base64_expression = arel_table.grouping(arel_table[:data].matches(serialized_prefix).and(regex_data_base64))
-
-        data_column_expression = data_no_base64_expression.or(data_base64_expression)
-        column_search_expression = all_columns_except_data_expression.or(data_column_expression)
-        wspace.notes.includes(:host).where(opts).where(column_search_expression)
-      else
-        wspace.notes.includes(:host).where(opts)
+        re_search_term = /#{search_term}/mi
+        results = results.select { |note|
+          note.attribute_names.any? { |a| note[a.intern].to_s.match(re_search_term) }
+        }
       end
+      results
     }
   end
 
@@ -134,13 +117,7 @@ module Msf::DBManager::Note
     elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
       service = opts[:service]
     end
-=begin
-    if host
-      host.updated_at = host.created_at
-      host.state      = HostState::Alive
-      host.save!
-    end
-=end
+
     ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
     data   = opts[:data]
     note   = nil

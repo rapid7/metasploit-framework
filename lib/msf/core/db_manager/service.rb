@@ -23,7 +23,7 @@ module Msf::DBManager::Service
   # service instance of each entry.
   def each_service(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    services(wspace).each do |service|
+    wspace.services.each do |service|
       block.call(service)
     end
   }
