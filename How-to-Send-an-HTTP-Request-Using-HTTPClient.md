@@ -99,7 +99,7 @@ Please note: The `normalize_uri` method will always follow these rules:
 
 			res = send_request_cgi({
 				'method'   => 'GET',
-				'uri'      => normalize_uri(uri, 'admin', 'index.phpp'),
+				'uri'      => normalize_uri(uri, 'admin', 'index.php'),
 				'vars_get' => {
 					'p1' => "This is param 1",
 					'p2' => "This is param 2"
