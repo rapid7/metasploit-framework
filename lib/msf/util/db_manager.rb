@@ -21,6 +21,14 @@ module DBManager
     condition_set.reduce { |conditions, condition| conditions.or(condition).expr }
   end
 
+  # Processes the workspace value in the opts hash from a request. This method throws an exception if
+  # :workspace was not present but required was true, deletes the workspace from the hash, and
+  # looks up the workspace object by name, which it returns.
+  #
+  # @param [Hash] opts The opts hash passed in from the data request. Should contain :workspace if required is true.
+  # @param [Msf::Framework] framework A framework object containing a valid database connection.
+  # @param [Bool] required true if the :workspace key is required for this data operation. false if it is only optional.
+  # @return [Mdm::Workspace] The workspace object that was referenced by name in opts.
   def self.process_opts_workspace(opts, framework, required = true)
     wspace = delete_opts_workspace(opts)
     if required && (wspace.nil? || ((wspace.kind_of? String) && wspace.empty?))
@@ -33,7 +41,12 @@ module DBManager
     wspace
   end
 
+  # Removes the :workspace or :wspace key from the opts hash.
+  #
+  # @param [Hash] opts The opts hash passed in from the data request.
+  # @return [String] The name of the workspace that was contained in the key.
   def self.delete_opts_workspace(opts)
+    wlog("Both :workspace and :wspace were found in opts. Using :workspace.") if opts[:workspace] && opts[:wspace]
     opts.delete(:workspace) || opts.delete(:wspace)
   end
 end

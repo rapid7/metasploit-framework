@@ -122,12 +122,11 @@ class RemoteHTTPDataService
   def make_request(request_type, path, data_hash = nil, query = nil)
     begin
       # simplify query by removing nil values
-      query_str = nil
       query_str = (!query.nil? && !query.empty?) ? query.compact.to_query : nil
       uri = URI::HTTP::build({path: path, query: query_str})
       dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
-      client = @client_pool.pop()
+      client = @client_pool.pop
       case request_type
         when GET_REQUEST
           request = Net::HTTP::Get.new(uri.request_uri)
@@ -225,7 +224,7 @@ class RemoteHTTPDataService
     raise 'Endpoint cannot be nil' if endpoint.nil?
   end
 
-  def build_request(request, data_hash, add_workspace = true)
+  def build_request(request, data_hash)
     request.content_type = 'application/json'
     if !data_hash.nil? && !data_hash.empty?
       data_hash.each do |k,v|

@@ -154,7 +154,7 @@ class Db
       names.each do |n|
         ws_ids_to_delete << framework.db.find_workspace(n).id
       end
-      deleted = framework.db.delete_workspaces(ws_ids_to_delete)
+      deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
       print_deleted_workspaces(deleted, starting_ws)
     elsif delete_all
       ws_ids_to_delete = []
@@ -162,7 +162,7 @@ class Db
       framework.db.workspaces.each do |ws|
         ws_ids_to_delete << ws.id
       end
-      deleted = framework.db.delete_workspaces(ws_ids_to_delete)
+      deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
       print_deleted_workspaces(deleted, starting_ws)
     elsif renaming
       if names.length != 2
@@ -221,10 +221,10 @@ class Db
           ws.name,
           framework.db.hosts(ws.name).count,
           framework.db.services(ws.name).count,
-          framework.db.vulns({:workspace => ws.name}).count,
-          framework.db.creds({:workspace => ws.name}).count,
+          framework.db.vulns({workspace: ws.name}).count,
+          framework.db.creds({workspace: ws.name}).count,
           framework.db.loots(ws.name).count,
-          framework.db.notes({:workspace => ws.name}).count
+          framework.db.notes({workspace: ws.name}).count
         ]
       end
 

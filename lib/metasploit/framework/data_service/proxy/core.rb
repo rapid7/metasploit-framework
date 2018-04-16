@@ -123,11 +123,17 @@ class DataProxy
     raise Exception, "#{ui_message}: #{exception.message}. See log for more details."
   end
 
+  # Adds a valid workspace value to the opts hash before sending on to the data layer.
+  #
+  # @param [Hash] opts The opts hash that will be passed to the data layer.
+  # @param [String] wspace A specific workspace name to add to the opts hash.
+  # @return [Hash] The opts hash with a valid :workspace value added.
   def add_opts_workspace(opts, wspace = nil)
-    opts[:workspace] = wspace if wspace
-
     # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
     opts[:workspace] = opts.delete(:wspace) unless opts[:wspace].nil?
+
+    # If the user passed in a specific workspace then use that in opts
+    opts[:workspace] = wspace if wspace
 
     # We only want to pass the workspace name, so grab it if it is currently an object.
     if opts[:workspace] && opts[:workspace].is_a?(::Mdm::Workspace)
