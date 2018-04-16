@@ -178,18 +178,6 @@ module Kernel
   rescue
     raise 'Could not determine SELinux status'
   end
-
-  #
-  # Returns true if SELinux is in enforcing mode
-  #
-  # @return [Boolean]
-  #
-  def selinux_enforcing?
-    cmd_exec('/usr/sbin/getenforce').to_s.include? 'Enforcing'
-  rescue
-    raise 'Could not determine SELinux encforcing status'
-  end
-
 end # Kernel
 end # Linux
 end # Post
