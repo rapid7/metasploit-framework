@@ -13,7 +13,7 @@ module Kernel
   # @return [String]
   #
   def uname(opts='-a')
-    cmd_exec("uname #{opts}").to_s
+    cmd_exec("uname #{opts}").to_s.strip
   rescue
     raise "Failed to run uname #{opts}"
   end
@@ -104,8 +104,8 @@ module Kernel
   # @return [Boolean]
   #
   def userns_enabled?
-    return false if cmd_exec('cat /proc/sys/user/max_user_namespaces').to_s.eql? '0'
-    cmd_exec('cat /proc/sys/kernel/unprivileged_userns_clone').to_s.eql? '1'
+    return false if cmd_exec('cat /proc/sys/user/max_user_namespaces').to_s.strip.eql? '0'
+    cmd_exec('cat /proc/sys/kernel/unprivileged_userns_clone').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine userns status'
   end
@@ -127,7 +127,7 @@ module Kernel
   # @return [Boolean]
   #
   def aslr_enabled?
-    aslr = cmd_exec('cat /proc/sys/kernel/randomize_va_space').to_s
+    aslr = cmd_exec('cat /proc/sys/kernel/randomize_va_space').to_s.strip
     (aslr.eql?('1') || aslr.eql?('2'))
   rescue
     raise 'Could not determine ASLR status'
@@ -139,7 +139,7 @@ module Kernel
   # @return [Boolean]
   #
   def unprivileged_bpf_disabled?
-    cmd_exec('cat /proc/sys/kernel/unprivileged_bpf_disabled').to_s.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/unprivileged_bpf_disabled').to_s.strip.eql? '1' 
   rescue
     raise 'Could not determine kernel.unprivileged_bpf_disabled status'
   end
@@ -150,7 +150,7 @@ module Kernel
   # @return [Boolean]
   #
   def kptr_restrict?
-    cmd_exec('cat /proc/sys/kernel/kptr_restrict').to_s.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/kptr_restrict').to_s.strip.eql? '1' 
   rescue
     raise 'Could not determine kernel.kptr_restrict status'
   end
@@ -161,7 +161,7 @@ module Kernel
   # @return [Boolean]
   #
   def dmesg_restrict?
-    cmd_exec('cat /proc/sys/kernel/dmesg_restrict').to_s.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/dmesg_restrict').to_s.strip.eql? '1' 
   rescue
     raise 'Could not determine kernel.dmesg_restrict status'
   end
@@ -172,7 +172,7 @@ module Kernel
   # @return [Integer]
   #
   def mmap_min_addr
-    mmap_min_addr = cmd_exec('cat /proc/sys/vm/mmap_min_addr').to_s
+    mmap_min_addr = cmd_exec('cat /proc/sys/vm/mmap_min_addr').to_s.strip
     return 0 unless mmap_min_addr =~ /\A\d+\z/
     mmap_min_addr
   rescue
