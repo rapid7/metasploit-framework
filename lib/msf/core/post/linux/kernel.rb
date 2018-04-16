@@ -111,17 +111,6 @@ module Kernel
   end
 
   #
-  # Returns true if Kernel Address Space Layout Randomization (KASLR) is enabled
-  #
-  # @return [Boolean]
-  #
-  def kaslr_enabled?
-    cmd_exec('cat /proc/cmdline').include? 'kaslr'
-  rescue
-    raise 'Could not determine KASLR status'
-  end
-
-  #
   # Returns true if Address Space Layout Randomization (ASLR) is enabled
   #
   # @return [Boolean]
