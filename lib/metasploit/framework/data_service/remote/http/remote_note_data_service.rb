@@ -11,7 +11,6 @@ module RemoteNoteDataService
   end
 
   def report_note(opts)
-    # self.post_data_async(NOTE_API_PATH, opts)
     json_to_mdm_object(self.post_data(NOTE_API_PATH, opts), NOTE_MDM_CLASS, []).first
   end
 
