@@ -12,6 +12,7 @@ module WorkspaceServlet
       app.get WorkspaceServlet.api_path, &get_workspace
       app.post WorkspaceServlet.api_path, &add_workspace
       app.put WorkspaceServlet.api_path_with_id, &update_workspace
+      app.delete WorkspaceServlet.api_path, &delete_workspace
     end
 
     #######
@@ -36,7 +37,7 @@ module WorkspaceServlet
       lambda {
         begin
           opts = parse_json_request(request, true)
-          workspace = get_db.add_workspace(opts[:workspace_name])
+          workspace = get_db.add_workspace(opts)
           set_json_response(workspace)
         rescue Exception => e
           set_error_on_response(e)
@@ -57,4 +58,16 @@ module WorkspaceServlet
       end
     }
   end
+
+    def self.delete_workspace
+      lambda {
+        begin
+          opts = parse_json_request(request, false)
+          data = get_db.delete_workspaces(opts)
+          set_json_response(data)
+        rescue Exception => e
+          set_error_on_response(e)
+        end
+      }
+    end
 end

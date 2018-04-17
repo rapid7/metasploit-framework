@@ -4,9 +4,9 @@ module Msf::DBManager::Workspace
   #
   # Creates a new workspace in the database
   #
-  def add_workspace(name)
+  def add_workspace(opts)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.where(name: name).first_or_create
+    ::Mdm::Workspace.where(name: opts[:name]).first_or_create
   }
   end
 
@@ -71,14 +71,14 @@ module Msf::DBManager::Workspace
       opts[:ids].each do |ws_id|
         ws = Mdm::Workspace.find(ws_id)
         default_deleted = true if ws.default?
-        if framework.db.workspace.name == ws.name
-          framework.db.workspace = framework.db.default_workspace
-        end
         begin
           deleted << ws.destroy
-          framework.db.workspace = framework.db.add_workspace(DEFAULT_WORKSPACE_NAME) if default_deleted
+          if default_deleted
+            add_workspace({ name: DEFAULT_WORKSPACE_NAME })
+            default_deleted = false
+          end
         rescue
-          elog("Forcibly deleting #{workspace}")
+          elog("Forcibly deleting #{ws}")
           deleted << ws.delete
         end
       end

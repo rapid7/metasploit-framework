@@ -13,7 +13,8 @@ module WorkspaceDataProxy
   def add_workspace(workspace_name)
     begin
       data_service = self.get_data_service
-      data_service.add_workspace(workspace_name)
+      opts = { name: workspace_name }
+      data_service.add_workspace(opts)
     rescue  Exception => e
       self.log_error(e, "Problem adding workspace")
     end

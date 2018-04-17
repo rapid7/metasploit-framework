@@ -155,7 +155,7 @@ class Db
         ws_ids_to_delete << framework.db.find_workspace(n).id
       end
       deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
-      print_deleted_workspaces(deleted, starting_ws)
+      process_deleted_workspaces(deleted, starting_ws)
     elsif delete_all
       ws_ids_to_delete = []
       starting_ws = framework.db.workspace
@@ -163,7 +163,7 @@ class Db
         ws_ids_to_delete << ws.id
       end
       deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
-      print_deleted_workspaces(deleted, starting_ws)
+      process_deleted_workspaces(deleted, starting_ws)
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
@@ -233,11 +233,13 @@ class Db
     end
   end
 
-  def print_deleted_workspaces(deleted_workspaces, starting_ws)
+  def process_deleted_workspaces(deleted_workspaces, starting_ws)
     deleted_workspaces.each do |ws|
       if ws.name == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
+        framework.db.workspace = framework.db.default_workspace
         print_status 'Deleted and recreated the default workspace'
       elsif ws == starting_ws
+        framework.db.workspace = framework.db.default_workspace
         print_status "Switched workspace: #{framework.db.workspace.name}"
       else
         print_status "Deleted workspace: #{ws.name}"

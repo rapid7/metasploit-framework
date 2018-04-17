@@ -6,8 +6,8 @@ module RemoteWorkspaceDataService
   WORKSPACE_API_PATH = '/api/v1/workspaces'
   WORKSPACE_MDM_CLASS = 'Mdm::Workspace'
 
-  def add_workspace(workspace_name)
-    response = self.post_data(WORKSPACE_API_PATH, { workspace_name: workspace_name })
+  def add_workspace(opts)
+    response = self.post_data(WORKSPACE_API_PATH, opts)
     json_to_mdm_object(response, WORKSPACE_MDM_CLASS, nil).first
   end
 
