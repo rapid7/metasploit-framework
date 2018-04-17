@@ -117,12 +117,12 @@ module System
 
       if portsonly
         ports = []
-        full.split("\n").each do |p|
+        full.each do |p|
           ports << p.split('/')[1]
         end
         return ports
       else
-        full.split("\n").each do |s|
+        full.each do |s|
           split = s.split('/')
           services[:"#{split[0]}"] = split[1]
         end
