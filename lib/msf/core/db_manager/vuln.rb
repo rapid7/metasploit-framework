@@ -3,7 +3,7 @@ module Msf::DBManager::Vuln
   # This method iterates the vulns table calling the supplied block with the
   # vuln instance of each entry.
   #
-  def each_vuln(wspace=framework.db.workspace,&block)
+  def each_vuln(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.vulns.each do |vulns|
       block.call(vulns)

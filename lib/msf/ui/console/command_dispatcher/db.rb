@@ -170,14 +170,15 @@ class Db
         return
       end
 
-      opts = {}
-      opts[:id] = framework.db.find_workspace(names.first).id
-      opts[:name] = names.last
+      opts = {
+          id: framework.db.find_workspace(names.first).id,
+          name: names.last
+      }
       begin
         framework.db.update_workspace(opts)
       rescue Exception => e
-        puts "In db.rb, error in the update #{e.message}"
-        e.backtrace.each { |line| puts "#{line}"}
+        print_error "In db.rb, error in the update #{e.message}"
+        e.backtrace.each { |line| print_error "#{line}"}
       end
 
     elsif names

@@ -78,7 +78,7 @@ module Msf::DBManager::Workspace
             default_deleted = false
           end
         rescue
-          elog("Forcibly deleting #{ws}")
+          elog("Forcibly deleting #{ws.name}")
           deleted << ws.delete
         end
       end
