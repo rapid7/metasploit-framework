@@ -112,7 +112,7 @@ module System
     begin
       full = cmd_exec('netstat -tulpn').to_s
       raise "You must be root to get listening ports" if full.include? '(No info could be read'
-      full = full[2..-1]
+      full = full.split("\n")[2..-1]
       full.delete!(':') # Only happens when getting services
 
       if portsonly
