@@ -277,7 +277,7 @@ module System
   # @return [Boolean]
   #
   def protected_hardlinks?
-    read_file('/proc/sys/fs/protected_hardlinks').to_s.eql? '1'
+    read_file('/proc/sys/fs/protected_hardlinks').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine protected_hardlinks status'
   end
@@ -287,7 +287,7 @@ module System
   # @return [Boolean]
   #
   def protected_symlinks?
-    read_file('/proc/sys/fs/protected_symlinks').to_s.eql? '1'
+    read_file('/proc/sys/fs/protected_symlinks').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine protected_symlinks status'
   end
