@@ -45,7 +45,7 @@ module RemoteWorkspaceDataService
       id = opts.delete(:id)
       path = "#{WORKSPACE_API_PATH}/#{id}"
     end
-    json_to_mdm_object(self.put_data(path, opts), WORKSPACE_MDM_CLASS, [])
+    json_to_mdm_object(self.put_data(path, opts), WORKSPACE_MDM_CLASS, []).first
   end
 
 end

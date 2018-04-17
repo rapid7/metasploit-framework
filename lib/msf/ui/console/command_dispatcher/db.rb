@@ -175,7 +175,8 @@ class Db
           name: names.last
       }
       begin
-        framework.db.update_workspace(opts)
+        updated_ws = framework.db.update_workspace(opts)
+        print_status("Renamed workspace: #{updated_ws.name}")
       rescue Exception => e
         print_error "In db.rb, error in the update #{e.message}"
         e.backtrace.each { |line| print_error "#{line}"}

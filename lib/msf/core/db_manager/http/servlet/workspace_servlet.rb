@@ -9,7 +9,7 @@ module WorkspaceServlet
     end
 
     def self.registered(app)
-      app.get WorkspaceServlet.api_path, &get_workspace
+      app.get WorkspaceServlet.api_path_with_id, &get_workspace
       app.post WorkspaceServlet.api_path, &add_workspace
       app.put WorkspaceServlet.api_path_with_id, &update_workspace
       app.delete WorkspaceServlet.api_path, &delete_workspace
@@ -24,7 +24,8 @@ module WorkspaceServlet
         begin
           opts = parse_json_request(request, false)
           includes = nil
-          data = get_db.workspaces(params.symbolize_keys)
+          sanitized_params = sanitize_params(params)
+          data = get_db.workspaces(sanitized_params)
 
           set_json_response(data, includes)
         rescue Exception => e
@@ -49,7 +50,7 @@ module WorkspaceServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        tmp_params = params.symbolize_keys
+        tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_workspace(opts)
         set_json_response(data)
