@@ -170,6 +170,10 @@ class RemoteHTTPDataService
     "remote_data_service: (#{@endpoint})"
   end
 
+  def is_local?
+    false
+  end
+
   def set_header(key, value)
     @headers = Hash.new() if @headers.nil?
 

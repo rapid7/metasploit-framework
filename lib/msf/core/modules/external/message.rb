@@ -14,9 +14,9 @@ class Msf::Modules::External::Message
       m = self.new(j['method'].to_sym)
       m.params = j['params']
       m
-    elsif j['response']
+    elsif j['result']
       m = self.new(:reply)
-      m.params = j['response']
+      m.params = j['result']
       m.id = j['id']
       m
     end

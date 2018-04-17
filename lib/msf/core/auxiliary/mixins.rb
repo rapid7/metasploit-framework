@@ -39,3 +39,4 @@ require 'msf/core/auxiliary/mms'
 #
 require 'msf/core/auxiliary/cnpilot'
 require 'msf/core/auxiliary/epmp'
+require 'msf/core/auxiliary/etcd'

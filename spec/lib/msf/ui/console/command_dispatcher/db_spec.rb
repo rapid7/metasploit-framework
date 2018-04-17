@@ -51,7 +51,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :db_parse_db_uri_postgresql }
   it { is_expected.to respond_to :deprecated_commands }
   it { is_expected.to respond_to :each_host_range_chunk }
-  it { is_expected.to respond_to :make_sortable }
   it { is_expected.to respond_to :name }
   it { is_expected.to respond_to :set_rhosts_from_addrs }
 
@@ -173,16 +172,16 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -a,--add                  Add a note to the list of addresses, instead of listing",
           "  -d,--delete               Delete the hosts instead of searching",
           "  -n,--note <data>          Set the data for a new note (only with -a)",
-          "  -t <type1,type2>          Search for a list of types",
+          "  -t,--type <type1,type2>   Search for a list of types, or set single type for add",
           "  -h,--help                 Show this help information",
           "  -R,--rhosts               Set RHOSTS from the results of the search",
-          "  -S,--search               Regular expression to match for search",
+          "  -S,--search               Search string to filter by",
           "  -o,--output               Save the notes to a csv file",
-          "  --sort <field1,field2>    Fields to sort by (case sensitive)",
+          "  -O <column>               Order rows by specified column number",
           "Examples:",
           "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41",
           "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41",
-          "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
+          "  notes -S 'nmap.nse.(http|rtsp)'"
         ]
 
       end
@@ -201,7 +200,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "  -c <col1,col2>    Only show the given columns",
           "  -h,--help         Show this help information",
           "  -s <name>         Name of the service to add",
-          "  -p <port>         Port number of the service being added",
+          "  -p <port>         Search for a list of ports",
           "  -r <protocol>     Protocol type of the service being added [tcp|udp]",
           "  -u,--up           Only show services which are up",
           "  -o <file>         Send output to a file in csv format",

@@ -272,10 +272,12 @@ protected
   private
 
   def get_db
-    if !options['DisableDatabase']
+    unless options['DisableDatabase']
       db_manager = Msf::DBManager.new(self)
-      db_manager.init_db(options)
       options[:db_manager] = db_manager
+      unless options['SkipDatabaseInit']
+        db_manager.init_db(options)
+      end
     end
 
     Metasploit::Framework::DataService::DataProxy.new(options)
