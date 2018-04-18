@@ -146,7 +146,7 @@ module Buffer
         raise ArgumentError, 'Encryption key is missing'
       end
 
-      buf = Rex::Text.encrypt_aes256(encryption_opts[:iv], encryption_opts[:key], value)
+      buf = Rex::Crypto.encrypt_aes256(encryption_opts[:iv], encryption_opts[:key], value)
     when 'base64'
       buf = Rex::Text.encode_base64(value)
     when 'xor'
@@ -160,7 +160,7 @@ module Buffer
         raise ArgumentError, 'Encryption key is missing'
       end
 
-      buf = Rex::Text.rc4(encryption_opts[:key], value)
+      buf = Rex::Crypto.rc4(encryption_opts[:key], value)
     else
       raise ArgumentError, "Unsupported encryption format: #{encryption_opts[:format]}", caller
     end
