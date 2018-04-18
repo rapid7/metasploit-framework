@@ -92,8 +92,11 @@ module Msf::DBManager::Workspace
     Msf::Util::DBManager.delete_opts_workspace(opts)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      id = opts.delete(:id)
-      Mdm::Workspace.update(id, opts)
+      ws_to_update = workspaces({ id: opts.delete(:id) }).first
+      default_renamed = true if ws_to_update.name == DEFAULT_WORKSPACE_NAME
+      updated_ws = Mdm::Workspace.update(ws_to_update.id, opts)
+      add_workspace({ name: DEFAULT_WORKSPACE_NAME }) if default_renamed
+      updated_ws
     }
   end
 end
