@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'securerandom'
 
 
-describe Rex::Crypto do
+RSpec.describe Rex::Crypto do
 
   describe '#rc4' do
 
