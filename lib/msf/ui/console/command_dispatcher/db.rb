@@ -170,8 +170,13 @@ class Db
         return
       end
 
+      ws_to_update = framework.db.find_workspace(names.first)
+      unless ws_to_update
+        print_error("Workspace '#{names.first}' does not exist")
+        return
+      end
       opts = {
-          id: framework.db.find_workspace(names.first).id,
+          id: ws_to_update.id,
           name: names.last
       }
       begin
