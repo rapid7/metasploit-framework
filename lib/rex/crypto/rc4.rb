@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rc4'
+
 module Rex
   module Crypto
 
