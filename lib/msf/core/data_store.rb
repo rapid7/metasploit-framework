@@ -227,7 +227,7 @@ class DataStore < Hash
   end
 
   def merge(other)
-    ds = clone
+    ds = copy
     ds.options.merge!(other.options)
     ds.aliases.merge!(other.aliases)
     ds.imported.merge!(other.imported)
