@@ -8,7 +8,7 @@ require 'msf/core/payload/windows/exec'
 ###
 #
 # Executes a command on the target machine
-#
+#w
 ###
 module MetasploitModule
 
