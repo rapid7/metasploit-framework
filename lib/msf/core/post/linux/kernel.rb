@@ -178,6 +178,48 @@ module Kernel
   rescue
     raise 'Could not determine SELinux status'
   end
+
+  #
+  # Returns true if SELinux is in enforcing mode
+  #
+  # @return [Boolean]
+  #
+  def selinux_enforcing?
+    return false unless selinux_installed?
+
+    sestatus = cmd_exec('/usr/sbin/sestatus').to_s.strip
+    raise unless sestatus.include?('SELinux')
+
+    return true if sestatus =~ /Current mode:\s*enforcing/
+    false
+  rescue
+    raise 'Could not determine SELinux status'
+  end
+
+  #
+  # Returns true if Yama is installed
+  #
+  # @return [Boolean]
+  #
+  def yama_installed?
+    ptrace_scope = cmd_exec('cat /proc/sys/kernel/yama/ptrace_scope').to_s.strip
+    return true if ptrace_scope =~ /\A\d\z/
+    false
+  rescue
+    raise 'Could not determine Yama status'
+  end
+
+  #
+  # Returns true if Yama is enabled
+  #
+  # @return [Boolean]
+  #
+  def yama_enabled?
+    return false unless yama_installed?
+    !cmd_exec('cat /proc/sys/kernel/yama/ptrace_scope').to_s.strip.eql? '0'
+  rescue
+    raise 'Could not determine Yama status'
+  end
 end # Kernel
 end # Linux
 end # Post
