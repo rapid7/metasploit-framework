@@ -138,7 +138,7 @@ Gem::Specification.new do |spec|
   # Core of the Ruby Exploitation Library
   spec.add_runtime_dependency 'rex-core'
   # Text manipulation library for things like generating random string
-  spec.add_runtime_dependency 'rex-text', ["< 0.2.18"]
+  spec.add_runtime_dependency 'rex-text'
   # Library for Generating Randomized strings valid as Identifiers such as variable names
   spec.add_runtime_dependency 'rex-random_identifier'
   # library for creating Powershell scripts for exploitation purposes
