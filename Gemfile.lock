@@ -187,6 +187,7 @@ GEM
       mini_portile2 (~> 2.3.0)
     octokit (4.8.0)
       sawyer (~> 0.8.0, >= 0.5.3)
+    openssl (2.1.0)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
     packetfu (1.1.13)
