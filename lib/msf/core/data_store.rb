@@ -19,7 +19,10 @@ class DataStore < Hash
     @imported_by = Hash.new
   end
 
+  attr_accessor :options
   attr_accessor :aliases
+  attr_accessor :imported
+  attr_accessor :imported_by
 
   #
   # Clears the imported flag for the supplied key since it's being set
@@ -216,6 +219,22 @@ class DataStore < Hash
     end
   end
 
+  def merge!(other)
+    @options.merge!(other.options)
+    @aliases.merge!(other.aliases)
+    @imported.merge!(other.imported)
+    @imported_by.merge!(other.imported_by)
+  end
+
+  def merge(other)
+    ds = clone
+    ds.options.merge!(other.options)
+    ds.aliases.merge!(other.aliases)
+    ds.imported.merge!(other.imported)
+    ds.imported_by.merge!(other.imported_by)
+    ds
+  end
+
   #
   # Returns a hash of user-defined datastore values.  The returned hash does
   # not include default option values.
@@ -345,7 +364,7 @@ class ModuleDataStore < DataStore
     self.keys.each do |k|
       clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
     end
-    clone.aliases = self.aliases
+    clone.aliases = @aliases
     clone
   end
 end
