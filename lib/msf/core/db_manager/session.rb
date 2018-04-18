@@ -119,12 +119,12 @@ module Msf::DBManager::Session
     return if not active
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      workspace = find_workspace(session_dto[:workspace])
       host_data = session_dto[:host_data]
+      workspace = workspaces({ name: host_data[:workspace].name })
       h_opts = {}
       h_opts[:host]      = host_data[:host]
       h_opts[:arch]      = host_data[:arch]
-      h_opts[:workspace] = workspace
+      h_opts[:workspace] = host_data[:workspace]
       host = find_or_create_host(h_opts)
 
       session_data = session_dto[:session_data]
