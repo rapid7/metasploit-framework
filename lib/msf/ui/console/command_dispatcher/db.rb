@@ -187,7 +187,7 @@ class Db
         updated_ws = framework.db.update_workspace(opts)
         if updated_ws
           framework.db.workspace = updated_ws if names.first == framework.db.workspace.name
-          print_status("Renamed workspace: #{updated_ws.name}")
+          print_status("Renamed workspace '#{names.first}' to '#{updated_ws.name}'")
         else
           print_error "There was a problem updating the workspace. Setting to the default workspace."
           framework.db.workspace = framework.db.default_workspace
@@ -197,7 +197,7 @@ class Db
           print_status("Recreated default workspace")
         end
       rescue Exception => e
-        print_error "In db.rb, error in the update #{e.message}"
+        print_error "Failed to rename workspace: #{e.message}"
         e.backtrace.each { |line| print_error "#{line}"}
       end
 
