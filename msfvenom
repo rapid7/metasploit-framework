@@ -106,7 +106,7 @@ def parse_args(args)
     raise HelpError, msg
   end
 
-  opt.on('--encryptor       <value>', String, 'The type of encryptor or encoder to use for the shellcode') do |e|
+  opt.on('--encrypt         <value>', String, 'The type of encryption or encoding to apply to the shellcode') do |e|
     opts[:encryption_format] = e
   end
 
