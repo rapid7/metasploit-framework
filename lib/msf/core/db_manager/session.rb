@@ -120,7 +120,7 @@ module Msf::DBManager::Session
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       host_data = session_dto[:host_data]
-      workspace = workspaces({ name: host_data[:workspace].name })
+      workspace = workspaces({ name: host_data[:workspace] })
       h_opts = {}
       h_opts[:host]      = host_data[:host]
       h_opts[:arch]      = host_data[:arch]
