@@ -340,7 +340,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "Added workspace: foo",
           "Added workspace: bar",
-          "Added workspace: baf"
+          "Added workspace: baf",
+          "Workspace: baf"
         ]
       end
     end
