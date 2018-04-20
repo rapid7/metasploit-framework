@@ -41,7 +41,6 @@ class MetasploitModule < Msf::Auxiliary
       print_error("CHALLENGE syntax must match 00112233445566778899AABBCCDDEEFF")
       return
     end
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 
