@@ -142,16 +142,22 @@ class Db
 
     if adding and names
       # Add workspaces
-      workspace = nil
+      wspace = nil
       names.each do |name|
-        workspace = framework.db.add_workspace(name)
-        print_status("Added workspace: #{workspace.name}")
+        wspace = framework.db.workspaces(name: name).first
+        if wspace
+          print_status("Workspace '#{wspace.name}' already existed, switching to it.")
+        else
+          wspace = framework.db.add_workspace(name)
+          print_status("Added workspace: #{wspace.name}")
+        end
       end
-      framework.db.workspace = workspace
+      framework.db.workspace = wspace
+      print_status("Workspace: #{framework.db.workspace.name}")
     elsif deleting and names
       ws_ids_to_delete = []
       starting_ws = framework.db.workspace
-      names.each do |n|
+      names.uniq.each do |n|
         ws_ids_to_delete << framework.db.find_workspace(n).id
       end
       deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
@@ -256,14 +262,13 @@ class Db
 
   def process_deleted_workspaces(deleted_workspaces, starting_ws)
     deleted_workspaces.each do |ws|
+      print_status "Deleted workspace: #{ws.name}"
       if ws.name == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
         framework.db.workspace = framework.db.default_workspace
-        print_status 'Deleted and recreated the default workspace'
+        print_status 'Recreated the default workspace'
       elsif ws == starting_ws
         framework.db.workspace = framework.db.default_workspace
-        print_status "Switched workspace: #{framework.db.workspace.name}"
-      else
-        print_status "Deleted workspace: #{ws.name}"
+        print_status "Switched to workspace: #{framework.db.workspace.name}"
       end
     end
   end
