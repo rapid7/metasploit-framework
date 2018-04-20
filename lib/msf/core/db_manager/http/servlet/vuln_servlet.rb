@@ -23,7 +23,8 @@ module VulnServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db.vulns(params.symbolize_keys)
+        sanitized_params = sanitize_params(params)
+        data = get_db.vulns(sanitized_params)
         includes = [:host, :vulns_refs, :refs, :module_refs]
         set_json_response(data, includes)
       rescue Exception => e
@@ -49,7 +50,7 @@ module VulnServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        tmp_params = params.symbolize_keys
+        tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_vuln(opts)
         set_json_response(data)

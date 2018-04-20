@@ -21,7 +21,7 @@ module Msf::DBManager::Service
 
   # Iterates over the services table calling the supplied block with the
   # service instance of each entry.
-  def each_service(wspace=workspace, &block)
+  def each_service(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.services.each do |service|
       block.call(service)
@@ -61,7 +61,7 @@ module Msf::DBManager::Service
     hname = opts.delete(:host_name)
     hmac  = opts.delete(:mac)
     host  = nil
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     hopts = {:workspace => wspace, :host => addr}
     hopts[:name] = hname if hname
     hopts[:mac]  = hmac  if hmac
@@ -141,10 +141,8 @@ module Msf::DBManager::Service
 
   # Returns a list of all services in the database
   def services(opts)
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+
     search_term = opts.delete(:search_term)
     opts["hosts.address"] = opts.delete(:addresses)
     opts.compact!
