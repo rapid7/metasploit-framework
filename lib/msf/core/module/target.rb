@@ -246,7 +246,7 @@ class Msf::Module::Target
   # encoded payload (such as x86/opty2 and so on).
   #
   def payload_nop
-    opts['Nop'] ? opts['Payload']['Nop'] : nil
+    opts['Payload'] ? opts['Payload']['Nop'] : nil
   end
 
   #
