@@ -78,7 +78,7 @@ module Msf::DBManager::Report
   #
   # This methods returns a list of all reports in the database
   #
-  def reports(wspace=workspace)
+  def reports(wspace=framework.db.workspace)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.reports
   }

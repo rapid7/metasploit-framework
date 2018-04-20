@@ -340,7 +340,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
         expect(@output).to match_array [
           "Added workspace: foo",
           "Added workspace: bar",
-          "Added workspace: baf"
+          "Added workspace: baf",
+          "Workspace: baf"
         ]
       end
     end
@@ -348,25 +349,18 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     describe "-d" do
       it "should delete a workspace" do
         db.cmd_workspace("-a", "foo")
-        @output = []
+        expect(framework.db.find_workspace("foo")).not_to be_nil
         db.cmd_workspace("-d", "foo")
-        expect(@output).to match_array [
-          "Deleted workspace: foo",
-          "Switched workspace: default"
-        ]
+        expect(framework.db.find_workspace("foo")).to be_nil
       end
     end
 
     describe "-D" do
       it "should delete all workspaces" do
         db.cmd_workspace("-a", "foo")
-        @output = []
+        expect(framework.db.workspaces.size).to be > 1
         db.cmd_workspace("-D")
-        expect(@output).to match_array [
-          "Deleted and recreated the default workspace",
-          "Deleted workspace: foo",
-          "Switched workspace: default"
-        ]
+        expect(framework.db.workspaces.size).to eq 1
       end
     end
 
