@@ -242,6 +242,14 @@ class Msf::Module::Target
   end
 
   #
+  # The payload NOP generator or generators that can be used when generating the
+  # encoded payload (such as x86/opty2 and so on).
+  #
+  def payload_nop
+    opts['Payload'] ? opts['Payload']['Nop'] : nil
+  end
+
+  #
   # The payload encoder type or types that can be used when generating the
   # encoded payload (such as alphanum, unicode, xor, and so on).
   #
