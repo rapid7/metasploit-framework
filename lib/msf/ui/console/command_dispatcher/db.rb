@@ -158,10 +158,15 @@ class Db
       ws_ids_to_delete = []
       starting_ws = framework.db.workspace
       names.uniq.each do |n|
-        ws_ids_to_delete << framework.db.find_workspace(n).id
+        ws = framework.db.workspaces(name: n).first
+        ws_ids_to_delete << ws.id if ws
       end
-      deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
-      process_deleted_workspaces(deleted, starting_ws)
+      if ws_ids_to_delete.count > 0
+        deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
+        process_deleted_workspaces(deleted, starting_ws)
+      else
+        print_status("No workspaces matching the given name(s) were found.")
+      end
     elsif delete_all
       ws_ids_to_delete = []
       starting_ws = framework.db.workspace
