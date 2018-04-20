@@ -16,6 +16,8 @@ module SocketSubsystem
 
 class TcpServerChannel < Rex::Post::Meterpreter::Channel
 
+  include Rex::IO::StreamServer
+
   #
   # This is a class variable to store all pending client tcp connections which have not been passed
   # off via a call to the respective server tcp channels accept method. The dictionary key is the
@@ -87,7 +89,7 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   end
 
   #
-  # Simply initilize this instance.
+  # Simply initialize this instance.
   #
   def initialize(client, cid, type, flags)
     super(client, cid, type, flags)
@@ -104,7 +106,7 @@ class TcpServerChannel < Rex::Post::Meterpreter::Channel
   end
 
   #
-  # Accept a new tcp client connection form this tcp server channel. This method will block indefinatly
+  # Accept a new tcp client connection form this tcp server channel. This method will block indefinitely
   # if no timeout is specified.
   #
   def accept(opts = {})
