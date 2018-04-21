@@ -113,7 +113,6 @@ module System
       full = cmd_exec('netstat -tulpn').to_s
       raise "You must be root to get listening ports" if full.include? '(No info could be read'
       full = full.split("\n")[2..-1]
-      full.delete!(':') # Only happens when getting services
 
       if portsonly
         ports = []
@@ -123,6 +122,7 @@ module System
         return ports
       else
         full.each do |s|
+          s.delete!(':') # Only happens when getting services
           split = s.split('/')
           services[:"#{split[0]}"] = split[1]
         end
