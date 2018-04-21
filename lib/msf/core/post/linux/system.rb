@@ -207,17 +207,6 @@ module System
   end
 
   #
-  # Gets the version of gcc
-  # @return [String]
-  #
-  def gcc_version
-    return cmd_exec('gcc --version | head -n 1').to_s.split(' ')[3] if has_gcc?
-    raise 'System does not have gcc installed'
-  rescue
-    raise 'Unable to get gcc version'
-  end
-
-  #
   # Checks if the `cmd` is installed on the system
   # @return [Boolean]
   #
@@ -306,7 +295,7 @@ module System
   # @param [String] filepath The filepath to get the mount point
   # @return [String]
   #
-  def get_mount_path_of(filepath)
+  def get_mount_path(filepath)
     cmd_exec("df \"#{filepath}\" | tail -1").split(' ')[5]
   rescue
     raise "Unable to get mount path of #{filepath}"
