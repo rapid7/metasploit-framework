@@ -103,38 +103,6 @@ module System
   end
 
   #
-  # Returns all listening services along with their ports
-  # @param portsonly Return the listening ports without their associated service
-  # @return [Hash]
-  #
-  def get_listening_services(portsonly = false)
-    services = {}
-    begin
-      full = cmd_exec('netstat -tulpn').to_s
-      raise "You must be root to get listening ports" if full.include? '(No info could be read'
-      full = full.split("\n")[2..-1]
-
-      if portsonly
-        ports = []
-        full.each do |p|
-          ports << p.split('/')[1]
-        end
-        return ports
-      else
-        full.each do |s|
-          s.delete!(':') # Only happens when getting services
-          split = s.split('/')
-          services[:"#{split[0]}"] = split[1]
-        end
-      end
-
-      services
-    rescue
-      raise 'Could not gather listening ports'
-    end
-  end
-
-  #
   # Gathers all SUID files on the filesystem.
   # NOTE: This uses the Linux `find` command. It will most likely take a while to get all files.
   # Consider specifying a more narrow find path.
