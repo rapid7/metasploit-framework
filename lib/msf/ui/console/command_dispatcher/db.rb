@@ -1056,7 +1056,7 @@ class Db
         return
       end
 
-      if types && types.size != 1
+      if types.nil? || types.size != 1
         print_error("Exactly one type is required")
         return
       end
@@ -1078,12 +1078,12 @@ class Db
     end
 
     if mode == :update
-      if types && types.size != 1
+      if !types.nil? && types.size != 1
         print_error("Exactly one type is required")
         return
       end
 
-      if !types && !data
+      if types.nil? && data.nil?
         print_error("Update requires data or type")
         return
       end
@@ -1119,12 +1119,12 @@ class Db
       if mode == :update
         begin
           update_opts = {id: note.id}
-          if types
+          unless types.nil?
             note.ntype = types.first
             update_opts[:ntype] = types.first
           end
 
-          if data
+          unless data.nil?
             note.data = data
             update_opts[:data] = data
           end
