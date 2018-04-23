@@ -1,6 +1,6 @@
 ## Description
 
-This module is a brute-force login scanner that attempts to authenticate to a system using HTTP authentication.
+This module is a brute-force login scanner that attempts to authenticate to a system using HTTP authentication. More info can be found in [cve-1999-0502](https://www.cvedetails.com/cve/cve-1999-0502).
 
 ## Verification Steps
 
@@ -11,35 +11,8 @@ This module is a brute-force login scanner that attempts to authenticate to a sy
 
 ## Scenarios
 
-**Running the scanner**
-
 ```
 msf > use auxiliary/scanner/http/http_login
-msf auxiliary(http_login) > show options
-
-Module options (auxiliary/scanner/http/http_login):
-
-   Name              Current Setting                                                           Required  Description
-   ----              ---------------                                                           --------  -----------
-   AUTH_URI                                                                                    no        The URI to authenticate against (default:auto)
-   BLANK_PASSWORDS   false                                                                     no        Try blank passwords for all users
-   BRUTEFORCE_SPEED  5                                                                         yes       How fast to bruteforce, from 0 to 5
-   DB_ALL_CREDS      false                                                                     no        Try each user/password couple stored in the current database
-   DB_ALL_PASS       false                                                                     no        Add all passwords in the current database to the list
-   DB_ALL_USERS      false                                                                     no        Add all users in the current database to the list
-   PASS_FILE         /usr/share/metasploit-framework/data/wordlists/http_default_pass.txt      no        File containing passwords, one per line
-   Proxies                                                                                     no        A proxy chain of format type:host:port[,type:host:port][...]
-   REQUESTTYPE       GET                                                                       no        Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)
-   RHOSTS                                                                                      yes       The target address range or CIDR identifier
-   RPORT             80                                                                        yes       The target port (TCP)
-   SSL               false                                                                     no        Negotiate SSL/TLS for outgoing connections
-   STOP_ON_SUCCESS   false                                                                     yes       Stop guessing when a credential works for a host
-   THREADS           1                                                                         yes       The number of concurrent threads
-   USERPASS_FILE     /usr/share/metasploit-framework/data/wordlists/http_default_userpass.txt  no        File containing users and passwords separated by space, one pair per line
-   USER_AS_PASS      false                                                                     no        Try the username as the password for all users
-   USER_FILE         /usr/share/metasploit-framework/data/wordlists/http_default_users.txt     no        File containing users, one per line
-   VERBOSE           true                                                                      yes       Whether to print output for all attempts
-   VHOST
 msf auxiliary(http_login) > set AUTH_URI /xampp/
 AUTH_URI => /xampp/
 msf auxiliary(http_login) > set RHOSTS 192.168.1.201

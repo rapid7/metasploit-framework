@@ -5,11 +5,11 @@ RSpec.shared_examples_for 'Msf::DBManager#search_modules Mdm::Module::Platform#n
     end
 
     let!(:module_platform) do
-      FactoryGirl.create(:mdm_module_platform)
+      FactoryBot.create(:mdm_module_platform)
     end
 
     let!(:module_target) do
-      FactoryGirl.create(:mdm_module_target)
+      FactoryBot.create(:mdm_module_target)
     end
 
     context 'with Mdm::Module::Platform#name' do

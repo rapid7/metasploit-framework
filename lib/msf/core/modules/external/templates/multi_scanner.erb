@@ -16,12 +16,13 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       register_options([
+        OptInt.new('batch_size', [false, 'Number of hosts to run in each batch', 200]),
         <%= meta[:options] %>
       ])
   end
 
   def run_batch_size
-    200
+    datastore['batch_size']
   end
 
   def run_batch(ips)

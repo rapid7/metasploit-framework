@@ -234,6 +234,22 @@ class Msf::Module::Target
   end
 
   #
+  # The payload encoder or encoders that can be used when generating the
+  # encoded payload (such as x86/shikata_ga_nai and so on).
+  #
+  def payload_encoder
+    opts['Payload'] ? opts['Payload']['Encoder'] : nil
+  end
+
+  #
+  # The payload NOP generator or generators that can be used when generating the
+  # encoded payload (such as x86/opty2 and so on).
+  #
+  def payload_nop
+    opts['Payload'] ? opts['Payload']['Nop'] : nil
+  end
+
+  #
   # The payload encoder type or types that can be used when generating the
   # encoded payload (such as alphanum, unicode, xor, and so on).
   #

@@ -384,6 +384,14 @@ class Msf::Module::Platform
   end
 
   #
+  # Juniper
+  #
+  class Juniper < Msf::Module::Platform
+    Rank = 100
+    Alias = "juniper"
+  end
+
+  #
   # Solaris
   #
   class Solaris < Msf::Module::Platform

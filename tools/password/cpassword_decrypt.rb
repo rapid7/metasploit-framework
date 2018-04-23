@@ -6,7 +6,7 @@
 ##
 
 #
-# This script will allow you to specify an encrypted cpassword string using the Microsofts public
+# This script will allow you to specify an encrypted cpassword string using the Microsoft's public
 # AES key. This is useful if you don't or can't use the GPP post exploitation module. Just paste
 # the cpassword encrypted string found in groups.xml or scheduledtasks.xml and it will output the
 # decrypted string for you.
