@@ -173,7 +173,7 @@ class RemoteHTTPDataService
     rescue EOFError => e
       elog "No data was returned from the data service for request type/path : #{request_type}/#{path}, message: #{e.message}"
       return FailedResponse.new('')
-    rescue Exception => e
+    rescue => e
       elog "Problem with HTTP request for type/path: #{request_type}/#{path} message: #{e.message}"
       return FailedResponse.new('')
     ensure

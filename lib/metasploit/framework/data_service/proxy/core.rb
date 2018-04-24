@@ -165,7 +165,7 @@ class DataProxy
       else
         @error = 'disabled'
       end
-    rescue Exception => e
+    rescue => e
       raise "Unable to initialize data service: #{e.message}"
     end
   end

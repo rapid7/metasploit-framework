@@ -1994,7 +1994,7 @@ class Db
       framework.db.register_data_service(remote_data_service)
       print_line "Registered data service: #{remote_data_service.name}"
       framework.db.workspace = framework.db.default_workspace
-    rescue Exception => e
+    rescue => e
       print_error "There was a problem registering the remote data service: #{e.message}"
     end
   end
@@ -2004,7 +2004,7 @@ class Db
       data_service = framework.db.set_data_service(service_id)
       framework.db.workspace = framework.db.default_workspace
       data_service
-    rescue Exception => e
+    rescue => e
       print_error "Unable to set data service: #{e.message}"
     end
   end
