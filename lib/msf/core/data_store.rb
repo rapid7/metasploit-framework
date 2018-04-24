@@ -372,7 +372,7 @@ class ModuleDataStore < DataStore
     self.keys.each do |k|
       clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
     end
-    clone.aliases = self.aliases
+    clone.aliases = self.aliases.dup
     clone
   end
 end
