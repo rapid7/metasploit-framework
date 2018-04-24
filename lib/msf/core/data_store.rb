@@ -219,6 +219,21 @@ class DataStore < Hash
     end
   end
 
+  #
+  # Return a deep copy of this datastore.
+  #
+  def copy
+    clone = self.class.new
+    self.keys.each do |k|
+      clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+    end
+    clone.aliases = self.aliases.dup
+    clone
+  end
+
+  #
+  # Override merge! so that we merge the aliases and imported hashes
+  #
   def merge!(other)
     super
     self.aliases.merge!(other.aliases) if other.respond_to?(:aliases)
@@ -226,6 +241,9 @@ class DataStore < Hash
     self.imported_by.merge!(other.imported_by) if other.respond_to?(:imported_by)
   end
 
+  #
+  # Override merge to ensure we merge the aliases and imported hashes
+  #
   def merge(other)
     ds = self.copy
     ds.merge!(other)
@@ -273,18 +291,6 @@ class DataStore < Hash
       list << [sidx, self[sidx]]
     end
     list.each(&block)
-  end
-
-  #
-  # Return a deep copy of this datastore.
-  #
-  def copy
-    clone = self.class.new
-    self.keys.each do |k|
-      clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
-    end
-    clone.aliases = self.aliases.dup
-    clone
   end
 
 protected
