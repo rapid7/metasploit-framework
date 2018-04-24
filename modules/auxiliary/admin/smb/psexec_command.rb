@@ -81,10 +81,10 @@ class MetasploitModule < Msf::Auxiliary
             print_error("Command seems to still be executing. Try increasing RETRY and DELAY")
           end
         end
-        get_output(text)
+        get_output(text, @smbshare, @ip)
       end
 
-      cleanup_after(text, bat)
+      cleanup_after(bat, @smbshare, @ip)
       disconnect
     end
   end

@@ -93,21 +93,33 @@ class MetasploitModule < Msf::Auxiliary
     @ip = ip
 
     # Try and authenticate with given credentials
-    res = execute_command(text, bat)
+    res = execute_command(text, bat, datastore['COMMAND'])
 
     if res
       for i in 0..(datastore['RETRY'])
         Rex.sleep(datastore['DELAY'])
         # if the output file is still locked then the program is still likely running
-        if (exclusive_access(text))
+        if (exclusive_access(text, @smbshare, @ip))
           break
         elsif (i == datastore['RETRY'])
           print_error("Command seems to still be executing. Try increasing RETRY and DELAY")
         end
       end
-      get_output(text)
+      get_output(text, @smbshare, @ip)
     end
 
-    cleanup_after(text, bat)
+    cleanup_after(text, bat, @smbshare, @ip)
+
+    # Report output
+    print_good("Command completed successfuly!")
+    vprint_status("Output for \"#{datastore['COMMAND']}\":")
+    vprint_line("#{output}")
+    report_note(
+      :rhost => datastore['RHOSTS'],
+      :rport => datastore['RPORT'],
+      :type  => "psexec_command",
+      :name => datastore['COMMAND'],
+      :data => output
+    )
   end
 end
