@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Encoder
   end
 
   def encode_block(state, buf)
-    ["(",")",".","%","e","v","a","l","u","n","p","c","k","m","0","f","i","r","s","t"].each do |c|
+    %w{( ) . % e v a l u n p c k m 0 f i r s t}.each do |c|
       raise BadcharError if state.badchars.include?(c)
     end
 
