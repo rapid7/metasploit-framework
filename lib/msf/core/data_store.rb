@@ -220,10 +220,10 @@ class DataStore < Hash
   end
 
   def merge!(other)
-    @options.merge!(other.options)
-    @aliases.merge!(other.aliases)
-    @imported.merge!(other.imported)
-    @imported_by.merge!(other.imported_by)
+    self.options.merge!(other.options)
+    self.aliases.merge!(other.aliases)
+    self.imported.merge!(other.imported)
+    self.imported_by.merge!(other.imported_by)
   end
 
   def merge(other)
@@ -288,8 +288,8 @@ protected
 
     # Scan each alias looking for a key
     search_k = k.downcase
-    if @aliases.has_key?(search_k)
-      search_k = @aliases[search_k]
+    if self.aliases.has_key?(search_k)
+      search_k = self.aliases[search_k]
     end
 
     # Scan each key looking for a match
@@ -364,7 +364,7 @@ class ModuleDataStore < DataStore
     self.keys.each do |k|
       clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
     end
-    clone.aliases = @aliases
+    clone.aliases = self.aliases
     clone
   end
 end
