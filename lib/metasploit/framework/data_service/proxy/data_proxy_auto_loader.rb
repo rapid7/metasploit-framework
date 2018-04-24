@@ -18,6 +18,7 @@ module DataProxyAutoLoader
   autoload :NmapDataProxy, 'metasploit/framework/data_service/proxy/nmap_data_proxy'
   autoload :DbExportDataProxy, 'metasploit/framework/data_service/proxy/db_export_data_proxy'
   autoload :VulnAttemptDataProxy, 'metasploit/framework/data_service/proxy/vuln_attempt_data_proxy'
+  autoload :MsfDataProxy, 'metasploit/framework/data_service/proxy/msf_data_proxy'
 
   include ServiceDataProxy
   include HostDataProxy
@@ -34,4 +35,5 @@ module DataProxyAutoLoader
   include NmapDataProxy
   include DbExportDataProxy
   include VulnAttemptDataProxy
+  include MsfDataProxy
 end
