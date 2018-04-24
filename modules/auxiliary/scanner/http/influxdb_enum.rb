@@ -32,7 +32,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8086),
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/']),
         OptString.new('USERNAME', [true, 'The username to login as', 'root']),
-        OptString.new('PASSWORD', [true, 'The password to login with', 'root'])
+        OptString.new('PASSWORD', [true, 'The password to login with', 'root']),
+        OptString.new('QUERY', [true, 'The influxdb query syntax', 'SHOW DATABASES'])
       ])
   end
 
@@ -57,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
         'method'        => 'GET',
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
         'vars_get'      => {
-          'q'           => 'SHOW DATABASES'
+          'q'           => datastore['QUERY']
         }
       )
 
