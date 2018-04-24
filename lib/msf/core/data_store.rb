@@ -220,19 +220,15 @@ class DataStore < Hash
   end
 
   def merge!(other)
-    self.options.merge!(other.options)
-    self.aliases.merge!(other.aliases)
-    self.imported.merge!(other.imported)
-    self.imported_by.merge!(other.imported_by)
+    super
+    self.aliases.merge!(other.aliases) if other.respond_to?(:aliases)
+    self.imported.merge!(other.imported) if other.respond_to?(:imported)
+    self.imported_by.merge!(other.imported_by) if other.respond_to?(:imported_by)
   end
 
   def merge(other)
-    ds = copy
-    ds.options.merge!(other.options)
-    ds.aliases.merge!(other.aliases)
-    ds.imported.merge!(other.imported)
-    ds.imported_by.merge!(other.imported_by)
-    ds
+    ds = self.copy
+    ds.merge!(other)
   end
 
   #
