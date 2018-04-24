@@ -71,7 +71,7 @@ class DataProxy
       raise "Data service with id: #{data_service_id} does not exist"
     end
 
-    unless data_service.active
+    if !data_service.is_local? && !data_service.active
       raise "Data service #{data_service.name} is not online, and won't be set as active"
     end
 
