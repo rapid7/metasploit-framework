@@ -36,7 +36,7 @@ module Msf::DBManager::Host
   # Iterates over the hosts table calling the supplied block with the host
   # instance of each entry.
   #
-  def each_host(wspace=workspace, &block)
+  def each_host(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.hosts.each do |host|
       block.call(host)
@@ -53,17 +53,14 @@ module Msf::DBManager::Host
   end
 
   def add_host_tag(opts)
-    workspace = opts[:workspace]
-    if workspace.kind_of? String
-      workspace = find_workspace(workspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     ip = opts[:ip]
     tag_name = opts[:tag_name]
 
-    host = framework.db.get_host(:workspace => workspace, :address => ip)
+    host = framework.db.get_host(:workspace => wspace, :address => ip)
     if host
-      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
       tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
       tag.name = tag_name
       tag.hosts = [host]
@@ -74,7 +71,7 @@ module Msf::DBManager::Host
   def delete_host_tag(opts)
     workspace = opts[:workspace]
     if workspace.kind_of? String
-      workspace = find_workspace(workspace)
+      workspace = framework.db.find_workspace(workspace)
     end
 
     ip = opts[:rws]
@@ -113,10 +110,7 @@ module Msf::DBManager::Host
       return address if address.kind_of? ::Mdm::Host
     end
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     address = Msf::Util::Host.normalize_host(address)
     return wspace.hosts.find_by_address(address)
@@ -133,12 +127,8 @@ module Msf::DBManager::Host
 
   # Returns a list of all hosts in the database
   def hosts(opts)
-    wspace = opts[:workspace] || opts[:wspace] || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       conditions = {}
       conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
@@ -193,10 +183,7 @@ module Msf::DBManager::Host
     end
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     ret = { }
 
@@ -280,14 +267,11 @@ module Msf::DBManager::Host
   end
 
   def update_host(opts)
-    # process workspace string for update if included in opts
-    wspace = opts.delete(:workspace)
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-      opts[:workspace] = wspace
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      # process workspace string for update if included in opts
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts[:workspace] = wspace if wspace
+
       id = opts.delete(:id)
       Mdm::Host.update(id, opts)
     }
@@ -298,116 +282,5 @@ module Msf::DBManager::Host
     flavor_match = os_name.match(/Windows\s+(.*)/)
     return [] if flavor_match.nil?
     ["Windows", flavor_match.captures.first]
-  end
-
-  #
-  # Update a host's attributes via semi-standardized sysinfo hash (Meterpreter)
-  #
-  # The opts parameter MUST contain the following entries
-  # +:host+::           -- the host's ip address
-  # +:info+::           -- the information hash
-  # * 'Computer'        -- the host name
-  # * 'OS'              -- the operating system string
-  # * 'Architecture'    -- the hardware architecture
-  # * 'System Language' -- the system language
-  #
-  # The opts parameter can contain:
-  # +:workspace+::      -- the workspace for this host
-  #
-  def update_host_via_sysinfo(opts)
-
-    return if !active
-    addr = opts.delete(:host) || return
-    info = opts.delete(:info) || return
-
-    # Sometimes a host setup through a pivot will see the address as "Remote Pipe"
-    if addr.eql? "Remote Pipe"
-      return
-    end
-
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-
-    if !addr.kind_of? ::Mdm::Host
-      addr = Msf::Util::Host.normalize_host(addr)
-      addr, scope = addr.split('%', 2)
-      opts[:scope] = scope if scope
-
-      unless ipv46_validator(addr)
-        raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
-      end
-
-      if opts[:comm] and opts[:comm].length > 0
-        host = wspace.hosts.where(address: addr, comm: opts[:comm]).first_or_initialize
-      else
-        host = wspace.hosts.where(address: addr).first_or_initialize
-      end
-    else
-      host = addr
-    end
-
-    ostate = host.state
-
-    res = {}
-
-    if info['Computer']
-      res[:name] = info['Computer']
-    end
-
-    if info['Architecture']
-      res[:arch] = info['Architecture'].split(/\s+/).first
-    end
-
-    if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
-      res[:os_name]   = "Windows"
-      res[:os_flavor] = $1.strip
-      build = $2.strip
-
-      if build =~ /Service Pack (\d+)/
-        res[:os_sp] = "SP" + $1
-      end
-    end
-
-    if info["System Language"]
-      case info["System Language"]
-        when /^en_/
-          res[:os_lang] = "English"
-      end
-    end
-
-
-    # Truncate the info field at the maximum field length
-    if res[:info]
-      res[:info] = res[:info][0,65535]
-    end
-
-    # Truncate the name field at the maximum field length
-    if res[:name]
-      res[:name] = res[:name][0,255]
-    end
-
-    res.each do |k,v|
-      if (host.attribute_names.include?(k.to_s))
-        unless host.attribute_locked?(k.to_s)
-          host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
-        end
-      elsif !v.blank?
-        dlog("Unknown attribute for Host: #{k}")
-      end
-    end
-
-    # Set default fields if needed
-    host.state       = Msf::HostState::Alive if !host.state
-    host.comm        = ''        if !host.comm
-    host.workspace   = wspace    if !host.workspace
-
-    host.save! if host.changed?
-    host_state_changed(host, ostate) if host.state != ostate
-
-    host
-  }
   end
 end
