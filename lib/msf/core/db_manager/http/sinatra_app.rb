@@ -1,5 +1,6 @@
 require 'sinatra/base'
 require 'msf/core/db_manager/http/servlet_helper'
+require 'msf/core/db_manager/http/servlet/api_docs_servlet'
 require 'msf/core/db_manager/http/servlet/host_servlet'
 require 'msf/core/db_manager/http/servlet/note_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_servlet'
@@ -17,11 +18,14 @@ require 'msf/core/db_manager/http/servlet/nmap_servlet'
 require 'msf/core/db_manager/http/servlet/db_export_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_attempt_servlet'
 
+require 'swagger/blocks'
+
 class SinatraApp < Sinatra::Base
 
   helpers ServletHelper
 
   # Servlet registration
+  register ApiDocsServlet
   register HostServlet
   register VulnServlet
   register EventServlet
