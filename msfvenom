@@ -135,7 +135,7 @@ def parse_args(args)
   end
 
   opt.on('-b', '--bad-chars     <list>', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
-    require 'rex/text'
+    init_framework()
     opts[:badchars] = Rex::Text.hex_to_raw(b)
   end
 
@@ -167,6 +167,10 @@ def parse_args(args)
     opts[:smallest] = true
   end
 
+  opt.on('-t', '--timeout       <second>', Integer, "The number of seconds to wait when reading the payload from STDIN (default 30, 0 to disable).") do |x|
+    opts[:timeout] = x
+  end
+
   opt.on_tail('-h', '--help', 'Show this message') do
     raise HelpError, "#{opt}"
   end
@@ -189,7 +193,7 @@ def parse_args(args)
       datastore[k.upcase] = v.to_s
     end
     if opts[:payload].to_s =~ /[\_\/]reverse/ and datastore['LHOST'].nil?
-      require 'rex/socket'
+      init_framework()
       datastore['LHOST'] = Rex::Socket.source_address
     end
   end
@@ -201,7 +205,8 @@ def parse_args(args)
   if opts[:payload] == 'stdin' and not opts[:list]
     $stderr.puts "Attempting to read payload from STDIN..."
     begin
-      ::Timeout.timeout(30) do
+      opts[:timeout] ||= 30
+      ::Timeout.timeout(opts[:timeout]) do
         opts[:stdin] = payload_stdin
       end
     rescue Timeout::Error

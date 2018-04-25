@@ -1,10 +1,10 @@
 module HostDataProxy
 
-  def hosts(wspace = workspace, non_dead = false, addresses = nil, search_term = nil)
+  def hosts(wspace = workspace.name, non_dead = false, addresses = nil, search_term = nil)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       opts = {}
-      opts[:wspace] = wspace
+      add_opts_workspace(opts, wspace)
       opts[:non_dead] = non_dead
       opts[:address] = addresses
       opts[:search_term] = search_term
@@ -34,7 +34,8 @@ module HostDataProxy
     return unless valid(opts)
 
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
+      add_opts_workspace(opts)
       data_service.report_host(opts)
     rescue Exception => e
       self.log_error(e, "Problem reporting host")
@@ -43,7 +44,8 @@ module HostDataProxy
 
   def report_hosts(hosts)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
+      add_opts_workspace(hosts)
       data_service.report_hosts(hosts)
     rescue Exception => e
       self.log_error(e, "Problem reporting hosts")
@@ -52,7 +54,7 @@ module HostDataProxy
 
   def update_host(opts)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.update_host(opts)
     rescue Exception => e
       self.log_error(e, "Problem updating host")
@@ -61,7 +63,7 @@ module HostDataProxy
 
   def delete_host(opts)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.delete_host(opts)
     rescue Exception => e
       self.log_error(e, "Problem deleting host")

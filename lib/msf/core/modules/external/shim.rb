@@ -37,6 +37,7 @@ class Msf::Modules::External::Shim
     meta[:name]        = mod.meta['name'].dump
     meta[:description] = mod.meta['description'].dump
     meta[:authors]     = mod.meta['authors'].map(&:dump).join(",\n          ")
+    meta[:license]     = mod.meta['license'].nil? ? 'MSF_LICENSE' : mod.meta['license']
 
     options = if drop_rhost
       mod.meta['options'].reject {|n, o| n == 'rhost'}

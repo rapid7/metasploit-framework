@@ -2,8 +2,9 @@ module Msf::DBManager::Cred
   # This methods returns a list of all credentials in the database
   def creds(opts)
     query = nil
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     ::ActiveRecord::Base.connection_pool.with_connection {
-      query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace.id )
+      query = Metasploit::Credential::Core.where( workspace_id: wspace.id )
       query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
       query = query.includes(logins: [ :service, { service: :host } ])
 
@@ -40,7 +41,7 @@ module Msf::DBManager::Cred
 
   # This method iterates the creds table calling the supplied block with the
   # cred instance of each entry.
-  def each_cred(wspace=workspace,&block)
+  def each_cred(wspace=framework.db.workspace,&block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.creds.each do |cred|
       block.call(cred)
@@ -106,7 +107,7 @@ module Msf::DBManager::Cred
     # Nil is true for active.
     active = (opts[:active] || opts[:active].nil?) ? true : false
 
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     # Service management; assume the user knows what
     # he's talking about.

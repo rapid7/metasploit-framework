@@ -8,7 +8,7 @@ module Msf::DBManager::Event
   def report_event(opts = {})
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = get_workspace(opts)
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     return if not wspace # Temp fix?
     uname  = opts.delete(:username)
 

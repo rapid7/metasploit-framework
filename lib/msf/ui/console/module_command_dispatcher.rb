@@ -217,9 +217,16 @@ module ModuleCommandDispatcher
     end
 
     begin
-      code = instance.check_simple(
-        'LocalInput'  => driver.input,
-        'LocalOutput' => driver.output)
+      if instance.respond_to?(:check_simple)
+        code = instance.check_simple(
+          'LocalInput'  => driver.input,
+          'LocalOutput' => driver.output
+        )
+      else
+        msg = "Check failed: #{instance.type.capitalize} modules do not support check."
+        raise NotImplementedError, msg
+      end
+
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
           print_good("#{peer} #{code[1]}")
@@ -239,6 +246,9 @@ module ModuleCommandDispatcher
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
+      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+    rescue ::NotImplementedError => e
+      print_error(e.message)
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")

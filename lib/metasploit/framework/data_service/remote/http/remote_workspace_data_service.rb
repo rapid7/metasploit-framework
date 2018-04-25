@@ -3,55 +3,47 @@ require 'metasploit/framework/data_service/remote/http/response_data_helper'
 module RemoteWorkspaceDataService
   include ResponseDataHelper
 
-  # TODO: should counts be a flag in query data for the workspaces resource?
-  WORKSPACE_COUNTS_API_PATH = '/api/v1/workspaces/counts'
   WORKSPACE_API_PATH = '/api/v1/workspaces'
   WORKSPACE_MDM_CLASS = 'Mdm::Workspace'
-  DEFAULT_WORKSPACE_NAME = 'default'
 
-  def find_workspace(workspace_name)
-    workspace = workspace_cache[workspace_name]
-    return workspace unless (workspace.nil?)
-
-    workspace = json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, {:workspace_name => workspace_name}), WORKSPACE_MDM_CLASS).first
-    workspace_cache[workspace_name] = workspace
-  end
-
-  def add_workspace(workspace_name)
-    response = self.post_data(WORKSPACE_API_PATH, {:workspace_name => workspace_name})
-    json_to_mdm_object(response, WORKSPACE_MDM_CLASS, nil)
+  def add_workspace(opts)
+    response = self.post_data(WORKSPACE_API_PATH, opts)
+    json_to_mdm_object(response, WORKSPACE_MDM_CLASS, nil).first
   end
 
   def default_workspace
-    find_workspace(DEFAULT_WORKSPACE_NAME)
+    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, { name: Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME }), WORKSPACE_MDM_CLASS, [])
   end
 
   def workspace
-    find_workspace(current_workspace_name)
+    # The @current_workspace is tracked on the client side, so attempting to call it directly from the RemoteDataService
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Calling workspace from within the RemoteDataService is no longer supported. Please call from WorkspaceDataProxy instead."
+    caller.each { |line| wlog "#{line}"}
   end
 
   def workspace=(workspace)
-    @current_workspace_name = workspace.name
+    # The @current_workspace is tracked on the client side, so attempting to call it directly from the RemoteDataService
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Setting the current workspace from the RemoteDataService is no longer supported. Please call from WorkspaceDataProxy instead."
+    caller.each { |line| wlog "#{line}"}
   end
 
-  def workspaces
-    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, {:all => true}), WORKSPACE_MDM_CLASS, [])
+  def workspaces(opts)
+    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, opts), WORKSPACE_MDM_CLASS, [])
   end
 
-  def workspace_associations_counts()
-    json_to_mdm_object(self.get_data(WORKSPACE_COUNTS_API_PATH, []), WORKSPACE_MDM_CLASS, [])
+  def delete_workspaces(opts)
+    json_to_mdm_object(self.delete_data(WORKSPACE_API_PATH, opts), WORKSPACE_MDM_CLASS, [])
   end
 
-  #########
-  protected
-  #########
-
-  def workspace_cache
-    @workspace_cache ||= {}
-  end
-
-  def current_workspace_name
-    @current_workspace_name ||= DEFAULT_WORKSPACE_NAME
+  def update_workspace(opts)
+    path = WORKSPACE_API_PATH
+    if opts && opts[:id]
+      id = opts.delete(:id)
+      path = "#{WORKSPACE_API_PATH}/#{id}"
+    end
+    json_to_mdm_object(self.put_data(path, opts), WORKSPACE_MDM_CLASS, []).first
   end
 
 end

@@ -131,11 +131,11 @@ class RemoteHTTPDataService
   def make_request(request_type, path, data_hash = nil, query = nil)
     begin
       # simplify query by removing nil values
-      query_str = (!query.nil? && !query.empty?) ? append_workspace(query).compact.to_query : nil
+      query_str = (!query.nil? && !query.empty?) ? query.compact.to_query : nil
       uri = URI::HTTP::build({path: path, query: query_str})
       dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
-      client = @client_pool.pop()
+      client = @client_pool.pop
       case request_type
         when GET_REQUEST
           request = Net::HTTP::Get.new(uri.request_uri)
@@ -178,6 +178,10 @@ class RemoteHTTPDataService
 
   def name
     "remote_data_service: (#{@endpoint})"
+  end
+
+  def is_local?
+    false
   end
 
   def set_header(key, value)
@@ -229,19 +233,6 @@ class RemoteHTTPDataService
     raise 'Endpoint cannot be nil' if endpoint.nil?
   end
 
-  def append_workspace(data_hash)
-    workspace = data_hash[:workspace]
-    workspace = data_hash.delete(:wspace) unless workspace
-
-    if workspace && (workspace.is_a?(OpenStruct) || workspace.is_a?(::Mdm::Workspace))
-      data_hash[:workspace] = workspace.name
-    end
-
-    data_hash[:workspace] = current_workspace_name if workspace.nil?
-
-    data_hash
-  end
-
   def build_request(request, data_hash)
     request.content_type = 'application/json'
     if !data_hash.nil? && !data_hash.empty?
@@ -254,7 +245,7 @@ class RemoteHTTPDataService
           data_hash.delete(k)
         end
       end
-      json_body = append_workspace(data_hash).to_json
+      json_body = data_hash.to_json
       request.body = json_body
     end
 

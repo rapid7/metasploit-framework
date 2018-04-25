@@ -51,9 +51,16 @@ module Msf::Payload::TransportConfig
 
   def transport_uri_components(opts={})
     ds = opts[:datastore] || datastore
-    scheme = opts[:scheme]
-    lhost = ds['LHOST']
-    lport = ds['LPORT']
+    if opts[:url]
+      u = URI(opts[:url])
+      scheme = u.scheme
+      lhost = u.host
+      lport = u.port
+    else
+      scheme = opts[:scheme]
+      lhost = ds['LHOST']
+      lport = ds['LPORT']
+    end
     if ds['OverrideRequestHost']
       scheme = ds['OverrideScheme'] || scheme
       lhost = ds['OverrideLHOST'] || lhost

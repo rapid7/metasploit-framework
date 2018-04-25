@@ -2,8 +2,9 @@ module WorkspaceDataProxy
 
   def find_workspace(workspace_name)
     begin
-      data_service = self.get_data_service()
-      data_service.find_workspace(workspace_name)
+      data_service = self.get_data_service
+      opts = { name: workspace_name }
+      data_service.workspaces(opts).first
     rescue  Exception => e
       self.log_error(e, "Problem finding workspace")
     end
@@ -11,8 +12,9 @@ module WorkspaceDataProxy
 
   def add_workspace(workspace_name)
     begin
-      data_service = self.get_data_service()
-      data_service.add_workspace(workspace_name)
+      data_service = self.get_data_service
+      opts = { name: workspace_name }
+      data_service.add_workspace(opts)
     rescue  Exception => e
       self.log_error(e, "Problem adding workspace")
     end
@@ -20,8 +22,11 @@ module WorkspaceDataProxy
 
   def default_workspace
     begin
-      data_service = self.get_data_service()
-      data_service.default_workspace
+      ws = find_workspace(Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME)
+      if ws.nil?
+        ws = add_workspace(Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME)
+      end
+      ws
     rescue  Exception => e
       self.log_error(e, "Problem finding default workspace")
     end
@@ -29,38 +34,52 @@ module WorkspaceDataProxy
 
   def workspace
     begin
-      data_service = self.get_data_service()
-      data_service.workspace
+      if @current_workspace
+        @current_workspace
+      else
+        # This is mostly a failsafe to prevent bad things from happening. @current_workspace should always be set
+        # outside of here, but this will save us from crashes/infinite loops if that happens
+        warn "@current_workspace was not set. Setting to default_workspace: #{default_workspace.name}"
+        @current_workspace = default_workspace
+      end
     rescue  Exception => e
       self.log_error(e, "Problem retrieving workspace")
     end
   end
 
+  # TODO: Tracking of the current workspace should be moved out of the datastore. See MS-3095.
   def workspace=(workspace)
     begin
-      data_service = self.get_data_service()
-      data_service.workspace = workspace
+      @current_workspace = workspace
     rescue  Exception => e
       self.log_error(e, "Problem setting workspace")
     end
   end
 
-  def workspaces
+  def workspaces(opts = {})
     begin
-      data_service = self.get_data_service()
-      data_service.workspaces
+      data_service = self.get_data_service
+      data_service.workspaces(opts)
     rescue  Exception => e
       self.log_error(e, "Problem retrieving workspaces")
     end
   end
 
-  def workspace_associations_counts()
+  def delete_workspaces(opts)
     begin
-      data_service = self.get_data_service()
-      data_service.workspace_associations_counts()
-    rescue  Exception => e
-      self.log_error(e, "Problem retrieving workspace counts")
+      data_service = self.get_data_service
+      data_service.delete_workspaces(opts)
+    rescue Exception => e
+      self.log_error(e, "Problem deleting workspaces")
     end
   end
 
+  def update_workspace(opts)
+    begin
+      data_service = self.get_data_service
+      data_service.update_workspace(opts)
+    rescue Exception => e
+      self.log_error(e, "Problem updating workspace")
+    end
+  end
 end

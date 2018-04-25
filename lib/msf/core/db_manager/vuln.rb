@@ -3,7 +3,7 @@ module Msf::DBManager::Vuln
   # This method iterates the vulns table calling the supplied block with the
   # vuln instance of each entry.
   #
-  def each_vuln(wspace=workspace,&block)
+  def each_vuln(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace.vulns.each do |vulns|
       block.call(vulns)
@@ -94,8 +94,7 @@ module Msf::DBManager::Vuln
     info = opts[:info]
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     exploited_at = opts[:exploited_at] || opts["exploited_at"]
     details = opts.delete(:details)
     rids = opts.delete(:ref_ids)
@@ -236,12 +235,8 @@ module Msf::DBManager::Vuln
   # This methods returns a list of all vulnerabilities in the database
   #
   def vulns(opts)
-    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       search_term = opts.delete(:search_term)
       if search_term && !search_term.empty?
@@ -259,17 +254,12 @@ module Msf::DBManager::Vuln
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::Vuln] The updated Mdm::Vuln object.
   def update_vuln(opts)
-    # process workspace string for update if included in opts
-    wspace = opts.delete(:workspace)
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-      opts[:workspace] = wspace
-    end
-
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      id = opts.delete(:id)
-      Mdm::Vuln.update(id, opts)
-    }
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+    opts[:workspace] = wspace if wspace
+    id = opts.delete(:id)
+    Mdm::Vuln.update(id, opts)
+  }
   end
 
   # Deletes Vuln entries based on the IDs passed in.
@@ -279,19 +269,19 @@ module Msf::DBManager::Vuln
   def delete_vuln(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      deleted = []
-      opts[:ids].each do |vuln_id|
-        vuln = Mdm::Vuln.find(vuln_id)
-        begin
-          deleted << vuln.destroy
-        rescue # refs suck
-          elog("Forcibly deleting #{vuln}")
-          deleted << vuln.delete
-        end
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    deleted = []
+    opts[:ids].each do |vuln_id|
+      vuln = Mdm::Vuln.find(vuln_id)
+      begin
+        deleted << vuln.destroy
+      rescue # refs suck
+        elog("Forcibly deleting #{vuln}")
+        deleted << vuln.delete
       end
+    end
 
-      return deleted
-    }
+    return deleted
+  }
   end
 end
