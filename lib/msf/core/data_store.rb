@@ -223,12 +223,12 @@ class DataStore < Hash
   # Return a deep copy of this datastore.
   #
   def copy
-    clone = self.class.new
+    ds = self.class.new
     self.keys.each do |k|
-      clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+      ds.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
     end
-    clone.aliases = self.aliases.dup
-    clone
+    ds.aliases = self.aliases.dup
+    ds
   end
 
   #
@@ -374,12 +374,12 @@ class ModuleDataStore < DataStore
   # Return a deep copy of this datastore.
   #
   def copy
-    clone = self.class.new(@_module)
+    ds = self.class.new(@_module)
     self.keys.each do |k|
-      clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+      ds.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
     end
-    clone.aliases = self.aliases.dup
-    clone
+    ds.aliases = self.aliases.dup
+    ds
   end
 end
 
