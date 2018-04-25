@@ -69,22 +69,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Unable to authenticate with given credentials: #{autherror}")
         return
       end
-      res = execute_command(text, bat)
-
-      if res
-        for i in 0..(datastore['RETRY'])
-          Rex.sleep(datastore['DELAY'])
-          # if the output file is still locked then the program is still likely running
-          if (exclusive_access(text))
-            break
-          elsif (i == datastore['RETRY'])
-            print_error("Command seems to still be executing. Try increasing RETRY and DELAY")
-          end
-        end
-        get_output(text, @smbshare, @ip)
-      end
-
-      cleanup_after(bat, @smbshare, @ip)
+      execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
       disconnect
     end
   end
