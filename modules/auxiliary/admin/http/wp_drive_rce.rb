@@ -3,8 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
-
+ 
   include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
