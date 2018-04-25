@@ -192,7 +192,7 @@ Add-Type -TypeDefinition $enum -ErrorAction SilentlyContinue
 
 <#
 .Synopsis
-   Returns value of an attribute of an SearchResult object
+   Returns value of an attribute of a SearchResult object
 .EXAMPLE
    Get-LDAPProperty -sResult <SearchResult> -propertyName <propertyname> -index <0 (default)>
 #>

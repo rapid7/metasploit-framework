@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Post
   def initialize(info = {})
     super(update_info(info,
       'Name' => 'BadPwdCount sprayer',
-      'Description' => %{
+      'Description' => %q{
           Because of how Active Directory works, if a user tries to authenticate
           with his previous password or the password before that (n-2), the
           domain controller will not increment the badPwdCount attribute so
