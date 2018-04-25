@@ -236,9 +236,11 @@ class DataStore < Hash
   #
   def merge!(other)
     super
-    self.aliases.merge!(other.aliases) if other.respond_to?(:aliases)
-    self.imported.merge!(other.imported) if other.respond_to?(:imported)
-    self.imported_by.merge!(other.imported_by) if other.respond_to?(:imported_by)
+    if other.is_a? DataStore
+      self.aliases.merge!(other.aliases)
+      self.imported.merge!(other.imported)
+      self.imported_by.merge!(other.imported_by)
+    end
   end
 
   #
