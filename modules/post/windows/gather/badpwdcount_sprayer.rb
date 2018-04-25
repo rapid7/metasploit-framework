@@ -29,6 +29,10 @@ class MetasploitModule < Msf::Post
         'Author' => [
           'Rindert Kramer <rindert.kramer[at]fox-it.com>',
         ],
+        'References'  =>
+        [
+          ['URL', 'https://blog.fox-it.com/2017/11/28/further-abusing-the-badpwdcount-attribute/']
+        ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter']))
 
