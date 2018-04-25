@@ -10,8 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Google Drive for WordPress',
       'Description'    => %q{
-        This module exploits an arbitrary remote code execution (RCE) in the WordPress
-        plugin Google Drive.
+        This module exploits you can reinstall wordpress with Google Drive plugin for wordpress. 
       },
       'Author'         =>
         [
