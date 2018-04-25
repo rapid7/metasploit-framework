@@ -20,6 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
+          ['EDB', '44435'],
           ['URL', 'https://www.exploit-db.com/exploits/44435/']
         ],
       'Privileged'     => false,
