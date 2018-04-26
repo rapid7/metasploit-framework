@@ -111,7 +111,7 @@ module HostApiDoc
         key :description, 'ID of host to retrieve'
         key :required, true
         key :type, :integer
-        key :format, :int64
+        key :format, :int32
       end
 
       response 200 do
