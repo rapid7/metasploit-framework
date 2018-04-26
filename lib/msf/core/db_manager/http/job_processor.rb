@@ -20,7 +20,7 @@ class JobProcessor
         wrapper = @job_queue.pop()
         begin
           wrapper.job.call(wrapper.job_args)
-        rescue Exception => e
+        rescue => e
           print_error "Error executing job #{e.message}", e
         end
       end
