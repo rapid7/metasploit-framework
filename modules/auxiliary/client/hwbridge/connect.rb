@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'msf/base/sessions/hwbridge'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -19,10 +18,10 @@ class MetasploitModule < Msf::Auxiliary
           Metasploit to interact with Hardware Devices.  This extends
           the normal exploit capabilities to the non-ethernet realm and
           enables direct hardware and alternative bus manipulations.  You
-          mush have compatible bridging hardware attached to this machine or
+          must have compatible bridging hardware attached to this machine or
           reachable on your network to use any HWBridge exploits.
 
-          Use this exploit module to connect the the physical HWBridge which
+          Use this exploit module to connect the physical HWBridge which
           will start an interactive hwbridge session.  You can launch a hwbridge
           server locally by using compliant hardware and executing the local_hwbridge
           module.  After that module has started, pass the HWBRIDGE_BASE_URL
@@ -105,6 +104,10 @@ class MetasploitModule < Msf::Auxiliary
     if self.hw_specialty.has_key? 'rftransceiver'
       sess.load_rftransceiver if self.hw_specialty['rftransceiver'] == true
     end
+    sess.api_version = self.api_version if self.api_version
+    sess.fw_version = self.fw_version if self.fw_version
+    sess.hw_version = self.hw_version if self.hw_version
+    sess.device_name = self.device_name if self.device_name
   end
 
   #
@@ -130,6 +133,18 @@ class MetasploitModule < Msf::Auxiliary
         if data.key? 'hw_capabilities'
           self.hw_capabilities = data['hw_capabilities']
         end
+        if data.key? 'api_version'
+          self.api_version = data['api_version']
+        end
+        if data.key? 'fw_version'
+          self.fw_version = data['fw_version']
+        end
+        if data.key? 'hw_vesrion'
+          self.hw_version = data['hw_version']
+        end
+        if data.key? 'device_name'
+          self.device_name = data['device_name']
+        end
       end
     end
   end
@@ -148,15 +163,23 @@ class MetasploitModule < Msf::Auxiliary
       print_status "HW Specialty: #{self.hw_specialty}  Capabilities: #{self.hw_capabilities}"
       print_disclaimer
     else
-      print_bad "Could not connect to API"
+      print_error "Could not connect to API"
     end
   end
 
   attr_reader :hw_specialty
   attr_reader :hw_capabilities
+  attr_reader :api_version
+  attr_reader :fw_version
+  attr_reader :hw_version
+  attr_reader :device_name
 
   protected
 
   attr_writer :hw_specialty
   attr_writer :hw_capabilities
+  attr_writer :api_version
+  attr_writer :fw_version
+  attr_writer :hw_version
+  attr_writer :device_name
 end

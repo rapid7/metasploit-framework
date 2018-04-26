@@ -40,11 +40,11 @@ class Console::CommandDispatcher::CustomMethods
   def load_methods(m)
     @custom_methods = m
     m.each do |method|
-      if method.has_key? "method_name"
+      if method.key? "method_name"
         desc = "See HW manual for command description"
-        desc = method["method_desc"] if method.has_key? "method_desc"
+        desc = method["method_desc"] if method.key? "method_desc"
         cmd = method["method_name"]
-        cmd = $1 if cmd=~/\/(\S+)$/
+        cmd = /\/(\S+)$/.match(cmd)
         @cmds[cmd] = method["method_desc"]
         eval("alias cmd_#{cmd} cmd_generic_handler")
       end
@@ -56,14 +56,14 @@ class Console::CommandDispatcher::CustomMethods
   #
   def cmd_generic_handler_help(cmd)
     @custom_methods.each do |meth|
-      if meth["method_name"] =~ /#{cmd}$/
+      next unless meth["method_name"] =~ /#{cmd}$/
         args = ""
         args = "<args>" if meth["args"].size > 0
         print_line("Usage: #{cmd} #{args}")
         print_line
         meth["args"].each do |arg|
           req = ""
-          req = "  *required*" if arg.has_key? "required" and arg["required"] == true
+          req = "  *required*" if arg.key? "required" and arg["required"] == true
           print_line("  #{arg["arg_name"]}=<#{arg["arg_type"]}> #{req}")
         end
       end
@@ -87,8 +87,8 @@ class Console::CommandDispatcher::CustomMethods
       return true
     end
     res = client.custom_methods.send_request(cmd, args, @custom_methods)
-    print_status(res["status"]) if res.has_key? "status"
-    print_status(res["value"]) if res.has_key? "value"
+    print_status(res["status"]) if res.key? "status"
+    print_status(res["value"]) if res.key? "value"
   end
 
   #
@@ -104,8 +104,8 @@ class Console::CommandDispatcher::CustomMethods
     @custom_methods.each do |meth|
       if meth["method_name"] =~ /#{cmd}$/
         meth["args"].each do |arg|
-          if arg.has_key? "required" and arg["required"] == true
-            all_found = false if not arguments.has_key? arg["arg_name"]
+          if arg.key? "required" and arg["required"] == true
+            all_found = false if not arguments.key? arg["arg_name"]
           end
         end
       end

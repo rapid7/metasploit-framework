@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -166,7 +166,7 @@ if enbl or (usr!= nil && pass != nil)
   if (usr!= nil && pass != nil)
     addrdpusr(usr, pass)
   end
-  print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
+  print_status("For cleanup use command: run multi_console_command -r #{@dest}")
 
 else
   usage

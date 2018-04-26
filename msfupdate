@@ -13,6 +13,8 @@ while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
+require 'backports'
+
 class Msfupdate
   attr_reader :stdin
   attr_reader :stdout
@@ -132,12 +134,13 @@ class Msfupdate
     end
 
     Dir.chdir(@msfbase_dir) do
-      if git?
-        update_git!
+      if apt?
+        stderr.puts "[-] ERROR: msfupdate is not supported on Kali Linux."
+        stderr.puts "[-] Please run 'apt update; apt install metasploit-framework' instead."
       elsif binary_install?
         update_binary_install!
-      elsif apt?
-        update_apt!
+      elsif git?
+        update_git!
       else
         raise "Cannot determine checkout type: `#{@msfbase_dir}'"
       end
@@ -229,7 +232,11 @@ class Msfupdate
       require 'bundler'
     end
     Bundler.with_clean_env do
-      system("bundle", "install")
+      if File::exist? "Gemfile.local"
+        system("bundle", "install", "--gemfile", "Gemfile.local")
+      else
+        system("bundle", "install")
+      end
     end
   end
 
@@ -260,23 +267,6 @@ class Msfupdate
       stderr.puts "[-] (Note: Metasploit Community Edition is totally"
       stderr.puts "[-] free and takes just a few seconds to register!)"
       maybe_wait_and_exit 11
-    end
-  end
-
-  def update_apt!
-    # For more information, see here:
-    #   	https://community.rapid7.com/community/metasploit/blog/2013/01/17/metasploit-updates-and-msfupdate
-    stdout.puts "[*] Checking for updates via the APT repository"
-    stdout.puts "[*] Note: expect weekly(ish) updates using this method"
-    system("apt-get", "-qq", "update")
-
-    framework_version = apt_upgrade_available('metasploit-framework')
-
-    if framework_version.blank?
-      stdout.puts "[*] No updates available"
-    else
-      stdout.puts "[*] Updating to version #{framework_version}"
-      system("apt-get", "install", "--assume-yes", "metasploit-framework")
     end
   end
 

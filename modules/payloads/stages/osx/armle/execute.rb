@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -165,5 +165,4 @@ module MetasploitModule
     temp = Rex::Text.rand_text_alphanumeric(9)
     data.gsub("msf_stage_xxxxxxxxx.bin", "msf_stage_#{temp}.bin")
   end
-
 end

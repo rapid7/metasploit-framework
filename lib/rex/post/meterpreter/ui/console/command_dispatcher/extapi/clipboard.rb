@@ -20,16 +20,27 @@ class Console::CommandDispatcher::Extapi::Clipboard
   # List of supported commands.
   #
   def commands
-    {
+    all = {
       "clipboard_get_data"       => "Read the target's current clipboard (text, files, images)",
       "clipboard_set_text"       => "Write text to the target's clipboard",
       "clipboard_monitor_start"  => "Start the clipboard monitor",
       "clipboard_monitor_pause"  => "Pause the active clipboard monitor",
       "clipboard_monitor_resume" => "Resume the paused clipboard monitor",
       "clipboard_monitor_dump"   => "Dump all captured clipboard content",
-      "clipboard_monitor_purge"  => "Delete all captured cilpboard content without dumping it",
+      "clipboard_monitor_purge"  => "Delete all captured clipboard content without dumping it",
       "clipboard_monitor_stop"   => "Stop the clipboard monitor"
     }
+    reqs = {
+      "clipboard_get_data"       => [ "extapi_clipboard_get_data" ],
+      "clipboard_set_text"       => [ "extapi_clipboard_set_data" ],
+      "clipboard_monitor_start"  => [ "extapi_clipboard_monitor_start" ],
+      "clipboard_monitor_pause"  => [ "extapi_clipboard_monitor_pause" ],
+      "clipboard_monitor_resume" => [ "extapi_clipboard_monitor_resume" ],
+      "clipboard_monitor_dump"   => [ "extapi_clipboard_monitor_dump" ],
+      "clipboard_monitor_purge"  => [ "extapi_clipboard_monitor_purge" ],
+      "clipboard_monitor_stop"   => [ "extapi_clipboard_monitor_stop" ],
+    }
+    filter_commands(all, reqs)
   end
 
   #

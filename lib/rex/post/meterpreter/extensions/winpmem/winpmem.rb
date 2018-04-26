@@ -43,8 +43,10 @@ class Winpmem < Extension
     channel_id = response.get_tlv_value(TLV_TYPE_CHANNEL_ID)
 
     raise Exception, "We did not get a channel back!" if channel_id.nil?
-    #Open the compressed Channel
-    channel = Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "winpmem", CHANNEL_FLAG_SYNCHRONOUS | CHANNEL_FLAG_COMPRESS)
+
+    # Open the compressed Channel
+    channel = Rex::Post::Meterpreter::Channels::Pool.new(client, channel_id, "winpmem",
+      CHANNEL_FLAG_SYNCHRONOUS | CHANNEL_FLAG_COMPRESS)
     return memory_size, response_code, channel
   end
 end

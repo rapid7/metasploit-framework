@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -120,6 +119,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Unable to login as: #{user}")
       return
     end
+    store_valid_credential(user: user, private: password, proof: cookie)
 
     vprint_status("Trying to get nonce...")
     nonce = get_nonce(cookie)

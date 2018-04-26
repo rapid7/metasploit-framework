@@ -41,17 +41,19 @@ class Core
     "-c"  => [ true,  "Run a command on the session given with -i, or all"             ],
     "-C"  => [ true,  "Run a Meterpreter Command on the session given with -i, or all" ],
     "-h"  => [ false, "Help banner"                                                    ],
-    "-i"  => [ true,  "Interact with the supplied session ID   "                       ],
+    "-i"  => [ true,  "Interact with the supplied session ID"                          ],
     "-l"  => [ false, "List all active sessions"                                       ],
     "-v"  => [ false, "List sessions in verbose mode"                                  ],
     "-q"  => [ false, "Quiet mode"                                                     ],
     "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
     "-K"  => [ false, "Terminate all sessions"                                         ],
-    "-s"  => [ true,  "Run a script on the session given with -i, or all"              ],
+    "-s"  => [ true,  "Run a script or module on the session given with -i, or all"    ],
     "-r"  => [ false, "Reset the ring buffer for the session given with -i, or all"    ],
     "-u"  => [ true,  "Upgrade a shell to a meterpreter session on many platforms"     ],
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
-    "-x" =>  [ false, "Show extended information in the session table"                 ])
+    "-S"  => [ true,  "Row search filter."                                             ],
+    "-x" =>  [ false, "Show extended information in the session table"                 ],
+    "-n" =>  [ true,  "Name or rename a session by ID"                                 ])
 
   @@threads_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -85,6 +87,10 @@ class Core
     "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
     "-c" => [ false, "Only print a count of matching lines."          ])
 
+  @@search_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help banner."                                   ],
+    "-S" => [ true, "Row search filter."                              ])
+
   @@history_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
@@ -94,7 +100,6 @@ class Core
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-e" => [ true,  "Expression to evaluate."                        ])
-
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -134,10 +139,9 @@ class Core
   def initialize(driver)
     super
 
-    @dscache = {}
     @cache_payloads = nil
     @previous_module = nil
-    @module_name_stack = []
+    @previous_target = nil
     @history_limit = 100
   end
 
@@ -170,9 +174,6 @@ class Core
     end
     driver.update_prompt
   end
-
-
-
 
   def cmd_cd_help
     print_line "Usage: cd <directory>"
@@ -230,22 +231,17 @@ class Core
 
     avdwarn = nil
 
-    banner_trailers = {
-      :version     => "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
-      :exp_aux_pos => "#{framework.stats.num_exploits} exploits - #{framework.stats.num_auxiliary} auxiliary - #{framework.stats.num_post} post",
-      :pay_enc_nop => "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops",
-      :free_trial  => "Free Metasploit Pro trial: http://r-7.co/trymsp",
-      :padding     => 48
-    }
+    stats       = framework.stats
+    version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
+    exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
+    pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
+    dev_note    = "** This is Metasploit 5 development branch **"
+    padding     = 48
 
-    banner << ("       =[ %-#{banner_trailers[:padding]+8}s]\n" % banner_trailers[:version])
-    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:exp_aux_pos])
-    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:pay_enc_nop])
-
-    # TODO: People who are already on a Pro install shouldn't see this.
-    # It's hard for Framework to tell the difference though since
-    # license details are only in Pro -- we can't see them from here.
-    banner << ("+ -- --=[ %-#{banner_trailers[:padding]}s]\n" % banner_trailers[:free_trial])
+    banner << ("       =[ %-#{padding+8}s]\n" % version)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % dev_note)
 
     if ::Msf::Framework::EICARCorrupted
       avdwarn = []
@@ -862,140 +858,144 @@ class Core
   # which session a given subnet should route through.
   #
   def cmd_route(*args)
-    args << 'print' if args.length == 0
+    begin
+      args << 'print' if args.length == 0
 
-    action = args.shift
-    case action
-
-    when "add", "remove", "del"
-      subnet = args.shift
-      netmask = nil
-      if subnet
+      action = args.shift
+      case action
+      when "add", "remove", "del"
+        subnet = args.shift
         subnet, cidr_mask = subnet.split("/")
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i) if cidr_mask
-      end
 
-      netmask = args.shift if netmask.nil?
-      gateway_name = args.shift
-
-      if (subnet.nil? || netmask.nil? || gateway_name.nil?)
-        print_error("Missing arguments to route #{action}.")
-        return false
-      end
-
-      gateway = nil
-
-      case gateway_name
-      when /local/i
-        gateway = Rex::Socket::Comm::Local
-      when /^(-1|[0-9]+)$/
-        session = framework.sessions.get(gateway_name)
-        if session.kind_of?(Msf::Session::Comm)
-          gateway = session
-        elsif session.nil?
-          print_error("Not a session: #{gateway_name}")
-          return false
-        else
-          print_error("Cannot route through the specified session (not a Comm)")
-          return false
-        end
-      else
-        print_error("Invalid gateway")
-        return false
-      end
-
-      msg = "Route "
-      if action == "remove" or action == "del"
-        worked = Rex::Socket::SwitchBoard.remove_route(subnet, netmask, gateway)
-        msg << (worked ? "removed" : "not found")
-      else
-        worked = Rex::Socket::SwitchBoard.add_route(subnet, netmask, gateway)
-        msg << (worked ? "added" : "already exists")
-      end
-      print_status(msg)
-
-    when "get"
-      if (args.length == 0)
-        print_error("You must supply an IP address.")
-        return false
-      end
-
-      comm = Rex::Socket::SwitchBoard.best_comm(args[0])
-
-      if ((comm) and
-          (comm.kind_of?(Msf::Session)))
-        print_line("#{args[0]} routes through: Session #{comm.sid}")
-      else
-        print_line("#{args[0]} routes through: Local")
-      end
-
-
-    when "flush"
-      Rex::Socket::SwitchBoard.flush_routes
-
-    when "print"
-      # IPv4 Table
-      tbl_ipv4 = Table.new(
-        Table::Style::Default,
-        'Header'  => "IPv4 Active Routing Table",
-        'Prefix'  => "\n",
-        'Postfix' => "\n",
-        'Columns' =>
-          [
-            'Subnet',
-            'Netmask',
-            'Gateway',
-          ],
-        'ColProps' =>
-          {
-            'Subnet'  => { 'MaxWidth' => 17 },
-            'Netmask' => { 'MaxWidth' => 17 },
-          })
-
-      # IPv6 Table
-      tbl_ipv6 = Table.new(
-        Table::Style::Default,
-        'Header'  => "IPv6 Active Routing Table",
-        'Prefix'  => "\n",
-        'Postfix' => "\n",
-        'Columns' =>
-          [
-            'Subnet',
-            'Netmask',
-            'Gateway',
-          ],
-        'ColProps' =>
-          {
-            'Subnet'  => { 'MaxWidth' => 17 },
-            'Netmask' => { 'MaxWidth' => 17 },
-          })
-
-      # Populate Route Tables
-      Rex::Socket::SwitchBoard.each { |route|
-        if (route.comm.kind_of?(Msf::Session))
-          gw = "Session #{route.comm.sid}"
-        else
-          gw = route.comm.name.split(/::/)[-1]
+        if Rex::Socket.is_ip_addr?(args.first)
+          netmask = args.shift
+        elsif Rex::Socket.is_ip_addr?(subnet)
+          netmask = Rex::Socket.addr_ctoa(cidr_mask, v6: Rex::Socket.is_ipv6?(subnet))
         end
 
-        tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)
-        tbl_ipv6 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv6?(route.netmask)
-      }
+        netmask = args.shift if netmask.nil?
+        gateway_name = args.shift
 
-      # Print Route Tables
-      print(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
-      print(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
+        if (subnet.nil? || netmask.nil? || gateway_name.nil?)
+          print_error("Missing arguments to route #{action}.")
+          return false
+        end
 
-      if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
-        print_status("There are currently no routes defined.")
-      elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)
-        print_status("There are currently no IPv4 routes defined.")
-      elsif (tbl_ipv4.rows.length > 0) && (tbl_ipv6.rows.length < 1)
-        print_status("There are currently no IPv6 routes defined.")
+        case gateway_name
+        when /local/i
+          gateway = Rex::Socket::Comm::Local
+        when /^(-1|[0-9]+)$/
+          session = framework.sessions.get(gateway_name)
+          if session.kind_of?(Msf::Session::Comm)
+            gateway = session
+          elsif session.nil?
+            print_error("Not a session: #{gateway_name}")
+            return false
+          else
+            print_error("Cannot route through the specified session (not a Comm)")
+            return false
+          end
+        else
+          print_error("Invalid gateway")
+          return false
+        end
+
+        msg = "Route "
+        if action == "remove" or action == "del"
+          worked = Rex::Socket::SwitchBoard.remove_route(subnet, netmask, gateway)
+          msg << (worked ? "removed" : "not found")
+        else
+          worked = Rex::Socket::SwitchBoard.add_route(subnet, netmask, gateway)
+          msg << (worked ? "added" : "already exists")
+        end
+        print_status(msg)
+
+      when "get"
+        if (args.length == 0)
+          print_error("You must supply an IP address.")
+          return false
+        end
+
+        comm = Rex::Socket::SwitchBoard.best_comm(args[0])
+
+        if ((comm) and
+            (comm.kind_of?(Msf::Session)))
+          print_line("#{args[0]} routes through: Session #{comm.sid}")
+        else
+          print_line("#{args[0]} routes through: Local")
+        end
+
+
+      when "flush"
+        Rex::Socket::SwitchBoard.flush_routes
+
+      when "print"
+        # IPv4 Table
+        tbl_ipv4 = Table.new(
+          Table::Style::Default,
+          'Header'  => "IPv4 Active Routing Table",
+          'Prefix'  => "\n",
+          'Postfix' => "\n",
+          'Columns' =>
+            [
+              'Subnet',
+              'Netmask',
+              'Gateway',
+            ],
+          'ColProps' =>
+            {
+              'Subnet'  => { 'MaxWidth' => 17 },
+              'Netmask' => { 'MaxWidth' => 17 },
+            })
+
+        # IPv6 Table
+        tbl_ipv6 = Table.new(
+          Table::Style::Default,
+          'Header'  => "IPv6 Active Routing Table",
+          'Prefix'  => "\n",
+          'Postfix' => "\n",
+          'Columns' =>
+            [
+              'Subnet',
+              'Netmask',
+              'Gateway',
+            ],
+          'ColProps' =>
+            {
+              'Subnet'  => { 'MaxWidth' => 17 },
+              'Netmask' => { 'MaxWidth' => 17 },
+            })
+
+        # Populate Route Tables
+        Rex::Socket::SwitchBoard.each { |route|
+          if (route.comm.kind_of?(Msf::Session))
+            gw = "Session #{route.comm.sid}"
+          else
+            gw = route.comm.name.split(/::/)[-1]
+          end
+
+          tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)
+          tbl_ipv6 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv6?(route.netmask)
+        }
+
+        # Print Route Tables
+        print(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
+        print(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
+
+        if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
+          print_status("There are currently no routes defined.")
+        elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)
+          print_status("There are currently no IPv4 routes defined.")
+        elsif (tbl_ipv4.rows.length > 0) && (tbl_ipv6.rows.length < 1)
+          print_status("There are currently no IPv6 routes defined.")
+        end
+
+      else
+        cmd_route_help
       end
-
-    else
-      cmd_route_help
+    rescue => error
+      elog("#{error}\n\n#{error.backtrace.join("\n")}")
+      print_error(error.message)
     end
   end
 
@@ -1074,7 +1074,6 @@ class Core
     print_line("Saved configuration to: #{Msf::Config.config_file}")
   end
 
-
   def cmd_spool_help
     print_line "Usage: spool <off>|<filename>"
     print_line
@@ -1105,7 +1104,7 @@ class Core
     if active_module
       # intentionally += and not << because we don't want to modify
       # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.shortname}%clr)"
+      prompt += " #{active_module.type}(%bld%red#{active_module.promptname}%clr)"
     end
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
     driver.update_prompt("#{prompt} ", prompt_char, true)
@@ -1139,6 +1138,8 @@ class Core
     script   = nil
     reset_ring = false
     response_timeout = 15
+    search_term = nil
+    session_name = nil
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1151,53 +1152,59 @@ class Core
       # Parse the command options
       @@sessions_opts.parse(args) do |opt, idx, val|
         case opt
-        when '-q'
+        when "-q"
           quiet = true
         # Run a command on all sessions, or the session given with -i
-        when '-c'
+        when "-c"
           method = 'cmd'
           cmds << val if val
-        when '-C'
+        when "-C"
             method = 'meterp-cmd'
             cmds << val if val
-        when '-x'
+        when "-x"
           show_extended = true
-        when '-v'
+        when "-v"
           verbose = true
         # Do something with the supplied session identifier instead of
         # all sessions.
-        when '-i'
+        when "-i"
           sid = val
         # Display the list of active sessions
-        when '-l'
+        when "-l"
           method = 'list'
-        when '-k'
+        when "-k"
           method = 'kill'
           sid = val || false
-        when '-K'
+        when "-K"
           method = 'killall'
-        # Run a script on all meterpreter sessions
-        when '-s'
+        # Run a script or module on specified sessions
+        when "-s"
           unless script
-            method = 'scriptall'
+            method = 'script'
             script = val
           end
         # Upload and exec to the specific command session
-        when '-u'
+        when "-u"
           method = 'upexec'
           sid = val || false
+        # Search for specific session
+        when "-S", "--search"
+          search_term = val
         # Reset the ring buffer read pointer
-        when '-r'
+        when "-r"
           reset_ring = true
           method = 'reset_ring'
         # Display help banner
-        when '-h'
+        when "-h"
           cmd_sessions_help
           return false
-        when '-t'
+        when "-t"
           if val.to_s =~ /^\d+$/
             response_timeout = val.to_i
           end
+        when "-n", "--name"
+          method = 'name'
+          session_name = val
         else
           extra << val
         end
@@ -1379,15 +1386,11 @@ class Core
           sid = nil
         end
       end
-    when 'scriptall'
+    when 'script'
       unless script
-        print_error("No script specified!")
+        print_error("No script or module specified!")
         return false
       end
-      script_paths = {}
-      script_paths['meterpreter'] = Msf::Sessions::Meterpreter.find_script_path(script)
-      script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
-
       sessions = sid ? session_list : framework.sessions.keys.sort
 
       sessions.each do |sess_id|
@@ -1403,15 +1406,13 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if script_paths[session.type]
-              print_status("Session #{sess_id} (#{session.session_host}):")
-              print_status("Running script #{script} on #{session.type} session" +
-                            " #{sess_id} (#{session.session_host})")
-              begin
-                session.execute_file(script_paths[session.type], extra)
-              rescue ::Exception => e
-                log_error("Error executing script: #{e.class} #{e}")
-              end
+            print_status("Session #{sess_id} (#{session.session_host}):")
+            print_status("Running #{script} on #{session.type} session" +
+                          " #{sess_id} (#{session.session_host})")
+            begin
+              session.execute_script(script, *extra)
+            rescue ::Exception => e
+              log_error("Error executing script or module: #{e.class} #{e}")
             end
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
@@ -1433,14 +1434,9 @@ class Core
             session.response_timeout = response_timeout
           end
           begin
-            if ['shell', 'powershell'].include?(session.type)
-              session.init_ui(driver.input, driver.output)
-              session.execute_script('post/multi/manage/shell_to_meterpreter')
-              session.reset_ui
-            else
-              print_error("Session #{sess_id} is not a command shell session, it is #{session.type}, skipping...")
-              next
-            end
+            session.init_ui(driver.input, driver.output)
+            session.execute_script('post/multi/manage/shell_to_meterpreter')
+            session.reset_ui
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
@@ -1463,8 +1459,29 @@ class Core
       end
     when 'list',nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose))
+      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose, :search_term => search_term))
       print_line
+    when 'name'
+      if session_name.blank?
+        print_error('Please specify a valid session name')
+        return false
+      end
+
+      sessions = sid ? session_list : nil
+
+      if sessions.nil? || sessions.empty?
+        print_error("Please specify valid session identifier(s) using -i")
+        return false
+      end
+
+      sessions.each do |s|
+        if framework.sessions[s].respond_to?(:name=)
+          framework.sessions[s].name = session_name
+          print_status("Session #{s} named to #{session_name}")
+        else
+          print_error("Session #{s} cannot be named")
+        end
+      end
     end
 
     rescue IOError, EOFError, Rex::StreamClosedError
@@ -1595,12 +1612,6 @@ class Core
     # Set the supplied name to the supplied value
     name  = args[0]
     value = args[1, args.length-1].join(' ')
-    if (name.upcase == "TARGET")
-      # Different targets can have different architectures and platforms
-      # so we need to rebuild the payload list whenever the target
-      # changes.
-      @cache_payloads = nil
-    end
 
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
@@ -1952,7 +1963,6 @@ class Core
 
   alias cmd_unsetg_help cmd_unset_help
 
-
   #
   # Returns the revision of the framework and console library
   #
@@ -2185,16 +2195,7 @@ class Core
         if rh and not rh.empty?
           res << Rex::Socket.source_address(rh)
         else
-          res << Rex::Socket.source_address
-          # getifaddrs was introduced in 2.1.2
-          if Socket.respond_to?(:getifaddrs)
-            ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
-              ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
-                ifaddr.addr &&
-                ifaddr.addr.ip?
-            end
-            res += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
-          end
+          res += tab_complete_source_address
         end
       else
       end
@@ -2257,11 +2258,16 @@ class Core
   # Provide valid payload options for the current exploit
   #
   def option_values_payloads
-    return @cache_payloads if @cache_payloads
+    if @cache_payloads && active_module == @previous_module && active_module.target == @previous_target
+      return @cache_payloads
+    end
 
-    @cache_payloads = active_module.compatible_payloads.map { |refname, payload|
+    @previous_module = active_module
+    @previous_target = active_module.target
+
+    @cache_payloads = active_module.compatible_payloads.map do |refname, payload|
       refname
-    }
+    end
 
     @cache_payloads
   end
@@ -2411,7 +2417,6 @@ class Core
     return binary_paths.include? Msf::Config.install_root
   end
 
-
   #
   # Returns an array of lines at the provided line number plus any before and/or after lines requested
   # from all_lines by supplying the +before+ and/or +after+ parameters which are always positive
@@ -2430,8 +2435,6 @@ class Core
     finish = line_num + after
     all_lines.slice(start..finish)
   end
-
-
 
 end
 

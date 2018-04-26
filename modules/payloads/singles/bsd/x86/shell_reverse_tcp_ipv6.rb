@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -46,5 +46,4 @@ module MetasploitModule
       OptInt.new('SCOPEID', [false, "IPv6 scope ID, for link-local addresses", 0])
     ])
   end
-
 end

@@ -137,7 +137,7 @@ module Metasploit
         end
 
         def get_string(data,length)
-          data.slice!(0,length).gsub(/\x00/,'')
+          data.slice!(0,length).force_encoding("UTF-8").gsub(/\x00/,'')
         end
 
         def uac_string

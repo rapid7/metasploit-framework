@@ -1,4 +1,10 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'metasm'
+
 class MetasploitModule < Msf::Encoder
 
     Rank = ManualRanking
@@ -122,5 +128,4 @@ class MetasploitModule < Msf::Encoder
 
         return push_registers + code_service + pop_registers + block
     end
-
 end

@@ -20,9 +20,11 @@ require 'msf/core/auxiliary/commandshell'
 require 'msf/core/auxiliary/login'
 require 'msf/core/auxiliary/rservices'
 require 'msf/core/auxiliary/cisco'
+require 'msf/core/auxiliary/juniper'
 require 'msf/core/auxiliary/kademlia'
 require 'msf/core/auxiliary/llmnr'
 require 'msf/core/auxiliary/mdns'
+require 'msf/core/auxiliary/mqtt'
 require 'msf/core/auxiliary/nmap'
 require 'msf/core/auxiliary/natpmp'
 require 'msf/core/auxiliary/iax2'
@@ -31,3 +33,10 @@ require 'msf/core/auxiliary/pii'
 require 'msf/core/auxiliary/redis'
 require 'msf/core/auxiliary/sms'
 require 'msf/core/auxiliary/mms'
+
+#
+# Custom HTTP modules
+#
+require 'msf/core/auxiliary/cnpilot'
+require 'msf/core/auxiliary/epmp'
+require 'msf/core/auxiliary/etcd'

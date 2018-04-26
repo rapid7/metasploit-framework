@@ -1,8 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 class MetasploitModule < Msf::Encoder
 
@@ -196,5 +195,4 @@ class MetasploitModule < Msf::Encoder
   def is_badchar(state, val)
     (val >= 0x41 and val <= 0x5a) or val == 0x5f or Rex::Text.badchar_index([val].pack('C'), state.badchars)
   end
-
 end

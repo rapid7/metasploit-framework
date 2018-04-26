@@ -16,6 +16,7 @@ module Msf
         #
         class Jobs
           include Msf::Ui::Console::CommandDispatcher
+          include Msf::Ui::Console::CommandDispatcher::Common
 
           @@handler_opts = Rex::Parser::Arguments.new(
             "-h" => [ false, "Help Banner"],
@@ -33,7 +34,8 @@ module Msf
             "-K" => [ false, "Terminate all running jobs."                    ],
             "-i" => [ true,  "Lists detailed information about a running job."],
             "-l" => [ false, "List all running jobs."                         ],
-            "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ]
+            "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ],
+            "-S" => [ true, "Row search filter."                              ],
           )
 
           def commands
@@ -150,6 +152,9 @@ module Msf
                 # so we can check for the verbose flag.
                 dump_info = true
                 job_id = val
+              when "-S", "--search"
+                search_term = val
+                dump_list = true
               when "-h"
                 cmd_jobs_help
                 return false
@@ -164,7 +169,7 @@ module Msf
                 job = framework.jobs[job_id.to_s]
                 mod = job.ctx[0]
 
-                output  = '\n'
+                output  = "\n"
                 output += "Name: #{mod.name}"
                 output += ", started at #{job.start_time}" if job.start_time
                 print_line(output)
@@ -334,7 +339,20 @@ module Msf
               framework.jobs[job_id.to_s].send(:name=, job_name)
             end
 
-            print_status "Payload Handler Started as Job #{job_id}"
+            print_status "Payload handler running as background job #{job_id}."
+          end
+
+          def cmd_handler_tabs(str, words)
+            fmt = {
+              '-h' => [ nil                                               ],
+              '-x' => [ nil                                               ],
+              '-p' => [ framework.payloads.map { |refname, mod| refname } ],
+              '-P' => [ true                                              ],
+              '-H' => [ :address                                          ],
+              '-e' => [ framework.encoders.map { |refname, mod| refname } ],
+              '-n' => [ true                                              ]
+            }
+            tab_complete_generic(fmt, str, words)
           end
         end
       end

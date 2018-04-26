@@ -214,8 +214,9 @@ module Session
 
     dstr  = sprintf("%.4d%.2d%.2d", dt.year, dt.mon, dt.mday)
     rhost = session_host.gsub(':', '_')
+    sname = name.to_s.gsub(/\W+/,'_')
 
-    "#{dstr}_#{rhost}_#{type}"
+    "#{dstr}_#{sname}_#{rhost}_#{type}"
   end
 
   #

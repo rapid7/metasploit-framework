@@ -1,4 +1,12 @@
 module Msf::DBManager::SessionEvent
+
+  def session_events(opts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      conditions = {}
+
+      Mdm::SessionEvent.all
+    }
+  end
   #
   # Record a session event in the database
   #

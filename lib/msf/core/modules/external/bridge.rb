@@ -2,6 +2,7 @@
 require 'msf/core/modules/external'
 require 'msf/core/modules/external/message'
 require 'open3'
+require 'json'
 
 class Msf::Modules::External::Bridge
 
@@ -25,15 +26,15 @@ class Msf::Modules::External::Bridge
   end
 
   def get_status
-    if self.running
-      n = receive_notification
-      if n && n['params']
-        n['params']
-      else
+    if self.running || !self.messages.empty?
+      m = receive_notification
+      if m.nil?
         close_ios
+        self.messages.close
         self.running = false
-        n['response'] if n
       end
+
+      return m
     end
   end
 
@@ -41,30 +42,35 @@ class Msf::Modules::External::Bridge
     self.env = {}
     self.running = false
     self.path = module_path
+    self.cmd = [[self.path, self.path]]
+    self.messages = Queue.new
+    self.buf = ''
   end
 
   protected
 
   attr_writer :path, :running
-  attr_accessor :env, :ios
+  attr_accessor :cmd, :env, :ios, :buf, :messages, :wait_thread
 
   def describe
     resp = send_receive(Msf::Modules::External::Message.new(:describe))
     close_ios
-    resp['response']
+    resp.params
   end
 
-  # XXX TODO non-blocking writes, check write lengths, non-blocking JSON parse loop read
+  # XXX TODO non-blocking writes, check write lengths
 
   def send_receive(message)
     send(message)
-    read_json(message.id, self.ios[1])
+    recv(message.id)
   end
 
   def send(message)
-    input, output, status = ::Open3.popen3(env, [self.path, self.path])
-    self.ios = [input, output, status]
-    case Rex::ThreadSafe.select(nil, [input], nil, 0.1)
+    input, output, err, status = ::Open3.popen3(self.env, *self.cmd)
+    self.ios = [input, output, err]
+    self.wait_thread = status
+    # We would call Rex::Threadsafe directly, but that would require rex for standalone use
+    case select(nil, [input], nil, 0.1)
     when nil
       raise "Cannot run module #{self.path}"
     when [[], [input], []]
@@ -76,12 +82,10 @@ class Msf::Modules::External::Bridge
   end
 
   def receive_notification
-    input, output, status = self.ios
-    case Rex::ThreadSafe.select([output], nil, nil, 10)
-    when nil
-      nil
-    when [[output], [], []]
-      read_json(nil, output)
+    if self.messages.empty?
+      recv
+    else
+      self.messages.pop
     end
   end
 
@@ -89,18 +93,77 @@ class Msf::Modules::External::Bridge
     fd.write(json)
   end
 
-  def read_json(id, fd)
+  def recv(filter_id=nil, timeout=600)
+    _, out, err = self.ios
+    message = ''
+
+    # Multiple messages can come over the wire all at once, and since yajl
+    # doesn't play nice with windows, we have to emulate a state machine to
+    # read just enough off the wire to get one request at a time. Since
+    # Windows cannot do a nonblocking read on a pipe, we are forced to do a
+    # whole lot of `select` syscalls and keep a buffer ourselves :(
     begin
-      resp = fd.readpartial(10_000)
-      JSON.parse(resp)
+      loop do
+        # This is so we don't end up calling JSON.parse on every char and
+        # catch an exception. Windows can't do nonblock on pipes, so we
+        # still have to do the select if we are not at the end of object
+        # and don't have any buffer left
+        parts = self.buf.split '}', 2
+        if parts.length == 2 # [part, rest]
+          message << parts[0] << '}'
+          self.buf = parts[1]
+          break
+        elsif parts.length == 1 # [part]
+          if self.buf[-1] == '}'
+            message << parts[0] << '}'
+            self.buf = ''
+            break
+          else
+            message << parts[0]
+            self.buf = ''
+          end
+        end
+
+        # We would call Rex::Threadsafe directly, but that would require Rex for standalone use
+        res = select([out, err], nil, nil, timeout)
+        if res == nil
+          # This is what we would have gotten without Rex and what `readpartial` can also raise
+          raise EOFError.new
+        else
+          fds = res[0]
+          # Preferentially drain and log stderr, EOF counts as activity, but
+          # stdout might have some buffered data left, so carry on
+          if fds.include?(err) && !err.eof?
+            errbuf = err.readpartial(4096)
+            elog "Unexpected output running #{self.path}:\n#{errbuf}"
+          end
+          if fds.include? out
+            self.buf << out.readpartial(4096)
+          end
+        end
+      end
+
+      m = Msf::Modules::External::Message.from_module(JSON.parse(message))
+      if filter_id && m.id != filter_id
+        # We are filtering for a response to a particular message, but we got
+        # something else, store the message and try again
+        self.messages.push m
+        recv(filter_id, timeout)
+      else
+        # Either we weren't filtering, or we got what we were looking for
+        m
+      end
+    rescue JSON::ParserError
+      # Probably an incomplete response, but no way to really tell. Keep trying
+      # until EOF
+      retry
     rescue EOFError => e
-      {}
+      nil
     end
   end
 
   def close_ios
-    input, output, status = self.ios
-    [input, output].each {|fd| fd.close rescue nil} # Yeah, yeah. I know.
+    self.ios.each {|fd| fd.close rescue nil} # Yeah, yeah. I know.
   end
 end
 
@@ -116,10 +179,24 @@ class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
   end
 end
 
+class Msf::Modules::External::RbBridge < Msf::Modules::External::Bridge
+  def self.applies?(module_name)
+    module_name.match? /\.rb$/
+  end
+
+  def initialize(module_path)
+    super
+
+    ruby_path = File.expand_path('../ruby', __FILE__)
+    self.cmd = [[Gem.ruby, 'ruby'], "-I#{ruby_path}", self.path]
+  end
+end
+
 class Msf::Modules::External::Bridge
 
   LOADERS = [
     Msf::Modules::External::PyBridge,
+    Msf::Modules::External::RbBridge,
     Msf::Modules::External::Bridge
   ]
 

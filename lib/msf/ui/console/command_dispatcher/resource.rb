@@ -37,8 +37,8 @@ module Msf
           def cmd_resource_help
             print_line "Usage: resource path1 [path2 ...]"
             print_line
-            print_line "Run the commands stored in the supplied files.  Resource files may also contain"
-            print_line "ruby code between <ruby></ruby> tags."
+            print_line "Run the commands stored in the supplied files (- for stdin)."
+            print_line "Resource files may also contain ERB or Ruby code between <ruby></ruby> tags."
             print_line
             print_line "See also: makerc"
             print_line
@@ -52,20 +52,22 @@ module Msf
 
             args.each do |res|
               good_res = nil
-              if ::File.exist?(res)
+              if res == '-'
+                good_res = res
+              elsif ::File.exist?(res)
                 good_res = res
               elsif
                 # let's check to see if it's in the scripts/resource dir (like when tab completed)
-              [
-                ::Msf::Config.script_directory + ::File::SEPARATOR + "resource",
-                ::Msf::Config.user_script_directory + ::File::SEPARATOR + "resource"
-              ].each do |dir|
-                res_path = dir + ::File::SEPARATOR + res
-                if ::File.exist?(res_path)
-                  good_res = res_path
-                  break
+                [
+                  ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource',
+                  ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource'
+                ].each do |dir|
+                  res_path = dir + ::File::SEPARATOR + res
+                  if ::File.exist?(res_path)
+                    good_res = res_path
+                    break
+                  end
                 end
-              end
               end
               if good_res
                 driver.load_resource(good_res)
@@ -95,7 +97,7 @@ module Msf
                 [
                   ::Msf::Config.script_directory + File::SEPARATOR + "resource",
                   ::Msf::Config.user_script_directory + File::SEPARATOR + "resource",
-                  "."
+                  '.'
                 ].each do |dir|
                   next if not ::File.exist? dir
                   tabs += ::Dir.new(dir).find_all { |e|

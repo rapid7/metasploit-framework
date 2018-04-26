@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
 
@@ -73,8 +72,8 @@ class MetasploitModule < Msf::Auxiliary
       @interface = get_interface_guid(@interface)
       @smac = datastore['SMAC']
       @smac ||= get_mac(@interface) if @netifaces
-      raise RuntimeError ,'SMAC is not defined and can not be guessed' unless @smac
-      raise RuntimeError ,'Source MAC is not in correct format' unless is_mac?(@smac)
+      raise 'SMAC is not defined and can not be guessed' unless @smac
+      raise 'Source MAC is not in correct format' unless is_mac?(@smac)
 
       @sip = datastore['LOCALSIP']
       @sip ||= get_ipv4_addr(@interface) if @netifaces
@@ -163,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def arp_poisoning
     lsmac = datastore['LOCALSMAC'] || @smac
-    raise RuntimeError ,'Local Source Mac is not in correct format' unless is_mac?(lsmac)
+    raise 'Local Source Mac is not in correct format' unless is_mac?(lsmac)
 
     dhosts_range = Rex::Socket::RangeWalker.new(datastore['DHOSTS'])
     @dhosts = []
@@ -180,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
         next if not reply.is_arp?
         # Without this check any arp request would be added to the cache
         if @dhosts.include? reply.arp_saddr_ip
-          print_status("#{reply.arp_saddr_ip} appears to be up.")
+          print_good("#{reply.arp_saddr_ip} appears to be up.")
           report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
@@ -193,18 +192,18 @@ class MetasploitModule < Msf::Auxiliary
       while(reply = getreply())
         next if not reply.is_arp?
         if @dhosts.include? reply.arp_saddr_ip
-          print_status("#{reply.arp_saddr_ip} appears to be up.")
+          print_good("#{reply.arp_saddr_ip} appears to be up.")
           report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
           @dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
         end
       end
       Kernel.select(nil, nil, nil, 0.50)
     end
-    raise RuntimeError, "No hosts found" unless @dsthosts_cache.length > 0
+    raise "No hosts found" unless @dsthosts_cache.length > 0
 
     # Build the local src hosts cache
     if datastore['BIDIRECTIONAL']
-      print_status("Building the source hosts cache for unknow source hosts...")
+      print_status("Building the source hosts cache for unknown source hosts...")
       @shosts.each do |shost|
         if @dsthosts_cache.has_key? shost
           vprint_status("Adding #{shost} from destination cache")
@@ -217,7 +216,7 @@ class MetasploitModule < Msf::Auxiliary
         while(reply = getreply())
           next if not reply.is_arp?
           if @shosts.include? reply.arp_saddr_ip
-            print_status("#{reply.arp_saddr_ip} appears to be up.")
+            print_good("#{reply.arp_saddr_ip} appears to be up.")
             report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end
@@ -230,14 +229,14 @@ class MetasploitModule < Msf::Auxiliary
         while(reply = getreply())
           next if not reply.is_arp?
           if @shosts.include? reply.arp_saddr_ip
-            print_status("#{reply.arp_saddr_ip} appears to be up.")
+            print_good("#{reply.arp_saddr_ip} appears to be up.")
             report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
             @srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
           end
         end
         Kernel.select(nil, nil, nil, 0.50)
       end
-      raise RuntimeError, "No hosts found" unless @srchosts_cache.length > 0
+      raise "No hosts found" unless @srchosts_cache.length > 0
     end
 
     if datastore['AUTO_ADD']
@@ -411,5 +410,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     @listener.abort_on_exception = true
   end
-
 end

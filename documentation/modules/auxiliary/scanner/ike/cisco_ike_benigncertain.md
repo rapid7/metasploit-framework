@@ -9,7 +9,7 @@ The vulnerability is due to insufficient condition checks in the part of the cod
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
 ```
 msf auxiliary(cisco_ike_benigncertain) > show options

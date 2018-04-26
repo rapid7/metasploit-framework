@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -18,7 +18,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Windows Command Shell, Bind TCP (via Perl)',
       'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
-      'Author'        => ['Samy <samy[at]samy.pl>', 'cazz', 'patrick'],
+      'Author'        => ['Samy <samy[at]samy.pl>', 'cazz', 'aushack'],
       'License'       => BSD_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_CMD,
@@ -50,5 +50,4 @@ module MetasploitModule
 
     return cmd
   end
-
 end

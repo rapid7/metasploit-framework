@@ -209,17 +209,24 @@ module ModuleCommandDispatcher
     end
 
     rhost = instance.datastore['RHOST']
-    rport = nil
+    rport = instance.datastore['RPORT']
     peer = rhost
-    if instance.datastore['rport']
-      rport = instance.rport
+    if rport
+      rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
 
     begin
-      code = instance.check_simple(
-        'LocalInput'  => driver.input,
-        'LocalOutput' => driver.output)
+      if instance.respond_to?(:check_simple)
+        code = instance.check_simple(
+          'LocalInput'  => driver.input,
+          'LocalOutput' => driver.output
+        )
+      else
+        msg = "Check failed: #{instance.type.capitalize} modules do not support check."
+        raise NotImplementedError, msg
+      end
+
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
           print_good("#{peer} #{code[1]}")
@@ -240,8 +247,8 @@ module ModuleCommandDispatcher
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
-    rescue Msf::OptionValidateError => e
-      print_error("{peer} - Check failed: #{e.message}")
+    rescue ::NotImplementedError => e
+      print_error(e.message)
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")

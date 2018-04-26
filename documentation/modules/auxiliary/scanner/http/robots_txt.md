@@ -25,7 +25,8 @@ is extremely common.
 You can set the test path where the scanner will try to find `robots.txt` file.
 Default is `/`
 
-## Sample Output
+## Scenarios
+
 ```
 msf> use auxiliary/scanner/http/robots_txt
 msf auxiliary(robots_txt) > set RHOSTS 172.217.19.238

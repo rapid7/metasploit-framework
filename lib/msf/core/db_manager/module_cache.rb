@@ -198,7 +198,7 @@ module Msf::DBManager::ModuleCache
 
     ActiveRecord::Base.connection_pool.with_connection do
       @query = Mdm::Module::Detail.all
-      
+
       @archs    = Set.new
       @authors  = Set.new
       @names    = Set.new
@@ -207,10 +207,10 @@ module Msf::DBManager::ModuleCache
       @stances  = Set.new
       @text     = Set.new
       @types    = Set.new
-            
+
       value_set_by_keyword.each do |keyword, value_set|
         formatted_values = match_values(value_set)
-        
+
         case keyword
           when 'app'
             formatted_values = value_set.collect { |value|
@@ -244,7 +244,7 @@ module Msf::DBManager::ModuleCache
         end
       end
     end
-        
+
     @query = @query.module_arch(            @archs.to_a.flatten   ) if @archs.any?
     @query = @query.module_author(          @authors.to_a.flatten ) if @authors.any?
     @query = @query.module_name(            @names.to_a.flatten   ) if @names.any?
@@ -253,7 +253,7 @@ module Msf::DBManager::ModuleCache
     @query = @query.module_type(            @types.to_a.flatten   ) if @types.any?
     @query = @query.module_stance(          @stances.to_a.flatten ) if @stances.any?
     @query = @query.module_ref(             @refs.to_a.flatten    ) if @refs.any?
-    
+
     @query.uniq
   end
 

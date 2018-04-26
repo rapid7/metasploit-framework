@@ -390,31 +390,31 @@ class ProcessList < Array
       return Rex::Text::Table.new(opts)
     end
 
-    cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
-    # Arch and Session are specific to native Windows, PHP and Java can't do
-    # ppid.  Cut columns from the list if they aren't there.  It is conceivable
-    # that processes might have different columns, but for now assume that the
-    # first one is representative.
-    cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
+    column_headers = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
+    column_headers.delete_if do |h|
+      none? { |process| process.has_key?(h.downcase) } ||
+      all? { |process| process[h.downcase].nil? }
+    end
 
     opts = {
       'Header' => 'Process List',
       'Indent' => 1,
-      'Columns' => cols
+      'Columns' => column_headers
     }.merge(opts)
 
     tbl = Rex::Text::Table.new(opts)
-    each { |process|
-      tbl << cols.map { |c|
-        col = c.downcase
+    each do |process|
+      tbl << column_headers.map do |header|
+        col = header.downcase
+        next unless process.keys.any? { |process_header| process_header == col }
         val = process[col]
         if col == 'session'
           val == 0xFFFFFFFF ? '' : val.to_s
         else
           val
         end
-      }.compact
-    }
+      end
+    end
 
     tbl
   end

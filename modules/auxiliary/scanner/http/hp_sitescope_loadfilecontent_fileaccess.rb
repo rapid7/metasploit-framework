@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -107,12 +106,11 @@ class MetasploitModule < Msf::Auxiliary
       end
       f = ::File.basename(datastore['RFILE'])
       path = store_loot('hp.sitescope.file', 'application/octet-stream', rhost, loot, f, datastore['RFILE'])
-      print_status("#{datastore['RFILE']} saved in #{path}")
+      print_good("#{datastore['RFILE']} saved in #{path}")
       return
     end
 
     print_error("Failed to retrieve the file")
   end
-
 end
 

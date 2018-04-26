@@ -143,8 +143,7 @@ class Msf::Module::Platform
 
     if (not mod.const_defined?('Names'))
       elog("Failed to instantiate the platform list for module #{mod}")
-      raise RuntimeError.new("Failed to instantiate the platform list for module #{mod}")
-      return nil
+      raise "Failed to instantiate the platform list for module #{mod}"
     end
 
     abbrev   = mod.const_get('Abbrev')
@@ -353,6 +352,14 @@ class Msf::Module::Platform
   end
 
   #
+  # R
+  #
+  class R < Msf::Module::Platform
+    Rank = 100
+    Alias = "r"
+  end
+
+  #
   # Ruby
   #
   class Ruby < Msf::Module::Platform
@@ -374,6 +381,14 @@ class Msf::Module::Platform
   class Cisco < Msf::Module::Platform
     Rank = 100
     Alias = "cisco"
+  end
+
+  #
+  # Juniper
+  #
+  class Juniper < Msf::Module::Platform
+    Rank = 100
+    Alias = "juniper"
   end
 
   #
@@ -551,6 +566,14 @@ class Msf::Module::Platform
   class Hardware < Msf::Module::Platform
     Rank = 100
     Alias = "hardware"
+  end
+
+  #
+  # Apple iOS
+  #
+  class Apple_iOS < Msf::Module::Platform
+    Rank = 100
+    Alias = "apple_ios"
   end
 
 end

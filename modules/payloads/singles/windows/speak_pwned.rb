@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 =begin
 
-http://www.exploit-db.com/sploits/w32-speaking-shellcode.zip
+https://www.exploit-db.com/sploits/w32-speaking-shellcode.zip
 
 Copyright (c) 2009-2010 Berend-Jan "SkyLined" Wever <berendjanwever@gmail.com>
 All rights reserved.
@@ -84,5 +84,4 @@ module MetasploitModule
     # EXITFUNC is not supported :/
     deregister_options('EXITFUNC')
   end
-
 end

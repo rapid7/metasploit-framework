@@ -27,7 +27,7 @@ module Scriptable
 
       # Scan all of the path combinations
       check_paths.each { |path|
-        if ::File.exist?(path)
+        if ::File.file?(path)
           full_path = path
           break
         end
@@ -150,7 +150,7 @@ module Scriptable
           # session
           local_exploit_opts = local_exploit_opts.merge(opts)
 
-          new_session = mod.exploit_simple(
+          mod.exploit_simple(
             'Payload'       => local_exploit_opts.delete('payload'),
             'Target'        => local_exploit_opts.delete('target'),
             'LocalInput'    => self.user_input,
@@ -164,13 +164,17 @@ module Scriptable
     else
       full_path = self.class.find_script_path(script_name)
 
-      # No path found?  Weak.
       if full_path.nil?
-        print_error("The specified script could not be found: #{script_name}")
-        return true
+        print_error("The specified #{self.type} session script could not be found: #{script_name}")
+        return
       end
-      framework.events.on_session_script_run(self, full_path)
-      execute_file(full_path, args)
+
+      begin
+        execute_file(full_path, args)
+        framework.events.on_session_script_run(self, full_path)
+      rescue StandardError => e
+        print_error("Could not execute #{script_name}: #{e.class} #{e}")
+      end
     end
   end
 

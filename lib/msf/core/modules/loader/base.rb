@@ -173,7 +173,8 @@ class Msf::Modules::Loader::Base
       true
     }
 
-    loaded = namespace_module_transaction(type + "/" + module_reference_name, :reload => reload, &try_eval_module)
+    loaded = namespace_module_transaction(type + "/" + module_reference_name,
+      :reload => reload, &try_eval_module)
     unless loaded
       return false
     end
@@ -468,6 +469,12 @@ class Msf::Modules::Loader::Base
     end
 
     module_path
+  end
+
+  def script_path?(path)
+    File.executable?(path) &&
+      !File.directory?(path) &&
+      File.read(path, 2) == "#!"
   end
 
   # Changes a file name path to a canonical module reference name.

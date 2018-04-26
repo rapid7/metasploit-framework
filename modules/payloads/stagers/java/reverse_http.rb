@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,7 @@ require 'msf/core/payload/java/reverse_http'
 
 module MetasploitModule
 
-  CachedSize = 5123
+  CachedSize = 5386
 
   include Msf::Payload::Stager
   include Msf::Payload::Java

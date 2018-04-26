@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -17,9 +17,9 @@
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h" => [ false,"Help menu."                        ],
-  "-sl" => [ false,"Hide commands output for work in background sessions"],
-  "-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
-  "-rc" => [ true,"Text file with list of commands, one per line."]
+  "-s" => [ false,"Hide commands output for work in background sessions"],
+  "-c" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
+  "-r" => [ true,"Text file with list of commands, one per line."]
 )
 
 commands = nil
@@ -36,9 +36,9 @@ end
 @@exec_opts.parse(args) { |opt, idx, val|
   case opt
 
-  when "-cl"
+  when "-c"
     commands = val.split(",")
-  when "-rc"
+  when "-r"
     script = val
     if not ::File.exist?(script)
       raise "Command List File does not exists!"
@@ -51,7 +51,7 @@ end
 
   when "-h"
     help = true
-  when "-sl"
+  when "-s"
     silence = true
   end
 }

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -36,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     data = sock.get_once
 
     if ( data and data =~ /robotd~robotd~CLIENT/ )
-        print_status("Host #{ip} is running the EMC AlphaStor Library Manager.")
+        print_good("Host #{ip} is running the EMC AlphaStor Library Manager.")
         report_service(:host => rhost, :port => rport, :name => "emc-library", :info => data)
     else
         print_error("Host #{ip} is not running the service...")

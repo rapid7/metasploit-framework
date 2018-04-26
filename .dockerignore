@@ -4,6 +4,7 @@
 docker-compose*.yml
 docker/
 !docker/msfconsole.rc
+!docker/entrypoint.sh
 README.md
 .git/
 .github/
@@ -34,7 +35,7 @@ config/database.yml
 # target config file for testing
 features/support/targets.yml
 # simplecov coverage data
-coverage
+coverage/
 doc/
 external/source/meterpreter/java/bin
 external/source/meterpreter/java/build
@@ -90,7 +91,7 @@ data/java
 
 # Avoid checking in Meterpreter libs that are built from
 # private source. If you're interested in this functionality,
-# check out Metasploit Pro: http://metasploit.com/download
+# check out Metasploit Pro: https://metasploit.com/download
 data/meterpreter/ext_server_pivot.*.dll
 
 # Avoid checking in metakitty, the source for

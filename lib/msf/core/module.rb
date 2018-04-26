@@ -15,6 +15,7 @@ module Msf
 ###
 class Module
   autoload :Arch, 'msf/core/module/arch'
+  autoload :Auth, 'msf/core/module/auth'
   autoload :Author, 'msf/core/module/author'
   autoload :AuxiliaryAction, 'msf/core/module/auxiliary_action'
   autoload :Compatibility, 'msf/core/module/compatibility'
@@ -40,6 +41,7 @@ class Module
   autoload :UUID, 'msf/core/module/uuid'
 
   include Msf::Module::Arch
+  include Msf::Module::Auth
   include Msf::Module::Author
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
@@ -355,15 +357,6 @@ class Module
       'License'     => MSF_LICENSE,
     }.update(self.module_info)
     self.module_store = {}
-  end
-
-  #
-  # Checks to see if a derived instance of a given module implements a method
-  # beyond the one that is provided by a base class.  This is a pretty lame
-  # way of doing it, but I couldn't find a better one, so meh.
-  #
-  def derived_implementor?(parent, method_name)
-    (self.method(method_name).to_s.match(/#{parent}[^:]/)) ? false : true
   end
 
   attr_writer   :platform, :references # :nodoc:

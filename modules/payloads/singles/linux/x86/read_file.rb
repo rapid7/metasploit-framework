@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -37,7 +37,7 @@ module MetasploitModule
       open:
         mov eax,0x5       ; open() syscall
         pop ebx           ; Holds the filename
-        xor ecx,ecx       ; Open for reading (0) 
+        xor ecx,ecx       ; Open for reading (0)
         int 0x80
 
       read:

@@ -1,6 +1,6 @@
-# aws_create_iam_user
+# Introduction
 
-aws_create_iam_user is a simple post module that can be used to take over AWS
+`aws_create_iam_user` is a simple post module that can be used to take over AWS
 accounts. Sure, it is fun enough to take over a single host, but you can own all
 hosts in the account if you simply create an admin user.
 

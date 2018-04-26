@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
 
   def initialize(info={})
@@ -155,7 +154,6 @@ class MetasploitModule < Msf::Post
     save(:preferences, prefs) if not prefs.nil? and not prefs.empty?
     save(:chatlogs, chatlogs) if not chatlogs.nil? and not chatlogs.empty?
   end
-
 end
 
 =begin

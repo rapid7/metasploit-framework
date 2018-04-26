@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -66,7 +66,6 @@ end
 def enum_users(os)
   users = []
   userinfo = {}
-  user = @client.sys.config.getuid
   userpath = nil
   useroffcpath = nil
   sysdrv = @client.sys.config.getenv('SystemDrive')
@@ -79,7 +78,7 @@ def enum_users(os)
     lnkpath = "\\Recent\\"
     officelnkpath = "\\Application Data\\Microsoft\\Office\\Recent\\"
   end
-  if user == "NT AUTHORITY\\SYSTEM"
+  if @client.sys.config.is_system?
     print_status("Running as SYSTEM extracting user list...")
     @client.fs.dir.foreach(userpath) do |u|
       next if u =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini)$/

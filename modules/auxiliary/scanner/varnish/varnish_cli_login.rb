@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,7 +8,6 @@ require 'metasploit/framework/login_scanner/varnish'
 require 'metasploit/framework/tcp/client'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -28,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'patrick', #original module
+          'aushack', #original module
           'h00die <mike@shorebreaksecurity.com>' #updates and standardizations
         ],
       'License'        => MSF_LICENSE
@@ -51,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       if !require_auth?
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: No Authentication Required"
+        print_good "#{ip}:#{rport} - Login Successful: No Authentication Required"
         close_session
         disconnect
         return
@@ -89,10 +88,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential.private}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential.private}"
       else
         invalidate_login(credential_data)
-        vprint_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential.private}"
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential.private}"
       end
     end
   end

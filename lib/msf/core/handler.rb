@@ -222,7 +222,16 @@ protected
       s.set_from_exploit(assoc_exploit)
 
       # Pass along any associated payload uuid if specified
-      s.payload_uuid = opts[:payload_uuid] if opts[:payload_uuid]
+      if opts[:payload_uuid]
+        s.payload_uuid = opts[:payload_uuid]
+        if s.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[s.payload_uuid.puid_hex])
+          s.payload_uuid.registered = true
+          s.payload_uuid.name = uuid_info['name']
+          s.payload_uuid.timestamp = uuid_info['timestamp']
+        else
+          s.payload_uuid.registered = false
+        end
+      end
 
       # If the session is valid, register it with the framework and
       # notify any waiters we may have.
@@ -244,11 +253,14 @@ protected
     framework.sessions.register(session)
 
     # Call the handler's on_session() method
-    on_session(session)
-
-    # Process the auto-run scripts for this session
-    if session.respond_to?('process_autoruns')
-      session.process_autoruns(datastore)
+    if session.respond_to?(:bootstrap)
+      session.bootstrap(datastore, self)
+    else
+      # Process the auto-run scripts for this session
+      if session.respond_to?(:process_autoruns)
+        session.process_autoruns(datastore)
+      end
+      on_session(session)
     end
 
     # If there is an exploit associated with this payload, then let's notify

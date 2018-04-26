@@ -3,6 +3,7 @@
 require 'msf/core/payload/transport_config'
 require 'msf/core/payload/uuid/options'
 require 'base64'
+require 'securerandom'
 
 module Msf
   module Sessions
@@ -26,6 +27,10 @@ module Msf
         generate_uri_uuid_mode(:init_connect, uri_req_len, uuid: opts[:uuid])
       end
 
+      def generate_uri_option(opts, opt)
+        opts[opt] ? "--#{opt} '#{opts[opt].gsub(/'/, "\\'")}' " : ''
+      end
+
       def generate_http_uri(opts)
         if Rex::Socket.is_ipv6?(opts[:lhost])
           target_uri = "#{opts[:scheme]}://[#{opts[:lhost]}]"
@@ -37,7 +42,15 @@ module Msf
         target_uri << opts[:lport].to_s
         target_uri << luri
         target_uri << generate_uri(opts)
-        target_uri
+        target_uri << '|'
+        target_uri << generate_uri_option(opts, :ua)
+        target_uri << generate_uri_option(opts, :host)
+        target_uri << generate_uri_option(opts, :referer)
+        if opts[:cookie]
+          opts[:header] = "Cookie: #{opts[:cookie]}"
+          target_uri << generate_uri_option(opts, :header)
+        end
+        target_uri.strip
       end
 
       def generate_tcp_uri(opts)
@@ -52,22 +65,33 @@ module Msf
       end
 
       def generate_config(opts={})
+        ds = opts[:datastore] || datastore
+
+        if ds['PayloadProcessCommandLine'] != ''
+          opts[:name] ||= ds['PayloadProcessCommandLine']
+        end
+
         opts[:uuid] ||= generate_payload_uuid
+
         case opts[:scheme]
         when 'http'
-          transport = transport_config_reverse_http(opts)
-          opts[:uri] = generate_http_uri(transport)
+          opts[:uri] = generate_http_uri(transport_config_reverse_http(opts))
         when 'https'
-          transport = transport_config_reverse_https(opts)
-          opts[:uri] = generate_http_uri(transport)
+          opts[:uri] = generate_http_uri(transport_config_reverse_https(opts))
         when 'tcp'
-          transport = transport_config_reverse_tcp(opts)
-          opts[:uri] = generate_tcp_uri(transport)
+          opts[:uri] = generate_tcp_uri(transport_config_reverse_tcp(opts))
         else
           raise ArgumentError, "Unknown scheme: #{opts[:scheme]}"
         end
+
         opts[:uuid] = Base64.encode64(opts[:uuid].to_raw).strip
-        opts.slice(:uuid, :uri, :debug, :log_file)
+        guid = "\x00" * 16
+        unless opts[:stageless] == true
+          guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+        end
+        opts[:session_guid] = Base64.encode64(guid).strip
+
+        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name)
       end
 
     end

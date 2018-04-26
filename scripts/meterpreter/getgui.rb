@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -176,7 +176,7 @@ if client.platform == 'windows'
         print_status("Starting the port forwarding at local port #{lport}")
         client.run_cmd("portfwd add -L 0.0.0.0 -l #{lport} -p 3389 -r 127.0.0.1")
       end
-      print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
+      print_status("For cleanup use command: run multi_console_command -r #{@dest}")
     else
       usage
     end

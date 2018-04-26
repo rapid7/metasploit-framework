@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -21,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '54551' ],
           [ 'URL', 'http://www.aushack.com/200904-contentkeeper.txt' ],
         ],
-      'Author'      => [ 'patrick' ],
+      'Author'      => [ 'aushack' ],
       'License'     => MSF_LICENSE)
 
     register_options(
@@ -44,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if (res and res.code == 500)
 
-        print_status("Request appears successful on #{rhost}:#{rport}! Response: #{res.code}")
+        print_good("Request appears successful on #{rhost}:#{rport}! Response: #{res.code}")
 
         file = send_request_raw(
           {

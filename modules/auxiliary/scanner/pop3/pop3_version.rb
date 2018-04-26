@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -26,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       connect
       banner = sock.get_once(-1, 30)
       banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
-      print_status("#{ip}:#{rport} POP3 #{banner_sanitized}")
+      print_good("#{ip}:#{rport} POP3 #{banner_sanitized}")
       report_service(:host => rhost, :port => rport, :name => "pop3", :info => banner)
     rescue ::Rex::ConnectionError
     rescue ::EOFError
@@ -35,5 +34,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("#{ip}:#{rport} - #{e} #{e.backtrace}")
     end
   end
-
 end

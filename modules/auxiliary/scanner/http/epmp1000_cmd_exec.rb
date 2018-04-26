@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,6 +8,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Module::Deprecated
+
+  deprecated(Date.new(2018, 2, 24), 'auxiliary/scanner/http/epmp1000_ping_cmd_exec')
 
   def initialize(info={})
     super(update_info(info,
@@ -24,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => true })
+      'License' => MSF_LICENSE
+     )
     )
 
     register_options(
@@ -148,13 +151,11 @@ class MetasploitModule < Msf::Auxiliary
 
       good_response = (
         res &&
-        res.code == 200 &&
-        res.headers.include?('Set-Cookie') &&
-        res.headers['Set-Cookie'].include?('sysauth')
+        res.code == 200
       )
 
       if good_response
-        sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
+        sysauth_value = res.get_cookies_parsed.scan(/((.*)[$ ])/).flatten[0] || ''
 
         cookie1 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D"
 
@@ -181,8 +182,7 @@ class MetasploitModule < Msf::Auxiliary
       good_response = (
         res &&
         res.code == 200 &&
-        res.headers.include?('Set-Cookie') &&
-        res.headers['Set-Cookie'].include?('stok=')
+        res.get_cookies_parsed.scan(/(stok=(.*))/).flatten[0]
       )
 
       if good_response
@@ -196,10 +196,10 @@ class MetasploitModule < Msf::Auxiliary
           password: pass
         )
 
-        get_stok = res.headers['Set-Cookie'].match(/stok=(.*)/)
+        get_stok = res.get_cookies.scan(/(stok=(.*))/) || ''
         if !get_stok.nil?
           stok_value = get_stok[1]
-          sysauth_value = res.headers['Set-Cookie'].match(/((.*)[$ ])/)
+          sysauth_value = res.get_cookies.scan(/((.*)[$ ])/).flatten[0] || ''
 
           cookie2 = "#{sysauth_value}; " + "globalParams=%7B%22dashboard%22%3A%7B%22refresh_rate%22%3A%225%22%7D%2C%22#{user}%22%3A%7B%22refresh_rate%22%3A%225%22%7D%7D; userType=Installer; usernameType=installer; stok=" + "#{stok_value}"
 
@@ -233,8 +233,6 @@ class MetasploitModule < Msf::Auxiliary
                 }
             }
           )
-
-          vprint_line("#{res.body}")
 
           # Extract ePMP version
           res = send_request_cgi(

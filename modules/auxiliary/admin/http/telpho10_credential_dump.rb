@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'rubygems/package'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     destination = tarfile.split('.tar').first
     FileUtils.mkdir_p(destination)
     File.open(tarfile, 'rb') do |file|
-      Gem::Package::TarReader.new(file) do |tar|
+      Rex::Tar::Reader.new(file) do |tar|
         tar.each do |entry|
           dest = File.join destination, entry.full_name
           if entry.file?

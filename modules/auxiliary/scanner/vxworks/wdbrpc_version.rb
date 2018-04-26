@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::WDBRPC
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -130,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     res = wdbrpc_parse_connect_reply(data)
-    print_status("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
+    print_good("#{pkt[1]}: #{res[:rt_vers]} #{res[:rt_bsp_name]} #{res[:rt_bootline]}")
 
     report_note(
       :host   => pkt[1],

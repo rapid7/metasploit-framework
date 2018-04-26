@@ -1,11 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'json'
-class MetasploitModule < Msf::Post
 
+class MetasploitModule < Msf::Post
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
   include Msf::Post::WebRTC
 
@@ -106,5 +106,4 @@ class MetasploitModule < Msf::Post
       })(this.send);
     |
   end
-
 end

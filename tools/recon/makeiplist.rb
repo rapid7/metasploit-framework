@@ -1,17 +1,21 @@
 #!/usr/bin/env ruby
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
-# This script takes a list of ranges and converts it to a per line ip list.
+# This script takes a list of ranges and converts it to a per line IP list.
 # Demonstration:
 # echo 192.168.100.0-50 >> rangelist.txt
 # echo 192.155-156.0.1 >> rangelist.txt
 # echo 192.168.200.0/25 >> rangelist.txt
-# ruby tools/makeiplist.rb
+# ruby tools/recon/makeiplist.rb
 #
 # Author:
 # mubix
 #
-
 
 msfbase = __FILE__
 while File.symlink?(msfbase)
@@ -19,17 +23,17 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
+
 require 'msfenv'
 require 'rex'
 require 'optparse'
 
-
 class OptsConsole
   def self.parse(args)
-    options = {'output' => 'iplist.txt'}
+    options = {}
 
     opts = OptionParser.new do |opts|
-      opts.banner = %Q|This script takes a list of ranges and converts it to a per line ip list.
+      opts.banner = %Q|This script takes a list of ranges and converts it to a per line IP list.
 Usage: #{__FILE__} [options]|
 
       opts.separator ""
@@ -52,14 +56,22 @@ Usage: #{__FILE__} [options]|
       end
     end
 
+    opts.parse!(args)
+    if options.empty?
+      puts "[*] No options specified, try -h for usage"
+      exit
+    end
+
     begin
-      opts.parse!(args)
       if options['input'] == nil
         puts opts
-        raise OptionParser::MissingArgument, "-i is a required option"
+        raise OptionParser::MissingArgument, '-i is a required argument'
       end
       unless ::File.exist?(options['input'])
         raise OptionParser::InvalidArgument, "Not found: #{options['input']}"
+      end
+      if options['output'] == nil
+        options['output'] = 'iplist.txt'
       end
     rescue OptionParser::InvalidOption
       puts "[*] Invalid option, try -h for usage"
@@ -69,15 +81,9 @@ Usage: #{__FILE__} [options]|
       exit
     end
 
-    if options.empty?
-      puts "[*] No options specified, try -h for usage"
-      exit
-    end
-
     options
   end
 end
-
 
 #
 # Prints IPs
@@ -90,7 +96,6 @@ def make_list(in_f, out_f)
       end
     end
 end
-
 
 #
 # Returns file handles
@@ -105,7 +110,6 @@ def load_files(in_f, out_f)
 
   return handle_in, handle_out
 end
-
 
 options = OptsConsole.parse(ARGV)
 in_f, out_f = load_files(options['input'], options['output'])

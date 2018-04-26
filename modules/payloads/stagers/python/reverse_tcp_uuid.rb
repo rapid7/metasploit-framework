@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 466
+  CachedSize = 558
 
   include Msf::Payload::Stager
   include Msf::Payload::Python
@@ -37,5 +37,4 @@ module MetasploitModule
   def include_send_uuid
     true
   end
-
 end

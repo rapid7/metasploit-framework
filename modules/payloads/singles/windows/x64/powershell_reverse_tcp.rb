@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,7 +15,7 @@ require 'msf/core/handler/reverse_tcp_ssl'
 ###
 module MetasploitModule
 
-  CachedSize = 1794
+  CachedSize = 1526
 
   include Msf::Payload::Windows::Exec_x64
   include Msf::Payload::Windows::Powershell

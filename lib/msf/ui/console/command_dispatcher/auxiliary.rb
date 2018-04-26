@@ -96,7 +96,8 @@ class Auxiliary
     }
 
     # Always run passive modules in the background
-    if (mod.passive or mod.passive_action?(action))
+    if mod.is_a?(Msf::Module::HasActions) &&
+        (mod.passive || mod.passive_action?(action || mod.default_action))
       jobify = true
     end
 
@@ -131,8 +132,8 @@ class Auxiliary
       return false
     end
 
-    if (jobify)
-      print_status("Auxiliary module running as background job")
+    if (jobify && mod.job_id)
+      print_status("Auxiliary module running as background job #{mod.job_id}.")
     else
       print_status("Auxiliary module execution completed")
     end

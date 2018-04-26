@@ -11,20 +11,25 @@ addons:
       - graphviz
 language: ruby
 rvm:
-  - '2.2'
-  - '2.3.4'
-  - '2.4.1'
+  - '2.3.7'
+  - '2.4.4'
+  - '2.5.1'
 
 env:
-  - CMD=bundle exec rake "cucumber cucumber:boot" CREATE_BINSTUBS=true
-  - CMD=bundle exec rake spec SPEC_OPTS="--tag content"
-  - CMD=bundle exec rake spec SPEC_OPTS="--tag ~content"
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
+  - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
 
 matrix:
   fast_finish: true
+
+jobs:
+  # build docker image
   include:
-  - rvm: ruby-head
-    env: CMD="docker-compose -f $TRAVIS_BUILD_DIR/docker-compose.yml build"
+  - env: CMD="docker-compose build" DOCKER="true"
+    # we do not need any setup
+    before_install: skip
+    install: skip
+    before_script: skip
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
@@ -32,14 +37,19 @@ before_install:
   - ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
+  # Update the bundler
+  - gem install bundler
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
   - bundle exec rake db:create
   - bundle exec rake db:migrate
-script:
   # fail build if db/schema.rb update is not committed
-  - git diff --exit-code db/schema.rb && $CMD
+  - git diff --exit-code db/schema.rb
+script:
+  - echo "${CMD}"
+    # we need travis_wait because the Docker build job can take longer than 10 minutes
+  - if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
 
 notifications:
   irc: "irc.freenode.org#msfnotify"

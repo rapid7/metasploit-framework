@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -14,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         Netgear's ProSafe NMS300 is a network management utility that runs on Windows systems.
         The application has a file download vulnerability that can be exploited by an
-        authenticated remote attacker to download any file in the system..
+        authenticated remote attacker to download any file in the system.
         This module has been tested with versions 1.5.0.2, 1.4.0.17 and 1.1.0.13.
       },
       'Author' =>

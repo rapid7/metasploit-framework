@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
@@ -20,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         verifies that the directory has been created, then deletes it and verifies deletion
         to confirm the bug.
       },
-      'Author'		=> [ 'patrick' ],
+      'Author'		=> [ 'aushack' ],
       'License'		=> MSF_LICENSE,
       'References'	=>
         [

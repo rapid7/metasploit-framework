@@ -19,8 +19,12 @@ fi
 
 cd $MSF_PATH
 
-if [[ -n "$MSF_BUILD" ]]; then
-  docker-compose -f $MSF_PATH/docker-compose.yml build
+PARAMS="$@"
+
+if [[ $PARAMS == *"--rebuild"* ]]; then
+  echo "Rebuilding image"
+  docker-compose build
+  exit $?
 fi
 
-docker-compose run --rm --service-ports ms ./msfconsole -r docker/msfconsole.rc "$@"
+docker-compose run --rm --service-ports -e MSF_UID=$(id -u) -e MSF_GID=$(id -g) ms ./msfconsole -r docker/msfconsole.rc "$PARAMS"

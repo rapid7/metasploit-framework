@@ -18,4 +18,14 @@ if [[ -z "$MSF_PATH" ]]; then
 fi
 
 cd $MSF_PATH
-docker-compose run --rm --service-ports ms ./msfvenom "$@"
+
+PARAMS="$@"
+
+if [[ $PARAMS == *"--rebuild"* ]]; then
+  echo "Rebuilding image"
+  docker-compose build
+  exit $?
+fi
+
+# we need no database here
+docker-compose run --rm --no-deps ms ./msfvenom "$PARAMS"

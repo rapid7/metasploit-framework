@@ -1,8 +1,7 @@
-# $Id$
+#!/usr/bin/env ruby
+
 #
 # This script can be used to calculate hash values for VxWorks passwords.
-#
-# $Revision$
 #
 
 def hashit(inp)
@@ -14,7 +13,6 @@ def hashit(inp)
   bytes.each_index {|i| sum += (bytes[i] * (i + 1)) ^ (i + 1) }
   hackit(sum)
 end
-
 
 def hackit(sum)
   magic = 31695317
@@ -29,4 +27,3 @@ end
 
 input = ARGV.shift || "flintstone"
 $stderr.puts "[*] Hash for password '#{input}' is #{hashit(input)}"
-

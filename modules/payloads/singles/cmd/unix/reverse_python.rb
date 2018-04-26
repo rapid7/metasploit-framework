@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -56,5 +56,4 @@ module MetasploitModule
     encoded_cmd = Rex::Text.encode_base64(obfuscated_cmd)
     "python -c \"exec('#{encoded_cmd}'.decode('base64'))\""
   end
-
 end

@@ -14,7 +14,8 @@ class Creds
 
   include Msf::Ui::Console::CommandDispatcher
   include Metasploit::Credential::Creation
-  
+  include Msf::Ui::Console::CommandDispatcher::Common
+
   #
   # The dispatcher's name.
   #
@@ -30,11 +31,11 @@ class Creds
       "creds" => "List all credentials in the database"
     }
   end
-  
+
   def allowed_cred_types
     %w(password ntlm hash)
   end
-  
+
   #
   # Returns true if the db is connected, prints an error and returns
   # false if not.
@@ -50,7 +51,7 @@ class Creds
     end
     true
   end
-  
+
   #
   # Miscellaneous option helpers
   #
@@ -83,22 +84,22 @@ class Creds
     end
     return true
   end
-  
+
   #
   # Can return return active or all, on a certain host or range, on a
   # certain port or range, and/or on a service name.
   #
   def cmd_creds(*args)
     return unless active?
-    
+
     # Short-circuit help
     if args.delete "-h"
       cmd_creds_help
       return
     end
-    
+
     subcommand = args.shift
-    
+
     case subcommand
     when 'help'
       cmd_creds_help
@@ -111,7 +112,7 @@ class Creds
     end
 
   end
-  
+
   #
   # TODO: this needs to be cleaned up to use the new syntax
   #
@@ -158,7 +159,7 @@ class Creds
     print_line "   creds add user:other hash:d19c32489b870735b5f587d76b934283"
     print_line "   # Add a NonReplayableHash"
     print_line "   creds add hash:d19c32489b870735b5f587d76b934283"
-    
+
     print_line
     print_line "General options"
     print_line "  -h,--help             Show this help information"
@@ -188,7 +189,7 @@ class Creds
     print_line "  creds -d -s smb"
     print_line
   end
-  
+
   # @param private_type [Symbol] See `Metasploit::Credential::Creation#create_credential`
   # @param username [String]
   # @param password [String]
@@ -200,35 +201,35 @@ class Creds
       hsh[opt[0]] = opt[1..-1].join(':') # everything before the first : is the key, reasembling everything after the colon. why ntlm hashes
       hsh
     end
-    
+
     begin
       params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name')
     rescue ArgumentError => e
       print_error(e.message)
     end
-    
+
     # Verify we only have one type of private
     if params.slice('password','ntlm','ssh-key','hash').length > 1
       private_keys = params.slice('password','ntlm','ssh-key','hash').keys
       print_error("You can only specify a single Private type. Private types given: #{private_keys.join(', ')}")
       return
     end
-    
+
     login_keys = params.slice('address','port','protocol','service-name')
     if login_keys.any? and login_keys.length < 3
       missing_login_keys = ['host','port','proto','service-name'] - login_keys.keys
       print_error("Creating a login requires a address, a port, and a protocol. Missing params: #{missing_login_keys}")
       return
     end
-   
+
     data = {
       workspace_id: framework.db.workspace,
       origin_type: :import,
       filename: 'msfconsole'
     }
-    
+
     data[:username] = params['user'] if params.key? 'user'
-    
+
     if params.key? 'realm'
       if params.key? 'realm-type'
         if Metasploit::Model::Realm::Key::SHORT_NAMES.key? params['realm-type']
@@ -267,7 +268,7 @@ class Creds
       data[:private_type] = :nonreplayable_hash
       data[:private_data] = params['hash']
     end
-        
+
     begin
       if login_keys.any?
         data[:address] = params['address']
@@ -282,13 +283,14 @@ class Creds
       print_error("Failed to add #{data['private_type']}: #{e}")
     end
   end
-  
+
   def creds_search(*args)
     host_ranges   = []
     origin_ranges = []
     port_ranges   = []
     svcs          = []
     rhosts        = []
+    opts          = {}
 
     set_rhosts = false
 
@@ -296,6 +298,7 @@ class Creds
     cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type' ]
     user = nil
     delete_count = 0
+    search_term = nil
 
     while (arg = args.shift)
       case arg
@@ -312,6 +315,7 @@ class Creds
         end
       when "-t","--type"
         ptype = args.shift
+        opts[:ptype] = ptype
         if (!ptype)
           print_error("Argument required for -t")
           return
@@ -323,14 +327,17 @@ class Creds
           return
         end
         svcs = service.split(/[\s]*,[\s]*/)
+        opts[:svcs] = svcs
       when "-P","--password"
         pass = args.shift
+        opts[:pass] = pass
         if (!pass)
           print_error("Argument required for -P")
           return
         end
       when "-u","--user"
         user = args.shift
+        opts[:user] = user
         if (!user)
           print_error("Argument required for -u")
           return
@@ -341,11 +348,15 @@ class Creds
         set_rhosts = true
       when '-O', '--origins'
         hosts = args.shift
+        opts[:hosts] = hosts
         if !hosts
           print_error("Argument required for -O")
           return
         end
         arg_host_range(hosts, origin_ranges)
+      when '-S', '--search-term'
+        search_term = args.shift
+        opts[:search_term] = search_term
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
@@ -370,129 +381,110 @@ class Creds
              end
     end
 
+    opts[:type] = type if type
+
     # normalize
     ports = port_ranges.flatten.uniq
     svcs.flatten!
     tbl_opts = {
       'Header'  => "Credentials",
-      'Columns' => cred_table_columns
+      'Columns' => cred_table_columns,
+      'SearchTerm' => search_term
     }
 
     tbl = Rex::Text::Table.new(tbl_opts)
+    opts[:wspace] = framework.db.workspace
+    query = framework.db.creds(opts)
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
-      query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace )
-      query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
-      query = query.includes(logins: [ :service, { service: :host } ])
+    query.each do |core|
 
-      if type.present?
-        query = query.where(metasploit_credential_privates: { type: type })
+      # Exclude non-blank username creds if that's what we're after
+      if user == "" && core.public && !(core.public.username.blank?)
+        next
       end
 
-      if svcs.present?
-        query = query.where(Mdm::Service[:name].in(svcs))
+      # Exclude non-blank password creds if that's what we're after
+      if pass == "" && core.private && !(core.private.data.blank?)
+        next
       end
 
-      if ports.present?
-        query = query.where(Mdm::Service[:port].in(ports))
+      origin = ''
+      if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
+        origin = core.origin.service.host.address
+      elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
+        origin = core.origin.session.host.address
       end
 
-      if user.present?
-        # If we have a user regex, only include those that match
-        query = query.where('"metasploit_credential_publics"."username" ~* ?', user)
+      if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
+        next
       end
 
-      if pass.present?
-        # If we have a password regex, only include those that match
-        query = query.where('"metasploit_credential_privates"."data" ~* ?', pass)
-      end
+      if core.logins.empty? && origin_ranges.empty?
+        public_val = core.public ? core.public.username : ""
+        private_val = core.private ? core.private.data : ""
+        realm_val = core.realm ? core.realm.value : ""
+        human_val = core.private ? core.private.class.model_name.human : ""
 
-      if host_ranges.any? || ports.any? || svcs.any?
-        # Only find Cores that have non-zero Logins if the user specified a
-        # filter based on host, port, or service name
-        query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
-      end
-
-      query.find_each do |core|
-
-        # Exclude non-blank username creds if that's what we're after
-        if user == "" && core.public && !(core.public.username.blank?)
-          next
-        end
-
-        # Exclude non-blank password creds if that's what we're after
-        if pass == "" && core.private && !(core.private.data.blank?)
-          next
-        end
-
-        origin = ''
-        if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
-          origin = core.origin.service.host.address
-        elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
-          origin = core.origin.session.host.address
-        end
-
-        if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
-          next
-        end
-
-        if core.logins.empty? && origin_ranges.empty?
-          tbl << [
-            "", # host
-            "", # cred
-            "", # service
-            core.public,
-            core.private,
-            core.realm,
-            core.private ? core.private.class.model_name.human : "",
-          ]
-        else
-          core.logins.each do |login|
-            # If none of this Core's associated Logins is for a host within
-            # the user-supplied RangeWalker, then we don't have any reason to
-            # print it out. However, we treat the absence of ranges as meaning
-            # all hosts.
-            if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
-              next
-            end
-
-            row = [ login.service.host.address ]
-            row << origin
-            rhosts << login.service.host.address
-            if login.service.name.present?
-              row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
-            else
-              row << "#{login.service.port}/#{login.service.proto}"
-            end
-
-            row += [
-              core.public,
-              core.private,
-              core.realm,
-              core.private ? core.private.class.model_name.human : "",
-            ]
-            tbl << row
-          end
-        end
-        if mode == :delete
-          core.destroy
-          delete_count += 1
-        end
-      end
-
-      if output_file.nil?
-        print_line(tbl.to_s)
+        tbl << [
+          "", # host
+          "", # cred
+          "", # service
+          public_val,
+          private_val,
+          realm_val,
+          human_val
+        ]
       else
-        # create the output file
-        ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-        print_status("Wrote creds to #{output_file}")
-      end
+        core.logins.each do |login|
+          # If none of this Core's associated Logins is for a host within
+          # the user-supplied RangeWalker, then we don't have any reason to
+          # print it out. However, we treat the absence of ranges as meaning
+          # all hosts.
+          if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
+            next
+          end
 
-      # Finally, handle the case where the user wants the resulting list
-      # of hosts to go into RHOSTS.
-      set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
-      print_status("Deleted #{delete_count} creds") if delete_count > 0
-    }
+          row = [ login.service.host.address ]
+          row << origin
+          rhosts << login.service.host.address
+          if login.service.name.present?
+            row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
+          else
+            row << "#{login.service.port}/#{login.service.proto}"
+          end
+
+          public_val = core.public ? core.public.username : ""
+          private_val = core.private ? core.private.data : ""
+          realm_val = core.realm ? core.realm.value : ""
+          human_val = core.private ? core.private.class.model_name.human : ""
+
+          row += [
+            public_val,
+            private_val,
+            realm_val,
+            human_val
+          ]
+          tbl << row
+        end
+      end
+      if mode == :delete
+        core.destroy
+        delete_count += 1
+      end
+    end
+
+    if output_file.nil?
+      print_line(tbl.to_s)
+    else
+      # create the output file
+      ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+      print_status("Wrote creds to #{output_file}")
+    end
+
+    # Finally, handle the case where the user wants the resulting list
+    # of hosts to go into RHOSTS.
+    set_rhosts_from_addrs(rhosts.uniq) if set_rhosts
+    print_status("Deleted #{delete_count} creds") if delete_count > 0
   end
 
   def cmd_creds_tabs(str, words)
@@ -513,8 +505,8 @@ class Creds
     end
     return tabs
   end
-  
-  
+
+
 end
 
 end end end end

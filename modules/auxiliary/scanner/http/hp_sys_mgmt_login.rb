@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'metasploit/framework/login_scanner/smh'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -182,7 +181,7 @@ class MetasploitModule < Msf::Auxiliary
 
     sys_name = get_system_name(res)
     unless sys_name.blank?
-      print_status("System name detected: #{sys_name}")
+      print_good("System name detected: #{sys_name}")
       report_note(
         :host => ip,
         :type => "system.name",

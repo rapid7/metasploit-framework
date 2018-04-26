@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -13,10 +13,10 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         Modbus is a cleartext protocol used in common SCADA systems, developed
         originally as a serial-line (RS232) async protocol, and later transformed
-        to IP, which is called ModbusTCP. default tcpport is 502.
+        to IP, which is called ModbusTCP. default tcp port is 502.
 
         This module sends a command (0x04, read input register) to the modbus endpoint.
-        If this command is sent to the correct unit-id, it returns with the same funcion-id.
+        If this command is sent to the correct unit-id, it returns with the same function-id.
         if not, it should be added 0x80, so that it sys 0x84, and an exception-code follows
         which do not interest us. This does not always happen, but at least the first 4
         bytes in the return-packet should be exact the same as what was sent.
@@ -98,7 +98,7 @@ For testing purposes:
   http://www.saia-pcd.com/en/products/plc/pcd-overview/Pages/pcd1-m2.aspx
   and a modbus/tcp PLC simulator from plcsimulator.org
   and the Modbus SLAVE from http://www.modbustools.com/
-  
+
   Mission is to find Unit-ID/stationID of the modbus-endpoint:
   RHOST=IP of the modbus-service (PLC)
   RPORT=Usually 502

@@ -72,6 +72,20 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-h" => [ false, "Help menu." ])
 
   #
+  # Options for the 'pgrep' command.
+  #
+  @@pgrep_opts = Rex::Parser::Arguments.new(
+    "-S" => [ true,  "Filter on process name" ],
+    "-U" => [ true,  "Filter on user name" ],
+    "-A" => [ true,  "Filter on architecture" ],
+    "-x" => [ false, "Filter for exact matches rather than regex" ],
+    "-s" => [ false, "Filter only SYSTEM processes" ],
+    "-c" => [ false, "Filter only child processes of the current shell" ],
+    "-l" => [ false, "Display process name with PID" ],
+    "-f" => [ false, "Display process path and args with PID (combine with -l)" ],
+    "-h" => [ false, "Help menu." ])
+
+  #
   # Options for the 'suspend' command.
   #
   @@suspend_opts = Rex::Parser::Arguments.new(
@@ -143,19 +157,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       "sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
       "localtime"   => [ "stdapi_sys_config_localtime" ],
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
@@ -257,7 +259,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
         cmd_execute("-f", path, "-c", "-H", "-i")
       end
-    when 'linux'
+    when 'linux', 'osx'
       # Don't expand_path() this because it's literal anyway
       path = "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
@@ -418,9 +420,19 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Filters processes by name
   #
   def cmd_pgrep(*args)
-    if args.include?('-h')
-      cmd_pgrep_help
-      return true
+    f_flag = false
+    l_flag = false
+
+    @@pgrep_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-h'
+        cmd_pgrep_help
+        return true
+      when '-l'
+        l_flag = true
+      when '-f'
+        f_flag = true
+      end
     end
 
     all_processes = client.sys.process.get_processes
@@ -429,10 +441,6 @@ class Console::CommandDispatcher::Stdapi::Sys
     if processes.length == 0 || processes.length == all_processes.length
       return true
     end
-
-    # XXX fix Rex parser to properly handle adjacent short flags
-    f_flag = args.include?('-f') || args.include?('-lf') || args.include?('-fl')
-    l_flag = args.include?('-l') || args.include?('-lf') || args.include?('-fl')
 
     processes.each do |p|
       if l_flag
@@ -451,7 +459,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_pgrep_help
     print_line("Usage: pgrep [ options ] pattern")
     print_line("Filter processes by name.")
-    print_line @@ps_opts.usage
+    print_line @@pgrep_opts.usage
   end
 
   #
@@ -832,12 +840,16 @@ class Console::CommandDispatcher::Stdapi::Sys
           end
 
           v = open_key.query_value(value)
+          data = v.data
+          if v.type == REG_BINARY
+            data = data.unpack('H*')[0]
+          end
 
           print(
             "Key: #{key}\n" +
             "Name: #{v.name}\n" +
             "Type: #{v.type_to_s}\n" +
-            "Data: #{v.data}\n")
+            "Data: #{data}\n")
 
         when "queryclass"
           open_key = nil
@@ -886,13 +898,21 @@ class Console::CommandDispatcher::Stdapi::Sys
     if args.include? "-h"
       cmd_getprivs_help
     end
-    print_line("=" * 60)
-    print_line("Enabled Process Privileges")
-    print_line("=" * 60)
+
+    table = Rex::Text::Table.new(
+      'Header'    => 'Enabled Process Privileges',
+      'Indent'    => 0,
+      'SortIndex' => 1,
+      'Columns'   => ['Name']
+    )
+
+    privs = client.sys.config.getprivs
     client.sys.config.getprivs.each do |priv|
-      print_line("  #{priv}")
+      table << [priv]
     end
-    print_line("")
+
+    print_line
+    print_line(table.to_s)
   end
 
   #

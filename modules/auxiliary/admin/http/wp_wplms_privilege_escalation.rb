@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -98,6 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Authenticating with WordPress using #{username}:#{password}...")
     cookie = wordpress_login(username, password)
     fail_with(Failure::NoAccess, 'Failed to authenticate with WordPress') if cookie.nil?
+    store_valid_credential(user: username, private: password, proof: cookie)
     print_good("Authenticated with WordPress")
 
     new_email = "#{Rex::Text.rand_text_alpha(5)}@#{Rex::Text.rand_text_alpha(5)}.com"

@@ -25,9 +25,13 @@ class Console::CommandDispatcher::Extapi::Wmi
   # List of supported commands.
   #
   def commands
-    {
-      "wmi_query" => "Perform a generic WMI query and return the results"
+    all = {
+      "wmi_query" => "Perform a generic WMI query and return the results",
     }
+    reqs = {
+      "wmi_query" => [ "extapi_wmi_query" ],
+    }
+    filter_commands(all, reqs)
   end
 
   #

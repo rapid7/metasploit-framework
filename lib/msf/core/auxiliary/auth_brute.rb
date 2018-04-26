@@ -32,6 +32,8 @@ module Auxiliary::AuthBrute
       OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
       OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
       OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
+      OptBool.new('PASSWORD_SPRAY', [true, "Reverse the credential pairing order. For each password, attempt every possible user.", false]),
+      OptInt.new('TRANSITION_DELAY', [false, "Amount of time (in minutes) to delay before transitioning to the next user in the array (or password when PASSWORD_SPRAY=true)", 0]),
       OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@guesses_per_service
       OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@brute_start_time
       OptInt.new('MaxGuessesPerUser', [ false, %q{
@@ -175,6 +177,7 @@ module Auxiliary::AuthBrute
       initialize_class_variables(this_service,credentials)
     end
 
+    prev_iterator = nil
     credentials.each do |u, p|
       # Explicitly be able to set a blank (zero-byte) username by setting the
       # username to <BLANK>. It's up to the caller to handle this if it's not
@@ -193,6 +196,19 @@ module Auxiliary::AuthBrute
 
       next if @@credentials_skipped[fq_user]
       next if @@credentials_tried[fq_user] == p
+
+      # Used for tracking if we should TRANSITION_DELAY
+      # If the current user/password values don't match the previous iteration we know
+      # we've made it through all of the records for that iteration and should start the delay.
+      if ![u,p].include?(prev_iterator)
+        unless prev_iterator.nil? # Prevents a delay on the first run through
+          if datastore['TRANSITION_DELAY'] > 0
+            vprint_status("Delaying #{datastore['TRANSITION_DELAY']} minutes before attempting next iteration.")
+            sleep datastore['TRANSITION_DELAY'] * 60
+          end
+        end
+        prev_iterator = datastore['PASSWORD_SPRAY'] ? p : u # Update the iterator
+      end
 
       ret = block.call(u, p)
 
@@ -362,7 +378,6 @@ module Auxiliary::AuthBrute
   # Note, these special username/passwords should get deprecated
   # some day. Note2: Don't use with SMB and FTP at the same time!
   def translate_proto_datastores
-    switched = false
     ['SMBUser','FTPUSER'].each do |u|
       if datastore[u] and !datastore[u].empty?
         datastore['USERNAME'] = datastore[u]
@@ -423,9 +438,17 @@ module Auxiliary::AuthBrute
     elsif user_array.empty?
       combined_array = pass_array.map {|p| ["",p] }
     else
-      user_array.each do |u|
+      if datastore['PASSWORD_SPRAY']
         pass_array.each do |p|
-          combined_array << [u,p]
+          user_array.each do |u|
+            combined_array << [u,p]
+          end
+        end
+      else
+        user_array.each do |u|
+          pass_array.each do |p|
+            combined_array << [u,p]
+          end
         end
       end
     end
@@ -547,6 +570,20 @@ module Auxiliary::AuthBrute
     end
   end
 
+  def vprint_status(msg='')
+    print_brute :level => :vstatus, :msg => msg
+  end
+
+  def vprint_error(msg='')
+    print_brute :level => :verror, :msg => msg
+  end
+
+  alias_method :vprint_bad, :vprint_error
+
+  def vprint_good(msg='')
+    print_brute :level => :vgood, :msg => msg
+  end
+
   # Provides a consistant way to display messages about AuthBrute-mixed modules.
   # Acceptable opts are fairly self-explanatory, but :level can be tricky.
   #
@@ -568,10 +605,10 @@ module Auxiliary::AuthBrute
     end
     host_ip = opts[:ip] || opts[:rhost] || opts[:host] || (rhost rescue nil) || datastore['RHOST']
     host_port = opts[:port] || opts[:rport] || (rport rescue nil) || datastore['RPORT']
-    msg = opts[:msg] || opts[:message] || opts[:legacy_msg]
+    msg = opts[:msg] || opts[:message]
     proto = opts[:proto] || opts[:protocol] || proto_from_fullname
 
-    complete_message = build_brute_message(host_ip,host_port,proto,msg,!!opts[:legacy_msg])
+    complete_message = build_brute_message(host_ip,host_port,proto,msg)
 
     print_method = "print_#{level}"
     if self.respond_to? print_method
@@ -582,34 +619,24 @@ module Auxiliary::AuthBrute
   end
 
   # Depending on the non-nil elements, build up a standardized
-  # auth_brute message, but support the old style used by
-  # vprint_status and friends as well.
-  def build_brute_message(host_ip,host_port,proto,msg,legacy)
+  # auth_brute message.
+  def build_brute_message(host_ip,host_port,proto,msg)
     ip = host_ip.to_s.strip if host_ip
     port = host_port.to_s.strip if host_port
     complete_message = nil
-    extracted_message = nil
-    if legacy # TODO: This is all a workaround until I get a chance to get rid of the legacy messages
-      old_msg = msg.to_s.strip
-      msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
-      if old_msg.match(msg_regex) and !old_msg.match(msg_regex)[6].to_s.strip.empty?
-        complete_message = ''
-        unless ip.blank? && port.blank?
-          complete_message << "#{ip}:#{rport}"
-        else
-          complete_message << (old_msg.match(msg_regex)[4] || proto).to_s
-        end
-
-        complete_message << " - "
-        progress = tried_over_total(ip,port)
-        complete_message << progress if progress
-        complete_message << old_msg.match(msg_regex)[6].to_s.strip
-      else
-        complete_message = msg.to_s.strip
-      end
+    old_msg = msg.to_s.strip
+    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
+    if old_msg.match(msg_regex)
+      complete_message = msg.to_s.strip
     else
       complete_message = ''
-      complete_message << "#{proto.to_s.strip} - " if proto
+      unless ip.blank? && port.blank?
+        complete_message << "#{ip}:#{port}"
+      else
+        complete_message << proto || 'Bruteforce'
+      end
+
+      complete_message << " - "
       progress = tried_over_total(ip,port)
       complete_message << progress if progress
       complete_message << msg.to_s.strip
@@ -655,23 +682,6 @@ module Auxiliary::AuthBrute
   # smb_auth.
   def proto_from_fullname
     File.split(self.fullname).last.match(/^(.*)_(login|auth|identify)/)[1].upcase rescue nil
-  end
-
-  # Legacy vprint
-  def vprint_status(msg='')
-    print_brute :level => :vstatus, :legacy_msg => msg
-  end
-
-  # Legacy vprint
-  def vprint_error(msg='')
-    print_brute :level => :verror, :legacy_msg => msg
-  end
-
-  alias_method :vprint_bad, :vprint_error
-
-  # Legacy vprint
-  def vprint_good(msg='')
-    print_brute :level => :vgood, :legacy_msg => msg
   end
 
   # This method deletes the dictionary files if requested

@@ -106,7 +106,7 @@ require 'msf/core/exe/segment_appender'
   # @return           [String]
   # @return           [NilClass]
   def self.to_executable(framework, arch, plat, code = '', opts = {})
-    if elf? code
+    if elf? code or macho? code
       return code
     end
 
@@ -163,6 +163,14 @@ require 'msf/core/exe/segment_appender'
       end
 
       # XXX: Add remaining ARMLE systems here
+    end
+
+    if arch.index(ARCH_AARCH64)
+      if plat.index(Msf::Module::Platform::Linux)
+        return to_linux_aarch64_elf(framework, code)
+      end
+
+      # XXX: Add remaining AARCH64 systems here
     end
 
     if arch.index(ARCH_PPC)
@@ -633,6 +641,9 @@ require 'msf/core/exe/segment_appender'
       opts[:payload] = 'stdin'
       opts[:encoder] = '@x86/service,'+(opts[:serviceencoder] || '')
 
+      # XXX This should not be required, it appears there is a dependency inversion
+      # See https://github.com/rapid7/metasploit-framework/pull/9851
+      require 'msf/core/payload_generator'
       venom_generator = Msf::PayloadGenerator.new(opts)
       code_service = venom_generator.multiple_encode_payload(code)
       return to_winpe_only(framework, code_service, opts)
@@ -689,6 +700,49 @@ require 'msf/core/exe/segment_appender'
   def self.to_win64pe_dll(framework, code, opts = {})
     # Allow the user to specify their own DLL template
     set_template_default(opts, "template_x64_windows.dll")
+    opts[:exe_type] = :dll
+
+    if opts[:inject]
+      raise RuntimeError, 'Template injection unsupported for x64 DLLs'
+    else
+      exe_sub_method(code,opts)
+    end
+  end
+
+
+  # self.to_win32pe_dll
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :exe_type
+  # @option           [String] :dll
+  # @option           [String] :inject
+  # @return           [String]
+  def self.to_win32pe_dccw_gdiplus_dll(framework, code, opts = {})
+    # Allow the user to specify their own DLL template
+    set_template_default(opts, "template_x86_windows_dccw_gdiplus.dll")
+    opts[:exe_type] = :dll
+
+    if opts[:inject]
+      self.to_win32pe(framework, code, opts)
+    else
+      exe_sub_method(code,opts)
+    end
+  end
+
+  # self.to_win64pe_dll
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :exe_type
+  # @option           [String] :dll
+  # @option           [String] :inject
+  # @return           [String]
+  def self.to_win64pe_dccw_gdiplus_dll(framework, code, opts = {})
+    # Allow the user to specify their own DLL template
+    set_template_default(opts, "template_x64_windows_dccw_gdiplus.dll")
     opts[:exe_type] = :dll
 
     if opts[:inject]
@@ -887,9 +941,10 @@ require 'msf/core/exe/segment_appender'
     zip = Rex::Zip::Archive.new
     zip.add_file("#{app_name}/", '')
     zip.add_file("#{app_name}/Contents/", '')
-    zip.add_file("#{app_name}/Contents/MacOS/", '')
     zip.add_file("#{app_name}/Contents/Resources/", '')
-    zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe)
+    zip.add_file("#{app_name}/Contents/MacOS/", '')
+    # Add the macho and mark it as executable
+    zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe).last.attrs = 0x10
     zip.add_file("#{app_name}/Contents/Info.plist", info_plist)
     zip.add_file("#{app_name}/Contents/PkgInfo", 'APPLaplt')
     zip.pack
@@ -1048,6 +1103,17 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_x64_linux.bin", code)
   end
 
+  # Create a 32-bit Linux ELF_DYN containing the payload provided in +code+
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_x86_elf_dll(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_x86_linux_dll.bin", code)
+  end
+
   # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
   #
   # @param framework [Msf::Framework]
@@ -1059,7 +1125,7 @@ require 'msf/core/exe/segment_appender'
     to_exe_elf(framework, opts, "template_x64_linux_dll.bin", code)
   end
 
-  # self.to_linux_mipsle_elf
+  # self.to_linux_armle_elf
   #
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -1068,6 +1134,17 @@ require 'msf/core/exe/segment_appender'
   # @return           [String] Returns an elf
   def self.to_linux_armle_elf(framework, code, opts = {})
     to_exe_elf(framework, opts, "template_armle_linux.bin", code)
+  end
+
+  # self.to_linux_aarch64_elf
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_aarch64_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_aarch64_linux.bin", code)
   end
 
   # self.to_linux_mipsle_elf
@@ -1559,7 +1636,6 @@ require 'msf/core/exe/segment_appender'
   # target code there, setting an exception handler that calls ExitProcess
   # and finally executing the code.
   def self.win32_rwx_exec(code)
-
     stub_block = %Q^
     ; Input: The hash of the API to call and all its parameters must be pushed onto stack.
     ; Output: The return value from the API call will be in EAX.
@@ -1667,7 +1743,8 @@ require 'msf/core/exe/segment_appender'
     exitfunk:
       mov ebx, 0x0A2A1DE0    ; The EXITFUNK as specified by user...
       push 0x9DBD95A6        ; hash( "kernel32.dll", "GetVersion" )
-      call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
+      mov eax, ebp
+      call eax               ; GetVersion(); (AL will = major version and AH will = minor version)
       cmp al, byte 6         ; If we are not running on Windows Vista, 2008 or 7
       jl goodbye             ; Then just call the exit function...
       cmp bl, 0xE0           ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
@@ -2070,6 +2147,7 @@ require 'msf/core/exe/segment_appender'
         when ARCH_X64
           exe = to_win64pe(framework, code, exeopts)
       end
+      exeopts[:uac] = true
       Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
     when 'msi-nouac'
       case arch
@@ -2078,7 +2156,6 @@ require 'msf/core/exe/segment_appender'
       when ARCH_X64
         exe = to_win64pe(framework, code, exeopts)
       end
-      exeopts[:uac] = true
       Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
     when 'elf'
       if elf? code
@@ -2090,6 +2167,8 @@ require 'msf/core/exe/segment_appender'
           to_linux_x86_elf(framework, code, exeopts)
         when ARCH_X64
           to_linux_x64_elf(framework, code, exeopts)
+        when ARCH_AARCH64
+          to_linux_aarch64_elf(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf(framework, code, exeopts)
         when ARCH_MIPSBE
@@ -2116,20 +2195,28 @@ require 'msf/core/exe/segment_appender'
       end
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
+        when ARCH_X86
+          to_linux_x86_elf_dll(framework, code, exeopts)
         when ARCH_X64
           to_linux_x64_elf_dll(framework, code, exeopts)
+        when ARCH_ARMLE
+          to_linux_armle_elf_dll(framework, code, exeopts)
         end
       end
     when 'macho', 'osx-app'
-      macho = case arch
-      when ARCH_X86,nil
-        to_osx_x86_macho(framework, code, exeopts)
-      when ARCH_X64
-        to_osx_x64_macho(framework, code, exeopts)
-      when ARCH_ARMLE
-        to_osx_arm_macho(framework, code, exeopts)
-      when ARCH_PPC
-        to_osx_ppc_macho(framework, code, exeopts)
+      if macho? code
+        macho = code
+      else
+        macho = case arch
+        when ARCH_X86,nil
+          to_osx_x86_macho(framework, code, exeopts)
+        when ARCH_X64
+          to_osx_x64_macho(framework, code, exeopts)
+        when ARCH_ARMLE
+          to_osx_arm_macho(framework, code, exeopts)
+        when ARCH_PPC
+          to_osx_ppc_macho(framework, code, exeopts)
+        end
       end
       fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho
     when 'vba'
@@ -2255,6 +2342,10 @@ require 'msf/core/exe/segment_appender'
 
   def self.elf?(code)
     code[0..3] == "\x7FELF"
+  end
+
+  def self.macho?(code)
+    code[0..3] == "\xCF\xFA\xED\xFE" || code[0..3] == "\xCE\xFA\xED\xFE" || code[0..3] == "\xCA\xFE\xBA\xBE"
   end
 
 end

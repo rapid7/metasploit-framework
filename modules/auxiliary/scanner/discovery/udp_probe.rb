@@ -1,18 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Module::Deprecated
-
-  deprecated(Date.new(2016, 11, 23), 'auxiliary/scanner/discovery/udp_sweep')
 
   def initialize
     super(
@@ -127,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       report_service(conf)
-      print_status("Discovered #{data[:app]} on #{k} (#{data[:info]})")
+      print_good("Discovered #{data[:app]} on #{k} (#{data[:info]})")
     end
   end
 
@@ -357,7 +353,7 @@ class MetasploitModule < Msf::Auxiliary
       :info  => inf
     )
 
-    print_status("Discovered #{app} on #{pkt[1]}:#{pkt[2]} (#{inf})")
+    print_good("Discovered #{app} on #{pkt[1]}:#{pkt[2]} (#{inf})")
 
   end
 
@@ -534,5 +530,4 @@ class MetasploitModule < Msf::Auxiliary
   def probe_pkt_pca_nq(ip)
     return ["NQ", 5632]
   end
-
 end

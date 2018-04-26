@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Priv
 
   DEFAULT_ADMIN_TARGETS = [ 'services.exe', 'wininit.exe', 'svchost.exe', 'lsm.exe', 'lsass.exe', 'winlogon.exe' ]
@@ -14,7 +13,7 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
       'Name'          => 'Windows Manage Privilege Based Process Migration ',
       'Description'   => %q{ This module will migrate a Meterpreter session based on session privileges.
-         It will do everything it can to migrate, including spawing a new User level process.
+         It will do everything it can to migrate, including spawning a new User level process.
          For sessions with Admin rights: It will try to migrate into a System level process in the following
          order: ANAME (if specified), services.exe, wininit.exe, svchost.exe, lsm.exe, lsass.exe, and winlogon.exe.
          If all these fail and NOFAIL is set to true, it will fall back to User level migration. For sessions with User level rights:

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -144,7 +144,7 @@ puts hash.hexdigest
   def get_config_creds(salt)
     users = []
     appdatapath = expand_path("%AppData%") + "\\Skype"
-    print_status ("Checking for config files in %APPDATA%")
+    print_status("Checking for config files in %APPDATA%")
     users = get_config_users(appdatapath)
     if users.any?
       users.each do |user|
@@ -171,6 +171,5 @@ puts hash.hexdigest
       print_error "No salt found. Cannot continue without salt, exiting"
     end
   end
-
 end
 

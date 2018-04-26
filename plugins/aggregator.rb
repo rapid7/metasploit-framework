@@ -84,7 +84,7 @@ module Msf
 
       def show_session(details, target, local_id)
         status = pad_space("  #{local_id}", 4)
-        status += "  #{details['ID']}" unless local_id.nil?
+        status += "  #{details['ID']}"
         status = pad_space(status, 15)
         status += "  meterpreter "
         status += "#{guess_target_platform(details['OS'])} "
@@ -124,7 +124,7 @@ module Msf
 
         group = "default"
 
-        if (@host && @host.length.positive?) && (@port && @port.length.positive? && @port.to_i > 0)
+        if (@host && @host.length > 0) && (@port && @port.length > 0 && @port.to_i > 0)
           config = { "#{group}" => { 'server' => @host, 'port' => @port } }
           ::File.open("#{Aggregator_yaml}", "wb") { |f| f.puts YAML.dump(config) }
           print_good("#{Aggregator_yaml} created.")
@@ -376,7 +376,7 @@ module Msf
 
       def aggregator_login
 
-        if !((@host && @host.length.positive?) && (@port && @port.length.positive? && @port.to_i > 0))
+        if !((@host && @host.length > 0) && (@port && @port.length > 0 && @port.to_i > 0))
           usage_connect
           return
         end

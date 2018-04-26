@@ -3,9 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-gem 'bit-struct', git: 'https://github.com/busterb/bit-struct', branch: 'ruby-2.4'
-gem 'method_source', git: 'https://github.com/banister/method_source', branch: 'master'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
@@ -18,17 +15,17 @@ group :development do
   # generating documentation
   gem 'yard'
   # for development and testing purposes
-  gem 'pry', git: 'https://github.com/pry/pry', branch: 'master'
+  gem 'pry'
   # module documentation
   gem 'octokit'
-  # metasploit-aggregator as a framework only option for now
   # Metasploit::Aggregator external session proxy
-  gem 'metasploit-aggregator'
+  # disabled during 2.5 transition until aggregator is available
+  #gem 'metasploit-aggregator'
 end
 
 group :development, :test do
   # automatically include factories from spec/factories
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   # Make rspec output shorter and more useful
   gem 'fivemat'
   # running documentation generation tasks and rspec tasks
@@ -36,14 +33,10 @@ group :development, :test do
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails'
+  gem 'rspec-rerun'
 end
 
 group :test do
-  # cucumber extension for testing command line applications, like msfconsole
-  gem 'aruba'
-  # cucumber + automatic database cleaning with database_cleaner
-  gem 'cucumber-rails', :require => false
-  gem 'shoulda-matchers'
   # Manipulate Time.now in specs
   gem 'timecop'
 end

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,7 +7,6 @@ require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/tomcat'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -121,14 +120,15 @@ class MetasploitModule < Msf::Auxiliary
       credential_data = result.to_h
       credential_data.merge!(
           module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+          workspace_id: myworkspace_id,
+          private_type: :password
       )
       if result.success?
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         if result.proof
@@ -139,5 +139,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

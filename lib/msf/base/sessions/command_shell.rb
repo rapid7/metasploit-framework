@@ -47,10 +47,14 @@ class CommandShell
     "shell"
   end
 
-  def initialize(*args)
+  def initialize(conn, opts = {})
     self.platform ||= ""
     self.arch     ||= ""
     self.max_threads = 1
+    datastore = opts[:datastore]
+    if datastore && !datastore["CommandShellCleanupCommand"].blank?
+      @cleanup_command = opts[:datastore]["CommandShellCleanupCommand"]
+    end
     super
   end
 
@@ -193,10 +197,26 @@ class CommandShell
   # :category: Msf::Session::Provider::SingleCommandShell implementors
   #
   # Closes the shell.
+  # Note: parent's 'self.kill' method calls cleanup below.
   #
   def shell_close()
-    rstream.close rescue nil
     self.kill
+  end
+
+  ##
+  # :category: Msf::Session implementors
+  #
+  # Closes the shell.
+  #
+  def cleanup
+    if rstream
+      if !@cleanup_command.blank?
+        shell_command_token(@cleanup_command, 0)
+      end
+      rstream.close
+      rstream = nil
+    end
+    super
   end
 
   #

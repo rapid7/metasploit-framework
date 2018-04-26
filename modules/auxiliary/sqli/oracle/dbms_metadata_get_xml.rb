@@ -1,17 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Oracle DB SQL Injection via SYS.DBMS_METADATA.GET_XML',
       'Description'    => %q{
-        This module will escalate a Oracle DB user to DBA by exploiting an sql injection
+        This module will escalate an Oracle DB user to DBA by exploiting a sql injection
         bug in the SYS.DBMS_METADATA.GET_XML package/function.
       },
       'Author'         => [ 'MC' ],

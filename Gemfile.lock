@@ -1,35 +1,16 @@
-GIT
-  remote: https://github.com/banister/method_source
-  revision: 0cc6cc8e15d08880585e8cb0c54e13c3cf937c54
-  branch: master
-  specs:
-    method_source (0.8.1)
-
-GIT
-  remote: https://github.com/busterb/bit-struct
-  revision: 707133ae6af5420be6fbe29be6baa5fbc929da2e
-  branch: ruby-2.4
-  specs:
-    bit-struct (0.15.0)
-
-GIT
-  remote: https://github.com/pry/pry
-  revision: f19d3e2ae86a677e1e926016fa1a5763675e3659
-  branch: master
-  specs:
-    pry (0.10.4)
-      coderay (~> 1.1.0)
-      method_source (~> 0.8.1)
-
 PATH
   remote: .
   specs:
-    metasploit-framework (4.14.19)
+    metasploit-framework (5.0.0)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
+      backports
       bcrypt
+      bcrypt_pbkdf
       bit-struct
+      dnsruby
+      faker
       filesize
       jsobfu
       json
@@ -37,9 +18,10 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 1.2.29)
+      metasploit-payloads (= 1.3.33)
       metasploit_data_models
-      metasploit_payloads-mettle (= 0.1.9)
+      metasploit_payloads-mettle (= 0.3.7)
+      mqtt
       msgpack
       nessus_rest
       net-ssh
@@ -52,12 +34,13 @@ PATH
       packetfu
       patch_finder
       pcaprub
-      pg
+      pdf-reader
+      pg (= 0.20.0)
       railties
       rb-readline
       recog
       redcarpet
-      rex-arch (= 0.1.4)
+      rex-arch
       rex-bin_tools
       rex-core
       rex-encoder
@@ -66,7 +49,7 @@ PATH
       rex-mime
       rex-nop
       rex-ole
-      rex-powershell
+      rex-powershell (< 0.1.78)
       rex-random_identifier
       rex-registry
       rex-rop_builder
@@ -75,224 +58,194 @@ PATH
       rex-struct2
       rex-text
       rex-zip
-      robots
+      ruby-macho
       ruby_smb
       rubyntlm
       rubyzip
+      sinatra
       sqlite3
       sshkey
+      thin
       tzinfo
       tzinfo-data
       windows_error
+      xdr
       xmlrpc
 
 GEM
   remote: https://rubygems.org/
   specs:
-    actionpack (4.2.8)
-      actionview (= 4.2.8)
-      activesupport (= 4.2.8)
+    Ascii85 (1.0.3)
+    actionpack (4.2.10)
+      actionview (= 4.2.10)
+      activesupport (= 4.2.10)
       rack (~> 1.6)
       rack-test (~> 0.6.2)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    actionview (4.2.8)
-      activesupport (= 4.2.8)
+    actionview (4.2.10)
+      activesupport (= 4.2.10)
       builder (~> 3.1)
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.3)
-    activemodel (4.2.8)
-      activesupport (= 4.2.8)
+    activemodel (4.2.10)
+      activesupport (= 4.2.10)
       builder (~> 3.1)
-    activerecord (4.2.8)
-      activemodel (= 4.2.8)
-      activesupport (= 4.2.8)
+    activerecord (4.2.10)
+      activemodel (= 4.2.10)
+      activesupport (= 4.2.10)
       arel (~> 6.0)
-    activesupport (4.2.8)
+    activesupport (4.2.10)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.5.1)
-      public_suffix (~> 2.0, >= 2.0.2)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    afm (0.2.2)
     arel (6.0.4)
-    arel-helpers (2.4.0)
+    arel-helpers (2.6.1)
       activerecord (>= 3.1.0, < 6)
-    aruba (0.14.2)
-      childprocess (~> 0.5.6)
-      contracts (~> 0.9)
-      cucumber (>= 1.3.19)
-      ffi (~> 1.9.10)
-      rspec-expectations (>= 2.99)
-      thor (~> 0.19)
+    backports (3.11.3)
     bcrypt (3.1.11)
-    bindata (2.4.0)
+    bcrypt_pbkdf (1.0.0)
+    bindata (2.4.3)
+    bit-struct (0.16)
     builder (3.2.3)
-    capybara (2.14.0)
-      addressable
-      mime-types (>= 1.16)
-      nokogiri (>= 1.3.3)
-      rack (>= 1.0.0)
-      rack-test (>= 0.5.4)
-      xpath (~> 2.0)
-    childprocess (0.5.9)
-      ffi (~> 1.0, >= 1.0.11)
-    coderay (1.1.1)
-    contracts (0.16.0)
-    cucumber (2.4.0)
-      builder (>= 2.1.2)
-      cucumber-core (~> 1.5.0)
-      cucumber-wire (~> 0.0.1)
-      diff-lcs (>= 1.1.3)
-      gherkin (~> 4.0)
-      multi_json (>= 1.7.5, < 2.0)
-      multi_test (>= 0.1.2)
-    cucumber-core (1.5.0)
-      gherkin (~> 4.0)
-    cucumber-rails (1.5.0)
-      capybara (>= 1.1.2, < 3)
-      cucumber (>= 1.3.8, < 4)
-      mime-types (>= 1.17, < 4)
-      nokogiri (~> 1.5)
-      railties (>= 4, < 5.2)
-    cucumber-wire (0.0.1)
+    coderay (1.1.2)
+    concurrent-ruby (1.0.5)
+    crass (1.0.4)
+    daemons (1.2.6)
     diff-lcs (1.3)
-    docile (1.1.5)
+    dnsruby (1.60.2)
+    docile (1.3.0)
     erubis (2.7.0)
-    factory_girl (4.8.0)
+    eventmachine (1.2.5)
+    factory_bot (4.8.2)
       activesupport (>= 3.0.0)
-    factory_girl_rails (4.8.0)
-      factory_girl (~> 4.8.0)
+    factory_bot_rails (4.8.2)
+      factory_bot (~> 4.8.2)
       railties (>= 3.0.0)
-    faraday (0.12.1)
+    faker (1.8.7)
+      i18n (>= 0.7)
+    faraday (0.15.0)
       multipart-post (>= 1.2, < 3)
-    ffi (1.9.18)
     filesize (0.1.1)
-    fivemat (1.3.3)
-    gherkin (4.1.3)
-    google-protobuf (3.3.0)
-    googleauth (0.5.1)
-      faraday (~> 0.9)
-      jwt (~> 1.4)
-      logging (~> 2.0)
-      memoist (~> 0.12)
-      multi_json (~> 1.11)
-      os (~> 0.9)
-      signet (~> 0.7)
-    grpc (1.2.5)
-      google-protobuf (~> 3.1)
-      googleauth (~> 0.5.1)
-    i18n (0.8.1)
+    fivemat (1.3.6)
+    hashery (2.1.2)
+    i18n (0.9.5)
+      concurrent-ruby (~> 1.0)
     jsobfu (0.4.2)
       rkelly-remix
     json (2.1.0)
-    jwt (1.5.6)
-    little-plugger (1.1.4)
-    logging (2.2.2)
-      little-plugger (~> 1.1)
-      multi_json (~> 1.10)
-    loofah (2.0.3)
+    loofah (2.2.2)
+      crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    memoist (0.15.0)
     metasm (1.0.3)
-    metasploit-aggregator (0.2.0)
-      grpc
-      rex-arch
-    metasploit-concern (2.0.4)
+    metasploit-concern (2.0.5)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-credential (2.0.9)
+    metasploit-credential (3.0.1)
       metasploit-concern
       metasploit-model
-      metasploit_data_models
-      pg
+      metasploit_data_models (>= 3.0.0)
+      net-ssh
+      pg (~> 0.15)
       railties
+      rex-socket
       rubyntlm
       rubyzip
     metasploit-model (2.0.4)
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.2.29)
-    metasploit_data_models (2.0.14)
+    metasploit-payloads (1.3.33)
+    metasploit_data_models (3.0.0)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
       arel-helpers
       metasploit-concern
       metasploit-model
-      pg
+      pg (= 0.20.0)
       postgres_ext
       railties (~> 4.2.6)
       recog (~> 2.0)
-    metasploit_payloads-mettle (0.1.9)
-    mime-types (3.1)
-      mime-types-data (~> 3.2015)
-    mime-types-data (3.2016.0521)
-    mini_portile2 (2.1.0)
-    minitest (5.10.2)
-    msgpack (1.1.0)
-    multi_json (1.12.1)
-    multi_test (0.1.2)
+    metasploit_payloads-mettle (0.3.7)
+    method_source (0.9.0)
+    mini_portile2 (2.3.0)
+    minitest (5.11.3)
+    mqtt (0.5.0)
+    msgpack (1.2.4)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
-    net-ssh (4.1.0)
-    network_interface (0.0.1)
-    nexpose (6.0.0)
-    nokogiri (1.7.2)
-      mini_portile2 (~> 2.1.0)
-    octokit (4.7.0)
+    net-ssh (4.2.0)
+    network_interface (0.0.2)
+    nexpose (7.2.0)
+    nokogiri (1.8.2)
+      mini_portile2 (~> 2.3.0)
+    octokit (4.8.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
-    os (0.9.6)
     packetfu (1.1.13)
       pcaprub
     patch_finder (1.0.2)
     pcaprub (0.12.4)
+    pdf-reader (2.1.0)
+      Ascii85 (~> 1.0.0)
+      afm (~> 0.2.1)
+      hashery (~> 2.0)
+      ruby-rc4
+      ttfunk
     pg (0.20.0)
     pg_array_parser (0.0.9)
-    postgres_ext (3.0.0)
-      activerecord (>= 4.0.0)
+    postgres_ext (3.0.1)
+      activerecord (~> 4.0)
       arel (>= 4.0.1)
       pg_array_parser (~> 0.0.9)
-    public_suffix (2.0.5)
-    rack (1.6.7)
+    pry (0.11.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    public_suffix (3.0.2)
+    rack (1.6.10)
+    rack-protection (1.5.5)
+      rack
     rack-test (0.6.3)
       rack (>= 1.0)
     rails-deprecated_sanitizer (1.0.3)
       activesupport (>= 4.2.0.alpha)
-    rails-dom-testing (1.0.8)
-      activesupport (>= 4.2.0.beta, < 5.0)
+    rails-dom-testing (1.0.9)
+      activesupport (>= 4.2.0, < 5.0)
       nokogiri (~> 1.6)
       rails-deprecated_sanitizer (>= 1.0.1)
-    rails-html-sanitizer (1.0.3)
-      loofah (~> 2.0)
-    railties (4.2.8)
-      actionpack (= 4.2.8)
-      activesupport (= 4.2.8)
+    rails-html-sanitizer (1.0.4)
+      loofah (~> 2.2, >= 2.2.2)
+    railties (4.2.10)
+      actionpack (= 4.2.10)
+      activesupport (= 4.2.10)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    rake (12.0.0)
-    rb-readline (0.5.4)
-    recog (2.1.6)
+    rake (12.3.1)
+    rb-readline (0.5.5)
+    recog (2.1.19)
       nokogiri
     redcarpet (3.4.0)
-    rex-arch (0.1.4)
+    rex-arch (0.1.13)
       rex-text
-    rex-bin_tools (0.1.3)
+    rex-bin_tools (0.1.4)
       metasm
       rex-arch
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.10)
+    rex-core (0.1.13)
     rex-encoder (0.1.4)
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.14)
+    rex-exploitation (0.1.19)
       jsobfu
       metasm
       rex-arch
@@ -305,45 +258,53 @@ GEM
       rex-arch
     rex-ole (0.1.6)
       rex-text
-    rex-powershell (0.1.72)
+    rex-powershell (0.1.77)
       rex-random_identifier
       rex-text
-    rex-random_identifier (0.1.2)
+    rex-random_identifier (0.1.4)
       rex-text
     rex-registry (0.1.3)
     rex-rop_builder (0.1.3)
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.6)
+    rex-socket (0.1.14)
       rex-core
-    rex-sslscan (0.1.4)
+    rex-sslscan (0.1.5)
+      rex-core
       rex-socket
       rex-text
     rex-struct2 (0.1.2)
-    rex-text (0.2.15)
+    rex-text (0.2.20)
     rex-zip (0.1.3)
       rex-text
     rkelly-remix (0.0.7)
-    robots (0.10.1)
-    rspec-core (3.6.0)
-      rspec-support (~> 3.6.0)
-    rspec-expectations (3.6.0)
+    rspec (3.7.0)
+      rspec-core (~> 3.7.0)
+      rspec-expectations (~> 3.7.0)
+      rspec-mocks (~> 3.7.0)
+    rspec-core (3.7.1)
+      rspec-support (~> 3.7.0)
+    rspec-expectations (3.7.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.6.0)
-    rspec-mocks (3.6.0)
+      rspec-support (~> 3.7.0)
+    rspec-mocks (3.7.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.6.0)
-    rspec-rails (3.6.0)
+      rspec-support (~> 3.7.0)
+    rspec-rails (3.7.2)
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       railties (>= 3.0)
-      rspec-core (~> 3.6.0)
-      rspec-expectations (~> 3.6.0)
-      rspec-mocks (~> 3.6.0)
-      rspec-support (~> 3.6.0)
-    rspec-support (3.6.0)
-    ruby_smb (0.0.12)
+      rspec-core (~> 3.7.0)
+      rspec-expectations (~> 3.7.0)
+      rspec-mocks (~> 3.7.0)
+      rspec-support (~> 3.7.0)
+    rspec-rerun (1.1.0)
+      rspec (~> 3.0)
+    rspec-support (3.7.1)
+    ruby-macho (1.1.0)
+    ruby-rc4 (0.1.5)
+    ruby_smb (0.0.23)
       bindata
       rubyntlm
       windows_error
@@ -352,54 +313,53 @@ GEM
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
-    shoulda-matchers (3.1.1)
-      activesupport (>= 4.0.0)
-    signet (0.7.3)
-      addressable (~> 2.3)
-      faraday (~> 0.9)
-      jwt (~> 1.5)
-      multi_json (~> 1.10)
-    simplecov (0.14.1)
-      docile (~> 1.1.0)
+    simplecov (0.16.1)
+      docile (~> 1.1)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.0)
+    simplecov-html (0.10.2)
+    sinatra (1.4.8)
+      rack (~> 1.5)
+      rack-protection (~> 1.4)
+      tilt (>= 1.3, < 3)
     sqlite3 (1.3.13)
     sshkey (1.9.0)
-    thor (0.19.4)
+    thin (1.7.2)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
+    thor (0.20.0)
     thread_safe (0.3.6)
-    timecop (0.8.1)
-    tzinfo (1.2.3)
+    tilt (2.0.8)
+    timecop (0.9.1)
+    ttfunk (1.5.1)
+    tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2017.2)
+    tzinfo-data (1.2018.4)
       tzinfo (>= 1.0.0)
     windows_error (0.1.2)
+    xdr (2.0.0)
+      activemodel (>= 4.2.7)
+      activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    xpath (2.0.0)
-      nokogiri (~> 1.3)
-    yard (0.9.9)
+    yard (0.9.12)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  aruba
-  bit-struct!
-  cucumber-rails
-  factory_girl_rails
+  factory_bot_rails
   fivemat
-  metasploit-aggregator
   metasploit-framework!
-  method_source!
   octokit
-  pry!
+  pry
   rake
   redcarpet
   rspec-rails
-  shoulda-matchers
+  rspec-rerun
   simplecov
   timecop
   yard
 
 BUNDLED WITH
-   1.14.6
+   1.16.1

@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
@@ -18,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       (Remote Access Services). Kernel memory is overwritten resulting in a BSOD.
       Code execution may be possible however this module is only a DoS.
       },
-      'Author' 	=> [ 'patrick' ],
+      'Author' 	=> [ 'aushack' ],
       'License'       => MSF_LICENSE,
       'References'    =>
       [

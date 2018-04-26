@@ -43,18 +43,20 @@ module Auxiliary::UDPScanner
     datastore['BATCHSIZE'].to_i
   end
 
-  def udp_socket(ip, port)
+  def udp_socket(ip, port, bind_peer: true)
+    key = "#{ip}:#{port}:#{bind_peer ? 'bound' : 'unbound'}"
     @udp_sockets_mutex.synchronize do
-      key = "#{ip}:#{port}"
       unless @udp_sockets.key?(key)
-        @udp_sockets[key] =
-          Rex::Socket::Udp.create({
-            'LocalHost' => datastore['CHOST'] || nil,
-            'LocalPort' => datastore['CPORT'] || 0,
-            'PeerHost'  => ip,
-            'PeerPort'  => port,
-            'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
-          })
+        sock_info = {
+          'LocalHost' => datastore['CHOST'] || nil,
+          'LocalPort' => datastore['CPORT'] || 0,
+          'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
+        }
+        if bind_peer
+          sock_info['PeerHost'] = ip
+          sock_info['PeerPort'] = port
+        end
+        @udp_sockets[key] = Rex::Socket::Udp.create(sock_info)
         add_socket(@udp_sockets[key])
       end
       return @udp_sockets[key]
@@ -123,10 +125,16 @@ module Auxiliary::UDPScanner
     data = data.to_binary_s if data.respond_to?('to_binary_s')
 
     resend_count = 0
-    sock = nil
+
     begin
-      sock = udp_socket(ip, port)
-      sock.send(data, 0)
+      addrinfo = Addrinfo.ip(ip)
+      unless addrinfo.ipv4_multicast? || addrinfo.ipv6_multicast?
+        sock = udp_socket(ip, port, bind_peer: true)
+        sock.send(data, 0)
+      else
+        sock = udp_socket(ip, port, bind_peer: false)
+        sock.sendto(data, ip, port, 0)
+      end
 
     rescue ::Errno::ENOBUFS
       resend_count += 1
@@ -136,8 +144,7 @@ module Auxiliary::UDPScanner
       end
 
       scanner_recv(0.1)
-
-      ::IO.select(nil, nil, nil, 0.25)
+      sleep(0.25)
 
       retry
 

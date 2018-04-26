@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'net/ssh'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -72,6 +71,8 @@ class MetasploitModule < Msf::Auxiliary
       auth_methods:  ['password', 'keyboard-interactive'],
       use_agent:     false,
       config:        false,
+      password_prompt: Net::SSH::Prompt.new,
+      non_interactive: true,
       proxies:       datastore['Proxies']
     }
 
@@ -84,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     auth = Net::SSH::Authentication::Session.new(transport, opt_hash)
     auth.authenticate("ssh-connection", Rex::Text.rand_text_alphanumeric(8), Rex::Text.rand_text_alphanumeric(8))
     auth_method = auth.allowed_auth_methods.join('|')
-    print_status "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
+    print_good "#{peer(ip)} Server Version: #{auth.transport.server_version.version}"
     report_service(
       host:  ip,
       port:  rport,

@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         A misconfigured Squid proxy can allow an attacker to make requests on his behalf.
           This may give the attacker information about devices that he cannot reach but the
           Squid proxy can. For example, an attacker can make requests for internal IP addresses
-          against a misconfigurated open Squid proxy exposed to the Internet, therefore performing
+          against a misconfigured open Squid proxy exposed to the Internet, therefore performing
           an internal port scan. The error messages returned by the proxy are used to determine
           if the port is open or not.
 

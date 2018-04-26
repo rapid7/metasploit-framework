@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
+          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
           [ 'URL', 'http://www.rapid7.com/vulndb/lookup/ntp-clock-variables-disclosure' ]
         ]
       )
@@ -34,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def scanner_process(data, shost, _sport)
     @results[shost] ||= []
-    @results[shost] << Rex::Proto::NTP::NTPControl.new(data)
+    @results[shost] << Rex::Proto::NTP::NTPControl.new.read(data)
   end
 
   def scan_host(ip)

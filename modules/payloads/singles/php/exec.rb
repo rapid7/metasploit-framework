@@ -1,8 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 
 require 'msf/core/payload/php'
 require 'msf/core/handler/bind_tcp'
@@ -50,5 +49,4 @@ module MetasploitModule
   def generate
     return php_exec_cmd
   end
-
 end

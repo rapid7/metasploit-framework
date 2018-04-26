@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status "#{ip}:#{rport} - FTP - Connecting"
     conn = connect_login
     if conn
-      print_status("#{ip}:#{rport} - FTP - Login succeeded")
+      print_good("#{ip}:#{rport} - FTP - Login succeeded")
       report_cred(
         ip: ip,
         port: rport,
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return true
     else
-      print_status("#{ip}:#{rport} - FTP - Login failed")
+      print_error("#{ip}:#{rport} - FTP - Login failed")
       return false
     end
   end
@@ -243,5 +243,4 @@ class MetasploitModule < Msf::Auxiliary
     # )
     print_line logins.to_s
   end
-
 end

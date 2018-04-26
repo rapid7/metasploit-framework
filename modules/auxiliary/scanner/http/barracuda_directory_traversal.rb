@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -14,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
       'Description'    => %q{
           This module exploits a directory traversal vulnerability present in
-        serveral Barracuda products, including the Barracuda Spam and Virus Firewall,
+        several Barracuda products, including the Barracuda Spam and Virus Firewall,
         Barracuda SSL VPN, and the Barracuda Web Application Firewall. By default,
         this module will attempt to download the Barracuda configuration file.
       },
@@ -86,5 +85,4 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
   rescue ::Timeout::Error, ::Errno::EPIPE
   end
-
 end

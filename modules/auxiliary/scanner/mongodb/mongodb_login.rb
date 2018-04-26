@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
@@ -52,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
           :exploited_at => Time.now.utc,
           :info         => "Mongo server has no authentication."
         )
-        print_good("Mongo server #{ip.to_s} dosn't use authentication")
+        print_good("Mongo server #{ip.to_s} doesn't use authentication")
       end
       disconnect
     rescue ::Exception => e

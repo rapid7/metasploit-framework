@@ -27,8 +27,6 @@ end
 
 # Create a custom group
 group :local do
-  # Use pry-debugger to step through code during development
-  gem 'pry-debugger', '~> 0.2'
   # Add the lab gem so that the 'lab' plugin will work again
   gem 'lab', '~> 0.2.7'
 end

@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -41,6 +39,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptInt.new('MinRID', [ false, "Starting RID to check", 500 ]),
         OptInt.new('MaxRID', [ false, "Maximum RID to check", 4000 ])
       ],
       self.class
@@ -142,7 +141,6 @@ class MetasploitModule < Msf::Auxiliary
 
   # Fingerprint a single host
   def run_host(ip)
-
     [[139, false], [445, true]].each do |info|
 
     @rport = info[0]
@@ -229,8 +227,10 @@ class MetasploitModule < Msf::Auxiliary
         domain_sid || host_sid
       end
 
+      min_rid = datastore['MinRID']
       # Brute force through a common RID range
-      500.upto(datastore['MaxRID'].to_i) do |rid|
+
+      min_rid.upto(datastore['MaxRID']) do |rid|
 
         stub =
           phandle +
@@ -245,7 +245,6 @@ class MetasploitModule < Msf::Auxiliary
           NDR.long(0) +
           NDR.long(1) +
           NDR.long(0)
-
 
         dcerpc.call(15, stub)
         resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
@@ -297,6 +296,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     end
   end
-
-
 end

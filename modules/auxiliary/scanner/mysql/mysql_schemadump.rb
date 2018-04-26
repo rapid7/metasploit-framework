@@ -1,12 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'yaml'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
 
@@ -54,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto => 'tcp'
           )
     p = store_loot('mysql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mysql_schema.txt", "MySQL Schema", this_service)
-    print_status("Schema stored in: #{p}")
+    print_good("Schema stored in: #{p}")
     print_good output if datastore['DISPLAY_RESULTS']
   end
 
@@ -125,5 +124,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     return tables
   end
-
 end
