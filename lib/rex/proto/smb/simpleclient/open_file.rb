@@ -32,32 +32,27 @@ class OpenFile
   def read(length = nil, offset = 0)
     if (length == nil)
       data = ''
+      max_size = self.client.open_files[self.client.last_file_id].size
       fptr = offset
-      ok = self.client.read(self.file_id, fptr, self.chunk_size)
-      while (ok and ok['Payload'].v['DataLenLow'] > 0)
-        buff = ok.to_s.slice(
-          ok['Payload'].v['DataOffset'] + 4,
-          ok['Payload'].v['DataLenLow']
-        )
-        data << buff
-        if ok['Payload'].v['Remaining'] == 0
-          break
-        end
-        fptr += ok['Payload'].v['DataLenLow']
 
-        begin
-          ok = self.client.read(self.file_id, fptr, self.chunk_size)
-        rescue XCEPT::ErrorCode => e
-          case e.error_code
-          when 0x00050001
-            # Novell fires off an access denied error on EOF
-            ok = nil
-          else
-            raise e
-          end
-        end
+      if max_size < self.chunk_size
+        chunk = max_size
+      else
+        chunk = self.chunk_size
       end
 
+      ok = self.client.read(self.file_id, fptr, chunk)
+      data << ok.pack('C*')
+      fptr = data.length
+
+      while (ok && data.length < max_size)
+        if (max_size - data.length) < chunk
+          chunk = max_size - data.length
+        end
+        ok = self.client.read(self.file_id, fptr, chunk)
+        data << ok.pack('C*')
+        fptr = data.length
+      end
       return data
     else
       ok = self.client.read(self.file_id, offset, length)
