@@ -165,17 +165,26 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
   end
 
 
-  def open(path, perm, chunk_size = 48000)
-    mode   = UTILS.open_mode_to_mode(perm)
-    access = UTILS.open_mode_to_access(perm)
+  def open(path, perm, chunk_size = 48000, read: true, write: false)
+    mode = 0
+    perm.each_byte { |c|
+      case [c].pack('C').downcase
+        when 'x', 'c'
+          mode |= RubySMB::Dispositions::FILE_CREATE
+        when 'o'
+          mode |= RubySMB::Dispositions::FILE_OPEN
+        when 's'
+          mode |= RubySMB::Dispositions::FILE_SUPERSEDE
+      end
+    }
 
-    ok = self.client.open(path, mode, access)
-    file_id = if ok.respond_to?(:guid)
-                ok.guid
-              elsif ok.respond_to?(:fid)
-                ok.fid
-              end
-    fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id)
+    if write
+      ok = self.client.open(path, mode, read: true, write: true)
+    else
+      ok = self.client.open(path, mode, read: true)
+    end
+
+    fh = OpenFile.new(self.client, path, self.client.last_tree_id, ok)
     fh.chunk_size = chunk_size
     fh
   end
@@ -186,12 +195,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
 
   def create_pipe(path, perm = 'c')
     disposition = UTILS.create_mode_to_disposition(perm)
-    ok = self.client.create_pipe(path, disposition)
-    file_id = if ok.respond_to? :guid
-                ok.guid.to_binary_s
-              elsif ok.respond_to? :fid
-                ok.fid.to_binary_s
-              end
+    file_id = self.client.create_pipe(path, disposition)
     fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id)
   end
 

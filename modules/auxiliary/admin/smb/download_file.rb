@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Trying to download #{remote_path}...")
 
         data = ''
-        fd = simple.open("\\#{remote_path}", 'ro')
+        fd = simple.open("#{remote_path}", 'o')
         begin
           data = fd.read
         ensure
