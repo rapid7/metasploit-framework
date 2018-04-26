@@ -14,7 +14,7 @@ class RemoteHTTPDataService
   include Metasploit::Framework::DataService
   include DataServiceAutoLoader
 
-  ONLINE_TEST_URL = "/api/v1/online"
+  ONLINE_TEST_URL = "/api/v1/msf/online"
   EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
@@ -36,6 +36,7 @@ class RemoteHTTPDataService
       response = get_data(ONLINE_TEST_URL)
       return response.expected
     rescue Exception => e
+      elog "Unable to determine if data service is online, message: #{e.message}"
     end
 
     return false

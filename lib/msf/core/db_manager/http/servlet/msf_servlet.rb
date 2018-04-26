@@ -10,6 +10,7 @@ module MsfServlet
 
   def self.registered(app)
     app.get MsfServlet.api_version_path, &get_msf_version
+    app.get "#{MsfServlet.api_path}/online", &online
   end
 
   #######
@@ -22,4 +23,9 @@ module MsfServlet
     }
   end
 
+  def self.online
+    lambda {
+      set_empty_response()
+    }
+  end
 end
