@@ -24,9 +24,9 @@ matrix:
   fast_finish: true
   exclude:
   - rvm: '2.3.7'
-    env: CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content REMOTE_DB=1"'
+    env: CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
   - rvm: '2.4.4'
-    env: CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content REMOTE_DB=1"'
+    env: CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
 
 jobs:
   # build docker image
