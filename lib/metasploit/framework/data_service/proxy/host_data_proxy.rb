@@ -26,7 +26,7 @@ module HostDataProxy
       data_service = self.get_data_service()
       data_service.get_host(opts)
     rescue Exception => e
-      self.log_error(e, "Problem reporting host")
+      self.log_error(e, "Problem retrieving host")
     end
   end
 

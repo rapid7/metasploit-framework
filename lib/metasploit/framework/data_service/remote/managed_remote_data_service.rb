@@ -5,17 +5,29 @@ module Metasploit
 module Framework
 module DataService
 
-class ManagedDBWS
+#
+#  Primarily for testing this instance is used to manage a data service started within a separate process.
+#
+class ManagedRemoteDataService
   include Singleton
 
+  #
+  # Returns true if the the managed data service process is running.
+  #
   def running?
     return @running
   end
 
+  #
+  # Returns the client used to interact with the remote data service
+  #
   def remote_data_service
     return @remote_host_data_service
   end
 
+  #
+  # Starts a remote data service process
+  #
   def start(opts)
     @mutex.synchronize do
 
@@ -49,6 +61,9 @@ class ManagedDBWS
 
   end
 
+  #
+  # Stops the remote data service process
+  #
   def stop
     @mutex.synchronize do
       return unless @running

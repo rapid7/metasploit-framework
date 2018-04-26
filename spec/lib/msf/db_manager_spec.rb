@@ -48,7 +48,7 @@ RSpec.describe Msf::DBManager do
   it_should_behave_like 'Msf::DBManager::Web'
   it_should_behave_like 'Msf::DBManager::Workspace'
 
-  # TODO: Evaluate need in remote db
+  # Not implemented in remote data service
   unless ENV['REMOTE_DB']
     it { is_expected.to respond_to :check }
     it { is_expected.to respond_to :error }

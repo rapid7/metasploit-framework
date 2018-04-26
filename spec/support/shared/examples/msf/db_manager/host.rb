@@ -2,8 +2,6 @@ RSpec.shared_examples_for 'Msf::DBManager::Host' do
 
   unless ENV['REMOTE_DB']
     it { is_expected.to respond_to :each_host }
-
-    # TODO: Evaluate need
     it { is_expected.to respond_to :del_host }
     it { is_expected.to respond_to :has_host? }
   end

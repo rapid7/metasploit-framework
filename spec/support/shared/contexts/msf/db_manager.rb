@@ -7,8 +7,8 @@ RSpec.shared_context 'Msf::DBManager' do
 
   let(:db_manager) do
     if ENV['REMOTE_DB']
-      require 'metasploit/framework/data_service/remote/managed_dbws'
-      remote_data_service = Metasploit::Framework::DataService::ManagedDBWS.instance.remote_data_service
+      require 'metasploit/framework/data_service/remote/managed_remote_data_service'
+      remote_data_service = Metasploit::Framework::DataService::ManagedRemoteDataService.instance.remote_data_service
       framework.db.register_data_service(remote_data_service, true)
     end
 

@@ -1,7 +1,7 @@
 RSpec.shared_examples_for 'Msf::DBManager::Event' do
 
   if ENV['REMOTE_DB']
-    before {skip("Awaiting proper port")}
+    before {skip("Awaiting event port")}
   end
 
   it { is_expected.to respond_to :events }

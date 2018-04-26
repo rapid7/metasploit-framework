@@ -1,6 +1,7 @@
 RSpec.shared_examples_for 'Msf::DBManager::Adapter' do
+
   if ENV['REMOTE_DB']
-    before {skip("Awaiting evaluation")}
+    before {skip("Not used for remote data service")}
   end
 
   context 'CONSTANTS' do
