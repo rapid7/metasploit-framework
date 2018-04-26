@@ -17,6 +17,7 @@ module DataServiceAutoLoader
   autoload :RemoteNmapDataService, 'metasploit/framework/data_service/remote/http/remote_nmap_data_service'
   autoload :RemoteDbExportDataService, 'metasploit/framework/data_service/remote/http/remote_db_export_data_service'
   autoload :RemoteVulnAttemptDataService, 'metasploit/framework/data_service/remote/http/remote_vuln_attempt_data_service'
+  autoload :RemoteMsfDataService, 'metasploit/framework/data_service/remote/http/remote_msf_data_service'
 
   include RemoteHostDataService
   include RemoteEventDataService
@@ -33,4 +34,5 @@ module DataServiceAutoLoader
   include RemoteNmapDataService
   include RemoteDbExportDataService
   include RemoteVulnAttemptDataService
+  include RemoteMsfDataService
 end

@@ -51,30 +51,36 @@ class DataProxy
   end
 
   #
-  # Registers a data service with the proxy and immediately
-  # set as primary if online
+  # Registers the specified data service with the proxy
+  # and immediately sets it as the primary if active
   #
-  def register_data_service(data_service, online=false)
+  def register_data_service(data_service)
     validate(data_service)
     data_service_id = @data_service_id += 1
     @data_services[data_service_id] = data_service
-    set_data_service(data_service_id, online)
+    set_data_service(data_service_id)
   end
 
   #
   # Set the data service to be used
   #
-  def set_data_service(data_service_id, online=false)
+  def set_data_service(data_service_id)
     data_service = @data_services[data_service_id.to_i]
     if data_service.nil?
       raise "Data service with id: #{data_service_id} does not exist"
     end
 
-    if !online && !data_service.active
-      raise "Data service not online: #{data_service.name}, not setting as active"
+    if !data_service.is_local? && !data_service.active
+      raise "Data service #{data_service.name} is not online, and won't be set as active"
     end
 
+    prev_data_service = @current_data_service
     @current_data_service = data_service
+    # reset the previous data service's active flag if it is remote
+    # to ensure checks are performed the next time it is set
+    if !prev_data_service.nil? && !prev_data_service.is_local?
+      prev_data_service.active = false
+    end
   end
 
   #
@@ -153,12 +159,12 @@ class DataProxy
     begin
       db_manager = opts.delete(:db_manager)
       if !db_manager.nil?
-        register_data_service(db_manager, true)
+        register_data_service(db_manager)
         @usable = true
       else
         @error = 'disabled'
       end
-    rescue Exception => e
+    rescue => e
       raise "Unable to initialize data service: #{e.message}"
     end
   end

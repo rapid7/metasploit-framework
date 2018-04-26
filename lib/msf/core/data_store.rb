@@ -19,7 +19,10 @@ class DataStore < Hash
     @imported_by = Hash.new
   end
 
+  attr_accessor :options
   attr_accessor :aliases
+  attr_accessor :imported
+  attr_accessor :imported_by
 
   #
   # Clears the imported flag for the supplied key since it's being set
@@ -217,6 +220,38 @@ class DataStore < Hash
   end
 
   #
+  # Return a deep copy of this datastore.
+  #
+  def copy
+    ds = self.class.new
+    self.keys.each do |k|
+      ds.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+    end
+    ds.aliases = self.aliases.dup
+    ds
+  end
+
+  #
+  # Override merge! so that we merge the aliases and imported hashes
+  #
+  def merge!(other)
+    super
+    if other.is_a? DataStore
+      self.aliases.merge!(other.aliases)
+      self.imported.merge!(other.imported)
+      self.imported_by.merge!(other.imported_by)
+    end
+  end
+
+  #
+  # Override merge to ensure we merge the aliases and imported hashes
+  #
+  def merge(other)
+    ds = self.copy
+    ds.merge!(other)
+  end
+
+  #
   # Returns a hash of user-defined datastore values.  The returned hash does
   # not include default option values.
   #
@@ -269,8 +304,8 @@ protected
 
     # Scan each alias looking for a key
     search_k = k.downcase
-    if @aliases.has_key?(search_k)
-      search_k = @aliases[search_k]
+    if self.aliases.has_key?(search_k)
+      search_k = self.aliases[search_k]
     end
 
     # Scan each key looking for a match
@@ -341,12 +376,12 @@ class ModuleDataStore < DataStore
   # Return a deep copy of this datastore.
   #
   def copy
-    clone = self.class.new(@_module)
+    ds = self.class.new(@_module)
     self.keys.each do |k|
-      clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+      ds.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
     end
-    clone.aliases = self.aliases
-    clone
+    ds.aliases = self.aliases.dup
+    ds
   end
 end
 

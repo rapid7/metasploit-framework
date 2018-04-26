@@ -5,7 +5,7 @@ require 'msf/core/db_manager/http/servlet/note_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_servlet'
 require 'msf/core/db_manager/http/servlet/event_servlet'
 require 'msf/core/db_manager/http/servlet/web_servlet'
-require 'msf/core/db_manager/http/servlet/online_test_servlet'
+require 'msf/core/db_manager/http/servlet/msf_servlet'
 require 'msf/core/db_manager/http/servlet/workspace_servlet'
 require 'msf/core/db_manager/http/servlet/service_servlet'
 require 'msf/core/db_manager/http/servlet/session_servlet'
@@ -26,7 +26,7 @@ class SinatraApp < Sinatra::Base
   register VulnServlet
   register EventServlet
   register WebServlet
-  register OnlineTestServlet
+  register MsfServlet
   register NoteServlet
   register WorkspaceServlet
   register ServiceServlet
