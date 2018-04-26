@@ -3,6 +3,7 @@ load 'documentation/api/v1/root_api_doc.rb'
 load 'documentation/api/v1/host_api_doc.rb'
 load 'documentation/api/v1/loot_api_doc.rb'
 load 'documentation/api/v1/service_api_doc.rb'
+load 'documentation/api/v1/note_api_doc.rb'
 
 
 module ApiDocsServlet
@@ -24,7 +25,8 @@ module ApiDocsServlet
           RootApiDoc,
           HostApiDoc,
           LootApiDoc,
-          ServiceApiDoc
+          ServiceApiDoc,
+          NoteApiDoc
       ].freeze
       json = Swagger::Blocks.build_root_json(swaggered_classes)
       set_json_response(json, [])
