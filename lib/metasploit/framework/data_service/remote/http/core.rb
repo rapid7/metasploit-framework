@@ -34,7 +34,8 @@ class RemoteHTTPDataService
   def online?
     begin
       response = get_data(ONLINE_TEST_URL)
-      return response.expected
+      expected = response.expected
+      return expected
     rescue Exception => e
       elog "Unable to determine if data service is online, message: #{e.message}"
     end
