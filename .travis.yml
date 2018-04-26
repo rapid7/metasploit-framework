@@ -18,6 +18,7 @@ rvm:
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
+  - CMD='bundle exec rake rspec-rerun:spec REMOTE_DB=1'
 
 matrix:
   fast_finish: true
