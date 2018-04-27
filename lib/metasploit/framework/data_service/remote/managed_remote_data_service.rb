@@ -51,7 +51,7 @@ class ManagedRemoteDataService
 
         sleep(1)
 
-        if @remote_host_data_service.online?
+        if @remote_host_data_service.is_online?
           break
         end
       end
