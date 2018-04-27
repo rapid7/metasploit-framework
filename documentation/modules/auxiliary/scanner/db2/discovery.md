@@ -7,7 +7,6 @@ Using the discovery method, catalog information for a remote server can be autom
 
 ## Verification Steps
 
-To test this module, you must make sure there is at least one reacheable DB2 Discovery Service at the target address range or CIDR identifier.
 1. `use auxiliary/scanner/db2/discovery`
 2. `set RHOSTS [target address range/cidr]`
 3. `set THREDS [number of threads]`
