@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
     @ip = ip
 
     # Try and authenticate with given credentials
-    execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
+    output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
 
     # Report output
     print_good("Command completed successfuly!")
