@@ -73,8 +73,8 @@ class MetasploitModule < Msf::Auxiliary
 
       unless output.nil?
         print_good("Command completed successfuly!")
-        print_status("Output for \"#{datastore['COMMAND']}\":")
-        print_line("#{output}")
+        print_status("Output for \"#{datastore['COMMAND']}\":\n")
+        print_line("#{output}\n")
         report_note(
           :rhost => datastore['RHOSTS'],
           :rport => datastore['RPORT'],
