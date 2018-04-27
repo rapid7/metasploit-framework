@@ -64,6 +64,8 @@ class ManagedRemoteDataService
   #
   # Stops the remote data service process
   #
+  # NOTE: This has potential issues on windows
+  #
   def stop
     @mutex.synchronize do
       return unless @running
