@@ -77,14 +77,11 @@ module HostServlet
     }
   end
 
+  # TODO: remove once hosts and get_host method is merged
   def self.search
     lambda {
       begin
         opts = parse_json_request(request, false)
-        opts.each {|key, value|
-          puts "#{key}:#{value}"
-        }
-
         data = get_db().get_host(opts)
         set_json_response(data)
       rescue Exception => e
