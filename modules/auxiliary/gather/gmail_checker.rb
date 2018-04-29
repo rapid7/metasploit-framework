@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         Enumerate valid GMail email addresses.
       },
-      'Author'      => ['x0rz', 'Mateus Lino <dctoralves[at]gmail.com>', 'bcoles'],
+      'Author'      => ['x0rz', 'Mateus Lino <dctoralves[at]gmail.com>'],
       'References'  => [[ 'URL', 'https://blog.0day.rocks/abusing-gmail-to-get-previously-unlisted-e-mail-addresses-41544b62b2' ]],
       'License'     => MSF_LICENSE))
     register_options [ OptString.new('check_email', [ true, 'Email adddress to validate', 'example@gmail.com' ]) ]
