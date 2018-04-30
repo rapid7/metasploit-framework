@@ -40,20 +40,20 @@ module ExtTime
     fields = str.split
     secs   = 0
 
-    fields.each_with_index { |f, idx|
+    fields.each_with_index do |f, idx|
       case f
-      when /^year/
-        secs += 31536000 * fields[idx-1].to_i
-      when /^day/
-        secs += 86400 * fields[idx-1].to_i
-      when /^hour/
-        secs += 3600 * fields[idx-1].to_i
-      when /^min/
-        secs += 60 * fields[idx-1].to_i
-      when /^sec/
-        secs += 1 * fields[idx-1].to_i
+      when 'year', 'years'
+        secs += 31536000 * fields[idx - 1].to_i
+      when 'day', 'days'
+        secs += 86400 * fields[idx - 1].to_i
+      when 'hour', 'hours'
+        secs += 3600 * fields[idx - 1].to_i
+      when 'min', 'mins'
+        secs += 60 * fields[idx - 1].to_i
+      when 'sec', 'secs'
+        secs += 1 * fields[idx - 1].to_i
       end
-    }
+    end
 
     secs
   end
