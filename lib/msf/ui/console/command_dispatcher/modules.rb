@@ -465,6 +465,12 @@ module Msf
               end
             }
 
+            if match.empty? && search_term.nil?
+              print_error("Keywords or search argument required\n")
+              cmd_search_help
+              return
+            end
+
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
             Msf::Modules::Metadata::Cache.instance.find(match).each do |m|
