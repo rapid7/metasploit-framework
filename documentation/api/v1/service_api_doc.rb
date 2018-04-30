@@ -21,6 +21,7 @@ module ServiceApiDoc
   swagger_path '/api/v1/services' do
     operation :get do
       key :description, 'Return services that are stored in the database.'
+      key :tags, [ 'service' ]
 
       parameter :workspace
 
@@ -38,6 +39,7 @@ module ServiceApiDoc
     # Swagger documentation for /api/v1/services POST
     operation :post do
       key :description, 'Create a Service.'
+      key :tags, [ 'service' ]
 
       parameter do
         key :in, :body
@@ -61,6 +63,7 @@ module ServiceApiDoc
     # Swagger documentation for /api/v1/services/ DELETE
     operation :delete do
       key :description, 'Delete the specified services.'
+      key :tags, [ 'service' ]
 
       parameter :delete_opts
 
@@ -80,6 +83,7 @@ module ServiceApiDoc
   swagger_path '/api/v1/services/:id' do
     operation :get do
       key :description, 'Return services that are stored in the database.'
+      key :tags, [ 'service' ]
 
       parameter :workspace
 
@@ -106,6 +110,7 @@ module ServiceApiDoc
     # Swagger documentation for /api/v1/services/:id PUT
     operation :put do
       key :description, 'Update the attributes an existing Service.'
+      key :tags, [ 'service' ]
 
       parameter :update_id
 

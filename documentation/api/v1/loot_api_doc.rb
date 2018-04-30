@@ -25,6 +25,7 @@ module LootApiDoc
   swagger_path '/api/v1/loot' do
     operation :get do
       key :description, 'Return loot that are stored in the database.'
+      key :tags, [ 'loot' ]
 
       parameter :workspace
 
@@ -42,6 +43,7 @@ module LootApiDoc
     # Swagger documentation for /api/v1/loot POST
     operation :post do
       key :description, 'Create a loot entry.'
+      key :tags, [ 'loot' ]
 
       parameter do
         key :in, :body
@@ -65,6 +67,7 @@ module LootApiDoc
     # Swagger documentation for /api/v1/loot/ DELETE
     operation :delete do
       key :description, 'Delete the specified loot.'
+      key :tags, [ 'loot' ]
 
       parameter :delete_opts
 
@@ -84,6 +87,7 @@ module LootApiDoc
   swagger_path '/api/v1/loot/:id' do
     operation :get do
       key :description, 'Return loot that are stored in the database.'
+      key :tags, [ 'loot' ]
 
       parameter :workspace
 
@@ -110,6 +114,7 @@ module LootApiDoc
     # Swagger documentation for /api/v1/loot/:id PUT
     operation :put do
       key :description, 'Update the attributes an existing loot.'
+      key :tags, [ 'loot' ]
 
       parameter :update_id
 

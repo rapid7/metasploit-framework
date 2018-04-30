@@ -39,6 +39,7 @@ module HostApiDoc
   swagger_path '/api/v1/hosts' do
     operation :get do
       key :description, 'Return hosts that are stored in the database.'
+      key :tags, [ 'host' ]
 
       parameter :workspace
       parameter :non_dead
@@ -58,6 +59,7 @@ module HostApiDoc
     # Swagger documentation for /api/v1/hosts POST
     operation :post do
       key :description, 'Create a host.'
+      key :tags, [ 'host' ]
 
       parameter do
         key :in, :body
@@ -81,6 +83,7 @@ module HostApiDoc
     # Swagger documentation for /api/v1/hosts/ DELETE
     operation :delete do
       key :description, 'Delete the specified hosts.'
+      key :tags, [ 'host' ]
 
       parameter :delete_opts
 
@@ -100,6 +103,7 @@ module HostApiDoc
   swagger_path '/api/v1/hosts/:id' do
     operation :get do
       key :description, 'Return hosts that are stored in the database.'
+      key :tags, [ 'host' ]
 
       parameter :workspace
       parameter :non_dead
@@ -128,6 +132,7 @@ module HostApiDoc
     # Swagger documentation for /api/v1/hosts/:id PUT
     operation :put do
       key :description, 'Update the attributes an existing host.'
+      key :tags, [ 'host' ]
 
       parameter :update_id
 

@@ -23,6 +23,7 @@ module NoteApiDoc
   swagger_path '/api/v1/notes' do
     operation :get do
       key :description, 'Return notes that are stored in the database.'
+      key :tags, [ 'note' ]
 
       parameter :workspace
 
@@ -40,6 +41,7 @@ module NoteApiDoc
     # Swagger documentation for /api/v1/notes POST
     operation :post do
       key :description, 'Create a notes entry.'
+      key :tags, [ 'note' ]
 
       parameter do
         key :in, :body
@@ -63,6 +65,7 @@ module NoteApiDoc
     # Swagger documentation for /api/v1/notes/ DELETE
     operation :delete do
       key :description, 'Delete the specified notes.'
+      key :tags, [ 'note' ]
 
       parameter :delete_opts
 
@@ -82,6 +85,7 @@ module NoteApiDoc
   swagger_path '/api/v1/notes/:id' do
     operation :get do
       key :description, 'Return notes that are stored in the database.'
+      key :tags, [ 'note' ]
 
       parameter :workspace
 
@@ -108,6 +112,7 @@ module NoteApiDoc
     # Swagger documentation for /api/v1/notes/:id PUT
     operation :put do
       key :description, 'Update the attributes an existing notes.'
+      key :tags, [ 'note' ]
 
       parameter :update_id
 

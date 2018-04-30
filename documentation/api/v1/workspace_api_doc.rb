@@ -21,6 +21,7 @@ module WorkspaceApiDoc
   swagger_path '/api/v1/workspaces' do
     operation :get do
       key :description, 'Return workspaces that are stored in the database.'
+      key :tags, [ 'workspace' ]
 
       response 200 do
         key :description, 'Returns workspaces data'
@@ -36,6 +37,7 @@ module WorkspaceApiDoc
     # Swagger documentation for /api/v1/workspaces POST
     operation :post do
       key :description, 'Create a workspaces entry.'
+      key :tags, [ 'workspace' ]
 
       parameter do
         key :in, :body
@@ -59,6 +61,7 @@ module WorkspaceApiDoc
     # Swagger documentation for /api/v1/workspaces/ DELETE
     operation :delete do
       key :description, 'Delete the specified workspaces.'
+      key :tags, [ 'workspace' ]
 
       parameter :delete_opts
 
@@ -78,6 +81,7 @@ module WorkspaceApiDoc
   swagger_path '/api/v1/workspaces/:id' do
     operation :get do
       key :description, 'Return workspaces that are stored in the database.'
+      key :tags, [ 'workspace' ]
 
       parameter do
         key :name, :id
@@ -102,6 +106,7 @@ module WorkspaceApiDoc
     # Swagger documentation for /api/v1/workspaces/:id PUT
     operation :put do
       key :description, 'Update the attributes an existing workspaces.'
+      key :tags, [ 'workspace' ]
 
       parameter :update_id
 

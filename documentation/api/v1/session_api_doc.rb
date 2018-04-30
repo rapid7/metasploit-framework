@@ -25,6 +25,7 @@ module SessionApiDoc
   swagger_path '/api/v1/sessions' do
     operation :get do
       key :description, 'Return sessions that are stored in the database.'
+      key :tags, [ 'session' ]
 
       parameter :workspace
 
@@ -42,6 +43,7 @@ module SessionApiDoc
     # Swagger documentation for /api/v1/sessions POST
     operation :post do
       key :description, 'Create a sessions entry.'
+      key :tags, [ 'session' ]
 
       parameter do
         key :in, :body

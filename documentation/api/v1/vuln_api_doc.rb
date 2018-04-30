@@ -22,6 +22,7 @@ module VulnApiDoc
   swagger_path '/api/v1/vulns' do
     operation :get do
       key :description, 'Return vulns that are stored in the database.'
+      key :tags, [ 'vuln' ]
 
       parameter :workspace
 
@@ -39,6 +40,7 @@ module VulnApiDoc
     # Swagger documentation for /api/v1/vulns POST
     operation :post do
       key :description, 'Create a vulns entry.'
+      key :tags, [ 'vuln' ]
 
       parameter do
         key :in, :body
@@ -62,6 +64,7 @@ module VulnApiDoc
     # Swagger documentation for /api/v1/vulns/ DELETE
     operation :delete do
       key :description, 'Delete the specified vulns.'
+      key :tags, [ 'vuln' ]
 
       parameter :delete_opts
 
@@ -81,6 +84,7 @@ module VulnApiDoc
   swagger_path '/api/v1/vulns/:id' do
     operation :get do
       key :description, 'Return vulns that are stored in the database.'
+      key :tags, [ 'vuln' ]
 
       parameter :workspace
 
@@ -107,6 +111,7 @@ module VulnApiDoc
     # Swagger documentation for /api/v1/vulns/:id PUT
     operation :put do
       key :description, 'Update the attributes an existing vulns.'
+      key :tags, [ 'vuln' ]
 
       parameter :update_id
 

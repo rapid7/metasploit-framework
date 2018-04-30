@@ -15,9 +15,21 @@ module RootApiDoc
     end
 
     key :host, 'localhost'
-    key :basePath, '/api/v1'
     key :consumes, ['application/json']
     key :produces, ['application/json']
+
+    #################################
+    #
+    # Documentation Tags
+    #
+    #################################
+    tag name: 'host', description: 'Host operations.'
+    tag name: 'loot', description: 'Loot operations.'
+    tag name: 'note', description: 'Note operations.'
+    tag name: 'service', description: 'Service operations.'
+    tag name: 'session', description: 'Session operations.'
+    tag name: 'vuln', description: 'Vuln operations.'
+    tag name: 'workspace', description: 'Workspace operations.'
 
     #################################
     #
