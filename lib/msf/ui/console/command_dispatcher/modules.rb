@@ -19,8 +19,9 @@ module Msf
           CMD_USE_TIMEOUT = 3
 
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h" => [ false, "Help banner."],
-            "-S" => [ true, "Row search filter."],
+            "-h"     => [ false, "Help banner"],
+            "-o"     => [ true, "Send output to a file in csv format"],
+            "-S"     => [ true, "Search string for row filter"],
           )
 
           def commands
@@ -410,7 +411,12 @@ module Msf
           end
 
           def cmd_search_help
-            print_line "Usage: search <keywords>"
+            print_line "Usage: search [ options ] <keywords>"
+            print_line
+            print_line "OPTIONS:"
+            print_line "  -h                Show this help information"
+            print_line "  -o <file>         Send output to a file in csv format"
+            print_line "  -S <string>       Search string for row filter"
             print_line
             print_line "Keywords:"
             {
@@ -444,6 +450,7 @@ module Msf
 
             match   = ''
             search_term = nil
+            output_file = nil
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
                 when "-t"
@@ -457,6 +464,8 @@ module Msf
                   return
                 when "-S"
                   search_term = val
+                when '-o'
+                  output_file = val
                 else
                   match += val + " "
               end
@@ -472,7 +481,15 @@ module Msf
                   m.name
               ]
             end
-            print_line(tbl.to_s)
+
+            if output_file
+              print_status("Wrote search results to #{output_file}")
+              ::File.open(output_file, "wb") { |ofd|
+                ofd.write(tbl.to_csv)
+              }
+            else
+              print_line(tbl.to_s)
+            end
           end
 
           #
