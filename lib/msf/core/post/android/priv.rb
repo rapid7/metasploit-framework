@@ -31,5 +31,11 @@ module Priv
   def get_id
     cmd_exec('id')
   end
+  
+  def su_exec(cmd, su_bin)
+    su_cmd = "#{su_bin} -c #{cmd}"
+    output = cmd_exec(su_cmd)
+    return output
+  end
 
 end ; end ; end ; end
