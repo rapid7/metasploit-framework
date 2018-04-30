@@ -448,22 +448,16 @@ module Msf
               return
             end
 
-            match   = ''
+            match = ''
             search_term = nil
             output_file = nil
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
-                when "-t"
-                  print_error("Deprecated option.  Use type:#{val} instead")
-                  cmd_search_help
-                  return
-                when "-S", "--search"
+                when "-S"
                   search_term = val
                 when "-h"
                   cmd_search_help
                   return
-                when "-S"
-                  search_term = val
                 when '-o'
                   output_file = val
                 else
@@ -502,13 +496,6 @@ module Msf
           def cmd_search_tabs(str, words)
             if words.length == 1
               return @@search_opts.fmt.keys
-            end
-
-            case (words[-1])
-              when "-r"
-                return RankingName.sort.map{|r| r[1]}
-              when "-t"
-                return %w{auxiliary encoder exploit nop payload post}
             end
 
             []
