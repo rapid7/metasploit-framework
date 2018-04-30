@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(_ip)
     begin
       vprint_status("Connecting to the server...")
-      connect()
+      connect(versions: [1, 2])
       smb_login()
 
       vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
