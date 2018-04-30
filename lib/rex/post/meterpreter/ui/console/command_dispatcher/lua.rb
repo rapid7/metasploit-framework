@@ -35,7 +35,7 @@ class Console::CommandDispatcher::Lua
 
   def cmd_lua_dostring(*args)
     code = args[0]
-    if (code == 0)
+    if (code == nil)
       print_error("Usage: lua_dostring [string]")
       return
     end

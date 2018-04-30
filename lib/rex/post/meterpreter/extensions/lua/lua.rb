@@ -31,6 +31,7 @@ class Lua < Extension
   # Execute provided lua code
   def execute(code='print("Hello mettle")')
     request = Packet.create_request('lua_dostring')
+    request.add_tlv(TLV_TYPE_LUA_CODE, code)
     response = client.send_request(request)
   end
 
