@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
     end
 
     data = su_exec("cat /data/misc/wifi/wpa_supplicant.conf", datastore['SU_BINARY'])
-    puts data
+    print_line(data)
   end
 
 end
