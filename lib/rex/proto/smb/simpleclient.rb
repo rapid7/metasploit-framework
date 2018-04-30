@@ -28,26 +28,31 @@ EVADE = Rex::Proto::SMB::Evasions
 attr_accessor :last_error, :server_max_buffer_size
 
 # Private accessors
-attr_accessor :socket, :client, :direct, :shares, :last_share
+attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   # Pass the socket object and a boolean indicating whether the socket is netbios or cifs
-  def initialize(socket, direct = false)
+  def initialize(socket, direct = false, versions = [1])
     self.socket = socket
     self.direct = direct
-
-    self.client = RubySMB::Client.new(RubySMB::Dispatcher::Socket.new(self.socket, read_timeout: 60),
-                                      username: '',
-                                      password: '')#Rex::Proto::SMB::Client.new(socket)
-    self.client.evasion_opts = {
-      # Padding is performed between packet headers and data
-      'pad_data' => EVADE::EVASION_NONE,
-      # File path padding is performed on all open/create calls
-      'pad_file' => EVADE::EVASION_NONE,
-      # Modify the \PIPE\ string in trans_named_pipe calls
-      'obscure_trans_pipe' => EVADE::EVASION_NONE,
-    }
+    self.versions = versions
     self.shares = {}
     self.server_max_buffer_size = 1024 # 4356 (workstation) or 16644 (server) expected
+
+    if self.versions.include?(2)
+      self.client = RubySMB::Client.new(RubySMB::Dispatcher::Socket.new(self.socket, read_timeout: 60),
+                                        username: '',
+                                        password: '')#Rex::Proto::SMB::Client.new(socket)
+      self.client.evasion_opts = {
+        # Padding is performed between packet headers and data
+        'pad_data' => EVADE::EVASION_NONE,
+        # File path padding is performed on all open/create calls
+        'pad_file' => EVADE::EVASION_NONE,
+        # Modify the \PIPE\ string in trans_named_pipe calls
+        'obscure_trans_pipe' => EVADE::EVASION_NONE,
+      }
+    else
+      self.client = Rex::Proto::SMB::Client.new(socket)
+    end
   end
 
   def login(name = '', user = '', pass = '', domain = '',
@@ -70,7 +75,11 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
       self.client.send_ntlm = send_ntlm
 
       ok = self.client.negotiate
-      self.server_max_buffer_size = self.client.server_max_buffer_size
+      if self.versions.include?(2)
+        self.server_max_buffer_size = self.client.server_max_buffer_size
+      else
+        self.server_max_buffer_size = ok['Payload'].v['MaxBuff']
+      end
 
       # Disable NTLMv2 Session for Windows 2000 (breaks authentication on some systems)
       # XXX: This in turn breaks SMB auth for Windows 2000 configured to enforce NTLMv2
@@ -85,7 +94,11 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
       # always a string
       pass ||= ''
 
-      ok = self.client.session_setup(user, pass, domain, true)
+      if self.versions.include?(2)
+        ok = self.client.session_setup(user, pass, domain, true)
+      else
+        ok = self.client.session_setup(user, pass, domain)
+      end
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
@@ -149,7 +162,11 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
   def connect(share)
     ok = self.client.tree_connect(share)
 
-    tree_id = ok.id
+    if self.versions.include?(2)
+      tree_id = ok.id
+    else
+      tree_id = ok['Payload']['SMB'].v['TreeID']
+    end
 
     self.shares[share] = tree_id
     self.last_share = share
@@ -164,27 +181,34 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
     false
   end
 
-
   def open(path, perm, chunk_size = 48000, read: true, write: false)
-    mode = 0
-    perm.each_byte { |c|
-      case [c].pack('C').downcase
-        when 'x', 'c'
-          mode |= RubySMB::Dispositions::FILE_CREATE
-        when 'o'
-          mode |= RubySMB::Dispositions::FILE_OPEN
-        when 's'
-          mode |= RubySMB::Dispositions::FILE_SUPERSEDE
-      end
-    }
+    if self.versions.include?(2)
+      mode = 0
+      perm.each_byte { |c|
+        case [c].pack('C').downcase
+          when 'x', 'c'
+            mode |= RubySMB::Dispositions::FILE_CREATE
+          when 'o'
+            mode |= RubySMB::Dispositions::FILE_OPEN
+          when 's'
+            mode |= RubySMB::Dispositions::FILE_SUPERSEDE
+        end
+      }
 
-    if write
-      ok = self.client.open(path, mode, read: true, write: true)
+      if write
+        file_id = self.client.open(path, mode, read: true, write: true)
+      else
+        file_id = self.client.open(path, mode, read: true)
+      end
     else
-      ok = self.client.open(path, mode, read: true)
+      mode = UTILS.open_mode_to_mode(perm)
+      access = UTILS.open_mode_to_access(perm)
+
+      ok = self.client.open(path, mode, access)
+      file_id = ok['Payload'].v['FileID']
     end
 
-    fh = OpenFile.new(self.client, path, self.client.last_tree_id, ok)
+    fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id, self.versions)
     fh.chunk_size = chunk_size
     fh
   end
@@ -195,8 +219,15 @@ attr_accessor :socket, :client, :direct, :shares, :last_share
 
   def create_pipe(path, perm = 'c')
     disposition = UTILS.create_mode_to_disposition(perm)
-    file_id = self.client.create_pipe(path, disposition)
-    fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id)
+    ok = self.client.create_pipe(path, disposition)
+
+    if self.versions.include?(2)
+      file_id = ok
+    else
+      file_id = ok['Payload'].v['FileID']
+    end
+
+    fh = OpenPipe.new(self.client, path, self.client.last_tree_id, file_id, self.versions)
   end
 
   def trans_pipe(fid, data, no_response = nil)
