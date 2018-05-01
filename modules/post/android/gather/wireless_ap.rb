@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Post
         pwd = get_password(block, "wep_key0")
       elsif search_token(block, "psk")
         net_type = "WPS"
-        pwd = get_password(block, "wep_key0")
+        pwd = get_password(block, "psk")
       else
         net_type = "OPEN"
         pwd = '-'
