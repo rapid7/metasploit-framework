@@ -40,8 +40,8 @@ class MetasploitModule < Msf::Post
         net_type = "WPS"
         pwd = get_password(block, "psk")
       else
-        net_type = "OPEN"
-        pwd = '-'
+        net_type = "NONE"
+        pwd = ''
       end
 
       aps << [ssid, net_type, pwd]
