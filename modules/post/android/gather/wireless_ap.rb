@@ -35,19 +35,15 @@ class MetasploitModule < Msf::Post
       ssid = block.split("ssid")[1].split("=")[1].split("\n").first.gsub(/"/, '')
       if search_token(block, "wep_key0")
         net_type = "WEP"
+        pwd = get_password(block, "wep_key0")
       elsif search_token(block, "psk")
         net_type = "WPS"
+        pwd = get_password(block, "wep_key0")
       else
         net_type = "OPEN"
+        pwd = '-'
       end
-      case net_type
-        when "WEP"
-          pwd = get_password(block, "wep_key0")
-        when "WPS"
-          pwd = get_password(block, "psk")
-        else
-          pwd = ''
-      end
+
       aps << [ssid, net_type, pwd]
     end
 
@@ -59,9 +55,9 @@ class MetasploitModule < Msf::Post
 
     aps.each do |ap|
       ap_tbl << [
-        ap[0],
-        ap[1],
-        ap[2]
+        ap[0],  # SSID
+        ap[1],  # TYPE
+        ap[2]   # PASSWORD
       ]
     end
 
