@@ -17,8 +17,8 @@ module ServiceApiDoc
     property :info, type: :string
   end
 
-  # Swagger documentation for /api/v1/services GET
   swagger_path '/api/v1/services' do
+    # Swagger documentation for /api/v1/services GET
     operation :get do
       key :description, 'Return services that are stored in the database.'
       key :tags, [ 'service' ]
@@ -79,8 +79,8 @@ module ServiceApiDoc
     end
   end
 
-  # Swagger documentation for api/v1/services/:id GET
   swagger_path '/api/v1/services/:id' do
+    # Swagger documentation for api/v1/services/:id GET
     operation :get do
       key :description, 'Return services that are stored in the database.'
       key :tags, [ 'service' ]

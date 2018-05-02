@@ -18,8 +18,9 @@ module VulnApiDoc
     property :origin_type, type: :integer, format: :int32
   end
 
-  # Swagger documentation for /api/v1/vulns GET
+
   swagger_path '/api/v1/vulns' do
+    # Swagger documentation for /api/v1/vulns GET
     operation :get do
       key :description, 'Return vulns that are stored in the database.'
       key :tags, [ 'vuln' ]
@@ -80,8 +81,8 @@ module VulnApiDoc
     end
   end
 
-  # Swagger documentation for api/v1/vulns/:id GET
   swagger_path '/api/v1/vulns/:id' do
+    # Swagger documentation for api/v1/vulns/:id GET
     operation :get do
       key :description, 'Return vulns that are stored in the database.'
       key :tags, [ 'vuln' ]

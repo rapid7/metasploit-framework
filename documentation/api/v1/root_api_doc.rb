@@ -23,6 +23,7 @@ module RootApiDoc
     #
     #################################
     tag name: 'db_export', description: 'Endpoint for generating and retrieving a database backup.'
+    tag name: 'exploit', description: 'Exploit operations.'
     tag name: 'host', description: 'Host operations.'
     tag name: 'loot', description: 'Loot operations.'
     tag name: 'note', description: 'Note operations.'

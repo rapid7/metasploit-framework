@@ -21,8 +21,8 @@ module SessionApiDoc
     property :module_run_id, type: :integer, format: :int32
   end
 
-  # Swagger documentation for /api/v1/sessions GET
   swagger_path '/api/v1/sessions' do
+    # Swagger documentation for /api/v1/sessions GET
     operation :get do
       key :description, 'Return sessions that are stored in the database.'
       key :tags, [ 'session' ]

@@ -3,10 +3,10 @@ require 'swagger/blocks'
 module DbExportApiDoc
   include Swagger::Blocks
 
-  # Swagger documentation for /api/v1/db-export GET
   swagger_path '/api/v1/db-export' do
+    # Swagger documentation for /api/v1/db-export GET
     operation :get do
-      key :description, 'Create a backup of the database as afile that can be re-imported to restore data.'
+      key :description, 'Create a backup of the database as a file that can be re-imported to restore data.'
       key :tags, [ 'db_export' ]
 
       parameter do

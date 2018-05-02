@@ -35,8 +35,8 @@ module HostApiDoc
     property :os_family, type: :string
   end
 
-  # Swagger documentation for /api/v1/hosts GET
   swagger_path '/api/v1/hosts' do
+    # Swagger documentation for /api/v1/hosts GET
     operation :get do
       key :description, 'Return hosts that are stored in the database.'
       key :tags, [ 'host' ]
@@ -99,8 +99,8 @@ module HostApiDoc
     end
   end
 
-  # Swagger documentation for api/v1/hosts/:id GET
   swagger_path '/api/v1/hosts/:id' do
+    # Swagger documentation for api/v1/hosts/:id GET
     operation :get do
       key :description, 'Return hosts that are stored in the database.'
       key :tags, [ 'host' ]

@@ -19,8 +19,8 @@ module NoteApiDoc
     property :vuln_id, type: :integer, format: :int32
   end
 
-  # Swagger documentation for /api/v1/notes GET
   swagger_path '/api/v1/notes' do
+    # Swagger documentation for /api/v1/notes GET
     operation :get do
       key :description, 'Return notes that are stored in the database.'
       key :tags, [ 'note' ]
@@ -81,8 +81,8 @@ module NoteApiDoc
     end
   end
 
-  # Swagger documentation for api/v1/notes/:id GET
   swagger_path '/api/v1/notes/:id' do
+    # Swagger documentation for api/v1/notes/:id GET
     operation :get do
       key :description, 'Return notes that are stored in the database.'
       key :tags, [ 'note' ]

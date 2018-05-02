@@ -21,8 +21,8 @@ module LootApiDoc
     property :module_run_id, type: :integer, format: :int32
   end
 
-  # Swagger documentation for /api/v1/loot GET
   swagger_path '/api/v1/loot' do
+    # Swagger documentation for /api/v1/loot GET
     operation :get do
       key :description, 'Return loot that are stored in the database.'
       key :tags, [ 'loot' ]
@@ -83,8 +83,8 @@ module LootApiDoc
     end
   end
 
-  # Swagger documentation for api/v1/loot/:id GET
   swagger_path '/api/v1/loot/:id' do
+    # Swagger documentation for api/v1/loot/:id GET
     operation :get do
       key :description, 'Return loot that are stored in the database.'
       key :tags, [ 'loot' ]

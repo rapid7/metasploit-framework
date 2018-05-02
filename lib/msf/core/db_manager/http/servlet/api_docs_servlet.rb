@@ -1,6 +1,7 @@
 require 'swagger/blocks'
 load 'documentation/api/v1/root_api_doc.rb'
 load 'documentation/api/v1/db_export_api_doc.rb'
+load 'documentation/api/v1/exploit_api_doc.rb'
 load 'documentation/api/v1/host_api_doc.rb'
 load 'documentation/api/v1/loot_api_doc.rb'
 load 'documentation/api/v1/note_api_doc.rb'
@@ -35,6 +36,7 @@ module ApiDocsServlet
       swaggered_classes = [
           RootApiDoc,
           DbExportApiDoc,
+          ExploitApiDoc,
           HostApiDoc,
           LootApiDoc,
           NoteApiDoc,

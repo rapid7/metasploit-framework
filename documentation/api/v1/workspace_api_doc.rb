@@ -17,8 +17,8 @@ module WorkspaceApiDoc
     property :import_fingerprint, type: :boolean
   end
 
-  # Swagger documentation for /api/v1/workspaces GET
   swagger_path '/api/v1/workspaces' do
+    # Swagger documentation for /api/v1/workspaces GET
     operation :get do
       key :description, 'Return workspaces that are stored in the database.'
       key :tags, [ 'workspace' ]
@@ -77,8 +77,8 @@ module WorkspaceApiDoc
     end
   end
 
-  # Swagger documentation for api/v1/workspaces/:id GET
   swagger_path '/api/v1/workspaces/:id' do
+    # Swagger documentation for api/v1/workspaces/:id GET
     operation :get do
       key :description, 'Return workspaces that are stored in the database.'
       key :tags, [ 'workspace' ]
