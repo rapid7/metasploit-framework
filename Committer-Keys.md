@@ -16,7 +16,6 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@bpatterson-r7](https://github.com/bpatterson-r7)| [bpatterson](https://keybase.io/bpatterson)        |
 | [@bwatters-r7](https://github.com/bwatters-r7)    | [bwatters](https://keybase.io/bwatters)            |
 | [@chiggins](https://github.com/chiggins)          | [chiggins](https://keybase.io/chiggins)            |
-| [@dmohanty-r7](https://github.com/dmohanty-r7)    | [debuasca](https://keybase.io/debuasca)            |
 | [@egypt](https://github.com/egypt)                | [egypt](https://keybase.io/egypt)                  |
 | [@FireFart](https://github.com/FireFart)          | [firefart](https://keybase.io/firefart)            |
 | [@hdm](https://github.com/hdm)                    | [hdm](https://keybase.io/hdm)                      |
@@ -30,7 +29,6 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@mkienow-r7](https://github.com/mkienow-r7)      | [inokii](https://keybase.io/inokii)                |
 | [@mubix](https://github.com/mubix)                | [mubix](https://keybase.io/mubix)                  |
 | [@OJ](https://github.com/OJ)                      | [oj](https://keybase.io/oj)                        |
-| [@pbarry-r7](https://github.com/pbarry-r7)        | [pbarry](https://keybase.io/pbarry)                |
 | [@scriptjunkie](https://github.com/scriptjunkie)  | [scriptjunkie](https://keybase.io/scriptjunkie)    |
 | [@sgonzalez-r7](https://github.com/sgonzalez-r7)  | [essgee](https://keybase.io/essgee)                |
 | [@tdoan-r7](https://github.com/tdoan-r7)          | [doanosaur](https://keybase.io/doanosaur)          |
@@ -38,7 +36,6 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@todb-r7](https://github.com/todb-r7)            | [todb](https://keybase.io/todb)                    |
 | [@void-in](https://github.com/void-in)            | [void_in](https://keybase.io/void_in)              |
 | [@wchen-r7](https://github.com/wchen-r7)          | [wchenr7](https://keybase.io/wchenr7)              |
-| [@wwebb-r7](https://github.com/wwebb-r7)          | [iamwilliam](https://keybase.io/iamwilliam)        |
 | [@wvu-r7](https://github.com/wvu-r7)              | [wvu](https://keybase.io/wvu)                      |
 | [@zeroSteiner](https://github.com/zeroSteiner)    | [zerosteiner](https://keybase.io/zerosteiner)      |
 
