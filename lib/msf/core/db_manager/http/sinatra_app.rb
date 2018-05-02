@@ -21,6 +21,12 @@ require 'msf/core/db_manager/http/servlet/vuln_attempt_servlet'
 require 'swagger/blocks'
 
 class SinatraApp < Sinatra::Base
+  set :public_folder, File.dirname(__FILE__) + '/public'
+
+  def root_path
+    uri = URI(request.url)
+    "#{uri.scheme}://#{uri.host}:#{uri.port}"
+  end
 
   helpers ServletHelper
 

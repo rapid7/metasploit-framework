@@ -21,6 +21,11 @@ module ServletHelper
     [200, headers, to_json(data, includes)]
   end
 
+  def set_html_response(data)
+    headers = {'Content-Type' => 'text/html'}
+    [200, headers, data]
+  end
+
   def parse_json_request(request, strict = false)
     body = request.body.read
     if (body.nil? || body.empty?)

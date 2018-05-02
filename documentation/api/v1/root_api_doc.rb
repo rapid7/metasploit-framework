@@ -14,7 +14,6 @@ module RootApiDoc
       end
     end
 
-    key :host, 'localhost'
     key :consumes, ['application/json']
     key :produces, ['application/json']
 

@@ -12,12 +12,19 @@ load 'documentation/api/v1/workspace_api_doc.rb'
 module ApiDocsServlet
   include Swagger::Blocks
 
-  def self.api_path
+  def self.json_path
+    '/api/v1/api-docs.json'
+  end
+
+  def self.html_path
     '/api/v1/api-docs'
   end
 
   def self.registered(app)
-    app.get ApiDocsServlet.api_path, &get_api_docs
+    app.get ApiDocsServlet.json_path, &get_api_docs
+    app.get ApiDocsServlet.html_path do
+      erb :api_docs
+    end
   end
 
   private
