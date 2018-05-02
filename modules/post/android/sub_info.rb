@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
     super( update_info( info, {
         'Name'          => "extracts subscriber info from target device",
         'Description'   => %q{
-            This module displays the subscriber info stored on the target phone. 
+            This module displays the subscriber info stored on the target phone.
             It uses call service to get values of each transaction code like imei etc.
         },
         'License'       => MSF_LICENSE,
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Post
     end
 
     tc_tbl = Rex::Text::Table.new(
-      'Header'  => 'Wireless APs',
+      'Header'  => 'Subscriber info',
       'Indent'  => 1,
       'Columns' => ['transaction code', 'value']
     )
