@@ -207,7 +207,7 @@ class Db
         if names.first == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
           print_status("Recreated default workspace")
         end
-      rescue Exception => e
+      rescue => e
         print_error "Failed to rename workspace: #{e.message}"
         e.backtrace.each { |line| print_error "#{line}"}
       end
@@ -544,7 +544,7 @@ class Db
     when mode == [:tag]
       begin
         add_host_tag(host_ranges, tag_name)
-      rescue ::Exception => e
+      rescue => e
         if e.message.include?('Validation failed')
           print_error(e.message)
         else
@@ -1130,7 +1130,7 @@ class Db
           end
 
           framework.db.update_note(update_opts)
-        rescue Exception => e
+        rescue => e
           elog "There was an error updating note with ID #{note.id}: #{e.message}"
           next
         end
@@ -1333,7 +1333,7 @@ class Db
           end
           loot.ltype = types.first if types
           framework.db.update_loot(loot.as_json.symbolize_keys)
-        rescue Exception => e
+        rescue => e
           elog "There was an error updating loot with ID #{loot.id}: #{e.message}"
           next
         end
@@ -1994,7 +1994,7 @@ class Db
       framework.db.register_data_service(remote_data_service)
       print_line "Registered data service: #{remote_data_service.name}"
       framework.db.workspace = framework.db.default_workspace
-    rescue Exception => e
+    rescue => e
       print_error "There was a problem registering the remote data service: #{e.message}"
     end
   end
@@ -2004,7 +2004,7 @@ class Db
       data_service = framework.db.set_data_service(service_id)
       framework.db.workspace = framework.db.default_workspace
       data_service
-    rescue Exception => e
+    rescue => e
       print_error "Unable to set data service: #{e.message}"
     end
   end

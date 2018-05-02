@@ -27,7 +27,7 @@ module NoteServlet
         data = get_db.notes(sanitized_params)
         includes = [:host]
         set_json_response(data, includes)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -40,7 +40,7 @@ module NoteServlet
           get_db.report_note(opts)
         }
         exec_report_job(request, &job)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -54,7 +54,7 @@ module NoteServlet
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_note(opts)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -66,7 +66,7 @@ module NoteServlet
         opts = parse_json_request(request, false)
         data = get_db.delete_note(opts)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }

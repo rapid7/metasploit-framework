@@ -18,7 +18,7 @@ module SessionServlet
         #opts = parse_json_request(request, false)
         data = get_db().get_all_sessions()
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }

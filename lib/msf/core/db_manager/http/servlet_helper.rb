@@ -52,7 +52,7 @@ module ServletHelper
         return set_json_response(data, includes)
       end
 
-    rescue Exception => e
+    rescue => e
       set_error_on_response(e)
     end
   end
