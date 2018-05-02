@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-  Rank = NormalRanking
 
   include Msf::Post::Common
   include Msf::Post::File
@@ -17,9 +16,7 @@ class MetasploitModule < Msf::Post
             This module displays all wireless AP creds saved on the target device.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => [
-            'Auxilus'
-        ],
+        'Author'        => ['Auxilus'],
         'SessionTypes'  => [ 'meterpreter', 'shell' ],
         'Platform'       => 'android',
       }
@@ -45,6 +42,10 @@ class MetasploitModule < Msf::Post
       end
 
       aps << [ssid, net_type, pwd]
+      if aps.empty?
+        print_error("No wireless APs found on the device")
+        return
+      end
     end
 
     ap_tbl = Rex::Text::Table.new(
@@ -74,11 +75,7 @@ class MetasploitModule < Msf::Post
   end
 
   def search_token(block, token)
-    if block.to_s.include?(token)
-      return true
-    else
-      return false
-    end
+    block.to_s.include?(token)
   end
 
   def get_password(block, token)
