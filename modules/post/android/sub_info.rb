@@ -63,7 +63,9 @@ class MetasploitModule < Msf::Post
     arr ||= []
     for code in 1..@transaction_codes.length do
       print_status("using code : #{code}")
-      block = su_exec("service call iphonesubinfo #{code}", datastore['SU_BINARY'])
+      cmd = "service call iphonesubinfo #{code}"
+      su_cmd = "#{datastore['SU_BINARY']} -c #{cmd}"
+      block = cmd_exec(su_cmd)
       value,tc = get_val(block, code)
       arr << [tc, value]
     end
