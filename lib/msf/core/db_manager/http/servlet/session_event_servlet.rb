@@ -19,7 +19,7 @@ module SessionEventServlet
         opts = parse_json_request(request, false)
         data = get_db().session_events(opts)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }

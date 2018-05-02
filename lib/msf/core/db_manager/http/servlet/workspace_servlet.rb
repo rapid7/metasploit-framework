@@ -29,7 +29,7 @@ module WorkspaceServlet
           data = get_db.workspaces(sanitized_params)
 
           set_json_response(data, includes)
-        rescue Exception => e
+        rescue => e
           set_error_on_response(e)
         end
       }
@@ -41,7 +41,7 @@ module WorkspaceServlet
           opts = parse_json_request(request, true)
           workspace = get_db.add_workspace(opts)
           set_json_response(workspace)
-        rescue Exception => e
+        rescue => e
           set_error_on_response(e)
         end
       }
@@ -55,7 +55,7 @@ module WorkspaceServlet
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_workspace(opts)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -67,7 +67,7 @@ module WorkspaceServlet
           opts = parse_json_request(request, false)
           data = get_db.delete_workspaces(opts)
           set_json_response(data)
-        rescue Exception => e
+        rescue => e
           set_error_on_response(e)
         end
       }

@@ -235,12 +235,13 @@ class DataStore < Hash
   # Override merge! so that we merge the aliases and imported hashes
   #
   def merge!(other)
-    super
     if other.is_a? DataStore
       self.aliases.merge!(other.aliases)
       self.imported.merge!(other.imported)
       self.imported_by.merge!(other.imported_by)
     end
+    # call super last so that we return a reference to ourselves
+    super
   end
 
   #
