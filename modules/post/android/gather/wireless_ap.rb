@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Post
     parsed.each do |block|
       next if block.split("ssid")[1].nil?
       ssid = block.split("ssid")[1].split("=")[1].split("\n").first.gsub(/"/, '')
+      #TODO Add more types
       if search_token(block, "wep_key0")
         net_type = "WEP"
         pwd = get_password(block, "wep_key0")
@@ -42,12 +43,12 @@ class MetasploitModule < Msf::Post
       end
 
       aps << [ssid, net_type, pwd]
-      if aps.empty?
-        print_error("No wireless APs found on the device")
-        return
-      end
     end
 
+    if aps.empty?
+      print_error("No wireless APs found on the device")
+      return
+    end
     ap_tbl = Rex::Text::Table.new(
       'Header'  => 'Wireless APs',
       'Indent'  => 1,
@@ -79,6 +80,12 @@ class MetasploitModule < Msf::Post
   end
 
   def get_password(block, token)
-    return block.split(token)[1].split("=")[1].split("\n").first.gsub(/"/, '')
+    return '' unless block.to_s.include? token
+
+    block.split("\n").each do |line|
+      next unless line =~ /^\s*#{token}\s*=/
+      psk = line.split('=')[1..-1].join('=')
+      return psk.scan(/^"(.+)"$/).flatten.first.to_s
+    end
   end
 end
