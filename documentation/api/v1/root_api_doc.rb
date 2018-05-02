@@ -26,6 +26,7 @@ module RootApiDoc
     tag name: 'exploit', description: 'Exploit operations.'
     tag name: 'host', description: 'Host operations.'
     tag name: 'loot', description: 'Loot operations.'
+    tag name: 'nmap', description: 'Nmap operations.'
     tag name: 'note', description: 'Note operations.'
     tag name: 'service', description: 'Service operations.'
     tag name: 'session', description: 'Session operations.'
