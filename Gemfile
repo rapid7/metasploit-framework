@@ -19,21 +19,8 @@ group :development do
   # module documentation
   gem 'octokit'
   # Metasploit::Aggregator external session proxy
-  gem 'metasploit-aggregator' if [
-    'x86-mingw32', 'x64-mingw32',
-    'x86_64-linux', 'x86-linux',
-    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin')) && \
-      Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.5.0')
-  gem 'google-protobuf', "3.5.1" if [
-    'x86-mingw32', 'x64-mingw32',
-    'x86_64-linux', 'x86-linux',
-    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin')) && \
-      Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.5.0')
-  gem 'grpc', "1.8.3" if [
-    'x86-mingw32', 'x64-mingw32',
-    'x86_64-linux', 'x86-linux',
-    'darwin'].include?(RUBY_PLATFORM.gsub(/.*darwin.*/, 'darwin')) && \
-      Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.5.0')
+  # disabled during 2.5 transition until aggregator is available
+  #gem 'metasploit-aggregator'
 end
 
 group :development, :test do

@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script updates the CachedSize constants in payload modules
 #
@@ -31,4 +37,3 @@ framework.payloads.each_module do |name, mod|
   $stdout.puts "[*] Updating the CacheSize for #{mod.file_path}..."
   Msf::Util::PayloadCachedSize.update_module_cached_size(mod_inst)
 end
-

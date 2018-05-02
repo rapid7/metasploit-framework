@@ -1,17 +1,24 @@
 module Msf::DBManager::Workspace
+
+  DEFAULT_WORKSPACE_NAME = 'default'
   #
   # Creates a new workspace in the database
   #
-  def add_workspace(name)
+  def add_workspace(opts)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.where(name: name).first_or_create
+    ::Mdm::Workspace.where(name: opts[:name]).first_or_create
   }
   end
 
   def default_workspace
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.default
-  }
+    # Workspace tracking is handled on the client side, so attempting to call it directly from the DbManager
+    # will not return the correct results. Run it back through the proxy.
+
+
+    wlog "[DEPRECATION] Setting the workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
+
+    # Proxied to fix tests, will be cleaned up in remote test patch
+    framework.db.default_workspace
   end
 
   def find_workspace(name)
@@ -21,102 +28,75 @@ module Msf::DBManager::Workspace
   end
 
   def workspace
-    framework.db.find_workspace(@workspace_name)
+    # The @current_workspace is tracked on the client side, so attempting to call it directly from the DbManager
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Calling workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
+
+    # Proxied to fix tests, will be cleaned up in remote test patch
+    framework.db.workspace
   end
 
   def workspace=(workspace)
-    @workspace_name = workspace.name
+    # The @current_workspace is tracked on the client side, so attempting to call it directly from the DbManager
+    # will not return the correct results. Run it back through the proxy.
+    wlog "[DEPRECATION] Setting the workspace from within DbManager is no longer supported. Please call from WorkspaceDataProxy instead."
+
+    # Proxied to fix tests, will be cleaned up in remote test patch
+    framework.db.workspace=workspace
   end
 
-  def workspaces
+  def workspaces(opts = {})
   ::ActiveRecord::Base.connection_pool.with_connection {
-    ::Mdm::Workspace.order('updated_at asc').load
+    search_term = opts.delete(:search_term)
+    # Passing these values to the search will cause exceptions, so remove them if they accidentally got passed in.
+    Msf::Util::DBManager.delete_opts_workspace(opts)
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Workspace, search_term)
+        Mdm::Workspace.where(opts).where(column_search_conditions)
+      else
+        Mdm::Workspace.where(opts)
+      end
+    }
   }
   end
 
-  #
-  # Returns an array of all the associated workspace records counts.
-  #
-  def workspace_associations_counts()
-    results = Array.new()
+  def delete_workspaces(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+    
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      default_deleted = false
+      opts[:ids].each do |ws_id|
+        ws = Mdm::Workspace.find(ws_id)
+        default_deleted = true if ws.default?
+        begin
+          deleted << ws.destroy
+          if default_deleted
+            add_workspace({ name: DEFAULT_WORKSPACE_NAME })
+            default_deleted = false
+          end
+        rescue
+          elog("Forcibly deleting #{ws.name}")
+          deleted << ws.delete
+        end
+      end
+
+      return deleted
+    }
+  end
+
+  def update_workspace(opts)
+    raise ArgumentError.new("The following options are required: :id") if opts[:id].nil?
+    Msf::Util::DBManager.delete_opts_workspace(opts)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      workspaces.each do |ws|
-        results << {
-            :name  => ws.name,
-            :hosts_count => ws.hosts.count,
-            :services_count => ws.services.count,
-            :vulns_count => ws.vulns.count,
-            :creds_count => ws.core_credentials.count,
-            :loots_count => ws.loots.count,
-            :notes_count => ws.notes.count
-        }
-      end
+      ws_to_update = workspaces({ id: opts.delete(:id) }).first
+      default_renamed = true if ws_to_update.name == DEFAULT_WORKSPACE_NAME
+      updated_ws = Mdm::Workspace.update(ws_to_update.id, opts)
+      add_workspace({ name: DEFAULT_WORKSPACE_NAME }) if default_renamed
+      updated_ws
     }
-
-    return results
-  end
-
-  def delete_all_workspaces()
-    return delete_workspaces(workspaces.map(&:name))
-  end
-
-  def delete_workspaces(names)
-    status_msg = []
-    error_msg = []
-
-    switched = false
-    # Delete workspaces
-    names.each do |name|
-      workspace = framework.db.find_workspace(name)
-      if workspace.nil?
-        error << "Workspace not found: #{name}"
-      elsif workspace.default?
-        workspace.destroy
-        workspace = framework.db.add_workspace(name)
-        status_msg << 'Deleted and recreated the default workspace'
-      else
-        # switch to the default workspace if we're about to delete the current one
-        if framework.db.workspace.name == workspace.name
-          framework.db.workspace = framework.db.default_workspace
-          switched = true
-        end
-        # now destroy the named workspace
-        workspace.destroy
-        status_msg << "Deleted workspace: #{name}"
-      end
-    end
-    (status_msg << "Switched workspace: #{framework.db.workspace.name}") if switched
-    return status_msg, error_msg
-  end
-
-  #
-  # Renames a workspace
-  #
-  def rename_workspace(from_name, to_name)
-    raise "Workspace exists: #{to_name}" if framework.db.find_workspace(to_name)
-
-    workspace = find_workspace(from_name)
-    raise "Workspace not found: #{name}" if workspace.nil?
-
-    workspace.name = new
-    workspace.save!
-
-    # Recreate the default workspace to avoid errors
-    if workspace.default?
-      framework.db.add_workspace(from_name)
-      #print_status("Recreated default workspace after rename")
-    end
-
-    # Switch to new workspace if old name was active
-    if (@workspace_name == workspace.name)
-      framework.db.workspace = workspace
-      #print_status("Switched workspace: #{framework.db.workspace.name}")
-    end
-  end
-
-  def get_workspace(opts)
-    workspace = opts.delete(:wspace) || opts.delete(:workspace) || workspace
-    find_workspace(workspace) if (workspace.is_a?(String))
   end
 end

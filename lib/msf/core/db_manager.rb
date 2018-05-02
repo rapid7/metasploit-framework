@@ -103,6 +103,10 @@ class Msf::DBManager
     'local_db_service'
   end
 
+  def is_local?
+    true
+  end
+
   #
   # Attributes
   #
@@ -153,9 +157,6 @@ class Msf::DBManager
   #
   def initialize_database_support
     begin
-      # Database drivers can reset our KCODE, do not let them
-      $KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
-
       add_rails_engine_migration_paths
 
       @usable = true
@@ -190,8 +191,11 @@ class Msf::DBManager
     else
       configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
 
-      unless configuration_pathname.nil?
+      if configuration_pathname.nil?
+        self.error = "No database YAML file"
+      else
         if configuration_pathname.readable?
+          # parse specified database YAML file
           dbinfo = YAML.load_file(configuration_pathname) || {}
           dbenv  = opts['DatabaseEnv'] || Rails.env
           db     = dbinfo[dbenv]

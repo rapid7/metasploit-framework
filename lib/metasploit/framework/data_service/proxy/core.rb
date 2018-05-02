@@ -28,13 +28,13 @@ class DataProxy
   #
   def error
     return @error if (@error)
-    return @current_data_service.error if @current_data_service
-    return 'none'
+    return @current_data_service.error if @current_data_service && !@current_data_service.error.nil?
+    return 'unknown'
   end
 
   def is_local?
-    if (@current_data_service)
-      return (@current_data_service.name == 'local_db_service')
+    if @current_data_service
+      return @current_data_service.is_local?
     end
 
     return false
@@ -44,7 +44,7 @@ class DataProxy
   # Determines if the data service is active
   #
   def active
-    if (@current_data_service)
+    if @current_data_service
       return @current_data_service.active
     end
 
@@ -52,30 +52,36 @@ class DataProxy
   end
 
   #
-  # Registers a data service with the proxy and immediately
-  # set as primary if online
+  # Registers the specified data service with the proxy
+  # and immediately sets it as the primary if active
   #
-  def register_data_service(data_service, online=false)
+  def register_data_service(data_service)
     validate(data_service)
     data_service_id = @data_service_id += 1
     @data_services[data_service_id] = data_service
-    set_data_service(data_service_id, online)
+    set_data_service(data_service_id)
   end
 
   #
   # Set the data service to be used
   #
-  def set_data_service(data_service_id, online=false)
+  def set_data_service(data_service_id)
     data_service = @data_services[data_service_id.to_i]
-    if (data_service.nil?)
+    if data_service.nil?
       raise "Data service with id: #{data_service_id} does not exist"
     end
 
-    if (!online && !data_service.active)
-      raise "Data service not online: #{data_service.name}, not setting as active"
+    if !data_service.is_local? && !data_service.active
+      raise "Data service #{data_service.name} is not online, and won't be set as active"
     end
 
+    prev_data_service = @current_data_service
     @current_data_service = data_service
+    # reset the previous data service's active flag if it is remote
+    # to ensure checks are performed the next time it is set
+    if !prev_data_service.nil? && !prev_data_service.is_local?
+      prev_data_service.active = false
+    end
   end
 
   #
@@ -86,7 +92,8 @@ class DataProxy
     @data_services.each_key {|key|
       name = @data_services[key].name
       active = !@current_data_service.nil? && name == @current_data_service.name
-      services_metadata << Metasploit::Framework::DataService::Metadata.new(key, name, active)
+      is_local = @data_services[key].is_local?
+      services_metadata << Metasploit::Framework::DataService::Metadata.new(key, name, active, is_local)
     }
 
     services_metadata
@@ -96,7 +103,6 @@ class DataProxy
   # Used to bridge the local db
   #
   def method_missing(method, *args, &block)
-    dlog ("Attempting to delegate method: #{method}")
     unless @current_data_service.nil?
       @current_data_service.send(method, *args, &block)
     end
@@ -123,6 +129,29 @@ class DataProxy
     raise Exception, "#{ui_message}: #{exception.message}. See log for more details."
   end
 
+  # Adds a valid workspace value to the opts hash before sending on to the data layer.
+  #
+  # @param [Hash] opts The opts hash that will be passed to the data layer.
+  # @param [String] wspace A specific workspace name to add to the opts hash.
+  # @return [Hash] The opts hash with a valid :workspace value added.
+  def add_opts_workspace(opts, wspace = nil)
+    # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
+    opts[:workspace] = opts.delete(:wspace) unless opts[:wspace].nil?
+
+    # If the user passed in a specific workspace then use that in opts
+    opts[:workspace] = wspace if wspace
+
+    # We only want to pass the workspace name, so grab it if it is currently an object.
+    if opts[:workspace] && opts[:workspace].is_a?(::Mdm::Workspace)
+      opts[:workspace] = opts[:workspace].name
+    end
+
+    # If we still don't have a :workspace value, just set it to the current workspace.
+    opts[:workspace] = workspace.name if opts[:workspace].nil?
+
+    opts
+  end
+
   #######
   private
   #######
@@ -131,12 +160,12 @@ class DataProxy
     begin
       db_manager = opts.delete(:db_manager)
       if !db_manager.nil?
-        register_data_service(db_manager, true)
+        register_data_service(db_manager)
         @usable = true
       else
         @error = 'disabled'
       end
-    rescue Exception => e
+    rescue => e
       raise "Unable to initialize data service: #{e.message}"
     end
   end

@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Linux::System
 
-  def initialize(info={})
+  def initialize(info = {})
     super( update_info( info,
       'Name'          => 'Linux Gather Protection Enumeration',
       'Description'   => %q{
@@ -21,10 +21,7 @@ class MetasploitModule < Msf::Post
         firewalls, and other software.
       },
       'License'       => MSF_LICENSE,
-      'Author'        =>
-        [
-          'ohdae <bindshell[at]live.com>'
-        ],
+      'Author'        => 'ohdae <bindshell[at]live.com>',
       'Platform'      => ['linux'],
       'SessionTypes'  => ['shell', 'meterpreter']
     ))
@@ -32,62 +29,50 @@ class MetasploitModule < Msf::Post
 
   def run
     distro = get_sysinfo
-    h = get_host
 
-    print_status("Running module against #{h}")
-    print_status("Info:")
-    print_status("\t#{distro[:version]}")
-    print_status("\t#{distro[:kernel]}")
+    print_status "Running module against #{session.session_host} [#{get_hostname}]"
+    print_status 'Info:'
+    print_status "\t#{distro[:version]}"
+    print_status "\t#{distro[:kernel]}"
 
-    print_status("Finding installed applications...")
+    print_status 'Finding installed applications...'
     find_apps
   end
 
-  def get_host
-    case session.type
-    when /meterpreter/
-      host = sysinfo["Computer"]
-    when /shell/
-      host = cmd_exec("hostname").chomp
-    end
-
-    return host
-  end
-
   def which(env_paths, cmd)
-    for path in env_paths
-      if "#{cmd}" == cmd_exec("/bin/ls #{path} | /bin/grep '#{cmd}'")
-        return "#{path}/#{cmd}"
-      end
+    env_paths.each do |path|
+      cmd_path = "#{path}/#{cmd}"
+      return cmd_path if file_exist? cmd_path
     end
-    return nil
+    nil
   end
 
   def find_apps
-    apps = [
-      "truecrypt", "bulldog", "ufw", "iptables", "logrotate", "logwatch",
-      "chkrootkit", "clamav", "snort", "tiger", "firestarter", "avast", "lynis",
-      "rkhunter", "tcpdump", "webmin", "jailkit", "pwgen", "proxychains", "bastille",
-      "psad", "wireshark", "nagios", "nagios", "apparmor", "honeyd", "thpot",
-      "aa-status", "gradm2", "getenforce"
-    ]
+    apps = %w(
+      truecrypt bulldog ufw iptables logrotate logwatch
+      chkrootkit clamav snort tiger firestarter avast lynis
+      rkhunter tcpdump webmin jailkit pwgen proxychains bastille
+      psad wireshark nagios apparmor honeyd thpot
+      aa-status gradm2 getenforce tripwire
+    )
 
-    env_paths = cmd_exec("echo $PATH").split(":")
+    env_paths = get_path.split ':'
 
-    apps.each do |a|
-      output = which(env_paths, a)
-      if output
-        print_good("#{a} found: #{output}")
+    apps.each do |app|
+      next unless command_exists? app
 
-        report_note(
-          :host_name => get_host,
-          :type      => "linux.protection",
-          :data      => output,
-          :update    => :unique_data
-        )
-      end
+      path = which env_paths, app
+      next unless path
+
+      print_good "#{app} found: #{path}"
+      report_note(
+        :host   => session,
+        :type   => 'linux.protection',
+        :data   => path,
+        :update => :unique_data
+      )
     end
 
-    print_status("Installed applications saved to notes.")
+    print_status 'Installed applications saved to notes.'
   end
 end

@@ -6,5 +6,4 @@ RSpec.shared_examples_for 'Msf::DBManager::Host' do
   it { is_expected.to respond_to :has_host? }
   it { is_expected.to respond_to :hosts }
   it { is_expected.to respond_to :report_host }
-  it { is_expected.to respond_to :update_host_via_sysinfo }
 end

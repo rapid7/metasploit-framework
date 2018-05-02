@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script lists each exploit module by its compatible payloads
-#
-# $Revision$
 #
 
 msfbase = __FILE__
@@ -31,4 +33,3 @@ $framework.exploits.each_module { |name, mod|
     puts "#{x.refname.ljust 40} - #{n}"
   }
 }
-
