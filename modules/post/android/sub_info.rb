@@ -89,16 +89,14 @@ class MetasploitModule < Msf::Post
     100.times do |i|
       next if i % 2 == 0
       str = parsed.split("'")[i]
-      if str.nil?
-        break
-      end
+      break if str.nil?
       string += str
     end
-    imei = ''
+    v = ''
     string.split(".").each do |chr|
       next if chr.nil? or chr == "\n"
-      imei += chr
+      v += chr
     end
-    return imei,@transaction_codes[code-1]
+    return v,@transaction_codes[code-1]
   end
 end
