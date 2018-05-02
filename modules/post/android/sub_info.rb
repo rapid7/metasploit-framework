@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Post
 
   include Msf::Post::Common
-  include Msf::Post::File
   include Msf::Post::Android::Priv
   include Msf::Post::Android::System
 
@@ -65,7 +64,7 @@ class MetasploitModule < Msf::Post
     for code in 1..29 do
       print_status("using code : #{code}")
       block = su_exec("service call iphonesubinfo #{code}", datastore['SU_BINARY'])
-      value,tc = _val(block, code)
+      value,tc = get_val(block, code)
       arr << [tc, value]
     end
 
@@ -84,7 +83,7 @@ class MetasploitModule < Msf::Post
     print_line(tc_tbl.to_s)
   end
 
-  def _val(data, code)
+  def get_val(data, code)
     parsed = data.gsub(/Parcel/, '')
     string = ''
     100.times do |i|
