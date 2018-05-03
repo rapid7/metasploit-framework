@@ -32,6 +32,7 @@ module RootApiDoc
     tag name: 'note', description: 'Note operations.'
     tag name: 'service', description: 'Service operations.'
     tag name: 'session', description: 'Session operations.'
+    tag name: 'session_event', description: 'Session Event operations.'
     tag name: 'vuln', description: 'Vuln operations.'
     tag name: 'workspace', description: 'Workspace operations.'
 
