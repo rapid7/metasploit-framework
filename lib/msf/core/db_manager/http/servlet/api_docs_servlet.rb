@@ -2,6 +2,7 @@ require 'swagger/blocks'
 load 'documentation/api/v1/root_api_doc.rb'
 load 'documentation/api/v1/credential_api_doc.rb'
 load 'documentation/api/v1/db_export_api_doc.rb'
+load 'documentation/api/v1/event_api_doc.rb'
 load 'documentation/api/v1/exploit_api_doc.rb'
 load 'documentation/api/v1/host_api_doc.rb'
 load 'documentation/api/v1/loot_api_doc.rb'
@@ -39,6 +40,7 @@ module ApiDocsServlet
           RootApiDoc,
           CredentialApiDoc,
           DbExportApiDoc,
+          EventApiDoc,
           ExploitApiDoc,
           HostApiDoc,
           LootApiDoc,

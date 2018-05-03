@@ -8,7 +8,7 @@ module RootApiDoc
     info do
       key :version, '1.0.0'
       key :title, 'Metasploit API'
-      key :description, 'An API for interacting with Metasploit\'s data models'
+      key :description, 'An API for interacting with Metasploit\'s data models.'
       license do
         key :name, 'BSD-3-clause'
       end
@@ -24,6 +24,7 @@ module RootApiDoc
     #################################
     tag name: 'credential', description: 'Credential operations.'
     tag name: 'db_export', description: 'Endpoint for generating and retrieving a database backup.'
+    tag name: 'event', description: 'Event operations.'
     tag name: 'exploit', description: 'Exploit operations.'
     tag name: 'host', description: 'Host operations.'
     tag name: 'loot', description: 'Loot operations.'
