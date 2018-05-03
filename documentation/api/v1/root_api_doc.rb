@@ -34,6 +34,7 @@ module RootApiDoc
     tag name: 'session', description: 'Session operations.'
     tag name: 'session_event', description: 'Session Event operations.'
     tag name: 'vuln', description: 'Vuln operations.'
+    tag name: 'vuln_attempt', description: 'Vuln Attempt operations.'
     tag name: 'workspace', description: 'Workspace operations.'
 
     #################################
