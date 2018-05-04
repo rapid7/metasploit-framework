@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'Platform'       => 'linux',
       'Targets'        =>
         [
-          ['Telpho10 <= 2.6.31', {}]
+          ['Telpho10 <= 2.6.39', {}]
         ],
       'Privileged'     => false,
       'DisclosureDate' => 'Sep 2 2016'))
