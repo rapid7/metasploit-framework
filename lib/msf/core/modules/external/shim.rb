@@ -18,8 +18,7 @@ class Msf::Modules::External::Shim
     when 'multi_scanner'
       multi_scanner(mod)
     else
-      # TODO have a nice load error show up in the logs
-      ''
+      nil
     end
   end
 
