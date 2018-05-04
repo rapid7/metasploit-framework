@@ -1,5 +1,6 @@
 module Msf::Module::External
   include Msf::Auxiliary::Report
+  include Msf::Module::Auth
 
   def wait_status(mod)
     begin
@@ -8,7 +9,7 @@ module Msf::Module::External
         when :message
           log_output(m)
         when :report
-          process_report(m)
+          process_report(m, mod)
         when :reply
           # we're done
           break
@@ -41,7 +42,7 @@ module Msf::Module::External
     end
   end
 
-  def process_report(m)
+  def process_report(m, mod)
     data = m.params['data']
 
     case m.params['type']
@@ -66,7 +67,7 @@ module Msf::Module::External
       service = {host: data['host'], port: data['port'], proto: data['proto']}
 
       # Optional
-      service[:name] = data['name'] if data['name']
+      service[:name] = data['name'] || mod.meta['service_name'] if data['name'] || mod.meta['service_name']
 
       report_service(service)
     when 'vuln'
@@ -83,6 +84,37 @@ module Msf::Module::External
       vuln[:refs] = self.references
 
       report_vuln(vuln)
+    when 'correct_password'
+      # Required
+      cred = {user: data['username'], private: data['password']}
+
+      # Optional
+      cred[:proof] = data['proof'] if data['proof']
+      cred[:service_data] =
+        {
+          origin_type: :service,
+          protocol: data['protocol'] || 'tcp',
+          service_name: data['service_name'] || mod.meta['service_name'],
+          address: data['host'] || datastore['rhost'] || rhost,
+          port: data['port'] || datastore['rport'] || rport
+        }
+
+      cred[:private_type] = :password
+
+      store_valid_credential(**cred)
+    when 'wrong_password'
+      # Required
+      cred = {public: data['username'], private: data['password']}
+
+      # Optional
+      cred.merge!({
+        address: data['host'] || datastore['rhost'] || rhost,
+        port: data['port'] || datastore['rport'] || rport,
+        protocol: data['protocol'] || 'tcp',
+        status: Metasploit::Model::Login::Status::INCORRECT
+      })
+
+      invalidate_login(**cred)
     else
       print_warning "Skipping unrecognized report type #{m.params['type']}"
     end
