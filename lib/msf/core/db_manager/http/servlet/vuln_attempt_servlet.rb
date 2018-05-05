@@ -23,7 +23,7 @@ module VulnAttemptServlet
         opts = parse_json_request(request, false)
         data = get_db.vuln_attempts(params.symbolize_keys)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -39,7 +39,7 @@ module VulnAttemptServlet
           get_db.report_vuln_attempt(vuln, opts)
         }
         exec_report_job(request, &job)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }

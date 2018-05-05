@@ -114,6 +114,10 @@ require 'rex/compat'
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
 
+# Cryptography
+require 'rex/crypto/aes256'
+require 'rex/crypto/rc4'
+
 
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("

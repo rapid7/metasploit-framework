@@ -25,7 +25,7 @@ module Payload::Linux::ReverseTcp_x64
     conf = {
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],
-      retry_count: datastore['ReverseConnectRetries'],
+      retry_count:   datastore['StagerRetryCount'],
       sleep_seconds: datastore['StagerRetryWait'],
     }
 

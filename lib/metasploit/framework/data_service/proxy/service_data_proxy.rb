@@ -5,7 +5,7 @@ module ServiceDataProxy
       data_service = self.get_data_service
       add_opts_workspace(opts, wspace)
       data_service.services(opts)
-    rescue Exception => e
+    rescue => e
       self.log_error(e, 'Problem retrieving services')
     end
   end
@@ -19,7 +19,7 @@ module ServiceDataProxy
       data_service = self.get_data_service
       add_opts_workspace(opts)
       data_service.report_service(opts)
-    rescue  Exception => e
+    rescue => e
       self.log_error(e, 'Problem reporting service')
     end
   end
@@ -28,7 +28,7 @@ module ServiceDataProxy
     begin
       data_service = self.get_data_service
       data_service.update_service(opts)
-    rescue Exception => e
+    rescue => e
       self.log_error(e, 'Problem updating service')
     end
   end
@@ -37,7 +37,7 @@ module ServiceDataProxy
     begin
       data_service = self.get_data_service
       data_service.delete_service(opts)
-    rescue Exception => e
+    rescue => e
       self.log_error(e, 'Problem deleting service')
     end
   end
