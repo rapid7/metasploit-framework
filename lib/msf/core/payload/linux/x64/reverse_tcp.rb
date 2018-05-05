@@ -109,8 +109,6 @@ module Payload::Linux::ReverseTcp_x64
         pop    r9
         push   rsi
         push   rax
-
-      create_socket:
         push   0x29
         pop    rax
         cdq
