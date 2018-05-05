@@ -1,12 +1,24 @@
 module Msf::DBManager::Session
 
-  def get_all_sessions()
+  #
+  # Returns a list of all sessions in the database that are selected
+  # via the key-value pairs in the specified options.
+  #
+  def sessions(opts)
     return if not active
+
     ::ActiveRecord::Base.connection_pool.with_connection {
-      ::Mdm::Session.all
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+
+      search_term = opts.delete(:search_term)
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Session, search_term)
+        wspace.sessions.includes(:host).where(opts).where(column_search_conditions)
+      else
+        wspace.sessions.includes(:host).where(opts)
+      end
     }
   end
-
 
   # Returns a session based on opened_time, host address, and workspace
   # (or returns nil)
