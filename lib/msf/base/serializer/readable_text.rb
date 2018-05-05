@@ -717,7 +717,7 @@ class ReadableText
         sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
       end
 
-      if session.payload_uuid.registered
+      if !session.payload_uuid.nil? && session.payload_uuid.registered
         sess_registration = "Yes"
         if session.payload_uuid.name
           sess_registration << " - Name=\"#{session.payload_uuid.name}\""
