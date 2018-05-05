@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
         The ESSID field will be use to set a custom message.
         },
       'License'       => MSF_LICENSE,
-      'Author'        => [ 'bmerinofe@gmail.com' ],
+      'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>' ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
     ))

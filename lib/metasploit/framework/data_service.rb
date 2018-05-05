@@ -6,8 +6,10 @@ require 'metasploit/framework/data_service/stubs/note_data_service'
 require 'metasploit/framework/data_service/stubs/web_data_service'
 require 'metasploit/framework/data_service/stubs/service_data_service'
 require 'metasploit/framework/data_service/stubs/session_data_service'
+require 'metasploit/framework/data_service/stubs/session_event_service'
 require 'metasploit/framework/data_service/stubs/exploit_data_service'
 require 'metasploit/framework/data_service/stubs/loot_data_service'
+require 'metasploit/framework/data_service/stubs/msf_data_service'
 
 #
 # All data service implementations should include this module to ensure proper implementation
@@ -23,8 +25,10 @@ module DataService
   include NoteDataService
   include ServiceDataService
   include SessionDataService
+  include SessionEventDataService
   include ExploitDataService
   include LootDataService
+  include MsfDataService
 
   def name
     raise 'DataService#name is not implemented';
@@ -32,6 +36,10 @@ module DataService
 
   def active
     raise 'DataService#active is not implemented';
+  end
+
+  def active=(value)
+    raise 'DataService#active= is not implemented';
   end
 
   def is_local?

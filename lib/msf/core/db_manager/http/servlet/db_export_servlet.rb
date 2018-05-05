@@ -24,7 +24,7 @@ module DbExportServlet
         response = {}
         response[:db_export_file] = encoded_file
         set_json_response(response)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       ensure
         # Ensure the temporary file gets cleaned up
