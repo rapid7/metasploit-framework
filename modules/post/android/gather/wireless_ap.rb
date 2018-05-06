@@ -66,9 +66,6 @@ class MetasploitModule < Msf::Post
     networks = data.scan(/^network={$(.*?)^}$/m)
     networks.each do |block|
       ap = parse_network_block(block[0])
-      if ap
-        aps << ap
-      end
     end
     aps
   end
