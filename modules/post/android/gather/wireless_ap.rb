@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
             This module displays all wireless AP creds saved on the target device.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => ['Auxilus'],
+        'Author'        => ['Auxilus', 'timwr'],
         'SessionTypes'  => [ 'meterpreter', 'shell' ],
         'Platform'       => 'android',
       }
