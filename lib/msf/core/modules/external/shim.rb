@@ -15,6 +15,8 @@ class Msf::Modules::External::Shim
       dos(mod)
     when 'single_scanner'
       single_scanner(mod)
+    when 'single_host_login_scanner'
+      single_host_login_scanner(mod)
     when 'multi_scanner'
       multi_scanner(mod)
     else
@@ -92,6 +94,16 @@ class Msf::Modules::External::Shim
     end.join(",\n          ")
 
     render_template('single_scanner.erb', meta)
+  end
+
+  def self.single_host_login_scanner(mod)
+    meta = mod_meta_common(mod, drop_rhost: true)
+    meta[:date] = mod.meta['date'].dump
+    meta[:references] = mod.meta['references'].map do |r|
+      "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
+    end.join(",\n          ")
+
+    render_template('single_host_login_scanner.erb', meta)
   end
 
   def self.multi_scanner(mod)
