@@ -158,7 +158,7 @@ require 'rex/proto/smb/exceptions'
             end
           end
 
-          data = self.socket.read( read_cnt, rand(1024)+1)
+          data = self.socket.read(read_cnt, rand(1024)+1)
           break if !(data and data.length > 0)
           raw_response += data
 
