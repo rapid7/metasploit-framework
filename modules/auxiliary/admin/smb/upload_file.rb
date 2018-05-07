@@ -13,12 +13,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  # Aliases for common classes
-  SIMPLE = Rex::Proto::SMB::SimpleClient
-  XCEPT  = Rex::Proto::SMB::Exceptions
-  CONST  = Rex::Proto::SMB::Constants
-
-
   def initialize
     super(
       'Name'        => 'SMB File Upload Utility',
