@@ -119,15 +119,15 @@ class Client
       NDR.long(default_opts[:password4])
     begin
       response = dcerpc_client.call(CREATE_SERVICE_W, stubdata)
-      if response
-        svc_status = error_code(response[24,4])
-
-        if svc_status == ERROR_SUCCESS
-          svc_handle = response[4,20]
-        end
-      end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
       print_error("Error creating service: #{e}")
+    end
+
+    if response
+      svc_status = error_code(response[24,4])
+      if svc_status == ERROR_SUCCESS
+        svc_handle = response[4,20]
+      end
     end
 
     return svc_handle, svc_status
@@ -169,7 +169,7 @@ class Client
     begin
       response = dcerpc_client.call(CLOSE_SERVICE_HANDLE, handle)
       if response
-        svc_status = error_code(response[20,4])
+        svc_status = error_code(response)
       end
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
       print_error("Error closing service handle: #{e}")
