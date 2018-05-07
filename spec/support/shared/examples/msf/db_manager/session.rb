@@ -1,6 +1,10 @@
 RSpec.shared_examples_for 'Msf::DBManager::Session' do
   it { is_expected.to respond_to :get_session }
 
+  if ENV['REMOTE_DB']
+    before {skip("Awaiting sessions port")}
+  end
+
   context '#report_session' do
     let(:options) do
       {}

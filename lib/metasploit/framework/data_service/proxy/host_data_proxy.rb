@@ -14,10 +14,20 @@ module HostDataProxy
     end
   end
 
-  # TODO: Shouldn't this proxy to RemoteHostDataService#find_or_create_host ?
-  # It's currently skipping the "find" part
   def find_or_create_host(opts)
+    host = get_host(opts)
+    return host unless host.nil?
+
     report_host(opts)
+  end
+
+  def get_host(opts)
+    begin
+      data_service = self.get_data_service()
+      data_service.get_host(opts)
+    rescue e
+      self.log_error(e, "Problem retrieving host")
+    end
   end
 
   def report_host(opts)

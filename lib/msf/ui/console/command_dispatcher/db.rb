@@ -1989,7 +1989,7 @@ class Db
     end
 
     endpoint = "#{protocol}://#{host}:#{port}"
-    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, framework, https_opts)
+    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
     begin
       framework.db.register_data_service(remote_data_service)
       print_line "Registered data service: #{remote_data_service.name}"
