@@ -18,6 +18,7 @@ rvm:
 env:
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"'
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag ~content"'
+  # Used for testing the remote data service
   - CMD='bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" REMOTE_DB=1'
 
 matrix:
