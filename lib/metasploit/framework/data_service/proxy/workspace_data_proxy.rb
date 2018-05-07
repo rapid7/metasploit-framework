@@ -5,7 +5,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service
       opts = { name: workspace_name }
       data_service.workspaces(opts).first
-    rescue  Exception => e
+    rescue => e
       self.log_error(e, "Problem finding workspace")
     end
   end
@@ -15,7 +15,7 @@ module WorkspaceDataProxy
       data_service = self.get_data_service
       opts = { name: workspace_name }
       data_service.add_workspace(opts)
-    rescue  Exception => e
+    rescue => e
       self.log_error(e, "Problem adding workspace")
     end
   end
@@ -27,7 +27,7 @@ module WorkspaceDataProxy
         ws = add_workspace(Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME)
       end
       ws
-    rescue  Exception => e
+    rescue => e
       self.log_error(e, "Problem finding default workspace")
     end
   end
@@ -42,7 +42,7 @@ module WorkspaceDataProxy
         warn "@current_workspace was not set. Setting to default_workspace: #{default_workspace.name}"
         @current_workspace = default_workspace
       end
-    rescue  Exception => e
+    rescue => e
       self.log_error(e, "Problem retrieving workspace")
     end
   end
@@ -51,7 +51,7 @@ module WorkspaceDataProxy
   def workspace=(workspace)
     begin
       @current_workspace = workspace
-    rescue  Exception => e
+    rescue => e
       self.log_error(e, "Problem setting workspace")
     end
   end
@@ -60,7 +60,7 @@ module WorkspaceDataProxy
     begin
       data_service = self.get_data_service
       data_service.workspaces(opts)
-    rescue  Exception => e
+    rescue => e
       self.log_error(e, "Problem retrieving workspaces")
     end
   end
@@ -69,7 +69,7 @@ module WorkspaceDataProxy
     begin
       data_service = self.get_data_service
       data_service.delete_workspaces(opts)
-    rescue Exception => e
+    rescue => e
       self.log_error(e, "Problem deleting workspaces")
     end
   end
@@ -78,7 +78,7 @@ module WorkspaceDataProxy
     begin
       data_service = self.get_data_service
       data_service.update_workspace(opts)
-    rescue Exception => e
+    rescue => e
       self.log_error(e, "Problem updating workspace")
     end
   end

@@ -8,7 +8,7 @@ module DbExportDataProxy
       }
       add_opts_workspace(opts)
       data_service.run_db_export(opts)
-    rescue Exception => e
+    rescue => e
       self.log_error(e, "Problem generating DB Export")
     end
   end

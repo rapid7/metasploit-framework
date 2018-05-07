@@ -29,6 +29,10 @@ Metrics/PerceivedComplexity:
   Enabled: false
   Description: 'This is often a red-herring'
 
+Style/TernaryParentheses:
+  Enabled: false
+  Description: 'This outright produces bugs'
+
 Style/FrozenStringLiteralComment:
   Enabled: false
   Description: 'We cannot support this yet without a lot of things breaking'

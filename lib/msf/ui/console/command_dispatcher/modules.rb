@@ -19,8 +19,9 @@ module Msf
           CMD_USE_TIMEOUT = 3
 
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h" => [ false, "Help banner."],
-            "-S" => [ true, "Row search filter."],
+            "-h"     => [ false, "Help banner"],
+            "-o"     => [ true, "Send output to a file in csv format"],
+            "-S"     => [ true, "Search string for row filter"],
           )
 
           def commands
@@ -410,7 +411,12 @@ module Msf
           end
 
           def cmd_search_help
-            print_line "Usage: search <keywords>"
+            print_line "Usage: search [ options ] <keywords>"
+            print_line
+            print_line "OPTIONS:"
+            print_line "  -h                Show this help information"
+            print_line "  -o <file>         Send output to a file in csv format"
+            print_line "  -S <string>       Search string for row filter"
             print_line
             print_line "Keywords:"
             {
@@ -442,25 +448,28 @@ module Msf
               return
             end
 
-            match   = ''
+            match = ''
             search_term = nil
+            output_file = nil
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
-                when "-t"
-                  print_error("Deprecated option.  Use type:#{val} instead")
-                  cmd_search_help
-                  return
-                when "-S", "--search"
+                when "-S"
                   search_term = val
                 when "-h"
                   cmd_search_help
                   return
-                when "-S"
-                  search_term = val
+                when '-o'
+                  output_file = val
                 else
                   match += val + " "
               end
             }
+
+            if match.empty? && search_term.nil?
+              print_error("Keywords or search argument required\n")
+              cmd_search_help
+              return
+            end
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
@@ -472,7 +481,15 @@ module Msf
                   m.name
               ]
             end
-            print_line(tbl.to_s)
+
+            if output_file
+              print_status("Wrote search results to #{output_file}")
+              ::File.open(output_file, "wb") { |ofd|
+                ofd.write(tbl.to_csv)
+              }
+            else
+              print_line(tbl.to_s)
+            end
           end
 
           #
@@ -485,13 +502,6 @@ module Msf
           def cmd_search_tabs(str, words)
             if words.length == 1
               return @@search_opts.fmt.keys
-            end
-
-            case (words[-1])
-              when "-r"
-                return RankingName.sort.map{|r| r[1]}
-              when "-t"
-                return %w{auxiliary encoder exploit nop payload post}
             end
 
             []
