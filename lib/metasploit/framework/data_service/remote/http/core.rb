@@ -24,10 +24,12 @@ class RemoteHTTPDataService
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
-  def initialize(endpoint, https_opts = {})
+  def initialize(endpoint, framework, https_opts = {})
+    @active = false
     validate_endpoint(endpoint)
     @endpoint = URI.parse(endpoint)
     @https_opts = https_opts
+    @framework = framework
     build_client_pool(5)
   end
 
@@ -37,6 +39,26 @@ class RemoteHTTPDataService
 
   def after_establish_connection
 
+  end
+
+  def name
+    "remote_data_service: (#{@endpoint})"
+  end
+
+  def active
+    # checks if data service is online when @active is falsey and makes the assignment
+    # this is to prevent repetitive calls to check if data service is online
+    # logic should be enhanced to considering data service connectivity
+    # and future data service implementations
+    @active ||= is_online?
+  end
+
+  def active=(value)
+    @active = value
+  end
+
+  def is_local?
+    false
   end
 
   def error
@@ -121,11 +143,11 @@ class RemoteHTTPDataService
   def make_request(request_type, path, data_hash = nil, query = nil)
     begin
       # simplify query by removing nil values
-      query_str = (!query.nil? && !query.empty?) ? append_workspace(query).compact.to_query : nil
+      query_str = (!query.nil? && !query.empty?) ? query.compact.to_query : nil
       uri = URI::HTTP::build({path: path, query: query_str})
       dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
-      client = @client_pool.pop()
+      client = @client_pool.pop
       case request_type
         when GET_REQUEST
           request = Net::HTTP::Get.new(uri.request_uri)
@@ -151,27 +173,12 @@ class RemoteHTTPDataService
     rescue EOFError => e
       elog "No data was returned from the data service for request type/path : #{request_type}/#{path}, message: #{e.message}"
       return FailedResponse.new('')
-    rescue Exception => e
+    rescue => e
       elog "Problem with HTTP request for type/path: #{request_type}/#{path} message: #{e.message}"
       return FailedResponse.new('')
     ensure
       @client_pool << client
     end
-  end
-
-  #
-  # TODO: fix this
-  #
-  def active
-    return true
-  end
-
-  def name
-    "remote_data_service: (#{@endpoint})"
-  end
-
-  def is_local?
-    false
   end
 
   def set_header(key, value)
@@ -223,17 +230,17 @@ class RemoteHTTPDataService
     raise 'Endpoint cannot be nil' if endpoint.nil?
   end
 
-  def append_workspace(data_hash)
-    workspace = data_hash[:workspace]
-    workspace = data_hash.delete(:wspace) unless workspace
-
-    if workspace && (workspace.is_a?(OpenStruct) || workspace.is_a?(::Mdm::Workspace))
-      data_hash[:workspace] = workspace.name
+  #
+  # Checks if the data service is online by making a request
+  # for the Metasploit version number from the remote endpoint
+  #
+  def is_online?
+    response = self.get_msf_version
+    if response && !response[:metasploit_version].empty?
+      return true
     end
 
-    data_hash[:workspace] = current_workspace_name if workspace.nil?
-
-    data_hash
+    return false
   end
 
   def build_request(request, data_hash)
@@ -248,7 +255,7 @@ class RemoteHTTPDataService
           data_hash.delete(k)
         end
       end
-      json_body = append_workspace(data_hash).to_json
+      json_body = data_hash.to_json
       request.body = json_body
     end
 

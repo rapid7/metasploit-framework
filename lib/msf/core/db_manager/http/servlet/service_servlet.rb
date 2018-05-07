@@ -22,11 +22,11 @@ module ServiceServlet
   def self.get_services
     lambda {
       begin
-        opts = params.symbolize_keys
+        opts = sanitize_params(params)
         data = get_db.services(opts)
         includes = [:host]
         set_json_response(data, includes)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -44,11 +44,11 @@ module ServiceServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        tmp_params = params.symbolize_keys
+        tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_service(opts)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -60,7 +60,7 @@ module ServiceServlet
         opts = parse_json_request(request, false)
         data = get_db.delete_service(opts)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }

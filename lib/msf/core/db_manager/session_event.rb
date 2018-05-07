@@ -1,11 +1,6 @@
 module Msf::DBManager::SessionEvent
 
   def session_events(opts)
-    wspace = opts[:workspace] || opts[:wspace] || workspace
-    if wspace.kind_of? String
-      wspace = find_workspace(wspace)
-    end
-
     ::ActiveRecord::Base.connection_pool.with_connection {
       conditions = {}
 

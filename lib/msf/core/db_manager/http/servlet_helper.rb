@@ -12,7 +12,7 @@ module ServletHelper
     [500, headers, error.message]
   end
 
-  def set_empty_response()
+  def set_empty_response
     [200,  '']
   end
 
@@ -41,19 +41,28 @@ module ServletHelper
       exec_async = opts.delete(:exec_async)
       if (exec_async)
         JobProcessor.instance.submit_job(opts, &job)
-        return set_empty_response()
+        return set_empty_response
       else
         data = job.call(opts)
         return set_json_response(data, includes)
       end
 
-    rescue Exception => e
+    rescue => e
       set_error_on_response(e)
     end
   end
 
-  def get_db()
+  def get_db
     DBManagerProxy.instance.db
+  end
+
+  # Sinatra injects extra parameters for some reason: https://github.com/sinatra/sinatra/issues/453
+  # This method cleans those up so we don't have any unexpected values before passing on.
+  #
+  # @param [Hash] params Hash containing the parameters for the request.
+  # @return [Hash] Returns params with symbolized keys and the injected parameters removed.
+  def sanitize_params(params)
+    params.symbolize_keys.except(:captures, :splat)
   end
 
   #######

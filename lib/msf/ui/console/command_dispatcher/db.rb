@@ -142,26 +142,76 @@ class Db
 
     if adding and names
       # Add workspaces
-      workspace = nil
+      wspace = nil
       names.each do |name|
-        workspace = framework.db.add_workspace(name)
-        print_status("Added workspace: #{workspace.name}")
+        wspace = framework.db.workspaces(name: name).first
+        if wspace
+          print_status("Workspace '#{wspace.name}' already existed, switching to it.")
+        else
+          wspace = framework.db.add_workspace(name)
+          print_status("Added workspace: #{wspace.name}")
+        end
       end
-      framework.db.workspace = workspace
+      framework.db.workspace = wspace
+      print_status("Workspace: #{framework.db.workspace.name}")
     elsif deleting and names
-      status_msg, error_msg = framework.db.delete_workspaces(names)
-      print_msgs(status_msg, error_msg)
+      ws_ids_to_delete = []
+      starting_ws = framework.db.workspace
+      names.uniq.each do |n|
+        ws = framework.db.workspaces(name: n).first
+        ws_ids_to_delete << ws.id if ws
+      end
+      if ws_ids_to_delete.count > 0
+        deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
+        process_deleted_workspaces(deleted, starting_ws)
+      else
+        print_status("No workspaces matching the given name(s) were found.")
+      end
     elsif delete_all
-      status_msg, error_msg = framework.db.delete_all_workspaces()
-      print_msgs(status_msg, error_msg)
+      ws_ids_to_delete = []
+      starting_ws = framework.db.workspace
+      framework.db.workspaces.each do |ws|
+        ws_ids_to_delete << ws.id
+      end
+      deleted = framework.db.delete_workspaces(ids: ws_ids_to_delete)
+      process_deleted_workspaces(deleted, starting_ws)
     elsif renaming
       if names.length != 2
         print_error("Wrong number of arguments to rename")
         return
       end
 
-      old, new = names
-      framework.db.rename_workspace(old, new)
+      ws_to_update = framework.db.find_workspace(names.first)
+      unless ws_to_update
+        print_error("Workspace '#{names.first}' does not exist")
+        return
+      end
+      opts = {
+          id: ws_to_update.id,
+          name: names.last
+      }
+      begin
+        if names.last == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
+          print_error("Unable to rename a workspace to '#{Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME}'")
+          return
+        end
+        updated_ws = framework.db.update_workspace(opts)
+        if updated_ws
+          framework.db.workspace = updated_ws if names.first == framework.db.workspace.name
+          print_status("Renamed workspace '#{names.first}' to '#{updated_ws.name}'")
+        else
+          print_error "There was a problem updating the workspace. Setting to the default workspace."
+          framework.db.workspace = framework.db.default_workspace
+          return
+        end
+        if names.first == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
+          print_status("Recreated default workspace")
+        end
+      rescue => e
+        print_error "Failed to rename workspace: #{e.message}"
+        e.backtrace.each { |line| print_error "#{line}"}
+      end
+
     elsif names
       name = names.last
       # Switch workspace
@@ -174,12 +224,12 @@ class Db
         return
       end
     else
-      workspace = framework.db.workspace
+      current_workspace = framework.db.workspace
 
       unless verbose
         current = nil
         framework.db.workspaces.sort_by {|s| s.name}.each do |s|
-          if s.name == workspace.name
+          if s.name == current_workspace.name
             current = s.name
           else
             print_line("  #{s.name}")
@@ -188,8 +238,6 @@ class Db
         print_line("%red* #{current}%clr") unless current.nil?
         return
       end
-      workspace = framework.db.workspace
-
       col_names = %w{current name hosts services vulns creds loots notes}
 
       tbl = Rex::Text::Table.new(
@@ -199,22 +247,34 @@ class Db
         'SearchTerm' => search_term
       )
 
-      # List workspaces
-      framework.db.workspace_associations_counts.each do |ws|
+      framework.db.workspaces.each do |ws|
         tbl << [
-          ws[:name] == workspace.name ? '*' : '',
-          ws[:name],
-          ws[:hosts_count],
-          ws[:services_count],
-          ws[:vulns_count],
-          ws[:creds_count],
-          ws[:loots_count],
-          ws[:notes_count]
+          current_workspace.name == ws.name ? '*' : '',
+          ws.name,
+          framework.db.hosts(ws.name).count,
+          framework.db.services(ws.name).count,
+          framework.db.vulns({workspace: ws.name}).count,
+          framework.db.creds({workspace: ws.name}).count,
+          framework.db.loots(ws.name).count,
+          framework.db.notes({workspace: ws.name}).count
         ]
       end
 
       print_line
       print_line(tbl.to_s)
+    end
+  end
+
+  def process_deleted_workspaces(deleted_workspaces, starting_ws)
+    deleted_workspaces.each do |ws|
+      print_status "Deleted workspace: #{ws.name}"
+      if ws.name == Msf::DBManager::Workspace::DEFAULT_WORKSPACE_NAME
+        framework.db.workspace = framework.db.default_workspace
+        print_status 'Recreated the default workspace'
+      elsif ws == starting_ws
+        framework.db.workspace = framework.db.default_workspace
+        print_status "Switched to workspace: #{framework.db.workspace.name}"
+      end
     end
   end
 
@@ -484,7 +544,7 @@ class Db
     when mode == [:tag]
       begin
         add_host_tag(host_ranges, tag_name)
-      rescue ::Exception => e
+      rescue => e
         if e.message.include?('Validation failed')
           print_error(e.message)
         else
@@ -919,17 +979,17 @@ class Db
     print_line "  -a,--add                  Add a note to the list of addresses, instead of listing"
     print_line "  -d,--delete               Delete the hosts instead of searching"
     print_line "  -n,--note <data>          Set the data for a new note (only with -a)"
-    print_line "  -t <type1,type2>          Search for a list of types"
+    print_line "  -t,--type <type1,type2>   Search for a list of types, or set single type for add"
     print_line "  -h,--help                 Show this help information"
     print_line "  -R,--rhosts               Set RHOSTS from the results of the search"
-    print_line "  -S,--search               Regular expression to match for search"
+    print_line "  -S,--search               Search string to filter by"
     print_line "  -o,--output               Save the notes to a csv file"
-    print_line "  --sort <field1,field2>    Fields to sort by (case sensitive)"
+    print_line "  -O <column>               Order rows by specified column number"
     print_line
     print_line "Examples:"
     print_line "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
     print_line "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
-    print_line "  notes -S 'nmap.nse.(http|rtsp)' --sort type,output"
+    print_line "  notes -S 'nmap.nse.(http|rtsp)'"
     print_line
   end
 
@@ -944,21 +1004,22 @@ class Db
     host_ranges = []
     rhosts      = []
     search_term = nil
-    out_file    = nil
+    output_file = nil
+    delete_count = 0
 
     while (arg = args.shift)
       case arg
-      when '-a','--add'
+      when '-a', '--add'
         mode = :add
-      when '-d','--delete'
+      when '-d', '--delete'
         mode = :delete
-      when '-n','--note'
+      when '-n', '--note'
         data = args.shift
         if(!data)
           print_error("Can't make a note with no data")
           return
         end
-      when '-t'
+      when '-t', '--type'
         typelist = args.shift
         if(!typelist)
           print_error("Invalid type list")
@@ -968,12 +1029,17 @@ class Db
       when '-R', '--rhosts'
         set_rhosts = true
       when '-S', '--search'
-        search_term = /#{args.shift}/nmi
-      when '--sort'
-        sort_term = args.shift
+        search_term = args.shift
       when '-o', '--output'
-        out_file = args.shift
-      when '-h','--help'
+        output_file = args.shift
+      when '-O'
+        if (order_by = args.shift.to_i - 1) < 0
+          print_error('Please specify a column number starting from 1')
+          return
+        end
+      when '-u', '--update'  # TODO: This is currently undocumented because it's not officially supported.
+        mode = :update
+      when '-h', '--help'
         cmd_notes_help
         return
       else
@@ -985,133 +1051,132 @@ class Db
     end
 
     if mode == :add
-      if types.nil? or types.size != 1
-        print_error("Exactly one note type is required")
+      if host_ranges.compact.empty?
+        print_error("Host address or range required")
         return
       end
+
+      if types.nil? || types.size != 1
+        print_error("Exactly one type is required")
+        return
+      end
+
+      if data.nil?
+        print_error("Data required")
+        return
+      end
+
       type = types.first
       host_ranges.each { |range|
         range.each { |addr|
-          host = framework.db.find_or_create_host(:host => addr)
-          break if not host
-          note = framework.db.find_or_create_note(:host => host, :type => type, :data => data)
+          note = framework.db.find_or_create_note(host: addr, type: type, data: data)
           break if not note
-          print_status("Time: #{note.created_at} Note: host=#{host.address} type=#{note.ntype} data=#{note.data}")
+          print_status("Time: #{note.created_at} Note: host=#{addr} type=#{note.ntype} data=#{note.data}")
         }
       }
       return
     end
 
-    note_list = []
-    delete_count = 0
-    # No host specified - collect all notes
-    if host_ranges.empty?
-      note_list = framework.db.notes.dup
-    # Collect notes of specified hosts
-    else
-      each_host_range_chunk(host_ranges) do |host_search|
-        framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-          note_list.concat(host.notes)
-        end
+    if mode == :update
+      if !types.nil? && types.size != 1
+        print_error("Exactly one type is required")
+        return
       end
-    end
-    if search_term
-      note_list = note_list.select do |n|
-        n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+
+      if types.nil? && data.nil?
+        print_error("Update requires data or type")
+        return
       end
     end
 
-    # Sort the notes based on the sort_term provided
-    if sort_term != nil
-      sort_terms = sort_term.split(",")
-      note_list.sort_by! do |note|
-        orderlist = []
-        sort_terms.each do |term|
-          term = "ntype" if term == "type"
-          term = "created_at" if term == "Time"
-          if term == nil
-            orderlist << ""
-          elsif term == "service"
-            if note.service != nil
-              orderlist << make_sortable(note.service.name)
-            end
-          elsif term == "port"
-            if note.service != nil
-              orderlist << make_sortable(note.service.port)
-            end
-          elsif term == "output"
-            orderlist << make_sortable(note.data["output"])
-          elsif note.respond_to?(term, true)
-            orderlist << make_sortable(note.send(term))
-          elsif note.respond_to?(term.to_sym, true)
-            orderlist << make_sortable(note.send(term.to_sym))
-          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term, true)
-            orderlist << make_sortable(note.send("data").send(term))
-          elsif note.respond_to?("data", true) && note.send("data").respond_to?(term.to_sym, true)
-            orderlist << make_sortable(note.send("data").send(term.to_sym))
-          else
-            orderlist << ""
-          end
-        end
-        orderlist
+    note_list = []
+    if host_ranges.compact.empty?
+      # No host specified - collect all notes
+      opts = {search_term: search_term}
+      opts[:ntype] = types if mode != :update && types && !types.empty?
+      note_list = framework.db.notes(opts)
+    else
+      # Collect notes of specified hosts
+      each_host_range_chunk(host_ranges) do |host_search|
+        break if !host_search.nil? && host_search.empty?
+
+        opts = {hosts: {address: host_search}, workspace: framework.db.workspace, search_term: search_term}
+        opts[:ntype] = types if mode != :update && types && !types.empty?
+        note_list.concat(framework.db.notes(opts))
       end
     end
 
     # Now display them
-    csv_table = Rex::Text::Table.new(
+    table = Rex::Text::Table.new(
       'Header'  => 'Notes',
       'Indent'  => 1,
-      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data']
+      'Columns' => ['Time', 'Host', 'Service', 'Port', 'Protocol', 'Type', 'Data'],
+      'SortIndex' => order_by
     )
 
+    matched_note_ids = []
     note_list.each do |note|
-      next if(types and types.index(note.ntype).nil?)
-      csv_note = []
-      msg = "Time: #{note.created_at} Note:"
-      csv_note << note.created_at if out_file
-      if (note.host)
+      if mode == :update
+        begin
+          update_opts = {id: note.id}
+          unless types.nil?
+            note.ntype = types.first
+            update_opts[:ntype] = types.first
+          end
+
+          unless data.nil?
+            note.data = data
+            update_opts[:data] = data
+          end
+
+          framework.db.update_note(update_opts)
+        rescue => e
+          elog "There was an error updating note with ID #{note.id}: #{e.message}"
+          next
+        end
+      end
+
+      matched_note_ids << note.id
+
+      row = []
+      row << note.created_at
+
+      if note.host
         host = note.host
-        msg << " host=#{note.host.address}"
-        csv_note << note.host.address if out_file
+        row << host.address
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
       else
-        csv_note << ''
+        row << ''
       end
-      if (note.service)
-        msg << " service=#{note.service.name}" if note.service.name
-        csv_note << note.service.name || '' if out_file
-        msg << " port=#{note.service.port}" if note.service.port
-        csv_note << note.service.port || '' if out_file
-        msg << " protocol=#{note.service.proto}" if note.service.proto
-        csv_note << note.service.proto || '' if out_file
+
+      if note.service
+        row << note.service.name || ''
+        row << note.service.port || ''
+        row << note.service.proto || ''
       else
-        if out_file
-          csv_note << '' # For the Service field
-          csv_note << '' # For the Port field
-          csv_note << '' # For the Protocol field
-        end
+        row << '' # For the Service field
+        row << '' # For the Port field
+        row << '' # For the Protocol field
       end
-      msg << " type=#{note.ntype} data=#{note.data.inspect}"
-      if out_file
-        csv_note << note.ntype
-        csv_note << note.data.inspect
-      end
-      if out_file
-        csv_table << csv_note
-      else
-        print_status(msg)
-      end
-      if mode == :delete
-        note.destroy
-        delete_count += 1
-      end
+
+      row << note.ntype
+      row << note.data.inspect
+      table << row
     end
 
-    if out_file
-      save_csv_notes(out_file, csv_table)
+    if mode == :delete
+      result = framework.db.delete_note(ids: matched_note_ids)
+      delete_count = result.size
+    end
+
+    if output_file
+      save_csv_notes(output_file, table)
+    else
+      print_line
+      print_line(table.to_s)
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -1122,31 +1187,15 @@ class Db
   }
   end
 
-  def save_csv_notes(fpath, csv_table)
+  def save_csv_notes(fpath, table)
     begin
       File.open(fpath, 'wb') do |f|
-        f.write(csv_table.to_csv)
+        f.write(table.to_csv)
       end
-      print_status("Notes saved as #{fpath}")
+      print_status("Wrote notes to #{fpath}")
     rescue Errno::EACCES => e
       print_error("Unable to save notes. #{e.message}")
     end
-  end
-
-  def make_sortable(input)
-    case input
-    when String
-      input = input.downcase
-    when Integer
-      input = "%016" % input
-    when Time
-      input = input.strftime("%Y%m%d%H%M%S%L")
-    when NilClass
-      input = ""
-    else
-      input = input.inspect.downcase
-    end
-    input
   end
 
   def cmd_loot_help
@@ -1284,7 +1333,7 @@ class Db
           end
           loot.ltype = types.first if types
           framework.db.update_loot(loot.as_json.symbolize_keys)
-        rescue Exception => e
+        rescue => e
           elog "There was an error updating loot with ID #{loot.id}: #{e.message}"
           next
         end
@@ -1940,19 +1989,22 @@ class Db
     end
 
     endpoint = "#{protocol}://#{host}:#{port}"
-    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
+    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, framework, https_opts)
     begin
       framework.db.register_data_service(remote_data_service)
       print_line "Registered data service: #{remote_data_service.name}"
-    rescue Exception => e
+      framework.db.workspace = framework.db.default_workspace
+    rescue => e
       print_error "There was a problem registering the remote data service: #{e.message}"
     end
   end
 
   def set_data_service(service_id)
     begin
-      framework.db.set_data_service(service_id)
-    rescue Exception => e
+      data_service = framework.db.set_data_service(service_id)
+      framework.db.workspace = framework.db.default_workspace
+      data_service
+    rescue => e
       print_error "Unable to set data service: #{e.message}"
     end
   end

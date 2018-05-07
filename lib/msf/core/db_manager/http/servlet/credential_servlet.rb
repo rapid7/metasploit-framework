@@ -27,7 +27,7 @@ module CredentialServlet
           response << json
         end
         set_json_response(response)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
