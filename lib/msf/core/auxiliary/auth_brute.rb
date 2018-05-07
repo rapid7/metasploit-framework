@@ -551,8 +551,8 @@ module Auxiliary::AuthBrute
     end
   end
 
-  def userpass_sleep_interval
-    sleep_time = case datastore['BRUTEFORCE_SPEED'].to_i
+  def userpass_interval
+    case datastore['BRUTEFORCE_SPEED'].to_i
       when 0; 60 * 5
       when 1; 15
       when 2; 1
@@ -560,7 +560,10 @@ module Auxiliary::AuthBrute
       when 4; 0.1
       else; 0
     end
-    ::IO.select(nil,nil,nil,sleep_time) unless sleep_time == 0
+  end
+
+  def userpass_sleep_interval
+    ::IO.select(nil,nil,nil,userpass_interval) unless userpass_interval == 0
   end
 
   # See #print_brute
