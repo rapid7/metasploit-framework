@@ -29,7 +29,51 @@ module CredentialApiDoc
       key :description, 'Return credentials that are stored in the database.'
       key :tags, [ 'credential' ]
 
-      parameter :workspace
+      parameter do
+        key :in, :body
+        key :name, :body
+        key :required, true
+        schema do
+          property :workspace do
+            key :in, :body
+            key :description, 'The workspace from which to return credentials.'
+            key :type, :string
+            key :required, true
+          end
+
+          property :svcs do
+            key :in, :body
+            key :description, 'Only return credentials of the specified service.'
+            key :type, :array
+            key :required, false
+            items do
+              key :type, :string
+            end
+          end
+
+          property :ptype do
+            key :in, :body
+            key :description, 'The type of credential to return.'
+            key :type, :string
+            key :required, false
+            key :enum, ['password','ntlm','hash']
+          end
+
+          property :user do
+            key :in, :body
+            key :description, 'Only return credentials where the user matches this regex.'
+            key :type, :string
+            key :required, false
+          end
+
+          property :pass do
+            key :in, :body
+            key :description, 'Only return credentials where the password matches this regex.'
+            key :type, :string
+            key :required, false
+          end
+        end
+      end
 
       response 200 do
         key :description, 'Returns credential data'

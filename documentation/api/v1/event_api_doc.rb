@@ -4,7 +4,7 @@ module EventApiDoc
   include Swagger::Blocks
 
 # Swagger documentation for Event model
-  swagger_schema :EventOutput do
+  swagger_schema :Event do
     key :required, [:id, :name]
     property :id, type: :integer, format: :int32
     property :created_at, type: :string, format: :date_time
@@ -13,19 +13,6 @@ module EventApiDoc
     property :name, type: :string
     property :critical, type: :boolean
     property :seen, type: :string
-    property :username, type: :string
-    property :info do
-      key :type, :object
-      property :revision, type: :string
-    end
-  end
-
-  swagger_schema :EventInput do
-    key :required, [:workspace]
-    property :workspace, type: :string
-    property :name, type: :string
-    property :host, type: :string, format: :ipv4
-    property :critical, type: :boolean
     property :username, type: :string
     property :info do
       key :type, :object
@@ -45,7 +32,15 @@ module EventApiDoc
         key :description, 'The attributes to assign to the event.'
         key :required, true
         schema do
-          key :'$ref', :EventInput
+          property :workspace, type: :string, required: true
+          property :name, type: :string
+          property :host, type: :string, format: :ipv4
+          property :critical, type: :boolean
+          property :username, type: :string
+          property :info do
+            key :type, :object
+            property :revision, type: :string
+          end
         end
       end
 
@@ -53,7 +48,7 @@ module EventApiDoc
         key :description, 'Successful operation'
         schema do
           key :type, :object
-          key :'$ref', :EventOutput
+          key :'$ref', :Event
         end
       end
     end

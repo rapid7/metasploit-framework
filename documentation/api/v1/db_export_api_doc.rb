@@ -9,6 +9,8 @@ module DbExportApiDoc
       key :description, 'Create a backup of the database as a file that can be re-imported to restore data.'
       key :tags, [ 'db_export' ]
 
+      parameter :workspace
+
       parameter do
         key :in, :query
         key :name, :path
