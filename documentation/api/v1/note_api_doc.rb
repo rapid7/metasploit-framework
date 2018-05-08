@@ -3,19 +3,25 @@ require 'swagger/blocks'
 module NoteApiDoc
   include Swagger::Blocks
 
+  TYPE_DESC = 'The type of note this is.'
+  TYPE_EXAMPLE = "'host.info', 'host.os.session_fingerprint', 'smb_peer_os', etc."
+  CRITICAL_DESC = 'Boolean regarding the criticality of this note\'s contents.'
+  SEEN_DESC = 'Boolean regarding if this note has been acknowledged.'
+  DATA_DESC = 'The contents of the note.'
+
 # Swagger documentation for notes model
   swagger_schema :Note do
-    key :required, [:id, :ntype]
+    key :required, [:id, :type]
     property :id, type: :integer, format: :int32
     property :created_at, type: :string, format: :date_time
     property :updated_at, type: :string, format: :date_time
-    property :ntype, type: :string
+    property :type, type: :string, description: TYPE_DESC, example: TYPE_EXAMPLE
     property :workspace_id, type: :integer, format: :int32
     property :host_id, type: :integer, format: :int32
     property :service_id, type: :integer, format: :int32
-    property :critical, type: :string
-    property :seen, type: :string
-    property :data, type: :string
+    property :critical, type: :boolean, description: CRITICAL_DESC
+    property :seen, type: :boolean, description: SEEN_DESC
+    property :data, type: :string, description: DATA_DESC
     property :vuln_id, type: :integer, format: :int32
   end
 
@@ -49,7 +55,12 @@ module NoteApiDoc
         key :description, 'The attributes to assign to the notes'
         key :required, true
         schema do
-          key :'$ref', :Note
+          property :type, type: :string, description: TYPE_DESC, example: TYPE_EXAMPLE, required: true
+          property :workspace, type: :string, required: true
+          property :host, type: :integer, format: :int32
+          property :critical, type: :boolean, description: CRITICAL_DESC
+          property :seen, type: :boolean, description: SEEN_DESC
+          property :data, type: :string, description: DATA_DESC
         end
       end
 
@@ -81,7 +92,7 @@ module NoteApiDoc
     end
   end
 
-  swagger_path '/api/v1/notes/:id' do
+  swagger_path '/api/v1/notes/{id}' do
     # Swagger documentation for api/v1/notes/:id GET
     operation :get do
       key :description, 'Return notes that are stored in the database.'
