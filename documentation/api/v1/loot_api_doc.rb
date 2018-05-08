@@ -3,26 +3,40 @@ require 'swagger/blocks'
 module LootApiDoc
   include Swagger::Blocks
 
+  HOST_DESC = 'The IP address of the host from where the loot was obtained.'
+  HOST_EXAMPLE = '127.0.0.1'
+  LTYPE_DESC = 'The type of loot.'
+  LTYPE_EXAMPLE = "'file', 'image', 'config_file', etc."
+  PATH_DESC = 'The on-disk path to the loot file.'
+  PATH_EXAMPLE = '/path/to/file.txt'
+  DATA_DESC = 'The contents of the file.'
+  CONTENT_TYPE_DESC = 'The mime/content type of the file at {#path}.  Used to server the file correctly so browsers understand whether to render or download the file.'
+  CONTENT_TYPE_EXAMPLE = 'text/plain'
+  NAME_DESC = 'The name of the loot.'
+  NAME_EXAMPLE = 'password_file.txt'
+  INFO_DESC = 'Information about the loot.'
+
+
 # Swagger documentation for loot model
   swagger_schema :Loot do
-    key :required, [:id, :name]
+    key :required, [:id, :name, :ltype, :path]
     property :id, type: :integer, format: :int32
     property :created_at, type: :string, format: :date_time
     property :updated_at, type: :string, format: :date_time
     property :workspace_id, type: :integer, format: :int32
     property :host_id, type: :integer, format: :int32
     property :service_id, type: :integer, format: :int32
-    property :ltype, type: :string
-    property :path, type: :string
-    property :data, type: :string
-    property :content_type, type: :string
-    property :name, type: :string
-    property :info, type: :string
+    property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE
+    property :path, type: :string, description: PATH_DESC, example: PATH_EXAMPLE
+    property :data, type: :string, description: DATA_DESC
+    property :content_type, type: :string, description: CONTENT_TYPE_DESC, example: CONTENT_TYPE_EXAMPLE
+    property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
+    property :info, type: :string, description: INFO_DESC
     property :module_run_id, type: :integer, format: :int32
   end
 
-  swagger_path '/api/v1/loot' do
-    # Swagger documentation for /api/v1/loot GET
+  swagger_path '/api/v1/loots' do
+    # Swagger documentation for /api/v1/loots GET
     operation :get do
       key :description, 'Return loot that are stored in the database.'
       key :tags, [ 'loot' ]
@@ -40,7 +54,7 @@ module LootApiDoc
       end
     end
 
-    # Swagger documentation for /api/v1/loot POST
+    # Swagger documentation for /api/v1/loots POST
     operation :post do
       key :description, 'Create a loot entry.'
       key :tags, [ 'loot' ]
@@ -51,7 +65,15 @@ module LootApiDoc
         key :description, 'The attributes to assign to the loot'
         key :required, true
         schema do
-          key :'$ref', :Loot
+          property :workspace, type: :string, required: true
+          property :host, type: :string, format: :ipv4, description: HOST_DESC, example: HOST_EXAMPLE
+          property :service,  type: :string
+          property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE, required: true
+          property :path, type: :string, description: PATH_DESC, example: PATH_EXAMPLE, required: true
+          property :data, type: :string, description: DATA_DESC
+          property :ctype, type: :string, description: CONTENT_TYPE_DESC, example: CONTENT_TYPE_EXAMPLE
+          property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE, required: true
+          property :info, type: :string, description: INFO_DESC
         end
       end
 
@@ -83,7 +105,7 @@ module LootApiDoc
     end
   end
 
-  swagger_path '/api/v1/loot/:id' do
+  swagger_path '/api/v1/loot/{id}' do
     # Swagger documentation for api/v1/loot/:id GET
     operation :get do
       key :description, 'Return loot that are stored in the database.'
@@ -111,7 +133,7 @@ module LootApiDoc
       end
     end
 
-    # Swagger documentation for /api/v1/loot/:id PUT
+    # Swagger documentation for /api/v1/loot/{id} PUT
     operation :put do
       key :description, 'Update the attributes an existing loot.'
       key :tags, [ 'loot' ]
