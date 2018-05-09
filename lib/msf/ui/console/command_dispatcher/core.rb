@@ -486,6 +486,11 @@ class Core
     end
 
     @@history_opts.parse(args) do |opt, idx, val|
+      if opt.nil? && idx.nil? && val.nil?
+        print_error("Invalid argument passed\n")
+        cmd_history_help
+        return false
+      end
       case opt
       when "-a"
         limit = length
@@ -554,6 +559,12 @@ class Core
 
     # Parse the command options
     @@irb_opts.parse(args) do |opt, idx, val|
+      if opt.nil? && idx.nil? && val.nil?
+        print_error("Invalid argument passed\n")
+        cmd_irb_help
+        return false
+      end
+
       case opt
       when '-e'
         expressions << val
@@ -605,6 +616,11 @@ class Core
 
     # Parse the command options
     @@threads_opts.parse(args) { |opt, idx, val|
+      if opt.nil? && idx.nil? && val.nil?
+        print_error("Invalid argument passed\n")
+        cmd_threads_help
+        return false
+      end
       case opt
         when "-v"
           verbose = true
@@ -1151,6 +1167,11 @@ class Core
     else
       # Parse the command options
       @@sessions_opts.parse(args) do |opt, idx, val|
+        if opt.nil? && idx.nil? && val.nil?
+          print_error("Invalid argument passed\n")
+          cmd_sessions_help
+          return false
+        end
         case opt
         when "-q"
           quiet = true

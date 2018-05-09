@@ -35,9 +35,13 @@ module Rex
       # Parses the supplied arguments into a set of options.
       #
       def parse(args, &_block)
+        begin
         skip_next = false
 
         args.each_with_index do |arg, idx|
+          if not include?(arg)
+            raise RuntimeError
+          end
           if skip_next
             skip_next = false
             next
@@ -61,6 +65,9 @@ module Rex
           else
             yield nil, idx, arg
           end
+        end
+        rescue RuntimeError => e
+          yield nil, nil, nil
         end
       end
 
