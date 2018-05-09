@@ -1,10 +1,9 @@
 # -*- coding: binary -*-
 require 'msf/core/modules/external'
-require 'msf/core/modules/external/bridge'
 
 class Msf::Modules::External::Shim
   def self.generate(module_path)
-    mod = Msf::Modules::External::Bridge.open(module_path)
+    mod = Msf::Modules::External.new(module_path)
     return '' unless mod.meta
     case mod.meta['type']
     when 'remote_exploit_cmd_stager'

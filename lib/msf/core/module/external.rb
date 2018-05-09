@@ -1,26 +1,30 @@
+require 'msf/core/modules/external'
+
 module Msf::Module::External
   include Msf::Auxiliary::Report
   include Msf::Module::Auth
 
-  def wait_status(mod)
-    begin
-      while m = mod.get_status
+  def execute_module(path, method: :run, args: datastore)
+    mod = Msf::Modules::External.new(path, framework: framework)
+    success = mod.exec(method: method, args: args) do |m|
+      begin
         case m.method
         when :message
           log_output(m)
         when :report
           process_report(m, mod)
         when :reply
-          # we're done
-          break
+          # Nothing useful yet
         end
+      rescue Interrupt => e
+        raise e
+      rescue Exception => e
+        elog e.backtrace.join("\n")
+        fail_with Msf::Module::Failure::Unknown, e.message
       end
-    rescue Interrupt => e
-      raise e
-    rescue Exception => e
-      elog e.backtrace.join("\n")
-      fail_with Msf::Module::Failure::Unknown, e.message
     end
+
+    fail_with Msf::Module::Failure::Unknown, "Module exited abnormally" if !success
   end
 
   def log_output(m)
