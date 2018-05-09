@@ -486,6 +486,11 @@ class Core
     end
 
     @@history_opts.parse(args) do |opt, idx, val|
+      if opt.nil? && idx.nil? && val.nil?
+        print_error("Invalid argument passed\n")
+        cmd_history_help
+        return false
+      end
       case opt
       when "-a"
         limit = length
