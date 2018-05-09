@@ -67,7 +67,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       groups << datastore['GROUP']
     end
-    groups << ""
 
     vprint_status("Starting login brute force...")
     groups.each do |group|
