@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('SEARCH_FROM', [ false, 'Search from a specific location. Ex. C:\\']),
+        OptString.new('SEARCH_FROM', [ false, 'Search from a specific location. Ex. C:\\,or *']),
         OptString.new('FILE_GLOBS',  [ true, 'The file pattern to search for in a filename', '*.config'])
       ])
   end
