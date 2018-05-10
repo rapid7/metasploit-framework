@@ -30,7 +30,7 @@ module LootServlet
           loot.data = Base64.urlsafe_encode64(loot.data) if loot.data
         end
         set_json_response(data, includes)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -60,7 +60,7 @@ module LootServlet
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_loot(opts)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
@@ -72,7 +72,7 @@ module LootServlet
         opts = parse_json_request(request, false)
         data = get_db.delete_loot(opts)
         set_json_response(data)
-      rescue Exception => e
+      rescue => e
         set_error_on_response(e)
       end
     }
