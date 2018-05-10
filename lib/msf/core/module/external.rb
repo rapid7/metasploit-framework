@@ -14,7 +14,7 @@ module Msf::Module::External
         when :report
           process_report(m, mod)
         when :reply
-          # Nothing useful yet
+          return m.params['return']
         end
       rescue Interrupt => e
         raise e
