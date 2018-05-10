@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Post
       print_error("Invalid SEARCH_FROM option: #{location}")
       return
     end
-
+    
     if location and not drives.include?(my_drive)
       print_error("location:#{location}  [my_drive:#{my_drive}] drive is not available, please try: #{drives.inspect}")
       return
