@@ -15,6 +15,8 @@ class MetasploitModule < Msf::Post
       'Name'          => 'Windows Gather Generic File Collection',
       'Description'   => %q{
         This module downloads files recursively based on the FILE_GLOBS option.
+        run post/windows/gather/enum_files FILE_GLOBS=*.xls SEARCH_FROM=*
+        run post/windows/gather/enum_files FILE_GLOBS=*.xls;*.pdf SEARCH_FROM=C:/
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
