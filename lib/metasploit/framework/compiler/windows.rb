@@ -13,6 +13,7 @@ module Metasploit
         #
         # @param c_template [String] The C source code to compile.
         # @param type [Symbol] PE type, either :exe or :dll
+        # @param cpu [Object] A Metasm cpu object, for example: Metasm::Ia32.new
         # @raise [NotImplementedError] If the type is not supported.
         # @return [String] The compiled code.
         def self.compile_c(c_template, type=:exe, cpu=Metasm::Ia32.new)
@@ -35,6 +36,7 @@ module Metasploit
         # @param out_file [String] The file path to save the binary as.
         # @param c_template [String] The C source code to compile.
         # @param type [Symbol] PE type, either :exe or :dll
+        # @param cpu [Object] A Metasm cpu object, for example: Metasm::Ia32.new
         # @return [Integer] The number of bytes written.
         def self.compile_c_to_file(out_file, c_template, type=:exe, cpu=Metasm::Ia32.new)
           pe = self.compile(c_template, type)
