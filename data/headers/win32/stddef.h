@@ -1,3 +1,8 @@
+//
+// License:
+// https://github.com/rapid7/metasploit-framework/blob/master/LICENSE
+//
+
 #define NULL ((void *)0)
 #define TRUE 1
 #define FALSE 0

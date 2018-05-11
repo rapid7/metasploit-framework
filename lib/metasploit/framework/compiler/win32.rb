@@ -15,7 +15,7 @@ module Metasploit
         # @param type [Symbol] PE type, either :exe or :dll
         # @raise [NotImplementedError] If the type is not supported.
         # @return [String] The compiled code.
-        def self.compile(c_template, type=:exe)
+        def self.compile_c(c_template, type=:exe)
           headers = Compiler::Headers::Win32.new
           source_code = Compiler::Utils.normalize_code(c_template, headers)
 
@@ -38,7 +38,7 @@ module Metasploit
         # @param c_template [String] The C source code to compile.
         # @param type [Symbol] PE type, either :exe or :dll
         # @return [Integer] The number of bytes written.
-        def self.compile_as(out_file, c_template, type=:exe)
+        def self.compile_c_to_file(out_file, c_template, type=:exe)
           pe = self.compile(c_template, type)
           File.write(out_file, pe)
         end

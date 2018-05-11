@@ -1,3 +1,8 @@
+//
+// License:
+// https://github.com/rapid7/metasploit-framework/blob/master/LICENSE
+//
+
 #define MAX_PATH 260
 #define MEM_COMMIT 0x00001000
 #define MEM_RESERVE 0x00002000

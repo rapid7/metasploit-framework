@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'metasploit/framework/compiler/win32'
 
 RSpec.describe Metasploit::Framework::Compiler::Win32 do
-  describe '#self.compile' do
+  describe '#self.compile_c' do
     let(:c_template) {
       %Q|#include <Windows.h>
 
@@ -14,7 +14,7 @@ RSpec.describe Metasploit::Framework::Compiler::Win32 do
     }
 
     it 'returns an EXE binary' do
-      bin = Metasploit::Framework::Compiler::Win32.compile(c_template)
+      bin = Metasploit::Framework::Compiler::Win32.compile_c(c_template)
       magic = bin[0, 2]
       expect(magic).to eq('MZ')
     end
