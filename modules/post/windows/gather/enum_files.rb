@@ -83,6 +83,7 @@ class MetasploitModule < Msf::Post
         p = store_loot("host.files", 'application/octet-stream', session, data, file['name'], filename)
         print_good("#{file['name']} saved as: #{p}")
       ensure
+        print_error("#{filename} is not read")
         next
       end
     end
