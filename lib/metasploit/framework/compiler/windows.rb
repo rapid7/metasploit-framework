@@ -36,7 +36,7 @@ module Metasploit
         # @param c_template [String] The C source code to compile.
         # @param type [Symbol] PE type, either :exe or :dll
         # @return [Integer] The number of bytes written.
-        def self.compile_c_to_file(out_file, c_template, type=:exe)
+        def self.compile_c_to_file(out_file, c_template, type=:exe, cpu=Metasm::Ia32.new)
           pe = self.compile(c_template, type)
           File.write(out_file, pe)
         end
