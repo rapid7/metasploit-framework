@@ -10,7 +10,7 @@ module Metasploit
         # @return [String] The normalized code.
         def self.normalize_code(code, headers)
           code = code.lines.map { |line|
-            if line =~ /^#include <(.+)>$/
+            if line =~ /^#include <([[:print:]]+)>$/
               %Q|<%= headers.include('#{$1}') %>\n|
             else
               line
