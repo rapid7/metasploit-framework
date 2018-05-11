@@ -110,8 +110,10 @@ class MetasploitModule < Msf::Post
 
     location = datastore['SEARCH_FROM']
     if not my_drive
-      my_drive = location[0]
+      #fix f drive is not available, please try: ["C", "D", "E", "F"]
+      my_drive = location[0].upcase
     end
+    my_drive = my_drive.upcase
     if '*' == location or '' == location
       drives.each do |i|
         location = i + ":/"

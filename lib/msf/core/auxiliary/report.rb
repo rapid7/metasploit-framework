@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 module Msf
+require 'digest'
 
 ###
 #
@@ -400,9 +401,10 @@ module Auxiliary::Report
     #   Time.now.strftime("%Y%m%d%H%M%S") + "_" + ws + "_" +
     #   (host || 'unknown') + '_' + ltype[0,16] + '_' +
     #   Rex::Text.rand_text_numeric(6) + '.' + ext
+    myMd5 = Digest::MD5.hexdigest data
     name =
       Time.now.strftime("%Y%m%d%H%M%S") + "_" + (host || 'unknown') + "_" +
-      Rex::Text.rand_text_numeric(6) + '_' + filename
+      myMd5 + '_' + filename
     # fix: allow china
     # name.gsub!(/[^a-z0-9\.\_]+/i, '')
 
