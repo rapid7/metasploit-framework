@@ -402,7 +402,7 @@ module Auxiliary::Report
     #   (host || 'unknown') + '_' + ltype[0,16] + '_' +
     #   Rex::Text.rand_text_numeric(6) + '.' + ext
     myMd5 = Digest::MD5.hexdigest data
-    # %H%M%S
+    # %H%M%S，now no repeat file
     name =
       Time.now.strftime("%Y%m%d") + "_" + (host || 'unknown') + "_" +
       myMd5 + '_' + filename
