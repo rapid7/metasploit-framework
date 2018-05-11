@@ -109,6 +109,9 @@ class MetasploitModule < Msf::Post
     my_drive = $1
 
     location = datastore['SEARCH_FROM']
+    if not my_drive
+      my_drive = location[0]
+    end
     if '*' == location or '' == location
       drives.each do |i|
         location = i + ":/"
@@ -116,7 +119,7 @@ class MetasploitModule < Msf::Post
       end
       return
     end
-    if location and location !~ /^([a-z])\:[\\|\/].*/i
+    if location and location !~ /^([a-zA-F])\:[\\|\/].*/i
       print_error("Invalid SEARCH_FROM option: #{location}")
       return
     end
