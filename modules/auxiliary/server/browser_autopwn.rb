@@ -864,7 +864,6 @@ class MetasploitModule < Msf::Auxiliary
 
     false
   end
-
   #
   # Yields each module that exports autopwn_info, filtering on MATCH and EXCLUDE options
   #
