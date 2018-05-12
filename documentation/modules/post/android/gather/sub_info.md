@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
-  This post-exploitation module will extract saved wireless AccessPoint
-  credentials from the target device.
+  This post-exploitation module will extract subscriber information
+  from the target device using  call service service call iphonesubinfo <transaction_code>.
 
 ## Verification Steps
 
