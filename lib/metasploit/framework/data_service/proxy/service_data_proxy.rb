@@ -11,7 +11,17 @@ module ServiceDataProxy
   end
 
   def find_or_create_service(opts)
-    report_service(opts)
+    begin
+      service = services(opts.clone)
+      if service.nil? || service.first.nil?
+        service = report_service(opts.clone)
+      else
+        service = service.first
+      end
+      service
+    rescue => e
+      self.log_error(e, "Problem finding or creating service")
+    end
   end
 
   def report_service(opts)

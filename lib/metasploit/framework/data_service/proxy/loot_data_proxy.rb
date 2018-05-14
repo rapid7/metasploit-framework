@@ -13,10 +13,18 @@ module LootDataProxy
     end
   end
 
-  # TODO: Shouldn't this proxy to RemoteLootDataService#find_or_create_loot ?
-  # It's currently skipping the "find" part
   def find_or_create_loot(opts)
-    report_loot(opts)
+    begin
+      loot = loots(opts.clone)
+      if loot.nil? || loot.first.nil?
+        loot = report_loot(opts.clone)
+      else
+        loot = loot.first
+      end
+      loot
+    rescue => e
+      self.log_error(e, "Problem finding or creating loot")
+    end
   end
 
   def loots(wspace, opts = {})

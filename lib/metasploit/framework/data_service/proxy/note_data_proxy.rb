@@ -10,9 +10,18 @@ module NoteDataProxy
     end
   end
 
-  # TODO: like other *DataProxy modules this currently skips the "find" part
   def find_or_create_note(opts)
-    report_note(opts)
+    begin
+      note = notes(opts.clone)
+      if note.nil? || note.first.nil?
+        note = report_note(opts.clone)
+      else
+        note = note.first
+      end
+      note
+    rescue => e
+      self.log_error(e, "Problem finding or creating note")
+    end
   end
 
   def report_note(opts)
