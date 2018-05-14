@@ -17,6 +17,10 @@ Metrics/ClassLength:
   Exclude:
     - 'modules/**/*'
 
+Style/ClassAndModuleChildren:
+  Enabled: false
+  Description: 'Forced nesting is harmful for grepping and general code comprehension'
+
 Metrics/AbcSize:
   Enabled: false
   Description: 'This is often a red-herring'
@@ -29,12 +33,20 @@ Metrics/PerceivedComplexity:
   Enabled: false
   Description: 'This is often a red-herring'
 
+Style/TernaryParentheses:
+  Enabled: false
+  Description: 'This outright produces bugs'
+
 Style/FrozenStringLiteralComment:
   Enabled: false
   Description: 'We cannot support this yet without a lot of things breaking'
 
 Style/RedundantReturn:
   Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
+  Enabled: false
+
+Style/NumericPredicate:
+  Description: 'This adds no efficiency nor space saving'
   Enabled: false
 
 Style/Documentation:
@@ -104,6 +116,10 @@ Style/StringLiterals:
 Style/WordArray:
   Enabled: false
   Description: 'Metasploit prefers consistent use of []'
+
+Style/IfUnlessModifier:
+  Enabled: false
+  Description: 'This style might save a couple of lines, but often makes code less clear'
 
 Style/RedundantBegin:
   Exclude:
