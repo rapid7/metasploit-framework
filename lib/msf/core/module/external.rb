@@ -4,7 +4,7 @@ module Msf::Module::External
   include Msf::Auxiliary::Report
   include Msf::Module::Auth
 
-  def execute_module(path, method: :run, args: datastore)
+  def execute_module(path, method: :run, args: datastore, fail_on_exit: true)
     mod = Msf::Modules::External.new(path, framework: framework)
     success = mod.exec(method: method, args: args) do |m|
       begin
@@ -24,7 +24,7 @@ module Msf::Module::External
       end
     end
 
-    fail_with Msf::Module::Failure::Unknown, "Module exited abnormally" if !success
+    fail_with Msf::Module::Failure::Unknown, "Module exited abnormally" if fail_on_exit && !success
   end
 
   def log_output(m)
