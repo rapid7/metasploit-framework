@@ -251,7 +251,7 @@ class Db
         tbl << [
           current_workspace.name == ws.name ? '*' : '',
           ws.name,
-          framework.db.hosts(ws.name).count,
+          framework.db.hosts(workspace: ws.name).count,
           framework.db.services(ws.name).count,
           framework.db.vulns({workspace: ws.name}).count,
           framework.db.creds({workspace: ws.name}).count,
@@ -310,7 +310,7 @@ class Db
     each_host_range_chunk(host_ranges) do |host_search|
       break if !host_search.nil? && host_search.empty?
 
-      framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+      framework.db.hosts(address: host_search).each do |host|
         framework.db.update_host(host_data.merge(id: host.id))
         framework.db.report_note(host: host.address, type: "host.#{attribute}", data: host_data[attribute])
       end
@@ -561,7 +561,7 @@ class Db
     each_host_range_chunk(host_ranges) do |host_search|
       break if !host_search.nil? && host_search.empty?
 
-      framework.db.hosts(framework.db.workspace, onlyup, host_search, search_term = search_term).each do |host|
+      framework.db.hosts(address: host_search, non_dead: onlyup, search_term: search_term).each do |host|
         matched_host_ids << host.id
         columns = col_names.map do |n|
           # Deal with the special cases
