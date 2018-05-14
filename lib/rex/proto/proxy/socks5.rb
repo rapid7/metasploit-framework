@@ -94,17 +94,18 @@ class Socks5
         # | 1  |    1     | 1 to 255 |      METHOD (\x00) = NO AUTHENTICATION REQUIRED
         # +----+----------+----------+
 
+
         version = sock.read( 1 )
         raise "Invalid Socks5 request packet received." if not
           ( version.unpack( 'C' ).first == REQUEST_VERSION )
 
         nMethods = sock.read( 1 )
         raise "Unsupported request for multiple authentication methods" if not
-          ( raw[1..1].unpack( 'C' ).first == 1 )
+          ( nMethods.unpack( 'C' ).first == 1 )
 
         authMethods = sock.read( 1 )
         raise "Unsupported request for authentication" if not
-          ( raw[2..2].unpack( 'C' ).first == 0 )
+          ( authMethods.unpack( 'C' ).first == 0 )
 
         return true
       end
@@ -158,12 +159,16 @@ class Socks5
         if (@atyp == ADDRESS_TYPE_IPV4)
           # "the address is a version-4 IP address, with a length of 4 octets"
           addressLen = 4
+          addressEnd = 3 + addressLen
+
           @hostname = nil
           @dest_ip = Rex::Socket.addr_itoa( raw[4..7].unpack('N').first )
 
         elsif (@atyp == ADDRESS_TYPE_IPV6)
           # "the address is a version-6 IP address, with a length of 16 octets"
           addressLen = 16
+          addressEnd = 3 + addressLen
+
           @hostname = nil
           @dest_ip = raw[4..19].unpack( 'N' ).first   # TODO: Does Rex::Socket.addr_itoa support IPv6 as above?
 
@@ -172,14 +177,15 @@ class Socks5
           # octet of the address field contains the number of octets of name that
           # follow, there is no terminating NUL octet."
 
-          hostnameLen   = raw[4..4].unpack( 'n' ).first
-          hostnameStart = 5
-          hostnameEnd   = 5+@addressLen
-          addressLen    = 1+hostnameLen
+          addressLen   = raw[4..4].unpack( 'C' ).first
+          addressStart = 5
+          addressEnd   = 4+addressLen
 
-          @hostname     = raw[hostnameStart..hostnameEnd].unpack( 'A' ).first
+          @address     = raw[addressStart..addressEnd]
+          puts "Attempting to resolve '#{@address}'..."
 
           @dest_ip = self.resolve( @address )
+          puts "Resolved '#{@hostname}' to #{@dest_ip.to_s}"
 
           # fail if we couldnt resolve the hostname
           return false if( not @dest_ip )
@@ -188,7 +194,9 @@ class Socks5
           return false
         end
 
-        @dest_port = raw[4+addressLen .. 4+addressLen+2].unpack('n').first
+        require 'pry'; binding.pry
+        @dest_port = raw[addressEnd+1 .. addressEnd+3].unpack('n').first
+        puts "Connecting to #{@dest_ip}:#{@dest_port}..."
 
         return true
       end
@@ -384,7 +392,7 @@ class Socks5
             # send back failure to the client
             response           = Packet.new
             response.version   = REPLY_VERSION
-            response.atyp      = ADDRESS_TYPE_IPV4        # TODO: Support IPv6
+            response.atyp      = ADDRESS_TYPE_IPV4        # TODO: Support IPv6 and also DNS
             response.dest_port = request.dest_port
             response.dest_ip   = request.dest_ip
             if e.class == Rex::ConnectionRefused
@@ -416,7 +424,7 @@ class Socks5
           @lsock.relay( self, @rsock )
           @rsock.relay( self, @lsock )
         rescue
-          #raise
+          raise
           wlog( "Client.start - #{$!}" )
           self.stop
         end
