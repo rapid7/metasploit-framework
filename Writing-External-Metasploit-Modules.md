@@ -24,7 +24,7 @@ Describe
 {
   "$schema": "http://json-schema.org/schema#",
   "type": "object",
-  "required": ["jsonrpc", "response", "id"],
+  "required": ["jsonrpc", "result", "id"],
   "properties": {
     "jsonrpc": {"enum": ["2.0"]},
     "id": {"type": "string"},
