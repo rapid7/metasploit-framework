@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
   end
 
   def password
-    datastore['PASSWORD'] ? datastore['PASSWORD'].to_s : session.exploit_datastore['PASSWORD']
+    datastore['PASSWORD'].to_s
   end
 
   def is_writable?(path)
@@ -66,8 +66,11 @@ class MetasploitModule < Msf::Post
     ]
   end
 
+  #
+  # Check if a sudo command offers prvileged code execution
+  #
   def check_eop(cmd)
-    # drop args for simplicity at the risk of false positives
+    # drop args for simplicity (at the risk of false positives)
     cmd = cmd.split(/\s/).first
 
     if cmd.eql? 'ALL'
@@ -101,13 +104,13 @@ class MetasploitModule < Msf::Post
   #
   def sudo_list
     # try non-interactive (-n) without providing a password
-    cmd = "#{sudo_path} -l -l -n"
+    cmd = "#{sudo_path} -n -l"
     vprint_status "Executing: #{cmd}"
     output = cmd_exec(cmd).to_s
 
-    if output.start_with?('usage:') || output.include?('a password is required')
+    if output.start_with?('usage:') || output.include?('illegal option') || output.include?('a password is required')
       # try with a password from stdin (-S)
-      cmd = "echo #{password} | #{sudo_path} -S -l -l"
+      cmd = "echo #{password} | #{sudo_path} -S -l"
       vprint_status "Executing: #{cmd}"
       output = cmd_exec(cmd).to_s
     end
@@ -115,72 +118,76 @@ class MetasploitModule < Msf::Post
     output
   end
 
-  def parse_sudo(entry)
-    entry.split(/^\s*RunAsUsers: /).flatten.each { |s| parse_segment(s) }
-  rescue => e
-    print_error "Could not parse sudoers entry: #{e.message}"
-  end
+  #
+  # Format sudo output and extract permitted commands
+  #
+  def parse_sudo(sudo_data)
+    cmd_data = sudo_data.scan(/may run the following commands.*?$(.*)\z/m).flatten.first
 
-  def parse_segment(segment)
-    users = segment.split("\n").first.strip
-
-    if users.eql? ''
-      print_warning 'Could not parse sudoers entry'
-      return
-    end
-
-    groups = segment.scan(/^\s*RunAsGroups: (.*)$/).flatten.first || ''
-    options = segment.scan(/^\s*Options: (.*)$/).flatten.first || ''
-
-    commands = []
-    # Assuming the entirety of the remainder of the segment
-    # following the 'Commands:' directive contains only commands.
-    # This appears to be a safe assumption in testing.
-    segment.scan(/^\s*Commands:\s*(.*)\z/m).flatten.each do |cmd_data|
-      # Long commands may linewrap on older versions of sudo.
-      # Preventing the linewrap requires a proper TTY,
-      # so we rely on the whitespace indentation instead:
-      # - 8 spaces for start of a new command
-      # - 4 spaces for continuation of a linewrapped command
-      # first we'll remove all indentation for lines with 8 spaces of indentation
-      cmd_data = cmd_data.gsub(/^\s{8}/, '')
-      # now we'll remove the wrap by replacing all newlines followed by 4 spaces of indentation with a space
-      cmd_data = cmd_data.gsub(/\n\s{4}/, ' ')
-      # now we'll split by line, hoping the linewraps have been fixed
-      cmd_data.split(/\n/).each do |cmd|
-        # Commands are separated by commas but may also contain commas (escaped with a backslash)
-        # so we temporarily replace escaped commas with some junk
-        # later, we'll replace each instance of the junk with a comma
-        junk = Rex::Text.rand_text_alpha(10)
-        cmd = cmd.gsub('\,', junk)
-        cmd.split(',').each do |csv|
-          commands << csv.gsub(junk, ',').strip
-        end
+    # remove leading whitespace from each line and remove linewraps
+    formatted_data = ''
+    cmd_data.split("\n").reject { |line| line.eql?('') }.each do |line|
+      formatted_line = line.gsub(/^\s*/, '').to_s
+      if formatted_line.start_with? '('
+        formatted_data << "\n#{formatted_line}"
+      else
+        formatted_data << " #{formatted_line}"
       end
     end
 
-    commands.each do |cmd|
+    formatted_data.split("\n").reject { |line| line.eql?('') }.each do |line|
+      run_as = line.scan(/^\((.+?)\)/).flatten.first
+
+      if run_as.blank?
+        print_warning "Could not parse sudoers entry: #{line.inspect}"
+        next
+      end
+
+      user = run_as.split(':')[0].to_s.strip || ''
+      group = run_as.split(':')[1].to_s.strip || ''
       no_passwd = false
 
-      if cmd.start_with? 'NOPASSWD:'
+      cmds = line.scan(/^\(.+?\) (.+)$/).flatten.first
+      if cmds.start_with? 'NOPASSWD:'
         no_passwd = true
-        cmd = cmd.gsub(/^NOPASSWD:\s*/, '')
+        cmds = cmds.gsub(/^NOPASSWD:\s*/, '')
       end
 
-      if options.include? '!authenticate'
-        no_passwd = true
+      # Commands are separated by commas but may also contain commas (escaped with a backslash)
+      # so we temporarily replace escaped commas with some junk
+      # later, we'll replace each instance of the junk with a comma
+      junk = Rex::Text.rand_text_alpha(10)
+      cmds = cmds.gsub('\, ', junk)
+
+      cmds.split(', ').each do |cmd|
+        cmd = cmd.gsub(junk, ', ').strip
+
+        if cmd.start_with? '('
+          run_as = cmd.scan(/^\((.+?)\)/).flatten.first
+
+          if run_as.blank?
+            print_warning "Could not parse sudo command: #{cmd.inspect}"
+            next
+          end
+
+          user = run_as.split(':')[0].to_s.strip || ''
+          group = run_as.split(':')[1].to_s.strip || ''
+          cmd = cmd.scan(/^\(.+?\) (.+)$/).flatten.first
+        end
+
+        msg = "Command: #{cmd.inspect}"
+        msg << " RunAsUsers: #{user}" unless user.eql? ''
+        msg << " RunAsGroups: #{group}" unless group.eql? ''
+        msg << ' without providing a password' if no_passwd
+        vprint_status msg
+
+        eop = check_eop cmd
+
+        @results << [cmd, user, group, no_passwd ? '' : 'True', eop ? 'True' : '']
       end
-
-      msg = "Command: #{cmd.inspect}"
-      msg << " RunAsUsers: #{users}" unless users.eql? ''
-      msg << " RunAsGroups: #{groups}" unless groups.eql? ''
-      msg << ' without providing a password' if no_passwd
-      vprint_status msg
-
-      eop = check_eop cmd
-
-      @results << [cmd, users, groups, !no_passwd, eop]
     end
+  rescue => e
+    print_error "Could not parse sudo ouput: #{e.message}"
   end
 
   def run
@@ -194,7 +201,6 @@ class MetasploitModule < Msf::Post
     end
 
     output = sudo_list
-    vprint_status 'Output:'
     vprint_line output
     vprint_line
 
@@ -202,17 +208,13 @@ class MetasploitModule < Msf::Post
       fail_with Failure::NoAccess, 'Incorrect password'
     end
 
-    if output.eql? ''
+    if output =~ /^Sorry, .* may not run sudo/
+      fail_with Failure::NoAccess, 'Session user is not permitted to execute any commands with sudo'
+    end
+
+    if output !~ /may run the following commands/
       fail_with Failure::NoAccess, 'Incorrect password, or the session user is not permitted to execute any commands with sudo'
     end
-
-    entries = output.split("\n\n").select { |e| e.start_with? 'Sudoers entry' }
-
-    if entries.empty?
-      fail_with Failure::NoAccess, 'Found no sudo entries for the session user'
-    end
-
-    print_good "Found #{entries.length} sudo entries for current user"
 
     @results = Rex::Text::Table.new(
       'Header'  => 'Sudo Commands',
@@ -227,7 +229,7 @@ class MetasploitModule < Msf::Post
         ]
     )
 
-    entries.each { |entry| parse_sudo entry }
+    parse_sudo output
 
     if @results.rows.empty?
       print_status 'Found no sudo commands for the session user'
