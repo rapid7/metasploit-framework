@@ -131,7 +131,8 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['DRONEID'] && datastore['DRONEID'].length == 16
         sernum = datastore['DRONEID']
     else
-        sernum = "DroneID is crap!" # Must be exactly 16 chars or the code will bomb out. Add checks later
+#        sernum = "DroneID is crap!" # Must be exactly 16 chars or the code will bomb out. Add checks later
+	sernum = Rex::Text.rand_text_alphanumeric(16) # This will make Aeroscope very angry
     end
 
     droneID = ["\xDDR&7\x12Xb\x13", # Header
