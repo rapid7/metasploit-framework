@@ -25,6 +25,11 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    unless is_root?
+      print_error("This module requires root permissions.")
+      ret
+    end
+
     @transaction_codes ||= [
       'DeviceId',
       'DeviceIdForSubscriber',
