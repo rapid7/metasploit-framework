@@ -1,4 +1,16 @@
 module Msf::DBManager::Session
+
+  # Returns all sessions for the current workspace or the workspace specified via opts.
+  # @param opts [Hash{Symbol => Object}] options
+  #   @option opts [Mdm::Workspace] :workspace The workspace used to retrieve all associated sessions
+  def sessions(opts = {})
+    return if not active
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    wspace = opts[:workspace] || workspace
+    wspace.sessions
+  }
+  end
+
   # Returns a session based on opened_time, host address, and workspace
   # (or returns nil)
   def get_session(opts)
