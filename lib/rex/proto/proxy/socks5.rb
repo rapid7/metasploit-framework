@@ -6,7 +6,6 @@
 #
 # TODO: Support SOCKS authentication (just accept anything, I guess)
 # TODO: IPv6 support
-# TODO: Hostname lookups.  Do they work?
 # TODO: Remove references to rpeer when I'm convinced we don't need them
 # TODO: Return useful SOCKS replies when the @rsock attempt fails (e.g. network unreachable)
 #
@@ -76,8 +75,8 @@ class Socks5
         @command   = nil
         @reserved  = RESERVED
         @atyp      = nil
-        #@dest_port = nil   # TODO: WTF??  rpeer[HOST] isn't defined.  rpeer isn't defined.
-        #@dest_ip   = nil   # TODO: WTF?!  rpeer[HOST] isn't defined.  rpeer isn't defined.
+        #@dest_port = nil
+        #@dest_ip   = nil
       end
 
       #
@@ -170,7 +169,7 @@ class Socks5
           addressEnd = 3 + addressLen
 
           @hostname = nil
-          @dest_ip = raw[4..19].unpack( 'N' ).first   # TODO: Does Rex::Socket.addr_itoa support IPv6 as above?
+          @dest_ip = raw[4..19].unpack( 'H4H4H4H4H4H4H4H4' ).join(':')  # TODO: Does Rex::Socket.addr_itoa support IPv6 as above?
 
         elsif (@atyp == ADDRESS_TYPE_DOMAINNAME)
           # "the address field contains a fully-qualified domain name.  The first
@@ -194,7 +193,6 @@ class Socks5
           return false
         end
 
-        require 'pry'; binding.pry
         @dest_port = raw[addressEnd+1 .. addressEnd+3].unpack('n').first
         puts "Connecting to #{@dest_ip}:#{@dest_port}..."
 
