@@ -2291,6 +2291,7 @@ class Core
     res = []
     if (active_module.targets)
       1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
+      res += active_module.targets.map(&:name)
     end
     return res
   end
