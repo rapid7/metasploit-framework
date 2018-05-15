@@ -79,6 +79,8 @@ To pass the metadata information, as well as the starting function of your Pytho
 def run(args):
     # Your code here
     pass
+
+
 if __name__ == '__main__':
     module.run(metadata, run)
 ```
@@ -118,6 +120,7 @@ except ImportError:
 
 from metasploit import module
 
+
 metadata = {
     'name': 'Python Module Example',
     'description': '''
@@ -139,20 +142,22 @@ metadata = {
     }
 }
 
+
 def run(args):
     module.LogHandler.setup(msg_prefix='{} - '.format(args['rhost']))
     if dependencies_missing:
         logging.error('Module dependency (requests) is missing, cannot continue')
         return
-    
+
     # Your code here
     try:
         r = requests.get('https://{}/{}'.format(args['rhost'], args['targeturi']), verify=False)
     except requests.exceptions.RequestException as e:
         logging.error('{}'.format(e))
         return
-    
+
     logging.info('{}...'.format(r.text[0:50]))
+
 
 if __name__ == '__main__':
     module.run(metadata, run)
