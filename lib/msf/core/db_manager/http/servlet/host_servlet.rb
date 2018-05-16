@@ -8,11 +8,16 @@ module HostServlet
     "#{HostServlet.api_path}/?:id?"
   end
 
+  def self.api_search_path
+    "#{HostServlet.api_path}/search"
+  end
+
   def self.registered(app)
     app.get HostServlet.api_path_with_id, &get_host
     app.post HostServlet.api_path, &report_host
     app.put HostServlet.api_path_with_id, &update_host
     app.delete HostServlet.api_path, &delete_host
+    app.post HostServlet.api_search_path, &search
   end
 
   #######
@@ -67,6 +72,19 @@ module HostServlet
         data = get_db.delete_host(opts)
         set_json_response(data)
       rescue => e
+        set_error_on_response(e)
+      end
+    }
+  end
+
+  # TODO: remove once hosts and get_host method is merged
+  def self.search
+    lambda {
+      begin
+        opts = parse_json_request(request, false)
+        data = get_db().get_host(opts)
+        set_json_response(data)
+      rescue Exception => e
         set_error_on_response(e)
       end
     }
