@@ -3,17 +3,26 @@ require 'swagger/blocks'
 module SessionEventApiDoc
   include Swagger::Blocks
 
+  ETYPE_DESC = 'The type of session event that occurred.'
+  ETYPE_ENUM = ['command', 'output', 'upload', 'download', 'filedelete']
+  COMMAND_DESC = 'The command that was executed for this event.'
+  OUTPUT_DESC = 'The resulting output of the executed command.'
+  LOCAL_PATH_DESC = 'Path to the associated file for upload and download events.'
+  LOCAL_PATH_EXAMPLE = '/path/to/file'
+  REMOTE_PATH_DESC = 'Path to the associated file for upload, download, and filedelete events.'
+  REMOTE_PATH_EXAMPLE = '/path/to/file'
+
 # Swagger documentation for session events model
   swagger_schema :SessionEvent do
-    key :required, [:id, :etype]
+    key :required, [:etype, :session_id]
     property :id, type: :integer, format: :int32
-    property :created_at, type: :string, format: :date_time
     property :session_id, type: :integer, format: :int32
     property :etype, type: :string
-    property :command, type: :string
-    property :output, type: :string
-    property :remote_path, type: :string
-    property :local_path, type: :string
+    property :command, type: :string, description: COMMAND_DESC
+    property :output, type: :string, description: OUTPUT_DESC
+    property :local_path, type: :string, description: LOCAL_PATH_DESC, example: LOCAL_PATH_EXAMPLE
+    property :remote_path, type: :string, description: REMOTE_PATH_DESC, example: REMOTE_PATH_EXAMPLE
+    property :created_at, type: :string, format: :date_time
   end
 
   swagger_path '/api/v1/session-events' do
@@ -44,10 +53,12 @@ module SessionEventApiDoc
         key :description, 'The attributes to assign to the session.'
         key :required, true
         schema do
-          property :etype, type: :string, required: true
-          property :local_path, type: :string
-          property :command, type: :string
+          property :etype, type: :string, required: true, description: ETYPE_DESC, enum: ETYPE_ENUM
           property :session, '$ref' => :Session, required: true
+          property :command, type: :string, description: COMMAND_DESC
+          property :output, type: :string, description: OUTPUT_DESC
+          property :local_path, type: :string, description: LOCAL_PATH_DESC, example: LOCAL_PATH_EXAMPLE
+          property :remote_path, type: :string, description: REMOTE_PATH_DESC, example: REMOTE_PATH_EXAMPLE
         end
       end
 
