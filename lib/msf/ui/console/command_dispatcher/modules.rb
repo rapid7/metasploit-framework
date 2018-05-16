@@ -39,7 +39,7 @@ module Msf
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Selects a module by name",
-              "reload_lib"    => "Load a library file from specified path",
+              "reload_lib" => "Reload one or more library files from specified paths",
             }
           end
 
@@ -66,38 +66,33 @@ module Msf
             framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
           end
 
-          def reload_file(path, err_msg = 'Only library files can be loaded.')
-            if path.end_with?('.rb')
-              print_status("Reloading #{path}")
-              load path
-            else
-              print_error(err_msg)
+          # XXX: This will try to reload *any* .rb and break on modules
+          def reload_file(path)
+            unless File.exist?(path) && path.end_with?('.rb')
+              print_error("#{path} must exist and be a .rb file")
+              return
             end
+
+            print_status("Reloading #{path}")
+            load path
           end
 
           def cmd_reload_lib_help
-            print_line 'Usage: reload_lib [lib/to/load.rb]'
+            print_line 'Usage: reload_lib [lib/to/load.rb]...'
             print_line
-            print_line 'Load a library from specified path'
+            print_line 'Reload one or more library files from specified paths.'
           end
 
           #
-          # Load a library file from given path
+          # Reload one or more library files from specified paths
           #
-
           def cmd_reload_lib(*args)
-            if args.length > 0
-              path = args[0]
-            end
-            if args.include?('-h')  || args.include?('--help')
+            if args.empty? || args.include?('-h') || args.include?('--help')
               cmd_reload_lib_help
               return
             end
-            if path.nil?
-              print_error('Nothing to load.')
-              return
-            end
-            reload_file(path)
+
+            args.each { |path| reload_file(path) }
           end
 
           def cmd_reload_lib_tabs(str, words)
@@ -143,7 +138,6 @@ module Msf
 
             return if editing_module
 
-            # XXX: This will try to reload *any* .rb and break on modules
             reload_file(path)
           end
 
