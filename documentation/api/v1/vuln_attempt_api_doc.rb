@@ -3,19 +3,28 @@ require 'swagger/blocks'
 module VulnAttemptApiDoc
   include Swagger::Blocks
 
+  ATTEMPTED_AT_DESC = 'The time that this vuln attempt occurred.'
+  EXPLOITED_DESC = 'true if the vuln attempt was successful.'
+  FAIL_REASON_DESC = 'Short reason why this attempt failed.'
+  FAIL_DETAIL_DESC = 'Long details about why this attempt failed.'
+  MODULE_DESC = 'Full name of the Metasploit module that was used in this attempt.'
+  MODULE_EXAMPLE = 'linux/local/docker_daemon_privilege_escalation'
+  USERNAME_DESC = 'The username of the user who made this vuln attempt.'
+
+
 # Swagger documentation for vuln_attempts model
   swagger_schema :VulnAttempt do
     key :required, [:id]
     property :id, type: :integer, format: :int32
-    property :attempted_at, type: :string, format: :date_time
     property :vuln_id, type: :integer, format: :int32
-    property :exploited, type: :bool
-    property :fail_reason, type: :string
-    property :username, type: :string
-    property :module, type: :string
+    property :attempted_at, type: :string, format: :date_time, description: ATTEMPTED_AT_DESC
+    property :exploited, type: :boolean, description: EXPLOITED_DESC
+    property :fail_reason, type: :string, description: FAIL_REASON_DESC
+    property :fail_detail, type: :string, description: FAIL_DETAIL_DESC
+    property :module, type: :string, description: MODULE_DESC, example: MODULE_EXAMPLE
+    property :username, type: :string, description: USERNAME_DESC
     property :session_id, type: :integer, format: :int32
     property :loot_id, type: :integer, format: :int32
-    property :fail_detail, type: :string
   end
 
   swagger_path '/api/v1/vuln-attempts' do
@@ -25,7 +34,7 @@ module VulnAttemptApiDoc
       key :tags, [ 'vuln_attempt' ]
 
       response 200 do
-        key :description, 'Returns vuln attempt data'
+        key :description, 'Returns vuln attempt data.'
         schema do
           key :type, :array
           items do
@@ -43,15 +52,22 @@ module VulnAttemptApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The attributes to assign to the vuln_attempt'
+        key :description, 'The attributes to assign to the vuln attempt.'
         key :required, true
         schema do
-          key :'$ref', :VulnAttempt
+          property :workspace, type: :string, required: true
+          property :vuln_id, type: :integer, format: :int32
+          property :attempted_at, type: :string, format: :date_time, description: ATTEMPTED_AT_DESC
+          property :exploited, type: :boolean, description: EXPLOITED_DESC
+          property :fail_reason, type: :string, description: FAIL_REASON_DESC
+          property :fail_detail, type: :string, description: FAIL_DETAIL_DESC
+          property :module, type: :string, description: MODULE_DESC, example: MODULE_EXAMPLE
+          property :username, type: :string, description: USERNAME_DESC
         end
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :VulnAttempt
