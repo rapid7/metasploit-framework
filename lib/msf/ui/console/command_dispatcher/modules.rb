@@ -73,6 +73,12 @@ module Msf
               return
             end
 
+            # The file must exist to reach this, so we try our best here
+            if path =~ %r{^(?:\./)?modules/}
+              print_error('Reloading Metasploit modules is not supported (try "reload")')
+              return
+            end
+
             print_status("Reloading #{path}")
             load path
           end
@@ -642,7 +648,7 @@ module Msf
 
             # Ensure we have a reference name and not a path
             if mod_name.start_with?('./', 'modules/')
-              mod_name.sub!(/^(?:\.\/)?modules\//, '')
+              mod_name.sub!(%r{^(?:\./)?modules/}, '')
             end
             if mod_name.end_with?('.rb')
               mod_name.sub!(/\.rb$/, '')
