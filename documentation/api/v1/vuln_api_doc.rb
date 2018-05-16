@@ -10,7 +10,7 @@ module VulnApiDoc
   INFO_DESC = 'Information about how this vuln was discovered.'
   INFO_EXAMPLE = 'Exploited by exploit/linux/local/docker_daemon_privilege_escalation to create session.'
   REFS_DESC = 'An array of public reference IDs for this vuln.'
-  REFS_EXAMPLE = "['CVE-2008-4250','OSVDB-49243','MSB-MS08-067']"
+  REFS_EXAMPLE = ['CVE-2008-4250','OSVDB-49243','MSB-MS08-067']
 
 # Swagger documentation for vulns model
   swagger_schema :Vuln do
