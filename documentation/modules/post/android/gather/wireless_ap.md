@@ -5,20 +5,21 @@
 ## Verification Steps
 
   1. Start `msfconsole`
-  2. Get a *root* meterpreter session (use exploit/android/local/...)
-  3. Do: `use post/android/gather/wireless_ap`
-  4. Do: `set SESSION <session id>`
-  5. Do: `run`
+  2. Get a **root** meterpreter session (use exploit/android/local/...)
+  3. `use post/android/gather/wireless_ap`
+  4. `set SESSION <session id>`
+  5. `run`
+  6. You should be able to see the extracted credentials.
 
 ## Options
 
-  - **SESSION** - The session to run the module on.
+  **SESSION** - The session to run the module on.
 
 ## Extracted data
 
-  - Wireless AP credentials (SSID, network type and password)
+  Wireless AP credentials (SSID, network type and password)
 
-## Example Scenario
+## Scenarios
 
 
 ```
