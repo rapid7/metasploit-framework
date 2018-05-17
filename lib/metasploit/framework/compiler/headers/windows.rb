@@ -15,8 +15,11 @@ module Metasploit
             super
             @headers_path = File.join(Msf::Config.install_root, 'data', 'headers', 'windows')
             @lib_dep_map = {
-              'stddef.h'   => [],
-              'Windows.h'  => ['stddef.h']
+              'stddef.h'  => [],
+              'Windows.h' => ['stddef.h'],
+              'stdlib.h'  => ['stddef.h'],
+              'stdio.h'   => ['stddef.h'],
+              'String.h'  => ['stddef.h']
             }
           end
 
