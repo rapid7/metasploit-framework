@@ -213,6 +213,9 @@ class MetasploitModule < Msf::Auxiliary
         })
         if res.code == 302
           return true
+        elsif res.code == 200 and res.body =~ /too&#x20;many&#x20;failed&#x20;attempts/
+          print_error("[SAP] #{rhost}:#{rport} - #{user} locked in client #{cli}")
+          return false
         else
           return false
         end
