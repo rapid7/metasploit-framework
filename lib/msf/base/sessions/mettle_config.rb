@@ -97,7 +97,7 @@ module Msf
       # Stage encoding is not safe for Mettle (doesn't apply to stageless)
       def encode_stage?
         if datastore['EnableStageEncoding'] && !@warned
-          print_warning("Stage encoding is not currently supported for #{refname}")
+          print_warning("Stage encoding is not supported for #{refname}")
           @warned = true
         end
 
