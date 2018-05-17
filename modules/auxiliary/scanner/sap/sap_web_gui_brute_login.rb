@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-    
+
     stop_on_success = false
 
     each_user_pass do |u, p|
@@ -109,11 +109,11 @@ class MetasploitModule < Msf::Auxiliary
             saptbl << [ rhost, rport, cli, u, p]
             if datastore['STOP_ON_SUCCESS'] == true
               stop_on_success = true
-            end  
+            end
           end
         end
     end
-    
+
     print(saptbl.to_s)
 
   end
@@ -148,7 +148,6 @@ class MetasploitModule < Msf::Auxiliary
   def bruteforce(uri,user,pass,cli)
     begin
       path = "sap/bc/gui/sap/its/webgui/"
-         
 
       cookie = "Active=true; sap-usercontext=sap-language=EN&sap-client=#{cli}"
       res = send_request_cgi({
