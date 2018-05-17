@@ -19,10 +19,7 @@ module LootApiDoc
 
 # Swagger documentation for loot model
   swagger_schema :Loot do
-    key :required, [:id, :name, :ltype, :path]
-    property :id, type: :integer, format: :int32
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
+    key :required, [:name, :ltype, :path]
     property :workspace_id, type: :integer, format: :int32
     property :host_id, type: :integer, format: :int32
     property :service_id, type: :integer, format: :int32
@@ -33,18 +30,21 @@ module LootApiDoc
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :info, type: :string, description: INFO_DESC
     property :module_run_id, type: :integer, format: :int32
+    property :id, type: :integer, format: :int32
+    property :created_at, type: :string, format: :date_time
+    property :updated_at, type: :string, format: :date_time
   end
 
   swagger_path '/api/v1/loots' do
     # Swagger documentation for /api/v1/loots GET
     operation :get do
-      key :description, 'Return loot that are stored in the database.'
+      key :description, 'Return loot entries that are stored in the database.'
       key :tags, [ 'loot' ]
 
       parameter :workspace
 
       response 200 do
-        key :description, 'Returns loot data'
+        key :description, 'Returns loot data.'
         schema do
           key :type, :array
           items do
@@ -62,7 +62,7 @@ module LootApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The attributes to assign to the loot'
+        key :description, 'The attributes to assign to the loot.'
         key :required, true
         schema do
           property :workspace, type: :string, required: true
@@ -78,7 +78,7 @@ module LootApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Loot
@@ -94,7 +94,7 @@ module LootApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :array
           items do
@@ -108,7 +108,7 @@ module LootApiDoc
   swagger_path '/api/v1/loot/{id}' do
     # Swagger documentation for api/v1/loot/:id GET
     operation :get do
-      key :description, 'Return loot that are stored in the database.'
+      key :description, 'Return specific loot entry that is stored in the database.'
       key :tags, [ 'loot' ]
 
       parameter :workspace
@@ -116,14 +116,14 @@ module LootApiDoc
       parameter do
         key :name, :id
         key :in, :path
-        key :description, 'ID of loot to retrieve'
+        key :description, 'ID of loot to retrieve.'
         key :required, true
         key :type, :integer
         key :format, :int32
       end
 
       response 200 do
-        key :description, 'Returns loot data'
+        key :description, 'Returns loot data.'
         schema do
           key :type, :array
           items do
@@ -143,7 +143,7 @@ module LootApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The updated attributes to overwrite to the loot'
+        key :description, 'The updated attributes to overwrite to the loot.'
         key :required, true
         schema do
           key :'$ref', :Loot
@@ -151,7 +151,7 @@ module LootApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Loot

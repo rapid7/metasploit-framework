@@ -83,23 +83,23 @@ module WorkspaceApiDoc
     end
   end
 
-  swagger_path '/api/v1/workspaces/:id' do
+  swagger_path '/api/v1/workspaces/{id}' do
     # Swagger documentation for api/v1/workspaces/:id GET
     operation :get do
-      key :description, 'Return workspaces that are stored in the database.'
+      key :description, 'Return specific workspace that is stored in the database.'
       key :tags, [ 'workspace' ]
 
       parameter do
         key :name, :id
         key :in, :path
-        key :description, 'ID of workspace to retrieve'
+        key :description, 'ID of workspace to retrieve.'
         key :required, true
         key :type, :integer
         key :format, :int32
       end
 
       response 200 do
-        key :description, 'Returns workspaces data'
+        key :description, 'Returns workspace data.'
         schema do
           key :type, :array
           items do

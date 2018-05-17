@@ -30,7 +30,7 @@ module SessionApiDoc
       parameter :workspace
 
       response 200 do
-        key :description, 'Returns sessions data.'
+        key :description, 'Returns session data.'
         schema do
           key :type, :array
           items do
@@ -42,7 +42,7 @@ module SessionApiDoc
 
     # Swagger documentation for /api/v1/sessions POST
     operation :post do
-      key :description, 'Create a sessions entry.'
+      key :description, 'Create a session entry.'
       key :tags, [ 'session' ]
 
       parameter do

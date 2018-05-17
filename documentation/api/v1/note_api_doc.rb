@@ -11,10 +11,8 @@ module NoteApiDoc
 
 # Swagger documentation for notes model
   swagger_schema :Note do
-    key :required, [:id, :type]
+    key :required, [:type]
     property :id, type: :integer, format: :int32
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
     property :type, type: :string, description: TYPE_DESC, example: TYPE_EXAMPLE
     property :workspace_id, type: :integer, format: :int32
     property :host_id, type: :integer, format: :int32
@@ -23,6 +21,8 @@ module NoteApiDoc
     property :seen, type: :boolean, description: SEEN_DESC
     property :data, type: :string, description: DATA_DESC
     property :vuln_id, type: :integer, format: :int32
+    property :created_at, type: :string, format: :date_time
+    property :updated_at, type: :string, format: :date_time
   end
 
   swagger_path '/api/v1/notes' do
@@ -34,7 +34,7 @@ module NoteApiDoc
       parameter :workspace
 
       response 200 do
-        key :description, 'Returns notes data'
+        key :description, 'Returns note data.'
         schema do
           key :type, :array
           items do
@@ -46,13 +46,13 @@ module NoteApiDoc
 
     # Swagger documentation for /api/v1/notes POST
     operation :post do
-      key :description, 'Create a notes entry.'
+      key :description, 'Create a note entry.'
       key :tags, [ 'note' ]
 
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The attributes to assign to the notes'
+        key :description, 'The attributes to assign to the note.'
         key :required, true
         schema do
           property :type, type: :string, description: TYPE_DESC, example: TYPE_EXAMPLE, required: true
@@ -65,7 +65,7 @@ module NoteApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Note
@@ -81,7 +81,7 @@ module NoteApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :array
           items do
@@ -95,7 +95,7 @@ module NoteApiDoc
   swagger_path '/api/v1/notes/{id}' do
     # Swagger documentation for api/v1/notes/:id GET
     operation :get do
-      key :description, 'Return notes that are stored in the database.'
+      key :description, 'Return specific note that is stored in the database.'
       key :tags, [ 'note' ]
 
       parameter :workspace
@@ -103,14 +103,14 @@ module NoteApiDoc
       parameter do
         key :name, :id
         key :in, :path
-        key :description, 'ID of notes to retrieve'
+        key :description, 'ID of note to retrieve.'
         key :required, true
         key :type, :integer
         key :format, :int32
       end
 
       response 200 do
-        key :description, 'Returns notes data'
+        key :description, 'Returns notes data.'
         schema do
           key :type, :array
           items do
@@ -122,7 +122,7 @@ module NoteApiDoc
 
     # Swagger documentation for /api/v1/notes/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing notes.'
+      key :description, 'Update the attributes an existing note.'
       key :tags, [ 'note' ]
 
       parameter :update_id
@@ -130,7 +130,7 @@ module NoteApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The updated attributes to overwrite to the notes'
+        key :description, 'The updated attributes to overwrite to the note.'
         key :required, true
         schema do
           key :'$ref', :Note
@@ -138,7 +138,7 @@ module NoteApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Note

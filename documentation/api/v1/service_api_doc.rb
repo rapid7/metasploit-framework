@@ -39,7 +39,7 @@ module ServiceApiDoc
       parameter :workspace
 
       response 200 do
-        key :description, 'Returns Service data'
+        key :description, 'Returns service data.'
         schema do
           key :type, :array
           items do
@@ -57,7 +57,7 @@ module ServiceApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The attributes to assign to the service'
+        key :description, 'The attributes to assign to the service.'
         key :required, true
         schema do
           property :workspace, type: :string, required: true
@@ -71,7 +71,7 @@ module ServiceApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Service
@@ -87,7 +87,7 @@ module ServiceApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :array
           items do
@@ -101,7 +101,7 @@ module ServiceApiDoc
   swagger_path '/api/v1/services/{id}' do
     # Swagger documentation for api/v1/services/:id GET
     operation :get do
-      key :description, 'Return services that are stored in the database.'
+      key :description, 'Return specific service that is stored in the database.'
       key :tags, [ 'service' ]
 
       parameter :workspace
@@ -109,14 +109,14 @@ module ServiceApiDoc
       parameter do
         key :name, :id
         key :in, :path
-        key :description, 'ID of Service to retrieve'
+        key :description, 'ID of service to retrieve.'
         key :required, true
         key :type, :integer
         key :format, :int32
       end
 
       response 200 do
-        key :description, 'Returns Service data'
+        key :description, 'Returns service data.'
         schema do
           key :type, :array
           items do
@@ -128,7 +128,7 @@ module ServiceApiDoc
 
     # Swagger documentation for /api/v1/services/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing Service.'
+      key :description, 'Update the attributes an existing service.'
       key :tags, [ 'service' ]
 
       parameter :update_id
@@ -136,7 +136,7 @@ module ServiceApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The updated attributes to overwrite to the Service'
+        key :description, 'The updated attributes to overwrite to the service.'
         key :required, true
         schema do
           key :'$ref', :Service
@@ -144,7 +144,7 @@ module ServiceApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Service

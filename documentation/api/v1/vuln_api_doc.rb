@@ -146,7 +146,7 @@ module VulnApiDoc
   swagger_path '/api/v1/vulns/{id}' do
     # Swagger documentation for api/v1/vulns/:id GET
     operation :get do
-      key :description, 'Return vulns that are stored in the database.'
+      key :description, 'Return specific vuln that is stored in the database.'
       key :tags, [ 'vuln' ]
 
       parameter :workspace

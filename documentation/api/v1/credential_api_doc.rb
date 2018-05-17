@@ -1,5 +1,6 @@
 require 'swagger/blocks'
 
+# TODO: Complete this documentation when the credential model is fully implemented in the API.
 module CredentialApiDoc
   include Swagger::Blocks
 
@@ -7,8 +8,6 @@ module CredentialApiDoc
   swagger_schema :Credential do
     key :required, [:id, :name]
     property :id, type: :integer, format: :int32
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
     property :origin_id, type: :integer, format: :int32
     property :origin_type, type: :string
     property :private_id, type: :integer, format: :int32
@@ -21,6 +20,8 @@ module CredentialApiDoc
       items do
       end
     end
+    property :created_at, type: :string, format: :date_time
+    property :updated_at, type: :string, format: :date_time
   end
 
   swagger_path '/api/v1/credentials' do
@@ -76,7 +77,7 @@ module CredentialApiDoc
       end
 
       response 200 do
-        key :description, 'Returns credential data'
+        key :description, 'Returns credential data.'
         schema do
           key :type, :array
           items do
@@ -94,7 +95,7 @@ module CredentialApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The attributes to assign to the credential'
+        key :description, 'The attributes to assign to the credential.'
         key :required, true
         schema do
           key :'$ref', :Credential
@@ -102,7 +103,7 @@ module CredentialApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Credential

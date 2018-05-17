@@ -32,7 +32,7 @@ module SessionEventApiDoc
       key :tags, [ 'session_event' ]
 
       response 200 do
-        key :description, 'Returns session events data.'
+        key :description, 'Returns session event data.'
         schema do
           key :type, :array
           items do
@@ -50,7 +50,7 @@ module SessionEventApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The attributes to assign to the session.'
+        key :description, 'The attributes to assign to the session event.'
         key :required, true
         schema do
           property :etype, type: :string, required: true, description: ETYPE_DESC, enum: ETYPE_ENUM
