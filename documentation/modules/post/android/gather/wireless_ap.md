@@ -30,7 +30,6 @@ msf5 post(android/gather/wireless_ap) > set session 1
 session => 1
 msf5 post(android/gather/wireless_ap) > run
 
-[!] SESSION may not be compatible with this module.
 Wireless APs
 ============
 
