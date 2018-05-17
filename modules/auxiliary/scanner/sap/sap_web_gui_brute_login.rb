@@ -48,6 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'URI', '/']),
         OptString.new('CLIENT', [false, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
         OptBool.new('DEFAULT_CRED',[false, 'Check using the default password and username',true]),
+        OptBool.new('STOP_ON_SUCCESS',[false, 'Stop process when a valid user is found',true]),
         OptString.new('USERPASS_FILE',[false, '',nil])
       ])
   end
@@ -86,6 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       credentials = extract_word_pair(Msf::Config.data_directory + '/wordlists/sap_default.txt')
       credentials.each do |u, p|
         client.each do |cli|
+          print_status("Trying: #{u}/#{p}")
           success = bruteforce(uri, u, p, cli)
           if success
             saptbl << [ rhost, rport, cli, u, p]
@@ -93,14 +95,25 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
+    
+    stop_on_success = false
+
     each_user_pass do |u, p|
-      client.each do |cli|
-        success = bruteforce(uri, u, p, cli)
-        if success
-          saptbl << [ rhost, rport, cli, u, p]
+        client.each do |cli|
+          if stop_on_success == true
+              break
+          end
+          print_status("Trying: #{u}/#{p}")
+          success = bruteforce(uri, u, p, cli)
+          if success
+            saptbl << [ rhost, rport, cli, u, p]
+            if datastore['STOP_ON_SUCCESS'] == true
+              stop_on_success = true
+            end  
+          end
         end
-      end
     end
+    
     print(saptbl.to_s)
 
   end
@@ -213,7 +226,7 @@ class MetasploitModule < Msf::Auxiliary
         })
         if res.code == 302
           return true
-        elsif res.code == 200 and res.body =~ /too&#x20;many&#x20;failed&#x20;attempts/
+        elsif res.code == 200 and res.body =~ /too&#x20;many&#x20;failed&#x20;attempts/
           print_error("[SAP] #{rhost}:#{rport} - #{user} locked in client #{cli}")
           return false
         else
