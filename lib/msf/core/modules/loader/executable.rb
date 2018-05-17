@@ -85,7 +85,13 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
       return ''
     end
     begin
-      Msf::Modules::External::Shim.generate(full_path)
+      content = Msf::Modules::External::Shim.generate(full_path)
+      if content
+        return content
+      else
+        elog "Unable to load module #{full_path}, unknown module type"
+        return ''
+      end
     rescue ::Exception => e
       elog "Unable to load module #{full_path} #{e.class} #{e} #{e.backtrace.join "\n"}"
       # XXX migrate this to a full load_error when we can tell the user why the
