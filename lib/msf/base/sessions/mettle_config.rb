@@ -94,6 +94,16 @@ module Msf
         opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name)
       end
 
+      # Stage encoding is not safe for Mettle (doesn't apply to stageless)
+      def encode_stage?
+        if datastore['EnableStageEncoding'] && !@warned
+          print_warning("Stage encoding is not supported for #{refname}")
+          @warned = true
+        end
+
+        false
+      end
+
     end
   end
 end
