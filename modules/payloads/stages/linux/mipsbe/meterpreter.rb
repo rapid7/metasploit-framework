@@ -95,14 +95,4 @@ module MetasploitModule
     MetasploitPayloads::Mettle.new('mips-linux-muslsf',
       generate_config(opts.merge({scheme: 'tcp'}))).to_binary :process_image
   end
-
-  # Stage encoding is not safe for this payload
-  def encode_stage?
-    if datastore['EnableStageEncoding'] && !@warned
-      print_warning("Stage encoding is not currently supported for #{refname}")
-      @warned = true
-    end
-
-    false
-  end
 end
