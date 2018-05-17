@@ -25,6 +25,14 @@ module Metasploit
       report(:vuln, opts.merge(host: ip, name: name))
     end
 
+    def report_correct_password(username, password, **opts)
+      report(:correct_password, opts.merge(username: username, password: password))
+    end
+
+    def report_wrong_password(username, password, **opts)
+      report(:wrong_password, opts.merge(username: username, password: password))
+    end
+
     def run(metadata, callback)
       self.logging_prefix = ''
       req = JSON.parse($stdin.readpartial(10000), symbolize_names: true)
