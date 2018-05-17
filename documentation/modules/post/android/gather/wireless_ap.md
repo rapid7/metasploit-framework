@@ -7,7 +7,7 @@
 
   1. Start `msfconsole`
   2. Get meterpreter session
-  3. Do: `use android/gather/wireless_ap`
+  3. Do: `use post/android/gather/wireless_ap`
   4. Do: `set SESSION <session id>`
   5. Do: `run`
   6. You should be able to see the extracted bssids and passwords of wireless
