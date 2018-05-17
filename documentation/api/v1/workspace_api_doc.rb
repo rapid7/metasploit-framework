@@ -3,18 +3,24 @@ require 'swagger/blocks'
 module WorkspaceApiDoc
   include Swagger::Blocks
 
+  NAME_DESC = 'The name of the workspace. This is the unique identifier for determining which workspace is being accessed.'
+  BOUNDARY_DESC = 'Comma separated list of IP ranges (in various formats) and IP addresses that users of this workspace are allowed to interact with if limit_to_network is true.'
+  BOUNDARY_EXAMPLE = ''
+  DESCRIPTION_DESC = 'Long description that explains the purpose of this workspace.'
+  LIMIT_TO_NETWORK_DESC = 'true to restrict the hosts and services in this workspace to the IP addresses listed in \'boundary\'.'
+
 # Swagger documentation for workspaces model
   swagger_schema :Workspace do
-    key :required, [:id, :name]
+    key :required, [:name]
     property :id, type: :integer, format: :int32
+    property :name, type: :string, description: NAME_DESC
+    property :boundary, type: :string, description: BOUNDARY_DESC, example: BOUNDARY_EXAMPLE
+    property :description, type: :string, description: DESCRIPTION_DESC
+    property :owner_id, type: :integer, format: :int32
+    property :limit_to_network, type: :boolean, description: LIMIT_TO_NETWORK_DESC
+    property :import_fingerprint, type: :boolean
     property :created_at, type: :string, format: :date_time
     property :updated_at, type: :string, format: :date_time
-    property :name, type: :string
-    property :boundary, type: :string
-    property :description, type: :string
-    property :owner_id, type: :integer, format: :int32
-    property :limit_to_network, type: :boolean
-    property :import_fingerprint, type: :boolean
   end
 
   swagger_path '/api/v1/workspaces' do
@@ -24,7 +30,7 @@ module WorkspaceApiDoc
       key :tags, [ 'workspace' ]
 
       response 200 do
-        key :description, 'Returns workspaces data'
+        key :description, 'Returns workspace data.'
         schema do
           key :type, :array
           items do
@@ -36,21 +42,21 @@ module WorkspaceApiDoc
 
     # Swagger documentation for /api/v1/workspaces POST
     operation :post do
-      key :description, 'Create a workspaces entry.'
+      key :description, 'Create a workspace entry.'
       key :tags, [ 'workspace' ]
 
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The attributes to assign to the workspaces'
+        key :description, 'The attributes to assign to the workspace.'
         key :required, true
         schema do
-          key :'$ref', :Workspace
+          property :name, type: :string, description: NAME_DESC
         end
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Workspace
@@ -66,7 +72,7 @@ module WorkspaceApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :array
           items do
@@ -86,7 +92,7 @@ module WorkspaceApiDoc
       parameter do
         key :name, :id
         key :in, :path
-        key :description, 'ID of workspaces to retrieve'
+        key :description, 'ID of workspace to retrieve'
         key :required, true
         key :type, :integer
         key :format, :int32
@@ -113,7 +119,7 @@ module WorkspaceApiDoc
       parameter do
         key :in, :body
         key :name, :body
-        key :description, 'The updated attributes to overwrite to the workspaces'
+        key :description, 'The updated attributes to overwrite to the workspace.'
         key :required, true
         schema do
           key :'$ref', :Workspace
@@ -121,7 +127,7 @@ module WorkspaceApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation'
+        key :description, 'Successful operation.'
         schema do
           key :type, :object
           key :'$ref', :Workspace
