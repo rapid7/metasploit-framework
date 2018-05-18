@@ -32,6 +32,10 @@ class Msf::Modules::External::Shim
     render_template('common_metadata.erb', meta)
   end
 
+  def self.common_check(meta = {})
+    render_template('common_check.erb', meta)
+  end
+
   def self.mod_meta_common(mod, meta = {}, drop_rhost: false)
     meta[:path]        = mod.path.dump
     meta[:name]        = mod.meta['name'].dump
@@ -54,6 +58,8 @@ class Msf::Modules::External::Shim
           [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
       end
     end.join(",\n          ")
+
+    meta[:capabilities] = mod.meta['capabilities']
     meta
   end
 
