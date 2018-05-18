@@ -1,7 +1,56 @@
+For an introduction to the reasons and goals for external modules, [see our 2017 HaXmas post on the subject](https://blog.rapid7.com/2017/12/28/regifting-python-in-metasploit).
+
+Request Flow
+============
+
+Each time Metasploit wants an external module to do something (ex. describe itself or run with a certain configuration), it runs the module in a new process and talks to it over stdin/stdout.
+
+To get the metadata from a module (which includes options), the call sequence looks a bit like:
+```
++------------+
+| Metasploit |
+|            |  Describe yourself  +-------------------+
+|            +-------------------> |  some_module.py   |
+|            |                     |                   |
+|            |                     |                   |
+|            |   Some metadata     |                   |
+|            | <-------------------+                   |
+|            |                     |                   |
+|            |                     +-------------------+
+|            |
+|            |
++------------+
+```
+
+A module run might look like:
+```
++------------+
+| Metasploit |  Do a thing with
+|            |   these options     +-------------------+
+|            +-------------------> |  some_module.py   |
+|            |                     |                   |
+|            |                     |                   |
+|            |   A bit of status   |                   |
+|            | <-------------------+                   |
+|            |                     |                   |
+|            |  Moar status        |                   |
+|            | <-------------------+                   |
+|            |                     |                   |
+|            |  I found a thing    |                   |
+|            | <-------------------+                   |
+|            |                     |                   |
+|            |                     +-------------------+
+|            |
++------------+
+```
+
+When a module meant for a single host is run against a range of hosts, Metasploit will start a new process for each host. If the `THREADS` datastore option is set and it is an auxiliary module, that many processes will be run at the same time.
+
+
 JSON-RPC API
 ============
 
-External modules communicate with Metasploit over stdin/stdout. The methods a module must implement are `describe` and `run`. Metasploit implements `message` and will implement `report` in the near future. The specs for each method are written below using [JSON-schema](https://spacetelescope.github.io/understanding-json-schema). Work still needs to be done enumerating valid types and codes for the messages.
+External modules communicate with Metasploit over stdin/stdout. The methods a module must implement are `describe` and `run`; additional methods can be advertised in the `capabilities` array, for now assumed to use a subset of the options used for `run`. Metasploit implements `message` and will implement `report` in the near future. The specs for each method are written below using [JSON-schema](https://spacetelescope.github.io/understanding-json-schema). Work still needs to be done enumerating valid types and codes for the messages.
 
 Describe
 --------
