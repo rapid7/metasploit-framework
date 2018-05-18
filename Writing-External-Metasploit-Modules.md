@@ -19,6 +19,7 @@ Describe
   }
 }
 ```
+
 **Response**
 ```javascript
 {
@@ -30,7 +31,7 @@ Describe
     "id": {"type": "string"},
     "result": {
       "type": "object",
-      "required": ["options", "meta", "capabilities"],
+      "required": ["name", "description", "authors", "type", "options", "capabilities"],
       "properties": {
         "name": {"type": "string"},
         "description": {"type": "string"},
@@ -74,6 +75,12 @@ Describe
                 "type": {"type": "string"}
               }
             }
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       }
@@ -127,7 +134,8 @@ Run
       "type": "object",
       "required": ["message"]
       "properties": {
-        "message": {"type": "string"}
+        "message": {"type": "string"},
+        "return": {"type": "string"}
       }
     },
     "error": {
