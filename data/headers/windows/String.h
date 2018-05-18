@@ -1,3 +1,7 @@
+//
+// License:
+// https://github.com/rapid7/metasploit-framework/blob/master/LICENSE
+//
 
 void *memchr(const void*, int, size_t);
 int memcmp(const void*, const void*, size_t);

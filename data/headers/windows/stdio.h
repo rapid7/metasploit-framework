@@ -1,3 +1,8 @@
+//
+// License:
+// https://github.com/rapid7/metasploit-framework/blob/master/LICENSE
+//
+
 FILE* popen(const char*, const char*);
 int pclose(FILE*);
 int fscanf(FILE*, const char*, ...);

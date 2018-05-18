@@ -1,3 +1,8 @@
+//
+// License:
+// https://github.com/rapid7/metasploit-framework/blob/master/LICENSE
+//
+
 typedef struct _div_t {
   int quot;
   int rem;
