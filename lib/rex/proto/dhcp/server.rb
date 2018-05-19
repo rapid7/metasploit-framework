@@ -298,7 +298,7 @@ protected
     pkt << dhcpoption(OpSubnetMask, self.netmaskn)
     pkt << dhcpoption(OpRouter, self.router)
     pkt << dhcpoption(OpDns, self.dnsserv)
-    pkt << dhcpoption(OpDomainName, self.domain_name)
+    pkt << dhcpoption(OpDomainName, self.domain_name) if self.domain_name
 
     if self.servePXE  # PXE options
       pkt << dhcpoption(OpPXEMagic, PXEMagic)
