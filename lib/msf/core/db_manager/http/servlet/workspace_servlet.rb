@@ -24,6 +24,7 @@ module WorkspaceServlet
         begin
           opts = parse_json_request(request, false)
           includes = nil
+
           sanitized_params = sanitize_params(params)
           data = get_db.workspaces(sanitized_params)
 

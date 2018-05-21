@@ -1592,23 +1592,6 @@ class Core
       end
     end
 
-    # Warn when setting RHOST option for module which expects RHOSTS
-    if args.first.upcase.eql?('RHOST')
-      mod = active_module
-      unless mod.nil?
-        if !mod.options.include?('RHOST') && mod.options.include?('RHOSTS')
-          warn_rhost = false
-          if mod.exploit? && mod.datastore['PAYLOAD']
-            p = framework.payloads.create(mod.datastore['PAYLOAD'])
-            warn_rhost = (p && !p.options.include?('RHOST'))
-          else
-            warn_rhost = true
-          end
-          print_warning("RHOST is not a valid option for this module. Did you mean RHOSTS?") if warn_rhost
-        end
-      end
-    end
-
     # Set the supplied name to the supplied value
     name  = args[0]
     value = args[1, args.length-1].join(' ')
@@ -2286,6 +2269,7 @@ class Core
     res = []
     if (active_module.targets)
       1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
+      res += active_module.targets.map(&:name)
     end
     return res
   end

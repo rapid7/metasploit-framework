@@ -14,7 +14,6 @@ class RemoteHTTPDataService
   include Metasploit::Framework::DataService
   include DataServiceAutoLoader
 
-  ONLINE_TEST_URL = "/api/v1/online"
   EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
@@ -24,12 +23,10 @@ class RemoteHTTPDataService
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
-  def initialize(endpoint, framework, https_opts = {})
-    @active = false
+  def initialize(endpoint, https_opts = {})
     validate_endpoint(endpoint)
     @endpoint = URI.parse(endpoint)
     @https_opts = https_opts
-    @framework = framework
     build_client_pool(5)
   end
 
@@ -187,6 +184,19 @@ class RemoteHTTPDataService
     @headers[key] = value
   end
 
+  #
+  # Checks if the data service is online by making a request
+  # for the Metasploit version number from the remote endpoint
+  #
+  def is_online?
+    response = self.get_msf_version
+    if response && !response[:metasploit_version].empty?
+      return true
+    end
+
+    return false
+  end
+
   #########
   protected
   #########
@@ -228,19 +238,6 @@ class RemoteHTTPDataService
 
   def validate_endpoint(endpoint)
     raise 'Endpoint cannot be nil' if endpoint.nil?
-  end
-
-  #
-  # Checks if the data service is online by making a request
-  # for the Metasploit version number from the remote endpoint
-  #
-  def is_online?
-    response = self.get_msf_version
-    if response && !response[:metasploit_version].empty?
-      return true
-    end
-
-    return false
   end
 
   def build_request(request, data_hash)
