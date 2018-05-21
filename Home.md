@@ -59,6 +59,7 @@ If you're an exploit developer, you will want to review our [[Guidelines for Acc
 - [[How to write a HTTP LoginScanner Module]]
 - [[How to write a module using HttpServer and HttpClient]]
 - [[How to zip files with Rex::Zip::Archive]]
+- [[How to use Metasploit::Framework::Compiler::Windows to compile C code]]
 - [[Oracle Usage]]
 - [[Rex Layout]]
 
