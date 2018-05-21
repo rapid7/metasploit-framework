@@ -1,6 +1,6 @@
 module HostDataProxy
 
-  def hosts(opts={})
+  def hosts(opts = {})
     begin
       data_service = self.get_data_service
       opts[:non_dead] = false unless opts.has_key?(:non_dead)

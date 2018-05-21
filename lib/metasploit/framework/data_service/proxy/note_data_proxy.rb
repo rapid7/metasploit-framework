@@ -12,7 +12,15 @@ module NoteDataProxy
 
   def find_or_create_note(opts)
     begin
-      note = notes(opts.clone)
+      # create separate opts for find operation since the report operation uses slightly different keys
+      # TODO: standardize option keys used for the find and report operations
+      find_opts = opts.clone
+      # convert type to ntype
+      find_opts[:ntype] = find_opts.delete(:type) if find_opts.key?(:type)
+      # convert host to nested hosts address
+      find_opts[:hosts] = {address: find_opts.delete(:host)} if find_opts.key?(:host)
+
+      note = notes(find_opts)
       if note.nil? || note.first.nil?
         note = report_note(opts.clone)
       else

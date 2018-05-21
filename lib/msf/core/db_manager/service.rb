@@ -144,15 +144,16 @@ module Msf::DBManager::Service
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     search_term = opts.delete(:search_term)
-    opts["hosts.address"] = opts.delete(:addresses)
-    opts.compact!
+
+    order_args = [:port]
+    order_args.unshift(Mdm::Host.arel_table[:address]) if opts.key?(:hosts)
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     if search_term && !search_term.empty?
       column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
-      wspace.services.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
+      wspace.services.includes(:host).where(opts).where(column_search_conditions).order(*order_args)
     else
-      wspace.services.includes(:host).where(opts).order("hosts.address, port")
+      wspace.services.includes(:host).where(opts).order(*order_args)
     end
   }
   end
