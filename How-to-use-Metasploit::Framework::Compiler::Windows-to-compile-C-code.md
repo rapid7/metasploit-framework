@@ -51,6 +51,7 @@ To load a DLL, you can use the LoadLibrary API:
 
 ```c
 #include <Windows.h>
+#include <stdio.h>
 
 int main(void) {
   HMODULE hMod = LoadLibrary("hello_world.dll");
