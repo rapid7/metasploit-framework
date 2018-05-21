@@ -6,10 +6,16 @@
 #include <Windows.h>
 
 int main(void) {
-  LPCTSTR lpMessage
+  LPCTSTR lpMessage = "Hello World";
+  LPCTSTR lpTitle = "Hi";
+  MessageBox(NULL, lpMessage, lpTitle, MB_OK);
   return 0;
 }
 ```
+
+# Printf()
+
+Note that methods like `printf()` won't actually print anything, because it's not hooked up to stdout. If you want to use `printf()` for debugging purposes, you can consider using `OutputDebugString`, or `MessageBox` instead.
 
 # Custom Headers
 
