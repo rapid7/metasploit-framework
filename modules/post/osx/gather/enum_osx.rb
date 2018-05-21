@@ -183,7 +183,7 @@ class MetasploitModule < Msf::Post
           file_local_write(log_folder+"//#{name}.txt",returned_data)
         elsif session.type =~ /shell/
           begin
-            returned_data = cmd_exec("/usr/sbin/system_profiler #{profile_datatypes}", 15)
+            returned_data = cmd_exec("/usr/sbin/system_profiler #{profile_datatypes}")
             # Save data lo log folder
             file_local_write(log_folder+"//#{name}.txt",returned_data)
           rescue
@@ -242,7 +242,7 @@ class MetasploitModule < Msf::Post
 
       elsif session.type =~ /shell/
 
-        command_output = cmd_exec(command.join(' '), 15)
+        command_output = cmd_exec(command.join(' '))
 
         # Save data lo log folder
         file_local_write(log_folder + "//#{name}.txt", command_output)

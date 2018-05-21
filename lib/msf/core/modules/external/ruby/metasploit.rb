@@ -25,18 +25,44 @@ module Metasploit
       report(:vuln, opts.merge(host: ip, name: name))
     end
 
-    def run(metadata, callback)
+    def report_correct_password(username, password, **opts)
+      report(:correct_password, opts.merge(username: username, password: password))
+    end
+
+    def report_wrong_password(username, password, **opts)
+      report(:wrong_password, opts.merge(username: username, password: password))
+    end
+
+    def run(metadata, callback, soft_check: nil)
       self.logging_prefix = ''
+      cb = nil
       req = JSON.parse($stdin.readpartial(10000), symbolize_names: true)
       if req[:method] == 'describe'
+        capabilities = []
+        capabilities << 'soft_check' if soft_check
+
+        meta = metadata.merge(capabilities: capabilities)
         rpc_send({
-          jsonrpc: '2.0', id: req[:id], result: metadata
+          jsonrpc: '2.0', id: req[:id], result: meta
         })
+      elsif req[:method] == 'soft_check'
+        if soft_check
+          cb = soft_check
+        else
+          rpc_send({
+            jsonrpc: '2.0', id: req[:id], error: {code: -32601, message: 'Soft checks are not supported'}
+          })
+        end
       elsif req[:method] == 'run'
-        callback.call req[:params]
+        cb = callback
+      end
+
+      if cb
+        ret = cb.call req[:params]
         rpc_send({
           jsonrpc: '2.0', id: req[:id], result: {
-            message: 'Module completed'
+            message: 'Module completed',
+            'return' => ret
           }
         })
       end

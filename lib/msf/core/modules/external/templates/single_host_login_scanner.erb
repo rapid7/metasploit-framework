@@ -2,8 +2,9 @@ require 'msf/core/modules/external/bridge'
 require 'msf/core/module/external'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::AuthBrute
   include Msf::Module::External
-  include Msf::Auxiliary::Dos
 
   def initialize
     super({
@@ -20,8 +21,13 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def run
-    print_status("Starting server...")
+  def run_host(ip)
+    print_status("Running for #{ip}...")
+    rhost = datastore.delete('RHOST')
+    datastore['rhost'] = rhost
+    datastore['userpass'] ||= build_credentials_array
+    datastore['sleep_interval'] ||= userpass_interval
+
     execute_module(<%= meta[:path] %>)
   end
 end

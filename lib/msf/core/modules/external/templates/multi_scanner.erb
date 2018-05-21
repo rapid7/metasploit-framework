@@ -26,10 +26,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_batch(ips)
-    mod = Msf::Modules::External::Bridge.open(<%= meta[:path] %>)
     datastore.delete('RHOSTS')
     datastore['rhosts'] = ips
-    mod.run(datastore)
-    wait_status(mod)
+
+    execute_module(<%= meta[:path] %>)
   end
 end
