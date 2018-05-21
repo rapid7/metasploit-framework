@@ -12,9 +12,9 @@ module Msf
     def name
       PLUGIN_NAME
     end
-      PLUGIN_DESCRIPTION
+
     def desc
-      
+      PLUGIN_DESCRIPTION
     end
 
     class ConsoleCommandDispatcher
