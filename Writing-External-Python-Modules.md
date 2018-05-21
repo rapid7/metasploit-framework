@@ -164,6 +164,21 @@ if __name__ == '__main__':
 ```
 The example sends a get request to the given `rhost` and `targeturi`, then calls `logging.info()` on the result to have the output displayed in msfconsole.
 
+## Coding with Style
+
+All the Python code in Metasploit aims to be [PEP 8](https://www.python.org/dev/peps/pep-0008/) compliant. The biggest differences coming from Metasploit's Ruby style:
+  * Two lines between functions (but not class methods)
+  * Two lines between different types of code (like imports and the metadata, see above)
+  * Four spaces for indenting
+
+Some coding choices to think about when writing your module:
+  * Prefer `"foo {}".format('bar')` over interpolation with `%`
+  * Keep your callback methods short and readable. If it gets cluttered, break out sub-tasks into well-named functions
+  * Variable names should be descriptive, readable, and short ([a guide](http://journal.stuffwithstuff.com/2016/06/16/long-names-are-long))
+  * If you really need Python3 features in your module, use `#!/usr/bin/env python3` for the shebang
+  * If you have a lot of legacy code in 2.7 or need a 2.7 library, use `#!/usr/bin/env python2.7` (macOS in particular does not ship with a `python2` executable by default)
+  * If possible, have your module compatible with both and use `#!/usr/bin/env python`
+
 ## (Potentially) Common Questions
 
 ### Why doesn't the module appear when I search for it in msfconsole?
