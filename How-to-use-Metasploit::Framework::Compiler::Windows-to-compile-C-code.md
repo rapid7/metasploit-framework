@@ -2,15 +2,18 @@
 
 # Example
 
-```c
-#include <Windows.h>
+```ruby
+c_template = %Q|#include <Windows.h>
 
 int main(void) {
   LPCTSTR lpMessage = "Hello World";
   LPCTSTR lpTitle = "Hi";
   MessageBox(NULL, lpMessage, lpTitle, MB_OK);
   return 0;
-}
+}|
+
+require 'metasploit/framework/compiler/windows'
+exe = Metasploit::Framework::Compiler::Windows.compile_c(c_template)
 ```
 
 # Printf()
