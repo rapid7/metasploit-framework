@@ -25,17 +25,19 @@ module MetasploitModule
               )
 		register_options(
 			[   OptAddress.new(
-					'LHOST',[true, 'The local address to listen on']),
+				'LHOST','The local address to listen on', required : true, default : 127.0.0.1),
 			    OptPort.new(
-					'LPORT',[true, 'The local port to listen on']),
-				OptString.new(
-					'ListenerName',[true, 'The empire listener name that would listen for the created stager on the local system']),
-		        OptString.new(
-					'USERNAME',[false,'The empire username you want to use for this session'],'empire_user'),
-                OptString.new(
-					'PASSWORD',[false, 'The empire password you want for this session'],'empire_pass'),
-                OptString.new(
-					'StagerType',[true, 'The type of stager to be generated'])
+					'LPORT', 'The local port to listen on', required : true, default : 8080),
+		            OptString.new(
+					'ListenerName', 'The empire listener name that would listen for the created stager on the local system', required : true ),
+		            OptString.new(
+					'USERNAME','The empire username you want to use for this session', required : true, default : 'empire_user'),
+                            OptString.new(
+					'PASSWORD', 'The empire password you want for this session', required : true, deafult : 'empire_pass'),
+                            OptEnum.new(
+					'StagerType', 'The type of stager to be generated', required : true, enums : ['windows/dll', 'windows/ducky', 'windows/launcher_sct', 'windows/laucher_vbs', 'windows/launcher_xml', 'windows/teensy', 'windows/launcher_bat', 'windows/launcher_lnk', 'windows/macro' ] ),
+			    OptString.new(
+					'PathToEmpire', 'The complete path to Empire-WEB API', required : true, default : '/')
             ])
     end
     def payload_name(stager)
@@ -52,9 +54,9 @@ module MetasploitModule
     	when "windows/launcher_lnk"
     		return "/tmp/launcher#{@rand_no}.lnk"
     	when "windows/launcher_xml"
-    	    return "/tmp/launcher#{@rand_no}.xml"
+    	        return "/tmp/launcher#{@rand_no}.xml"
     	when "windows/teensy"
-            return "/tmp/launcher#{@rand_no}.ino"
+                return "/tmp/launcher#{@rand_no}.ino"
     	when "windows/macro"
     		return "/tmp/macro#{@rand_no}.txt"
         when "multi/pyinstaller"
@@ -73,9 +75,10 @@ module MetasploitModule
     	user_pass = datastore['PASSWORD'].to_s
     	listener_name = datastore['ListenerName'].to_s
     	stager_type = datastore['StagerType'].to_s
-    	command = "cd /root/Tools/Empire/ && ./empire --headless " "--username \"" + user_name +"\" --password \"" + user_pass + "\" > /dev/null"
+	path = datastore['PathToEmpire'].to_s
+    	command = "cd #{path}  && ./empire --headless " "--username \"" + user_name +"\" --password \"" + user_pass + "\" > /dev/null"
        	#
-    	#Initiating the Empire API Instance thread at provided port number with provided username and password
+    	#Initiating the Empire API Instance thread with provided username and password
         #
         print_status("Initiating Empire Web-API")
         server = Thread.new{
@@ -93,7 +96,7 @@ module MetasploitModule
         uri = URI.parse("https://localhost:1337/api/admin/login")
         request.body = JSON.dump({
         	  "username" => user_name,
-              "password" => user_pass
+                  "password" => user_pass
         })
         req_options = {
                use_ssl: uri.scheme == "https",
