@@ -486,11 +486,6 @@ class Core
     end
 
     @@history_opts.parse(args) do |opt, idx, val|
-      if opt.nil? && idx.nil? && val.nil?
-        print_error("Invalid argument passed\n")
-        cmd_history_help
-        return false
-      end
       case opt
       when "-a"
         limit = length
@@ -559,12 +554,6 @@ class Core
 
     # Parse the command options
     @@irb_opts.parse(args) do |opt, idx, val|
-      if opt.nil? && idx.nil? && val.nil?
-        print_error("Invalid argument passed\n")
-        cmd_irb_help
-        return false
-      end
-
       case opt
       when '-e'
         expressions << val
@@ -616,11 +605,6 @@ class Core
 
     # Parse the command options
     @@threads_opts.parse(args) { |opt, idx, val|
-      if opt.nil? && idx.nil? && val.nil?
-        print_error("Invalid argument passed\n")
-        cmd_threads_help
-        return false
-      end
       case opt
         when "-v"
           verbose = true
@@ -1167,11 +1151,6 @@ class Core
     else
       # Parse the command options
       @@sessions_opts.parse(args) do |opt, idx, val|
-        if opt.nil? && idx.nil? && val.nil?
-          print_error("Invalid argument passed\n")
-          cmd_sessions_help
-          return false
-        end
         case opt
         when "-q"
           quiet = true
@@ -1610,23 +1589,6 @@ class Core
         print_error("Unknown variable")
         cmd_set_help
         return false
-      end
-    end
-
-    # Warn when setting RHOST option for module which expects RHOSTS
-    if args.first.upcase.eql?('RHOST')
-      mod = active_module
-      unless mod.nil?
-        if !mod.options.include?('RHOST') && mod.options.include?('RHOSTS')
-          warn_rhost = false
-          if mod.exploit? && mod.datastore['PAYLOAD']
-            p = framework.payloads.create(mod.datastore['PAYLOAD'])
-            warn_rhost = (p && !p.options.include?('RHOST'))
-          else
-            warn_rhost = true
-          end
-          print_warning("RHOST is not a valid option for this module. Did you mean RHOSTS?") if warn_rhost
-        end
       end
     end
 
@@ -2307,6 +2269,7 @@ class Core
     res = []
     if (active_module.targets)
       1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
+      res += active_module.targets.map(&:name)
     end
     return res
   end
