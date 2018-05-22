@@ -6,7 +6,6 @@ module EventApiDoc
   NAME_DESC = 'The name of the event.'
   NAME_EXAMPLE = 'module_run'
   HOST_DESC = 'The address of the host related to this event.'
-  HOST_EXAMPLE = '127.0.0.1'
   CRITICAL_DESC = 'true if the event is considered critical.'
   SEEN_DESC = 'true if a user has acknowledged the event.'
   USERNAME_DESC = 'Name of the user that triggered the event.'
@@ -16,15 +15,15 @@ module EventApiDoc
 # Swagger documentation for Event model
   swagger_schema :Event do
     key :required, [:name]
-    property :id, type: :integer, format: :int32
-    property :workspace_id, type: :integer, format: :int32
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :workspace_id, type: :integer, format: :int32, description: RootApiDoc::WORKSPACE_ID_DESC
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :critical, type: :boolean, description: CRITICAL_DESC
     property :seen, type: :string, description: SEEN_DESC
     property :username, type: :string, description: USERNAME_DESC
     property :info, type: :string, description: INFO_DESC, example: INFO_EXAMPLE
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
   end
 
   swagger_path '/api/v1/events' do
@@ -39,9 +38,9 @@ module EventApiDoc
         key :description, 'The attributes to assign to the event.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true
+          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
           property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
-          property :host, type: :string, format: :ipv4, description: HOST_DESC, example: HOST_EXAMPLE
+          property :host, type: :string, format: :ipv4, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
           property :critical, type: :boolean, description: CRITICAL_DESC
           property :username, type: :string, description: USERNAME_DESC
           property :info, type: :string, description: INFO_DESC, example: INFO_EXAMPLE

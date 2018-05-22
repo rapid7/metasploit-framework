@@ -3,27 +3,35 @@ require 'swagger/blocks'
 module VulnApiDoc
   include Swagger::Blocks
 
+  HOST_ID_DESC = 'The ID of host record associated with this vuln.'
   HOST_DESC = 'The host where this vuln was discovered.'
-  HOST_EXAMPLE = '127.0.0.1'
   NAME_DESC = 'The friendly name/title for this vulnerability.'
   NAME_EXAMPLE = 'Docker Daemon Privilege Escalation'
   INFO_DESC = 'Information about how this vuln was discovered.'
   INFO_EXAMPLE = 'Exploited by exploit/linux/local/docker_daemon_privilege_escalation to create session.'
+  EXPLOITED_AT_DESC = 'The date and time this vuln was successfully exploited.'
+  VULN_DETAIL_COUNT = 'Cached count of the number of associated vuln detail objects.'
+  VULN_ATTEMPT_COUNT = 'Cached count of the number of associated vuln attempt object.'
+  ORIGIN_ID_DESC = 'ID of the associated origin record.'
+  ORIGIN_TYPE_DESC = 'The origin type of this vuln.'
   REFS_DESC = 'An array of public reference IDs for this vuln.'
+  REF_ID_DESC = 'The ID of the related Mdm::ModuleRef or Mdm::VulnRef associated with this vuln.'
+  REF_NAME_DESC = 'Designation for external reference.  May include a prefix for the authority, such as \'CVE-\', in which case the rest of the name is the designation assigned by that authority.'
   REFS_EXAMPLE = ['CVE-2008-4250','OSVDB-49243','MSB-MS08-067']
+  MODULE_REF_DETAIL_ID_DESC = 'The ID of the Mdm::Module::Detail record this ModuleRef is associated with.'
 
 # Swagger documentation for vulns model
   swagger_schema :Vuln do
     key :required, [:host_id, :name]
-    property :id, type: :integer, format: :int32
-    property :host_id, type: :integer, format: :int32
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :info, type: :string, description: INFO_DESC, example: INFO_EXAMPLE
-    property :exploited_at, type: :string, format: :date_time
-    property :vuln_detail_count, type: :integer, format: :int32
-    property :vuln_attempt_count, type: :integer, format: :int32
-    property :origin_id, type: :integer, format: :int32
-    property :origin_type, type: :integer, format: :int32
+    property :exploited_at, type: :string, format: :date_time, description: EXPLOITED_AT_DESC
+    property :vuln_detail_count, type: :integer, format: :int32, description: VULN_DETAIL_COUNT
+    property :vuln_attempt_count, type: :integer, format: :int32, description: VULN_ATTEMPT_COUNT
+    property :origin_id, type: :integer, format: :int32, description: ORIGIN_ID_DESC
+    property :origin_type, type: :string, description: ORIGIN_TYPE_DESC
     property :vuln_refs do
       key :type, :array
       items do
@@ -42,31 +50,31 @@ module VulnApiDoc
         key :'$ref', :ModuleRef
       end
     end
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_schema :Ref do
     key :required, [:name]
-    property :id, type: :integer, format: :int32
-    property :ref_id, type: :integer, format: :int32
-    property :name, type: :string, required: true
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :ref_id, type: :integer, format: :int32, description: REF_ID_DESC
+    property :name, type: :string, required: true, description: REF_NAME_DESC
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_schema :ModuleRef do
     key :required, [:name]
-    property :id, type: :integer, format: :int32
-    property :detail_id, type: :integer, format: :int32
-    property :name, type: :string, required: true
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :detail_id, type: :integer, format: :int32, description: MODULE_REF_DETAIL_ID_DESC
+    property :name, type: :string, required: true, description: REF_NAME_DESC
   end
 
   swagger_schema :VulnRef do
     key :required, [:ref_id, :vuln_id]
-    property :id, type: :integer, format: :int32
-    property :ref_id, type: :integer, format: :int32
-    property :vuln_id, type: :integer, format: :int32
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :ref_id, type: :integer, format: :int32, description: RootApiDoc::CREATED_AT_DESC
+    property :vuln_id, type: :integer, format: :int32, description: RootApiDoc::UPDATED_AT_DESC
   end
 
 
@@ -100,8 +108,8 @@ module VulnApiDoc
         key :description, 'The attributes to assign to the vuln.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true
-          property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: HOST_EXAMPLE
+          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
           property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
           property :info, type: :string, description: INFO_DESC, example: INFO_EXAMPLE
           property :refs do

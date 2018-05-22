@@ -3,26 +3,30 @@ require 'swagger/blocks'
 module NoteApiDoc
   include Swagger::Blocks
 
-  TYPE_DESC = 'The type of note this is.'
-  TYPE_EXAMPLE = "'host.info', 'host.os.session_fingerprint', 'smb_peer_os', etc."
+  NTYPE_DESC = 'The type of note this is.'
+  NTYPE_EXAMPLE = "'host.info', 'host.os.session_fingerprint', 'smb_peer_os', etc."
+  HOST_ID_DESC = 'The ID of the host record this note is associated with.'
+  HOST_DESC = 'The IP address of the host this note is associated with.'
+  SERVICE_ID_DESC = 'The ID of the host record this service is associated with.'
+  VULN_ID_DESC = 'The ID of the host record this note is associated with.'
   CRITICAL_DESC = 'Boolean regarding the criticality of this note\'s contents.'
   SEEN_DESC = 'Boolean regarding if this note has been acknowledged.'
   DATA_DESC = 'The contents of the note.'
 
 # Swagger documentation for notes model
   swagger_schema :Note do
-    key :required, [:type]
-    property :id, type: :integer, format: :int32
-    property :type, type: :string, description: TYPE_DESC, example: TYPE_EXAMPLE
-    property :workspace_id, type: :integer, format: :int32
-    property :host_id, type: :integer, format: :int32
-    property :service_id, type: :integer, format: :int32
+    key :required, [:ntype]
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :ntype, type: :string, description: NTYPE_DESC, example: NTYPE_EXAMPLE
+    property :workspace_id, type: :integer, format: :int32, description: RootApiDoc::WORKSPACE_ID_DESC
+    property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
+    property :service_id, type: :integer, format: :int32, description: SERVICE_ID_DESC
+    property :vuln_id, type: :integer, format: :int32, description: VULN_ID_DESC
     property :critical, type: :boolean, description: CRITICAL_DESC
     property :seen, type: :boolean, description: SEEN_DESC
     property :data, type: :string, description: DATA_DESC
-    property :vuln_id, type: :integer, format: :int32
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/notes' do
@@ -55,9 +59,9 @@ module NoteApiDoc
         key :description, 'The attributes to assign to the note.'
         key :required, true
         schema do
-          property :type, type: :string, description: TYPE_DESC, example: TYPE_EXAMPLE, required: true
-          property :workspace, type: :string, required: true
-          property :host, type: :integer, format: :int32
+          property :ntype, type: :string, description: NTYPE_DESC, example: NTYPE_EXAMPLE, required: true
+          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :host, type: :integer, format: :ipv4, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
           property :critical, type: :boolean, description: CRITICAL_DESC
           property :seen, type: :boolean, description: SEEN_DESC
           property :data, type: :string, description: DATA_DESC

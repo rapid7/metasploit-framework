@@ -3,8 +3,9 @@ require 'swagger/blocks'
 module LootApiDoc
   include Swagger::Blocks
 
+  HOST_ID_DESC = 'The ID of the host record this loot is associated with.'
   HOST_DESC = 'The IP address of the host from where the loot was obtained.'
-  HOST_EXAMPLE = '127.0.0.1'
+  SERVICE_ID_DESC = 'The ID of the service record this loot is associated with.'
   LTYPE_DESC = 'The type of loot.'
   LTYPE_EXAMPLE = "'file', 'image', 'config_file', etc."
   PATH_DESC = 'The on-disk path to the loot file.'
@@ -15,24 +16,25 @@ module LootApiDoc
   NAME_DESC = 'The name of the loot.'
   NAME_EXAMPLE = 'password_file.txt'
   INFO_DESC = 'Information about the loot.'
+  MODULE_RUN_ID_DESC = 'The ID of the module run record this loot is associated with.'
 
 
 # Swagger documentation for loot model
   swagger_schema :Loot do
     key :required, [:name, :ltype, :path]
-    property :workspace_id, type: :integer, format: :int32
-    property :host_id, type: :integer, format: :int32
-    property :service_id, type: :integer, format: :int32
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :workspace_id, type: :integer, format: :int32, description: RootApiDoc::WORKSPACE_ID_DESC
+    property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
+    property :service_id, type: :integer, format: :int32, description: SERVICE_ID_DESC
     property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE
     property :path, type: :string, description: PATH_DESC, example: PATH_EXAMPLE
     property :data, type: :string, description: DATA_DESC
     property :content_type, type: :string, description: CONTENT_TYPE_DESC, example: CONTENT_TYPE_EXAMPLE
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :info, type: :string, description: INFO_DESC
-    property :module_run_id, type: :integer, format: :int32
-    property :id, type: :integer, format: :int32
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
+    property :module_run_id, type: :integer, format: :int32, description: MODULE_RUN_ID_DESC
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/loots' do
@@ -65,9 +67,9 @@ module LootApiDoc
         key :description, 'The attributes to assign to the loot.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true
-          property :host, type: :string, format: :ipv4, description: HOST_DESC, example: HOST_EXAMPLE
-          property :service,  type: :string
+          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :host, type: :string, format: :ipv4, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
+          property :service,  '$ref': :Service
           property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE, required: true
           property :path, type: :string, description: PATH_DESC, example: PATH_EXAMPLE, required: true
           property :data, type: :string, description: DATA_DESC

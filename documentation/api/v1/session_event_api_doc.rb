@@ -3,6 +3,7 @@ require 'swagger/blocks'
 module SessionEventApiDoc
   include Swagger::Blocks
 
+  SESSION_ID_DESC = 'The ID of the session record that caused this event.'
   ETYPE_DESC = 'The type of session event that occurred.'
   ETYPE_ENUM = ['command', 'output', 'upload', 'download', 'filedelete']
   COMMAND_DESC = 'The command that was executed for this event.'
@@ -15,14 +16,14 @@ module SessionEventApiDoc
 # Swagger documentation for session events model
   swagger_schema :SessionEvent do
     key :required, [:etype, :session_id]
-    property :id, type: :integer, format: :int32
-    property :session_id, type: :integer, format: :int32
-    property :etype, type: :string
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :session_id, type: :integer, format: :int32, description: SESSION_ID_DESC
+    property :etype, type: :string, description: ETYPE_DESC, enum: ETYPE_ENUM
     property :command, type: :string, description: COMMAND_DESC
     property :output, type: :string, description: OUTPUT_DESC
     property :local_path, type: :string, description: LOCAL_PATH_DESC, example: LOCAL_PATH_EXAMPLE
     property :remote_path, type: :string, description: REMOTE_PATH_DESC, example: REMOTE_PATH_EXAMPLE
-    property :created_at, type: :string, format: :date_time
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
   end
 
   swagger_path '/api/v1/session-events' do

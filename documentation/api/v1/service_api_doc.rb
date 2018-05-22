@@ -4,7 +4,7 @@ module ServiceApiDoc
   include Swagger::Blocks
 
   HOST_DESC = 'The host where this service is running.'
-  HOST_EXAMPLE = '127.0.0.1'
+  HOST_ID_DESC = 'The ID of the host record this service is associated with.'
   PORT_DESC = 'The port this service is listening on.'
   PORT_EXAMPLE = '443'
   PROTO_DESC = 'The transport layer protocol this service is using.'
@@ -19,15 +19,15 @@ module ServiceApiDoc
 # Swagger documentation for Service model
   swagger_schema :Service do
     key :required, [:id, :port, :proto]
-    property :id, type: :integer, format: :int32
-    property :host_id, type: :integer, format: :int32
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
     property :port, type: :string, description: PORT_DESC, example: PORT_EXAMPLE
     property :proto, type: :string, description: PROTO_DESC, enum: PROTO_ENUM
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :info, type: :string, description: INFO_DESC, example: INFO_EXAMPLE
     property :state, type: :string, description: STATE_DESC, enum: STATE_ENUM
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/services' do
@@ -60,8 +60,8 @@ module ServiceApiDoc
         key :description, 'The attributes to assign to the service.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true
-          property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: HOST_EXAMPLE
+          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
           property :port, type: :string, required: true, description: PORT_DESC, example: PORT_EXAMPLE
           property :proto, type: :string, required: true, description: PROTO_DESC, enum: PROTO_ENUM
           property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE

@@ -4,24 +4,37 @@ require 'swagger/blocks'
 module CredentialApiDoc
   include Swagger::Blocks
 
+  ORIGIN_ID_DESC = 'The ID of the origin record associated with this credential.'
+  ORIGIN_TYPE = 'The class name within Metasploit::Credential that indicates where this credential came from.'
+  PRIVATE_ID_DESC = 'The ID of the Metasploit::Credential::Private record associated with this credential.'
+  PUBLIC_ID_DESC = 'The ID of the Metasploit::Credential::Public record associated with this credential.'
+  REALM_ID_DESC = 'The ID of the Metasploit::Credential::Realm from where the credential was gathered.'
+  LOGINS_COUNT_DESC = 'The number of successful login attempts that were completed using this credential.'
+  ORIGIN_TYPE_ENUM = [
+      'Metasploit::Credential::Origin::Import',
+      'Metasploit::Credential::Origin::Manual',
+      'Metasploit::Credential::Origin::Service',
+      'Metasploit::Credential::Origin::Session'
+  ]
+
 # Swagger documentation for Credential model
   swagger_schema :Credential do
-    key :required, [:id, :name]
-    property :id, type: :integer, format: :int32
-    property :origin_id, type: :integer, format: :int32
-    property :origin_type, type: :string
-    property :private_id, type: :integer, format: :int32
-    property :public_id, type: :integer, format: :int32
-    property :realm_id, type: :integer, format: :int32
-    property :workspace_id, type: :integer, format: :int32
-    property :logins_count, type: :integer, format: :int32
+    key :required, [:origin_id]
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :origin_id, type: :integer, format: :int32, description: ORIGIN_ID_DESC
+    property :origin_type, type: :string, description: ORIGIN_TYPE, enum: ORIGIN_TYPE_ENUM
+    property :private_id, type: :integer, format: :int32, description: PRIVATE_ID_DESC
+    property :public_id, type: :integer, format: :int32, description: PUBLIC_ID_DESC
+    property :realm_id, type: :integer, format: :int32, description: REALM_ID_DESC
+    property :workspace_id, type: :integer, format: :int32, description: RootApiDoc::WORKSPACE_ID_DESC
+    property :logins_count, type: :integer, format: :int32, description: LOGINS_COUNT_DESC
     property :logins do
       key :type, :array
       items do
       end
     end
-    property :created_at, type: :string, format: :date_time
-    property :updated_at, type: :string, format: :date_time
+    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/credentials' do
@@ -30,18 +43,13 @@ module CredentialApiDoc
       key :description, 'Return credentials that are stored in the database.'
       key :tags, [ 'credential' ]
 
+      parameter :workspace
+
       parameter do
         key :in, :body
         key :name, :body
         key :required, true
         schema do
-          property :workspace do
-            key :in, :body
-            key :description, 'The workspace from which to return credentials.'
-            key :type, :string
-            key :required, true
-          end
-
           property :svcs do
             key :in, :body
             key :description, 'Only return credentials of the specified service.'

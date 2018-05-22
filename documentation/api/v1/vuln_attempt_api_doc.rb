@@ -3,6 +3,9 @@ require 'swagger/blocks'
 module VulnAttemptApiDoc
   include Swagger::Blocks
 
+  VULN_ID_DESC = 'The ID of the vuln record associated with this vuln attempt was exploiting.'
+  SESSION_ID_DESC = 'The ID of the session record associated with this vuln attempt if it was successful.'
+  LOOT_ID_DESC = 'The ID of the loot record associated with this vuln attempt if loot was gathered.'
   ATTEMPTED_AT_DESC = 'The time that this vuln attempt occurred.'
   EXPLOITED_DESC = 'true if the vuln attempt was successful.'
   FAIL_REASON_DESC = 'Short reason why this attempt failed.'
@@ -14,17 +17,17 @@ module VulnAttemptApiDoc
 
 # Swagger documentation for vuln_attempts model
   swagger_schema :VulnAttempt do
-    key :required, [:id]
-    property :id, type: :integer, format: :int32
-    property :vuln_id, type: :integer, format: :int32
+    key :required, [:vuln_id]
+    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :vuln_id, type: :integer, format: :int32, description: VULN_ID_DESC
+    property :session_id, type: :integer, format: :int32, description: SESSION_ID_DESC
+    property :loot_id, type: :integer, format: :int32, description: LOOT_ID_DESC
     property :attempted_at, type: :string, format: :date_time, description: ATTEMPTED_AT_DESC
     property :exploited, type: :boolean, description: EXPLOITED_DESC
     property :fail_reason, type: :string, description: FAIL_REASON_DESC
     property :fail_detail, type: :string, description: FAIL_DETAIL_DESC
     property :module, type: :string, description: MODULE_DESC, example: MODULE_EXAMPLE
     property :username, type: :string, description: USERNAME_DESC
-    property :session_id, type: :integer, format: :int32
-    property :loot_id, type: :integer, format: :int32
   end
 
   swagger_path '/api/v1/vuln-attempts' do
@@ -55,8 +58,8 @@ module VulnAttemptApiDoc
         key :description, 'The attributes to assign to the vuln attempt.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true
-          property :vuln_id, type: :integer, format: :int32
+          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :vuln_id, type: :integer, format: :int32, description: VULN_ID_DESC
           property :attempted_at, type: :string, format: :date_time, description: ATTEMPTED_AT_DESC
           property :exploited, type: :boolean, description: EXPLOITED_DESC
           property :fail_reason, type: :string, description: FAIL_REASON_DESC

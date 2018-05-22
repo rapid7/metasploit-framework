@@ -3,6 +3,14 @@ require 'swagger/blocks'
 module RootApiDoc
   include Swagger::Blocks
 
+  ID_DESC = 'The primary key used to identify this object in the database.'
+  CREATED_AT_DESC = 'The date and time this record was added to the database.'
+  UPDATED_AT_DESC = 'The date and time this record was last updated in the database.'
+  WORKSPACE_ID_DESC = 'The ID of the workspace this credential belongs to.'
+  WORKSPACE_POST_DESC = 'The name of the workspace where this record should be created.'
+  WORKSPACE_POST_EXAMPLE = 'default'
+  HOST_EXAMPLE = '127.0.0.1'
+
   swagger_root do
     key :swagger, '2.0'
     info do

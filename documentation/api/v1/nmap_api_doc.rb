@@ -4,7 +4,7 @@ module NmapApiDoc
   include Swagger::Blocks
 
   swagger_path '/api/v1/nmaps' do
-    # Swagger documentation for /api/v1/nmaps GET
+    # Swagger documentation for /api/v1/nmaps POST
     operation :post do
       key :description, 'Upload an Nmap XML file to be processed into corresponding Metasploit data objects.'
       key :tags, [ 'nmap' ]
@@ -14,7 +14,7 @@ module NmapApiDoc
         key :name, :body
         key :required, true
         schema do
-          property :workspace, type: :string, required: true
+          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_EXAMPLE
           property :filename, type: :string, required: true, description: 'The name of the file you are uploading.'
           property :data, type: :string, required: true, description: 'The Base64 encoded contents of the Nmap XML file.'
         end
