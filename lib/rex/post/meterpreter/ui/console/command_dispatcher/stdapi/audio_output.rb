@@ -1,5 +1,4 @@
-class Mic
-end# -*- coding: binary -*-
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'bindata'
 
@@ -23,7 +22,7 @@ module Rex
           #
           def commands
             all = {
-              'play' => 'play an audio file on target\'s system, nothing written on disk'
+              'play' => 'play an audio file on target system, nothing written on disk'
             }
             reqs = {
               'play'    => []
