@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+# TODO: Find a way to background this (commenting out join() below causes it to stop immediately)
+
 require 'thread'
 require 'rex/proto/proxy/socks5'
 
@@ -28,7 +30,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new( 'SRVHOST', [ true,  "The address to listen on", '0.0.0.0' ] ),
+        OptString.new( 'USERNAME', [ false,  "Proxy username for SOCKS5 listener" ] ),
+        OptString.new( 'PASSWORD', [ false,  "Proxy password for SOCKS5 listener" ] ),
+        OptString.new( 'SRVHOST', [ true,  "The address to listen on", '127.0.0.1' ] ),
         OptPort.new( 'SRVPORT', [ true,  "The port to listen on.", 1080 ] )
       ])
   end
@@ -54,6 +58,8 @@ class MetasploitModule < Msf::Auxiliary
     opts = {
       'ServerHost' => datastore['SRVHOST'],
       'ServerPort' => datastore['SRVPORT'],
+      'ServerUsername' => datastore['USERNAME'],
+      'ServerPassword' => datastore['PASSWORD'],
       'Context' => {'Msf' => framework, 'MsfExploit' => self}
     }
 
