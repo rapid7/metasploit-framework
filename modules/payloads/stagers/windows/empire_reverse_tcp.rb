@@ -25,20 +25,20 @@ module MetasploitModule
               )
 		register_options(
 			[   OptAddress.new(
-				'LHOST','The local address to listen on', required : true, default : 127.0.0.1),
+				'LHOST','The local address to listen on', required: true),
 			    OptPort.new(
-					'LPORT', 'The local port to listen on', required : true, default : 8080),
+					'LPORT', 'The local port to listen on', required: true),
 		            OptString.new(
-					'ListenerName', 'The empire listener name that would listen for the created stager on the local system', required : true ),
+					'ListenerName', 'The empire listener name that would listen for the created stager on the local system', required: true ),
 		            OptString.new(
-					'USERNAME','The empire username you want to use for this session', required : true, default : 'empire_user'),
+					'USERNAME','The empire username you want to use for this session', required: true, default: 'empire_user'),
                             OptString.new(
-					'PASSWORD', 'The empire password you want for this session', required : true, deafult : 'empire_pass'),
+					'PASSWORD', 'The empire password you want for this session', required: true, deafult: 'empire_pass'),
                             OptEnum.new(
-					'StagerType', 'The type of stager to be generated', required : true, enums : ['windows/dll', 'windows/ducky', 'windows/launcher_sct', 'windows/laucher_vbs', 'windows/launcher_xml', 'windows/teensy', 'windows/launcher_bat', 'windows/launcher_lnk', 'windows/macro' ] ),
+					'StagerType', 'The type of stager to be generated', required: true, enums: ['windows/dll', 'windows/ducky', 'windows/launcher_sct', 'windows/laucher_vbs', 'windows/launcher_xml', 'windows/teensy', 'windows/launcher_bat', 'windows/launcher_lnk', 'windows/macro' ] ),
 			    OptString.new(
-					'PathToEmpire', 'The complete path to Empire-WEB API', required : true, default : '/')
-            ])
+					'PathToEmpire', 'The complete path to Empire-WEB API', required: true, default: '/')
+            ])	
     end
     def payload_name(stager)
     	@rand_no = rand(1..10000)
