@@ -26,8 +26,6 @@ Metasploit::Framework::Compiler::Windows.compile_c_to_file('/tmp/test.exe', c_te
 ```ruby
 c_template %Q|#include <Windows.h>
 
-#include <Windows.h>
-
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
   switch (dwReason) {
     case DLL_PROCESS_ATTACH:
