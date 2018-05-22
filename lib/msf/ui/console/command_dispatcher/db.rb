@@ -251,12 +251,12 @@ class Db
         tbl << [
           current_workspace.name == ws.name ? '*' : '',
           ws.name,
-          framework.db.hosts(ws.name).count,
-          framework.db.services(ws.name).count,
-          framework.db.vulns({workspace: ws.name}).count,
-          framework.db.creds({workspace: ws.name}).count,
-          framework.db.loots(ws.name).count,
-          framework.db.notes({workspace: ws.name}).count
+          framework.db.hosts(workspace: ws.name).count,
+          framework.db.services(workspace: ws.name).count,
+          framework.db.vulns(workspace: ws.name).count,
+          framework.db.creds(workspace: ws.name).count,
+          framework.db.loots(workspace: ws.name).count,
+          framework.db.notes(workspace: ws.name).count
         ]
       end
 
@@ -310,7 +310,7 @@ class Db
     each_host_range_chunk(host_ranges) do |host_search|
       break if !host_search.nil? && host_search.empty?
 
-      framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+      framework.db.hosts(address: host_search).each do |host|
         framework.db.update_host(host_data.merge(id: host.id))
         framework.db.report_note(host: host.address, type: "host.#{attribute}", data: host_data[attribute])
       end
@@ -561,7 +561,7 @@ class Db
     each_host_range_chunk(host_ranges) do |host_search|
       break if !host_search.nil? && host_search.empty?
 
-      framework.db.hosts(framework.db.workspace, onlyup, host_search, search_term = search_term).each do |host|
+      framework.db.hosts(address: host_search, non_dead: onlyup, search_term: search_term).each do |host|
         matched_host_ids << host.id
         columns = col_names.map do |n|
           # Deal with the special cases
@@ -776,9 +776,10 @@ class Db
 
     each_host_range_chunk(host_ranges) do |host_search|
       break if !host_search.nil? && host_search.empty?
-      opts[:addresses] = host_search
+      opts[:workspace] = framework.db.workspace
+      opts[:hosts] = {address: host_search} if !host_search.nil?
       opts[:port] = ports if ports
-      framework.db.services(framework.db.workspace, opts).each do |service|
+      framework.db.services(opts).each do |service|
 
         host = service.host
         matched_service_ids << service.id
@@ -1311,12 +1312,12 @@ class Db
     matched_loot_ids = []
     loots = []
     if host_ranges.compact.empty?
-      loots = loots + framework.db.loots(framework.db.workspace, {:search_term => search_term})
+      loots = loots + framework.db.loots(workspace: framework.db.workspace, search_term: search_term)
     else
       each_host_range_chunk(host_ranges) do |host_search|
         break if !host_search.nil? && host_search.empty?
 
-        loots = loots + framework.db.loots(framework.db.workspace, { :hosts => { :address => host_search }, :search_term => search_term })
+        loots = loots + framework.db.loots(workspace: framework.db.workspace, hosts: { address: host_search }, search_term: search_term)
       end
     end
 
