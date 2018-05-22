@@ -48,6 +48,9 @@ int Exec __attribute__((export))(void) {
   return 0;
 }
 |
+
+require 'metasploit/framework/compiler/windows'
+dll = Metasploit::Framework::Compiler::Windows.compile_c(c_template, :dll)
 ```
 
 To load a DLL, you can use the LoadLibrary API:
