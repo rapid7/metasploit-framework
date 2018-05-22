@@ -87,11 +87,6 @@ class Peinjector < Extension
   end
 
   def add_thread_x64(payload)
-
-    stackpreserve = "\x90\x90\x50\x53\x51\x52\x56\x57\x54\x55\x41\x50" +	# AUTOMATED ASM: x64 = ['nop', 'nop', 'push rax', 'push rbx', 'push rcx', 'push rdx', 'push rsi', 'push rdi', 'push rsp', 'push rbp', 'push r8']
-        "\x41\x51\x41\x52\x41\x53\x41\x54\x41\x55\x41\x56\x41\x57\x9c"	# AUTOMATED ASM: x64 = ['push r9', 'push r10', 'push r11', 'push r12', 'push r13', 'push r14', 'push r15', 'pushfq']
-
-
     stackrestore = "\x9d\x41\x5f\x41\x5e\x41\x5d\x41\x5c\x41\x5b\x41\x5a\x41\x59" +	# AUTOMATED ASM: x64 = ['popfq', 'pop r15', 'pop r14', 'pop r13', 'pop r12', 'pop r11', 'pop r10', 'pop r9']
         "\x41\x58\x5d\x5c\x5f\x5e\x5a\x59\x5b\x58"	# AUTOMATED ASM: x64 = ['pop r8', 'pop rbp', 'pop rsp', 'pop rdi', 'pop rsi', 'pop rdx', 'pop rcx', 'pop rbx', 'pop rax']
 
