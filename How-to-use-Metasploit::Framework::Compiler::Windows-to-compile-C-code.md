@@ -26,7 +26,9 @@ Metasploit::Framework::Compiler::Windows.compile_c_to_file('/tmp/test.exe', c_te
 ```ruby
 c_template %Q|#include <Windows.h>
 
-BOOL APIENTRY DLLMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
+#include <Windows.h>
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
   switch (dwReason) {
     case DLL_PROCESS_ATTACH:
       MessageBox(NULL, "Hello World", "Hello", MB_OK);
@@ -40,6 +42,12 @@ BOOL APIENTRY DLLMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
   }
 
   return TRUE;
+}
+
+// This will be a function in the export table
+int Msg __attribute__((export))(void) {
+  MessageBox(NULL, "Hello World", "Hello", MB_OK);
+  return 0;
 }
 |
 
@@ -61,6 +69,12 @@ int main(void) {
     printf("Unable to load hello_world.dll\n");
   }
 }
+```
+
+Or call the function in export with rundll32:
+
+```
+rundll32 hell_world.dll,Msg
 ```
 
 # Printf()
