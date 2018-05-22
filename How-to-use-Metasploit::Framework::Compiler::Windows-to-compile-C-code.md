@@ -43,7 +43,7 @@ BOOL APIENTRY DllMain __attribute__((export))(HMODULE hModule, DWORD dwReason, L
 }
 
 // This will be a function in the export table
-int Exec __attribute__((export))(void) {
+int Msg __attribute__((export))(void) {
   MessageBox(NULL, "Hello World", "Hello", MB_OK);
   return 0;
 }
