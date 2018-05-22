@@ -26,7 +26,7 @@ Metasploit::Framework::Compiler::Windows.compile_c_to_file('/tmp/test.exe', c_te
 ```ruby
 c_template %Q|#include <Windows.h>
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
+BOOL APIENTRY DllMain __attribute__((export))(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
   switch (dwReason) {
     case DLL_PROCESS_ATTACH:
       MessageBox(NULL, "Hello World", "Hello", MB_OK);
@@ -43,14 +43,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
 }
 
 // This will be a function in the export table
-int Msg __attribute__((export))(void) {
+int Exec __attribute__((export))(void) {
   MessageBox(NULL, "Hello World", "Hello", MB_OK);
   return 0;
 }
 |
-
-require 'metasploit/framework/compiler/windows'
-dll = Metasploit::Framework::Compiler::Windows.compile_c(c_template, :dll)
 ```
 
 To load a DLL, you can use the LoadLibrary API:
