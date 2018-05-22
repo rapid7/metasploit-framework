@@ -106,12 +106,7 @@ module Msf::Post::Windows::Priv
   #
   def is_system?
     if session_has_ext
-      local_sys = resolve_sid(SYSTEM_SID)
-      if session.sys.config.getuid == "#{local_sys[:domain]}\\#{local_sys[:name]}"
-        return true
-      else
-        return false
-      end
+      return session.sys.config.is_system?
     else
       results = registry_enumkeys('HKLM\SAM\SAM')
       if results

@@ -1,10 +1,9 @@
 # -*- coding: binary -*-
 require 'msf/core/modules/external'
-require 'msf/core/modules/external/bridge'
 
 class Msf::Modules::External::Shim
   def self.generate(module_path)
-    mod = Msf::Modules::External::Bridge.open(module_path)
+    mod = Msf::Modules::External.new(module_path)
     return '' unless mod.meta
     case mod.meta['type']
     when 'remote_exploit_cmd_stager'
@@ -15,11 +14,12 @@ class Msf::Modules::External::Shim
       dos(mod)
     when 'single_scanner'
       single_scanner(mod)
+    when 'single_host_login_scanner'
+      single_host_login_scanner(mod)
     when 'multi_scanner'
       multi_scanner(mod)
     else
-      # TODO have a nice load error show up in the logs
-      ''
+      nil
     end
   end
 
@@ -30,6 +30,10 @@ class Msf::Modules::External::Shim
 
   def self.common_metadata(meta = {})
     render_template('common_metadata.erb', meta)
+  end
+
+  def self.common_check(meta = {})
+    render_template('common_check.erb', meta)
   end
 
   def self.mod_meta_common(mod, meta = {}, drop_rhost: false)
@@ -54,6 +58,8 @@ class Msf::Modules::External::Shim
           [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
       end
     end.join(",\n          ")
+
+    meta[:capabilities] = mod.meta['capabilities']
     meta
   end
 
@@ -93,6 +99,16 @@ class Msf::Modules::External::Shim
     end.join(",\n          ")
 
     render_template('single_scanner.erb', meta)
+  end
+
+  def self.single_host_login_scanner(mod)
+    meta = mod_meta_common(mod, drop_rhost: true)
+    meta[:date] = mod.meta['date'].dump
+    meta[:references] = mod.meta['references'].map do |r|
+      "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
+    end.join(",\n          ")
+
+    render_template('single_host_login_scanner.erb', meta)
   end
 
   def self.multi_scanner(mod)
