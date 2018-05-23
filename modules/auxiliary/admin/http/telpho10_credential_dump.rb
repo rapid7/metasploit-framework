@@ -11,11 +11,11 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Telpho10 Backup Credentials Dumper',
       'Description'    => %q{
-        This module exploits a vulnerability found in Telpho10 telephone system
+        This module exploits a vulnerability present in all versions of Telpho10 telephone system
         appliance. This module generates a configuration backup of Telpho10,
         downloads the file and dumps the credentials for admin login,
         phpmyadmin, phpldapadmin, etc.
-        This module has been successfully tested on the appliance.
+        This module has been successfully tested on the appliance versions 2.6.31 and 2.6.39.
       },
       'Author'         => 'Jan Rude', # Vulnerability Discovery and Metasploit Module
       'License'        => MSF_LICENSE,
@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'Platform'       => 'linux',
       'Targets'        =>
         [
-          ['Telpho10 <= 2.6.31', {}]
+          ['Telpho10', {}]
         ],
       'Privileged'     => false,
       'DisclosureDate' => 'Sep 2 2016'))
