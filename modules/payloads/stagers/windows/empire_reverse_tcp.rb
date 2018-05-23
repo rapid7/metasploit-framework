@@ -25,19 +25,40 @@ module MetasploitModule
               )
 		register_options(
 			[   OptAddress.new(
-				'LHOST','The local address to listen on', required: true),
+				'LHOST',
+				[true, 
+                                 'The local address to listen on'
+			        ]),
 			    OptPort.new(
-					'LPORT', 'The local port to listen on', required: true),
+			         'LPORT',
+				 [true,
+                                 'The local port to listen on'
+			         ]),
 		            OptString.new(
-					'ListenerName', 'The empire listener name that would listen for the created stager on the local system', required: true ),
+			         'ListenerName',
+				 [true,
+                                 'The empire listener name that would listen for the created stager on the local system',
+				 ]),
 		            OptString.new(
-					'USERNAME','The empire username you want to use for this session', required: true, default: 'empire_user'),
+			 	'USERNAME',
+				 [true,
+                                 'The empire username you want to use for this session',
+				 'empire_user']),
                             OptString.new(
-					'PASSWORD', 'The empire password you want for this session', required: true, deafult: 'empire_pass'),
+				 'PASSWORD',
+				 [true,
+                                 'The empire password you want for this session',
+				 'empire_pass']),
                             OptEnum.new(
-					'StagerType', 'The type of stager to be generated', required: true, enums: ['windows/dll', 'windows/ducky', 'windows/launcher_sct', 'windows/laucher_vbs', 'windows/launcher_xml', 'windows/teensy', 'windows/launcher_bat', 'windows/launcher_lnk', 'windows/macro' ] ),
-			    OptString.new(
-					'PathToEmpire', 'The complete path to Empire-WEB API', required: true, default: '/')
+				 'StagerType',
+				 [true,
+                                 'The type of stager to be generated',
+				  enums: ['windows/dll', 'windows/ducky', 'windows/launcher_sct', 'windows/laucher_vbs', 'windows/launcher_xml', 'windows/teensy', 'windows/launcher_bat', 'windows/launcher_lnk', 'windows/macro' ]                                  ]),	
+	     	            OptString.new(
+				 'PathToEmpire',
+				 [true,
+                                 'The complete path to Empire-WEB API',
+				  '/'])
             ])	
     end
     def payload_name(stager)
