@@ -43,6 +43,7 @@ module Msf
       #   be the INADDR_ANY address for IPv4 or IPv6, depending on the version
       #   of the first element.
       def bind_addresses
+        @@addr_auto = ''
         # Switch to IPv6 ANY address if the LHOST is also IPv6
         addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
 
@@ -61,7 +62,7 @@ module Msf
           print_warning("You are binding to a loopback address by setting LHOST to #{addr}. Did you want ReverseListenerBindAddress?")
         end
 
-        if datastore['AutoLHOST']
+        if datastore['AutoLHOST'] && @@addr_auto =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/
           addrs = [ @@addr_auto, addr, any ]
         else
           addrs = [ addr, any ]
@@ -117,7 +118,7 @@ module Msf
           else
             ex = false
             via = via_string_for_ip(ip, comm)
-            if ip == @@addr_auto && datastore['AutoLHOST']
+            if datastore['AutoLHOST'] && ip == @@addr_auto
               print_error("Privided LHOST failed to bind")
               print_status("LHOST automatically set to #{ip}")
             end
