@@ -21,8 +21,6 @@ group :development do
   # Metasploit::Aggregator external session proxy
   # disabled during 2.5 transition until aggregator is available
   #gem 'metasploit-aggregator'
-
-  gem 'swagger-blocks'
 end
 
 group :development, :test do
@@ -36,6 +34,7 @@ group :development, :test do
   # environment is development
   gem 'rspec-rails'
   gem 'rspec-rerun'
+  gem 'swagger-blocks'
 end
 
 group :test do
