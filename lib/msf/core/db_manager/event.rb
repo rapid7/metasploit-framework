@@ -12,8 +12,8 @@ module Msf::DBManager::Event
     return if not wspace # Temp fix?
     uname  = opts.delete(:username)
 
-    if ! opts[:host].kind_of? ::Mdm::Host and opts[:host]
-      opts[:host] = report_host(:workspace => wspace, :host => opts[:host])
+    if !opts[:host].nil? && !opts[:host].kind_of?(::Mdm::Host)
+      opts[:host] = find_or_create_host(workspace: wspace, host: opts[:host])
     end
 
     ::Mdm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))

@@ -10,9 +10,26 @@ module NoteDataProxy
     end
   end
 
-  # TODO: like other *DataProxy modules this currently skips the "find" part
   def find_or_create_note(opts)
-    report_note(opts)
+    begin
+      # create separate opts for find operation since the report operation uses slightly different keys
+      # TODO: standardize option keys used for the find and report operations
+      find_opts = opts.clone
+      # convert type to ntype
+      find_opts[:ntype] = find_opts.delete(:type) if find_opts.key?(:type)
+      # convert host to nested hosts address
+      find_opts[:hosts] = {address: find_opts.delete(:host)} if find_opts.key?(:host)
+
+      note = notes(find_opts)
+      if note.nil? || note.first.nil?
+        note = report_note(opts.clone)
+      else
+        note = note.first
+      end
+      note
+    rescue => e
+      self.log_error(e, "Problem finding or creating note")
+    end
   end
 
   def report_note(opts)

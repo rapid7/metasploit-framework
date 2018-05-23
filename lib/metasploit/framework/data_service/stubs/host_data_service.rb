@@ -20,6 +20,10 @@ module HostDataService
     raise 'HostDataService#find_or_create_host is not implemented'
   end
 
+  def update_host(opts)
+    raise 'HostDataService#update_host is not implemented'
+  end
+
   def delete_host(opts)
     raise 'HostDataService#delete_host is not implemented'
   end
