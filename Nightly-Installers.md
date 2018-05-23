@@ -95,6 +95,10 @@ The latest OS X installer package can also be downloaded directly here: https://
 
 The latest Windows installer is located here: https://windows.metasploit.com/metasploitframework-latest.msi, with the last 10 builds archived at https://windows.metasploit.com/. To install, simply download the .msi package, adjust your Antivirus as-needed to ignore c:\metasploit-framework, double-click and enjoy. The msfconsole command and all related tools will be added to the system %PATH% environment variable.
 
+# Windows Anti-virus software flags the contents of these packages!
+
+If you downloaded Metasploit from us, there is no cause for alarm.  We pride ourselves on offering the ability for our customers and followers to have the same toolset that the hackers have so that they can test systems more accurately.  Because these (and the other exploits and tools in Metasploit) are identical or very similar to existing malicious toolsets, they can be used for nefarious purposes, and they are often flagged and automatically removed by antivirus programs, just like the malware they mimic.
+
 # Improving these installers
 
 The source code to these installers is located here: https://github.com/rapid7/metasploit-omnibus
