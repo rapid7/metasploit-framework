@@ -1,5 +1,3 @@
-# Metasploit Remote Data Service and REST API
-
 The Metasploit Remote Data service is a tool that allows you to host a web service to interact
 with Metasploit's various data models through a REST API.
 
