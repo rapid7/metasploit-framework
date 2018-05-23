@@ -1,3 +1,5 @@
+require 'socket'
+
 module Msf
   module Handler
     # Options and methods needed for all handlers that listen for a connection
@@ -11,6 +13,7 @@ module Msf
 
         register_options(
           [
+            OptBool.new('AutoLHOST', [false, 'Automatically detect the LHOST']),
             Opt::LHOST,
             Opt::LPORT(4444)
           ], Msf::Handler::Reverse)
@@ -43,6 +46,11 @@ module Msf
         # Switch to IPv6 ANY address if the LHOST is also IPv6
         addr = Rex::Socket.resolv_nbo(datastore['LHOST'])
 
+        # Use Socket.ip_address_list to get LHOST
+        if datastore['AutoLHOST']
+          @@addr_auto = Socket.ip_address_list[1].ip_address
+        end
+
         # First attempt to bind LHOST. If that fails, the user probably has
         # something else listening on that interface. Try again with ANY_ADDR.
         any = (addr.length == 4) ? "0.0.0.0" : "::0"
@@ -53,7 +61,11 @@ module Msf
           print_warning("You are binding to a loopback address by setting LHOST to #{addr}. Did you want ReverseListenerBindAddress?")
         end
 
-        addrs = [ addr, any ]
+        if datastore['AutoLHOST']
+          addrs = [ @@addr_auto, addr, any ]
+        else
+          addrs = [ addr, any ]
+        end
 
         if not datastore['ReverseListenerBindAddress'].to_s.empty?
           # Only try to bind to this specific interface
@@ -105,6 +117,10 @@ module Msf
           else
             ex = false
             via = via_string_for_ip(ip, comm)
+            if ip == @@addr_auto && datastore['AutoLHOST']
+              print_error("Privided LHOST failed to bind")
+              print_status("LHOST automatically set to #{ip}")
+            end
             print_status("Started #{human_name} handler on #{ip}:#{local_port} #{via}")
             break
           end
