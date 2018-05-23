@@ -47,7 +47,7 @@ module Msf::DBManager::SessionEvent
     end
 
     session_id = nil
-    if session.kind_of?(Mdm::Session)
+    if session.is_a?(Mdm::Session)
       session_id = session.id
     elsif session.is_a?(Hash) && session.key?(:id)
       session_id = session[:id]
