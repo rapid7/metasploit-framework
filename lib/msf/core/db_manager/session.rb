@@ -120,11 +120,12 @@ module Msf::DBManager::Session
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       host_data = session_dto[:host_data]
-      workspace = workspaces({ name: host_data[:workspace] })
-      h_opts = {}
-      h_opts[:host]      = host_data[:host]
-      h_opts[:arch]      = host_data[:arch]
-      h_opts[:workspace] = host_data[:workspace]
+      workspace = workspaces({ name: host_data[:workspace] }).first
+      h_opts = {
+        host: host_data[:host],
+        workspace: workspace
+      }
+      h_opts[:arch] = host_data[:arch] if !host_data[:arch].nil? && !host_data[:arch].empty?
       host = find_or_create_host(h_opts)
 
       session_data = session_dto[:session_data]
@@ -218,7 +219,7 @@ module Msf::DBManager::Session
 
       vuln_info[:service] = service if service
 
-      vuln = framework.db.report_vuln(vuln_info)
+      vuln = report_vuln(vuln_info)
 
       attempt_info = {
         host: host,
@@ -233,7 +234,7 @@ module Msf::DBManager::Session
         run_id: session.exploit.user_data.try(:[], :run_id)
       }
 
-      framework.db.report_exploit_success(attempt_info)
+      report_exploit_success(attempt_info)
 
       vuln
     }
@@ -245,10 +246,12 @@ module Msf::DBManager::Session
       raise ArgumentError.new("Invalid :session, expected Msf::Session") unless session.kind_of? Msf::Session
 
       wspace = opts[:workspace] || find_workspace(session.workspace)
-      h_opts = { }
-      h_opts[:host]      = Msf::Util::Host.normalize_host(session)
-      h_opts[:arch]      = session.arch if session.respond_to?(:arch) and session.arch
-      h_opts[:workspace] = wspace
+      h_opts = {
+        host: Msf::Util::Host.normalize_host(session),
+        workspace: wspace
+      }
+      h_opts[:arch] = session.arch if session.respond_to?(:arch) && !session.arch.nil? && !session.arch.empty?
+
       host = find_or_create_host(h_opts)
       sess_data = {
         datastore: session.exploit_datastore.to_h,
@@ -332,7 +335,7 @@ module Msf::DBManager::Session
 
       vuln_info[:service] = service if service
 
-      vuln = framework.db.report_vuln(vuln_info)
+      vuln = report_vuln(vuln_info)
 
       attempt_info = {
           host: host,
@@ -347,7 +350,7 @@ module Msf::DBManager::Session
           run_id: vuln_info_dto[:run_id]
       }
 
-      framework.db.report_exploit_success(attempt_info)
+      report_exploit_success(attempt_info)
 
       vuln
     }
