@@ -208,6 +208,25 @@ module Msf::DBManager::Cred
   }
   end
 
+  def delete_credentials(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |cred_id|
+        cred = Metasploit::Credential::Core.find(cred_id)
+        begin
+          deleted << cred.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{cred}")
+          deleted << cred.delete
+        end
+      end
+
+      return deleted
+    }
+  end
+
   alias :report_auth :report_auth_info
   alias :report_cred :report_auth_info
 end

@@ -21,4 +21,8 @@ module RemoteCredentialDataService
   def create_credential(opts)
     self.post_data_async(CREDENTIAL_API_PATH, opts)
   end
+
+  def delete_credentials(opts)
+    json_to_mdm_object(self.delete_data(CREDENTIAL_API_PATH, opts), CREDENTIAL_MDM_CLASS, [])
+  end
 end

@@ -393,8 +393,9 @@ class Creds
     }
 
     tbl = Rex::Text::Table.new(tbl_opts)
-    opts[:wspace] = framework.db.workspace
+    opts[:workspace] = framework.db.workspace
     query = framework.db.creds(opts)
+    matched_cred_ids = []
 
     query.each do |core|
 
@@ -420,6 +421,7 @@ class Creds
       end
 
       if core.logins.empty? && origin_ranges.empty?
+        matched_cred_ids << core.id
         public_val = core.public ? core.public.username : ""
         private_val = core.private ? core.private.data : ""
         realm_val = core.realm ? core.realm.value : ""
@@ -444,6 +446,7 @@ class Creds
             next
           end
 
+
           row = [ login.service.host.address ]
           row << origin
           rhosts << login.service.host.address
@@ -453,6 +456,7 @@ class Creds
             row << "#{login.service.port}/#{login.service.proto}"
           end
 
+          matched_cred_ids << core.id
           public_val = core.public ? core.public.username : ""
           private_val = core.private ? core.private.data : ""
           realm_val = core.realm ? core.realm.value : ""
@@ -468,8 +472,8 @@ class Creds
         end
       end
       if mode == :delete
-        core.destroy
-        delete_count += 1
+        result = framework.db.delete_credentials(ids: matched_cred_ids)
+        delete_count = result.size
       end
     end
 

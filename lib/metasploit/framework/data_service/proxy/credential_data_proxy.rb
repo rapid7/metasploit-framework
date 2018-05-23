@@ -18,4 +18,13 @@ module CredentialDataProxy
       self.log_error(e, "Problem retrieving credentials")
     end
   end
+
+  def delete_credentials(opts)
+    begin
+      data_service = self.get_data_service
+      data_service.delete_credentials(opts)
+    rescue => e
+      self.log_error(e, "Problem deleting creds")
+    end
+  end
 end
