@@ -176,7 +176,7 @@ module Msf
     def choose_arch(mod)
       if arch.blank?
         @arch = mod.arch.first
-        cli_print "[-] No --arch selected, selecting arch: #{arch} from the payload"
+        cli_print "[-] No arch selected, selecting arch: #{arch} from the payload"
         datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return mod.arch.first
       elsif mod.arch.include? arch
