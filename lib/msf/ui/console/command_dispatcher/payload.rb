@@ -29,6 +29,7 @@ module Msf
             "-x" => [ true,  "Specify a custom executable file to use as a template" ],
             "-k" => [ false, "Preserve the template behavior and inject the payload as a new thread" ],
             "-o" => [ true,  "The output file name (otherwise stdout)" ],
+            "-O" => [ true,  "Deprecated: alias for the '-o' option" ],
             "-h" => [ false, "Show this message" ],
           )
 
@@ -105,9 +106,13 @@ module Msf
                 format = val
               when '-o'
                 if val.include?('=')
-                  print("The -o parameter of 'generate' is now the output file. Specify options with the 'set' command")
-                  return true
+                  print("The -o parameter of 'generate' is now preferred to indicate the output file, like with msfvenom")
+                  mod.datastore[key] = val
+                else
+                  ofile = val
                 end
+              when '-O'
+                print("Usage of the '-O' parameter is deprecated, prefer '-o' to indicate the output file")
                 ofile = val
               when '-i'
                 iter = val
