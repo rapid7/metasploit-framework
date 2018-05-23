@@ -29,16 +29,28 @@ class Socks5
 
     RESERVED                                = 0
 
+    # ADDRESS TYPES
+
     ADDRESS_TYPE_IPV4                       = 1
     ADDRESS_TYPE_DOMAINNAME                 = 3
     ADDRESS_TYPE_IPV6                       = 4
+
+    # AUTHENTICATION TYPES
+    AUTH_PROTOCOL_VERSION                   = 0x01
+
+    AUTH_METHOD_TYPE_NONE                   = 0x00
+    AUTH_METHOD_TYPE_USER_PASS              = 0x02
+
+    AUTH_METHODS_REJECTED                   = 0xFF
+
+    AUTH_SUCCESS                            = 0x00
+    AUTH_FAILURE                            = 0x01
 
     # REQUEST HEADER FIELDS
 
     REQUEST_VERSION                         = 5
 
     REQUEST_AUTH_METHOD_COUNT               = 1
-    REQUEST_AUTH_METHOD_TYPE_NONE           = 0
 
     REQUEST_COMMAND_CONNECT                 = 1
     REQUEST_COMMAND_BIND                    = 2
@@ -64,7 +76,7 @@ class Socks5
 
     class Response
 
-      def initialize ( sock )
+      def initialize( sock )
         @version    = REQUEST_VERSION
         @command    = nil
         @reserved   = RESERVED
@@ -75,7 +87,7 @@ class Socks5
       end
 
       # convert IPv6 hex-encoded, colon-delimited string (0000:1111:...) into a 128-bit address
-      def ipv6_atoi (ip)
+      def ipv6_atoi(ip)
         raw = ""
         ip.scan(/....:/).each do |quad|
           raw += quad[0,2].hex.chr
@@ -84,35 +96,32 @@ class Socks5
         return raw
       end
 
-
       # Pack a packet into raw bytes for transmitting on the wire.
       def to_r
         begin
+
+          if @atyp == ADDRESS_TYPE_DOMAINNAME
+            if @dest_ip.include? '.'        # stupid check for IPv4 addresses
+              @atyp = ADDRESS_TYPE_IPV4
+            elsif @dest_ip.include? ':'     # stupid check for IPv4 addresses
+              @atyp = ADDRESS_TYPE_IPV6
+            else
+              raise "Malformed dest_ip while sending SOCKS5 response packet"
+            end
+          end
+
           if @atyp == ADDRESS_TYPE_IPV4
             raw = [ @version, @command, @reserved, @atyp, Rex::Socket.addr_atoi(@dest_ip), @dest_port ].pack( 'CCCCNn' )
           elsif @atyp == ADDRESS_TYPE_IPV6
             raw = [ @version, @command, @reserved, @atyp ].pack ( 'CCCC')
             raw += ipv6_atoi(@dest_ip)
             raw += [ @dest_port ].pack( 'n' )
-          elsif @atyp == ADDRESS_TYPE_DOMAINNAME
-            # TODO: A hostname that resolves to an IPv6 address might fail here.  I'm seeing varied results.  More testing required with real-world IPv6.
-            raw = [ @version, @command, @reserved ].pack ( 'CCC')
-
-            if @dest_ip.include? '.'  # stupid check for IPv4 addresses
-              raw += [ ADDRESS_TYPE_IPV4 ].pack ( 'C' )
-              raw += [ Rex::Socket.addr_atoi(@dest_ip) ].pack ( 'N' )
-            elsif @dest_ip.include? ':'  # stupid check for IPv6 addresses
-              raw += [ ADDRESS_TYPE_IPV6 ].pack ( 'C' )
-              raw += ipv6_atoi ( @dest_ip )
-            else
-              raise "Malformed dest_ip while sending SOCKS5 response packet"
-            end
-
-            raw += [ @dest_port ].pack( 'n' )
           else
             raise "Invalid address type field encountered while sending SOCKS5 response packet"
           end
+
           return raw
+
         rescue TypeError
           raise "Invalid field conversion while sending SOCKS5 response packet"
         end
@@ -127,14 +136,22 @@ class Socks5
 
     class Request
 
-      def initialize (sock)
+      def initialize( sock )
         @version    = REQUEST_VERSION
         @command    = nil
         @atyp       = nil
         @dest_port  = nil
         @dest_ip    = nil
-        @sock     = sock
-        self.parseIncomingSession()
+        @sock       = sock
+        @username   = nil
+        @password   = nil
+        @serverAuthMethods = [ 0x00 ]
+      end
+
+      def requireAuthentication( username, password )
+        @username = username
+        @password = password
+        @serverAuthMethods = [ AUTH_METHOD_TYPE_USER_PASS ]
       end
 
       # The first packet sent by the client is a session request
@@ -143,7 +160,7 @@ class Socks5
       # +----+----------+----------+
       # | 1  |    1     | 1 to 255 |      METHOD (\x00) = NO AUTHENTICATION REQUIRED
       # +----+----------+----------+
-      def parseIncomingSession ( serverAuthMethods = [0x00] )
+      def parseIncomingSession()
         raw = ''
 
         version = @sock.read( 1 )
@@ -154,20 +171,55 @@ class Socks5
 
         unpackFormatStr = 'C' + nMethods.to_s                                     # IS THIS REALLY WHAT I'M DOING?!
         clientAuthMethods = @sock.read( nMethods ).unpack( unpackFormatStr )
-        authMethods = ( clientAuthMethods & serverAuthMethods )
-        raise "No matching authentication methods agreed upon in session request" if
-          ( authMethods.empty? )
+        authMethods = ( clientAuthMethods & @serverAuthMethods )
 
-        raise "Authentication required by client" if authMethods.exclude? 0
+        if ( authMethods.empty? )
+          raw = [ REQUEST_VERSION, AUTH_METHODS_REJECTED ].pack ( 'CC' )
+          @sock.put( raw )
+          raise "No matching authentication methods agreed upon in session request"
+        else
+          raw = [REQUEST_VERSION, authMethods[0]].pack ( 'CC' )
+          @sock.put( raw )
 
-        raw    = ""
-        raw   += [REQUEST_VERSION].pack ( 'C' )
-        raw   += [ authMethods[0] ].pack( 'C' )
+          parseIncomingCredentials() if authMethods[0] == AUTH_METHOD_TYPE_USER_PASS 
+        end
+      end
 
-        @sock.put ( raw )
+      def parseIncomingCredentials()
+        # Based on RFC1929: https://tools.ietf.org/html/rfc1929
+        #   +----+------+----------+------+----------+
+        #   |VER | ULEN |  UNAME   | PLEN |  PASSWD  |
+        #   +----+------+----------+------+----------+
+        #   | 1  |  1   | 1 to 255 |  1   | 1 to 255 |  VERSION: 0x01
+        #   +----+------+----------+------+----------+
 
+        version = @sock.read( 1 )
+        raise "Invalid SOCKS5 authentication packet received." if not
+          ( version.unpack( 'C' ).first == 0x01 )
 
-        return true
+        usernameLength = @sock.read( 1 ).unpack( 'C' ).first
+        username       = @sock.read( usernameLength )
+
+        passwordLength = @sock.read( 1 ).unpack( 'C' ).first
+        password       = @sock.read( passwordLength )
+
+        #   +----+--------+
+        #   |VER | STATUS |
+        #   +----+--------+  VERSION: 0x01
+        #   | 1  |   1    |  STATUS:  0x00=SUCCESS, otherwise FAILURE
+        #   +----+--------+
+
+        if (username == @username && password == @password)
+          raw = [ AUTH_PROTOCOL_VERSION, AUTH_SUCCESS ].pack ( 'CC' )
+          ilog("SOCKS5: Successfully authenticated")
+          @sock.put( raw )
+          return true
+        else 
+          raw = [ AUTH_PROTOCOL_VERSION, AUTH_FAILURE ].pack ( 'CC' )
+          @sock.put( raw )
+          raise "Invalid SOCKS5 credentials provided"
+        end
+
       end
 
       def parseIncomingConnectionRequest()
@@ -342,8 +394,14 @@ class Socks5
 
           # get the initial client request packet
           request = Request.new ( @lsock )
+          if not (@username.nil? or @password.nil?)
+            request.requireAuthentication( @username, @password )
+          end
 
-          # TODO: Support multiple connection requests within a single session
+          # negotiate authentication
+          request.parseIncomingSession()
+
+          # negotiate authentication
           request.parseIncomingConnectionRequest()
 
           # handle the request
