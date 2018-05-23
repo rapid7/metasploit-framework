@@ -49,6 +49,9 @@ module Msf
         # Use Socket.ip_address_list to get LHOST
         if datastore['AutoLHOST']
           @@addr_auto = Socket.ip_address_list[1].ip_address
+          if @@addr_auto =~ /%/
+            @@addr_auto = ''
+          end
         end
 
         # First attempt to bind LHOST. If that fails, the user probably has
@@ -61,7 +64,7 @@ module Msf
           print_warning("You are binding to a loopback address by setting LHOST to #{addr}. Did you want ReverseListenerBindAddress?")
         end
 
-        if datastore['AutoLHOST']
+        if datastore['AutoLHOST'] && !@@addr_auto.nil?
           addrs = [ @@addr_auto, addr, any ]
         else
           addrs = [ addr, any ]
@@ -100,6 +103,9 @@ module Msf
         local_port = bind_port
 
         bind_addresses.each do |ip|
+          if not ip =~ /\w+/
+            next
+          end
           begin
             self.listener_sock = Rex::Socket::TcpServer.create(
               'LocalHost' => ip,
