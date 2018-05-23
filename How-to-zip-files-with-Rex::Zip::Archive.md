@@ -1,0 +1,1 @@
+Deprecated in favor of [`Msf::Util::EXE.to_zip`](https://github.com/rapid7/metasploit-framework/wiki/How-to-zip-files-with-Msf::Util::EXE.to_zip).
