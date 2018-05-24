@@ -1,7 +1,7 @@
 The Metasploit Remote Data service is a tool that allows you to host a web service to interact
 with Metasploit's various data models through a REST API.
 
-### Requirements.
+### Requirements
 You can find more information on setting that up on the 
 [Metasploit help page](https://metasploit.help.rapid7.com/docs/managing-the-database).
 
