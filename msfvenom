@@ -77,7 +77,7 @@ def parse_args(args)
   end
 
   opt.on('-p', '--payload         <payload>', String,
-         'Payload to use (--list payloads to list, --list-options for arguments). Specify \'-\' or STDIN for custom') do |p|
+         "Payload to use (--list payloads to list, --list-options for arguments). Specify '-' or STDIN for custom") do |p|
     if p == '-'
       opts[:payload] = 'stdin'
     else
@@ -85,7 +85,7 @@ def parse_args(args)
     end
   end
 
-  opt.on('--list-options', "List --payload <value>'s standard, advanced and encryption options") do
+  opt.on('--list-options', "List --payload <value>'s standard, advanced and evasion options") do
     opts[:list_options] = true
   end
 
@@ -187,7 +187,7 @@ def parse_args(args)
       k,v = x.split('=', 2)
       datastore[k.upcase] = v.to_s
     end
-    if opts[:payload].to_s =~ /[\_\/]reverse/ and datastore['LHOST'].nil?
+    if opts[:payload].to_s =~ /[\_\/]reverse/ && datastore['LHOST'].nil?
       init_framework()
       datastore['LHOST'] = Rex::Socket.source_address
     end
@@ -197,7 +197,7 @@ def parse_args(args)
     opts[:payload] = "stdin"
   end
 
-  if opts[:payload].downcase == 'stdin' and not opts[:list]
+  if opts[:payload].downcase == 'stdin' && !opts[:list]
     $stderr.puts "Attempting to read payload from STDIN..."
     begin
       opts[:timeout] ||= 30
@@ -228,7 +228,7 @@ end
 def dump_platforms
   init_framework(:module_types => [])
   supported_platforms = []
-  Msf::Module::Platform.subclasses.each {|c| supported_platforms << "#{c.realname.downcase}"}
+  Msf::Module::Platform.subclasses.each {|c| supported_platforms << c.realname.downcase}
 
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
@@ -365,8 +365,6 @@ if generator_opts[:list]
     case mod.downcase
     when "payloads", "payload", "p"
       $stdout.puts dump_payloads
-#    when "options", "option", "o"
-#      opts[:list_options] = true
     when "encoders", "encoder", "e"
       $stdout.puts dump_encoders(generator_opts[:arch])
     when "nops", "nop", "n"
@@ -411,8 +409,6 @@ if generator_opts[:list_options]
   $stderr.puts "\nEvasion options for #{payload_mod.fullname}:\n" + "="*25 + "\n\n"
   $stdout.puts ::Msf::Serializer::ReadableText.dump_evasion_options(payload_mod, '    ')
 
-  #$stderr.puts "\nEncryption options for #{payload_mod.fullname}:\n" + "="*25 + "\n\n"
-  #$stdout.puts ::Msf::Serializer::ReadableText.dump_encrypt_options(payload_mod, '    ')
   exit(0)
 end
 
