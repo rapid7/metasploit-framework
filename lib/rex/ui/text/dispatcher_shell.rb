@@ -289,9 +289,9 @@ module DispatcherShell
     def tab_complete_source_address
       addresses = [Rex::Socket.source_address]
       # getifaddrs was introduced in 2.1.2
-      if Socket.respond_to?(:getifaddrs)
-        ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
-          ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
+      if ::Socket.respond_to?(:getifaddrs)
+        ifaddrs = ::Socket.getifaddrs.find_all do |ifaddr|
+          ((ifaddr.flags & ::Socket::IFF_LOOPBACK) == 0) &&
             ifaddr.addr &&
             ifaddr.addr.ip?
         end
