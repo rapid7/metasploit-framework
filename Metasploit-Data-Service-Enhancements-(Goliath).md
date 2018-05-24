@@ -50,3 +50,5 @@ _**Using msfdb_ws from Metasploit Framework**_:
 * We have created a command that allows users to add/use remote data services.
 * Usage: `data_services -h`
 * Core client code path: `lib/metasploit/framework/data_service`
+
+More information on setting up the Remote Data Service and using the REST API can be found [here](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Remote-Data-Service-and-REST-API).
