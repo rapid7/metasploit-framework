@@ -2,7 +2,7 @@ The Metasploit Remote Data service is a tool that allows you to host a web servi
 with Metasploit's various data models through a REST API.
 
 ### Requirements
-You can find more information on setting that up on the 
+To use the remote data service you will need a PostgreSQL database running to serve as the backend. You can find more information on setting that up on the 
 [Metasploit help page](https://metasploit.help.rapid7.com/docs/managing-the-database).
 
 ### Starting Up
