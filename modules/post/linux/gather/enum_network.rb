@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Post
 
   # Save enumerated data
   def save(msg, data, ctype="text/plain")
-    if data.nil?
+    if data.nil? || data =~ /not found/ || data =~ /cannot access/
       print_bad("Unable to get data for #{msg}")
       return
     end
