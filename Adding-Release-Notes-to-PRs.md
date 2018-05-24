@@ -58,5 +58,5 @@ When you write release notes for an exploit, you should try to answer the follow
 
 And finally, here's an example for exploits:
 
-> This module allows you to exploit HP Data Protector, a backup and recovery system, to remotely upload files to the file share. Versions 6.10, 6.10, and 6.20 are vulnerable. Authentication is not required to exploit this vulnerability.
+> This module allows you to exploit HP Data Protector, a backup and recovery system, to remotely upload files to the file share. Versions 6.10, 6.10, and 6.20 are vulnerable. You don’t need to authenticate to exploit this vulnerability. 
 
