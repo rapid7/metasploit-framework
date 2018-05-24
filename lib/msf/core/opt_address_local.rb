@@ -28,9 +28,7 @@ class OptAddressLocal < OptAddress
       end
     end
 
-    return '' if addrs.empty?
-
-    addrs.first
+    addrs.any? ? addrs.first : ''
   end
 
   def valid?(value, check_empty: true)
