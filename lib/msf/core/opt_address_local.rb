@@ -5,7 +5,7 @@ module Msf
 
 ###
 #
-# Network address option.
+# Local network address option.
 #
 ###
 class OptAddressLocal < OptAddress
@@ -17,7 +17,7 @@ class OptAddressLocal < OptAddress
     return unless value.kind_of?(String)
     return value unless interfaces.include?(value)
 
-    ip_address = NetworkInterface.addresses(value).values.flatten.map{|x| x['addr']}.select do |addr|
+    addrs = NetworkInterface.addresses(value).values.flatten.map { |x| x['addr'] }.select do |addr|
       begin
         IPAddr.new(addr).ipv4?
       rescue IPAddr::InvalidAddressError
@@ -25,9 +25,9 @@ class OptAddressLocal < OptAddress
       end
     end
 
-    return if ip_address.blank?
+    return '' if addrs.empty?
 
-    ip_address.first
+    addrs.first
   end
 
   def valid?(value, check_empty: true)
