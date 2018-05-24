@@ -81,4 +81,4 @@ Note that methods like `printf()` won't actually print anything, because it's no
 
 # Custom Headers
 
-Currently, the Metasm wrapper does not support custom headers from an arbitrary location. To work around this, you can place your headers in `data/headers/windows`, and then add that file name in `lib/metasploit/framework/compiler/headers.windows.h`.
+Currently, the Metasm wrapper does not support custom headers from an arbitrary location. To work around this, you can place your headers in `data/headers/windows`, and then add that file name in `lib/metasploit/framework/compiler/headers/windows.h`.
