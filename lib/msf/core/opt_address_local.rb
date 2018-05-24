@@ -21,7 +21,7 @@ class OptAddressLocal < OptAddress
       begin
         IPAddr.new(addr).ipv4?
       rescue IPAddr::InvalidAddressError
-        nil
+        false
       end
     end
 
