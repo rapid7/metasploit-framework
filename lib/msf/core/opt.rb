@@ -26,7 +26,7 @@ module Msf
     end
 
     # @return [OptAddressLocal]
-    def self.LHOST(default=nil, required=true, desc="The listen address")
+    def self.LHOST(default=nil, required=true, desc="The listen address (an interface may be specified)")
       Msf::OptAddressLocal.new(__method__.to_s, [ required, desc, default ])
     end
 
