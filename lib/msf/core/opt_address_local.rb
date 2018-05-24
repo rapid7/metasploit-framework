@@ -17,9 +17,12 @@ class OptAddressLocal < OptAddress
     return unless value.kind_of?(String)
     return value unless interfaces.include?(value)
 
-    addrs = NetworkInterface.addresses(value).values.flatten.map { |x| x['addr'] }.select do |addr|
+    addrs = NetworkInterface.addresses(value).values.flatten
+
+    # Strip interface name from address (see getifaddrs(3))
+    addrs = addrs.map { |x| x['addr'].split('%').first }.select do |addr|
       begin
-        IPAddr.new(addr).ipv4?
+        IPAddr.new(addr)
       rescue IPAddr::InvalidAddressError
         false
       end
