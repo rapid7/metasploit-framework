@@ -30,7 +30,7 @@ When you write release notes for an enhancement, you should try to answer the fo
 
 For example, the following is a release note for an enhancement:
 
-> The new  'resolve' command enables you to perform DNS lookups with Meterpreter, without leaving the session to run additional modules. To resolve host names on the target, you can run the 'resolve' command followed by the host name. For example, in the Meterpreter prompt, you can type something like 'resolve rapid7.com' to view the host resolutions for rapid7.
+> The new  'resolve' command enables you to perform DNS lookups with Meterpreter, without leaving the session to run additional modules. To resolve host names on the target, you can run the 'resolve' command followed by the host name. For example, in the Meterpreter prompt, you can type something like 'resolve rapid7.com' to view the host resolutions for Rapid7.
 
 #### Release Notes for Defects
 
@@ -44,7 +44,7 @@ When you write release notes for a defect, you should try to answer the followin
 
 Here's an example for a defect: 
 
-> The email header contained duplicate date and subject headers, which caused email servers like AWS SES, to reject the emails. This fix removes the duplicate headers so that emails can be sent successfully.
+> The email header contained duplicate date and subject headers, which caused email servers like AWS SES, to reject the emails. This fix removes the duplicate headers so that campaigns can send emails successfully. 
 
 #### Release Notes for Exploits
 
