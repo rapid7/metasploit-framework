@@ -81,6 +81,10 @@ module Socks5
     AUTH_CREDS                       = 2
     AUTH_NO_ACCEPTABLE_METHODS       = 255
 
+    AUTH_PROTOCOL_VERSION            = 1
+    AUTH_RESULT_SUCCESS              = 0
+    AUTH_RESULT_FAILURE              = 1
+
     COMMAND_CONNECT                  = 1
     COMMAND_BIND                     = 2
     COMMAND_UDP_ASSOCIATE            = 3
@@ -101,9 +105,10 @@ module Socks5
     #
     # Create a new client connected to the server.
     #
-    def initialize(server, sock)
+    def initialize(server, sock, opts={})
       @server        = server
       @lsock         = sock
+      @opts          = opts
       @rsock         = nil
       @client_thread = nil
       @mutex         = ::Mutex.new
@@ -118,21 +123,66 @@ module Socks5
           @server.add_client(self)
           # get the initial client request packet
           packet = AuthRequestPacket.read(@lsock.get_once)
-          unless packet.supported_methods.include? AUTH_NONE
-            raise "Invalid Socks5 request packet received (no supported authentication methods)."
-          end
-          @lsock.put(AuthResponsePacket.new.to_binary_s)
+          handle_authentication(packet)
 
           packet = RequestPacket.read(@lsock.get_once)
           # handle the request
           handle_command(packet)
         rescue => exception
-          STDERR.puts "Error during processing: #{$!}"
-          STDERR.puts exception.backtrace
           wlog("Client.start - #{$!}")
           self.stop
         end
       end
+    end
+
+    def handle_authentication(request)
+      if @opts['ServerUsername'].nil? && @opts['ServerPassword'].nil?
+        handle_authentication_none(request)
+      else
+        handle_authentication_creds(request)
+      end
+    end
+
+    def handle_authentication_creds(request)
+      unless request.supported_methods.include? AUTH_CREDS
+        raise "Invalid Socks5 request packet received (no supported authentication methods)."
+      end
+      response = AuthResponsePacket.new
+      response.chosen_method = AUTH_CREDS
+      @lsock.put(response.to_binary_s)
+
+      version = @lsock.read(1)
+      raise "Invalid SOCKS5 authentication packet received." unless version.unpack('C').first == 0x01
+
+      username_length = @lsock.read(1).unpack('C').first
+      username        = @lsock.read(username_length)
+
+      password_length = @lsock.read(1).unpack('C').first
+      password        = @lsock.read(password_length)
+
+      #  +-----+--------+
+      #  | VER | STATUS |
+      #  +-----+--------+  VERSION: 0x01
+      #  | 1   | 1      |  STATUS:  0x00=SUCCESS, otherwise FAILURE
+      #  +-----+--------+
+      if username == @opts['ServerUsername'] && password == @opts['ServerPassword']
+        raw = [ AUTH_PROTOCOL_VERSION, AUTH_RESULT_SUCCESS ].pack ('CC')
+        ilog("SOCKS5: Successfully authenticated")
+        @lsock.put(raw)
+      else
+        raw = [ AUTH_PROTOCOL_VERSION, AUTH_RESULT_FAILURE ].pack ('CC')
+        @lsock.put(raw)
+        raise "Invalid SOCKS5 credentials provided"
+      end
+    end
+
+    def handle_authentication_none(request)
+      unless request.supported_methods.include? AUTH_NONE
+        raise "Invalid Socks5 request packet received (no supported authentication methods)."
+      end
+      response = AuthResponsePacket.new
+      response.chosen_method = AUTH_NONE
+      @lsock.put(response.to_binary_s)
     end
 
     def handle_command(request)
@@ -148,8 +198,6 @@ module Socks5
         end
         @lsock.put(response.to_binary_s) unless response.nil?
       rescue => exception
-        STDERR.puts "Error during processing: #{$!}"
-        STDERR.puts exception.backtrace
         # send back failure to the client
         response         = ResponsePacket.new
         response.command = REPLY_GENERAL_FAILURE

@@ -71,7 +71,7 @@ module Socks5
     uint8  :chosen_method
   end
 
-  class RequestPacket < BinData::Record
+  class Packet < BinData::Record
     include Address
     endian :big
     hide   :reserved, :domainname_length
@@ -85,7 +85,10 @@ module Socks5
     uint16 :port
   end
 
-  class ResponsePacket < RequestPacket
+  class RequestPacket < Packet
+  end
+
+  class ResponsePacket < Packet
   end
 
   class UdpPacket < BinData::Record

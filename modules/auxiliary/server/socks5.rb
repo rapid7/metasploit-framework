@@ -30,8 +30,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('SRVHOST', [true, 'The address to listen on', '0.0.0.0']),
-      OptPort.new('SRVPORT', [true, 'The port to listen on', 1080])
+      OptString.new('USERNAME', [false, 'Proxy username for SOCKS5 listener']),
+      OptString.new('PASSWORD', [false, 'Proxy password for SOCKS5 listener']),
+      OptString.new('SRVHOST',  [true,  'The address to listen on', '0.0.0.0']),
+      OptPort.new('SRVPORT',    [true,  'The port to listen on', 1080])
     ])
   end
 
@@ -54,9 +56,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     opts = {
-      'ServerHost' => datastore['SRVHOST'],
-      'ServerPort' => datastore['SRVPORT'],
-      'Context'    => { 'Msf' => framework, 'MsfExploit' => self }
+      'ServerHost'     => datastore['SRVHOST'],
+      'ServerPort'     => datastore['SRVPORT'],
+      'ServerUsername' => datastore['USERNAME'],
+      'ServerPassword' => datastore['PASSWORD'],
+      'Context'        => {'Msf' => framework, 'MsfExploit' => self}
     }
     @socks_proxy = Rex::Proto::Proxy::Socks5::Server.new(opts)
 

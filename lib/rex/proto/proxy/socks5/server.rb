@@ -49,7 +49,7 @@ module Socks5
               # accept the client connection
               sock = @server.accept
               # and fire off a new client instance to handle it
-              ServerClient.new(self, sock).start
+              ServerClient.new(self, sock, @opts).start
             rescue
               wlog("SOCKS5.start - server_thread - #{$!}")
             end
