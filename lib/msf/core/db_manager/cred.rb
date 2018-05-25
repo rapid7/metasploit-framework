@@ -208,6 +208,24 @@ module Msf::DBManager::Cred
   }
   end
 
+  def update_credential(opts)
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      # process workspace string for update if included in opts
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts[:workspace] = wspace if wspace
+
+      if opts[:public]
+        opts[:public] = Metasploit::Credential::Public.where(opts[:public]).first_or_initialize
+      end
+      if opts[:private]
+        opts[:private] = Metasploit::Credential::Private.where(opts[:private]).first_or_initialize
+      end
+
+      id = opts.delete(:id)
+      Metasploit::Credential::Core.update(id, opts)
+    }
+  end
+
   def delete_credentials(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 

@@ -70,6 +70,19 @@ module ServletHelper
     params.symbolize_keys.except(:captures, :splat)
   end
 
+  def format_cred_json(data)
+    includes = [:logins, :public, :private, :realm]
+
+    response = []
+    Array.wrap(data).each do |cred|
+      json = cred.as_json(include: includes).merge('private_class' => cred.private.class.to_s)
+      json['public'] = json['public'].merge('type' => cred.public.type)
+      json['private'] = json['private'].merge('type' => cred.private.type)
+      response << json
+    end
+    response
+  end
+
   #######
   private
   #######

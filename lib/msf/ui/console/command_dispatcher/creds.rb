@@ -305,44 +305,44 @@ class Creds
       when '-o'
         output_file = args.shift
         if (!output_file)
-          print_error("Invalid output filename")
+          print_error('Invalid output filename')
           return
         end
         output_file = ::File.expand_path(output_file)
-      when "-p","--port"
+      when '-p', '--port'
         unless (arg_port_range(args.shift, port_ranges, true))
           return
         end
-      when "-t","--type"
+      when '-t', '--type'
         ptype = args.shift
         opts[:ptype] = ptype
         if (!ptype)
-          print_error("Argument required for -t")
+          print_error('Argument required for -t')
           return
         end
-      when "-s","--service"
+      when '-s', '--service'
         service = args.shift
         if (!service)
-          print_error("Argument required for -s")
+          print_error('Argument required for -s')
           return
         end
         svcs = service.split(/[\s]*,[\s]*/)
         opts[:svcs] = svcs
-      when "-P","--password"
+      when '-P', '--password'
         pass = args.shift
         opts[:pass] = pass
         if (!pass)
-          print_error("Argument required for -P")
+          print_error('Argument required for -P')
           return
         end
-      when "-u","--user"
+      when '-u', '--user'
         user = args.shift
         opts[:user] = user
         if (!user)
-          print_error("Argument required for -u")
+          print_error('Argument required for -u')
           return
         end
-      when "-d"
+      when '-d', '--delete'
         mode = :delete
       when '-R', '--rhosts'
         set_rhosts = true
@@ -350,7 +350,7 @@ class Creds
         hosts = args.shift
         opts[:hosts] = hosts
         if !hosts
-          print_error("Argument required for -O")
+          print_error('Argument required for -O')
           return
         end
         arg_host_range(hosts, origin_ranges)
