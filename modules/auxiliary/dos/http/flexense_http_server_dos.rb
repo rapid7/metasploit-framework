@@ -9,11 +9,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Sync Breeze Enterprise 10.6.24 Denial Of Service',
+      'Name'           => 'Flexense HTTP Server Denial Of Service',
       'Description'    => %q{
-        This module triggers a Denial of Service vulnerability in the Sync Breeze Enterprise HTTP server.
+        This module triggers a Denial of Service vulnerability in the Flexense HTTP server.
         Vulnerability caused by a user mode write access memory violation and can be triggered with rapidly sending variety of HTTP requests with long HTTP header values.
-        Sync Breeze Enterprise 10.6.24 version reportedly vulnerable.
+        Multiple Flexense applications that are using Flexense HTTP server 10.6.24 and below vesions reportedly vulnerable.
       },
       'Author' 		=> [ 'Ege Balci <ege.balci@invictuseurope.com>' ],
       'License'        => MSF_LICENSE,
@@ -39,10 +39,10 @@ class MetasploitModule < Msf::Auxiliary
       if res and res.include? 'Flexense HTTP Server v10.6.24'
         Exploit::CheckCode::Vulnerable
       else
-        Exploit::CheckCode::Safe
+        Exploit::CheckCode::Unknown
       end
     rescue
-      Exploit::CheckCode::Safe
+      Exploit::CheckCode::Unknown
     end
   end
 
