@@ -51,11 +51,12 @@ module Msf
             end
 
             args.each do |res|
+              res_expand = ::File.expand_path(res)
               good_res = nil
               if res == '-'
                 good_res = res
-              elsif ::File.exist?(res)
-                good_res = res
+              elsif ::File.exist?(res_expand)
+                good_res = res_expand
               elsif
                 # let's check to see if it's in the scripts/resource dir (like when tab completed)
                 [
