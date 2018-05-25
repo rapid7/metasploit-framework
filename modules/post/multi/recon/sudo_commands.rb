@@ -55,14 +55,16 @@ class MetasploitModule < Msf::Post
     %w[
       cat chgrp chmod chown cp echo find less ln mkdir more mv tail tar
       usermod useradd userdel
-      crontab
-      awk gawk perl python ruby irb lua
-      netcat netcat.traditional nc nc.traditional openssl telnetd
-      sh ash bash ksh zsh
+      env crontab
+      awk gdb gawk lua irb ld node perl php python python2 python3 ruby tclsh wish
+      ncat netcat netcat.traditional nc nc.traditional openssl socat telnet telnetd
+      ash bash csh dash ksh sh zsh
       su sudo
-      wget curl
+      expect ionice nice script setarch strace taskset time
+      wget curl ftp scp sftp ssh tftp
       nmap
-      man emacs nano vi vim visudo
+      ed emacs man nano vi vim visudo
+      dpkg rpm rpmquery
     ]
   end
 
