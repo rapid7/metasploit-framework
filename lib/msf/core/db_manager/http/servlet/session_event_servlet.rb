@@ -17,7 +17,7 @@ module SessionEventServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
-        data = get_db().session_events(opts)
+        data = get_db.session_events(opts)
         set_json_response(data)
       rescue => e
         set_error_on_response(e)
@@ -27,10 +27,14 @@ module SessionEventServlet
 
   def self.report_session_event
     lambda {
-      job = lambda { |opts|
-        opts[:session] = open_struct(opts[:session][:table])
-        get_db().report_session_event(opts) }
-      exec_report_job(request, &job)
+      begin
+        job = lambda { |opts|
+          get_db.report_session_event(opts)
+        }
+        exec_report_job(request, &job)
+      rescue => e
+        set_error_on_response(e)
+      end
     }
   end
 end
