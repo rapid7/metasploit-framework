@@ -1,0 +1,8 @@
+Creation of a Meterpreter session Graphical User Interaction (UI) including visual listing of commands available
+and post modules that can be used with the session. By displaying all the functionalities on an HTML web page, 
+Metasploit can simplify the session interface for the users. As soon as user drops a Meterpreter shell, by
+entering a single console command, the user can switch from meterpreter shell to a meterpreter web-shell. 
+All supported console functionalities will be displayed on the web interface. The user may select a particular 
+command or post module and execute it within the web UI. This may also include streaming quality of audio as well 
+as video and other fun behaviour.
+
