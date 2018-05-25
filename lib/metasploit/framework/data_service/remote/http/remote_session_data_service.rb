@@ -1,7 +1,14 @@
+require 'metasploit/framework/data_service/remote/http/response_data_helper'
+
 module RemoteSessionDataService
+  include ResponseDataHelper
 
   SESSION_API_PATH = '/api/v1/sessions'
   SESSION_MDM_CLASS = 'Mdm::Session'
+
+  def sessions(opts)
+    json_to_mdm_object(self.get_data(SESSION_API_PATH, nil, opts), SESSION_MDM_CLASS, [])
+  end
 
   def report_session(opts)
     session = opts[:session]
