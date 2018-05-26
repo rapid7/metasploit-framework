@@ -19,7 +19,7 @@ module Socks5
     #
     # TcpRelay data coming in from relay_sock to this socket.
     #
-    def relay( relay_client, relay_sock )
+    def relay(relay_client, relay_sock)
       @relay_client = relay_client
       @relay_sock   = relay_sock
       # start the relay thread (modified from Rex::IO::StreamAbstraction)
@@ -29,33 +29,29 @@ module Socks5
           buf    = nil
 
           begin
-            s = Rex::ThreadSafe.select( [ @relay_sock ], nil, nil, 0.2 )
-            if( s == nil || s[0] == nil )
-              next
-            end
+            s = Rex::ThreadSafe.select([@relay_sock], nil, nil, 0.2)
+            next if s.nil? || s[0].nil?
           rescue
             closed = true
           end
 
-          if( closed == false )
+          unless closed
             begin
               buf = @relay_sock.sysread( 32768 )
-              closed = true if( buf == nil )
+              closed = buf.nil?
             rescue
               closed = true
             end
           end
 
-          if( closed == false )
+          unless closed
             total_sent   = 0
             total_length = buf.length
-            while( total_sent < total_length )
+            while total_sent < total_length
               begin
                 data = buf[total_sent, buf.length]
-                sent = self.write( data )
-                if( sent > 0 )
-                  total_sent += sent
-                end
+                sent = self.write(data)
+                total_sent += sent if sent > 0
               rescue
                 closed = true
                 break
@@ -63,7 +59,7 @@ module Socks5
             end
           end
 
-          if( closed )
+          if closed
             @relay_client.stop
             ::Thread.exit
           end

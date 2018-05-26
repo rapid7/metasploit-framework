@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         This module provides a socks5 proxy server that uses the builtin
         Metasploit routing to relay connections.
       },
-      'Author'         => [ 'sf', 'Spencer McIntyre' ],
+      'Author'         => [ 'sf', 'Spencer McIntyre', 'surefire' ],
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [

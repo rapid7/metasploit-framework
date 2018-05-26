@@ -43,7 +43,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
   end
 
-  it "should respond to intialize" do
+  it "should respond to initialize" do
     expect(cli).to be
   end
 
