@@ -202,8 +202,8 @@ module Socks5
     def handle_command_bind(request)
       # create a server socket for this request
       params = {
-        'LocalHost' => request.address,
-        'LocalPort' => request.port
+        'LocalHost' => request.address_type == Address::ADDRESS_TYPE_IPV6 ? '::' : '0.0.0.0',
+        'LocalPort' => 0,
       }
       params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
       bsock = Rex::Socket::TcpServer.create(params)

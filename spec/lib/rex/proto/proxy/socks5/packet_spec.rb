@@ -64,6 +64,17 @@ RSpec.describe Rex::Proto::Proxy::Socks5::Packet do
     end
   end
 
+  describe "#read" do
+    it "should parse all fields" do
+      packet = Socks5::Packet.read("\x05\x01\x00\x01\x7f\x00\x00\x01\x00\x50")
+      expect(packet.version).to eq(Socks5::SOCKS_VERSION)
+      expect(packet.command).to eq(Socks5::ServerClient::COMMAND_CONNECT)
+      expect(packet.address_type).to eq(Socks5::Address::ADDRESS_TYPE_IPV4)
+      expect(packet.address).to eq('127.0.0.1')
+      expect(packet.port).to eq(80)
+    end
+  end
+
   describe "#to_binary_s" do
     it "should pack the data to a binary string" do
       packet = Socks5::Packet.new
