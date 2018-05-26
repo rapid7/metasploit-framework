@@ -55,9 +55,7 @@ module Socks5
             end
           end
         end
-      rescue => exception
-        STDERR.puts "Error during processing: #{$!}"
-        STDERR.puts exception.backtrace
+      rescue
         wlog("SOCKS5.start - #{$!}")
         return false
       end

@@ -73,7 +73,7 @@ module Socks5
   end
 
   #
-  # A client connected to the Socks5 server.
+  # A client connected to the SOCKS5 server.
   #
   class ServerClient
     AUTH_NONE                        = 0
@@ -122,20 +122,24 @@ module Socks5
         begin
           @server.add_client(self)
           # get the initial client request packet
-          packet = AuthRequestPacket.read(@lsock.get_once)
-          handle_authentication(packet)
+          handle_authentication
 
-          packet = RequestPacket.read(@lsock.get_once)
           # handle the request
-          handle_command(packet)
+          handle_command
         rescue => exception
+          # respond with a general failure to the client
+          response         = ResponsePacket.new
+          response.command = REPLY_GENERAL_FAILURE
+          @lsock.put(response.to_binary_s)
+
           wlog("Client.start - #{$!}")
           self.stop
         end
       end
     end
 
-    def handle_authentication(request)
+    def handle_authentication
+      request = AuthRequestPacket.read(@lsock.get_once)
       if @opts['ServerUsername'].nil? && @opts['ServerPassword'].nil?
         handle_authentication_none(request)
       else
@@ -145,7 +149,7 @@ module Socks5
 
     def handle_authentication_creds(request)
       unless request.supported_methods.include? AUTH_CREDS
-        raise "Invalid Socks5 request packet received (no supported authentication methods)."
+        raise "Invalid SOCKS5 request packet received (no supported authentication methods)."
       end
       response = AuthResponsePacket.new
       response.chosen_method = AUTH_CREDS
@@ -178,33 +182,25 @@ module Socks5
 
     def handle_authentication_none(request)
       unless request.supported_methods.include? AUTH_NONE
-        raise "Invalid Socks5 request packet received (no supported authentication methods)."
+        raise "Invalid SOCKS5 request packet received (no supported authentication methods)."
       end
       response = AuthResponsePacket.new
       response.chosen_method = AUTH_NONE
       @lsock.put(response.to_binary_s)
     end
 
-    def handle_command(request)
+    def handle_command
+      request = RequestPacket.read(@lsock.get_once)
       response = nil
-      begin
-        case request.command
-          when COMMAND_BIND
-            response = handle_command_bind(request)
-          when COMMAND_CONNECT
-            response = handle_command_connect(request)
-          when COMMAND_UDP_ASSOCIATE
-            response = handle_command_udp_associate(request)
-        end
-        @lsock.put(response.to_binary_s) unless response.nil?
-      rescue => exception
-        # send back failure to the client
-        response         = ResponsePacket.new
-        response.command = REPLY_GENERAL_FAILURE
-        @lsock.put(response.to_binary_s)
-        # raise an exception to close this client connection
-        raise "Failed to handle the clients request."
+      case request.command
+        when COMMAND_BIND
+          response = handle_command_bind(request)
+        when COMMAND_CONNECT
+          response = handle_command_connect(request)
+        when COMMAND_UDP_ASSOCIATE
+          response = handle_command_udp_associate(request)
       end
+      @lsock.put(response.to_binary_s) unless response.nil?
     end
 
     def handle_command_bind(request)
