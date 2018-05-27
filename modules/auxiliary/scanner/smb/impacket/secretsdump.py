@@ -255,9 +255,4 @@ def run(args):
         logging.error(e, exc_info=True)
 
 if __name__ == "__main__":
-    env = dict(os.environ)
-    if 'LD_PRELOAD' in env:
-        module.run(metadata, run)
-    else:
-        env['LD_PRELOAD'] = 'libproxychains4.so'
-        os.execve(os.path.realpath(__file__), sys.argv, env)
+    module.run(metadata, run)
