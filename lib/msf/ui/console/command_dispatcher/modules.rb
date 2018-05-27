@@ -427,6 +427,7 @@ module Msf
               'edb'      => 'Modules with a matching Exploit-DB ID',
               'name'     => 'Modules with a matching descriptive name',
               'platform' => 'Modules affecting this platform',
+              'port'     => 'Modules with a matching port',
               'ref'      => 'Modules with a matching ref',
               'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
             }.each_pair do |keyword, description|
