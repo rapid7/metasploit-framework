@@ -58,6 +58,11 @@ module Rex
               end
             end
 
+            if audio_path == nil
+              print_line("Please specify a path to an audio file via the '-f' option or use '-h'")
+              return
+            end
+
             print_status("Playing #{audio_path}...")
             client.audio_output.play_file(audio_path)
             print_status("Done")
