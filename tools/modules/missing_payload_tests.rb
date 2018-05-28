@@ -1,9 +1,16 @@
 #!/usr/bin/env ruby
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+#
 # Reads untest payload modules from log/untested-payloads.log (which can be produced by running `rake spec`) and prints
-# the statements that need to be added to `spec/modules/payloads_spec.rb`.  **Note: this script depends on the payload
+# the statements that need to be added to `spec/modules/payloads_spec.rb`. **Note: this script depends on the payload
 # being loadable, so if module is not loadable, then the developer must manually determine which single needs to be tested
 # or which combinations of stages and stagers need to be tested.**
+#
 
 msfbase = __FILE__
 while File.symlink?(msfbase)

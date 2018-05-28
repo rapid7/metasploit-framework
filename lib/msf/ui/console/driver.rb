@@ -4,6 +4,8 @@ require 'msf/base'
 require 'msf/ui'
 require 'msf/ui/console/framework_event_manager'
 require 'msf/ui/console/command_dispatcher'
+require 'msf/ui/console/command_dispatcher/db'
+require 'msf/ui/console/command_dispatcher/creds'
 require 'msf/ui/console/table'
 require 'find'
 require 'erb'
@@ -32,7 +34,9 @@ class Driver < Msf::Ui::Driver
   CommandDispatchers = [
     CommandDispatcher::Modules,
     CommandDispatcher::Jobs,
-    CommandDispatcher::Resource
+    CommandDispatcher::Resource,
+    CommandDispatcher::Db,
+    CommandDispatcher::Creds
   ]
 
   #
@@ -122,18 +126,13 @@ class Driver < Msf::Ui::Driver
       enstack_dispatcher(dispatcher)
     end
 
-    # Add the database dispatcher if it is usable
-    if (framework.db.usable)
-      require 'msf/ui/console/command_dispatcher/db'
-      enstack_dispatcher(CommandDispatcher::Db)
-      require 'msf/ui/console/command_dispatcher/creds'
-      enstack_dispatcher(CommandDispatcher::Creds)
-    else
+    if !framework.db || !framework.db.active
       print_error("***")
       if framework.db.error == "disabled"
         print_error("* WARNING: Database support has been disabled")
       else
-        print_error("* WARNING: No database support: #{framework.db.error.class} #{framework.db.error}")
+        error_msg = "#{framework.db.error.class.is_a?(String) ? "#{framework.db.error.class} " : nil}#{framework.db.error}"
+        print_error("* WARNING: No database support: #{error_msg}")
       end
       print_error("***")
     end
@@ -150,53 +149,13 @@ class Driver < Msf::Ui::Driver
     # Whether or not to confirm before exiting
     self.confirm_exit = opts['ConfirmExit']
 
-    # Parse any specified database.yml file
-    if framework.db.usable and not opts['SkipDatabaseInit']
-
-      # Append any migration paths necessary to bring the database online
-      if opts['DatabaseMigrationPaths']
-        opts['DatabaseMigrationPaths'].each do |migrations_path|
-          ActiveRecord::Migrator.migrations_paths << migrations_path
-        end
-      end
-
-      if framework.db.connection_established?
-        framework.db.after_establish_connection
-      else
-        configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
-
-        unless configuration_pathname.nil?
-          if configuration_pathname.readable?
-            dbinfo = YAML.load_file(configuration_pathname) || {}
-            dbenv  = opts['DatabaseEnv'] || Rails.env
-            db     = dbinfo[dbenv]
-          else
-            print_error("Warning, #{configuration_pathname} is not readable. Try running as root or chmod.")
-          end
-
-          if not db
-            print_error("No database definition for environment #{dbenv}")
-          else
-            framework.db.connect(db)
-          end
-        end
-      end
-
-      # framework.db.active will be true if after_establish_connection ran
-      # directly when connection_established? was already true or if
-      # framework.db.connect called after_establish_connection.
-      if !!framework.db.error
-        print_error("Failed to connect to the database: #{framework.db.error}")
-      end
-    end
-
     # Initialize the module paths only if we didn't get passed a Framework instance and 'DeferModuleLoads' is false
     unless opts['Framework'] || opts['DeferModuleLoads']
       # Configure the framework module paths
       self.framework.init_module_paths(module_paths: opts['ModulePath'])
     end
 
-    if !opts['DeferModuleLoads']
+    if framework.db && framework.db.active && framework.db.is_local? && !opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files
       end
@@ -419,6 +378,7 @@ class Driver < Msf::Ui::Driver
         print_warning("\t#{path}: #{error}")
       end
     end
+    framework.db.workspace = framework.db.default_workspace if framework.db && framework.db.active
 
     framework.events.on_ui_start(Msf::Framework::Revision)
 

@@ -1,3 +1,5 @@
+This module will add an SSH key to a specified user (or all), to allow remote login on the victim via SSH at any time.
+
 ### Creating A Testing Environment
 
   This module has been tested against:
@@ -22,15 +24,15 @@
 
 ## Options
 
-  **sshd_config**
+  **SSHD_CONFIG**
 
   Location of the sshd_config file on the remote system.  We use this to determine if the authorized_keys file location has changed on the system.  If it hasn't, we default to .ssh/authorized_keys
 
-  **username**
+  **USERNAME**
 
   If set, we only write our key to this user.  If not, we'll write to all users
 
-  **PubKey**
+  **PUBKEY**
 
   A public key to use.  If not provided, a pub/priv key pair is generated automatically
 

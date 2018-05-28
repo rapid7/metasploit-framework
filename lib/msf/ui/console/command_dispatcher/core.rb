@@ -43,7 +43,8 @@ class Core
     "-h"  => [ false, "Help banner"                                                    ],
     "-i"  => [ true,  "Interact with the supplied session ID"                          ],
     "-l"  => [ false, "List all active sessions"                                       ],
-    "-v"  => [ false, "List sessions in verbose mode"                                  ],
+    "-v"  => [ false, "List all active sessions in verbose mode"                       ],
+    "-d" =>  [ false, "List all inactive sessions"                                     ],
     "-q"  => [ false, "Quiet mode"                                                     ],
     "-k"  => [ true,  "Terminate sessions by session ID and/or range"                  ],
     "-K"  => [ false, "Terminate all sessions"                                         ],
@@ -54,6 +55,7 @@ class Core
     "-S"  => [ true,  "Row search filter."                                             ],
     "-x" =>  [ false, "Show extended information in the session table"                 ],
     "-n" =>  [ true,  "Name or rename a session by ID"                                 ])
+
 
   @@threads_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -858,142 +860,144 @@ class Core
   # which session a given subnet should route through.
   #
   def cmd_route(*args)
-    args << 'print' if args.length == 0
+    begin
+      args << 'print' if args.length == 0
 
-    action = args.shift
-    case action
+      action = args.shift
+      case action
+      when "add", "remove", "del"
+        subnet = args.shift
+        subnet, cidr_mask = subnet.split("/")
 
-    when "add", "remove", "del"
-      subnet = args.shift
-      subnet,cidr_mask = subnet.split("/")
-      if Rex::Socket.is_ipv4?(args.first)
-        netmask = args.shift
-      else
-        cidr_mask = '32' if cidr_mask.nil?
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
-      end
-
-      netmask = args.shift if netmask.nil?
-      gateway_name = args.shift
-
-      if (subnet.nil? || netmask.nil? || gateway_name.nil?)
-        print_error("Missing arguments to route #{action}.")
-        return false
-      end
-
-      gateway = nil
-
-      case gateway_name
-      when /local/i
-        gateway = Rex::Socket::Comm::Local
-      when /^(-1|[0-9]+)$/
-        session = framework.sessions.get(gateway_name)
-        if session.kind_of?(Msf::Session::Comm)
-          gateway = session
-        elsif session.nil?
-          print_error("Not a session: #{gateway_name}")
-          return false
-        else
-          print_error("Cannot route through the specified session (not a Comm)")
-          return false
-        end
-      else
-        print_error("Invalid gateway")
-        return false
-      end
-
-      msg = "Route "
-      if action == "remove" or action == "del"
-        worked = Rex::Socket::SwitchBoard.remove_route(subnet, netmask, gateway)
-        msg << (worked ? "removed" : "not found")
-      else
-        worked = Rex::Socket::SwitchBoard.add_route(subnet, netmask, gateway)
-        msg << (worked ? "added" : "already exists")
-      end
-      print_status(msg)
-
-    when "get"
-      if (args.length == 0)
-        print_error("You must supply an IP address.")
-        return false
-      end
-
-      comm = Rex::Socket::SwitchBoard.best_comm(args[0])
-
-      if ((comm) and
-          (comm.kind_of?(Msf::Session)))
-        print_line("#{args[0]} routes through: Session #{comm.sid}")
-      else
-        print_line("#{args[0]} routes through: Local")
-      end
-
-
-    when "flush"
-      Rex::Socket::SwitchBoard.flush_routes
-
-    when "print"
-      # IPv4 Table
-      tbl_ipv4 = Table.new(
-        Table::Style::Default,
-        'Header'  => "IPv4 Active Routing Table",
-        'Prefix'  => "\n",
-        'Postfix' => "\n",
-        'Columns' =>
-          [
-            'Subnet',
-            'Netmask',
-            'Gateway',
-          ],
-        'ColProps' =>
-          {
-            'Subnet'  => { 'MaxWidth' => 17 },
-            'Netmask' => { 'MaxWidth' => 17 },
-          })
-
-      # IPv6 Table
-      tbl_ipv6 = Table.new(
-        Table::Style::Default,
-        'Header'  => "IPv6 Active Routing Table",
-        'Prefix'  => "\n",
-        'Postfix' => "\n",
-        'Columns' =>
-          [
-            'Subnet',
-            'Netmask',
-            'Gateway',
-          ],
-        'ColProps' =>
-          {
-            'Subnet'  => { 'MaxWidth' => 17 },
-            'Netmask' => { 'MaxWidth' => 17 },
-          })
-
-      # Populate Route Tables
-      Rex::Socket::SwitchBoard.each { |route|
-        if (route.comm.kind_of?(Msf::Session))
-          gw = "Session #{route.comm.sid}"
-        else
-          gw = route.comm.name.split(/::/)[-1]
+        if Rex::Socket.is_ip_addr?(args.first)
+          netmask = args.shift
+        elsif Rex::Socket.is_ip_addr?(subnet)
+          netmask = Rex::Socket.addr_ctoa(cidr_mask, v6: Rex::Socket.is_ipv6?(subnet))
         end
 
-        tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)
-        tbl_ipv6 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv6?(route.netmask)
-      }
+        netmask = args.shift if netmask.nil?
+        gateway_name = args.shift
 
-      # Print Route Tables
-      print(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
-      print(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
+        if (subnet.nil? || netmask.nil? || gateway_name.nil?)
+          print_error("Missing arguments to route #{action}.")
+          return false
+        end
 
-      if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
-        print_status("There are currently no routes defined.")
-      elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)
-        print_status("There are currently no IPv4 routes defined.")
-      elsif (tbl_ipv4.rows.length > 0) && (tbl_ipv6.rows.length < 1)
-        print_status("There are currently no IPv6 routes defined.")
+        case gateway_name
+        when /local/i
+          gateway = Rex::Socket::Comm::Local
+        when /^(-1|[0-9]+)$/
+          session = framework.sessions.get(gateway_name)
+          if session.kind_of?(Msf::Session::Comm)
+            gateway = session
+          elsif session.nil?
+            print_error("Not a session: #{gateway_name}")
+            return false
+          else
+            print_error("Cannot route through the specified session (not a Comm)")
+            return false
+          end
+        else
+          print_error("Invalid gateway")
+          return false
+        end
+
+        msg = "Route "
+        if action == "remove" or action == "del"
+          worked = Rex::Socket::SwitchBoard.remove_route(subnet, netmask, gateway)
+          msg << (worked ? "removed" : "not found")
+        else
+          worked = Rex::Socket::SwitchBoard.add_route(subnet, netmask, gateway)
+          msg << (worked ? "added" : "already exists")
+        end
+        print_status(msg)
+
+      when "get"
+        if (args.length == 0)
+          print_error("You must supply an IP address.")
+          return false
+        end
+
+        comm = Rex::Socket::SwitchBoard.best_comm(args[0])
+
+        if ((comm) and
+            (comm.kind_of?(Msf::Session)))
+          print_line("#{args[0]} routes through: Session #{comm.sid}")
+        else
+          print_line("#{args[0]} routes through: Local")
+        end
+
+
+      when "flush"
+        Rex::Socket::SwitchBoard.flush_routes
+
+      when "print"
+        # IPv4 Table
+        tbl_ipv4 = Table.new(
+          Table::Style::Default,
+          'Header'  => "IPv4 Active Routing Table",
+          'Prefix'  => "\n",
+          'Postfix' => "\n",
+          'Columns' =>
+            [
+              'Subnet',
+              'Netmask',
+              'Gateway',
+            ],
+          'ColProps' =>
+            {
+              'Subnet'  => { 'MaxWidth' => 17 },
+              'Netmask' => { 'MaxWidth' => 17 },
+            })
+
+        # IPv6 Table
+        tbl_ipv6 = Table.new(
+          Table::Style::Default,
+          'Header'  => "IPv6 Active Routing Table",
+          'Prefix'  => "\n",
+          'Postfix' => "\n",
+          'Columns' =>
+            [
+              'Subnet',
+              'Netmask',
+              'Gateway',
+            ],
+          'ColProps' =>
+            {
+              'Subnet'  => { 'MaxWidth' => 17 },
+              'Netmask' => { 'MaxWidth' => 17 },
+            })
+
+        # Populate Route Tables
+        Rex::Socket::SwitchBoard.each { |route|
+          if (route.comm.kind_of?(Msf::Session))
+            gw = "Session #{route.comm.sid}"
+          else
+            gw = route.comm.name.split(/::/)[-1]
+          end
+
+          tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)
+          tbl_ipv6 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv6?(route.netmask)
+        }
+
+        # Print Route Tables
+        print(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
+        print(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
+
+        if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
+          print_status("There are currently no routes defined.")
+        elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)
+          print_status("There are currently no IPv4 routes defined.")
+        elsif (tbl_ipv4.rows.length > 0) && (tbl_ipv6.rows.length < 1)
+          print_status("There are currently no IPv6 routes defined.")
+        end
+
+      else
+        cmd_route_help
       end
-
-    else
-      cmd_route_help
+    rescue => error
+      elog("#{error}\n\n#{error.backtrace.join("\n")}")
+      print_error(error.message)
     end
   end
 
@@ -1129,6 +1133,8 @@ class Core
     begin
     method   = nil
     quiet    = false
+    show_active = false
+    show_inactive = false
     show_extended = false
     verbose  = false
     sid      = nil
@@ -1159,6 +1165,10 @@ class Core
         when "-C"
             method = 'meterp-cmd'
             cmds << val if val
+        # Display the list of inactive sessions
+        when "-d"
+          show_inactive = true
+          method = 'list_inactive'
         when "-x"
           show_extended = true
         when "-v"
@@ -1169,6 +1179,7 @@ class Core
           sid = val
         # Display the list of active sessions
         when "-l"
+          show_active = true
           method = 'list'
         when "-k"
           method = 'kill'
@@ -1455,9 +1466,9 @@ class Core
         s.reset_ring_sequence
         print_status("Reset the ring buffer pointer for Session #{sidx}")
       end
-    when 'list',nil
+    when 'list', 'list_inactive', nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, :show_extended => show_extended, :verbose => verbose, :search_term => search_term))
+      print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, search_term: search_term))
       print_line
     when 'name'
       if session_name.blank?
@@ -1587,23 +1598,6 @@ class Core
         print_error("Unknown variable")
         cmd_set_help
         return false
-      end
-    end
-
-    # Warn when setting RHOST option for module which expects RHOSTS
-    if args.first.upcase.eql?('RHOST')
-      mod = active_module
-      unless mod.nil?
-        if !mod.options.include?('RHOST') && mod.options.include?('RHOSTS')
-          warn_rhost = false
-          if mod.exploit? && mod.datastore['PAYLOAD']
-            p = framework.payloads.create(mod.datastore['PAYLOAD'])
-            warn_rhost = (p && !p.options.include?('RHOST'))
-          else
-            warn_rhost = true
-          end
-          print_warning("RHOST is not a valid option for this module. Did you mean RHOSTS?") if warn_rhost
-        end
       end
     end
 
@@ -2284,6 +2278,7 @@ class Core
     res = []
     if (active_module.targets)
       1.upto(active_module.targets.length) { |i| res << (i-1).to_s }
+      res += active_module.targets.map(&:name)
     end
     return res
   end
@@ -2433,8 +2428,6 @@ class Core
     finish = line_num + after
     all_lines.slice(start..finish)
   end
-
-
 
 end
 

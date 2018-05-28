@@ -19,6 +19,10 @@ module Msf::Modules::Metadata::Store
     load_metadata
   end
 
+  #######
+  private
+  #######
+
   #
   # Update the module meta cache disk store
   #
@@ -31,10 +35,6 @@ module Msf::Modules::Metadata::Store
       elog("Unable to update metadata store: #{e.message}")
     end
   end
-
-  #######
-  private
-  #######
 
   def load_metadata
     begin
@@ -104,7 +104,7 @@ module Msf::Modules::Metadata::Store
 
   def get_user_store
     store_dir = ::File.join(Msf::Config.config_directory, "store")
-    FileUtils.mkdir(store_dir) if !::File.exist?(store_dir)
+    FileUtils.makedirs(store_dir) if !::File.exist?(store_dir)
     return ::File.join(store_dir, UserMetaDataFile)
   end
 

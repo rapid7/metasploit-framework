@@ -19,8 +19,9 @@ module Msf
           CMD_USE_TIMEOUT = 3
 
           @@search_opts = Rex::Parser::Arguments.new(
-            "-h" => [ false, "Help banner."],
-            "-S" => [ true, "Row search filter."],
+            "-h"     => [ false, "Help banner"],
+            "-o"     => [ true, "Send output to a file in csv format"],
+            "-S"     => [ true, "Search string for row filter"],
           )
 
           def commands
@@ -38,6 +39,7 @@ module Msf
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Selects a module by name",
+              "reload_lib" => "Reload one or more library files from specified paths",
             }
           end
 
@@ -64,6 +66,45 @@ module Msf
             framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
           end
 
+          # XXX: This will try to reload *any* .rb and break on modules
+          def reload_file(path)
+            unless File.exist?(path) && path.end_with?('.rb')
+              print_error("#{path} must exist and be a .rb file")
+              return
+            end
+
+            # The file must exist to reach this, so we try our best here
+            if path =~ %r{^(?:\./)?modules/}
+              print_error('Reloading Metasploit modules is not supported (try "reload")')
+              return
+            end
+
+            print_status("Reloading #{path}")
+            load path
+          end
+
+          def cmd_reload_lib_help
+            print_line 'Usage: reload_lib [lib/to/load.rb]...'
+            print_line
+            print_line 'Reload one or more library files from specified paths.'
+          end
+
+          #
+          # Reload one or more library files from specified paths
+          #
+          def cmd_reload_lib(*args)
+            if args.empty? || args.include?('-h') || args.include?('--help')
+              cmd_reload_lib_help
+              return
+            end
+
+            args.each { |path| reload_file(path) }
+          end
+
+          def cmd_reload_lib_tabs(str, words)
+            tab_complete_filenames(str, words)
+          end
+
           def cmd_edit_help
             print_line "Usage: edit [file/to/edit.rb]"
             print_line
@@ -77,33 +118,33 @@ module Msf
           # Edit the currently active module or a local file
           #
           def cmd_edit(*args)
+            editing_module = false
+
             if args.length > 0
               path = args[0]
             elsif active_module
+              editing_module = true
               path = active_module.file_path
             end
 
-            if path
-              editor = local_editor
-
-              if editor.nil?
-                editor = 'vim'
-                print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
-              end
-
-              print_status("Launching #{editor} #{path}")
-              system(*editor.split, path)
-
-              # XXX: This will try to reload *any* .rb and break on modules
-              if args.length > 0 && path.end_with?('.rb')
-                print_status("Reloading #{path}")
-                load path
-              else
-                print_error('Only Ruby files can be reloaded (use reload/rerun for modules)')
-              end
-            else
-              print_error('Nothing to edit -- try using a module first.')
+            if path.nil?
+              print_error('Nothing to edit. Try using a module first or specifying a library file to edit.')
+              return
             end
+
+            editor = local_editor
+
+            if editor.nil?
+              editor = 'vim'
+              print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
+            end
+
+            print_status("Launching #{editor} #{path}")
+            system(*editor.split, path)
+
+            return if editing_module
+
+            reload_file(path)
           end
 
           #
@@ -370,7 +411,12 @@ module Msf
           end
 
           def cmd_search_help
-            print_line "Usage: search [keywords]"
+            print_line "Usage: search [ options ] <keywords>"
+            print_line
+            print_line "OPTIONS:"
+            print_line "  -h                Show this help information"
+            print_line "  -o <file>         Send output to a file in csv format"
+            print_line "  -S <string>       Search string for row filter"
             print_line
             print_line "Keywords:"
             {
@@ -381,6 +427,7 @@ module Msf
               'edb'      => 'Modules with a matching Exploit-DB ID',
               'name'     => 'Modules with a matching descriptive name',
               'platform' => 'Modules affecting this platform',
+              'port'     => 'Modules with a matching port',
               'ref'      => 'Modules with a matching ref',
               'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
             }.each_pair do |keyword, description|
@@ -396,25 +443,34 @@ module Msf
           # Searches modules for specific keywords
           #
           def cmd_search(*args)
-            match   = ''
+            if args.empty?
+              print_error("Argument required\n")
+              cmd_search_help
+              return
+            end
+
+            match = ''
             search_term = nil
+            output_file = nil
             @@search_opts.parse(args) { |opt, idx, val|
               case opt
-                when "-t"
-                  print_error("Deprecated option.  Use type:#{val} instead")
-                  cmd_search_help
-                  return
-                when "-S", "--search"
+                when "-S"
                   search_term = val
                 when "-h"
                   cmd_search_help
                   return
-                when "-S"
-                  search_term = val
+                when '-o'
+                  output_file = val
                 else
                   match += val + " "
               end
             }
+
+            if match.empty? && search_term.nil?
+              print_error("Keywords or search argument required\n")
+              cmd_search_help
+              return
+            end
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
@@ -426,7 +482,15 @@ module Msf
                   m.name
               ]
             end
-            print_line(tbl.to_s)
+
+            if output_file
+              print_status("Wrote search results to #{output_file}")
+              ::File.open(output_file, "wb") { |ofd|
+                ofd.write(tbl.to_csv)
+              }
+            else
+              print_line(tbl.to_s)
+            end
           end
 
           #
@@ -439,13 +503,6 @@ module Msf
           def cmd_search_tabs(str, words)
             if words.length == 1
               return @@search_opts.fmt.keys
-            end
-
-            case (words[-1])
-              when "-r"
-                return RankingName.sort.map{|r| r[1]}
-              when "-t"
-                return %w{auxiliary encoder exploit nop payload post}
             end
 
             []
@@ -592,7 +649,7 @@ module Msf
 
             # Ensure we have a reference name and not a path
             if mod_name.start_with?('./', 'modules/')
-              mod_name.sub!(/^(?:\.\/)?modules\//, '')
+              mod_name.sub!(%r{^(?:\./)?modules/}, '')
             end
             if mod_name.end_with?('.rb')
               mod_name.sub!(/\.rb$/, '')

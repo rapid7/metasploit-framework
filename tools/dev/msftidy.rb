@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
+
 #
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
 # by jduck, todb, and friends
 #
+
 require 'fileutils'
 require 'find'
 require 'time'
@@ -33,10 +35,6 @@ class String
 
   def cyan
     "\e[1;36;40m#{self}\e[0m"
-  end
-
-  def ascii_only?
-    self =~ Regexp.new('[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]', nil, 'n') ? false : true
   end
 end
 
@@ -110,12 +108,6 @@ class Msftidy
   # The functions below are actually the ones checking the source code
   #
   ##
-
-  def check_mode
-    unless (@stat.mode & 0111).zero?
-      warn("Module should not be marked executable")
-    end
-  end
 
   def check_shebang
     if @lines.first =~ /^#!/
@@ -220,7 +212,7 @@ class Msftidy
   end
 
   # See if 'require "rubygems"' or equivalent is used, and
-  # warn if so.  Since Ruby 1.9 this has not been necessary and
+  # warn if so. Since Ruby 1.9 this has not been necessary and
   # the framework only suports 1.9+
   def check_rubygems
     @lines.each do |line|
@@ -318,10 +310,6 @@ class Msftidy
           end
         end
 
-        if not mod_title.ascii_only?
-          error("Please avoid unicode or non-printable characters in module title.")
-        end
-
         # Since we're looking at the module title, this line clearly cannot be
         # the author block, so no point to run more code below.
         next
@@ -353,10 +341,6 @@ class Msftidy
 
         if author_name =~ /^@.+$/
           error("No Twitter handles, please. Try leaving it in a comment instead.")
-        end
-
-        if not author_name.ascii_only?
-          error("Please avoid unicode or non-printable characters in Author")
         end
 
         unless author_name.empty?
@@ -541,10 +525,6 @@ class Msftidy
       src_ended = true if ln =~ /^__END__$/
       next if src_ended
 
-      if ln =~ /[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]/
-        error("Unicode detected: #{ln.inspect}", idx)
-      end
-
       if ln =~ /[ \t]$/
         warn("Spaces at EOL", idx)
       end
@@ -697,7 +677,6 @@ class Msftidy
   # Run all the msftidy checks.
   #
   def run_checks
-    check_mode
     check_shebang
     check_nokogiri
     check_rubygems
@@ -771,6 +750,8 @@ if __FILE__ == $PROGRAM_NAME
         next if full_filepath =~ /\.git[\x5c\x2f]/
         next unless File.file? full_filepath
         next unless full_filepath =~ /\.rb$/
+        # Executable files are now assumed to be external modules
+        next if File.executable?(full_filepath)
         msftidy = Msftidy.new(full_filepath)
         msftidy.run_checks
         @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)

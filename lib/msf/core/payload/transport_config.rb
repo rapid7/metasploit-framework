@@ -17,6 +17,12 @@ module Msf::Payload::TransportConfig
     config
   end
 
+  def transport_config_reverse_udp(opts={})
+    config =transport_config_reverse_tcp(opts)
+    config[:scheme] = 'udp'
+    config
+  end
+
   def transport_config_reverse_ipv6_tcp(opts={})
     ds = opts[:datastore] || datastore
     config = transport_config_reverse_tcp(opts)
@@ -45,9 +51,16 @@ module Msf::Payload::TransportConfig
 
   def transport_uri_components(opts={})
     ds = opts[:datastore] || datastore
-    scheme = opts[:scheme]
-    lhost = ds['LHOST']
-    lport = ds['LPORT']
+    if opts[:url]
+      u = URI(opts[:url])
+      scheme = u.scheme
+      lhost = u.host
+      lport = u.port
+    else
+      scheme = opts[:scheme]
+      lhost = ds['LHOST']
+      lport = ds['LPORT']
+    end
     if ds['OverrideRequestHost']
       scheme = ds['OverrideScheme'] || scheme
       lhost = ds['OverrideLHOST'] || lhost
@@ -97,6 +110,17 @@ module Msf::Payload::TransportConfig
       uri:    "/#{ds[:pipe_host] || ds['PIPENAME']}"
     }.merge(timeout_config(opts))
   end
+
+  def transport_config_bind_named_pipe(opts={})
+    ds = opts[:datastore] || datastore
+    {
+      scheme:     'pipe',
+      lhost:      '.',
+      uri:        "/#{ds['PIPENAME']}",
+    }.merge(timeout_config(opts))
+    
+  end
+
 
 private
 

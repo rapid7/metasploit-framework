@@ -65,6 +65,12 @@ module Msf
       end
 
       def generate_config(opts={})
+        ds = opts[:datastore] || datastore
+
+        if ds['PayloadProcessCommandLine'] != ''
+          opts[:name] ||= ds['PayloadProcessCommandLine']
+        end
+
         opts[:uuid] ||= generate_payload_uuid
 
         case opts[:scheme]
@@ -85,7 +91,17 @@ module Msf
         end
         opts[:session_guid] = Base64.encode64(guid).strip
 
-        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file)
+        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name)
+      end
+
+      # Stage encoding is not safe for Mettle (doesn't apply to stageless)
+      def encode_stage?
+        if datastore['EnableStageEncoding'] && !@warned
+          print_warning("Stage encoding is not supported for #{refname}")
+          @warned = true
+        end
+
+        false
       end
 
     end

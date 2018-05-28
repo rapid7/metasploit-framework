@@ -83,6 +83,15 @@ module Msf
     # @!attribute  var_name
     #   @return [String] The custom variable string for certain output formats
     attr_accessor :var_name
+    # @!attribute encryption_format
+    #   @return [String] The encryption format to use for the shellcode.
+    attr_accessor :encryption_format
+    # @!attribute encryption_key
+    #   @return [String] The key to use for the encryption
+    attr_accessor :encryption_key
+    # @!attribute encryption_iv
+    #   @return [String] The initialization vector for the encryption (not all apply)
+    attr_accessor :encryption_iv
 
 
     # @param opts [Hash] The options hash
@@ -123,6 +132,9 @@ module Msf
       @var_name   = opts.fetch(:var_name, 'buf')
       @smallest   = opts.fetch(:smallest, false)
       @encoder_space = opts.fetch(:encoder_space, @space)
+      @encryption_format = opts.fetch(:encryption_format, nil)
+      @encryption_key = opts.fetch(:encryption_key, nil)
+      @encryption_iv = opts.fetch(:encryption_iv, nil)
 
       @framework  = opts.fetch(:framework)
 
@@ -276,15 +288,20 @@ module Msf
     # @param shellcode [String] the processed shellcode to be formatted
     # @return [String] The final formatted form of the payload
     def format_payload(shellcode)
+      encryption_opts = {}
+      encryption_opts[:format] = encryption_format if encryption_format
+      encryption_opts[:iv] = encryption_iv if encryption_iv
+      encryption_opts[:key] = encryption_key if encryption_key
+
       case format.downcase
         when "js_be"
           if Rex::Arch.endian(arch) != ENDIAN_BIG
             raise IncompatibleEndianess, "Big endian format selected for a non big endian payload"
           else
-            ::Msf::Simple::Buffer.transform(shellcode, format, @var_name)
+            ::Msf::Simple::Buffer.transform(shellcode, format, @var_name, encryption_opts)
           end
         when *::Msf::Simple::Buffer.transform_formats
-          ::Msf::Simple::Buffer.transform(shellcode, format, @var_name)
+          ::Msf::Simple::Buffer.transform(shellcode, format, @var_name, encryption_opts)
         when *::Msf::Util::EXE.to_executable_fmt_formats
           ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform_list, shellcode, format, exe_options)
         else

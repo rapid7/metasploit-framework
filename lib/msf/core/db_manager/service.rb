@@ -1,20 +1,29 @@
 module Msf::DBManager::Service
   # Deletes a port and associated vulns matching this port
-  def del_service(wspace, address, proto, port, comm='')
-
-    host = get_host(:workspace => wspace, :address => address)
-    return unless host
+  def delete_service(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
   ::ActiveRecord::Base.connection_pool.with_connection {
-    host.services.where({:proto => proto, :port => port}).each { |s| s.destroy }
+    deleted = []
+    opts[:ids].each do |service_id|
+      service = Mdm::Service.find(service_id)
+      begin
+        deleted << service.destroy
+      rescue
+        elog("Forcibly deleting #{service.name}")
+        deleted << service.delete
+      end
+    end
+
+    return deleted
   }
   end
 
   # Iterates over the services table calling the supplied block with the
   # service instance of each entry.
-  def each_service(wspace=workspace, &block)
+  def each_service(wspace=framework.db.workspace, &block)
   ::ActiveRecord::Base.connection_pool.with_connection {
-    services(wspace).each do |service|
+    wspace.services.each do |service|
       block.call(service)
     end
   }
@@ -52,7 +61,7 @@ module Msf::DBManager::Service
     hname = opts.delete(:host_name)
     hmac  = opts.delete(:mac)
     host  = nil
-    wspace = opts.delete(:workspace) || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     hopts = {:workspace => wspace, :host => addr}
     hopts[:name] = hname if hname
     hopts[:mac]  = hmac  if hmac
@@ -89,6 +98,7 @@ module Msf::DBManager::Service
     proto = opts[:proto] || Msf::DBManager::DEFAULT_SERVICE_PROTO
 
     service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_initialize
+    ostate = service.state
     opts.each { |k,v|
       if (service.attribute_names.include?(k.to_s))
         service[k] = ((v and k == :name) ? v.to_s.downcase : v)
@@ -98,6 +108,20 @@ module Msf::DBManager::Service
     }
     service.state ||= Msf::ServiceState::Open
     service.info  ||= ""
+
+    begin
+      framework.events.on_db_service(service) if service.new_record?
+    rescue ::Exception => e
+      wlog("Exception in on_db_service event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
+    begin
+      framework.events.on_db_service_state(service, service.port, ostate) if service.state != ostate
+    rescue ::Exception => e
+      wlog("Exception in on_db_service_state event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
 
     if (service and service.changed?)
       msf_import_timestamps(opts,service)
@@ -116,15 +140,30 @@ module Msf::DBManager::Service
   end
 
   # Returns a list of all services in the database
-  def services(wspace = workspace, only_up = false, proto = nil, addresses = nil, ports = nil, names = nil)
+  def services(opts)
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+
+    search_term = opts.delete(:search_term)
+
+    order_args = [:port]
+    order_args.unshift(Mdm::Host.arel_table[:address]) if opts.key?(:hosts)
+
   ::ActiveRecord::Base.connection_pool.with_connection {
-    conditions = {}
-    conditions[:state] = [Msf::ServiceState::Open] if only_up
-    conditions[:proto] = proto if proto
-    conditions["hosts.address"] = addresses if addresses
-    conditions[:port] = ports if ports
-    conditions[:name] = names if names
-    wspace.services.includes(:host).where(conditions).order("hosts.address, port")
+    if search_term && !search_term.empty?
+      column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
+      wspace.services.includes(:host).where(opts).where(column_search_conditions).order(*order_args)
+    else
+      wspace.services.includes(:host).where(opts).order(*order_args)
+    end
+  }
+  end
+
+  def update_service(opts)
+    opts.delete(:workspace) # Workspace isn't used with Mdm::Service. So strip it if it's present.
+
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    id = opts.delete(:id)
+    Mdm::Service.update(id, opts)
   }
   end
 end

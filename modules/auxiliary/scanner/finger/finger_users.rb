@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       finger_zero
       finger_dot
       finger_chars
-      vprint_status "#{rhost}:#{rport} - Sending finger request for user list: #{finger_user_common.join(", ")}"
+      vprint_status "#{rhost}:#{rport} - Sending finger request for #{finger_user_common.count} users"
       finger_list
 
     rescue ::Rex::ConnectionError
@@ -168,22 +168,21 @@ class MetasploitModule < Msf::Auxiliary
 
       # No such file or directory == valid user bad utmp
 
-      # Solaris
-      if(line =~ /^([a-z0-9\.\_]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)/)
+
+      case line
+      when /^([a-z0-9\.\_]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)/
+        # Solaris
         uid = $1
         if ($2 != "Name")
           @users[uid] ||= {}
         end
-      end
 
-      # IRIX
-      if(line =~ /^\s*Login name:\s*([^\s]+)\s+/i)
+      when /^\s*Login name:\s*([^\s]+)\s+/i
+        # IRIX
         uid = $1
         @users[uid] ||= {} if uid
-      end
-
-      # Debian GNU/Linux
-      if(line =~ /^\s*Username:\s*([^\s]+)\s+/i)
+      when /^\s*(?:Username|Login):\s*([^\s]+)\s+/i
+        # Debian GNU/Linux
         uid = $1
         @users[uid] ||= {} if uid
       end

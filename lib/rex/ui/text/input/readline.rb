@@ -26,7 +26,7 @@ begin
       self.extend(::Readline)
 
       if (tab_complete_proc)
-        ::Readline.basic_word_break_characters = "\x00"
+        ::Readline.basic_word_break_characters = ""
         ::Readline.completion_proc = tab_complete_proc
         @rl_saved_proc = tab_complete_proc
       end
@@ -88,7 +88,7 @@ begin
     # down other background threads. This is important when there are many active
     # background jobs, such as when the user is running Karmetasploit
     #
-    def pgets()
+    def pgets
 
       line = nil
       orig = Thread.current.priority

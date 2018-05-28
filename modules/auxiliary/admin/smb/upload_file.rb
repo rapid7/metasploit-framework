@@ -13,12 +13,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  # Aliases for common classes
-  SIMPLE = Rex::Proto::SMB::SimpleClient
-  XCEPT  = Rex::Proto::SMB::Exceptions
-  CONST  = Rex::Proto::SMB::Constants
-
-
   def initialize
     super(
       'Name'        => 'SMB File Upload Utility',
@@ -46,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(_ip)
     begin
       vprint_status("Connecting to the server...")
-      connect()
+      connect(versions: [1, 2])
       smb_login()
 
       vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
@@ -63,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
         begin
           vprint_status("Trying to upload #{local_path} to #{remote_path}...")
 
-          fd = simple.open("\\#{remote_path}", 'rwct')
+          fd = simple.open("#{remote_path}", 's', write: true)
           data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']))
           fd.write(data)
           fd.close

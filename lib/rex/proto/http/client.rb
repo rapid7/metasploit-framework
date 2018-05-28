@@ -229,6 +229,7 @@ class Client
     send_request(req, t)
     res = read_response(t)
     res.request = req.to_s if res
+    res.peerinfo = peerinfo if res
     res
   end
 
@@ -626,6 +627,22 @@ class Client
   #
   def pipelining?
     pipeline
+  end
+
+  #
+  # Target host addr and port for this connection
+  #
+  def peerinfo
+    if self.conn
+      pi = self.conn.peerinfo || nil
+      if pi
+        return {
+          'addr' => pi.split(':')[0],
+          'port' => pi.split(':')[1].to_i
+        }
+      end
+    end
+    nil
   end
 
   #

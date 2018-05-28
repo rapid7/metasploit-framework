@@ -5,6 +5,8 @@ module Metasploit
   module Framework
     module LoginScanner
 
+      class BavisionCamerasException < StandardError; end
+
       class BavisionCameras < HTTP
 
         DEFAULT_PORT  = 80
@@ -59,7 +61,13 @@ module Metasploit
           nonce_count = 1
           cnonce = Digest::MD5.hexdigest("%x" % (Time.now.to_i + rand(65535)))
 
-          response['www-authenticate'] =~ /^(\w+) (.*)/
+          i = (response['www-authenticate'] =~ /^(\w+) (.*)/)
+
+          # The www-authenticate header does not return in the format we like,
+          # so let's bail.
+          unless i
+            raise BavisionCamerasException, 'www-authenticate header is not in the right format'
+          end
 
           params = {}
           $2.gsub(/(\w+)="(.*?)"/) { params[$1] = $2 }
@@ -104,7 +112,7 @@ module Metasploit
 
           begin
             result_opts.merge!(try_digest_auth(credential))
-          rescue ::Rex::ConnectionError => e
+          rescue ::Rex::ConnectionError, BavisionCamerasException => e
             # Something went wrong during login. 'e' knows what's up.
             result_opts.merge!(status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: e.message)
           end
