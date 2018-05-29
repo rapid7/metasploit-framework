@@ -37,25 +37,26 @@ module HostApiDoc
   CRED_COUNT_DESC = 'Cached count of the number of associated creds.'
   STATE_ENUM = [ 'alive', 'down', 'unknown' ]
   ARCH_ENUM = [
-      'x86',
-      'x86_64',
-      'x64',
-      'mips',
-      'mipsle',
-      'mipsbe',
-      'mips64',
-      'mips64le',
-      'ppc',
-      'ppce500v2',
-      'ppc64',
-      'ppc64le',
+      'armbe',
+      'armle',
       'cbea',
       'cbea64',
+      'cmd',
+      'java',
+      'mips',
+      'mipsbe',
+      'mipsle',
+      'php',
+      'ppc',
+      'ppc64',
+      'ruby',
       'sparc',
-      'sparc64',
-      'armle',
-      'armbe',
-      'aarch64'
+      'tty',
+      'x64',
+      'x86',
+      'x86_64',
+      '',
+      'Unknown'
   ]
 
 # Swagger documentation for Host model

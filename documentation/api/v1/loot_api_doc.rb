@@ -109,31 +109,34 @@ module LootApiDoc
 
   swagger_path '/api/v1/loot/{id}' do
     # Swagger documentation for api/v1/loot/:id GET
-    operation :get do
-      key :description, 'Return specific loot entry that is stored in the database.'
-      key :tags, [ 'loot' ]
 
-      parameter :workspace
-
-      parameter do
-        key :name, :id
-        key :in, :path
-        key :description, 'ID of loot to retrieve.'
-        key :required, true
-        key :type, :integer
-        key :format, :int32
-      end
-
-      response 200 do
-        key :description, 'Returns loot data.'
-        schema do
-          key :type, :array
-          items do
-            key :'$ref', :Loot
-          end
-        end
-      end
-    end
+    # TODO: Add this back in when this endpoint is implemented, tracked in MS-3233.
+    #
+    # operation :get do
+    #   key :description, 'Return specific loot entry that is stored in the database.'
+    #   key :tags, [ 'loot' ]
+    #
+    #   parameter :workspace
+    #
+    #   parameter do
+    #     key :name, :id
+    #     key :in, :path
+    #     key :description, 'ID of loot to retrieve.'
+    #     key :required, true
+    #     key :type, :integer
+    #     key :format, :int32
+    #   end
+    #
+    #   response 200 do
+    #     key :description, 'Returns loot data.'
+    #     schema do
+    #       key :type, :array
+    #       items do
+    #         key :'$ref', :Loot
+    #       end
+    #     end
+    #   end
+    # end
 
     # Swagger documentation for /api/v1/loot/{id} PUT
     operation :put do

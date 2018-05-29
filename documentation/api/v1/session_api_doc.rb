@@ -41,27 +41,31 @@ module SessionApiDoc
     end
 
     # Swagger documentation for /api/v1/sessions POST
-    operation :post do
-      key :description, 'Create a session entry.'
-      key :tags, [ 'session' ]
 
-      parameter do
-        key :in, :body
-        key :name, :body
-        key :description, 'The attributes to assign to the session.'
-        key :required, true
-        schema do
-          key :'$ref', :Session
-        end
-      end
+    # API based creation of session objects is not yet supported from a user-facing perspective.
+    # Once this is implemented in a sensible way we will need to uncomment and update the below doc code.
 
-      response 200 do
-        key :description, 'Successful operation.'
-        schema do
-          key :type, :object
-          key :'$ref', :Session
-        end
-      end
-    end
+    # operation :post do
+    #   key :description, 'Create a session entry.'
+    #   key :tags, [ 'session' ]
+    #
+    #   parameter do
+    #     key :in, :body
+    #     key :name, :body
+    #     key :description, 'The attributes to assign to the session.'
+    #     key :required, true
+    #     schema do
+    #       key :'$ref', :Session
+    #     end
+    #   end
+    #
+    #   response 200 do
+    #     key :description, 'Successful operation.'
+    #     schema do
+    #       key :type, :object
+    #       key :'$ref', :Session
+    #     end
+    #   end
+    # end
   end
 end

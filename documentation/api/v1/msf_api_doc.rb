@@ -3,8 +3,8 @@ require 'swagger/blocks'
 module MsfApiDoc
   include Swagger::Blocks
 
-  swagger_path '/api/v1/msf' do
-    # Swagger documentation for /api/v1/msf GET
+  swagger_path '/api/v1/msf/version' do
+    # Swagger documentation for /api/v1/msf/version GET
     operation :get do
       key :description, 'Return the current version of the running Metasploit Framework.'
       key :tags, [ 'msf' ]
