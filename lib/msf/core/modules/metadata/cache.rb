@@ -35,10 +35,10 @@ class Cache
   #  Returns the module data cache, but first ensures all the metadata is loaded
   #
   def get_metadata
-    @mutex.synchronize {
+   @mutex.synchronize {
       wait_for_load
       @module_metadata_cache.values
-    }
+   }
   end
 
   #
@@ -146,6 +146,7 @@ class Cache
   end
 
   def initialize
+    super
     @mutex = Mutex.new
     @module_metadata_cache = {}
     @store_loaded = false
