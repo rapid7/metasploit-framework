@@ -19,7 +19,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Linux Command Shell, Reverse TCP Inline (IPv6)',
       'Description'   => 'Connect back to attacker and spawn a command shell over IPv6',
-      'Author'        => 'Matteo Malvica',
+      'Author'        => 'Matteo Malvica <matteo[at]malvica.com>',  # avanzo
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,
