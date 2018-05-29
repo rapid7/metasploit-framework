@@ -30,7 +30,7 @@ module MetasploitModule
 
   def generate
       target_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
-      first_dword  = target_ipv60]
+      first_dword  = target_ipv6[0]
       second_dword = target_ipv6[1]
       third_dword  = target_ipv6[2]
       fourth_dword = target_ipv6[3]
