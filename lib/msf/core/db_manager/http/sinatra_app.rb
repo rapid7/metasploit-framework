@@ -1,4 +1,5 @@
 require 'sinatra/base'
+require 'swagger/blocks'
 require 'msf/core/db_manager/http/servlet_helper'
 require 'msf/core/db_manager/http/servlet/api_docs_servlet'
 require 'msf/core/db_manager/http/servlet/host_servlet'
@@ -18,16 +19,7 @@ require 'msf/core/db_manager/http/servlet/nmap_servlet'
 require 'msf/core/db_manager/http/servlet/db_export_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_attempt_servlet'
 
-require 'swagger/blocks'
-
 class SinatraApp < Sinatra::Base
-  set :public_folder, File.dirname(__FILE__) + '/public'
-
-  def root_path
-    uri = URI(request.url)
-    "#{uri.scheme}://#{uri.host}:#{uri.port}"
-  end
-
   helpers ServletHelper
 
   # Servlet registration

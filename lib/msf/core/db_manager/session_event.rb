@@ -11,7 +11,7 @@ module Msf::DBManager::SessionEvent
   # Record a session event in the database
   #
   # opts MUST contain one of:
-  # +:session+:: the Msf::Session OR the ::Mdm::Session we are reporting
+  # +:session+:: the Msf::Session, Mdm::Session or Hash representation of Mdm::Session we are reporting
   # +:etype+::   event type, enum: command, output, upload, download, filedelete
   #
   # opts may contain
@@ -46,7 +46,14 @@ module Msf::DBManager::SessionEvent
       event_data = { :created_at => opts[:created_at] }
     end
 
-    event_data[:session_id] = session.id
+    session_id = nil
+    if session.is_a?(Mdm::Session)
+      session_id = session.id
+    elsif session.is_a?(Hash) && session.key?(:id)
+      session_id = session[:id]
+    end
+
+    event_data[:session_id] = session_id
     [:remote_path, :local_path, :output, :command, :etype].each do |attr|
       event_data[attr] = opts[attr] if opts[attr]
     end

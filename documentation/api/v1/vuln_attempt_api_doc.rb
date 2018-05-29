@@ -36,6 +36,8 @@ module VulnAttemptApiDoc
       key :description, 'Return vuln attempts that are stored in the database.'
       key :tags, [ 'vuln_attempt' ]
 
+      parameter :workspace
+
       response 200 do
         key :description, 'Returns vuln attempt data.'
         schema do
