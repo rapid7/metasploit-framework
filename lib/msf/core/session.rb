@@ -327,7 +327,14 @@ module Session
   # Get an arch/platform combination
   #
   def session_type
-    "#{self.arch}/#{self.platform}"
+    # avoid unnecessary slash separator
+    if !self.arch.nil? && !self.arch.empty? && !self.platform.nil? && !self.platform.empty?
+      separator =  '/'
+    else
+      separator = ''
+    end
+
+    "#{self.arch}#{separator}#{self.platform}"
   end
 
 
