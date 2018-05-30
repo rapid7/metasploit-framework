@@ -421,22 +421,22 @@ protected
   #
   # @return [String]
   def _read_file_meterpreter(file_name)
-    begin
-      fd = session.fs.file.new(file_name, "rb")
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      print_error("Failed to open file: #{file_name}: #{e}")
-      return nil
-    end
+    fd = session.fs.file.new(file_name, "rb")
 
     data = fd.read
-    begin
-      until fd.eof?
-        data << fd.read
-      end
-    ensure
-      fd.close
+    until fd.eof?
+      data << fd.read
     end
+
     data
+  rescue EOFError
+    # Sometimes fd isn't marked EOF in time?
+    ''
+  rescue ::Rex::Post::Meterpreter::RequestError => e
+    print_error("Failed to open file: #{file_name}: #{e}")
+    return nil
+  ensure
+    fd.close if fd
   end
 
   #
