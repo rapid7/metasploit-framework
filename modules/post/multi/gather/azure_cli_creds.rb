@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
       ),
       'License'       => MSF_LICENSE,
       'Author'        => ['James Otten <jamesotten1[at]gmail.com>'],
-      'Platform'      => ['win', 'linux'],
+      'Platform'      => ['win', 'linux', 'osx'],
       'SessionTypes'  => ['meterpreter']
     ))
   end
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Post
       grab_user_profiles.each do |profile|
         user_dirs.push(profile['ProfileDir'])
       end
-    elsif session.platform == 'linux'
+    elsif session.platform == 'linux' || session.platform === 'osx'
       user_dirs = enum_user_directories
     else
       fail_with(Failure::BadConfig, "Unsupported platform")

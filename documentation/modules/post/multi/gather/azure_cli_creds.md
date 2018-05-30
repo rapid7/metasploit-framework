@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-  Any windows or linux system with a `meterpreter` session and [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest).
+  Any windows, linux, or osx system with a `meterpreter` session and [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest).
 
   Successfully tested on:
 
