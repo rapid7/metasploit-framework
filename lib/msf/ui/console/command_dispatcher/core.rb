@@ -2189,6 +2189,12 @@ class Core
     return res
   end
 
+  # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
+  def tab_complete_source_interface(o)
+    return [] unless o.is_a?(Msf::OptAddressLocal)
+    o.interfaces
+  end
+
   #
   # Provide possible option values based on type
   #
@@ -2210,8 +2216,8 @@ class Core
           res << Rex::Socket.source_address(rh)
         else
           res += tab_complete_source_address
+          res += tab_complete_source_interface(o)
         end
-      else
       end
 
     when Msf::OptAddressRange
