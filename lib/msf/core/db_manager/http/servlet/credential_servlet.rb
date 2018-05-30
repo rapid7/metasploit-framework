@@ -22,10 +22,8 @@ module CredentialServlet
   def self.get_credentials
     lambda {
       begin
-        opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
-        opts.merge!(sanitized_params)
-        data = get_db.creds(opts)
+        data = get_db.creds(sanitized_params)
 
         # Need to append the human attribute into the private sub-object before converting to json
         # This is normally pulled from a class method from the MetasploitCredential class

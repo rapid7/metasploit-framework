@@ -8,7 +8,7 @@ module RemoteCredentialDataService
   CREDENTIAL_MDM_CLASS = 'Metasploit::Credential::Core'
 
   def creds(opts = {})
-    data = self.get_data(CREDENTIAL_API_PATH, opts)
+    data = self.get_data(CREDENTIAL_API_PATH, nil, opts)
     rv = json_to_mdm_object(data, CREDENTIAL_MDM_CLASS, [])
     parsed_body = JSON.parse(data.response.body)
     parsed_body.each do |cred|
