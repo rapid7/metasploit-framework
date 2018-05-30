@@ -59,7 +59,7 @@ class Console::CommandDispatcher::Stdapi::AudioOutput
     end
 
     if audio_path == nil
-      print_line('Please specify a path to an audio file via the '-f' option or use '-h'')
+      print_line('Please specify a path to an audio file via the -f option or use -h')
       return
     end
 
