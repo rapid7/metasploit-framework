@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('FILE', [ true,  "File Acess", '/etc/passwd']),
+        OptString.new('FILE', [ true,  "File Access", '/etc/passwd']),
       ])
   end
 
