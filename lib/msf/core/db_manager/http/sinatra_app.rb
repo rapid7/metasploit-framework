@@ -15,6 +15,7 @@ require 'msf/core/db_manager/http/servlet/exploit_servlet'
 require 'msf/core/db_manager/http/servlet/loot_servlet'
 require 'msf/core/db_manager/http/servlet/session_event_servlet'
 require 'msf/core/db_manager/http/servlet/credential_servlet'
+require 'msf/core/db_manager/http/servlet/login_servlet'
 require 'msf/core/db_manager/http/servlet/nmap_servlet'
 require 'msf/core/db_manager/http/servlet/db_export_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_attempt_servlet'
@@ -37,6 +38,7 @@ class SinatraApp < Sinatra::Base
   register LootServlet
   register SessionEventServlet
   register CredentialServlet
+  register LoginServlet
   register NmapServlet
   register DbExportServlet
   register VulnAttemptServlet
