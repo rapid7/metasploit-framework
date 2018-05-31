@@ -23,6 +23,7 @@ Primary use:	Open Source
 
 # Text Color (text): #97a3ab
 # Text Color on Hover (Text, title): #EB5D26
+# Page content background color : #182028
 
 ------------------------------------------------------------------*/
 /*------------------------------------------------------------------
@@ -284,8 +285,8 @@ section {
 }
 
 .page-container {
-    background: #e5e5e5;
-    padding-left: 300px;
+    background: #182028;
+    padding-left: 280px;    
 }
 
 @media (max-width: 991px) {
@@ -296,21 +297,7 @@ section {
     }
 }
 
-.page-container2 {
-    background: #f2f2f2;
-    padding-left: 300px;
-}
 
-@media (max-width: 991px) {
-    .page-container2 {
-        position: relative;
-        padding-left: 0;
-    }
-}
-
-.page-container3 {
-    background: #f7f7f7;
-}
 
 .main-content {
     padding-top: 116px;
@@ -691,8 +678,8 @@ section {
 .header-desktop .section__content {
     overflow: visible;
     position: absolute;
-    top: 50%;
-    left: 0;
+    top: 60%;                   /* changed */
+    left: 74%;
     right: 0;
     -webkit-transform: translateY(-50%);
     -moz-transform: translateY(-50%);
@@ -2190,7 +2177,7 @@ section {
 }
 
 .setting-dropdown .account-dropdown__body {
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid #182028;
 }
 
 .setting-dropdown .account-dropdown__body:last-child {
@@ -2203,6 +2190,7 @@ section {
 
 .setting-dropdown .account-dropdown__item a:hover {
     color: #fff;
+    font-weight: 30px;
 }
 
 .header-button-item {

@@ -163,11 +163,10 @@
             <div class="menu-sidebar__content js-scrollbar1">
                 <nav class="navbar-sidebar">
                     <ul class="list-unstyled navbar__list">
-
-        <!--  ********************* Post Module Start Here ************************* -->
-
                         <li class="active has-sub">
                             <a class="js-arrow" href="#">Post Modules</a>
+                            <!--  ********* Post Module Start Here ************** -->
+                            <!-- This list will be made dynamically !-->
                             <ul class="list-unstyled navbar__sub-list js-sub-list">
                               <li>
                                   <a href="#">Common</a>
@@ -205,12 +204,11 @@
                               </li>
                             </ul>
                           </li>
-<!-- ******************** Post Moule Ends Here ******************************* -->
-
-<!-- ********************** Meterpreter Extensions *************************** -->
 
                         <li class="active has-sub">
                             <a class="js-arrow" href="#">Extensions</a>
+                            <!-- *********** Meterpreter Extensions ***********-->
+                            <!-- This List will be made dynamically-->
                             <ul class="list-unstyled navbar__sub-list js-sub-list">
                               <li>
                                   <a href="#">Android</a>
@@ -257,7 +255,9 @@
                             </ul>
                         </li>
 
-<!-- ************************Meterpreter Extension Ends ********************-->
+                        <li class="active has-sub">
+                          <a class="js-arrow" href="#">Commands</a>
+                        </li>
 
                     </ul>
                 </nav>
@@ -272,12 +272,7 @@
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
                         <div class="header-wrap">
-                            <form class="form-header" action="" method="POST">
-                                <!-- Ramoved -->
-                            </form>
                             <div class="header-button">
-
-
 
 
                                 <div class="account-wrap">
@@ -285,9 +280,10 @@
                                        
                                         <div class="content">
                                             <a class="js-acc-btn" href="#">System Information</a>
-                                        </div><a><Font color="#97a3ab">
+                                        </div>
                                         <div class="account-dropdown js-dropdown">
                                             <div class="info clearfix">
+                                                 <!-- This content will be created dynamically -->
                                                 <div class="content">
                                                     <h5 class="name">
                                                         <a href="#">DESKTOP4013</a>
@@ -297,14 +293,17 @@
                                             </div>
                                             <div class="account-dropdown__body">
                                                 <div class="account-dropdown__item">
-                                                    <a href="#">info1</a>
+                                                    <a href="#">Operating System</a>
                                                 </div>
                                                 <div class="account-dropdown__item">
-                                                    <a href="#">info2</a>
+                                                    <a href="#">Getuid</a>
                                                 </div>
                                                 <div class="account-dropdown__item">
                                                     <a href="#">info3</a>
                                                 </div>
+
+                                    <!-- -->
+
                                             </div>
                                         </div>
                                     </div>
@@ -320,9 +319,16 @@
             <div class="main-content">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
-                      <div class="mainsection">
-                        Meterpreter Output
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <div class="mainsection">
+                          <p>  Meterpreter Output
+                          </p>
+                        </div>
+                        </div>
+                        
                       </div>
+                      
 
 
                         <!-- OUTPUT OF METERPRETER SHELL COMES HERE -->
