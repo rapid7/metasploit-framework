@@ -430,6 +430,61 @@ section {
     }
 }
 
+.form-header {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+@media (max-width: 991px) {
+    .form-header {
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        -moz-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+    }
+}
+
+.form-header2 .au-btn--submit {
+    border: none;
+    line-height: 45px;
+}
+
+.form-header2 .au-input {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.051);
+    color: #999;
+}
+
+.form-header2 .au-input::-webkit-input-placeholder {
+    /* WebKit, Blink, Edge */
+    color: #999;
+}
+
+.form-header2 .au-input:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: #999;
+    opacity: 1;
+}
+
+.form-header2 .au-input::-moz-placeholder {
+    /* Mozilla Firefox 19+ */
+    color: #999;
+    opacity: 1;
+}
+
+.form-header2 .au-input:-ms-input-placeholder {
+    /* Internet Explorer 10-11 */
+    color: #999;
+}
+
+.form-header2 .au-input:-ms-input-placeholder {
+    /* Microsoft Edge */
+    color: #999;
+}
 
 .rs-select2--dark {
     display: inline-block;
@@ -950,7 +1005,7 @@ section {
 }
 
 .account-dropdown .info .content .email {
-    font-size: 13px;
+    font-size: 16px;
     color: #eb5d26;                         /* ORANGE*/
     line-height: -webkit-calc(20/13);
     line-height: -moz-calc(20/13);
@@ -1285,6 +1340,11 @@ section {
 .sub-header-mobile-2 .header__tool .header-button-item {
     color: #a9b3c9;
 }
+
+.header-button .notifi-dropdown::before {
+    left: 117px;
+}
+
 
 .sub-header-mobile-2 .header__tool .account-wrap .account-item--style2 .content a {
     color: #333;
@@ -1655,6 +1715,34 @@ section {
     border-right: 1px solid #e5e5e5;
     position: relative;
 }
+
+
+
+.header-button-item {
+    font-size: 30px;
+    color: #fff;
+    margin-right: 34px;
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -moz-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+@media (max-width: 767px) {
+    .header-button-item {
+        font-size: 22px;
+        margin-right: 15px;
+    }
+}
+
+
 
 .navbar-sidebar2 .navbar__list li {
     position: relative;
