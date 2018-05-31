@@ -34,7 +34,7 @@ def generate_stage(opts={})
       tcp_port = temp.unpack('H*')
       order = (order = [3, 2, 1, 0])
       my_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
-      first = (my_ipv5[0].unpack('H*')).to_s.scan(/../)
+      first = (my_ipv6[0].unpack('H*')).to_s.scan(/../)
       first.pop
       first.shift
       first = (order.map{|x| first[x]}).join('')
