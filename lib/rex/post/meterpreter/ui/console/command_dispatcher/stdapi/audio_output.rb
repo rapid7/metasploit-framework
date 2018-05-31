@@ -63,7 +63,7 @@ class Console::CommandDispatcher::Stdapi::AudioOutput
       return
     end
 
-    print_status('Playing #{audio_path}...')
+    print_status("Playing #{audio_path}...")
     client.audio_output.play_file(audio_path)
     print_status('Done')
   end
