@@ -57,7 +57,7 @@ module Msf
                 good_res = res
               elsif ::File.exist?(res_expand)
                 good_res = res_expand
-              elsif
+              else
                 # let's check to see if it's in the scripts/resource dir (like when tab completed)
                 [
                   ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource',
