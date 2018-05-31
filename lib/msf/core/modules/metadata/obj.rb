@@ -28,7 +28,7 @@ class Obj
   attr_reader :ref_name
 
   def initialize(module_instance, obj_hash = nil)
-    unless (obj_hash.nil?)
+    unless obj_hash.nil?
       init_from_hash(obj_hash)
       return
     end
@@ -75,7 +75,7 @@ class Obj
       'name' => @name,
       'full_name' => @full_name,
       'rank' => @rank,
-      'disclosure_date' => @disclosure_date,
+      'disclosure_date' => @disclosure_date.nil? ? nil : @disclosure_date.to_s,
       'type' => @type,
       'author' => @author,
       'description' => @description,
@@ -86,7 +86,7 @@ class Obj
       'arch' => @arch,
       'rport' => @rport,
       'targets' => @targets,
-      'mod_time' => @mod_time,
+      'mod_time' => @mod_time.to_s,
       'path' => @path,
       'is_install_path' => @is_install_path,
       'ref_name' => @ref_name
@@ -139,8 +139,13 @@ class Obj
 
   def sort_platform_string
     arr = @platform.split(',')
-    if !arr.nil? && arr.length > 1
-      @platform = arr.sort.join(',')
+    unless arr.empty?
+      arr.each {|value| value.strip!}
+      if arr.length > 1
+        @platform = arr.sort.join(',')
+      else
+        @platform = arr[0]
+      end
     end
   end
 

@@ -38,7 +38,7 @@ module Msf::Modules::Metadata::Store
           f.write(JSON.pretty_generate(json_map))
         end
       }
-    rescue Exception => e
+    rescue => e
       elog("Unable to update metadata store: #{e.message}")
     end
   end
