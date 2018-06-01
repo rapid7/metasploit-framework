@@ -1,33 +1,32 @@
 # -*- coding: binary -*-
-
 require 'msf/core'
 
 module Msf
 class Post
 module Linux
-module Vulnerateca
+module Pepa
 
   include ::Msf::Post::Common
   include ::Msf::Post::File
 
-  def vulnerateca_ls(d)
-    result = vulnerateca_list_directory(d)
+  def pepa_ls(d)
+    result = pepa_list_directory(d)
     return result
   end
 
-  def vulnerateca_cat(f)
-    result = vulnerateca_read_file(f)
+  def pepa_cat(f)
+    result = pepa_read_file(f)
     return result
   end
 
-  def vulnerateca_pwd()
+  def pepa_pwd()
     result = []
     str_pwd = cmd_exec("echo $PWD")
     result.insert(-1,str_pwd)
     return result
   end
 
-  def vulnerateca_uniq(list)
+  def pepa_uniq(list)
     uniq_list = []
     list.each do |elem|
       if not uniq_list.include?(elem)
@@ -37,11 +36,10 @@ module Vulnerateca
     return uniq_list
   end
 
-  def vulnerateca_whoami()
+  def pepa_whoami()
     result = []
-    shellpid = vulnerateca_shell_pid()
-    statuspid = vulnerateca_pid_uid(shellpid)   
-
+    shellpid = pepa_shell_pid()
+    statuspid = pepa_pid_uid(shellpid)
     statuspid.each do |line|
         split = line.split(":")
         if split[0] == "Uid"
@@ -49,7 +47,7 @@ module Vulnerateca
                 useridtmp = split[1]
                 userid = useridtmp[regex, 1]
                 uid = userid.to_s
-                passwd = vulnerateca_read_file("/etc/passwd")
+                passwd = pepa_read_file("/etc/passwd")
                 passwd.each do |line|
                         parts = line.split(":")
                         uid_passwd = parts[2].to_s
@@ -61,10 +59,10 @@ module Vulnerateca
                 end
         end
     end
-    return "Error en funcion whoami"
+    return "Whoami function error"
   end
 
-end # Vulnerateca
+end # Pepa
 end # Linux
 end # Post
 end # Msf

@@ -5,11 +5,11 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
-  include Msf::Post::Linux::Vulnerateca
+  include Msf::Post::Linux::Pepa
 
   def initialize
     super(
-      'Name'         => 'Vulnerateca Fingerprinting Module',
+      'Name'         => 'PEPA Fingerprinting Module',
       'Description'  => %q{
         This module will be applied on a session connected to a shell. It will
         extract different information from target system.
@@ -23,31 +23,31 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status(" -- Session Information --")
-    print "Current Shell: " + vulnerateca_shell()[0]
-    current_user = vulnerateca_whoami()[0]
+    print "Current Shell: " + pepa_shell()[0]
+    current_user = pepa_whoami()[0]
     print "\nCurrent User: " + current_user
-    print "\nIs Current User root?: " + vulnerateca_isroot?(current_user)[0]
-    print "\nCurrent Shell PID: " + vulnerateca_shell_pid().to_s
+    print "\nIs Current User root?: " + pepa_isroot?(current_user)[0]
+    print "\nCurrent Shell PID: " + pepa_shell_pid().to_s
     print "\n"
     print "\n"
 
     print_status(" -- System Information --")
-    print "Current PATH env ($PATH): " + vulnerateca_path()[0]
+    print "Current PATH env ($PATH): " + pepa_path()[0]
     print "\n"
-    print "\n"    
+    print "\n"
 
     print_status(" -- Network Information --")
     print "\n"
     print_good("List of local IPs:")
-    ips = vulnerateca_ips()
+    ips = pepa_ips()
     ips.each do |ip|
-	print "\n" + ip
+    print "\n" + ip
     end
 
     print "\n"
     print "\n"
     print_good("List of local network interfaces:")
-    ifaces = vulnerateca_interfaces()
+    ifaces = pepa_interfaces()
     ifaces.each do |iface|
         print "\n" + iface
     end
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Post
     print "\n"
     print "\n"
     print_good("List of local MAC addresses:")
-    macs = vulnerateca_macs()
+    macs = pepa_macs()
     macs.each do |mac|
         print "\n" +mac
     end
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
     print "\n"
     print "\n"
     print_good("List of listening TCP ports:")
-    tcp_ports = vulnerateca_listen_tcp_ports()
+    tcp_ports = pepa_listen_tcp_ports()
     tcp_ports.each do |tcp_port|
         print "\n" + tcp_port.to_s
     end
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
     print "\n"
     print "\n"
     print_good("List of listening UDP ports:")
-    udp_ports = vulnerateca_listen_udp_ports()
+    udp_ports = pepa_listen_udp_ports()
     udp_ports.each do |udp_port|
         print udp_port.to_s + "\n"
     end
