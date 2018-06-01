@@ -89,9 +89,9 @@ module Msf
           def cmd_resource_tabs(str, words)
             tabs = []
             #return tabs if words.length > 1
-            if ( str and str =~ /^#{Regexp.escape(File::SEPARATOR)}/ )
+            if !str.nil? && (str.start_with?('~') || str =~ /^#{Regexp.escape(File::SEPARATOR)}/)
               # then you are probably specifying a full path so let's just use normal file completion
-              return tab_complete_filenames(str,words)
+              return tab_complete_filenames(str, words)
             elsif (not words[1] or not words[1].match(/^\//))
               # then let's start tab completion in the scripts/resource directories
               begin
