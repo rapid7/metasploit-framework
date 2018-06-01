@@ -19,25 +19,26 @@ Microsoft Windows
 
 ## Options
 
-FILENAME - This option allows you to customise the generated filename and filetpye that is generated.
-This can be changed using set FILENAME
+**FILENAME**
+This option allows you to customise the generated filename and filetpye that is generated.
 
 To generate desktop.ini configure a filename of desktop.ini
 To generate a scf file configure a filename of anyname.scf
 To generate a url file configure a filename of anyname.url
 To generate a lnk file configure a filename of anyname.lnk
 
-File type generation is based on the file extension.
+Filetype generation is based on the file extension.
 
-LHOST - This option allows you to set the IP address of the SMB Listener that the document points to
+**LHOST**
+This option allows you to set the IP address of the SMB Listener that the document points to
 This can be changed using set LHOST 192.168.1.25
+
 
 ## Scenarios
 
-### Version of software and OS as applicable
+### Microsoft Windows
 
-  Microsoft Windows
-
+  
   ```
   Console output
   ```
