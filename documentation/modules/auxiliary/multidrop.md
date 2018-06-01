@@ -52,7 +52,7 @@ This can be changed using set LHOST 192.168.1.25
        Rank: Normal
 
 Provided by:
-  Richard Davy - secureyourit.co.uk
+  Richard Davy - secureyourit.co.uk, Lnk Creation Code by Mubix
 
 Basic options:
   Name      Current Setting  Required  Description
@@ -64,7 +64,12 @@ Description:
   This module dependent on the given filename extension creates either 
   a .lnk, .scf, .url, desktop.ini file which includes a reference to 
   the the specified remote host, causing SMB connections to be 
-  initiated from any user that views the file.
+  initiated from any user that views the file. Lnk file creation code 
+  taken from module droplnk.rb by Mubix
+
+References:
+  https://malicious.link/blog/2012/02/11/ms08_068-ms10_046-fun-until-2018
+  https://malicious.link/post/2012/2012-02-19-developing-the-lnk-metasploit-post-module-with-mona/
 
 msf auxiliary(multidrop) > exploit
 
