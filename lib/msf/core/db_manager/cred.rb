@@ -4,6 +4,7 @@ module Msf::DBManager::Cred
     query = nil
     ::ActiveRecord::Base.connection_pool.with_connection {
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      search_term = opts.delete(:search_term)
       # If :id exists we're looking for a specific record, skip the other stuff
       if opts[:id].present?
         return Metasploit::Credential::Core.where(id: opts[:id])
@@ -39,6 +40,15 @@ module Msf::DBManager::Cred
         # Only find Cores that have non-zero Logins if the user specified a
         # filter based on host, port, or service name
         query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
+      end
+
+      if search_term && !search_term.empty?
+        core_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Core, search_term, ['created_at', 'updated_at'])
+        public_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Public, search_term, ['created_at', 'updated_at'])
+        private_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Private, search_term, ['created_at', 'updated_at'])
+        column_search_conditions = core_search_conditions.or(public_search_conditions).or(private_search_conditions)
+        Metasploit::Credential::Core.where(column_search_conditions).includes(:private, :public).references(:private, :public).count
+        query = query.where(column_search_conditions)
       end
     }
     query

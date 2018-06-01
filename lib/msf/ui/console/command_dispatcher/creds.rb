@@ -471,10 +471,10 @@ class Creds
           tbl << row
         end
       end
-      if mode == :delete
-        result = framework.db.delete_credentials(ids: matched_cred_ids)
-        delete_count = result.size
-      end
+    end
+    if mode == :delete
+      result = framework.db.delete_credentials(ids: matched_cred_ids)
+      delete_count = result.size
     end
 
     if output_file.nil?
