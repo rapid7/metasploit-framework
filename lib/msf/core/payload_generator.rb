@@ -437,7 +437,7 @@ module Msf
         end
         if encoders.empty?
           cli_print "[!] Couldn't find encoder to use"
-          exit(1)
+          return encoders
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif !badchars.empty? && !badchars.nil?

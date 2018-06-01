@@ -69,8 +69,8 @@ def parse_args(args)
   opt.separator('')
   opt.separator('Options:')
 
-  opt.on('-l', '--list            <type>', Array, 'List all module for [type]. Types are: payloads, encoders, nops, platforms, encrypt, formats, all') do |l|
-    if l.nil? or l.empty?
+  opt.on('-l', '--list            <type>', Array, 'List all modules for [type]. Types are: payloads, encoders, nops, platforms, encrypt, formats, all') do |l|
+    if l.to_s.empty?
       l = ["all"]
     end
     opts[:list] = l
