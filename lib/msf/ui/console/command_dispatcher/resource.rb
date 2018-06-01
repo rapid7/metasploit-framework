@@ -55,7 +55,7 @@ module Msf
               good_res = nil
               if res == '-'
                 good_res = res
-              elsif ::File.exist?(res_expand)
+              elsif ::File.file?(res_expand) && File.readable?(res_expand)
                 good_res = res_expand
               else
                 # let's check to see if it's in the scripts/resource dir (like when tab completed)
@@ -64,7 +64,7 @@ module Msf
                   ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource'
                 ].each do |dir|
                   res_path = dir + ::File::SEPARATOR + res
-                  if ::File.exist?(res_path)
+                  if ::File.file?(res_path) && File.readable?(res_path)
                     good_res = res_path
                     break
                   end
@@ -100,13 +100,13 @@ module Msf
                   ::Msf::Config.user_script_directory + File::SEPARATOR + "resource",
                   '.'
                 ].each do |dir|
-                  next if not ::File.exist? dir
+                  next unless ::File.exist?(dir)
                   tabs += ::Dir.new(dir).find_all { |e|
                     path = dir + File::SEPARATOR + e
-                    ::File.file?(path) and File.readable?(path)
+                    ::File.file?(path) && File.readable?(path)
                   }
                 end
-              rescue Exception
+              rescue
               end
             else
               tabs += tab_complete_filenames(str,words)
