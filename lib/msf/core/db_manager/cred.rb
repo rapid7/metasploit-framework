@@ -2,8 +2,13 @@ module Msf::DBManager::Cred
   # This methods returns a list of all credentials in the database
   def creds(opts)
     query = nil
-    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     ::ActiveRecord::Base.connection_pool.with_connection {
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      # If :id exists we're looking for a specific record, skip the other stuff
+      if opts[:id].present?
+        return Metasploit::Credential::Core.where(id: opts[:id])
+      end
+
       query = Metasploit::Credential::Core.where( workspace_id: wspace.id )
       query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
       query = query.includes(logins: [ :service, { service: :host } ])

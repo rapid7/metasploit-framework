@@ -34,6 +34,8 @@ module LoginServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
+        opts[:core][:workspace] = get_db.workspaces(id: opts[:workspace_id]).first
+        opts[:core] = get_db.creds(opts[:core]).first
         response = get_db.create_credential_login(opts)
 
         set_json_response(response)
