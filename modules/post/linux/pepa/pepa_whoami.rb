@@ -9,32 +9,21 @@ class MetasploitModule < Msf::Post
 
   def initialize
     super(
-      'Name'         => 'PEPA List Directory (ls without ls)',
+      'Name'         => 'PEPA Whoami (whoami without whoami)',
       'Description'  => %q{
         This module will be applied on a session connected to a shell. It will
-        extract a list of files and folders on a given dir.
+        extract current username.
       },
       'Author'       => 'Alberto Rafael Rodriguez Iglesias <security[at]vulnerateca.com> <albertocysec[at]gmail.com>',
       'License'      => MSF_LICENSE,
       'Platform'     => ['linux'],
       'SessionTypes' => ['shell']
     )
-    register_options(
-      [
-        OptString.new('DIR', [false, 'Optional directory name to list, default current session path',''])
-      ])
   end
 
   def run
-    dir = datastore['DIR']
-    if dir == ""
-      print_status("Doing ls without ls command in current session path DIR")
-    else
-      print_status("Doing ls without ls command in DIR: #{dir}")
-    end
-    ls_result=pepa_ls(dir)
-    ls_result.each do |line|
-      print_line(line)
-    end
+    print_status("Doing whoami without whoami command")
+    whoami_result=pepa_whoami()[0]
+    print_line(whoami_result)
   end
 end

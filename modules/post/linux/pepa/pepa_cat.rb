@@ -32,6 +32,5 @@ class MetasploitModule < Msf::Post
     cat_result.each do |line|
       print_line(line)
     end
-    print_line("\n")
   end
 end
