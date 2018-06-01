@@ -198,7 +198,7 @@ module Msf
 
       if chosen_platform.platforms.empty?
         chosen_platform = mod.platform
-        cli_print "[-] No --platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
+        cli_print "[-] No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
         @platform = mod.platform.platforms.first.to_s.split("::").last
       elsif (chosen_platform & mod.platform).empty?
         chosen_platform = Msf::Module::PlatformList.new
