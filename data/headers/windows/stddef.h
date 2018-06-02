@@ -115,6 +115,7 @@ typedef LRESULT (CALLBACK* HOOKPROC)(int, WPARAM, LPARAM);
 typedef __stdcall int (*FARPROC)();
 typedef struct _iobuf FILE;
 typedef long fpos_t;
+typedef int* LPINT;
 
 typedef struct {
    unsigned int gp_offset;
