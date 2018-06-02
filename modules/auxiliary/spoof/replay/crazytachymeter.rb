@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 class MetasploitModule < Msf::Auxiliary
-  Rank = NormalRanking
-
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
