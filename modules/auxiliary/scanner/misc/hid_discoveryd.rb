@@ -9,8 +9,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'HID VertX Controller Information Discovery',
-      'Description' => 'Discover information from HID VertX door controllers.',
+      'Name'        => 'HID discoveryd Information Discovery',
+      'Description' => %q{
+        Discover information from the discoveryd service
+        exposed by HID VertX and Edge door controllers.
+      },
       'Author'      => 'Brendan Coles',
       'License'     => MSF_LICENSE,
       'References'  =>
@@ -31,18 +34,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_prescan(batch)
-    print_status "Sending HID VertX discover probe to #{batch.length} hosts"
+    print_status "Sending HID discover probe to #{batch.length} hosts"
     @results = {}
   end
 
   def scan_host(ip)
-    vprint_status "#{ip}:#{rport} - Sending HID VertX discover probe"
+    vprint_status "#{ip}:#{rport} - Sending HID discover probe"
     scanner_send 'discover;013;', ip, rport
   end
 
   def scanner_postscan(_batch)
     if @results.empty?
-      print_status 'No HID VertX controllers found.'
+      print_status 'No HID discoveryd services found.'
       return
     end
 
@@ -52,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
         found[ip] ||= {}
         next if found[ip][res]
 
-        response_info = parse_hid_response res
+        response_info = parse_discovered_response res
 
         if response_info.nil?
           print_error "#{ip} responded with malformed data"
@@ -73,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
           mac: response_info[:mac],
           port: rport,
           proto: 'udp',
-          name: 'hid-vertx',
+          name: 'hid-discoveryd',
           info: response_info
         )
 
@@ -82,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def parse_hid_response(res)
+  def parse_discovered_response(res)
     info = {}
 
     return unless res.start_with? 'discovered'
