@@ -16,11 +16,13 @@ class MetasploitModule < Msf::Auxiliary
           a .lnk, .scf, .url, desktop.ini file which includes a reference
           to the the specified remote host, causing SMB connections to be initiated
           from any user that views the file.
-
-          Lnk file creation code taken from module droplnk.rb by Mubix
         },
         'License'       => MSF_LICENSE,
-        'Author'        => [ 'Richard Davy - secureyourit.co.uk, Lnk Creation Code by Mubix' ],
+        'Author'        =>
+            [
+              'Richard Davy - secureyourit.co.uk',  #Module written by Richard Davy
+              'Lnk Creation Code by Mubix'          #Lnk Creation Code written by Mubix
+            ],
         'Platform'      => [ 'win' ],
         'References'    =>
         [
