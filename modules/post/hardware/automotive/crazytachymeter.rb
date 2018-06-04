@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Post
         With this tool you can flood the CAN-Bus.
         Just pass a file.txt with the control unit map.
       },
-      'Author'         => ['Pietro Biondi'],
+      'Author'         => ['Pietro Biondi <pietro.biondi94@gmail.com>'],
       'DisclosureDate' => 'May 18 2018',
       'License'        => MSF_LICENSE
       )
