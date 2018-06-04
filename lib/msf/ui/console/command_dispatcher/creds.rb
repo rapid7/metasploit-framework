@@ -446,14 +446,16 @@ class Creds
             next
           end
 
+          service = framework.db.services(id: login.service_id, workspace: framework.db.workspace).first
 
-          row = [ login.service.host.address ]
+
+          row = [ service.host.address ]
           row << origin
-          rhosts << login.service.host.address
-          if login.service.name.present?
-            row << "#{login.service.port}/#{login.service.proto} (#{login.service.name})"
+          rhosts << service.host.address
+          if service.name.present?
+            row << "#{service.port}/#{service.proto} (#{service.name})"
           else
-            row << "#{login.service.port}/#{login.service.proto}"
+            row << "#{service.port}/#{service.proto}"
           end
 
           matched_cred_ids << core.id
