@@ -52,24 +52,25 @@ This can be changed using set LHOST 192.168.1.25
        Rank: Normal
 
 Provided by:
-  Richard Davy - secureyourit.co.uk, Lnk Creation Code by Mubix
+  Richard Davy - secureyourit.co.uk
+  Lnk Creation Code by Mubix
 
 Basic options:
   Name      Current Setting  Required  Description
   ----      ---------------  --------  -----------
-  FILENAME  desktop.ini      yes       Filename - supports .lnk, .scf, .url, desktop.ini
+  FILENAME  test.url         yes       Filename - supports .lnk, .scf, .url, desktop.ini
   LHOST     192.168.1.19     yes       Host listening for incoming SMB/WebDAV traffic
 
 Description:
   This module dependent on the given filename extension creates either 
   a .lnk, .scf, .url, desktop.ini file which includes a reference to 
   the the specified remote host, causing SMB connections to be 
-  initiated from any user that views the file. Lnk file creation code 
-  taken from module droplnk.rb by Mubix
+  initiated from any user that views the file.
 
 References:
   https://malicious.link/blog/2012/02/11/ms08_068-ms10_046-fun-until-2018
   https://malicious.link/post/2012/2012-02-19-developing-the-lnk-metasploit-post-module-with-mona/
+
 
 msf auxiliary(multidrop) > exploit
 
