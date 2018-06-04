@@ -11,6 +11,20 @@ module VulnDataProxy
     end
   end
 
+  def find_or_create_vuln(opts)
+    begin
+      vuln = vulns(opts.clone)
+      if vuln.nil? || vuln.first.nil?
+        vuln = report_vuln(opts.clone)
+      else
+        vuln = vuln.first
+      end
+      vuln
+    rescue => e
+      self.log_error(e, "Problem finding or creating vuln")
+    end
+  end
+
   def report_vuln(opts)
     begin
       data_service = self.get_data_service

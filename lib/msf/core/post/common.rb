@@ -80,31 +80,10 @@ module Msf::Post::Common
   #
   # Returns a (possibly multi-line) String.
   #
-  def cmd_exec(cmd, args=nil, time_out=15)
+  def cmd_exec(cmd, args="", time_out=15)
     case session.type
     when /meterpreter/
-      #
-      # The meterpreter API requires arguments to come separately from the
-      # executable path. This has no effect on Windows where the two are just
-      # blithely concatenated and passed to CreateProcess or its brethren. On
-      # POSIX, this allows the server to execve just the executable when a
-      # shell is not needed. Determining when a shell is not needed is not
-      # always easy, so it assumes anything with arguments needs to go through
-      # /bin/sh.
-      #
-      # This problem was originally solved by using Shellwords.shellwords but
-      # unfortunately, it is unsuitable. When a backslash occurs inside double
-      # quotes (as is often the case with Windows commands) it inexplicably
-      # removes them. So. Shellwords is out.
-      #
-      # By setting +args+ to an empty string, we can get POSIX to send it
-      # through /bin/sh, solving all the pesky parsing troubles, without
-      # affecting Windows.
-      #
       start = Time.now.to_i
-      if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
-        args = ""
-      end
 
       session.response_timeout = time_out
       process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
@@ -120,7 +99,6 @@ module Msf::Post::Common
           end
         end
       end
-      o.chomp! if o
 
       begin
         process.channel.close
@@ -130,22 +108,12 @@ module Msf::Post::Common
 
       process.close
     when /powershell/
-      if args.nil? || args.empty?
-        o = session.shell_command("#{cmd}", time_out)
-      else
-        o = session.shell_command("#{cmd} #{args}", time_out)
-      end
-      o.chomp! if o
+      o = session.shell_command("#{cmd} #{args}", time_out)
     when /shell/
-      if args.nil? || args.empty?
-        o = session.shell_command_token("#{cmd}", time_out)
-      else
-        o = session.shell_command_token("#{cmd} #{args}", time_out)
-      end
-      o.chomp! if o
+      o = session.shell_command_token("#{cmd} #{args}", time_out)
     end
-    return "" if o.nil?
-    return o
+
+    o ? o.chomp : ""
   end
 
   def cmd_exec_get_pid(cmd, args=nil, time_out=15)

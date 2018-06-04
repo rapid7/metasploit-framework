@@ -10,6 +10,10 @@ module Msf::DBManager::Loot
   # This methods returns a list of all loot in the database
   #
   def loots(opts)
+    data = opts.delete(:data)
+    # Remove path from search conditions as this won't accommodate remote data
+    # service usage where the client and server storage locations differ.
+    opts.delete(:path)
     search_term = opts.delete(:search_term)
 
     ::ActiveRecord::Base.connection_pool.with_connection {
@@ -18,10 +22,17 @@ module Msf::DBManager::Loot
 
       if search_term && !search_term.empty?
         column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Loot, search_term)
-        Mdm::Loot.includes(:host).where(opts).where(column_search_conditions)
+        results = Mdm::Loot.includes(:host).where(opts).where(column_search_conditions)
       else
-        Mdm::Loot.includes(:host).where(opts)
+        results = Mdm::Loot.includes(:host).where(opts)
       end
+
+      # Compare the deserialized data from the DB to the search data since the column is serialized.
+      unless data.nil?
+        results = results.select { |loot| loot.data == data }
+      end
+
+      results
     }
   end
   alias_method :loot, :loots

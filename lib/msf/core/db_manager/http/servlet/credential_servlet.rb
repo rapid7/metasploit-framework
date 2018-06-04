@@ -17,6 +17,8 @@ module CredentialServlet
     lambda {
       begin
         opts = parse_json_request(request, false)
+        sanitized_params = sanitize_params(params)
+        opts.merge!(sanitized_params)
         data = get_db().creds(opts)
         includes = [:logins, :public, :private, :realm]
         # Need to append the human attribute into the private sub-object before converting to json

@@ -48,11 +48,13 @@ module Msf::DBManager::Service
   # +:host+::  the host where this service is running
   # +:port+::  the port where this service listens
   # +:proto+:: the transport layer protocol (e.g. tcp, udp)
+  # +:workspace+:: the workspace for the service
   #
   # opts may contain
   # +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
   # +:sname+:: an alias for the above
-  # +:workspace+:: the workspace for the service
+  # +:info+:: Detailed information about the service such as name and version information
+  # +:state+:: The current listening state of the service (one of: open, closed, filtered, unknown)
   #
   def report_service(opts)
     return if !active
@@ -144,15 +146,16 @@ module Msf::DBManager::Service
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     search_term = opts.delete(:search_term)
-    opts["hosts.address"] = opts.delete(:addresses)
-    opts.compact!
+
+    order_args = [:port]
+    order_args.unshift(Mdm::Host.arel_table[:address]) if opts.key?(:hosts)
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     if search_term && !search_term.empty?
       column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Service, search_term)
-      wspace.services.includes(:host).where(opts).where(column_search_conditions).order("hosts.address, port")
+      wspace.services.includes(:host).where(opts).where(column_search_conditions).order(*order_args)
     else
-      wspace.services.includes(:host).where(opts).order("hosts.address, port")
+      wspace.services.includes(:host).where(opts).order(*order_args)
     end
   }
   end

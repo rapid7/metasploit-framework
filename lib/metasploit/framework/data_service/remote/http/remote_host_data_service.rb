@@ -19,10 +19,6 @@ module RemoteHostDataService
     json_to_mdm_object(self.post_data(HOST_API_PATH, opts), HOST_MDM_CLASS, []).first
   end
 
-  def find_or_create_host(opts)
-    json_to_mdm_object(self.post_data(HOST_API_PATH, opts), HOST_MDM_CLASS, []).first
-  end
-
   def report_hosts(hosts)
     self.post_data(HOST_API_PATH, hosts)
   end

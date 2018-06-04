@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::OSX::Priv
 
   # extract/verify by by XORing your kcpassword with your password
   AUTOLOGIN_XOR_KEY = [0x7D, 0x89, 0x52, 0x23, 0xD2, 0xBC, 0xDD, 0xEA, 0xA3, 0xB9, 0x1F]
@@ -35,7 +36,7 @@ class MetasploitModule < Msf::Post
 
   def run
     # ensure the user is root (or can read the kcpassword)
-    unless user == 'root'
+    unless is_root?
       fail_with(Failure::NoAccess, "Root privileges are required to read kcpassword file")
     end
 

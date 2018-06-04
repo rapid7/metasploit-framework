@@ -74,6 +74,10 @@ class MetasploitModule < Msf::Post
 
   # Save enumerated data
   def save(msg, data, ctype="text/plain")
+    if data.nil? || data.include?('not found') || data.include?('cannot access')
+      print_bad("Unable to get data for #{msg}")
+      return
+    end
     ltype = "linux.enum.network"
     loot = store_loot(ltype, ctype, session, data, nil, msg)
     print_good("#{msg} stored in #{loot.to_s}")

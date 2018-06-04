@@ -58,7 +58,7 @@ module Msf::DBManager::Host
     ip = opts[:ip]
     tag_name = opts[:tag_name]
 
-    host = framework.db.get_host(:workspace => wspace, :address => ip)
+    host = get_host(workspace: wspace, address: ip)
     if host
       possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", wspace.id, ip, tag_name).order("tags.id DESC").limit(1)
       tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
@@ -167,7 +167,7 @@ module Msf::DBManager::Host
   # +:os_flavor+::    -- something like "Enterprise", "Pro", or "Home"
   # +:os_sp+::        -- something like "SP2"
   # +:os_lang+::      -- something like "English", "French", or "en-US"
-  # +:arch+::         -- one of the ARCH_* constants
+  # +:arch+::         -- one of the ARCHITECTURES listed in metasploit_data_models/app/models/mdm/host.rb
   # +:mac+::          -- the host's MAC address
   # +:scope+::        -- interface identifier for link-local IPv6
   # +:virtual_host+:: -- the name of the virtualization software, eg "VMWare", "QEMU", "Xen", "Docker", etc.
@@ -185,74 +185,78 @@ module Msf::DBManager::Host
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
-    ret = { }
-
-    if !addr.kind_of? ::Mdm::Host
-      addr = Msf::Util::Host.normalize_host(addr)
-
-      unless ipv46_validator(addr)
-        raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
-      end
-
-      if opts[:comm] and opts[:comm].length > 0
-        host = wspace.hosts.where(address: addr, comm: opts[:comm]).first_or_initialize
-      else
-        host = wspace.hosts.where(address: addr).first_or_initialize
-      end
-    else
-      host = addr
-    end
-
-    ostate = host.state
-
-    # Truncate the info field at the maximum field length
-    if opts[:info]
-      opts[:info] = opts[:info][0,65535]
-    end
-
-    # Truncate the name field at the maximum field length
-    if opts[:name]
-      opts[:name] = opts[:name][0,255]
-    end
-
-    if opts[:os_name]
-      os_name, os_flavor = split_windows_os_name(opts[:os_name])
-      opts[:os_name] = os_name if os_name.present?
-      if opts[:os_flavor].present?
-        opts[:os_flavor] = os_flavor + opts[:os_flavor]
-      else
-        opts[:os_flavor] = os_flavor
-      end
-    end
-
-    opts.each do |k,v|
-      if (host.attribute_names.include?(k.to_s))
-        unless host.attribute_locked?(k.to_s)
-          host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
-        end
-      elsif !v.blank?
-        dlog("Unknown attribute for ::Mdm::Host: #{k}")
-      end
-    end
-    host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
-
-    # Set default fields if needed
-    host.state       = Msf::HostState::Alive if !host.state
-    host.comm        = ''        if !host.comm
-    host.workspace   = wspace    if !host.workspace
-
     begin
-      framework.events.on_db_host(host) if host.new_record?
-    rescue ::Exception => e
-      wlog("Exception in on_db_host event handler: #{e.class}: #{e}")
-      wlog("Call Stack\n#{e.backtrace.join("\n")}")
-    end
+      retry_attempts ||= 0
+      if !addr.kind_of? ::Mdm::Host
+        addr = Msf::Util::Host.normalize_host(addr)
 
-    host_state_changed(host, ostate) if host.state != ostate
+        unless ipv46_validator(addr)
+          raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
+        end
 
-    if host.changed?
-      msf_import_timestamps(opts,host)
-      host.save!
+        conditions = {address: addr}
+        conditions[:comm] = opts[:comm] if !opts[:comm].nil? && opts[:comm].length > 0
+        host = wspace.hosts.where(conditions).first_or_initialize
+      else
+        host = addr
+      end
+
+      ostate = host.state
+
+      # Truncate the info field at the maximum field length
+      if opts[:info]
+        opts[:info] = opts[:info][0,65535]
+      end
+
+      # Truncate the name field at the maximum field length
+      if opts[:name]
+        opts[:name] = opts[:name][0,255]
+      end
+
+      if opts[:os_name]
+        os_name, os_flavor = split_windows_os_name(opts[:os_name])
+        opts[:os_name] = os_name if os_name.present?
+        if opts[:os_flavor].present?
+          opts[:os_flavor] = os_flavor + opts[:os_flavor]
+        else
+          opts[:os_flavor] = os_flavor
+        end
+      end
+
+      opts.each do |k,v|
+        if host.attribute_names.include?(k.to_s)
+          unless host.attribute_locked?(k.to_s)
+            host[k] = v.to_s.gsub(/[\x00-\x1f]/n, '')
+          end
+        elsif !v.blank?
+          dlog("Unknown attribute for ::Mdm::Host: #{k}")
+        end
+      end
+      host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
+
+      # Set default fields if needed
+      host.state = Msf::HostState::Alive unless host.state
+      host.comm = '' unless host.comm
+      host.workspace = wspace unless host.workspace
+
+      begin
+        framework.events.on_db_host(host) if host.new_record?
+      rescue => e
+        wlog("Exception in on_db_host event handler: #{e.class}: #{e}")
+        wlog("Call Stack\n#{e.backtrace.join("\n")}")
+      end
+
+      host_state_changed(host, ostate) if host.state != ostate
+
+      if host.changed?
+        msf_import_timestamps(opts, host)
+        host.save!
+      end
+    rescue ActiveRecord::RecordNotUnique
+      # two concurrent report requests for a new host could result in a RecordNotUnique exception
+      # simply retry the report once more as an optimistic approach
+      retry if (retry_attempts+=1) <= 1
+      raise
     end
 
     if opts[:task]

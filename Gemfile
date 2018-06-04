@@ -34,6 +34,7 @@ group :development, :test do
   # environment is development
   gem 'rspec-rails'
   gem 'rspec-rerun'
+  gem 'swagger-blocks'
 end
 
 group :test do

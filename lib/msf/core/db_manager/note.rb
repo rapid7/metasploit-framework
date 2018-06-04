@@ -25,8 +25,15 @@ module Msf::DBManager::Note
     ::ActiveRecord::Base.connection_pool.with_connection {
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
+      data = opts.delete(:data)
       search_term = opts.delete(:search_term)
       results = wspace.notes.includes(:host).where(opts)
+
+      # Compare the deserialized data from the DB to the search data since the column is serialized.
+      unless data.nil?
+        results = results.select { |note| note.data == data }
+      end
+
       if search_term && !search_term.empty?
         re_search_term = /#{search_term}/mi
         results = results.select { |note|
