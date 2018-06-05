@@ -71,11 +71,12 @@ module ServletHelper
   end
 
   def format_cred_json(data)
-    includes = [:logins, :public, :private, :realm]
+    includes = [:logins, :public, :private, :realm, :origin]
 
     response = []
     Array.wrap(data).each do |cred|
-      json = cred.as_json(include: includes).merge('private_class' => cred.private.class.to_s)
+      json = cred.as_json(include: includes)
+      json['origin'] = json['origin'].merge('type' => cred.origin.class.to_s)
       json['public'] = json['public'].merge('type' => cred.public.type)
       json['private'] = json['private'].merge('type' => cred.private.type)
       response << json

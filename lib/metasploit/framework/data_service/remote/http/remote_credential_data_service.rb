@@ -12,8 +12,10 @@ module RemoteCredentialDataService
     rv = json_to_mdm_object(data, CREDENTIAL_MDM_CLASS, [])
     parsed_body = JSON.parse(data.response.body)
     parsed_body.each do |cred|
-      private_object = to_ar(cred['private_class'].constantize, cred['private'])
+      private_object = to_ar(cred['private']['type'].constantize, cred['private'])
+      origin_object = to_ar(cred['origin']['type'].constantize, cred['origin'])
       rv[parsed_body.index(cred)].private = private_object
+      rv[parsed_body.index(cred)].origin = origin_object
     end
     rv
   end
