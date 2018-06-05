@@ -411,9 +411,11 @@ class Creds
 
       origin = ''
       if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
-        origin = core.origin.service.host.address
+        service = framework.db.services(id: core.origin.service_id, workspace: framework.db.workspace).first
+        origin = service.host.address
       elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
-        origin = core.origin.session.host.address
+        session = framework.db.sessions(id: core.origin.session_id, workspace: framework.db.workspace).first
+        origin = session.host.address
       end
 
       if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
@@ -447,7 +449,6 @@ class Creds
           end
 
           service = framework.db.services(id: login.service_id, workspace: framework.db.workspace).first
-
 
           row = [ service.host.address ]
           row << origin
