@@ -88,7 +88,7 @@ class CommandShell
         # 'bgkill'       => 'Kills a background meterpreter script',
         # 'get_timeouts' => 'Get the current session timeout values',
         # 'set_timeouts' => 'Set the current session timeout values',
-        # 'sessions'     => 'Quickly switch to another session',
+        'sessions'     => 'Quickly switch to another session',
         # 'bglist'       => 'Lists running background scripts',
         # 'write'        => 'Writes data to a channel',
         # 'enable_unicode_encoding'  => 'Enables encoding of unicode strings',
@@ -123,11 +123,44 @@ class CommandShell
   end
 
 
+  def cmd_background_help()
+    print_line "Usage: background"
+    print_line
+    print_line "Stop interacting with this session and return to the parent prompt"
+    print_line
+  end
+
   def cmd_background()
     if (prompt_yesno("Background session #{name}?") == true)
       self.interacting = false
     end
   end
+
+  def cmd_sessions_help()
+    print_line('Usage: sessions <id>')
+    print_line
+    print_line('Interact with a different session Id.')
+    print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
+    print_line
+  end
+
+
+  def cmd_sessions(*args)
+    if args.length.zero? || args[0].to_i.zero?
+      # No args
+      cmd_sessions_help
+    elsif args[0].to_s == self.name.to_s
+      # Src == Dst
+      print_status("Session #{self.name} is already interactive.")
+    else
+      print_status("Backgrounding session #{self.name}...")
+      # store the next session id so that it can be referenced as soon
+      # as this session is no longer interacting
+      self.next_session = args[0]
+      self.interacting = false
+    end
+  end
+
 
   def run_command(method, arguments)
     # Dynamic function call
