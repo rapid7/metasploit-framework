@@ -397,7 +397,6 @@ protected
       sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
 
       # Write input to the ring's input mechanism
-      # shell_write(user_input.gets) if sd
       run_cmd(user_input.gets) if sd
     end
 
