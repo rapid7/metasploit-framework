@@ -1,0 +1,41 @@
+<!doctype>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Post Modules</title>
+	<meta charset="utf-8" content="text/json" />
+
+</head>
+<body>
+<div>
+	<ul>
+		<li><a href="#" onclick="myFucntion()">Post Modules</a>
+			<ul id="post"></ul>
+		</li>
+	</ul>
+
+<h2>Use the XMLHttpRequest to get the content of a file.</h2>
+<p>The content is written in JSON format, and can easily be converted into a JavaScript object.</p>
+
+<p id="demo"></p>
+
+</div>
+
+<script >
+	function myFunction(){
+		var xrh= new XMLHttpRequest();
+		xrh.onreadystatechange=function(){
+			if(this.readyState==4 && this.status==200){
+				var myObj=JSON.parse(this.responseText);
+				document.getElementById("demo").innerHTML=myObj.gather[1];
+				
+			}
+		};
+		xrh.open("GET", "json.txt", true);
+		xrh.send();
+	}
+
+
+</script>
+</body>
+</html>	

@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+gem 'sinatra'
+gem 'sinatra-cross_origin', '~> 0.3.1'
+gem 'sinatra-json', '~> 0.1.0'
+gem 'slim', '~> 3.0', '>= 3.0.9'
+gem 'sinatra-websocket', '~> 0.3.1'

@@ -1,0 +1,62 @@
+{
+
+	 "name" : "dhawan",
+	"capture" : [ "keylog_record",
+				  "lockout_keylogger"
+				], 
+	"escalate" :[ "droplnk",
+				  "getsystem",
+				  "golden_ticket",
+				  "ms10_073",
+				  "screen_unclock"
+				], 
+	"gather" :  [ 
+				   "ad_to_sqlite",
+				   "checkvm",
+				   "dumplink",
+				   "enum_db",
+				   "cachedump",
+				   "enum_devices",
+				  "forensics" : { 
+				  				 "imager",
+				  				 "nbd_server",
+				  				 "recovery_files",
+				  				 "duqu_check",
+				  				 "browser_history"
+				  				},
+				  "credentials" : {
+				  				 "ftpx",
+				  				 "idm",
+				  				 "imail",
+				  				 "gpp",
+				  				 "enum_laps",
+				  				 'core_ftp'
+				  				}
+	],
+	"manage" :	[
+				   "killav",
+				   "hash",
+				   "delete_user",
+				   "enable_rdp",
+				   "pptp_tunnel",
+				   "driver_loader",
+				   "portproxy",
+				   "powershell" : {
+							   "load_script",
+							   "exec_powershell",
+							   "build_net_code"
+							  }
+				],
+	"recon" :	[
+				  "computer_browser_history",
+				  "outbound_ports",
+				  "resolve_ip"
+				],
+	"wlan" :	[
+				  "wlan_bss_list",
+				  "wlan_current_connection",
+				  "wlan_disconnect",
+				  "wlan_probe_request",
+				  "wlan_profile"
+				]
+}
