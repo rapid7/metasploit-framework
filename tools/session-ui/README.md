@@ -13,8 +13,8 @@ It provided all the extensions and Post module of meterpreter on a single page $
 - [perfect-scrollbar](https://github.com/utatti/perfect-scrollbar)
 - [jQuery](https://jquery.com/)
 - [Xtermjs Terminal Emulator Plugin](https://xtermjs.org//)
-
-- [Sinatra framework to Build Dynamic Web Page]
+- [Sinatra web framework ](http://sinatrarb.com/)
 
 To install the Dependencies
-bundle install
+
+- bundle install
