@@ -1,0 +1,11 @@
+dialin
+meet
+lyncdiscover
+dialin
+access
+lync
+lyncext
+lyncaccess01
+lyncaccess
+lync10
+lyncweb
