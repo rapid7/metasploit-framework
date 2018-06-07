@@ -150,9 +150,12 @@ module Msf::Empire
     #AGENT METHODS
     #--------------
     #
-    #Method to list all the active agents connected.
+    #Method to list all the active agents connected. The temp_session
+    #parameter determines if the session is being used by a post exploit
+    #upgrade or a standalone stager, which will make it easier to guess the
+    #number of agents connected
     #
-    def self.get_agents
+    def self.get_agents(temp_session)
       uri = URI.parse("https://localhost:1337/api/agents?token=#{self.token}")
       request = Net::HTTP::Get.new(uri)
       response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
@@ -161,14 +164,18 @@ module Msf::Empire
       if response.message.to_s == 'OK'
         parser = JSON.parse(resposne.body)
         if parser['agents'].any?
-          parser['agents'].each do |agents_id|
-            puts "#{agents_id[:ID]} : #{agents_id[:name]}"
-          end
+          if temp_session == false
+            parser['agents'][0].each do |agents_id|
+              puts "#{agents_id['ID']} : #{agents_id['Name']}"
+            end
+          elsif temp_session == true
+            puts "#{parser['agents'][0]['ID']} : #{parser['agents'][0]['Name']}"
+            return parser['agents'][0]['Name']
         else
           return "No agents connected"
         end
       else
-        return "Invalid Request"    
+        return "Invalid Request"
       end
      end
     #
@@ -286,6 +293,7 @@ module Msf::Empire
         parser = JSON.parse(response.body)
         if parser['results'].any?
           results = parser['results']
+          return results
         else 
           "No output found"
         end
@@ -353,7 +361,7 @@ module Msf::Empire
     #of every module. Instead, this method will return an hash of just the names of the modules.
     #User can thereafter query about a specific module and get those details.
     #
-    def self.get_modules  
+    def self.get_modules
       uri = URI.parse("https://localhost:1337/api/modules?token=#{self.token}")
       request = Net::HTTP::Get.new(uri)
       response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
