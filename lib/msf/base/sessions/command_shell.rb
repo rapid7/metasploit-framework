@@ -2,6 +2,8 @@
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
 require 'shellwords'
+require 'rex/text/table'
+
 
 module Msf
 module Sessions
@@ -71,6 +73,7 @@ class CommandShell
   #
   def commands
     c = {
+        'help'            => 'Help menu',
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
     }
@@ -91,12 +94,29 @@ class CommandShell
     method    = arguments.shift
 
     # Built-in command
-    if self.commands.has_key?(method)
-      return self.run_command(method, arguments)
+    if commands.key?(method)
+      return run_command(method, arguments)
     end
 
     # User input is not a built-in command, write to socket directly
     shell_write(cmd)
+  end
+
+  def cmd_help(*args)
+    columns = ['Command', 'Description']
+    tbl = Rex::Text::Table.new(
+      'Header'  => 'Meta shell commands',
+      'Prefix'  => "\n",
+      'Postfix' => "\n",
+      'Indent'  => 4,
+      'Columns' => columns
+    )
+    commands.each { |key, value|
+      tbl << [
+        key, value
+      ]
+    }
+    print(tbl.to_s)
   end
 
   def cmd_background_help()
@@ -451,4 +471,3 @@ end
 
 end
 end
-
