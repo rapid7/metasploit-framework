@@ -89,7 +89,6 @@ class CommandShell
   def run_cmd(cmd)
     arguments = parse_line(cmd)
     method    = arguments.shift
-    built_in_command_found = false
 
     # Built-in command
     if self.commands.has_key?(method)
@@ -107,8 +106,16 @@ class CommandShell
     print_line
   end
 
-  def cmd_background()
-    if (prompt_yesno("Background session #{name}?") == true)
+  def cmd_background(*args)
+    if !args.empty?
+      # We assume that background does not need arguments
+      # If user input does not follow this specification
+      # Then show help (Including '-h' '--help'...)
+      return cmd_background_help
+    end
+
+
+    if prompt_yesno("Background session #{name}?")
       self.interacting = false
     end
   end
@@ -117,15 +124,28 @@ class CommandShell
     print_line('Usage: sessions <id>')
     print_line
     print_line('Interact with a different session Id.')
+    print_line('This command only accept one positive numeric argument.')
     print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
     print_line
   end
 
   def cmd_sessions(*args)
-    if args.length.zero? || args[0].to_i.zero?
+    if args.length.zero? || args[0].to_i <= 0
       # No args
-      cmd_sessions_help
-    elsif args[0].to_s == self.name.to_s
+      return cmd_sessions_help
+    end
+
+    if args.length == 1 && (args[1] == '-h' || args[1] == 'help')
+      # One arg, and args[1] => '-h' '-H' 'help'
+      return cmd_sessions_help
+    end
+
+    if args.length != 1
+      # More than one argument
+      return cmd_sessions_help
+    end
+
+    if args[0].to_s == self.name.to_s
       # Src == Dst
       print_status("Session #{self.name} is already interactive.")
     else
