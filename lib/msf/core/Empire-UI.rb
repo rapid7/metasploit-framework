@@ -12,6 +12,9 @@ Module Msf::EmpireUI
              "help" => "shows this help menu",
              "get credentials" => "This command will return every credentials stored in the Empire server fetched from different modules like mimikatz",
              "switch" => "This will take you back to the meterpreter session"}
+    help.each do |command, description|
+      puts"#{command}   :   #{description}"
+    end
   end
   def ui_main(emp_object, agent_name)
     #Providing the user prompt in a loop unless a switch request is made
