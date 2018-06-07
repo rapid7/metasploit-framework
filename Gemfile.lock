@@ -180,9 +180,9 @@ GEM
     msgpack (1.2.4)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
-    net-ssh (4.2.0)
+    net-ssh (5.0.1)
     network_interface (0.0.2)
-    nexpose (7.2.0)
+    nexpose (7.2.1)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     octokit (4.9.0)
@@ -302,7 +302,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.7.1)
-    ruby-macho (1.1.0)
+    ruby-macho (1.2.0)
     ruby-rc4 (0.1.5)
     ruby_smb (0.0.24)
       bindata
@@ -343,7 +343,7 @@ GEM
       activemodel (>= 4.2.7)
       activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    yard (0.9.13)
+    yard (0.9.14)
 
 PLATFORMS
   ruby
