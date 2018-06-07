@@ -423,7 +423,7 @@ class Creds
         next
       end
 
-      if core.logins.empty? && origin_ranges.empty?
+      if core.logins.empty?
         matched_cred_ids << core.id
         public_val = core.public ? core.public.username : ""
         private_val = core.private ? core.private.data : ""
