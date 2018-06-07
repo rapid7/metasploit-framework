@@ -109,7 +109,8 @@ class CommandShell
       'Prefix'  => "\n",
       'Postfix' => "\n",
       'Indent'  => 4,
-      'Columns' => columns
+      'Columns' => columns,
+      'SortIndex' => -1
     )
     commands.each { |key, value|
       tbl << [
