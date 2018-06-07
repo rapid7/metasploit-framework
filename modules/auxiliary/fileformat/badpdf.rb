@@ -38,10 +38,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['PDFINJECT']!= nil
+    if datastore['PDFINJECT']!= ""
         injectpdf
     else
-        if datastore['FILENAME']!= nil
+        if datastore['FILENAME']!= ""
           createpdf
         else
           print_error "FILENAME is empty, please enter FILENAME and rerun module"
