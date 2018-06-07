@@ -1,11 +1,10 @@
-dialin
-meet
-lyncdiscover
-dialin
 access
+dialin
 lync
-lyncext
-lyncaccess01
-lyncaccess
 lync10
+lyncaccess
+lyncaccess01
+lyncdiscover
+lyncext
 lyncweb
+meet
