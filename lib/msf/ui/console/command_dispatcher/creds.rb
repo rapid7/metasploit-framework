@@ -385,6 +385,7 @@ class Creds
 
     # normalize
     ports = port_ranges.flatten.uniq
+    opts[:ports] = ports
     svcs.flatten!
     tbl_opts = {
       'Header'  => "Credentials",
