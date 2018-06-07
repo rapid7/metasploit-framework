@@ -17,8 +17,8 @@ class MetasploitModule < Msf::Auxiliary
         'License'       => MSF_LICENSE,
         'Author'        =>
             [
-              'Richard Davy - secureyourit.co.uk',  #Module written by Richard Davy
-              'CheckPoint researchers - Assaf Baharav, Yaron Fruchtmann, Ido Solomon' #Code provided as POC by CheckPoint Researchers
+              'Richard Davy - secureyourit.co.uk',
+              'CheckPoint researchers - Assaf Baharav, Yaron Fruchtmann, Ido Solomon'
             ],
         'Platform'      => [ 'win' ],
         'References'    =>
