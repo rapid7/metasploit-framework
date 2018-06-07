@@ -3,7 +3,8 @@ or if PDFINJECT option is used will try and inject the necessary UNC code into a
 
 ## Vulnerable Application
 
-Various PDF Readers. Note Adobe released the patch APSB18-09 to prevent this and
+Various PDF Readers. 
+Note Adobe released the patch APSB18-09 to prevent this and
 FoxIT after version 9.1 is no longer vulnerable.
 
 ## Verification Steps
