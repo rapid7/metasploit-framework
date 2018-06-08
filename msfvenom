@@ -68,7 +68,7 @@ def parse_args(args)
   opt.separator('')
   opt.separator('Options:')
 
-  opt.on('-l', '--list            <type>', Array, 'List all modules for [type]. Types are: payloads, encoders, nops, platforms, encrypt, formats, all') do |l|
+  opt.on('-l', '--list            <type>', Array, 'List all modules for [type]. Types are: payloads, encoders, nops, platforms, formats, all') do |l|
     if l.to_s.empty?
       l = ["all"]
     end
@@ -98,18 +98,6 @@ def parse_args(args)
 
   opt.on('--smallest', 'Generate the smallest possible payload using all available encoders') do
     opts[:smallest] = true
-  end
-
-  opt.on('--encrypt         <value>', String, 'The type of encryption or encoding to apply to the shellcode (use --list encrypt to list)') do |e|
-    opts[:encryption_format] = e
-  end
-
-  opt.on('--encrypt-key     <value>', String, 'A key to be used for --encrypt') do |e|
-    opts[:encryption_key] = e
-  end
-
-  opt.on('--encrypt-iv      <value>', String, 'An initialization vector for --encrypt') do |e|
-    opts[:encryption_iv] = e
   end
 
   opt.on('-a', '--arch            <arch>', String, 'The architecture to use for --payload and --encoders') do |a|
@@ -244,23 +232,6 @@ def dump_platforms
   "\n" + tbl.to_s + "\n"
 end
 
-def dump_encrypt
-  init_framework(:module_types => [])
-  tbl = Rex::Text::Table.new(
-    'Indent'  => 4,
-    'Header'  => "Framework Encryption Formats [--encrypt <value>]",
-    'Columns' =>
-    [
-      "Name",
-    ])
-
-  ::Msf::Simple::Buffer.encryption_formats.each do |name|
-    tbl << [ name]
-  end
-
-  "\n" + tbl.to_s + "\n"
-end
-
 def dump_formats
   init_framework(:module_types => [])
   tbl1 = Rex::Text::Table.new(
@@ -370,8 +341,6 @@ if generator_opts[:list]
       $stdout.puts dump_nops
     when "platforms", "dump_platform"
       $stdout.puts dump_platforms
-    when "encrypts", "encrypt", "encryption"
-      $stdout.puts dump_encrypt
     when "formats", "format", "f"
       $stdout.puts dump_formats
     when "all", "a"
@@ -382,10 +351,9 @@ if generator_opts[:list]
       $stdout.puts dump_encoders
       $stdout.puts dump_nops
       $stdout.puts dump_platforms
-      $stdout.puts dump_encrypt
       $stdout.puts dump_formats
     else
-      $stderr.puts "Invalid type (#{mod}). These are valid: payloads, encoders, nops, platforms, encrypt, formats, all"
+      $stderr.puts "Invalid type (#{mod}). These are valid: payloads, encoders, nops, platforms, formats, all"
     end
   end
   exit(0)
