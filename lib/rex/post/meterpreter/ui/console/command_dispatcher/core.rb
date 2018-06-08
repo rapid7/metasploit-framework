@@ -1059,6 +1059,12 @@ class Console::CommandDispatcher::Core
       end
     end
 
+    # we cannot migrate to another process until loaded stdapi
+    unless extensions.include?('stdapi')
+      print_error('Stdapi extension must be loaded.')
+      return
+    end
+
     unless pid
       unless (pid = args.first)
         print_error('A process ID or name argument must be provided')
@@ -1147,7 +1153,7 @@ class Console::CommandDispatcher::Core
       case opt
       when '-l'
         exts = SortedSet.new
-        if !client.sys.config.sysinfo['BuildTuple'].blank?
+        if extensions.include?('stdapi') && !client.sys.config.sysinfo['BuildTuple'].blank?
           # Use API to get list of extensions from the gem
           exts.merge(MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']))
         else
@@ -1217,7 +1223,7 @@ class Console::CommandDispatcher::Core
 
   def cmd_load_tabs(str, words)
     tabs = SortedSet.new
-    if !client.sys.config.sysinfo['BuildTuple'].blank?
+    if extensions.include?('stdapi') && !client.sys.config.sysinfo['BuildTuple'].blank?
       # Use API to get list of extensions from the gem
       MetasploitPayloads::Mettle.available_extensions(client.sys.config.sysinfo['BuildTuple']).each { |f|
         if !extensions.include?(f.split('.').first)
