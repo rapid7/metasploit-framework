@@ -385,7 +385,7 @@ class Creds
 
     # normalize
     ports = port_ranges.flatten.uniq
-    opts[:ports] = ports
+    opts[:ports] = ports unless ports.empty?
     svcs.flatten!
     tbl_opts = {
       'Header'  => "Credentials",
