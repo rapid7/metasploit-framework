@@ -11,6 +11,7 @@ module Rex
     # minutes, and second.
     #
     def self.sec_to_s(seconds)
+      return "0 secs" if seconds.to_i <= 0
       [[31536000, 'year'], [86400, 'day'], [3600, 'hour'], [60, 'min'], [1, 'sec']].map! { |count, name|
         if (c = seconds / count) > 0
           c = c.truncate
