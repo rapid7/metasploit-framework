@@ -15,11 +15,11 @@ class MetasploitModule < Msf::Auxiliary
           code into an existing PDF document if possible.
         },
         'License'       => MSF_LICENSE,
-        'Author'        => 
+        'Author'        =>
             [
-              'Assaf Baharav',    # Code provided as POC by CheckPoint 
-              'Yaron Fruchtmann', # Code provided as POC by CheckPoint 
-              'Ido Solomon',      # Code provided as POC by CheckPoint 
+              'Assaf Baharav',    # Code provided as POC by CheckPoint
+              'Yaron Fruchtmann', # Code provided as POC by CheckPoint
+              'Ido Solomon',      # Code provided as POC by CheckPoint
               'Richard Davy - secureyourit.co.uk',  # Metasploit
             ],
         'Platform'      => [ 'win' ],
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error "Could not find placeholder to poison file this time...."
       return
     end
-      
+
     newfilename = datastore['PDFINJECT'][(0..(datastore['PDFINJECT'].length-5))]+"_malicious.pdf"
     #Write content to file
     File.open(newfilename, 'wb') { |file| file.write(newdata) }
@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_error "Something went wrong creating malicious PDF file"
     end
-      
+
 
   end
 
