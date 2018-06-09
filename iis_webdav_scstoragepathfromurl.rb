@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Exploit::Remote
         'zcgonvh <zcgonvh@qq.com>', # metasploit module
         'Rich Whitcroft', # metasploit module
         'Lincoln' # minor updates to metasploit module
+	'RubyistCTRLDYT' # minor updates to metasploit module 	
         ],
       'License'        => MSF_LICENSE,
       'References'     =>
@@ -250,7 +251,7 @@ class MetasploitModule < Msf::Exploit::Remote
           end
         end
       rescue ::Errno::ECONNRESET => e
-		    print_error("#{e.class}: #{e.message}")
+	print_error("#{e.class}: #{e.message}")
         print_error("got a connection reset")
         #rescue => error
         #print_error(error.class.to_s)
