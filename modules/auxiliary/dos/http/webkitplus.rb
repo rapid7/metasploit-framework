@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "WebKitGTK+ leading to an application crash [DoS]",
+        'Name'           => "WebKitGTK+ WebKitFaviconDatabase DoS",
         'Description'    => %q(
           This module exploits a vulnerability in WebKitFaviconDatabase when pageURL is unset.
           If successful,it could leads to application crash, denial of service.
@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           'Manuel Caballero' #JS Code
         ],
         'References' => [
-          ['EXPLOIT-DB', '44842'],
+          ['EDB', '44842'],
           ['CVE', '2018-11646'],
           ['URL', 'https://bugs.webkit.org/show_bug.cgi?id=186164'],
           ['URL', 'https://datarift.blogspot.com/2018/06/cve-2018-11646-webkit.html']
