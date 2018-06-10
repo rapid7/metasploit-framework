@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+    <!-- Title Page-->
+    <title>Meterpreter WenView</title>
+
+    <!-- Font faces CSS-->
+    <link href="css/font-face.css" rel="stylesheet" media="all">
+    <link href="resources/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <link href="resources/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
+    <link href="resources/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
+
+    <!-- Bootstrap CSS-->
+    <link href="resources/bootstrap-4.1/bootstrap.min.css" rel="stylesheet" media="all">
+
+    <!-- resources CSS-->
+    <link href="resources/animsition/animsition.min.css" rel="stylesheet" media="all">
+    <link href="resources/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet" media="all">
+    <link href="resources/wow/animate.css" rel="stylesheet" media="all">
+    <link href="resources/css-hamburgers/hamburgers.min.css" rel="stylesheet" media="all">
+    <link href="resources/slick/slick.css" rel="stylesheet" media="all">
+
+    <link href="resources/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" media="all">
+
+    <!-- Main CSS-->
+    <link href="css/theme.css" rel="stylesheet" media="all">
+
+    <!---- Xterm CSS -->
+    <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
+
+</head>
+
+<body class="animsition">
+    <div class="page-wrapper">
+        <!-- HEADER MOBILE-->
+        <header class="header-mobile d-block d-lg-none">
+            <div class="header-mobile__bar">
+                <div class="container-fluid">
+                    <div class="header-mobile-inner">
+                        <a class="logo" href="127.0.0.1:3000/">
+                            <img src="images/icon/logo.png" class="clearfix" alt="Metasploit" />
+                        </a>
+                        <button class="hamburger hamburger--slider" type="button">
+                            <span class="hamburger-box">
+                                <span class="hamburger-inner"></span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <nav class="navbar-mobile">
+                <div class="container-fluid">
+                    <ul class="navbar-mobile__list list-unstyled">
+
+                      <!--  Post Module Responsive -->
+
+
+                        <li class="has-sub">
+                            <a  class="js-arrow" href="#" >Post Modules</a>
+                            <ul id="post1" class="navbar-mobile-sub__list list-unstyled js-sub-list">
+
+                                <!-- Query for list of post modules here-->
+
+                            </ul>
+                        </li>
+                                <!-- List End here -->
+
+
+
+                        <!-- List Of Extension Starts here  -->
+
+                        <li class="has-sub">
+                            <a class="js-arrow"  href="#">Extensions</a>
+                            <ul id="exten1" class="navbar-mobile-sub__list list-unstyled js-sub-list">
+
+                                <!-- Querry for list of Extension Commands -->
+
+
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- END HEADER MOBILE-->
+
+        <!-- MENU SIDEBAR-->
+        <aside class="menu-sidebar d-none d-lg-block">
+            <div class="logo">
+                <a href="#">
+                    <img src="images/icon/logo.png"  alt="Metasploit" />
+                </a>
+            </div>
+            <div class="menu-sidebar__content js-scrollbar1">
+                <nav class="navbar-sidebar">
+                    <ul class="list-unstyled navbar__list">
+                        <li class="active has-sub">
+                            <a class="js-arrow" onclick="postModule()" href="#">Post Modules</a>
+                            <!--   Post Module Start Here  -->
+
+                            <ul id="post" class="list-unstyled navbar__sub-list js-sub-list">
+
+                                <!-- Querry for list of Modules !-->
+
+                            </ul>
+                          </li>
+
+<script>
+    function postModule() {
+        var xhr = new XMLHttpRequest();
+        var url = "http://127.0.0.1:3000/post";
+        xhr.open("GET", url);
+        xhr.send();
+
+        xhr.onreadystatechange = function () {
+            var postJson = xhr.response;
+            var postData = JSON.parse(postJson);
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var arr = Object.keys(postData);
+                for (var i = 0; i < arr.length; i++) {
+
+                    var text = document.createElement("li");
+                    var myList = document.createElement("ul");
+                    myList.setAttribute("class"," list-unstyled navbar__sub-list js-sub-list");
+                    text.setAttribute("class","has-sub");
+                    var anchor= document.createElement("a");
+                    anchor.setAttribute("href","#");
+                    anchor.textContent = arr[i];
+
+                    var post_mod = postData[arr[i]]; 		// content inside windows,llinux
+                    var postmod_arr = Object.keys(post_mod);
+
+                    if (postmod_arr[i] != 0) {
+                        for (var j = 0; j < postmod_arr.length; j++) {
+                            var subList = document.createElement("li");
+                            subList.setAttribute("class","active has-sub");
+                            subList.textContent = postmod_arr[j];
+                            myList.appendChild(subList);
+                        }
+                    }
+                    text.appendChild(anchor);
+                    myList.appendChild(text);
+                    document.getElementById("post").appendChild(text);
+                }
+
+            }
+        }
+        xhr.stopPropagation();
+
+    }
+</script>
+                        <li class="active has-sub">
+                            <a class="js-arrow"   href="#">Extensions</a>
+                            <!--  Meterpreter Extensions -->
+                            <ul id="exten" class="list-unstyled navbar__sub-list js-sub-list">
+
+                                <!-- Querry for list of Extension commands-->
+
+                          
+                            </ul>
+                        </li>
+
+                        <!-- Implementation of Xterm.js to provide Meterpreter WebShell to the user. -->
+
+                        <li class="active has-sub">
+                          <a class="js-arrow" href="#">Commands</a>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <!-- END MENU SIDEBAR-->
+
+        <!-- PAGE CONTAINER-->
+        <div class="page-container">
+            <!-- HEADER DESKTOP-->
+            <header class="header-desktop">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid">
+                        <div class="header-wrap">
+                            <div class="header-button">
+
+
+                                <div class="account-wrap">
+                                    <div class="account-item clearfix js-item-menu" align=right>
+
+                                        <div class="content">
+                                            <a class="js-acc-btn" href="#">System Information</a>
+                                        </div>
+                                        <div class="account-dropdown js-dropdown">
+                                            <div class="info clearfix">
+                            <!-- This content will be created dynamically -->
+                            <!-- Querry for system information i.e Operating System, User Privillege Level etc -->
+
+                                                <div class="content">
+                                                    <h5 class="name">
+                                                        <a id="sysname" href="#">DESKTOP4013</a>
+                                                    </h5>
+                                                    <span id="ip" class="email">192.168.0.123</span>
+                                                </div>
+                                            </div>
+                                            <div class="account-dropdown__body">
+                                                <div class="account-dropdown__item">
+                                                    <a href="#">Operating System</a>
+                                                </div>
+                                                <div class="account-dropdown__item">
+                                                    <a href="#">Getuid</a>
+                                                </div>
+                                                <div class="account-dropdown__item">
+                                                    <a href="#">info3</a>
+                                                </div>
+
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- HEADER DESKTOP-->
+
+            <!-- MAIN CONTENT-->
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid">
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <div class="mainsection" style="color: #ffffff !important; font-size: 18px !important">
+
+                            <!-- Output from Meterpreter shell will be displayed here. Script to display user output-->
+                          <p>  Meterpreter Output </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END MAIN CONTENT-->
+
+
+        <!-- END PAGE CONTAINER-->
+        </div>
+
+    </div>
+
+    <!-- Xterm JS
+    <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
+    <script src="node_modules/xterm/dist/xterm.js"></script>
+    -->
+    <!-- Jquery JS-->
+    <script src="resources/jquery-3.2.1.min.js"></script>
+    <!-- Bootstrap JS-->
+    <script src="resources/bootstrap-4.1/popper.min.js"></script>
+    <script src="resources/bootstrap-4.1/bootstrap.min.js"></script>
+    <!-- resources JS       -->
+    <script src="resources/slick/slick.min.js">
+    </script>
+
+    <script src="resources/wow/wow.min.js"></script>
+    <script src="resources/animsition/animsition.min.js"></script>
+    <script src="resources/bootstrap-progressbar/bootstrap-progressbar.min.js">
+    </script>
++
+    <script src="resources/perfect-scrollbar/perfect-scrollbar.js"></script>
+
+
+
+    <!-- Main JS
+    <script src="js/load.js"></script>-->
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
+<!-- end document-->

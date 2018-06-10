@@ -1,10 +1,10 @@
 require "sinatra"
 require "sinatra/json"
 require "sinatra/cross_origin"
-require "rubygems"
 require "json"
-require 'sinatra-websocket'
+require "sinatra-websocket"
 
+=begin
 msfbase = __FILE__
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
@@ -15,27 +15,142 @@ require 'msfenv'
 
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
+=end
+
 
 set :bind, '127.0.0.1'
 set :port, 3000
+set :json_content_type, :js
+set :public_folder, 'public'
 
 configure do
   enable :cross_origin
+  enable :sessions
 end
 
-set :json_content_type, :js
 
-#To load Post Exploitation Module 
+get "/" do
+  File.read(File.join('public','index.html'))
+end
+
+get "/super" do
+  content_type :json
+  super_hero=File.read('super.json')
+  return(super_hero)
+
+end
+#To load Post Exploitation Module
 get "/post" do
-  return "I figured it out"
+  content_type :json
+  post_file=File.read('json_post.json')
+  return(post_file)
 end
 
-#To load Extension Commands
-get "/extern" do
-  return "Windows"
+
+#load Extension command
+get "/exten" do
+  content_type :json
+  exten_file=File.read('exten.json')
+  return(exten_file)
 end
+
+# For invalid command
+
+not_found do
+  "Whoops! You requested a route that was'nt available"
+end
+
+#Get System information
+
+get "/sysinfo" do
+  content_type :jsonn
+  sysinfo= File.read('json_sysinfo.txt')
+  return(sysinfo)
+end
+
+post "/post_command?id=:post_cmd" do
+  return "Post Exploitation Module entered is #{params[:post_cmd]}"
+end
+
+post "/exten_command?id=:exten_cmd" do
+  return "Extension Commands Entered by user is #{params[:exten_cmd]}"
+end
+
+
+
+
+=begin
+class Features
+
+
+
+  # Extract List of Post Exploitation Modules in JSON Format
+  # Extract list of Extension commands in JSON Format
+  # Parse this data and embed it into ERB file
+
+  post = File.read('json.txt')
+  data= JSON.parse(post)
+
+
+
+
+  def postmodlist
+    # Extract the json output given by Meterpreter adn saves it into am array
+    # send this array to erb file
+    # dynamically create the views web page
+
+    post=File.read('json_post.txt')
+    data=JSON.pretty_generate(post)
+
+  end
+
+
+
+  def externlist
+    #Extract the json output given by Meterpreter adn saves it into am array
+    # send this array to erb file
+    # dynamically create the views web page
+    ext=File.read('json_ext.txt')
+    data=JSON.pretty_generate(ext)
+  end
+
+  def sysinfo
+    # parse sys info from json
+    # send the data to erb file
+    # to form dynamic web page content
+    sys=File.read('json_ext.txt')
+    data=JSON.pretty_generate(sys)
+
+  end
+
+
+end
+
+
+
+class Xterm_session
+  # This class will execute web socket and provide Session connectivity with Meterpreter shell and Xterm
+  # Read each command, validates it, filters it and then sends it to shell
+  # While this period of time, The communication will remain persistence.
+  # Implementation of Web Socket is required he
+end
+
+#----------------------------------- To be Executed  before first Evaluation period -------------------------------------#
+
+
+class Execute_Commands
+
+  #execute meterpreter class methods
+  # Take data from user and send it to Meterpreter shell.
+  # Return the output back to the user
+  # This class will handle commands related to Post Module and Extension send by AJAX
+end
+=end
+
 
 # Web Socket Implementation
+
+=begin
 get '/soc' do
     request.websocket do |ws|
       ws.onopen do
@@ -51,3 +166,4 @@ get '/soc' do
       end
     end
 end
+=end

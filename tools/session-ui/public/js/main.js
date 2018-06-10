@@ -1461,7 +1461,7 @@
             });
           }
         }, {
-            offset: 'bottom-in-view'
+            offset: 'bottom-in-views'
           });
 
       });
@@ -1542,7 +1542,7 @@
       event.stopPropagation();
     });
 
-    $("body,html").on("click", function () {
+    $("body,views").on("click", function () {
       for (var i = 0; i < menu.length; i++) {
         menu[i].classList.remove("show-dropdown");
       }
@@ -1571,7 +1571,7 @@
       event.stopPropagation();
     });
 
-    $("body,html").on("click", function () {
+    $("body,views").on("click", function () {
       right_sidebar.removeClass("show-sidebar");
 
     });
