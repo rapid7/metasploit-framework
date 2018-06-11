@@ -100,13 +100,11 @@
             <div class="menu-sidebar__content js-scrollbar1">
                 <nav class="navbar-sidebar">
                     <ul class="list-unstyled navbar__list">
-                        <li class="active has-sub">
-                            <a class="js-arrow" onclick="postModule()" href="#">Post Modules</a>
-                            <!--   Post Module Start Here  -->
-
+                        <li class="active has-sub" onclick="postModule()">
+                            <a class="js-arrow"  href="#">Post Modules</a>
                             <ul id="post" class="list-unstyled navbar__sub-list js-sub-list">
 
-                                <!-- Querry for list of Modules !-->
+
 
                             </ul>
                           </li>
@@ -118,7 +116,7 @@
         xhr.open("GET", url);
         xhr.send();
 
-        xhr.onreadystatechange = function () {
+        xhr.onload = function () {
             var postJson = xhr.response;
             var postData = JSON.parse(postJson);
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -127,31 +125,46 @@
 
                     var text = document.createElement("li");
                     var myList = document.createElement("ul");
-                    myList.setAttribute("class"," list-unstyled navbar__sub-list js-sub-list");
-                    text.setAttribute("class","has-sub");
+                    myList.setAttribute("class","list-unstyled navbar__list js-sub-list");
+                    text.setAttribute("class","active has-sub");
                     var anchor= document.createElement("a");
+                    anchor.setAttribute("class","js-arrow");
                     anchor.setAttribute("href","#");
+
+
                     anchor.textContent = arr[i];
 
-                    var post_mod = postData[arr[i]]; 		// content inside windows,llinux
-                    var postmod_arr = Object.keys(post_mod);
+                    var post_mod = postData[arr[i]]; 		// content inside windows,linux
+                    var postmod_key = Object.keys(post_mod);
 
-                    if (postmod_arr[i] != 0) {
-                        for (var j = 0; j < postmod_arr.length; j++) {
+                    if (postmod_key[i] != 0) {
+                        for (var j = 0; j < postmod_key.length; j++) {
                             var subList = document.createElement("li");
                             subList.setAttribute("class","active has-sub");
-                            subList.textContent = postmod_arr[j];
-                            myList.appendChild(subList);
+                            subList.textContent = postmod_key[j];
+                            var value= post_mod[postmod_key[j]];
+                            if(value!=0){
+                                for(var k=0;k<value.length;k++){
+                                    var valueSubList=document.createElement("ul");
+                                    valueSubList.setAttribute("class","list-unstyled navbar__list js-sub-list");
+                                    var valueList=document.createElement("li");
+                                    valueList.setAttribute("class","active has-sub");
+                                    valueList.textContent = value[k];
+                                    valueSubList.appendChild(valueList);
+                                    subList.appendChild(valueSubList);
+                                    myList.appendChild(subList);
+                                }
+                            }
                         }
                     }
                     text.appendChild(anchor);
-                    myList.appendChild(text);
+                    text.appendChild(myList);
                     document.getElementById("post").appendChild(text);
                 }
 
             }
         }
-        xhr.stopPropagation();
+
 
     }
 </script>
