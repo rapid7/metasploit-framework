@@ -1,10 +1,15 @@
 ## Vulnerable Application
 
-This module exploits a vulnerability in WebKitFaviconDatabase when pageURL is unset. If successful,it could leads to application crash, denial of service, webkitFaviconDatabaseSetIconForPageURL and webkitFaviconDatabaseSetIconURLForPageURL in UIProcess/API/glib/WebKitFaviconDatabase.cpp in WebKit, as used in WebKitGTK+ through 2.21.3, mishandle an unset pageURL, leading to an application crash. 
+This module exploits a vulnerability in `WebKitFaviconDatabase` when `pageURL` is unset.
+If successful, it could lead to application crash, resulting in denial of service.
+
+The `webkitFaviconDatabaseSetIconForPageURL` and `webkitFaviconDatabaseSetIconURLForPageURL`
+functions in `UIProcess/API/glib/WebKitFaviconDatabase.cpp` in WebKit, as used in WebKitGTK+
+through 2.21.3, mishandle an unset `pageURL`, leading to an application crash.
 
 Related links : 
-https://bugs.webkit.org/show_bug.cgi?id=186164
-https://datarift.blogspot.com/2018/06/cve-2018-11646-webkit.html
+* https://bugs.webkit.org/show_bug.cgi?id=186164
+* https://datarift.blogspot.com/2018/06/cve-2018-11646-webkit.html
 
 ## Backtrace using Fedora 27
 
