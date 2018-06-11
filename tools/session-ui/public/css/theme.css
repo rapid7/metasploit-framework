@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------
 [Master Stylesheet]
 
-Project:  METERPRETER views
+Project:  METERPRETER WebView
 Version:	1.0
 Last change:	08/10/2018 [Add Define a table of contents Link]
 Developer:	Rahul Dhawan
@@ -1092,7 +1092,7 @@ section {
     z-index: 3;
 }
 
-.menu-sidebar .navbar__list .navbar__sub-list  {
+.menu-sidebar .navbar__list .navbar__sub-list {
     display: none;
     padding-left: 34px;
 }
@@ -1737,7 +1737,7 @@ section {
     cursor: pointer;
 }
 
-.navbar-sidebar2 .navbar__list .navbar__sub-list li .arrow {
+.navbar-sidebar2 .navbar__list li .arrow {
     position: absolute;
     right: 15px;
     top: 0;
@@ -1752,7 +1752,7 @@ section {
     transition: all 0.5s ease;
 }
 
-.navbar-sidebar2 .navbar__list li .navbar__sub-list .arrow.up {
+.navbar-sidebar2 .navbar__list li .arrow.up {
     -webkit-transform: rotate(-180deg);
     -moz-transform: rotate(-180deg);
     -ms-transform: rotate(-180deg);
@@ -1760,7 +1760,7 @@ section {
     transform: rotate(-180deg);
 }
 
-.navbar-sidebar2 .navbar__list li .navbar__sub-list .arrow i {
+.navbar-sidebar2 .navbar__list li .arrow i {
     font-size: 16px;
     color: #999;
 }
@@ -2340,7 +2340,7 @@ section {
     color: #fff;
 }
 
-.navbar-sidebar3 .navbar__list .navbar__sub-list li.active > a > .arrow > i {
+.navbar-sidebar3 .navbar__list li.active > a > .arrow > i {
     color: #fff;
 }
 

@@ -8,7 +8,7 @@
 
 
     <!-- Title Page-->
-    <title>Meterpreter WenView</title>
+    <title>Meterpreter WebView</title>
 
     <!-- Font faces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
@@ -38,57 +38,6 @@
 
 <body class="animsition">
     <div class="page-wrapper">
-        <!-- HEADER MOBILE-->
-        <header class="header-mobile d-block d-lg-none">
-            <div class="header-mobile__bar">
-                <div class="container-fluid">
-                    <div class="header-mobile-inner">
-                        <a class="logo" href="127.0.0.1:3000/">
-                            <img src="images/icon/logo.png" class="clearfix" alt="Metasploit" />
-                        </a>
-                        <button class="hamburger hamburger--slider" type="button">
-                            <span class="hamburger-box">
-                                <span class="hamburger-inner"></span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <nav class="navbar-mobile">
-                <div class="container-fluid">
-                    <ul class="navbar-mobile__list list-unstyled">
-
-                      <!--  Post Module Responsive -->
-
-
-                        <li class="has-sub">
-                            <a  class="js-arrow" href="#" >Post Modules</a>
-                            <ul id="post1" class="navbar-mobile-sub__list list-unstyled js-sub-list">
-
-                                <!-- Query for list of post modules here-->
-
-                            </ul>
-                        </li>
-                                <!-- List End here -->
-
-
-
-                        <!-- List Of Extension Starts here  -->
-
-                        <li class="has-sub">
-                            <a class="js-arrow"  href="#">Extensions</a>
-                            <ul id="exten1" class="navbar-mobile-sub__list list-unstyled js-sub-list">
-
-                                <!-- Querry for list of Extension Commands -->
-
-
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </header>
-        <!-- END HEADER MOBILE-->
 
         <!-- MENU SIDEBAR-->
         <aside class="menu-sidebar d-none d-lg-block">
@@ -100,86 +49,20 @@
             <div class="menu-sidebar__content js-scrollbar1">
                 <nav class="navbar-sidebar">
                     <ul class="list-unstyled navbar__list">
-                        <li class="active has-sub" onclick="postModule()">
-                            <a class="js-arrow"  href="#">Post Modules</a>
+                        <li class="active has-sub" >
+                            <a class="js-arrow" onclick="postModule(); this.onclick=null;"  href="#">Post Modules</a>
                             <ul id="post" class="list-unstyled navbar__sub-list js-sub-list">
-
-
-
+                                <!-- Dynamic List -->
                             </ul>
                           </li>
 
-<script>
-    function postModule() {
-        var xhr = new XMLHttpRequest();
-        var url = "http://127.0.0.1:3000/post";
-        xhr.open("GET", url);
-        xhr.send();
-
-        xhr.onload = function () {
-            var postJson = xhr.response;
-            var postData = JSON.parse(postJson);
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var arr = Object.keys(postData);
-                for (var i = 0; i < arr.length; i++) {
-
-                    var text = document.createElement("li");
-                    var myList = document.createElement("ul");
-                    myList.setAttribute("class","list-unstyled navbar__list js-sub-list");
-                    text.setAttribute("class","active has-sub");
-                    var anchor= document.createElement("a");
-                    anchor.setAttribute("class","js-arrow");
-                    anchor.setAttribute("href","#");
-
-
-                    anchor.textContent = arr[i];
-
-                    var post_mod = postData[arr[i]]; 		// content inside windows,linux
-                    var postmod_key = Object.keys(post_mod);
-
-                    if (postmod_key[i] != 0) {
-                        for (var j = 0; j < postmod_key.length; j++) {
-                            var subList = document.createElement("li");
-                            subList.setAttribute("class","active has-sub");
-                            subList.textContent = postmod_key[j];
-                            var value= post_mod[postmod_key[j]];
-                            if(value!=0){
-                                for(var k=0;k<value.length;k++){
-                                    var valueSubList=document.createElement("ul");
-                                    valueSubList.setAttribute("class","list-unstyled navbar__list js-sub-list");
-                                    var valueList=document.createElement("li");
-                                    valueList.setAttribute("class","active has-sub");
-                                    valueList.textContent = value[k];
-                                    valueSubList.appendChild(valueList);
-                                    subList.appendChild(valueSubList);
-                                    myList.appendChild(subList);
-                                }
-                            }
-                        }
-                    }
-                    text.appendChild(anchor);
-                    text.appendChild(myList);
-                    document.getElementById("post").appendChild(text);
-                }
-
-            }
-        }
-
-
-    }
-</script>
                         <li class="active has-sub">
-                            <a class="js-arrow"   href="#">Extensions</a>
-                            <!--  Meterpreter Extensions -->
+                            <a class="js-arrow" onclick="ExtensionCommand(); this.onclick=null;"  href="#">Extensions</a>
                             <ul id="exten" class="list-unstyled navbar__sub-list js-sub-list">
-
-                                <!-- Querry for list of Extension commands-->
-
-                          
+                                <!-- Dynamic List -->
                             </ul>
                         </li>
 
-                        <!-- Implementation of Xterm.js to provide Meterpreter WebShell to the user. -->
 
                         <li class="active has-sub">
                           <a class="js-arrow" href="#">Commands</a>
@@ -289,8 +172,8 @@
 
 
 
-    <!-- Main JS
-    <script src="js/load.js"></script>-->
+    <!-- Main JS-->
+    <script src="js/load.js"></script>
     <script src="js/main.js"></script>
 
 </body>
