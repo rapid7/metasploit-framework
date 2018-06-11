@@ -1,4 +1,4 @@
-require 'pstore'
+require 'json'
 require 'msf/core/modules/metadata'
 
 #
@@ -9,8 +9,12 @@ require 'msf/core/modules/metadata'
 #
 module Msf::Modules::Metadata::Store
 
-  BaseMetaDataFile = 'modules_metadata_base.pstore'
-  UserMetaDataFile = 'modules_metadata.pstore'
+  def initialize
+    @update_mutex = Mutex.new
+  end
+
+  BaseMetaDataFile = 'modules_metadata_base.json'
+  UserMetaDataFile = 'modules_metadata.json'
 
   #
   # Initializes from user store (under ~/store/.msf4) if it exists. else base file (under $INSTALL_ROOT/db) is copied and loaded.
@@ -28,10 +32,13 @@ module Msf::Modules::Metadata::Store
   #
   def update_store
     begin
-      @store.transaction do
-        @store[:module_metadata] = @module_metadata_cache
-      end
-    rescue Excepion => e
+      @update_mutex.synchronize {
+        json_map = @module_metadata_cache.sort.to_h
+        File.open(@path_to_user_metadata, "w") do |f|
+          f.write(JSON.pretty_generate(json_map))
+        end
+      }
+    rescue => e
       elog("Unable to update metadata store: #{e.message}")
     end
   end
@@ -40,8 +47,7 @@ module Msf::Modules::Metadata::Store
     begin
       retries ||= 0
       copied = configure_user_store
-      @store = PStore.new(@path_to_user_metadata, true)
-      @module_metadata_cache = @store.transaction(true) { @store[:module_metadata]}
+      load_cache_from_file_store
       validate_data(copied) if (!@module_metadata_cache.nil? && @module_metadata_cache.size > 0)
       @module_metadata_cache = {} if @module_metadata_cache.nil?
     rescue Exception => e
@@ -106,6 +112,17 @@ module Msf::Modules::Metadata::Store
     store_dir = ::File.join(Msf::Config.config_directory, "store")
     FileUtils.makedirs(store_dir) if !::File.exist?(store_dir)
     return ::File.join(store_dir, UserMetaDataFile)
+  end
+
+  def load_cache_from_file_store
+    cache_map = JSON.parse(File.read(@path_to_user_metadata))
+    cache_map.each {|k,v|
+      begin
+        @module_metadata_cache[k] =  Msf::Modules::Metadata::Obj.from_hash(v)
+      rescue => e
+        elog("Unable to load module metadata object with key: #{k}")
+      end
+    }
   end
 
 end
