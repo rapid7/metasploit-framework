@@ -23,7 +23,7 @@ module Auxiliary::Report
 
   def create_cracked_credential(opts={})
     if active_db?
-      super(opts)
+      framework.db.create_cracked_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
