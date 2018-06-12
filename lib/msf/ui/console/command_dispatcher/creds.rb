@@ -223,7 +223,7 @@ class Creds
     end
 
     data = {
-      workspace_id: framework.db.workspace,
+      workspace_id: framework.db.workspace.id,
       origin_type: :import,
       filename: 'msfconsole'
     }
@@ -275,9 +275,9 @@ class Creds
         data[:port] = params['port']
         data[:protocol] = params['protocol']
         data[:service_name] = params['service-name']
-        create_credential_and_login(data)
+        framework.db.create_credential_and_login(data)
       else
-        create_credential(data)
+        framework.db.create_credential(data)
       end
     rescue ActiveRecord::RecordInvalid => e
       print_error("Failed to add #{data['private_type']}: #{e}")
