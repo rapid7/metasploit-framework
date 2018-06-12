@@ -1611,7 +1611,7 @@ section {
     left: 0;
     top: 0;
     bottom: 0;
-    background: #fff;
+    background: #262f36;
     overflow-y: auto;
     height: 100vh;
     -webkit-transition: all 0.5s ease;
@@ -1633,14 +1633,14 @@ section {
     -moz-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    background: #365cad;
+    background: #262f36;
     padding: 0 35px;
 }
 
 @media (max-width: 991px) {
     .menu-sidebar2 {
         top: 0;
-        right: -300px;
+        right: -200px;
         left: auto;
         -webkit-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
         -moz-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
@@ -1652,55 +1652,13 @@ section {
     }
 }
 
-.account2 {
-    padding: 38px;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    -moz-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -moz-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -moz-box-orient: vertical;
-    -moz-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    border-bottom: 1px  solid #f2f2f2;
-}
 
-.account2 .name {
-    text-transform: capitalize;
-    font-weight: 500;
-    font-size: 20px;
-    margin-top: 20px;
-    margin-bottom: 5px;
-}
-
-.account2 > a {
-    font-size: 14px;
-    color: #999;
-}
-
-.account2 > a:hover {
-    color: #666;
-}
 
 .menu-sidebar2__content {
     height: -webkit-calc(100vh - 75px);
     height: -moz-calc(100vh - 75px);
     height: calc(100vh - 75px);
-    border-right: 1px solid #e5e5e5;
+    border-right: 1px solid #262f36;
     position: relative;
 }
 
@@ -1762,19 +1720,20 @@ section {
 
 .navbar-sidebar2 .navbar__list li .arrow i {
     font-size: 16px;
-    color: #999;
+    color:#97a3ab;
 }
 
 .navbar-sidebar2 .navbar__list li:hover > a {
     color: #ffffff;
+    background-color: #EB5D26 ;
 }
 
 .navbar-sidebar2 .navbar__list li a {
     font-size: 16px;
-    color: #555;
+    color: #97a3ab;
     display: block;
     padding: 18px 35px;
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid #262f36;
 }
 
 .navbar-sidebar2 .navbar__list li a > i {
@@ -1782,7 +1741,7 @@ section {
 }
 
 .navbar-sidebar2 .navbar__list li.active > a {
-    color: #979ea6;
+    color: #fefefe;
 }
 
 .navbar-sidebar2 .navbar__sub-list {
@@ -1790,11 +1749,12 @@ section {
 }
 
 .navbar-sidebar2 .navbar__sub-list li {
-    background: #979ea6;
+    background: #262f36;
 }
 
 .navbar-sidebar2 .navbar__sub-list li a {
-    border-color: #ebebeb;
+    border-color: #262f36;
+    padding-left: 85px;
 }
 
 .inbox-num {

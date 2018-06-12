@@ -19,12 +19,13 @@ By displaying all the functionalities on an HTML web page, Metasploit can simpli
 - [Sinatra web framework ](http://sinatrarb.com/)
 
 ## Gems used 
--[sinatra](https://rubygems.org/gems/sinatra-base/versions/1.4.0)
--[Sinatra-json](https://rubygems.org/gems/sinatra-json/versions/0.1.0)
--[Sinatra-webSocket](https://rubygems.org/gems/sinatra-websocket/versions/0.3.1)
--[thin](https://rubygems.org/gems/thin/versions/1.7.0)
+- [sinatra](https://rubygems.org/gems/sinatra-base/versions/1.4.0)
+- [Sinatra-json](https://rubygems.org/gems/sinatra-json/versions/0.1.0)
+- [Sinatra-webSocket](https://rubygems.org/gems/sinatra-websocket/versions/0.3.1)
+- [thin](https://rubygems.org/gems/thin/versions/1.7.0)
 
 To install the Dependencies
-
 - bundle install
-- launch webView : http://127.0.0.1:3000/
+
+ To Launch WebView
+-  http://127.0.0.1:3000/

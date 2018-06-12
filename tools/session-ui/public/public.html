@@ -8,9 +8,9 @@
 
 
     <!-- Title Page-->
-    <title>Meterpreter WebView</title>
+    <title>Meterpreter WenView</title>
 
-    <!-- Font faces CSS-->
+    <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
     <link href="resources/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
     <link href="resources/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
@@ -25,47 +25,58 @@
     <link href="resources/wow/animate.css" rel="stylesheet" media="all">
     <link href="resources/css-hamburgers/hamburgers.min.css" rel="stylesheet" media="all">
     <link href="resources/slick/slick.css" rel="stylesheet" media="all">
-
+   <!-- <link href="resources/select2/select2.min.css" rel="stylesheet" media="all"> -->
     <link href="resources/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" media="all">
 
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
-
-    <!---- Xterm CSS -->
-    <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
+    <!--Xterm.js
+    <link rel="stylesheet" href="../../../Users/rahul/node_modules/xterm/dist/xterm.css" /> -->
+    <link rel="stylesheet" href="xterm.css" />
+    <script src="xterm.js"></script>
 
 </head>
 
 <body class="animsition">
     <div class="page-wrapper">
+        <!-- HEADER MOBILE-->
+
 
         <!-- MENU SIDEBAR-->
-        <aside class="menu-sidebar d-none d-lg-block">
+        <aside class="menu-sidebar2">
             <div class="logo">
-                <a href="#">
-                    <img src="images/icon/logo.png"  alt="Metasploit" />
+                <a href="http://127.0.0.1:3000/">
+                    <img src="images/icon/logo.png" alt="Metasploit" />
                 </a>
             </div>
-            <div class="menu-sidebar__content js-scrollbar1">
-                <nav class="navbar-sidebar">
+            <div class="menu-sidebar2__content js-scrollbar1">
+
+                <nav class="navbar-sidebar2">
                     <ul class="list-unstyled navbar__list">
-                        <li class="active has-sub" >
-                            <a class="js-arrow" onclick="postModule(); this.onclick=null;"  href="#">Post Modules</a>
-                            <ul id="post" class="list-unstyled navbar__sub-list js-sub-list">
-                                <!-- Dynamic List -->
+                        <li onclick="postModule(); this.onclick=null;" class="active has-sub">
+                            <a class="js-arrow"  href="#">
+                              <span class="arrow"><i class="fas fa-angle-down"></i>
+                              </span>Post Modules
+                            </a>
+                            <ul id="post" class="list-unstyled navbar__list ">
+                              <!-- Dynamic List here -->
                             </ul>
                           </li>
 
                         <li class="active has-sub">
-                            <a class="js-arrow" onclick="ExtensionCommand(); this.onclick=null;"  href="#">Extensions</a>
+                            <a class="js-arrow" onclick="ExtensionCommand(); this.onclick=null;" href="#">Extensions
+                              <span class="arrow">
+                                    <i class="fas fa-angle-down"></i>
+                              </span>
+                            </a>
+                            
                             <ul id="exten" class="list-unstyled navbar__sub-list js-sub-list">
-                                <!-- Dynamic List -->
+                              <!-- Dynamic List -->
                             </ul>
                         </li>
 
-
-                        <li class="active has-sub">
-                          <a class="js-arrow" href="#">Commands</a>
+                        <li >
+                          <a href="#">Commands</a>
                         </li>
 
                     </ul>
@@ -86,20 +97,18 @@
 
                                 <div class="account-wrap">
                                     <div class="account-item clearfix js-item-menu" align=right>
-
+                                       
                                         <div class="content">
                                             <a class="js-acc-btn" href="#">System Information</a>
                                         </div>
                                         <div class="account-dropdown js-dropdown">
                                             <div class="info clearfix">
-                            <!-- This content will be created dynamically -->
-                            <!-- Querry for system information i.e Operating System, User Privillege Level etc -->
-
+                                                 <!-- This content will be created dynamically -->
                                                 <div class="content">
                                                     <h5 class="name">
-                                                        <a id="sysname" href="#">DESKTOP4013</a>
+                                                        <a href="#">DESKTOP4013</a>
                                                     </h5>
-                                                    <span id="ip" class="email">192.168.0.123</span>
+                                                    <span class="email">192.168.0.123</span>
                                                 </div>
                                             </div>
                                             <div class="account-dropdown__body">
@@ -113,7 +122,7 @@
                                                     <a href="#">info3</a>
                                                 </div>
 
-
+                                    <!-- -->
 
                                             </div>
                                         </div>
@@ -131,13 +140,22 @@
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
                       <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-6" >
                           <div class="mainsection" style="color: #ffffff !important; font-size: 18px !important">
+                            <div id="terminal">
+                                
+                                <!-- Meterpreter shell here-->
 
-                            <!-- Output from Meterpreter shell will be displayed here. Script to display user output-->
-                          <p>  Meterpreter Output </p>
-                          </div>
+                            </div>
+
+      <script>
+       // import { Terminal } from 'xterm';
+        let term = new Terminal();
+        term.open(document.getElementById('terminal'));
+        term.write('\x1B[1;3;31lMeterpreter\x1B[0m $ ')
+      </script>
                         </div>
+                        </div> 
                       </div>
                     </div>
                 </div>
@@ -149,15 +167,12 @@
         </div>
 
     </div>
-
-    <!-- Xterm JS
-    <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
-    <script src="node_modules/xterm/dist/xterm.js"></script>
-    -->
     <!-- Jquery JS-->
-    <script src="resources/jquery-3.2.1.min.js"></script>
+    <script src="resources/jquery-3.2.1.min.js"></script> 
+    <!-- Xterm Js 
+    <script src="../../../Users/rahul/node_modules/xterm/dist/xterm.js"></script>-->
     <!-- Bootstrap JS-->
-    <script src="resources/bootstrap-4.1/popper.min.js"></script>
+    <!-- <script src="resources/bootstrap-4.1/popper.min.js"></script> -->
     <script src="resources/bootstrap-4.1/bootstrap.min.js"></script>
     <!-- resources JS       -->
     <script src="resources/slick/slick.min.js">
@@ -167,10 +182,10 @@
     <script src="resources/animsition/animsition.min.js"></script>
     <script src="resources/bootstrap-progressbar/bootstrap-progressbar.min.js">
     </script>
-+
+
     <script src="resources/perfect-scrollbar/perfect-scrollbar.js"></script>
-
-
+  <!--  <script src="resources/select2/select2.min.js"> 
+    </script>-->
 
     <!-- Main JS-->
     <script src="js/load.js"></script>

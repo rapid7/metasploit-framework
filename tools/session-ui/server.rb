@@ -1,6 +1,5 @@
 require "sinatra"
 require "sinatra/json"
-require "sinatra/cross_origin"
 require "json"
 require "sinatra-websocket"
 
@@ -24,7 +23,7 @@ set :json_content_type, :js
 set :public_folder, 'public'
 
 configure do
-  enable :cross_origin
+
   enable :sessions
 end
 
@@ -39,7 +38,9 @@ get "/super" do
   return(super_hero)
 
 end
+
 #To load Post Exploitation Module
+
 get "/post" do
   content_type :json
   post_file=File.read('json_post.json')
@@ -47,7 +48,10 @@ get "/post" do
 end
 
 
+
 #load Extension command
+
+
 get "/exten" do
   content_type :json
   exten_file=File.read('exten.json')
