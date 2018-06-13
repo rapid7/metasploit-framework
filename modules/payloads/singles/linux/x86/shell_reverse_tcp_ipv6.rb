@@ -44,7 +44,7 @@ def generate_stage
       third  = words[2].join(', ')
       fourth = words[3].join(', ')
 
-    payload_data =<<-EOS
+      payload_data =<<-EOS
         xor  ebx,ebx
         mul  ebx
         push 0x6
