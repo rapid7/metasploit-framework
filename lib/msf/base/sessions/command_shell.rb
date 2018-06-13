@@ -90,6 +90,9 @@ class CommandShell
   # Explicitly runs a command.
   #
   def run_cmd(cmd)
+    if cmd == nil
+      return
+    end
     arguments = parse_line(cmd)
     method    = arguments.shift
 
