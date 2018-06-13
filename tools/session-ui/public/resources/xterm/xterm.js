@@ -3687,7 +3687,7 @@ var Terminal = (function (_super) {
         this.textarea.addEventListener('blur', function () { return _this._onTextAreaBlur(); });
         this._helperContainer.appendChild(this.textarea);
         this._compositionView = document.createElement('div');
-        this._compositionView.classList.add('composition-views');
+        this._compositionView.classList.add('composition-view');
         this._compositionHelper = new CompositionHelper_1.CompositionHelper(this.textarea, this._compositionView, this);
         this._helperContainer.appendChild(this._compositionView);
         this.charMeasure = new CharMeasure_1.CharMeasure(document, this._helperContainer);

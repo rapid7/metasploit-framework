@@ -23,19 +23,18 @@ set :json_content_type, :js
 set :public_folder, 'public'
 
 configure do
-
   enable :sessions
 end
 
 
 get "/" do
-  File.read(File.join('public','index.html'))
+  File.read(File.join('public','public.html'))
 end
 
-get "/super" do
+get "/sysinfo" do
   content_type :json
-  super_hero=File.read('super.json')
-  return(super_hero)
+  system_info=File.read('sysinfo.json')
+  return(system_info)
 
 end
 
@@ -66,14 +65,9 @@ end
 
 #Get System information
 
-get "/sysinfo" do
-  content_type :jsonn
-  sysinfo= File.read('json_sysinfo.txt')
-  return(sysinfo)
-end
 
-post "/post_command?id=:post_cmd" do
-  return "Post Exploitation Module entered is #{params[:post_cmd]}"
+post "/post_command" do
+  return "Post Exploitation Module entered is "
 end
 
 post "/exten_command?id=:exten_cmd" do

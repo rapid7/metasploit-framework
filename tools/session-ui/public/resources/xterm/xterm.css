@@ -42,6 +42,7 @@
     user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
+    tabindex="0";
 }
 
 .xterm.focus,
@@ -93,7 +94,7 @@
 
 .xterm .xterm-viewport {
     /* On OS X this is required in order for the scroll bar to appear fully opaque */
-    background-color: #000;
+    background-color: rgb(26,26,26);
     overflow-y: scroll;
     cursor: default;
     position: absolute;
@@ -104,7 +105,9 @@
 }
 
 .xterm .xterm-screen {
-    position: relative;
+    /*position: relative; */
+    width: 1500px;
+    height: 600px;
 }
 
 .xterm .xterm-screen canvas {

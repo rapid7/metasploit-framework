@@ -14,7 +14,7 @@ function postModule() {
 
                 var text = document.createElement("li");
                 var myList = document.createElement("ul");
-                myList.setAttribute("class","list-unstyled navbar__sub-list js-sub-list");
+                myList.setAttribute("class","list-unstyled navbar__list js-sub-list");
                 text.setAttribute("class","active has-sub");
                 var anchor= document.createElement("a");
                 anchor.setAttribute("class","js-arrow");
@@ -39,7 +39,7 @@ function postModule() {
                         if(value!=0){
                             for(var k=0;k<value.length;k++){
                                 var valueSubList=document.createElement("ul");
-                                valueSubList.setAttribute("class","list-unstyled navbar__sub-list-2 js-sub-list");
+                                valueSubList.setAttribute("class","list-unstyled navbar__sub-list-2 ");
                                 var valueList=document.createElement("li");
                                 valueList.setAttribute("class","active has-sub");
                                 var anchor2=document.createElement('a');
@@ -66,8 +66,8 @@ function postModule() {
 
 function ExtensionCommand() {
     var xhr2 = new XMLHttpRequest();
-    var url = "http://127.0.0.1:3000/exten";
-    xhr2.open("GET", url);
+    var url2 = "http://127.0.0.1:3000/exten";
+    xhr2.open("GET", url2);
     xhr2.send();
 
     xhr2.onload = function () {
@@ -93,6 +93,59 @@ function ExtensionCommand() {
     }
 
 }
+
+
+function sysinfo(){
+    var xhr3 = new XMLHttpRequest();
+    var url3 = "http://127.0.0.1:3000/sysinfo";
+    xhr3.open("GET", url3);
+    xhr3.send();
+
+    xhr3.onload = function () {
+        var sysinfoJson =  (xhr3.response);
+        //var sysinfoData =(sysinfoJson);
+        if (xhr3.readyState === 4 && xhr3.status === 200) {
+            document.getElementById("sysname").innerHTML=sysinfoJson.sysname;
+            document.getElementById("ip").innerHTML=sysinfoJson.ip;
+            document.getElementById("os").innerHTML=sysinfoJson.os;
+            document.getElementById("getuid").innerHTML=sysinfoJson.getuid;
+            document.getElementById("whoami").innerHTML=sysinfoJson.whoami;
+
+        }
+        else
+            alert("Connection Failed!");
+
+        }
+
+}
+
+
+
+function postResponse(){
+
+}
+
+function extenCmdResponse(){
+
+}
+
+
+function xterm(){
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -30,12 +30,23 @@
 
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
-    <!--Xterm.js
-    <link rel="stylesheet" href="../../../Users/rahul/node_modules/xterm/dist/xterm.css" /> -->
-    <link rel="stylesheet" href="xterm.css" />
-    <script src="xterm.js"></script>
+    <!-- Xterm CSS -->
+     <link rel="stylesheet" href="resources/xterm/xterm.css" />
+    
+      <script src="resources/xterm/xterm.js" ></script>
+      <script src="resources/xterm/addon/fit.js" ></script>
+       <!--
+      <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
+      <script src="node_modules/xterm/dist/xterm.js"></script> -->
 
 </head>
+
+
+<!-- Simple button to close terminal 
+
+<button type="button" style="font-family: sans-serif; font-size: 12px; display: block; position: fixed; border: medium none; background: rgb(34, 136, 204) none repeat scroll 0% 0%; color: rgb(255, 255, 255); padding: 5px 15px; cursor: pointer; top: 0px; right: 0px; border-radius: 0px 0px 0px 5px;">Show Info</button>
+ -->
+
 
 <body class="animsition">
     <div class="page-wrapper">
@@ -58,7 +69,7 @@
                               <span class="arrow"><i class="fas fa-angle-down"></i>
                               </span>Post Modules
                             </a>
-                            <ul id="post" class="list-unstyled navbar__list ">
+                            <ul id="post" class="list-unstyled navbar__sub-list js-sub-list">
                               <!-- Dynamic List here -->
                             </ul>
                           </li>
@@ -93,37 +104,30 @@
                     <div class="container-fluid">
                         <div class="header-wrap">
                             <div class="header-button">
-
-
                                 <div class="account-wrap">
                                     <div class="account-item clearfix js-item-menu" align=right>
-                                       
                                         <div class="content">
-                                            <a class="js-acc-btn" href="#">System Information</a>
+                                            <a class="js-acc-btn" onclick="sysinfo(); this.onclick=null; " href="#">System Information</a>
                                         </div>
                                         <div class="account-dropdown js-dropdown">
                                             <div class="info clearfix">
-                                                 <!-- This content will be created dynamically -->
                                                 <div class="content">
                                                     <h5 class="name">
-                                                        <a href="#">DESKTOP4013</a>
+                                                        <a href="#" id="sysname"></a>
                                                     </h5>
-                                                    <span class="email">192.168.0.123</span>
+                                                    <span class="ip" id="ip"></span>
                                                 </div>
                                             </div>
                                             <div class="account-dropdown__body">
                                                 <div class="account-dropdown__item">
-                                                    <a href="#">Operating System</a>
+                                                    <a href="#" id="os" ></a>
                                                 </div>
                                                 <div class="account-dropdown__item">
-                                                    <a href="#">Getuid</a>
+                                                    <a href="#" id="getuid"></a>
                                                 </div>
                                                 <div class="account-dropdown__item">
-                                                    <a href="#">info3</a>
+                                                    <a href="#" id="whoami"></a>
                                                 </div>
-
-                                    <!-- -->
-
                                             </div>
                                         </div>
                                     </div>
@@ -140,28 +144,69 @@
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
                       <div class="row">
-                        <div class="col-lg-6" >
+                        
                           <div class="mainsection" style="color: #ffffff !important; font-size: 18px !important">
                             <div id="terminal">
                                 
-                                <!-- Meterpreter shell here-->
+
+
+
 
                             </div>
-
-      <script>
-       // import { Terminal } from 'xterm';
-        let term = new Terminal();
-        term.open(document.getElementById('terminal'));
-        term.write('\x1B[1;3;31lMeterpreter\x1B[0m $ ')
-      </script>
+      
                         </div>
-                        </div> 
+                        
                       </div>
                     </div>
                 </div>
             </div>
             <!-- END MAIN CONTENT-->
+<script >
 
+        
+        var term = new Terminal({
+            cols: 145,
+            rows: 31,
+            fontSize: 15,
+            fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
+            theme: {
+                foreground: '#d2d2d2',
+                background: '#000000',
+                cursor: '#adadad',
+                black: '#000000',
+                red: '#d81e00',
+                green: '#5ea702',
+                yellow: '#cfae00',
+                blue: '#427ab3',
+                magenta: '#89658e',
+                cyan: '#00a7aa',
+                white: '#dbded8',
+                brightBlack: '#686a66',
+                brightRed: '#f54235',
+                brightGreen: '#99e343',
+                brightYellow: '#fdeb61',
+                brightBlue: '#84b0d8',
+                brightMagenta: '#bc94b7',
+                brightCyan: '#37e6e8',
+                brightWhite: '#f1f1f0'
+            }
+        });
+        term.open(document.getElementById('terminal'));
+        term.write('\x1B[1;3;31lMeterpreter\x1B[0m $ ');
+        term.write(term.html);
+       let myBuffer = [];
+
+        // This is an xterm.js instance
+        term.on('key', function(key, e) {
+        myBuffer.push(key);
+        });
+
+        term.on('lineFeed', function() {
+        let keysEntered = myBuffer.join('');  // Or something like that
+        myBuffer = [];  // Empty buffer
+        });
+  
+</script>
 
         <!-- END PAGE CONTAINER-->
         </div>
@@ -169,11 +214,11 @@
     </div>
     <!-- Jquery JS-->
     <script src="resources/jquery-3.2.1.min.js"></script> 
-    <!-- Xterm Js 
-    <script src="../../../Users/rahul/node_modules/xterm/dist/xterm.js"></script>-->
+    <!-- Xterm Js--> 
+    
     <!-- Bootstrap JS-->
-    <!-- <script src="resources/bootstrap-4.1/popper.min.js"></script> -->
-    <script src="resources/bootstrap-4.1/bootstrap.min.js"></script>
+    <!-- <script src="resources/bootstrap-4.1/popper.min.js"></script> 
+    <script src="resources/bootstrap-4.1/bootstrap.min.js"></script>-->
     <!-- resources JS       -->
     <script src="resources/slick/slick.min.js">
     </script>
@@ -190,6 +235,7 @@
     <!-- Main JS-->
     <script src="js/load.js"></script>
     <script src="js/main.js"></script>
+
 
 </body>
 

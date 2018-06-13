@@ -1,0 +1,5 @@
+{
+  "name": "xterm.fit",
+  "main": "fit.js",
+  "private": true
+}
