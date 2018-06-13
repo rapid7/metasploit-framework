@@ -299,8 +299,8 @@ module Anemone
     # Kills all active threads
     #
     def shutdown
-        @tentacles.each {|t| t.kill rescue nil }
-        @pages = nil
+      @tentacles.each {|t| t.kill rescue nil }
+      @pages = nil
     end
 
   end
