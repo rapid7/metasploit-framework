@@ -55,13 +55,6 @@ def generate_stage
         mov  bl,0x1
         int  0x80
         mov  esi,eax
-        xor  eax,eax
-        mov  al,0x2
-        xor  ebx,ebx
-        int  0x80
-        cmp eax,ebx
-        je connect
-        ja exit
 
       connect:
         xor  ecx,ecx
