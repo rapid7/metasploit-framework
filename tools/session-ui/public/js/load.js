@@ -102,10 +102,10 @@ function sysinfo(){
     xhr3.send();
 
     xhr3.onload = function () {
-        var sysinfoJson =  (xhr3.response);
-        //var sysinfoData =(sysinfoJson);
+        var sysinfoJson =  JSON.parse(xhr3.response);
+        
         if (xhr3.readyState === 4 && xhr3.status === 200) {
-            document.getElementById("sysname").innerHTML=sysinfoJson.sysname;
+            document.getElementById("sysname").innerHTML=sysinfoJson.systemName;
             document.getElementById("ip").innerHTML=sysinfoJson.ip;
             document.getElementById("os").innerHTML=sysinfoJson.os;
             document.getElementById("getuid").innerHTML=sysinfoJson.getuid;
