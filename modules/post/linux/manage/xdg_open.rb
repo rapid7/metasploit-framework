@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
       'Name'          => 'Linux Admin XDG open',
       'Description'   => %q{
-          This module will open any local ressource in the target system via the 'xdg-open' command.
+          This module will open any local resource in the target system via the 'xdg-open' command.
       },
       'License'       => MSF_LICENSE,
       'Author'        => ['DeveloppSoft'],
@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
     ))
 
     register_options([
-      OptString.new('RES', [true, 'Ressource to open, URL or file.'])
+      OptString.new('RES', [true, 'Resource to open, URL or file.'])
     ])
   end
 
