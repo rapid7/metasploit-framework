@@ -39,33 +39,20 @@ class Console::CommandDispatcher::Stdapi::AudioOutput
   end
 
   def cmd_play(*args)
-    audio_path = nil
-
-    play_start_opts = Rex::Parser::Arguments.new(
-      '-h' => [ false, "Help Banner" ],
-      '-f' => [ true, "The audio file path (warning: will be copied to memory)" ]
-    )
-
-    play_start_opts.parse(args) do |opt, _idx, val|
-      case opt
-      when '-h'
-        print_line('Usage: audio_play [options]\n')
-        print_line('Upload file to targets memory and play it from memory')
-        print_line(play_start_opts.usage)
-        return
-      when '-f'
-        audio_path = val
-      end
-    end
-
-    if audio_path == nil
-      print_line('Please specify a path to an audio file via the -f option or use -h')
+    if args.length == 0
+      print_line('Please specify a path to an audio file')
       return
     end
+
+    audio_path = args[0]
 
     print_status("Playing #{audio_path}...")
     client.audio_output.play_file(audio_path)
     print_status('Done')
+  end
+
+  def cmd_play_tabs(str, words)
+    tab_complete_filenames(str, words)
   end
 end
 
