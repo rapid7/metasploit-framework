@@ -145,7 +145,7 @@ class CommandShell
     print_line('Usage: sessions <id>')
     print_line
     print_line('Interact with a different session Id.')
-    print_line('This command only accept one positive numeric argument.')
+    print_line('This command only accepts one positive numeric argument.')
     print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
     print_line
   end
