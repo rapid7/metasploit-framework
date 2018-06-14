@@ -24,7 +24,10 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status('Starting xdg-open...')
+    unless command_exists? 'xdg-open'
+      print_error 'xdg-open is not available'
+      return
+    end
     cmd_exec("xdg-open #{datastore['RES']} > /dev/null")
   end
 end

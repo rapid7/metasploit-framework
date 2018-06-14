@@ -35,6 +35,10 @@ class MetasploitModule < Msf::Post
 
     case action.name
       when 'STATUS'
+        unless command_exists? 'xdg-screensaver' # Specific to the X window system, should come preinstalled
+          print_error 'xdg-screensaver is not installed'
+          return
+        end
         output = cmd_exec('xdg-screensaver status')
         print_status output
       when 'LOCK'
