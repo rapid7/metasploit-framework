@@ -30,7 +30,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@OJ](https://github.com/OJ)                      | [oj](https://keybase.io/oj)                        |
 | [@scriptjunkie](https://github.com/scriptjunkie)  | [scriptjunkie](https://keybase.io/scriptjunkie)    |
 | [@sgonzalez-r7](https://github.com/sgonzalez-r7)  | [essgee](https://keybase.io/essgee)                |
-| [@space-r7](https://github.com/space-r7)          | [shelbyp] (https://keybase.io/shelbyp)             |
+| [@space-r7](https://github.com/space-r7)          | [shelbyp](https://keybase.io/shelbyp)              |
 | [@tdoan-r7](https://github.com/tdoan-r7)          | [doanosaur](https://keybase.io/doanosaur)          |
 | [@timwr](https://github.com/timwr)                | [timwr](https://keybase.io/timwr)                  |
 | [@todb-r7](https://github.com/todb-r7)            | [todb](https://keybase.io/todb)                    |
