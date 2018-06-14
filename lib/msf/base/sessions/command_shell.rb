@@ -72,8 +72,8 @@ class CommandShell
   # List of supported commands.
   #
   def commands
-    c = {
-        'help'            => 'Help menu',
+    {
+        'help'         =>  'Help menu',
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
     }
@@ -90,9 +90,9 @@ class CommandShell
   # Explicitly runs a command.
   #
   def run_cmd(cmd)
-    if cmd == nil
-      return
-    end
+    # Do nil check for cmd (CTRL+D will cause nil error)
+    return unless cmd
+
     arguments = parse_line(cmd)
     method    = arguments.shift
 
@@ -115,11 +115,9 @@ class CommandShell
       'Columns' => columns,
       'SortIndex' => -1
     )
-    commands.each { |key, value|
-      tbl << [
-        key, value
-      ]
-    }
+    commands.each do |key, value|
+      tbl << [key, value]
+    end
     print(tbl.to_s)
   end
 
@@ -137,7 +135,6 @@ class CommandShell
       # Then show help (Including '-h' '--help'...)
       return cmd_background_help
     end
-
 
     if prompt_yesno("Background session #{name}?")
       self.interacting = false
