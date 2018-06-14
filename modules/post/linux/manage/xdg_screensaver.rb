@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
       'Name'          => 'Linux XDG screensaver',
       'Description'   => %q{
-          This module will allows you to control the screensaver of the target system.
+          This module allows you to control the screensaver of the target system.
       },
       'License'       => MSF_LICENSE,
       'Author'        => ['DeveloppSoft'],
@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
           ['STATUS',   { 'Description' => 'Print if the screensaver is enabled to turn on after a period of inactivity' } ],
           ['LOCK',     { 'Description' => 'Lock current session' } ],
           ['ACTIVATE', { 'Description' => 'Start the screensaver, session might be locked' } ],
-          ['RESET',    { 'Description' => 'Desactivate screensaver, user might have to unlock its session'}]
+          ['RESET',    { 'Description' => 'Deactivate screensaver, user might have to unlock its session'}]
         ],
       'DefaultAction' => 'STATUS'
     ))
