@@ -31,6 +31,18 @@ module CredentialDataProxy
     end
   end
 
+  def create_credential_and_login(opts)
+    begin
+      data_service = self.get_data_service
+      core = data_service.create_credential(opts)
+      opts[:core] = core
+      login = data_service.create_credential_login(opts)
+      core
+    rescue => e
+      self.log_error(e, "Problem creating credential and login")
+    end
+  end
+
   def creds(opts = {})
     begin
       data_service = self.get_data_service

@@ -305,17 +305,17 @@ module Auxiliary::AuthBrute
     if framework.db.active
       if datastore['DB_ALL_CREDS']
         framework.db.creds(workspace: myworkspace.name).each do |o|
-          credentials << [o.public.username, o.private.data] if o.private.type =~ /password/i
+          credentials << [o.public.username, o.private.data] if o.private && o.private.type =~ /password/i
         end
       end
       if datastore['DB_ALL_USERS']
         framework.db.creds(workspace: myworkspace.name).creds.each do |o|
-          users << o.public.username
+          users << o.public.username if o.public
         end
       end
       if datastore['DB_ALL_PASS']
         framework.db.creds(workspace: myworkspace.name).creds.each do |o|
-          passwords << o.private.data if o.private.type =~ /password/i
+          passwords << o.private.data if o.private && o.private.type =~ /password/i
         end
       end
     end
