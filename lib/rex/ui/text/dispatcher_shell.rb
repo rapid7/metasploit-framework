@@ -380,7 +380,7 @@ module DispatcherShell
 
     # Verify that our search string is a valid regex
     begin
-      Regexp.compile(str)
+      Regexp.compile(str,Regexp::IGNORECASE)
     rescue RegexpError
       str = Regexp.escape(str)
     end
@@ -390,7 +390,7 @@ module DispatcherShell
 
     # Match based on the partial word
     items.find_all { |e|
-      e =~ /^#{str}/
+      e =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |e|
       tab_words.dup.push(e).join(' ')

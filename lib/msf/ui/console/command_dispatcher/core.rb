@@ -2148,19 +2148,16 @@ class Core
     end
 
     # Is this option used by the active module?
-    if (mod.options.include?(opt))
-      res.concat(option_values_dispatch(mod.options[opt], str, words))
-    elsif (mod.options.include?(opt.upcase))
-      res.concat(option_values_dispatch(mod.options[opt.upcase], str, words))
+    mod.options.each_key do |key|
+      res.concat(option_values_dispatch(mod.options[key], str, words)) if key.downcase == opt.downcase
     end
 
     # How about the selected payload?
     if (mod.exploit? and mod.datastore['PAYLOAD'])
-      p = framework.payloads.create(mod.datastore['PAYLOAD'])
-      if (p and p.options.include?(opt))
-        res.concat(option_values_dispatch(p.options[opt], str, words))
-      elsif (p and p.options.include?(opt.upcase))
-        res.concat(option_values_dispatch(p.options[opt.upcase], str, words))
+      if p = framework.payloads.create(mod.datastore['PAYLOAD'])
+        p.options.each_key do |key|
+          res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
+        end
       end
     end
 
