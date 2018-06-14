@@ -76,9 +76,9 @@ module ServletHelper
     response = []
     Array.wrap(data).each do |cred|
       json = cred.as_json(include: includes)
-      json['origin'] = json['origin'].merge('type' => cred.origin.class.to_s)
-      json['public'] = json['public'].merge('type' => cred.public.type)
-      json['private'] = json['private'].merge('type' => cred.private.type)
+      json['origin'] = json['origin'].merge('type' => cred.origin.class.to_s) if cred.origin
+      json['public'] = json['public'].merge('type' => cred.public.type) if cred.public
+      json['private'] = json['private'].merge('type' => cred.private.type) if cred.private
       response << json
     end
     response

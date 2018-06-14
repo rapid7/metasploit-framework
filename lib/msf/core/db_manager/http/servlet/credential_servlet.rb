@@ -38,8 +38,8 @@ module CredentialServlet
   def self.create_credential
     lambda {
       job = lambda { |opts|
-        opts[:origin_type] = opts[:origin_type].to_sym
-        opts[:private_type] = opts[:private_type].to_sym
+        opts[:origin_type] = opts[:origin_type].to_sym if opts[:origin_type]
+        opts[:private_type] = opts[:private_type].to_sym if opts[:private_type]
         get_db.create_credential(opts)
       }
       exec_report_job(request, &job)
