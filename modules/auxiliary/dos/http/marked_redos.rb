@@ -39,11 +39,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    unless test_service
-      fail_with(Failure::Unreachable, "#{peer} - Could not communicate with service.")
-    else
+    if test_service
       trigger_redos
       test_service_unresponsive
+    else
+      fail_with(Failure::Unreachable, "#{peer} - Could not communicate with service.")
     end
   end
 
@@ -61,11 +61,11 @@ class MetasploitModule < Msf::Auxiliary
 
       res = send_request_cgi(params)
 
-      if res.nil?
-        print_status("No response received from #{peer}, service is most likely unresponsive.")
-      else
+      unless res.nil?
         fail_with(Failure::Unknown, "ReDoS request unsuccessful. Received status #{res.code} from #{peer}.")
       end
+
+      print_status("No response received from #{peer}, service is most likely unresponsive.")
 
     rescue ::Rex::ConnectionRefused
       print_error("Unable to connect to #{peer}.")
