@@ -35,14 +35,14 @@ class MetasploitModule < Msf::Post
 
     case action.name
       when 'STATUS'
-	output = cmd_exec('xdg-screensaver status')
-	print_status output
+        output = cmd_exec('xdg-screensaver status')
+        print_status output
       when 'LOCK'
-	cmd_exec('xdg-screensaver lock')
+        cmd_exec('xdg-screensaver lock')
       when 'ACTIVATE'
-	cmd_exec('xdg-screensaver activate')
+        cmd_exec('xdg-screensaver activate')
       when 'RESET'
-	cmd_exec('xdg-screensaver reset')
+        cmd_exec('xdg-screensaver reset')
     end
   end
 end
