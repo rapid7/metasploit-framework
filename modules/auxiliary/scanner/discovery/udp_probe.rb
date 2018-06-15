@@ -8,7 +8,6 @@ require 'openssl'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::Module::Deprecated
 
   def initialize
     super(

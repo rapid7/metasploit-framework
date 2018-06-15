@@ -128,7 +128,7 @@ class Server
   def set_option(opts)
     allowed_options = [
       :serveOnce, :pxealtconfigfile, :servePXE, :relayip, :leasetime, :dnsserv,
-      :pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
+      :pxeconfigfile, :pxepathprefix, :pxereboottime, :router, :proxy_auto_discovery,
       :give_hostname, :served_hostname, :served_over, :serveOnlyPXE, :domain_name, :url
     ]
 
@@ -154,7 +154,7 @@ class Server
   end
 
   attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip, :router, :dnsserv
-  attr_accessor :domain_name
+  attr_accessor :domain_name, :proxy_auto_discovery
   attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
   attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
   attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
@@ -292,12 +292,13 @@ protected
     end
 
     # Options!
+    pkt << dhcpoption(OpProxyAutodiscovery, self.proxy_auto_discovery) if self.proxy_auto_discovery
     pkt << dhcpoption(OpDHCPServer, self.ipstring)
     pkt << dhcpoption(OpLeaseTime, [self.leasetime].pack('N'))
     pkt << dhcpoption(OpSubnetMask, self.netmaskn)
     pkt << dhcpoption(OpRouter, self.router)
     pkt << dhcpoption(OpDns, self.dnsserv)
-    pkt << dhcpoption(OpDomainName, self.domain_name)
+    pkt << dhcpoption(OpDomainName, self.domain_name) if self.domain_name
 
     if self.servePXE  # PXE options
       pkt << dhcpoption(OpPXEMagic, PXEMagic)
