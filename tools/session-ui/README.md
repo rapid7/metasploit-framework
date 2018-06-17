@@ -11,6 +11,7 @@ By displaying all the functionalities on an HTML web page, Metasploit can simpli
 
 - [Bootstrap](http://getbootstrap.com/)
 - [perfect-scrollbar](https://github.com/utatti/perfect-scrollbar)
+- [Font-Awesome 5](https://fontawesome.com/)
 - [jQuery](https://jquery.com/)
 - [Xtermjs Terminal Emulator Plugin](https://xtermjs.org//)
 - [Sinatra web framework ](http://sinatrarb.com/)
