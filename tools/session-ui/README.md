@@ -10,9 +10,6 @@ By displaying all the functionalities on an HTML web page, Metasploit can simpli
 ## Front End Built With
 
 - [Bootstrap](http://getbootstrap.com/)
-
-- [CSS Hamburgers](https://github.com/jonsuh/hamburgers)
-- [Fontawesome](http://fontawesome.io/)
 - [perfect-scrollbar](https://github.com/utatti/perfect-scrollbar)
 - [jQuery](https://jquery.com/)
 - [Xtermjs Terminal Emulator Plugin](https://xtermjs.org//)

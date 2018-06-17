@@ -14,14 +14,14 @@ function postModule() {
 
                 var text = document.createElement("li");
                 var myList = document.createElement("ul");
-                myList.setAttribute("class","list-unstyled navbar__list js-sub-list");
+                myList.setAttribute("class","list-unstyled navbar__sub-list js-sub-list");
                 text.setAttribute("class","active has-sub");
                 var anchor= document.createElement("a");
                 anchor.setAttribute("class","js-arrow");
                 anchor.setAttribute("href","#");
 
 
-                anchor.textContent = arr[i];
+                anchor.innerHTML = arr[i] + "<span class='arrow'><i class='fas fa-angle-down'></i></span>";
 
                 var post_mod = postData[arr[i]]; 		// content inside windows,linux
                 var postmod_key = Object.keys(post_mod);
@@ -34,16 +34,16 @@ function postModule() {
                         anchor1.setAttribute("class","js-arrow");
                         anchor1.setAttribute("href","#");
                         subList.appendChild(anchor1);
-                        anchor1.textContent = postmod_key[j];
+                        anchor1.innerHTML = postmod_key[j] + "<span class='arrow'><i class='fas fa-angle-down'></i></span>";;
                         var value= post_mod[postmod_key[j]];
                         if(value!=0){
                             for(var k=0;k<value.length;k++){
                                 var valueSubList=document.createElement("ul");
-                                valueSubList.setAttribute("class","list-unstyled navbar__sub-list-2 ");
+                                valueSubList.setAttribute("class","list-unstyled navbar__sub-list js-sub-list ");
                                 var valueList=document.createElement("li");
                                 valueList.setAttribute("class","active has-sub");
                                 var anchor2=document.createElement('a');
-                                anchor2.setAttribute("class","js_arrow");
+                         
                                 anchor2.setAttribute("href","#");
                                 anchor2.textContent = value[k];
                                 valueList.appendChild(anchor2);
@@ -78,11 +78,11 @@ function ExtensionCommand() {
             for (var i = 0; i < val.length; i++) {
 
                 var list = document.createElement("li");
-                list.setAttribute("class", "active");
+                list.setAttribute("class", "active has-sub");
                 var ancr = document.createElement("a");
                 ancr.setAttribute("class", "js-arrow");
                 ancr.setAttribute("href", "#");
-                ancr.textContent = val[i];
+                ancr.innerHTML= val[i] + "<span class='arrow'><i class='fas fa-angle-down'></i></span>" ;
                 list.appendChild(ancr);
                 document.getElementById("exten").appendChild(list);
             }

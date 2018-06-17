@@ -1,6 +1,5 @@
 {
-	"aix" : ["hashdump"],
-
+	
 	"android" : {"capture" :["screen"],
 				 "gather" : ["wireless"],
 				 "manage"	: ["remove_lock","remove_lock_root"]
