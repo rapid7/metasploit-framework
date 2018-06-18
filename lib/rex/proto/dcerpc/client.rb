@@ -296,6 +296,8 @@ require 'rex/proto/smb/exceptions'
 
     raw_response = ''
 
+    sleep 3
+
     begin
       raw_response = self.read()
     rescue ::EOFError
