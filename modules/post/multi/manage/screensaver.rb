@@ -24,14 +24,26 @@ class MetasploitModule < Msf::Post
     ))
   end
 
+  #
+  # cmd_exec but with some controls and verbosity
+  #
+  def cmd_vexec(cmd)
+    print_status("Executing '#{cmd}'")
+
+    begin
+      cmd_exec(cmd)
+    rescue EOFError
+      print_error('Command failed')
+      return false
+    end
+
+    true
+  end
+
   def lock_session
     case session.platform
     when 'linux'
-      begin
-        cmd_exec('xdg-screensaver lock')
-      rescue EOFError
-        return false
-      end
+      cmd_vexec('xdg-screensaver lock')
     end
 
     true
@@ -40,11 +52,7 @@ class MetasploitModule < Msf::Post
   def start_screensaver
     case session.platform
     when 'linux'
-      begin
-        cmd_exec('xdg-screensaver activate')
-      rescue EOFError
-        return false
-      end
+      cmd_vexec('xdg-screensaver activate')
     end
 
     true
@@ -53,11 +61,7 @@ class MetasploitModule < Msf::Post
   def stop_screensaver
     case session.platform
     when 'linux'
-      begin
-        cmd_exec('xdg-screensaver reset')
-      rescue EOFError
-        return false
-      end
+      cmd_vexec('xdg-screensaver reset')
     end
 
     true
