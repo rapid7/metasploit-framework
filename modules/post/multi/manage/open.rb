@@ -4,8 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::File
-
   def initialize(info={})
     super( update_info( info,
       'Name'          => 'Open a file or URL on the target computer',
