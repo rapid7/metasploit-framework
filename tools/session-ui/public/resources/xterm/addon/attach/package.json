@@ -1,0 +1,5 @@
+{
+  "name": "xterm.attach",
+  "main": "attach.js",
+  "private": true
+}

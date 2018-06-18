@@ -29,10 +29,12 @@
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
     <!-- Xterm CSS -->
-     <link rel="stylesheet" href="resources/xterm/xterm.css" />
+    <link rel="stylesheet" href="resources/xterm/xterm.css" />
     
-      <script src="resources/xterm/xterm.js" ></script>
-      <script src="resources/xterm/addon/fit.js" ></script>
+    <script src="resources/xterm/xterm.js" ></script>
+    <script src="resources/xterm/addon/fit/fit.js" ></script>
+    <script src="resources/xterm/addon/attach/attach.js" ></script>
+
        <!--
       <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
       <script src="node_modules/xterm/dist/xterm.js"></script> -->
@@ -48,9 +50,7 @@
 
 <body class="animsition">
     <div class="page-wrapper">
-        <!-- HEADER MOBILE-->
-
-
+        
         <!-- MENU SIDEBAR-->
         <aside class="menu-sidebar2">
             <div class="logo">
@@ -156,8 +156,57 @@
             </div>
             <!-- END MAIN CONTENT-->
 <script>
+/* ************************ Implementing Wb Socket using Attach Addon*********************** */
 
-        
+        var textDecoder = new TextDecoder();
+        var textEncoder = new TextEncoder();
+        var terminal = document.getElementById('terminal');
+        var wsUri = "";
+
+        Terminal.applyAddon(attach);
+        Terminal.applyAddon(fit);
+
+//https://github.com/tsl0922/ttyd/blob/0b149bbbba69e2486b0561c0b952a7595eb7f90d/html/js/app.js#L182
+
+var openWs= function(){
+    var ws=new WebSocket(wsUri);
+    var sendMessage = function (message) {
+        if (ws.readyState === ws.OPEN) {
+            ws.send(textEncoder.encode(message));
+        }
+    };
+
+
+    var sendData = function (data) {
+        sendMessage('0' + data);
+    };
+
+    var unloadCallback = function (event) {
+        var message = 'Close terminal? this will also terminate the command.';
+        (event || window.event).returnValue = message;
+        return message;
+    };
+    /* To reset the terminal
+
+    var resetTerm = function() {
+        hideModal();
+        clearTimeout(reconnectTimer);
+        if (ws.readyState !== WebSocket.CLOSED) {
+            ws.close();
+        }
+        openWs();
+    };
+                    */
+    ws.binaryType = 'arraybuffer';
+
+    ws.onopen = function (event) {
+        console.log('Websocket connection opened');
+        wsError = false;
+
+        if (typeof term !== 'undefined') {
+            term.dispose();
+        }
+
         var term = new Terminal({
             cols: 145,
             rows: 31,
@@ -185,21 +234,87 @@
                 brightWhite: '#f1f1f0'
             }
         });
-        term.open(document.getElementById('terminal'));
-        term.write('\x1B[1;3;31lMeterpreter\x1B[0m $ ');
-        term.write(term.html);
-       let myBuffer = [];
 
-        // This is an xterm.js instance
-        term.on('key', function(key, e) {
-        myBuffer.push(key);
+
+        term.on('resize', function (size) {
+            if (ws.readyState === WebSocket.OPEN) {
+                sendMessage('1' + JSON.stringify({columns: size.cols, rows: size.rows}));
+            }
+            setTimeout(function () {
+                term.showOverlay(size.cols + 'x' + size.rows);
+            }, 500);
         });
 
-        term.on('lineFeed', function() {
-        let keysEntered = myBuffer.join('');  // Or something like that
-        myBuffer = [];  // Empty buffer
+        term.on('title', function (data) {
+            if (data && data !== '') {
+                document.title = (data + ' | ' + title);
+            }
         });
-  
+
+        term.on('data', sendData);
+
+        while (terminal.firstChild) {
+            terminal.removeChild(terminal.firstChild);
+        }
+
+        window.addEventListener('resize', function() {
+            clearTimeout(window.resizedFinished);
+            window.resizedFinished = setTimeout(function () {
+                term.fit();
+            }, 250);
+        });
+        window.addEventListener('beforeunload', unloadCallback);
+
+        term.open(terminal, true);
+        term.fit();
+        term.focus();
+    };
+    ws.onmessage = function(event) {
+        var rawData = new Uint8Array(event.data),
+            cmd = String.fromCharCode(rawData[0]),
+            data = rawData.slice(1).buffer;
+        switch(cmd) {
+            case '0':
+                title = textDecoder.decode(data);
+                document.title = title;
+                break;
+            case '1':
+                var preferences = JSON.parse(textDecoder.decode(data));
+                Object.keys(preferences).forEach(function(key) {
+                    console.log('Setting ' + key + ': ' +  preferences[key]);
+                    term.setOption(key, preferences[key]);
+                });
+                break;
+        }
+    };
+
+    ws.onclose = function(event) {
+        console.log('Websocket connection closed with code: ' + event.code);
+        if (term) {
+            term.off('data');
+            term.off('resize');
+            if (!wsError) {
+                term.showOverlay('Connection Closed', null);
+            }
+        }
+        window.removeEventListener('beforeunload', unloadCallback);
+        // 1000: CLOSE_NORMAL
+
+    };
+
+
+
+
+};
+
+
+if (document.readyState === 'complete' || document.readyState !== 'loading') {
+    openWs();
+} else {
+    document.addEventListener('DOMContentLoaded', openWs);
+}
+
+
 </script>
 
         <!-- END PAGE CONTAINER-->
@@ -232,3 +347,12 @@
 
 </html>
 <!-- end document-->
+
+
+
+
+
+
+
+
+

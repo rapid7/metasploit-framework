@@ -14,7 +14,7 @@ function postModule() {
 
                 var text = document.createElement("li");
                 var myList = document.createElement("ul");
-                myList.setAttribute("class","list-unstyled navbar__sub-list js-sub-list");
+                myList.setAttribute("class","list-unstyled navbar__list ");
                 text.setAttribute("class","active has-sub");
                 var anchor= document.createElement("a");
                 anchor.setAttribute("class","js-arrow");
@@ -39,7 +39,7 @@ function postModule() {
                         if(value!=0){
                             for(var k=0;k<value.length;k++){
                                 var valueSubList=document.createElement("ul");
-                                valueSubList.setAttribute("class","list-unstyled navbar__sub-list js-sub-list ");
+                                valueSubList.setAttribute("class","list-unstyled navbar__sub-list-2 js-sub-list");
                                 var valueList=document.createElement("li");
                                 valueList.setAttribute("class","active has-sub");
                                 var anchor2=document.createElement('a');
