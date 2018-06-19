@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
 
 HELP_COMMANDS = [["help", "help", 0, "Show current help"],
         ["?", "help", 0, "Show current help"],
-        ["ls", "dir", 1, "List files and folders in a directory"], 
+        ["ls", "dir", 1, "List files and folders in a directory"],
         ["cat", "read_file", 1, "Show file contents"],
         ["whoami", "whoami", 0, "Show current user"],
         ["cd", "cd", 1, "Change current directory"],
@@ -74,7 +74,7 @@ $vusername = ""
               args = parts[1]
             else
               nargs = 0
-	    end
+            end
           else
             args = ""
           end
@@ -101,7 +101,7 @@ $vusername = ""
       printf("\t%-20s%-100s\n", linea[0], linea[3])
     end
     print "\n"
-  end	
+  end
 
   def prompt_show()
     promptshell = $vusername + "@" + $vhostname + ":" + pwd.strip() + "# "
@@ -144,7 +144,7 @@ $vusername = ""
             end
           else
             if resultado.class == Array
-              puts resultado.join("\n")
+              print resultado.join("\n")
             else
               if resultado.strip() != ""
                 print resultado.chomp() + "\n"
@@ -152,7 +152,7 @@ $vusername = ""
             end
           end
         rescue # begin
-	  next
+          next
         end # begin
     end
   end

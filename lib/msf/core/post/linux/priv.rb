@@ -33,8 +33,8 @@ module Priv
       data.each_line do |line|
         line = line.split(":")
         user_passwd = line[0]
-        if user_passwd = user
-    if line[1] = 0
+        if user_passwd == user
+          if line[3].to_i == 0
             found = true
           end
         end
