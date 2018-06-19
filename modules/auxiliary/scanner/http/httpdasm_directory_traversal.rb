@@ -42,7 +42,11 @@ class MetasploitModule < Msf::Auxiliary
       print_status(res.body)
       path = store_loot('httpdasm.file', 'application/octet-stream', rhost, res.body)
     else
-      print_error("404 error")
+      if res
+        print_error("Unexpected response from server: #{res.code}")
+      else
+        print_error("The server timed out.")
+      end
     end
   end
 end
