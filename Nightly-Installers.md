@@ -1,10 +1,12 @@
-# Metasploit Framework Open Source Nightly Installers
+Installers are built nightly for OS X, Windows (32-bit) and Linux.  These installers include dependencies (like Ruby and PostgreSQL) and integrate with your package manager, so they're easy to update.
 
-Metasploit framework installers are built nightly for those wanting to track the bleeding edge, or those who would like a simplified Metasploit framework setup experience. These packages are built for OS X (64-bit), Windows (32-bit) and various Linux distributions (i386, amd64, armhf and arm64 Deb-based systems, x86_64 RPM-based systems), including a complete bundled Ruby environment, PostgreSQL database, and anything else needed to run Metasploit. The installers integrate with your system package manager, making them easy to install and update.
+## What operating system are you using?
 
-# Linux and OS X quick installation
+<details><summary><B>Linux / OS X</B></summary>
 
-The following script invocation will import the Rapid7 signing key and setup the package for all supported Linux and OS X systems:
+<br>
+
+The following script invocation will import the Rapid7 signing key and setup the package for supported Linux and OS X systems:
 
 ```
 curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && \
@@ -12,9 +14,9 @@ curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/t
   ./msfinstall
 ```
 
-These packages integrate into your OS's native package management and can either be updated with the ```msfupdate``` command or using your preferred package manager. On first start, these packages will automatically setup the database. On Kali Linux systems, if your database has already been setup with ```msfdb init```, these packages will continue to use that database.
+These packages integrate into your package manager and can be updated with ```msfupdate``` or with your package manager. On first start, these packages will automatically setup the database or use your existing database.
 
-Here is a log of the full installation process on an Arm Chromebook running Ubuntu in a Crouton Chroot environment:
+<details><summary>Expand a full log of the installation process on an Ubuntu-based Chromebook</summary>
 
 ```
 bcook@localhost:~$ uname -a
@@ -83,23 +85,31 @@ Creating initial database schema
 msf >
 ```
 
-# Linux manual installation
+</details>
+
+<details><summary>Expand manual installation instructions</summary>
+
+### Linux manual installation
 
 Linux packages are built nightly for .deb (i386, amd64, armhf, arm64) and .rpm (64-bit x86) systems. Debian/Ubuntu packages are available at https://apt.metasploit.com and CentOS/Redhat/Fedora packages are located at https://rpm.metasploit.com.
 
-# OS X manual installation
+### OS X manual installation
 
 The latest OS X installer package can also be downloaded directly here: https://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at https://osx.metasploit.com/. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.  Once installed, initially launch msfconsole as ```/opt/metasploit-framework/bin/msfconsole``` from a terminal console. A series of prompts will help you setup a database and add Metasploit to your local PATH. You can also follow the quick-installation instructions above to install in a single step.
 
-# Windows installation
+</details>
+</details>
 
+<p>
+<details><summary><b>Windows</b></summary>
+<br>
 The latest Windows installer is located here: https://windows.metasploit.com/metasploitframework-latest.msi, with the last 10 builds archived at https://windows.metasploit.com/. To install, simply download the .msi package, adjust your Antivirus as-needed to ignore c:\metasploit-framework, double-click and enjoy. The msfconsole command and all related tools will be added to the system %PATH% environment variable.
 
-# Windows Anti-virus software flags the contents of these packages!
+### Windows Anti-virus software flags the contents of these packages!
 
 If you downloaded Metasploit from us, there is no cause for alarm.  We pride ourselves on offering the ability for our customers and followers to have the same toolset that the hackers have so that they can test systems more accurately.  Because these (and the other exploits and tools in Metasploit) are identical or very similar to existing malicious toolsets, they can be used for nefarious purposes, and they are often flagged and automatically removed by antivirus programs, just like the malware they mimic.
+</details>
 
-# Improving these installers
+## Improving these installers
 
-The source code to these installers is located here: https://github.com/rapid7/metasploit-omnibus
-Installer improvements are welcome and encouraged.
+Feel free to review and help improve [the source code for our installers](https://github.com/rapid7/metasploit-omnibus).
