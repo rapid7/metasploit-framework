@@ -6,8 +6,8 @@ class Msf::Modules::External::Shim
     mod = Msf::Modules::External.new(module_path)
     return '' unless mod.meta
     case mod.meta['type']
-    when 'remote_exploit_generic'
-      remote_exploit_generic(mod)
+    when 'remote_exploit'
+      remote_exploit(mod)
     when 'remote_exploit_cmd_stager'
       remote_exploit_cmd_stager(mod)
     when 'capture_server'
@@ -85,10 +85,10 @@ class Msf::Modules::External::Shim
     meta
   end
 
-  def self.remote_exploit_generic(mod)
+  def self.remote_exploit(mod)
     meta = mod_meta_common(mod)
     meta = mod_meta_exploit(mod, meta)
-    render_template('remote_exploit_generic.erb', meta)
+    render_template('remote_exploit.erb', meta)
   end
 
   def self.remote_exploit_cmd_stager(mod)
