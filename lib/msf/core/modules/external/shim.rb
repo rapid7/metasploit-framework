@@ -66,7 +66,7 @@ class Msf::Modules::External::Shim
   end
 
   def self.mod_meta_exploit(mod, meta = {})
-    meta[:rank]        = mod.meta['rank'].nil? ? 'NormalRanking' : mod.meta['rank']
+    meta[:rank]        = mod.meta['rank'].nil? ? 'NormalRanking' : "#{mod.meta['rank'].capitalize}Ranking"
     meta[:date]        = mod.meta['date'].dump
     meta[:wfsdelay]    = mod.meta['wfsdelay'] || 5
     meta[:privileged]  = mod.meta['privileged'].inspect
