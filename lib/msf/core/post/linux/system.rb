@@ -116,7 +116,7 @@ module System
 
   #
   # Gets the $PATH environment variable
-  #
+  # @return [String]
   def get_path
     cmd_exec('echo $PATH').to_s
   rescue
@@ -142,15 +142,18 @@ module System
   rescue
     raise "Could not get CPU information"
   end
-
-  #
+  
   # Gets the hostname of the system
   # @return [String]
   #
   def get_hostname
-    cmd_exec('uname -n').to_s
+    if command_exists?("uname")
+      cmd_exec('uname -n').to_s
+    else
+      read_file("/proc/sys/kernel/hostname").chomp.to_s
+    end
   rescue
-    raise 'Unable to retrieve hostname'
+    raise 'Unable to gather shell name'
   end
 
   #
@@ -158,11 +161,27 @@ module System
   # @return [String]
   #
   def get_shell_name
-    psout = cmd_exec('ps -p $$').to_s
-    psout.split("\n").last.split(' ')[3]
+    if command_exists?("ps")
+      psout = cmd_exec('ps -p $$').to_s
+      psout.split("\n").last.split(' ')[3]
+    else
+      str_shell = cmd_exec("echo $0").split("-")[1]
+      return str_shell
+    end
   rescue
     raise 'Unable to gather shell name'
   end
+
+  #
+  # Gets the pid of the current shell
+  # @return [String]
+  #
+
+  def get_shell_pid
+    str_pid = cmd_exec("echo $$")
+    return str_pid
+  end
+
 
   #
   # Checks if the system has gcc installed
@@ -196,6 +215,17 @@ module System
     end
     pids
   end
+
+  #
+  # Gets the uid of a pid
+  # @return [String]
+  #
+  def pid_uid(pid)
+    file_pid = "/proc/" + pid.to_s + "/status"
+    result = read_file(file_pid)
+    return result
+  end
+
 
   #
   # Checks if `file_path` is mounted on a noexec mount point
@@ -267,6 +297,110 @@ module System
     cmd_exec("df \"#{filepath}\" | tail -1").split(' ')[5]
   rescue
     raise "Unable to get mount path of #{filepath}"
+  end
+
+
+  #
+  # Gets all the IP directions of the device
+  # @return [Array]
+  #
+  def ips()
+    lines = read_file("/proc/net/fib_trie")
+    result = []
+    previous_line = ""
+    lines.each_line do |line|
+      if line.include?("/32 host LOCAL")
+        previous_line = previous_line.split("-- ")[1].strip()
+        if not result.include? previous_line
+          result.insert(-1, previous_line)
+        end
+      end
+      previous_line = line
+    end
+    return result
+  end
+
+
+  #
+  # Gets all the interfaces of the device
+  # @return [Array]
+  #
+  def interfaces()
+    result = []
+    data = cmd_exec("for fn in /sys/class/net/*; do echo $fn; done")
+    parts = data.split("\n")
+    parts.each do |line|
+      line = line.split("/")[-1]
+      result.insert(-1,line)
+    end
+    return result
+  end
+
+
+
+  #
+  # Gets all the macs of the device
+  # @return [Array]
+  #
+  def macs()
+    result = []
+    str_macs = cmd_exec("for fn in /sys/class/net/*; do echo $fn; done")
+    parts = str_macs.split("\n")
+    parts.each do |line|
+      rut = line + "/address"
+      mac_array = read_file(rut)
+      mac_array.each_line do |mac|
+        result.insert(-1,mac.strip())
+      end
+    end
+    return result
+  end
+
+
+
+  # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
+  #
+  # Gets all the listening tcp ports in the device
+  # @return [Array]
+  #
+  def listen_tcp_ports()
+    ports = []
+    content = read_file('/proc/net/tcp')
+    content.each_line do |line|
+      if m = line.match(/^\s*\d+:\s+(.{8}|.{32}):(.{4})\s+(.{8}|.{32}):(.{4})\s+(.{2})/)
+        connection_state = m[5].to_s
+        if connection_state == "0A"
+          connection_port = m[2].to_i(16)
+          if ports.include?(connection_port) == false
+            ports.insert(-1, connection_port)
+          end
+        end
+      end
+    end
+    return ports
+  end
+
+
+  # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
+  #
+  # Gets all the listening udp ports in the device
+  # @return [Array]
+  #
+  def listen_udp_ports()
+    ports = []
+    content = read_file('/proc/net/udp')
+    content.each_line do |line|
+      if m = line.match(/^\s*\d+:\s+(.{8}|.{32}):(.{4})\s+(.{8}|.{32}):(.{4})\s+(.{2})/)
+        connection_state = m[5].to_s
+        if connection_state == "07"
+          connection_port = m[2].to_i(16)
+          if ports.include?(connection_port) == false
+            ports.insert(-1, connection_port)
+          end
+        end
+      end
+    end
+    return ports
   end
 
 

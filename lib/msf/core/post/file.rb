@@ -32,7 +32,12 @@ module Msf::Post::File
         # and 2k
         return session.shell_command_token("echo %CD%")
       else
-        return session.shell_command_token("pwd")
+        if command_exists?("pwd")
+          return session.shell_command_token("pwd")
+        else
+          # Result on systems without pwd command
+          return session.shell_command_token("echo $PWD")
+        end
       end
     end
   end
@@ -47,7 +52,22 @@ module Msf::Post::File
       if session.platform == 'windows'
         return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
       else
-        return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
+        if command_exists?("ls")
+          return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
+        else
+          # Result on systems without ls command
+          if directory[-1] != '/'
+            directory = directory + "/"
+          end
+          result = []
+          data = session.shell_command_token("for fn in #{directory}*; do echo $fn; done")
+          parts = data.split("\n")
+          parts.each do |line|
+            line = line.split("/")[-1]
+            result.insert(-1,line)
+          end
+          return result
+        end
       end
     end
   end
@@ -69,7 +89,6 @@ module Msf::Post::File
       else
         f = session.shell_command_token("test -d \"#{path}\" && echo true")
       end
-
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
       true
@@ -106,7 +125,6 @@ module Msf::Post::File
       else
         f = session.shell_command_token("test -f \"#{path}\" && echo true")
       end
-
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
       true
@@ -128,7 +146,6 @@ module Msf::Post::File
       if session.platform != 'windows'
         f = session.shell_command_token("test -u \"#{path}\" && echo true")
       end
-
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
       true
@@ -149,7 +166,6 @@ module Msf::Post::File
       else
         f = cmd_exec("test -e \"#{path}\" && echo true")
       end
-
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
       true
@@ -168,7 +184,6 @@ module Msf::Post::File
     unless ::File.exist?(local_file_name)
       ::FileUtils.touch(local_file_name)
     end
-
     output = ::File.open(local_file_name, "a")
     data.each_line do |d|
       output.puts(d)
@@ -275,6 +290,9 @@ module Msf::Post::File
   #
   # @param file_name [String] Remote file name to read
   # @return [String] Contents of the file
+  #
+  # @return [Array] of strings(lines)
+  #
   def read_file(file_name)
     data = nil
     if session.type == "meterpreter"
@@ -283,7 +301,12 @@ module Msf::Post::File
       if session.platform == 'windows'
         data = session.shell_command_token("type \"#{file_name}\"")
       else
-        data = session.shell_command_token("cat \"#{file_name}\"")
+        if command_exists?("cat")
+          data = session.shell_command_token("cat \"#{file_name}\"")
+        else
+          # Result on systems without cat command
+          data = session.shell_command_token("while read line; do echo $line; done <#{file_name}")
+        end
       end
 
     end
@@ -308,7 +331,6 @@ module Msf::Post::File
       else
         _write_file_unix_shell(file_name, data)
       end
-
     end
     true
   end
@@ -387,7 +409,6 @@ module Msf::Post::File
       end
     end
   end
-
   alias :file_rm :rm_f
   alias :dir_rm :rm_rf
 
