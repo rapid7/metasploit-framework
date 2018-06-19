@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -27,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
     [
-      OptString.new('TARGETURI', [true, 'Default path', '%2e%2e%5c' * 8 + 'boot.ini'])
+      OptString.new('TARGETURI', [true, 'Path to traverse to', '%2e%2e%5c' * 8 + 'boot.ini'])
     ])
 
   end
