@@ -10,14 +10,17 @@ module Msf::Empire
     #
     #API INITIATION METHODS
     #-----------------------
-    self.token = ''
-    self.req_options = {
-      use_ssl: uri.scheme == "https",
-      verify_mode: OpenSSL::SSL::VERIFY_NONE,
-    }
-    def self.set_token(s_token)
-      self.token = s_token.to_s
+    @token = ''
+    def set_options(uri)
+      req_options = {
+        use_ssl: uri.scheme == "https",
+        verify_mode: OpenSSL::SSL::VERIFY_NONE
+      }
+      return req_options
     end
+    #def self.set_token(s_token)
+    #  self.token = s_token.to_s
+    #end
     #
     #Method to fetch the active session token from the hosted API
     #
@@ -29,20 +32,26 @@ module Msf::Empire
         "username" => username,
         "password" => password
         })
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options={
+        use_ssl: uri.scheme == "https",
+        verify_mode: OpenSSL::SSL::VERIFY_NONE
+      }
+      response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
         http.request(request)
       end
       sv1 = JSON.parse(response.body)
       token = sv1['token'].to_s
-      set_token(token)
+      @token = token
+      puts @token
     end
     #
     #Method to shutdown the active instance of API
     #
-    def self.shutdown
-      uri = URI.parse("https://localhost:1337/api/admin/shutdown?token=#{self.token}")
+    def shutdown
+      uri = URI.parse("https://localhost:1337/api/admin/shutdown?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
     end
@@ -54,65 +63,69 @@ module Msf::Empire
     #hosted over there. Also, the name needs to be cross-checked with the existing listener names, so user doesnt end
     #creating concurrent listeners.
     #
-    def self.create_listener(listener_name, port) 
-      uri = URI.parse("https://localhost:1337/api/listeners/http?token=#{self.token}")
+    def create_listener(listener_name, port) 
+      uri = URI.parse("https://localhost:1337/api/listeners/http?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
+      req_options = self.set_options(uri)
       request.body = JSON.dump({
         "Name" => listener_name,
         "Port" => port
         })
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.body.to_s.include?("error")
         return "Failed to bind to localhost:#{port}, port likely already in use"
-      elsif resopnse.body.to_s.include?("success")
+      elsif response.body.to_s.include?("success")
         return "Listener #{listener_name} started at localhost:#{port}"
       end
     end
     #
     #Method to check if a lsietener with the listenername already exists.
     #
-    def self.is_listener_active(listener_name)
-      uri = URI.parse("https://localhost:1337/api/listeners/#{listener_name}?token=#{self.token}")
+    def is_listener_active(listener_name)
+      uri = URI.parse("https://localhost:1337/api/listeners/#{listener_name}?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.body.to_s.include?("error")
         return false
       else
         parser = JSON.parse(response.body)
-        active_port = parser['Listeners']['Port']['Value']
+        active_port = parser['listeners'][0]['options']['Port']['Value']
         return "The listener: #{listener_name} is already active on #{active_port}"
       end
     end
     #
     #Method to terminate a particular listener - active or inactive
     #
-    def self.kill_listener(listener_name)
-      uri = URI.parse("https://localhost:1337/api/listeners/#{listener_name}?token=#{self.token}")
+    def kill_listener(listener_name)
+      uri = URI.parse("https://localhost:1337/api/listeners/#{listener_name}?token=#{@token}")
       request = Net::HTTP::Delete.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
-      if response.code == 200
+      if response.code == "200"
         return "Listener: #{listener_name} succesfully terminated"
-      elsif response.code == 404
+      elsif response.code == "404"
         return "Listener : #{listener_name} not found"
       end
     end
     #
     #Method to terminate all active or inactive listeners
-    #  
-    def self.kill_all_listeners
-      uri = URI.parse("https://localhost:1337/api/listeners/all?token=#{self.token}")
+    #
+    def kill_all_listeners
+      uri = URI.parse("https://localhost:1337/api/listeners/all?token=#{@token}")
       request = Net::HTTP::Delete.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port,self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
         http.request(request)
       end
-      if response.code == 200
+      if response.code == '200'
         return "All listeners terminated"
       end
     end
@@ -124,27 +137,29 @@ module Msf::Empire
     #in the request, Outfile needs to be set to '', which will ask the API to give the 'Output' through the response
     #which then needs to be written to file with proper extensions, for an instance, /tmp/launcher.dll
     #
-    def self.gen_stager(listener_name, stager_type, payload_path)
-      uri = URI.parse("https://localhost:1337/api/stagers?token=#{self.token}")
+    def gen_stager(listener_name, stager_type, payload_path)
+      uri = URI.parse("https://localhost:1337/api/stagers?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
       request.body = JSON.dump({
         "StagerName" => stager_type,
         "Listener" => listener_name,
-        "Outfile" => ""
+        "OutFile" => " "
         })
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+        req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
-      if response.code == 404
+      if response.code == "404"
         return "Invalid stager type"
-      elsif response.code = 200
+      else
+
         parser = JSON.parse(response.body)
         payload = File.open(payload_path, "w")
         payload.puts parser[stager_type]['Output']
         payload.close
         return "Payload created succesfully at #{payload_path}"
-      end
+        end
     end
     #
     #AGENT METHODS
@@ -155,10 +170,11 @@ module Msf::Empire
     #upgrade or a standalone stager, which will make it easier to guess the
     #number of agents connected
     #
-    def self.get_agents(temp_session)
-      uri = URI.parse("https://localhost:1337/api/agents?token=#{self.token}")
+    def get_agents(temp_session)
+      uri = URI.parse("https://localhost:1337/api/agents?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.message.to_s == 'OK'
@@ -171,6 +187,7 @@ module Msf::Empire
           elsif temp_session == true
             puts "#{parser['agents'][0]['ID']} : #{parser['agents'][0]['Name']}"
             return parser['agents'][0]['Name']
+          end
         else
           return "No agents connected"
         end
@@ -181,10 +198,11 @@ module Msf::Empire
     #
     #Method to get all stale or idle agents
     #
-    def self.get_stale
-      uri = URI.parse("https://localhost:1337/api/agents/stale?token=#{self.token}")
+    def get_stale
+      uri = URI.parse("https://localhost:1337/api/agents/stale?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.message.to_s == 'OK'
@@ -204,14 +222,15 @@ module Msf::Empire
     #Method to Rename an agent.
     #The current name of the agent is necessary to rename it.
     #
-    def self.rename_agent(agent_name, new_name)
-      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/rename?token=#{self.token}")
+    def rename_agent(agent_name, new_name)
+      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/rename?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
+      req_options = self.set_options(uri)
       request.body = JSON.dump({
         "newname" => new_name
       })
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.message.to_s == 'OK'
@@ -223,11 +242,12 @@ module Msf::Empire
     #
     #Method to kill a partcular agent
     #
-    def self.kill_agent(agent_name)
-      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/kill?token=#{self.token}")
+    def kill_agent(agent_name)
+      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/kill?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
       request.content_type = "application/json" 
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.message.to_s == 'OK'
@@ -239,11 +259,12 @@ module Msf::Empire
     #
     #Method to kill all active and stale agents
     #
-    def self.kill_all_agents
-      uri = URI.parse("https://localhost:1337/api/agents/all/kill?token=#{self.token}")
+    def kill_all_agents
+      uri = URI.parse("https://localhost:1337/api/agents/all/kill?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
       request.content_type = "application/json" 
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.message.to_s == 'OK'
@@ -263,14 +284,15 @@ module Msf::Empire
     #
     #Method to task an agent to execute a command
     #
-    def self.exec_command(agent_name, command)
-      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/shell?token=#{self.token}")
+    def exec_command(agent_name, command)
+      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/shell?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
       request.body = JSON.dump({
         "command" => command
-      })  
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      })
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.body.to_s.include?("success")
@@ -282,11 +304,12 @@ module Msf::Empire
     #
     #Method to retrieve results from the tasks assigned to a particular agent
     #
-    def self.get_results(agent_name)
-      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/results?token=#{self.token}")
+    def get_results(agent_name)
+      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/results?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
       request.content_type = "application/json"
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
         http.request(request)
       end
       if response.code == 200
@@ -304,38 +327,41 @@ module Msf::Empire
     #
     #Method to delete the results for a particular agent
     #
-    def self.delete_results(agent_name)
-      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/results?token=#{self.token}")
+    def delete_results(agent_name)
+      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/results?token=#{@token}")
       request = Net::HTTP::Delete.new(uri)
       request.content_type = "application/json"
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
         http.request(request)
       end
     end
     #
     #Method to clear the queued up task of an agent
     #
-    def self.clear_queue(agent_name)
-      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/clear?token=#{self.token}")
+    def clear_queue(agent_name)
+      uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/clear?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
       request.content_type = "application/json"
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
     end
     #
     #Method task every agent with a shell command
     #
-    def self.task_all_agent(command)
-      uri = URI.parse("https://localhost:1337/api/agents/all/shell?token=#{self.token}")
+    def task_all_agent(command)
+      uri = URI.parse("https://localhost:1337/api/agents/all/shell?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
       request.body = JSON.dump({
           "command" => command
       })
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
-      end  
+      end
       if response.to_s.include?("success")
         return "All agents tasked"
       else
@@ -345,11 +371,12 @@ module Msf::Empire
     #
     #Method to delete every result for every active agent from the database
     #
-    def self.delete_all_results
-      uri = URI.parse("https://localhost:1337/api/agents/all/results?token=#{self.token}")
+    def delete_all_results
+      uri = URI.parse("https://localhost:1337/api/agents/all/results?token=#{@token}")
       request = Net::HTTP::Delete.new(uri)
       request.content_type = "application/json"
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
     end
@@ -361,10 +388,11 @@ module Msf::Empire
     #of every module. Instead, this method will return an hash of just the names of the modules.
     #User can thereafter query about a specific module and get those details.
     #
-    def self.get_modules
-      uri = URI.parse("https://localhost:1337/api/modules?token=#{self.token}")
+    def get_modules
+      uri = URI.parse("https://localhost:1337/api/modules?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.code == 200
@@ -377,10 +405,11 @@ module Msf::Empire
      #
     #Method to get detailed information about a particular module
     #
-    def self.info_module(module_name)
-      uri = URI.parse("https://localhost:1337/api/modules/#{module_name}?token=#{self.token}")
+    def info_module(module_name)
+      uri = URI.parse("https://localhost:1337/api/modules/#{module_name}?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.code == 200
@@ -395,14 +424,15 @@ module Msf::Empire
     #
     #Method to execute a module to a particular agent
     #
-    def self.exec_module(module_name, agent_name)
-      uri = URI.parse("https://localhost:1337/api/modules/#{module_name}?token=#{self.token}")
+    def exec_module(module_name, agent_name)
+      uri = URI.parse("https://localhost:1337/api/modules/#{module_name}?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
       request.body = JSON.dump({
           "Agent" => agent_name
       })
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
       if response.message == 'OK'
@@ -416,10 +446,11 @@ module Msf::Empire
     #
     #This method will help harvesting all the credentials saved in the database for every host and will display it to the user.
     #
-    def self.get_creds
-      uri = URI.parse("https://localhost:1337/api/creds?token=#{self.token}")
+    def get_creds
+      uri = URI.parse("https://localhost:1337/api/creds?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
-      response = Net::HTTP.start(uri.hostname, uri.port, self.req_options) do |http|
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
         http.request(request)
       end
       if response.code == 200
@@ -436,4 +467,3 @@ module Msf::Empire
     end
   end
 end
-  
