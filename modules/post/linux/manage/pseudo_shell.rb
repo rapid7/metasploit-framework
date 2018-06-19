@@ -45,7 +45,7 @@ $vusername = ""
     super(
       'Name'         => 'Pseudo-Shell Post-Exploitation Module',
       'Description'  => %q{
-        This module will be for the run a Psudo-Shell.
+        This module will run a Pseudo-Shell.
       },
       'Author'       => 'Alberto Rafael Rodriguez Iglesias <albertocysec[at]gmail.com>',
       'License'      => MSF_LICENSE,
