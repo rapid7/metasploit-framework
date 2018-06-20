@@ -6,6 +6,32 @@
 
   httpdasm 0.92
 
+  The vulnerability can be found in HTTPRqst.asm file.
+
+  The beginning of the ServeContent routine attempts to check file path with SafeFilePath:
+
+  ```
+  1403 invoke SafeFilePath, __this
+  1404 .if (!eax) ;File is not safe
+  1405 mov m_dwCode, HTTP_STATUS_FORBIDDEN
+  1406 jmp doneHTTPGet
+  1407 .endif
+  1408 invoke ExtractFilename, __this
+  1409 .if (!eax)
+  1410 mov m_dwCode, HTTP_STATUS_URI_TOO_LONG ;max URI is 256 here
+  1411 jmp doneHTTPGe$
+  1412 .endif
+  ```
+
+  The SafeFilePath checks for directory traversal with these possible values such as "..", "//", "\", ":", which is inadequate to prevent a traversal attack:
+
+  ```
+  502 .if ((cx == '..') || (cx == '//') || (cl == '\') || (cl == ':'))
+  1503 return 0
+  1504 .endif
+  ```
+
+
 ## Verification Steps
 
   1. Start `msfconsole`
