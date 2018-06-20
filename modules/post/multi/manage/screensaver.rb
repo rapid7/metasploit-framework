@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Eliott Teissonniere'],
-      'Platform'      => [ 'linux' ],
+      'Platform'      => [ 'linux', 'osx' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ],
       'Actions'       =>
         [
@@ -44,6 +44,8 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'linux'
       cmd_vexec('xdg-screensaver lock')
+    when 'osx'
+      cmd_vexec('pmset displaysleepnow')
     end
 
     true
@@ -53,6 +55,8 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'linux'
       cmd_vexec('xdg-screensaver activate')
+    when 'osx'
+      cmd_vexec('open -a ScreenSaverEngine')
     end
 
     true
@@ -62,6 +66,9 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'linux'
       cmd_vexec('xdg-screensaver reset')
+    when 'osx'
+      print_error('Not supported on Mac OSX, you can still lock the screen or start the screensaver')
+      return false
     end
 
     true
