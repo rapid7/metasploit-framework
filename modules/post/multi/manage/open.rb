@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Eliott Teissonniere'],
-      'Platform'      => [ 'osx', 'linux' ],
+      'Platform'      => [ 'osx', 'linux', 'win' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ]
     ))
 
@@ -49,12 +49,24 @@ class MetasploitModule < Msf::Post
     true
   end
 
+  def win_open(uri)
+    begin
+      cmd_exec("start #{uri}")
+    rescue EOFError
+      return false
+    end
+
+    true
+  end
+
   def open(uri)
     case session.platform
     when 'osx'
       return osx_open(uri)
     when 'linux'
       return linux_open(uri)
+    when 'windows'
+      return win_open(uri)
     end
   end
 
