@@ -3,7 +3,7 @@ require 'uri'
 require 'json'
 require 'openssl'
 #Methods used to call the Empire-WebAPI
-module Msf::Empire
+module Empire
   class Client
     #
     #This method sets the token fetched for future use throughout the session
@@ -141,11 +141,19 @@ module Msf::Empire
       uri = URI.parse("https://localhost:1337/api/stagers?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
-      request.body = JSON.dump({
-        "StagerName" => stager_type,
-        "Listener" => listener_name,
-        "OutFile" => " "
+      if stager_type == 'windows/dll'
+        request.body = JSON.dump({
+          "StagerName" => stager_type,
+          "Listener" => listener_name,
+          "OutFile" => " "
+          })
+      else
+        request.body = JSON.dump({
+          "StagerName" => stager_type,
+          "Listener" => listener_name,
+          "OutFile" => ""
         })
+        end
         req_options = self.set_options(uri)
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
