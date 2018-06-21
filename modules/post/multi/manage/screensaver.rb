@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Eliott Teissonniere'],
-      'Platform'      => [ 'linux', 'osx' ],
+      'Platform'      => [ 'linux', 'osx', 'win' ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ],
       'Actions'       =>
         [
@@ -46,6 +46,8 @@ class MetasploitModule < Msf::Post
       cmd_vexec('xdg-screensaver lock')
     when 'osx'
       cmd_vexec('pmset displaysleepnow')
+    when 'windows'
+      cmd_vexec('rundll32 user32.dll,LockWorkStation')
     end
 
     true
@@ -57,6 +59,8 @@ class MetasploitModule < Msf::Post
       cmd_vexec('xdg-screensaver activate')
     when 'osx'
       cmd_vexec('open -a ScreenSaverEngine')
+    when 'windows'
+      cmd_vexec('powershell -w hidden -nop -c "Start-Process C:\\Windows\\System32\\scrnsave.scr"')
     end
 
     true
@@ -68,6 +72,9 @@ class MetasploitModule < Msf::Post
       cmd_vexec('xdg-screensaver reset')
     when 'osx'
       print_error('Not supported on Mac OSX, you can still lock the screen or start the screensaver')
+      return false
+    when 'windows'
+      print_error('Not supported on Windows, you can still lock the screen or start the screensaver')
       return false
     end
 
