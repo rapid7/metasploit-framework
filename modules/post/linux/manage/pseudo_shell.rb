@@ -38,8 +38,8 @@ HELP_COMMANDS.each do |linea|
   LIST.insert(-1, linea[0])
 end
 
-$vhostname = ""
-$vusername = ""
+@vhostname = ""
+@vusername = ""
 
   def initialize
     super(
@@ -55,8 +55,8 @@ $vusername = ""
   end
 
   def run
-    $vhostname = get_hostname
-    $vusername = whoami
+    @vhostname = get_hostname
+    @vusername = whoami
     prompt()
   end
 
@@ -104,7 +104,7 @@ $vusername = ""
   end
 
   def prompt_show()
-    promptshell = $vusername + "@" + $vhostname + ":" + pwd.strip() + "# "
+    promptshell = @vusername + "@" + @vhostname + ":" + pwd.strip() + "# "
     comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
     Readline.completion_append_character = " "
     Readline.completion_proc = comp
@@ -145,6 +145,7 @@ $vusername = ""
           else
             if resultado.class == Array
               print resultado.join("\n")
+              print "\n"
             else
               if resultado.strip() != ""
                 print resultado.chomp() + "\n"
