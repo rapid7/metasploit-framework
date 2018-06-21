@@ -60,8 +60,6 @@ module Metasploit
             end
           end
         end
-
-        end
       end
     end
   end

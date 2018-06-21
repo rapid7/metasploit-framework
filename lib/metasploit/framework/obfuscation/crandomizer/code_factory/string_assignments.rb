@@ -7,12 +7,12 @@ module Metasploit
       module CRandomizer
         module CodeFactory
 
-          class IntAssignments < Base
+          class StringAssignments < Base
             def stub
-              var_name = "fakeint_#{Metasploit::Framework::CRandomizer::Utility.rand_int}"
+              var_name = "fake_string_#{Metasploit::Framework::Obfuscation::CRandomizer::Utility.rand_int}"
               %Q|
               void stub() {
-                int #{var_name} = #{Metasploit::Framework::CRandomizer::Utility.rand_int};
+                const char* #{var_name} = "#{Metasploit::Framework::Obfuscation::CRandomizer::Utility.rand_string}";
               }|
             end
           end

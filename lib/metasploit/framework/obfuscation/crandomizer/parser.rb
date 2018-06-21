@@ -1,5 +1,5 @@
 require 'metasploit/framework/obfuscation/crandomizer/utility'
-require 'metasploit/framework/obfuscation/crandomizer/modifer'
+require 'metasploit/framework/obfuscation/crandomizer/modifier'
 
 module Metasploit
   module Framework

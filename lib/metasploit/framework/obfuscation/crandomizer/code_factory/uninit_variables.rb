@@ -21,21 +21,21 @@ module Metasploit
             def char
               %Q|
               void stub() {
-                char uninitcharvar#{CRandomizer::Utility.rand_int};
+                char uninitcharvar#{Metasploit::Framework::Obfuscation::CRandomizer::Utility.rand_int};
               }|
             end
 
             def int
               %Q|
               void stub() {
-                int uninitintvar#{CRandomizer::Utility.rand_int};
+                int uninitintvar#{Metasploit::Framework::Obfuscation::CRandomizer::Utility.rand_int};
               }|
             end
 
             def string
               %Q|
               void stub() {
-                const char* uninitstringvar#{CRandomizer::Utility.rand_int};
+                const char* uninitstringvar#{Metasploit::Framework::Obfuscation::CRandomizer::Utility.rand_int};
               }|
             end
           end
