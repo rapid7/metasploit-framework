@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
 
   def win_open(uri)
     begin
-      cmd_exec("start #{uri}")
+      cmd_exec("cmd.exe /c start #{uri}")
     rescue EOFError
       return false
     end
