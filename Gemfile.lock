@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.62)
+    metasploit-framework (4.16.63)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -175,10 +175,10 @@ GEM
     msgpack (1.2.4)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
-    net-ssh (5.0.1)
+    net-ssh (5.0.2)
     network_interface (0.0.2)
     nexpose (7.2.1)
-    nokogiri (1.8.2)
+    nokogiri (1.8.3)
       mini_portile2 (~> 2.3.0)
     octokit (4.9.0)
       sawyer (~> 0.8.0, >= 0.5.3)
