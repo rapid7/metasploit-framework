@@ -49,7 +49,7 @@ PATH
       rex-mime
       rex-nop
       rex-ole
-      rex-powershell (< 0.1.78)
+      rex-powershell
       rex-random_identifier
       rex-registry
       rex-rop_builder
@@ -251,7 +251,7 @@ GEM
       rex-arch
     rex-ole (0.1.6)
       rex-text
-    rex-powershell (0.1.77)
+    rex-powershell (0.1.78)
       rex-random_identifier
       rex-text
     rex-random_identifier (0.1.4)
