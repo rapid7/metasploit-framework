@@ -10,7 +10,7 @@ module Metasploit
           class Printf < Base
             def initialize
               super
-              @dep = ''
+              @dep = ['printf']
             end
 
             def stub

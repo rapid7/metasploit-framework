@@ -7,23 +7,40 @@ module Metasploit
 
         class RandomStatements
 
-          attr_reader :fake_functions
+          attr_reader :parser
+          attr_reader :fake_function_collection
           attr_reader :function_list
 
-          def initialize(f, s=nil)
-            @fake_functions = f
+          # Initializes the RandomStatements class.
+          #
+          # @param fake_functions [Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::FakeFunctionCollection]
+          # @param s [Metasm::C::Declaration]
+          def initialize(p, fake_functions, s=nil)
+            @parser = p
+            @fake_function_collection = fake_functions
             @function_list = [ Proc.new { get_random_statements } ]
-            if s && !f.has_function_name?(s.var.name)
+
+            # Only generate fake function calls when the function we are modifying isn't
+            # from one of those fake functions (to avoid a recursion).
+            if s && !fake_function_collection.has_function_name?(s.var.name)
               @function_list << Proc.new { get_random_function_call }
             end
           end
 
+          # Returns a random statement.
+          #
+          # @return [Array<Metasm::C::CExpression>]
+          # @return [Array<Metasm::C::Declaration>]
           def get
             function_list.sample.call
           end
 
           private
 
+          # Returns function arguments as a string.
+          #
+          # @param args [Array<Metasm::C::Variable>]
+          # @return [String]
           def make_func_arg_str(args)
             arg_array = []
 
@@ -41,6 +58,10 @@ module Metasploit
             %Q|(#{arg_array.join(', ')})|
           end
 
+          # Returns the arguments (in string) for function declaration.
+          #
+          # @param args [Array<Metasm::C::Variable]
+          # @return [String]
           def make_func_declare_arg_str(args)
             arg_array = []
             args.each do |a|
@@ -57,22 +78,36 @@ module Metasploit
             %Q|(#{arg_array.join(', ')})|
           end
 
+          # Returns a random statement from the Code Factory, excluding:
+          # * The base class
+          # * FakeFunction class
+          # * FakeFunctionCollection class
+          #
+          # @return [Array]
           def get_random_statements
             ignored_classes = [:Base, :FakeFunction, :FakeFunctionCollection]
             class_name = Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory.constants.select { |c|
               next if ignored_classes.include?(c)
               Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory.const_get(c).instance_of?(Class)
             }.sample
-            Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory.const_get(class_name).new.code
+
+            instance = Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory.const_get(class_name).new
+
+            if instance.good_dep?(parser)
+              return Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory.const_get(class_name).new.code
+            else
+              # Call again
+              get_random_statements
+            end
           end
 
           # This function is kind of dangerous, because it could cause an
           # infinitely loop by accident when random functions call each other.
           def get_random_function_call
             # There is no fake function collection
-            return [] if fake_functions.empty?
+            return [] if fake_function_collection.empty?
 
-            fake_function = fake_functions.sample
+            fake_function = fake_function_collection.sample
             fake_function_name = fake_function.var.name
             fake_function_args = fake_function.var.type.args
             fake_function_declare_args_str = make_func_declare_arg_str(fake_function_args)

@@ -6,14 +6,25 @@ module Metasploit
       module CRandomizer
 
         class Modifier
+          attr_reader :parser
           attr_reader :fake_functions
           attr_reader :weight
 
-          def initialize(f, w)
+          # Initializes a Metasploit::Framework::Obfuscation::CRandomizer::Modifier instance.
+          #
+          # @param p [Metasploit::C::Parser]
+          # @param f [Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::FakeFunctionCollection]
+          # @param w [Integer] Weight of the randomness.
+          def initialize(p, f, w)
+            @parser = p
             @fake_functions = f
             @weight = w
           end
 
+          # Modifies different if-else blocks recursively.
+          #
+          # @param s [Metasm::C::Declaration]
+          # @return [Metasm::C::Declaration]
           def modify_if_else_blocks(s)
             modify_if(s)
             modify_else_if(s)
@@ -21,6 +32,10 @@ module Metasploit
             s
           end
 
+          # Modifies an if block.
+          #
+          # @param s [Metasm::C::Declaration]
+          # return [void]
           def modify_if(s)
             new_if_statements = []
 
@@ -33,6 +48,10 @@ module Metasploit
             s.bthen.statements = new_if_statements
           end
 
+          # Modifies an else-if block.
+          #
+          # @param s [Metasm::C::Declaration]
+          # @param [void]
           def modify_else_if(s)
             # There could be multiple else if blocks,
             # this gives the current else if block
@@ -54,6 +73,9 @@ module Metasploit
             end
           end
 
+          # Modifies an else block.
+          #
+          # @param s [Metasm::C::Declaration]
           def modify_else(s)
             else_block = s.belse
 
@@ -75,6 +97,9 @@ module Metasploit
             else_block.statements = new_else_statements
           end
 
+          # Modifies a for block.
+          #
+          # @param s [Metasm::C::Declaration]
           def modify_for(s)
             new_for_statements = []
 
@@ -89,6 +114,9 @@ module Metasploit
             s
           end
 
+          # Modifies a nested block.
+          #
+          # @param s [Metasm::C::Declaration]
           def modify_nested_blocks(s)
             case s
             when Metasm::C::If
@@ -98,6 +126,9 @@ module Metasploit
             end
           end
 
+          # Modifies a function.
+          #
+          # @param s [Metasploit::C::Declaration]
           def modify_function(s)
             function_statements = s.var.initializer.statements
             new_function_statements = []
@@ -126,11 +157,18 @@ module Metasploit
 
           private
 
+          # Returns fake statements.
+          #
+          # @param s [Metasploit::C::Declaration]
+          # @return [Array<Metasm::C::CExpression>]
           def get_fake_statement(s=nil)
-            random_statements = Metasploit::Framework::Obfuscation::CRandomizer::RandomStatements.new(fake_functions, s)
+            random_statements = Metasploit::Framework::Obfuscation::CRandomizer::RandomStatements.new(parser, fake_functions, s)
             random_statements.get
           end
 
+          # Returns a boolean indicating whether a random is above (or equal to) a number or not.
+          #
+          # @return [Boolean]
           def feeling_lucky?
             n = (rand * 100).to_i
             weight >= n

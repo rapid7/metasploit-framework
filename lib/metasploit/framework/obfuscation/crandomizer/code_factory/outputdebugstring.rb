@@ -10,7 +10,7 @@ module Metasploit
           class OutputDebugString < Base
             def initialize
               super
-              @dep = 'Windows.h'
+              @dep = ['OutputDebugString']
             end
 
             def stub
