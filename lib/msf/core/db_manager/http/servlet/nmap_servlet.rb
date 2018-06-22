@@ -14,6 +14,7 @@ module NmapServlet
 
   def self.import_nmap_xml_file
     lambda {
+      warden.authenticate!
 
       job = lambda { |opts|
         nmap_file = File.basename(opts[:filename])
