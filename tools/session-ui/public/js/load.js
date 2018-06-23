@@ -72,7 +72,7 @@ function postModule() {
                                 valueSubList.setAttribute("class","list-group-item");
                                 valueSubList.setAttribute("data-parent", "#"+postmod_key[j]+count);
                                 valueSubList.setAttribute("href","#")
-                                
+                                valueSubList.setAttribute("id",arr[i]+"_"+value[k]);
                                 valueSubList.innerHTML =  value[k] ;
 
 

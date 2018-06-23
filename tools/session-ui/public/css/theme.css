@@ -1,4 +1,47 @@
+/*------------------------------------------------------------------
+[Master Stylesheet]
 
+Project:  METERPRETER WebView
+Version:    1.0
+Last change:    08/10/2018 [Add Define a table of contents Link]
+Developer:  Rahul Dhawan
+Primary use:    Open Source
+-------------------------------------------------------------------*/
+/*------------------------------------------------------------------
+[LAYOUT]
+
+* body
+    + Header / header
+    + Page Content / .page-content .name-page
+        + Section Layouts / section .name-section
+        ...
+    + Footer / footer
+
+-------------------------------------------------------------------*/
+/*------------------------------------------------------------------
+# [Color codes]
+
+# Text Color (text): #97a3ab
+# Text Color on Hover (Text, title): #EB5D26
+# Page content background color : #182028
+# Navbar Backgroung Color : #262f36;
+
+------------------------------------------------------------------*/
+/*------------------------------------------------------------------
+[Typography]
+
+Notes:  decreasing heading by 0.4em with every subsequent heading level
+-------------------------------------------------------------------*/
+/*-----------------------------------------------------*/
+/*                   SETTINGS                          */
+/*-----------------------------------------------------*/
+/*-----------------------------------------------------*/
+/*                   TOOLS                             */
+/*-----------------------------------------------------*/
+/*-----------------------------------------------------*/
+/*                   GENERIC                           */
+/*-----------------------------------------------------*/
+/* ----- Normalize ----- */
 * {
     margin: 0;
     padding: 0;
@@ -9788,19 +9831,20 @@ section {
 .vue-lists ul, .vue-lists ol {
     padding-left: 30px;
 }
-    #sidebar .list-group-item {
+
+#sidebar .list-group-item {
     border-radius: 0;
-       background-color: #262f36;
+    background-color: #262f36;
     color: #ccc;
     border-left: 0;
     border-right: 0;
-    border-color: #2c2c2c;
+    border-color: #262f36;
     white-space: nowrap;
 }
 
 /* highlight active menu */
 #sidebar .list-group-item:not(.collapsed) {
-    background-color: #222;
+    background-color: #262f36;
 }
 
 /* closed state */
@@ -9815,7 +9859,7 @@ section {
 /* open state */
 #sidebar .list-group .list-group-item[aria-expanded="true"] {
     
-    color: #f90e0e;
+    color: #EB5D26;
 }
 
 #sidebar .list-group .list-group-item[aria-expanded="true"]::after {
@@ -9831,7 +9875,9 @@ section {
   padding-left: 20px;
 }
 #sidebar a:hover{
-color: #eb5d26;
+
+color: #EB5D26;
+
 }
 /* level 2*/
 #sidebar .list-group .collapse > .collapse .list-group-item {
