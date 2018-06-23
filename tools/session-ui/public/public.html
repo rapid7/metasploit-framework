@@ -8,10 +8,14 @@
 
 
     <!-- Title Page-->
-    <title>Meterpreter WenView</title>
+    <title>WebView</title>
 
     <!-- Fontfaces CSS-->
     <link href="css/font-face.css" rel="stylesheet" media="all">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
    
     <link href="resources/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
     <link href="resources/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
@@ -23,18 +27,17 @@
     <link href="resources/animsition/animsition.min.css" rel="stylesheet" media="all">
     <link href="resources/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet" media="all">
     
-   <!-- <link href="resources/select2/select2.min.css" rel="stylesheet" media="all"> -->
+   
     <link href="resources/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" media="all">
 
     <!-- Main CSS-->
     <link href="css/theme.css" rel="stylesheet" media="all">
     <!-- Xterm CSS -->
-    <link rel="stylesheet" href="resources/xterm/xterm.css" />
+     <link rel="stylesheet" href="resources/xterm/xterm.css" />
     
-    <script src="resources/xterm/xterm.js" ></script>
-    <script src="resources/xterm/addon/fit/fit.js" ></script>
-    <script src="resources/xterm/addon/attach/attach.js" ></script>
-
+      <script src="resources/xterm/xterm.js" ></script>
+      <script src="resources/xterm/addon/fit.js" ></script>
+      
        <!--
       <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
       <script src="node_modules/xterm/dist/xterm.js"></script> -->
@@ -50,7 +53,9 @@
 
 <body class="animsition">
     <div class="page-wrapper">
-        
+        <!-- HEADER MOBILE-->
+
+
         <!-- MENU SIDEBAR-->
         <aside class="menu-sidebar2">
             <div class="logo">
@@ -58,40 +63,51 @@
                    <!-- <img src="images/icon/logo.png" alt="Metasploit" /> -->
                 </a>
             </div>
-            <div class="menu-sidebar2__content js-scrollbar1">
+          
+            <div  id="sidebar">
+            <!-- menu group 1 -->
+              <div class="list-group panel">
+                  <a href="#menu1" onclick="postModule(); this.onclick=null;" class="list-group-item collapsed"  data-toggle="collapse" data-parent="#sidebar" aria-expanded="false"> <span class="hidden-sm-down">Post Modules </span></a>
+                  <div class="collapse" id="menu1">
+        
+                    <input type="text" placeholder="Search.." id="Search" onkeyup="filterFunction()" style="width: 283px;height: 30px;">
+                          <!-- sub menu item ends -->
+              </div>
+   
+          </div>
+                  <!-- end of menu group1 -->
 
-                <nav class="navbar-sidebar2">
-                    <ul class="list-unstyled navbar__list">
-                        <li onclick="postModule(); this.onclick=null;" class="active has-sub">
-                            <a class="js-arrow"  href="#">
-                              <span class="arrow"><i class="fas fa-angle-down"></i>
-                              </span>Post Modules
-                            </a>
-                            <ul id="post" class="list-unstyled navbar__sub-list js-sub-list">
-                              <!-- Dynamic List here -->
-                            </ul>
-                          </li>
 
-                        <li class="active has-sub">
-                            <a class="js-arrow" onclick="ExtensionCommand(); this.onclick=null;" href="#">Extensions
-                              <span class="arrow">
-                                    <i class="fas fa-angle-down"></i>
-                              </span>
-                            </a>
-                            
-                            <ul id="exten" class="list-unstyled navbar__sub-list js-sub-list">
-                              <!-- Dynamic List -->
-                            </ul>
-                        </li>
+                  <!-- menu group 2 -->
+                 <a href="#menu2" onclick="ExtensionCommand(); this.onclick=null;" class="list-group-item collapsed" data-toggle="collapse" data-parent="#sidebar" aria-expanded="false"> <span class="hidden-sm-down">Extension</span> </a>
+                   <div class="collapse" id="menu2"> 
 
-                        <li >
-                          <a href="#">Commands</a>
-                        </li>
-
-                    </ul>
-                </nav>
+                    <!--
+                      <a href="#menu2sub1" class="list-group-item" data-toggle="collapse" aria-expanded="false">subitem</a>
+                      <div class="collapse" id="menu2sub1">
+                          <a href="#menu2sub1sub1" class="list-group-item" data-toggle="collapse" aria-expanded="false">Subitem 3 c </a>
+                          <div class="collapse" id="menu2sub1sub1">
+                              <a href="#" class="list-group-item" data-parent="#menu2sub1sub1">Subitem 3 c.1</a>
+                              <a href="#" class="list-group-item" data-parent="#menu2sub1sub1">Subitem 3 c.2</a>
+                          </div>
+        
+                          <a href="#menu2sub1sub2" class="list-group-item" data-toggle="collapse"  aria-expanded="false">Subitem 5 e </a>
+                          <div class="collapse" id="menu2sub1sub2">
+                              <a href="#" class="list-group-item" data-parent="#menu2sub1sub2">Subitem 5 e.1</a>
+                              <a href="#" class="list-group-item" data-parent="#menu2sub1sub2">Subitem 5 e.2</a>
+                          </div>
+                      </div>
+                  
+                 -->
+                    </div>
+                    <!-- End of menu group 2 -->
             </div>
+
         </aside>
+
+    </div>
+  
+       
         <!-- END MENU SIDEBAR-->
 
         <!-- PAGE CONTAINER-->
@@ -155,167 +171,7 @@
                 </div>
             </div>
             <!-- END MAIN CONTENT-->
-<script>
-/* ************************ Implementing Wb Socket using Attach Addon*********************** */
 
-        var textDecoder = new TextDecoder();
-        var textEncoder = new TextEncoder();
-        var terminal = document.getElementById('terminal');
-        var wsUri = "";
-
-        Terminal.applyAddon(attach);
-        Terminal.applyAddon(fit);
-
-//https://github.com/tsl0922/ttyd/blob/0b149bbbba69e2486b0561c0b952a7595eb7f90d/html/js/app.js#L182
-
-var openWs= function(){
-    var ws=new WebSocket(wsUri);
-    var sendMessage = function (message) {
-        if (ws.readyState === ws.OPEN) {
-            ws.send(textEncoder.encode(message));
-        }
-    };
-
-
-    var sendData = function (data) {
-        sendMessage('0' + data);
-    };
-
-    var unloadCallback = function (event) {
-        var message = 'Close terminal? this will also terminate the command.';
-        (event || window.event).returnValue = message;
-        return message;
-    };
-    /* To reset the terminal
-
-    var resetTerm = function() {
-        hideModal();
-        clearTimeout(reconnectTimer);
-        if (ws.readyState !== WebSocket.CLOSED) {
-            ws.close();
-        }
-        openWs();
-    };
-                    */
-    ws.binaryType = 'arraybuffer';
-
-    ws.onopen = function (event) {
-        console.log('Websocket connection opened');
-        wsError = false;
-
-        if (typeof term !== 'undefined') {
-            term.dispose();
-        }
-
-        var term = new Terminal({
-            cols: 145,
-            rows: 31,
-            fontSize: 15,
-            fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
-            theme: {
-                foreground: '#d2d2d2',
-                background: '#000000',
-                cursor: '#adadad',
-                black: '#000000',
-                red: '#d81e00',
-                green: '#5ea702',
-                yellow: '#cfae00',
-                blue: '#427ab3',
-                magenta: '#89658e',
-                cyan: '#00a7aa',
-                white: '#dbded8',
-                brightBlack: '#686a66',
-                brightRed: '#f54235',
-                brightGreen: '#99e343',
-                brightYellow: '#fdeb61',
-                brightBlue: '#84b0d8',
-                brightMagenta: '#bc94b7',
-                brightCyan: '#37e6e8',
-                brightWhite: '#f1f1f0'
-            }
-        });
-
-
-        term.on('resize', function (size) {
-            if (ws.readyState === WebSocket.OPEN) {
-                sendMessage('1' + JSON.stringify({columns: size.cols, rows: size.rows}));
-            }
-            setTimeout(function () {
-                term.showOverlay(size.cols + 'x' + size.rows);
-            }, 500);
-        });
-
-        term.on('title', function (data) {
-            if (data && data !== '') {
-                document.title = (data + ' | ' + title);
-            }
-        });
-
-        term.on('data', sendData);
-
-        while (terminal.firstChild) {
-            terminal.removeChild(terminal.firstChild);
-        }
-
-        window.addEventListener('resize', function() {
-            clearTimeout(window.resizedFinished);
-            window.resizedFinished = setTimeout(function () {
-                term.fit();
-            }, 250);
-        });
-        window.addEventListener('beforeunload', unloadCallback);
-
-        term.open(terminal, true);
-        term.fit();
-        term.focus();
-    };
-    ws.onmessage = function(event) {
-        var rawData = new Uint8Array(event.data),
-            cmd = String.fromCharCode(rawData[0]),
-            data = rawData.slice(1).buffer;
-        switch(cmd) {
-            case '0':
-                title = textDecoder.decode(data);
-                document.title = title;
-                break;
-            case '1':
-                var preferences = JSON.parse(textDecoder.decode(data));
-                Object.keys(preferences).forEach(function(key) {
-                    console.log('Setting ' + key + ': ' +  preferences[key]);
-                    term.setOption(key, preferences[key]);
-                });
-                break;
-        }
-    };
-
-    ws.onclose = function(event) {
-        console.log('Websocket connection closed with code: ' + event.code);
-        if (term) {
-            term.off('data');
-            term.off('resize');
-            if (!wsError) {
-                term.showOverlay('Connection Closed', null);
-            }
-        }
-        window.removeEventListener('beforeunload', unloadCallback);
-        // 1000: CLOSE_NORMAL
-
-    };
-
-
-
-
-};
-
-
-if (document.readyState === 'complete' || document.readyState !== 'loading') {
-    openWs();
-} else {
-    document.addEventListener('DOMContentLoaded', openWs);
-}
-
-
-</script>
 
         <!-- END PAGE CONTAINER-->
         </div>
@@ -341,18 +197,11 @@ if (document.readyState === 'complete' || document.readyState !== 'loading') {
     <!-- Main JS-->
     <script src="js/load.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/term.js"></script>
 
 
 </body>
 
 </html>
 <!-- end document-->
-
-
-
-
-
-
-
-
 

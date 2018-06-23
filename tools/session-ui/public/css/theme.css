@@ -1,46 +1,4 @@
-/*------------------------------------------------------------------
-[Master Stylesheet]
 
-Project:  METERPRETER WebView
-Version:	1.0
-Last change:	08/10/2018 [Add Define a table of contents Link]
-Developer:	Rahul Dhawan
-Primary use:	Open Source
--------------------------------------------------------------------*/
-/*------------------------------------------------------------------
-[LAYOUT]
-
-* body
-    + Header / header
-	+ Page Content / .page-content .name-page
-        + Section Layouts / section .name-section
-        ...
-	+ Footer / footer
-
--------------------------------------------------------------------*/
-/*------------------------------------------------------------------
-# [Color codes]
-
-# Text Color (text): #97a3ab
-# Text Color on Hover (Text, title): #EB5D26
-# Page content background color : #182028
-
-------------------------------------------------------------------*/
-/*------------------------------------------------------------------
-[Typography]
-
-Notes:	decreasing heading by 0.4em with every subsequent heading level
--------------------------------------------------------------------*/
-/*-----------------------------------------------------*/
-/*                   SETTINGS                          */
-/*-----------------------------------------------------*/
-/*-----------------------------------------------------*/
-/*                   TOOLS                             */
-/*-----------------------------------------------------*/
-/*-----------------------------------------------------*/
-/*                   GENERIC                           */
-/*-----------------------------------------------------*/
-/* ----- Normalize ----- */
 * {
     margin: 0;
     padding: 0;
@@ -1167,87 +1125,6 @@ section {
         font-size: 22px;
         margin-right: 15px;
     }
-}
-
-
-
-.navbar-sidebar2 .navbar__list li {
-    position: relative;
-    cursor: pointer;
-}
-
-.navbar-sidebar2 .navbar__list li .arrow {
-    position: absolute;
-    right: 35px;
-    top: 0;
-    text-align: center;
-    vertical-align: middle;
-    height: 63px;
-    width: 63px;
-    line-height: 63px;
-    -webkit-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    transition: all 0.5s ease;
-}
-
-.navbar-sidebar2 .navbar__list li .arrow.up {
-    -webkit-transform: rotate(-180deg);
-    -moz-transform: rotate(-180deg);
-    -ms-transform: rotate(-180deg);
-    -o-transform: rotate(-180deg);
-    transform: rotate(-180deg);
-}
-
-.navbar-sidebar2 .navbar__list li .arrow i {
-    font-size: 18px;
-    color:#97a3ab;
-}
-
-.navbar-sidebar2 .navbar__list li:hover > a {
-    color: #ffffff;
-    background-color: #EB5D26 ;
-}
-
-.navbar-sidebar2 .navbar__list li a {
-    font-size: 16px;
-    color: #97a3ab;
-    display: block;
-    padding: 18px 35px;
-    border-bottom: 1px solid #262f36;
-}
-
-.navbar-sidebar2 .navbar__list li a > i {
-    margin-right: 20px;
-}
-
-.navbar-sidebar2 .navbar__list li.active > a {
-    color: #fefefe;
-}
-
-.navbar-sidebar2 .navbar__sub-list {
-    display: none;
-}
-
-.navbar-sidebar2 .navbar__sub-list-2{
-    display: block;
-}
-
-.navbar-sidebar2 .navbar__sub-list li {
-    background: #262f36;
-}
-.navbar-sidebar2 .navbar__sub-list-2 li {
-    background: #262f36;
-}
-
-.navbar-sidebar2 .navbar__sub-list li a {
-    border-color: #262f36;
-    padding-left: 66px;
-}
-
-.navbar-sidebar2 .navbar__sub-list-2 li a {
-    border-color: #262f36;
-    padding-left: 86px;
 }
 
 
@@ -9911,3 +9788,117 @@ section {
 .vue-lists ul, .vue-lists ol {
     padding-left: 30px;
 }
+    #sidebar .list-group-item {
+    border-radius: 0;
+       background-color: #262f36;
+    color: #ccc;
+    border-left: 0;
+    border-right: 0;
+    border-color: #2c2c2c;
+    white-space: nowrap;
+}
+
+/* highlight active menu */
+#sidebar .list-group-item:not(.collapsed) {
+    background-color: #222;
+}
+
+/* closed state */
+#sidebar .list-group .list-group-item[aria-expanded="false"]::after {
+  content: " \f0d7";
+  font-family: FontAwesome;
+  display: inline;
+  text-align: right;
+  padding-left: 5px;
+}
+
+/* open state */
+#sidebar .list-group .list-group-item[aria-expanded="true"] {
+    
+    color: #f90e0e;
+}
+
+#sidebar .list-group .list-group-item[aria-expanded="true"]::after {
+  content: " \f0da";
+  font-family: FontAwesome;
+  display: inline;
+  text-align: right;
+  padding-left: 5px;
+}
+
+/* level 1*/
+#sidebar .list-group .collapse .list-group-item  {
+  padding-left: 20px;
+}
+#sidebar a:hover{
+color: #eb5d26;
+}
+/* level 2*/
+#sidebar .list-group .collapse > .collapse .list-group-item {
+  padding-left: 30px;
+}
+
+/* level 3*/
+#sidebar .list-group .collapse > .collapse > .collapse .list-group-item {
+  padding-left: 40px;
+}
+
+@media (max-width:48em) {
+    /* overlay sub levels on small screens */
+    #sidebar .list-group .collapse.in, #sidebar .list-group .collapsing {
+        position: absolute;
+        z-index: 1;
+        width: 190px;
+    }
+    #sidebar .list-group > .list-group-item {
+        text-align: center;
+        padding: .75rem .5rem;
+    }
+    /* hide caret icons of top level when collapsed */
+    #sidebar .list-group > .list-group-item[aria-expanded="true"]::after,
+    #sidebar .list-group > .list-group-item[aria-expanded="false"]::after {
+        display:none;
+    }
+}
+
+/* change transition animation to width when entire sidebar is toggled */
+#sidebar.collapse {
+  -webkit-transition-timing-function: ease;
+       -o-transition-timing-function: ease;
+          transition-timing-function: ease;
+  -webkit-transition-duration: .2s;
+       -o-transition-duration: .2s;
+          transition-duration: .2s;
+}
+
+#sidebar.collapsing {
+  opacity: 0.8;
+  width: 0;
+  -webkit-transition-timing-function: ease-in;
+       -o-transition-timing-function: ease-in;
+          transition-timing-function: ease-in;
+  -webkit-transition-property: width;
+       -o-transition-property: width;
+          transition-property: width;
+
+}
+
+
+
+/* The search field */
+#Search {
+  border-box: box-sizing;
+  background-image: ;
+  background-position: 14px 12px;
+  background-repeat: no-repeat;
+  font-size: 16px;
+  padding: 14px 20px 12px 45px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  padding-left: 20px;
+}
+
+/* The search field when it gets focus/clicked on */
+#Search:focus {outline: 3px solid #ddd;}
+
+

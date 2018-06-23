@@ -1,3 +1,23 @@
+/* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+
+function filterFunction() {
+  var input, filter, ul, li, a, i;
+  input = document.getElementById("Search");
+  filter = input.value.toLocaleString();
+  div = document.getElementById("menu1");
+  a = div.getElementsByTagName("a");
+  for (i = 0; i < a.length; i++) {
+    if (a[i].innerHTML.toLowerCase().indexOf(filter) > -1) {
+       a[i].style.display = "";
+    } else {
+      a[i].style.display = "none";
+    }
+  }
+}
+
+
+
 
 function postModule() {
     var xhr = new XMLHttpRequest();
@@ -8,61 +28,80 @@ function postModule() {
     xhr.onload = function () {
         var postJson = xhr.response;
         var postData = JSON.parse(postJson);
+        var count=0;
         if (xhr.readyState === 4 && xhr.status === 200) {
             var arr = Object.keys(postData);
             for (var i = 0; i < arr.length; i++) {
 
-                var text = document.createElement("li");
-                var myList = document.createElement("ul");
-                myList.setAttribute("class","list-unstyled navbar__list ");
-                text.setAttribute("class","active has-sub");
-                var anchor= document.createElement("a");
-                anchor.setAttribute("class","js-arrow");
-                anchor.setAttribute("href","#");
+                var menu1 = document.createElement("a");
+                menu1.setAttribute("class","list-group-item");
+                menu1.setAttribute("data-toggle","collapse");
+                menu1.setAttribute("aria-expanded","false");
+                menu1.innerHTML = arr[i] ;
+                menu1.setAttribute("href","#"+arr[i]);
 
+                var menu1sub = document.createElement("div");
+                menu1sub.setAttribute("class","collapse");
+                menu1sub.setAttribute("id",arr[i]);
 
-                anchor.innerHTML = arr[i] + "<span class='arrow'><i class='fas fa-angle-down'></i></span>";
-
-                var post_mod = postData[arr[i]]; 		// content inside windows,linux
+                 		// content inside windows,linux
+               
+                
+                var post_mod = postData[arr[i]];
                 var postmod_key = Object.keys(post_mod);
+
 
                 if (postmod_key[i] != 0) {
                     for (var j = 0; j < postmod_key.length; j++) {
-                        var subList = document.createElement("li");
-                        subList.setAttribute("class","active has-sub");
-                        var anchor1=document.createElement("a");
-                        anchor1.setAttribute("class","js-arrow");
-                        anchor1.setAttribute("href","#");
-                        subList.appendChild(anchor1);
-                        anchor1.innerHTML = postmod_key[j] + "<span class='arrow'><i class='fas fa-angle-down'></i></span>";;
-                        var value= post_mod[postmod_key[j]];
-                        if(value!=0){
-                            for(var k=0;k<value.length;k++){
-                                var valueSubList=document.createElement("ul");
-                                valueSubList.setAttribute("class","list-unstyled navbar__sub-list-2 js-sub-list");
-                                var valueList=document.createElement("li");
-                                valueList.setAttribute("class","active has-sub");
-                                var anchor2=document.createElement('a');
-                         
-                                anchor2.setAttribute("href","#");
-                                anchor2.textContent = value[k];
-                                valueList.appendChild(anchor2);
-                                valueSubList.appendChild(valueList);
+                        var subList = document.createElement("a");
+                        subList.setAttribute("class","list-group-item");
+                        subList.setAttribute("data-toggle","collapse");
+                        subList.setAttribute("aria-expanded","false");
+                        subList.setAttribute("href","#"+postmod_key[j]+count);
+                        subList.innerHTML = postmod_key[j];
 
-                                subList.appendChild(valueSubList);
-                                myList.appendChild(subList);
+                        var valueList=document.createElement("div");
+                        valueList.setAttribute("class","collapse");
+                        valueList.setAttribute("id",postmod_key[j]+count);
+                                               
+                        var value= post_mod[postmod_key[j]];
+                       
+                            for(var k=0;k<value.length;k++){
+
+                                var valueSubList=document.createElement("a");
+                                valueSubList.setAttribute("class","list-group-item");
+                                valueSubList.setAttribute("data-parent", "#"+postmod_key[j]+count);
+                                valueSubList.setAttribute("href","#")
+                                
+                                valueSubList.innerHTML =  value[k] ;
+
+
+                                //subList.after(menu1sub);
+                                 menu1sub.appendChild(subList);
+
+                                 valueList.appendChild(valueSubList);
+                                //valueSubList.after(valueList);
+
+                                 menu1sub.appendChild(valueList);
+                                //valueList.after(subList);
+                          
                             }
-                        }
+                     
+
                     }
                 }
-                text.appendChild(anchor);
-                text.appendChild(myList);
-                document.getElementById("post").appendChild(text);
+                 //menu1.appendChild(menu1sub);
+                // //menu1sub.insertAdjacentElement("afterend",menu1);
+                document.getElementById("menu1").appendChild(menu1);
+                document.getElementById("menu1").appendChild(menu1sub);
+                count++;
             }
 
         }
     }
 }
+
+
 
 function ExtensionCommand() {
     var xhr2 = new XMLHttpRequest();
@@ -128,24 +167,6 @@ function postResponse(){
 function extenCmdResponse(){
 
 }
-
-
-function xterm(){
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -17,7 +17,6 @@ GEM
       rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
-    sinatra-cross_origin (0.3.2)
     sinatra-json (0.1.0)
       multi_json (~> 1.0)
       sinatra (~> 1.0)
@@ -25,10 +24,6 @@ GEM
       em-websocket (~> 0.3.6)
       eventmachine
       thin (>= 1.3.1, < 2.0.0)
-    slim (3.0.9)
-      temple (>= 0.7.6, < 0.9)
-      tilt (>= 1.3.3, < 2.1)
-    temple (0.8.0)
     thin (1.7.2)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -40,10 +35,8 @@ PLATFORMS
 
 DEPENDENCIES
   sinatra
-  sinatra-cross_origin (~> 0.3.1)
   sinatra-json (~> 0.1.0)
   sinatra-websocket (~> 0.3.1)
-  slim (~> 3.0, >= 3.0.9)
 
 BUNDLED WITH
    1.16.2
