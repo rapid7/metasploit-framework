@@ -123,7 +123,7 @@ module Msf::Empire
       request = Net::HTTP::Delete.new(uri)
       req_options = self.set_options(uri)
       response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
-        http.request(request)sn't include
+        http.request(request)
       end
       if response.code == '200'
         return "All listeners terminated"
