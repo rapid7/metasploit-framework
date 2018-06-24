@@ -3,7 +3,7 @@ require 'uri'
 require 'json'
 require 'openssl'
 #Methods used to call the Empire-WebAPI
-module Empire
+module Msf::Empire
   class Client
     #
     #This method sets the token fetched for future use throughout the session
@@ -123,7 +123,7 @@ module Empire
       request = Net::HTTP::Delete.new(uri)
       req_options = self.set_options(uri)
       response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
-        http.request(request)
+        http.request(request)sn't include
       end
       if response.code == '200'
         return "All listeners terminated"
@@ -160,14 +160,13 @@ module Empire
       end
       if response.code == "404"
         return "Invalid stager type"
-      else
-
+      elsif response.code == "200"
         parser = JSON.parse(response.body)
         payload = File.open(payload_path, "w")
         payload.puts parser[stager_type]['Output']
         payload.close
         return "Payload created succesfully at #{payload_path}"
-        end
+      end
     end
     #
     #AGENT METHODS
