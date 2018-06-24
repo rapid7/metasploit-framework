@@ -2,8 +2,8 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'msf/core/empire_lib.rb'
-Module Msf::EmpireUI
+require 'msf/core/empire_lib'
+module Msf::EmpireUI
   def help
     help = { "show modules" => "This command will list all the availablemodules that can be executed against the target machine",
              "show info [module name]" => "This command will show the attributes and descriptions of a particular module. Usage: show info powershell/situational_awareness/network/powerview/find_gpo_location",
@@ -77,6 +77,7 @@ Module Msf::EmpireUI
       end
     end
   end
+end
 
 
 
