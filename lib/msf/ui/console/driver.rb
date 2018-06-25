@@ -189,7 +189,7 @@ class Driver < Msf::Ui::Driver
 
       persistent_handler.each do |handler_opts|
         handler = framework.modules.create(handler_opts['mod_name'])
-        handler.exploit_simple(handler_opts['options'])
+        handler.exploit_simple(handler_opts['mod_options'])
       end
     end
 
