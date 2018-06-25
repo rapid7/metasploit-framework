@@ -178,6 +178,22 @@ class Driver < Msf::Ui::Driver
       }
     end
 
+    # Process persistent job handler
+
+    persist_file = Msf::Config.persist_file
+    persistent_handler = File.open(persist_file,"r").readlines.map!(&:chomp) rescue nil
+
+    unless persistent_handler.blank?
+      persistent_handler.map!{|handler|JSON.parse(handler)}
+      print_status("Starting persistent handler...")
+
+      persistent_handler.each do |handler_opts|
+        handler = framework.modules.create(handler_opts['mod_name'])
+        handler.exploit_simple(handler_opts['options'])
+      end
+    end
+
+
     # Process any additional startup commands
     if opts['XCommands'] and opts['XCommands'].kind_of? Array
       opts['XCommands'].each { |c|
