@@ -40,7 +40,8 @@ class MetasploitModule < Msf::Post
     lport = datastore['LPORT'].to_s
 
     #Initiating the Empire Instance thread with provided username and pass
-    command = "cd #{path} && ./empire --headless --username 'msf-empire' --password 'msf-empire'"
+    Dir.chdir(path.chomp)
+    command = "./empire --headless --username 'msf-empire' --password 'msf-empire' > /dev/null"
     print_status("Initiating Empire Web-API, this may take upto few seconds")
     server = Thread.new{
       value = system(command)
@@ -48,10 +49,10 @@ class MetasploitModule < Msf::Post
     sleep(10)
 
     #Creating the Empire Object
-    client_emp = Msf::Empire::Client.new(user_name, user_pass)
+    client_emp = Msf::Empire::Client.new('msf-empire', 'msf-empire')
 
     #Creating a random listener which will destroyed after session)
-    listener_name = "Listener#{rand_no}"
+    listener_name = "Listener_Emp"
     response = client_emp.create_listener(listener_name, lport)
     raise reponse.to_s if response.to_s.include?("error")
     print_status(response)
