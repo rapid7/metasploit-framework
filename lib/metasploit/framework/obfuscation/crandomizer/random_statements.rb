@@ -22,7 +22,7 @@ module Metasploit
 
             # Only generate fake function calls when the function we are modifying isn't
             # from one of those fake functions (to avoid a recursion).
-            if s && !fake_function_collection.has_function_name?(s.var.name)
+            if s && fake_function_collection && !fake_function_collection.has_function_name?(s.var.name)
               @function_list << Proc.new { get_random_function_call }
             end
           end

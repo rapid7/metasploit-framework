@@ -2,6 +2,7 @@ require 'metasm'
 require 'erb'
 require 'metasploit/framework/compiler/utils'
 require 'metasploit/framework/compiler/headers/windows'
+require 'metasploit/framework/obfuscation/crandomizer'
 
 module Metasploit
   module Framework
@@ -13,7 +14,7 @@ module Metasploit
         #
         # @param c_template [String] The C source code to compile.
         # @param type [Symbol] PE type, either :exe or :dll
-        # @param cpu [Object] A Metasm cpu object, for example: Metasm::Ia32.new
+        # @param cpu [Metasm::CPU] A Metasm cpu object, for example: Metasm::Ia32.new
         # @raise [NotImplementedError] If the type is not supported.
         # @return [String] The compiled code.
         def self.compile_c(c_template, type=:exe, cpu=Metasm::Ia32.new)
@@ -36,11 +37,28 @@ module Metasploit
         # @param out_file [String] The file path to save the binary as.
         # @param c_template [String] The C source code to compile.
         # @param type [Symbol] PE type, either :exe or :dll
-        # @param cpu [Object] A Metasm cpu object, for example: Metasm::Ia32.new
+        # @param cpu [Metasm::CPU] A Metasm cpu object, for example: Metasm::Ia32.new
         # @return [Integer] The number of bytes written.
         def self.compile_c_to_file(out_file, c_template, type=:exe, cpu=Metasm::Ia32.new)
           pe = self.compile(c_template, type)
           File.write(out_file, pe)
+        end
+
+        # Returns the binary of a randomized and compiled source code.
+        #
+        # @param c_template [String]
+        # 
+        # @raise [NotImplementedError] If the type is not supported.
+        # @return [String] The compiled code.
+        def self.compile_random_c(c_template, opts={})
+          type = opts[:type] || :exe
+          cpu = opts[:cpu] || Metasm::Ia32.new
+          fake_function_size = opts[:fake_function_size] || rand(0..3)
+          weight = opts[:random_weight] || 50
+          headers = Compiler::Headers::Windows.new
+          source_code = Compiler::Utils.normalize_code(c_template, headers)
+          randomizer = Metasploit::Framework::Obfuscation::CRandomizer::Parser.new(weight)
+          randomizer.parse(source_code)
         end
       end
 

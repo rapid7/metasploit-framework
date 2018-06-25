@@ -14,7 +14,7 @@ module Metasploit
           #
           # @param weight [Integer] Randomness of the code.
           # @param fake_functions [Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::FakeFunctionCollection]
-          def initialize(weight, fake_functions)
+          def initialize(weight, fake_functions=nil)
             @max_random_weight = weight
             @fake_functions_collection = fake_functions
           end
