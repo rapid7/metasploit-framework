@@ -202,6 +202,13 @@ class Config < Hash
     self.new.history_file
   end
 
+  # Returns the full path to the handler file.
+  #
+  # @return [String] path the handler file.
+  def self.persist_file
+    self.new.persist_file
+  end
+
   # Initializes configuration, creating directories as necessary.
   #
   # @return [void]
@@ -276,6 +283,13 @@ class Config < Hash
   # @return [String] path the history file.
   def history_file
     config_directory + FileSep + "history"
+  end
+
+  # Returns the full path to the handler file.
+  #
+  # @return [String] path the handler file.
+  def persist_file
+    config_directory + FileSep + "persist"
   end
 
   # Returns the global module directory.
