@@ -260,8 +260,6 @@ require 'rex/proto/smb/exceptions'
 
     raw_response = ''
 
-    sleep 3
-
     begin
       raw_response = self.read()
     rescue ::EOFError
@@ -271,7 +269,6 @@ require 'rex/proto/smb/exceptions'
     if (raw_response == nil or raw_response.length == 0)
       raise Rex::Proto::DCERPC::Exceptions::NoResponse
     end
-
 
     self.last_response = Rex::Proto::DCERPC::Response.new(raw_response)
 
