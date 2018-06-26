@@ -718,6 +718,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/reverse_bash_telnet_ssl'
   end
 
+  context 'cmd/unix/reverse_ksh' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/reverse_ksh'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/reverse_ksh'
+  end
+
   context 'cmd/unix/reverse_lua' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -1737,6 +1747,16 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'linux/x86/shell_reverse_tcp'
+  end
+
+  context 'linux/x86/shell_reverse_tcp_ipv6' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/x86/shell_reverse_tcp_ipv6'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x86/shell_reverse_tcp_ipv6'
   end
 
   context 'mainframe/shell_reverse_tcp' do
