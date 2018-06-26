@@ -18,7 +18,7 @@ PATH
       metasploit-concern
       metasploit-credential (< 3.0.0)
       metasploit-model
-      metasploit-payloads (= 1.3.37)
+      metasploit-payloads (= 1.3.40)
       metasploit_data_models (< 3.0.0)
       metasploit_payloads-mettle (= 0.4.0)
       mqtt
@@ -156,7 +156,7 @@ GEM
       activemodel (~> 4.2.6)
       activesupport (~> 4.2.6)
       railties (~> 4.2.6)
-    metasploit-payloads (1.3.37)
+    metasploit-payloads (1.3.40)
     metasploit_data_models (2.0.16)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -297,7 +297,7 @@ GEM
     rspec-support (3.7.1)
     ruby-macho (1.2.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (0.0.18)
+    ruby_smb (1.0.0)
       bindata
       rubyntlm
       windows_error
