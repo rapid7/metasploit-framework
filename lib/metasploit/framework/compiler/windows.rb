@@ -54,11 +54,24 @@ module Metasploit
           type = opts[:type] || :exe
           cpu = opts[:cpu] || Metasm::Ia32.new
           fake_function_size = opts[:fake_function_size] || rand(0..3)
-          weight = opts[:random_weight] || 50
+          weight = opts[:random_weight] || 80
           headers = Compiler::Headers::Windows.new
           source_code = Compiler::Utils.normalize_code(c_template, headers)
           randomizer = Metasploit::Framework::Obfuscation::CRandomizer::Parser.new(weight)
-          randomizer.parse(source_code)
+          randomized_code = randomizer.parse(source_code)
+          puts randomized_code
+          self.compile_c(randomized_code.to_s, type, cpu)
+        end
+
+        # Saves the randomized compiled code as a file. This is basically a wrapper for #self.compile_random_c
+        #
+        # @param out_file [String] The file path to save the binary as.
+        # @param c_template [String] The C source code to randomize and compile.
+        # @param opts [Hash] Options to pass to #compile_random_c
+        # @return [Integer] The number of bytes written.
+        def self.compile_random_c_to_file(out_file, c_template, opts={})
+          pe = self.compile_random_c(c_template, opts)
+          File.write(out_file, pe)
         end
       end
 
