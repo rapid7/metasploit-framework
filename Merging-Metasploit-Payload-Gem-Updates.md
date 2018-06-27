@@ -4,14 +4,14 @@ To do this, committers must:
 
 * Create a new branch in the Metasploit Framework repository.
 * Name it something useful like `metasploit-payloads-<version>`.
-* Modify `metasploit.gemspec`, so that the new version number is specified for the `metasploit-payloads` gem.
+* Modify `metasploit-framework.gemspec`, so that the new version number is specified for the `metasploit-payloads` gem.
 * Run `bundle install`.
 * Remove any test/development binaries from `data/meterpreter`.
 * Run `tools/modules/update_payload-cached_sizes.rb`.
 * Make sure that `Gemfile.lock` only contains changes that are related to Metasploit Payloads.
 * Stage the following for commit in `git`:
     * `Gemfile.lock`
-    * `metasploit.gemspec`
+    * `metasploit-framework.gemspec`
     * Any payload modules that have had an updated payload size (usually this includes stageless payloads only)
 * Commit the staged files.
 * Push the branch to github.
