@@ -1,7 +1,7 @@
 require "sinatra"
-require "sinatra/json"
+require "sinatra/base"
 require "json"
-require "sinatra-websocket"
+
 
 =begin
 msfbase = __FILE__
@@ -16,64 +16,62 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 =end
 
-
-set :bind, '127.0.0.1'
-set :port, 3000
-set :json_content_type, :js
-set :public_folder, 'public'
-
-configure do
-  enable :sessions
-end
+class Getdata < Sinatra::Base
+  set :bind, 'localhost'
+  set :port, 3000
+  set :json_content_type, :js
+  set :public_folder, 'public'
 
 
-get "/" do
-  File.read(File.join('public','public.html'))
-end
+  get "/" do
+    File.read(File.join('public','public.html'))
+  end
 
-get "/sysinfo" do
-  content_type :json
-  system_info=File.read('sysinfo.json')
-  return(system_info)
+  get "/sysinfo" do
+    content_type :json
+    system_info=File.read('sysinfo.json')
+    return(system_info)
 
-end
+  end
 
 #To load Post Exploitation Module
 
-get "/post" do
-  content_type :json
-  post_file=File.read('json_post.json')
-  return(post_file)
-end
+  get "/post" do
+    content_type :json
+    post_file=File.read('json_post.json')
+    return(post_file)
+  end
 
 
 
 #load Extension command
 
 
-get "/exten" do
-  content_type :json
-  exten_file=File.read('exten.json')
-  return(exten_file)
-end
+  get "/exten" do
+    content_type :json
+    exten_file=File.read('exten.json')
+    return(exten_file)
+  end
 
 # For invalid command
 
-not_found do
-  "Whoops! You requested a route that was'nt available"
-end
+  not_found do
+    "Whoops! You requested a route that was'nt available"
+  end
 
 #Get System information
 
 
-post "/post_command" do
-  return "Post Exploitation Module entered is "
-end
+  post "/post_command" do
+    return "Post Exploitation Module entered is "
+  end
 
-post "/exten_command?id=:exten_cmd" do
-  return "Extension Commands Entered by user is #{params[:exten_cmd]}"
-end
+  post "/exten_command?id=:exten_cmd" do
+    return "Extension Commands Entered by user is #{params[:exten_cmd]}"
+  end
 
+run!
+end
 
 
 

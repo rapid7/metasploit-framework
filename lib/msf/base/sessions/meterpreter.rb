@@ -95,7 +95,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   # Returns the session type as being 'meterpreter'.
   #
   def self.type
-    "DHAWAN"
+    "meterpreter"
   end
 
   #

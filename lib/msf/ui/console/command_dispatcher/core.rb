@@ -54,7 +54,8 @@ class Core
     "-t"  => [ true,  "Set a response timeout (default: 15)"                           ],
     "-S"  => [ true,  "Row search filter."                                             ],
     "-x" =>  [ false, "Show extended information in the session table"                 ],
-    "-n" =>  [ true,  "Name or rename a session by ID"                                 ])
+    "-n" =>  [ true,  "Name or rename a session by ID"                                 ],
+    "-w" =>  [ true,  "Interact with Web Interface of the Supplied ID "                ])
 
 
   @@threads_opts = Rex::Parser::Arguments.new(
@@ -1124,7 +1125,14 @@ class Core
     print_line('Many options allow specifying session ranges using commas and dashes.')
     print_line('For example:  sessions -s checkvm -i 1,3-5  or  sessions -k 1-2,5,6')
     print_line
+    print_line('Launch Web Interface of active Meterpreter session with given [ID] ')
+    print_line
+    print_line('For example: sessions -w 1')
+    print_line
   end
+
+
+
 
   #
   # Provides an interface to the sessions currently active in the framework.
@@ -1144,6 +1152,8 @@ class Core
     response_timeout = 15
     search_term = nil
     session_name = nil
+
+
 
     # any arguments that don't correspond to an option or option arg will
     # be put in here
@@ -1177,6 +1187,11 @@ class Core
         # all sessions.
         when "-i"
           sid = val
+        # Do something with the supplied session identifier instead of
+        # all sessions. Will launch WebUI of the active Meterpreter session
+        when "-w"
+          sid = val
+          method = 'web_ui'
         # Display the list of active sessions
         when "-l"
           show_active = true
@@ -1292,6 +1307,10 @@ class Core
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
             end
+
+            # added output for testing purposes
+            #output = session.run_cmd(cmd, driver.output)
+
           end
           # If the session isn't a meterpreter or shell type, it
           # could be a VNC session (which can't run commands) or
@@ -1395,6 +1414,33 @@ class Core
           sid = nil
         end
       end
+
+   #launch server that will host meterpreter Web interface
+    when 'web_ui'
+
+      while sid && method== 'web_ui'
+        session = verify_session(sid)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
+          end
+          print_status("Starting interaction with #{session.name}...\n") unless quiet
+          begin
+            Rex::Compat::open_webrtc_browser('127.0.0.1:3000')
+            require './tools/session-ui/server'
+          ensure
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
+          end
+        else
+          sid = nil
+        end
+      end
+
+
+
     when 'script'
       unless script
         print_error("No script or module specified!")
