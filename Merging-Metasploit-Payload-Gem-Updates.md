@@ -7,7 +7,7 @@ To do this, committers must:
 * Modify `metasploit-framework.gemspec`, so that the new version number is specified for the `metasploit-payloads` gem.
 * Run `bundle install`.
 * Remove any test/development binaries from `data/meterpreter`.
-* Run `tools/modules/update_payload-cached_sizes.rb`.
+* Run `tools/modules/update_payload_cached_sizes.rb`.
 * Make sure that `Gemfile.lock` only contains changes that are related to Metasploit Payloads.
 * Stage the following for commit in `git`:
     * `Gemfile.lock`
