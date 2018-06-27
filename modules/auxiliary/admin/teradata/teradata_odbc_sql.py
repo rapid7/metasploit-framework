@@ -37,9 +37,11 @@ metadata = {
     ],
     'type': 'single_scanner',
     'options': {
-        'USERNAME': {'type': 'string', 'description': 'Username', 'required': True, 'default': 'dbc'},
-        'PASSWORD': {'type': 'string', 'description': 'Password', 'required': True, 'default': 'dbc'},
-        'SQL': {'type': 'string', 'description': 'SQL query to perform', 'required': True, 'default': 'SELECT DATABASENAME FROM DBC.DATABASES'},
+        'rhost': {'type': 'address', 'description': 'Host to target', 'required': True},
+        'rport': {'type': 'port', 'description': 'Port to target, ignored by the ODBC driver', 'required': True, 'default': 1025},
+        'username': {'type': 'string', 'description': 'Username', 'required': True, 'default': 'dbc'},
+        'password': {'type': 'string', 'description': 'Password', 'required': True, 'default': 'dbc'},
+        'sql': {'type': 'string', 'description': 'SQL query to perform', 'required': True, 'default': 'SELECT DATABASENAME FROM DBC.DATABASES'},
     }
 }
 
@@ -65,7 +67,7 @@ def run(args):
 
     # Perform login attempt
     module.log(host + ' - ' + user + ':' + password + ' - Starting')
-    try: 
+    try:
         session = udaExec.connect(method="odbc", system=host, username=user, password=password);
     except teradata.api.Error as e:
         logging.error(user + ':' + password + ' - ' + format(e))
