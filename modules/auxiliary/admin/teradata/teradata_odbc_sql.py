@@ -62,8 +62,8 @@ def run(args):
 
     # Set variables to current RHOST, and USERNAME and PASSWORD options
     host = args['rhost']
-    user = args['USERNAME']
-    password = args['PASSWORD']
+    user = args['username']
+    password = args['password']
 
     # Perform login attempt
     module.log(host + ' - ' + user + ':' + password + ' - Starting')
@@ -75,7 +75,7 @@ def run(args):
     else:
         module.log(host + ' - ' + user + ':' + password + ' - Login Successful', level='good')
         try:
-            query = args['SQL']
+            query = args['sql']
             module.log(host + ' - Starting - ' + query)
             for row in session.execute(query):
                 outputRow=str(row)
