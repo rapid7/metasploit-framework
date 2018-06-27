@@ -41,6 +41,7 @@ metadata = {
     'options': {
         'rhost': {'type': 'address', 'description': 'Host to target', 'required': True},
         'rport': {'type': 'port', 'description': 'Port to target, ignored by the ODBC driver', 'required': True, 'default': 1025},
+        'userpass': {'type': 'string', 'description': 'A list of username/password combinations to try', 'required': False},
         'sleep_interval': {'type': 'float', 'description': 'Time in seconds to wait between login attempts', 'required': False}
     },
     'service_name': 'teradata'
