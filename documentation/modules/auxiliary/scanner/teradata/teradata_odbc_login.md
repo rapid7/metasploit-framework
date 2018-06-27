@@ -20,6 +20,15 @@ This module requires the Teradata ODBC driver and the Teradata python library.
       * Or your home directory if not root.
       * Make sure **odbc.ini** has been renamed to **.obdc.ini** .
 
+### Configuration for OS X
+
+On OS X the Python client needs to be pointed to the ODBC driver manually. Create `~/udaexec.ini` with the following contents:
+```ini
+[CONFIG]
+
+odbcLibPath=/usr/lib/libiodbc.dylib
+```
+
 ### Python Package
 ```
 pip install teradata
