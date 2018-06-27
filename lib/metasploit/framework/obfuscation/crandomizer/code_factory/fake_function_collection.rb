@@ -28,9 +28,9 @@ module Metasploit
               end
             end
 
-            # Returns a fake function from the FakeFunctionCollection object.
+            # Returns a fake Metasm::C::Declaration from the FakeFunctionCollection object.
             #
-            # @return [Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::FakeFunction]
+            # @return [Metasm::C::Declaration]
             def sample
               functions.sample
             end
