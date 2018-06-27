@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
         OptString.new('KRBTGT_HASH', [false, 'KRBTGT NTLM Hash']),
         OptString.new('Domain SID', [false, 'Domain SID']),
         OptInt.new('ID', [false, 'Target User ID']),
-        OptString.new('GROUPS', [false, 'ID of Groups (Comma Seperated)']),
+        OptString.new('GROUPS', [false, 'ID of Groups (Comma Separated)']),
         OptInt.new('END_IN', [true, 'End in ... Duration in hours, default 10 YEARS (~87608 hours)', 87608])
       ])
   end
