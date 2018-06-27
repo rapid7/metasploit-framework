@@ -17,33 +17,33 @@ from metasploit import module, login_scanner
 
 # Metasploit Metadata
 metadata = {
-  'name': 'Teradata ODBC Login Scanner Module',
-  'description': '''
-    Login scanner module for ODBC connections to Teradata databases.
+    'name': 'Teradata ODBC Login Scanner Module',
+    'description': '''
+        Login scanner module for ODBC connections to Teradata databases.
 
-    Port specification (TCP 1025 by default) is not necessary for ODBC connections.
+        Port specification (TCP 1025 by default) is not necessary for ODBC connections.
 
-    Blank passwords are not supported by ODBC connections.
+        Blank passwords are not supported by ODBC connections.
 
-    Requires ODBC driver and Python Teradata module.
-  ''',
-  'authors': [
-    'Ted Raffle (actuated)'
-  ],
-  'date': '2018-03-30',
-  'license': 'MSF_LICENSE',
-  'references': [
-    {'type': 'url', 'ref': 'https://developer.teradata.com/tools/reference/teradata-python-module'},
-    {'type': 'url', 'ref': 'https://downloads.teradata.com/download/connectivity/odbc-driver/linux'},
-    {'type': 'aka', 'ref': 'Teradata ODBC Login Scanner'}
-  ],
-  'type': 'single_host_login_scanner',
-  'options': {
-    'rhost': {'type': 'address', 'description': 'Host to target', 'required': True},
-    'rport': {'type': 'port', 'description': 'Port to target, ignored by the ODBC driver', 'required': True, 'default': 1025},
-    'sleep_interval': {'type': 'float', 'description': 'Time in seconds to wait between login attempts', 'required': False}
-  },
-  'service_name': 'teradata'
+        Requires ODBC driver and Python Teradata module.
+    ''',
+    'authors': [
+        'Ted Raffle (actuated)'
+    ],
+    'date': '2018-03-30',
+    'license': 'MSF_LICENSE',
+    'references': [
+        {'type': 'url', 'ref': 'https://developer.teradata.com/tools/reference/teradata-python-module'},
+        {'type': 'url', 'ref': 'https://downloads.teradata.com/download/connectivity/odbc-driver/linux'},
+        {'type': 'aka', 'ref': 'Teradata ODBC Login Scanner'}
+    ],
+    'type': 'single_host_login_scanner',
+    'options': {
+        'rhost': {'type': 'address', 'description': 'Host to target', 'required': True},
+        'rport': {'type': 'port', 'description': 'Port to target, ignored by the ODBC driver', 'required': True, 'default': 1025},
+        'sleep_interval': {'type': 'float', 'description': 'Time in seconds to wait between login attempts', 'required': False}
+    },
+    'service_name': 'teradata'
 }
 
 
