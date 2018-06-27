@@ -304,7 +304,7 @@ GEM
     rspec-support (3.7.1)
     ruby-macho (1.2.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (1.0.0)
+    ruby_smb (1.0.1)
       bindata
       rubyntlm
       windows_error
