@@ -47,7 +47,15 @@ module Rex::Proto::SMB
             fptr = data.length
           end
         else
-          data = client.read(file_id, offset, length).pack('C*')
+          begin
+            data = client.read(file_id, offset, length).pack('C*')
+          rescue RubySMB::Error::UnexpectedStatusCode => e
+            if e.message == 'STATUS_PIPE_EMPTY'
+              data = read_ruby_smb(length, offset)
+            else
+              raise e
+            end
+          end
         end
 
         data
