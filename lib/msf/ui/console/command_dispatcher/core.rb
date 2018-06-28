@@ -1152,9 +1152,7 @@ class Core
     response_timeout = 15
     search_term = nil
     session_name = nil
-
-
-
+      
     # any arguments that don't correspond to an option or option arg will
     # be put in here
     extra   = []
@@ -1417,7 +1415,6 @@ class Core
 
    #launch server that will host meterpreter Web interface
     when 'web_ui'
-
       while sid && method== 'web_ui'
         session = verify_session(sid)
         if session
@@ -1427,8 +1424,10 @@ class Core
           end
           print_status("Starting interaction with #{session.name}...\n") unless quiet
           begin
+            
             Rex::Compat::open_webrtc_browser('127.0.0.1:3000')
             require './tools/session-ui/server'
+            
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
@@ -1438,9 +1437,6 @@ class Core
           sid = nil
         end
       end
-
-
-
     when 'script'
       unless script
         print_error("No script or module specified!")
