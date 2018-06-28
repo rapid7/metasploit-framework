@@ -2190,23 +2190,26 @@ class Core
     end
 
     # Is this option used by the active module?
-    if (mod.options.include?(opt))
-      res.concat(option_values_dispatch(mod.options[opt], str, words))
-    elsif (mod.options.include?(opt.upcase))
-      res.concat(option_values_dispatch(mod.options[opt.upcase], str, words))
+    mod.options.each_key do |key|
+      res.concat(option_values_dispatch(mod.options[key], str, words)) if key.downcase == opt.downcase
     end
 
     # How about the selected payload?
     if (mod.exploit? and mod.datastore['PAYLOAD'])
-      p = framework.payloads.create(mod.datastore['PAYLOAD'])
-      if (p and p.options.include?(opt))
-        res.concat(option_values_dispatch(p.options[opt], str, words))
-      elsif (p and p.options.include?(opt.upcase))
-        res.concat(option_values_dispatch(p.options[opt.upcase], str, words))
+      if p = framework.payloads.create(mod.datastore['PAYLOAD'])
+        p.options.each_key do |key|
+          res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
+        end
       end
     end
 
     return res
+  end
+
+  # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
+  def tab_complete_source_interface(o)
+    return [] unless o.is_a?(Msf::OptAddressLocal)
+    o.interfaces
   end
 
   #
@@ -2230,8 +2233,8 @@ class Core
           res << Rex::Socket.source_address(rh)
         else
           res += tab_complete_source_address
+          res += tab_complete_source_interface(o)
         end
-      else
       end
 
     when Msf::OptAddressRange

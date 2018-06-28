@@ -167,7 +167,7 @@ module Msf::DBManager::Host
   # +:os_flavor+::    -- something like "Enterprise", "Pro", or "Home"
   # +:os_sp+::        -- something like "SP2"
   # +:os_lang+::      -- something like "English", "French", or "en-US"
-  # +:arch+::         -- one of the ARCH_* constants
+  # +:arch+::         -- one of the ARCHITECTURES listed in metasploit_data_models/app/models/mdm/host.rb
   # +:mac+::          -- the host's MAC address
   # +:scope+::        -- interface identifier for link-local IPv6
   # +:virtual_host+:: -- the name of the virtualization software, eg "VMWare", "QEMU", "Xen", "Docker", etc.
