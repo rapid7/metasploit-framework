@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.16.64)
+    metasploit-framework (4.16.65)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -222,7 +222,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.1)
     rb-readline (0.5.5)
-    recog (2.1.19)
+    recog (2.1.20)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
@@ -297,7 +297,7 @@ GEM
     rspec-support (3.7.1)
     ruby-macho (1.2.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (1.0.1)
+    ruby_smb (1.0.2)
       bindata
       rubyntlm
       windows_error
@@ -346,4 +346,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.16.1
+   1.16.2
