@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'GE Proficy Cimplicity WebView substitute.bcl Directory Traversal',
+      'Name'=> 'GE Proficy Cimplicity WebView substitute.bcl Directory Traversal',
       'Description' => %q{
         This module abuses a directory traversal in GE Proficy Cimplicity, specifically on the
         gefebt.exe component used by the WebView, in order to retrieve arbitrary files with SYSTEM
