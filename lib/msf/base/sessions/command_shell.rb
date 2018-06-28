@@ -67,7 +67,6 @@ class CommandShell
     "Command shell"
   end
 
-
   #
   # List of supported commands.
   #
@@ -76,6 +75,7 @@ class CommandShell
         'help'         =>  'Help menu',
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
+        'resource'     => 'Run the commands stored in a file',
     }
   end
 
@@ -121,7 +121,7 @@ class CommandShell
     print(tbl.to_s)
   end
 
-  def cmd_background_help()
+  def cmd_background_help
     print_line "Usage: background"
     print_line
     print_line "Stop interacting with this session and return to the parent prompt"
@@ -141,7 +141,7 @@ class CommandShell
     end
   end
 
-  def cmd_sessions_help()
+  def cmd_sessions_help
     print_line('Usage: sessions <id>')
     print_line
     print_line('Interact with a different session Id.')
@@ -176,6 +176,112 @@ class CommandShell
       self.next_session = args[0]
       self.interacting = false
     end
+  end
+
+  # Processes a resource script file for the console.
+  #
+  # @param path [String] Path to a resource file to run
+  # @return [void]
+  def load_resource(path)
+    if path == '-'
+      resource_file = $stdin.read
+      path = 'stdin'
+    elsif ::File.exist?(path)
+      resource_file = ::File.read(path)
+    else
+      print_error("Cannot find resource script: #{path}")
+      return
+    end
+
+    # Process ERB directives first
+    print_status "Processing #{path} for ERB directives."
+    erb = ERB.new(resource_file)
+    processed_resource = erb.result(binding)
+
+    lines = processed_resource.each_line.to_a
+    bindings = {}
+    while lines.length > 0
+
+      line = lines.shift
+      break if not line
+      line.strip!
+      next if line.length == 0
+      next if line =~ /^#/
+
+      # Pretty soon, this is going to need an XML parser :)
+      # TODO: case matters for the tag and for binding names
+      if line =~ /<ruby/
+        if line =~ /\s+binding=(?:'(\w+)'|"(\w+)")(>|\s+)/
+          bin = ($~[1] || $~[2])
+          bindings[bin] = binding unless bindings.has_key? bin
+          bin = bindings[bin]
+        else
+          bin = binding
+        end
+        buff = ''
+        while lines.length > 0
+          line = lines.shift
+          break if not line
+          break if line =~ /<\/ruby>/
+          buff << line
+        end
+        if ! buff.empty?
+          print_status("resource (#{path})> Ruby Code (#{buff.length} bytes)")
+          begin
+            eval(buff, bin)
+          rescue ::Interrupt
+            raise $!
+          rescue ::Exception => e
+            print_error("resource (#{path})> Ruby Error: #{e.class} #{e} #{e.backtrace}")
+          end
+        end
+      else
+        print_line("resource (#{path})> #{line}")
+        run_cmd(line)
+      end
+    end
+  end
+
+  def cmd_resource(*args)
+    if args.empty?
+      cmd_resource_help
+      return false
+    end
+
+    args.each do |res|
+      good_res = nil
+      if res == '-'
+        good_res = res
+      elsif ::File.exist?(res)
+        good_res = res
+      elsif
+        # let's check to see if it's in the scripts/resource dir (like when tab completed)
+      [
+          ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
+          ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter'
+      ].each do |dir|
+        res_path = dir + ::File::SEPARATOR + res
+        if ::File.exist?(res_path)
+          good_res = res_path
+          break
+        end
+      end
+      end
+      if good_res
+        load_resource(good_res)
+      else
+        print_error("#{res} is not a valid resource file")
+        next
+      end
+    end
+  end
+
+  def cmd_resource_help
+    print_line "Usage: resource path1 [path2 ...]"
+    print_line
+    print_line "Run the commands stored in the supplied files (- for stdin)."
+    print_line "Resource files may also contain ERB or Ruby code between <ruby></ruby> tags."
+    print_line
   end
 
   #
