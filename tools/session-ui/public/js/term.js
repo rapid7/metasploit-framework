@@ -1,4 +1,10 @@
 
+
+
+/* Simple button to close terminal
+
+<button type="button" style="font-family: sans-serif; font-size: 12px; display: block; position: fixed; border: medium none; background: rgb(34, 136, 204) none repeat scroll 0% 0%; color: rgb(255, 255, 255); padding: 5px 15px; cursor: pointer; top: 0px; right: 0px; border-radius: 0px 0px 0px 5px;">Show Info</button>
+*/
         var textDecoder = new TextDecoder();
         var textEncoder = new TextEncoder();
         var terminal = document.getElementById('terminal');
