@@ -134,6 +134,9 @@ module Metasploit
             proof = e
           rescue RubySMB::Error::UnexpectedStatusCode => e
             status = Metasploit::Model::Login::Status::INCORRECT
+          rescue RubySMB::Error::NetBiosSessionService => e
+            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+            proof = e
           ensure
             client.disconnect!
           end
