@@ -59,7 +59,7 @@ PATH
       rex-text
       rex-zip
       ruby-macho
-      ruby_smb (= 0.0.18)
+      ruby_smb
       rubyntlm
       rubyzip
       sqlite3
@@ -297,7 +297,7 @@ GEM
     rspec-support (3.7.1)
     ruby-macho (1.2.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (1.0.0)
+    ruby_smb (1.0.1)
       bindata
       rubyntlm
       windows_error
@@ -346,4 +346,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.16.2
+   1.16.1
