@@ -6,7 +6,9 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::Utility do
   describe '#self.rand_int' do
     it 'returns an integer' do
       int = Metasploit::Framework::Obfuscation::CRandomizer::Utility.rand_int
-      expect(int.class).to eq(Integer)
+      # Ruby at one point switched from Fixnum to Integer, so to support both,
+      # it's easier to do a regex check.
+      expect(int.to_s).to match(/^\d+$/)
     end
 
     it 'returns a random integer' do
