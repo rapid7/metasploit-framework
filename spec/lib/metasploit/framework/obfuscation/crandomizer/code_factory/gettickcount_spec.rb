@@ -6,6 +6,12 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Get
     described_class.new
   end
 
+  describe 'dep' do
+    it 'depends on GetTickCount' do
+      expect(subject.dep).to eq(['GetTickCount'])
+    end
+  end
+
   describe '#single_gettickcount' do
     it 'is a string' do
       expect(subject.send(:single_gettickcount).class).to be(String)

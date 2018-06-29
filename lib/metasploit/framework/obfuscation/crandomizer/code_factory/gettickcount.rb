@@ -8,6 +8,11 @@ module Metasploit
         module CodeFactory
 
           class GetTickCount < Base
+            def initialize
+              super
+              @dep = ['GetTickCount']
+            end
+
             def stub
               [
                 Proc.new { single_gettickcount },
