@@ -82,3 +82,26 @@ Note that methods like `printf()` won't actually print anything, because it's no
 # Custom Headers
 
 Currently, the Metasm wrapper does not support custom headers from an arbitrary location. To work around this, you can place your headers in `data/headers/windows`, and then add that file name in `lib/metasploit/framework/compiler/headers/windows.h`.
+
+# Code Randomization
+
+Metasploit::Framework::Compiler supports an obfuscation feature that can randomize code at the source code level, and then compile. There are two methods we can use: Metasploit::Framework::Compiler::Windows.compile_random_c, or Metasploit::Framework::Compiler::Windows.compile_random_c_to_file. Using the last as an example:
+
+```
+require 'msf/core'
+require 'metasploit/framework/compiler/windows'
+
+c_source_code = %Q|
+#include <Windows.h>
+
+int main() {
+  const char* content = "Hello World";
+  const char* title = "Hi";
+  MessageBox(0, content, title, MB_OK);
+  return 0;
+}|
+
+outfile = "/tmp/helloworld.exe"
+weight = 70 # This value is used to determine how random the code gets.
+Metasploit::Framework::Compiler::Windows.compile_random_c_to_file(outfile, c_source_code, weight: weight)
+```
