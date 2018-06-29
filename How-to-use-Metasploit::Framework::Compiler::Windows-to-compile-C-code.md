@@ -85,7 +85,7 @@ Currently, the Metasm wrapper does not support custom headers from an arbitrary 
 
 # Code Randomization
 
-Metasploit::Framework::Compiler supports an obfuscation feature that can randomize code at the source code level, and then compile. There are two methods we can use: Metasploit::Framework::Compiler::Windows.compile_random_c, or Metasploit::Framework::Compiler::Windows.compile_random_c_to_file. Using the last as an example:
+Metasploit::Framework::Compiler supports obfuscation that randomizes code at the source code level, and then compile. There are two methods we can use: Metasploit::Framework::Compiler::Windows.compile_random_c, or Metasploit::Framework::Compiler::Windows.compile_random_c_to_file. Using the last as an example:
 
 ```
 require 'msf/core'
