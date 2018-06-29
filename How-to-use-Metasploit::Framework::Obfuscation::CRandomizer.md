@@ -1,6 +1,6 @@
 # What is Metasploit::Framework::Obfuscation::CRandomizer
 
-# Pieces of CRandomizer
+# Components
 
 ## Code Factory
 
