@@ -12,9 +12,11 @@ The `CodeFactory` module is used to make the random stubs that will get injected
 
 Every class in CodeFactory, except for Base, FakeFunction, and FakeFunctionCollection, is a stub candidate that gets randomly selected and used in the source code. 
 
-If a stub requires a native API call, then the class can specify `@dep` to set that dependency. If the source code does not support the API call, then the next stub candidate is used (or until one is found). For example, the `Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::OutputDebugString` class is used to generate a fake OutputDebugString call, and the dependency is set as `['OutputDebugString']`. If the source code includes the Windows.h header, the CRandomizer knows it is okay to inject OutputDebugString. If not, CRandomizer will not use it.
+If a stub requires a native API call, then the class can specify `@dep` to set that dependency. If the source code does not support the API call, then the next stub candidate is used (or until one is found). For example, the `CRandomizer::CodeFactory::OutputDebugString` class is used to generate a fake OutputDebugString call, and the dependency is set as `['OutputDebugString']`. If the source code includes the Windows.h header, the CRandomizer knows it is okay to inject OutputDebugString. If not, CRandomizer will not use it.
 
 ## Modifier
+
+The Modifier class decides how something should be modified, and actually modifies the source code. 
 
 ## Parser
 
