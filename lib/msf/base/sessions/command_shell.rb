@@ -203,7 +203,7 @@ class CommandShell
     while lines.length > 0
 
       line = lines.shift
-      break if not line
+      break unless line
       line.strip!
       next if line.length == 0
       next if line =~ /^#/
@@ -221,7 +221,7 @@ class CommandShell
         buff = ''
         while lines.length > 0
           line = lines.shift
-          break if not line
+          break unless line
           break if line =~ /<\/ruby>/
           buff << line
         end
@@ -260,7 +260,7 @@ class CommandShell
           ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
           ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter'
       ].each do |dir|
-        res_path = dir + ::File::SEPARATOR + res
+        res_path = ::File::join(dir, res)
         if ::File.exist?(res_path)
           good_res = res_path
           break
@@ -401,7 +401,7 @@ class CommandShell
   # Writes to the command shell.
   #
   def shell_write(buf)
-    return if not buf
+    return unless buf
 
     begin
       framework.events.on_session_command(self, buf.strip)
@@ -501,7 +501,7 @@ protected
     fds = [rstream.fd, user_input.fd]
     while self.interacting
       sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
-      next if not sd
+      next unless sd
 
       if sd[0].include? rstream.fd
         user_output.print(shell_read)
