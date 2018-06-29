@@ -10,4 +10,4 @@
 
 ## Utility
 
-# Example of using Metasploit::Framework::Obfuscation::CRandomizer
+# Code Example
