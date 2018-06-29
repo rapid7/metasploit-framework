@@ -23,4 +23,22 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Out
       expect(subject.dep).to eq(['OutputDebugString'])
     end
   end
+
+  describe '#outputdebugstring_2' do
+    it 'is a string' do
+      expect(subject.send(:outputdebugstring_2).class).to be(String)
+    end
+
+    it 'has an OutputDebugString' do
+      expect(subject.send(:outputdebugstring_2)).to match(/OutputDebugString\(.+\)/)
+    end
+
+    it 'has a stub() function' do
+      expect(subject.send(:outputdebugstring_2)).to match(/void stub()/)
+    end
+
+    it 'depends on stdlib.h' do
+      expect(subject.dep).to eq(['OutputDebugString'])
+    end
+  end
 end
