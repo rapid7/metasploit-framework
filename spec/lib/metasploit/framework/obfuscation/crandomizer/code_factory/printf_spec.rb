@@ -8,15 +8,15 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Pri
 
   describe '#stub' do
     it 'is a string' do
-      expect(subject.send(:stub).class).to be(String)
+      expect(subject.stub.class).to be(String)
     end
 
     it 'has a printf' do
-      expect(subject.send(:stub)).to match(/printf\(.+\)/)
+      expect(subject.stub).to match(/printf\(.+\)/)
     end
 
     it 'has a stub() function' do
-      expect(subject.send(:stub)).to match(/void stub()/)
+      expect(subject.stub).to match(/void stub()/)
     end
 
     it 'depends on printf' do

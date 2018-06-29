@@ -2,7 +2,7 @@ require 'metasploit/framework/obfuscation/crandomizer/code_factory'
 
 RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::OutputDebugString do
 
-  subject(:int_assignments) do
+  subject(:outputdebugstring) do
     described_class.new
   end
 
@@ -37,7 +37,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Out
       expect(subject.send(:outputdebugstring_2)).to match(/void stub()/)
     end
 
-    it 'depends on stdlib.h' do
+    it 'depends on OutputDebugString' do
       expect(subject.dep).to eq(['OutputDebugString'])
     end
   end

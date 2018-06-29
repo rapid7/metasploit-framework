@@ -8,7 +8,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Str
 
   describe '#stub' do
     it 'is a string' do
-      expect(subject.send(:stub).class).to be(String)
+      expect(subject.stub.class).to be(String)
     end
 
     it 'assigns a string' do
@@ -16,7 +16,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Str
     end
 
     it 'has a stub() function' do
-      expect(subject.send(:stub)).to match(/void stub()/)
+      expect(subject.stub).to match(/void stub()/)
     end
   end
 end
