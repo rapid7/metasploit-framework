@@ -1,4 +1,4 @@
-# What is Metasploit::Framework::Obfuscation::CRandomizer
+# What is CRandomizer
 
 # Components
 
