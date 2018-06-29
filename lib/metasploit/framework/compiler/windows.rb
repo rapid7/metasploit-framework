@@ -54,12 +54,11 @@ module Metasploit
           type = opts[:type] || :exe
           cpu = opts[:cpu] || Metasm::Ia32.new
           fake_function_size = opts[:fake_function_size] || rand(0..3)
-          weight = opts[:random_weight] || 80
+          weight = opts[:weight] || 80
           headers = Compiler::Headers::Windows.new
           source_code = Compiler::Utils.normalize_code(c_template, headers)
           randomizer = Metasploit::Framework::Obfuscation::CRandomizer::Parser.new(weight)
           randomized_code = randomizer.parse(source_code)
-          puts randomized_code
           self.compile_c(randomized_code.to_s, type, cpu)
         end
 
