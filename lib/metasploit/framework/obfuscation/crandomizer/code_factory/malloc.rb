@@ -10,7 +10,7 @@ module Metasploit
           class Malloc < Base
             def initialize
               super
-              @dep = ['stdlib.h']
+              @dep = ['malloc']
             end
 
             def stub

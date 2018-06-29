@@ -19,8 +19,8 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Mal
       expect(subject.send(:stub)).to match(/void stub()/)
     end
 
-    it 'depends on stdlib.h' do
-      expect(subject.dep).to eq(['stdlib.h'])
+    it 'depends on malloc' do
+      expect(subject.dep).to eq(['malloc'])
     end
   end
 end

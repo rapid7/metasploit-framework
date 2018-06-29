@@ -6,7 +6,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Int
     described_class.new
   end
 
-  describe '#if_stub' do
+  describe '#stub' do
     it 'is a string' do
       expect(subject.send(:stub).class).to be(String)
     end
