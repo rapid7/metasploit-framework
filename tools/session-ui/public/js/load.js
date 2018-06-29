@@ -17,6 +17,10 @@ function filterFunction() {
 }
 
 
+function modal(){
+    //alert("Dhawan was here");
+}
+
 
 
 function postModule() {
@@ -74,8 +78,9 @@ function postModule() {
                                 valueSubList.setAttribute("href","#");
                                 valueSubList.setAttribute("data-toggle","modal");
                                 valueSubList.setAttribute("data-target","#sidebarModal");
-                                //valueSubList.setAttribute("id",arr[i]+"_"+value[k]);
-                                valueSubList.setAttribute("id","sidebar");
+                                valueSubList.setAttribute("id",arr[i]+"/"+postmod_key[j] + "/" +value[k]);
+                                //valueSubList.setAttribute("id","sidebar");
+                                valueSubList.setAttribute("onclick","modal(); this.onclick=null;");
                                 valueSubList.innerHTML =  value[k] ;
 
                                  menu1sub.appendChild(subList);
@@ -86,8 +91,6 @@ function postModule() {
 
                     }
                 }
-                 //menu1.appendChild(menu1sub);
-                // //menu1sub.insertAdjacentElement("afterend",menu1);
                 document.getElementById("menu1").appendChild(menu1);
                 document.getElementById("menu1").appendChild(menu1sub);
                 count++;
@@ -126,7 +129,6 @@ function ExtensionCommand() {
         else
             alert("Unable To load Extension Command");
     }
-
 }
 
 

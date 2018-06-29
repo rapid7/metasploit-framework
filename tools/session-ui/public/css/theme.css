@@ -1260,7 +1260,7 @@ section {
 .vue-lists ul, .vue-lists ol {
     padding-left: 30px;
 }
-
+/* _______________ Side Bar CSS _______________________________ */
 #sidebar .list-group-item {
     border-radius: 0;
     background-color: #262f36;
@@ -1303,7 +1303,7 @@ section {
 #sidebar .list-group .collapse .list-group-item  {
   padding-left: 20px;
 }
-#sidebar li:hover > a{
+#sidebar a:hover{
 font-style: italic;
 color: #EB5D26;
 
