@@ -12,7 +12,7 @@ CRandomizer relies on Metasm to be able to parse C code. The following component
 
 Also known as `Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory`.
 
-The `CodeFactory` module is used to make the random stubs that will get injected later in the source code. Currently, the things this class is capable of making include small stubs like if statements, a switch, fake functions, and Windows API calls, etc.
+The `CodeFactory` module is used to make the random stubs that will get injected later in the source code. Currently, the things this class is capable of making include small stubs like if statements, a switch, fake functions, and Windows API calls, etc. Each stub tends to be small, and considered as benign by most AVs.
 
 Every class in CodeFactory, except for Base, FakeFunction, and FakeFunctionCollection, is a stub candidate that gets randomly selected and used in the source code. 
 
