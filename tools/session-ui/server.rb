@@ -1,7 +1,6 @@
 require "sinatra"
-require "sinatra/base"
 require "json"
-
+require "sinatra/json"
 
 =begin
 msfbase = __FILE__
@@ -16,13 +15,15 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 =end
 
-class Getdata < Sinatra::Base
-  set :bind, 'localhost'
+configure do
+
+
+  set :bind, '127.0.0.1'
   set :port, 3000
   set :json_content_type, :js
   set :public_folder, 'public'
 
-
+end
   get "/" do
     File.read(File.join('public','public.html'))
   end
@@ -70,8 +71,6 @@ class Getdata < Sinatra::Base
     return "Extension Commands Entered by user is #{params[:exten_cmd]}"
   end
 
-run!
-end
 
 
 
