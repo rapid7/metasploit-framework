@@ -20,14 +20,11 @@
     <link href="resources/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
     <link href="resources/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
 
-    <!-- Bootstrap CSS-->
+    <!-- Bootstrap CSS
     <link href="resources/bootstrap-4.1/bootstrap.min.css" rel="stylesheet" media="all">
-
+    -->
     <!-- resources CSS-->
     <link href="resources/animsition/animsition.min.css" rel="stylesheet" media="all">
-    <link href="resources/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet" media="all">
-    
-   
     <link href="resources/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" media="all">
 
     <!-- Main CSS-->
@@ -37,19 +34,44 @@
     
       <script src="resources/xterm/xterm.js" ></script>
       <script src="resources/xterm/addon/fit.js" ></script>
-      
-       <!--
-      <link rel="stylesheet" href="node_modules/xterm/dist/xterm.css" />
-      <script src="node_modules/xterm/dist/xterm.js"></script> -->
 
 </head>
 
 
-<!-- Simple button to close terminal 
+<!-- Modal -->
+<div class="modal fade" id="sidebarModal" tabindex="-1" role="dialog" aria-labelledby="sidebarCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sidebarTitle"> /post/windows/gather/checkvm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body media">
+                <div class="media-body">
+                    <h4 style="color: #EB5D26;">Name</h4>
+                    <p>Windows Gather Virtual Environment Detection</p>
+                    <h4 style="color: #EB5D26;">Description</h4>
+                    <p>This module attempts to determine whether the system is running
+                        inside of a virtual environment and if so, which one.&nbspThis
+                        module supports detection of Hyper-V, VMWare, Virtual PC,
+                        VirtualBox, Xen, and QEMU</p>
+                    <h4 style="color: #EB5D26;">Platform</h4>
+                    <p>Windows</p>
+                    <h3><i style="color: #EB5D26; font-size: small;!important" >Example</i></h3>
+                </div>
+                                       ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">run</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-<button type="button" style="font-family: sans-serif; font-size: 12px; display: block; position: fixed; border: medium none; background: rgb(34, 136, 204) none repeat scroll 0% 0%; color: rgb(255, 255, 255); padding: 5px 15px; cursor: pointer; top: 0px; right: 0px; border-radius: 0px 0px 0px 5px;">Show Info</button>
- -->
-
+<!-------------- End of modal-------------------- -->
 
 <body class="animsition">
     <div class="page-wrapper">
@@ -57,32 +79,27 @@
 
 
         <!-- MENU SIDEBAR-->
-        <aside class="menu-sidebar2">
+        <aside class="menu-sidebar2 " >
             <div class="logo">
                 <a href="http://127.0.0.1:3000/">
                    <!-- <img src="images/icon/logo.png" alt="Metasploit" /> -->
                 </a>
             </div>
           
-            <div  id="sidebar">
+            <div  class="menu-sidebar2__content js-scrollbar1" id="sidebar" >
             <!-- menu group 1 -->
-              <div class="list-group panel">
+              <div class="list-group panel js-scrollbar1" >
                   <a href="#menu1" onclick="postModule(); this.onclick=null;" class="list-group-item collapsed"  data-toggle="collapse" data-parent="#sidebar" aria-expanded="false"> <span class="hidden-sm-down">Post Modules </span></a>
-                  <div class="collapse" id="menu1">
+                  <div class="collapse" id="menu1" >
         
                     <input type="text" placeholder="Search.." id="Search" onkeyup="filterFunction()" style="width: 283px;height: 30px;">
                           <!-- sub menu item ends -->
-              </div>
-   
-          </div>
+                  </div>
                   <!-- end of menu group1 -->
-
 
                   <!-- menu group 2 -->
                  <a href="#menu2" onclick="ExtensionCommand(); this.onclick=null;" class="list-group-item collapsed" data-toggle="collapse" data-parent="#sidebar" aria-expanded="false"> <span class="hidden-sm-down">Extension</span> </a>
-                   <div class="collapse" id="menu2"> 
-
-                    <!--
+                   <div class="collapse" id="menu2">
                       <a href="#menu2sub1" class="list-group-item" data-toggle="collapse" aria-expanded="false">subitem</a>
                       <div class="collapse" id="menu2sub1">
                           <a href="#menu2sub1sub1" class="list-group-item" data-toggle="collapse" aria-expanded="false">Subitem 3 c </a>
@@ -97,19 +114,13 @@
                               <a href="#" class="list-group-item" data-parent="#menu2sub1sub2">Subitem 5 e.2</a>
                           </div>
                       </div>
-                  
-                 -->
                     </div>
                     <!-- End of menu group 2 -->
+              </div>
             </div>
-
         </aside>
-
     </div>
-  
-       
         <!-- END MENU SIDEBAR-->
-
         <!-- PAGE CONTAINER-->
         <div class="page-container">
             <!-- HEADER DESKTOP-->
@@ -153,7 +164,7 @@
             </header>
             <!-- HEADER DESKTOP-->
 
-            <!-- MAIN CONTENT-->
+           <!-- MAIN CONTENT-->
             <div class="main-content">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
@@ -171,37 +182,20 @@
                 </div>
             </div>
             <!-- END MAIN CONTENT-->
-
-
         <!-- END PAGE CONTAINER-->
         </div>
 
     </div>
     <!-- Jquery JS-->
-    <script src="resources/jquery-3.2.1.min.js"></script> 
-    <!-- Xterm Js--> 
-    
-    <!-- Bootstrap JS-->
-    <!-- <script src="resources/bootstrap-4.1/popper.min.js"></script> 
-    <script src="resources/bootstrap-4.1/bootstrap.min.js"></script>-->
-    <!-- resources JS       -->
-    
+    <script src="resources/jquery-3.2.1.min.js"></script>
     <script src="resources/animsition/animsition.min.js"></script>
-    <script src="resources/bootstrap-progressbar/bootstrap-progressbar.min.js">
-    </script>
-
     <script src="resources/perfect-scrollbar/perfect-scrollbar.js"></script>
-  <!--  <script src="resources/select2/select2.min.js"> 
-    </script>-->
 
     <!-- Main JS-->
     <script src="js/load.js"></script>
     <script src="js/main.js"></script>
     <script src="js/term.js"></script>
-
-
 </body>
-
 </html>
 <!-- end document-->
 

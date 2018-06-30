@@ -2,6 +2,8 @@
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
 require 'shellwords'
+require 'rex/text/table'
+
 
 module Msf
 module Sessions
@@ -65,11 +67,123 @@ class CommandShell
     "Command shell"
   end
 
+
+  #
+  # List of supported commands.
+  #
+  def commands
+    {
+        'help'         =>  'Help menu',
+        'background'   => 'Backgrounds the current shell session',
+        'sessions'     => 'Quickly switch to another session',
+    }
+  end
+
+  #
+  # Parse a line into an array of arguments.
+  #
+  def parse_line(line)
+    line.split(' ')
+  end
+
   #
   # Explicitly runs a command.
   #
   def run_cmd(cmd)
-    shell_command(cmd)
+    # Do nil check for cmd (CTRL+D will cause nil error)
+    return unless cmd
+
+    arguments = parse_line(cmd)
+    method    = arguments.shift
+
+    # Built-in command
+    if commands.key?(method)
+      return run_command(method, arguments)
+    end
+
+    # User input is not a built-in command, write to socket directly
+    shell_write(cmd)
+  end
+
+  def cmd_help(*args)
+    columns = ['Command', 'Description']
+    tbl = Rex::Text::Table.new(
+      'Header'  => 'Meta shell commands',
+      'Prefix'  => "\n",
+      'Postfix' => "\n",
+      'Indent'  => 4,
+      'Columns' => columns,
+      'SortIndex' => -1
+    )
+    commands.each do |key, value|
+      tbl << [key, value]
+    end
+    print(tbl.to_s)
+  end
+
+  def cmd_background_help()
+    print_line "Usage: background"
+    print_line
+    print_line "Stop interacting with this session and return to the parent prompt"
+    print_line
+  end
+
+  def cmd_background(*args)
+    if !args.empty?
+      # We assume that background does not need arguments
+      # If user input does not follow this specification
+      # Then show help (Including '-h' '--help'...)
+      return cmd_background_help
+    end
+
+    if prompt_yesno("Background session #{name}?")
+      self.interacting = false
+    end
+  end
+
+  def cmd_sessions_help()
+    print_line('Usage: sessions <id>')
+    print_line
+    print_line('Interact with a different session Id.')
+    print_line('This command only accepts one positive numeric argument.')
+    print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
+    print_line
+  end
+
+  def cmd_sessions(*args)
+    if args.length.zero? || args[0].to_i <= 0
+      # No args
+      return cmd_sessions_help
+    end
+
+    if args.length == 1 && (args[1] == '-h' || args[1] == 'help')
+      # One arg, and args[1] => '-h' '-H' 'help'
+      return cmd_sessions_help
+    end
+
+    if args.length != 1
+      # More than one argument
+      return cmd_sessions_help
+    end
+
+    if args[0].to_s == self.name.to_s
+      # Src == Dst
+      print_status("Session #{self.name} is already interactive.")
+    else
+      print_status("Backgrounding session #{self.name}...")
+      # store the next session id so that it can be referenced as soon
+      # as this session is no longer interacting
+      self.next_session = args[0]
+      self.interacting = false
+    end
+  end
+
+  #
+  # Run built-in command
+  #
+  def run_command(method, arguments)
+    # Dynamic function call
+    self.send('cmd_' + method, *arguments)
   end
 
   #
@@ -324,7 +438,7 @@ protected
       sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
 
       # Write input to the ring's input mechanism
-      shell_write(user_input.gets) if sd
+      run_cmd(user_input.gets) if sd
     end
 
     ensure
@@ -358,4 +472,3 @@ end
 
 end
 end
-

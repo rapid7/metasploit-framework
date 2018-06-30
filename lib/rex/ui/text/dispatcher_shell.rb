@@ -289,11 +289,9 @@ module DispatcherShell
     def tab_complete_source_address
       addresses = [Rex::Socket.source_address]
       # getifaddrs was introduced in 2.1.2
-      if Socket.respond_to?(:getifaddrs)
-        ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
-          ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
-            ifaddr.addr &&
-            ifaddr.addr.ip?
+      if ::Socket.respond_to?(:getifaddrs)
+        ifaddrs = ::Socket.getifaddrs.select do |ifaddr|
+          ifaddr.addr && ifaddr.addr.ip?
         end
         addresses += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
       end
@@ -382,7 +380,7 @@ module DispatcherShell
 
     # Verify that our search string is a valid regex
     begin
-      Regexp.compile(str)
+      Regexp.compile(str,Regexp::IGNORECASE)
     rescue RegexpError
       str = Regexp.escape(str)
     end
@@ -392,7 +390,7 @@ module DispatcherShell
 
     # Match based on the partial word
     items.find_all { |e|
-      e =~ /^#{str}/
+      e =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |e|
       tab_words.dup.push(e).join(' ')

@@ -1152,9 +1152,7 @@ class Core
     response_timeout = 15
     search_term = nil
     session_name = nil
-
-
-
+      
     # any arguments that don't correspond to an option or option arg will
     # be put in here
     extra   = []
@@ -1417,7 +1415,6 @@ class Core
 
    #launch server that will host meterpreter Web interface
     when 'web_ui'
-
       while sid && method== 'web_ui'
         session = verify_session(sid)
         if session
@@ -1427,8 +1424,10 @@ class Core
           end
           print_status("Starting interaction with #{session.name}...\n") unless quiet
           begin
+            
             Rex::Compat::open_webrtc_browser('127.0.0.1:3000')
             require './tools/session-ui/server'
+            
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
@@ -1438,9 +1437,6 @@ class Core
           sid = nil
         end
       end
-
-
-
     when 'script'
       unless script
         print_error("No script or module specified!")
@@ -2194,23 +2190,26 @@ class Core
     end
 
     # Is this option used by the active module?
-    if (mod.options.include?(opt))
-      res.concat(option_values_dispatch(mod.options[opt], str, words))
-    elsif (mod.options.include?(opt.upcase))
-      res.concat(option_values_dispatch(mod.options[opt.upcase], str, words))
+    mod.options.each_key do |key|
+      res.concat(option_values_dispatch(mod.options[key], str, words)) if key.downcase == opt.downcase
     end
 
     # How about the selected payload?
     if (mod.exploit? and mod.datastore['PAYLOAD'])
-      p = framework.payloads.create(mod.datastore['PAYLOAD'])
-      if (p and p.options.include?(opt))
-        res.concat(option_values_dispatch(p.options[opt], str, words))
-      elsif (p and p.options.include?(opt.upcase))
-        res.concat(option_values_dispatch(p.options[opt.upcase], str, words))
+      if p = framework.payloads.create(mod.datastore['PAYLOAD'])
+        p.options.each_key do |key|
+          res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
+        end
       end
     end
 
     return res
+  end
+
+  # XXX: We repurpose OptAddressLocal#interfaces, so we can't put this in Rex
+  def tab_complete_source_interface(o)
+    return [] unless o.is_a?(Msf::OptAddressLocal)
+    o.interfaces
   end
 
   #
@@ -2234,8 +2233,8 @@ class Core
           res << Rex::Socket.source_address(rh)
         else
           res += tab_complete_source_address
+          res += tab_complete_source_interface(o)
         end
-      else
       end
 
     when Msf::OptAddressRange

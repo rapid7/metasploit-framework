@@ -17,6 +17,10 @@ function filterFunction() {
 }
 
 
+function modal(){
+    //alert("Dhawan was here");
+}
+
 
 
 function postModule() {
@@ -32,7 +36,6 @@ function postModule() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var arr = Object.keys(postData);
             for (var i = 0; i < arr.length; i++) {
-
                 var menu1 = document.createElement("a");
                 menu1.setAttribute("class","list-group-item");
                 menu1.setAttribute("data-toggle","collapse");
@@ -44,12 +47,11 @@ function postModule() {
                 menu1sub.setAttribute("class","collapse");
                 menu1sub.setAttribute("id",arr[i]);
 
-                 		// content inside windows,linux
+                 		// content inside windows,linux i.e. Gather, Capture
                
                 
                 var post_mod = postData[arr[i]];
                 var postmod_key = Object.keys(post_mod);
-
 
                 if (postmod_key[i] != 0) {
                     for (var j = 0; j < postmod_key.length; j++) {
@@ -63,7 +65,9 @@ function postModule() {
                         var valueList=document.createElement("div");
                         valueList.setAttribute("class","collapse");
                         valueList.setAttribute("id",postmod_key[j]+count);
-                                               
+
+                        //Content inside Gather, Capture etc
+
                         var value= post_mod[postmod_key[j]];
                        
                             for(var k=0;k<value.length;k++){
@@ -71,27 +75,22 @@ function postModule() {
                                 var valueSubList=document.createElement("a");
                                 valueSubList.setAttribute("class","list-group-item");
                                 valueSubList.setAttribute("data-parent", "#"+postmod_key[j]+count);
-                                valueSubList.setAttribute("href","#")
-                                valueSubList.setAttribute("id",arr[i]+"_"+value[k]);
+                                valueSubList.setAttribute("href","#");
+                                valueSubList.setAttribute("data-toggle","modal");
+                                valueSubList.setAttribute("data-target","#sidebarModal");
+                                valueSubList.setAttribute("id",arr[i]+"/"+postmod_key[j] + "/" +value[k]);
+                                //valueSubList.setAttribute("id","sidebar");
+                                valueSubList.setAttribute("onclick","modal(); this.onclick=null;");
                                 valueSubList.innerHTML =  value[k] ;
 
-
-                                //subList.after(menu1sub);
                                  menu1sub.appendChild(subList);
-
                                  valueList.appendChild(valueSubList);
-                                //valueSubList.after(valueList);
-
                                  menu1sub.appendChild(valueList);
-                                //valueList.after(subList);
-                          
                             }
                      
 
                     }
                 }
-                 //menu1.appendChild(menu1sub);
-                // //menu1sub.insertAdjacentElement("afterend",menu1);
                 document.getElementById("menu1").appendChild(menu1);
                 document.getElementById("menu1").appendChild(menu1sub);
                 count++;
@@ -130,7 +129,6 @@ function ExtensionCommand() {
         else
             alert("Unable To load Extension Command");
     }
-
 }
 
 

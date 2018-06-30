@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module exploits a Universal Cross-Site Scripting (UXSS) vulnerability present in
         all versions of Android's open source stock browser before 4.4, and Android apps running
-        on < 4.4 that embed the html component. If successful, an attacker can leverage this bug
+        on < 4.4 that embed the WebView component. If successful, an attacker can leverage this bug
         to scrape both cookie data and page contents from a vulnerable browser window.
 
         Target URLs that use X-Frame-Options can not be exploited with this vulnerability.
