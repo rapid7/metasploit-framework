@@ -30,6 +30,8 @@ While the modifier walks through the source, it will randomly inject extra code 
 
 ## Parser
 
+Also known as `Metasploit::Framework::Obfuscation::CRandomizer::Parser`.
+
 ## Utility
 
 # Code Example
