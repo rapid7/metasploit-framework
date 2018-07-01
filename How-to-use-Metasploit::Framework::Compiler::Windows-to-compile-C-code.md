@@ -87,7 +87,7 @@ Currently, the Metasm wrapper does not support custom headers from an arbitrary 
 
 `Metasploit::Framework::Compiler` supports obfuscation that randomizes code at the source code level, and then compile. There are two methods we can use: `Metasploit::Framework::Compiler::Windows.compile_random_c`, or `Metasploit::Framework::Compiler::Windows.compile_random_c_to_file`. Using the last as an example:
 
-```
+```ruby
 require 'msf/core'
 require 'metasploit/framework/compiler/windows'
 
