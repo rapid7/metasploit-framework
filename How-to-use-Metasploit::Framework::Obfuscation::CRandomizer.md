@@ -44,7 +44,7 @@ The Utility class provides quick-to-use methods that any CRandomizer classes cou
 
 First, add a new file under the code_factory with an arbitrary file name. For example: hello.rb. In this example, let's create a new stub that will printf() "Hello World". Your stub should be written as a class under the CodeFactory namespace like this, and make sure to inherit the Base class. Like this:
 
-```
+```ruby
 require 'metasploit/framework/obfuscation/crandomizer/code_factory/base'
 
 module Metasploit
