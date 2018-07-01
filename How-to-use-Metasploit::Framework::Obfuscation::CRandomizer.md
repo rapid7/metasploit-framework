@@ -32,6 +32,66 @@ While the modifier walks through the source, it will randomly inject extra code 
 
 Also known as `Metasploit::Framework::Obfuscation::CRandomizer::Parser`.
 
+The main purpose of the Parser class is to convert the source code into a parsable format using Metasm, and then pass the functions to the Modifier class to process.
+
 ## Utility
 
+The Utility class provides quick-to-use methods that any CRandomizer classes could use.
+
 # Code Example
+
+## Creating a new stub
+
+First, add a new file under the code_factory with an arbitrary file name. For example: hello.rb. In this example, let's create a new stub that will printf() "Hello World". Your stub should be written as a class under the CodeFactory namespace like this, and make sure to inherit the Base class. Like this:
+
+```
+require 'metasploit/framework/obfuscation/crandomizer/code_factory/base'
+
+module Metasploit
+  module Framework
+    module Obfuscation
+      module CRandomizer
+        module CodeFactory
+
+          class Printf < Base
+            def initialize
+              super
+              @dep = ['printf']
+            end
+
+            def stub
+              %Q|
+              int printf(const char*);
+              void stub() {
+                printf("Hello World");
+              }|
+            end
+          end
+
+        end
+      end
+    end
+  end
+end
+```
+
+Notice a couple of things:
+
+* Every class should have its own `stub` method. And this `stub` method should return a string that contains the code you wish to inject. In addition, your code should be written as a function so that Metasm knows how to pick it up, hence the printf is in a `void stub()` function.
+* If your stub requires a native API (in this case, we are using `printf`), then you must add this function name in the `@dep` instance variable, which is an array.
+* Please keep in mind that your stub should remain simple and small, and not unique. For example, avoid:
+
+** Allocate a huge chunk of memory
+** Avoid marking or allocating executable memory
+** Loops
+** Load referenced section, resource, or .data
+** Anti-debugging functions from the Windows API
+** Lots of function calls
+** Unique strings
+** APIs that access the Windows registry or the file system
+** XOR
+** Shellcode
+
+## Randomizing source code
+
+Please refer to tools/exploit/random_compile_c.rb for example.
