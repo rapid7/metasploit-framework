@@ -80,17 +80,17 @@ Notice a couple of things:
 * Every class should have its own `stub` method. And this `stub` method should return a string that contains the code you wish to inject. In addition, your code should be written as a function so that Metasm knows how to pick it up, hence the printf is in a `void stub()` function.
 * If your stub requires a native API (in this case, we are using `printf`), then you must add this function name in the `@dep` instance variable, which is an array.
 * Please keep in mind that your stub should remain simple and small, and not unique. For example, avoid:
-
-** Allocate a huge chunk of memory
-** Avoid marking or allocating executable memory
-** Loops
-** Load referenced section, resource, or .data
-** Anti-debugging functions from the Windows API
-** Lots of function calls
-** Unique strings
-** APIs that access the Windows registry or the file system
-** XOR
-** Shellcode
+  * Allocate a huge chunk of memory
+  * Avoid marking or allocating executable memory
+  * Loops
+  * Load referenced section, resource, or .data
+  * Anti-debugging functions from the Windows API
+  * Lots of function calls
+  * Unique strings
+  * APIs that access the Windows registry or the file system
+  * XOR
+  * Shellcode
+  * Any other suspicious code patterns that are unique to malware.
 
 ## Randomizing source code
 
