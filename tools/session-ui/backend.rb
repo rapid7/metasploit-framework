@@ -69,11 +69,6 @@ module Intermediate
     def initialize
 
     end
-    # instantiate and run the server
-    def start_server
-      server=Server.new
-      server.run!
-    end
 
     def get_post
       # Fetch list of all available post exploitation module
