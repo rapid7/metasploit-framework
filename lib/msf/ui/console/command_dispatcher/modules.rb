@@ -1216,6 +1216,13 @@ module Msf
             )
           end
 
+          def generate_post_list(type,search_term=nil)
+            Table.new(
+                     Table::Style::Default
+            )
+
+          end
+
         end
       end
     end

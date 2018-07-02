@@ -20,6 +20,7 @@ require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/util/document_generator'
+require './tools/session-ui/backend'
 
 module Msf
 module Ui
@@ -1415,28 +1416,31 @@ class Core
 
    #launch server that will host meterpreter Web interface
     when 'web_ui'
-      while sid && method== 'web_ui'
-        session = verify_session(sid)
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
-          end
-          print_status("Starting interaction with #{session.name}...\n") unless quiet
-          begin
-            
-            Rex::Compat::open_webrtc_browser('127.0.0.1:3000')
-            require './tools/session-ui/server'
-            
-          ensure
-            if session.respond_to?(:response_timeout) && last_known_timeout
-              session.response_timeout = last_known_timeout
-            end
-          end
-        else
-          sid = nil
+      session = verify_session(sid)
+      if session
+        if session.respond_to?(:response_timeout)
+          last_known_timeout = session.response_timeout
+          session.response_timeout = response_timeout
         end
+        print_status("Starting interaction with #{session.name}...\n") unless quiet
+        begin
+
+          Thread.new{
+            print_line "Starting Sinatra Server"
+            Msf::Server.run!
+          }.join
+          print_line("Opening WebConsole on #{session.type} session #{session.sid} (#{session.session_host})")
+          Rex::Compat.open_webrtc_browser('127.0.0.1:3000')
+        ensure
+          if session.respond_to?(:response_timeout) && last_known_timeout
+            session.response_timeout = last_known_timeout
+          end
+        end
+      else
+        sid = nil
       end
+    end
+
     when 'script'
       unless script
         print_error("No script or module specified!")

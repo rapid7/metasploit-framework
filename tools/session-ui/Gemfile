@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'sinatra'
+
 gem 'sinatra-json', '~> 0.1.0'
-gem 'sinatra-websocket', '~> 0.3.1'
+
+
