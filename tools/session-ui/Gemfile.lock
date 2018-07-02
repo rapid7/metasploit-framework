@@ -7,7 +7,6 @@ GEM
     em-websocket (0.3.8)
       addressable (>= 2.1.1)
       eventmachine (>= 0.12.9)
-    eventmachine (1.2.7)
     eventmachine (1.2.7-x64-mingw32)
     multi_json (1.13.1)
     public_suffix (3.0.2)
@@ -32,7 +31,6 @@ GEM
     tilt (2.0.8)
 
 PLATFORMS
-  ruby
   x64-mingw32
 
 DEPENDENCIES
