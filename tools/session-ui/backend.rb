@@ -1,4 +1,6 @@
-require './server'
+require "sinatra/base"
+require "sinatra/json"
+require "json"
 
 # This Class will act as an intermediate between metasploit console and meterpreter WebConsole.
 # it will initiate WebConsole server for a specific session. Glue code present in this Class will
@@ -11,6 +13,57 @@ require './server'
 module Msf
 
 module Intermediate
+
+  class Server < Sinatra::Base
+
+    configure do
+      set :bind, '127.0.0.1'
+      set :port, 3000
+      set :json_content_type, :js
+      set :public_folder, 'public'
+    end
+
+    get '/' do
+      # receives an input from
+      File.read(File.join('public','public.html'))
+    end
+
+    get "/sysinfo" do
+      content_type :json
+      system_info=File.read('sysinfo.json')
+      return(system_info)
+    end
+#To load Post Exploitation Module
+
+    post "/modal" do
+      content_type :json
+    end
+
+    get "/post" do
+      content_type :json
+      post_file=File.read('json_post.json')
+      return(post_file)
+    end
+#load Extension command
+    get "/exten" do
+      content_type :json
+      exten_file=File.read('exten.json')
+      return(exten_file)
+    end
+# For invalid command
+    not_found do
+      "Whoops! You requested a route that wasn't available"
+    end
+#Get System information
+    post "/run_post" do
+      return "Post Exploitation Module entered is "
+    end
+
+    post "/run_exten" do
+      return "Extension Commands Entered by user is #{params[:exten_cmd]}"
+    end
+  run!
+  end
 
   class Getdata
     def initialize
@@ -38,11 +91,7 @@ module Intermediate
     def sys_info
       # Fetch system information of the victim's machine.
     end
-
   end
-
-
-
 # This class will return the desired output of requests received from the WebConsole.
 # It will execute post Exploitation Module and executes extension commands, and return
 # the output in json format.
@@ -72,8 +121,10 @@ module Intermediate
 
 end
 end
-s=Msf::Intermediate::Getdata.new
+
+s=Intermediate::Server.new
 s.start_server
+
 
 
 
