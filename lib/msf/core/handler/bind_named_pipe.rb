@@ -194,7 +194,8 @@ class SimpleClientPipe < Rex::Proto::SMB::SimpleClient
   def create_pipe(path)
     pkt = self.client.create_pipe(path, Rex::Proto::SMB::Constants::CREATE_ACCESS_EXIST)
     file_id = pkt['Payload'].v['FileID']
-    self.pipe = OpenPipeSock.new(self.client, path, self.client.last_tree_id, file_id, simple: self,
+    versions = [1]              # requires rex so SMB1 only
+    self.pipe = OpenPipeSock.new(self.client, path, self.client.last_tree_id, file_id, versions, simple: self,
                                  server_max_buffer_size: self.server_max_buffer_size)
   end
 end
@@ -329,14 +330,19 @@ module Msf
           while (stime + ctimeout > Time.now.to_i)
             begin
               pipe = simple.create_pipe("\\"+pipe_name)
-            rescue
+            rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+              error_name = e.get_error(e.error_code)
+              unless ['STATUS_OBJECT_NAME_NOT_FOUND', 'STATUS_PIPE_NOT_AVAILABLE'].include? error_name
+                print_error("Error connecting to #{pipe_name}: #{error_name}")
+                return
+              end
               Rex::ThreadSafe.sleep(1.0)
             end
             break if pipe
           end
 
           if not pipe
-            print_error("Failed to connect to pipe #{smbshare}")
+            print_error("Failed to connect to pipe \\#{pipe_name} on #{rhost}")
             return
           end
 
