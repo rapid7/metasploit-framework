@@ -19,8 +19,25 @@ function filterFunction() {
 
 function modal(){
     //alert("Dhawan was here");
+
+    var xhr0=new XMLHttpRequest();
+    var usl0="http://127.0.0.1:3000/modal"
+    data=document.getElementById("sidebar").innerText
+    xhr0.open("POST",url);
+    xhr0.send()
 }
 
+$(document).ready(function(){
+   $("#sidebar").submit(function(){
+       $.ajax({
+           url: "http://127.0.0.1:3000/modal",
+           data: $("#modal").innerText,
+           success: function (data) {
+
+           }
+       })
+   })
+});
 
 
 function postModule() {
@@ -78,8 +95,8 @@ function postModule() {
                                 valueSubList.setAttribute("href","#");
                                 valueSubList.setAttribute("data-toggle","modal");
                                 valueSubList.setAttribute("data-target","#sidebarModal");
-                                valueSubList.setAttribute("id",arr[i]+"/"+postmod_key[j] + "/" +value[k]);
-                                //valueSubList.setAttribute("id","sidebar");
+                                //valueSubList.setAttribute("id",arr[i]+"/"+postmod_key[j] + "/" +value[k]);
+                                valueSubList.setAttribute("id","sidebar");
                                 valueSubList.setAttribute("onclick","modal(); this.onclick=null;");
                                 valueSubList.innerHTML =  value[k] ;
 
