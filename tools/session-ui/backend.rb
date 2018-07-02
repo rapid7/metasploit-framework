@@ -21,6 +21,7 @@ module Intermediate
       set :port, 3000
       set :json_content_type, :js
       set :public_folder, 'public'
+      set :title, 'WebConsole'
     end
 
     get '/' do
@@ -62,7 +63,6 @@ module Intermediate
     post "/run_exten" do
       return "Extension Commands Entered by user is #{params[:exten_cmd]}"
     end
-  run!
   end
 
   class Getdata
@@ -70,8 +70,9 @@ module Intermediate
 
     end
 
-    def get_post
+    def get_post(post_list)
       # Fetch list of all available post exploitation module
+      
     end
 
     def get_exten
@@ -117,9 +118,9 @@ module Intermediate
 end
 end
 
-s=Intermediate::Server.new
-s.start_server
-
+#s=Intermediate::Server.new
+#s.start_server
+Msf::Intermediate::Server.run!
 
 
 
