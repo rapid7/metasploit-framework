@@ -23,11 +23,14 @@ class RemoteHTTPDataService
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
-  def initialize(endpoint, https_opts = {})
+  def initialize(endpoint, opts = {})
     validate_endpoint(endpoint)
     @endpoint = URI.parse(endpoint)
-    @https_opts = https_opts
+    @opts = opts
+    @https_opts = @opts.delete(:https_opts)
+    @api_token = @opts.delete(:api_token)
     build_client_pool(5)
+    set_header('Authorization', "Bearer #{@api_token}") unless @api_token.nil?
   end
 
   def connection_established?
@@ -179,7 +182,7 @@ class RemoteHTTPDataService
   end
 
   def set_header(key, value)
-    @headers = Hash.new() if @headers.nil?
+    @headers = {} if @headers.nil?
 
     @headers[key] = value
   end

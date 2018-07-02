@@ -1968,11 +1968,14 @@ class Db
 
     protocol = "http"
     port = 8080
+    opts = {}
     https_opts = {}
     while (arg = args.shift)
       case arg
         when '-p'
           port = args.shift
+        when '-t', '--token'
+          opts[:api_token] = args.shift
         when '-s', '--ssl'
           protocol = "https"
         when '-c', '--cert'
@@ -1985,12 +1988,18 @@ class Db
     end
 
     if host.nil? || port.nil?
-      print_error "Host and port are required."
+      print_error("Host and port are required")
       return
     end
 
+    if opts[:api_token].nil?
+      print_error("API token is required")
+      return
+    end
+
+    opts[:https_opts] = https_opts unless https_opts.empty?
     endpoint = "#{protocol}://#{host}:#{port}"
-    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
+    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, opts)
     begin
       framework.db.register_data_service(remote_data_service)
       print_line "Registered data service: #{remote_data_service.name}"
@@ -2029,10 +2038,11 @@ class Db
     print_line "  -s, --set <id>              Set the data service by identifier."
     print_line "  -a, --add [ options ] host  Adds data service"
     print_line "  Add Data Service Options:"
-    print_line "  -p <port>         The port the data service is listening on. Default is 8080."
-    print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
-    print_line "  -c, --cert        Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
-    print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
+    print_line "  -p <port>           The port the data service is listening on. Default is 8080."
+    print_line "  -t, --token <token> Required API Token for MSF web service"
+    print_line "  -s, --ssl           Enable SSL. Required for HTTPS data services."
+    print_line "  -c, --cert          Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
+    print_line "  --skip-verify       Skip validating authenticity of server's certificate. NOT RECOMMENDED."
     print_line
   end
 
