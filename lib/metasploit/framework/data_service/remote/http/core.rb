@@ -14,6 +14,8 @@ class RemoteHTTPDataService
   include Metasploit::Framework::DataService
   include DataServiceAutoLoader
 
+  DEFAULT_USER_AGENT = "metasploit v#{Metasploit::Framework::VERSION}"
+
   EXEC_ASYNC = { :exec_async => true }
   GET_REQUEST = 'GET'
   POST_REQUEST = 'POST'
@@ -30,6 +32,8 @@ class RemoteHTTPDataService
     @api_token = opts[:api_token]
 
     @headers = {}
+    user_agent = !opts[:user_agent].nil? ? opts[:user_agent] : DEFAULT_USER_AGENT
+    set_header('User-Agent', user_agent)
     set_header('Authorization', "Bearer #{@api_token}") unless @api_token.nil?
 
     build_client_pool(5)
