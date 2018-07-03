@@ -114,7 +114,11 @@ module Msf::Modules
               # stdout might have some buffered data left, so carry on
               if fds.include?(err) && !err.eof?
                 errbuf = err.readpartial(4096)
-                elog "Unexpected output running #{self.path}:\n#{errbuf}"
+                if self.framework
+                  elog "Unexpected output running #{self.path}:\n#{errbuf}"
+                else
+                  $stderr.puts errbuf
+                end
               end
               if fds.include? out
                 self.buf << out.readpartial(4096)
