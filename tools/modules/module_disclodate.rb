@@ -108,6 +108,7 @@ end
 $framework = Msf::Simple::Framework.create(framework_opts)
 
 
+
 tbl = Rex::Text::Table.new(
   'Header'  => 'Module References',
   'Indent'  => Indent.length,
