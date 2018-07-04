@@ -183,7 +183,7 @@ GEM
     net-ssh (5.0.2)
     network_interface (0.0.2)
     nexpose (7.2.1)
-    nokogiri (1.8.3)
+    nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
     octokit (4.9.0)
       sawyer (~> 0.8.0, >= 0.5.3)
@@ -302,7 +302,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.7.1)
-    ruby-macho (1.2.0)
+    ruby-macho (2.0.0)
     ruby-rc4 (0.1.5)
     ruby_smb (1.0.3)
       bindata
