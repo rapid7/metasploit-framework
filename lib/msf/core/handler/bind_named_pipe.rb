@@ -282,10 +282,9 @@ module Msf
         # Start a new handling thread
         self.listener_threads << framework.threads.spawn("BindNamedPipeHandlerListener-#{pipe_name}", false) {
           sock = nil
-          print_status("Started bind pipe handler")
+          print_status("Started #{human_name} handler against #{rhost}:#{lport}")
 
           # First, create a socket and connect to the SMB service
-          vprint_status("Connecting to #{rhost}:#{lport}")
           begin
             sock = Rex::Socket::Tcp.create(
               'PeerHost' => rhost,
@@ -297,8 +296,9 @@ module Msf
                 'MsfPayload' => self,
                 'MsfExploit' => assoc_exploit
               })
-          rescue Rex::ConnectionRefused
-          rescue ::Exception
+          rescue Rex::ConnectionError => e
+            vprint_error(e.message)
+          rescue
             wlog("Exception caught in bind handler: #{$!.class} #{$!}")
           end
 
