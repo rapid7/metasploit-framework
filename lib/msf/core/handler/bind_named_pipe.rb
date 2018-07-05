@@ -282,10 +282,9 @@ module Msf
         # Start a new handling thread
         self.listener_threads << framework.threads.spawn("BindNamedPipeHandlerListener-#{pipe_name}", false) {
           sock = nil
-          print_status("Started bind pipe handler")
+          print_status("Started #{human_name} handler against #{rhost}:#{lport}")
 
           # First, create a socket and connect to the SMB service
-          vprint_status("Connecting to #{rhost}:#{lport}")
           begin
             sock = Rex::Socket::Tcp.create(
               'PeerHost' => rhost,
@@ -297,14 +296,15 @@ module Msf
                 'MsfPayload' => self,
                 'MsfExploit' => assoc_exploit
               })
-          rescue Rex::ConnectionRefused
-          rescue ::Exception
+          rescue Rex::ConnectionError => e
+            vprint_error(e.message)
+          rescue
             wlog("Exception caught in bind handler: #{$!.class} #{$!}")
           end
 
           if not sock
             print_error("Failed to connect socket #{rhost}:#{lport}")
-            return
+            exit
           end
 
           # Perform SMB logon
@@ -315,7 +315,7 @@ module Msf
             vprint_status("SMB login Success #{smbdomain}\\#{smbuser}:#{smbpass} #{rhost}:#{lport}")
           rescue
             print_error("SMB login Failure #{smbdomain}\\#{smbuser}:#{smbpass} #{rhost}:#{lport}")
-            return
+            exit
           end
 
           # Connect to the IPC$ share so we can use named pipes.
@@ -334,7 +334,7 @@ module Msf
               error_name = e.get_error(e.error_code)
               unless ['STATUS_OBJECT_NAME_NOT_FOUND', 'STATUS_PIPE_NOT_AVAILABLE'].include? error_name
                 print_error("Error connecting to #{pipe_name}: #{error_name}")
-                return
+                exit
               end
               Rex::ThreadSafe.sleep(1.0)
             end
@@ -343,7 +343,7 @@ module Msf
 
           if not pipe
             print_error("Failed to connect to pipe \\#{pipe_name} on #{rhost}")
-            return
+            exit
           end
 
           vprint_status("Opened pipe \\#{pipe_name}")
