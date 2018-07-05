@@ -8,7 +8,7 @@ import struct
 from os import popen
 
 # Find the right event file
-infile_path = popen("grep -E  'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=120013' | grep -Eo 'event[0-9]+'").read()
+infile_path = "/dev/input/" + popen("grep -E  'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=120013' | grep -Eo 'event[0-9]+'").read()[:-1]
 
 # English only ATM, if someone has a way to retrieve them with no privileges
 # (dumpkeys is not a solution sadly), I am interested
