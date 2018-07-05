@@ -91,6 +91,9 @@ class Db
         when '-a', '--add'
           add_data_service(*args)
           return
+        when '-d', '--delete'
+          delete_data_service(args.shift)
+          return
         when '-s', '--set'
           set_data_service(args.shift)
           return
@@ -2009,6 +2012,16 @@ class Db
     end
   end
 
+  def delete_data_service(service_id)
+    begin
+      data_service = framework.db.delete_data_service(service_id)
+      framework.db.workspace = framework.db.default_workspace
+      data_service
+    rescue => e
+      print_error "Unable to delete data service: #{e.message}"
+    end
+  end
+
   def set_data_service(service_id)
     begin
       data_service = framework.db.set_data_service(service_id)
@@ -2034,9 +2047,10 @@ class Db
     print_line
     print_line "OPTIONS:"
 
-    print_line "  -h, --help                  Show this help information."
-    print_line "  -s, --set <id>              Set the data service by identifier."
-    print_line "  -a, --add [ options ] host  Adds data service"
+    print_line "  -h, --help                    Show this help information."
+    print_line "  -d, --delete <id>             Delete the data service by identifier."
+    print_line "  -s, --set <id>                Set the active data service by identifier."
+    print_line "  -a, --add [ options ] <host>  Add a new data service"
     print_line "  Add Data Service Options:"
     print_line "  -p <port>           The port the data service is listening on. Default is 8080."
     print_line "  -t, --token <token> Required API Token for MSF web service"
