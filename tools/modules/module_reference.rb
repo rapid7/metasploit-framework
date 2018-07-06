@@ -212,6 +212,11 @@ tbl = Rex::Text::Table.new(
 bad_refs_count  = 0
 
 $framework.modules.each { |name, mod|
+  if mod.nil?
+    elog("module_reference.rb is unable to load #{name}")
+    next
+  end
+
   next if match and not name =~ match
 
   x = mod.new
