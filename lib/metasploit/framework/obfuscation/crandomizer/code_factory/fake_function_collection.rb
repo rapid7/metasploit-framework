@@ -67,7 +67,7 @@ module Metasploit
                 func_name = "function#{i}"
                 fake_function = Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::FakeFunction.new(func_name)
                 function_code = fake_function.generate_body
-                stub_parser = Metasploit::Framework::Obfuscation::CRandomizer::utility.parse(function_code)
+                stub_parser = Metasploit::Framework::Obfuscation::CRandomizer::Utility.parse(function_code)
                 functions.concat(stub_parser.toplevel.statements)
               end
             end
