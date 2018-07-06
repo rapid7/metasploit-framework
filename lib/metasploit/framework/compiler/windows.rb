@@ -53,7 +53,6 @@ module Metasploit
         def self.compile_random_c(c_template, opts={})
           type = opts[:type] || :exe
           cpu = opts[:cpu] || Metasm::Ia32.new
-          fake_function_size = opts[:fake_function_size] || rand(0..3)
           weight = opts[:weight] || 80
           headers = Compiler::Headers::Windows.new
           source_code = Compiler::Utils.normalize_code(c_template, headers)

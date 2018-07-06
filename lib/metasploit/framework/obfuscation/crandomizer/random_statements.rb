@@ -9,7 +9,7 @@ module Metasploit
 
           attr_reader :parser
           attr_reader :fake_function_collection
-          attr_reader :function_list
+          attr_reader :statements
 
           # Initializes the RandomStatements class.
           #
@@ -18,12 +18,12 @@ module Metasploit
           def initialize(p, fake_functions, s=nil)
             @parser = p
             @fake_function_collection = fake_functions
-            @function_list = [ Proc.new { get_random_statements } ]
+            @statements = [ Proc.new { get_random_statements } ]
 
             # Only generate fake function calls when the function we are modifying isn't
             # from one of those fake functions (to avoid a recursion).
             if s && fake_function_collection && !fake_function_collection.has_function_name?(s.var.name)
-              @function_list << Proc.new { get_random_function_call }
+              @statements << Proc.new { get_random_function_call }
             end
           end
 
@@ -32,7 +32,7 @@ module Metasploit
           # @return [Array<Metasm::C::CExpression>]
           # @return [Array<Metasm::C::Declaration>]
           def get
-            function_list.sample.call
+            statements.sample.call
           end
 
           private
@@ -103,6 +103,8 @@ module Metasploit
 
           # This function is kind of dangerous, because it could cause an
           # infinitely loop by accident when random functions call each other.
+          #
+          # @return [Array]
           def get_random_function_call
             # There is no fake function collection
             return [] if fake_function_collection.empty?

@@ -16,7 +16,7 @@ module Metasploit
             end
 
             # Override this method when you inherit this class.
-            # The method should return the source of the stub you're strying to create,
+            # The method should return the source of the stub you're trying to create,
             # as a C function.
             # For example:
             # %Q|

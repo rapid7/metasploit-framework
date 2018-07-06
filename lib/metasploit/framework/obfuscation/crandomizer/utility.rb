@@ -12,7 +12,7 @@ module Metasploit
           #
           # @return [Integer]
           def self.rand_int
-            (SecureRandom.random_number * 100).to_i
+            SecureRandom.random_number(100)
           end
 
           # Returns a random string.
