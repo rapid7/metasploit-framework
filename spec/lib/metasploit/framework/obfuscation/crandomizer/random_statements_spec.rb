@@ -28,7 +28,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::RandomStatements
     end
 
     it 'sets the fake function list' do
-      expect(subject.function_list).not_to be_empty
+      expect(subject.statements).not_to be_empty
     end
   end
 
