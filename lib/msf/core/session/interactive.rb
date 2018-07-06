@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/ui'
-require 'rex/io/ring_buffer'
 
 module Msf
 module Session
@@ -26,8 +25,6 @@ module Interactive
     # A nil is passed in the case of non-stream interactive sessions (Meterpreter)
     if rstream
       self.rstream = rstream
-      klass = opts[:udp_session] ? Rex::IO::RingBufferUdp : Rex::IO::RingBuffer
-      self.ring    = klass.new(rstream, {:size => opts[:ring_size] || 100 })
     end
     super()
   end
@@ -97,11 +94,6 @@ module Interactive
   # The remote stream handle.  Must inherit from Rex::IO::Stream.
   #
   attr_accessor :rstream
-
-  #
-  # The RingBuffer object used to allow concurrent access to this session
-  #
-  attr_accessor :ring
 
 protected
 
