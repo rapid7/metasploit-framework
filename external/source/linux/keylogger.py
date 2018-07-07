@@ -103,9 +103,9 @@ EVENT_SIZE = struct.calcsize(FORMAT)
 #open file in binary mode
 in_file = open(infile_path, "rb")
 
-event = in_file.read(EVENT_SIZE)
-
-while event:
+while 1:
+    event = in_file.read(EVENT_SIZE)
+    
     (tv_sec, tv_usec, type, code, value) = struct.unpack(FORMAT, event)
 
     if (type == 1) and (value == 1 or value == 0) :
@@ -133,7 +133,5 @@ while event:
                     pressed.append(key)
         elif value == 0 and key not in modifiers and len(key) > 1:
             print(key)
-
-    event = in_file.read(EVENT_SIZE)
 
 in_file.close()
