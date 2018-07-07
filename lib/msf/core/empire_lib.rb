@@ -2,9 +2,11 @@ require 'net/http'
 require 'uri'
 require 'json'
 require 'openssl'
+require 'rex/ui/subscriber.rb'
 #Methods used to call the Empire-WebAPI
 module Msf::Empire
   class Client
+    include Rex::Ui::Subscriber
     #
     #This method sets the token fetched for future use throughout the session
     #
@@ -42,7 +44,7 @@ module Msf::Empire
       sv1 = JSON.parse(response.body)
       token = sv1['token'].to_s
       @token = token
-      puts @token
+      print_status(@token)
     end
     #
     #Method to shutdown the active instance of API
@@ -96,7 +98,7 @@ module Msf::Empire
       else
         parser = JSON.parse(response.body)
         active_port = parser['listeners'][0]['options']['Port']['Value']
-        return "The listener: #{listener_name} is already active on #{active_port}"
+        return "The listener: #{listener_name} is active on #{active_port}"
       end
     end
     #
@@ -189,10 +191,10 @@ module Msf::Empire
         if parser['agents'].any?
           if temp_session == false
             parser['agents'][0].each do |agents_id|
-              puts "#{agents_id['ID']} : #{agents_id['Name']}"
+              print_line("#{agents_id['ID']} : #{agents_id['Name']}")
             end
           elsif temp_session == true
-            puts "#{parser['agents'][0]['ID']} : #{parser['agents'][0]['Name']}"
+            print_line("#{parser['agents'][0]['ID']} : #{parser['agents'][0]['Name']}")
             return parser['agents'][0]['Name']
           end
         else
@@ -216,7 +218,7 @@ module Msf::Empire
         parser = JSON.parse(response.body)
         if parser['agents'].any?
           parser['agents'].each do |agents_id|
-            puts "#{agents_id[:ID]} : #{agents_id[:name]}"
+            print_line("#{agents_id[:ID]} : #{agents_id[:name]}")
           end
         else
           return "No stale agents"
@@ -405,7 +407,7 @@ module Msf::Empire
       if response.code == 200
         parser = JSON.parse(response.body)
         parser['modules'].each do |empire_module|
-          puts "#{empire_module['Name']} : #{empire_module['Description']}"
+          print_line("#{empire_module['Name']} : #{empire_module['Description']}")
         end
       end
     end
@@ -466,10 +468,10 @@ module Msf::Empire
           empire_mod.each do |key,value|
             puts "#{key}  :  #{value}"
            end
-          puts "------------------------------"
+          print_line("------------------------------")
         end
       else
-        puts "Invalid request"
+        print_error("Invalid request")
       end
     end
   end
