@@ -1143,6 +1143,7 @@ class Core
     method   = nil
     quiet    = false
     show_active = false
+    show_active_web = false
     show_inactive = false
     show_extended = false
     verbose  = false
@@ -1189,6 +1190,7 @@ class Core
         # Do something with the supplied session identifier instead of
         # all sessions. Will launch WebUI of the active Meterpreter session
         when "-w"
+          show_active_web=true
           sid = val
           method = 'web_ui'
         # Display the list of active sessions
@@ -1416,30 +1418,42 @@ class Core
 
    #launch server that will host meterpreter Web interface
     when 'web_ui'
-      session = verify_session(sid)
-      if session
-        if session.respond_to?(:response_timeout)
-          last_known_timeout = session.response_timeout
-          session.response_timeout = response_timeout
-        end
-        print_status("Starting interaction with #{session.name}...\n") unless quiet
-        begin
+      # open WebConsole for a perticular sid
+      # start thread for server and open_browser_rtc. msfconsole is already running on the main thread
+      # the webconsole should be visible under sessions -l command in the different section
 
-          Thread.new{
-            print_line "Starting Sinatra Server"
-            Msf::Server.run!
-          }.join
-          print_line("Opening WebConsole on #{session.type} session #{session.sid} (#{session.session_host})")
-          Rex::Compat.open_webrtc_browser('127.0.0.1:3000')
-        ensure
-          if session.respond_to?(:response_timeout) && last_known_timeout
-            session.response_timeout = last_known_timeout
+      print_status("Starting WebConsole the following session(s): #{session_list.join(', ')}")
+      session_list.each do |sess_id|
+        session = framework.sessions.get(sess_id)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
           end
+          print_status("Starting Web Console for #{sess_id}")
+          begin
+            # need some house keeping, will resolve soon
+              server_bind='127.0.0.1'
+              server_port=800 + sess_id
+              session_server=Backend.new(framework,sid)
+              thread=[]
+              thread << Thread.new{
+                session_server.server_start(server_bind,server_port)
+              }
+              thread << Thread.new{
+                print_status("Opening WebConsole on host #{server_bind} on port #{server_port} for session #{session.sid}")
+                Rex::Compat.open_webrtc_browser(server_bind:server_port)
+              }
+            thread.each(&:join)
+          ensure
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
+          end
+        else
+          print_error("Invalid session identifier: #{sess_id}")
         end
-      else
-        sid = nil
       end
-    end
 
     when 'script'
       unless script
@@ -1514,7 +1528,7 @@ class Core
       end
     when 'list', 'list_inactive', nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, search_term: search_term))
+      print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active,show_active_web: show_active_web, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, search_term: search_term))
       print_line
     when 'name'
       if session_name.blank?
