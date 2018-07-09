@@ -16,7 +16,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Bas
 
   describe '#stub' do
     it 'returns a string' do
-      expect(subject.stub.class).to be(String)
+      expect(base.stub.class).to be(String)
     end
 
     it 'returns the stub code' do
