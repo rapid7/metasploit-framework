@@ -30,6 +30,13 @@ module BindUdp
     "bind"
   end
 
+  # A string suitable for displaying to the user
+  #
+  # @return [String]
+  def human_name
+    "bind UDP"
+  end
+
   #
   # Initializes a bind handler and adds the options common to all bind
   # payloads, such as local port.
@@ -105,7 +112,7 @@ module BindUdp
     self.listener_threads << framework.threads.spawn("BindUdpHandlerListener-#{lport}", false) {
       client = nil
 
-      print_status("Started bind handler")
+      print_status("Started #{human_name} handler against #{rhost}:#{lport}")
 
       if (rhost == nil)
         raise ArgumentError,
@@ -127,9 +134,9 @@ module BindUdp
                 'MsfPayload' => self,
                 'MsfExploit' => assoc_exploit
               })
-        rescue Rex::ConnectionRefused
-          # Connection refused is a-okay
-        rescue ::Exception
+        rescue Rex::ConnectionError => e
+          vprint_error(e.message)
+        rescue
           wlog("Exception caught in bind handler: #{$!.class} #{$!}")
         end
 
