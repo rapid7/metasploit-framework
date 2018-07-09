@@ -205,6 +205,11 @@ module Msf
         # @return [String]
         def normalize_references(refs)
           normalized = ''
+          cve_collection = refs.select { |r| r.ctx_id.match(/^cve$/i) }
+          if cve_collection.empty?
+            normalized << "* CVE: Not available\n"
+          end
+
           refs.each do |ref|
             case ref.ctx_id
             when 'AKA'
@@ -215,6 +220,10 @@ module Msf
               normalized << "* [#{ref.site}](#{ref.site})"
             when 'US-CERT-VU'
               normalized << "* [VU##{ref.ctx_val}](#{ref.site})"
+            when 'CVE', 'cve'
+              if !cve_collection.empty? && ref.ctx_val.blank?
+                normalized << "* CVE: Not available"
+              end
             else
               normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
             end

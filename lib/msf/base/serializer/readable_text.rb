@@ -497,10 +497,26 @@ class ReadableText
   def self.dump_references(mod, indent = '')
     output = ''
 
+
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
+
+      cve_collection = mod.references.select { |r| r.ctx_id.match(/^cve$/i) }
+      if cve_collection.empty?
+        output << "#{indent}CVE: Not available\n"
+      end
+
       mod.references.each { |ref|
-        output << indent + ref.to_s + "\n"
+        case ref.ctx_id
+        when 'CVE', 'cve'
+          if !cve_collection.empty? && ref.ctx_val.blank?
+            output << "#{indent}CVE: Not available\n"
+          else
+            output << indent + ref.to_s + "\n"
+          end
+        else
+          output << indent + ref.to_s + "\n"
+        end
       }
       output << "\n"
     end
