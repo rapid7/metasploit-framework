@@ -55,7 +55,7 @@ module Auxiliary::Report
 
   def invalidate_login(opts={})
     if active_db?
-      super(opts)
+      framework.db.invalidate_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
