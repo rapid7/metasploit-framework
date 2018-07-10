@@ -13,4 +13,23 @@ module Msf::DBManager::Login
       Metasploit::Credential::Login.update(id, opts)
     }
   end
+
+  def delete_logins(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |login_id|
+        login = Metasploit::Credential::Login.find(login_id)
+        begin
+          deleted << login.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{login}")
+          deleted << login.delete
+        end
+      end
+
+      return deleted
+    }
+  end
 end
