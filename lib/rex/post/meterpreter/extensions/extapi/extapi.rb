@@ -17,8 +17,8 @@ module Extapi
 
 ###
 #
-#  This meterpreter extension contains an extended API which will allow for more
-#  advanced enumeration of the victim.
+# This meterpreter extension contains an extended API which will allow for more
+# advanced enumeration of the victim.
 #
 ###
 class Extapi < Extension
