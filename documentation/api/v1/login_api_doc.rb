@@ -34,10 +34,10 @@ module LoginApiDoc
   swagger_schema :Login do
     key :required, [:address, :name]
     property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
-    property :core_id, type: :integer, format: :int32, description: CORE_ID_DESC
-    property :service_id, type: :integer, format: :int32, description: SERVICE_ID_DESC
+    property :core_id, type: :integer, format: :int32, required: true, description: CORE_ID_DESC
+    property :service_id, type: :integer, format: :int32, required: true, description: SERVICE_ID_DESC
     property :access_level, type: :string, description: ACCESS_LEVEL_DESC, example: ACCESS_LEVEL_EXAMPLE
-    property :status, type: :string, description: STATUS_DESC, enum: STATUS_ENUM
+    property :status, type: :string, description: STATUS_DESC, required: true, enum: STATUS_ENUM
     property :last_attempted_at, type: :string, format: :date_time, description: LAST_ATTEMPTED_AT_DESC
     property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
     property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
