@@ -29,7 +29,7 @@ module Rex::Proto::SMB
         client.close(file_id, tree_id)
       end
 
-      def read_ruby_smb(length, offset)
+      def read_ruby_smb(length, offset, depth = 0)
         if length.nil?
           max_size = client.open_files[client.last_file_id].size
           fptr = offset
@@ -47,7 +47,15 @@ module Rex::Proto::SMB
             fptr = data.length
           end
         else
-          data = client.read(file_id, offset, length).pack('C*')
+          begin
+            data = client.read(file_id, offset, length).pack('C*')
+          rescue RubySMB::Error::UnexpectedStatusCode => e
+            if e.message == 'STATUS_PIPE_EMPTY' && depth < 20
+              data = read_ruby_smb(length, offset, depth + 1)
+            else
+              raise e
+            end
+          end
         end
 
         data

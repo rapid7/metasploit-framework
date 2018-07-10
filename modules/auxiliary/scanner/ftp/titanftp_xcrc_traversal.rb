@@ -32,6 +32,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
+          [ 'CVE', '2010-2426' ],
           [ 'OSVDB', '65533'],
           [ 'URL', 'http://seclists.org/bugtraq/2010/Jun/160' ]
         ],

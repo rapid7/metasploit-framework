@@ -6,6 +6,8 @@ class Msf::Modules::External::Shim
     mod = Msf::Modules::External.new(module_path)
     return '' unless mod.meta
     case mod.meta['type']
+    when 'remote_exploit'
+      remote_exploit(mod)
     when 'remote_exploit_cmd_stager'
       remote_exploit_cmd_stager(mod)
     when 'capture_server'
@@ -64,11 +66,15 @@ class Msf::Modules::External::Shim
   end
 
   def self.mod_meta_exploit(mod, meta = {})
+    meta[:rank]        = mod.meta['rank'].nil? ? 'NormalRanking' : "#{mod.meta['rank'].capitalize}Ranking"
     meta[:date]        = mod.meta['date'].dump
     meta[:wfsdelay]    = mod.meta['wfsdelay'] || 5
     meta[:privileged]  = mod.meta['privileged'].inspect
     meta[:platform]    = mod.meta['targets'].map do |t|
       t['platform'].dump
+    end.uniq.join(",\n          ")
+    meta[:arch]        = mod.meta['targets'].map do |t|
+      t['arch'].dump
     end.uniq.join(",\n          ")
     meta[:references]  = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
@@ -77,6 +83,12 @@ class Msf::Modules::External::Shim
       "[#{t['platform'].dump} + ' ' + #{t['arch'].dump}, {'Arch' => ARCH_#{t['arch'].upcase}, 'Platform' => #{t['platform'].dump} }]"
     end.join(",\n          ")
     meta
+  end
+
+  def self.remote_exploit(mod)
+    meta = mod_meta_common(mod)
+    meta = mod_meta_exploit(mod, meta)
+    render_template('remote_exploit.erb', meta)
   end
 
   def self.remote_exploit_cmd_stager(mod)

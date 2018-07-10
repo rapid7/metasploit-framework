@@ -70,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.3.37'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.3.40'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.4.0'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.4.1'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -142,7 +142,7 @@ Gem::Specification.new do |spec|
   # Library for Generating Randomized strings valid as Identifiers such as variable names
   spec.add_runtime_dependency 'rex-random_identifier'
   # library for creating Powershell scripts for exploitation purposes
-  spec.add_runtime_dependency 'rex-powershell', ["< 0.1.78"]
+  spec.add_runtime_dependency 'rex-powershell'
   # Library for processing and creating Zip compatbile archives
   spec.add_runtime_dependency 'rex-zip'
   # Library for parsing offline Windows Registry files

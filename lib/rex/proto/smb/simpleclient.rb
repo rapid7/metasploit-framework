@@ -214,7 +214,11 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
   end
 
   def delete(*args)
-    self.client.delete(*args)
+    if self.versions.include?(2)
+      self.client.delete(args[0])
+    else
+      self.client.delete(*args)
+    end
   end
 
   def create_pipe(path, perm = 'c')
