@@ -19,6 +19,18 @@ module LoginServlet
   private
   #######
 
+  def self.get_logins
+    lambda {
+      begin
+        sanitized_params = sanitize_params(params)
+        response = get_db.logins(sanitized_params)
+        set_json_response(response)
+      rescue => e
+        set_error_on_response(e)
+      end
+    }
+  end
+
   def self.create_login
     lambda {
       begin
