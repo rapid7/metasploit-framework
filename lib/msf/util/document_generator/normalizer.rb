@@ -65,6 +65,9 @@ module Msf
         AUXILIARY_SCANNER_DEMO_TEMPLATE = 'auxiliary_scanner_template.erb'
         PAYLOAD_DEMO_TEMPLATE           = 'payload_demo_template.erb'
 
+        # Special messages
+        NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-is-a-CVE-Not-Available%3F)|
+
 
         # Returns the module document in HTML form.
         #
@@ -207,7 +210,7 @@ module Msf
           normalized = ''
           cve_collection = refs.select { |r| r.ctx_id.match(/^cve$/i) }
           if cve_collection.empty?
-            normalized << "* CVE: Not available\n"
+            normalized << "* #{NO_CVE_MESSAGE}\n"
           end
 
           refs.each do |ref|
@@ -222,7 +225,7 @@ module Msf
               normalized << "* [VU##{ref.ctx_val}](#{ref.site})"
             when 'CVE', 'cve'
               if !cve_collection.empty? && ref.ctx_val.blank?
-                normalized << "* CVE: Not available"
+                normalized << "* #{NO_CVE_MESSAGE}"
               end
             else
               normalized << "* [#{ref.ctx_id}-#{ref.ctx_val}](#{ref.site})"
