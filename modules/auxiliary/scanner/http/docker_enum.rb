@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'      => [ 'Agora-Security' ],
       'License'     => MSF_LICENSE
-    )
+    ))
     register_options(
       [
         Opt::RPORT(2375)
