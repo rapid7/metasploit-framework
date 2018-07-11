@@ -12,8 +12,8 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'Docker Server Version Scanner',
       'Description' => 'This module attempts identify the version of the Docker Server running.',
-      'Author'     => [ 'Agora-Security' ],
-      'License'   => MSF_LICENSE
+      'Author'      => [ 'Agora-Security' ],
+      'License'     => MSF_LICENSE
     )
     register_options(
       [
