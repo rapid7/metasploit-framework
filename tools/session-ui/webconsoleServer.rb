@@ -1,7 +1,8 @@
 require 'sinatra/base'
 require 'json'
 
-#require './backend'
+require './backend'
+
 class WebConsoleServer < Sinatra::Base
 
   configure :development do
@@ -36,10 +37,7 @@ class WebConsoleServer < Sinatra::Base
     content_type :json
     post_file=File.open('json_post.json')
     return post_file
-
-
   end
-
 
 #load Extension command
   get "/exten" do
@@ -61,3 +59,5 @@ class WebConsoleServer < Sinatra::Base
   end
 
 end
+
+#WebConsoleServer.run!(:host=>'127.0.0.1', :port=>3000)

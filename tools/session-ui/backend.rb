@@ -3,7 +3,7 @@
 # it will initiate WebConsole server for a specific session. Glue code present in this Class will
 # fetch lists of post module from msfconsole in json format and will be converted in a format that can
 # be readable by the browser.
-require './webconsoleServer'
+
 require 'json'
 
 class Backend
@@ -52,7 +52,7 @@ class Backend
         end
 
       }
-      puts final
+      puts final.to_json
     end
 
     def post_info(mod)
