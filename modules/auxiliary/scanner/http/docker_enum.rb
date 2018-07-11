@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        Opt::RPORT(2375),
+        Opt::RPORT(2375)
       ])
   end
 
@@ -31,10 +31,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     result = res.get_json_document
-    print_status("Identifying Docker Server Version on #{ip}:#{rport}")
+    print_status("Identifying Docker Server Version on #{peer}")
     print_good("[Docker Server] Version: #{result['Version']}")
-    if datastore['VERBOSE']
-        print_status ("All info: #{result.to_s}")
-    end
+    print_status ("All info: #{result.to_s}") if datastore['VERBOSE']
   end
 end
