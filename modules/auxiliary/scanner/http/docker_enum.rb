@@ -42,7 +42,16 @@ class MetasploitModule < Msf::Auxiliary
         :port  => datastore['RPORT'],
         :proto => 'tcp',
         :ntype => 'docker_version',
-        :data  => result['Version']
+        :data  => result['Version'],
+        :info  => "Docker Server v.#{result['Version']}"
+    )
+    print_status("Saving host information.")
+    report_host(
+        :host           => ip,
+        :arch           => result['Arch'],
+        :detected_arch  => result['Arch'],
+        :os_family      => result['Os'],
+        :info           =>  "Docker Server v.#{result['Version']} Kernel Version: #{result['KernelVersion']}"
     )
   end
 end
