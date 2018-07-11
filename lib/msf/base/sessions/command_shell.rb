@@ -216,7 +216,7 @@ class CommandShell
   def cmd_resource_help
     print_line "Usage: resource path1 [path2 ...]"
     print_line
-    print_line "Run the commands stored in the supplied files (- for stdin)."
+    print_line "Run the commands stored in the supplied files. (- for stdin, press CTRL+D to end input from stdin)"
     print_line "Resource files may also contain ERB or Ruby code between <ruby></ruby> tags."
     print_line
   end
