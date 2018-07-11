@@ -8,8 +8,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize
-    super(
+  def initialize(info = {})
+    super(update_info(info,
       'Name'        => 'Docker Server Version Scanner',
       'Description' => %q{
         This module attempts to identify the version of the Docker Server running on a
