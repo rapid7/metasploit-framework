@@ -20,7 +20,7 @@ require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/util/document_generator'
-require './tools/session-ui/backend'
+require './tools/session-ui/webconsoleServer'
 
 module Msf
 module Ui
@@ -1434,22 +1434,28 @@ class Core
           begin
             # need some house keeping, will resolve soon
               server_bind='127.0.0.1'
-              server_port=800 + sess_id
+              server_port=3000
               session_server=Backend.new(framework,sid)
-              thread=[]
-              thread << Thread.new{
+              c2b = framework.threads.spawn("ConsoletoBrowser",true) do
                 session_server.server_start(server_bind,server_port)
-              }
-              thread << Thread.new{
+              end
+
+              openbr = framework.threads.spawn("OpenBrowser",true) do
                 print_status("Opening WebConsole on host #{server_bind} on port #{server_port} for session #{session.sid}")
-                Rex::Compat.open_webrtc_browser(server_bind:server_port)
-              }
-            thread.each(&:join)
+                Rex::Compat.open_webrtc_browser(:host=>server_bind,:port=>server_port)
+              end
+
+          rescue ::Interrupt
+            c2b.kill
+            openbr.kill
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
             end
           end
+          c2b.join
+          openbr.join
+
         else
           print_error("Invalid session identifier: #{sess_id}")
         end
