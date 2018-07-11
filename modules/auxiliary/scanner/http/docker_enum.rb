@@ -23,17 +23,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['URI'], "/version"),
+      'uri' => normalize_uri("/version"),
       'method' => 'GET'})
     if res.nil? || res.code != 200
       print_error("[Docker Version] failed to identify version")
       return
     end
 
-    parse_body(res.body)
-  end
-
-  def parse_body(body)
     result = res.get_json_document
     print_status("Identifying Docker Server Version on #{ip}:#{rport}")
     print_good("[Docker Server] Version: #{result['Version']}")
