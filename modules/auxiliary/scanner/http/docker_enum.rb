@@ -11,7 +11,10 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'Docker Server Version Scanner',
-      'Description' => 'This module attempts to identify the version of the Docker Server running on a host.',
+      'Description' => %q{
+        This module attempts to identify the version of the Docker Server running on a
+        host. If you wish to see all the information available, set VERBOSE to true.
+      },
       'Author'      => [ 'Agora-Security' ],
       'License'     => MSF_LICENSE
     )
