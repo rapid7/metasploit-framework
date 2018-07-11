@@ -34,5 +34,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Identifying Docker Server Version on #{peer}")
     print_good("[Docker Server] Version: #{result['Version']}")
     print_status ("All info: #{result.to_s}") if datastore['VERBOSE']
+    report_note(
+        :host  => ip,
+        :port  => datastore['RPORT'],
+        :proto => 'tcp',
+        :ntype => 'docker_version',
+        :data  => result['Version']
+    )
   end
 end
