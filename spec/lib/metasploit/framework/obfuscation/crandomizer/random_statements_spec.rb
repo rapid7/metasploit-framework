@@ -44,7 +44,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::RandomStatements
       fake_function_name = fake_function.var.name
       fake_function_args = fake_function.var.type.args
       s = subject.send(:make_func_arg_str, fake_function_args)
-      expect(s).to match(/(.+)/)
+      expect(s).to match(/\(.*\)/)
     end
   end
 
@@ -54,7 +54,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::RandomStatements
       fake_function_name = fake_function.var.name
       fake_function_args = fake_function.var.type.args
       s = subject.send(:make_func_declare_arg_str, fake_function_args)
-      expect(s).to match(/(.+)/)
+      expect(s).to match(/\(.*\)/)
     end
   end
 

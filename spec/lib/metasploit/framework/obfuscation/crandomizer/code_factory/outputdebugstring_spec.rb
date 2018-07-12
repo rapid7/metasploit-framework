@@ -19,7 +19,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Out
       expect(subject.send(:outputdebugstring_1)).to match(/void stub()/)
     end
 
-    it 'depends on stdlib.h' do
+    it 'depends on OutputDebugString' do
       expect(subject.dep).to eq(['OutputDebugString'])
     end
   end
