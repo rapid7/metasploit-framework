@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'Docker Server Version Scanner',
       'Description' => %q{
-        This module attempts to identify the version of the Docker Server running on a
+        This module attempts to identify the version of a Docker Server running on a
         host. If you wish to see all the information available, set VERBOSE to true.
       },
       'Author'      => [ 'Agora-Security' ],
@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri' => normalize_uri("/version"),
+      'uri' => '/version',
       'method' => 'GET'})
     if res.nil? || res.code != 200
       print_error("[Docker Version] failed to identify version")
@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status ("All info: #{result.to_s}") if datastore['VERBOSE']
     report_note(
         :host  => ip,
-        :port  => datastore['RPORT'],
+        :port  => rport,
         :proto => 'tcp',
         :ntype => 'docker_version',
         :data  => result['Version'],
