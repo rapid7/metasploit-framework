@@ -1421,7 +1421,6 @@ class Core
       # open WebConsole for a perticular sid
       # start thread for server and open_browser_rtc. msfconsole is already running on the main thread
       # the webconsole should be visible under sessions -l command in the different section
-
       print_status("Starting WebConsole the following session(s): #{session_list.join(', ')}")
       session_list.each do |sess_id|
         session = framework.sessions.get(sess_id)
@@ -1435,27 +1434,22 @@ class Core
             # need some house keeping, will resolve soon
               server_bind='127.0.0.1'
               server_port=3000
-              session_server=Backend.new(framework,sid)
-              c2b = framework.threads.spawn("ConsoletoBrowser",true) do
-                session_server.server_start(server_bind,server_port)
+              session_server=Server::Back.new(framework,sid)
+              thr = []
+              thr << framework.threads.spawn("ConsoletoBrowser",true) do
+                Server::WebConsoleServer.run!(:port=>3000)
               end
 
-              openbr = framework.threads.spawn("OpenBrowser",true) do
+              thr << framework.threads.spawn("OpenBrowser",true) do
                 print_status("Opening WebConsole on host #{server_bind} on port #{server_port} for session #{session.sid}")
-                Rex::Compat.open_webrtc_browser(:host=>server_bind,:port=>server_port)
+                Rex::Compat.open_webrtc_browser('127.0.0.1:3000')
               end
 
-          rescue ::Interrupt
-            c2b.kill
-            openbr.kill
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
             end
           end
-          c2b.join
-          openbr.join
-
         else
           print_error("Invalid session identifier: #{sess_id}")
         end
