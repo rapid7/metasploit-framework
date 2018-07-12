@@ -13,7 +13,11 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Lotus Domino Password Hash Collector',
       'Description'    => 'Get users passwords hashes from names.nsf page',
       'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          ['CVE' , '2007-0977']
+        ]
     )
 
   register_options(
