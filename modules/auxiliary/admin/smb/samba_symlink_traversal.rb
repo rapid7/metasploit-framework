@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'  =>
         [
+          ['CVE', '2010-0926'],
           ['OSVDB', '62145'],
           ['URL', 'http://www.samba.org/samba/news/symlink_attack.html']
         ],
