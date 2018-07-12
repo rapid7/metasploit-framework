@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Encoder
   def encode_block(state, buf)
     # Have to have these for the decoder stub, so if they're not available,
     # there's nothing we can do here.
-    %w{( ) . _ c h r e v a l b s 6 4 d o}.each do |c|
+    %w{c h r ( ) . e v a l b a s e 6 4 _ d e c o d e ;}.uniq.each do |c|
       raise BadcharError if state.badchars.include?(c)
     end
 
