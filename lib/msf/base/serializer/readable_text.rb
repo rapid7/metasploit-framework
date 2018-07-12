@@ -499,9 +499,12 @@ class ReadableText
 
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
-      mod.references.each { |ref|
+      mod.references.each do |ref|
+        if ENV['FUEL_THE_HYPE_MACHINE'] && %w{LOGO SOUNDTRACK}.include?(ref.ctx_id)
+          Rex::Compat.open_browser(ref.ctx_val)
+        end
         output << indent + ref.to_s + "\n"
-      }
+      end
       output << "\n"
     end
 
