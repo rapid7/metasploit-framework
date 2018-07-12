@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'References'  =>
         [
+          [ 'CVE', '2013-0235' ],
           [ 'URL', 'http://www.securityfocus.com/archive/1/525045/30/30/threaded'],
           [ 'URL', 'http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/'],
           [ 'URL', 'https://github.com/FireFart/WordpressPingbackPortScanner']
