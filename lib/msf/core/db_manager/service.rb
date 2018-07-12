@@ -48,11 +48,13 @@ module Msf::DBManager::Service
   # +:host+::  the host where this service is running
   # +:port+::  the port where this service listens
   # +:proto+:: the transport layer protocol (e.g. tcp, udp)
+  # +:workspace+:: the workspace for the service
   #
   # opts may contain
   # +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
   # +:sname+:: an alias for the above
-  # +:workspace+:: the workspace for the service
+  # +:info+:: Detailed information about the service such as name and version information
+  # +:state+:: The current listening state of the service (one of: open, closed, filtered, unknown)
   #
   def report_service(opts)
     return if !active
