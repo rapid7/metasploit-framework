@@ -22,6 +22,7 @@ require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/util/document_generator'
 require './tools/session-ui/webconsoleServer'
 
+
 module Msf
 module Ui
 module Console
@@ -1143,7 +1144,6 @@ class Core
     method   = nil
     quiet    = false
     show_active = false
-    show_active_web = false
     show_inactive = false
     show_extended = false
     verbose  = false
@@ -1190,7 +1190,6 @@ class Core
         # Do something with the supplied session identifier instead of
         # all sessions. Will launch WebUI of the active Meterpreter session
         when "-w"
-          show_active_web=true
           sid = val
           method = 'web_ui'
         # Display the list of active sessions
@@ -1417,11 +1416,10 @@ class Core
       end
 
    #launch server that will host meterpreter Web interface
+   # open WebConsole for a perticular sid
+   # start thread for server and open_browser_rtc. msfconsole is already running on the main thread
+   # the webconsole should be visible under sessions -l command in the different section
     when 'web_ui'
-      # open WebConsole for a perticular sid
-      # start thread for server and open_browser_rtc. msfconsole is already running on the main thread
-      # the webconsole should be visible under sessions -l command in the different section
-
       print_status("Starting WebConsole the following session(s): #{session_list.join(', ')}")
       session_list.each do |sess_id|
         session = framework.sessions.get(sess_id)
@@ -1433,34 +1431,28 @@ class Core
           print_status("Starting Web Console for #{sess_id}")
           begin
             # need some house keeping, will resolve soon
-              server_bind='127.0.0.1'
-              server_port=3000
-              session_server=Backend.new(framework,sid)
-              c2b = framework.threads.spawn("ConsoletoBrowser",true) do
-                session_server.server_start(server_bind,server_port)
-              end
+            server_bind='127.0.0.1'
+            server_port=3000
+            session_server=Server::Back.new(framework,sid)
+            thr = []
+            thr << framework.threads.spawn("ConsoletoBrowser",true) do
+              Server::WebConsoleServer.run!(:port=>3000)
+            end
 
-              openbr = framework.threads.spawn("OpenBrowser",true) do
-                print_status("Opening WebConsole on host #{server_bind} on port #{server_port} for session #{session.sid}")
-                Rex::Compat.open_webrtc_browser(:host=>server_bind,:port=>server_port)
-              end
+            thr << framework.threads.spawn("OpenBrowser",true) do
+              print_status("Opening WebConsole on host #{server_bind} on port #{server_port} for session #{session.sid}")
+              Rex::Compat.open_webrtc_browser('127.0.0.1:3000')
+            end
 
-          rescue ::Interrupt
-            c2b.kill
-            openbr.kill
           ensure
             if session.respond_to?(:response_timeout) && last_known_timeout
               session.response_timeout = last_known_timeout
             end
           end
-          c2b.join
-          openbr.join
-
         else
           print_error("Invalid session identifier: #{sess_id}")
         end
       end
-
     when 'script'
       unless script
         print_error("No script or module specified!")
@@ -1534,7 +1526,7 @@ class Core
       end
     when 'list', 'list_inactive', nil
       print_line
-      print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active,show_active_web: show_active_web, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, search_term: search_term))
+      print(Serializer::ReadableText.dump_sessions(framework, show_active: show_active, show_inactive: show_inactive, show_extended: show_extended, verbose: verbose, search_term: search_term))
       print_line
     when 'name'
       if session_name.blank?
