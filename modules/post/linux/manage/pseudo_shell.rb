@@ -61,33 +61,31 @@ end
   end
 
   def parse_cmd(cmd)
-    error = ""
-    parts = cmd.split(" ")
-    if parts.length() >= 1
-      nargs = parts.length() - 1
-      cmd = parts[0]
-      HELP_COMMANDS.each do |linea|
-        if linea[0] == cmd
-          func = linea[1]
-          if nargs >= 1
-            if linea[2] == 1
-              args = parts[1]
-            else
-              nargs = 0
-            end
-          else
-            args = ""
-          end
-          return func, cmd, args, nargs
+    parts = cmd.split(' ')
+    return '' unless parts.length >= 1
+    cmd = parts[0]
+    nargs = parts.length - 1
+    HELP_COMMANDS.each do |linea|
+      next unless linea[0] == cmd
+
+      func = linea[1]
+      if nargs >= 1
+        if linea[2] == 1
+          args = parts[1]
+        else
+          nargs = 0
         end
+      else
+        args = ''
       end
-      error = get_shell_name
-      message = error + ": " + cmd + ": Command not exist\n"
-      print message
-      return message
-    else
-      return error
+
+      return func, cmd, args, nargs
     end
+
+    error = get_shell_name
+    message = "#{error}: #{cmd}: Command does not exist\n"
+    print message
+    message
   end
 
   def help()

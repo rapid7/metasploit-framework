@@ -150,10 +150,10 @@ module System
     if command_exists?("uname")
       cmd_exec('uname -n').to_s
     else
-      read_file("/proc/sys/kernel/hostname").chomp.to_s
+      read_file("/proc/sys/kernel/hostname").to_s.chomp
     end
   rescue
-    raise 'Unable to gather shell name'
+    raise 'Unable to retrieve hostname'
   end
 
   #
@@ -176,12 +176,9 @@ module System
   # Gets the pid of the current shell
   # @return [String]
   #
-
   def get_shell_pid
-    str_pid = cmd_exec("echo $$")
-    return str_pid
+    cmd_exec("echo $$").to_s
   end
-
 
   #
   # Checks if the system has gcc installed
@@ -304,7 +301,7 @@ module System
   # Gets all the IP directions of the device
   # @return [Array]
   #
-  def ips()
+  def ips
     lines = read_file("/proc/net/fib_trie")
     result = []
     previous_line = ""
@@ -325,7 +322,7 @@ module System
   # Gets all the interfaces of the device
   # @return [Array]
   #
-  def interfaces()
+  def interfaces
     result = []
     data = cmd_exec("for fn in /sys/class/net/*; do echo $fn; done")
     parts = data.split("\n")
@@ -336,13 +333,11 @@ module System
     return result
   end
 
-
-
   #
   # Gets all the macs of the device
   # @return [Array]
   #
-  def macs()
+  def macs
     result = []
     str_macs = cmd_exec("for fn in /sys/class/net/*; do echo $fn; done")
     parts = str_macs.split("\n")
@@ -356,14 +351,12 @@ module System
     return result
   end
 
-
-
   # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
   #
   # Gets all the listening tcp ports in the device
   # @return [Array]
   #
-  def listen_tcp_ports()
+  def listen_tcp_ports
     ports = []
     content = read_file('/proc/net/tcp')
     content.each_line do |line|
@@ -380,13 +373,12 @@ module System
     return ports
   end
 
-
   # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
   #
   # Gets all the listening udp ports in the device
   # @return [Array]
   #
-  def listen_udp_ports()
+  def listen_udp_ports
     ports = []
     content = read_file('/proc/net/udp')
     content.each_line do |line|
@@ -402,7 +394,6 @@ module System
     end
     return ports
   end
-
 
 end # System
 end # Linux

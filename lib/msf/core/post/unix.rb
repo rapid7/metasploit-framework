@@ -92,7 +92,7 @@ module Msf::Post::Unix
   # It returns the username of the current user
   # @return [String] with username
   #
-  def whoami()
+  def whoami
     shellpid = get_shell_pid()
     statuspid = pid_uid(shellpid)
     statuspid.each_line do |line|

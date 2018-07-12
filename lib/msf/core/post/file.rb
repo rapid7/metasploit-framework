@@ -48,28 +48,29 @@ module Msf::Post::File
   def dir(directory)
     if session.type == 'meterpreter'
       return session.fs.dir.entries(directory)
-    else
-      if session.platform == 'windows'
-        return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
-      else
-        if command_exists?("ls")
-          return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
-        else
-          # Result on systems without ls command
-          if directory[-1] != '/'
-            directory = directory + "/"
-          end
-          result = []
-          data = session.shell_command_token("for fn in #{directory}*; do echo $fn; done")
-          parts = data.split("\n")
-          parts.each do |line|
-            line = line.split("/")[-1]
-            result.insert(-1,line)
-          end
-          return result
-        end
-      end
     end
+
+    if session.platform == 'windows'
+      return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
+    end
+
+    if command_exists?('ls')
+      return session.shell_command_token("ls #{directory}").split(/[\r\n]+/)
+    end
+
+    # Result on systems without ls command
+    if directory[-1] != '/'
+      directory = directory + "/"
+    end
+    result = []
+    data = session.shell_command_token("for fn in #{directory}*; do echo $fn; done")
+    parts = data.split("\n")
+    parts.each do |line|
+      line = line.split("/")[-1]
+      result.insert(-1, line)
+    end
+
+    result
   end
 
   alias ls dir
@@ -294,23 +295,22 @@ module Msf::Post::File
   # @return [Array] of strings(lines)
   #
   def read_file(file_name)
-    data = nil
-    if session.type == "meterpreter"
-      data = _read_file_meterpreter(file_name)
-    elsif session.type == "shell"
-      if session.platform == 'windows'
-        data = session.shell_command_token("type \"#{file_name}\"")
-      else
-        if command_exists?("cat")
-          data = session.shell_command_token("cat \"#{file_name}\"")
-        else
-          # Result on systems without cat command
-          data = session.shell_command_token("while read line; do echo $line; done <#{file_name}")
-        end
-      end
-
+    if session.type == 'meterpreter'
+      return _read_file_meterpreter(file_name)
     end
-    data
+
+    return nil unless session.type == 'shell'
+
+    if session.platform == 'windows'
+      return session.shell_command_token("type \"#{file_name}\"")
+    end
+
+    if command_exists?('cat')
+      return session.shell_command_token("cat \"#{file_name}\"")
+    end
+
+    # Result on systems without cat command
+    session.shell_command_token("while read line; do echo $line; done <#{file_name}")
   end
 
   # Platform-agnostic file write. Writes given object content to a remote file.
