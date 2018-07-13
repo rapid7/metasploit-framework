@@ -46,9 +46,9 @@ module Msf::Modules::Metadata::Store
   def load_metadata
     begin
       retries ||= 0
-      copied = configure_user_store
+      configure_user_store
       load_cache_from_file_store
-      validate_data(copied) if (!@module_metadata_cache.nil? && @module_metadata_cache.size > 0)
+      validate_data if (!@module_metadata_cache.nil? && @module_metadata_cache.size > 0)
       @module_metadata_cache = {} if @module_metadata_cache.nil?
     rescue Exception => e
       retries +=1
@@ -66,21 +66,13 @@ module Msf::Modules::Metadata::Store
 
   end
 
-  def validate_data(copied)
+  def validate_data
     size_prior = @module_metadata_cache.size
-    @module_metadata_cache.delete_if {|key, module_metadata| !::File.exist?(module_metadata.path)}
-
-    if (copied)
-      @module_metadata_cache.each_value {|module_metadata|
-        module_metadata.update_mod_time(::File.mtime(module_metadata.path))
-      }
-    end
-
-    update_store if (size_prior != @module_metadata_cache.size || copied)
+    @module_metadata_cache.delete_if {|_key, module_metadata| !::File.exist?(module_metadata.path)}
+    update_store if (size_prior != @module_metadata_cache.size )
   end
 
   def configure_user_store
-    copied = false
     @path_to_user_metadata = get_user_store
     path_to_base_metadata = ::File.join(Msf::Config.install_root, "db", BaseMetaDataFile)
     user_file_exists = ::File.exist?(@path_to_user_metadata)
@@ -88,24 +80,20 @@ module Msf::Modules::Metadata::Store
 
     if (!base_file_exists)
       wlog("Missing base module metadata file: #{path_to_base_metadata}")
-      return copied if !user_file_exists
+      return unless user_file_exists
     end
 
     if (!user_file_exists)
       FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
-      copied = true
-
       dlog('Created user based module store')
 
      # Update the user based module store if an updated base file is created/pushed
     elsif (::File.mtime(path_to_base_metadata).to_i > ::File.mtime(@path_to_user_metadata).to_i)
       FileUtils.remove(@path_to_user_metadata)
       FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
-      copied = true
       dlog('Updated user based module store')
     end
 
-    return copied
   end
 
   def get_user_store

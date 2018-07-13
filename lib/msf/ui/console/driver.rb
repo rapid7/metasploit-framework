@@ -155,7 +155,7 @@ class Driver < Msf::Ui::Driver
       self.framework.init_module_paths(module_paths: opts['ModulePath'])
     end
 
-    if framework.db && framework.db.active && framework.db.is_local? && !opts['DeferModuleLoads']
+    if !opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files
       end
