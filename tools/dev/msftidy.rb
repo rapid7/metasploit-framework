@@ -140,8 +140,9 @@ class Msftidy
   end
 
   def check_ref_identifiers
-    in_super = false
-    in_refs  = false
+    in_super     = false
+    in_refs      = false
+    cve_assigned = false
 
     @lines.each do |line|
       if !in_super and line =~ /\s+super\(/
@@ -161,6 +162,7 @@ class Msftidy
 
         case identifier
         when 'CVE'
+          cve_assigned = true
           warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4,}$/
         when 'BID'
           warn("Invalid BID format: '#{value}'") if value !~ /^\d+$/
@@ -197,6 +199,9 @@ class Msftidy
         end
       end
     end
+
+    # This helps us track when CVEs aren't assigned
+    warn('No CVE references found. Please check before you land!') unless cve_assigned
   end
 
   def check_self_class
