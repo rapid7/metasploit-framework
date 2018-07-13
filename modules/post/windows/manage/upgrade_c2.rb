@@ -6,6 +6,7 @@
 require 'msf/core/post/windows/reflective_dll_injection'
 require 'msf/core/empire_lib'
 require 'msf/core/Empire-UI'
+require 'msf/base/sessions/empire'
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::ReflectiveDLLInjection
   include Msf::EmpireUI
