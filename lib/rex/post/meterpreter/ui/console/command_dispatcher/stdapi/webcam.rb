@@ -161,7 +161,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
     player_path = Rex::Text.rand_text_alpha(8) + ".html"
     duration = 1800
     quality  = 50
-    view     = true
+    view     = false
     index    = 1
 
     webcam_snap_opts = Rex::Parser::Arguments.new(
@@ -199,8 +199,8 @@ class Console::CommandDispatcher::Stdapi::Webcam
     print_status("Preparing player...")
     html = %|<html>
 <head>
-<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE, NO-STORE">
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE, NO-STORE">
 <title>Metasploit webcam_stream - #{client.sock.peerhost}</title>
 <script language="javascript">
 function updateStatus(msg) {
@@ -208,23 +208,67 @@ function updateStatus(msg) {
   status.innerText = msg;
 }
 
+
 function noImage() {
   document.getElementById("streamer").style = "display:none";
   updateStatus("Waiting");
 }
 
 var i = 0;
+var imgurl;
+var imgElement;
+var didload = 1;
 function updateFrame() {
-  var img = document.getElementById("streamer");
-  img.src = "#{stream_path}#" + i;
-  img.style = "display:";
-  updateStatus("Playing");
-  i++;
+  didload = 0;
+  imgurl = "#{stream_path}?" + i;
+  getImage(imgurl, i).then(
+    function(e){
+        didload = 1;
+        newImg = e.img;
+        index = e.index;
+        var theWrap = document.getElementById("vid_cont");
+        ni = theWrap.appendChild(newImg);
+        console.log('added img_'+index);
+        ni.id = "img_"+index;
+        purge = document.querySelector("img:not(#img_"+index+")")
+        if (typeof(purge) != 'undefined' && purge != null){
+          purge.remove();
+        }
+        updateStatus("Playing");
+        
+    },
+    function(errorurl, index){
+        console.log('Error loading ' + errorurl)
+        updateStatus("Waiting");
+        didload = 1;
+    }
+  );
+}
+
+function getImage(url, index){
+    return new Promise(function(resolve, reject){
+        img = new Image();
+        img.onload = function(){
+            var e = new Object();
+            e.img = img;
+            e.index = index;
+            resolve(e);
+        }
+        img.onerror = function(){
+            reject(index);
+        }
+        img.src = url;
+    })
 }
 
 setInterval(function() {
-  updateFrame();
-},25);
+  if(didload){
+   updateFrame();
+   i++; 
+  }else{
+    console.log('skipping');
+  }
+},42);
 
 </script>
 </head>
@@ -238,9 +282,10 @@ Start time : #{Time.now}
 Status     : <span id="status"></span>
 </pre>
 <br>
-<img onerror="noImage()" id="streamer">
+<div id="vid_cont">
+  
+</div>
 <br><br>
-<a href="http://www.metasploit.com" target="_blank">www.metasploit.com</a>
 </body>
 </html>
     |
