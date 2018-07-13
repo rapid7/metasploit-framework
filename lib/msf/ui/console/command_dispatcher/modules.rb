@@ -27,7 +27,6 @@ module Msf
           def commands
             {
               "back"       => "Move back from the current context",
-              "edit"       => "Edit the current module or a file with the preferred editor",
               "advanced"   => "Displays advanced options for one or more modules",
               "info"       => "Displays information about one or more modules",
               "options"    => "Displays global options or for one or more modules",
@@ -40,6 +39,8 @@ module Msf
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Selects a module by name",
               "reload_lib" => "Reload one or more library files from specified paths",
+              "edit"       => "Edit the current module or a file with the preferred editor",
+              "log"        => "Displays framework.log starting at the bottom if possible",
             }
           end
 
@@ -66,6 +67,10 @@ module Msf
             framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
           end
 
+          def local_pager
+            framework.datastore['LocalPager'] || Rex::Compat.getenv('PAGER') || Rex::Compat.getenv('MANPAGER')
+          end
+
           # XXX: This will try to reload *any* .rb and break on modules
           def reload_file(path)
             unless File.exist?(path) && path.end_with?('.rb')
@@ -87,6 +92,7 @@ module Msf
             print_line 'Usage: reload_lib [lib/to/load.rb]...'
             print_line
             print_line 'Reload one or more library files from specified paths.'
+            print_line
           end
 
           #
@@ -106,10 +112,10 @@ module Msf
           end
 
           def cmd_edit_help
-            print_line "Usage: edit [file/to/edit.rb]"
+            print_line 'Usage: edit [file/to/edit.rb]'
             print_line
             print_line "Edit the currently active module or a local file with #{local_editor}."
-            print_line "If a file path is specified, it will automatically be reloaded after editing."
+            print_line 'If a file path is specified, it will automatically be reloaded after editing.'
             print_line "Otherwise, you can reload the active module with 'reload' or 'rerun'."
             print_line
           end
@@ -121,20 +127,20 @@ module Msf
             editing_module = false
 
             if args.length > 0
-              path = args[0]
+              path = File.expand_path(args[0])
             elsif active_module
               editing_module = true
               path = active_module.file_path
             end
 
-            if path.nil?
+            unless path
               print_error('Nothing to edit. Try using a module first or specifying a library file to edit.')
               return
             end
 
             editor = local_editor
 
-            if editor.nil?
+            unless editor
               editor = 'vim'
               print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
             end
@@ -152,6 +158,33 @@ module Msf
           #
           def cmd_edit_tabs(str, words)
             tab_complete_filenames(str, words)
+          end
+
+          def cmd_log_help
+            print_line 'Usage: log'
+            print_line
+            print_line 'Displays framework.log starting at the bottom if possible.'
+            print_line "For full effect, 'setg LogLevel 3' before running modules."
+            print_line
+            print_line "Log location: #{File.join(Msf::Config.log_directory, 'framework.log')}"
+            print_line
+          end
+
+          #
+          # Displays framework.log starting at the bottom if possible
+          #
+          def cmd_log(*args)
+            path = File.join(Msf::Config.log_directory, 'framework.log')
+
+            # XXX: +G isn't portable and may hang on large files
+            pager = local_pager.to_s.include?('less') ? "#{local_pager} +G" : local_pager
+
+            unless pager
+              pager = 'tail -n 24'
+              print_warning("LocalPager or $PAGER/$MANPAGER should be set. Falling back on #{pager}.")
+            end
+
+            system(*pager.split, path)
           end
 
           def cmd_advanced_help
