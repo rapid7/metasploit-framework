@@ -201,7 +201,7 @@ class Msftidy
     end
 
     # This helps us track when CVEs aren't assigned
-    warn('No CVE references found. Please check before you land!') unless cve_assigned
+    info('No CVE references found. Please check before you land!') unless cve_assigned
   end
 
   def check_self_class
