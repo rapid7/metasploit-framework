@@ -38,8 +38,8 @@ module Msf
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Selects a module by name",
-              "reload_lib" => "Reload one or more library files from specified paths",
               "edit"       => "Edit the current module or a file with the preferred editor",
+              "reload_lib" => "Reload one or more library files from specified paths",
               "log"        => "Displays framework.log starting at the bottom if possible",
             }
           end
@@ -88,40 +88,17 @@ module Msf
             load path
           end
 
-          def cmd_reload_lib_help
-            print_line 'Usage: reload_lib [lib/to/load.rb]...'
-            print_line
-            print_line 'Reload one or more library files from specified paths.'
-            print_line
-          end
-
-          #
-          # Reload one or more library files from specified paths
-          #
-          def cmd_reload_lib(*args)
-            if args.empty? || args.include?('-h') || args.include?('--help')
-              cmd_reload_lib_help
-              return
-            end
-
-            args.each { |path| reload_file(path) }
-          end
-
-          def cmd_reload_lib_tabs(str, words)
-            tab_complete_filenames(str, words)
-          end
-
           def cmd_edit_help
-            print_line 'Usage: edit [file/to/edit.rb]'
+            print_line 'Usage: edit [file/to/edit]'
             print_line
             print_line "Edit the currently active module or a local file with #{local_editor}."
-            print_line 'If a file path is specified, it will automatically be reloaded after editing.'
+            print_line 'If a library file is specified, it will automatically be reloaded after editing.'
             print_line "Otherwise, you can reload the active module with 'reload' or 'rerun'."
             print_line
           end
 
           #
-          # Edit the currently active module or a local file
+          # Edit the current module or a file with the preferred editor
           #
           def cmd_edit(*args)
             editing_module = false
@@ -145,8 +122,14 @@ module Msf
               print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
             end
 
-            print_status("Launching #{editor} #{path}")
-            system(*editor.split, path)
+            # XXX: No vprint_status in this context?
+            # XXX: VERBOSE is a string instead of Bool??
+            print_status("Launching #{editor} #{path}") if framework.datastore['VERBOSE'].to_s == 'true'
+
+            unless system(*editor.split, path)
+              print_error("Could not execute #{editor} #{path}")
+              return
+            end
 
             return if editing_module
 
@@ -157,6 +140,32 @@ module Msf
           # Tab completion for the edit command
           #
           def cmd_edit_tabs(str, words)
+            tab_complete_filenames(str, words)
+          end
+
+          def cmd_reload_lib_help
+            print_line 'Usage: reload_lib lib/to/reload.rb [...]'
+            print_line
+            print_line 'Reload one or more library files from specified paths.'
+            print_line
+          end
+
+          #
+          # Reload one or more library files from specified paths
+          #
+          def cmd_reload_lib(*args)
+            if args.empty? || args.include?('-h') || args.include?('--help')
+              cmd_reload_lib_help
+              return
+            end
+
+            args.each { |path| reload_file(path) }
+          end
+
+          #
+          # Tab completion for the reload_lib command
+          #
+          def cmd_reload_lib_tabs(str, words)
             tab_complete_filenames(str, words)
           end
 
@@ -184,7 +193,13 @@ module Msf
               print_warning("LocalPager or $PAGER/$MANPAGER should be set. Falling back on #{pager}.")
             end
 
-            system(*pager.split, path)
+            # XXX: No vprint_status in this context?
+            # XXX: VERBOSE is a string instead of Bool??
+            print_status("Launching #{pager} #{path}") if framework.datastore['VERBOSE'].to_s == 'true'
+
+            unless system(*pager.split, path)
+              print_error("Could not execute #{pager} #{path}")
+            end
           end
 
           def cmd_advanced_help
