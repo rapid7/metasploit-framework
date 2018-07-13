@@ -285,6 +285,7 @@ module Msf
           print_status("Started #{human_name} handler against #{rhost}:#{lport}")
 
           # First, create a socket and connect to the SMB service
+          vprint_status("Connecting to #{rhost}:#{lport}")
           begin
             sock = Rex::Socket::Tcp.create(
               'PeerHost' => rhost,
