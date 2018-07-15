@@ -138,6 +138,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dns_reverse(cidr, threads)
+    unless cidr
+      print_error 'ENUM_RVL enabled, but no IPRANGE specified'
+      return
+    end
+
     iplst = []
     ipadd = Rex::Socket::RangeWalker.new(cidr)
     numip = ipadd.num_ips
