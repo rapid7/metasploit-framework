@@ -23,6 +23,10 @@ class EmpireShell < Msf::Sessions::CommandShell
     "Empire"
   end
 
+  def name (session_name)
+    self.sname = session_name
+  end
+
   def initialize(emp_object, agent_name)
     self.plaform ||= ""
     self.max_threads ||= 1
@@ -32,6 +36,8 @@ class EmpireShell < Msf::Sessions::CommandShell
     self.client_emp = emp_object
     self.agent_name = agent_name
   end
+
+
 
   #list of available commands
   def commands
@@ -128,6 +134,7 @@ end
 class EmpireShellWindows < EmpireShell
   def initialize(emp_object, agent_name)
     self.platform = "Windows"
+    name(agent_name)
     super
   end
 end
@@ -135,6 +142,7 @@ end
 class EmpireShellLinux < EmpireShell
   def initialize(emp_object, agent_name)
     self.platform = "Linux"
+    name(agent_name)
     super
   end
 end
@@ -142,6 +150,7 @@ end
 class EmpireShellOsx < EmpireShell
   def initialize(emp_object, agent_name)
     self.platform = "OSX"
+    name(agent_name)
     super
   end
 end
