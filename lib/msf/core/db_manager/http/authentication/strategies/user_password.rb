@@ -4,7 +4,7 @@ module Authentication
 
       Warden::Manager.serialize_into_session{ |user| user.id }
       Warden::Manager.serialize_from_session{ |id|
-        db_manager = env['DBManager']
+        db_manager = env['msf.db_manager']
         db_manager.users(id: id).first
       }
 
@@ -21,7 +21,7 @@ module Authentication
 
       # Authenticate the request.
       def authenticate!
-        db_manager = env['DBManager']
+        db_manager = env['msf.db_manager']
         user = db_manager.users(username: params['username']).first
 
         if user.nil? || !db_manager.authenticate_user(id: user.id, password: params['password'])

@@ -8,15 +8,15 @@ module Authentication
       # Check if request contains valid data and should be authenticated.
       # @return [Boolean] true if strategy should be run for the request; otherwise, false.
       def valid?
-        auth_initialized = request.env['AuthInitialized']
+        auth_initialized = request.env['msf.auth_initialized']
         authorization = request.env[AUTHORIZATION]
         !auth_initialized || (authorization.is_a?(String) && authorization.start_with?(AUTHORIZATION_SCHEME)) || !params[TOKEN_QUERY_PARAM].nil?
       end
 
       # Authenticate the request.
       def authenticate!
-        auth_initialized = request.env['AuthInitialized']
-        db_manager = env['DBManager']
+        auth_initialized = request.env['msf.auth_initialized']
+        db_manager = env['msf.db_manager']
         authorization = request.env[AUTHORIZATION]
         if !auth_initialized
           success!({message: "Initialize authentication by creating an initial user account."})
