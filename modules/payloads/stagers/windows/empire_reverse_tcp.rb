@@ -2,6 +2,7 @@
 # redistribution and commercial restrictions. Please see theMetasploit
 # web site for more information on licensing and terms of use.
 # http://metasploit.com/
+require 'msf/core/handler/empire_reverse_tcp.rb'
 require 'msf/core/module/data_store'
 require 'msf/core/module/options'
 require 'msf/core/empire_lib.rb'
@@ -10,14 +11,16 @@ module MetasploitModule
   include Msf::Empire
   include Msf::Module::Options
   include Msf::Module::DataStore
+  include Msf::Payload::Stager
   def initialize(info={})
     super(merge_info(info,
     'Name'       => 'Empire Stager Module',
     'Description'=> 'This creates a standalone stager for Empire using the Rest-API',
     'Author'     => ['author_name'],
-    'License'    => MSF_LICENSE,-
-    'Platform'   => ['Windows', 'Linux', 'MacOS']
-    #'Handler'    => Msf::Handler::EmpireShimHandler
+    'License'    => MSF_LICENSE,
+    'Platform'   => ['Windows', 'Linux', 'MacOS'],
+    'Arch'       => ARCH_CMD,
+    'Handler'    => Msf::Handler::EmpireReverseTcp
     ))
     register_options(
       [OptAddress.new(
@@ -83,6 +86,7 @@ module MetasploitModule
     end
   end
   def generate
+    return ""
     #
     #Storing data from user
     #
