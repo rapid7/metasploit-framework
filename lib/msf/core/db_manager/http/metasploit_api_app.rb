@@ -57,7 +57,8 @@ class MetasploitApiApp < Sinatra::Base
     # store DBManager in request environment so that it is available to Warden
     request.env['msf.db_manager'] = get_db
     # store flag indicating whether authentication is initialized in the request environment
-    request.env['msf.auth_initialized'] ||= get_db.users({}).count > 0
+    @@auth_initialized ||= get_db.users({}).count > 0
+    request.env['msf.auth_initialized'] = @@auth_initialized
   end
 
   use Warden::Manager do |config|
