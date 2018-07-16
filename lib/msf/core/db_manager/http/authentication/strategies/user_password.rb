@@ -1,6 +1,6 @@
 module Authentication
   module Strategies
-    module UserPassword
+    class UserPassword < Warden::Strategies::Base
 
       Warden::Manager.serialize_into_session{ |user| user.id }
       Warden::Manager.serialize_from_session{ |id|
@@ -13,24 +13,21 @@ module Authentication
         env['REQUEST_METHOD'] = 'POST'
       end
 
-      Warden::Strategies.add(:password) do
+      # Check if request contains valid data and should be authenticated.
+      # @return [Boolean] true if strategy should be run for the request; otherwise, false.
+      def valid?
+        params['username'] && params['password']
+      end
 
-        # Check if request contains valid data and should be authenticated.
-        # @return [Boolean] true if strategy should be run for the request; otherwise, false.
-        def valid?
-          params['username'] && params['password']
-        end
+      # Authenticate the request.
+      def authenticate!
+        db_manager = env['DBManager']
+        user = db_manager.users(username: params['username']).first
 
-        # Authenticate the request.
-        def authenticate!
-          db_manager = env['DBManager']
-          user = db_manager.users(username: params['username']).first
-
-          if user.nil? || !db_manager.authenticate_user(id: user.id, password: params['password'])
-            fail("Invalid username or password.")
-          else
-            success!(user)
-          end
+        if user.nil? || !db_manager.authenticate_user(id: user.id, password: params['password'])
+          fail("Invalid username or password.")
+        else
+          success!(user)
         end
       end
 
