@@ -22,6 +22,7 @@ require 'msf/core/db_manager/http/servlet/credential_servlet'
 require 'msf/core/db_manager/http/servlet/nmap_servlet'
 require 'msf/core/db_manager/http/servlet/db_export_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_attempt_servlet'
+require 'msf/core/db_manager/http/servlet/user_servlet'
 
 class MetasploitApiApp < Sinatra::Base
   helpers ServletHelper
@@ -45,6 +46,7 @@ class MetasploitApiApp < Sinatra::Base
   register NmapServlet
   register DbExportServlet
   register VulnAttemptServlet
+  register UserServlet
 
   configure do
     set :sessions, {key: 'msf-ws.session', expire_after: 300}
@@ -54,6 +56,7 @@ class MetasploitApiApp < Sinatra::Base
   before do
     # store DBManager in request environment so that it is available to Warden
     request.env['DBManager'] = get_db
+    request.env['AuthInitialized'] ||= get_db.users({}).count > 0
   end
 
   use Warden::Manager do |config|
@@ -76,6 +79,14 @@ class MetasploitApiApp < Sinatra::Base
                           store: false,
                           # list of strategies to use
                           strategies: [:api_token],
+                          # action (route) of the failure application
+                          action: AuthServlet.api_unauthenticated_path
+
+    config.scope_defaults :admin_api,
+                          # whether to persist the result in the session or not
+                          store: false,
+                          # list of strategies to use
+                          strategies: [:admin_api_token],
                           # action (route) of the failure application
                           action: AuthServlet.api_unauthenticated_path
   end
