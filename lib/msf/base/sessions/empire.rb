@@ -1,14 +1,14 @@
 # -*- coding: binary -*-
 require 'msf/ui/console/command_dispatcher.rb'
 require 'msf/base/sessions/command_shell'
-require 're/ui/text/table.rb'
+require 'rex/ui/text/table.rb'
 require 'msf/base'
 
 module Msf
 module Sessions
 
 class EmpireShell < Msf::Sessions::CommandShell
-  include Msf::Sessions::Basic
+  include Msf::Session::Basic
   include Rex::Ui::Text::DispatcherShell::CommandDispatcher
 
   attr_accessor :max_threads
@@ -42,7 +42,7 @@ class EmpireShell < Msf::Sessions::CommandShell
   #list of available commands
   def commands
     {
-      'help'        => 'Show help menu'
+      'help'        => 'Show help menu',
       'show_modules'=> 'List all the Empire post modules available to deploy against the target',
       'show_info'   => 'Displays all the available options and description of the specified module',
       'use_module'  => 'Attemps to run the specified module against the current agent',
@@ -95,7 +95,7 @@ class EmpireShell < Msf::Sessions::CommandShell
 
   #Defining show_info command
   def cmd_show_info(*args)
-    if args.length.zero? || args[0] == '-h' || 'help'
+    if args.length.zero? || args[0] == '-h' or args[0] == 'help'
       return show_info_help
     else
       module_name = args[0]
@@ -105,7 +105,7 @@ class EmpireShell < Msf::Sessions::CommandShell
 
   #Defining use_module command
   def cmd_use_module(*args)
-    if args.length.zero? || args[0] == '-h' || 'help'
+    if args.length.zero? || args[0] == '-h' or args[0] == 'help'
       return use_module_help
     else
       module_name = args[0]
@@ -153,4 +153,6 @@ class EmpireShellOsx < EmpireShell
     name(agent_name)
     super
   end
+end
+end
 end
