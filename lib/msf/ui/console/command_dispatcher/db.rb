@@ -1995,11 +1995,6 @@ class Db
       return
     end
 
-    if opts[:api_token].nil?
-      print_error("API token is required")
-      return
-    end
-
     opts[:https_opts] = https_opts unless https_opts.empty?
     endpoint = "#{protocol}://#{host}:#{port}"
     remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, opts)
@@ -2053,7 +2048,7 @@ class Db
     print_line "  -a, --add [ options ] <host>  Add a new data service"
     print_line "  Add Data Service Options:"
     print_line "  -p <port>           The port the data service is listening on. Default is 8080."
-    print_line "  -t, --token <token> Required API Token for MSF web service"
+    print_line "  -t, --token <token> API Token for MSF web service"
     print_line "  -s, --ssl           Enable SSL. Required for HTTPS data services."
     print_line "  -c, --cert          Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
     print_line "  --skip-verify       Skip validating authenticity of server's certificate. NOT RECOMMENDED."
