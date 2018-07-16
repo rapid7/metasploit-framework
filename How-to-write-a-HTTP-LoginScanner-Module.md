@@ -336,41 +336,15 @@ With the Result object, we can start reporting. In most cases, you will probably
 
 **Reporting a valid credential**
 
-The credential API knows a lot about a credential, such as when it was used, how it was used, serviced tried, target IP, port, etc, etc. So when you report you should just as much. To save you the trouble, here's an example of how you will probably write the method:
+The credential API knows a lot about a credential, such as when it was used, how it was used, serviced tried, target IP, port, etc, etc. So when we report, that's how much information we are storing for every credential. To make credential reporting easy to use, all you need to do is call the #store_valid_credential method like this:
 
 ```ruby
-# Reports a good credential.
-#
-# @param [String] ip Target host
-# @param [Fixnum] port Target port
-# @param [Result] The Result object
-# @return [void]
-def report_good_cred(ip, port, result)
-  service_data = {
-    address: ip,
-    port: port,
-    service_name: 'http',
-    protocol: 'tcp',
-    workspace_id: myworkspace_id
-  }
-
-  credential_data = {
-    module_fullname: self.fullname,
-    origin_type: :service,
-    private_data: result.credential.private,
-    private_type: :password,
-    username: result.credential.public,
-  }.merge(service_data)
-
-  login_data = {
-    core: create_credential(credential_data),
-    last_attempted_at: DateTime.now,
-    status: result.status,
-    proof: result.proof
-  }.merge(service_data)
-
-  create_credential_login(login_data)
-end
+store_valid_credential(
+  user: result.credential.public,
+  private: result.credential.private,
+  private_type: :password, # This is optional
+  proof: nil, # This is optional
+)
 ```
 
 **Report an invalid credential**
