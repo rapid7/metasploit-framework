@@ -42,9 +42,8 @@ class Msftidy
 
   # Status codes
   OK       = 0
-  INFO     = 1
-  WARNING  = 2
-  ERROR    = 3
+  WARNING  = 1
+  ERROR    = 2
 
   # Some compiles regexes
   REGEX_MSF_EXPLOIT = / \< Msf::Exploit/
@@ -72,7 +71,7 @@ class Msftidy
   # error.
   def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
-    @status += WARNING
+    @status = WARNING if @status < WARNING
   end
 
   #
@@ -84,7 +83,7 @@ class Msftidy
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
-    @status += ERROR
+    @status = ERROR if @status < ERROR
   end
 
   # Currently unused, but some day msftidy will fix errors for you.
@@ -100,7 +99,6 @@ class Msftidy
     return if SUPPRESS_INFO_MESSAGES
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
-    @status += INFO
   end
 
   ##
