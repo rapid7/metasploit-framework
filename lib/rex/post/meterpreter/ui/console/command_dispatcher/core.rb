@@ -1114,6 +1114,11 @@ class Console::CommandDispatcher::Core
       end
     end
 
+    if pid == server.pid
+      print_error("Process already running at PID #{pid}")
+      return
+    end
+
     server ? print_status("Migrating from #{server.pid} to #{pid}...") : print_status("Migrating to #{pid}")
 
     # Do this thang.
