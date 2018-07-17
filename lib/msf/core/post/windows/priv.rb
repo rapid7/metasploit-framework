@@ -124,7 +124,7 @@ module Msf::Post::Windows::Priv
   # if running on a system that does not have UAC
   #
   def is_uac_enabled?
-    return false unless is_system?
+    return false if is_system?
 
     winversion = session.sys.config.sysinfo['OS']
     return false unless winversion =~ /Windows (Vista|7|8|10|2008|2012|2016)/
