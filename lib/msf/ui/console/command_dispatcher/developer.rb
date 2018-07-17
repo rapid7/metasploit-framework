@@ -3,7 +3,6 @@
 class Msf::Ui::Console::CommandDispatcher::Developer
 
   include Msf::Ui::Console::CommandDispatcher
-  include Msf::Ui::Console::CommandDispatcher::Common
 
   def initialize(driver)
     super
