@@ -250,6 +250,17 @@ module DispatcherShell
     end
 
     #
+    # Return a list of possible directory for tab completion.
+    #
+
+    def tab_complete_directory(str, words)
+      str = './' if str.empty?
+      dirs = Dir.glob(str.concat('*'),File::FNM_CASEFOLD).select{|x| File.directory?(x) }
+
+      dirs
+    end
+
+    #
     # Provide a generic tab completion function based on the specification
     # pass as fmt. The fmt argument in a hash where values are an array
     # defining how the command should be completed. The first element of the
