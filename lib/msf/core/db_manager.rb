@@ -34,6 +34,7 @@ class Msf::DBManager
   autoload :Cred, 'msf/core/db_manager/cred'
   autoload :DbExport, 'msf/core/db_manager/db_export'
   autoload :Event, 'msf/core/db_manager/event'
+  autoload :Exploit, 'msf/core/db_manager/exploit'
   autoload :ExploitAttempt, 'msf/core/db_manager/exploit_attempt'
   autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
   autoload :Host, 'msf/core/db_manager/host'
@@ -71,6 +72,7 @@ class Msf::DBManager
   include Msf::DBManager::Cred
   include Msf::DBManager::DbExport
   include Msf::DBManager::Event
+  include Msf::DBManager::Exploit
   include Msf::DBManager::ExploitAttempt
   include Msf::DBManager::ExploitedHost
   include Msf::DBManager::Host
