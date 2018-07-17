@@ -19,6 +19,7 @@ require 'msf/ui/console/command_dispatcher/post'
 require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
+require 'msf/ui/console/command_dispatcher/developer'
 require 'msf/util/document_generator'
 
 module Msf

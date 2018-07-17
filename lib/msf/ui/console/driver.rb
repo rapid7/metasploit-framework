@@ -32,7 +32,8 @@ class Driver < Msf::Ui::Driver
   CommandDispatchers = [
     CommandDispatcher::Modules,
     CommandDispatcher::Jobs,
-    CommandDispatcher::Resource
+    CommandDispatcher::Resource,
+    CommandDispatcher::Developer
   ]
 
   #
