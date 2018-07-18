@@ -60,7 +60,7 @@ module Server
     post "/run_exten" do
       puts "Extension Commands Entered by user is #{params[:exten_cmd]}"
     end
-end
+  end
 
   class Back
     @framework=nil
@@ -107,9 +107,9 @@ end
 
     def post_info(mod)
       # This method will use msf/base/serializer/json Class to dump information for
-       post modules. dump_post_module(mod)
-       p_info=Msf::Serializer::Json.dump_post_module(mod)
-       puts p_info
+      post modules. dump_post_module(mod)
+      p_info=Msf::Serializer::Json.dump_post_module(mod)
+      puts p_info
     end
 
     def exten
@@ -125,6 +125,6 @@ end
       #run Extension commands
     end
 
- end
+  end
 
 end

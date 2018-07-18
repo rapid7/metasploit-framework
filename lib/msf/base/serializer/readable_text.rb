@@ -545,11 +545,9 @@ class ReadableText
     verbose = opts[:verbose] || false
     show_active = opts[:show_active] || false
     show_inactive = opts[:show_inactive] || false
-    show_active_web=opts[:show_active_web] || false
     # if show_active and show_inactive are false the caller didn't
     # specify either flag; default to displaying active sessions
     show_active = true if !(show_active || show_inactive)
-    show_active_web=true if !(show_active_web)
     show_extended = opts[:show_extended] || false
     indent = opts[:indent] || DefaultIndent
 
@@ -578,28 +576,6 @@ class ReadableText
 
       output << (tbl.rows.count > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n")
     end
-    # Show Active Web Console
-    if show_active_web
-      columns = []
-      columns << 'ID'
-      columns << 'Name'
-      columns << 'type'
-      columns << 'info'
-      columns << 'host'
-
-      tbl = Rex::Text::Table.new(
-           'Header' => "Active Web Console",
-           'Columns' => columns,
-           'Indent' => indent)
-      framework.sessions.each_sorted { |k|
-        session = framework.sessions[k]
-        row = create_msf_web_session_row(session)
-        tbl << row
-      }
-
-      output << (tbl.rows.count > 0 ? tbl.to_s : "#{tbl.header_to_s}No active sessions.\n")
-    end
-
     if show_inactive
       output << "\n" if show_active
 
@@ -678,36 +654,6 @@ class ReadableText
     # return complete row
     row
   end
-
-  # Creates a table row that represent the specified Web Console Sessions
-  #
-  # @param session [Msf::Session] session used to create a table row.
-  # @param show_extended [Boolean] Indicates if extended information will be included in the row.
-  # @return [Array] table row of session data.
-  def self.create_msf_web_session_row(session)
-    row = []
-    row << session.sid.to_s
-    row << session.sname.to_s
-    row << session.type.to_s
-    if session.respond_to?(:session_type)
-      row[-1] << " #{session.session_type}"
-    elsif session.respond_to?(:platform)
-      row[-1] << " #{session.platform}"
-    end
-
-    sinfo = session.info.to_s
-    # Arbitrarily cut info at 80 columns
-    if sinfo.length > 80
-      sinfo = "#{sinfo[0,77]}..."
-    end
-    row << sinfo
-
-    row << "#{session.tunnel_to_s} (#{session.session_host})"
-
-    # return complete row
-    row
-  end
-
   # Creates a table row that represents the specified session.
   #
   # @param session [Mdm::Session] session used to create a table row.
