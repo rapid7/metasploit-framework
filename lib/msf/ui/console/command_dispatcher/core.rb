@@ -2048,7 +2048,7 @@ class Core
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
     mod = active_module
     if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
     else
       driver.update_prompt("#{prompt} ", prompt_char, true)
     end
