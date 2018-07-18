@@ -46,13 +46,18 @@ class EmpireShell < Msf::Sessions::CommandShell
       'show_modules'=> 'List all the Empire post modules available to deploy against the target',
       'show_info'   => 'Displays all the available options and description of the specified module',
       'use_module'  => 'Attemps to run the specified module against the current agent',
-      'shell'       => 'Run shell commands on target system'
+      'shell'       => 'Run shell commands on target system',
+      'rename_agent'=> 'Rename the curret agent name for easier interaction'
     }
   end
 
   #
   #Define available commands
   #Defining help command
+  #
+  #
+  #HELP METHODS
+  #------------------
   #
   def cmd_help
     help_table = Rex::Text::Table.new(
@@ -70,11 +75,6 @@ class EmpireShell < Msf::Sessions::CommandShell
     print(help_table.to_s)
   end
 
-  #Defining show_modules command
-  def cmd_show_modules
-    self.client_emp.get_modules
-  end
-
   #Defining show_info_help
   def show_info_help
     print_line "Usage : show_info <module_name>"
@@ -84,7 +84,7 @@ class EmpireShell < Msf::Sessions::CommandShell
     print_line
   end
 
-  #Define use_module_help
+  #Define use_module_heLP
   def use_module_help
     print_line "Usage : use_info <module_name>"
     print_line "Example : use_module powershell/situational_awareness/networ/powerview/find_gpo_location"
@@ -93,6 +93,21 @@ class EmpireShell < Msf::Sessions::CommandShell
     print_line
   end
 
+  #Define rename_agent_help
+  def rename_agent_help
+    print_line "Usage: rename_agent <new_name>"
+    print_line "Example: rename_agent target_1"
+    print_line
+    print_line "Renames the agent for easier interaction"
+    print_line
+  end
+  #
+  #COMMAND METHODS
+  #----------------------
+  #
+
+  #Defining show_modules method
+  
   #Defining show_info command
   def cmd_show_info(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
@@ -113,7 +128,12 @@ class EmpireShell < Msf::Sessions::CommandShell
     end
   end
 
-  #Defining shell command
+  #Defining show_modules command
+  def cmd_show_modules
+    self.client_emp.get_modules
+  end
+
+  #Defining empire shell method
   def cmd_shell
     shell_command = ''
     while shell_command != 'exit'
@@ -127,6 +147,17 @@ class EmpireShell < Msf::Sessions::CommandShell
       else
         print_error "#{response}"
       end
+    end
+  end
+
+  #Defining rename_agent command
+  def cmd_rename_agent(*args)
+    if args.length.zero? || args[0] == '-h' or args[0] == 'help'
+      return rename_agent_help
+    else
+      new_name = args[0].to_s
+      self.client_emp(self.agent_name,new_name)
+      name(new_name)
     end
   end
 end
