@@ -419,7 +419,7 @@ class Msftidy
         error("Invalid ranking. You have '#{$1}'")
       end
     else
-      info('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
+      warn('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
     end
   end
 
@@ -604,26 +604,20 @@ class Msftidy
     test = @source.scan(/send_request_cgi\s*\(?\s*\{?\s*['"]uri['"]\s*=>\s*[^=})]*?\?[^,})]+/im)
     unless test.empty?
       test.each { |item|
-        info("Please use vars_get in send_request_cgi: #{item}")
+        warn("Please use vars_get in send_request_cgi: #{item}")
       }
     end
   end
 
   def check_newline_eof
     if @source !~ /(?:\r\n|\n)\z/m
-      info('Please add a newline at the end of the file')
-    end
-  end
-
-  def check_sock_get
-    if @source =~ /\s+sock\.get(\s*|\(|\d+\s*|\d+\s*,\d+\s*)/m && @source !~ /sock\.get_once/
-      info('Please use sock.get_once instead of sock.get')
+      warn('Please add a newline at the end of the file')
     end
   end
 
   def check_udp_sock_get
     if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
-      info('Please specify a timeout to udp_sock.get')
+      warn('Please specify a timeout to udp_sock.get')
     end
   end
 
@@ -635,7 +629,7 @@ class Msftidy
     test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
     unless test.empty?
       test.each { |item|
-        info("Invalid URL: #{item}")
+        warn("Invalid URL: #{item}")
       }
     end
   end
