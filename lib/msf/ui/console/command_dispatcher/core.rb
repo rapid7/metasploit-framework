@@ -21,7 +21,10 @@ require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/util/document_generator'
 require './tools/session-ui/webconsoleServer'
+<<<<<<< HEAD
 #require './tools/session-ui/backend'
+=======
+>>>>>>> 450a3a87c6d892d6e3fd09b5e7861b3a57ab1e04
 
 
 module Msf
@@ -1155,7 +1158,7 @@ class Core
     response_timeout = 15
     search_term = nil
     session_name = nil
-      
+
     # any arguments that don't correspond to an option or option arg will
     # be put in here
     extra   = []
@@ -1434,12 +1437,11 @@ class Core
             # need some house keeping, will resolve soon
             server_bind='127.0.0.1'
             server_port=3000
-            Sinatra::Backend::Server.setup(framework,framework.post.keys,sess_id)
+            session_server=Server::Back.new
+            session_server.set(framework,sess_id)
             thr = []
             thr << framework.threads.spawn("ConsoletoBrowser",true) do
-              WebConsoleServer.run!(:host=>'127.0.0.1',:port=>3000)
-              $stderr.reopen(File.new('/dev/null', 'w'))
-              $stdout.reopen(File.new('/dev/null', 'w'))
+              Server::WebConsoleServer.run!(:bind=>'127.0.0.1',:port=>3000)
             end
 
             thr << framework.threads.spawn("OpenBrowser",true) do
