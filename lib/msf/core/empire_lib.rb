@@ -65,14 +65,15 @@ module Msf::Empire
     #hosted over there. Also, the name needs to be cross-checked with the existing listener names, so user doesnt end
     #creating concurrent listeners.
     #
-    def create_listener(listener_name, port) 
+    def create_listener(listener_name, port, host) 
       uri = URI.parse("https://localhost:1337/api/listeners/http?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
       req_options = self.set_options(uri)
       request.body = JSON.dump({
         "Name" => listener_name,
-        "Port" => port
+        "Port" => port,
+        "Host" => host
         })
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
@@ -143,20 +144,12 @@ module Msf::Empire
       uri = URI.parse("https://localhost:1337/api/stagers?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
-      if stager_type == 'windows/dll'
-        request.body = JSON.dump({
-          "StagerName" => stager_type,
-          "Listener" => listener_name,
-          "OutFile" => " "
-          })
-      else
-        request.body = JSON.dump({
-          "StagerName" => stager_type,
-          "Listener" => listener_name,
-          "OutFile" => ""
-        })
-        end
-        req_options = self.set_options(uri)
+      request.body = JSON.dump({
+        "StagerName" => stager_type,
+        "Listener" => listener_name,
+        "OutFile" => ""
+      })
+      req_options = self.set_options(uri)
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
@@ -191,11 +184,11 @@ module Msf::Empire
         if parser['agents'].any?
           if temp_session == false
             parser['agents'][0].each do |agents_id|
-              print_line("#{agents_id['ID']} : #{agents_id['Name']}")
+              print_line("#{agents_id['ID']} : #{agents_id['session_id']}")
             end
           elsif temp_session == true
-            print_line("#{parser['agents'][0]['ID']} : #{parser['agents'][0]['Name']}")
-            return parser['agents'][0]['Name']
+            print_line("#{parser['agents'][0]['ID']} : #{parser['agents'][0]['session_id']}")
+            return parser['agents'][0]['session_id']
           end
         else
           return "No agents connected"
