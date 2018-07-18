@@ -115,10 +115,10 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "https://packetstormsecurity.com/files/#{in_ctx_val}"
     elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
-    elsif in_ctx_id == 'SOUNDTRACK'
-      self.site = "Soundtrack: #{in_ctx_val}"
     elsif in_ctx_id == 'LOGO'
       self.site = "Logo: #{in_ctx_val}"
+    elsif in_ctx_id == 'SOUNDTRACK'
+      self.site = "Soundtrack: #{in_ctx_val}"
     elsif in_ctx_id == 'AKA'
       self.site = "Also known as: #{in_ctx_val}"
     else

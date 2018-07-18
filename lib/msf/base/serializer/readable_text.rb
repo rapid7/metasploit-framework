@@ -512,7 +512,7 @@ class ReadableText
         output << "#{indent}CVE: Not available\n"
       end
 
-      mod.references.each { |ref|
+      mod.references.each do |ref|
         case ref.ctx_id
         when 'CVE', 'cve'
           if !cve_collection.empty? && ref.ctx_val.blank?
@@ -523,7 +523,7 @@ class ReadableText
         else
           output << indent + ref.to_s + "\n"
         end
-      }
+      end
 
       output << "\n"
     end
