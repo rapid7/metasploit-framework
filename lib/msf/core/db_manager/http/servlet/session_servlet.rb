@@ -20,7 +20,6 @@ module SessionServlet
   def self.get_session
     lambda {
       begin
-        opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
         data = get_db.sessions(sanitized_params)
         includes = [:host]

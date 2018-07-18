@@ -16,8 +16,8 @@ module SessionEventServlet
   def self.get_session_event
     lambda {
       begin
-        opts = parse_json_request(request, false)
-        data = get_db.session_events(opts)
+        sanitized_params = sanitize_params(params)
+        data = get_db.session_events(sanitized_params)
         set_json_response(data)
       rescue => e
         set_error_on_response(e)

@@ -22,7 +22,6 @@ module NoteServlet
   def self.get_note
     lambda {
       begin
-        opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
         data = get_db.notes(sanitized_params)
         includes = [:host]

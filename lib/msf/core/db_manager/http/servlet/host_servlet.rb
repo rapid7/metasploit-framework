@@ -27,7 +27,6 @@ module HostServlet
   def self.get_host
     lambda {
       begin
-        opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
         data = get_db.hosts(sanitized_params)
         includes = [:loots]

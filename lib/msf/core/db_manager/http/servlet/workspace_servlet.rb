@@ -22,7 +22,6 @@ module WorkspaceServlet
     def self.get_workspace
       lambda {
         begin
-          opts = parse_json_request(request, false)
           includes = nil
 
           sanitized_params = sanitize_params(params)

@@ -20,8 +20,8 @@ module VulnAttemptServlet
   def self.get_vuln_attempt
     lambda {
       begin
-        opts = parse_json_request(request, false)
-        data = get_db.vuln_attempts(params.symbolize_keys)
+        sanitized_params = sanitize_params(params)
+        data = get_db.vuln_attempts(sanitized_params)
         set_json_response(data)
       rescue => e
         set_error_on_response(e)

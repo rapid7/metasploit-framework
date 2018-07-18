@@ -22,7 +22,6 @@ module LootServlet
   def self.get_loot
     lambda {
       begin
-        opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
         data = get_db.loots(sanitized_params)
         includes = [:host]

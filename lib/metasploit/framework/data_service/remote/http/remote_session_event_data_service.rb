@@ -7,7 +7,7 @@ module RemoteSessionEventDataService
   SESSION_EVENT_MDM_CLASS = 'Mdm::SessionEvent'
 
   def session_events(opts = {})
-    json_to_mdm_object(self.get_data(SESSION_EVENT_API_PATH, opts), SESSION_EVENT_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(SESSION_EVENT_API_PATH, nil, opts), SESSION_EVENT_MDM_CLASS, [])
   end
 
   def report_session_event(opts)

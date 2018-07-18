@@ -22,8 +22,8 @@ module ServiceServlet
   def self.get_services
     lambda {
       begin
-        opts = sanitize_params(params)
-        data = get_db.services(opts)
+        sanitized_params = sanitize_params(params)
+        data = get_db.services(sanitized_params)
         includes = [:host]
         set_json_response(data, includes)
       rescue => e

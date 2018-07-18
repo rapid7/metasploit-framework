@@ -22,7 +22,6 @@ module VulnServlet
   def self.get_vuln
     lambda {
       begin
-        opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
         data = get_db.vulns(sanitized_params)
         includes = [:host, :vulns_refs, :refs, :module_refs]
