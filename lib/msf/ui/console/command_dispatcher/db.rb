@@ -1975,7 +1975,7 @@ class Db
     https_opts = {}
     while (arg = args.shift)
       case arg
-        when '-p'
+        when '-p', '--port'
           port = args.shift
         when '-t', '--token'
           opts[:api_token] = args.shift
@@ -2047,7 +2047,7 @@ class Db
     print_line "  -s, --set <id>                Set the active data service by identifier."
     print_line "  -a, --add [ options ] <host>  Add a new data service"
     print_line "  Add Data Service Options:"
-    print_line "  -p <port>           The port the data service is listening on. Default is 8080."
+    print_line "  -p, --port <port>   The port the data service is listening on. Default is 8080."
     print_line "  -t, --token <token> API Token for MSF web service"
     print_line "  -s, --ssl           Enable SSL. Required for HTTPS data services."
     print_line "  -c, --cert          Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
