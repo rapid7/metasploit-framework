@@ -19,6 +19,7 @@ module VulnAttemptServlet
 
   def self.get_vuln_attempt
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.vuln_attempts(params.symbolize_keys)
@@ -31,6 +32,7 @@ module VulnAttemptServlet
 
   def self.report_vuln_attempt
     lambda {
+      warden.authenticate!
       begin
         job = lambda { |opts|
           vuln_id = opts.delete(:vuln_id)

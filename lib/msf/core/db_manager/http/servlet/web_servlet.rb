@@ -14,6 +14,7 @@ module WebServlet
 
   def self.report_web
     lambda {
+      warden.authenticate!
       job = lambda { |opts|  get_db().report_web_site(opts) }
       exec_report_job(request, &job)
     }

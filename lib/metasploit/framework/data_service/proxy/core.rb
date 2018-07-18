@@ -62,6 +62,23 @@ class DataProxy
   end
 
   #
+  # Delete the specified data service
+  #
+  def delete_data_service(data_service_id)
+    raise ArgumentError.new('Cannot delete data service id: 1') if data_service_id.to_i == 1
+
+    data_service = @data_services.delete(data_service_id.to_i)
+    if data_service.nil?
+      raise "Data service with id: #{data_service_id} does not exist"
+    end
+
+    if @current_data_service == data_service
+      # set the current data service to the first data service created
+      @current_data_service = @data_services[1]
+    end
+  end
+
+  #
   # Set the data service to be used
   #
   def set_data_service(data_service_id)

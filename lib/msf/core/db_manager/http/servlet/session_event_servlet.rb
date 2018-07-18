@@ -15,6 +15,7 @@ module SessionEventServlet
 
   def self.get_session_event
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.session_events(opts)
@@ -27,6 +28,7 @@ module SessionEventServlet
 
   def self.report_session_event
     lambda {
+      warden.authenticate!
       begin
         job = lambda { |opts|
           get_db.report_session_event(opts)

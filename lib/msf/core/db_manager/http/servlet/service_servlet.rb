@@ -21,6 +21,7 @@ module ServiceServlet
 
   def self.get_services
     lambda {
+      warden.authenticate!
       begin
         opts = sanitize_params(params)
         data = get_db.services(opts)
@@ -34,6 +35,7 @@ module ServiceServlet
 
   def self.report_service
     lambda {
+      warden.authenticate!
       job = lambda { |opts| get_db.report_service(opts) }
       includes = [:host]
       exec_report_job(request, includes, &job)
@@ -42,6 +44,7 @@ module ServiceServlet
 
   def self.update_service
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
@@ -56,6 +59,7 @@ module ServiceServlet
 
   def self.delete_service
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_service(opts)

@@ -103,6 +103,8 @@ Gem::Specification.new do |spec|
   # Required for msfdb_ws (Metasploit data base as a webservice)
   spec.add_runtime_dependency 'thin'
   spec.add_runtime_dependency 'sinatra'
+  spec.add_runtime_dependency 'sysrandom'
+  spec.add_runtime_dependency 'warden'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
   # Gem for dealing with SSHKeys

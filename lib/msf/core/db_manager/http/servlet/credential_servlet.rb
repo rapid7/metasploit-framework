@@ -15,6 +15,7 @@ module CredentialServlet
 
   def self.get_credentials
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
@@ -37,6 +38,7 @@ module CredentialServlet
 
   def self.create_credential
     lambda {
+      warden.authenticate!
       job = lambda { |opts|
         opts[:origin_type] = opts[:origin_type].to_sym
         opts[:private_type] = opts[:private_type].to_sym
