@@ -11,6 +11,10 @@ module Msf::DBManager::Module
     search_results
   end
 
+  #######
+  private
+  #######
+
   def is_match(metadata, params)
     match = true
     params.each do |param, value|
