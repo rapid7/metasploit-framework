@@ -102,8 +102,6 @@ module NoteApiDoc
       key :description, 'Return specific note that is stored in the database.'
       key :tags, [ 'note' ]
 
-      parameter :workspace
-
       parameter do
         key :name, :id
         key :in, :path

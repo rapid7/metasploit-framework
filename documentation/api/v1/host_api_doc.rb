@@ -184,10 +184,6 @@ module HostApiDoc
       key :description, 'Return specific host that is stored in the database.'
       key :tags, [ 'host' ]
 
-      parameter :workspace
-      parameter :non_dead
-      parameter :address
-
       parameter do
         key :name, :id
         key :in, :path

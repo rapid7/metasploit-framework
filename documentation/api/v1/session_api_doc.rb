@@ -68,4 +68,31 @@ module SessionApiDoc
     #   end
     # end
   end
+
+  swagger_path '/api/v1/sessions/{id}' do
+    # Swagger documentation for api/v1/sessions/:id GET
+    operation :get do
+      key :description, 'Return a specific session that is stored in the database.'
+      key :tags, [ 'session' ]
+
+      parameter do
+        key :name, :id
+        key :in, :path
+        key :description, 'ID of session to retrieve.'
+        key :required, true
+        key :type, :integer
+        key :format, :int32
+      end
+
+      response 200 do
+        key :description, 'Returns session data.'
+        schema do
+          key :type, :array
+          items do
+            key :'$ref', :Session
+          end
+        end
+      end
+    end
+  end
 end

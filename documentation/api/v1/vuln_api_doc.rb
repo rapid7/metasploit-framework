@@ -157,8 +157,6 @@ module VulnApiDoc
       key :description, 'Return specific vuln that is stored in the database.'
       key :tags, [ 'vuln' ]
 
-      parameter :workspace
-
       parameter do
         key :name, :id
         key :in, :path

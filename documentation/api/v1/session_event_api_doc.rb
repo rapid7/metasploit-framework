@@ -72,4 +72,31 @@ module SessionEventApiDoc
       end
     end
   end
+
+  swagger_path '/api/v1/session-events/{id}' do
+    # Swagger documentation for api/v1/session-events/:id GET
+    operation :get do
+      key :description, 'Return a specific session_event that is stored in the database.'
+      key :tags, [ 'session_event' ]
+
+      parameter do
+        key :name, :id
+        key :in, :path
+        key :description, 'ID of session_event to retrieve.'
+        key :required, true
+        key :type, :integer
+        key :format, :int32
+      end
+
+      response 200 do
+        key :description, 'Returns session_event data.'
+        schema do
+          key :type, :array
+          items do
+            key :'$ref', :SessionEvent
+          end
+        end
+      end
+    end
+  end
 end
