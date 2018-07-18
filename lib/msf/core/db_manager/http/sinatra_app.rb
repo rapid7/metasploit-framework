@@ -18,6 +18,7 @@ require 'msf/core/db_manager/http/servlet/credential_servlet'
 require 'msf/core/db_manager/http/servlet/nmap_servlet'
 require 'msf/core/db_manager/http/servlet/db_export_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_attempt_servlet'
+require 'msf/core/db_manager/http/servlet/module_servlet'
 
 class SinatraApp < Sinatra::Base
   helpers ServletHelper
@@ -40,4 +41,5 @@ class SinatraApp < Sinatra::Base
   register NmapServlet
   register DbExportServlet
   register VulnAttemptServlet
+  register ModuleServlet
 end

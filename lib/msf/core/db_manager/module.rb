@@ -1,6 +1,6 @@
-module Msf::DBManager::Exploit
+module Msf::DBManager::Module
 
-  def exploits(opts)
+  def modules(opts)
     search_results = []
     metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
     metadata.each { |module_metadata|
@@ -55,7 +55,6 @@ module Msf::DBManager::Exploit
     end
     match
   end
-
 
 
 end

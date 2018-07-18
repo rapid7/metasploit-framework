@@ -34,7 +34,6 @@ class Msf::DBManager
   autoload :Cred, 'msf/core/db_manager/cred'
   autoload :DbExport, 'msf/core/db_manager/db_export'
   autoload :Event, 'msf/core/db_manager/event'
-  autoload :Exploit, 'msf/core/db_manager/exploit'
   autoload :ExploitAttempt, 'msf/core/db_manager/exploit_attempt'
   autoload :ExploitedHost, 'msf/core/db_manager/exploited_host'
   autoload :Host, 'msf/core/db_manager/host'
@@ -45,6 +44,7 @@ class Msf::DBManager
   autoload :IPAddress, 'msf/core/db_manager/ip_address'
   autoload :Loot, 'msf/core/db_manager/loot'
   autoload :Migration, 'msf/core/db_manager/migration'
+  autoload :Module, 'msf/core/db_manager/module'
   autoload :ModuleCache, 'msf/core/db_manager/module_cache'
   autoload :Note, 'msf/core/db_manager/note'
   autoload :Ref, 'msf/core/db_manager/ref'
@@ -72,7 +72,6 @@ class Msf::DBManager
   include Msf::DBManager::Cred
   include Msf::DBManager::DbExport
   include Msf::DBManager::Event
-  include Msf::DBManager::Exploit
   include Msf::DBManager::ExploitAttempt
   include Msf::DBManager::ExploitedHost
   include Msf::DBManager::Host
@@ -82,6 +81,7 @@ class Msf::DBManager
   include Msf::DBManager::IPAddress
   include Msf::DBManager::Loot
   include Msf::DBManager::Migration
+  include Msf::DBManager::Module
   include Msf::DBManager::ModuleCache
   include Msf::DBManager::Note
   include Msf::DBManager::Ref
