@@ -1434,11 +1434,11 @@ class Core
             # need some house keeping, will resolve soon
             server_bind='127.0.0.1'
             server_port=3000
-            session_server=Server::Back.new
-            session_server.set(framework,sess_id)
+            Sinatra::Backend::Server.setup(framework,framework.post.keys,sess_id)
             thr = []
             thr << framework.threads.spawn("ConsoletoBrowser",true) do
-              Server::WebConsoleServer.run!(:bind=>'127.0.0.1',:port=>3000)
+              WebConsoleServer.run!(:host=>'127.0.0.1',:port=>3000)
+
             end
 
             thr << framework.threads.spawn("OpenBrowser",true) do
