@@ -21,10 +21,7 @@ require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/util/document_generator'
 require './tools/session-ui/webconsoleServer'
-<<<<<<< HEAD
-#require './tools/session-ui/backend'
-=======
->>>>>>> 450a3a87c6d892d6e3fd09b5e7861b3a57ab1e04
+
 
 
 module Msf
