@@ -1,7 +1,7 @@
 module UserServlet
 
   def self.api_path
-    '/api/v1/user'
+    '/api/v1/users'
   end
 
   def self.api_path_with_id
