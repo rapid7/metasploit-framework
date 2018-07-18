@@ -42,7 +42,7 @@ module Msf::DBManager::Module
       when :port
         match = match && metadata.rport =~ r
       when :ref
-        match = match && metadata.reference.any? { |ref| ref =~ r }
+        match = match && metadata.references.any? { |ref| ref =~ r }
       when :text
         terms = [metadata.name, metadata.full_name, metadata.description] + metadata.references + metadata.author
         if metadata.targets
