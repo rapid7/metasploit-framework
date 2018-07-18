@@ -697,7 +697,6 @@ class Msftidy
     check_vuln_codes
     check_vars_get
     check_newline_eof
-    check_sock_get
     check_udp_sock_get
     check_invalid_url_scheme
     check_print_debug
