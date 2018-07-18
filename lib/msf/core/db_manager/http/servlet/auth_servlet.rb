@@ -94,8 +94,9 @@ module AuthServlet
       end
 
       msg = warden_options[:message]
+      code = warden_options[:code] || 401
       error = {
-        code: 401,
+        code: code,
         message: "#{!msg.nil? ? "#{msg} " : nil}Authenticate to access this resource."
       }
       set_json_error_response(response: error, code: error[:code])

@@ -4,16 +4,16 @@ module Authentication
 
       # Validates the user associated with the API token is an admin.
       #
-      # @return [Boolean] True if the user is valid; otherwise, false.
-      def valid_user?(user)
-        super && user.admin
-      end
+      # @return [Hash] User validation data
+      # @option :valid [Boolean] True if the user is valid; otherwise, false.
+      # @option :code [Integer] 0 if the user is valid; otherwise, a non-zero strategy failure code.
+      # @option :message [String] strategy failure message
+      def validate_user(user)
+        # perform parent validation first
+        data = super
+        return data if !data[:valid]
 
-      # Gets the strategy failure message.
-      #
-      # @return [String] The strategy failure message.
-      def strategy_failure_message
-        "Invalid permissions."
+        user.admin ? {valid: true, code: 0, message: nil} : {valid: false, code: 403, message: "Invalid permissions."}
       end
 
     end

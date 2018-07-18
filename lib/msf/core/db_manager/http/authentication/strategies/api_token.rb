@@ -29,26 +29,23 @@ module Authentication
 
           user = db_manager.users(persistence_token: token).first
 
-          if valid_user?(user)
+          validation_data = validate_user(user)
+          if validation_data[:valid]
             success!(user)
           else
-            throw(:warden, message: strategy_failure_message)
+            throw(:warden, message: validation_data[:message], code: validation_data[:code])
           end
         end
       end
 
       # Validates the user associated with the API token.
       #
-      # @return [Boolean] True if the user is valid; otherwise, false.
-      def valid_user?(user)
-        !user.nil?
-      end
-
-      # Gets the strategy failure message.
-      #
-      # @return [String] The strategy failure message.
-      def strategy_failure_message
-        "Invalid API token."
+      # @return [Hash] User validation data
+      # @option :valid [Boolean] True if the user is valid; otherwise, false.
+      # @option :code [Integer] 0 if the user is valid; otherwise, a non-zero strategy failure code.
+      # @option :message [String] strategy failure message
+      def validate_user(user)
+        !user.nil? ? {valid: true, code: 0, message: nil} : {valid: false, code: 401, message: "Invalid API token."}
       end
 
     end
