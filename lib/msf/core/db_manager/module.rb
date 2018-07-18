@@ -5,7 +5,7 @@ module Msf::DBManager::Module
     metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
     metadata.each { |module_metadata|
       if is_match(module_metadata, opts)
-        search_results << module_metadata.full_name
+        search_results << get_fields(module_metadata, opts)
       end
     }
     search_results
@@ -54,6 +54,19 @@ module Msf::DBManager::Module
       end
     end
     match
+  end
+
+  def get_fields(module_metadata, opts)
+    selected_fields = {}
+    if opts.key? :fields
+      fields = opts[:fields].split(',')
+      fields.each do | field |
+        if module_metadata.respond_to?(field)
+          selected_fields[field] = module_metadata.send(field)
+        end
+      end
+    end
+    selected_fields.empty? ? module_metadata : selected_fields
   end
 
 
