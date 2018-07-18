@@ -83,8 +83,9 @@ class Core
     "-i" => [ false, "Ignore case."                                   ],
     "-m" => [ true,  "Stop after arg matches."                        ],
     "-v" => [ false, "Invert match."                                  ],
-    "-A" => [ true,  "Show arg lines of output After a match."        ],
-    "-B" => [ true,  "Show arg lines of output Before a match."       ],
+    "-A" => [ true,  "Show arg lines of output after a match."        ],
+    "-B" => [ true,  "Show arg lines of output before a match."       ],
+    "-C" => [ true,  "Show arg lines of output around a match."       ],
     "-s" => [ true,  "Skip arg lines of output before attempting match."],
     "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
     "-c" => [ false, "Only print a count of matching lines."          ])
@@ -1986,6 +1987,12 @@ class Core
         when "-B"
           # also return arg lines before a match
           output_mods[:before] = val.to_i
+          # delete opt and val from args list
+          args.shift(2)
+        when "-C"
+          # also return arg lines around a match
+          output_mods[:before] = val.to_i
+          output_mods[:after] = val.to_i
           # delete opt and val from args list
           args.shift(2)
         when "-v"
