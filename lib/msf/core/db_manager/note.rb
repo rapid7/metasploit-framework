@@ -23,6 +23,11 @@ module Msf::DBManager::Note
   #
   def notes(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].empty?
+        return Array.wrap(Mdm::Note.find(opts[:id]))
+      end
+
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       data = opts.delete(:data)

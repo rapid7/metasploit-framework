@@ -9,7 +9,7 @@ module ServiceServlet
   end
 
   def self.registered(app)
-    app.get  ServiceServlet.api_path, &get_services
+    app.get  ServiceServlet.api_path_with_id, &get_services
     app.post ServiceServlet.api_path, &report_service
     app.put ServiceServlet.api_path_with_id, &update_service
     app.delete ServiceServlet.api_path, &delete_service

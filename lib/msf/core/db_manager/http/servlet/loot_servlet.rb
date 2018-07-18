@@ -9,7 +9,7 @@ module LootServlet
   end
 
   def self.registered(app)
-    app.get LootServlet.api_path, &get_loot
+    app.get LootServlet.api_path_with_id, &get_loot
     app.post LootServlet.api_path, &report_loot
     app.put LootServlet.api_path_with_id, &update_loot
     app.delete LootServlet.api_path, &delete_loot

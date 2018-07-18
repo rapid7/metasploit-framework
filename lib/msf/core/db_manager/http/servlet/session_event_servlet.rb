@@ -4,8 +4,12 @@ module SessionEventServlet
     '/api/v1/session-events'
   end
 
+  def self.api_path_with_id
+    "#{SessionEventServlet.api_path}/?:id?"
+  end
+
   def self.registered(app)
-    app.get SessionEventServlet.api_path, &get_session_event
+    app.get SessionEventServlet.api_path_with_id, &get_session_event
     app.post SessionEventServlet.api_path, &report_session_event
   end
 
