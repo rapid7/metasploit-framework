@@ -29,7 +29,7 @@ module HostDataProxy
 
   def get_host(opts)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.get_host(opts)
     rescue => e
       self.log_error(e, "Problem retrieving host")

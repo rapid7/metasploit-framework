@@ -41,14 +41,6 @@ module RemoteSessionDataService
     return hash
   end
 
-  def parse_host_opts(msf_session)
-    hash = Hash.new()
-    hash[:host] = msf_session.session_host
-    hash[:arch] = msf_session.arch if msf_session.respond_to?(:arch) and msf_session.arch
-    hash[:workspace] = msf_session[:workspace] || msf_session.workspace
-    return hash
-  end
-
   def parse_session_data(msf_session)
     hash = Hash.new()
     # TODO: what to do with this shiz

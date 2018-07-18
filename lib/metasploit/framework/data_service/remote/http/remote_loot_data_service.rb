@@ -23,10 +23,6 @@ module RemoteLootDataService
     self.post_data_async(LOOT_API_PATH, opts)
   end
 
-  def report_loots(loot)
-    self.post_data(LOOT_API_PATH, loot)
-  end
-
   def update_loot(opts)
     path = LOOT_API_PATH
     if opts && opts[:id]

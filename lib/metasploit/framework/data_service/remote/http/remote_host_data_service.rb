@@ -35,10 +35,4 @@ module RemoteHostDataService
   def delete_host(opts)
     json_to_mdm_object(self.delete_data(HOST_API_PATH, opts), HOST_MDM_CLASS, [])
   end
-
-  # TODO: Remove? What is the purpose of this method?
-  def do_host_search(search)
-    response = self.post_data(HOST_SEARCH_PATH, search)
-    return response.body
-  end
 end
