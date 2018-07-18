@@ -5,10 +5,10 @@
 
 require 'sinatra/base'
 require 'json'
+require './tools/session-ui/backend'
 
-
-module Server
   class WebConsoleServer < Sinatra::Base
+    helpers Sinatra::Backend
 
     configure :development do
       #set :root, File.dirname(__FILE__)
@@ -28,8 +28,9 @@ module Server
 
 
     get "/sysinfo" do
-      system_info=File.read(File.join(File.dirname(__FILE__),'sysinfo.json'))
-      return system_info
+      #system_info=File.read(File.join(File.dirname(__FILE__),'sysinfo.json'))
+      #return system_info
+      return Sinatra::Backend::Server.sys_info
     end
 
     post "/modal" do
@@ -39,8 +40,13 @@ module Server
 
     get "/post" do
       content_type :json
-      post_file=File.read(File.join(File.dirname(__FILE__),'json_post.json'))
-      return post_file
+      #post_file=File.read(File.join(File.dirname(__FILE__),'json_post.json'))
+      #return post_file
+      return Sinatra::Backend::Server.get_post
+    end
+
+    get "/postinfo" do
+      return Sinatra::Backend::Server::post_info("linux")
     end
 
     get "/exten" do
@@ -62,69 +68,43 @@ module Server
     end
   end
 
-  class Back
-    @framework=nil
-    @session_id=nil
 
-    def initialize(framework_obj,sid)
-      @framework = framework_obj
-      @session_id=sid
-    end
 
-    def get_post
-      string = @framework.post.keys
-      final=Hash.new
-      string.each {|string|
-        str=string.split('/')
-        if str.length==2
-          if final.include?(str[0])
-            final[str[0]] =str[1]
-          else
-            final[str[0]]=Array[str[1]]
+
+=begin
+when 'web_ui'
+      print_status("Starting WebConsole the following session(s): #{session_list.join(', ')}")
+      session_list.each do |sess_id|
+        session = framework.sessions.get(sess_id)
+        if session
+          if session.respond_to?(:response_timeout)
+            last_known_timeout = session.response_timeout
+            session.response_timeout = response_timeout
           end
-        elsif str.length ==3
-          if final.include?(str[0])
-            if final.values[0].keys.include?(str[0][str[1]])
-              final.values[0].keys == Array[str[2]]
-            else
-              final.values[0]=Hash[str[1],Array(str[2])]
+          print_status("Starting Web Console for #{sess_id}")
+          begin
+            # need some house keeping, will resolve soon
+            server_bind='127.0.0.1'
+            server_port=3000
+            session_server=Server::Back.new
+            session_server.set(framework,sess_id)
+            thr = []
+            thr << framework.threads.spawn("ConsoletoBrowser",true) do
+              Server::WebConsoleServer.run!(:bind=>'127.0.0.1',:port=>3000)
             end
-          else
-            final[str[0]]=Hash[str[1],Array(str[2])]
+
+            thr << framework.threads.spawn("OpenBrowser",true) do
+              print_status("Opening WebConsole on host #{server_bind} on port #{server_port} for session #{session.sid}")
+              Rex::Compat.open_webrtc_browser('127.0.0.1:3000')
+            end
+
+          ensure
+            if session.respond_to?(:response_timeout) && last_known_timeout
+              session.response_timeout = last_known_timeout
+            end
           end
+        else
+          print_error("Invalid session identifier: #{sess_id}")
         end
-
-      }
-      return final.to_json
-    end
-
-    def sys_info
-      # Fetch system information of the victim's machine.
-
-      info= Msf::Serializer::ReadableText.dump_sessions_verbose(@framework)
-      return info.to_json
-    end
-
-    def post_info(mod)
-      # This method will use msf/base/serializer/json Class to dump information for
-      post modules. dump_post_module(mod)
-      p_info=Msf::Serializer::Json.dump_post_module(mod)
-      puts p_info
-    end
-
-    def exten
-
-    end
-
-    def run_post_script(script)
-      # run Post Exploitation module commands and return the output in json format
-
-    end
-
-    def run_exten_cmd
-      #run Extension commands
-    end
-
-  end
-
-end
+      end
+=end

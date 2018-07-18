@@ -21,6 +21,7 @@ require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/util/document_generator'
 require './tools/session-ui/webconsoleServer'
+#require './tools/session-ui/backend'
 
 
 module Msf
@@ -1433,10 +1434,12 @@ class Core
             # need some house keeping, will resolve soon
             server_bind='127.0.0.1'
             server_port=3000
-            session_server=Server::Back.new(framework,sid)
+            Sinatra::Backend::Server.setup(framework,framework.post.keys,sess_id)
             thr = []
             thr << framework.threads.spawn("ConsoletoBrowser",true) do
-              Server::WebConsoleServer.run!(:port=>3000)
+              WebConsoleServer.run!(:host=>'127.0.0.1',:port=>3000)
+              $stderr.reopen(File.new('/dev/null', 'w'))
+              $stdout.reopen(File.new('/dev/null', 'w'))
             end
 
             thr << framework.threads.spawn("OpenBrowser",true) do
