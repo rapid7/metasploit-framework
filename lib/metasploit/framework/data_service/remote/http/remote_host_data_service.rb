@@ -19,10 +19,6 @@ module RemoteHostDataService
     json_to_mdm_object(self.post_data(HOST_API_PATH, opts), HOST_MDM_CLASS, []).first
   end
 
-  def report_hosts(hosts)
-    self.post_data(HOST_API_PATH, hosts)
-  end
-
   def update_host(opts)
     path = HOST_API_PATH
     if opts && opts[:id]
