@@ -36,6 +36,7 @@ module RootApiDoc
     tag name: 'exploit', description: 'Exploit operations.'
     tag name: 'host', description: 'Host operations.'
     tag name: 'loot', description: 'Loot operations.'
+    tag name: 'module', description: 'Module search operations.'
     tag name: 'msf', description: 'Utility operations around Metasploit Framework.'
     tag name: 'nmap', description: 'Nmap operations.'
     tag name: 'note', description: 'Note operations.'
