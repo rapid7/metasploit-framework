@@ -11,6 +11,7 @@ module ModuleApiDoc
   EDB_DESC = 'Filter modules with a matching Exploit-DB ID.'
   DESCRIPTION_DESC = 'Filter modules with a matching description.'
   DISCLOSURE_DATE_DESC = 'Filter modules with a matching disclosure date.'
+  DATE_DESC = 'Alias for \'disclosure_date\'.'
   FULL_NAME_DESC = 'Filter modules with a matching full name.'
   IS_CLIENT_DESC = 'Filter modules that are client attacks. (Accepts strings \'true\' or \'false\').'
   IS_SERVER_DESC = 'Filter modules that are server attacks. (Accepts strings \'true\' or \'false\').'
@@ -19,10 +20,16 @@ module ModuleApiDoc
   NAME_DESC = 'Filter modules with a matching descriptive name.'
   PATH_DESC = 'Filter modules with a matching path name.'
   PLATFORM_DESC = 'Filter modules affecting a matching platform, arch, or target.'
+  OS_DESC = 'Alias for \'platform\'.'
   PORT_DESC = 'Filter modules with a matching port.'
+  RPORT_DESC = 'Alias for \'port\'.'
   RANK_DESC = 'Filter modules with a matching rank. Accepts numeric values with optional comparison operators (ex: 200, gt500, lte300).'
-  REF_DESC = 'Filter modules with a matching reference.'
-  TARGETS_DESC = 'Filter modules with a matching target.'
+  REFERENCE_DESC = 'Filter modules with a matching reference (CVE, BID, EDB, etc.).'
+  REFERENCES_DESC = 'Alias for \'reference\'.'
+  REF_NAME_DESC = 'Filter modules with a matching ref_name.'
+  REF_DESC = 'Alias for \'ref_name\'.'
+  TARGET_DESC = 'Filter modules with a matching target.'
+  TARGETS_DESC = 'Alias for \'target\'.'
   TEXT_DESC = 'Filter modules matching any one of name, full name, description, reference, author, or targets.'
   TYPE_DESC = 'Filter modules with a matching type (exploit, auxiliary, payload, etc.).'
   FIELDS_DESC = 'Provide a comma-delimited list of metadata fields you would like to return. If left blank, all fields will be returned.'
@@ -163,6 +170,13 @@ module ModuleApiDoc
 
       parameter do
         key :in, :query
+        key :name, :date
+        key :required, false
+        key :description, DATE_DESC
+      end
+
+      parameter do
+        key :in, :query
         key :name, :full_name
         key :required, false
         key :description, FULL_NAME_DESC
@@ -219,9 +233,23 @@ module ModuleApiDoc
 
       parameter do
         key :in, :query
+        key :name, :os
+        key :required, false
+        key :description, OS_DESC
+      end
+
+      parameter do
+        key :in, :query
         key :name, :port
         key :required, false
         key :description, PORT_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :rport
+        key :required, false
+        key :description, RPORT_DESC
       end
 
       parameter do
@@ -233,7 +261,28 @@ module ModuleApiDoc
 
       parameter do
         key :in, :query
-        key :name, :ref
+        key :name, :reference_name
+        key :required, false
+        key :description, REFERENCE_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :references_name
+        key :required, false
+        key :description, REFERENCES_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :ref_name
+        key :required, false
+        key :description, REF_NAME_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :ref_name
         key :required, false
         key :description, REF_DESC
       end
@@ -243,6 +292,13 @@ module ModuleApiDoc
         key :name, :text
         key :required, false
         key :description, TEXT_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :target
+        key :required, false
+        key :description, TARGET_DESC
       end
 
       parameter do
