@@ -24,9 +24,9 @@ module SessionServlet
         sanitized_params = sanitize_params(params)
         data = get_db.sessions(sanitized_params)
         includes = [:host]
-        set_json_response(data, includes)
+        set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end
@@ -44,7 +44,7 @@ module SessionServlet
         }
         exec_report_job(request, &job)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end

@@ -16,7 +16,8 @@ module ResponseDataHelper
       if response_wrapper.expected
         body = response_wrapper.response.body
         unless body.nil? && body.empty?
-          return JSON.parse(body).symbolize_keys
+          parsed_body = JSON.parse(body).deep_symbolize_keys
+          return parsed_body[:data]
         end
       end
     rescue => e
@@ -37,10 +38,11 @@ module ResponseDataHelper
     if response_wrapper.expected
       begin
         body = response_wrapper.response.body
-        if !body.nil? && !body.empty?
-          parsed_body = Array.wrap(JSON.parse(body))
+        if !body.nil? || !body.empty?
+          parsed_body = JSON.parse(body).symbolize_keys
+          data = Array.wrap(parsed_body[:data])
           rv = []
-          parsed_body.each do |json_object|
+          data.each do |json_object|
             rv << to_ar(mdm_class.constantize, json_object)
           end
           return rv

@@ -29,9 +29,9 @@ module CredentialServlet
           json = cred.as_json(include: includes).merge('private_class' => cred.private.class.to_s)
           response << json
         end
-        set_json_response(response)
+        set_json_data_response(response: response)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end

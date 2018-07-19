@@ -13,21 +13,22 @@ module ServletHelper
   end
 
   def set_empty_response
-    [200,  '']
+    set_json_data_response(response: '')
   end
 
   def set_json_response(data, includes = nil, code = 200)
-    headers = {'Content-Type' => 'application/json'}
+    headers = { 'Content-Type' => 'application/json' }
     [code, headers, to_json(data, includes)]
   end
 
   def set_json_data_response(response:, includes: nil, code: 200)
-    data_response = {"data": response}
+    data_response = { "data": response }
     set_json_response(data_response, includes = includes, code = code)
   end
 
-  def set_json_error_response(response:, includes: nil, code:)
-    error_response = {"error": response}
+  def set_json_error_response(error:, includes: nil, code:)
+    print_error "Error handling request: #{error.message}", error
+    error_response = { "error": { "message": error.message } }
     set_json_response(error_response, includes = includes, code = code)
   end
 
@@ -59,11 +60,11 @@ module ServletHelper
         return set_empty_response
       else
         data = job.call(opts)
-        return set_json_response(data, includes)
+        return set_json_data_response(response: data, includes: includes)
       end
 
     rescue => e
-      set_error_on_response(e)
+      set_json_error_response(error: e, code: 500)
     end
   end
 

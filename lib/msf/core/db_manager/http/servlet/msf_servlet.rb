@@ -19,7 +19,7 @@ module MsfServlet
   def self.get_msf_version
     lambda {
       warden.authenticate!
-      set_json_response({metasploit_version: Metasploit::Framework::VERSION})
+      set_json_data_response(response: { metasploit_version: Metasploit::Framework::VERSION })
     }
   end
 

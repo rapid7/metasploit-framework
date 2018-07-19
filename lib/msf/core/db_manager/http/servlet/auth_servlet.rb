@@ -99,7 +99,7 @@ module AuthServlet
         code: code,
         message: "#{!msg.nil? ? "#{msg} " : nil}Authenticate to access this resource."
       }
-      set_json_error_response(response: error, code: error[:code])
+      set_json_error_response(error: error, code: error[:code])
     }
   end
 

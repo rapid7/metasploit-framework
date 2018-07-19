@@ -31,9 +31,9 @@ module HostServlet
         sanitized_params = sanitize_params(params)
         data = get_db.hosts(sanitized_params)
         includes = [:loots]
-        set_json_response(data, includes)
+        set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end
@@ -47,7 +47,7 @@ module HostServlet
         }
         exec_report_job(request, &job)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end
@@ -60,9 +60,9 @@ module HostServlet
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_host(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end
@@ -73,9 +73,9 @@ module HostServlet
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_host(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end
@@ -86,10 +86,10 @@ module HostServlet
       warden.authenticate!
       begin
         opts = parse_json_request(request, false)
-        data = get_db().get_host(opts)
-        set_json_response(data)
+        data = get_db.get_host(opts)
+        set_json_data_response(response: data)
       rescue Exception => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end

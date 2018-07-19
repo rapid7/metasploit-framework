@@ -28,9 +28,9 @@ module WorkspaceServlet
           sanitized_params = sanitize_params(params)
           data = get_db.workspaces(sanitized_params)
 
-          set_json_response(data, includes)
+          set_json_data_response(response: data, includes: includes)
         rescue => e
-          set_error_on_response(e)
+          set_json_error_response(error: e, code: 500)
         end
       }
     end
@@ -40,10 +40,10 @@ module WorkspaceServlet
         warden.authenticate!
         begin
           opts = parse_json_request(request, true)
-          workspace = get_db.add_workspace(opts)
-          set_json_response(workspace)
+          data = get_db.add_workspace(opts)
+          set_json_data_response(response: data)
         rescue => e
-          set_error_on_response(e)
+          set_json_error_response(error: e, code: 500)
         end
       }
     end
@@ -56,9 +56,9 @@ module WorkspaceServlet
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_workspace(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end
@@ -69,9 +69,9 @@ module WorkspaceServlet
         begin
           opts = parse_json_request(request, false)
           data = get_db.delete_workspaces(opts)
-          set_json_response(data)
+          set_json_data_response(response: data)
         rescue => e
-          set_error_on_response(e)
+          set_json_error_response(error: e, code: 500)
         end
       }
     end

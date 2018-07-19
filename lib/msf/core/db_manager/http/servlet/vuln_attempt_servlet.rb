@@ -23,9 +23,9 @@ module VulnAttemptServlet
       begin
         sanitized_params = sanitize_params(params)
         data = get_db.vuln_attempts(sanitized_params)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end
@@ -42,7 +42,7 @@ module VulnAttemptServlet
         }
         exec_report_job(request, &job)
       rescue => e
-        set_error_on_response(e)
+        set_json_error_response(error: e, code: 500)
       end
     }
   end
