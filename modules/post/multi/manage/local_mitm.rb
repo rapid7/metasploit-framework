@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-        'Name'          => 'Free DonutZ', # GSOC 2018: module to get free modules
+        'Name'          => 'Local MITM',
         'Description'   => %q{
           This module setup a local proxy on the victim computer so you can MITM it.
         },
