@@ -53,7 +53,7 @@ module MetasploitModule
   #
   # Override the exec command string
   #
-  def command_string
+  def powershell_command
     generate_powershell_code("Bind")
   end
 end
