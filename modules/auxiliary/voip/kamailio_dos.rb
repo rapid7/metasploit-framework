@@ -37,6 +37,11 @@ class MetasploitModule < Msf::Auxiliary
 
     udp_sock.put(sploit)
     disconnect_udp
+     
+    sleep(5)
+    connect_udp
+    udp_sock.put(sploit)
+    disconnect_udp
 
   end
 end
