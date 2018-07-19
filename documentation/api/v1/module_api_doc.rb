@@ -3,16 +3,26 @@ require 'swagger/blocks'
 module ModuleApiDoc
   include Swagger::Blocks
 
-  APP_DESC = 'Filter modules that are client or server attacks. (Accepts strings \'client\' or \'server\'.)'
+  APP_DESC = 'Filter modules that are client or server attacks. (Accepts strings \'client\' or \'server\').'
+  ARCH_DESC = 'Filter modules with a matching architecture.'
   AUTHOR_DESC = 'Filter modules written by a matching author.'
   BID_DESC = 'Filter modules with a matching Bugtraq ID.'
-  CVE_DESC = 'Filter modules with a matching CVE ID'
+  CVE_DESC = 'Filter modules with a matching CVE ID.'
   EDB_DESC = 'Filter modules with a matching Exploit-DB ID.'
+  DESCRIPTION_DESC = 'Filter modules with a matching description.'
+  DISCLOSURE_DATE_DESC = 'Filter modules with a matching disclosure date.'
+  FULL_NAME_DESC = 'Filter modules with a matching full name.'
+  IS_CLIENT_DESC = 'Filter modules that are client attacks. (Accepts strings \'true\' or \'false\').'
+  IS_SERVER_DESC = 'Filter modules that are server attacks. (Accepts strings \'true\' or \'false\').'
+  IS_INSTALL_PATH_DESC = 'Filter modules that by value of \'is_install_path\'. (Accepts strings \'true\' or \'false\').'
+  MOD_TIME_DESC = 'Filter modules with a matching modification time.'
   NAME_DESC = 'Filter modules with a matching descriptive name.'
   PATH_DESC = 'Filter modules with a matching path name.'
   PLATFORM_DESC = 'Filter modules affecting a matching platform, arch, or target.'
   PORT_DESC = 'Filter modules with a matching port.'
+  RANK_DESC = 'Filter modules with a matching rank. Accepts numeric values with optional comparison operators (ex: 200, gt500, lte300).'
   REF_DESC = 'Filter modules with a matching reference.'
+  TARGETS_DESC = 'Filter modules with a matching target.'
   TEXT_DESC = 'Filter modules matching any one of name, full name, description, reference, author, or targets.'
   TYPE_DESC = 'Filter modules with a matching type (exploit, auxiliary, payload, etc.).'
   FIELDS_DESC = 'Provide a comma-delimited list of metadata fields you would like to return. If left blank, all fields will be returned.'
@@ -104,6 +114,13 @@ module ModuleApiDoc
 
       parameter do
         key :in, :query
+        key :name, :arch
+        key :required, false
+        key :description, ARCH_DESC
+      end
+
+      parameter do
+        key :in, :query
         key :name, :author
         key :required, false
         key :description, AUTHOR_DESC
@@ -128,6 +145,55 @@ module ModuleApiDoc
         key :name, :edb
         key :required, false
         key :description, EDB_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :description
+        key :required, false
+        key :description, DESCRIPTION_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :disclosure_date
+        key :required, false
+        key :description, DISCLOSURE_DATE_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :full_name
+        key :required, false
+        key :description, FULL_NAME_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :is_client
+        key :required, false
+        key :description, IS_CLIENT_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :is_server
+        key :required, false
+        key :description, IS_SERVER_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :is_install_path
+        key :required, false
+        key :description, IS_INSTALL_PATH_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :mod_time
+        key :required, false
+        key :description, MOD_TIME_DESC
       end
 
       parameter do
@@ -160,6 +226,13 @@ module ModuleApiDoc
 
       parameter do
         key :in, :query
+        key :name, :rank
+        key :required, false
+        key :description, RANK_DESC
+      end
+
+      parameter do
+        key :in, :query
         key :name, :ref
         key :required, false
         key :description, REF_DESC
@@ -170,6 +243,13 @@ module ModuleApiDoc
         key :name, :text
         key :required, false
         key :description, TEXT_DESC
+      end
+
+      parameter do
+        key :in, :query
+        key :name, :targets
+        key :required, false
+        key :description, TARGETS_DESC
       end
 
       parameter do
