@@ -21,6 +21,7 @@ module VulnServlet
 
   def self.get_vuln
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
@@ -35,6 +36,7 @@ module VulnServlet
 
   def self.report_vuln
     lambda {
+      warden.authenticate!
       begin
         job = lambda { |opts|
           get_db.report_vuln(opts)
@@ -48,6 +50,7 @@ module VulnServlet
 
   def self.update_vuln
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
@@ -62,6 +65,7 @@ module VulnServlet
 
   def self.delete_vuln
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_vuln(opts)

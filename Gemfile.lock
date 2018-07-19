@@ -65,9 +65,11 @@ PATH
       sinatra
       sqlite3
       sshkey
+      sysrandom
       thin
       tzinfo
       tzinfo-data
+      warden
       windows_error
       xdr
       xmlrpc
@@ -118,7 +120,7 @@ GEM
     crass (1.0.4)
     daemons (1.2.6)
     diff-lcs (1.3)
-    dnsruby (1.61.1)
+    dnsruby (1.61.2)
       addressable (~> 2.5)
     docile (1.3.1)
     erubis (2.7.0)
@@ -326,6 +328,7 @@ GEM
     sqlite3 (1.3.13)
     sshkey (1.9.0)
     swagger-blocks (2.0.2)
+    sysrandom (1.0.5)
     thin (1.7.2)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -339,12 +342,14 @@ GEM
       thread_safe (~> 0.1)
     tzinfo-data (1.2018.5)
       tzinfo (>= 1.0.0)
+    warden (1.2.7)
+      rack (>= 1.0)
     windows_error (0.1.2)
     xdr (2.0.0)
       activemodel (>= 4.2.7)
       activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    yard (0.9.14)
+    yard (0.9.15)
 
 PLATFORMS
   ruby

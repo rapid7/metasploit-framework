@@ -19,6 +19,7 @@ require 'msf/ui/console/command_dispatcher/post'
 require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
+require 'msf/ui/console/command_dispatcher/developer'
 require 'msf/util/document_generator'
 
 module Msf
@@ -82,8 +83,9 @@ class Core
     "-i" => [ false, "Ignore case."                                   ],
     "-m" => [ true,  "Stop after arg matches."                        ],
     "-v" => [ false, "Invert match."                                  ],
-    "-A" => [ true,  "Show arg lines of output After a match."        ],
-    "-B" => [ true,  "Show arg lines of output Before a match."       ],
+    "-A" => [ true,  "Show arg lines of output after a match."        ],
+    "-B" => [ true,  "Show arg lines of output before a match."       ],
+    "-C" => [ true,  "Show arg lines of output around a match."       ],
     "-s" => [ true,  "Skip arg lines of output before attempting match."],
     "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
     "-c" => [ false, "Only print a count of matching lines."          ])
@@ -1987,6 +1989,12 @@ class Core
           output_mods[:before] = val.to_i
           # delete opt and val from args list
           args.shift(2)
+        when "-C"
+          # also return arg lines around a match
+          output_mods[:before] = val.to_i
+          output_mods[:after] = val.to_i
+          # delete opt and val from args list
+          args.shift(2)
         when "-v"
           # invert match
           match_mods[:invert] = true
@@ -2040,7 +2048,7 @@ class Core
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
     mod = active_module
     if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
     else
       driver.update_prompt("#{prompt} ", prompt_char, true)
     end

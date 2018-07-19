@@ -497,7 +497,6 @@ class ReadableText
   def self.dump_references(mod, indent = '')
     output = ''
 
-
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
 
@@ -506,7 +505,7 @@ class ReadableText
         output << "#{indent}CVE: Not available\n"
       end
 
-      mod.references.each { |ref|
+      mod.references.each do |ref|
         case ref.ctx_id
         when 'CVE', 'cve'
           if !cve_collection.empty? && ref.ctx_val.blank?
@@ -514,10 +513,14 @@ class ReadableText
           else
             output << indent + ref.to_s + "\n"
           end
+        when 'LOGO', 'SOUNDTRACK'
+          output << indent + ref.to_s + "\n"
+          Rex::Compat.open_browser(ref.ctx_val) if Rex::Compat.getenv('FUEL_THE_HYPE_MACHINE')
         else
           output << indent + ref.to_s + "\n"
         end
-      }
+      end
+
       output << "\n"
     end
 
