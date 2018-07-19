@@ -1,6 +1,7 @@
 module Msf::DBManager::Module
 
   def modules(opts)
+    raise ::ArgumentError, "At least one search parameter must be provided." if opts.dup.except!(:fields).empty?
     search_results = []
     metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
     metadata.each { |module_metadata|
