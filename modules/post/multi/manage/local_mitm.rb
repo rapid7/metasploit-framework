@@ -9,14 +9,14 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-        'Name'          => 'Local MITM',
-        'Description'   => %q{
-          This module setup a local proxy on the victim computer so you can MITM it.
-        },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Eliott Teissonniere' ],
-        'Platform'      => [ 'win', 'linux' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
+      'Name'          => 'Local MITM',
+      'Description'   => %q{
+        This module setup a local proxy on the victim computer so you can MITM it.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'        => [ 'Eliott Teissonniere' ],
+      'Platform'      => [ 'win', 'linux' ],
+      'SessionTypes'  => [ 'meterpreter', 'shell' ]
     ))
 
     register_options(
