@@ -21,6 +21,7 @@ module WorkspaceServlet
 
     def self.get_workspace
       lambda {
+        warden.authenticate!
         begin
           includes = nil
 
@@ -36,6 +37,7 @@ module WorkspaceServlet
 
     def self.add_workspace
       lambda {
+        warden.authenticate!
         begin
           opts = parse_json_request(request, true)
           workspace = get_db.add_workspace(opts)
@@ -48,6 +50,7 @@ module WorkspaceServlet
 
   def self.update_workspace
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
@@ -62,6 +65,7 @@ module WorkspaceServlet
 
     def self.delete_workspace
       lambda {
+        warden.authenticate!
         begin
           opts = parse_json_request(request, false)
           data = get_db.delete_workspaces(opts)

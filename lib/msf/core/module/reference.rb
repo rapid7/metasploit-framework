@@ -117,6 +117,10 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = in_ctx_val.to_s
     elsif in_ctx_id == 'AKA'
       self.site = "Also known as: #{in_ctx_val}"
+    elsif in_ctx_id == 'LOGO'
+      self.site = "Logo: #{in_ctx_val}"
+    elsif in_ctx_id == 'SOUNDTRACK'
+      self.site = "Soundtrack: #{in_ctx_val}"
     else
       self.site  = in_ctx_id
       self.site += " (#{in_ctx_val})" if (in_ctx_val)

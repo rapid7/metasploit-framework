@@ -3,6 +3,10 @@ import logging
 import os
 import sys
 
+from metasploit import cli
+
+__CLI_MODE__ = False
+
 
 class LogFormatter(logging.Formatter):
     def __init__(self, prefix, *args, **kwargs):
@@ -37,12 +41,14 @@ class LogHandler(logging.Handler):
         logger.addHandler(handler)
         return handler
 
-
 def log(message, level='info'):
-    rpc_send({'jsonrpc': '2.0', 'method': 'message', 'params': {
-        'level': level,
-        'message': message
-    }})
+    if not __CLI_MODE__:
+        rpc_send({'jsonrpc': '2.0', 'method': 'message', 'params': {
+            'level': level,
+            'message': message
+        }})
+    else:
+        cli.log(message, level)
 
 
 def report_host(ip, **opts):
@@ -76,16 +82,26 @@ def report_wrong_password(username, password, **opts):
 
 
 def run(metadata, module_callback, soft_check=None):
-    req = json.loads(os.read(0, 10000).decode("utf-8"))
+    global __CLI_MODE__
+
+    caps = []
+    if soft_check:
+        caps.append('soft_check')
+
+    meta = metadata.copy()
+    meta.update({'capabilities': caps})
+
+    if len(sys.argv) > 1:
+        __CLI_MODE__ = True
+
+    req = None
+    if __CLI_MODE__:
+        req = cli.parse(meta)
+    else:
+        req = json.loads(os.read(0, 10000).decode("utf-8"))
+
     callback = None
     if req['method'] == 'describe':
-        caps = []
-        if soft_check:
-            caps.append('soft_check')
-
-        meta = metadata.copy()
-        meta.update({'capabilities': caps})
-
         rpc_send({'jsonrpc': '2.0', 'id': req['id'], 'result': meta})
     elif req['method'] == 'soft_check':
         if soft_check:
@@ -98,6 +114,9 @@ def run(metadata, module_callback, soft_check=None):
     if callback:
         args = req['params']
         ret = callback(args)
+        if ret and __CLI_MODE__:
+            cli.ret(ret)
+
         rpc_send({'jsonrpc': '2.0', 'id': req['id'], 'result': {
             'message': 'Module completed',
             'return': ret
@@ -105,11 +124,17 @@ def run(metadata, module_callback, soft_check=None):
 
 
 def report(kind, data):
-    rpc_send({'jsonrpc': '2.0', 'method': 'report', 'params': {
-        'type': kind, 'data': data
-    }})
+    if not __CLI_MODE__:
+        rpc_send({'jsonrpc': '2.0', 'method': 'report', 'params': {
+            'type': kind, 'data': data
+        }})
+    else:
+        cli.report(kind, data)
 
 
 def rpc_send(req):
-    print(json.dumps(req))
-    sys.stdout.flush()
+    # Silently ignore when run manually, the calling code should know how to
+    # handle if it is important
+    if not __CLI_MODE__:
+        print(json.dumps(req))
+        sys.stdout.flush()

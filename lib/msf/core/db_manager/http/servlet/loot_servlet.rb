@@ -21,6 +21,7 @@ module LootServlet
 
   def self.get_loot
     lambda {
+      warden.authenticate!
       begin
         sanitized_params = sanitize_params(params)
         data = get_db.loots(sanitized_params)
@@ -37,6 +38,7 @@ module LootServlet
 
   def self.report_loot
     lambda {
+      warden.authenticate!
       job = lambda { |opts|
         if opts[:data]
           filename = File.basename(opts[:path])
@@ -53,6 +55,7 @@ module LootServlet
 
   def self.update_loot
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
@@ -67,6 +70,7 @@ module LootServlet
 
   def self.delete_loot
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_loot(opts)

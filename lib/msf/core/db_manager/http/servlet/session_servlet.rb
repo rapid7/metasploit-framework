@@ -19,6 +19,7 @@ module SessionServlet
 
   def self.get_session
     lambda {
+      warden.authenticate!
       begin
         sanitized_params = sanitize_params(params)
         data = get_db.sessions(sanitized_params)
@@ -32,6 +33,7 @@ module SessionServlet
 
   def self.report_session
     lambda {
+      warden.authenticate!
       begin
         job = lambda { |opts|
           if opts[:session_data]

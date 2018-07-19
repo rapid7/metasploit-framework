@@ -16,9 +16,19 @@ module ServletHelper
     [200,  '']
   end
 
-  def set_json_response(data, includes = nil)
+  def set_json_response(data, includes = nil, code = 200)
     headers = {'Content-Type' => 'application/json'}
-    [200, headers, to_json(data, includes)]
+    [code, headers, to_json(data, includes)]
+  end
+
+  def set_json_data_response(response:, includes: nil, code: 200)
+    data_response = {"data": response}
+    set_json_response(data_response, includes = includes, code = code)
+  end
+
+  def set_json_error_response(response:, includes: nil, code:)
+    error_response = {"error": response}
+    set_json_response(error_response, includes = includes, code = code)
   end
 
   def set_html_response(data)
@@ -69,6 +79,19 @@ module ServletHelper
   def sanitize_params(params)
     params.symbolize_keys.except(:captures, :splat)
   end
+
+  # Get Warden::Proxy object from the Rack environment.
+  # @return [Warden::Proxy] The Warden::Proxy object from the Rack environment.
+  def warden
+    env['warden']
+  end
+
+  # Get Warden options hash from the Rack environment.
+  # @return [Hash] The Warden options hash from the Rack environment.
+  def warden_options
+    env['warden.options']
+  end
+
 
   #######
   private

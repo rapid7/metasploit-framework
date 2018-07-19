@@ -36,7 +36,8 @@ class Driver < Msf::Ui::Driver
     CommandDispatcher::Jobs,
     CommandDispatcher::Resource,
     CommandDispatcher::Db,
-    CommandDispatcher::Creds
+    CommandDispatcher::Creds,
+    CommandDispatcher::Developer
   ]
 
   #
