@@ -21,6 +21,7 @@ module CredentialServlet
 
   def self.get_credentials
     lambda {
+      warden.authenticate!
       begin
         sanitized_params = sanitize_params(params)
         data = get_db.creds(sanitized_params)
@@ -37,6 +38,7 @@ module CredentialServlet
 
   def self.create_credential
     lambda {
+      warden.authenticate!
       job = lambda { |opts|
         opts[:origin_type] = opts[:origin_type].to_sym if opts[:origin_type]
         opts[:private_type] = opts[:private_type].to_sym if opts[:private_type]

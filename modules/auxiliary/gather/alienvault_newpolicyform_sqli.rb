@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'     =>
         [
+          ['CVE', '2014-5383'],
           ['OSVDB', '106815'],
           ['EDB', '33317'],
           ['URL', 'http://forums.alienvault.com/discussion/2690/security-advisories-v4-6-1-and-lower']
