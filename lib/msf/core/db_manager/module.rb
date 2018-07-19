@@ -105,9 +105,23 @@ module Msf::DBManager::Module
 
   def get_fields(module_metadata, opts)
     selected_fields = {}
+
+    aliases = {
+      :cve => 'references',
+      :edb => 'references',
+      :bid => 'references',
+      :fullname => 'full_name',
+      :os => 'platform',
+      :port => 'rport',
+      :reference => 'references',
+      :target => 'targets',
+      :authors => 'author'
+    }
+
     if opts.key? :fields
       fields = opts[:fields].split(',')
       fields.each do | field |
+        field = aliases[field.to_sym] if aliases[field.to_sym]
         if module_metadata.respond_to?(field)
           selected_fields[field] = module_metadata.send(field)
         end
