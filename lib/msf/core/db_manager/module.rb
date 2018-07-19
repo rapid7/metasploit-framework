@@ -122,6 +122,7 @@ module Msf::DBManager::Module
     if opts.key? :fields
       fields = opts[:fields].split(',')
       fields.each do | field |
+        field.strip!
         field = aliases[field.to_sym] if aliases[field.to_sym]
         if module_metadata.respond_to?(field)
           selected_fields[field] = module_metadata.send(field)
