@@ -25,7 +25,7 @@ module Msf::DBManager::Module
       when :app
         (match = match && value == 'client') if metadata.is_client
         (match = match && value == 'server') if metadata.is_server
-      when :author
+      when :author, :authors
         match = match && metadata.author.any? { |a| a =~ r}
       when :arch
         match = match && metadata.arch =~ r
@@ -39,7 +39,7 @@ module Msf::DBManager::Module
         match = match && metadata.description =~ r
       when :date, :disclosure_date
         match = match && metadata.disclosure_date.to_s =~ r
-      when :full_name
+      when :full_name, :fullname
         match = match && metadata.full_name =~ r
       when :is_client
         match = match && value == (metadata.is_client).to_s
