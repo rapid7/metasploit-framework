@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
   def run
     if session.platform == 'windows'
       print_status('Windows detected, using netsh')
-      
+
       unless datastore['CLEANUP']
         vprint_status cmd_exec("netsh winhttp set proxy proxy-server=\"socks=#{datastore["RHOST"]}:#{datastore["RPORT"]}\" bypass-list=\"<local>\"")
       else
