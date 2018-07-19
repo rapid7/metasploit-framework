@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('RHOST', [true, 'Host of the socks proxy server']),
-        OptString.new('RPORT', [true, 'Port of the socks proxy server']),
+        Opt::RHOST,
+        Opt::RPORT(8080),
         OptBool.new('CLEANUP', [false, 'If we should remove the proxy instead of installing it'])
       ])
   end
