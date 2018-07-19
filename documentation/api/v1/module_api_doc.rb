@@ -6,6 +6,7 @@ module ModuleApiDoc
   APP_DESC = 'Filter modules that are client or server attacks. (Accepts strings \'client\' or \'server\').'
   ARCH_DESC = 'Filter modules with a matching architecture.'
   AUTHOR_DESC = 'Filter modules written by a matching author.'
+  AUTHORS_DESC = 'Alias for \'author\'.'
   BID_DESC = 'Filter modules with a matching Bugtraq ID.'
   CVE_DESC = 'Filter modules with a matching CVE ID.'
   EDB_DESC = 'Filter modules with a matching Exploit-DB ID.'
@@ -32,7 +33,7 @@ module ModuleApiDoc
   TARGETS_DESC = 'Alias for \'target\'.'
   TEXT_DESC = 'Filter modules matching any one of name, full name, description, reference, author, or targets.'
   TYPE_DESC = 'Filter modules with a matching type (exploit, auxiliary, payload, etc.).'
-  FIELDS_DESC = 'Provide a comma-delimited list of metadata fields you would like to return. If left blank, all fields will be returned.'
+  FIELDS_DESC = 'Provide a comma-delimited list of metadata fields you would like to return. If left blank, all fields will be returned. Valid field names are: \'name\', \'full_name\', \'fullname\', \'arch\', \'author\', \'author\', \'description\', \'disclosure_date\', \'cve\', \'edb\', \'bid\', \'mod_time\', \'is_client\', \'is_server\', \'is_install_path\', \'os\', \'platform\', \'reference\', \'references\', \'ref_name\', \'ref\', \'path\', \'port\', \'rport\', \'rank\', \'type\', \'target\', \'targets\''
 
   TYPE_ENUM = [
       'auxiliary',

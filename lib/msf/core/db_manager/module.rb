@@ -114,6 +114,7 @@ module Msf::DBManager::Module
       :os => 'platform',
       :port => 'rport',
       :reference => 'references',
+      :ref => 'ref_name',
       :target => 'targets',
       :authors => 'author'
     }
