@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
       else
         vprint_status cmd_exec('netsh winhttp reset proxy')
       end
-    else
+    elsif session.platform == 'linux'
       unless command_exists? 'gsettings'
         return print_error('Gsettings is not available')
       end
@@ -51,6 +51,8 @@ class MetasploitModule < Msf::Post
       else
         vprint_status cmd_exec('gsettings set org.gnome.system.proxy.mode "none"')
       end
+    else
+      print_error('Unsupported platform')
     end
   end
 end
