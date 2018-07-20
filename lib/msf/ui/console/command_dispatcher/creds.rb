@@ -172,6 +172,7 @@ class Creds
     print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
     print_line "  -O,--origins          List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
+    print_line "  -S,--search-term      Search across all fields using regex"
 
     print_line
     print_line "Examples, listing:"

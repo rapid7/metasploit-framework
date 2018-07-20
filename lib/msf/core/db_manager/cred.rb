@@ -11,7 +11,7 @@ module Msf::DBManager::Cred
       end
 
       query = Metasploit::Credential::Core.where( workspace_id: wspace.id )
-      query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
+      query = query.includes(:private, :public, :logins, :realm).references(:private, :public, :logins, :realm)
       query = query.includes(logins: [ :service, { service: :host } ])
 
       if opts[:type].present?
@@ -46,8 +46,8 @@ module Msf::DBManager::Cred
         core_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Core, search_term, ['created_at', 'updated_at'])
         public_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Public, search_term, ['created_at', 'updated_at'])
         private_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Private, search_term, ['created_at', 'updated_at'])
-        column_search_conditions = core_search_conditions.or(public_search_conditions).or(private_search_conditions)
-        Metasploit::Credential::Core.where(column_search_conditions).includes(:private, :public).references(:private, :public).count
+        realm_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Metasploit::Credential::Realm, search_term, ['created_at', 'updated_at'])
+        column_search_conditions = core_search_conditions.or(public_search_conditions).or(private_search_conditions).or(realm_search_conditions)
         query = query.where(column_search_conditions)
       end
     }
