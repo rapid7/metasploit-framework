@@ -93,7 +93,7 @@ class Creds
     return unless active?
 
     # Short-circuit help
-    if args.delete "-h"
+    if args.delete("-h") || args.delete("--help")
       cmd_creds_help
       return
     end
@@ -162,7 +162,7 @@ class Creds
     print_line "General options"
     print_line "  -h,--help             Show this help information"
     print_line "  -o <file>             Send output to a file in csv format"
-    print_line "  -d                    Delete one or more credentials"
+    print_line "  -d,--delete           Delete one or more credentials"
     print_line
     print_line "Filter options for listing"
     print_line "  -P,--password <regex> List passwords that match this regex"
