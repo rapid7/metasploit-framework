@@ -25,15 +25,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Aug 28 2017"
-      'DefaultOptions' => {
-        'FILEPATH'          => '/etc/passwd'
-      }
     ))
 
     register_options(
       [
         Opt::RPORT(50000),
-        OptString.new("FILEPATH", [false, 'Specify a parameter for the action'])
+        OptString.new("FILEPATH", "/etc/passwd")
       ])
 
     deregister_options('RHOST')
