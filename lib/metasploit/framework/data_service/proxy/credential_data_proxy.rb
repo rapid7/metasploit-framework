@@ -14,11 +14,11 @@ module CredentialDataProxy
       data_service = self.get_data_service
       opts[:workspace_id] = workspace.id
       opts[:private_data] = opts.delete(:password)
-      opts[:private_type] = 'password'
+      opts[:private_type] = :password
       old_core = data_service.creds(id: opts.delete(:core_id), workspace: workspace.name).first
       if old_core
         opts[:originating_core_id] = old_core.id
-        opts[:origin_type] = 'cracked_password'
+        opts[:origin_type] = :cracked_password
       end
       new_core = data_service.create_credential(opts)
       old_core.logins.each do |login|
