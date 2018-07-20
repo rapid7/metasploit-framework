@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        Opt::RHOST,
-        Opt::RPORT(8080),
+        OptAddress.new('PRXHOST', [true, 'Address of the proxy server']),
+        OptPort.new('PRXPORT', [true, 'Port of the proxy server']),
         OptBool.new('CLEANUP', [false, 'If we should remove the proxy instead of installing it'])
       ])
   end
