@@ -14,6 +14,7 @@ module ModuleServlet
 
   def self.search_modules
     lambda {
+      warden.authenticate!
       begin
         sanitized_params = sanitize_params(params)
         data = get_db.modules(sanitized_params)
