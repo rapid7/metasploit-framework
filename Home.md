@@ -62,6 +62,8 @@ If you're an exploit developer, you will want to review our [[Guidelines for Acc
 - [[How to use Metasploit::Framework::Compiler::Windows to compile C code]]
 - [[How to use Metasploit::Framework::Obfuscation::CRandomizer]]
 - [[How to decrypt RC4 with Metasploit::Framework::Compiler]]
+- [[How to decode Base64 with Metasploit::Framework::Compiler]]
+- [[How to XOR with Metasploit::Framework::Compiler]]
 - [[Oracle Usage]]
 - [[Rex Layout]]
 
