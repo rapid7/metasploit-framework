@@ -153,8 +153,6 @@ class Creds
     print_line "   creds add ntlm:E2FC15074BF7751DD408E6B105741864:A1074A69B1BDE45403AB680504BBDD1A"
     print_line "   # Add a user with an SSH key"
     print_line "   creds add user:sshadmin ssh-key:/path/to/id_rsa"
-    print_line "   # Add a SSH key"
-    print_line "   creds add ssh-key:/path/to/id_rsa"
     print_line "   # Add a user and a NonReplayableHash"
     print_line "   creds add user:other hash:d19c32489b870735b5f587d76b934283"
     print_line "   # Add a NonReplayableHash"
