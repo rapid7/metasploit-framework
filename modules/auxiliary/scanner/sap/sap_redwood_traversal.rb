@@ -25,6 +25,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => "Aug 28 2017"
+      'DefaultOptions' => {
+        'FILEPATH'          => '/etc/passwd'
+      }
     ))
 
     register_options(
