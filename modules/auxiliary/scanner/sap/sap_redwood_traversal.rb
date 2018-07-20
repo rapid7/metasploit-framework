@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           'Vahagn @vah_13 Vardanian'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "August 28 2017"
+      'DisclosureDate' => "Aug 28 2017"
     ))
 
     register_options(
