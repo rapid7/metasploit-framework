@@ -23,7 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'            =>
         [
-          [ 'CVE', '2010-0738' ] # VERB auth bypass
+          [ 'CVE', '2010-0738' ], # VERB auth bypass
+          [ 'CVE', '2017-12149' ]
         ],
       'License'               => BSD_LICENSE
       ))
@@ -57,7 +58,8 @@ class MetasploitModule < Msf::Auxiliary
         '/web-console/ServerInfo.jsp',
         # apps added per Patrick Hof
         '/web-console/Invoker',
-        '/invoker/JMXInvokerServlet'
+        '/invoker/JMXInvokerServlet',
+        '/invoker/readonly'
       ]
 
       print_status("#{rhost}:#{rport} Checking http...")
@@ -103,6 +105,9 @@ class MetasploitModule < Msf::Auxiliary
       when res.code == 301, res.code == 302
         print_status("#{rhost}:#{rport} #{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
       else
+        if res.code == 500 && app == "/invoker/readonly"
+          print_good("#{rhost}:#{rport} #{app} responded (#{res.code})")
+        end
         print_status("#{rhost}:#{rport} Don't know how to handle response code #{res.code}")
       end
     else
