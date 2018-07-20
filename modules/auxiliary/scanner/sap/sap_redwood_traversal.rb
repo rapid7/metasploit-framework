@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(50000),
-        OptString.new("FILEPATH", [true, 'Specify a parameter for the action', '/etc/passwd'])
+        OptString.new("FILEPATH", [true, 'Set a file path on the server', '/etc/passwd'])
       ])
 
     deregister_options('RHOST')
