@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Post
 
     if admin # For Windows
       vprint_status 'Verifying privileges'
-      
+
       unless is_admin?
         return print_error('Administrator or better privileges needed. Try "getsystem" first.')
       else
