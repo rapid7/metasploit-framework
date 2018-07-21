@@ -1,7 +1,6 @@
 ## Vulnerable Application
 
-Apple Filing Protocol (AFP) is Apple's file sharing protocol similar to SMB, and NFS.  This module will gather information about the service.
-Netatalk is a Linux implementation of AFP.
+Apache CouchDB is a nosql database server which communicates over HTTP.  This module will enumerate the server and databases hosted on it.
 
 The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https://www.1and1.com/cloud-community/learn/database/couchdb/install-and-use-couchdb-on-ubuntu-1604/):
   
