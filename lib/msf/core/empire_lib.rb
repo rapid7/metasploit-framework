@@ -20,9 +20,6 @@ module Msf::Empire
       }
       return req_options
     end
-    #def self.set_token(s_token)
-    #  self.token = s_token.to_s
-    #end
     #
     #Method to fetch the active session token from the hosted API
     #
@@ -41,10 +38,10 @@ module Msf::Empire
       response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
         http.request(request)
       end
-      sv1 = JSON.parse(response.body)
-      token = sv1['token'].to_s
+      parser = JSON.parse(response.body)
+      token = parser['token'].to_s
       @token = token
-      print_status(@token)
+      puts(@token)
     end
     #
     #Method to shutdown the active instance of API
@@ -65,7 +62,8 @@ module Msf::Empire
     #hosted over there. Also, the name needs to be cross-checked with the existing listener names, so user doesnt end
     #creating concurrent listeners.
     #
-    def create_listener(listener_name, port, host) 
+    def create_listener(listener_name, port, host)
+      target_host = "http://#{host}:#{port}"
       uri = URI.parse("https://localhost:1337/api/listeners/http?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
@@ -73,7 +71,7 @@ module Msf::Empire
       request.body = JSON.dump({
         "Name" => listener_name,
         "Port" => port,
-        "Host" => host
+        "Host" => target_host
         })
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
@@ -172,7 +170,8 @@ module Msf::Empire
     #upgrade or a standalone stager, which will make it easier to guess the
     #number of agents connected
     #
-    def get_agents(temp_session)
+    def get_agents
+      agents = {}
       uri = URI.parse("https://localhost:1337/api/agents?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
       req_options = self.set_options(uri)
@@ -180,16 +179,12 @@ module Msf::Empire
         http.request(request)
       end
       if response.message.to_s == 'OK'
-        parser = JSON.parse(resposne.body)
+        parser = JSON.parse(response.body)
         if parser['agents'].any?
-          if temp_session == false
-            parser['agents'][0].each do |agents_id|
-              print_line("#{agents_id['ID']} : #{agents_id['session_id']}")
-            end
-          elsif temp_session == true
-            print_line("#{parser['agents'][0]['ID']} : #{parser['agents'][0]['session_id']}")
-            return parser['agents'][0]['session_id']
+          parser['agents'].each do |agent_id|
+            agents.store("#{agent_id['listener']}","#{agent_id['session_id']}")
           end
+          return agents
         else
           return "No agents connected"
         end
@@ -211,7 +206,7 @@ module Msf::Empire
         parser = JSON.parse(response.body)
         if parser['agents'].any?
           parser['agents'].each do |agents_id|
-            print_line("#{agents_id[:ID]} : #{agents_id[:name]}")
+            print_line("#{agents_id['ID']} : #{agents_id['session_id']}")
           end
         else
           return "No stale agents"
