@@ -11,12 +11,19 @@ class EmpireShell < Msf::Sessions::CommandShell
   include Msf::Session::Basic
   include Rex::Ui::Text::DispatcherShell::CommandDispatcher
 
+  @client_emp = ''
+  @agent_name = ''
+
   attr_accessor :max_threads
   attr_accessor :platform
   attr_accessor :arch
 
   def desc
     "Empire Shell #{self.platform}"
+  end
+
+  def interactive?
+    true
   end
 
   def self.type
@@ -28,13 +35,13 @@ class EmpireShell < Msf::Sessions::CommandShell
   end
 
   def initialize(emp_object, agent_name)
-    self.plaform ||= ""
+    self.platform ||= ""
     self.max_threads ||= 1
     self.arch ||= ""
 
     #Defining instance parameters
-    self.client_emp = emp_object
-    self.agent_name = agent_name
+    @client_emp = emp_object
+    @agent_name = agent_name
   end
 
 
