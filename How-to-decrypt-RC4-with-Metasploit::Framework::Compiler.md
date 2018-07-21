@@ -21,3 +21,5 @@ int main(void) {
   return 0;
 }
 ```
+
+To compile, use [Metasploit::Framework::Compiler::Windows.compile_c](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Metasploit%3A%3AFramework%3A%3ACompiler%3A%3AWindows-to-compile-C-code).
