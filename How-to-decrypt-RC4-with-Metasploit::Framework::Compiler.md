@@ -1,6 +1,6 @@
 # Description
 
-The Metasploit C compiler has built-in support for RC4 encryption and decryption, which is implemented as the 'rc4.h' header.
+The Metasploit C compiler has built-in support for RC4 encryption and decryption, which is implemented as the `rc4.h` header.
 
 # Code Example
 
