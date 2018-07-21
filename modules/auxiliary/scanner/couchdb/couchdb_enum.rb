@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpPassword', [false, 'The password to login with'])
       ])
   end
-  
+
   def valid_response(res)
     return res.code == 200 && res.headers['Server'].include?('CouchDB')
   end
@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if valid_response(res)
       # Example response: {"couchdb":"Welcome","uuid":"6f08e89795bd845efc6c2bf3d57799e5","version":"1.6.1","vendor":{"version":"16.04","name":"Ubuntu"}}
-      
+
       print_good("#{peer} #{JSON.pretty_generate(temp)}")
       report_service(
         host: rhost,
