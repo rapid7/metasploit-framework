@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
         OptAddress.new('LHOST',
                        [false, 'Host to start the listener on']),
         OptPort.new('LPORT',
-                    [false, 'Port for payload to connect to, make sure port is not already in use', 7878 ]),
+                    [false, 'Port for payload to connect to, make sure port is not already in use']),
         OptString.new('PathToEmpire',
                       [true, 'The Complete Path to Empire-Web API']),
         OptInt.new('PID',
@@ -33,7 +33,18 @@ class MetasploitModule < Msf::Post
       ])
   end
   def run
-    #Storing user inputs.
+    #recurrsive method to generate an open port number
+    def gen_port()
+      port_number = rand(2000..62000)
+      command = "netstat -nlt | grep #{port_number}"
+      value = system(command)
+      if value
+        gen_port()
+      else
+        return port_number
+      end
+    end
+    #Trying to get localhost from the framwork
     if datastore['LHOST']
       @host = datastore['LHOST']
     elsif framework.datastore['LHOST']
@@ -45,9 +56,14 @@ class MetasploitModule < Msf::Post
         return
       end
     end
-
+    #trying to allot open port
+    if datastore['LPORT']
+      @port = datastore['LPORT']
+    elsif
+      @port = gen_port().to_s
+    end
+    #Storing user inputs
     path = datastore['PathToEmpire'].to_s.chomp
-    @port = datastore['LPORT'].to_s
     @pid = datastore['PID'].to_i
     @listener_name = 'Listener_Emp'
 
