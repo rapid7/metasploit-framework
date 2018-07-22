@@ -16,7 +16,7 @@ successful against Windows targets.
 
 ## Scenarios
 
-### Tested on Windows 2012
+### Tested on Windows 2012 with Dicoogle 2.5.0 on Java 8 update 151
 
   ```
   msf5 > use auxiliary/scanner/http/dicoogle_traversal 
