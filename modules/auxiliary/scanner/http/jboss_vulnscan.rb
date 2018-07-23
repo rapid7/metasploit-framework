@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
         # apps added per Patrick Hof
         '/web-console/Invoker',
         '/invoker/JMXInvokerServlet',
-        '/invoker/readonly'
+        '/invoker/readonlys'
       ]
 
       print_status("#{rhost}:#{rport} Checking http...")
@@ -90,28 +90,30 @@ class MetasploitModule < Msf::Auxiliary
       'ctype'     => 'text/plain'
     })
 
-    if res
-      case
-      when res.code == 200
-        print_good("#{rhost}:#{rport} #{app} does not require authentication (200)")
-      when res.code == 403
-        print_status("#{rhost}:#{rport} #{app} restricted (403)")
-      when res.code == 401
-        print_status("#{rhost}:#{rport} #{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
-        bypass_auth(app)
-        basic_auth_default_creds(app)
-      when res.code == 404
-        print_status("#{rhost}:#{rport} #{app} not found (404)")
-      when res.code == 301, res.code == 302
-        print_status("#{rhost}:#{rport} #{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
-      else
-        if res.code == 500 && app == "/invoker/readonly"
-          print_good("#{rhost}:#{rport} #{app} responded (#{res.code})")
-        end
-        print_status("#{rhost}:#{rport} Don't know how to handle response code #{res.code}")
-      end
-    else
+
+
+    unless res
       print_status("#{rhost}:#{rport} #{app} not found")
+      return
+    end
+
+    case
+    when res.code == 200
+      print_good("#{rhost}:#{rport} #{app} does not require authentication (200)")
+    when res.code == 403
+      print_status("#{rhost}:#{rport} #{app} restricted (403)")
+    when res.code == 401
+      print_status("#{rhost}:#{rport} #{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
+      bypass_auth(app)
+      basic_auth_default_creds(app)
+    when res.code == 404
+      print_status("#{rhost}:#{rport} #{app} not found (404)")
+    when res.code == 301, res.code == 302
+      print_status("#{rhost}:#{rport} #{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+    when res.code == 500 && app == "/invoker/readonly"
+      print_good("#{rhost}:#{rport} #{app} responded (#{res.code})")
+    else
+      print_status("#{rhost}:#{rport} Don't know how to handle response code #{res.code}")
     end
   end
 
