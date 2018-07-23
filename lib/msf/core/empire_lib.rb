@@ -8,8 +8,6 @@ module Msf::Empire
   class Client
     include Rex::Ui::Subscriber
     #
-    #This method sets the token fetched for future use throughout the session
-    #
     #API INITIATION METHODS
     #-----------------------
     @token = ''
@@ -292,8 +290,10 @@ module Msf::Empire
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
-      if response.body.to_s.include?("success")
-        return "Command successfully executed"
+      parser = JSON.parse(response.body)
+      if parser['success']
+        puts "Command executed with TaskID : #{parser['taskID']}."
+        return parser['taskID']
       else
         return "Error executing command"
       end
@@ -301,7 +301,7 @@ module Msf::Empire
     #
     #Method to retrieve results from the tasks assigned to a particular agent
     #
-    def get_results(agent_name)
+    def get_results(agent_name, taskID)
       uri = URI.parse("https://localhost:1337/api/agents/#{agent_name}/results?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
       request.content_type = "application/json"
@@ -311,11 +311,18 @@ module Msf::Empire
       end
       if response.code == 200
         parser = JSON.parse(response.body)
-        if parser['results'].any?
-          results = parser['results']
-          return results
-        else 
-          "No output found"
+        if parser['results'][0]['AgentResults'].any?
+          parser['results'][0]['AgentResults'].each do |results|
+            if results['taskID'] == taskID
+              if results['results'] != ""
+                return results['results']
+              else
+                return "Command Launched"
+              end
+            end
+          end
+        else
+          "No results found"
         end
       else
         return "Invalid request"
@@ -411,8 +418,20 @@ module Msf::Empire
       end
       if response.code == 200
         parser = JSON.parse(response.body)
-        parser['modules'][0] do |key, value|
-          puts "#{key}  :  #{value}"
+        parser['modules'][0].each do |attribute, description|
+          if attribute != 'options'
+            puts "#{attribute} : #{description}"
+          else
+            puts "--------------------\n"
+            puts "AVAILABLE OPTIONS\n"
+            puts "--------------------"
+            description.each do |option, options|
+              puts "#{option} :\n"
+              options.each do |attr, value|
+                puts "\t #{attr} : #{value}"
+              end
+            end
+          end
         end
       else
         puts "Invalid module name"
@@ -432,11 +451,12 @@ module Msf::Empire
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
-      if response.message == 'OK'
-        return "modules succefully executed on #{agent_name}"
+      parser = JSON.parse(response.body)
+      if parser['success']
+        return "#{parser['msg']} with TaskID : #{parser['taskID']}\n. It take time to populate the results. Please wait few seconds before you fetch results."
       else
         return "Invalid request"
-      end  
+      end
     end
     #
     #CREDENTIAL HARVESTING METHODS
@@ -450,13 +470,17 @@ module Msf::Empire
       response = Net::HTTP.start(uri.hostname, uri.port,req_options) do |http|
         http.request(request)
       end
+      i = 1
       if response.code == 200
         parser = JSON.parse(response.body)
-        parser['creds'].each do |empire_mod|
-          empire_mod.each do |key,value|
-            puts "#{key}  :  #{value}"
-           end
-          print_line("------------------------------")
+        parser['creds'].each do |cred|
+          puts "-----------------------------\n"
+          puts "CREDENTIAL DETAILS {#{i}}\n"
+          puts "-----------------------------"
+          cred.each do |attr, detail|
+            puts "#{attr} :: #{detail}\n"
+          end
+          i = i + 1
         end
       else
         print_error("Invalid request")
