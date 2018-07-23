@@ -385,6 +385,7 @@ module Msf
                   m.full_name,
                   m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
                   RankingName[m.rank].to_s,
+                  m.check ? 'Yes' : 'No',
                   m.name
               ]
             end
@@ -1101,6 +1102,7 @@ module Msf
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
                       o.rank_to_s,
+                      o.respond_to?(:check) ? 'Yes' : 'No',
                       o.name
                     ]
                   end
@@ -1117,7 +1119,7 @@ module Msf
               'Header'     => type,
               'Prefix'     => "\n",
               'Postfix'    => "\n",
-              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ],
+              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
               'SearchTerm' => search_term
             )
           end
