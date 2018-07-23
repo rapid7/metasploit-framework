@@ -22,6 +22,8 @@ require 'msf/ui/console/command_dispatcher/modules'
 require 'msf/ui/console/command_dispatcher/developer'
 require 'msf/util/document_generator'
 
+require 'optparse'
+
 module Msf
 module Ui
 module Console
@@ -77,18 +79,6 @@ class Core
     "-u" => [ false, "Switch to a UDP socket."                        ],
     "-w" => [ true,  "Specify connect timeout."                       ],
     "-z" => [ false, "Just try to connect, then return."              ])
-
-  @@grep_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-i" => [ false, "Ignore case."                                   ],
-    "-m" => [ true,  "Stop after arg matches."                        ],
-    "-v" => [ false, "Invert match."                                  ],
-    "-A" => [ true,  "Show arg lines of output after a match."        ],
-    "-B" => [ true,  "Show arg lines of output before a match."       ],
-    "-C" => [ true,  "Show arg lines of output around a match."       ],
-    "-s" => [ true,  "Skip arg lines of output before attempting match."],
-    "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
-    "-c" => [ false, "Only print a count of matching lines."          ])
 
   @@search_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -1974,10 +1964,7 @@ class Core
   end
 
   def cmd_grep_help
-    print_line "Usage: grep [options] pattern cmd"
-    print_line
-    print_line "Grep the results of a console command (similar to Linux grep command)"
-    print(@@grep_opts.usage())
+    cmd_grep '-h'
   end
 
   #
@@ -1989,65 +1976,57 @@ class Core
   # @return [String,nil] Results matching the regular expression given
 
   def cmd_grep(*args)
-    return cmd_grep_help if args.length < 2
     match_mods = {:insensitive => false}
     output_mods = {:count => false, :invert => false}
-    @@grep_opts.parse(args.dup) do |opt, idx, val|
-      case opt
-        when "-h"
-          return cmd_grep_help
-        when "-m"
-          # limit to arg matches
-          match_mods[:max] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-A"
-          # also return arg lines after a match
-          output_mods[:after] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-B"
-          # also return arg lines before a match
-          output_mods[:before] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-C"
-          # also return arg lines around a match
-          output_mods[:before] = val.to_i
-          output_mods[:after] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-v"
-          # invert match
-          match_mods[:invert] = true
-          # delete opt from args list
-          args.shift
-        when "-i"
-          # case insensitive
-          match_mods[:insensitive] = true
-          args.shift
-        when "-c"
-          # just count matches
-          output_mods[:count] = true
-          args.shift
-        when "-k"
-          # keep arg number of lines at the top of the output, useful for commands with table headers in output
-          output_mods[:keep] = val.to_i
-          args.shift(2)
-        when "-s"
-          # skip arg number of lines at the top of the output, useful for avoiding undesirable matches
-          output_mods[:skip] = val.to_i
-          args.shift(2)
+
+    opts = OptionParser.new do |opts|
+      opts.banner = "Usage: grep [OPTIONS] [--] PATTERN CMD..."
+      opts.separator "Grep the results of a console command (similar to Linux grep command)"
+      opts.separator ""
+
+      opts.on '-m num', '--max-count num', 'Stop after num matches.', Integer do |max|
+        match_mods[:max] = max
+      end
+      opts.on '-A num', '--after-context num', 'Show num lines of output after a match.', Integer do |num|
+        output_mods[:after] = num
+      end
+      opts.on '-B num', '--before-context num', 'Show num lines of output before a match.', Integer do |num|
+        output_mods[:before] = num
+      end
+      opts.on '-C num', '--context num', 'Show num lines of output around a match.', Integer do |num|
+        output_mods[:before] = output_mods[:after] = num
+      end
+      opts.on '-v', '--[no-]invert-match', 'Invert match.' do |invert|
+        match_mods[:invert] = invert
+      end
+      opts.on '-i', '--[no-]ignore-case', 'Ignore case.' do |insensitive|
+        match_mods[:insensitive] = insensitive
+      end
+      opts.on '-c', '--count', 'Only print a count of matching lines.' do |count|
+        output_mods[:count] = count
+      end
+      opts.on '-k num', '--keep-header num', 'Keep (include) num lines at start of output', Integer do |num|
+        output_mods[:keep] = num
+      end
+      opts.on '-s num', '--skip-header num', 'Skip num lines of output before attempting match.', Integer do |num|
+        output_mods[:skip] = num
+      end
+      opts.on '-h', '--help', 'Help banner.' do
+        return print(opts.help)
+      end
+
+      # Internal use
+      opts.on '--generate-completions str', 'Return possible tab completions for given string.' do |str|
+        return opts.candidate str
       end
     end
-    # after deleting parsed options, the only args left should be the pattern, the cmd to run, and cmd args
-    pattern = args.shift
-    if match_mods[:insensitive]
-      rx = Regexp.new(pattern, true)
-    else
-      rx = Regexp.new(pattern)
-    end
-    cmd = args.join(" ")
+
+    # OptionParser#order allows us to take the rest of the line for the command
+    pattern, *cmd = opts.order(args)
+    cmd = cmd.join(" ")
+    return print(opts.help) if !pattern || cmd.empty?
+
+    rx = Regexp.new(pattern, match_mods[:insensitive])
 
     # get a ref to the current console driver
     orig_driver = self.driver
@@ -2119,7 +2098,9 @@ class Core
   # at least 1 when tab completion has reached this stage since the command itself has been completed
 
   def cmd_grep_tabs(str, words)
-    tabs = @@grep_opts.fmt.keys || [] # default to use grep's options
+    str = '-' if str.empty? # default to use grep's options
+    tabs = cmd_grep '--generate-completions', str
+
     # if not an opt, use normal tab comp.
     # @todo uncomment out next line when tab_completion normalization is complete RM7649 or
     # replace with new code that permits "nested" tab completion
