@@ -170,14 +170,15 @@ class Creds
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <regex>     List users that match this regex"
     print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
-    print_line "  -O,--origins          List creds that match these origins"
+    print_line "  -O,--origins <IP>     List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -S,--search-term      Search across all fields using regex"
 
     print_line
     print_line "Examples, listing:"
     print_line "  creds               # Default, returns all credentials"
-    print_line "  creds 1.2.3.4/24    # nmap host specification"
+    print_line "  creds 1.2.3.4/24    # Return credentials with logins in this range"
+    print_line "  creds -O 1.2.3.4/24 # Return credentials with origins in this range"
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
     print_line "  creds -t ntlm       # All NTLM creds"
@@ -418,11 +419,13 @@ class Creds
         origin = session.host.address
       end
 
-      if !origin.empty? && origin_ranges.present? && !origin_ranges.any? {|range| range.include?(origin) }
+      if origin_ranges.present? && !origin_ranges.any? { |range| range.include?(origin) }
         next
       end
 
       if core.logins.empty?
+        next if host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
+
         matched_cred_ids << core.id
         public_val = core.public ? core.public.username : ""
         private_val = core.private ? core.private.data : ""
@@ -440,15 +443,15 @@ class Creds
         ]
       else
         core.logins.each do |login|
+
+          service = framework.db.services(id: login.service_id, workspace: framework.db.workspace).first
           # If none of this Core's associated Logins is for a host within
           # the user-supplied RangeWalker, then we don't have any reason to
           # print it out. However, we treat the absence of ranges as meaning
           # all hosts.
-          if host_ranges.present? && !host_ranges.any? { |range| range.include?(login.service.host.address) }
+          if host_ranges.present? && !host_ranges.any? { |range| range.include?(service.host.address) }
             next
           end
-
-          service = framework.db.services(id: login.service_id, workspace: framework.db.workspace).first
 
           row = [ service.host.address ]
           row << origin
