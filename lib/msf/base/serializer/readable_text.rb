@@ -183,6 +183,10 @@ class ReadableText
     output << "Available targets:\n"
     output << dump_exploit_targets(mod, indent)
 
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+
     # Options
     if (mod.options.has_options?)
       output << "Basic options:\n"
@@ -240,6 +244,10 @@ class ReadableText
       output << "Available actions:\n"
       output << dump_module_actions(mod, indent)
     end
+
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
