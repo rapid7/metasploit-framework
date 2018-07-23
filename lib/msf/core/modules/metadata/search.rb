@@ -10,8 +10,10 @@ module Msf::Modules::Metadata::Search
   def find(search_string)
     search_results = []
 
+    params = parse_search_string(search_string)
+
     get_metadata.each { |module_metadata|
-      if is_match(search_string, module_metadata)
+      if is_match(params, module_metadata)
         search_results << module_metadata
       end
     }
@@ -19,15 +21,16 @@ module Msf::Modules::Metadata::Search
     return search_results
   end
 
+  # Helper method for private `is_match`
+  def matches(params, module_metadata)
+    is_match(params, module_metadata)
+  end
+
   #######
   private
   #######
 
-  def is_match(search_string, module_metadata)
-    return false if not search_string
-
-    search_string += ' '
-
+  def parse_search_string(search_string)
     # Split search terms by space, but allow quoted strings
     terms = search_string.split(/\"/).collect{|t| t.strip==t ? t : t.split(' ')}.flatten
     terms.delete('')
@@ -37,7 +40,7 @@ module Msf::Modules::Metadata::Search
 
     terms.each do |t|
       f,v = t.split(":", 2)
-      if not v
+      unless v
         v = f
         f = 'text'
       end
@@ -52,8 +55,13 @@ module Msf::Modules::Metadata::Search
         res[f][0] << v
       end
     end
+    res
+  end
 
-    k = res
+  def is_match(params, module_metadata)
+    return false if params.empty?
+
+    k = params
 
     [0,1].each do |mode|
       match = false
@@ -68,6 +76,67 @@ module Msf::Modules::Metadata::Search
           r = Regexp.new(Regexp.escape(w), true)
 
           case t
+            when 'app'
+              match = [t,w] if (w == "server" and module_metadata.is_server)
+              match = [t,w] if (w == "client" and module_metadata.is_client)
+            when 'author', 'authors'
+              match = [t,w] if module_metadata.author.any? { |a| a =~ r }
+            when 'arch'
+              match = [t,w,] if module_metadata.arch =~ r
+            when 'cve'
+              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ r }
+            when 'bid'
+              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
+            when 'edb'
+              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^edb\-/i and ref =~ r }
+            when 'date', 'disclosure_date'
+              match = [t,w] if module_metadata.disclosure_date.to_s =~ r
+            when 'description'
+              match = [t,w] if module_metadata.description =~ r
+            when 'full_name', 'fullname'
+              match = [t,w] if module_metadata.full_name =~ r
+            when 'mod_time'
+              match = [t,w] if module_metadata.mod_time.to_s =~ r
+            when 'name'
+              match = [t,w] if module_metadata.name =~ r
+            when 'os', 'platform'
+              match = [t,w] if module_metadata.platform  =~ r or module_metadata.arch  =~ r
+              if module_metadata.targets
+                match = [t,w] if module_metadata.targets.any? { |t| t =~ r }
+              end
+            when 'path'
+              match = [t,w] if module_metadata.full_name =~ r
+            when 'port', 'rport'
+              match = [t,w] if module_metadata.rport =~ r
+            when 'rank'
+              # Determine if param was prepended with gt, lt, gte, lte, or eq
+              # Ex: "lte300" should match all ranks <= 300
+              query_rank = w.dup
+              operator = query_rank[0,3].tr('0-9', '')
+              matches_rank = module_metadata.rank == w.to_i
+              unless operator.empty?
+                query_rank.slice! operator
+                query_rank = query_rank.to_i
+                case operator
+                  when 'gt'
+                    matches_rank = module_metadata.rank.to_i > query_rank
+                  when 'lt'
+                    matches_rank = module_metadata.rank.to_i < query_rank
+                  when 'gte'
+                    matches_rank = module_metadata.rank.to_i >= query_rank
+                  when 'lte'
+                    matches_rank = module_metadata.rank.to_i <= query_rank
+                  when 'eq'
+                    matches_rank = module_metadata.rank.to_i == query_rank
+                end
+              end
+              match = [t,w] if matches_rank
+            when 'ref', 'ref_name'
+              match = [t,w] if module_metadata.ref_name =~ r
+            when 'reference', 'references'
+              match = [t,w] if module_metadata.references.any? { |ref| ref =~ r }
+            when 'target', 'targets'
+              match = [t,w] if module_metadata.targets.any? { |target| target =~ r }
             when 'text'
               terms = [module_metadata.name, module_metadata.full_name, module_metadata.description] + module_metadata.references + module_metadata.author
 
@@ -75,31 +144,8 @@ module Msf::Modules::Metadata::Search
                 terms = terms + module_metadata.targets
               end
               match = [t,w] if terms.any? { |x| x =~ r }
-            when 'name'
-              match = [t,w] if module_metadata.name =~ r
-            when 'path'
-              match = [t,w] if module_metadata.full_name =~ r
-            when 'author'
-              match = [t,w] if module_metadata.author.any? { |a| a =~ r }
-            when 'os', 'platform'
-              match = [t,w] if module_metadata.platform  =~ r or module_metadata.arch  =~ r
-
-              if module_metadata.targets
-                match = [t,w] if module_metadata.targets.any? { |t| t =~ r }
-              end
-            when 'port'
-              match = [t,w] if module_metadata.rport =~ r
             when 'type'
               match = [t,w] if Msf::MODULE_TYPES.any? { |modt| w == modt and module_metadata.type == modt }
-            when 'app'
-              match = [t,w] if (w == "server" and module_metadata.is_server)
-              match = [t,w] if (w == "client" and module_metadata.is_client)
-            when 'cve'
-              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ r }
-            when 'bid'
-              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
-            when 'edb'
-              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^edb\-/i and ref =~ r }
           end
           break if match
         end
