@@ -138,7 +138,7 @@ class EmpireShell < Msf::Sessions::CommandShell
       return show_info_help()
     else
       module_name = args[0]
-      self.client_emp.info_module(module_name)
+      @client_emp.info_module(module_name)
     end
   end
 
@@ -148,23 +148,23 @@ class EmpireShell < Msf::Sessions::CommandShell
       return use_module_help()
     else
       module_name = args[0]
-      self.client_emp.exec_module(module_name, self.agent_name)
+      @client_emp.exec_module(module_name, @agent_name)
     end
   end
 
   #Defining show_modules command
   def cmd_show_modules
-    self.client_emp.get_modules
+    @client_emp.get_modules
   end
 
   #Defining empire shell command
   def cmd_shell(*args)
     if args.length = 1
       command = args[0]
-      puts self.client_emp.exec_command(self.agent_name, command)
+      puts @client_emp.exec_command(@agent_name, command)
     elsif args.length > 1
       command = args.join(" ")
-      puts self.client_emp.exec_command(self.agent_name, command)
+      puts @client_emp.exec_command(@agent_name, command)
     elsif args.length.zero? || args[0] == '-h' or args[0] == 'help'
       return shell_help()
     end
@@ -176,13 +176,13 @@ class EmpireShell < Msf::Sessions::CommandShell
       return results_help()
     else
       taskID = args[0]
-      puts self.client_emp.get_results(self.agent_name, taskID)
+      puts @client_emp.get_results(@agent_name, taskID)
     end
   end
 
   #Defining the credentials command
   def credentials
-    self.client_emp.get_creds
+    @client_emp.get_creds
   end
 
   #Defining rename_agent command
@@ -191,7 +191,7 @@ class EmpireShell < Msf::Sessions::CommandShell
       return rename_agent_help
     else
       new_name = args[0].to_s
-      self.client_emp(self.agent_name,new_name)
+      @client_emp(@agent_name,new_name)
       name(new_name)
     end
   end
