@@ -292,8 +292,7 @@ module Msf::Empire
       end
       parser = JSON.parse(response.body)
       if parser['success']
-        puts "Command executed with TaskID : #{parser['taskID']}."
-        return parser['taskID']
+        return "Command executed with TaskID : #{parser['taskID']}."
       else
         return "Error executing command"
       end
