@@ -230,10 +230,34 @@ module Msf::DBManager::Cred
       opts[:workspace] = wspace if wspace
 
       if opts[:public]
-        opts[:public] = Metasploit::Credential::Public.where(opts[:public]).first_or_initialize
+        if opts[:public][:id]
+          public_id = opts[:public].delete(:id)
+          public = Metasploit::Credential::Public.find(public_id)
+          public.update_attributes(opts[:public])
+        else
+          public = Metasploit::Credential::Public.where(opts[:public]).first_or_initialize
+        end
+        opts[:public] = public
       end
       if opts[:private]
-        opts[:private] = Metasploit::Credential::Private.where(opts[:private]).first_or_initialize
+        if opts[:private][:id]
+          private_id = opts[:private].delete(:id)
+          private = Metasploit::Credential::Private.find(private_id)
+          private.update_attributes(opts[:private])
+        else
+          private = Metasploit::Credential::Private.where(opts[:private]).first_or_initialize
+        end
+        opts[:private] = private
+      end
+      if opts[:origin]
+        if opts[:origin][:id]
+          origin_id = opts[:origin].delete(:id)
+          origin = Metasploit::Credential::Origin.find(origin_id)
+          origin.update_attributes(opts[:origin])
+        else
+          origin = Metasploit::Credential::Origin.where(opts[:origin]).first_or_initialize
+        end
+        opts[:origin] = origin
       end
 
       id = opts.delete(:id)
