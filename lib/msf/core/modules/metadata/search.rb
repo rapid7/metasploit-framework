@@ -88,7 +88,7 @@ module Msf::Modules::Metadata::Search
                 match = [t,w] if module_metadata.targets.any? { |t| t =~ r }
               end
             when 'port'
-              match = [t,w] if module_metadata.rport =~ r
+              match = [t,w] if module_metadata.rport.to_s =~ r
             when 'type'
               match = [t,w] if Msf::MODULE_TYPES.any? { |modt| w == modt and module_metadata.type == modt }
             when 'app'
