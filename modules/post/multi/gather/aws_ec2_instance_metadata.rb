@@ -94,7 +94,6 @@ class MetasploitModule < Msf::Post
 
   def simple_get(url)
     vprint_status("Fetching #{url}")
-    puts("Fetching #{url}")
     cmd_exec("curl #{url}")
   end
 end
