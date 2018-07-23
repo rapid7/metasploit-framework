@@ -1,4 +1,4 @@
-module LoginDataService
+module CredentialDataService
 
   def creds(opts)
     raise 'CredentialDataService#creds is not implemented'
