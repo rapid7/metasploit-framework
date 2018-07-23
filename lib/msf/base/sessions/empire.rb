@@ -191,7 +191,7 @@ class EmpireShell < Msf::Sessions::CommandShell
       return rename_agent_help
     else
       new_name = args[0].to_s
-      @client_emp(@agent_name,new_name)
+      @client_emp.rename_agent(@agent_name,new_name)
       name(new_name)
     end
   end
