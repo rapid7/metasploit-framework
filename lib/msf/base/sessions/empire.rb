@@ -54,6 +54,8 @@ class EmpireShell < Msf::Sessions::CommandShell
       'show_info'   => 'Displays all the available options and description of the specified module',
       'use_module'  => 'Attemps to run the specified module against the current agent',
       'shell'       => 'Run shell commands on target system',
+      'result'      => 'Fetch stored results from the Empire Database',
+      'credentials' => 'Fetch all the saved credentials in the Empire Database',
       'rename_agent'=> 'Rename the curret agent name for easier interaction'
     }
   end
@@ -108,17 +110,32 @@ class EmpireShell < Msf::Sessions::CommandShell
     print_line "Renames the agent for easier interaction"
     print_line
   end
+
+  #Defining shell_help method
+  def shell_help
+    print_line "Usage : shell <shell_command>"
+    print_line "Example : shell start notepad.exe"
+    print_line
+    print_line "Runs a shell command in target host and stores the result in database. Please wait few moments before fetching the results, for the results to be populated"
+    print_line
+  end
+
+  #Defining results_help
+  def results_help
+    print_line "Usage : results <taskID_of_the_action>"
+    print_line "Example : results 9"
+    print_line
+    print_line "Fetch the respective results of a task from the Empire Database"
+    print_line
+  end
   #
   #COMMAND METHODS
   #----------------------
   #
-
-  #Defining show_modules method
-  
   #Defining show_info command
   def cmd_show_info(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
-      return show_info_help
+      return show_info_help()
     else
       module_name = args[0]
       self.client_emp.info_module(module_name)
@@ -128,7 +145,7 @@ class EmpireShell < Msf::Sessions::CommandShell
   #Defining use_module command
   def cmd_use_module(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
-      return use_module_help
+      return use_module_help()
     else
       module_name = args[0]
       self.client_emp.exec_module(module_name, self.agent_name)
@@ -140,21 +157,32 @@ class EmpireShell < Msf::Sessions::CommandShell
     self.client_emp.get_modules
   end
 
-  #Defining empire shell method
-  def cmd_shell
-    shell_command = ''
-    while shell_command != 'exit'
-      print "empire-shell > "
-      shell_command = gets
-      response = self.client_emp(self.agent_name,command)
-      if response.to_s.include?("successfully")
-        sleep(5)
-        puts self.client_emp.get_results(self.agent_name)
-        self.client_emp.delete_results(self.agent_name)
-      else
-        print_error "#{response}"
-      end
+  #Defining empire shell command
+  def cmd_shell(*args)
+    if args.length = 1
+      command = args[0]
+      puts self.client_emp.exec_command(self.agent_name, command)
+    elsif args.length > 1
+      command = args.join(" ")
+      puts self.client_emp.exec_command(self.agent_name, command)
+    elsif args.length.zero? || args[0] == '-h' or args[0] == 'help'
+      return shell_help()
     end
+  end
+
+  #Defining results command
+  def results(*args)
+    if args.length.zero? || args[0] == '-h' or args[0] == 'help'
+      return results_help()
+    else
+      taskID = args[0]
+      puts self.client_emp.get_results(self.agent_name, taskID)
+    end
+  end
+
+  #Defining the credentials command
+  def credentials
+    self.client_emp.get_creds
   end
 
   #Defining rename_agent command
