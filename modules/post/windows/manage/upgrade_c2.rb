@@ -5,7 +5,6 @@
 
 require 'msf/core/post/windows/reflective_dll_injection'
 require 'msf/core/empire_lib'
-require 'msf/core/Empire-UI'
 require 'msf/base/sessions/empire'
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::ReflectiveDLLInjection
@@ -16,7 +15,7 @@ class MetasploitModule < Msf::Post
                       "Name"                => "Upgrading to Empire from Meterpreter Post Module",
                       "Description"         => " This module will set up a bridge between the already existing meterpretr session and the Empire instance hosted over the port 1337. Please note that you need to have Empire Web-API preinstalled in your machine.",
                       "LICENSE"             => MSF_LICENSE,
-                      "Platform"            => ["multi"],
+                      "Platform"            => ["windows"],
                       "SessionTypes"        => ["meterpreter"],
                       "Author"              => ["author"]
                      ))
