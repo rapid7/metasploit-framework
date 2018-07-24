@@ -51,6 +51,7 @@ class EmpireShell < Msf::Sessions::CommandShell
     {
       'help'        => 'Show help menu',
       'show_modules'=> 'List all the Empire post modules available to deploy against the target',
+      'search'      => 'Fetch all the modules resembling to your search term',
       'show_info'   => 'Displays all the available options and description of the specified module',
       'use_module'  => 'Attemps to run the specified module against the current agent',
       'shell'       => 'Run shell commands on target system',
@@ -60,10 +61,6 @@ class EmpireShell < Msf::Sessions::CommandShell
     }
   end
 
-  #
-  #Define available commands
-  #Defining help command
-  #
   #
   #HELP METHODS
   #------------------
@@ -84,48 +81,12 @@ class EmpireShell < Msf::Sessions::CommandShell
     print(help_table.to_s)
   end
 
-  #Defining show_info_help
-  def show_info_help
-    print_line "Usage : show_info <module_name>"
-    print_line "Example : show_info powershell/situational_awareness/network/powerview/find_gpo_location"
+  #Defining a help method to display command helps.
+  def get_help(usage, example, desc)
+    print_line "Usage : #{usage}"
+    print_line "Example : #{example}"
     print_line
-    print_line "Displays all the available options and description of the specified modules"
-    print_line
-  end
-
-  #Define use_module_heLP
-  def use_module_help
-    print_line "Usage : use_info <module_name>"
-    print_line "Example : use_module powershell/situational_awareness/networ/powerview/find_gpo_location"
-    print_line
-    print_line "Attempts to run the specified module against the current agent"
-    print_line
-  end
-
-  #Define rename_agent_help
-  def rename_agent_help
-    print_line "Usage: rename_agent <new_name>"
-    print_line "Example: rename_agent target_1"
-    print_line
-    print_line "Renames the agent for easier interaction"
-    print_line
-  end
-
-  #Defining shell_help method
-  def shell_help
-    print_line "Usage : shell <shell_command>"
-    print_line "Example : shell start notepad.exe"
-    print_line
-    print_line "Runs a shell command in target host and stores the result in database. Please wait few moments before fetching the results, for the results to be populated"
-    print_line
-  end
-
-  #Defining results_help
-  def results_help
-    print_line "Usage : results <taskID_of_the_action>"
-    print_line "Example : results 9"
-    print_line
-    print_line "Fetch the respective results of a task from the Empire Database"
+    print_line "#{desc}"
     print_line
   end
   #
@@ -135,7 +96,7 @@ class EmpireShell < Msf::Sessions::CommandShell
   #Defining show_info command
   def cmd_show_info(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
-      return show_info_help()
+      return get_help("show_info <module_name>","show_info powershell/situational_awareness/network/powerview/find_gpo_location","Displays all the available options and description of the specified modules")
     else
       module_name = args[0]
       @client_emp.info_module(module_name)
@@ -145,10 +106,20 @@ class EmpireShell < Msf::Sessions::CommandShell
   #Defining use_module command
   def cmd_use_module(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
-      return use_module_help()
+      return get_help("use_module <module_name>","use_module powershell/situational_awareness/network/powerview/find_gpo_location","Attempts to run the specified module against the current agent")
     else
       module_name = args[0]
       @client_emp.exec_module(module_name, @agent_name)
+    end
+  end
+
+  #Defining search command
+  def cmd_search(*args)
+    if args.length.zero? || args[0] == '-h' or args[0] == 'help'
+      return get_help("search <key_term>","search privesc","Fetch all the modules resembling to your key term")
+    else
+      keyterm = args[0].to_s
+      @client_emp.search_module(keyterm)
     end
   end
 
@@ -166,14 +137,14 @@ class EmpireShell < Msf::Sessions::CommandShell
       command = args.join(" ")
       puts @client_emp.exec_command(@agent_name, command)
     elsif args.length.zero? || args[0] == '-h' or args[0] == 'help'
-      return shell_help()
+      return get_help("shell <shell_command>","shell start notepad.exe","Runs a shell command in target host and stores the result in Empire Database. Please wait few moments before fetching the results, for results to be properly populated")
     end
   end
 
   #Defining results command
   def results(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
-      return results_help()
+      return get_help("results <taskID_of_the_action>","results 9","Fetch the respective results of a task from the Empire Database")
     else
       taskID = args[0]
       puts @client_emp.get_results(@agent_name, taskID)
@@ -188,7 +159,7 @@ class EmpireShell < Msf::Sessions::CommandShell
   #Defining rename_agent command
   def cmd_rename_agent(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
-      return rename_agent_help
+      return get_help("rename <new_name>","rename target_1","Renames the current aget for easier future reference")
     else
       new_name = args[0].to_s
       @client_emp.rename_agent(@agent_name,new_name)
