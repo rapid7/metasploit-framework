@@ -174,8 +174,8 @@ class Utility
       url_refs = mod.references.select { |r| r.ctx_id == 'URL' }.collect { |r| r.ctx_val if r }
       module_references['URL'] = url_refs
     end
-
   end
+
 end
 
 require 'msfenv'
@@ -196,7 +196,7 @@ def main
   opts.parse(ARGV) { |opt, idx, val|
     case opt
     when "-h"
-      puts "\nMetasploit Script for finding CVEs from other references."
+      puts "\nMetasploit script for finding CVEs from other references."
       puts "=========================================================="
       puts opts.usage
       exit
@@ -224,16 +224,18 @@ def main
   puts "[*] Going through Metasploit modules for missing references..."
   $framework.modules.each { |name, mod|
     if mod.nil?
-      elog("module_reference.rb is unable to load #{name}")
+      elog("Unable to load #{name}")
       next
     end
 
+    elog "Loading #{name}"
     m = mod.new
     next if Utility.ignore_module?(m.fullname)
 
     ref_ids = m.references.collect { |r| r.ctx_id }
     next if ref_ids.include?(type)
 
+    elog "Checking references for #{m.fullname}"
     module_references = {}
     module_references['shortname'] = m.shortname
     Utility.collect_references_from_module!(module_references, ref_ids, m)
