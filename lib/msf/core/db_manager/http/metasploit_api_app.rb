@@ -11,7 +11,6 @@ require 'msf/core/db_manager/http/servlet/note_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_servlet'
 require 'msf/core/db_manager/http/servlet/event_servlet'
 require 'msf/core/db_manager/http/servlet/web_servlet'
-require 'msf/core/db_manager/http/servlet/module_servlet'
 require 'msf/core/db_manager/http/servlet/msf_servlet'
 require 'msf/core/db_manager/http/servlet/workspace_servlet'
 require 'msf/core/db_manager/http/servlet/service_servlet'
@@ -24,6 +23,7 @@ require 'msf/core/db_manager/http/servlet/nmap_servlet'
 require 'msf/core/db_manager/http/servlet/db_export_servlet'
 require 'msf/core/db_manager/http/servlet/vuln_attempt_servlet'
 require 'msf/core/db_manager/http/servlet/user_servlet'
+require 'msf/core/web_services/servlet/module_search_servlet'
 
 class MetasploitApiApp < Sinatra::Base
   helpers ServletHelper
@@ -35,7 +35,6 @@ class MetasploitApiApp < Sinatra::Base
   register VulnServlet
   register EventServlet
   register WebServlet
-  register ModuleServlet
   register MsfServlet
   register NoteServlet
   register WorkspaceServlet
@@ -49,6 +48,7 @@ class MetasploitApiApp < Sinatra::Base
   register DbExportServlet
   register VulnAttemptServlet
   register UserServlet
+  register ModuleSearchServlet
 
   configure do
     set :sessions, {key: 'msf-ws.session', expire_after: 300}

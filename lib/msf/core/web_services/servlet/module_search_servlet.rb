@@ -1,11 +1,13 @@
-module ModuleServlet
+require 'msf/core/web_services'
+
+module ModuleSearchServlet
 
   def self.api_path
     '/api/v1/modules'
   end
 
   def self.registered(app)
-    app.get ModuleServlet.api_path, &search_modules
+    app.get ModuleSearchServlet.api_path, &search_modules
   end
 
   #######
@@ -17,7 +19,7 @@ module ModuleServlet
       warden.authenticate!
       begin
         sanitized_params = sanitize_params(params)
-        data = get_db.modules(sanitized_params)
+        data = Msf::WebServices.search_modules(sanitized_params)
         set_json_response(data)
       rescue => e
         set_error_on_response(e)

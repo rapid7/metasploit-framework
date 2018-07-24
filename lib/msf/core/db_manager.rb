@@ -44,7 +44,6 @@ class Msf::DBManager
   autoload :IPAddress, 'msf/core/db_manager/ip_address'
   autoload :Loot, 'msf/core/db_manager/loot'
   autoload :Migration, 'msf/core/db_manager/migration'
-  autoload :Module, 'msf/core/db_manager/module'
   autoload :ModuleCache, 'msf/core/db_manager/module_cache'
   autoload :Note, 'msf/core/db_manager/note'
   autoload :Ref, 'msf/core/db_manager/ref'
@@ -82,7 +81,6 @@ class Msf::DBManager
   include Msf::DBManager::IPAddress
   include Msf::DBManager::Loot
   include Msf::DBManager::Migration
-  include Msf::DBManager::Module
   include Msf::DBManager::ModuleCache
   include Msf::DBManager::Note
   include Msf::DBManager::Ref
