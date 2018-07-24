@@ -141,6 +141,12 @@ module CVE
 end
 
 class Utility
+  def self.ignore_module?(module_full_name)
+    [
+      'exploit/multi/handler'
+    ].include?(module_full_name)
+  end
+
   def self.collect_references_from_module!(module_references, ref_ids, mod)
     if ref_ids.include?('EDB')
       edb_ref = mod.references.select { |r| r.ctx_id == 'EDB' }.first.ctx_val
@@ -180,8 +186,6 @@ class Utility
     end
   end
 end
-
-
 
 require 'msfenv'
 require 'msf/base'
@@ -230,6 +234,8 @@ def main
     end
 
     m = mod.new
+    next if Utility.ignore_module?(m.fullname)
+
     ref_ids = m.references.collect { |r| r.ctx_id }
     next if ref_ids.include?(type)
 
