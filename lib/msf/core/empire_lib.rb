@@ -405,6 +405,45 @@ module Msf::Empire
         end
       end
     end
+    #
+    #Method to search a module from the Empire Database
+    #
+    def search_module(keyterm)
+      uri = URI.parse("https://localhost:1337/api/modules/search?token=#{@token}")
+      request = Net::HTTP::Post.new(uri)
+      request.content_type = "application/json"
+      request.body = JSON.dump({
+        "term" => keyterm.to_s
+      })
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+        http.request(request)
+      end
+      parser = JSON.parse(response.body)
+      parser['modules'].each do |module_search|
+        puts "#{module_search['Name']}\t :\t#{module_search['Description']}"
+        puts ""
+      end
+    end
+    #
+    #Method to check for advanced required options for a module
+    #
+    def check_options
+      options_arr = {}
+      uri = URI.parse("https://localhost:1337/api/modules/#{module_name}?token=#{@token}")
+      request = Net::HTTP::Get.new(uri)
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+        http.request(request)
+      end
+      parser = JSON.parse(response.body)
+      parser['modules'][0]['options'].each do |option, options|
+        if options['Required']
+          options_arr.store("#{option} [#{options['Description']}]", "#{options['Value']}")
+        end
+      end
+      return options_arr
+    end
      #
     #Method to get detailed information about a particular module
     #
@@ -440,12 +479,26 @@ module Msf::Empire
     #Method to execute a module to a particular agent
     #
     def exec_module(module_name, agent_name)
+      options = check_options(module_name)
+      options_completed = {}
+      options_completed.store("Agent", "#{agent_name}")
+      options.each do |opt, values|
+        if opt.split(" ").first != 'Agent'
+          puts "set #{opt} "
+          print "Press Enter to go with Default : [#{values}] >> "
+          value = gets.chomp
+          puts ""
+          if value.empty?
+            options_completed.store("#{opt.split(" ").first}","#{values}")
+          else
+            options_completed.store("#{opt.split(" ").first}","#{value}")
+          end
+        end
+      end
       uri = URI.parse("https://localhost:1337/api/modules/#{module_name}?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
-      request.body = JSON.dump({
-          "Agent" => agent_name
-      })
+      request.body = JSON.dump(options_completed)
       req_options = self.set_options(uri)
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
@@ -454,7 +507,7 @@ module Msf::Empire
       if parser['success']
         return "#{parser['msg']} with TaskID : #{parser['taskID']}\n. It take time to populate the results. Please wait few seconds before you fetch results."
       else
-        return "Invalid request"
+        return "Error : #{parser['error']}"
       end
     end
     #
