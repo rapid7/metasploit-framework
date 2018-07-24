@@ -42,6 +42,7 @@ class Msf::DBManager
   autoload :Import, 'msf/core/db_manager/import'
   autoload :ImportMsfXml, 'msf/core/db_manager/import_msf_xml'
   autoload :IPAddress, 'msf/core/db_manager/ip_address'
+  autoload :Login, 'msf/core/db_manager/login'
   autoload :Loot, 'msf/core/db_manager/loot'
   autoload :Migration, 'msf/core/db_manager/migration'
   autoload :ModuleCache, 'msf/core/db_manager/module_cache'
@@ -79,6 +80,7 @@ class Msf::DBManager
   include Msf::DBManager::HostTag
   include Msf::DBManager::Import
   include Msf::DBManager::IPAddress
+  include Msf::DBManager::Login
   include Msf::DBManager::Loot
   include Msf::DBManager::Migration
   include Msf::DBManager::ModuleCache

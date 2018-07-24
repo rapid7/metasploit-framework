@@ -107,7 +107,7 @@ module Msf::Modules::Metadata::Search
             when 'path'
               match = [t,w] if module_metadata.full_name =~ r
             when 'port', 'rport'
-              match = [t,w] if module_metadata.rport =~ r
+              match = [t,w] if module_metadata.rport.to_s =~ r
             when 'rank'
               # Determine if param was prepended with gt, lt, gte, lte, or eq
               # Ex: "lte300" should match all ranks <= 300

@@ -26,6 +26,7 @@ class Obj
   attr_reader :mod_time
   attr_reader :is_install_path
   attr_reader :ref_name
+  attr_reader :check
 
   def initialize(module_instance, obj_hash = nil)
     unless obj_hash.nil?
@@ -49,7 +50,7 @@ class Obj
     sort_platform_string
 
     @arch = module_instance.arch_to_s
-    @rport = module_instance.datastore['RPORT'].to_s
+    @rport = module_instance.datastore['RPORT']
     @path = module_instance.file_path
     @mod_time = ::File.mtime(@path) rescue Time.now
     @ref_name = module_instance.refname
@@ -62,6 +63,9 @@ class Obj
     if module_instance.respond_to?(:targets) and module_instance.targets
       @targets = module_instance.targets.map{|x| x.name}
     end
+
+    # Store whether a module has a check method
+    @check = module_instance.respond_to?(:check) ? true : false
 
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(Encoding::UTF_8)
@@ -89,7 +93,8 @@ class Obj
       'mod_time' => @mod_time.to_s,
       'path' => @path,
       'is_install_path' => @is_install_path,
-      'ref_name' => @ref_name
+      'ref_name' => @ref_name,
+      'check' => @check
     }.to_json(*args)
   end
 
@@ -135,6 +140,7 @@ class Obj
     @path = obj_hash['path']
     @is_install_path = obj_hash['is_install_path']
     @targets = obj_hash['targets'].nil? ? [] : obj_hash['targets']
+    @check = obj_hash['check'] ? true : false
   end
 
   def sort_platform_string

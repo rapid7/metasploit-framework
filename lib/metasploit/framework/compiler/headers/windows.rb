@@ -20,7 +20,10 @@ module Metasploit
               'stdlib.h'   => ['stddef.h'],
               'stdio.h'    => ['stddef.h'],
               'String.h'   => ['stddef.h'],
-              'Winsock2.h' => ['stddef.h', 'Windows.h']
+              'Winsock2.h' => ['stddef.h', 'Windows.h'],
+              'rc4.h'      => ['String.h', 'stdlib.h'],
+              'base64.h'   => ['stddef.h'],
+              'xor.h'      => ['stddef.h']
             }
           end
 

@@ -14,6 +14,7 @@ module DataServiceAutoLoader
   autoload :RemoteLootDataService, 'metasploit/framework/data_service/remote/http/remote_loot_data_service'
   autoload :RemoteSessionEventDataService, 'metasploit/framework/data_service/remote/http/remote_session_event_data_service'
   autoload :RemoteCredentialDataService, 'metasploit/framework/data_service/remote/http/remote_credential_data_service'
+  autoload :RemoteLoginDataService, 'metasploit/framework/data_service/remote/http/remote_login_data_service'
   autoload :RemoteNmapDataService, 'metasploit/framework/data_service/remote/http/remote_nmap_data_service'
   autoload :RemoteDbExportDataService, 'metasploit/framework/data_service/remote/http/remote_db_export_data_service'
   autoload :RemoteVulnAttemptDataService, 'metasploit/framework/data_service/remote/http/remote_vuln_attempt_data_service'
@@ -31,6 +32,7 @@ module DataServiceAutoLoader
   include RemoteLootDataService
   include RemoteSessionEventDataService
   include RemoteCredentialDataService
+  include RemoteLoginDataService
   include RemoteNmapDataService
   include RemoteDbExportDataService
   include RemoteVulnAttemptDataService

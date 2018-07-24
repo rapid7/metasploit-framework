@@ -452,10 +452,17 @@ module Msf::DBManager::Import::MetasploitFramework::XML
             pass     = cred.at('pass').try(:text)
             pass     = "" if pass == "*MASKED*"
 
-            private = create_credential_private(private_data: pass, private_type: :password)
-            public  = create_credential_public(username: username)
-            core    = create_credential_core(private: private, public: public, origin: origin, workspace_id: wspace.id)
-
+            cred_opts = {
+                workspace: wspace.name,
+                username: username,
+                private_data: pass,
+                private_type: 'Metasploit::Credential::Password',
+                service_name: sname,
+                protocol: proto,
+                port: port,
+                origin: origin
+            }
+            core = create_credential(cred_opts)
             create_credential_login(core: core,
                                     workspace_id: wspace.id,
                                     address: hobj.address,
