@@ -12,7 +12,8 @@ module Metasploit
           #
 
           # Number of allowed threads when threads are counted in `after(:suite)` or `before(:suite)`
-          EXPECTED_THREAD_COUNT_AROUND_SUITE = 1
+          EXPECTED_THREAD_COUNT_AROUND_SUITE = 2
+
           # `caller` for all Thread.new calls
           LOG_PATHNAME = Pathname.new('log/metasploit/framework/spec/threads/suite.log')
           # Regular expression for extracting the UUID out of {LOG_PATHNAME} for each Thread.new caller block
