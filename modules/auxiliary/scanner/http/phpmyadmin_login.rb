@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info={})
     super(update_info(info,
-      'Name'        => 'PhpMyAdmin Login Scanner Test',
+      'Name'        => 'PhpMyAdmin Login Scanner',
       'Description' => %q{
         This module will attempt to authenticate to PhpMyAdmin.
       },
