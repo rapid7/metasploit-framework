@@ -80,6 +80,20 @@ module ServletHelper
     params.symbolize_keys.except(:captures, :splat)
   end
 
+  def format_cred_json(data)
+    includes = [:logins, :public, :private, :realm, :origin]
+
+    response = []
+    Array.wrap(data).each do |cred|
+      json = cred.as_json(include: includes)
+      json['origin'] = json['origin'].merge('type' => cred.origin.class.to_s) if cred.origin
+      json['public'] = json['public'].merge('type' => cred.public.type) if cred.public
+      json['private'] = json['private'].merge('type' => cred.private.type) if cred.private
+      response << json
+    end
+    response
+  end
+
   # Get Warden::Proxy object from the Rack environment.
   # @return [Warden::Proxy] The Warden::Proxy object from the Rack environment.
   def warden
@@ -91,8 +105,7 @@ module ServletHelper
   def warden_options
     env['warden.options']
   end
-
-
+  
   #######
   private
   #######

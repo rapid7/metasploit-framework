@@ -56,7 +56,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_ntlm_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::NTLMHash', workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -67,7 +67,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_password_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::Password' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::Password', workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -78,7 +78,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_ssh_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::SSHKey' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::SSHKey', workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -304,18 +304,18 @@ module Auxiliary::AuthBrute
     end
     if framework.db.active
       if datastore['DB_ALL_CREDS']
-        myworkspace.creds.each do |o|
-          credentials << [o.user, o.pass] if o.ptype =~ /password/
+        framework.db.creds(workspace: myworkspace.name).each do |o|
+          credentials << [o.public.username, o.private.data] if o.private && o.private.type =~ /password/i
         end
       end
       if datastore['DB_ALL_USERS']
-        myworkspace.creds.each do |o|
-          users << o.user
+        framework.db.creds(workspace: myworkspace.name).creds.each do |o|
+          users << o.public.username if o.public
         end
       end
       if datastore['DB_ALL_PASS']
-        myworkspace.creds.each do |o|
-          passwords << o.pass if o.ptype =~ /password/
+        framework.db.creds(workspace: myworkspace.name).creds.each do |o|
+          passwords << o.private.data if o.private && o.private.type =~ /password/i
         end
       end
     end

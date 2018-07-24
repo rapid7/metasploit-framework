@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
 
-    formats = [ 'md5', 'des', 'bsdi']
+    formats = [ 'md5crypt', 'descrypt', 'bsdicrypt']
     if datastore['Crypt']
       formats << 'crypt'
     end
@@ -87,10 +87,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def hash_file
     hashlist = Rex::Quickfile.new("hashes_tmp")
-    Metasploit::Credential::NonreplayableHash.joins(:cores).where(metasploit_credential_cores: { workspace_id: myworkspace.id }, jtr_format: 'md5,des,bsdi,crypt').each do |hash|
-      hash.cores.each do |core|
+    framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::NonreplayableHash').each do |core|
+      if core.private.jtr_format =~ /md5|des|bsdi|crypt/
         user = core.public.username
-        hash_string = "#{hash.data}"
+        hash_string = core.private.data
         id = core.id
         hashlist.puts "#{user}:#{hash_string}:::::#{id}:"
       end
