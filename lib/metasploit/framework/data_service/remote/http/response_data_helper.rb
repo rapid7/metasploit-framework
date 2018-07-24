@@ -5,6 +5,18 @@ require 'digest'
 #
 module ResponseDataHelper
 
+
+  def process_response(response_wrapper)
+    begin
+      if response_wrapper.expected
+        response_wrapper.response.body
+      end
+    rescue => e
+      elog "Error processing response: #{e.message}"
+      e.backtrace.each { |line| elog line }
+    end
+  end
+
   #
   # Converts an HTTP response to a Hash
   #
@@ -13,15 +25,12 @@ module ResponseDataHelper
   #
   def json_to_hash(response_wrapper)
     begin
-      if response_wrapper.expected
-        body = response_wrapper.response.body
-        unless body.nil? && body.empty?
-          parsed_body = JSON.parse(body).deep_symbolize_keys
-          return parsed_body[:data]
-        end
+      body = process_response(response_wrapper)
+      unless body.nil? || body.empty?
+        return JSON.parse(body).symbolize_keys
       end
     rescue => e
-      elog "Error parsing response: #{e.message}"
+      elog "Error parsing response as JSON: #{e.message}"
       e.backtrace.each { |line| elog line }
     end
   end
@@ -104,6 +113,8 @@ module ResponseDataHelper
       case association.macro
         when :belongs_to
           data.delete("#{k}_id")
+          # Polymorphic associations do not auto-create the 'build_model' method
+          next if association.options[:polymorphic]
           to_ar(association.klass, v, obj.send("build_#{k}"))
           obj.class_eval do
             define_method("#{k}_id") { obj.send(k).id }

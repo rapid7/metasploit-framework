@@ -545,6 +545,8 @@ module DispatcherShell
     else
       dispatcher.send('cmd_' + method, *arguments)
     end
+  rescue OptionParser::ParseError => e
+    print_error("#{method}: #{e.message}")
   ensure
     self.busy = false
   end
