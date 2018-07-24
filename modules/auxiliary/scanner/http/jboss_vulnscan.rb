@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
         # apps added per Patrick Hof
         '/web-console/Invoker',
         '/invoker/JMXInvokerServlet',
-        '/invoker/readonlys'
+        '/invoker/readonly'
       ]
 
       print_status("#{rhost}:#{rport} Checking http...")
