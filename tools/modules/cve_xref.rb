@@ -12,7 +12,7 @@ require 'nokogiri'
 module CVE
   class XRefTable
 
-    attr_reader :module_short_name_ref
+    attr_reader :module_full_name_ref
     attr_reader :edb_ref
     attr_reader :bid_ref
     attr_reader :osvdb_ref
@@ -21,7 +21,7 @@ module CVE
     attr_reader :url_refs
 
     def initialize(refs)
-      @module_short_name_ref = refs['shortname']
+      @module_full_name_ref = refs['fullname']
       @edb_ref               = refs['EDB']
       @bid_ref               = refs['BID']
       @osvdb_ref             = refs['OSVDB']
@@ -32,7 +32,7 @@ module CVE
 
     def has_match?(ref_match)
       if (
-           (module_short_name_ref && ref_match.match(/#{module_short_name_ref}/)) ||
+           (module_full_name_ref && ref_match.match(/#{module_full_name_ref}/)) ||
            (edb_ref               && ref_match.match(/EXPLOIT\-DB:#{edb_ref}$/)) ||
            (osvdb_ref             && ref_match.match(/OSVDB:#{osvdb_ref}$/)) ||
            (bid_ref               && ref_match.match(/BID:#{bid_ref}$/)) ||
@@ -237,7 +237,7 @@ def main
 
     elog "Checking references for #{m.fullname}"
     module_references = {}
-    module_references['shortname'] = m.shortname
+    module_references['fullname'] = m.fullname
     Utility.collect_references_from_module!(module_references, ref_ids, m)
     cve_match = cve_database.cross_reference(module_references)
     if cve_match
