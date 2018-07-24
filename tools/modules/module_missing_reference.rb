@@ -36,7 +36,6 @@ save    = nil
 
 opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ],
-  "-s" => [ false, "Sort by Reference instead of Module Type."],
   "-f" => [ true, "Filter based on Module Type [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary] (Default = ALL)."],
   "-t" => [ true, "Type of Reference to sort by #{types * ', '}"],
   "-o" => [ true, "Save the results to a file"]
@@ -47,13 +46,10 @@ flags = []
 opts.parse(ARGV) { |opt, idx, val|
   case opt
   when "-h"
-    puts "\nMetasploit Script for Displaying Module Reference information."
+    puts "\nMetasploit Script for Displaying Missing References."
     puts "=========================================================="
     puts opts.usage
     exit
-  when "-s"
-    flags << "Order: Sorting by License"
-    sort = 1
   when "-f"
     unless filters.include?(val.downcase)
       puts "Invalid Filter Supplied: #{val}"
