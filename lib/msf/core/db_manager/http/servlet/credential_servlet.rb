@@ -25,7 +25,7 @@ module CredentialServlet
       begin
         sanitized_params = sanitize_params(params)
         data = get_db.creds(sanitized_params)
-
+        includes = [:logins, :public, :private, :realm]
         # Need to append the human attribute into the private sub-object before converting to json
         # This is normally pulled from a class method from the MetasploitCredential class
         response = []
@@ -34,7 +34,7 @@ module CredentialServlet
           response << json
         end
         response = format_cred_json(data)
-        set_json_response(response)
+        set_json_data_response(response: response)
       rescue => e
         set_json_error_response(error: e, code: 500)
       end

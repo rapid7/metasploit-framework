@@ -10,15 +10,16 @@ module RemoteCredentialDataService
   def creds(opts = {})
     data = self.get_data(CREDENTIAL_API_PATH, nil, opts)
     rv = json_to_mdm_object(data, CREDENTIAL_MDM_CLASS, [])
-    parsed_body = JSON.parse(data.response.body)
-    parsed_body.each do |cred|
-      if cred['private']
-        private_object = to_ar(cred['private']['type'].constantize, cred['private'])
-        rv[parsed_body.index(cred)].private = private_object
+    parsed_body = JSON.parse(data.response.body).deep_symbolize_keys
+    data = parsed_body[:data]
+    data.each do |cred|
+      if cred[:private]
+        private_object = to_ar(cred[:private][:type].constantize, cred[:private])
+        rv[data.index(cred)].private = private_object
       end
-      if cred['origin']
-        origin_object = to_ar(cred['origin']['type'].constantize, cred['origin'])
-        rv[parsed_body.index(cred)].origin = origin_object
+      if cred[:origin]
+        origin_object = to_ar(cred[:origin][:type].constantize, cred[:origin])
+        rv[data.index(cred)].origin = origin_object
       end
     end
     rv

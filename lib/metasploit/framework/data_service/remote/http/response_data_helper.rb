@@ -27,7 +27,8 @@ module ResponseDataHelper
     begin
       body = process_response(response_wrapper)
       unless body.nil? || body.empty?
-        return JSON.parse(body).symbolize_keys
+        parsed_body = JSON.parse(body).deep_symbolize_keys
+        return parsed_body[:data]
       end
     rescue => e
       elog "Error parsing response as JSON: #{e.message}"
@@ -46,7 +47,7 @@ module ResponseDataHelper
   def json_to_mdm_object(response_wrapper, mdm_class, returns_on_error = nil)
     if response_wrapper.expected
       begin
-        body = response_wrapper.response.body
+        body = process_response(response_wrapper)
         if !body.nil? || !body.empty?
           parsed_body = JSON.parse(body).symbolize_keys
           data = Array.wrap(parsed_body[:data])
@@ -58,7 +59,7 @@ module ResponseDataHelper
         end
       rescue => e
         elog "Mdm Object conversion failed #{e.message}"
-        e.backtrace.each { |line| elog "#{line}\n" }
+        e.backtrace.each { |line| elog "#{line}" }
       end
     end
 
