@@ -113,21 +113,39 @@ module Msf::Modules::Metadata::Search
               # Ex: "lte300" should match all ranks <= 300
               query_rank = w.dup
               operator = query_rank[0,3].tr('0-9', '')
+              valid_operators = %w[eq gt lt gte lte]
               matches_rank = module_metadata.rank == w.to_i
-              unless operator.empty?
+              if valid_operators.include? operator
                 query_rank.slice! operator
                 query_rank = query_rank.to_i
                 case operator
-                  when 'gt'
-                    matches_rank = module_metadata.rank.to_i > query_rank
-                  when 'lt'
-                    matches_rank = module_metadata.rank.to_i < query_rank
-                  when 'gte'
-                    matches_rank = module_metadata.rank.to_i >= query_rank
-                  when 'lte'
-                    matches_rank = module_metadata.rank.to_i <= query_rank
-                  when 'eq'
-                    matches_rank = module_metadata.rank.to_i == query_rank
+                when 'gt'
+                  matches_rank = module_metadata.rank.to_i > query_rank
+                when 'lt'
+                  matches_rank = module_metadata.rank.to_i < query_rank
+                when 'gte'
+                  matches_rank = module_metadata.rank.to_i >= query_rank
+                when 'lte'
+                  matches_rank = module_metadata.rank.to_i <= query_rank
+                when 'eq'
+                  matches_rank = module_metadata.rank.to_i == query_rank
+                end
+              else
+                case query_rank
+                when 'manual'
+                  matches_rank = module_metadata.rank.to_i == 0
+                when 'low'
+                  matches_rank = module_metadata.rank.to_i == 100
+                when 'average'
+                  matches_rank = module_metadata.rank.to_i == 200
+                when 'normal'
+                  matches_rank = module_metadata.rank.to_i == 300
+                when 'good'
+                  matches_rank = module_metadata.rank.to_i == 400
+                when 'great'
+                  matches_rank = module_metadata.rank.to_i == 500
+                when 'excellent'
+                  matches_rank = module_metadata.rank.to_i == 600
                 end
               end
               match = [t,w] if matches_rank
