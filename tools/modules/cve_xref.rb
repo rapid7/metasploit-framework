@@ -217,6 +217,10 @@ def main
       end
       filter = val
     when "-d"
+      unless File.exists?(val.to_s)
+        raise RuntimeError, "#{val} not found"
+      end
+
       db_path = val
     end
   }
