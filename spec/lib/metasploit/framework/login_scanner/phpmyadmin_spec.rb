@@ -9,8 +9,35 @@ RSpec.describe Metasploit::Framework::LoginScanner::PhpMyAdmin do
     described_class.new
   end
 
+  let(:username) do
+    'username'
+  end
+
+  let(:password) do
+    'password'
+  end
+
+  let(:bad_password) do
+    'bad_password'
+  end
+
   let(:response) do
     Rex::Proto::Http::Response.new(200, 'OK')
+  end
+
+  let(:successful_res) do
+    res = Rex::Proto::Http::Response.new(302, 'OK')
+    res.headers['Location'] = 'index.php'
+    res.headers['Set-Cookie'] = 'phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; pma_lang=en; phpMyAdmin=7e1hg9scaugr23p8c6ki8gotbd;' 
+    res.body = "phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; name=\"token\" value=\"4_0'xIB=m@&z%m%#\""
+    res
+  end
+
+  let(:failed_res) do
+    res = Rex::Proto::Http::Response.new(200, 'OK')
+    res.headers['Set-Cookie'] = 'phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; pma_lang=en; phpMyAdmin=7e1hg9scaugr23p8c6ki8gotbd;' 
+    res.body = "phpMyAdmin=e6d3qlut3i67uuab10m1n6sj4b; name=\"token\" value=\"4_0'xIB=m@&z%m%#\""
+    res
   end
 
   before(:each) do
@@ -30,9 +57,9 @@ RSpec.describe Metasploit::Framework::LoginScanner::PhpMyAdmin do
 
     context 'when the target is PhpMyAdmin' do
       let(:response) { phpMyAdmin_res }
-        it 'should return true' do
-          expect(subject.check_setup).to eql(true)
-        end
+      it 'should return true' do
+        expect(subject.check_setup).to eql(true)
+      end
     end
 
     context 'when the target is not PhpMyAdmin' do
@@ -43,20 +70,62 @@ RSpec.describe Metasploit::Framework::LoginScanner::PhpMyAdmin do
   end
 
   describe '#get_session_info' do
-    let(:response) { nil }
-      context 'when a bad request is sent' do
-        it 'should return an unable to connect status' do
-          expect(subject.get_session_info).to eql({ status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to access PhpMyAdmin login page' })
+    context 'when session info cannot be obtained' do
+      it 'should return an unable to connect status' do
+        expect(subject.get_session_info).to eql({ status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Cannot retrieve session info' })
       end
     end
 
+    context 'when session info is retrieved' do
+      let(:response) { successful_res }
+      it 'should return an array of the info' do
+        expect(subject.get_session_info).to eql(['e6d3qlut3i67uuab10m1n6sj4b', '4_0\'xIB=m@&z%m%#', 'pma_lang=en; phpMyAdmin=7e1hg9scaugr23p8c6ki8gotbd;'])
+      end
+    end
+
+    context 'when an array is returned' do
+      let(:response) { successful_res }
+      it 'should not be an empty array' do
+        expect(subject.get_session_info.empty?).not_to eql(true)
+      end
+    end
   end
 
   describe '#do_login' do
+    context 'when a successful login is made' do
+      let(:response) { successful_res }
+      it 'should return a successful login status' do
+        expect(subject.do_login(username, password)).to eql({ :status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => response.to_s })
+      end
+    end
 
+    context 'when a login is unsuccessful' do
+      let(:response) { failed_res }
+      it 'should return an incorrect login status' do
+        expect(subject.do_login(username, password)).to eql({ :status => Metasploit::Model::Login::Status::INCORRECT, :proof => response.to_s })
+      end
+    end
   end
 
   describe '#attempt_login' do
+    context 'when valid credentials are entered' do
+      let(:response) { successful_res }
+      it 'should return a valid credential object' do
+        val_cred = Metasploit::Framework::Credential.new(public: username, private: password)
+        result = subject.attempt_login(val_cred)
+        expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
+        expect(result.status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
+      end
+    end
 
+    context 'when invalid credentials are entered' do
+      let(:response) { failed_res }
+      it 'should return an invalid credential object' do
+        invalid_cred = Metasploit::Framework::Credential.new(public: username, private: bad_password)
+        result = subject.attempt_login(invalid_cred)
+        expect(result).to be_kind_of(::Metasploit::Framework::LoginScanner::Result)
+        expect(result.status).to eq(Metasploit::Model::Login::Status::INCORRECT)
+      end
+    end
   end
 end
