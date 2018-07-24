@@ -241,7 +241,7 @@ def main
     Utility.collect_references_from_module!(module_references, ref_ids, m)
     cve_match = cve_database.cross_reference(module_references)
     if cve_match
-      puts "[*] #{m.shortname}: Found #{cve_match}"
+      puts "[*] #{m.fullname}: Found #{cve_match}"
     end
   }
 end
