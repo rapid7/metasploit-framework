@@ -13,7 +13,6 @@ module CVE
   class XRefTable
 
     attr_reader :module_short_name_ref
-    attr_reader :rapid7_blog_ref
     attr_reader :edb_ref
     attr_reader :bid_ref
     attr_reader :osvdb_ref
@@ -23,7 +22,6 @@ module CVE
 
     def initialize(refs)
       @module_short_name_ref = refs['shortname']
-      @rapid7_blog_ref       = refs['rapid7_blog']
       @edb_ref               = refs['EDB']
       @bid_ref               = refs['BID']
       @osvdb_ref             = refs['OSVDB']
@@ -35,7 +33,6 @@ module CVE
     def has_match?(ref_match)
       if (
            (module_short_name_ref && ref_match.match(/#{module_short_name_ref}/)) ||
-           (rapid7_blog_ref       && ref_match.match(/#{rapid7_blog_ref}/)) ||
            (edb_ref               && ref_match.match(/EXPLOIT\-DB:#{edb_ref}$/)) ||
            (osvdb_ref             && ref_match.match(/OSVDB:#{osvdb_ref}$/)) ||
            (bid_ref               && ref_match.match(/BID:#{bid_ref}$/)) ||
@@ -153,13 +150,6 @@ class Utility
       module_references['EDB'] = edb_ref
     end
 
-    if ref_ids.include?('URL')
-      r7_blog_ref = mod.references.select { |r| r.ctx_val =~ /community\.rapid7\.com/ }.first
-      if r7_blog_ref && !r7_blog_ref.ctx_val.empty?
-        module_references['rapid7_blog'] = r7_blog_ref.ctx_val
-      end
-    end
-
     if ref_ids.include?('BID')
       bid_ref = mod.references.select { |r| r.ctx_id == 'BID' }.first.ctx_val
       module_references['BID'] = bid_ref
@@ -184,6 +174,7 @@ class Utility
       url_refs = mod.references.select { |r| r.ctx_id == 'URL' }.collect { |r| r.ctx_val if r }
       module_references['URL'] = url_refs
     end
+
   end
 end
 
