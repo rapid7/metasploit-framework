@@ -15,7 +15,7 @@
 
 ## Scenarios
 
-### Tested on PhpMyAdmin Versions 4.8.2, 4.8.1, 4.0.10.20
+### Tested on PhpMyAdmin Versions 4.0.10.20, 4.5.0, 4.8.1, 4.8.2, 5.0
 
   ```
   msf5 > use auxiliary/scanner/http/phpmyadmin_login
@@ -26,11 +26,8 @@
   msf5 auxiliary(scanner/http/phpmyadmin_login) > set password password
   password => password
   msf5 auxiliary(scanner/http/phpmyadmin_login) > run
-  PhpMyAdmin Version: 4.8.2
-  Token here: !il&>s3]t28i34x7
-  Session ID: sruks7tm3bnh6jljb8h1q9gh6u
-  Cookies: pma_lang=en; phpMyAdmin=anttidd9jgc8c2qnhn0kq4sshu;
 
+  [*] PhpMyAdmin Version: 4.8.2
   [+] 192.168.37.151:80 - Success: 'root:password'
   [*] Scanned 1 of 1 hosts (100% complete)
   [*] Auxiliary module execution completed

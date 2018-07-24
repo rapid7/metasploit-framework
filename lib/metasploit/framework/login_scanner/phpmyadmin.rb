@@ -9,14 +9,14 @@ module Metasploit
         LOGIN_STATUS = Metasploit::Model::Login::Status
 
         def check_setup
+          version = "Not Detected"
           res = send_request({ 'uri' => uri })
 
           if res && res.body.include?('phpMyAdmin')
             if res.body =~ /PMA_VERSION:"(\d+\.\d+\.\d+)"/
               version = Gem::Version.new($1)
-              puts "PhpMyAdmin Version: #{version.to_s}"
             end
-            return true
+            return version.to_s
           end
 
           false
@@ -32,9 +32,6 @@ module Metasploit
           token = Rex::Text.html_decode(res.body.scan(/token"\s*value="(.*?)"/).flatten[0])
           cookies = res.get_cookies.split[-2..-1].join(' ')
           
-          puts "Token here: #{token}"
-          puts "Session ID: #{session_id}"
-          puts "Cookies: #{cookies}"
           info = [session_id, token, cookies]
           return no_connect if (info.empty? || session_id.empty? || token.empty? || cookies.empty?)
 

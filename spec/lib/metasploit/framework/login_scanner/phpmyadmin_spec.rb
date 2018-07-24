@@ -51,20 +51,33 @@ RSpec.describe Metasploit::Framework::LoginScanner::PhpMyAdmin do
   describe '#check_setup' do
     let(:phpMyAdmin_res) do
       res = Rex::Proto::Http::Response.new(200, 'OK')
-      res.body = '<h1>Welcome to <bdo dir="ltr" lang="en">phpMyAdmin</bdo></h1>'
+      res.body = '<h1>Welcome to <bdo dir="ltr" lang="en">phpMyAdmin</bdo></h1> PMA_VERSION:"4.8.2"'
       res
     end
 
-    context 'when the target is PhpMyAdmin' do
-      let(:response) { phpMyAdmin_res }
-      it 'should return true' do
-        expect(subject.check_setup).to eql(true)
-      end
+    let(:phpMyAdmin_no_vers) do
+      res = Rex::Proto::Http::Response.new(200, 'OK')
+      res.body = '<h1>Welcome to <bdo dir="ltr" lang="en">phpMyAdmin</bdo></h1>'
+      res
     end
 
     context 'when the target is not PhpMyAdmin' do
       it 'should return false' do
         expect(subject.check_setup).to eql(false)
+      end
+    end
+
+    context 'when the version of PhpMyAdmin is detected' do
+      let(:response) { phpMyAdmin_res }
+      it 'should return the version' do
+        expect(subject.check_setup).to eql("4.8.2")
+      end
+    end
+
+    context 'when the version of PhpMyAdmin is not detected' do
+      let(:response) { phpMyAdmin_no_vers }
+      it 'should return "Not Detected"' do
+        expect(subject.check_setup).to eql("Not Detected")
       end
     end
   end
