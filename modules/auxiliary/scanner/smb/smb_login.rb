@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ]),
         OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', false]),
-        OptBool.new('DETECT_ANY_DOMAIN', [false, 'Enable detection of systems accepting any domain for authentication', false])
+        OptBool.new('DETECT_ANY_DOMAIN', [false, 'Detect if domain is required for the specified user', false])
       ])
 
   end
