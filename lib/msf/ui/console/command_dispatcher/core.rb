@@ -1421,6 +1421,7 @@ class Core
    # start thread for server and open_browser_rtc. msfconsole is already running on the main thread
    # the webconsole should be visible under sessions -l command in the different section
     when 'web_ui'
+
       print_status("Starting WebConsole the following session(s): #{session_list.join(', ')}")
       session_list.each do |sess_id|
         session = framework.sessions.get(sess_id)
@@ -1432,18 +1433,19 @@ class Core
           print_status("Starting Web Console for #{sess_id}")
           begin
             # need some house keeping, will resolve soon
-            server_bind='127.0.0.1'
-            server_port=3000
-            Sinatra::Backend::Server.setup(framework,framework.post.keys,sess_id)
+            server_bind='localhost'
+            server_port=3000 + sess_id
+
+
+            Sinatra::Backend::Server.setup(framework,sess_id)
             thr = []
             thr << framework.threads.spawn("ConsoletoBrowser",true) do
-              WebConsoleServer.run!(:host=>'127.0.0.1',:port=>3000)
-
+              WebConsoleServer.run!(:host=>server_bind,:port=>server_port)
             end
 
             thr << framework.threads.spawn("OpenBrowser",true) do
               print_status("Opening WebConsole on host #{server_bind} on port #{server_port} for session #{session.sid}")
-              Rex::Compat.open_webrtc_browser('127.0.0.1:3000')
+              Rex::Compat.open_webrtc_browser("http://#{server_bind}:#{server_port}")
             end
 
           ensure

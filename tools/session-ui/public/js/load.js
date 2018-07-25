@@ -16,33 +16,43 @@ function filterFunction() {
   }
 }
 
+var val;
+function modal(val){
+    var xhr=new XMLHttpRequest();
+    var url="/modal";
+    var data=val;
+    console.log(data);
+    xhr.open("POST",url);
+    xhr.send(data);
+    xhr.onload = function(){
+        var res = xhr.response;
+        if (xhr.readyState ===4 && xhr.status === 200){
+            document.getElementById("sidebarTitle").innerText=data;
+            console.log(res);
 
-function modal(){
-    //alert("Dhawan was here");
-
-    var xhr0=new XMLHttpRequest();
-    var usl0="http://127.0.0.1:3000/modal"
-    data=document.getElementById("sidebar").innerText
-    xhr0.open("POST",url);
-    xhr0.send()
+        }
+    };
 }
 
-$(document).ready(function(){
-   $("#sidebar").submit(function(){
-       $.ajax({
-           url: "http://127.0.0.1:3000/modal",
-           data: $("#modal").innerText,
-           success: function (data) {
 
-           }
-       })
-   })
-});
+function executePostScript(val){
+    var xhr = new XMLHttpRequest();
+    var url = "/executePostModule";
+    xhr.open('POST',url);
+    var data= val;
+    xhr.send(data);
+    xhr.onload = function(){
+        var res = xhr.response;
+        if(xhr.readyState === 4 && xhr.status === 200){
+            document.getElementById("mainsection").innerText=res
+        }
+    };
 
+}
 
 function postModule() {
     var xhr = new XMLHttpRequest();
-    var url = "http://127.0.0.1:3000/post";
+    var url = "/post";
     xhr.open("GET", url);
     xhr.send();
 
@@ -95,11 +105,8 @@ function postModule() {
                                 valueSubList.setAttribute("href","#");
                                 valueSubList.setAttribute("data-toggle","modal");
                                 valueSubList.setAttribute("data-target","#sidebarModal");
-                                //valueSubList.setAttribute("id",arr[i]+"/"+postmod_key[j] + "/" +value[k]);
-                                valueSubList.setAttribute("id","sidebar");
-                                valueSubList.setAttribute("onclick","modal(); this.onclick=null;");
+                                valueSubList.setAttribute("onclick","modal(" + "\"" + arr[i]+"/"+postmod_key[j] + "/" +value[k]+ "\"" +")");
                                 valueSubList.innerHTML =  value[k] ;
-
                                  menu1sub.appendChild(subList);
                                  valueList.appendChild(valueSubList);
                                  menu1sub.appendChild(valueList);
@@ -120,15 +127,15 @@ function postModule() {
 
 
 function ExtensionCommand() {
-    var xhr2 = new XMLHttpRequest();
-    var url2 = "http://127.0.0.1:3000/exten";
-    xhr2.open("GET", url2);
-    xhr2.send();
+    var xhr = new XMLHttpRequest();
+    var url = "/exten";
+    xhr.open("GET", url);
+    xhr.send();
 
-    xhr2.onload = function () {
-        var extenJson = xhr2.response;
+    xhr.onload = function () {
+        var extenJson = xhr.response;
         var extenData = JSON.parse(extenJson);
-        if (xhr2.readyState === 4 && xhr2.status === 200) {
+        if (xhr.readyState === 4 && xhr.status === 200) {
             var val = Object.values(extenData);
             for (var i = 0; i < val.length; i++) {
 
@@ -150,15 +157,15 @@ function ExtensionCommand() {
 
 
 function sysinfo(){
-    var xhr3 = new XMLHttpRequest();
-    var url3 = "http://127.0.0.1:3000/sysinfo";
-    xhr3.open("GET", url3);
-    xhr3.send();
+    var xhr = new XMLHttpRequest();
+    var url = "/sysinfo";
+    xhr.open("GET", url);
+    xhr.send();
 
-    xhr3.onload = function () {
-        var sysinfoJson =  JSON.parse(xhr3.response);
+    xhr.onload = function () {
+        var sysinfoJson =  JSON.parse(xhr.response);
         
-        if (xhr3.readyState === 4 && xhr3.status === 200) {
+        if (xhr.readyState === 4 && xhr.status === 200) {
             document.getElementById("sysname").innerHTML=sysinfoJson.systemName;
             document.getElementById("ip").innerHTML=sysinfoJson.ip;
             document.getElementById("os").innerHTML=sysinfoJson.os;
@@ -175,9 +182,6 @@ function sysinfo(){
 
 
 
-function postResponse(){
-
-}
 
 function extenCmdResponse(){
 

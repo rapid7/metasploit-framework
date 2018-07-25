@@ -43,7 +43,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="sidebarTitle"> /post/windows/gather/checkvm</h5>
+                <h5 class="modal-title" id="sidebarTitle"> </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -65,7 +65,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">run</button>
+                <button type="button" class="btn btn-primary" onclick="executePostScript()" data-dismiss="modal">run</button>
             </div>
         </div>
     </div>
@@ -81,7 +81,7 @@
         <!-- MENU SIDEBAR-->
         <aside class="menu-sidebar2 " >
             <div class="logo">
-                <a href="http://127.0.0.1:3000/">
+                <a href="/">
                    <!-- <img src="images/icon/logo.png" alt="Metasploit" /> -->
                 </a>
             </div>
@@ -169,8 +169,8 @@
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
                       <div class="row">
-                        
-                          <div class="mainsection" style="color: #ffffff !important; font-size: 18px !important">
+                          <div class="mainsection" style="color: #ffffff !important; font-size: 18px !important" id="mainsection">
+
                             <div id="terminal">
                                 
                             </div>

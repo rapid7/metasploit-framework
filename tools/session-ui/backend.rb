@@ -6,9 +6,9 @@ module Sinatra
     class Server
       class << self
 
-        def setup(framework_obj,framework_post,sid)
+        def setup(framework_obj,sid)
           @framework = framework_obj
-          @framework_post=framework_post
+          @framework_post=framework_obj.post.keys
           @framework_session=sid
         end
 
@@ -44,23 +44,27 @@ module Sinatra
 
         def sys_info
           # Fetch system information of the victim's machine.
-
           info= Msf::Serializer::ReadableText.dump_sessions_verbose(@framework)
           return info.to_json
         end
 
-        def post_info(mod)
-          # This method will use msf/base/serializer/json Class to dump information for
-          post modules. dump_post_module(mod)
-          p_info=Msf::Serializer::Json.dump_post_module(mod)
-          puts p_info
+        def post_info(*args)
+          # This method will use msf/base/serializer/json Class to dump information
+          args.each do |name|
+            mod=@framework.modules.create(name)
+            if mod==nil
+              return "Invalid module #{name}"
+            else
+              return Msf::Serializer::Json.dump_post_module(mod)
+            end
+          end
         end
 
         def exten
 
         end
 
-        def run_post_script(script)
+        def execute_post_mod(script)
           # run Post Exploitation module commands and return the output in json format
 
         end
