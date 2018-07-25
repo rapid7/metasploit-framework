@@ -50,8 +50,9 @@ module EventApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Event
+          property :data do
+            key :'$ref', :Event
+          end
         end
       end
     end

@@ -41,9 +41,11 @@ module ServiceApiDoc
       response 200 do
         key :description, 'Returns service data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Service
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Service
+            end
           end
         end
       end
@@ -73,8 +75,9 @@ module ServiceApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Service
+          property :data do
+            key :'$ref', :Service
+          end
         end
       end
     end
@@ -87,11 +90,13 @@ module ServiceApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, 'Returns an array of containing the successfully deleted services.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Service
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Service
+            end
           end
         end
       end
@@ -117,9 +122,11 @@ module ServiceApiDoc
       response 200 do
         key :description, 'Returns service data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Service
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Service
+            end
           end
         end
       end
@@ -145,8 +152,9 @@ module ServiceApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Service
+          property :data do
+            key :'$ref', :Service
+          end
         end
       end
     end

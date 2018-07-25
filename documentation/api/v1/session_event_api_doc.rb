@@ -35,9 +35,11 @@ module SessionEventApiDoc
       response 200 do
         key :description, 'Returns session event data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :SessionEvent
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :SessionEvent
+            end
           end
         end
       end
@@ -66,8 +68,9 @@ module SessionEventApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :SessionEvent
+          property :data do
+            key :'$ref', :SessionEvent
+          end
         end
       end
     end
@@ -89,11 +92,13 @@ module SessionEventApiDoc
       end
 
       response 200 do
-        key :description, 'Returns session_event data.'
+        key :description, 'Returns session event data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :SessionEvent
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :SessionEvent
+            end
           end
         end
       end

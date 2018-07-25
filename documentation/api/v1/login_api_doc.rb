@@ -52,9 +52,11 @@ module LoginApiDoc
       response 200 do
         key :description, 'Returns login data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Login
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Login
+            end
           end
         end
       end
@@ -86,8 +88,9 @@ module LoginApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Login
+          property :data do
+            key :'$ref', :Login
+          end
         end
       end
     end
@@ -100,11 +103,13 @@ module LoginApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, 'Returns an array of containing the successfully deleted logins.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Login
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Login
+            end
           end
         end
       end
@@ -112,6 +117,33 @@ module LoginApiDoc
   end
 
   swagger_path '/api/v1/logins/{id}' do
+    # Swagger documentation for api/v1/logins/:id GET
+    operation :get do
+      key :description, 'Return specific login that is stored in the database.'
+      key :tags, [ 'login' ]
+
+      parameter do
+        key :name, :id
+        key :in, :path
+        key :description, 'ID of login to retrieve.'
+        key :required, true
+        key :type, :integer
+        key :format, :int32
+      end
+
+      response 200 do
+        key :description, 'Returns login data.'
+        schema do
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Login
+            end
+          end
+        end
+      end
+    end
+
     # Swagger documentation for /api/v1/logins/:id PUT
     operation :put do
       key :description, 'Update the attributes an existing login.'
@@ -132,8 +164,9 @@ module LoginApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Login
+          property :data do
+            key :'$ref', :Login
+          end
         end
       end
     end

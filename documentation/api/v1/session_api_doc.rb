@@ -32,9 +32,11 @@ module SessionApiDoc
       response 200 do
         key :description, 'Returns session data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Session
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Session
+            end
           end
         end
       end
@@ -87,9 +89,11 @@ module SessionApiDoc
       response 200 do
         key :description, 'Returns session data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Session
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Session
+            end
           end
         end
       end

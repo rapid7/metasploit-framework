@@ -48,9 +48,11 @@ module LootApiDoc
       response 200 do
         key :description, 'Returns loot data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Loot
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Loot
+            end
           end
         end
       end
@@ -82,8 +84,9 @@ module LootApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Loot
+          property :data do
+            key :'$ref', :Loot
+          end
         end
       end
     end
@@ -96,11 +99,13 @@ module LootApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, 'Returns an array of containing the successfully deleted loot.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Loot
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Loot
+            end
           end
         end
       end
@@ -109,7 +114,6 @@ module LootApiDoc
 
   swagger_path '/api/v1/loots/{id}' do
     # Swagger documentation for api/v1/loots/:id GET
-
     operation :get do
       key :description, 'Return specific loot entry that is stored in the database.'
       key :tags, [ 'loot' ]
@@ -126,9 +130,11 @@ module LootApiDoc
       response 200 do
         key :description, 'Returns loot data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Loot
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Loot
+            end
           end
         end
       end
@@ -154,8 +160,9 @@ module LootApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Loot
+          property :data do
+            key :'$ref', :Loot
+          end
         end
       end
     end
