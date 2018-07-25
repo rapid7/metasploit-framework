@@ -41,7 +41,7 @@ options     = prompt 'Options and their descriptions (RHOST:The remote host, RPO
 options = options.split(', ')
 
 md = ''
-md << "## Introduction\n"
+md << "## Description\n"
 md << intro
 md << "\n\n"
 md << "## Vulnerable application\n" if vuln_apps.length == 1
