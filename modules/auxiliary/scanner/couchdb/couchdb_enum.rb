@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
         port: rport,
         name: 'couchdb',
         proto: 'tcp',
-        info: res
+        info: res.body
       )
     else
       print_error("#{peer} Unable to enum, received \"#{res.code}\"")
