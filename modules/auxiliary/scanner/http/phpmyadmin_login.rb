@@ -61,33 +61,6 @@ class MetasploitModule < Msf::Auxiliary
       }.call
   end
 
-  def report_good_cred(ip, port, result)
-    service_data = {
-      address: ip,
-      port: port,
-      service_name: 'http',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      module_fullname: self.fullname,
-      origin_type: :service,
-      private_data: result.credential.private,
-      private_type: :password,
-      username: result.credential.public,
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      last_attempted_at: DateTime.now,
-      status: result.status,
-      proof: result.proof
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
   def report_bad_cred(ip, rport, result)
     invalidate_login(
       address: ip,
@@ -115,7 +88,19 @@ class MetasploitModule < Msf::Auxiliary
         case result.status
         when Metasploit::Model::Login::Status::SUCCESSFUL
           print_brute(:level => :good, :ip => ip, :msg => "Success: '#{result.credential}'")
-          report_good_cred(ip, rport, result)
+          store_valid_credential(
+            user: result.credential.public,
+            private: result.credential.private,
+            private_type: :password,
+            proof: result.proof,
+            service_data: {
+              address: ip,
+              port: rport,
+              service_name: 'http',
+              protocol: 'tcp',
+              workspace_id: myworkspace_id
+            }
+          )
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           vprint_brute(:level => :verror, :ip => ip, :msg => result.proof)
           report_bad_cred(ip, rport, result)
