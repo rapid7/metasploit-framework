@@ -243,6 +243,11 @@ module ModuleCommandDispatcher
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error => e
       # Connection issues while running check should be handled by the module
+      print_error("Check failed: #{e.class} #{e}")
+      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+    rescue ::Msf::Exploit::Failed => e
+      # Handle fail_with and other designated exploit failures
+      print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
