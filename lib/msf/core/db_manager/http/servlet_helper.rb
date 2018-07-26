@@ -22,13 +22,13 @@ module ServletHelper
   end
 
   def set_json_data_response(response:, includes: nil, code: 200)
-    data_response = { "data": response }
+    data_response = { data: response }
     set_json_response(data_response, includes = includes, code = code)
   end
 
   def set_json_error_response(error:, includes: nil, code:)
     print_error "Error handling request: #{error.message}", error
-    error_response = { "error": { "message": error.message } }
+    error_response = { error: { message: error.message } }
     set_json_response(error_response, includes = includes, code = code)
   end
 
