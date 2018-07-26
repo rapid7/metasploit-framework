@@ -252,9 +252,8 @@ module DispatcherShell
     #
     # Return a list of possible directory for tab completion.
     #
-
     def tab_complete_directory(str, words)
-      str = './' if str.empty?
+      str = '.' + ::File::SEPARATOR if str.empty?
       dirs = Dir.glob(str.concat('*'),File::FNM_CASEFOLD).select{|x| File.directory?(x) }
 
       dirs
@@ -401,7 +400,7 @@ module DispatcherShell
 
     # Match based on the partial word
     items.find_all { |e|
-      e =~ /^#{str}/i
+      e.downcase.start_with?(str.downcase) || e =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |e|
       tab_words.dup.push(e).join(' ')
