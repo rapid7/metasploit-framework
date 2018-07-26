@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # sends the frame data over tcp connection and returns recieved string
-  # using sock.get is causing quite some delay, but scripte needs to process responses from 104 server 
+  # using sock.get is causing quite some delay, but scripte needs to process responses from 104 server
   def send_frame(data)
     begin
       sock.put(data)
@@ -92,11 +92,11 @@ class MetasploitModule < Msf::Auxiliary
     apci_data += asdu_data
     apci_data
   end
-  
+	
   # parses the header of a 104 message
   def parse_headers(response_data)
     if !response_data[0].eql?("\x04") && !response_data[1].eql?("\x01")
-      $rx = + (response_data[2].unpack('H*').first + response_data[1].unpack('H*').first).to_i(16) 
+      $rx = + (response_data[2].unpack('H*').first + response_data[1].unpack('H*').first).to_i(16)
       print_good("    TX: " + response_data[4].unpack('H*').first + response_data[3].unpack('H*').first + " RX: " + response_data[2].unpack('H*').first + response_data[1].unpack('H*').first)
     end
     if response_data[7].eql?("\x07")
@@ -367,7 +367,7 @@ class MetasploitModule < Msf::Auxiliary
         end
     end
   end
-  
+	
   def parse_m_bo_na_1(response_data)
     if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
       response_data = response_data[11..-1]
@@ -492,7 +492,7 @@ class MetasploitModule < Msf::Auxiliary
   #    COMMAND_TYPE => 46   // double command without time
   #    COMMAND_ADDRESS => 100 // any IOA address that should be switched
   #    COMMAND_VALUE => 6 // switching off with short pulse (use value 5 to switch on with short pulse)
-  # 
+  #
   # Structure of 104 message:
   #    1byte command type
   #    1byte num ix -> 1 (one item send)
@@ -523,7 +523,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_status("operation ended")
   end
-    
+	
   def run
     $rx = 0
     $tx = 0
