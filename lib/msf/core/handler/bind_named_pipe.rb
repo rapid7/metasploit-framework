@@ -220,6 +220,7 @@ module Msf
 
         self.conn_threads = []
         self.listener_threads = []
+        self.listener_pairs = {}
       end
 
       # A string suitable for displaying to the user
@@ -253,6 +254,11 @@ module Msf
         # Ignore this if one of the required options is missing
         return if not rhost
         return if not lport
+
+        # dont spawn multiple handlers for same host and pipe
+        pair = rhost + ":" + lport.to_s + ":" + pipe_name
+        return if self.listener_pairs[pair]
+        self.listener_pairs[pair] = true
 
         # Start a new handling thread
         self.listener_threads << framework.threads.spawn("BindNamedPipeHandlerListener-#{pipe_name}", false) {
@@ -360,6 +366,7 @@ module Msf
           t.kill
         end
         self.listener_threads = []
+        self.listener_pairs = {}
       end
 
       #
@@ -375,7 +382,7 @@ module Msf
 
       attr_accessor :conn_threads
       attr_accessor :listener_threads
-
+      attr_accessor :listener_pairs
     end
   end
 end
