@@ -60,6 +60,13 @@ module LoginApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/logins POST
@@ -91,6 +98,13 @@ module LoginApiDoc
           property :data do
             key :'$ref', :Login
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -142,6 +156,13 @@ module LoginApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/logins/:id PUT
@@ -167,6 +188,13 @@ module LoginApiDoc
           property :data do
             key :'$ref', :Login
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

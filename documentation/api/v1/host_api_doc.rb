@@ -112,6 +112,13 @@ module HostApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/hosts POST
@@ -160,6 +167,13 @@ module HostApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/hosts/ DELETE
@@ -178,6 +192,13 @@ module HostApiDoc
               key :'$ref', :Host
             end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -209,6 +230,13 @@ module HostApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/hosts/:id PUT
@@ -234,6 +262,13 @@ module HostApiDoc
           property :data do
             key :'$ref', :Host
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

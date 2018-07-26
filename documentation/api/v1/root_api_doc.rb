@@ -106,4 +106,14 @@ module RootApiDoc
       key :type, :string
     end
   end
+
+  swagger_schema :ErrorModel do
+    key :required, [:message]
+    property :error do
+      property :message do
+        key :type, :string
+        key :example, 'Undefined method \'empty?\' for nil:NilClass'
+      end
+    end
+  end
 end

@@ -49,6 +49,13 @@ module VulnAttemptApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/vuln-attempts POST
@@ -81,6 +88,13 @@ module VulnAttemptApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
   end
 
@@ -108,6 +122,13 @@ module VulnAttemptApiDoc
               key :'$ref', :VulnAttempt
             end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

@@ -48,6 +48,13 @@ module NoteApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/notes POST
@@ -78,6 +85,13 @@ module NoteApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/notes/ DELETE
@@ -96,6 +110,13 @@ module NoteApiDoc
               key :'$ref', :Note
             end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -127,6 +148,13 @@ module NoteApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/notes/:id PUT
@@ -152,6 +180,13 @@ module NoteApiDoc
           property :data do
             key :'$ref', :Note
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

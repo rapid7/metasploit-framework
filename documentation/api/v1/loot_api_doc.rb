@@ -56,6 +56,13 @@ module LootApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/loots POST
@@ -89,6 +96,13 @@ module LootApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/loot/ DELETE
@@ -107,6 +121,13 @@ module LootApiDoc
               key :'$ref', :Loot
             end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -138,6 +159,13 @@ module LootApiDoc
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
     end
 
     # Swagger documentation for /api/v1/loots/{id} PUT
@@ -163,6 +191,13 @@ module LootApiDoc
           property :data do
             key :'$ref', :Loot
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
