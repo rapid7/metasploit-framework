@@ -7,7 +7,7 @@ load 'documentation/api/v1/exploit_api_doc.rb'
 load 'documentation/api/v1/host_api_doc.rb'
 load 'documentation/api/v1/login_api_doc.rb'
 load 'documentation/api/v1/loot_api_doc.rb'
-load 'documentation/api/v1/module_api_doc.rb'
+load 'documentation/api/v1/module_search_api_doc.rb'
 load 'documentation/api/v1/msf_api_doc.rb'
 load 'documentation/api/v1/nmap_api_doc.rb'
 load 'documentation/api/v1/note_api_doc.rb'
@@ -50,7 +50,7 @@ module ApiDocsServlet
           HostApiDoc,
           LoginApiDoc,
           LootApiDoc,
-          ModuleApiDoc,
+          ModuleSearchApiDoc,
           MsfApiDoc,
           NmapApiDoc,
           NoteApiDoc,

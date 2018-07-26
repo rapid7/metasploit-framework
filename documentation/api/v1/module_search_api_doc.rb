@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module ModuleApiDoc
+module ModuleSearchApiDoc
   include Swagger::Blocks
 
   APP_DESC = 'Filter modules that are client or server attacks. (Accepts strings \'client\' or \'server\').'
@@ -83,7 +83,7 @@ module ModuleApiDoc
   ]
 
 
-  # Swagger documentation for Module model
+  # Swagger documentation for Module Search model
   swagger_schema :Module do
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :full_name, type: :string, description: FULL_NAME_DESC, example: FULL_NAME_EXAMPLE
@@ -113,216 +113,47 @@ module ModuleApiDoc
       key :description, 'Search Metasploit modules using keyword filters.'
       key :tags, [ 'module' ]
 
-      parameter do
-        key :in, :query
-        key :name, :app
-        key :required, false
-        key :description, APP_DESC
-      end
+      parameters = {
+        :app => APP_DESC,
+        :arch => ARCH_DESC,
+        :author => AUTHOR_DESC,
+        :bid => BID_DESC,
+        :cve => CVE_DESC,
+        :edb => EDB_DESC,
+        :description => DESCRIPTION_DESC,
+        :disclosure_date => DISCLOSURE_DATE_DESC,
+        :date => DATE_DESC,
+        :full_name => FULL_NAME_DESC,
+        :is_client => IS_CLIENT_DESC,
+        :is_server => IS_SERVER_DESC,
+        :is_install_path => IS_INSTALL_PATH_DESC,
+        :mod_time => MOD_TIME_DESC,
+        :name => NAME_DESC,
+        :path => PATH_DESC,
+        :platform => PLATFORM_DESC,
+        :os => OS_DESC,
+        :port => PORT_DESC,
+        :rport => RPORT_DESC,
+        :rank => RANK_DESC,
+        :reference => REFERENCE_DESC,
+        :references => REFERENCES_DESC,
+        :ref_name => REF_NAME_DESC,
+        :ref => REF_DESC,
+        :text => TEXT_DESC,
+        :target => TARGET_DESC,
+        :targets => TARGETS_DESC,
+        :type => TYPE_DESC,
+        :fields => FIELDS_DESC
+      }
 
-      parameter do
-        key :in, :query
-        key :name, :arch
-        key :required, false
-        key :description, ARCH_DESC
+      parameters.each do | param_key, param_desc |
+        parameter do
+          key :in, :query
+          key :name, param_key
+          key :required, false
+          key :description, param_desc
+        end
       end
-
-      parameter do
-        key :in, :query
-        key :name, :author
-        key :required, false
-        key :description, AUTHOR_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :bid
-        key :required, false
-        key :description, BID_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :cve
-        key :required, false
-        key :description, CVE_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :edb
-        key :required, false
-        key :description, EDB_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :description
-        key :required, false
-        key :description, DESCRIPTION_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :disclosure_date
-        key :required, false
-        key :description, DISCLOSURE_DATE_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :date
-        key :required, false
-        key :description, DATE_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :full_name
-        key :required, false
-        key :description, FULL_NAME_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :is_client
-        key :required, false
-        key :description, IS_CLIENT_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :is_server
-        key :required, false
-        key :description, IS_SERVER_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :is_install_path
-        key :required, false
-        key :description, IS_INSTALL_PATH_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :mod_time
-        key :required, false
-        key :description, MOD_TIME_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :name
-        key :required, false
-        key :description, NAME_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :path
-        key :required, false
-        key :description, PATH_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :platform
-        key :required, false
-        key :description, PLATFORM_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :os
-        key :required, false
-        key :description, OS_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :port
-        key :required, false
-        key :description, PORT_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :rport
-        key :required, false
-        key :description, RPORT_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :rank
-        key :required, false
-        key :description, RANK_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :reference_name
-        key :required, false
-        key :description, REFERENCE_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :references_name
-        key :required, false
-        key :description, REFERENCES_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :ref_name
-        key :required, false
-        key :description, REF_NAME_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :ref_name
-        key :required, false
-        key :description, REF_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :text
-        key :required, false
-        key :description, TEXT_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :target
-        key :required, false
-        key :description, TARGET_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :targets
-        key :required, false
-        key :description, TARGETS_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :type
-        key :required, false
-        key :description, TYPE_DESC
-      end
-
-      parameter do
-        key :in, :query
-        key :name, :fields
-        key :required, false
-        key :description, FIELDS_DESC
-      end
-
 
       response 200 do
         key :description, 'Returns modules matching keywords with appropriate metadata.'
