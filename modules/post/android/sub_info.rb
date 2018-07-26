@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
   def run
     unless is_root?
       print_error("This module requires root permissions.")
-      ret
+      return
     end
 
     @transaction_codes ||= [
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Post
       'IsimPcscf',
       'IsimChallengeResponse',
       'IccSimChallengeResponse'
-  ]
+    ]
     values ||= []
     arr ||= []
     for code in 1..@transaction_codes.length do
