@@ -39,7 +39,6 @@ module Msf::Empire
       parser = JSON.parse(response.body)
       token = parser['token'].to_s
       @token = token
-      puts(@token)
     end
     #
     #Method to shutdown the active instance of API
@@ -158,6 +157,32 @@ module Msf::Empire
         payload.close
         return "Payload created succesfully at #{payload_path}"
       end
+    end
+    #
+    #Empire API isn't yet able to create injectable DLL, and for that reason
+    #we will use a custom python script which takes the base powershell code
+    #from Empire and patches the raw DLL to form a injectable DLL
+    #
+    def generate_dll(listener_name, payload_path, session_arch, pathToEmpire)
+      uri = URI.parse("https://localhost:1337/api/stagers?token=#{@token}")
+      request = Net::HTTP::Post.new(uri)
+      request.content_type = "application/json"
+      request.body = JSON.dump({
+        "StagerName" => "windows/launcher_bat",
+        "Listener" => listener_name,
+        "OutFile" => ""
+      })
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+        http.request(request)
+      end
+      parser = JSON.parse(response.body)
+      payload = File.open('/tmp/poshCode.txt', "w")
+      payload.puts parser['windows/launcher_bat']['Output'].split[10]
+      payload.close
+      command = "cd #{pathToEmpire} && python generator.py /tmp/poshCode.txt #{session_arch} #{payload_path}"
+      value = system(command)
+      return "Empire DLL generated at #{payload_path}"
     end
     #
     #AGENT METHODS
