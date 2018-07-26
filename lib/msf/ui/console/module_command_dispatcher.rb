@@ -139,13 +139,20 @@ module ModuleCommandDispatcher
         last_rhosts_opt = mod.datastore['RHOSTS']
         mod.datastore['RHOSTS'] = ip_range_arg
         begin
-          check_multiple(hosts)
+          if hosts.length > 1
+            check_multiple(hosts)
+          # Short-circuit check_multiple if it's a single host
+          else
+            mod.datastore['RHOST'] = hosts.next_ip
+            check_simple
+          end
         ensure
           # Restore the original rhost if set
           mod.datastore['RHOST'] = last_rhost_opt
           mod.datastore['RHOSTS'] = last_rhosts_opt
           mod.cleanup
         end
+      # XXX: This is basically dead code now that exploits use RHOSTS
       else
         # Check a single rhost
         unless Msf::OptAddress.new('RHOST').valid?(mod.datastore['RHOST'])
