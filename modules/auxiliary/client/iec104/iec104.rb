@@ -87,12 +87,12 @@ class MetasploitModule < Msf::Auxiliary
     apci_data += [asdu_data.size + 4].pack("c") # size byte
     apci_data += String([$tx].pack('v'))
     apci_data += String([$rx].pack('v'))
-	$rx=$rx+2
+	  $rx=$rx+2
     $tx = $tx + 2
     apci_data += asdu_data
     apci_data
   end
-	
+
   # parses the header of a 104 message
   def parse_headers(response_data)
     if !response_data[0].eql?("\x04") && !response_data[1].eql?("\x01")
@@ -367,7 +367,7 @@ class MetasploitModule < Msf::Auxiliary
         end
     end
   end
-	
+
   def parse_m_bo_na_1(response_data)
     if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
       response_data = response_data[11..-1]
@@ -459,7 +459,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("  Parsing response: Integrated total without time tag (M_IT_NA_1)")
         parse_headers(response_element)
         parse_m_it_na_1(response_element)
-	  elsif response_element[5].eql?("\x07")
+      elsif response_element[5].eql?("\x07")
         print_good("  Parsing response: Bitstring of 32 bits without time tag. (M_BO_NA_1)")
         parse_headers(response_element)
         parse_m_bo_na_1(response_element)
@@ -523,7 +523,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_status("operation ended")
   end
-	
+
   def run
     $rx = 0
     $tx = 0
@@ -531,15 +531,14 @@ class MetasploitModule < Msf::Auxiliary
       connect
     rescue StandardError => e
       print_error("Error:" + e.message)
-	  return
+	    return
     end
 
     # send STARTDT_CON to activate connection
      response = send_frame(startcon)
-
-	if response.nil?
-      print_error("Could not connect to 104 service")
-	  return
+	  if response.nil?
+		  print_error("Could not connect to 104 service")
+		  return
     else
       parse_response(response)
     end
@@ -556,7 +555,7 @@ class MetasploitModule < Msf::Auxiliary
     response = send_frame(stopcon)
     if response.nil?
       print_error("Terminating Connection")
-	  return
+	    return
     else
       print_status("Terminating Connection")
       parse_response(response)
