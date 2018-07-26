@@ -228,7 +228,7 @@ module CredentialApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Returns an array of containing the successfully deleted credentials.'
+        key :description, 'Returns an array containing the successfully deleted credentials.'
         schema do
           key :type, :array
           items do

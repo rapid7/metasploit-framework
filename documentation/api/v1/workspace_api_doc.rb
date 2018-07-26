@@ -91,7 +91,7 @@ module WorkspaceApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Returns an array of containing the successfully deleted workspaces.'
+        key :description, 'Returns an array containing the successfully deleted workspaces.'
         schema do
           property :data do
             key :type, :array

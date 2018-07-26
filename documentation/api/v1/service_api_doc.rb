@@ -104,7 +104,7 @@ module ServiceApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Returns an array of containing the successfully deleted services.'
+        key :description, 'Returns an array containing the successfully deleted services.'
         schema do
           property :data do
             key :type, :array
