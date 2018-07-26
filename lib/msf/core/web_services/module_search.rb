@@ -5,11 +5,11 @@ module Msf::WebServices::ModuleSearch
     search_results = []
     metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
     params = parse_params(opts)
-    metadata.each { |module_metadata|
+    metadata.each do | module_metadata |
       if Msf::Modules::Metadata::Cache.instance.matches(params, module_metadata)
         search_results << get_fields(opts, module_metadata)
       end
-    }
+    end
     search_results
   end
 
@@ -25,7 +25,7 @@ module Msf::WebServices::ModuleSearch
     # {"platform"=>[["android"], []]} will match modules targeting the android platform
     # {"platform"=>[[], ["android"]]} will exclude modules targeting the android platform
     params = {}
-    opts.each do |k, v|
+    opts.each do | k, v |
       key = k.to_s
       unless key == "fields"
         params[key] = [ [], [] ]
