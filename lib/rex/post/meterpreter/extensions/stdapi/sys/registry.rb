@@ -418,7 +418,7 @@ class Registry
   # 'Software\Dog' ]
   #
   def self.splitkey(str)
-    if (str =~ /^(.+?)\\(.*)$/)
+    if (str =~ /^(.+?)[\\]{1,}(.*)$/)
       [ key2str($1), $2 ]
     else
       [ key2str(str), nil ]
