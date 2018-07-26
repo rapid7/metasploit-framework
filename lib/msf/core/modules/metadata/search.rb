@@ -32,27 +32,27 @@ module Msf::Modules::Metadata::Search
 
   def parse_search_string(search_string)
     # Split search terms by space, but allow quoted strings
-    terms = search_string.split(/\"/).collect{|t| t.strip==t ? t : t.split(' ')}.flatten
+    terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
     terms.delete('')
 
     # All terms are either included or excluded
     res = {}
 
-    terms.each do |t|
-      f,v = t.split(":", 2)
-      unless v
-        v = f
-        f = 'text'
+    terms.each do |term|
+      keyword, search_term = term.split(":", 2)
+      unless search_term
+        search_term = keyword
+        keyword = 'text'
       end
-      next if v.length == 0
-      f.downcase!
-      v.downcase!
-      res[f] ||=[   [],    []   ]
-      if v[0,1] == "-"
-        next if v.length == 1
-        res[f][1] << v[1,v.length-1]
+      next if search_term.length == 0
+      keyword.downcase!
+      search_term.downcase!
+      res[keyword] ||=[   [],    []   ]
+      if search_term[0,1] == "-"
+        next if search_term.length == 1
+        res[keyword][1] << search_term[1,search_term.length-1]
       else
-        res[f][0] << v
+        res[keyword][0] << search_term
       end
     end
     res
@@ -61,60 +61,61 @@ module Msf::Modules::Metadata::Search
   def is_match(params, module_metadata)
     return false if params.empty?
 
-    k = params
+    param_hash = params
+    puts param_hash
 
     [0,1].each do |mode|
       match = false
-      k.keys.each do |t|
-        next if k[t][mode].length == 0
+      param_hash.keys.each do |keyword|
+        next if param_hash[keyword][mode].length == 0
 
-        k[t][mode].each do |w|
+        param_hash[keyword][mode].each do |search_term|
           # Reset the match flag for each keyword for inclusive search
           match = false if mode == 0
 
           # Convert into a case-insensitive regex
-          r = Regexp.new(Regexp.escape(w), true)
+          regex = Regexp.new(Regexp.escape(search_term), true)
 
-          case t
+          case keyword
             when 'app'
-              match = [t,w] if (w == "server" and module_metadata.is_server)
-              match = [t,w] if (w == "client" and module_metadata.is_client)
+              match = [keyword, search_term] if (search_term == "server" and module_metadata.is_server)
+              match = [keyword, search_term] if (search_term == "client" and module_metadata.is_client)
             when 'author', 'authors'
-              match = [t,w] if module_metadata.author.any? { |a| a =~ r }
+              match = [keyword, search_term] if module_metadata.author.any? { |author| author =~ regex }
             when 'arch'
-              match = [t,w,] if module_metadata.arch =~ r
+              match = [keyword, search_term,] if module_metadata.arch =~ regex
             when 'cve'
-              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ r }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ regex }
             when 'bid'
-              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ regex }
             when 'edb'
-              match = [t,w] if module_metadata.references.any? { |ref| ref =~ /^edb\-/i and ref =~ r }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^edb\-/i and ref =~ regex }
             when 'date', 'disclosure_date'
-              match = [t,w] if module_metadata.disclosure_date.to_s =~ r
+              match = [keyword, search_term] if module_metadata.disclosure_date.to_s =~ regex
             when 'description'
-              match = [t,w] if module_metadata.description =~ r
+              match = [keyword, search_term] if module_metadata.description =~ regex
             when 'full_name', 'fullname'
-              match = [t,w] if module_metadata.full_name =~ r
+              match = [keyword, search_term] if module_metadata.full_name =~ regex
             when 'mod_time'
-              match = [t,w] if module_metadata.mod_time.to_s =~ r
+              match = [keyword, search_term] if module_metadata.mod_time.to_s =~ regex
             when 'name'
-              match = [t,w] if module_metadata.name =~ r
+              match = [keyword, search_term] if module_metadata.name =~ regex
             when 'os', 'platform'
-              match = [t,w] if module_metadata.platform  =~ r or module_metadata.arch  =~ r
+              match = [keyword, search_term] if module_metadata.platform  =~ regex or module_metadata.arch  =~ regex
               if module_metadata.targets
-                match = [t,w] if module_metadata.targets.any? { |t| t =~ r }
+                match = [keyword, search_term] if module_metadata.targets.any? { |target| target =~ regex }
               end
             when 'path'
-              match = [t,w] if module_metadata.full_name =~ r
+              match = [keyword, search_term] if module_metadata.full_name =~ regex
             when 'port', 'rport'
-              match = [t,w] if module_metadata.rport.to_s =~ r
+              match = [keyword, search_term] if module_metadata.rport.to_s =~ regex
             when 'rank'
               # Determine if param was prepended with gt, lt, gte, lte, or eq
               # Ex: "lte300" should match all ranks <= 300
-              query_rank = w.dup
+              query_rank = search_term.dup
               operator = query_rank[0,3].tr('0-9', '')
               valid_operators = %w[eq gt lt gte lte]
-              matches_rank = module_metadata.rank == w.to_i
+              matches_rank = module_metadata.rank == search_term.to_i
               if valid_operators.include? operator
                 query_rank.slice! operator
                 query_rank = query_rank.to_i
@@ -148,22 +149,22 @@ module Msf::Modules::Metadata::Search
                   matches_rank = module_metadata.rank.to_i == 600
                 end
               end
-              match = [t,w] if matches_rank
+              match = [keyword, search_term] if matches_rank
             when 'ref', 'ref_name'
-              match = [t,w] if module_metadata.ref_name =~ r
+              match = [keyword, search_term] if module_metadata.ref_name =~ regex
             when 'reference', 'references'
-              match = [t,w] if module_metadata.references.any? { |ref| ref =~ r }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ regex }
             when 'target', 'targets'
-              match = [t,w] if module_metadata.targets.any? { |target| target =~ r }
+              match = [keyword, search_term] if module_metadata.targets.any? { |target| target =~ regex }
             when 'text'
               terms = [module_metadata.name, module_metadata.full_name, module_metadata.description] + module_metadata.references + module_metadata.author
 
               if module_metadata.targets
                 terms = terms + module_metadata.targets
               end
-              match = [t,w] if terms.any? { |x| x =~ r }
+              match = [keyword, search_term] if terms.any? { |term| term =~ regex }
             when 'type'
-              match = [t,w] if Msf::MODULE_TYPES.any? { |modt| w == modt and module_metadata.type == modt }
+              match = [keyword, search_term] if Msf::MODULE_TYPES.any? { |module_type| search_term == module_type and module_metadata.type == module_type }
           end
           break if match
         end
