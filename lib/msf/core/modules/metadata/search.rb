@@ -164,6 +164,9 @@ module Msf::Modules::Metadata::Search
               match = [keyword, search_term] if terms.any? { |term| term =~ regex }
             when 'type'
               match = [keyword, search_term] if Msf::MODULE_TYPES.any? { |module_type| search_term == module_type and module_metadata.type == module_type }
+          else
+              # Ignore extraneous/invalid keywords
+              match = [keyword, search_term]
           end
           break if match
         end
