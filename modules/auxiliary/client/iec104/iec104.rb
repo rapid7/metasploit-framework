@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
     apci_data += String([$tx].pack('v'))
     apci_data += String([$rx].pack('v'))
 	  $rx=$rx+2
-    $tx = $tx + 2
+	  $tx = $tx + 2
     apci_data += asdu_data
     apci_data
   end
