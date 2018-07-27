@@ -62,7 +62,6 @@ module Msf::Modules::Metadata::Search
     return false if params.empty?
 
     param_hash = params
-    puts param_hash
 
     [0,1].each do |mode|
       match = false
