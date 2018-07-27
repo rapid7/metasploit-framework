@@ -59,7 +59,11 @@ module Msf::Modules::Metadata::Search
   end
 
   def is_match(params, module_metadata)
-    return false if params.empty?
+    valid_params =
+        %w[app author authors arch cve bid edb date disclosure_date description full_name fullname mod_time name
+        os platform path port rport rank ref ref_name reference references target targets text type]
+
+    return false if params.empty? || valid_params.none? { |k| params.key?(k) }
 
     param_hash = params
 
