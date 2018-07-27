@@ -9,7 +9,7 @@ module CredentialServlet
   end
 
   def self.registered(app)
-    app.get CredentialServlet.api_path, &get_credentials
+    app.get CredentialServlet.api_path_with_id, &get_credentials
     app.post CredentialServlet.api_path, &create_credential
     app.put CredentialServlet.api_path_with_id, &update_credential
     app.delete CredentialServlet.api_path, &delete_credentials
@@ -33,6 +33,8 @@ module CredentialServlet
           json = cred.as_json(include: includes).merge(private_class: cred.private.class.to_s)
           response << json
         end
+        # Only return the single object if the user used the resource/ID GET request
+        data = data.first if data.count == 1 && request.url =~ /\/\d$/
         response = format_cred_json(data)
         set_json_data_response(response: response)
       rescue => e

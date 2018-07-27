@@ -23,6 +23,8 @@ module SessionEventServlet
       begin
         sanitized_params = sanitize_params(params)
         data = get_db.session_events(sanitized_params)
+        # Only return the single object if the user used the resource/ID GET request
+        data = data.first if data.count == 1 && request.url =~ /\/\d$/
         set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving session events:', code: 500)

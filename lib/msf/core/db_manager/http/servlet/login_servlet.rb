@@ -23,8 +23,10 @@ module LoginServlet
     lambda {
       begin
         sanitized_params = sanitize_params(params)
-        response = get_db.logins(sanitized_params)
-        set_json_response(response)
+        data = get_db.logins(sanitized_params)
+        # Only return the single object if the user used the resource/ID GET request
+        data = data.first if data.count == 1 && request.url =~ /\/\d$/
+        set_json_response(data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving logins:', code: 500)
       end
