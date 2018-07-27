@@ -531,11 +531,11 @@ class MetasploitModule < Msf::Auxiliary
       connect
     rescue StandardError => e
       print_error("Error:" + e.message)
-	    return
+    return
     end
 
     # send STARTDT_CON to activate connection
-     response = send_frame(startcon)
+	  response = send_frame(startcon)
 	  if response.nil?
 		  print_error("Could not connect to 104 service")
 		  return
@@ -555,7 +555,7 @@ class MetasploitModule < Msf::Auxiliary
     response = send_frame(stopcon)
     if response.nil?
       print_error("Terminating Connection")
-	    return
+    return
     else
       print_status("Terminating Connection")
       parse_response(response)
