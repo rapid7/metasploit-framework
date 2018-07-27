@@ -83,12 +83,12 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     
-    if return_value && return_value.is_exception? && loader_disabled?(return_value.value)
+    if return_value.is_exception? && loader_disabled?(return_value)
       print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
       return
     end
     
-    if return_value && return_value.is_exception? && class_not_found?(return_value)
+    if return_value.is_exception? && class_not_found?(return_value)
       print_status("#{rhost}:#{rport} Couldn\'t find the payload, auth might be enabled")
       return
     end
