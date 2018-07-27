@@ -23,7 +23,7 @@ For example, if the dll were named mydll.dll, you can run the privEsc alone with
 That way, you can isolate the behavior of the exploit before adding a payload.  Because I was using a privesc, I just made the last line of the privesc `system(“cmd.exe”);` so I could verify that on the target machine.  If I got a system-level cmd prompt, I won!
 
 ### Step 3 Add ReflectiveDll Injection to it.
-This is actually pretty simple.  Once your code is doing what it is supposed to do, add the ReflectiveDll injection to it.  Move the rdi (ReflectiveDll injection) code into your existing project and add the injet project into your solution.  Again, this worked for me and appears to be a popular choice.
+This is actually pretty simple.  Once your code is doing what it is supposed to do, add the ReflectiveDll injection to it.  Move the rdi (ReflectiveDll injection) code into your existing project and add the inject project into your solution.  Again, this worked for me and appears to be a popular choice.
 
 When you copy the RefelctiveDll code into your project, you are going to replace your `DllMain` file with the `ReflectiveDll.c` file.  Include the header file containing your desired entry point so that when `DllMain` gets launched, it can find your desired entry point.
 
