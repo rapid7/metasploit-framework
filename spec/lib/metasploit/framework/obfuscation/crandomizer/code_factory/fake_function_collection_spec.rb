@@ -29,7 +29,7 @@ RSpec.describe Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::Fak
   describe '#to_s' do
     it 'converts function objects to a string' do
       str = subject.to_s
-      expect(str).to match(/function\d+.+\(.*\)\s*{.*}/)
+      expect(str).to match(/function\d+\s*\(.*\)\s*{.*}/)
     end
   end
 
