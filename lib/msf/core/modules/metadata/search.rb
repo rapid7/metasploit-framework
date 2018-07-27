@@ -27,11 +27,9 @@ module Msf::Modules::Metadata::Search
     return search_results
   end
 
-
   #######
   private
   #######
-
 
   def is_match(params, module_metadata)
     param_hash = params
