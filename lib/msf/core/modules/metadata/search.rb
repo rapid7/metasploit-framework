@@ -130,6 +130,8 @@ module Msf::Modules::Metadata::Search
                 when 'eq'
                   matches_rank = module_metadata.rank.to_i == query_rank
                 end
+              elsif query_rank =~ /^\d+$/
+                matches_rank = module_metadata.rank.to_i == query_rank.to_i
               else
                 matches_rank = module_metadata.rank.to_i == Msf::RankingName.key(query_rank)
               end
