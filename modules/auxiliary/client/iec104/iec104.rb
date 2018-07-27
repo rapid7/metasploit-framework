@@ -535,10 +535,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # send STARTDT_CON to activate connection
-	  response = send_frame(startcon)
-	  if response.nil?
-		  print_error("Could not connect to 104 service")
-		  return
+    response = send_frame(startcon)
+      if response.nil?
+        print_error("Could not connect to 104 service")
+	  return
     else
       parse_response(response)
     end
