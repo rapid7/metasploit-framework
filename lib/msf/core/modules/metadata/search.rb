@@ -131,22 +131,7 @@ module Msf::Modules::Metadata::Search
                   matches_rank = module_metadata.rank.to_i == query_rank
                 end
               else
-                case query_rank
-                when 'manual'
-                  matches_rank = module_metadata.rank.to_i == Msf::ManualRanking
-                when 'low'
-                  matches_rank = module_metadata.rank.to_i == Msf::LowRanking
-                when 'average'
-                  matches_rank = module_metadata.rank.to_i == Msf::AverageRanking
-                when 'normal'
-                  matches_rank = module_metadata.rank.to_i == Msf::NormalRanking
-                when 'good'
-                  matches_rank = module_metadata.rank.to_i == Msf::GoodRanking
-                when 'great'
-                  matches_rank = module_metadata.rank.to_i == Msf::GreatRanking
-                when 'excellent'
-                  matches_rank = module_metadata.rank.to_i == Msf::ExcellentRanking
-                end
+                matches_rank = module_metadata.rank.to_i == Msf::RankingName.key(query_rank)
               end
               match = [keyword, search_term] if matches_rank
             when 'ref', 'ref_name'
