@@ -96,6 +96,7 @@ If you're an exploit developer, you will want to review our [[Guidelines for Acc
 - [[How to use exim_gethostbyname_bof.rb (Exim GHOST Buffer Overflow)]]
 - [[What does my Rex::Proto::SMB Error mean?]]
 - [[Why is a CVE Not Available?]]
+- [[Using ReflectiveDll Injection]]
 
 # GitHub Resources #
 
