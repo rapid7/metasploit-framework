@@ -80,30 +80,32 @@ class MetasploitModule < Msf::Auxiliary
 
     if return_value.nil?
       print_good("Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
-      report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
+      return
+    end
+    
+    if return_value && return_value.is_exception? && loader_disabled?(return_value.value)
+      print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
       return
     end
     
     if return_value && return_value.is_exception? && class_not_found?(return_value)
-      fail_with(Failure::Unknown,  'Couldn\'t find the payload, auth might be enabled')
+      print_status("#{rhost}:#{rport} Couldn\'t find the payload, auth might be enabled")
+      return
     end
 
-    if return_value.is_exception? && loader_enabled?(return_value.value)
-      print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
-      svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
-      report_vuln(
-        :host         => rhost,
-        :service      => svc,
-        :name         => self.name,
-        :info         => "Module #{self.fullname} confirmed remote code execution via this RMI service",
-        :refs         => self.references
-      )
-    else
-      print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
-      report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
-    end
+    print_good("#{rhost}:#{rport} Java RMI Endpoint Detected")
+    svc = report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
+    report_vuln(
+      :host         => rhost,
+      :service      => svc,
+      :name         => self.name,
+      :info         => "Module #{self.fullname} confirmed remote code execution via this RMI service",
+      :refs         => self.references
+    )
+
   end
-
+  
+  
   def class_not_found?(return_value)
     return_value.value.each do |exception|
       if exception.class == Rex::Java::Serialization::Model::NewObject &&
@@ -116,14 +118,14 @@ class MetasploitModule < Msf::Auxiliary
     false
   end
   
-  def loader_enabled?(exception_stack)
-    exception_stack.each do |exception|
+  def loader_disabled?(return_value)
+    return_value.value.each do |exception|
       if exception.class == Rex::Java::Serialization::Model::NewObject &&
           exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
           exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'&&
           [Rex::Java::Serialization::Model::NullReference, Rex::Java::Serialization::Model::Reference].include?(exception.class_data[0].class) &&
-          !exception.class_data[1].contents.include?('RMI class loader disabled')
-          return true
+          exception.class_data[1].contents.include?('RMI class loader disabled')
+        return true
       end
     end
 
