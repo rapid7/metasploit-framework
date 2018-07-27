@@ -133,19 +133,19 @@ module Msf::Modules::Metadata::Search
               else
                 case query_rank
                 when 'manual'
-                  matches_rank = module_metadata.rank.to_i == 0
+                  matches_rank = module_metadata.rank.to_i == Msf::ManualRanking
                 when 'low'
-                  matches_rank = module_metadata.rank.to_i == 100
+                  matches_rank = module_metadata.rank.to_i == Msf::LowRanking
                 when 'average'
-                  matches_rank = module_metadata.rank.to_i == 200
+                  matches_rank = module_metadata.rank.to_i == Msf::AverageRanking
                 when 'normal'
-                  matches_rank = module_metadata.rank.to_i == 300
+                  matches_rank = module_metadata.rank.to_i == Msf::NormalRanking
                 when 'good'
-                  matches_rank = module_metadata.rank.to_i == 400
+                  matches_rank = module_metadata.rank.to_i == Msf::GoodRanking
                 when 'great'
-                  matches_rank = module_metadata.rank.to_i == 500
+                  matches_rank = module_metadata.rank.to_i == Msf::GreatRanking
                 when 'excellent'
-                  matches_rank = module_metadata.rank.to_i == 600
+                  matches_rank = module_metadata.rank.to_i == Msf::ExcellentRanking
                 end
               end
               match = [keyword, search_term] if matches_rank
