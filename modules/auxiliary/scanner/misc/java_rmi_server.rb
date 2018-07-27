@@ -83,6 +83,10 @@ class MetasploitModule < Msf::Auxiliary
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
       return
     end
+    
+    if return_value && return_value.is_exception? && class_not_found?(return_value)
+      fail_with(Failure::Unknown,  'Couldn\'t find the payload, auth might be enabled')
+    end
 
     if return_value.is_exception? && loader_enabled?(return_value.value)
       print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
@@ -100,6 +104,18 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def class_not_found?(return_value)
+    return_value.value.each do |exception|
+      if exception.class == Rex::Java::Serialization::Model::NewObject &&
+          exception.class_desc.description.class == Rex::Java::Serialization::Model::NewClassDesc &&
+          exception.class_desc.description.class_name.contents == 'java.lang.ClassNotFoundException'
+        return true
+      end
+    end
+
+    false
+  end
+  
   def loader_enabled?(exception_stack)
     exception_stack.each do |exception|
       if exception.class == Rex::Java::Serialization::Model::NewObject &&
