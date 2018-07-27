@@ -4,67 +4,36 @@ require 'msf/core/modules/metadata'
 # Provides search operations on the module metadata cache.
 #
 module Msf::Modules::Metadata::Search
-  #
-  # Searches the module metadata using the passed search string.
-  #
-  def find(search_string)
-    search_results = []
 
-    params = parse_search_string(search_string)
+  VALID_PARAMS =
+      %w[app author authors arch cve bid edb date disclosure_date description full_name fullname mod_time name
+        os platform path port rport rank ref ref_name reference references target targets text type]
+
+  #
+  # Searches the module metadata using the passed hash of search params
+  #
+  def find(params, fields={})
+    return [] if params.empty? || VALID_PARAMS.none? { |k| params.key?(k) }
+    search_results = []
 
     get_metadata.each { |module_metadata|
       if is_match(params, module_metadata)
+        unless fields.empty?
+          module_metadata = get_fields(module_metadata, fields)
+        end
         search_results << module_metadata
       end
     }
-
     return search_results
   end
 
-  # Helper method for private `is_match`
-  def matches(params, module_metadata)
-    is_match(params, module_metadata)
-  end
 
   #######
   private
   #######
 
-  def parse_search_string(search_string)
-    # Split search terms by space, but allow quoted strings
-    terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
-    terms.delete('')
-
-    # All terms are either included or excluded
-    res = {}
-
-    terms.each do |term|
-      keyword, search_term = term.split(":", 2)
-      unless search_term
-        search_term = keyword
-        keyword = 'text'
-      end
-      next if search_term.length == 0
-      keyword.downcase!
-      search_term.downcase!
-      res[keyword] ||=[   [],    []   ]
-      if search_term[0,1] == "-"
-        next if search_term.length == 1
-        res[keyword][1] << search_term[1,search_term.length-1]
-      else
-        res[keyword][0] << search_term
-      end
-    end
-    res
-  end
 
   def is_match(params, module_metadata)
-    valid_params =
-        %w[app author authors arch cve bid edb date disclosure_date description full_name fullname mod_time name
-        os platform path port rport rank ref ref_name reference references target targets text type]
-
-    return false if params.empty? || valid_params.none? { |k| params.key?(k) }
-
     param_hash = params
 
     [0,1].each do |mode|
@@ -174,5 +143,32 @@ module Msf::Modules::Metadata::Search
 
     true
   end
+
+  def get_fields(module_metadata, fields)
+    selected_fields = {}
+
+    aliases = {
+        :cve => 'references',
+        :edb => 'references',
+        :bid => 'references',
+        :fullname => 'full_name',
+        :os => 'platform',
+        :port => 'rport',
+        :reference => 'references',
+        :ref => 'ref_name',
+        :target => 'targets',
+        :authors => 'author'
+    }
+
+    fields.each do | field |
+      field = aliases[field.to_sym] if aliases[field.to_sym]
+      if module_metadata.respond_to?(field)
+        selected_fields[field] = module_metadata.send(field)
+      end
+    end
+    selected_fields
+
+  end
+
 end
 

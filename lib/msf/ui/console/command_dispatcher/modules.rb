@@ -389,7 +389,8 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            Msf::Modules::Metadata::Cache.instance.find(match).each do |m|
+            search_params = parse_search_string(match)
+            Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
               tbl << [
                   m.full_name,
                   m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
@@ -408,6 +409,42 @@ module Msf
               print_line(tbl.to_s)
             end
           end
+
+          #
+          # Parses command line search string into a hash
+          #
+          # Resulting Hash Example:
+          # {"platform"=>[["android"], []]} will match modules targeting the android platform
+          # {"platform"=>[[], ["android"]]} will exclude modules targeting the android platform
+          #
+          def parse_search_string(search_string)
+            # Split search terms by space, but allow quoted strings
+            terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
+            terms.delete('')
+
+            # All terms are either included or excluded
+            res = {}
+
+            terms.each do |term|
+              keyword, search_term = term.split(":", 2)
+              unless search_term
+                search_term = keyword
+                keyword = 'text'
+              end
+              next if search_term.length == 0
+              keyword.downcase!
+              search_term.downcase!
+              res[keyword] ||=[   [],    []   ]
+              if search_term[0,1] == "-"
+                next if search_term.length == 1
+                res[keyword][1] << search_term[1,search_term.length-1]
+              else
+                res[keyword][0] << search_term
+              end
+            end
+            res
+          end
+
 
           #
           # Tab completion for the search command

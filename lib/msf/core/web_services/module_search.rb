@@ -2,15 +2,9 @@ module Msf::WebServices::ModuleSearch
 
   def search_modules(opts)
     raise ::ArgumentError, "At least one search parameter must be provided." if opts.except(:fields).empty?
-    search_results = []
-    metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
     params = parse_params(opts)
-    metadata.each do | module_metadata |
-      if Msf::Modules::Metadata::Cache.instance.matches(params, module_metadata)
-        search_results << get_fields(opts, module_metadata)
-      end
-    end
-    search_results
+    fields = parse_fields(opts)
+    Msf::Modules::Metadata::Cache.instance.find(params, fields)
   end
 
   #######
@@ -39,34 +33,15 @@ module Msf::WebServices::ModuleSearch
     params
   end
 
-  def get_fields(opts, module_metadata)
-    selected_fields = {}
-
-    aliases = {
-      :cve => 'references',
-      :edb => 'references',
-      :bid => 'references',
-      :fullname => 'full_name',
-      :os => 'platform',
-      :port => 'rport',
-      :reference => 'references',
-      :ref => 'ref_name',
-      :target => 'targets',
-      :authors => 'author'
-    }
-
+  def parse_fields(opts)
+    fields = []
     if opts.key? :fields
       fields = opts[:fields].split(',')
       fields.each do | field |
         field.strip!
-        field = aliases[field.to_sym] if aliases[field.to_sym]
-        if module_metadata.respond_to?(field)
-          selected_fields[field] = module_metadata.send(field)
-        end
       end
     end
-    selected_fields.empty? ? module_metadata : selected_fields
+    fields
   end
-
 
 end
