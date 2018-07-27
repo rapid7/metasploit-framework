@@ -26,7 +26,7 @@ module DbExportServlet
         response[:db_export_file] = encoded_file
         set_json_data_response(response: response)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error exporting the database:', code: 500)
       ensure
         # Ensure the temporary file gets cleaned up
         File.delete(opts[:path])

@@ -26,10 +26,9 @@ module ServletHelper
     set_json_response(data_response, includes = includes, code = code)
   end
 
-  def set_json_error_response(error:, includes: nil, code:)
-    print_error "Error handling request: #{error.message}", error
-    error_response = { error: { message: error.message } }
-    set_json_response(error_response, includes = includes, code = code)
+  def set_json_error_response(response:, code:)
+    error_response = { error: response }
+    set_json_response(error_response, nil, code = code)
   end
 
   def set_html_response(data)
@@ -48,6 +47,15 @@ module ServletHelper
     hash.deep_symbolize_keys
   end
 
+  def print_error_and_create_response(error: , message:, code:)
+    print_error "Error handling request: #{error.message}.", error
+    error_response = {
+        code: code,
+        message: "#{message} #{error.message}"
+    }
+    set_json_error_response(response: error_response, code: code)
+  end
+
   def exec_report_job(request, includes = nil, &job)
     begin
 
@@ -64,7 +72,7 @@ module ServletHelper
       end
 
     rescue => e
-      set_json_error_response(error: e, code: 500)
+      print_error_and_create_response(error: e, message: 'There was an error creating the record:', code: 500)
     end
   end
 

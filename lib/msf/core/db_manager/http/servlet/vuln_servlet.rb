@@ -28,7 +28,7 @@ module VulnServlet
         includes = [:host, :vulns_refs, :refs, :module_refs]
         set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving vulns:', code: 500)
       end
     }
   end
@@ -36,14 +36,10 @@ module VulnServlet
   def self.report_vuln
     lambda {
       warden.authenticate!
-      begin
-        job = lambda { |opts|
-          get_db.report_vuln(opts)
-        }
-        exec_report_job(request, &job)
-      rescue => e
-        set_json_error_response(error: e, code: 500)
-      end
+      job = lambda { |opts|
+        get_db.report_vuln(opts)
+      }
+      exec_report_job(request, &job)
     }
   end
 
@@ -57,7 +53,7 @@ module VulnServlet
         data = get_db.update_vuln(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error updating the vuln:', code: 500)
       end
     }
   end
@@ -70,7 +66,7 @@ module VulnServlet
         data = get_db.delete_vuln(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the vulns:', code: 500)
       end
     }
   end

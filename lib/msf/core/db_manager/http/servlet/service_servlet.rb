@@ -28,7 +28,7 @@ module ServiceServlet
         includes = [:host]
         set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving services:', code: 500)
       end
     }
   end
@@ -52,7 +52,7 @@ module ServiceServlet
         data = get_db.update_service(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error updating the service:', code: 500)
       end
     }
   end
@@ -65,7 +65,7 @@ module ServiceServlet
         data = get_db.delete_service(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the service:', code: 500)
       end
     }
   end

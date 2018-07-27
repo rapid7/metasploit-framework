@@ -25,7 +25,7 @@ module SessionEventServlet
         data = get_db.session_events(sanitized_params)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving session events:', code: 500)
       end
     }
   end
@@ -33,14 +33,10 @@ module SessionEventServlet
   def self.report_session_event
     lambda {
       warden.authenticate!
-      begin
-        job = lambda { |opts|
-          get_db.report_session_event(opts)
-        }
-        exec_report_job(request, &job)
-      rescue => e
-        set_json_error_response(error: e, code: 500)
-      end
+      job = lambda { |opts|
+        get_db.report_session_event(opts)
+      }
+      exec_report_job(request, &job)
     }
   end
 end

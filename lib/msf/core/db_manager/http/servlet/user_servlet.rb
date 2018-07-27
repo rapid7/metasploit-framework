@@ -27,7 +27,7 @@ module UserServlet
         data = get_db.users(sanitized_params)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving users:', code: 500)
       end
     }
   end
@@ -35,14 +35,10 @@ module UserServlet
   def self.report_user
     lambda {
       warden.authenticate!(scope: :admin_api)
-      begin
-        job = lambda { |opts|
-          get_db.report_user(opts)
-        }
-        exec_report_job(request, &job)
-      rescue => e
-        set_json_error_response(error: e, code: 500)
-      end
+      job = lambda { |opts|
+        get_db.report_user(opts)
+      }
+      exec_report_job(request, &job)
     }
   end
 
@@ -56,7 +52,7 @@ module UserServlet
         data = get_db.update_user(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error creating the user:', code: 500)
       end
     }
   end
@@ -69,7 +65,7 @@ module UserServlet
         data = get_db.delete_user(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the users:', code: 500)
       end
     }
   end

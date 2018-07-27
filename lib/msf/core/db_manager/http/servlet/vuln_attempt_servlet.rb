@@ -25,7 +25,7 @@ module VulnAttemptServlet
         data = get_db.vuln_attempts(sanitized_params)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving vuln attempts:', code: 500)
       end
     }
   end
@@ -33,17 +33,13 @@ module VulnAttemptServlet
   def self.report_vuln_attempt
     lambda {
       warden.authenticate!
-      begin
-        job = lambda { |opts|
-          vuln_id = opts.delete(:vuln_id)
-          wspace = opts.delete(:workspace)
-          vuln = get_db.vulns(id: vuln_id, workspace: wspace).first
-          get_db.report_vuln_attempt(vuln, opts)
-        }
-        exec_report_job(request, &job)
-      rescue => e
-        set_json_error_response(error: e, code: 500)
-      end
+      job = lambda { |opts|
+        vuln_id = opts.delete(:vuln_id)
+        wspace = opts.delete(:workspace)
+        vuln = get_db.vulns(id: vuln_id, workspace: wspace).first
+        get_db.report_vuln_attempt(vuln, opts)
+      }
+      exec_report_job(request, &job)
     }
   end
 end

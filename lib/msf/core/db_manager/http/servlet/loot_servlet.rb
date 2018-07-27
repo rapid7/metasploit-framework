@@ -31,7 +31,7 @@ module LootServlet
         end
         set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving the loot:', code: 500)
       end
     }
   end
@@ -63,7 +63,7 @@ module LootServlet
         data = get_db.update_loot(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error updating the loot:', code: 500)
       end
     }
   end
@@ -76,7 +76,7 @@ module LootServlet
         data = get_db.delete_loot(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the loot:', code: 500)
       end
     }
   end

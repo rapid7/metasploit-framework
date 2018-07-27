@@ -30,7 +30,7 @@ module WorkspaceServlet
 
           set_json_data_response(response: data, includes: includes)
         rescue => e
-          set_json_error_response(error: e, code: 500)
+          print_error_and_create_response(error: e, message: 'There was an error retrieving workspaces:', code: 500)
         end
       }
     end
@@ -43,7 +43,7 @@ module WorkspaceServlet
           data = get_db.add_workspace(opts)
           set_json_data_response(response: data)
         rescue => e
-          set_json_error_response(error: e, code: 500)
+          print_error_and_create_response(error: e, message: 'There was an error creating the workspace:', code: 500)
         end
       }
     end
@@ -58,7 +58,7 @@ module WorkspaceServlet
         data = get_db.update_workspace(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error updating the workspace:', code: 500)
       end
     }
   end
@@ -71,7 +71,7 @@ module WorkspaceServlet
           data = get_db.delete_workspaces(opts)
           set_json_data_response(response: data)
         rescue => e
-          set_json_error_response(error: e, code: 500)
+          print_error_and_create_response(error: e, message: 'There was an error deleting the workspaces:', code: 500)
         end
       }
     end

@@ -28,7 +28,7 @@ module NoteServlet
         includes = [:host]
         set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving notes:', code: 500)
       end
     }
   end
@@ -36,14 +36,10 @@ module NoteServlet
   def self.report_note
     lambda {
       warden.authenticate!
-      begin
-        job = lambda { |opts|
-          get_db.report_note(opts)
-        }
-        exec_report_job(request, &job)
-      rescue => e
-        set_json_error_response(error: e, code: 500)
-      end
+      job = lambda { |opts|
+        get_db.report_note(opts)
+      }
+      exec_report_job(request, &job)
     }
   end
 
@@ -57,7 +53,7 @@ module NoteServlet
         data = get_db.update_note(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error updating the note:', code: 500)
       end
     }
   end
@@ -70,7 +66,7 @@ module NoteServlet
         data = get_db.delete_note(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the note:', code: 500)
       end
     }
   end

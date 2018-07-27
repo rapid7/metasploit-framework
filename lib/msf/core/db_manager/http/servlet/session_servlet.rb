@@ -26,7 +26,7 @@ module SessionServlet
         includes = [:host]
         set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving sessions:', code: 500)
       end
     }
   end
@@ -44,7 +44,7 @@ module SessionServlet
         }
         exec_report_job(request, &job)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error creating the session:', code: 500)
       end
     }
   end

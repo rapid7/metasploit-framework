@@ -30,13 +30,13 @@ module CredentialServlet
         # This is normally pulled from a class method from the MetasploitCredential class
         response = []
         data.each do |cred|
-          json = cred.as_json(include: includes).merge('private_class' => cred.private.class.to_s)
+          json = cred.as_json(include: includes).merge(private_class: cred.private.class.to_s)
           response << json
         end
         response = format_cred_json(data)
         set_json_data_response(response: response)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving credentials:', code: 500)
       end
     }
   end
@@ -63,7 +63,7 @@ module CredentialServlet
         response = format_cred_json(data)
         set_json_response(response.first)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error updating the credential:', code: 500)
       end
     }
   end
@@ -75,7 +75,7 @@ module CredentialServlet
         data = get_db.delete_credentials(opts)
         set_json_response(data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the credential:', code: 500)
       end
     }
   end

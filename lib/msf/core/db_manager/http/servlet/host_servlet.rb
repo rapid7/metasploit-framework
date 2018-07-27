@@ -33,7 +33,7 @@ module HostServlet
         includes = [:loots]
         set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error getting hosts:', code: 500)
       end
     }
   end
@@ -43,11 +43,11 @@ module HostServlet
       warden.authenticate!
       begin
         job = lambda { |opts|
-          data = get_db.report_host(opts)
+          get_db.report_host(opts)
         }
         exec_report_job(request, &job)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error creating the host:', code: 500)
       end
     }
   end
@@ -62,7 +62,7 @@ module HostServlet
         data = get_db.update_host(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error updating the host:', code: 500)
       end
     }
   end
@@ -75,7 +75,7 @@ module HostServlet
         data = get_db.delete_host(opts)
         set_json_data_response(response: data)
       rescue => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error deleting hosts:', code: 500)
       end
     }
   end
@@ -89,7 +89,7 @@ module HostServlet
         data = get_db.get_host(opts)
         set_json_data_response(response: data)
       rescue Exception => e
-        set_json_error_response(error: e, code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error searching for hosts:', code: 500)
       end
     }
   end
