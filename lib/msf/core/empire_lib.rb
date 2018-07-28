@@ -11,6 +11,9 @@ module Msf::Empire
     #API INITIATION METHODS
     #-----------------------
     @token = ''
+    #
+    #Method to check port 1337 for stable loading of stager
+    #
     def set_options(uri)
       req_options = {
         use_ssl: uri.scheme == "https",
@@ -216,6 +219,25 @@ module Msf::Empire
       end
      end
     #
+    #Method to fetch agent details
+    #
+    def agent_details(agent_name)
+      uri = URI.parse("https://localhost:1337/api/agents?token=#{@token}")
+      request = Net::HTTP::Get.new(uri)
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+        http.request(request)
+      end
+      parser = JSON.parse(response.body)
+      parser['agents'].each do |agent|
+        if agent['session_id'] == agent_name
+          agent.each do |sys_attribute, value|
+            puts "#{sys_attribute} : #{value}"
+          end
+        end
+      end
+    end
+    #
     #Method to get all stale or idle agents
     #
     def get_stale
@@ -257,6 +279,23 @@ module Msf::Empire
         return "Agent Renamed : #{new_name}"
       else
         return "Invalid Request"
+      end
+    end
+    #
+    #Method to remove stale agents (agents from past sessions)
+    #
+    def kill_stale
+      uri = URI.parse("https://localhost:1337/api/agents/stale?token=ks23jlvdki4fj1j23w39h0h0xcuwjrqilocxd6b5")
+      request = Net::HTTP::Delete.new(uri)
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+          http.request(request)
+      end
+      parser = JSON.parse(response.body)
+      if parser['success']
+        return "Successfully killed stale agents"
+      else
+        return "Error killing agents"
       end
     end
     #
