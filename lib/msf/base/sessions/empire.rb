@@ -57,7 +57,8 @@ class EmpireShell < Msf::Sessions::CommandShell
       'shell'       => 'Run shell commands on target system',
       'result'      => 'Fetch stored results from the Empire Database',
       'credentials' => 'Fetch all the saved credentials in the Empire Database',
-      'rename_agent'=> 'Rename the curret agent name for easier interaction'
+      'rename_agent'=> 'Rename the curret agent name for easier interaction',
+      'agentinfo'   => 'Fetch basic information about the agent and host machine'
     }
   end
 
@@ -154,6 +155,11 @@ class EmpireShell < Msf::Sessions::CommandShell
   #Defining the credentials command
   def credentials
     @client_emp.get_creds
+  end
+
+  #Defining agentinfo command
+  def cmd_agentinfo
+    @client_emp.agent_details(@agent_name)
   end
 
   #Defining rename_agent command
