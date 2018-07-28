@@ -26,7 +26,7 @@ module ResponseDataHelper
   def json_to_hash(response_wrapper)
     begin
       body = process_response(response_wrapper)
-      if !body.nil? || !body.empty?
+      if !body.nil? && !body.empty?
         parsed_body = JSON.parse(body, symbolize_names: true)
         return parsed_body[:data]
       end
@@ -48,7 +48,7 @@ module ResponseDataHelper
     if response_wrapper.expected
       begin
         body = process_response(response_wrapper)
-        if !body.nil? || !body.empty?
+        if !body.nil? && !body.empty?
           parsed_body = JSON.parse(body).symbolize_keys
           data = Array.wrap(parsed_body[:data])
           rv = []
