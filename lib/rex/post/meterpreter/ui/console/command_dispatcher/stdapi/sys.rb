@@ -293,10 +293,10 @@ class Console::CommandDispatcher::Stdapi::Sys
       # must special-case COMSPEC to return the system-specific shell.
       path = client.fs.file.expand_path("%COMSPEC%")
       # If that failed for whatever reason, guess it's unix
-      if pybash
+      path = (path and not path.empty?) ? path : "/bin/sh"
+      if pybash && path == "/bin/sh"
         return true if pybash_shell
       end
-      path = (path and not path.empty?) ? path : "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
     end
   end
