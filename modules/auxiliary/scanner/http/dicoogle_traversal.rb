@@ -65,6 +65,5 @@ class MetasploitModule < Msf::Auxiliary
       res.body,
       filename
     )
-    end
   end
 end
