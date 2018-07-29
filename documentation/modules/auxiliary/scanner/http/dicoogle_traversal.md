@@ -4,7 +4,7 @@ This module exploits an unauthenticated directory traversal vulnerability
 in the Dicoogle PACS Web Server v2.5.0 and possibly earlier, allowing an
 attacker to read arbitrary files with the web server privileges.
 While the application is java based, the directory traversal was only
-successful against Windows targets.
+successfully tested against Windows targets.
 
 
 ## Verification Steps

