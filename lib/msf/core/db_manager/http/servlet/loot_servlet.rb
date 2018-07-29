@@ -29,6 +29,8 @@ module LootServlet
         data.each do |loot|
           loot.data = Base64.urlsafe_encode64(loot.data) if loot.data
         end
+        # Only return the single object if the id parameter is present
+        data = data.first if !sanitized_params[:id].nil? && data.count == 1
         set_json_data_response(response: data, includes: includes)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving the loot:', code: 500)
@@ -61,8 +63,6 @@ module LootServlet
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_loot(opts)
-        # Only return the single object if the user used the resource/ID GET request
-        data = data.first if data.count == 1 && request.url =~ /\/\d$/
         set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error updating the loot:', code: 500)

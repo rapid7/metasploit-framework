@@ -26,6 +26,8 @@ module NoteServlet
         sanitized_params = sanitize_params(params)
         data = get_db.notes(sanitized_params)
         includes = [:host]
+        # Only return the single object if the id paramer is present
+        data = data.first if !sanitized_params[:id].nil? && data.count == 1
         set_json_data_response(response: data, includes: includes)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving notes:', code: 500)
@@ -51,8 +53,6 @@ module NoteServlet
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_note(opts)
-        # Only return the single object if the user used the resource/ID GET request
-        data = data.first if data.count == 1 && request.url =~ /\/\d$/
         set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error updating the note:', code: 500)

@@ -33,8 +33,8 @@ module CredentialServlet
           json = cred.as_json(include: includes).merge(private_class: cred.private.class.to_s)
           response << json
         end
-        # Only return the single object if the user used the resource/ID GET request
-        data = data.first if data.count == 1 && request.url =~ /\/\d$/
+        # Only return the single object if the id paramer is present
+        data = data.first if !sanitized_params[:id].nil? && data.count == 1
         response = format_cred_json(data)
         set_json_data_response(response: response)
       rescue => e
