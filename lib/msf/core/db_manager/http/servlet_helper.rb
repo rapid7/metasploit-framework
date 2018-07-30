@@ -16,9 +16,19 @@ module ServletHelper
     [200,  '']
   end
 
-  def set_json_response(data, includes = nil)
+  def set_json_response(data, includes = nil, code = 200)
     headers = {'Content-Type' => 'application/json'}
-    [200, headers, to_json(data, includes)]
+    [code, headers, to_json(data, includes)]
+  end
+
+  def set_json_data_response(response:, includes: nil, code: 200)
+    data_response = {"data": response}
+    set_json_response(data_response, includes = includes, code = code)
+  end
+
+  def set_json_error_response(response:, includes: nil, code:)
+    error_response = {"error": response}
+    set_json_response(error_response, includes = includes, code = code)
   end
 
   def set_html_response(data)
@@ -70,6 +80,32 @@ module ServletHelper
     params.symbolize_keys.except(:captures, :splat)
   end
 
+  def format_cred_json(data)
+    includes = [:logins, :public, :private, :realm, :origin]
+
+    response = []
+    Array.wrap(data).each do |cred|
+      json = cred.as_json(include: includes)
+      json['origin'] = json['origin'].merge('type' => cred.origin.class.to_s) if cred.origin
+      json['public'] = json['public'].merge('type' => cred.public.type) if cred.public
+      json['private'] = json['private'].merge('type' => cred.private.type) if cred.private
+      response << json
+    end
+    response
+  end
+
+  # Get Warden::Proxy object from the Rack environment.
+  # @return [Warden::Proxy] The Warden::Proxy object from the Rack environment.
+  def warden
+    env['warden']
+  end
+
+  # Get Warden options hash from the Rack environment.
+  # @return [Hash] The Warden options hash from the Rack environment.
+  def warden_options
+    env['warden.options']
+  end
+  
   #######
   private
   #######

@@ -237,7 +237,8 @@ class Console::CommandDispatcher::Kiwi
     '-d' => [ true,  'FQDN of the target domain (required)' ],
     '-k' => [ true,  'krbtgt domain user NTLM hash' ],
     '-t' => [ true,  'Local path of the file to store the ticket in (required)' ],
-    '-s' => [ true,  'SID of the domain' ]
+    '-s' => [ true,  'SID of the domain' ],
+    '-e' => [ true,  'End in ... Duration in hours (ex: -e 10 for 10 hours), default 10 YEARS']
   )
 
   #
@@ -267,7 +268,8 @@ class Console::CommandDispatcher::Kiwi
       domain_sid: nil,
       krbtgt_hash: nil,
       user_id: nil,
-      group_ids: nil
+      group_ids: nil,
+      end_in: 87608
     }
 
     @@golden_ticket_create_opts.parse(args) { |opt, idx, val|
@@ -286,6 +288,8 @@ class Console::CommandDispatcher::Kiwi
         opts[:group_ids] = val
       when '-s'
         opts[:domain_sid] = val
+      when '-e'
+        opts[:end_in] = val.to_i
       end
     }
 
@@ -647,4 +651,3 @@ end
 end
 end
 end
-

@@ -14,6 +14,7 @@ module EventServlet
 
   def self.report_event
     lambda {
+      warden.authenticate!
       job = lambda { |opts| get_db().report_event(opts) }
       exec_report_job(request, &job)
     }

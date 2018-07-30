@@ -91,6 +91,9 @@ class Db
         when '-a', '--add'
           add_data_service(*args)
           return
+        when '-d', '--delete'
+          delete_data_service(args.shift)
+          return
         when '-s', '--set'
           set_data_service(args.shift)
           return
@@ -1968,11 +1971,14 @@ class Db
 
     protocol = "http"
     port = 8080
+    opts = {}
     https_opts = {}
     while (arg = args.shift)
       case arg
-        when '-p'
+        when '-p', '--port'
           port = args.shift
+        when '-t', '--token'
+          opts[:api_token] = args.shift
         when '-s', '--ssl'
           protocol = "https"
         when '-c', '--cert'
@@ -1985,18 +1991,29 @@ class Db
     end
 
     if host.nil? || port.nil?
-      print_error "Host and port are required."
+      print_error("Host and port are required")
       return
     end
 
+    opts[:https_opts] = https_opts unless https_opts.empty?
     endpoint = "#{protocol}://#{host}:#{port}"
-    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, https_opts)
+    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, opts)
     begin
       framework.db.register_data_service(remote_data_service)
       print_line "Registered data service: #{remote_data_service.name}"
       framework.db.workspace = framework.db.default_workspace
     rescue => e
       print_error "There was a problem registering the remote data service: #{e.message}"
+    end
+  end
+
+  def delete_data_service(service_id)
+    begin
+      data_service = framework.db.delete_data_service(service_id)
+      framework.db.workspace = framework.db.default_workspace
+      data_service
+    rescue => e
+      print_error "Unable to delete data service: #{e.message}"
     end
   end
 
@@ -2025,14 +2042,16 @@ class Db
     print_line
     print_line "OPTIONS:"
 
-    print_line "  -h, --help                  Show this help information."
-    print_line "  -s, --set <id>              Set the data service by identifier."
-    print_line "  -a, --add [ options ] host  Adds data service"
+    print_line "  -h, --help                    Show this help information."
+    print_line "  -d, --delete <id>             Delete the data service by identifier."
+    print_line "  -s, --set <id>                Set the active data service by identifier."
+    print_line "  -a, --add [ options ] <host>  Add a new data service"
     print_line "  Add Data Service Options:"
-    print_line "  -p <port>         The port the data service is listening on. Default is 8080."
-    print_line "  -s, --ssl         Enable SSL. Required for HTTPS data services."
-    print_line "  -c, --cert        Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
-    print_line "  --skip-verify     Skip validating authenticity of server's certificate. NOT RECOMMENDED."
+    print_line "  -p, --port <port>   The port the data service is listening on. Default is 8080."
+    print_line "  -t, --token <token> API Token for MSF web service"
+    print_line "  -s, --ssl           Enable SSL. Required for HTTPS data services."
+    print_line "  -c, --cert          Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
+    print_line "  --skip-verify       Skip validating authenticity of server's certificate. NOT RECOMMENDED."
     print_line
   end
 

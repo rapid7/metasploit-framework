@@ -26,6 +26,7 @@ module HostServlet
 
   def self.get_host
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         sanitized_params = sanitize_params(params)
@@ -40,6 +41,7 @@ module HostServlet
 
   def self.report_host
     lambda {
+      warden.authenticate!
       begin
         job = lambda { |opts|
           data = get_db.report_host(opts)
@@ -53,6 +55,7 @@ module HostServlet
 
   def self.update_host
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
@@ -67,6 +70,7 @@ module HostServlet
 
   def self.delete_host
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_host(opts)
@@ -80,6 +84,7 @@ module HostServlet
   # TODO: remove once hosts and get_host method is merged
   def self.search
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db().get_host(opts)

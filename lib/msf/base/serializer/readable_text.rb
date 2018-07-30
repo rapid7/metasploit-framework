@@ -183,6 +183,10 @@ class ReadableText
     output << "Available targets:\n"
     output << dump_exploit_targets(mod, indent)
 
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+
     # Options
     if (mod.options.has_options?)
       output << "Basic options:\n"
@@ -240,6 +244,10 @@ class ReadableText
       output << "Available actions:\n"
       output << dump_module_actions(mod, indent)
     end
+
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -499,9 +507,28 @@ class ReadableText
 
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
-      mod.references.each { |ref|
-        output << indent + ref.to_s + "\n"
-      }
+
+      cve_collection = mod.references.select { |r| r.ctx_id.match(/^cve$/i) }
+      if cve_collection.empty?
+        output << "#{indent}CVE: Not available\n"
+      end
+
+      mod.references.each do |ref|
+        case ref.ctx_id
+        when 'CVE', 'cve'
+          if !cve_collection.empty? && ref.ctx_val.blank?
+            output << "#{indent}CVE: Not available\n"
+          else
+            output << indent + ref.to_s + "\n"
+          end
+        when 'LOGO', 'SOUNDTRACK'
+          output << indent + ref.to_s + "\n"
+          Rex::Compat.open_browser(ref.ctx_val) if Rex::Compat.getenv('FUEL_THE_HYPE_MACHINE')
+        else
+          output << indent + ref.to_s + "\n"
+        end
+      end
+
       output << "\n"
     end
 

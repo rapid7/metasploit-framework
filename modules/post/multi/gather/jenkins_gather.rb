@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
       'License' => MSF_LICENSE,
       'Author' => [ 'thesubtlety' ],
       'Platform' => [ 'linux', 'win' ],
-      'SessionTypes' => [ %w[shell meterpreter] ]
+      'SessionTypes' => %w[shell meterpreter]
     ))
     register_options(
       [  OptBool.new('STORE_LOOT', [false, 'Store files in loot (will simply output file to console if set to false).', true]),

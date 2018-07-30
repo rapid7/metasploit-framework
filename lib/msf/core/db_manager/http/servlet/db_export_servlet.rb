@@ -14,6 +14,7 @@ module DbExportServlet
 
   def self.get_db_export
     lambda {
+      warden.authenticate!
       begin
         opts = params.symbolize_keys
 	      opts[:path] = File.join(Msf::Config.local_directory, "#{File.basename(opts[:path])}-#{SecureRandom.hex}")

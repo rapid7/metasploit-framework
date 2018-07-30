@@ -42,9 +42,8 @@ class Msftidy
 
   # Status codes
   OK       = 0
-  INFO     = 1
-  WARNING  = 2
-  ERROR    = 3
+  WARNING  = 1
+  ERROR    = 2
 
   # Some compiles regexes
   REGEX_MSF_EXPLOIT = / \< Msf::Exploit/
@@ -72,7 +71,7 @@ class Msftidy
   # error.
   def warn(txt, line=0) line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'WARNING'.yellow}] #{cleanup_text(txt)}"
-    @status += WARNING
+    @status = WARNING if @status < WARNING
   end
 
   #
@@ -84,7 +83,7 @@ class Msftidy
   def error(txt, line=0)
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'ERROR'.red}] #{cleanup_text(txt)}"
-    @status += ERROR
+    @status = ERROR if @status < ERROR
   end
 
   # Currently unused, but some day msftidy will fix errors for you.
@@ -100,7 +99,6 @@ class Msftidy
     return if SUPPRESS_INFO_MESSAGES
     line_msg = (line>0) ? ":#{line}" : ''
     puts "#{@full_filepath}#{line_msg} - [#{'INFO'.cyan}] #{cleanup_text(txt)}"
-    @status += INFO
   end
 
   ##
@@ -140,8 +138,9 @@ class Msftidy
   end
 
   def check_ref_identifiers
-    in_super = false
-    in_refs  = false
+    in_super     = false
+    in_refs      = false
+    cve_assigned = false
 
     @lines.each do |line|
       if !in_super and line =~ /\s+super\(/
@@ -161,6 +160,7 @@ class Msftidy
 
         case identifier
         when 'CVE'
+          cve_assigned = true
           warn("Invalid CVE format: '#{value}'") if value !~ /^\d{4}\-\d{4,}$/
         when 'BID'
           warn("Invalid BID format: '#{value}'") if value !~ /^\d+$/
@@ -197,6 +197,9 @@ class Msftidy
         end
       end
     end
+
+    # This helps us track when CVEs aren't assigned
+    info('No CVE references found. Please check before you land!') unless cve_assigned
   end
 
   def check_self_class
@@ -416,7 +419,7 @@ class Msftidy
         error("Invalid ranking. You have '#{$1}'")
       end
     else
-      info('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
+      warn('No Rank specified. The default is NormalRanking. Please add an explicit Rank value.')
     end
   end
 
@@ -601,26 +604,20 @@ class Msftidy
     test = @source.scan(/send_request_cgi\s*\(?\s*\{?\s*['"]uri['"]\s*=>\s*[^=})]*?\?[^,})]+/im)
     unless test.empty?
       test.each { |item|
-        info("Please use vars_get in send_request_cgi: #{item}")
+        warn("Please use vars_get in send_request_cgi: #{item}")
       }
     end
   end
 
   def check_newline_eof
     if @source !~ /(?:\r\n|\n)\z/m
-      info('Please add a newline at the end of the file')
-    end
-  end
-
-  def check_sock_get
-    if @source =~ /\s+sock\.get(\s*|\(|\d+\s*|\d+\s*,\d+\s*)/m && @source !~ /sock\.get_once/
-      info('Please use sock.get_once instead of sock.get')
+      warn('Please add a newline at the end of the file')
     end
   end
 
   def check_udp_sock_get
     if @source =~ /udp_sock\.get/m && @source !~ /udp_sock\.get\([a-zA-Z0-9]+/
-      info('Please specify a timeout to udp_sock.get')
+      warn('Please specify a timeout to udp_sock.get')
     end
   end
 
@@ -632,7 +629,7 @@ class Msftidy
     test = @source.scan(/^#.+http\/\/(?:www\.)?metasploit.com/)
     unless test.empty?
       test.each { |item|
-        info("Invalid URL: #{item}")
+        warn("Invalid URL: #{item}")
       }
     end
   end
@@ -700,7 +697,6 @@ class Msftidy
     check_vuln_codes
     check_vars_get
     check_newline_eof
-    check_sock_get
     check_udp_sock_get
     check_invalid_url_scheme
     check_print_debug

@@ -54,8 +54,8 @@ module Payload::Windows::Powershell
     return "#{cli} \"#{script}\""
   end
 
-  def generate
-    command_string
+  def command_string
+    powershell_command
   end
 end
 end

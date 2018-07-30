@@ -72,7 +72,7 @@ Gem::Specification.new do |spec|
   # Needed for Meterpreter
   spec.add_runtime_dependency 'metasploit-payloads', '1.3.40'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.4.0'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.4.1'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -103,6 +103,8 @@ Gem::Specification.new do |spec|
   # Required for msfdb_ws (Metasploit data base as a webservice)
   spec.add_runtime_dependency 'thin'
   spec.add_runtime_dependency 'sinatra'
+  spec.add_runtime_dependency 'sysrandom'
+  spec.add_runtime_dependency 'warden'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
   # Gem for dealing with SSHKeys

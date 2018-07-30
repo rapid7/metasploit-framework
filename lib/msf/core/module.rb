@@ -204,16 +204,6 @@ class Module
   end
 
   #
-  # Checks to see if the target is vulnerable, returning unsupported if it's
-  # not supported.
-  #
-  # This method is designed to be overriden by exploit modules.
-  #
-  def check
-    Msf::Exploit::CheckCode::Unsupported
-  end
-
-  #
   # Returns the current workspace
   #
   def workspace
