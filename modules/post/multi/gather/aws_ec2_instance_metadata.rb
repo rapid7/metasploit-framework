@@ -57,9 +57,9 @@ class MetasploitModule < Msf::Post
         r[l.gsub(%r{/$}, '')] = get_aws_metadata(new_uri, simple_get(new_uri))
       elsif new_uri.to_s =~ %r{/public-keys/} && /^(?<key_id>\d+)=/ =~ l
         # special case handling of the public-keys endpoint
-	new_uri = new_uri.slice(0..(new_uri.index(%r{/public-keys/})+'/public-keys'.length))
-	key_uri = "#{new_uri}#{key_id}/"
-	key_resp = simple_get(key_uri)
+        new_uri = new_uri.slice(0..(new_uri.index(%r{/public-keys/})+'/public-keys'.length))
+        key_uri = "#{new_uri}#{key_id}/"
+        key_resp = simple_get(key_uri)
         r[key_id] = get_aws_metadata(key_uri, key_resp)
       else
         r[l] = simple_get(new_uri)
