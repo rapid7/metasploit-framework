@@ -33,8 +33,11 @@
      <link rel="stylesheet" href="resources/xterm/xterm.css" />
     
       <script src="resources/xterm/xterm.js" ></script>
+    <!--
       <script src="resources/xterm/addon/fit.js" ></script>
-
+      <script src="resources/xterm/addon/attach.js"></script>
+      <script src="resources/xterm/app.js" ></script>
+     -->
 </head>
 
 
@@ -172,7 +175,51 @@
                           <div class="mainsection" style="color: #ffffff !important; font-size: 18px !important" id="mainsection">
 
                             <div id="terminal">
-                                
+                                <script>
+                                    var term = new Terminal({
+                                        cols: 170,
+                                        rows: 43,
+                                        fontSize: 15,
+                                        cursorBlink: true,
+                                        fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
+                                        theme: {
+                                            foreground: '#d2d2d2',
+                                            background: '#000000',
+                                            cursor: '#adadad',
+                                            black: '#000000',
+                                            red: '#d81e00',
+                                            green: '#5ea702',
+                                            yellow: '#cfae00',
+                                            blue: '#427ab3',
+                                            magenta: '#89658e',
+                                            cyan: '#00a7aa',
+                                            white: '#dbded8',
+                                            brightBlack: '#686a66',
+                                            brightRed: '#f54235',
+                                            brightGreen: '#99e343',
+                                            brightYellow: '#fdeb61',
+                                            brightBlue: '#84b0d8',
+                                            brightMagenta: '#bc94b7',
+                                            brightCyan: '#37e6e8',
+                                            brightWhite: '#f1f1f0'
+                                        }
+                                    });
+                                    term.open(document.getElementById('terminal'));
+                                    term.write('\n\r\x1B[1;3;31mMeterpreter\x1B[0m $ ');
+                                    term.on('key',(key,ev)=>{
+                                        console.log(key.charCodeAt((0)));
+                                        if(key.charCodeAt(0)===13){
+                                            term.write("\n");
+                                            term.write(key);
+                                        }
+
+                                    });
+
+
+
+
+                                </script>
+
                             </div>
       
                         </div>
@@ -194,7 +241,7 @@
     <!-- Main JS-->
     <script src="js/load.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/term.js"></script>
+    <!--<script src="js/term.js"></script> -->
 </body>
 </html>
 <!-- end document-->

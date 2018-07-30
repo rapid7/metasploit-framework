@@ -14,7 +14,6 @@ module Comm
     def read
       nil
     end
-
     attr_accessor :id
   end
 

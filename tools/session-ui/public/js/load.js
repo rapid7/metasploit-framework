@@ -16,8 +16,9 @@ function filterFunction() {
   }
 }
 
-var val;
+
 function modal(val){
+    document.getElementById("sidebarTitle").innerText=val;
     var xhr=new XMLHttpRequest();
     var url="/modal";
     var data=val;
@@ -26,8 +27,8 @@ function modal(val){
     xhr.send(data);
     xhr.onload = function(){
         var res = xhr.response;
-        if (xhr.readyState ===4 && xhr.status === 200){
-            document.getElementById("sidebarTitle").innerText=data;
+        if (xhr.readyState === 4 && xhr.status === 200){
+
             console.log(res);
 
         }
@@ -44,7 +45,7 @@ function executePostScript(val){
     xhr.onload = function(){
         var res = xhr.response;
         if(xhr.readyState === 4 && xhr.status === 200){
-            document.getElementById("mainsection").innerText=res
+            document.getElementById("terminal").innerText=res
         }
     };
 

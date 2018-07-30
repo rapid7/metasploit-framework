@@ -122,7 +122,7 @@ var openWs= function(){
             data = rawData.slice(1).buffer;
         switch(cmd) {
             case '0':
-                title = textDecoder.decode(data);
+                var title = textDecoder.decode(data);
                 document.title = title;
                 break;
             case '1':

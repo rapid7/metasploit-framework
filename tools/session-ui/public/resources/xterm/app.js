@@ -1,5 +1,5 @@
-   
-        
+
+
         var term = new Terminal({
             cols: 145,
             rows: 31,

@@ -8,7 +8,7 @@ require 'json'
 require './tools/session-ui/backend'
 
   class WebConsoleServer < Sinatra::Base
-    helpers Sinatra::Backend
+    #helpers Sinatra::Backend
 
     configure :development do
       set :json_content_type, :js
@@ -48,18 +48,12 @@ require './tools/session-ui/backend'
 
     get "/post" do
       content_type :json
-      post_file=File.read(File.join(File.dirname(__FILE__),'json_post.json'))
-      return post_file
-      #return Sinatra::Backend::Server.get_post
-    end
-    get '/post-ori' do
       return Sinatra::Backend::Server.get_post
     end
 
     get "/exten" do
       content_type :json
-      exten_file=File.read(File.join(File.dirname(__FILE__),'exten.json'))
-      return exten_file
+      return Sinatra::Backend::Server.extension
     end
 # For invalid command
     not_found do

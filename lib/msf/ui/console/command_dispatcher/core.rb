@@ -1351,6 +1351,7 @@ class Core
             end
 
             output = session.run_cmd(cmd, driver.output)
+
           end
         end
     when 'kill'
@@ -1421,14 +1422,13 @@ class Core
    # start thread for server and open_browser_rtc. msfconsole is already running on the main thread
    # the webconsole should be visible under sessions -l command in the different section
     when 'web_ui'
-
       print_status("Starting WebConsole the following session(s): #{session_list.join(', ')}")
       session_list.each do |sess_id|
-        session = framework.sessions.get(sess_id)
-        if session
-          if session.respond_to?(:response_timeout)
-            last_known_timeout = session.response_timeout
-            session.response_timeout = response_timeout
+        sessions = framework.sessions.get(sess_id)
+        if sessions
+          if sessions.respond_to?(:response_timeout)
+            last_known_timeout = sessions.response_timeout
+            sessions.response_timeout = response_timeout
           end
           print_status("Starting Web Console for #{sess_id}")
           begin
@@ -1436,21 +1436,20 @@ class Core
             server_bind='localhost'
             server_port=3000 + sess_id
 
-
-            Sinatra::Backend::Server.setup(framework,sess_id)
+            Sinatra::Backend::Server.setup(framework,sess_id,driver)
             thr = []
             thr << framework.threads.spawn("ConsoletoBrowser",true) do
               WebConsoleServer.run!(:host=>server_bind,:port=>server_port)
             end
 
             thr << framework.threads.spawn("OpenBrowser",true) do
-              print_status("Opening WebConsole on host #{server_bind} on port #{server_port} for session #{session.sid}")
+              print_status("Opening WebConsole on host http://#{server_bind} on port #{server_port} for session #{sessions.sid}")
               Rex::Compat.open_webrtc_browser("http://#{server_bind}:#{server_port}")
             end
 
           ensure
-            if session.respond_to?(:response_timeout) && last_known_timeout
-              session.response_timeout = last_known_timeout
+            if sessions.respond_to?(:response_timeout) && last_known_timeout
+              sessions.response_timeout = last_known_timeout
             end
           end
         else
@@ -1463,7 +1462,6 @@ class Core
         return false
       end
       sessions = sid ? session_list : framework.sessions.keys.sort
-
       sessions.each do |sess_id|
         session = verify_session(sess_id, true)
         # @TODO: Not interactive sessions can or cannot have scripts run on them?
