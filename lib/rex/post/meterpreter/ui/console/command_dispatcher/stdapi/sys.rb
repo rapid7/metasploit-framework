@@ -305,21 +305,20 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Spawn a python pty /bin/bash or /bin/sh shell 
   #
   def pybash_shell
-    if client.fs.file.exist?("/usr/bin/python")
-      path = "/usr/bin/python"
-      if client.fs.file.exist?("/bin/bash")
-        ags = "-c \'import pty;pty.spawn(\"/bin/bash\")\'"
-      else
-        ags = "-c \'import pty;pty.spawn(\"/bin/sh\")\'"
-      end
-      begin
-        cmd_execute("-f", path, "-a", ags, "-c", "-i")
-      rescue
-        return false
-      end
-      return true
-    end
-    return false
+    path = nil
+    path = '/usr/bin/python'  if client.fs.file.exist?('/usr/bin/python')
+    path = '/usr/bin/python2' if client.fs.file.exist?('/usr/bin/python2') && !path
+    path = '/usr/bin/python3' if client.fs.file.exist?('/usr/bin/python3') && !path
+
+    return false unless path
+
+    sh_path = client.fs.file.exist?('/bin/bash') ? '/bin/bash' : '/bin/sh'
+    ags = "-c \'import pty;pty.spawn(\"#{sh_path}\")\'"
+    cmd_execute('-f', path, '-a', ags, '-c', '-i')
+
+    true
+  rescue
+    false
   end
 
   #
