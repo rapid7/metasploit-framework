@@ -143,6 +143,12 @@ module Metasploit
                 # Juniper JunOS CLI
                 elsif proof =~ /unknown command: id/
                   proof = ssh_socket.exec!("show version\n").split("\n")[2..4].join(", ").to_s
+                # Brocade CLI
+                elsif proof =~ /Invalid input -> id/ || proof =~ /Protocol error, doesn't start with scp\!/
+                  proof = ssh_socket.exec!("show version\n").to_s
+                  if proof =~ /Version:(?<os_version>.+).+HW: (?<hardware>)/mi
+                    proof = "Model: #{hardware}, OS: #{os_version}"
+                  end
                 else
                   proof << ssh_socket.exec!("help\n?\n\n\n").to_s
                 end
