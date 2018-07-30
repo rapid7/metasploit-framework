@@ -37,7 +37,7 @@ module VulnAttemptServlet
       job = lambda { |opts|
         vuln_id = opts.delete(:vuln_id)
         wspace = opts.delete(:workspace)
-        vuln = get_db.vulns(id: vuln_id, workspace: wspace).first
+        vuln = get_db.vulns(id: vuln_id).first
         get_db.report_vuln_attempt(vuln, opts)
       }
       exec_report_job(request, &job)

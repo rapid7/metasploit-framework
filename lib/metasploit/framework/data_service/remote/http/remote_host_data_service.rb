@@ -8,7 +8,8 @@ module RemoteHostDataService
   HOST_MDM_CLASS = 'Mdm::Host'
 
   def hosts(opts)
-    json_to_mdm_object(self.get_data(HOST_API_PATH, nil, opts), HOST_MDM_CLASS, [])
+    path = get_path_select(opts, HOST_API_PATH)
+    json_to_mdm_object(self.get_data(path, nil, opts), HOST_MDM_CLASS, [])
   end
 
   def get_host(opts)

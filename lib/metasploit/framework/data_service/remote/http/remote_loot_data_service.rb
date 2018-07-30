@@ -7,8 +7,9 @@ module RemoteLootDataService
   LOOT_MDM_CLASS = 'Mdm::Loot'
 
   def loot(opts = {})
+    path = get_path_select(opts, LOOT_API_PATH)
     # TODO: Add an option to toggle whether the file data is returned or not
-    loots = json_to_mdm_object(self.get_data(LOOT_API_PATH, nil, opts), LOOT_MDM_CLASS, [])
+    loots = json_to_mdm_object(self.get_data(path, nil, opts), LOOT_MDM_CLASS, [])
     # Save a local copy of the file
     loots.each do |loot|
       if loot.data

@@ -7,7 +7,8 @@ module RemoteSessionDataService
   SESSION_MDM_CLASS = 'Mdm::Session'
 
   def sessions(opts)
-    json_to_mdm_object(self.get_data(SESSION_API_PATH, nil, opts), SESSION_MDM_CLASS, [])
+    path = get_path_select(opts, SESSION_API_PATH)
+    json_to_mdm_object(self.get_data(path, nil, opts), SESSION_MDM_CLASS, [])
   end
 
   def report_session(opts)
