@@ -357,7 +357,7 @@ protected
         user_output.print(shell_read)
       end
       if sd[0].include? user_input.fd
-        shell_write(user_input.gets)
+        run_cmd(user_input.gets)
       end
       Thread.pass
     end
