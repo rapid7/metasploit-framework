@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
 
   def check_aws_metadata
     resp = simple_get(@target_uri)
-    unless resp =~ /instance-id/m
+    unless resp =~ /^instance-id.$/m
       fail_with(Failure::BadConfig, "Session does not appear to be on an AWS EC2 instance")
     end
     resp
@@ -50,14 +50,14 @@ class MetasploitModule < Msf::Post
 
   def get_aws_metadata(base_uri, base_resp)
     r = {}
-    base_resp.split(/\n/).each do |l|
-      new_uri = "#{base_uri}#{l}"
-      if l =~/\/$/
+    base_resp.split(/\r\n/).each do |l|
+      new_uri = base_uri.merge("./#{l}")
+      if l =~ %r{/$}
         # handle a directory
-        r[l.gsub(/\/$/, '')] = get_aws_metadata(new_uri, simple_get(new_uri))
-      elsif new_uri.to_s =~ /\/public-keys/ && /^(?<key_id>\d+)=/ =~ l
+        r[l.gsub(%r{/$}, '')] = get_aws_metadata(new_uri, simple_get(new_uri))
+      elsif new_uri.to_s =~ %r{/public-keys/} && /^(?<key_id>\d+)=/ =~ l
         # special case handling of the public-keys endpoint
-        key_uri = "#{new_uri}#{key_id}/"
+        key_uri = new_uri.merge("./#{key_id}/")
         key_resp = simple_get(key_uri)
         r[key_id] = get_aws_metadata(key_uri, key_resp)
       else
