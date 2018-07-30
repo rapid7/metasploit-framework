@@ -60,7 +60,7 @@ metadata = {
         {'type': 'aka', 'ref': 'ROBOT'},
         {'type': 'aka', 'ref': 'Adaptive chosen-ciphertext attack'}
      ],
-    'type': 'scanner.single',
+    'type': 'single_scanner',
     'options': {
         'rhost': {'type': 'address', 'description': 'The target address', 'required': True, 'default': None},
         'rport': {'type': 'port', 'description': 'The target port', 'required': True, 'default': 443},

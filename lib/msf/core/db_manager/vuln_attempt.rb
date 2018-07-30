@@ -17,4 +17,25 @@ module Msf::DBManager::VulnAttempt
     vuln.vuln_attempts.create(info)
   }
   end
+
+  #
+  # This methods returns a list of all vulnerability attempts in the database
+  #
+  def vuln_attempts(opts)
+    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+
+      search_term = opts.delete(:search_term)
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::VulnAttempt, search_term)
+        Mdm::VulnAttempt.where(opts).where(column_search_conditions)
+      else
+        Mdm::VulnAttempt.where(opts)
+      end
+    }
+  end
 end

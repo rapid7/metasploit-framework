@@ -1,9 +1,41 @@
 module Msf::DBManager::Cred
   # This methods returns a list of all credentials in the database
-  def creds(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    Mdm::Cred.where("hosts.workspace_id = ?", wspace.id).joins(:service => :host)
-  }
+  def creds(opts)
+    query = nil
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      query = Metasploit::Credential::Core.where( workspace_id: framework.db.workspace.id )
+      query = query.includes(:private, :public, :logins).references(:private, :public, :logins)
+      query = query.includes(logins: [ :service, { service: :host } ])
+
+      if opts[:type].present?
+        query = query.where(metasploit_credential_privates: { type: opts[:type] })
+      end
+
+      if opts[:svcs].present?
+        query = query.where(Mdm::Service[:name].in(opts[:svcs]))
+      end
+
+      if opts[:ports].present?
+        query = query.where(Mdm::Service[:port].in(opts[:ports]))
+      end
+
+      if opts[:user].present?
+        # If we have a user regex, only include those that match
+        query = query.where('"metasploit_credential_publics"."username" ~* ?', opts[:user])
+      end
+
+      if opts[:pass].present?
+        # If we have a password regex, only include those that match
+        query = query.where('"metasploit_credential_privates"."data" ~* ?', opts[:pass])
+      end
+
+      if opts[:host_ranges] || opts[:ports] || opts[:svcs]
+        # Only find Cores that have non-zero Logins if the user specified a
+        # filter based on host, port, or service name
+        query = query.where(Metasploit::Credential::Login[:id].not_eq(nil))
+      end
+    }
+    query
   end
 
   # This method iterates the creds table calling the supplied block with the

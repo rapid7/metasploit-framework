@@ -92,9 +92,10 @@ Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
-Layout/SpaceInsideBrackets:
-  Enabled: false
-  Description: 'Until module template are final, most modules will fail this.'
+Layout/AlignParameters:
+  Enabled: true
+  EnforcedStyle: 'with_fixed_indentation'
+  Description: 'initialize method of every module has fixed indentation for Name, Description, etc'
 
 Style/StringLiterals:
   Enabled: false

@@ -128,7 +128,7 @@ module Payload::Windows::BindNamedPipe_x64
         sub rsp, 16                ; allocate + alignment
         mov r9, rsp                ; lpNumberOfBytesWritten
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'WriteFile')}
-        call rbp
+        call rbp                   ; WriteFile(hPipe, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten)
         add rsp, 16
     ^
   end

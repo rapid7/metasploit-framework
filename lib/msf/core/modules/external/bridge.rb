@@ -42,7 +42,7 @@ class Msf::Modules::External::Bridge
     self.env = {}
     self.running = false
     self.path = module_path
-    self.cmd = [self.path, self.path]
+    self.cmd = [[self.path, self.path]]
     self.messages = Queue.new
     self.buf = ''
   end
@@ -66,7 +66,7 @@ class Msf::Modules::External::Bridge
   end
 
   def send(message)
-    input, output, err, status = ::Open3.popen3(self.env, self.cmd)
+    input, output, err, status = ::Open3.popen3(self.env, *self.cmd)
     self.ios = [input, output, err]
     self.wait_thread = status
     # We would call Rex::Threadsafe directly, but that would require rex for standalone use
@@ -148,7 +148,7 @@ class Msf::Modules::External::Bridge
         # We are filtering for a response to a particular message, but we got
         # something else, store the message and try again
         self.messages.push m
-        read_json(filter_id, timeout)
+        recv(filter_id, timeout)
       else
         # Either we weren't filtering, or we got what we were looking for
         m
@@ -179,10 +179,24 @@ class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
   end
 end
 
+class Msf::Modules::External::RbBridge < Msf::Modules::External::Bridge
+  def self.applies?(module_name)
+    module_name.match? /\.rb$/
+  end
+
+  def initialize(module_path)
+    super
+
+    ruby_path = File.expand_path('../ruby', __FILE__)
+    self.cmd = [[Gem.ruby, 'ruby'], "-I#{ruby_path}", self.path]
+  end
+end
+
 class Msf::Modules::External::Bridge
 
   LOADERS = [
     Msf::Modules::External::PyBridge,
+    Msf::Modules::External::RbBridge,
     Msf::Modules::External::Bridge
   ]
 

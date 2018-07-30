@@ -9,6 +9,7 @@ require 'rex/proto/smb/simpleclient'
 # 1) A peek named pipe operation is carried out before every read to prevent blocking. This
 #    generates extra traffic. SMB echo requests are also generated to force the packet
 #    dispatcher to perform a read.
+# 2) SMB1 only. Switch to ruby_smb.
 #
 
 #
@@ -23,21 +24,23 @@ require 'rex/proto/smb/simpleclient'
 # A peek operation on the pipe fixes this.
 #
 class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
-  attr_accessor :mutex, :last_comm, :write_queue, :write_thread, :read_buff, :echo_thread, :server_max_buffer_size
+  attr_accessor :mutex, :last_comm, :write_queue, :write_thread, :read_buff, :echo_thread, :simple, :server_max_buffer_size
 
   STATUS_BUFFER_OVERFLOW = 0x80000005
+  STATUS_PIPE_BROKEN     = 0xc000014b
 
-  def initialize(*args, server_max_buffer_size:)
+  def initialize(*args, simple:, server_max_buffer_size:)
     super(*args)
-    self.client = args[0]
+    self.simple = simple
+    self.client = simple.client
     self.mutex = Mutex.new      # synchronize read/writes
     self.last_comm = Time.now   # last successfull read/write
-    self.write_queue = Queue.new # queue message to send
+    self.write_queue = Queue.new # messages to send
     self.write_thread = Thread.new { dispatcher }
     self.echo_thread = Thread.new { force_read }
     self.read_buff = ''
-    self.server_max_buffer_size = server_max_buffer_size
-    self.chunk_size = server_max_buffer_size - 260
+    self.server_max_buffer_size = server_max_buffer_size # max transaction size
+    self.chunk_size = server_max_buffer_size - 260       # max read/write size
   end
 
   # Check if there are any bytes to read and return number available. Access must be synchronized.
@@ -46,6 +49,9 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
     setup = [0x23, self.file_id].pack('vv')
     # Must ignore errors since we expect STATUS_BUFFER_OVERFLOW
     pkt = self.client.trans_maxzero('\\PIPE\\', '', '', 2, setup, false, true, true)
+    if pkt['Payload']['SMB'].v['ErrorClass'] == STATUS_PIPE_BROKEN
+      raise IOError
+    end
     avail = 0
     begin
       avail = pkt.to_s[pkt['Payload'].v['ParamOffset']+4, 2].unpack('v')[0]
@@ -80,7 +86,7 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
   # Runs as a thread and synchronizes writes. Allows write operations to return
   # immediately instead of waiting for the mutex.
   def dispatcher
-    while true
+    while not self.write_queue.closed?
       data = self.write_queue.pop
       self.mutex.synchronize do
         sent = 0
@@ -98,40 +104,38 @@ class OpenPipeSock < Rex::Proto::SMB::SimpleClient::OpenPipe
   # Intercepts the socket.close from the session manager when the session dies.
   # Cleanly terminates the SMB session and closes the socket.
   def close
+    self.echo_thread.kill rescue nil
     # Give the meterpreter shutdown command a chance
     self.write_queue.close
-    if self.write_queue.size > 0
-      sleep(1.0)
-    end
-    self.write_thread.kill
-
     begin
-      # close pipe
-      super
-    rescue => e
+      if self.write_thread.join(2.0)
+        self.write_thread.kill
+      end
+    rescue
     end
+
+    # close pipe, share, and socket
+    super rescue nil
+    self.simple.disconnect(self.simple.last_share) rescue nil
     self.client.socket.close
   end
 
   def read(count)
     data = ''
-    begin
-      if count > self.read_buff.length
-        # need more data to satisfy request
-        self.mutex.synchronize do
-          avail = peek_named_pipe 
-          if avail > 0
-            left = [count-self.read_buff.length, avail].max
-            while left > 0
-              buff = super([left, self.chunk_size].min)
-              self.last_comm = Time.now
-              left -= buff.length
-              self.read_buff += buff
-            end
+    if count > self.read_buff.length
+      # need more data to satisfy request
+      self.mutex.synchronize do
+        avail = peek_named_pipe
+        if avail > 0
+          left = [count-self.read_buff.length, avail].max
+          while left > 0
+            buff = super([left, self.chunk_size].min)
+            self.last_comm = Time.now
+            left -= buff.length
+            self.read_buff += buff
           end
         end
       end
-    rescue
     end
 
     data = self.read_buff[0, [count, self.read_buff.length].min]
@@ -190,7 +194,8 @@ class SimpleClientPipe < Rex::Proto::SMB::SimpleClient
   def create_pipe(path)
     pkt = self.client.create_pipe(path, Rex::Proto::SMB::Constants::CREATE_ACCESS_EXIST)
     file_id = pkt['Payload'].v['FileID']
-    self.pipe = OpenPipeSock.new(self.client, path, self.client.last_tree_id, file_id, server_max_buffer_size: self.server_max_buffer_size)
+    self.pipe = OpenPipeSock.new(self.client, path, self.client.last_tree_id, file_id, simple: self,
+                                 server_max_buffer_size: self.server_max_buffer_size)
   end
 end
 
@@ -202,7 +207,7 @@ module Msf
 
       #
       # Returns the string representation of the handler type, in this case
-      # 'reverse_named_pipe'.
+      # 'bind_named_pipe'.
       #
       def self.handler_type
         "bind_named_pipe"
@@ -210,15 +215,15 @@ module Msf
 
       #
       # Returns the connection-described general handler type, in this case
-      # 'reverse'.
+      # 'bind'.
       #
       def self.general_handler_type
         "bind"
       end
 
       #
-      # Initializes the reverse handler and ads the options that are required
-      # for reverse named pipe payloads.
+      # Initializes the handler and ads the options that are required for
+      # bind named pipe payloads.
       #
       def initialize(info={})
         super
@@ -334,7 +339,7 @@ module Msf
             print_error("Failed to connect to pipe #{smbshare}")
             return
           end
-          
+
           vprint_status("Opened pipe \\#{pipe_name}")
 
           # Increment the has connection counter

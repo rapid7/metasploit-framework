@@ -1,4 +1,5 @@
 module Msf::DBManager::Host
+  # TODO: doesn't appear to have any callers. How is this used?
   # Deletes a host and associated data matching this address/comm
   def del_host(wspace, address, comm='')
   ::ActiveRecord::Base.connection_pool.with_connection {
@@ -6,6 +7,29 @@ module Msf::DBManager::Host
     host = wspace.hosts.find_by_address_and_comm(address, comm)
     host.destroy if host
   }
+  end
+
+  # Deletes Host entries based on the IDs passed in.
+  #
+  # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the Host entries to delete.
+  # @return [Array] Array containing the Mdm::Host objects that were successfully deleted.
+  def delete_host(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |host_id|
+        host = Mdm::Host.find(host_id)
+        begin
+          deleted << host.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{host.address}")
+          deleted << host.delete
+        end
+      end
+
+      return deleted
+    }
   end
 
   #
@@ -22,7 +46,58 @@ module Msf::DBManager::Host
 
   # Exactly like report_host but waits for the database to create a host and returns it.
   def find_or_create_host(opts)
+    host = get_host(opts.clone)
+    return host unless host.nil?
+
     report_host(opts)
+  end
+
+  def add_host_tag(opts)
+    workspace = opts[:workspace]
+    if workspace.kind_of? String
+      workspace = find_workspace(workspace)
+    end
+
+    ip = opts[:ip]
+    tag_name = opts[:tag_name]
+
+    host = framework.db.get_host(:workspace => workspace, :address => ip)
+    if host
+      possible_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace.id, ip, tag_name).order("tags.id DESC").limit(1)
+      tag = (possible_tags.blank? ? Mdm::Tag.new : possible_tags.first)
+      tag.name = tag_name
+      tag.hosts = [host]
+      tag.save! if tag.changed?
+    end
+  end
+
+  def delete_host_tag(opts)
+    workspace = opts[:workspace]
+    if workspace.kind_of? String
+      workspace = find_workspace(workspace)
+    end
+
+    ip = opts[:rws]
+    tag_name = opts[:tag_name]
+
+    tag_ids = []
+    if ip.nil?
+      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and tags.name = ?", workspace.id, tag_name)
+      found_tags.each do |t|
+        tag_ids << t.id
+      end
+    else
+      found_tags = Mdm::Tag.joins(:hosts).where("hosts.workspace_id = ? and hosts.address = ? and tags.name = ?", workspace.id, ip, tag_name)
+      found_tags.each do |t|
+        tag_ids << t.id
+      end
+    end
+
+    tag_ids.each do |id|
+      tag = Mdm::Tag.find_by_id(id)
+      tag.hosts.delete
+      tag.destroy
+    end
   end
 
   #
@@ -43,7 +118,7 @@ module Msf::DBManager::Host
       wspace = find_workspace(wspace)
     end
 
-    address = normalize_host(address)
+    address = Msf::Util::Host.normalize_host(address)
     return wspace.hosts.find_by_address(address)
   }
   end
@@ -57,67 +132,28 @@ module Msf::DBManager::Host
   end
 
   # Returns a list of all hosts in the database
-  def hosts(wspace = workspace, only_up = false, addresses = nil)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    conditions = {}
-    conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if only_up
-    conditions[:address] = addresses if addresses
-    wspace.hosts.where(conditions).order(:address)
-  }
-  end
+  def hosts(opts)
+    wspace = opts[:workspace] || opts[:wspace] || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
 
-  #
-  # Returns something suitable for the +:host+ parameter to the various report_* methods
-  #
-  # Takes a Host object, a Session object, an Msf::Session object or a String
-  # address
-  #
-  def normalize_host(host)
-    return host if defined?(::Mdm) && host.kind_of?(::Mdm::Host)
-    norm_host = nil
+    ::ActiveRecord::Base.connection_pool.with_connection {
 
-    if (host.kind_of? String)
+      conditions = {}
+      conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
+      conditions[:address] = opts[:address] if opts[:address] && !opts[:address].empty?
+      conditions[:id] = opts[:id] if opts[:id] && !opts[:id].empty?
 
-      if Rex::Socket.is_ipv4?(host)
-        # If it's an IPv4 addr with a port on the end, strip the port
-        if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
-          norm_host = $1
-        else
-          norm_host = host
-        end
-      elsif Rex::Socket.is_ipv6?(host)
-        # If it's an IPv6 addr, drop the scope
-        address, scope = host.split('%', 2)
-        norm_host = address
+      if opts[:search_term] && !opts[:search_term].empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Host, opts[:search_term])
+        tag_conditions = Arel::Nodes::Regexp.new(Mdm::Tag.arel_table[:name], Arel::Nodes.build_quoted("(?mi)#{opts[:search_term]}"))
+        search_conditions = column_search_conditions.or(tag_conditions)
+        wspace.hosts.where(conditions).where(search_conditions).includes(:tags).references(:tags).order(:address)
       else
-        norm_host = Rex::Socket.getaddress(host, true)
+        wspace.hosts.where(conditions).order(:address)
       end
-    elsif defined?(::Mdm) && host.kind_of?(::Mdm::Session)
-      norm_host = host.host
-    elsif host.respond_to?(:session_host)
-      # Then it's an Msf::Session object
-      norm_host = host.session_host
-    end
-
-    # If we got here and don't have a norm_host yet, it could be a
-    # Msf::Session object with an empty or nil tunnel_host and tunnel_peer;
-    # see if it has a socket and use its peerhost if so.
-    if (
-        norm_host.nil? &&
-        host.respond_to?(:sock) &&
-        host.sock.respond_to?(:peerhost) &&
-        host.sock.peerhost.to_s.length > 0
-      )
-      norm_host = session.sock.peerhost
-    end
-    # If We got here and still don't have a real host, there's nothing left
-    # to try, just log it and return what we were given
-    if !norm_host
-      dlog("Host could not be normalized: #{host.inspect}")
-      norm_host = host
-    end
-
-    norm_host
+    }
   end
 
   def host_state_changed(host, ostate)
@@ -165,7 +201,7 @@ module Msf::DBManager::Host
     ret = { }
 
     if !addr.kind_of? ::Mdm::Host
-      addr = normalize_host(addr)
+      addr = Msf::Util::Host.normalize_host(addr)
 
       unless ipv46_validator(addr)
         raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
@@ -243,6 +279,20 @@ module Msf::DBManager::Host
   }
   end
 
+  def update_host(opts)
+    # process workspace string for update if included in opts
+    wspace = opts.delete(:workspace)
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+      opts[:workspace] = wspace
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      Mdm::Host.update(id, opts)
+    }
+  end
+
   def split_windows_os_name(os_name)
     return [] if os_name.nil?
     flavor_match = os_name.match(/Windows\s+(.*)/)
@@ -282,7 +332,7 @@ module Msf::DBManager::Host
     end
 
     if !addr.kind_of? ::Mdm::Host
-      addr = normalize_host(addr)
+      addr = Msf::Util::Host.normalize_host(addr)
       addr, scope = addr.split('%', 2)
       opts[:scope] = scope if scope
 

@@ -2144,6 +2144,7 @@ require 'msf/core/exe/segment_appender'
         when ARCH_X64
           exe = to_win64pe(framework, code, exeopts)
       end
+      exeopts[:uac] = true
       Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
     when 'msi-nouac'
       case arch
@@ -2152,7 +2153,6 @@ require 'msf/core/exe/segment_appender'
       when ARCH_X64
         exe = to_win64pe(framework, code, exeopts)
       end
-      exeopts[:uac] = true
       Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
     when 'elf'
       if elf? code

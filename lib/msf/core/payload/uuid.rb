@@ -74,6 +74,7 @@ class Msf::Payload::UUID
     23 => 'firefox',
     24 => 'r',
     25 => 'apple_ios',
+    26 => 'juniper',
   }
 
   # The raw length of the UUID structure

@@ -862,15 +862,14 @@ class Core
 
     action = args.shift
     case action
-
     when "add", "remove", "del"
       subnet = args.shift
-      subnet,cidr_mask = subnet.split("/")
-      if Rex::Socket.is_ipv4?(args.first)
+      subnet, cidr_mask = subnet.split("/")
+
+      if Rex::Socket.is_ip_addr?(args.first)
         netmask = args.shift
-      else
-        cidr_mask = '32' if cidr_mask.nil?
-        netmask = Rex::Socket.addr_ctoa(cidr_mask.to_i)
+      elsif Rex::Socket.is_ip_addr?(subnet)
+        netmask = Rex::Socket.addr_ctoa(cidr_mask, v6: Rex::Socket.is_ipv6?(subnet))
       end
 
       netmask = args.shift if netmask.nil?
@@ -880,8 +879,6 @@ class Core
         print_error("Missing arguments to route #{action}.")
         return false
       end
-
-      gateway = nil
 
       case gateway_name
       when /local/i
@@ -2433,8 +2430,6 @@ class Core
     finish = line_num + after
     all_lines.slice(start..finish)
   end
-
-
 
 end
 

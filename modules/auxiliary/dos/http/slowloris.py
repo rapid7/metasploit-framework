@@ -76,13 +76,11 @@ def create_random_header_name(size=8, seq=string.ascii_uppercase + string.ascii_
 
 
 def init_socket(host, port, use_ssl=False, rand_user_agent=True):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = socket.create_connection((host, port), 10)
     s.settimeout(4)
 
     if use_ssl:
         s = ssl.wrap_socket(s)
-
-    s.connect((host, port))
 
     s.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
 

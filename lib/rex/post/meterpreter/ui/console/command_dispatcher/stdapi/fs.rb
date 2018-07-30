@@ -28,26 +28,27 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Options for the download command.
   #
   @@download_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ],
-    "-c" => [ false, "Resume getting a partially-downloaded file." ],
-    "-a" => [ false, "Enable adaptive download buffer size." ],
-    "-b" => [ true,  "Set the initial block size for the download." ],
-    "-l" => [ true,  "Set the limit of retries (0 unlimits)." ],
-    "-r" => [ false, "Download recursively." ],
-    "-t" => [ false, "Timestamp downloaded files." ])
+    "-h" => [ false, "Help banner" ],
+    "-c" => [ false, "Resume getting a partially-downloaded file" ],
+    "-a" => [ false, "Enable adaptive download buffer size" ],
+    "-b" => [ true,  "Set the initial block size for the download" ],
+    "-l" => [ true,  "Set the limit of retries (0 unlimits)" ],
+    "-r" => [ false, "Download recursively" ],
+    "-t" => [ false, "Timestamp downloaded files" ])
+
   #
   # Options for the upload command.
   #
   @@upload_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ],
-    "-r" => [ false, "Upload recursively." ])
+    "-h" => [ false, "Help banner" ],
+    "-r" => [ false, "Upload recursively" ])
   
   #
   # Options for the ls command
   #
   @@ls_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ],
-    "-S" => [ true,  "Search string." ],
+    "-h" => [ false, "Help banner" ],
+    "-S" => [ true,  "Search string on filename (as regular expression)" ],
     "-t" => [ false, "Sort by time" ],
     "-s" => [ false, "Sort by size" ],
     "-r" => [ false, "Reverse sort order" ],
@@ -59,8 +60,8 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Options for the lls command
   #
   @@lls_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ],
-    "-S" => [ true,  "Search string." ],
+    "-h" => [ false, "Help banner" ],
+    "-S" => [ true,  "Search string on filename (as regular expression)" ],
     "-t" => [ false, "Sort by time" ],
     "-s" => [ false, "Sort by size" ],
     "-r" => [ false, "Reverse sort order" ])
@@ -140,7 +141,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     files   = []
 
     opts = Rex::Parser::Arguments.new(
-      "-h" => [ false, "Help Banner." ],
+      "-h" => [ false, "Help Banner" ],
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
       "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
       "-r" => [ true,  "Recursivly search sub directories. (Default: #{recurse})" ]
@@ -550,7 +551,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 
   def cmd_ls_help
-    print_line "Usage: ls [options]"
+    print_line "Usage: ls [options] [glob/path]"
     print_line
     print_line "Lists contents of directory or file info, searchable"
     print_line @@ls_opts.usage

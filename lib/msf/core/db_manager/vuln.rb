@@ -46,7 +46,7 @@ module Msf::DBManager::Vuln
 
   def find_vuln_by_refs(refs, host, service=nil)
     ref_ids = refs.find_all { |ref| ref.name.starts_with? 'CVE-'}
-    relation = host.vulns.includes(:refs)
+    relation = host.vulns.joins(:refs)
     if !service.try(:id).nil?
       return relation.where(service_id: service.try(:id), refs: { id: ref_ids}).first
     end
@@ -105,6 +105,8 @@ module Msf::DBManager::Vuln
       opts[:refs].each do |r|
         if (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
           r = "#{r.ctx_id}-#{r.ctx_val}"
+        elsif (r.is_a?(Hash) and r[:ctx_id] and r[:ctx_val])
+          r = "#{r[:ctx_id]}-#{r[:ctx_val]}"
         end
         rids << find_or_create_ref(:name => r)
       end
@@ -116,7 +118,7 @@ module Msf::DBManager::Vuln
       host = opts[:host]
     else
       host = report_host({:workspace => wspace, :host => opts[:host]})
-      addr = normalize_host(opts[:host])
+      addr = Msf::Util::Host.normalize_host(opts[:host])
     end
 
     ret = {}
@@ -233,9 +235,63 @@ module Msf::DBManager::Vuln
   #
   # This methods returns a list of all vulnerabilities in the database
   #
-  def vulns(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace.vulns
-  }
+  def vulns(opts)
+    wspace = opts.delete(:workspace) || opts.delete(:wspace) || workspace
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+
+      search_term = opts.delete(:search_term)
+      if search_term && !search_term.empty?
+        column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Vuln, search_term)
+        wspace.vulns.includes(:host).where(opts).where(column_search_conditions)
+      else
+        wspace.vulns.includes(:host).where(opts)
+      end
+    }
+  end
+
+  # Update the attributes of a Vuln entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Vuln] The updated Mdm::Vuln object.
+  def update_vuln(opts)
+    # process workspace string for update if included in opts
+    wspace = opts.delete(:workspace)
+    if wspace.kind_of? String
+      wspace = find_workspace(wspace)
+      opts[:workspace] = wspace
+    end
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      id = opts.delete(:id)
+      Mdm::Vuln.update(id, opts)
+    }
+  end
+
+  # Deletes Vuln entries based on the IDs passed in.
+  #
+  # @param opts[:ids] [Array] Array containing Integers corresponding to the IDs of the Vuln entries to delete.
+  # @return [Array] Array containing the Mdm::Vuln objects that were successfully deleted.
+  def delete_vuln(opts)
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      deleted = []
+      opts[:ids].each do |vuln_id|
+        vuln = Mdm::Vuln.find(vuln_id)
+        begin
+          deleted << vuln.destroy
+        rescue # refs suck
+          elog("Forcibly deleting #{vuln}")
+          deleted << vuln.delete
+        end
+      end
+
+      return deleted
+    }
   end
 end

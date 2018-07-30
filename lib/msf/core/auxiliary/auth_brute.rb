@@ -32,6 +32,8 @@ module Auxiliary::AuthBrute
       OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
       OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
       OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
+      OptBool.new('PASSWORD_SPRAY', [true, "Reverse the credential pairing order. For each password, attempt every possible user.", false]),
+      OptInt.new('TRANSITION_DELAY', [false, "Amount of time (in minutes) to delay before transitioning to the next user in the array (or password when PASSWORD_SPRAY=true)", 0]),
       OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@guesses_per_service
       OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@brute_start_time
       OptInt.new('MaxGuessesPerUser', [ false, %q{
@@ -175,6 +177,7 @@ module Auxiliary::AuthBrute
       initialize_class_variables(this_service,credentials)
     end
 
+    prev_iterator = nil
     credentials.each do |u, p|
       # Explicitly be able to set a blank (zero-byte) username by setting the
       # username to <BLANK>. It's up to the caller to handle this if it's not
@@ -193,6 +196,19 @@ module Auxiliary::AuthBrute
 
       next if @@credentials_skipped[fq_user]
       next if @@credentials_tried[fq_user] == p
+
+      # Used for tracking if we should TRANSITION_DELAY
+      # If the current user/password values don't match the previous iteration we know
+      # we've made it through all of the records for that iteration and should start the delay.
+      if ![u,p].include?(prev_iterator)
+        unless prev_iterator.nil? # Prevents a delay on the first run through
+          if datastore['TRANSITION_DELAY'] > 0
+            vprint_status("Delaying #{datastore['TRANSITION_DELAY']} minutes before attempting next iteration.")
+            sleep datastore['TRANSITION_DELAY'] * 60
+          end
+        end
+        prev_iterator = datastore['PASSWORD_SPRAY'] ? p : u # Update the iterator
+      end
 
       ret = block.call(u, p)
 
@@ -422,9 +438,17 @@ module Auxiliary::AuthBrute
     elsif user_array.empty?
       combined_array = pass_array.map {|p| ["",p] }
     else
-      user_array.each do |u|
+      if datastore['PASSWORD_SPRAY']
         pass_array.each do |p|
-          combined_array << [u,p]
+          user_array.each do |u|
+            combined_array << [u,p]
+          end
+        end
+      else
+        user_array.each do |u|
+          pass_array.each do |p|
+            combined_array << [u,p]
+          end
         end
       end
     end

@@ -695,7 +695,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     len = hdr.unpack('Cnn')[2]
-    data = get_data(len)
+    data = get_data(len) unless len.nil?
 
     unless data
       vprint_error("No SSL record contents received after #{response_timeout} seconds...")

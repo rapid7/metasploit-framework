@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+
 #
 # This script generates Mettle payload wrappers
 #

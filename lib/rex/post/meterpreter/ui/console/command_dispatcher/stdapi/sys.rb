@@ -840,12 +840,16 @@ class Console::CommandDispatcher::Stdapi::Sys
           end
 
           v = open_key.query_value(value)
+          data = v.data
+          if v.type == REG_BINARY
+            data = data.unpack('H*')[0]
+          end
 
           print(
             "Key: #{key}\n" +
             "Name: #{v.name}\n" +
             "Type: #{v.type_to_s}\n" +
-            "Data: #{v.data}\n")
+            "Data: #{data}\n")
 
         when "queryclass"
           open_key = nil
