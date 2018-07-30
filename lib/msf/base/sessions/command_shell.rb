@@ -54,9 +54,10 @@ class CommandShell
     self.platform ||= ""
     self.arch     ||= ""
     self.max_threads = 1
+    @cleanup = false
     datastore = opts[:datastore]
     if datastore && !datastore["CommandShellCleanupCommand"].blank?
-      @cleanup_command = opts[:datastore]["CommandShellCleanupCommand"]
+      @cleanup_command = datastore["CommandShellCleanupCommand"]
     end
     super
   end
@@ -69,6 +70,22 @@ class CommandShell
   end
 
   #
+  # Calls the class method.
+  #
+  def type
+    self.class.type
+  end
+
+  ##
+  # :category: Msf::Session::Provider::SingleCommandShell implementors
+  #
+  # The shell will have been initialized by default.
+  #
+  def shell_init
+    return true
+  end
+
+  #
   # List of supported commands.
   #
   def commands
@@ -78,32 +95,6 @@ class CommandShell
         'sessions'     => 'Quickly switch to another session',
         'resource'     => 'Run the commands stored in a file',
     }
-  end
-
-  #
-  # Parse a line into an array of arguments.
-  #
-  def parse_line(line)
-    line.split(' ')
-  end
-
-  #
-  # Explicitly runs a command.
-  #
-  def run_cmd(cmd)
-    # Do nil check for cmd (CTRL+D will cause nil error)
-    return unless cmd
-
-    arguments = parse_line(cmd)
-    method    = arguments.shift
-
-    # Built-in command
-    if commands.key?(method)
-      return run_command(method, arguments)
-    end
-
-    # User input is not a built-in command, write to socket directly
-    shell_write(cmd)
   end
 
   def cmd_help(*args)
@@ -222,27 +213,30 @@ class CommandShell
   end
 
   #
+  # Explicitly runs a single line command.
+  #
+  def run_single(cmd)
+    # Do nil check for cmd (CTRL+D will cause nil error)
+    return unless cmd
+
+    arguments = cmd.split(' ')
+    method    = arguments.shift
+
+    # Built-in command
+    if commands.key?(method)
+      return run_builtin_cmd(method, arguments)
+    end
+
+    # User input is not a built-in command, write to socket directly
+    shell_write(cmd)
+  end
+
+  #
   # Run built-in command
   #
-  def run_command(method, arguments)
+  def run_builtin_cmd(method, arguments)
     # Dynamic function call
     self.send('cmd_' + method, *arguments)
-  end
-
-  #
-  # Calls the class method.
-  #
-  def type
-    self.class.type
-  end
-
-  ##
-  # :category: Msf::Session::Provider::SingleCommandShell implementors
-  #
-  # The shell will have been initialized by default.
-  #
-  def shell_init
-    return true
   end
 
   ##
@@ -275,8 +269,6 @@ class CommandShell
   # Read from the command shell.
   #
   def shell_read(length=-1, timeout=1)
-    return shell_read_ring(length,timeout) if self.respond_to?(:ring)
-
     begin
       rv = rstream.get_once(length, timeout)
       framework.events.on_session_output(self, rv) if rv
@@ -286,50 +278,6 @@ class CommandShell
       shell_close
       raise e
     end
-  end
-
-  #
-  # Read from the command shell.
-  #
-  def shell_read_ring(length=-1, timeout=1)
-    self.ring_buff ||= ""
-
-    # Short-circuit bad length values
-    return "" if length == 0
-
-    # Return data from the stored buffer if available
-    if self.ring_buff.length >= length and length > 0
-      buff = self.ring_buff.slice!(0,length)
-      return buff
-    end
-
-    buff = self.ring_buff
-    self.ring_buff = ""
-
-    begin
-      ::Timeout.timeout(timeout) do
-        while( (length > 0 and buff.length < length) or (length == -1 and buff.length == 0))
-          ring.select
-          nseq,data = ring.read_data(self.ring_seq)
-          if data
-            self.ring_seq = nseq
-            buff << data
-          end
-        end
-      end
-    rescue ::Timeout::Error
-    rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
-      shell_close
-      raise e
-    end
-
-    # Store any leftovers in the ring buffer backlog
-    if length > 0 and buff.length > length
-      self.ring_buff = buff[length, buff.length - length]
-      buff = buff[0,length]
-    end
-
-    buff
   end
 
   ##
@@ -366,11 +314,20 @@ class CommandShell
   # Closes the shell.
   #
   def cleanup
+    return if @cleanup
+
+    @cleanup = true
     if rstream
       if !@cleanup_command.blank?
-        shell_command_token(@cleanup_command, 0)
+        # this is a best effort, since the session is possibly already dead
+        shell_command_token(@cleanup_command) rescue nil
+
+        # we should only ever cleanup once
+        @cleanup_command = nil
       end
-      rstream.close
+
+      # this is also a best-effort
+      rstream.close rescue nil
       rstream = nil
     end
     super
@@ -407,10 +364,6 @@ class CommandShell
     end
   end
 
-  def reset_ring_sequence
-    self.ring_seq = 0
-  end
-
   attr_accessor :arch
   attr_accessor :platform
   attr_accessor :max_threads
@@ -424,11 +377,7 @@ protected
   # shell_write instead of operating on rstream directly.
   def _interact
     framework.events.on_session_interact(self)
-    if self.respond_to?(:ring)
-      _interact_ring
-    else
-      _interact_stream
-    end
+    _interact_stream
   end
 
   ##
@@ -444,53 +393,11 @@ protected
         user_output.print(shell_read)
       end
       if sd[0].include? user_input.fd
-        shell_write(user_input.gets)
+        run_single(user_input.gets)
       end
       Thread.pass
     end
   end
-
-  def _interact_ring
-
-    begin
-
-    rdr = framework.threads.spawn("RingMonitor", false) do
-      seq = nil
-      while self.interacting
-
-        # Look for any pending data from the remote ring
-        nseq,data = ring.read_data(seq)
-
-        # Update the sequence number if necessary
-        seq = nseq || seq
-
-        # Write output to the local stream if successful
-        user_output.print(data) if data
-
-        begin
-          # Wait for new data to arrive on this session
-          ring.wait(seq)
-        rescue EOFError => e
-          break
-        end
-      end
-    end
-
-    while self.interacting
-      # Look for any pending input or errors from the local stream
-      sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
-
-      # Write input to the ring's input mechanism
-      run_cmd(user_input.gets) if sd
-    end
-
-    ensure
-      rdr.kill
-    end
-  end
-
-  attr_accessor :ring_seq    # This tracks the last seen ring buffer sequence (for shell_read)
-  attr_accessor :ring_buff   # This tracks left over read data to maintain a compatible API
 end
 
 class CommandShellWindows < CommandShell
