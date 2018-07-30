@@ -23,11 +23,10 @@ module VulnServlet
     lambda {
       warden.authenticate!
       begin
-        sanitized_params = sanitize_params(params)
+        sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.vulns(sanitized_params)
         includes = [:host, :vulns_refs, :refs, :module_refs]
-        # Only return the single object if the id parameter is present
-        data = data.first if !sanitized_params[:id].nil? && data.count == 1
+        data = data.first if is_single_object?(data, sanitized_params)
         set_json_data_response(response: data, includes: includes)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving vulns:', code: 500)

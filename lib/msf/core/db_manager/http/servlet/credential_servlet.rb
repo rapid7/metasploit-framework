@@ -23,7 +23,7 @@ module CredentialServlet
     lambda {
       warden.authenticate!
       begin
-        sanitized_params = sanitize_params(params)
+        sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.creds(sanitized_params)
         includes = [:logins, :public, :private, :realm]
         # Need to append the human attribute into the private sub-object before converting to json
@@ -33,8 +33,7 @@ module CredentialServlet
           json = cred.as_json(include: includes).merge(private_class: cred.private.class.to_s)
           response << json
         end
-        # Only return the single object if the id paramer is present
-        data = data.first if !sanitized_params[:id].nil? && data.count == 1
+        data = data.first if is_single_object?(data, sanitized_params)
         response = format_cred_json(data)
         set_json_data_response(response: response)
       rescue => e

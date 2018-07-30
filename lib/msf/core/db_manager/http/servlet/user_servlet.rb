@@ -23,8 +23,9 @@ module UserServlet
     lambda {
       warden.authenticate!(scope: :admin_api)
       begin
-        sanitized_params = sanitize_params(params)
+        sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.users(sanitized_params)
+        data = data.first if is_single_object?(data, sanitized_params)
         set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving users:', code: 500)

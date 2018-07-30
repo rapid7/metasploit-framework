@@ -82,11 +82,31 @@ module ServletHelper
 
   # Sinatra injects extra parameters for some reason: https://github.com/sinatra/sinatra/issues/453
   # This method cleans those up so we don't have any unexpected values before passing on.
+  # It also inspects the query string for any invalid parameters.
   #
   # @param [Hash] params Hash containing the parameters for the request.
+  # @param [Hash] query_hash The query_hash variable from the rack request.
   # @return [Hash] Returns params with symbolized keys and the injected parameters removed.
-  def sanitize_params(params)
+  def sanitize_params(params, query_hash = {})
+    # Reject id passed as a query parameter for GET requests.
+    # API standards say path ID should be used for single records.
+    if query_hash.key?('id')
+      raise ArgumentError, ("'id' is not a valid query parameter. Please use /api/v1/<resource>/{ID} instead.")
+    end
     params.symbolize_keys.except(:captures, :splat)
+  end
+
+  # Determines if this data set should be output as a single object instead of an array.
+  #
+  # @param [Array] data Array containing the data to be returned to the user.
+  # @param [Hash] params The parameters included in the request.
+  #
+  # @return [Bool] true if the data should be printed as a single object, false otherwise
+  def is_single_object?(data, params)
+    # Check to see if the ID parameter was present. If so, print as a single object.
+    # Note that ID is not valid as a query parameter, so we assume that the user
+    # used <resource>/{ID} notation if ID is present in params.
+    !params[:id].nil? && data.count == 1
   end
 
   def format_cred_json(data)
