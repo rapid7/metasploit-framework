@@ -62,7 +62,7 @@ module CredentialServlet
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_credential(opts)
         response = format_cred_json(data)
-        set_json_response(response.first)
+        set_json_data_response(response.first)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error updating the credential:', code: 500)
       end
@@ -74,7 +74,7 @@ module CredentialServlet
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_credentials(opts)
-        set_json_response(data)
+        set_json_data_response(data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error deleting the credential:', code: 500)
       end

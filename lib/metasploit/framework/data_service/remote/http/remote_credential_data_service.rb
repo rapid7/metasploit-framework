@@ -11,7 +11,7 @@ module RemoteCredentialDataService
     path = get_path_select(opts, CREDENTIAL_API_PATH)
     data = self.get_data(path, nil, opts)
     rv = json_to_mdm_object(data, CREDENTIAL_MDM_CLASS, [])
-    parsed_body = JSON.parse(data.response.body, symbolize_names: true)
+    parsed_body = JSON.parse(data.response.body).symbolize_keys
     data = parsed_body[:data]
     data.each do |cred|
       if cred[:private]
