@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'msf/ui/console/command_dispatcher.rb'
 require 'msf/base/sessions/command_shell'
-require 'rex/ui/text/table.rb'
+require 'rex/text/table.rb'
 require 'msf/base'
 
 module Msf
