@@ -128,12 +128,16 @@ module Msf::DBManager::Host
   # Returns a list of all hosts in the database
   def hosts(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Host.find(opts[:id]))
+      end
+
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       conditions = {}
       conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:non_dead]
       conditions[:address] = opts[:address] if opts[:address] && !opts[:address].empty?
-      conditions[:id] = opts[:id] if opts[:id] && !opts[:id].empty?
 
       if opts[:search_term] && !opts[:search_term].empty?
         column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::Host, opts[:search_term])

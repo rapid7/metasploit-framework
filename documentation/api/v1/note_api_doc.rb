@@ -40,10 +40,19 @@ module NoteApiDoc
       response 200 do
         key :description, 'Returns note data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Note
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Note
+            end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -71,8 +80,16 @@ module NoteApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Note
+          property :data do
+            key :'$ref', :Note
+          end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -85,12 +102,21 @@ module NoteApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, 'Returns an array containing the successfully deleted notes.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Note
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Note
+            end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -102,8 +128,6 @@ module NoteApiDoc
       key :description, 'Return specific note that is stored in the database.'
       key :tags, [ 'note' ]
 
-      parameter :workspace
-
       parameter do
         key :name, :id
         key :in, :path
@@ -114,12 +138,21 @@ module NoteApiDoc
       end
 
       response 200 do
-        key :description, 'Returns notes data.'
+        key :description, 'Returns note data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Note
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Note
+            end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -144,8 +177,16 @@ module NoteApiDoc
       response 200 do
         key :description, 'Successful operation.'
         schema do
-          key :type, :object
-          key :'$ref', :Note
+          property :data do
+            key :'$ref', :Note
+          end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

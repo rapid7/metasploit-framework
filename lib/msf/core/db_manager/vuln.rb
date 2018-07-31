@@ -236,6 +236,11 @@ module Msf::DBManager::Vuln
   #
   def vulns(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Vuln.find(opts[:id]))
+      end
+
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
       search_term = opts.delete(:search_term)

@@ -10,6 +10,10 @@ module RootApiDoc
   WORKSPACE_POST_DESC = 'The name of the workspace where this record should be created.'
   WORKSPACE_POST_EXAMPLE = 'default'
   HOST_EXAMPLE = '127.0.0.1'
+  CODE_DESC = 'The error code that was generated.'
+  CODE_EXAMPLE = 500
+  MESSAGE_DESC = 'A message describing the error that occurred.'
+  MESSAGE_EXAMPLE = 'Undefined method \'empty?\' for nil:NilClass'
 
   swagger_root do
     key :swagger, '2.0'
@@ -105,6 +109,22 @@ module RootApiDoc
       key :description, 'Return hosts matching the given IP address.'
       key :required, false
       key :type, :string
+    end
+  end
+
+  swagger_schema :ErrorModel do
+    key :required, [:message]
+    property :error do
+      property :code do
+        key :type, :int32
+        key :description, CODE_DESC
+        key :example, CODE_EXAMPLE
+      end
+      property :message do
+        key :type, :string
+        key :description, MESSAGE_DESC
+        key :example, MESSAGE_EXAMPLE
+      end
     end
   end
 end
