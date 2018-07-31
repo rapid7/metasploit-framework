@@ -44,9 +44,17 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     mbean_server = discover_endpoint
+    disconnect
 
     if mbean_server.nil?
       print_status("#{rhost}:#{rport} Java JMX MBean not detected")
+      return
+    end
+
+    connect(true, { 'RHOST' => mbean_server[:address], 'RPORT' => mbean_server[:port] })
+
+    unless is_rmi?
+      print_status("#{rhost}:#{rport} Java JMX RMI not detected")
       disconnect
       return
     end
@@ -55,10 +63,10 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     if jmx_endpoint == false
-      print_status("#{rhost}:#{rport} Java JMX MBean authenticated")
+      print_status("#{mbean_server[:address]}:#{mbean_server[:port]} Java JMX MBean authentication required")
       return
     elsif jmx_endpoint.nil?
-      print_status("#{rhost}:#{rport} Java JMX MBean status unknown")
+      print_status("#{mbean_server[:address]}:#{mbean_server[:port]} Java JMX MBean status unknown")
       return
     end
 
