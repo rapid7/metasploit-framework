@@ -185,7 +185,7 @@ class Core
 
   def cmd_color_tabs(str, words)
     return [] if words.length > 1
-    ['auto','true','false']
+    %w[auto true false]
   end
 
   def cmd_cd_help

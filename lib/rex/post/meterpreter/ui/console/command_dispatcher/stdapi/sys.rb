@@ -635,7 +635,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
     case words[-1]
     when '-A'
-      return ['x86', 'x64']
+      return %w[x86 x64]
     when '-S'
       process = []
       client.sys.process.get_processes.each{|p|process << p['name']} rescue nil
@@ -916,13 +916,13 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_reg_tabs(str, words)
     if words.length == 1
-      return  ['enumkey', 'createkey', 'deletekey', 'queryclass', 'setval', 'deleteval', 'queryval'] +
+      return  %w[enumkey createkey deletekey queryclass setval deleteval queryval] +
                 @@reg_opts.fmt.keys
     end
 
     case words[-1]
     when '-k'
-      reg_root_keys = ['HKLM', 'HKCC', 'HKCR', 'HKCU', 'HKU']
+      reg_root_keys = %w[HKLM  HKCC  HKCR  HKCU  HKU]
       # Split the key into its parts
       root_key, base_key = client.sys.registry.splitkey(str) rescue nil
       return reg_root_keys unless root_key
@@ -931,10 +931,10 @@ class Console::CommandDispatcher::Stdapi::Sys
       return  open_key.enum_key.map{|e|str.gsub(/[\\]*$/,'') + '\\\\' + e}
     when '-t'
       # Reference https://msdn.microsoft.com/en-us/library/windows/desktop/bb773476(v=vs.85).aspx
-      return ['REG_BINARY', 'REG_DWORD', 'REG_QWORD', 'REG_DWORD_BIG_ENDIAN', 'REG_EXPAND_SZ',
-              'REG_LINK', 'REG_MULTI_SZ', 'REG_NONE', 'REG_RESOURCE_LIST', 'REG_SZ']
+      return %w[REG_BINARY REG_DWORD REG_QWORD REG_DWORD_BIG_ENDIAN REG_EXPAND_SZ
+              REG_LINK REG_MULTI_SZ REG_NONE REG_RESOURCE_LIST REG_SZ]
     when '-w'
-      return ['32', '64']
+      return %w[32 64]
     when 'enumkey', 'createkey', 'deletekey', 'queryclass', 'setval', 'deleteval', 'queryval'
       return @@reg_opts.fmt.keys
     end
@@ -1062,7 +1062,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
     case words[-1]
     when '-f'
-      return ['1', '2']
+      return %w[1  2]
     end
 
     []

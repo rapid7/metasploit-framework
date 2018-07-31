@@ -123,11 +123,11 @@ class Console::CommandDispatcher::Stdapi::Ui
   # Tab completion for the uictl command
   #
   def cmd_uictl_tabs(str, words)
-    return ['enable','disable'] if words.length == 1
+    return %w[enable disable] if words.length == 1
 
     case words[-1]
     when 'enable', 'disable'
-      return ['keyboard', 'mouse', 'all']
+      return %w[keyboard mouse all]
     end
 
     []

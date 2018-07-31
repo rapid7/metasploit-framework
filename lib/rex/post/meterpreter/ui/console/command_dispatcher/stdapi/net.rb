@@ -358,7 +358,7 @@ class Console::CommandDispatcher::Stdapi::Net
   end
 
   def cmd_route_tabs(str, words)
-    return ['add','delete','list'] + @@route_opts.fmt.keys if words.length == 1
+    return %w[add delete list] + @@route_opts.fmt.keys if words.length == 1
   end
 
   #
@@ -578,7 +578,7 @@ class Console::CommandDispatcher::Stdapi::Net
   end
 
   def cmd_portfwd_tabs(str, words)
-    return ['add','delete','list', 'flush'] + @@portfwd_opts.fmt.keys if words.length == 1
+    return %w[add delete list flush] + @@portfwd_opts.fmt.keys if words.length == 1
 
     case words[-1]
     when '-L'

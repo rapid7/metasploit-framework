@@ -158,7 +158,7 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_pivot_tabs(str, words)
-    return ['list','add','remove'] + @@pivot_opts.fmt.keys if words.length == 1
+    return %w[list add remove] + @@pivot_opts.fmt.keys if words.length == 1
 
     case words[-1]
     when '-a'
@@ -824,7 +824,7 @@ class Console::CommandDispatcher::Core
   end
 
   def cmd_transport_tabs(str, words)
-    return ['list','change','add','next','prev','remove'] + @@transport_opts.fmt.keys if words.length == 1
+    return %w[list change add next prev remove] + @@transport_opts.fmt.keys if words.length == 1
 
     case words[-1]
     when '-c'
@@ -834,7 +834,7 @@ class Console::CommandDispatcher::Core
     when '-l'
       return tab_complete_source_address
     when '-t'
-      return ['reverse_tcp', 'reverse_http','reverse_https','bind_tcp']
+      return %w[reverse_tcp reverse_http reverse_https bind_tcp]
     when 'add', 'remove', 'change'
       return @@transport_opts.fmt.keys
     end
