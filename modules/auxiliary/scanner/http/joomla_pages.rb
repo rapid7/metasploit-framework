@@ -62,15 +62,16 @@ class MetasploitModule < Msf::Auxiliary
       elsif (res.body =~/Registration/ and res.body =~/class="validate">Register<\/button>/)
         note = "Registration Page"
       end
-
-      print_good("#{note}: #{tpath}#{page}")
+      
+      port = datastore['RPORT']
+      print_good("#{note}: #{ip}:#{port}#{tpath}#{page}")
 
       report_note(
         :host  => ip,
         :port  => datastore['RPORT'],
         :proto => 'http',
         :ntype => 'joomla_page',
-        :data  => "#{note}: #{tpath}#{page}",
+        :data  => "#{note}: #{ip}:#{port}#{tpath}#{page}",
         :update => :unique_data
       )
     elsif (res.code == 403)
