@@ -3,12 +3,13 @@ module Msf::DBManager::Cred
   def creds(opts)
     query = nil
     ::ActiveRecord::Base.connection_pool.with_connection {
+      # If :id exists we're looking for a specific record, skip the other stuff
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Metasploit::Credential::Core.find(opts[:id]))
+      end
+
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
       search_term = opts.delete(:search_term)
-      # If :id exists we're looking for a specific record, skip the other stuff
-      if opts[:id].present?
-        return Metasploit::Credential::Core.where(id: opts[:id])
-      end
 
       query = Metasploit::Credential::Core.where( workspace_id: wspace.id )
       query = query.includes(:private, :public, :logins, :realm).references(:private, :public, :logins, :realm)

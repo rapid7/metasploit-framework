@@ -15,7 +15,7 @@ module CredentialDataProxy
       opts[:workspace_id] = workspace.id
       opts[:private_data] = opts.delete(:password)
       opts[:private_type] = :password
-      old_core = data_service.creds(id: opts.delete(:core_id), workspace: workspace.name).first
+      old_core = data_service.creds(id: opts.delete(:core_id)).first
       if old_core
         opts[:originating_core_id] = old_core.id
         opts[:origin_type] = :cracked_password

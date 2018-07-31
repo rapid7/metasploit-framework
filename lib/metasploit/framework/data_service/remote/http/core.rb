@@ -204,6 +204,22 @@ class RemoteHTTPDataService
     return false
   end
 
+  # Select the correct path for GET request based on the options parameters provided.
+  # If 'id' is present, the user is requesting a single record and should use
+  # api/<version>/<resource>/ID path.
+  #
+  # @param [Hash] opts The parameters for the request
+  # @param [String] path The base resource path for the endpoint
+  #
+  # @return [String] The correct path for the request.
+  def get_path_select(opts, path)
+    if opts.key?(:id)
+      path = "#{path}/#{opts[:id]}"
+      opts.delete(:id)
+    end
+    path
+  end
+
   #########
   protected
   #########
