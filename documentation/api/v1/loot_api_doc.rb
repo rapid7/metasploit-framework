@@ -152,10 +152,7 @@ module LootApiDoc
         key :description, 'Returns loot data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Loot
-            end
+            key :'$ref', :Loot
           end
         end
       end

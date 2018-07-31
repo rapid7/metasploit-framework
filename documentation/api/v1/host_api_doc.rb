@@ -223,10 +223,7 @@ module HostApiDoc
         key :description, 'Returns host data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Host
-            end
+            key :'$ref', :Host
           end
         end
       end

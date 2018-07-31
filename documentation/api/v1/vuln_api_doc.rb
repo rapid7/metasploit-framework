@@ -196,10 +196,7 @@ module VulnApiDoc
         key :description, 'Returns vuln data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Vuln
-            end
+            key :'$ref', :Vuln
           end
         end
       end

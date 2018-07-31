@@ -269,10 +269,7 @@ module CredentialApiDoc
         key :description, 'Returns credential data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Credential
-            end
+            key :'$ref', :Credential
           end
         end
       end

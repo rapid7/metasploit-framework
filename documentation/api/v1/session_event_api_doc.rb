@@ -109,10 +109,7 @@ module SessionEventApiDoc
         key :description, 'Returns session event data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :SessionEvent
-            end
+            key :'$ref', :SessionEvent
           end
         end
       end

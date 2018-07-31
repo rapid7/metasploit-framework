@@ -144,10 +144,7 @@ module ServiceApiDoc
         key :description, 'Returns service data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Service
-            end
+            key :'$ref', :Service
           end
         end
       end

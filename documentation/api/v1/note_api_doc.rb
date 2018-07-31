@@ -141,10 +141,7 @@ module NoteApiDoc
         key :description, 'Returns note data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Note
-            end
+            key :'$ref', :Note
           end
         end
       end

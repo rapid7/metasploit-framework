@@ -117,10 +117,7 @@ module VulnAttemptApiDoc
         key :description, 'Returns vuln attempt data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :VulnAttempt
-            end
+            key :'$ref', :VulnAttempt
           end
         end
       end

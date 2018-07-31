@@ -97,10 +97,7 @@ module SessionApiDoc
         key :description, 'Returns session data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Session
-            end
+            key :'$ref', :Session
           end
         end
       end

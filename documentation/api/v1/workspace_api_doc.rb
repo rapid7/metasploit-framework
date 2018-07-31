@@ -130,10 +130,7 @@ module WorkspaceApiDoc
         key :description, 'Returns workspace data.'
         schema do
           property :data do
-            key :type, :array
-            items do
-              key :'$ref', :Workspace
-            end
+            key :'$ref', :Workspace
           end
         end
       end
