@@ -332,6 +332,7 @@ module Msf
               'bid'         => 'Modules with a matching Bugtraq ID',
               'cve'         => 'Modules with a matching CVE ID',
               'edb'         => 'Modules with a matching Exploit-DB ID',
+              'check'       => 'Modules that support the \'check\' method',
               'date'        => 'Modules with a matching disclosure date',
               'description' => 'Modules with a matching description',
               'full_name'   => 'Modules with a matching full name',

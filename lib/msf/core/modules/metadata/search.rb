@@ -6,8 +6,8 @@ require 'msf/core/modules/metadata'
 module Msf::Modules::Metadata::Search
 
   VALID_PARAMS =
-      %w[app author authors arch cve bid edb date disclosure_date description full_name fullname mod_time name
-        os platform path port rport rank ref ref_name reference references target targets text type]
+      %w[app author authors arch cve bid edb check date disclosure_date description full_name fullname mod_time
+      name os platform path port rport rank ref ref_name reference references target targets text type]
 
   #
   # Searches the module metadata using the passed hash of search params
@@ -53,13 +53,20 @@ module Msf::Modules::Metadata::Search
             when 'author', 'authors'
               match = [keyword, search_term] if module_metadata.author.any? { |author| author =~ regex }
             when 'arch'
-              match = [keyword, search_term,] if module_metadata.arch =~ regex
+              match = [keyword, search_term] if module_metadata.arch =~ regex
             when 'cve'
               match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ regex }
             when 'bid'
               match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ regex }
             when 'edb'
               match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^edb\-/i and ref =~ regex }
+            when 'check'
+              if module_metadata.check
+                matches_check = %w(true yes).any? { |val| val =~ regex}
+              else
+                matches_check = %w(false no).any? { |val| val =~ regex}
+              end
+              match = [keyword, search_term] if matches_check
             when 'date', 'disclosure_date'
               match = [keyword, search_term] if module_metadata.disclosure_date.to_s =~ regex
             when 'description'
