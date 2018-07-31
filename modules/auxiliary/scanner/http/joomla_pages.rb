@@ -69,7 +69,8 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         :host   => ip,
         :port   => rport,
-        :proto  => 'http',
+        :proto  => 'tcp',
+        :sname  => 'http',
         :ntype  => 'joomla_page',
         :data   => msg,
         :update => :unique_data
