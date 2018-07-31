@@ -4,8 +4,11 @@ module Msf::WebServices::ModuleSearch
     raise ::ArgumentError, "At least one search parameter must be provided." if opts.except(:fields).empty?
     params = parse_params(opts)
     fields = parse_fields(opts)
-    results = Msf::Modules::Metadata::Cache.instance.find(params, fields)
-    results ? results : []
+    begin
+      Msf::Modules::Metadata::Cache.instance.find(params, fields)
+    rescue ArgumentError
+      raise ::ArgumentError, "Invalid search parameter(s) provided."
+    end
   end
 
   #######
