@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
 
       report_note(
         :host  => ip,
-        :port  => datastore['RPORT'],
+        :port  => port,
         :proto => 'http',
         :ntype => 'joomla_page',
         :data  => "#{note}: #{ip}:#{port}#{tpath}#{page}",
