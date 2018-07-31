@@ -13,7 +13,7 @@ module Msf::Modules::Metadata::Search
   # Searches the module metadata using the passed hash of search params
   #
   def find(params, fields={})
-    return [] if params.empty? || VALID_PARAMS.none? { |k| params.key?(k) }
+    return nil if params.empty? || VALID_PARAMS.none? { |k| params.key?(k) }
     search_results = []
 
     get_metadata.each { |module_metadata|

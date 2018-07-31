@@ -390,14 +390,20 @@ module Msf
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
             search_params = parse_search_string(match)
-            Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
-              tbl << [
-                  m.full_name,
-                  m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
-                  RankingName[m.rank].to_s,
-                  m.check ? 'Yes' : 'No',
-                  m.name
-              ]
+            results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+            if results
+              results.each do |m|
+                tbl << [
+                    m.full_name,
+                    m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
+                    RankingName[m.rank].to_s,
+                    m.check ? 'Yes' : 'No',
+                    m.name
+                ]
+              end
+            else
+              print_error("Invalid argument(s)\n")
+              cmd_search_help
             end
 
             if output_file
