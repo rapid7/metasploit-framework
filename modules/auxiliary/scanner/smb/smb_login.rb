@@ -56,7 +56,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ABORT_ON_LOCKOUT', [ true, "Abort the run when an account lockout is detected", false ]),
         OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false ]),
-        OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', true])
+        OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', false]),
+        OptBool.new('DETECT_ANY_DOMAIN', [false, 'Detect if domain is required for the specified user', false])
       ])
 
   end
@@ -202,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
       username: result.credential.public,
     }.merge(service_data)
 
-    if domain.present?
+    if datastore['DETECT_ANY_DOMAIN'] && domain.present?
       if accepts_bogus_domains?(result.credential.public, result.credential.private)
         print_brute(:level => :vstatus, :ip => ip, :msg => "Domain is ignored for user #{result.credential.public}")
       else
