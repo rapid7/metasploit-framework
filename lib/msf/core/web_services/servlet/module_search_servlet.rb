@@ -20,9 +20,9 @@ module ModuleSearchServlet
       begin
         sanitized_params = sanitize_params(params)
         data = Msf::WebServices.search_modules(sanitized_params)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error completing the module search:', code: 500)
       end
     }
   end

@@ -158,12 +158,22 @@ module ModuleSearchApiDoc
       response 200 do
         key :description, 'Returns modules matching keywords with appropriate metadata.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Module
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Module
+            end
           end
         end
       end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
+
     end
   end
 
