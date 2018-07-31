@@ -129,7 +129,7 @@ module Msf::DBManager::Host
   def hosts(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
-      if opts[:id] && !opts[:id].empty?
+      if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Host.find(opts[:id]))
       end
 

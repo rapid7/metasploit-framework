@@ -4,7 +4,7 @@ module Msf::DBManager::Cred
     query = nil
     ::ActiveRecord::Base.connection_pool.with_connection {
       # If :id exists we're looking for a specific record, skip the other stuff
-      if opts[:id] && !opts[:id].empty?
+      if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Metasploit::Credential::Core.find(opts[:id]))
       end
 

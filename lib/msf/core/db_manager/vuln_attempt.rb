@@ -24,7 +24,7 @@ module Msf::DBManager::VulnAttempt
   def vuln_attempts(opts)
   ::ActiveRecord::Base.connection_pool.with_connection {
     # If we have the ID, there is no point in creating a complex query.
-    if opts[:id] && !opts[:id].empty?
+    if opts[:id] && !opts[:id].to_s.empty?
       return Array.wrap(Mdm::VulnAttempt.find(opts[:id]))
     end
 
