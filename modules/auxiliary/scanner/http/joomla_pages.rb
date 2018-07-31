@@ -62,27 +62,27 @@ class MetasploitModule < Msf::Auxiliary
       elsif (res.body =~/Registration/ and res.body =~/class="validate">Register<\/button>/)
         note = "Registration Page"
       end
-      
-      port = datastore['RPORT']
-      print_good("#{note}: #{ip}:#{port}#{tpath}#{page}")
+
+      msg = "#{note}: #{tpath}#{page}"
+      print_good("#{peer} - #{msg}")
 
       report_note(
-        :host  => ip,
-        :port  => port,
-        :proto => 'http',
-        :ntype => 'joomla_page',
-        :data  => "#{note}: #{ip}:#{port}#{tpath}#{page}",
+        :host   => ip,
+        :port   => rport,
+        :proto  => 'http',
+        :ntype  => 'joomla_page',
+        :data   => msg,
         :update => :unique_data
       )
     elsif (res.code == 403)
       if (res.body =~ /secured with Secure Sockets Layer/ or res.body =~ /Secure Channel Required/ or res.body =~ /requires a secure connection/)
-        vprint_status("#{ip} denied access to #{ip} (SSL Required)")
+        vprint_status("#{peer} - denied access to #{ip} (SSL Required)")
       elsif (res.body =~ /has a list of IP addresses that are not allowed/)
-        vprint_status("#{ip} restricted access by IP")
+        vprint_status("#{peer} - restricted access by IP")
       elsif (res.body =~ /SSL client certificate is required/)
-        vprint_status("#{ip} requires a SSL client certificate")
+        vprint_status("#{peer} - requires a SSL client certificate")
       else
-        vprint_status("#{ip} ip access to #{ip} #{res.code} #{res.message}")
+        vprint_status("#{peer} - ip access to #{ip} #{res.code} #{res.message}")
       end
     end
 
