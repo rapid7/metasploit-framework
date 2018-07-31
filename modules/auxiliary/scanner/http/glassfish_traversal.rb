@@ -25,8 +25,8 @@ class MetasploitModule < Msf::Auxiliary
           'Trustwave SpiderLabs', # Vulnerability discovery
           'Dhiraj Mishra' # Metasploit module
         ],
+      'DisclosureDate' => 'Aug 08 2015',
       'License'     => MSF_LICENSE
-      'DisclosureDate' => "Aug 08 2015"
       ))
 
   register_options(
