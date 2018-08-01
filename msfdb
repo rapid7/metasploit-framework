@@ -185,7 +185,7 @@ def create_db
   File.open("#{@db}/pg_hba.conf", 'w') do |f|
     f.puts "host    \"msf\"      \"#{@options[:msf_db_user]}\"      127.0.0.1/32           md5"
     f.puts "host    \"msftest\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
-    f.puts "host    \"postgresql\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
+    f.puts "host    \"postgres\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           trust"
     f.puts "host    \"template1\"   all                127.0.0.1/32           trust"
     if Gem.win_platform?
       f.puts "host    all             all                127.0.0.1/32           trust"
