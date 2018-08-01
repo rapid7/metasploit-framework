@@ -19,7 +19,7 @@ module MetasploitModule
         'Platform'    => 'Windows',
         'Arch'        => ARCH_X64,
         'License'     => MSF_LICENSE,
-        'Session'     => Msf::Sessions::EmpireWindowsShell
+        'Session'     => Msf::Sessions::EmpireShellWindows
       )
     )
   end
