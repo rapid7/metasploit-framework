@@ -25,25 +25,18 @@ require './tools/session-ui/backend'
 
 
     get "/sysinfo" do
-      system_info=File.read(File.join(File.dirname(__FILE__),'sysinfo.json'))
-      return system_info
-      #return Sinatra::Backend::Server.sys_info
+      return Sinatra::Backend::Server.sys_info
     end
 
-    post "/modal" do
+    get"/modal" do
       content_type :json
-      Sinatra::Backend::Server.post_info(params[:val])
+      script=params[:script]
+      return Sinatra::Backend::Server.post_info(script)
     end
 
     post "/executePostModule" do
       content_type :json
       #data= Sinatra::Backend::Server.execute_post_mod(params[:val])
-    end
-
-    get '/postinfo' do
-      content_type :json
-      return Sinatra::Backend::Server.post_info("post/linux/gather/checkvm")
-
     end
 
     get "/post" do

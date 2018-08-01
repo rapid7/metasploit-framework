@@ -16,7 +16,7 @@
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-   
+
     <link href="resources/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
     <link href="resources/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
 
@@ -31,7 +31,7 @@
     <link href="css/theme.css" rel="stylesheet" media="all">
     <!-- Xterm CSS -->
      <link rel="stylesheet" href="resources/xterm/xterm.css" />
-    
+
       <script src="resources/xterm/xterm.js" ></script>
     <!--
       <script src="resources/xterm/addon/fit.js" ></script>
@@ -42,7 +42,7 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="sidebarModal" tabindex="-1" role="dialog" aria-labelledby="sidebarCenterTitle" aria-hidden="true">
+<div class="modal fade load" id="sidebarModal" tabindex="-1" role="dialog" aria-labelledby="sidebarCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -54,17 +54,16 @@
             <div class="modal-body media">
                 <div class="media-body" id="modal">
                     <h4 style="color: #EB5D26;">Name</h4>
-                    <p>Windows Gather Virtual Environment Detection</p>
+                    <p id="postname"></p>
+                    <h4 style="color: #EB5D26;">Authors</h4>
+                    <p id="postauthor"></p>
                     <h4 style="color: #EB5D26;">Description</h4>
-                    <p>This module attempts to determine whether the system is running
-                        inside of a virtual environment and if so, which one.&nbspThis
-                        module supports detection of Hyper-V, VMWare, Virtual PC,
-                        VirtualBox, Xen, and QEMU</p>
+                    <p id="postdiscription"></p>
                     <h4 style="color: #EB5D26;">Platform</h4>
-                    <p>Windows</p>
-                    <h3><i style="color: #EB5D26; font-size: small;!important" >Example</i></h3>
+                    <p id="postplatform"></p>
+                    <h4 style="color: #EB5D26;">Rank</h4>
+                    <p id="postrank"></p>
                 </div>
-                                       ...
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -88,13 +87,13 @@
                    <!-- <img src="images/icon/logo.png" alt="Metasploit" /> -->
                 </a>
             </div>
-          
+
             <div  class="menu-sidebar2__content js-scrollbar1" id="sidebar" >
             <!-- menu group 1 -->
               <div class="list-group panel js-scrollbar1" >
                   <a href="#menu1" onclick="postModule(); this.onclick=null;" class="list-group-item collapsed"  data-toggle="collapse" data-parent="#sidebar" aria-expanded="false"> <span class="hidden-sm-down">Post Modules </span></a>
                   <div class="collapse" id="menu1" >
-        
+
                     <input type="text" placeholder="Search.." id="Search" onkeyup="filterFunction()" style="width: 283px;height: 30px;">
                           <!-- sub menu item ends -->
                   </div>
@@ -110,7 +109,7 @@
                               <a href="#" class="list-group-item" data-parent="#menu2sub1sub1">Subitem 3 c.1</a>
                               <a href="#" class="list-group-item" data-parent="#menu2sub1sub1">Subitem 3 c.2</a>
                           </div>
-        
+
                           <a href="#menu2sub1sub2" class="list-group-item" data-toggle="collapse"  aria-expanded="false">Subitem 5 e </a>
                           <div class="collapse" id="menu2sub1sub2">
                               <a href="#" class="list-group-item" data-parent="#menu2sub1sub2">Subitem 5 e.1</a>
@@ -135,26 +134,31 @@
                                 <div class="account-wrap">
                                     <div class="account-item clearfix js-item-menu" align=right>
                                         <div class="content">
-                                            <a class="js-acc-btn" onclick="sysinfo(); this.onclick=null; " href="#">System Information</a>
+                                            <a class="js-acc-btn" onclick="sysinfo(); " href="#">Session Information</a>
                                         </div>
                                         <div class="account-dropdown js-dropdown">
                                             <div class="info clearfix">
                                                 <div class="content">
                                                     <h5 class="name">
-                                                    <a href="#" id="sysname"></a>
+                                                        <i style="color: #FFFFFF; font-style: italic">Computer name</i>
+                                                        <span class="ip" id="computer"></span>
                                                     </h5>
-                                                    <span class="ip" id="ip"></span>
+                                                    <i style="color: #FFFFFF; font-style: italic">Operating System</i>
+                                                    <span class="ip" id="os"></span>
                                                 </div>
                                             </div>
                                             <div class="account-dropdown__body">
                                                 <div class="account-dropdown__item">
-                                                 <a href="#" id="os" ></a>
+                                                    <i style="color: #FFFFFF; font-style: italic; margin-right: 20px">Session Type : </i>
+                                                 <a href="#" id="session_type" ></a>
                                                 </div>
                                                 <div class="account-dropdown__item">
-                                                   <a href="#" id="getuid"></a>
+                                                    <i style="color: #FFFFFF; font-style: italic; margin-right: 100px">Architecture : </i>
+                                                   <a href="#" id="arch"></a>
                                                 </div>
                                                 <div class="account-dropdown__item">
-                                              <a href="#" id="whoami"></a>
+                                                    <i style="color: #FFFFFF; font-style: italic; margin-right: 75px">Getuid : </i>
+                                              <a href="#" id="getuid"></a>
                                                 </div>
                                             </div>
                                         </div>
@@ -166,7 +170,6 @@
                 </div>
             </header>
             <!-- HEADER DESKTOP-->
-
            <!-- MAIN CONTENT-->
             <div class="main-content">
                 <div class="section__content section__content--p30">
@@ -214,16 +217,12 @@
                                         }
 
                                     });
-
-
-
-
                                 </script>
 
                             </div>
-      
+
                         </div>
-                        
+
                       </div>
                     </div>
                 </div>

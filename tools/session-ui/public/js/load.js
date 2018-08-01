@@ -1,60 +1,45 @@
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
-
-function filterFunction() {
-  var input, filter, ul, li, a, i;
-  input = document.getElementById("Search");
-  filter = input.value.toLocaleString();
-  div = document.getElementById("menu1");
-  a = div.getElementsByTagName("a");
-  for (i = 0; i < a.length; i++) {
-    if (a[i].innerHTML.toLowerCase().indexOf(filter) > -1) {
-       a[i].style.display = "";
-    } else {
-      a[i].style.display = "none";
+document.onreadystatechange = function () {
+    var state = document.readyState
+    if (state == 'complete') {
+        setTimeout(function(){
+            document.getElementById('interactive');
+            document.getElementById('load').style.visibility="hidden";
+        },2000);
     }
-  }
 }
-
 
 function modal(val){
     document.getElementById("sidebarTitle").innerText=val;
     var xhr=new XMLHttpRequest();
-    var url="/modal";
-    var data=val;
-    console.log(data);
-    xhr.open("POST",url);
-    xhr.send(data);
+    var url="/modal?script=" + val;
+    xhr.open("GET",url,true);
+    xhr.send();
     xhr.onload = function(){
-        var res = xhr.response;
+        var response = xhr.responseText;
+        var responseData= JSON.parse(response);
         if (xhr.readyState === 4 && xhr.status === 200){
 
-            console.log(res);
+            document.getElementById("postname").innerText=responseData.name;
+            document.getElementById("postauthor").innerText=responseData.authors[0];
+            document.getElementById("postdiscription").innerText=responseData.description;
+            document.getElementById("postplatform").innerText=responseData.platform;
+            document.getElementById("postrank").innerText=responseData.rank;
 
         }
-    };
-}
+        else
+            alert("Connection Failed!");
 
-
-function executePostScript(val){
-    var xhr = new XMLHttpRequest();
-    var url = "/executePostModule";
-    xhr.open('POST',url);
-    var data= val;
-    xhr.send(data);
-    xhr.onload = function(){
-        var res = xhr.response;
-        if(xhr.readyState === 4 && xhr.status === 200){
-            document.getElementById("terminal").innerText=res
-        }
     };
 
 }
+
 
 function postModule() {
     var xhr = new XMLHttpRequest();
     var url = "/post";
-    xhr.open("GET", url);
+    xhr.open("GET", url,true);
     xhr.send();
 
     xhr.onload = function () {
@@ -122,7 +107,7 @@ function postModule() {
             }
 
         }
-    }
+    };
 }
 
 
@@ -153,42 +138,33 @@ function ExtensionCommand() {
         }
         else
             alert("Unable To load Extension Command");
-    }
+    };
+
 }
 
 
 function sysinfo(){
     var xhr = new XMLHttpRequest();
     var url = "/sysinfo";
-    xhr.open("GET", url);
-    xhr.send();
+
 
     xhr.onload = function () {
-        var sysinfoJson =  JSON.parse(xhr.response);
-        
+        var response = xhr.responseText;
+        var responseData= JSON.parse(response);
         if (xhr.readyState === 4 && xhr.status === 200) {
-            document.getElementById("sysname").innerHTML=sysinfoJson.systemName;
-            document.getElementById("ip").innerHTML=sysinfoJson.ip;
-            document.getElementById("os").innerHTML=sysinfoJson.os;
-            document.getElementById("getuid").innerHTML=sysinfoJson.getuid;
-            document.getElementById("whoami").innerHTML=sysinfoJson.whoami;
-
+            document.getElementById("computer").innerText=responseData.Computer;
+            document.getElementById("os").innerText=responseData.OS;
+            document.getElementById("session_type").innerText=responseData.session_type;
+            document.getElementById("arch").innerText=responseData.Architecture;
+            document.getElementById("getuid").innerText=responseData.getuid;
         }
         else
             alert("Connection Failed!");
 
-        }
-
+        };
+    xhr.open("GET", url);
+    xhr.send();
 }
-
-
-
-
-function extenCmdResponse(){
-
-}
-
-
 
 
 

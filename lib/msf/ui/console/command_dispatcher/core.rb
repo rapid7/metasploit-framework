@@ -1432,11 +1432,10 @@ class Core
           end
           print_status("Starting Web Console for #{sess_id}")
           begin
-            # need some house keeping, will resolve soon
             server_bind='localhost'
             server_port=3000 + sess_id
 
-            Sinatra::Backend::Server.setup(framework,sess_id,driver)
+            Sinatra::Backend::Server.setup(framework,sess_id)
             thr = []
             thr << framework.threads.spawn("ConsoletoBrowser",true) do
               WebConsoleServer.run!(:host=>server_bind,:port=>server_port)

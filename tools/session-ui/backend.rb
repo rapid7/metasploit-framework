@@ -6,15 +6,13 @@ module Sinatra
     class Server
       class << self
 
-        def setup(framework_obj,sid,driver)
+        def setup(framework_obj,sid)
           @framework = framework_obj
-          @client=framework_obj.sessions.get(sid).run_cmd("?",driver.output)
-          @framework_post=framework_obj.post.keys
-          @driver_output=driver.output
+          @client=framework_obj.sessions.get(sid)
         end
 
         def get_post
-          string=@framework_post
+          string=@framework.post.keys
           output = {}
           count = 0
           string.each do |element|
@@ -101,13 +99,14 @@ module Sinatra
         end
 
         def sys_info
-          # Fetch system information of the victim's machine.
-          info= Msf::Serializer::ReadableText.dump_sessions_verbose(@framework)
+          info=@client.sys.config.sysinfo(refresh: true)
+          #sess_type=@client.session_type
+          info["session_type"]=@client.session_type
+          info["getuid"]=@client.sys.config.getuid
           return info.to_json
         end
 
         def post_info(*args)
-          # This method will use msf/base/serializer/json Class to dump information
           args.each do |name|
             mod=@framework.modules.create(name)
             if mod==nil
