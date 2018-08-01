@@ -138,7 +138,7 @@ module Msf::Empire
     #in the request, Outfile needs to be set to '', which will ask the API to give the 'Output' through the response
     #which then needs to be written to file with proper extensions, for an instance, /tmp/launcher.dll
     #
-    def gen_stager(listener_name, stager_type, payload_path)
+    def gen_stager(listener_name, stager_type)
       uri = URI.parse("https://localhost:1337/api/stagers?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
@@ -155,10 +155,8 @@ module Msf::Empire
         return "Invalid stager type"
       elsif response.code == "200"
         parser = JSON.parse(response.body)
-        payload = File.open(payload_path, "w")
-        payload.puts parser[stager_type]['Output']
-        payload.close
-        return "Payload created succesfully at #{payload_path}"
+        stagerCode = parser[stager_type]['Output']
+        return stagerCode
       end
     end
     #
@@ -166,7 +164,7 @@ module Msf::Empire
     #we will use a custom python script which takes the base powershell code
     #from Empire and patches the raw DLL to form a injectable DLL
     #
-    def generate_dll(listener_name, payload_path, session_arch, pathToEmpire)
+    def generate_dll(listener_name, session_arch, pathToEmpire)
       uri = URI.parse("https://localhost:1337/api/stagers?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
@@ -179,13 +177,15 @@ module Msf::Empire
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
       end
+      payload_path = '/tmp/launcher-emp.dll'
       parser = JSON.parse(response.body)
       payload = File.open('/tmp/poshCode.txt', "w")
       payload.puts parser['windows/launcher_bat']['Output'].split[10]
       payload.close
       command = "cd #{pathToEmpire} && python generator.py /tmp/poshCode.txt #{session_arch} #{payload_path}"
       value = system(command)
-      return "Empire DLL generated at #{payload_path}"
+      stagerCode = File.binread(payload_path)
+      return stagerCode
     end
     #
     #AGENT METHODS
