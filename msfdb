@@ -149,7 +149,7 @@ def start_db
       puts "Please attempt to upgrade the database manually using pg_upgrade."
     end
     if !fixed
-      if ask_yn('If your database is corrupt, would you to reinitialize it?')
+      if ask_yn('Your database may be corrupt, would you like to reinitialize it?')
         fixed = reinit_db
       end
     end
