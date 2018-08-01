@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [ true, 'Path to Cisco installation', '/' ]),
         OptBool.new('SSL', [ true, 'Use SSL', true ]),
-        Opt::RPORT(8080)
+        Opt::RPORT(443)
       ])
   end
 
