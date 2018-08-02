@@ -508,6 +508,8 @@ module Msf
                   show_auxiliary
                 when 'post'
                   show_post
+                when 'evasion'
+                  show_evasion
                 when 'info'
                   cmd_info(*args[1, args.length])
                 when 'options'
@@ -649,6 +651,8 @@ module Msf
                 dispatcher = Msf::Ui::Console::CommandDispatcher::Auxiliary
               when Msf::MODULE_POST
                 dispatcher = Msf::Ui::Console::CommandDispatcher::Post
+              when Msf::MODULE_EVASION
+                dispatcher = Msf::Ui::Console::CommandDispatcher::Evasion
               else
                 print_error("Unsupported module type: #{mod.type}")
                 return false
@@ -1021,6 +1025,10 @@ module Msf
                 print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
             end
+          end
+
+          def show_evasion(mod)
+            puts "Place holder for show_evasion"
           end
 
           def show_global_options

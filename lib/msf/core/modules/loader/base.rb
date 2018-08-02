@@ -21,7 +21,8 @@ class Msf::Modules::Loader::Base
     Msf::MODULE_EXPLOIT => 'exploits',
     Msf::MODULE_NOP => 'nops',
     Msf::MODULE_PAYLOAD => 'payloads',
-    Msf::MODULE_POST => 'post'
+    Msf::MODULE_POST => 'post',
+    Msf::MODULE_EVASION => 'evasion'
   }
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
   NAMESPACE_MODULE_LINE = __LINE__ + 4
