@@ -689,7 +689,7 @@ section {
 }
 
 .account-dropdown {
-    min-width: 305px;
+    min-width: 350px;
     position: absolute;
     top: 58px;
     right: 0;
@@ -767,7 +767,7 @@ section {
 
 .account-dropdown__item a {
     display: flow-root;
-    color: #97a3ab;
+    color: #ffffff;
     padding: 15px 25px;
     font-size:18px;
 }
@@ -1386,11 +1386,3 @@ color: #EB5D26;
     font-size: large;
 }
 
-
-.load{
-    width:100%;
-    height:100%;
-    position:fixed;
-    z-index:9999;
-    background:url("../images/gif/load.gif") no-repeat center center rgba(0,0,0,0.25)
-}

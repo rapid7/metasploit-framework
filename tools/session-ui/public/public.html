@@ -33,8 +33,8 @@
      <link rel="stylesheet" href="resources/xterm/xterm.css" />
 
       <script src="resources/xterm/xterm.js" ></script>
-    <!--
       <script src="resources/xterm/addon/fit.js" ></script>
+    <!--
       <script src="resources/xterm/addon/attach.js"></script>
       <script src="resources/xterm/app.js" ></script>
      -->
@@ -137,27 +137,25 @@
                                             <a class="js-acc-btn" onclick="sysinfo(); " href="#">Session Information</a>
                                         </div>
                                         <div class="account-dropdown js-dropdown">
-                                            <div class="info clearfix">
-                                                <div class="content">
-                                                    <h5 class="name">
-                                                        <i style="color: #FFFFFF; font-style: italic">Computer name</i>
-                                                        <span class="ip" id="computer"></span>
-                                                    </h5>
-                                                    <i style="color: #FFFFFF; font-style: italic">Operating System</i>
-                                                    <span class="ip" id="os"></span>
-                                                </div>
-                                            </div>
                                             <div class="account-dropdown__body">
                                                 <div class="account-dropdown__item">
-                                                    <i style="color: #FFFFFF; font-style: italic; margin-right: 20px">Session Type : </i>
+                                                    <i style="color: #eb5d26; font-style: italic; margin-right: 130px">Computer : </i>
+                                                    <a href="#" id="computer" ></a>
+                                                </div>
+                                                <div class="account-dropdown__item">
+                                                    <i style="color: #eb5d26; font-style: italic; margin-right: 183px">Operating System : </i>
+                                                    <a href="#" id="os" ></a>
+                                                </div>
+                                                <div class="account-dropdown__item">
+                                                    <i style="color: #eb5d26; font-style: italic; margin-right: 63px">Session Type : </i>
                                                  <a href="#" id="session_type" ></a>
                                                 </div>
                                                 <div class="account-dropdown__item">
-                                                    <i style="color: #FFFFFF; font-style: italic; margin-right: 100px">Architecture : </i>
+                                                    <i style="color: #eb5d26; font-style: italic; margin-right: 145px">Architecture : </i>
                                                    <a href="#" id="arch"></a>
                                                 </div>
                                                 <div class="account-dropdown__item">
-                                                    <i style="color: #FFFFFF; font-style: italic; margin-right: 75px">Getuid : </i>
+                                                    <i style="color: #eb5d26; font-style: italic; margin-right: 120px">Getuid : </i>
                                               <a href="#" id="getuid"></a>
                                                 </div>
                                             </div>
@@ -177,7 +175,7 @@
                       <div class="row">
                           <div class="mainsection" style="color: #ffffff !important; font-size: 18px !important" id="mainsection">
 
-                            <div id="terminal">
+                            <div id="terminal-container">
                                 <script>
                                     var term = new Terminal({
                                         cols: 170,
@@ -207,16 +205,29 @@
                                             brightWhite: '#f1f1f0'
                                         }
                                     });
-                                    term.open(document.getElementById('terminal'));
+                                    Terminal.applyAddon(fit);
+                                    var mybuf=[];
+                                    term.open(document.getElementById('terminal-container'));
+                                    term.writeln('\n\n\x1B[1;3;31wWelcome To Meterpreter Web Terminal\x1B');
                                     term.write('\n\r\x1B[1;3;31mMeterpreter\x1B[0m $ ');
                                     term.on('key',(key,ev)=>{
+                                        term.write(key);
+                                        mybuf.push(key);
                                         console.log(key.charCodeAt((0)));
                                         if(key.charCodeAt(0)===13){
-                                            term.write("\n");
-                                            term.write(key);
+                                            term.write('\n\r\x1B[1;3;31mMeterpreter\x1B[0m $ ');
+                                            console.log(mybuf.join(""));
+                                        }
+                                        if(key.charCodeAt(0) === 127){
+                                            console.log("backspace")
+                                        }
+                                        if(key.charCodeAt(0) ===12){
+                                            term.clear()
                                         }
 
                                     });
+                                    term.fit()
+
                                 </script>
 
                             </div>

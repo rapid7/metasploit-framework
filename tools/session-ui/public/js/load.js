@@ -1,14 +1,5 @@
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
-document.onreadystatechange = function () {
-    var state = document.readyState
-    if (state == 'complete') {
-        setTimeout(function(){
-            document.getElementById('interactive');
-            document.getElementById('load').style.visibility="hidden";
-        },2000);
-    }
-}
 
 function modal(val){
     document.getElementById("sidebarTitle").innerText=val;

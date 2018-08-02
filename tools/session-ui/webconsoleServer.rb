@@ -8,7 +8,7 @@ require 'json'
 require './tools/session-ui/backend'
 
   class WebConsoleServer < Sinatra::Base
-    #helpers Sinatra::Backend
+    helpers Sinatra::Backend
 
     configure :development do
       set :json_content_type, :js
@@ -19,7 +19,6 @@ require './tools/session-ui/backend'
 
 
     get '/' do
-      # receives an input from
       File.open(File.join(File.dirname(__FILE__)+'/public','public.html'))
     end
 
@@ -34,10 +33,6 @@ require './tools/session-ui/backend'
       return Sinatra::Backend::Server.post_info(script)
     end
 
-    post "/executePostModule" do
-      content_type :json
-      #data= Sinatra::Backend::Server.execute_post_mod(params[:val])
-    end
 
     get "/post" do
       content_type :json
@@ -51,13 +46,5 @@ require './tools/session-ui/backend'
 # For invalid command
     not_found do
       "Whoops! You requested a route that wasn't available"
-    end
-#Get System information
-    post "/run_post" do
-      puts "Post Exploitation Module entered is "
-    end
-
-    post "/run_exten" do
-      puts "Extension Commands Entered by user is #{params[:exten_cmd]}"
     end
   end

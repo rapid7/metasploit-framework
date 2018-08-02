@@ -100,7 +100,6 @@ module Sinatra
 
         def sys_info
           info=@client.sys.config.sysinfo(refresh: true)
-          #sess_type=@client.session_type
           info["session_type"]=@client.session_type
           info["getuid"]=@client.sys.config.getuid
           return info.to_json
