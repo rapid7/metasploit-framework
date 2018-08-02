@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
 
   def check_aws_metadata
     resp = simple_get(@target_uri)
-    unless resp =~ /^instance-id$/m
+    unless resp =~ /^instance-id$/
       fail_with(Failure::BadConfig, "Session does not appear to be on an AWS EC2 instance")
     end
     resp
