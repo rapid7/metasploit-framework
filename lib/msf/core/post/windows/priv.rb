@@ -129,11 +129,10 @@ module Msf::Post::Windows::Priv
     winversion = session.sys.config.sysinfo['OS']
     return false unless winversion =~ /Windows (Vista|7|8|10|2008|2012|2016)/
 
-    enable_lua = registry_getvaldata(
+    registry_getvaldata(
       'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',
       'EnableLUA'
-    )
-    (enable_lua == 1)
+    ).eql?(1)
   rescue Rex::Post::Meterpreter::RequestError => e
     print_error("Error Checking if UAC is Enabled: #{e.class} #{e}")
     return false
