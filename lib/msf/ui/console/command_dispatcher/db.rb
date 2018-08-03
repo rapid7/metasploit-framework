@@ -1740,7 +1740,13 @@ class Db
 
   def cmd_db_connect(*args)
     return if not db_check_driver
-    if args[0] != '-h' && framework.db.connection_established?
+    if args[0] =~ /http/
+      driver = 'http'
+    else
+      driver = framework.db.driver
+    end
+
+    if args[0] != '-h' && driver != 'http' && framework.db.connection_established?
       cdb = ''
       ::ActiveRecord::Base.connection_pool.with_connection do |conn|
         if conn.respond_to?(:current_database)
@@ -1761,28 +1767,15 @@ class Db
       if (::File.exist? file)
         db = YAML.load(::File.read(file))['production']
         framework.db.connect(db)
-
-        if framework.db.active and not framework.db.modules_cached
-          print_status("Rebuilding the module cache in the background...")
-          framework.threads.spawn("ModuleCacheRebuild", true) do
-            framework.db.update_all_module_details
-          end
-        end
-
         return
       end
     end
-    meth = "db_connect_#{framework.db.driver}"
+
+    meth = "db_connect_#{driver}"
     if(self.respond_to?(meth, true))
       self.send(meth, *args)
-      if framework.db.active and not framework.db.modules_cached
-        print_status("Rebuilding the module cache in the background...")
-        framework.threads.spawn("ModuleCacheRebuild", true) do
-          framework.db.update_all_module_details
-        end
-      end
     else
-      print_error("This database driver #{framework.db.driver} is not currently supported")
+      print_error("This database driver #{driver} is not currently supported")
     end
   end
 
@@ -1900,6 +1893,38 @@ class Db
     end
   end
 
+  def db_connect_http(*args)
+    # local database is required to use Mdm objects
+    unless framework.db.active
+      print_error("No local database connected. Please connect to a local database before connecting to a remote data service.")
+      return
+    end
+
+    opts = { }
+    https_opts = { }
+
+    while (arg = args.shift)
+      case arg
+        when '-c', '--cert'
+          https_opts[:cert] = args.shift
+        when '--skip-verify'
+          https_opts[:skip_verify] = true
+        else
+          uri = db_parse_db_uri_http(arg)
+      end
+    end
+
+    opts[:https_opts] = https_opts unless https_opts.empty?
+    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(uri.to_s, opts)
+    begin
+      framework.db.register_data_service(remote_data_service)
+      print_line "Connected to remote data service: #{remote_data_service.name}"
+      framework.db.workspace = framework.db.default_workspace
+    rescue => e
+      print_error "There was a problem connecting to the remote data service: #{e.message}"
+    end
+  end
+
   def db_parse_db_uri_postgresql(path)
     res = {}
     if (path)
@@ -1914,6 +1939,10 @@ class Db
     end
     res[:name] = name || 'metasploit3'
     res
+  end
+
+  def db_parse_db_uri_http(path)
+    URI.parse(path)
   end
 
   #
@@ -1986,7 +2015,7 @@ class Db
         when '--skip-verify'
           https_opts[:skip_verify] = true
         else
-          host = arg
+          host = args.shift
       end
     end
 
