@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Actions'        =>
       [
-        ['SEND_COMMAND', { 'Description' => 'Send command to device' }],
+        ['SEND_COMMAND', { 'Description' => 'Send command to device' }]
       ],
       'DefaultAction' => 'SEND_COMMAND'))
 
@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('ASDU_ADDRESS', [true, "Common Address of ASDU", 1]),
         OptInt.new('COMMAND_ADDRESS', [true, "Command Address / IOA Address", 0]),
         OptInt.new('COMMAND_TYPE', [true, "Command Type", 100]),
-        OptInt.new('COMMAND_VALUE', [true, "Command Value", 20]),
+        OptInt.new('COMMAND_VALUE', [true, "Command Value", 20])
       ]
     )
   end
@@ -61,35 +61,34 @@ class MetasploitModule < Msf::Auxiliary
   # creates and STARTDT Activation frame -> answer should be a STARTDT confirmation
   def startcon
     apci_data = "\x68"
-    apci_data += "\x04"
-    apci_data += "\x07"
-    apci_data += "\x00"
-    apci_data += "\x00"
-    apci_data += "\x00"
+    apci_data << "\x04"
+    apci_data << "\x07"
+    apci_data << "\x00"
+    apci_data << "\x00"
+    apci_data << "\x00"
     apci_data
   end
 
   # creates and STOPDT Activation frame -> answer should be a STOPDT confirmation
   def stopcon
     apci_data = "\x68"
-    apci_data += "\x04"
-    apci_data += "\x13"
-    apci_data += "\x00"
-    apci_data += "\x00"
-    apci_data += "\x00"
+    apci_data << "\x04"
+    apci_data << "\x13"
+    apci_data << "\x00"
+    apci_data << "\x00"
+    apci_data << "\x00"
     apci_data
   end
-
 
   # creates the acpi header of a 104 message
   def make_apci(asdu_data)
     apci_data = "\x68"
-    apci_data += [asdu_data.size + 4].pack("c") # size byte
-    apci_data += String([$tx].pack('v'))
-    apci_data += String([$rx].pack('v'))
-  $rx=$rx+2
-  $tx = $tx + 2
-    apci_data += asdu_data
+    apci_data << [asdu_data.size + 4].pack("c") # size byte
+    apci_data << String([$tx].pack('v'))
+    apci_data << String([$rx].pack('v'))
+    $rx = $rx + 2
+    $tx = $tx + 2
+    apci_data << asdu_data
     apci_data
   end
 
@@ -97,7 +96,8 @@ class MetasploitModule < Msf::Auxiliary
   def parse_headers(response_data)
     if !response_data[0].eql?("\x04") && !response_data[1].eql?("\x01")
       $rx = + (response_data[2].unpack('H*').first + response_data[1].unpack('H*').first).to_i(16)
-      print_good("    TX: " + response_data[4].unpack('H*').first + response_data[3].unpack('H*').first + " RX: " + response_data[2].unpack('H*').first + response_data[1].unpack('H*').first)
+      print_good("    TX: " + response_data[4].unpack('H*').first + response_data[3].unpack('H*').first + \
+                 " RX: " + response_data[2].unpack('H*').first + response_data[1].unpack('H*').first)
     end
     if response_data[7].eql?("\x07")
       print_good("    CauseTx: " + response_data[7].unpack('H*').first + " (Activation Confirmation)")
@@ -134,127 +134,139 @@ class MetasploitModule < Msf::Auxiliary
   # following functions parse different 104 ASDU messages and prints it content, not all messages of the standard are currently implemented
   ##############################################################################################################
   def parse_m_sp_na_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1] # cut out acpi data
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000 # this bit determines the object addressing structure
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3] # extract ioa value
       response_data = response_data[3..-1] # cut ioa from message
       i = 0
       while response_data.length >= 1
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " SIQ: 0x" + response_data[0].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " SIQ: 0x" + response_data[0].unpack('H*').first)
         response_data = response_data[1..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1] # cut out acpi data
       while response_data.length >= 4
         ioa = response_data[0..3] # extract ioa
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " SIQ: 0x" + response_data[3].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " SIQ: 0x" + response_data[3].unpack('H*').first)
         response_data = response_data[4..-1]
       end
     end
   end
 
   def parse_m_me_nb_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 3
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " Value: 0x" + response_data[0..1].unpack('H*').first + " QDS: 0x" + response_data[2].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " Value: 0x" + response_data[0..1].unpack('H*').first + " QDS: 0x" + response_data[2].unpack('H*').first)
         response_data = response_data[3..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 6
         ioa = response_data[0..5]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " Value: 0x" + response_data[3..4].unpack('H*').first + " QDS: 0x" + + response_data[5].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " Value: 0x" + response_data[3..4].unpack('H*').first + " QDS: 0x" + + response_data[5].unpack('H*').first)
         response_data = response_data[6..-1]
       end
     end
   end
 
   def parse_c_sc_na_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 1
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " DIQ: 0x" + response_data[0].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " DIQ: 0x" + response_data[0].unpack('H*').first)
         response_data = response_data[1..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 4
         ioa = response_data[0..3]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " DIQ: 0x" + response_data[3].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " DIQ: 0x" + response_data[3].unpack('H*').first)
         response_data = response_data[4..-1]
       end
     end
   end
 
   def parse_m_dp_na_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 1
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " SIQ: 0x" + response_data[0].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " SIQ: 0x" + response_data[0].unpack('H*').first)
         response_data = response_data[1..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 4
         ioa = response_data[0..3]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " SIQ: 0x" + response_data[3].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " SIQ: 0x" + response_data[3].unpack('H*').first)
         response_data = response_data[4..-1]
       end
     end
   end
 
   def parse_m_st_na_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 2
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " VTI: 0x" + response_data[0].unpack('H*').first + " QDS: 0x" + response_data[1].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " VTI: 0x" + response_data[0].unpack('H*').first + " QDS: 0x" + response_data[1].unpack('H*').first)
         response_data = response_data[2..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 5
         ioa = response_data[0..4]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " VTI: 0x" + response_data[3].unpack('H*').first + " QDS: 0x" + response_data[4].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " VTI: 0x" + response_data[3].unpack('H*').first + " QDS: 0x" + response_data[4].unpack('H*').first)
         response_data = response_data[5..-1]
       end
     end
   end
 
   def parse_m_dp_tb_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 8
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " DIQ: 0x" + response_data[0].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " DIQ: 0x" + response_data[0].unpack('H*').first)
         print_cp56time2a(response_data[1..7])
         response_data = response_data[8..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 11
         ioa = response_data[0..10]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " DIQ: 0x" + response_data[3].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " DIQ: 0x" + response_data[3].unpack('H*').first)
         print_cp56time2a(response_data[4..10])
         response_data = response_data[11..-1]
       end
@@ -262,22 +274,24 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_m_sp_tb_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 8
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " SIQ: 0x" + response_data[0].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " SIQ: 0x" + response_data[0].unpack('H*').first)
         print_cp56time2a(response_data[1..7])
         response_data = response_data[8..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 11
         ioa = response_data[0..10]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " SIQ: 0x" + response_data[3].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " SIQ: 0x" + response_data[3].unpack('H*').first)
         print_cp56time2a(response_data[4..10])
         response_data = response_data[11..-1]
       end
@@ -285,107 +299,117 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_c_dc_na_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 1
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " DCO: 0x" + response_data[0].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " DCO: 0x" + response_data[0].unpack('H*').first)
         response_data = response_data[1..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 4
         ioa = response_data[0..3]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " DCO: 0x" + response_data[3].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " DCO: 0x" + response_data[3].unpack('H*').first)
         response_data = response_data[4..-1]
       end
     end
   end
 
   def parse_m_me_na_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 3
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " Value: 0x" + response_data[0..1].unpack('H*').first + " QDS: 0x" + response_data[2].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " Value: 0x" + response_data[0..1].unpack('H*').first + " QDS: 0x" + response_data[2].unpack('H*').first)
         response_data = response_data[3..-1]
         i += 1
-        end
+      end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 6
         ioa = response_data[0..3]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " Value: 0x" + ioa[3..4].unpack('H*').first + " QDS: 0x" + response_data[5].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " Value: 0x" + ioa[3..4].unpack('H*').first + " QDS: 0x" + response_data[5].unpack('H*').first)
         response_data = response_data[6..-1]
-       end
+      end
     end
   end
 
   def parse_m_me_nc_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 5
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " Value: 0x" + response_data[0..3].unpack('H*').first + " QDS: 0x" + response_data[4].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " Value: 0x" + response_data[0..3].unpack('H*').first + " QDS: 0x" + response_data[4].unpack('H*').first)
         response_data = response_data[5..-1]
         i += 1
       end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 8
         ioa = response_data[0..3]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " Value: 0x" + response_data[3..6].unpack('H*').first + " QDS: 0x" + response_data[7].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " Value: 0x" + response_data[3..6].unpack('H*').first + " QDS: 0x" + response_data[7].unpack('H*').first)
         response_data = response_data[8..-1]
-        end
+      end
     end
   end
 
   def parse_m_it_na_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       response_data = response_data[11..-1]
       ioa = response_data[0..3]
-      response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 5
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " Value: 0x" + response_data[0..3].unpack('H*').first + " QDS: 0x" + response_data[4].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " Value: 0x" + response_data[0..3].unpack('H*').first + " QDS: 0x" + response_data[4].unpack('H*').first)
         response_data = response_data[5..-1]
         i += 1
       end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 8
         ioa = response_data[0..3]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " Value: 0x" + response_data[3..6].unpack('H*').first + " QDS: 0x" + response_data[7].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " Value: 0x" + response_data[3..6].unpack('H*').first + " QDS: 0x" + response_data[7].unpack('H*').first)
         response_data = response_data[8..-1]
-        end
+      end
     end
   end
 
   def parse_m_bo_na_1(response_data)
-    if (Integer(response_data[6].unpack('C').first) & 0b10000000).eql?(0b10000000)
-      response_data = response_data[11..-1]
+    sq_bit = Integer(response_data[6].unpack('C').first) & 0b10000000
+    response_data = response_data[11..-1] # cut out acpi data
+    if sq_bit.eql?(0b10000000)
       ioa = response_data[0..3]
       response_data = response_data[3..-1]
       i = 0
       while response_data.length >= 5
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + " Value: 0x" + response_data[0..3].unpack('H*').first + " QDS: 0x" + response_data[4].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16) + i) + \
+                   " Value: 0x" + response_data[0..3].unpack('H*').first + " QDS: 0x" + response_data[4].unpack('H*').first)
         response_data = response_data[5..-1]
         i += 1
       end
     else
-      response_data = response_data[11..-1]
       while response_data.length >= 8
         ioa = response_data[0..3]
-        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + " Value: 0x" + response_data[3..6].unpack('H*').first + " QDS: 0x" + response_data[7].unpack('H*').first)
+        print_good("    IOA: " + String((ioa[2].unpack('H*').first + ioa[1].unpack('H*').first + ioa[0].unpack('H*').first).to_i(16)) + \
+                   " Value: 0x" + response_data[3..6].unpack('H*').first + " QDS: 0x" + response_data[7].unpack('H*').first)
         response_data = response_data[8..-1]
-        end
+      end
     end
   end
 
@@ -400,7 +424,8 @@ class MetasploitModule < Msf::Auxiliary
     day = Integer(buf[4].unpack('c').first) & 0x1F
     month = (Integer(buf[5].unpack('c').first) & 0x0F) - 1
     year = (Integer(buf[6].unpack('c').first) & 0x7F) + 2000
-    print_good("    Timestamp: " + String(year) + "-" + String(format("%02d", month)) + "-" + String(format("%02d", day)) + " " + String(format("%02d", hour)) + ":" + String(format("%02d", minute)) + ":" + String(format("%02d", second)) + "." + String(us))
+    print_good("    Timestamp: " + String(year) + "-" + String(format("%02d", month)) + "-" + String(format("%02d", day)) + " " + \
+               String(format("%02d", hour)) + ":" + String(format("%02d", minute)) + ":" + String(format("%02d", second)) + "." + String(us))
   end
 
   ##############################################################################################################
@@ -480,7 +505,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Recieved unknown message")
         parse_headers(response_element)
         print_status(response_element.unpack('H*').first)
-       end
+      end
       # Uncomment for print recieved data
       # print_good("DEBUG: " + response_element.unpack('H*').first)
     end
@@ -491,7 +516,8 @@ class MetasploitModule < Msf::Auxiliary
   # for example a switching command would be:
   #    COMMAND_TYPE => 46   // double command without time
   #    COMMAND_ADDRESS => 100 // any IOA address that should be switched
-  #    COMMAND_VALUE => 6 // switching off with short pulse (use value 5 to switch on with short pulse)
+  #    COMMAND_VALUE => 6 // switching off with short pulse
+  #                          use value 5 to switch on with short pulse
   #
   # Structure of 104 message:
   #    1byte command type
@@ -505,15 +531,15 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Sending 104 command")
 
     asdu = [datastore['COMMAND_TYPE']].pack("c") # type of command
-    asdu += "\x01" # num ix -> only one item is send
-    asdu += "\x06" # cause of transmission = activation, 6
-    asdu += [datastore['ORIGINATOR_ADDRESS']].pack("c") # sets originator address of client
-    asdu += String([Integer(datastore['ASDU_ADDRESS'])].pack('v')) # sets the common address of ADSU
-    asdu += String([Integer(datastore['COMMAND_ADDRESS'])].pack('V'))[0..2] # sets the IOA address, todo: check command address fits in the 3byte address field
-    asdu += [datastore['COMMAND_VALUE']].pack("c") # sets the value of the command
+    asdu << "\x01" # num ix -> only one item is send
+    asdu << "\x06" # cause of transmission = activation, 6
+    asdu << [datastore['ORIGINATOR_ADDRESS']].pack("c") # sets originator address of client
+    asdu << String([Integer(datastore['ASDU_ADDRESS'])].pack('v')) # sets the common address of ADSU
+    asdu << String([Integer(datastore['COMMAND_ADDRESS'])].pack('V'))[0..2] # sets the IOA address, todo: check command address fits in the 3byte address field
+    asdu << [datastore['COMMAND_VALUE']].pack("c") # sets the value of the command
 
     # Uncomment for debugging
-    #print_status("Sending: " + make_apci(asdu).unpack('H*').first)
+    # print_status("Sending: " + make_apci(asdu).unpack('H*').first)
     response = send_frame(make_apci(asdu))
 
     if response.nil?
@@ -531,13 +557,13 @@ class MetasploitModule < Msf::Auxiliary
       connect
     rescue StandardError => e
       print_error("Error:" + e.message)
-    return
+      return
     end
 
     # send STARTDT_CON to activate connection
     response = send_frame(startcon)
-      if response.nil?
-        print_error("Could not connect to 104 service")
+    if response.nil?
+      print_error("Could not connect to 104 service")
       return
     else
       parse_response(response)
@@ -555,7 +581,7 @@ class MetasploitModule < Msf::Auxiliary
     response = send_frame(stopcon)
     if response.nil?
       print_error("Terminating Connection")
-    return
+      return
     else
       print_status("Terminating Connection")
       parse_response(response)
