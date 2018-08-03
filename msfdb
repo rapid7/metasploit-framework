@@ -182,19 +182,6 @@ def create_db
   Dir.mkdir(@db)
   run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db}")
 
-  File.open("#{@db}/pg_hba.conf", 'w') do |f|
-    f.puts "host    \"msf\"      \"#{@options[:msf_db_user]}\"      127.0.0.1/32           md5"
-    f.puts "host    \"msftest\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
-    f.puts "host    \"postgres\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           trust"
-    f.puts "host    \"template1\"   all                127.0.0.1/32           trust"
-    if Gem.win_platform?
-      f.puts "host    all             all                127.0.0.1/32           trust"
-      f.puts "host    all             all                ::1/128                trust"
-    else
-      f.puts "local   all             all                                       trust"
-    end
-  end
-
   File.open("#{@db}/postgresql.conf", 'a') do |f|
     f.puts "port = #{@options[:db_port]}"
   end
@@ -255,13 +242,33 @@ def init_db
   run_psql("alter role #{@options[:msf_db_user]} with password '#{msf_pass}'")
   run_psql("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
   run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msf_db_user]} -h 127.0.0.1 -U #{@options[:msf_db_user]} -E UTF-8 -T template0 #{@options[:msf_db_name]}",
-    "#{msf_pass}\n#{msf_pass}\n")
+          "#{msf_pass}\n#{msf_pass}\n")
   run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msftest_db_user]} -h 127.0.0.1 -U #{@options[:msftest_db_user]} -E UTF-8 -T template0 #{@options[:msftest_db_name]}",
-    "#{msftest_pass}\n#{msftest_pass}\n")
+          "#{msftest_pass}\n#{msftest_pass}\n")
+
+  write_db_client_auth_config
+  restart_db
 
   puts 'Creating initial database schema'
   Dir.chdir(@framework) do
     run_cmd("bundle exec rake db:migrate")
+  end
+end
+
+def write_db_client_auth_config
+  client_auth_config = "#{@db}/pg_hba.conf"
+  puts "Writing client authentication configuration file #{client_auth_config}"
+  File.open(client_auth_config, 'w') do |f|
+    f.puts "host    \"#{@options[:msf_db_name]}\"      \"#{@options[:msf_db_user]}\"      127.0.0.1/32           md5"
+    f.puts "host    \"#{@options[:msftest_db_name]}\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
+    f.puts "host    \"postgres\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
+    f.puts "host    \"template1\"   all                127.0.0.1/32           trust"
+    if Gem.win_platform?
+      f.puts "host    all             all                127.0.0.1/32           trust"
+      f.puts "host    all             all                ::1/128                trust"
+    else
+      f.puts "local   all             all                                       trust"
+    end
   end
 end
 
