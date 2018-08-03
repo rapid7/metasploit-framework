@@ -35,8 +35,10 @@ class MetasploitModule < Msf::Evasion
     }|
   end
 
-  def generate(opts={})
-    Metasploit::Framework::Compiler::Windows.compile_random_c(c_template)
+  def run
+    print_status("This module is working")
+    bin = Metasploit::Framework::Compiler::Windows.compile_random_c(c_template)
+    print_status("Compiled binary size: #{bin.length}")
   end
 
 end

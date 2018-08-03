@@ -989,7 +989,7 @@ module Msf
           def show_payloads(regex = nil, minrank = nil, opts = nil) # :nodoc:
             # If an active module has been selected and it's an exploit, get the
             # list of compatible payloads and display them
-            if (active_module and active_module.exploit? == true)
+            if (active_module and (active_module.exploit? == true or active_module.evasion?))
               show_module_set("Compatible Payloads", active_module.compatible_payloads, regex, minrank, opts)
             else
               show_module_set("Payloads", framework.payloads, regex, minrank, opts)
