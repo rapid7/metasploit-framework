@@ -357,13 +357,38 @@ def init_web_service
 
   # Write a default Rack config file for the web service
   Dir.mkdir(@localconf) unless File.directory?(@localconf)
+  # TODO: free the REST API from all of these requirements
   File.open(@ws_conf, 'w') do |f|
     f.puts <<~EOF
       # #{File.basename(@ws_conf)}
       # created on: #{Time.now.utc}
-      lib_path = File.expand_path('./lib/', '#{@framework}')
-      $LOAD_PATH << lib_path unless $LOAD_PATH.include?(lib_path)
+      require 'pathname'
+      require File.expand_path('./config/boot', '#{@framework}')
+      require 'metasploit/framework/parsed_options/remote_db'
       require 'msf/core/db_manager/http/metasploit_api_app'
+
+      def require_environment!(parsed_options)
+        # RAILS_ENV must be set before requiring 'config/application.rb'
+        parsed_options.environment!
+        ARGV.replace(parsed_options.positional)
+
+        # allow other Rails::Applications to use this command
+        if !defined?(Rails) || Rails.application.nil?
+          # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/commands.rb#L39-L40
+          require File.expand_path('./config/application', '#{@framework}')
+        end
+
+        # have to configure before requiring environment because
+        # config/environment.rb calls initialize! and the initializers will use
+        # the configuration from the parsed options.
+        parsed_options.configure(Rails.application)
+
+        Rails.application.require_environment!
+      end
+
+      parsed_options = Metasploit::Framework::ParsedOptions::RemoteDB.new
+      require_environment!(parsed_options)
+
       run MetasploitApiApp
     EOF
   end
