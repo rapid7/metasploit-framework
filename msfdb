@@ -391,7 +391,9 @@ def init_web_service
   end
 
   if is_online
-    add_web_service_user
+    if add_web_service_user
+      output_web_service_information
+    end
   else
     puts "MSF web service does not appear to be online; aborting initialize."
   end
@@ -491,7 +493,7 @@ def add_web_service_user
     puts "Error creating MSF web service user #{@msf_ws_user}"
     return false
   end
-  puts "\nMSF web service user: #{@msf_ws_user}"
+  puts "\nMSF web service username: #{@msf_ws_user}"
   puts "MSF web service password: #{msf_ws_pass}"
 
   # Send request to create new API token for the user
@@ -506,6 +508,21 @@ def add_web_service_user
   puts "MSF web service user API token: #{@ws_api_token}"
   puts "Please store these credentials securely."
   return true
+end
+
+def output_web_service_information
+  puts ''
+  puts 'MSF web service configuration complete'
+  puts 'Add the data service in msfconsole using the command:'
+  # build data services command based on install options
+  ds_cmd = "data_services --add --token #{@ws_api_token}"
+  ds_cmd << " --ssl --cert #{@options[:ssl_cert]}" if @options[:ssl]
+  ds_cmd << " --skip-verify" if skip_ssl_verify
+  ds_cmd << " #{get_web_service_host}"
+  puts "#{ds_cmd}"
+  puts ''
+  puts 'The username and password are credentials for the API account:'
+  puts "#{get_web_service_uri(path: '/api/v1/auth/account')}"
 end
 
 def get_web_service_uri(path: nil)
