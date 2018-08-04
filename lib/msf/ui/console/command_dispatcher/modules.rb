@@ -595,7 +595,7 @@ module Msf
           # Uses a module.
           #
           def cmd_use(*args)
-            if (args.length == 0)
+            if args.length == 0 || args.first == '-h'
               cmd_use_help
               return false
             end
