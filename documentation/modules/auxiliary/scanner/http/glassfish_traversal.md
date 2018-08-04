@@ -1,22 +1,21 @@
 ## Vulnerable Application
 
-This module exploits an unauthenticated directory traversal vulnerability which exits in administration console of,
+This module exploits an unauthenticated directory traversal vulnerability which exists in administration console of,
 Oracle GlassFish Server 4.1, which is listening by default on port 4848/TCP.
 
 Related links :
 
 * https://www.exploit-db.com/exploits/39441/
 * https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2015-016/?fid=6904
+* http://download.oracle.com/glassfish/4.1/release/glassfish-4.1.zip - Download Oracle Glass Fish 4.1
 
 ## Verification
 
-```
-Start msfconsole
-use auxiliary/scanner/http/glassfish_traversal
-set RHOSTS [IP]
-run
-```
-
+  1. Start msfconsole
+  2. Do: ```use auxiliary/scanner/http/glassfish_traversal```
+  3. Do: ```set RHOSTS [IP]```
+  4. Do: ```run```
+  
 ## Scenarios
 
 ```
