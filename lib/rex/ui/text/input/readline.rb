@@ -168,7 +168,8 @@ begin
         end
 
         if add_history && line
-          RbReadline.add_history(line)
+          index = ::Readline::HISTORY.length - 1
+          RbReadline.add_history(line) if not (line == ::Readline::HISTORY[index])
         end
 
         line.try(:dup)
