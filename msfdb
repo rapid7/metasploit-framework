@@ -313,10 +313,14 @@ end
 
 def delete_db
   if Dir.exist?(@db)
-    puts "Deleting all data at #{@db}"
     stop_db
-    FileUtils.rm_rf(@db)
-    if File.exist?(@db_conf) && ask_yn("Delete database configuration at #{@db_conf}?")
+
+    if ask_yn("Delete all data at #{@db}?")
+      puts "Deleting all data at #{@db}"
+      FileUtils.rm_rf(@db)
+    end
+
+    if File.file?(@db_conf) && ask_yn("Delete database configuration at #{@db_conf}?")
       File.delete(@db_conf)
     end
   else
