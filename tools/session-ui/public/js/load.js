@@ -6,6 +6,7 @@ toggle between hiding and showing the dropdown content */
 var url='ws://' + window.location.host+window.location.pathname;
 var ws = new WebSocket(url);
 
+
 var terminalContainer = document.getElementById('terminal-container');
 Terminal.applyAddon(fit);
 var url='ws://' + window.location.host+window.location.pathname;
@@ -122,6 +123,7 @@ ws.onopen    = function(event)  {
     };
 
 };
+
 var sendMessage = function (message){
     localStorage.setItem("msg",message);
     if (ws.readyState === WebSocket.OPEN) {
@@ -263,9 +265,10 @@ function ExtensionCommand() {
     xhr.onload = function () {
         var exten = xhr.response;
         var extenJson=JSON.parse(exten);
+        var count=0;
         if (xhr.readyState === 4 && xhr.status === 200) {
             var arr = Object.keys(extenJson);
-            console.log(extenJson)
+            console.log(extenJson);
             for (var i = 0; i < arr.length; i++) {
                 var menu2 = document.createElement("a");
                 menu2.setAttribute("class", "list-group-item");
@@ -273,11 +276,11 @@ function ExtensionCommand() {
                 menu2.setAttribute("aria-expanded", "false");
                 menu2.innerHTML = arr[i];
 
-                menu2.setAttribute("href", "#" + arr[i]);
+                menu2.setAttribute("href", "#" + count);
 
                 var menu2sub = document.createElement('div');
                 menu2sub.setAttribute("class", "collapse");
-                menu2sub.setAttribute("id", arr[i]);
+                menu2sub.setAttribute("id", count);
 
                 var data = Object.values(extenJson[arr[i]]);
                 // sub-commands
@@ -285,7 +288,7 @@ function ExtensionCommand() {
                 if (data.length === 0) {
                     var data_list = document.createElement('a');
                     data_list.setAttribute("class", "list-group-item");
-                    data_list.setAttribute("data-parent", "#" + arr[i]);
+                    data_list.setAttribute("data-parent", "#" + count);
                     data_list.setAttribute("href", "#");
                     data_list.innerHTML = "No Command Available";
                     menu2sub.appendChild(data_list);
@@ -294,7 +297,7 @@ function ExtensionCommand() {
                     for (var j = 0; j < data.length; j++) {
                         var data_list = document.createElement('a');
                         data_list.setAttribute("class", "list-group-item");
-                        data_list.setAttribute("data-parent", "#" + arr[i]);
+                        data_list.setAttribute("data-parent", "#" + count);
                         data_list.setAttribute("href", "#");
                         data_list.setAttribute("data-toggle", "modal");
                         data_list.setAttribute("data-target", "#sidebarModal2");
@@ -307,6 +310,7 @@ function ExtensionCommand() {
 
                 document.getElementById("menu2").appendChild(menu2);
                 document.getElementById("menu2").appendChild(menu2sub);
+                count++;
             }
 
         }
