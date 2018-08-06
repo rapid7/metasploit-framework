@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Post
     end
 
     print_status("Running module against #{host}")
-    
+
     unless is_root?
       fail_with(Failure::NoAccess, 'It is necessary to be root!')
     end
