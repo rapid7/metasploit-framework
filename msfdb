@@ -362,8 +362,11 @@ def init_web_service
     f.puts <<~EOF
       # #{File.basename(@ws_conf)}
       # created on: #{Time.now.utc}
-      require 'pathname'
-      require File.expand_path('./config/boot', '#{@framework}')
+
+      @framework_path = '#{@framework}'
+      $LOAD_PATH << @framework_path unless $LOAD_PATH.include?(@framework_path)
+
+      require File.expand_path('./config/boot', @framework_path)
       require 'metasploit/framework/parsed_options/remote_db'
       require 'msf/core/db_manager/http/metasploit_api_app'
 
@@ -375,7 +378,7 @@ def init_web_service
         # allow other Rails::Applications to use this command
         if !defined?(Rails) || Rails.application.nil?
           # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/commands.rb#L39-L40
-          require File.expand_path('./config/application', '#{@framework}')
+          require File.expand_path('./config/application', @framework_path)
         end
 
         # have to configure before requiring environment because
