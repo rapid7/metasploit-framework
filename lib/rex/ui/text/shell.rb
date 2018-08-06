@@ -21,6 +21,7 @@ module Shell
   ###
   module InputShell
     attr_accessor :prompt, :output
+    @hist_last_added = nil
 
     def pgets
 
@@ -210,7 +211,10 @@ module Shell
           # command, create the file if it doesn't exist
           if ret and self.histfile
             File.open(self.histfile, "a+") { |f|
-              f.puts(line)
+              if not @hist_last_added == line
+                f.puts(line)
+                @hist_last_added = line
+              end
             }
           end
           self.stop_count = 0
