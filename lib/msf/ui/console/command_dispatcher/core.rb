@@ -1432,13 +1432,16 @@ class Core
           end
           print_status("Starting Web Console for #{sess_id}")
           begin
-            server_bind='localhost'
+            server_bind='0.0.0.0'
             server_port=3000 + sess_id
 
             Sinatra::Backend::Server.setup(framework,sess_id)
             thr = []
             thr << framework.threads.spawn("ConsoletoBrowser",true) do
-              WebConsoleServer.run!(:host=>server_bind,:port=>server_port)
+              WebConsoleServer.run!(:bind=>server_bind,:port=>server_port)
+              $stdout.reopen(File.new('/dev/null', 'w'))
+              $stderr.reopen(File.new('/dev/null', 'w'))
+
             end
 
             thr << framework.threads.spawn("OpenBrowser",true) do

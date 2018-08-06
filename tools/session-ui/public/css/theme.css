@@ -3,7 +3,7 @@
 
 Project:  METERPRETER WebView
 Version:    1.0
-Last change:    08/10/2018 [
+Last change:    08/10/2018
 Developer:  Rahul Dhawan
 Primary use:    Open Source
 -------------------------------------------------------------------*/
@@ -12,10 +12,9 @@ Primary use:    Open Source
 
 * body
     + Header / header
+    + Sidebar/
     + Page Content / .page-content .name-page
-        + Section Layouts / section .name-section
-        ...
-    + Footer / footer
+        xterm.js layout
 
 -------------------------------------------------------------------*/
 /*------------------------------------------------------------------
@@ -23,24 +22,12 @@ Primary use:    Open Source
 
 # Text Color (text): #97a3ab
 # Text Color on Hover (Text, title): #EB5D26
-# Page content background color : #182028
+# Page content background color : #182028 / #000000
 # Side Background Color : #262f36;
 
 ------------------------------------------------------------------*/
 /*------------------------------------------------------------------
-[Typography]
 
-Notes:  decreasing heading by 0.4em with every subsequent heading level
--------------------------------------------------------------------*/
-/*-----------------------------------------------------*/
-/*                   SETTINGS                          */
-/*-----------------------------------------------------*/
-/*-----------------------------------------------------*/
-/*                   TOOLS                             */
-/*-----------------------------------------------------*/
-/*-----------------------------------------------------*/
-/*                   GENERIC                           */
-/*-----------------------------------------------------*/
 /* ----- Normalize ----- */
 * {
     margin: 0;
@@ -103,7 +90,7 @@ p {
 body {
     font-family: "Poppins", sans-serif;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.625;
     color: #666;
     -webkit-font-smoothing: antialiased;
@@ -240,7 +227,7 @@ a {
 /* ----- Section----- */
 
 .mainsection{
-  color: #182028;
+  color: #000000;
   
 
 }
@@ -287,7 +274,7 @@ section {
 }
 
 .page-container {
-    background: #182028;
+    background: #000000;
     padding-left: 280px;    
 }
 
@@ -431,7 +418,7 @@ section {
     position: fixed;
     top: 0;
     right: 0;
-    left: 299px;
+    left: 250px;
     height: 75px;
     z-index: 3;
 }
@@ -554,92 +541,6 @@ section {
     }
 }
 
-.noti-wrap {
-    height: 45px;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -moz-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-}
-
-.noti-wrap .noti__item:last-child {
-    margin-right: 50px;
-}
-
-@media (max-width: 1200px) {
-    .noti-wrap .noti__item:last-child {
-        margin-right: 30px;
-    }
-}
-
-@media (max-width: 991px) {
-    .noti-wrap .noti__item:last-child {
-        margin-right: 0;
-    }
-}
-
-.noti__item {
-    position: relative;
-    margin-right: 35px;
-    display: inline-block;
-    cursor: pointer;
-}
-
-@media (max-width: 1200px) {
-    .noti__item {
-        margin-right: 25px;
-    }
-}
-
-@media (max-width: 767px) {
-    .noti__item {
-        margin-right: 20px;
-    }
-}
-
-.noti__item:hover i {
-    color: #999;
-}
-
-.noti__item i {
-    font-size: 30px;
-    color: #a9b3c9;
-    -webkit-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    transition: all 0.5s ease;
-    vertical-align: middle;
-}
-
-@media (max-width: 767px) {
-    .noti__item i {
-        font-size: 24px;
-    }
-}
-
-.noti__item .quantity {
-    position: absolute;
-    display: inline-block;
-    top: -4px;
-    right: -7px;
-    height: 15px;
-    width: 15px;
-    line-height: 15px;
-    text-align: center;
-    background: #ff4b5a;
-    color: #fff;
-    -webkit-border-radius: 100%;
-    -moz-border-radius: 100%;
-    border-radius: 100%;
-    font-size: 12px;
-}
-
 
 .account-wrap {
     position: relative;
@@ -689,7 +590,7 @@ section {
 }
 
 .account-dropdown {
-    min-width: 350px;
+    min-width: 300px;
     position: absolute;
     top: 58px;
     right: 0;
@@ -826,130 +727,6 @@ section {
     transform: translate3d(0, -12px, 0) rotate(-90deg);
 }
 
-.mess-dropdown, .ip-dropdown, .notifi-dropdown, .setting-dropdown {
-    position: absolute;
-    z-index: 9999;
-    min-width: 340px;
-    background: #fff;
-    -webkit-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
-    box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e5e5;
-    -webkit-transform: scale(0);
-    -moz-transform: scale(0);
-    -ms-transform: scale(0);
-    -o-transform: scale(0);
-    transform: scale(0);
-    -webkit-transition: all 0.4s ease;
-    -o-transition: all 0.4s ease;
-    -moz-transition: all 0.4s ease;
-    transition: all 0.4s ease;
-    -webkit-transform-origin: left top;
-    -moz-transform-origin: left top;
-    -ms-transform-origin: left top;
-    -o-transform-origin: left top;
-    transform-origin: left top;
-    top: 100%;
-    left: 0;
-}
-
-.mess-dropdown:before, .ip-dropdown:before, .notifi-dropdown:before, .setting-dropdown:before {
-    content: '';
-    display: block;
-    width: 19px;
-    height: 19px;
-    border-bottom: 9px solid #fff;
-    border-top: 9px solid transparent;
-    border-left: 9px solid transparent;
-    border-right: 9px solid transparent;
-    position: absolute;
-    top: -17px;
-    left: 55px;
-    z-index: 3;
-}
-
-.mess__title, .ip__title, .notifi__title {
-    padding: 22px;
-    border-bottom: 1px solid #f2f2f2;
-    cursor: default;
-}
-
-.mess__title p, .ip__title p, .notifi__title p {
-    line-height: -webkit-calc(29/14);
-    line-height: -moz-calc(29/14);
-    line-height: calc(29/14);
-    font-size: 14px;
-    color: #808080;
-}
-
-.mess__footer a, .ip__footer a, .notifi__footer a {
-    display: block;
-    text-transform: capitalize;
-    text-align: center;
-    font-size: 14px;
-    color: #4272d7;
-    padding: 24px 0;
-}
-
-.mess__footer a:hover, .ip__footer a:hover, .notifi__footer a:hover {
-    color: #3868cd;
-}
-
-.mess-dropdown {
-    top: 49px;
-    left: -55px;
-}
-
-.mess__item {
-    padding: 19px 22px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #f2f2f2;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    transition: all 0.5s ease;
-}
-
-.mess__item:hover {
-    background: #f7f7f7;
-}
-
-.mess__item .image {
-    margin-right: 15px;
-}
-
-.mess__item .content {
-    width: -webkit-calc(100% - 55px);
-    width: -moz-calc(100% - 55px);
-    width: calc(100% - 55px);
-    text-align: left;
-}
-
-.mess__item .content h6 {
-    font-size: 14px;
-    font-weight: 600;
-    padding-top: 4px;
-}
-
-.mess__item .content p {
-    font-size: 14px;
-    color: #555;
-    line-height: -webkit-calc(24/14);
-    line-height: -moz-calc(24/14);
-    line-height: calc(24/14);
-    margin-bottom: 4px;
-}
-
-.mess__item .content .time {
-    font-size: 12px;
-    color: #999;
-}
-
 .ip-dropdown {
     top: 49px;
     left: -53px;
@@ -998,72 +775,6 @@ section {
     color: #999;
 }
 
-.notifi-dropdown {
-    left: -117px;
-    top: 49px;
-}
-
-.notifi-dropdown::before {
-    left: 63px;
-}
-
-.notifi__item {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: flex;
-    padding: 19px 22px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #f2f2f2;
-    -webkit-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    transition: all 0.5s ease;
-}
-
-.notifi__item:hover {
-    background: #f7f7f7;
-}
-
-.notifi__item .img-cir {
-    position: relative;
-    margin-right: 15px;
-}
-
-.notifi__item .img-cir i {
-    font-size: 22px;
-    color: #fff;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    -o-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-}
-
-.notifi__item .content {
-    width: -webkit-calc(100% - 55px);
-    width: -moz-calc(100% - 55px);
-    width: calc(100% - 55px);
-    text-align: left;
-    font-size: 14px;
-}
-
-.notifi__item .content p {
-    color: #555;
-    line-height: 1;
-    padding-top: 5px;
-    margin-bottom: 2px;
-}
-
-.notifi__item .content .date {
-    font-size: 12px;
-    color: #999;
-}
-
 .show-dropdown .js-dropdown {
     -webkit-transform: scale(1);
     -moz-transform: scale(1);
@@ -1080,7 +791,7 @@ section {
 }
 
 .menu-sidebar2 {
-    width: 300px;
+    width: 250px;
     position: fixed;
     left: 0;
     top: 0;
@@ -1183,42 +894,6 @@ section {
     z-index: 0;
 }
 
-.bg-overlay--blue {
-    background: rgba(49, 89, 253, 0.9);
-}
-
-.bg-c1 {
-    background: #00ad5f;
-}
-
-.bg-c2 {
-    background: #fa4251;
-}
-
-.bg-c3 {
-    background: #ff8300;
-}
-
-.bg-flat-color-1 {
-    background: #20a8d8;
-}
-
-.bg-flat-color-2 {
-    background: #63c2de;
-}
-
-.bg-flat-color-3 {
-    background: #ffc107;
-}
-
-.bg-flat-color-4 {
-    background: #f86c6b;
-}
-
-.bg-flat-color-5 {
-    background: #4dbd74;
-}
-
 /*Image*/
 .img-radius {
     -webkit-border-radius: 5px;
@@ -1252,7 +927,10 @@ section {
 .vue-lists ul, .vue-lists ol {
     padding-left: 30px;
 }
-/* _______________ Side Bar CSS _______________________________ */
+/* _______________ Side Bar Bootstrap _______________________________ */
+
+
+
 #sidebar .list-group-item {
     border-radius: 0;
     background-color: #262f36;
@@ -1279,7 +957,6 @@ section {
 
 /* open state */
 #sidebar .list-group .list-group-item[aria-expanded="true"] {
-    
     color: #EB5D26;
 }
 
@@ -1350,23 +1027,6 @@ color: #EB5D26;
 
 }
 
-
-
-/* The search field */
-#Search {
-  border-box: box-sizing;
-  background-image: ;
-  background-position: 14px 12px;
-  background-repeat: no-repeat;
-  font-size: 16px;
-  padding: 14px 20px 12px 45px;
-  border: none;
-  border-bottom: 1px solid #ddd;
-  padding-left: 20px;
-}
-
-/* The search field when it gets focus/clicked on */
-#Search:focus {outline: 3px solid #ddd;}
 
 
 .modal-body{

@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'json'
 
+
 module Sinatra
   module Backend
     class Server
@@ -95,17 +96,26 @@ module Sinatra
 
             end
           end
-          return output.to_json
+          output.to_json
         end
 
-        def sys_info
+        def extension
+          output = {}
+          @client.console.dispatcher_stack.each do|dispatch|
+            name=dispatch.name
+            output[name] =dispatch.commands.keys
+          end
+          output.to_json
+        end
+
+        def session_info
           info=@client.sys.config.sysinfo(refresh: true)
           info["session_type"]=@client.session_type
           info["getuid"]=@client.sys.config.getuid
-          return info.to_json
+          info.to_json
         end
 
-        def post_info(*args)
+        def postmodule_info(*args)
           args.each do |name|
             mod=@framework.modules.create(name)
             if mod==nil
@@ -116,21 +126,33 @@ module Sinatra
           end
         end
 
-        def extension
-          #return @exten_cmd.to_json
-          return @client.to_json
+        def extension_help(cmd)
+          info=[]
+          @client.console.dispatcher_stack.each do|dispatch|
+            info.push(dispatch.commands[cmd])
+          end
+          return info
         end
 
-        def execute_post_mod(script)
-          # run Post Exploitation module commands and return the output in json format
 
+        def execute_script(script)
+          # Some Essential commnads
+          if script=="help" || script==="?"
+            output=nil
+            @client.console.dispatcher_stack.each do|dispatch|
+              output=dispatch.help_to_s
+            end
+            return output
+          else
+            @client.run_cmd(script)
+          end
         end
 
         def run_exten_cmd
           #run Extension commands
         end
       end
-  end
+    end
   end
   helpers Backend
 end

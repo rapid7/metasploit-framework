@@ -42,7 +42,10 @@
     user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
-    tabindex="0";
+    tabindex:"0";
+    /*
+    padding: 5px;
+     */
 }
 
 .xterm.focus,
@@ -116,6 +119,8 @@
     top: 0;
 }
 
+
+
 .xterm .xterm-scroll-area {
     visibility: hidden;
 }
@@ -159,4 +164,11 @@
     width: 1px;
     height: 1px;
     overflow: hidden;
+}
+
+#terminal-container {
+    padding-left:30px ;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
 }
