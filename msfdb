@@ -408,14 +408,14 @@ def init_web_service
 
   # wait until web service is online
   retry_count = 0
-  is_online = web_service_online
+  is_online = web_service_online?
   while !is_online && retry_count < @options[:retry_max]
     retry_count += 1
     if @options[:debug]
       puts "MSF web service doesn't appear to be online. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
     end
     sleep(@options[:retry_delay])
-    is_online = web_service_online
+    is_online = web_service_online?
   end
 
   if is_online
@@ -496,11 +496,11 @@ def generate_web_service_ssl(key:, cert:)
   File.chmod(mode_int, cert)
 end
 
-def web_service_online
+def web_service_online?
   msf_version_uri = get_web_service_uri(path: '/api/v1/msf/version')
   response = http_request(uri: msf_version_uri, method: :get,
-                          skip_verify: skip_ssl_verify, cert: get_ssl_cert)
-  puts "web_service_online: response=#{response}" if @options[:debug]
+                          skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
+  puts "web_service_online?: response=#{response}" if @options[:debug]
   !response.nil? && !response.dig(:data, :metasploit_version).nil?
 end
 
@@ -515,7 +515,7 @@ def add_web_service_user
   user_data = cred_data.merge({ admin: true })
   user_uri = get_web_service_uri(path: '/api/v1/users')
   response = http_request(uri: user_uri, data: user_data, method: :post,
-                          skip_verify: skip_ssl_verify, cert: get_ssl_cert)
+                          skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
   puts "add_web_service_user: create user response=#{response}" if @options[:debug]
   if response.nil? || response.dig(:data, :username) != @msf_ws_user
     puts "Error creating MSF web service user #{@msf_ws_user}"
@@ -527,7 +527,7 @@ def add_web_service_user
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
   response = http_request(uri: generate_token_uri, query: cred_data, method: :get,
-                          skip_verify: skip_ssl_verify, cert: get_ssl_cert)
+                          skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
   if response.nil? || (@ws_api_token = response.dig(:data, :token)).nil?
     puts "Error creating MSF web service user API token"
@@ -545,7 +545,7 @@ def output_web_service_information
   # build data services command based on install options
   ds_cmd = "data_services --add --token #{@ws_api_token}"
   ds_cmd << " --ssl --cert #{@options[:ssl_cert]}" if @options[:ssl]
-  ds_cmd << " --skip-verify" if skip_ssl_verify
+  ds_cmd << " --skip-verify" if skip_ssl_verify?
   ds_cmd << " #{get_web_service_host}"
   puts "#{ds_cmd}"
   puts ''
@@ -563,7 +563,7 @@ def get_web_service_host
   @options[:address] == '0.0.0.0' ? 'localhost' : @options[:address]
 end
 
-def skip_ssl_verify
+def skip_ssl_verify?
   @ws_generated_ssl || @options[:ssl_disable_verify]
 end
 
@@ -574,7 +574,7 @@ end
 def thin_cmd
   server_opts = "--rackup #{@ws_conf} --address #{@options[:address]} --port #{@options[:port]}"
   ssl_opts = @options[:ssl] ? "--ssl --ssl-key-file #{@options[:ssl_key]} --ssl-cert-file #{@options[:ssl_cert]}" : ''
-  ssl_opts << ' --ssl-disable-verify' if skip_ssl_verify
+  ssl_opts << ' --ssl-disable-verify' if skip_ssl_verify?
   adapter_opts = "--environment #{@options[:ws_env]}"
   daemon_opts = "--daemonize --log #{@ws_log} --pid #{@ws_pid} --tag #{@ws_tag}"
   all_opts = [server_opts, ssl_opts, adapter_opts, daemon_opts].reject(&:empty?).join(' ')
