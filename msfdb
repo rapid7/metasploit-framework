@@ -344,6 +344,12 @@ end
 
 def init_web_service
   if File.file?(@ws_conf)
+    puts "Found web service config at #{@ws_conf}, checking to see if it is started"
+    start_web_service
+    return
+  end
+
+  if File.file?(@ws_conf)
     if !ask_yn("Found web service config at #{@ws_conf}, do you want to overwrite it?")
       return
     end
@@ -433,15 +439,45 @@ def start_web_service
     return false
   end
 
+  # check if MSF web service is already started
+  if File.file?(@ws_pid)
+    ws_pid = tail(@ws_pid)
+    if ws_pid.nil? || !process_active?(ws_pid.to_i)
+      puts "MSF web service PID file found, but no active process running as PID #{ws_pid}"
+      puts "Deleting MSF web service PID file #{@ws_pid}"
+      File.delete(@ws_pid)
+    else
+      puts "MSF web service is already running as PID #{ws_pid}"
+      return false
+    end
+  end
+
   # daemonize MSF web service
   puts "Starting MSF web service"
   if run_cmd("#{thin_cmd} start") == 0
-    puts "MSF web service started"
-    return true
-  else
-    puts "MSF web service not started"
-    return false
+    # wait until web service is started
+    retry_count = 0
+    is_started = web_service_started?
+    while !is_started && retry_count < @options[:retry_max]
+      retry_count += 1
+      if @options[:debug]
+        puts "MSF web service doesn't appear to be started. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
+      end
+      sleep(@options[:retry_delay])
+      is_started = web_service_started?
+    end
+
+    if is_started
+      puts "MSF web service started"
+      return true
+    else
+      puts "MSF web service does not appear to be started; aborting start."
+      return false
+    end
   end
+
+  puts "Failed to start MSF web service"
+  return false
 end
 
 def stop_web_service
@@ -473,6 +509,11 @@ end
 def reinit_web_service
   delete_web_service
   init_web_service
+end
+
+def web_service_started?
+  ws_pid = tail(@ws_pid)
+  !ws_pid.nil? && process_active?(ws_pid.to_i)
 end
 
 def generate_web_service_ssl(key:, cert:)
