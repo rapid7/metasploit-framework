@@ -194,15 +194,77 @@ def init_db
     return
   end
 
-  if File.exist?(@db_conf)
-    if !ask_yn("Found database config at #{@db_conf}, do you want to overwrite it?")
+  if File.exist?(@db_conf) &&
+      !ask_yn("Found database config at #{@db_conf}, do you want to overwrite it?")
+    if !load_db_config
+      puts "Failed to load existing database config. Please reinit and overwrite the file."
       return
     end
+  else
+    write_db_config
   end
 
-  # Generate new database passwords
-  msf_pass = pw_gen
-  msftest_pass = pw_gen
+  create_db
+  start_db
+
+  puts 'Creating database users'
+  run_psql("create user #{@options[:msf_db_user]} with password '#{@msf_pass}'")
+  run_psql("create user #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
+  run_psql("alter role #{@options[:msf_db_user]} createdb")
+  run_psql("alter role #{@options[:msftest_db_user]} createdb")
+  run_psql("alter role #{@options[:msf_db_user]} with password '#{@msf_pass}'")
+  run_psql("alter role #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
+  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msf_db_user]} -h 127.0.0.1 -U #{@options[:msf_db_user]} -E UTF-8 -T template0 #{@options[:msf_db_name]}",
+          "#{@msf_pass}\n#{@msf_pass}\n")
+  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msftest_db_user]} -h 127.0.0.1 -U #{@options[:msftest_db_user]} -E UTF-8 -T template0 #{@options[:msftest_db_name]}",
+          "#{@msftest_pass}\n#{@msftest_pass}\n")
+
+  write_db_client_auth_config
+  restart_db
+
+  puts 'Creating initial database schema'
+  Dir.chdir(@framework) do
+    run_cmd('bundle exec rake db:migrate')
+  end
+end
+
+def load_db_config
+  if File.file?(@db_conf)
+    config = YAML.load(File.read(@db_conf))
+
+    production = config['production']
+    if production.nil?
+      puts "No production section found in database config #{@db_conf}."
+      return false
+    end
+
+    test = config['test']
+    if test.nil?
+      puts "No test section found in database config #{@db_conf}."
+      return false
+    end
+
+    # get values for development and production
+    @options[:msf_db_name] = production['database']
+    @options[:msf_db_user] = production['username']
+    @msf_pass = production['password']
+    @options[:db_port] = production['port']
+    @options[:db_pool] = production['pool']
+
+    # get values for test
+    @options[:msftest_db_name] = test['database']
+    @options[:msftest_db_user] = test['username']
+    @msftest_pass = test['password']
+    return true
+  end
+
+  return false
+end
+
+def write_db_config
+  # Generate new database passwords if not already assigned
+  @msf_pass ||= pw_gen
+  @msftest_pass ||= pw_gen
 
   # Write a default database config file
   Dir.mkdir(@localconf) unless File.directory?(@localconf)
@@ -212,7 +274,7 @@ def init_db
         adapter: postgresql
         database: #{@options[:msf_db_name]}
         username: #{@options[:msf_db_user]}
-        password: #{msf_pass}
+        password: #{@msf_pass}
         host: 127.0.0.1
         port: #{@options[:db_port]}
         pool: #{@options[:db_pool]}
@@ -224,35 +286,11 @@ def init_db
         <<: *pgsql
         database: #{@options[:msftest_db_name]}
         username: #{@options[:msftest_db_user]}
-        password: #{msftest_pass}
+        password: #{@msftest_pass}
     EOF
   end
 
   File.chmod(0640, @db_conf)
-
-  create_db
-
-  start_db
-
-  puts 'Creating database users'
-  run_psql("create user #{@options[:msf_db_user]} with password '#{msf_pass}'")
-  run_psql("create user #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
-  run_psql("alter role #{@options[:msf_db_user]} createdb")
-  run_psql("alter role #{@options[:msftest_db_user]} createdb")
-  run_psql("alter role #{@options[:msf_db_user]} with password '#{msf_pass}'")
-  run_psql("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
-  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msf_db_user]} -h 127.0.0.1 -U #{@options[:msf_db_user]} -E UTF-8 -T template0 #{@options[:msf_db_name]}",
-          "#{msf_pass}\n#{msf_pass}\n")
-  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msftest_db_user]} -h 127.0.0.1 -U #{@options[:msftest_db_user]} -E UTF-8 -T template0 #{@options[:msftest_db_name]}",
-          "#{msftest_pass}\n#{msftest_pass}\n")
-
-  write_db_client_auth_config
-  restart_db
-
-  puts 'Creating initial database schema'
-  Dir.chdir(@framework) do
-    run_cmd('bundle exec rake db:migrate')
-  end
 end
 
 def write_db_client_auth_config
