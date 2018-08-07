@@ -296,6 +296,47 @@ class Module
     false
   end
 
+  def required_cred_options
+    @required_cred_options ||= lambda {
+      self.options.select { |name, opt|
+        (
+          opt.type?('string') &&
+          opt.required &&
+          (opt.name.match(/user(name)*$/i) || name.match(/pass(word)*$/i))
+        ) ||
+        (
+          opt.type?('bool') &&
+          opt.required &&
+          opt.name.match(/^allow_guest$/i)
+        )
+      }
+    }.call
+  end
+
+  def post_auth?
+    if self.kind_of?(Msf::Auxiliary::AuthBrute)
+      return true
+    else
+      # Some modules create their own username and password datastore
+      # options, not relying on the AuthBrute mixin. In that case we
+      # just have to go through the options and try to identify them.
+      !required_cred_options.empty?
+    end
+  end
+
+  def has_default_cred?
+    return false unless post_auth?
+
+    cred_opts_with_default = required_cred_options.select { |name, opt|
+      case opt.type
+      when 'string'
+        return true unless opt.default.blank?
+      end
+    }
+
+    false
+  end
+
   #
   # The array of zero or more platforms.
   #
