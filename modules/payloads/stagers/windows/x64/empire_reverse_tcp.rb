@@ -1,7 +1,9 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see theMetasploit
 # web site for more information on licensing and terms of use.
-# http://metasploit.com/
+# http://metasploit.com
+require 'socket'
+require 'resolv-replace'
 require 'msf/core/handler/empire_reverse_tcp.rb'
 require 'msf/core/module/data_store'
 require 'msf/core/module/options'
@@ -27,14 +29,6 @@ module MetasploitModule
     ))
     register_options(
       [
-      OptString.new(
-        'USERNAME',
-        [true,
-        'The username passed while initiating Empire-API. Make sure you set the correct username']),
-      OptString.new(
-        'PASSWORD',
-        [true,
-         'The password passed while initiating Empire-API. Make sure you set correct password']),
       OptAddress.new(
         'LHOST',
         [true,
@@ -53,21 +47,27 @@ module MetasploitModule
       OptString.new(
         'StagerType',
         [true,
-        'The type of stager to be generated','windows/launcher']),
+        'The type of stager to be generated','windows/launcher_vbs']),
       OptString.new(
         'PathToEmpire',
         [true,
         'The complete path to Empire-WEB API',
-        '/'])
+        ])
     ])
   end
 
   def generate
+    def gen_port
+      rand_port = rand(2000..62000)
+      if not system("netstat -nlt | grep #{rand_port} >> /dev/null")
+        return rand_port
+      else
+        gen_port()
+      end
+    end
     #
     #Storing data from user
     #
-    @user_empire = datastore['USERNAME'].to_s
-    @pass_empire = datastore['PASSWORD'].to_s
     @host = datastore['LHOST'].to_s
     @port = datastore['LPORT'].to_s
     @listener_name = datastore['ListenerName'].to_s
@@ -78,20 +78,42 @@ module MetasploitModule
     #Set excepions at breakpoints.
     #Changing path to the Empire directory
     #
-    Dir.chdir(@path)
-    if not File.file?("empire.sh")
-      return "Invalid Directory"
-    end
+    #Dir.chdir(@path)
+    #if not File.file?("empire.sh")
+    #  return "Invalid Directory"
+    #end
     #
     #Check for open Empire Instance over 1337
     #
-    if not system("netstat -nlt | grep 1337 >> /dev/null")
-      return "Empire-API not yet active"
+    #if not system("netstat -nlt | grep 1337 >> /dev/null")
+    #  return "Empire-API not yet active"
+    #end
+    #
+    #Setting default values for msfconsole to initiate
+    #LHOST
+    #
+    if datastore['LHOST']
+      @host = datastore['LHOST']
+    else
+      ip = Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
+      @host = ip.ip_address
+    end
+    #LPORT
+    if datastore['LPORT']
+      @port = datastore['LPORT']
+    else
+      @port = gen_port()
+    end
+    #ListenerName
+    if datastore['ListenerName']
+      @listener_name = datastore['ListenerName']
+    else
+      @listener_name = "ListenerEmpire#{rand(1..100)}"
     end
     #
     #Creating an empire object
     #
-    client_emp = Msf::Empire.Client.new(@user_empire, @pass_empire)
+    client_emp = Msf::Empire::Client.new
     #
     #Check if any listener with provided listener name exists previously
     #
