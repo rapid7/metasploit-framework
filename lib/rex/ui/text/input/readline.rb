@@ -176,7 +176,15 @@ begin
 
         line.try(:dup)
       else
-        ::Readline.readline(reset_sequence + prompt, true)
+        # The line that's read is immediately added to history
+        line = ::Readline.readline(reset_sequence + prompt, true)
+
+        # Don't add duplicate lines to history
+        if ::Readline::HISTORY.length > 1 && line == ::Readline::HISTORY[-2]
+          ::Readline::HISTORY.pop
+        end
+
+        line
       end
     end
 
