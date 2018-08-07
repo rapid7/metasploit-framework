@@ -6,7 +6,7 @@ Because the Metasploit Framework has many tens of thousands of users who rely on
 
 Most open source community support for Metasploit comes in the form of Metasploit modules. The following should be considered for acceptance, but note that these guidelines are typically phrased as "shoulds," not "musts," since there are always exceptions to the norm -- especially when it comes to novel new attacks and techniques.
 
-Modules should pass [msftidy.rb](https://github.com/rapid7/metasploit-framework/blob/master/tools/msftidy.rb) and adhere to the [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) guidelines. Both are distributed with Metasploit. See [[Style Tips]] for some information on how to take some of the headache out of whitespace issues.
+Modules should pass [msftidy.rb](https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/msftidy.rb) and adhere to the [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md) guidelines. Both are distributed with Metasploit. See [[Style Tips]] for some information on how to take some of the headache out of whitespace issues.
 
 Modules should have a clear and obvious goal: Exploits should result in a shell. Post modules should result in privilege escalation or loot. Auxiliary modules are an "Everything else" category, but should be limited to some well-defined task -- usually, information gathering to enable an exploit or a post.
 
