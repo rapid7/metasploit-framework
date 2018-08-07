@@ -21,7 +21,6 @@ module Shell
   ###
   module InputShell
     attr_accessor :prompt, :output
-    @hist_last_added = nil
 
     def pgets
 
@@ -209,13 +208,9 @@ module Shell
           ret = run_single(line)
           # don't bother saving lines that couldn't be found as a
           # command, create the file if it doesn't exist
-          if ret and self.histfile
-            File.open(self.histfile, "a+") { |f|
-              if not @hist_last_added == line
-                f.puts(line)
-                @hist_last_added = line
-              end
-            }
+          if ret && self.histfile && line != @last_line
+            File.open(self.histfile, "a+") { |f| f.puts(line) }
+            @last_line = line
           end
           self.stop_count = 0
         end
