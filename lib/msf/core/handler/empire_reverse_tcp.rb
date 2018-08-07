@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
-require 'rex/socket'
+require 'socket'
+require 'resolv-replace'
 require 'thread'
 require 'msf/core/empire_lib'
 require 'msf/base/sessions/empire.rb'
@@ -36,14 +37,16 @@ module Msf
         #Registering Empire Options
         register_options(
           [
+            OptAddress.new(
+              'LHOST',
+              [true, 'Local address to listen on.']),
+            OptPort.new(
+              'LPORT',
+              [true,'Local port to listen on for inbound connections']),
             OptString.new(
               'ListenerName',
-              [true,'Name of the listener the Empire payload is made for']),
-            OptString.new(
-              'PathToEmpire',
-              [true,'Path to the directory where Empire is installed'])
+              [false,'Name of the listener the Empire payload is made for, if you remember.'])
           ])
-        deregister_options('LHOST','LPORT')
       end
 
       # A string suitable for displaying to the user
@@ -60,54 +63,101 @@ module Msf
         #Defing thread methods for the handler
         #Main handler method
         def main
+          def validate(lhost, lport)
+            #Validating user inputs
+            #LPORT
+            ip = Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
+            if lhost != ip.ip_address
+              raise "Invalid Local address. Please check your local IP."
+            end
+            #LPORT
+            if system("netstat -nlt | grep #{lport} >> /dev/null")
+              raise "Port #{lport} is already in use."
+            end
+          end
           #Storing user inputs
-          @path = datastore['PathToEmpire'].to_s
+          @agentsConnected = {}
+          @agentsLogged = []
+          @host = datastore['LHOST']
+          @port = datastore['LPORT']
           @listener_name = datastore['ListenerName']
+          #
+          #Validate environment to check if Empire is running at 1337
+          #
+          raise "No Empire instance found. Please initiate Empire at 1337 before starting MSF" if not system("netstat -nlt | grep 1337 >> /dev/null")
+          #
+          #Creating an Empire Instance
+          #
+          @client_emp = Msf::Empire::Client.new
+          #
+          #Continue directly to listen if the listener name mentioned is
+          #already up and running, else start another listener with listener
+          #name (if provided) or a random listener name
+          #
+          if not @listener_name.empty?
+            response = @client_emp.is_listener_active(@listener_name)
+            if response.to_s == false
+              print_error("Listener name provided not found. Trying to create one.")
+              validate(@host, @port)
+              responseListener = @client_emp.create_listener(@listener_name, @host, @port)
+              if responseListener.to_s.include?("Failed")
+                raise(responseListener.to_s)
+              else
+                print_status(responseListener.to_s)
+              end
+            else
+              print_status(response.to_s)
+            end
+          else
+            @listener_name = "ListenerEmpire#{rand(1..100)}"
+            validate(@host, @port)
+            responseListener = @client_emp.create_listener(@listener_name, @host, @port)
+            if responseListener.to_s.include?("Failed")
+              raise(responseListener.to_s)
+            else
+              print_status(responseListener.to_s)
+            end
+          end
 
-          #check for open port at 1337
-          command = "netstat -nlt | grep 1337"
-          value = system(value)
-          raise "Port 1337 is already in use." if value
-        end
 
-        #Empire Rest-API method
-        def initiate_API
-          sleep(7)
-          Dir.chdir(path)
-          command = "./empire --headless --username 'msf-empire' --password 'msf-empire' > /dev/null"
-          value = system(command)
-
-          #Creating an Empire instance
-          @client_emp = Msf::Empire::Client.new('msf-empire','msf-empire')
-
-          #Check if the listener name provided is valid
-          response = @client_emp.is_listener_active(@listener_name)
-          raise response.to_s if not response.to_s.include?('active')
-          puts response
         end
 
         #Method to listen for inbound connenctions
         def handle_sessions
+          sleep(10)
           #Retrieving connected agents at an interval of 6 seconds
-          sleep(15)
-          @agent_name = @client_emp.get_agents(true)
-          empire_session = Msf::Sessions::EmpireShellWindows.new(@client_emp, @agent_name)
-          framework.sessions.register(empire_sessions)
+          while (true)
+            sleep(6)
+            staticCount = 0
+            @agentsConnected = @client_emp.get_agents()
+            @agentsConnected.each do |listener, session_id|
+              if listener == @listener_name
+                @agentsLogged.each do |agents|
+                  if session_id == agents
+                    staticCount = staticCount + 1
+                  end
+                end
+                if staticCount == 0
+                  empireSession = Msf::Sessions::EmpireShellWindows.new(@client_emp, session_id)
+                  framework.sessions.register(empireSession)
+                  @agentsLogged.push(session_id)
+                end
+                staticCount = 0
+              end
+            end
+          end
         end
 
         #Initiating the threads
         thread_main = Thread.new{
           main()
         }
-        thread_api = Thread.new{
-          initiate_API()
-        }
         thread_sessions = Thread.new{
           handler_sessions()
         }
 
         #Joining the api thread
-        thread_api.join
+        thread_sessions.join
       end
 
       #
