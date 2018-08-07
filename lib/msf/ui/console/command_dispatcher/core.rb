@@ -87,7 +87,8 @@ class Core
   @@history_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
-    "-n" => [ true,  "Show the last n commands."                      ])
+    "-n" => [ true,  "Show the last n commands."                      ],
+    "-c" => [ false, "Clear command history."                         ])
 
   @@irb_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
@@ -487,6 +488,9 @@ class Core
         else
           limit = val.to_i
         end
+      when "-c"
+        Readline::HISTORY.clear
+        return
       when "-h"
         cmd_history_help
         return false
@@ -507,7 +511,6 @@ class Core
     print_line
     print_line "Shows the command history."
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
-    print_line
     print @@history_opts.usage
   end
 
