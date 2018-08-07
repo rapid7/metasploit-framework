@@ -35,14 +35,9 @@ module Msf
             "-i" => [ true,  "Lists detailed information about a running job."],
             "-l" => [ false, "List all running jobs."                         ],
             "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ],
-            "-S" => [ true, "Row search filter."                              ],
-          )
-
-          @@persist_opts = Rex::Parser::Arguments.new(
-            "-h" => [ false, "Help banner."                                   ],
-            "-C" => [ false, "Clean all persistent jobs."                     ],
-            "-a" => [ true,  "Add a persistent job by job ID"                 ],
-            "-l" => [ false, "List all persistent jobs."                      ]
+            "-p" => [ true,  "Add a persistent job by job ID"                 ],
+            "-P" => [ false, "Persist all running jobs on restart."           ],
+            "-S" => [ true,  "Row search filter."                             ]
           )
 
           def commands
@@ -50,8 +45,7 @@ module Msf
               "jobs"       => "Displays and manages jobs",
               "rename_job" => "Rename a job",
               "kill"       => "Kill a job",
-              "handler"    => "Start a payload handler as job",
-              "persist"    => "Displays and manages persistent jobs"
+              "handler"    => "Start a payload handler as job"
             }
           end
 
@@ -125,7 +119,9 @@ module Msf
             verbose = false
             dump_list = false
             dump_info = false
+            kill_job = false
             job_id = nil
+            job_list = nil
 
             # Parse the command options
             @@jobs_opts.parse(args) do |opt, _idx, val|
@@ -137,29 +133,25 @@ module Msf
                 # Terminate the supplied job ID(s)
               when "-k"
                 job_list = build_range_array(val)
-                if job_list.blank?
-                  print_error("Please specify valid job identifier(s)")
-                  return false
-                end
-                print_status("Stopping the following job(s): #{job_list.join(', ')}")
-                job_list.map(&:to_s).each do |job|
-                  if framework.jobs.key?(job)
-                    print_status("Stopping job #{job}")
-                    framework.jobs.stop_job(job)
-                  else
-                    print_error("Invalid job identifier: #{job}")
-                  end
-                end
+                kill_job = true
               when "-K"
-                print_line("Stopping all jobs...")
+                print_line("Stopping all jobs and persistent jobs ...")
                 framework.jobs.each_key do |i|
                   framework.jobs.stop_job(i)
                 end
+                File.truncate(Msf::Config.persist_file,0)
               when "-i"
                 # Defer printing anything until the end of option parsing
                 # so we can check for the verbose flag.
                 dump_info = true
                 job_id = val
+              when "-p"
+                job_list = build_range_array(val)
+                job_list.each{|job_id| add_persist_job(job_id)}
+              when "-P"
+                print_line("Making all jobs persistent ...")
+                job_list = framework.jobs.map{|k,v|v.jid.to_s}
+                job_list.each{|job_id| add_persist_job(job_id)}
               when "-S", "--search"
                 search_term = val
                 dump_list = true
@@ -194,6 +186,67 @@ module Msf
               else
                 print_line("Invalid Job ID")
               end
+            end
+
+            if kill_job
+              if job_list.blank?
+                print_error("Please specify valid job identifier(s)")
+                return false
+              end
+
+              print_status("Stopping the following job(s) and remove their persistence: #{job_list.join(', ')}")
+
+              # Remove  the persistent job when match the option of payload.
+              persist_list = File.open(Msf::Config.persist_file,"r").readlines.map!(&:chomp) rescue nil
+              persist_list.map!{|handler|JSON.parse(handler)}
+
+              job_list.map(&:to_s).each do |job|
+                payload_option = framework.jobs[job.to_s].ctx[1].datastore
+                persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
+              end
+              # Write persist job back to config file.
+              File.truncate(Msf::Config.persist_file,0)
+              persist_list.each do |pjob|
+                File.open(Msf::Config.persist_file,"a+"){|file|file.puts(pjob.to_json)}
+              end
+
+              # Stop the job by job id.
+              job_list.map(&:to_s).each do |job|
+                if framework.jobs.key?(job)
+                  print_status("Stopping job #{job}")
+                  framework.jobs.stop_job(job)
+                else
+                  print_error("Invalid job identifier: #{job}")
+                end
+              end
+            end
+
+          end
+
+          #
+          # Add a persistent job by job id.
+          # Persistent job would restore on console restarted.
+
+          def add_persist_job(job_id)
+            if job_id && framework.jobs.has_key?(job_id.to_s)
+              mod     = framework.jobs[job_id.to_s].ctx[0].replicant
+              payload = framework.jobs[job_id.to_s].ctx[1].replicant
+
+              payload_opts = {
+                'Payload'        => payload.refname,
+                'Options'        => payload.datastore,
+                'RunAsJob'       => true
+              }
+
+              mod_opts =  {
+                'mod_name'       => mod.fullname,
+                'mod_options'    => payload_opts
+              }
+
+              File.open(Msf::Config.persist_file,"a+"){|file|file.puts(mod_opts.to_json)}
+              print_line("Added job #{job_id} as a persistent_job.")
+            else
+              print_line("Invalid Job ID")
             end
           end
 
@@ -362,109 +415,6 @@ module Msf
               '-n' => [ true                                              ]
             }
             tab_complete_generic(fmt, str, words)
-          end
-
-          def cmd_persist_help
-            print_line "Usage: persist [options]"
-            print_line
-            print_line "Persist job manipulation and interaction."
-            print @@persist_opts.usage
-          end
-
-          #
-          # Displays and manages persistent jobs for the framework.
-          #
-
-          def cmd_persist(*args)
-            # Make the default behavior listing all jobs if there were no options
-            # or the only option is the verbose flag
-            args.unshift("-l") if args.empty?
-
-            persist_file = Msf::Config.persist_file
-            verbose = false
-            dump_list = false
-            dump_info = false
-            job_id = nil
-            persistence = false
-
-            # Parse the command options
-            @@persist_opts.parse(args) do |opt, _idx, val|
-              case opt
-              when "-l"
-                dump_list = true
-              # Cleaning all persistent jobs
-              when "-C"
-                print_line("Cleaning all persistent jobs...")
-                File.truncate(persist_file,0)
-              # Add persistent job
-              when "-a"
-                job_id = val
-                persistence = true
-              when "-h"
-                cmd_persist_help
-                return false
-              end
-            end
-
-            if dump_list
-              persistent_jobs = File.open(persist_file,"r").readlines.map!(&:chomp) rescue nil
-              print_line("\nPersistent Jobs\n===============\n")
-
-              unless persistent_jobs.blank?
-                persistent_jobs.map!{|job|JSON.parse(job)}
-
-                persistent_jobs.each do |job|
-                  print_line("#{job['mod_name']} - #{job['mod_options']['Payload']} - #{job['mod_options']["Options"]["lhost"]}:#{job['mod_options']["Options"]["LPORT"]}")
-                  print_line
-                end
-              else
-                print_line("No persistent jobs.\n")
-              end
-            end
-
-            if persistence
-              if job_id && framework.jobs.has_key?(job_id.to_s)
-                mod     = framework.jobs[job_id.to_s].ctx[0].replicant
-                payload = framework.jobs[job_id.to_s].ctx[1].replicant
-
-                payload_opts = {
-                  'Payload'        => payload.refname,
-                  'Options'        => payload.datastore,
-                  #'LocalInput'     => driver.input,
-                  #'LocalOutput'    => driver.output,
-                  'RunAsJob'       => true
-                }
-
-                mod_opts =  {
-                  'mod_name'       => mod.fullname,
-                  'mod_options'        => payload_opts
-                }
-
-                File.open(persist_file,"a+"){|file|file.puts(mod_opts.to_json)}
-                print_line("Added job #{job_id} as a persistent_job.")
-              else
-                print_line("Invalid Job ID")
-              end
-              #handler.exploit_simple(payload_opts)
-            end
-          end
-
-
-          #
-          # Tab completion for the persist command
-          #
-          # @param str [String] the string currently being typed before tab was hit
-          # @param words [Array<String>] the previously completed words on the command line.  words is always
-          # at least 1 when tab completion has reached this stage since the command itself has been completed
-
-          def cmd_persist_tabs(_str, words)
-            return @@persist_opts.fmt.keys if words.length == 1
-
-            if words.length == 2 && (@@persist_opts.fmt[words[1]] || [false])[0]
-              return framework.jobs.keys
-            end
-
-            []
           end
 
         end
