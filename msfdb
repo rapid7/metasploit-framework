@@ -375,12 +375,12 @@ def status_web_service
   if File.file?(@ws_pid)
     ws_pid = tail(@ws_pid)
     if ws_pid.nil? || !process_active?(ws_pid.to_i)
-      puts "MSF web service PID file found, but no active process running as PID #{ws_pid}"
+      puts "MSF web service is not running: PID file found at #{@ws_pid}, but no active process running as PID #{ws_pid}"
     else
       puts "MSF web service is running as PID #{ws_pid}"
     end
   else
-    puts "No MSF web service PID file found at #{@ws_pid}"
+    puts "MSF web service is not running: no PID file found at #{@ws_pid}"
   end
 end
 
