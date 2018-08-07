@@ -1722,12 +1722,16 @@ class Db
 
     if framework.db.connection_established?
       cdb = ''
-      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
-        if conn.respond_to?(:current_database)
-          cdb = conn.current_database
+      if framework.db.driver == 'http'
+        cdb = framework.db.name
+      else
+        ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+          if conn.respond_to?(:current_database)
+            cdb = conn.current_database
+          end
         end
       end
-      print_status("#{framework.db.driver} connected to #{cdb}")
+      print_status("Connection type: #{framework.db.driver}. Connected to #{cdb}")
     else
       print_status("#{framework.db.driver} selected, no connection")
     end
@@ -1740,6 +1744,7 @@ class Db
 
   def cmd_db_connect(*args)
     return if not db_check_driver
+
     if args[0] =~ /http/
       driver = 'http'
     else
@@ -1794,8 +1799,14 @@ class Db
       return
     end
 
-    if (framework.db)
-      framework.db.disconnect()
+    if framework.db.driver == 'http'
+      begin
+        framework.db.delete_current_data_service
+      rescue => e
+        print_error "Unable to disconnect from the remote data service: #{e.message}"
+      end
+    else
+      framework.db.disconnect
     end
   end
 
@@ -2015,13 +2026,8 @@ class Db
         when '--skip-verify'
           https_opts[:skip_verify] = true
         else
-          host = args.shift
+          host = arg
       end
-    end
-
-    if host.nil? || port.nil?
-      print_error("Host and port are required")
-      return
     end
 
     opts[:https_opts] = https_opts unless https_opts.empty?

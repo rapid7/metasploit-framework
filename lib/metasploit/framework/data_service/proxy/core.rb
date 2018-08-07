@@ -78,6 +78,19 @@ class DataProxy
     end
   end
 
+  def delete_current_data_service
+    @data_services.each do |id, ds|
+      if ds == @current_data_service
+        if id == 1
+          raise "Unable to delete the local data service. Please use db_disconnect."
+        else
+          @data_services.delete(id)
+          @current_data_service = @data_services[1]
+        end
+      end
+    end
+  end
+
   #
   # Set the data service to be used
   #

@@ -71,6 +71,10 @@ class RemoteHTTPDataService
     'none'
   end
 
+  def driver
+    'http'
+  end
+
   #
   # POST data to the HTTP endpoint and don't wait for the endpoint to process the data before getting a response
   #
