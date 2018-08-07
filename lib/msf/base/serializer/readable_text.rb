@@ -754,10 +754,10 @@ class ReadableText
   # @param col [Integer] the column wrap width.
   # @return [String] the formatted list of running jobs.
   def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
-    columns = [ 'Id', 'Name', "Payload", "Payload opts" ]
+    columns = [ 'Id', 'Name', "Payload", "Payload opts"]
 
     if (verbose)
-      columns += [ "URIPATH", "Start Time", "Handler opts" ]
+      columns += [ "URIPATH", "Start Time", "Handler opts", "Persist" ]
     end
 
     tbl = Rex::Text::Table.new(
@@ -765,6 +765,12 @@ class ReadableText
       'Header'  => "Jobs",
       'Columns' => columns
       )
+
+    # Get the persistent job info.
+    if verbose
+      persist_list = File.open(Msf::Config.persist_file,"r").readlines.map!(&:chomp) rescue nil
+      persist_list.map!{|handler|JSON.parse(handler)}
+    end
 
     # jobs are stored as a hash with the keys being a numeric String job_id.
     framework.jobs.keys.sort_by(&:to_i).each do |job_id|
@@ -800,11 +806,17 @@ class ReadableText
         row[4] = uripath
         row[5] = framework.jobs[job_id].start_time
         row[6] = ''
+        row[7] = 'false'
 
         if pinst.respond_to?(:listener_uri)
           listener_uri = pinst.listener_uri.strip
           row[6] = listener_uri unless listener_uri == payload_uri
         end
+
+        persist_list.each do |e|
+          row[7] = 'true' if e['mod_options']['Options'] == framework.jobs[job_id.to_s].ctx[1].datastore
+        end
+
       end
       tbl << row
     end
