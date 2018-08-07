@@ -47,7 +47,7 @@ require 'yaml'
     ssl: true,
     ssl_cert: @ws_ssl_cert_default,
     ssl_key: @ws_ssl_key_default,
-    ssl_disable_verify: false,
+    ssl_disable_verify: true,
     ws_env: ENV['RACK_ENV'] || 'production',
     retry_max: 10,
     retry_delay: 5.0,
@@ -349,14 +349,8 @@ end
 def init_web_service
   if File.file?(@ws_conf)
     puts "Found web service config at #{@ws_conf}, checking to see if it is started"
-    start_web_service
+    start_web_service(expect_auth: true)
     return
-  end
-
-  if File.file?(@ws_conf)
-    if !ask_yn("Found web service config at #{@ws_conf}, do you want to overwrite it?")
-      return
-    end
   end
 
   if @options[:ws_user].nil?
@@ -412,32 +406,14 @@ def init_web_service
     generate_web_service_ssl(key: @options[:ssl_key], cert: @options[:ssl_cert])
   end
 
-  if !start_web_service
-    return
-  end
-
-  # wait until web service is online
-  retry_count = 0
-  is_online = web_service_online?
-  while !is_online && retry_count < @options[:retry_max]
-    retry_count += 1
-    if @options[:debug]
-      puts "MSF web service doesn't appear to be online. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
-    end
-    sleep(@options[:retry_delay])
-    is_online = web_service_online?
-  end
-
-  if is_online
+  if start_web_service(expect_auth: false)
     if add_web_service_user
       output_web_service_information
     end
-  else
-    puts "MSF web service does not appear to be online; aborting initialize."
   end
 end
 
-def start_web_service
+def start_web_service(expect_auth: true)
   unless File.file?(@ws_conf)
     puts "No MSF web service configuration found at #{@ws_conf}, not starting"
     return false
@@ -457,31 +433,37 @@ def start_web_service
   end
 
   # daemonize MSF web service
-  puts "Starting MSF web service"
+  puts 'Attempting to start MSF web service...'
   if run_cmd("#{thin_cmd} start") == 0
-    # wait until web service is started
+    # wait until web service is online
     retry_count = 0
-    is_started = web_service_started?
-    while !is_started && retry_count < @options[:retry_max]
+    response_data = web_service_online_check(expect_auth: expect_auth)
+    is_online = response_data[:state] != :offline
+    while !is_online && retry_count < @options[:retry_max]
       retry_count += 1
       if @options[:debug]
-        puts "MSF web service doesn't appear to be started. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
+        puts "MSF web service doesn't appear to be online. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
       end
       sleep(@options[:retry_delay])
-      is_started = web_service_started?
+      response_data = web_service_online_check(expect_auth: expect_auth)
+      is_online = response_data[:state] != :offline
     end
 
-    if is_started
-      puts "MSF web service started"
+    if response_data[:state] == :online
+      puts 'MSF web service started and online'
       return true
+    elsif response_data[:state] == :error
+      puts 'MSF web service appears to be started, but may not operate as expected.'
+      puts "#{response_data[:message]}"
     else
-      puts "MSF web service does not appear to be started; aborting start."
-      return false
+      puts 'MSF web service does not appear to be started.'
     end
+    puts "Please see #{@ws_log} for additional details."
+    return false
+  else
+    puts 'Failed to start MSF web service'
+    return false
   end
-
-  puts "Failed to start MSF web service"
-  return false
 end
 
 def stop_web_service
@@ -515,11 +497,6 @@ def reinit_web_service
   init_web_service
 end
 
-def web_service_started?
-  ws_pid = tail(@ws_pid)
-  !ws_pid.nil? && process_active?(ws_pid.to_i)
-end
-
 def generate_web_service_ssl(key:, cert:)
   @ws_generated_ssl = true
   if (File.file?(key) || File.file?(cert)) &&
@@ -541,12 +518,31 @@ def generate_web_service_ssl(key:, cert:)
   File.chmod(mode_int, cert)
 end
 
-def web_service_online?
+def web_service_online_check(expect_auth:)
   msf_version_uri = get_web_service_uri(path: '/api/v1/msf/version')
-  response = http_request(uri: msf_version_uri, method: :get,
+  response_data = http_request(uri: msf_version_uri, method: :get,
                           skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
-  puts "web_service_online?: response=#{response}" if @options[:debug]
-  !response.nil? && !response.dig(:data, :metasploit_version).nil?
+
+  if !response_data[:exception].nil? && response_data[:exception].is_a?(Errno::ECONNREFUSED)
+    response_data[:state] = :offline
+  elsif !response_data[:exception].nil? && response_data[:exception].is_a?(OpenSSL::OpenSSLError)
+    response_data[:state] = :error
+    response_data[:message] = 'Detected an SSL issue. Please set the same options used to initialize the web service or reinitialize.'
+  elsif !response_data[:response].nil? && response_data[:response].dig(:error, :code) == 401
+    if expect_auth
+      response_data[:state] = :online
+    else
+      response_data[:state] = :error
+      response_data[:message] = 'MSF web service expects authentication. If you wish to reinitialize the web service account you will need to reinitialize the database.'
+    end
+  elsif !response_data[:response].nil? && !response_data[:response].dig(:data, :metasploit_version).nil?
+    response_data[:state] = :online
+  else
+    response_data[:state] = :error
+  end
+
+  puts "web_service_online: expect_auth=#{expect_auth}, response_msg=#{response_data}" if @options[:debug]
+  response_data
 end
 
 def add_web_service_user
@@ -559,8 +555,9 @@ def add_web_service_user
   # Send request to create new admin user
   user_data = cred_data.merge({ admin: true })
   user_uri = get_web_service_uri(path: '/api/v1/users')
-  response = http_request(uri: user_uri, data: user_data, method: :post,
+  response_data = http_request(uri: user_uri, data: user_data, method: :post,
                           skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
+  response = response_data[:response]
   puts "add_web_service_user: create user response=#{response}" if @options[:debug]
   if response.nil? || response.dig(:data, :username) != @msf_ws_user
     puts "Error creating MSF web service user #{@msf_ws_user}"
@@ -571,8 +568,9 @@ def add_web_service_user
 
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
-  response = http_request(uri: generate_token_uri, query: cred_data, method: :get,
+  response_data = http_request(uri: generate_token_uri, query: cred_data, method: :get,
                           skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
+  response = response_data[:response]
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
   if response.nil? || (@ws_api_token = response.dig(:data, :token)).nil?
     puts "Error creating MSF web service user API token"
@@ -661,6 +659,7 @@ def http_request(uri:, query: nil, data: nil, method: :get, skip_verify: false, 
   end
 
   begin
+    response_data = { response: nil }
     case method
       when :get
         request = Net::HTTP::Get.new(uri.request_uri, initheader=headers)
@@ -678,13 +677,14 @@ def http_request(uri:, query: nil, data: nil, method: :get, skip_verify: false, 
 
     response = http.request(request)
     unless response.body.nil? || response.body.empty?
-      return JSON.parse(response.body, symbolize_names: true)
+      response_data[:response] = JSON.parse(response.body, symbolize_names: true)
     end
-  rescue EOFError => e
-    puts "No data was returned for HTTP #{method} request #{uri.request_uri}, message: #{e.message}" if @options[:debug]
   rescue => e
+    response_data[:exception] = e
     puts "Problem with HTTP #{method} request #{uri.request_uri}, message: #{e.message}" if @options[:debug]
   end
+
+  response_data
 end
 
 # Tells us whether the private keys on the passed certificates match
