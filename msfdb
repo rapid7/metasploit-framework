@@ -146,7 +146,7 @@ def start_db
     puts last_log
     fixed = false
     if last_log =~ /not compatible/
-      puts "Please attempt to upgrade the database manually using pg_upgrade."
+      puts 'Please attempt to upgrade the database manually using pg_upgrade.'
     end
     if !fixed
       if ask_yn('Your database may be corrupt, would you like to reinitialize it?')
@@ -251,7 +251,7 @@ def init_db
 
   puts 'Creating initial database schema'
   Dir.chdir(@framework) do
-    run_cmd("bundle exec rake db:migrate")
+    run_cmd('bundle exec rake db:migrate')
   end
 end
 
@@ -354,7 +354,7 @@ def init_web_service
   end
 
   if @options[:ws_user].nil?
-    @msf_ws_user = ask_value("Initial MSF web service account username?", @msf_ws_user)
+    @msf_ws_user = ask_value('Initial MSF web service account username?', @msf_ws_user)
   else
     @msf_ws_user = @options[:ws_user]
   end
@@ -469,7 +469,7 @@ end
 def stop_web_service
   ws_pid = tail(@ws_pid)
   if ws_pid.nil? || !process_active?(ws_pid.to_i)
-    puts "MSF web service is no longer running"
+    puts 'MSF web service is no longer running'
     if File.file?(@ws_pid)
       puts "Deleting MSF web service PID file #{@ws_pid}"
       File.delete(@ws_pid)
@@ -504,7 +504,7 @@ def generate_web_service_ssl(key:, cert:)
     return
   end
 
-  puts "Generating SSL key and certificate for MSF web service"
+  puts 'Generating SSL key and certificate for MSF web service'
   # @ssl_cert = Rex::Socket::SslTcpServer.ssl_generate_certificate
   @ssl_key, @ssl_cert, @ssl_extra_chain_cert = Rex::Socket::Ssl.ssl_generate_certificate
 
@@ -573,11 +573,11 @@ def add_web_service_user
   response = response_data[:response]
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
   if response.nil? || (@ws_api_token = response.dig(:data, :token)).nil?
-    puts "Error creating MSF web service user API token"
+    puts 'Error creating MSF web service user API token'
     return false
   end
   puts "MSF web service user API token: #{@ws_api_token}"
-  puts "Please store these credentials securely."
+  puts 'Please store these credentials securely.'
   return true
 end
 
@@ -627,7 +627,6 @@ end
 
 def process_active?(pid)
   begin
-    # group_id = Process.getpgid(pid)
     Process.kill(0, pid)
     true
   rescue Errno::ESRCH
