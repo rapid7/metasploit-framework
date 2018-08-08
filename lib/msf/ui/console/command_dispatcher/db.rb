@@ -1721,17 +1721,7 @@ class Db
     return if not db_check_driver
 
     if framework.db.connection_established?
-      cdb = ''
-      if framework.db.driver == 'http'
-        cdb = framework.db.name
-      else
-        ::ActiveRecord::Base.connection_pool.with_connection do |conn|
-          if conn.respond_to?(:current_database)
-            cdb = conn.current_database
-          end
-        end
-      end
-      print_status("Connection type: #{framework.db.driver}. Connected to #{cdb}")
+      print_connection_info
     else
       print_status("#{framework.db.driver} selected, no connection")
     end
@@ -1746,22 +1736,22 @@ class Db
     return if not db_check_driver
 
     if args[0] =~ /http/
-      driver = 'http'
+      new_conn_type = 'http'
     else
-      driver = framework.db.driver
+      new_conn_type = framework.db.driver
     end
 
-    if args[0] != '-h' && driver != 'http' && framework.db.connection_established?
-      cdb = ''
-      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
-        if conn.respond_to?(:current_database)
-          cdb = conn.current_database
-        end
+    # Currently only able to be connected to one DB at a time
+    if args[0] != '-h' && framework.db.connection_established?
+      # But the http connection still requires a local database to support AR, so we have to allow that
+      # Don't allow more than one HTTP service, though
+      if new_conn_type != 'http' || framework.db.get_services_metadata.count >= 2
+        print_connection_info
+        print_error('Run db_disconnect first if you wish to connect to a different database.')
+        return
       end
-      print_error("#{framework.db.driver} already connected to #{cdb}")
-      print_error('Run db_disconnect first if you wish to connect to a different database')
-      return
     end
+
     if (args[0] == "-y")
       if (args[1] and not ::File.exist? ::File.expand_path(args[1]))
         print_error("File not found")
@@ -1776,11 +1766,11 @@ class Db
       end
     end
 
-    meth = "db_connect_#{driver}"
+    meth = "db_connect_#{new_conn_type}"
     if(self.respond_to?(meth, true))
       self.send(meth, *args)
     else
-      print_error("This database driver #{driver} is not currently supported")
+      print_error("This database driver #{new_conn_type} is not currently supported")
     end
   end
 
@@ -2088,6 +2078,20 @@ class Db
     print_line "  -c, --cert          Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
     print_line "  --skip-verify       Skip validating authenticity of server's certificate. NOT RECOMMENDED."
     print_line
+  end
+
+  def print_connection_info
+    cdb = ''
+    if framework.db.driver == 'http'
+      cdb = framework.db.name
+    else
+      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
+          cdb = conn.current_database
+        end
+      end
+    end
+    print_status("Connection type: #{framework.db.driver}. Connected to #{cdb}")
   end
 
   def print_msgs(status_msg, error_msg)
