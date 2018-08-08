@@ -1746,6 +1746,7 @@ class Db
       # But the http connection still requires a local database to support AR, so we have to allow that
       # Don't allow more than one HTTP service, though
       if new_conn_type != 'http' || framework.db.get_services_metadata.count >= 2
+        print_error('Connection already established. Only one connection is allowed at a time.')
         print_connection_info
         print_error('Run db_disconnect first if you wish to connect to a different database.')
         return
