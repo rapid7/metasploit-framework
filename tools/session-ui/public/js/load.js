@@ -6,6 +6,7 @@ toggle between hiding and showing the dropdown content */
 var url='ws://' + window.location.host+window.location.pathname;
 var ws = new WebSocket(url);
 
+
 var terminalContainer = document.getElementById('terminal-container');
 Terminal.applyAddon(fit);
 var url='ws://' + window.location.host+window.location.pathname;
@@ -122,6 +123,7 @@ ws.onopen    = function(event)  {
     };
 
 };
+
 var sendMessage = function (message){
     localStorage.setItem("msg",message);
     if (ws.readyState === WebSocket.OPEN) {

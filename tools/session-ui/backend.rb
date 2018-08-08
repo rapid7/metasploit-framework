@@ -136,6 +136,7 @@ module Sinatra
 
 
         def execute_script(script)
+
           # Some Essential commnads
           if script=="help" || script==="?"
             output=nil
@@ -144,13 +145,14 @@ module Sinatra
             end
             return output
           else
-            @client.run_cmd(script)
+           @client.run_cmd(script,)
           end
         end
 
         def run_exten_cmd
           #run Extension commands
         end
+
       end
     end
   end

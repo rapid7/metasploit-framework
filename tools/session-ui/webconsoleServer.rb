@@ -26,21 +26,31 @@ require './tools/session-ui/backend'
       else
         request.websocket do |ws|
           ws.onopen do
+            #Websocket connection opened.
+
             ws.send("Connection Established!")
             settings.sockets << ws
           end
+          buffer =Hash.new
           ws.onmessage do |msg|
+            #Handle incoming websocket message
+            return_array=[]
             EM.next_tick {
               settings.sockets.each{|s|
+
                 output=Sinatra::Backend::Server.execute_script(msg)
                 s.send(output.to_json)
               }
             }
           end
           ws.onclose do
+            #Handle websocket closing
+            #
             ws.send("websocket closed")
             settings.sockets.delete(ws)
           end
+
+
         end
       end
 
@@ -78,3 +88,4 @@ require './tools/session-ui/backend'
     end
 
   end
+
