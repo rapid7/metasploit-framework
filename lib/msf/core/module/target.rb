@@ -129,22 +129,29 @@ class Msf::Module::Target
   # 	Payload-specific options, such as append, prepend, and other values that
   # 	can be set on a per-exploit or per-target basis.
   #
+  # DefaultOptions
+  #
+  #   DefaultOptions hash to be imported into the datastore.
+  #
   def initialize(name, opts)
-    opts = {} if (!opts)
+    opts = {} unless opts
 
-    self.name           = name
-    self.platform       = opts['Platform'] ? Msf::Module::PlatformList.transform(opts['Platform']) : nil
-    self.save_registers = opts['SaveRegisters']
-    self.ret            = opts['Ret']
-    self.opts           = opts
+    self.name            = name
+    self.opts            = opts
+    self.save_registers  = opts['SaveRegisters']
+    self.ret             = opts['Ret'],
+    self.default_options = opts['DefaultOptions']
 
-    if (opts['Arch'])
-      self.arch = Rex::Transformer.transform(opts['Arch'], Array,
-        [ String ], 'Arch')
+    if opts['Platform']
+      self.platform = Msf::Module::PlatformList.transform(opts['Platform'])
+    end
+
+    if opts['Arch']
+      self.arch = Rex::Transformer.transform(opts['Arch'], Array, [String], 'Arch')
     end
 
     # Does this target have brute force information?
-    if (opts['Bruteforce'])
+    if opts['Bruteforce']
       self.bruteforce = Bruteforce.new(opts['Bruteforce'])
     end
   end
@@ -305,10 +312,15 @@ class Msf::Module::Target
   # option is passed to the constructor of the class.
   #
   attr_reader :bruteforce
+  #
+  # DefaultOptions hash to be imported into the datastore.
+  #
+  attr_reader :default_options
 
 protected
 
   attr_writer :name, :platform, :arch, :opts, :ret, :save_registers # :nodoc:
   attr_writer :bruteforce # :nodoc:
+  attr_writer :default_options # :nodoc:
 
 end
