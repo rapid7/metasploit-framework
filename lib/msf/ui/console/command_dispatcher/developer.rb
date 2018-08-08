@@ -14,6 +14,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
   def commands
     {
+      'pry'        => 'Open a Pry session on the current module or Framework',
       'edit'       => 'Edit the current module or a file with the preferred editor',
       'reload_lib' => 'Reload one or more library files from specified paths',
       'log'        => 'Displays framework.log starting at the bottom if possible'
@@ -37,12 +38,33 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
     # The file must exist to reach this, so we try our best here
     if path =~ %r{^(?:\./)?modules/}
-      print_error('Reloading Metasploit modules is not supported (try "reload")')
+      print_error("Reloading Metasploit modules is not supported (try 'reload')")
       return
     end
 
     print_status("Reloading #{path}")
     load path
+  end
+
+  def cmd_pry_help
+    print_line 'Usage: pry'
+    print_line
+    print_line 'Open a Pry session on the current module or Framework.'
+    print_line
+  end
+
+  #
+  # Open a Pry session on the current module or Framework
+  #
+  def cmd_pry(*args)
+    begin
+      require 'pry'
+    rescue LoadError
+      print_error("Failed to load Pry, try 'gem install pry'")
+      return
+    end
+
+    active_module ? active_module.pry : framework.pry
   end
 
   def cmd_edit_help
