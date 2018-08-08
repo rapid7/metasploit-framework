@@ -47,7 +47,6 @@ class Db
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache",
-      "data_services" => "Command to add, list and set a data service",
     }
 
     # Always include commands that only make sense when connected.
@@ -81,28 +80,6 @@ class Db
     end
     true
   end
-
-  def cmd_data_services(*args)
-    while (arg = args.shift)
-      case arg
-        when '-h', '--help'
-          data_service_help
-          return
-        when '-a', '--add'
-          add_data_service(*args)
-          return
-        when '-d', '--delete'
-          delete_data_service(args.shift)
-          return
-        when '-s', '--set'
-          set_data_service(args.shift)
-          return
-      end
-    end
-
-    list_data_services
-  end
-
 
   def cmd_workspace_help
     print_line "Usage:"
@@ -1992,94 +1969,6 @@ class Db
   #######
   private
   #######
-
-  def add_data_service(*args)
-    # database is required to use Mdm objects
-    unless framework.db.active
-      print_error("Database not connected; connect to an existing database with db_connect before using data_services")
-      return
-    end
-
-    protocol = "http"
-    port = 8080
-    opts = {}
-    https_opts = {}
-    while (arg = args.shift)
-      case arg
-        when '-p', '--port'
-          port = args.shift
-        when '-t', '--token'
-          opts[:api_token] = args.shift
-        when '-s', '--ssl'
-          protocol = "https"
-        when '-c', '--cert'
-          https_opts[:cert] = args.shift
-        when '--skip-verify'
-          https_opts[:skip_verify] = true
-        else
-          host = arg
-      end
-    end
-
-    opts[:https_opts] = https_opts unless https_opts.empty?
-    endpoint = "#{protocol}://#{host}:#{port}"
-    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, opts)
-    begin
-      framework.db.register_data_service(remote_data_service)
-      print_line "Registered data service: #{remote_data_service.name}"
-      framework.db.workspace = framework.db.default_workspace
-    rescue => e
-      print_error "There was a problem registering the remote data service: #{e.message}"
-    end
-  end
-
-  def delete_data_service(service_id)
-    begin
-      data_service = framework.db.delete_data_service(service_id)
-      framework.db.workspace = framework.db.default_workspace
-      data_service
-    rescue => e
-      print_error "Unable to delete data service: #{e.message}"
-    end
-  end
-
-  def set_data_service(service_id)
-    begin
-      data_service = framework.db.set_data_service(service_id)
-      framework.db.workspace = framework.db.default_workspace
-      data_service
-    rescue => e
-      print_error "Unable to set data service: #{e.message}"
-    end
-  end
-
-  def list_data_services()
-    framework.db.get_services_metadata.each {|metadata|
-      out = "id: #{metadata.id}, name: #{metadata.name}"
-      if metadata.active
-        out += " [active]"
-      end
-      print_line out
-    }
-  end
-
-  def data_service_help
-    print_line "Usage: data_services [ options ] - list data services by default"
-    print_line
-    print_line "OPTIONS:"
-
-    print_line "  -h, --help                    Show this help information."
-    print_line "  -d, --delete <id>             Delete the data service by identifier."
-    print_line "  -s, --set <id>                Set the active data service by identifier."
-    print_line "  -a, --add [ options ] <host>  Add a new data service"
-    print_line "  Add Data Service Options:"
-    print_line "  -p, --port <port>   The port the data service is listening on. Default is 8080."
-    print_line "  -t, --token <token> API Token for MSF web service"
-    print_line "  -s, --ssl           Enable SSL. Required for HTTPS data services."
-    print_line "  -c, --cert          Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
-    print_line "  --skip-verify       Skip validating authenticity of server's certificate. NOT RECOMMENDED."
-    print_line
-  end
 
   def print_connection_info
     cdb = ''
