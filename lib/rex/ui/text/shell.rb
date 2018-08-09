@@ -207,11 +207,10 @@ module Shell
         else
           ret = run_single(line)
           # don't bother saving lines that couldn't be found as a
-          # command, create the file if it doesn't exist
-          if ret and self.histfile
-            File.open(self.histfile, "a+") { |f|
-              f.puts(line)
-            }
+          # command, create the file if it doesn't exist, don't save dupes
+          if ret && self.histfile && line != @last_line
+            File.open(self.histfile, "a+") { |f| f.puts(line) }
+            @last_line = line
           end
           self.stop_count = 0
         end

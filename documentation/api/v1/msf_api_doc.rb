@@ -12,7 +12,16 @@ module MsfApiDoc
       response 200 do
         key :description, 'Returns the Metasploit Framework version.'
         schema do
-          property :metasploit_version, type: :string
+          property :data do
+            property :metasploit_version, type: :string
+          end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

@@ -151,6 +151,9 @@ class DataProxy
   # @param [String] wspace A specific workspace name to add to the opts hash.
   # @return [Hash] The opts hash with a valid :workspace value added.
   def add_opts_workspace(opts, wspace = nil)
+    # If :id is present the user only wants a specific record, so workspace isn't needed
+    return if opts.key?(:id)
+
     # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
     opts[:workspace] = opts.delete(:wspace) unless opts[:wspace].nil?
 

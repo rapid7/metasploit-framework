@@ -29,7 +29,7 @@ module HostDataProxy
 
   def get_host(opts)
     begin
-      data_service = self.get_data_service()
+      data_service = self.get_data_service
       data_service.get_host(opts)
     rescue => e
       self.log_error(e, "Problem retrieving host")
@@ -45,16 +45,6 @@ module HostDataProxy
       data_service.report_host(opts)
     rescue => e
       self.log_error(e, "Problem reporting host")
-    end
-  end
-
-  def report_hosts(hosts)
-    begin
-      data_service = self.get_data_service
-      add_opts_workspace(hosts)
-      data_service.report_hosts(hosts)
-    rescue => e
-      self.log_error(e, "Problem reporting hosts")
     end
   end
 

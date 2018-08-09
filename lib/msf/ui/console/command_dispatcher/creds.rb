@@ -412,10 +412,10 @@ class Creds
 
       origin = ''
       if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
-        service = framework.db.services(id: core.origin.service_id, workspace: framework.db.workspace).first
+        service = framework.db.services(id: core.origin.service_id).first
         origin = service.host.address
       elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
-        session = framework.db.sessions(id: core.origin.session_id, workspace: framework.db.workspace).first
+        session = framework.db.sessions(id: core.origin.session_id).first
         origin = session.host.address
       end
 
@@ -443,8 +443,7 @@ class Creds
         ]
       else
         core.logins.each do |login|
-
-          service = framework.db.services(id: login.service_id, workspace: framework.db.workspace).first
+          service = framework.db.services(id: login.service_id).first
           # If none of this Core's associated Logins is for a host within
           # the user-supplied RangeWalker, then we don't have any reason to
           # print it out. However, we treat the absence of ranges as meaning

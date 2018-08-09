@@ -89,10 +89,19 @@ module VulnApiDoc
       response 200 do
         key :description, 'Returns vuln data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Vuln
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Vuln
+            end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -124,10 +133,18 @@ module VulnApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, 'Returns vuln data.'
         schema do
-          key :type, :object
-          key :'$ref', :Vuln
+          property :data do
+            key :'$ref', :Vuln
+          end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -140,12 +157,21 @@ module VulnApiDoc
       parameter :delete_opts
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, 'Returns an array containing the successfully deleted vulns.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :Vuln
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :Vuln
+            end
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -156,8 +182,6 @@ module VulnApiDoc
     operation :get do
       key :description, 'Return specific vuln that is stored in the database.'
       key :tags, [ 'vuln' ]
-
-      parameter :workspace
 
       parameter do
         key :name, :id
@@ -171,10 +195,16 @@ module VulnApiDoc
       response 200 do
         key :description, 'Returns vuln data.'
         schema do
-          key :type, :array
-          items do
+          property :data do
             key :'$ref', :Vuln
           end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -197,10 +227,18 @@ module VulnApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, 'Returns vuln data.'
         schema do
-          key :type, :object
-          key :'$ref', :Vuln
+          property :data do
+            key :'$ref', :Vuln
+          end
+        end
+      end
+
+      response 500 do
+        key :description, 'An error occurred during the operation. See the message for more details.'
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

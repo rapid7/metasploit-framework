@@ -8,7 +8,8 @@ module RemoteLoginDataService
   LOGIN_MDM_CLASS = 'Metasploit::Credential::Login'
 
   def logins(opts)
-    json_to_mdm_object(self.get_data(LOGIN_API_PATH, opts), LOGIN_MDM_CLASS, [])
+    path = get_path_select(opts, LOGIN_API_PATH)
+    json_to_mdm_object(self.get_data(path, nil, opts), LOGIN_MDM_CLASS, [])
   end
 
   def create_credential_login(opts)
