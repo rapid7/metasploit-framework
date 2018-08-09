@@ -13,8 +13,6 @@ module Resource
   # @param path [String] Path to a resource file to run
   # @return [void]
   def load_resource(path)
-    print_error("Using mixin :)")
-
     if path == '-'
       resource_file = $stdin.read
       path = 'stdin'
