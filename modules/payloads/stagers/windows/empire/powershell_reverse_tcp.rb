@@ -98,9 +98,11 @@ module MetasploitModule
     #
     response = client_emp.is_listener_active(@listener_name)
     if response == false
-      responseListener = client_emp.create_listener(@listener_name, @port, @host)
-    else
+      if client_emp.is_port_active(@port) == false
+        responseListener = client_emp.create_listener(@listener_name, @port, @host)
+      else
       @listener_name = client_emp.is_port_active(@port).to_s
+      end
     end
     #
     #Generating payload
