@@ -64,10 +64,10 @@ module MetasploitModule
     #
     @empire_username = datastore['USERNAME'].to_s
     @empire_password = datastore['PASSWORD'].to_s
-    if @username.empty?
+    if @empire_username.empty?
       return ""
     end
-    if @password.empty?
+    if @empire_password.empty?
       return ""
     end
     @host = datastore['LHOST'].to_s
@@ -92,7 +92,7 @@ module MetasploitModule
     #
     #Creating an empire object
     #
-    client_emp = Msf::Empire::Client.new(@username,@password)
+    client_emp = Msf::Empire::Client.new(@empire_username,@empire_password)
     #
     #Check if any listener with provided listener name exists previously
     #
