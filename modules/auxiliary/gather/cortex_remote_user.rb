@@ -33,24 +33,23 @@ class MetasploitModule < Msf::Auxiliary
             nonce = data.slice(6,26)
             print_good("successfully logged into admin_remote")
             sock.put("get_dvr_name " + nonce + "\n")
-            nvrName = sock.get_once
-            print_good(nvrName)
+            nvr_name = sock.get_once
+            print_good(nvr_name)
             sock.put("get_camera_info " + nonce + "\n")
             cams = sock.get_once
-            countcam = cams[16..17]
-            print_good(countcam + " cameras present")
+            count_cam = cams[16..17]
+            print_good(count_cam + " cameras present")
             sock.put("logout " + nonce + "\n")
             logout = sock.get_once
             print_good(logout)
         rescue Rex::HostUnreachable
-            puts "The host is unreachable."
+            print_status("The host is unreachable.")
         rescue Rex::ConnectionTimeout
-            puts "Connection has timed out."
+            print_status("Connection has timed out.")
         rescue Rex::ConnectionRefused => e
-            puts "Connection is refused. #{e.message}"
+            print_status("Connection is refused. #{e.message}")
         ensure
             disconnect
         end
     end
 end
-
