@@ -67,7 +67,7 @@ class Obj
     @is_server          = (module_instance.respond_to?(:stance) and module_instance.stance == "aggressive")
     @is_client          = (module_instance.respond_to?(:stance) and module_instance.stance == "passive")
     @post_auth          = module_instance.post_auth?
-    @default_credential = module_instance.has_default_cred?
+    @default_credential = module_instance.default_cred?
 
     @platform           = module_instance.platform_to_s
     # Done to ensure that differences do not show up for the same array grouping

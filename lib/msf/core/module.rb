@@ -313,10 +313,28 @@ class Module
     }.call
   end
 
+  def black_listed_auth_filenames
+    @black_listed_auth_filenames ||= lambda {
+      [
+        'fileformat',
+        'browser'
+      ]
+    }.call
+  end
+
   def post_auth?
     if self.kind_of?(Msf::Auxiliary::AuthBrute)
       return true
     else
+      # Some modules will never be post auth, so let's not waste our time
+      # determining it and create more potential false positives.
+      # If these modules happen to be post auth for some reason, then we it
+      # should manually override the post_auth? method as true.
+      directory_name = self.fullname.split('/')[0..-2]
+      black_listed_auth_filenames.each do |black_listed_name|
+        return false if directory_name.include?(black_listed_name)
+      end
+
       # Some modules create their own username and password datastore
       # options, not relying on the AuthBrute mixin. In that case we
       # just have to go through the options and try to identify them.
@@ -324,7 +342,7 @@ class Module
     end
   end
 
-  def has_default_cred?
+  def default_cred?
     return false unless post_auth?
 
     cred_opts_with_default = required_cred_options.select { |name, opt|
