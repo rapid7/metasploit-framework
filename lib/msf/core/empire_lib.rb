@@ -25,7 +25,7 @@ module Msf::Empire
     #Method to fetch the active session token from the hosted API
     #
     def initialize(username, password)
-      uri = URI.parse("https://localhost:1337/api/admin/login")
+      uri = URI.parse("https://0.0.0.0:1337/api/admin/login")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
       request.body = JSON.dump({
@@ -64,7 +64,7 @@ module Msf::Empire
     #
     def create_listener(listener_name, port, host)
       target_host = "http://#{host}:#{port}"
-      uri = URI.parse("https://localhost:1337/api/listeners/http?token=#{@token}")
+      uri = URI.parse("https://0.0.0.0:1337/api/listeners/http?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
       req_options = self.set_options(uri)
@@ -77,16 +77,38 @@ module Msf::Empire
         http.request(request)
       end
       if response.body.to_s.include?("error")
-        return "Failed to bind to localhost:#{port}, port likely already in use"
+        return "Failed to bind to localhost:#{port}, port likely to be already in use"
       elsif response.body.to_s.include?("success")
         return "Listener #{listener_name} started at localhost:#{port}"
       end
     end
     #
+    #Method to check if any listener is already listening over a mentioned
+    #port, so as to avoid creating additional listener in case mentioned
+    #listener name is not found.
+    def is_port_active(portNumber)
+      if not system("netstat -nlt | grep #{portNumber} >> /dev/null")
+        return false
+      end
+      uri = URI.parse("https://0.0.0.0:1337/api/listeners?token=#{@token}")
+      request = Net::HTTP::Get.new(uri)
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+        http.request(request)
+      end
+      parser = JSON.parse(response.body)
+      parser['listeners'].each do |listenerActive|
+        if listenerActive['options']['Port']['Value'] == portNumber.to_s
+          return listenerActive['name']
+        end
+      end
+      return false
+    end
+    #
     #Method to check if a lsietener with the listenername already exists.
     #
     def is_listener_active(listener_name)
-      uri = URI.parse("https://localhost:1337/api/listeners/#{listener_name}?token=#{@token}")
+      uri = URI.parse("https://0.0.0.0:1337/api/listeners/#{listener_name}?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
       req_options = self.set_options(uri)
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
@@ -139,7 +161,7 @@ module Msf::Empire
     #which then needs to be written to file with proper extensions, for an instance, /tmp/launcher.dll
     #
     def gen_stager(listener_name, stager_type)
-      uri = URI.parse("https://localhost:1337/api/stagers?token=#{@token}")
+      uri = URI.parse("https://0.0.0.0:1337/api/stagers?token=#{@token}")
       request = Net::HTTP::Post.new(uri)
       request.content_type = "application/json"
       request.body = JSON.dump({
@@ -158,6 +180,14 @@ module Msf::Empire
         stagerCode = parser[stager_type]['Output']
         return stagerCode
       end
+    end
+    #
+    #Method to generate raw powershell launcher
+    #
+    def generate_launcher(listener_name)
+      stagerOutput = gen_stager(listener_name, 'windows/launcher_bat')
+      stagerCode = stagerOutput.to_s.split(" ")[10]
+      return stagerCode
     end
     #
     #Empire API isn't yet able to create injectable DLL, and for that reason
