@@ -45,7 +45,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   @@shell_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help menu."						   ],
-    "-b" => [ false, "NX Bash PTY via pybash, requires python"			   ])
+    "-b" => [ false, "NX Bash PTY"						   ])
 
   #
   # Options used by the 'shutdown' command.
@@ -253,7 +253,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Drop into a system shell as specified by %COMSPEC% or
   # as appropriate for the host.
   def cmd_shell(*args)
-    pybash = false
+    bash = false
 
     @@shell_opts.parse(args) { |opt, idx, val|
       case opt
@@ -264,7 +264,7 @@ class Console::CommandDispatcher::Stdapi::Sys
             @@shell_opts.usage)
           return true
         when "-b"
-          pybash = true
+          bash = true
       end
     }
 
@@ -283,8 +283,8 @@ class Console::CommandDispatcher::Stdapi::Sys
       end
     when 'linux', 'osx'
       # Don't expand_path() this because it's literal anyway
-      if pybash
-        return true if pybash_shell
+      if bash
+        return true if bash_shell
       end
       path = "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
@@ -294,27 +294,36 @@ class Console::CommandDispatcher::Stdapi::Sys
       path = client.fs.file.expand_path("%COMSPEC%")
       # If that failed for whatever reason, guess it's unix
       path = (path and not path.empty?) ? path : "/bin/sh"
-      if pybash && path == "/bin/sh"
-        return true if pybash_shell
+      if bash && path == "/bin/sh"
+        return true if bash_shell
       end
       cmd_execute("-f", path, "-c", "-i")
     end
   end
 
   #
-  # Spawn a python pty /bin/bash or /bin/sh shell 
+  # Spawn a bash shell
   #
-  def pybash_shell
+  def bash_shell
+    sh_path = client.fs.file.exist?('/bin/bash') ? '/bin/bash' : '/bin/sh'
+
+    if client.session_type =~ /python/
+      cmd_execute('-if', sh_path)
+      return true
+    end
+
     path = nil
-    path = '/usr/bin/python'  if client.fs.file.exist?('/usr/bin/python')
+    path = '/usr/bin/socat'   if client.fs.file.exist?('/usr/bin/socat')
+    path = '/usr/bin/script'  if client.fs.file.exist?('/usr/bin/script') && !path
+    path = '/usr/bin/python'  if client.fs.file.exist?('/usr/bin/python') && !path
     path = '/usr/bin/python2' if client.fs.file.exist?('/usr/bin/python2') && !path
     path = '/usr/bin/python3' if client.fs.file.exist?('/usr/bin/python3') && !path
-
     return false unless path
-
-    sh_path = client.fs.file.exist?('/bin/bash') ? '/bin/bash' : '/bin/sh'
-    ags = "-c \'import pty;pty.spawn(\"#{sh_path}\")\'"
-    cmd_execute('-f', path, '-a', ags, '-c', '-i')
+    
+    cmd = "export TERM=xterm; #{path} - exec:'#{sh_path} -li',pty,stderr,setsid,sigint,sane" if path =~ /socat/
+    cmd = "export TERM=xterm; #{path} -qc #{sh_path} /dev/null" if path =~ /script/
+    cmd = "export TERM=xterm; #{path} -c \'import pty;pty.spawn(\"#{sh_path}\")\'" if path =~ /python/
+    cmd_execute('-if', cmd)
 
     true
   rescue
