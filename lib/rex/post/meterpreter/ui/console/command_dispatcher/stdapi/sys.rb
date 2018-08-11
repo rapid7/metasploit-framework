@@ -319,7 +319,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     path = '/usr/bin/python2' if client.fs.file.exist?('/usr/bin/python2') && !path
     path = '/usr/bin/python3' if client.fs.file.exist?('/usr/bin/python3') && !path
     return false unless path
-    
+
     cmd = "export TERM=xterm; #{path} - exec:'#{sh_path} -li',pty,stderr,setsid,sigint,sane" if path =~ /socat/
     cmd = "export TERM=xterm; #{path} -qc #{sh_path} /dev/null" if path =~ /script/
     cmd = "export TERM=xterm; #{path} -c \'import pty;pty.spawn(\"#{sh_path}\")\'" if path =~ /python/
