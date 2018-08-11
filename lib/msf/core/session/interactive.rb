@@ -127,6 +127,13 @@ protected
     p ""
   end
 
+  def _usr1
+    # A simple signal to exit vim in reverse shell
+    # Just for fun
+    # Make sure you have already executed `shell` meta-shell command to pop up an interactive shell
+    self.rstream.write("\x1B\x1B\x1B:q!\r")
+  end
+
   #
   # Check to see if we should suspend.
   #
