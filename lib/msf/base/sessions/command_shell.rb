@@ -273,7 +273,7 @@ class CommandShell
   # Check if there is a binary in PATH env
   #
   def binary_exists(binary)
-    print_status("Trying to find binary(#{binary}}) on target machine")
+    print_status("Trying to find binary(#{binary}) on target machine")
     binary_path = shell_command_token("which #{binary}").strip
     p binary_path
     if binary_path.eql?("#{binary} not found")
