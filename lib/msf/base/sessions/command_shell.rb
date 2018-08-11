@@ -77,6 +77,7 @@ class CommandShell
         'help'         =>  'Help menu',
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
+        'shell'        => 'Spawn an interactive shell',
     }
   end
 
@@ -177,6 +178,29 @@ class CommandShell
       self.next_session = args[0]
       self.interacting = false
     end
+  end
+
+  def cmd_shell_help()
+    print_line('Usage: shell')
+    print_line
+    print_line('Pop up an interactive shell via multi methods.')
+    print_line('An interactive shell means that you can use several useful commands like `passwd`, `su [username]`')
+    print_line('There are three implementation of it: ')
+    print_line('\t1. using python `pty` module (default choice)')
+    print_line('\t2. using `socat` command')
+    print_line('\t3. using `script` command')
+    print_line('\t4. upload a pty program via reverse shell')
+    print_line
+  end
+
+  def cmd_shell(*args)
+    if args.length == 1 && (args[1] == '-h' || args[1] == 'help')
+      # One arg, and args[1] => '-h' '-H' 'help'
+      return cmd_sessions_help
+    end
+    # TODO implementation of other method described in the `cmd_shell_help` method.
+    # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case. 
+    shell_command('python -c "import pty; pty.spawn(\'/bin/sh\')"')
   end
 
   #
