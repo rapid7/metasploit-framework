@@ -29,6 +29,7 @@ class CommandShell
 
   include Msf::Session::Scriptable
 
+  include Rex::Ui::Text::Resource
 
   ##
   # :category: Msf::Session::Scriptable implementors
@@ -68,6 +69,14 @@ class CommandShell
     "Command shell"
   end
 
+  ##
+  # :category: Msf::Session::Provider::SingleCommandShell implementors
+  #
+  # The shell will have been initialized by default.
+  #
+  def shell_init
+    return true
+  end
 
   #
   # List of supported commands.
@@ -77,34 +86,9 @@ class CommandShell
         'help'         =>  'Help menu',
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
+        'resource'     => 'Run the commands stored in a file',
         'shell'        => 'Spawn an interactive shell',
     }
-  end
-
-  #
-  # Parse a line into an array of arguments.
-  #
-  def parse_line(line)
-    line.split(' ')
-  end
-
-  #
-  # Explicitly runs a command.
-  #
-  def run_cmd(cmd)
-    # Do nil check for cmd (CTRL+D will cause nil error)
-    return unless cmd
-
-    arguments = parse_line(cmd)
-    method    = arguments.shift
-
-    # Built-in command
-    if commands.key?(method)
-      return run_command(method, arguments)
-    end
-
-    # User input is not a built-in command, write to socket directly
-    shell_write(cmd)
   end
 
   def cmd_help(*args)
@@ -123,7 +107,7 @@ class CommandShell
     print(tbl.to_s)
   end
 
-  def cmd_background_help()
+  def cmd_background_help
     print_line "Usage: background"
     print_line
     print_line "Stop interacting with this session and return to the parent prompt"
@@ -143,7 +127,7 @@ class CommandShell
     end
   end
 
-  def cmd_sessions_help()
+  def cmd_sessions_help
     print_line('Usage: sessions <id>')
     print_line
     print_line('Interact with a different session Id.')
@@ -180,6 +164,48 @@ class CommandShell
     end
   end
 
+  def cmd_resource(*args)
+    if args.empty?
+      cmd_resource_help
+      return false
+    end
+
+    args.each do |res|
+      good_res = nil
+      if res == '-'
+        good_res = res
+      elsif ::File.exist?(res)
+        good_res = res
+      elsif
+        # let's check to see if it's in the scripts/resource dir (like when tab completed)
+      [
+          ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
+          ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter'
+      ].each do |dir|
+        res_path = ::File::join(dir, res)
+        if ::File.exist?(res_path)
+          good_res = res_path
+          break
+        end
+      end
+      end
+      if good_res
+        load_resource(good_res)
+      else
+        print_error("#{res} is not a valid resource file")
+        next
+      end
+    end
+  end
+
+  def cmd_resource_help
+    print_line "Usage: resource path1 [path2 ...]"
+    print_line
+    print_line "Run the commands stored in the supplied files. (- for stdin, press CTRL+D to end input from stdin)"
+    print_line "Resource files may also contain ERB or Ruby code between <ruby></ruby> tags."
+    print_line
+  end
+
   def cmd_shell_help()
     print_line('Usage: shell')
     print_line
@@ -202,29 +228,32 @@ class CommandShell
     # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case. 
     shell_command('python -c "import pty; pty.spawn(\'/bin/sh\')"')
   end
+  
+  #
+  # Explicitly runs a single line command.
+  #
+  def run_single(cmd)
+    # Do nil check for cmd (CTRL+D will cause nil error)
+    return unless cmd
+
+    arguments = cmd.split(' ')
+    method    = arguments.shift
+
+    # Built-in command
+    if commands.key?(method)
+      return run_builtin_cmd(method, arguments)
+    end
+
+    # User input is not a built-in command, write to socket directly
+    shell_write(cmd)
+  end
 
   #
   # Run built-in command
   #
-  def run_command(method, arguments)
+  def run_builtin_cmd(method, arguments)
     # Dynamic function call
     self.send('cmd_' + method, *arguments)
-  end
-
-  #
-  # Calls the class method.
-  #
-  def type
-    self.class.type
-  end
-
-  ##
-  # :category: Msf::Session::Provider::SingleCommandShell implementors
-  #
-  # The shell will have been initialized by default.
-  #
-  def shell_init
-    return true
   end
 
   ##
@@ -274,7 +303,7 @@ class CommandShell
   # Writes to the command shell.
   #
   def shell_write(buf)
-    return if not buf
+    return unless buf
 
     begin
       framework.events.on_session_command(self, buf.strip)
@@ -375,13 +404,13 @@ protected
     fds = [rstream.fd, user_input.fd]
     while self.interacting
       sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
-      next if not sd
+      next unless sd
 
       if sd[0].include? rstream.fd
         user_output.print(shell_read)
       end
       if sd[0].include? user_input.fd
-        shell_write(user_input.gets)
+        run_single(user_input.gets)
       end
       Thread.pass
     end
