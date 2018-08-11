@@ -3,7 +3,7 @@ require 'msf/base'
 require 'msf/base/sessions/scriptable'
 require 'shellwords'
 require 'rex/text/table'
-
+require "base64"
 
 module Msf
 module Sessions
@@ -224,11 +224,64 @@ class CommandShell
       # One arg, and args[1] => '-h' '-H' 'help'
       return cmd_sessions_help
     end
-    # TODO implementation of other method described in the `cmd_shell_help` method.
+
     # Why `/bin/sh` not `/bin/bash`, some machine may not have `/bin/bash` installed, just in case. 
-    shell_command('python -c "import pty; pty.spawn(\'/bin/sh\')"')
+    # 1. Using python
+    # 1.1 Check Python installed or not
+    # We do not need to care about the python version
+    # Beacuse python2 and python3 have the same payload of spawn a shell
+    python_path = binary_exists("python")
+    if python_path != nil
+      # Payload: import pty;pty.spawn('/bin/sh')
+      # Base64 encoded payload: aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==
+      print_status("Using `python` to pop up an interactive shell")
+      shell_command("#{python_path} -c 'exec(\"aW1wb3J0IHB0eTtwdHkuc3Bhd24oJy9iaW4vc2gnKQ==\".decode(\"base64\"))'")
+      return
+    end
+
+    # 2. Using script
+    script_path = binary_exists("script")
+    if script_path != nil
+      print_status("Using `script` to pop up an interactive shell")
+      shell_command(script_path)
+      return
+    end
+
+    # 3. Using socat
+    socat_path = binary_exists("socat")
+    if socat_path != nil
+      # Payload: socat - exec:'bash -li',pty,stderr,setsid,sigint,sane
+      print_status("Using `socat` to pop up an interactive shell")
+      shell_command("#{socat_path} - exec:'/bin/sh -li',pty,stderr,setsid,sigint,sane")
+      return
+    end
+
+    # 4. Using pty program
+    # 4.1 Detect arch and destribution
+    # 4.2 Real time compiling
+    # 4.3 Upload binary
+    # 4.4 Change mode of binary
+    # 4.5 Execute binary
+
+    print_error("Can not pop up an interactive shell")
   end
   
+  #
+  # Check if there is a binary in PATH env
+  #
+  def binary_exists(binary)
+    print_status("Trying to find binary(#{binary}}) on target machine")
+    binary_path = shell_command_token("which #{binary}").strip
+    p binary_path
+    if binary_path.eql?("#{binary} not found")
+      print_error(binary_path)
+      return nil
+    else
+      print_status("Found #{binary} at #{binary_path}")
+      return binary_path
+    end
+  end
+
   #
   # Explicitly runs a single line command.
   #
