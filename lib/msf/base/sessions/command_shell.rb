@@ -196,7 +196,9 @@ class CommandShell
       end
       end
       if good_res
+        print_status("Executing resource script #{good_res}")
         load_resource(good_res)
+        print_status("Resource script #{good_res} complete")
       else
         print_error("#{res} is not a valid resource file")
         next
