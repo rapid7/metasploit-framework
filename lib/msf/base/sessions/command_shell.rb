@@ -395,7 +395,7 @@ class CommandShell
       # Start transfer
 
       for i in 1..times do
-        print_status("Uploading (#{i}/#{times})")
+        print_status("Uploading (#{i * buffer_size}/#{src_size})")
         chunk = src_fd.read(buffer_size)
         chunk_repr = repr(chunk)
         result = shell_command_token("echo -ne '#{chunk_repr}' >> #{dst}")
