@@ -135,18 +135,8 @@ module Sinatra
         end
 
 
-        def execute_script(script)
-
-          # Some Essential commnads
-          if script=="help" || script==="?"
-            output=nil
-            @client.console.dispatcher_stack.each do|dispatch|
-              output=dispatch.help_to_s
-            end
-            return output
-          else
-           @client.run_cmd(script,)
-          end
+        def execute_script(script,s)
+           @client.run_cmd(script,s)
         end
 
         def run_exten_cmd
