@@ -87,9 +87,9 @@ class CommandShell
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
         'resource'     => 'Run the commands stored in a file',
-        'shell'        => 'Spawn an interactive shell',
-        'download'     => 'Download files',
-        'upload'       => 'Upload files',
+        'shell'        => 'Spawn an interactive shell (*NIX Only)',
+        'download'     => 'Download files (*NIX Only)',
+        'upload'       => 'Upload files (*NIX Only)',
     }
   end
 
