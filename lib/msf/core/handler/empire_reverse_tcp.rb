@@ -9,8 +9,6 @@ module Msf
   module Handler
     module EmpireReverseTcp
       include Msf::Handler
-      include Msf::Handler::Reverse
-      include Msf::Handler::Reverse::Comm
 
       #
       # Returns the string representation of the handler type, in this case
@@ -35,18 +33,18 @@ module Msf
       def initialize(info = {})
         super
         #Registering Empire Options
-        register_options(
-          [
-            OptAddress.new(
-              'LHOST',
-              [true, 'Local address to listen on.']),
-            OptPort.new(
-              'LPORT',
-              [true,'Local port to listen on for inbound connections']),
-            OptString.new(
-              'ListenerName',
-              [false,'Name of the listener the Empire payload is made for, if you remember.'])
-          ])
+        #register_options(
+        #  [
+        #    OptAddress.new(
+        #      'LHOST',
+        #      [true, 'Local address to listen on.']),
+        #    OptPort.new(
+        #      'LPORT',
+        #      [true,'Local port to listen on for inbound connections']),
+        #    OptString.new(
+        #      'ListenerName',
+        #      [false,'Name of the listener the Empire payload is made for, if you remember.'])
+        #  ])
       end
 
       # A string suitable for displaying to the user
@@ -62,6 +60,10 @@ module Msf
       def start_handler
         #Defing thread methods for the handler
         #Main handler method
+        #
+        #Define class variables
+        #
+        @port = datastore['LPORT']
         def main
           def validate(lhost, lport)
             #Validating user inputs
@@ -76,10 +78,9 @@ module Msf
             end
           end
           #Storing user inputs
-          @agentsConnected = {}
-          @agentsLogged = []
+          @empire_username = datastore['USERNAME']
+          @empire_password = datastore['PASSWORD']
           @host = datastore['LHOST']
-          @port = datastore['LPORT']
           @listener_name = datastore['ListenerName']
           #
           #Validate environment to check if Empire is running at 1337
@@ -88,16 +89,39 @@ module Msf
           #
           #Creating an Empire Instance
           #
-          @client_emp = Msf::Empire::Client.new
+          @client_emp = Msf::Empire::Client.new(@empire_username, @empire_password)
           #
           #Continue directly to listen if the listener name mentioned is
           #already up and running, else start another listener with listener
           #name (if provided) or a random listener name
           #
-          if not @listener_name.empty?
+          if datastore['ListenerName']
+            #Check if listener name already exists
             response = @client_emp.is_listener_active(@listener_name)
             if response.to_s == false
-              print_error("Listener name provided not found. Trying to create one.")
+
+              #If listener name not found, check if an empire listener is
+              #already listening over that port
+              if @client_emp.is_port_active(@port) == false
+                print_error("Listener name provided not found. Trying to create one.")
+                validate(@host, @port)
+                responseListener = @client_emp.create_listener(@listener_name, @host, @port)
+                if responseListener.to_s.include?("Failed")
+                  raise(responseListener.to_s)
+                else
+                  print_status(responseListener.to_s)
+                end
+              else
+                print_status("#{@client_emp.is_port_active(@port)} is listening over port : #{@port}")
+              end
+            else
+              print_status(response.to_s)
+            end
+          else
+            #Check if an Empire listener is already active over the mentioned
+            #port
+            if @client_emp.is_port_active(@port) == false
+              @listener_name = "ListenerEmpire#{rand(1..1000)}"
               validate(@host, @port)
               responseListener = @client_emp.create_listener(@listener_name, @host, @port)
               if responseListener.to_s.include?("Failed")
@@ -106,54 +130,58 @@ module Msf
                 print_status(responseListener.to_s)
               end
             else
-              print_status(response.to_s)
-            end
-          else
-            @listener_name = "ListenerEmpire#{rand(1..100)}"
-            validate(@host, @port)
-            responseListener = @client_emp.create_listener(@listener_name, @host, @port)
-            if responseListener.to_s.include?("Failed")
-              raise(responseListener.to_s)
-            else
-              print_status(responseListener.to_s)
+              print_status("#{@client_emp.is_port_active(@port)} is listening over port : #{@port}")
             end
           end
-
-
         end
 
         #Method to listen for inbound connenctions
         def handle_sessions
           sleep(10)
+          @agentsConnected = {}
+          @agentsLogged = []
+          print_line
+          print_status("Waiting for agents to connect back")
+          listenerLocal = @client_emp.is_port_active(@port)
+
           #Retrieving connected agents at an interval of 6 seconds
-          while (true)
+          while @client_emp.is_listener_active(listenerLocal).to_s.include?("active") do
             sleep(6)
             staticCount = 0
-            @agentsConnected = @client_emp.get_agents()
-            @agentsConnected.each do |listener, session_id|
-              if listener == @listener_name
-                @agentsLogged.each do |agents|
-                  if session_id == agents
-                    staticCount = staticCount + 1
+            break if @client_emp.is_listener_active(listenerLocal) == false
+            if not @client_emp.get_agents.include?("connected")
+              @agentsConnected = @client_emp.get_agents()
+            end
+
+            #Iterating through the connected agents if hash is not empty
+            if not @agentsConnected.empty?
+              @agentsConnected.each do |listener, session_id|
+                if listener == listenerLocal
+                  if @agentsLogged.any?
+                    @agentsLogged.each do |agents|
+                      if session_id == agents
+                        staticCount = staticCount + 1
+                      end
+                    end
+                  else
+                    if staticCount == 0
+                      print_status("Agent Connected : #{session_id}. Creating empire session")
+                      empireSession = Msf::Sessions::EmpireShellWindows.new(@client_emp, session_id)
+                      framework.sessions.register(empireSession)
+                      @agentsLogged.push(session_id)
+                    end
                   end
                 end
-                if staticCount == 0
-                  empireSession = Msf::Sessions::EmpireShellWindows.new(@client_emp, session_id)
-                  framework.sessions.register(empireSession)
-                  @agentsLogged.push(session_id)
-                end
-                staticCount = 0
               end
             end
           end
         end
-
         #Initiating the threads
         thread_main = Thread.new{
           main()
         }
         thread_sessions = Thread.new{
-          handler_sessions()
+          handle_sessions()
         }
 
         #Joining the api thread
@@ -164,18 +192,19 @@ module Msf
       # Stops monitoring for an inbound connection.
       #
       def stop_handler
-        @client_emp.shutdown()
+        listenerLocal = @client_emp.is_port_active(@port)
+        print_status("Terminating #{listenerLocal}")
+        @client_emp.kill_listener(listenerLocal)
       end
 
-      #
       # Closes the listener socket if one was created.
       #
       def cleanup_handler
-        command = "kill 9 $(lsof -t i:1337)"
-        value = system(command)
-        if value
-          print_status ("Handler Successfully Stopped")
-        end
+        #command = "kill 9 $(lsof -t -i:1337)"
+        #value = system(command)
+        #if value
+        #  print_status ("Handler Successfully Stopped")
+        #end
       end
     end
   end
