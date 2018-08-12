@@ -118,6 +118,7 @@ protected
       if !intent
         # TODO: Check the shell is interactive or not
         # If the current shell is not interactive, the ASCII Control Character will not work
+        print_status("Aborting foreground process in the shell session")
         self.rstream.write("\u0003")
         return
       end
@@ -139,9 +140,15 @@ protected
   #
   def _suspend
     # Ask the user if they would like to background the session
-    if (prompt_yesno("Background session #{name}?") == true)
-      self.interacting = false
+    intent = prompt_yesno("Background session #{name}?")
+    if !intent
+      # User does not want to background the current session
+      # Just want to STOP the foreground process on the target machine
+      print_status("Backgrounding foreground process in the shell session")
+      self.rstream.write("\u001A")
+      return
     end
+    self.interacting = false
   end
 
   #
