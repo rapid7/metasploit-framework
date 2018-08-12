@@ -88,6 +88,7 @@ class CommandShell
         'sessions'     => 'Quickly switch to another session',
         'resource'     => 'Run the commands stored in a file',
         'shell'        => 'Spawn an interactive shell',
+        'download'     => 'Download files'
     }
   end
 
@@ -283,6 +284,61 @@ class CommandShell
       print_status("Found #{binary} at #{binary_path}")
       return binary_path
     end
+  end
+
+  #
+  # Check if there is a file on the target machine
+  #
+  def file_exists(path)
+    # Use `ls` command to check file exists
+    # If file exists, `ls [path]` will echo the varible `path`
+    # Or `ls` command will report an error message
+    # But we can not ensure that the implementation of ls command are the same on different destribution
+    # So just check the success flag not error message
+    # eg:
+    # $ ls /etc/passwd
+    # /etc/passwd
+    # $ ls /etc/nosuchfile
+    # ls: cannot access '/etc/nosuchfile': No such file or directory
+    result = shell_command_token("ls #{path}").strip
+    if result.eql?(path)
+      return true
+    end
+    return false
+  end
+
+  def cmd_download_help
+    print_line("Usage: download [src] [dst]")
+    print_line
+    print_line("Downloads remote files to the local machine.")
+    print_line("This command does not support to download a FOLDER yet")
+    print_line
+  end
+
+  def cmd_download(*args)
+    if args.length != 2
+      # no argumnets, just print help message
+      return cmd_download_help
+    end
+
+    src = args[0]
+    dst = args[1]
+
+    # Check if src exists
+    if !file_exists(src)
+      print_error("The target file does not exists")
+      return
+    end
+
+    # Get file content
+    print_status("Download #{src} => #{dst}")
+    content = shell_command("cat #{src}")
+
+    # Write file to local machine
+    file = File.open(dst, "wb")
+    file.write(content)
+    file.close
+    print_status("Done")
   end
 
   #
