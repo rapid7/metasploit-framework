@@ -21,7 +21,7 @@ module MetasploitModule
     super(merge_info(info,
     'Name'       => 'Empire Stager Module',
     'Description'=> 'Creates PowerPick Reflective DLL to inject with stager code for Empire',
-    'Author'     => ['author_name'],
+    'Author'     => ['zed009'],
     'License'    => MSF_LICENSE,
     'Platform'   => ['empire'],
     'Arch'       => ARCH_CMD,
