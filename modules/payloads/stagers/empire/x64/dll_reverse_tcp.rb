@@ -113,7 +113,7 @@ module MetasploitModule
     #
     #Generating payload
     #
-    @stagerCode = client_emp.generate_dll(@listener_name, 'x86', @path)
+    @stagerCode = client_emp.generate_dll(@listener_name, 'x64', @path)
     return @stagerCode
   end
 end
