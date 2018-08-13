@@ -64,6 +64,7 @@ module Msf
         #Define class variables
         #
         @port = datastore['LPORT']
+        @host = datastore['LHOST']
         def main
           def validate(lhost, lport)
             #Validating user inputs
@@ -80,7 +81,6 @@ module Msf
           #Storing user inputs
           @empire_username = datastore['USERNAME']
           @empire_password = datastore['PASSWORD']
-          @host = datastore['LHOST']
           @listener_name = datastore['ListenerName']
           #
           #Validate environment to check if Empire is running at 1337
@@ -165,7 +165,7 @@ module Msf
                     end
                   else
                     if staticCount == 0
-                      print_status("Agent Connected : #{session_id}. Creating empire session")
+                      print_status("Agent Connected : #{session_id}. #{@client_emp.handler_details(@host, @port, session_id)}")
                       empireSession = Msf::Sessions::EmpireShellWindows.new(@client_emp, session_id)
                       framework.sessions.register(empireSession)
                       @agentsLogged.push(session_id)
