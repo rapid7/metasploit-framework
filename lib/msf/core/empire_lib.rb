@@ -288,6 +288,24 @@ module Msf::Empire
       end
     end
     #
+    #Method that displays returns string with basic agents details when
+    #handlers starts staging
+    #
+    def handler_details(lhost, lport, agent_name)
+      uri = URI.parse("https://0.0.0.0:1337/api/agents?token=#{@token}")
+      request = Net::HTTP::Get.new(uri)
+      req_options = self.set_options(uri)
+      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+        http.request(request)
+      end
+      parser = JSON.parse(response.body)
+      parser['agents'].each do |agent_id|
+        if agent_id['session_id'] == agent_name
+          return "#{agent_id['os_details']}/#{agent_id['username']} :: sending stage #{lhost}:#{lport} -> #{agent_id['external_ip']} at #{agent_id['checkin_time']}"
+        end
+      end
+    end
+    #
     #Method to get all stale or idle agents
     #
     def get_stale
