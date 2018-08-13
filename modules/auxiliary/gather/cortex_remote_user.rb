@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::HostUnreachable
       print_status("The host is unreachable.")
     rescue Rex::ConnectionTimeout
-      print_status("Connection has timed out.")
+      print_status("Connection has timed out. Please check IP/Address used as RHOST.")
     rescue Rex::ConnectionRefused => e
       print_status("Connection is refused. #{e.message}")
     ensure
