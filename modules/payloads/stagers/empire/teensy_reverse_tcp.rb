@@ -21,7 +21,7 @@ module MetasploitModule
     super(merge_info(info,
     'Name'       => 'Empire Stager Module',
     'Description'=> 'Generates a Teensy script that runes a one-liner stage0 launcher for Empire.',
-    'Author'     => ['author_name'],
+    'Author'     => ['zed009'],
     'License'    => MSF_LICENSE,
     'Platform'   => ['empire'],
     'Arch'       => ARCH_CMD,
