@@ -6,6 +6,21 @@ cgit before v1.2.1 has a directory traversal vulnerabiltiy when `cgitrc` has the
 
 [cgit before v1.2.1](https://git.zx2c4.com/cgit/)
 
+### Installing cgit on Ubuntu 18.04 x64
+
+1. `sudo apt install cgit` # [dependencies](https://git.zx2c4.com/cgit/tree/README) may have to be downloaded first
+2. Modify `/etc/cgitrc` to have `enable-http-clone=1`. Example attached.
+3. Add `.htaccess` file with rewrite rules to `/usr/lib/cgit/`. Example attached.
+4. Add `cgit.conf` to `/etc/apache2/conf-enabled/`. Example attached.
+5. Enable `rewrite.load` and `cgi.load` in apache2.
+6. Create bare repo. `mkdir -p repo/test.git && cd repo/test.git && git init --bare`
+
+Example files were only used for testing and are likely not secure (probably not the best examples either...). I'm adding the files because it took me a long time to get this setup (re: my apache skills are lacking).
+
+[cgit.conf.txt](https://github.com/rapid7/metasploit-framework/files/2284678/cgit.conf.txt)
+[cgitrc.txt](https://github.com/rapid7/metasploit-framework/files/2284679/cgitrc.txt)
+[htaccess.txt](https://github.com/rapid7/metasploit-framework/files/2284680/htaccess.txt)
+
 ### Vulnerability Details from Project Zero
 
 There is a directory traversal vulnerability in cgit_clone_objects(), reachable when the configuration flag enable-http-clone is set to 1 (default):
@@ -36,7 +51,7 @@ ctx.qry.path can come from querystring_cb(), which takes unescaped data from the
 
 **REPO**
 
-Git repository on the remote server
+Git repository on the remote server. Default is empty, `''`.
 
 ## Verification Steps
 
