@@ -32,19 +32,6 @@ module Msf
       #
       def initialize(info = {})
         super
-        #Registering Empire Options
-        #register_options(
-        #  [
-        #    OptAddress.new(
-        #      'LHOST',
-        #      [true, 'Local address to listen on.']),
-        #    OptPort.new(
-        #      'LPORT',
-        #      [true,'Local port to listen on for inbound connections']),
-        #    OptString.new(
-        #      'ListenerName',
-        #      [false,'Name of the listener the Empire payload is made for, if you remember.'])
-        #  ])
       end
 
       # A string suitable for displaying to the user
