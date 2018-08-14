@@ -145,7 +145,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
             :proxy         => factory,
             :auth_methods  => ['password','keyboard-interactive'],
             :password      => private,
-            :non_interactive => true
+            :non_interactive => true,
+            :verify_host_key => :never
         }
         allow(Rex::Socket::SSHFactory).to receive(:new).and_return factory
         expect(Net::SSH).to receive(:start).with(
