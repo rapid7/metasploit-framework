@@ -2,9 +2,12 @@ require 'json'
 require 'msf/core/db_manager/http/db_manager_proxy'
 require 'msf/core/db_manager/http/job_processor'
 require 'metasploit/framework/data_service/remote/http/response_data_helper'
+require 'rex/ui/text/output/stdio'
 
 module ServletHelper
   include ResponseDataHelper
+
+  @@console_printer = Rex::Ui::Text::Output::Stdio.new
 
   def set_error_on_response(error)
     print_error "Error handling request: #{error.message}", error
@@ -134,7 +137,32 @@ module ServletHelper
   def warden_options
     env['warden.options']
   end
-  
+
+  def print_line(msg)
+    @@console_printer.print_line(msg)
+  end
+
+  def print_warning(msg)
+    @@console_printer.print_warning(msg)
+  end
+
+  def print_good(msg)
+    @@console_printer.print_good(msg)
+  end
+
+  def print_error(msg, exception = nil)
+    unless exception.nil?
+      msg += "\n    Call Stack:"
+      exception.backtrace.each {|line|
+        msg += "\n"
+        msg += "\t #{line}"
+      }
+    end
+
+    @@console_printer.print_error(msg)
+  end
+
+
   #######
   private
   #######
