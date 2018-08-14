@@ -35,7 +35,7 @@ module Msf
             "-i" => [ true,  "Lists detailed information about a running job."],
             "-l" => [ false, "List all running jobs."                         ],
             "-v" => [ false, "Print more detailed info.  Use with -i and -l"  ],
-            "-p" => [ true,  "Add a persistent job by job ID"                 ],
+            "-p" => [ true,  "Add persistence to job by job ID"               ],
             "-P" => [ false, "Persist all running jobs on restart."           ],
             "-S" => [ true,  "Row search filter."                             ]
           )
@@ -135,7 +135,7 @@ module Msf
                 job_list = build_range_array(val)
                 kill_job = true
               when "-K"
-                print_line("Stopping all jobs and persistent jobs ...")
+                print_line("Stopping all jobs...")
                 framework.jobs.each_key do |i|
                   framework.jobs.stop_job(i)
                 end
@@ -194,21 +194,21 @@ module Msf
                 return false
               end
 
-              print_status("Stopping the following job(s) and remove their persistence: #{job_list.join(', ')}")
+              print_status("Stopping the following job(s): #{job_list.join(', ')}")
 
               # Remove  the persistent job when match the option of payload.
-              persist_list = File.open(Msf::Config.persist_file,"r").readlines.map!(&:chomp) rescue nil
-              persist_list.map!{|handler|JSON.parse(handler)}
+              begin
+                persist_list = JSON.parse(File.read(Msf::Config.persist_file))
+              rescue Errno::ENOENT, JSON::ParserError
+                persist_list = []
+              end
 
               job_list.map(&:to_s).each do |job|
                 payload_option = framework.jobs[job.to_s].ctx[1].datastore
                 persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
               end
               # Write persist job back to config file.
-              File.truncate(Msf::Config.persist_file,0)
-              persist_list.each do |pjob|
-                File.open(Msf::Config.persist_file,"a+"){|file|file.puts(pjob.to_json)}
-              end
+              File.open(Msf::Config.persist_file,"w"){|file| file.puts(JSON.pretty_generate(persist_list))}
 
               # Stop the job by job id.
               job_list.map(&:to_s).each do |job|
@@ -243,8 +243,10 @@ module Msf
                 'mod_options'    => payload_opts
               }
 
-              File.open(Msf::Config.persist_file,"a+"){|file|file.puts(mod_opts.to_json)}
-              print_line("Added job #{job_id} as a persistent_job.")
+              persist_list = JSON.parse(File.read(Msf::Config.persist_file)) rescue []
+              persist_list << mod_opts
+              File.open(Msf::Config.persist_file,"w"){|file| file.puts(JSON.pretty_generate(persist_list))}
+              print_line("Added persistence to job #{job_id}.")
             else
               print_line("Invalid Job ID")
             end
