@@ -30,7 +30,7 @@ module Priv
   end
 
 #
-# Multiple function for simulate native commands
+# Multiple functions to simulate native commands added
 #
 
   def download_cmd(remote_path, local_path)
