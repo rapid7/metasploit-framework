@@ -61,6 +61,13 @@ module LoginApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -101,6 +108,13 @@ module LoginApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -127,6 +141,14 @@ module LoginApiDoc
           end
         end
       end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
     end
   end
 
@@ -151,6 +173,13 @@ module LoginApiDoc
           property :data do
             key :'$ref', :Login
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 
@@ -185,6 +214,13 @@ module LoginApiDoc
           property :data do
             key :'$ref', :Login
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 

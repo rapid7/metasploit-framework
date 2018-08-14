@@ -49,6 +49,13 @@ module NoteApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -86,6 +93,13 @@ module NoteApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -110,6 +124,13 @@ module NoteApiDoc
               key :'$ref', :Note
             end
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 
@@ -146,6 +167,13 @@ module NoteApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -177,6 +205,13 @@ module NoteApiDoc
           property :data do
             key :'$ref', :Note
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 

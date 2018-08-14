@@ -113,6 +113,13 @@ module HostApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -168,6 +175,13 @@ module HostApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -192,6 +206,13 @@ module HostApiDoc
               key :'$ref', :Host
             end
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 
@@ -228,6 +249,13 @@ module HostApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -259,6 +287,13 @@ module HostApiDoc
           property :data do
             key :'$ref', :Host
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 

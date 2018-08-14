@@ -43,6 +43,13 @@ module WorkspaceApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -75,6 +82,13 @@ module WorkspaceApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -99,6 +113,13 @@ module WorkspaceApiDoc
               key :'$ref', :Workspace
             end
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 
@@ -135,6 +156,13 @@ module WorkspaceApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -166,6 +194,13 @@ module WorkspaceApiDoc
           property :data do
             key :'$ref', :Workspace
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 

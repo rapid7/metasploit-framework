@@ -44,6 +44,13 @@ module SessionEventApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -81,6 +88,13 @@ module SessionEventApiDoc
         end
       end
 
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
         key :description, 'An error occurred during the operation. See the message for more details.'
         schema do
@@ -111,6 +125,13 @@ module SessionEventApiDoc
           property :data do
             key :'$ref', :SessionEvent
           end
+        end
+      end
+
+      response 401 do
+        key :description, 'Authenticate to access this resource.'
+        schema do
+          key :'$ref', :AuthErrorModel
         end
       end
 
