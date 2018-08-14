@@ -15,7 +15,7 @@ module AuthApiDoc
   end
 
   swagger_path '/api/v1/auth/generate-token' do
-    # Swagger documentation for /api/v1/auth/generate-tokenGET
+    # Swagger documentation for /api/v1/auth/generate-token GET
     operation :get do
 
       key :description, 'Return a valid Authorization Bearer token.'
