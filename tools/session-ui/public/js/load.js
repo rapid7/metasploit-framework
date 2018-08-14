@@ -56,8 +56,7 @@ ws.onopen    = function(event)  {
 
     term.open(terminalContainer, true);
     term.prompt();
-    console.log(term.buffer);
-
+    //console.log(term.buffer);
     term.addDisposableListener('key', function (key, ev) {
         var printable = (
             !ev.altKey && !ev.altGraphKey && !ev.ctrlKey && !ev.metaKey
@@ -143,7 +142,7 @@ function modal(val){
         var response = xhr.responseText;
         var responseData= JSON.parse(response);
         if (xhr.readyState === 4 && xhr.status === 200){
-
+            console.log(responseData);
             document.getElementById("postname").innerText=responseData.name;
             document.getElementById("postauthor").innerText=responseData.authors[0];
             document.getElementById("postdiscription").innerText=responseData.description;
@@ -162,21 +161,18 @@ function modal(val){
 
 function executePostScript(){
     var val=document.getElementById("sidebarTitle").innerText;
-    console.log("run post/"+val);
     sendMessage("run post/"+val)
 }
 
-
+/*
 function modal2(val){
     document.getElementById("sidebarTitle2").innerText=val + " -h";
     var xhr=new XMLHttpRequest();
     var url="/modal2?command=" + val;
-    console.log(val);
     xhr.open("GET",url,true);
     xhr.send();
     xhr.onload = function(){
         var response = xhr.responseText;
-        console.log(response);
         if (xhr.readyState === 4 && xhr.status === 200){
 
             document.getElementById("discription").innerText=response;
@@ -185,6 +181,7 @@ function modal2(val){
     };
 
 }
+*/
 
 function postModule() {
     var xhr = new XMLHttpRequest();
@@ -259,7 +256,7 @@ function postModule() {
 function ExtensionCommand() {
     var xhr = new XMLHttpRequest();
     var url = "/exten";
-    xhr.open("GET", url);
+    xhr.open("GET", url,true);
     xhr.send();
 
     xhr.onload = function () {
@@ -268,20 +265,16 @@ function ExtensionCommand() {
         var count=0;
         if (xhr.readyState === 4 && xhr.status === 200) {
             var arr = Object.keys(extenJson);
-            console.log(extenJson);
             for (var i = 0; i < arr.length; i++) {
                 var menu2 = document.createElement("a");
                 menu2.setAttribute("class", "list-group-item");
                 menu2.setAttribute("data-toggle", "collapse");
                 menu2.setAttribute("aria-expanded", "false");
                 menu2.innerHTML = arr[i];
-
                 menu2.setAttribute("href", "#" + count);
-
                 var menu2sub = document.createElement('div');
                 menu2sub.setAttribute("class", "collapse");
                 menu2sub.setAttribute("id", count);
-
                 var data = Object.values(extenJson[arr[i]]);
                 // sub-commands
 

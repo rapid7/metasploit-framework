@@ -101,24 +101,24 @@ module Sinatra
 
         def extension
           output = {}
-          @client.console.dispatcher_stack.each do|dispatch|
-            name=dispatch.name
-            output[name] =dispatch.commands.keys
+          @client.console.dispatcher_stack.each do |dispatch|
+            name = dispatch.name
+            output[name] = dispatch.commands.keys
           end
           output.to_json
         end
 
         def session_info
-          info=@client.sys.config.sysinfo(refresh: true)
-          info["session_type"]=@client.session_type
-          info["getuid"]=@client.sys.config.getuid
+          info = @client.sys.config.sysinfo(refresh: true)
+          info["session_type"] = @client.session_type
+          info["getuid"] = @client.sys.config.getuid
           info.to_json
         end
 
         def postmodule_info(*args)
           args.each do |name|
             mod=@framework.modules.create(name)
-            if mod==nil
+            if mod.nil?
               return "Invalid module #{name}"
             else
               return Msf::Serializer::Json.dump_post_module(mod)
@@ -134,13 +134,8 @@ module Sinatra
           return info
         end
 
-
         def execute_script(script,s)
            @client.run_cmd(script,s)
-        end
-
-        def run_exten_cmd
-          #run Extension commands
         end
 
       end
