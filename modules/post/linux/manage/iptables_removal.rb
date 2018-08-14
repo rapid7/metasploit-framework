@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Post
       cmd_exec("ip6tables -P FORWARD ACCEPT")
       cmd_exec("ip6tables -P OUTPUT ACCEPT")
       cmd_exec("ip6tables -t nat -F")
-      cmd_exec("ip6table -t mangle -F")
+      cmd_exec("ip6tables -t mangle -F")
       cmd_exec("ip6tables -F")
       cmd_exec("ip6tables -X")
       print_good("ip6tables rules successfully executed")
