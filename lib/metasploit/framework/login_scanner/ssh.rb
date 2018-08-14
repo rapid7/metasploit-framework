@@ -55,7 +55,8 @@ module Metasploit
             :config          => false,
             :verbose         => verbosity,
             :proxy           => factory,
-            :non_interactive => true
+            :non_interactive => true,
+            :verify_host_key => :never
           }
           case credential.private_type
           when :password, nil
