@@ -179,18 +179,20 @@ class Driver < Msf::Ui::Driver
     end
 
     # Process persistent job handler
-    persist_handler = File.open(Msf::Config.persist_file,"r").readlines.map!(&:chomp) rescue nil
+    begin
+      restore_handlers = JSON.parse(File.read(Msf::Config.persist_file))
+    rescue Errno::ENOENT, JSON::ParserError
+      restore_handlers = nil
+    end
 
-    unless persist_handler.blank?
-      persist_handler.map!{|handler|JSON.parse(handler)}
-      print_status("Starting persistent handler...")
+    unless restore_handlers.nil?
+      print_status("Starting persistent handler(s)...")
 
-      persist_handler.each do |handler_opts|
+      restore_handlers.each do |handler_opts|
         handler = framework.modules.create(handler_opts['mod_name'])
         handler.exploit_simple(handler_opts['mod_options'])
       end
     end
-
 
     # Process any additional startup commands
     if opts['XCommands'] and opts['XCommands'].kind_of? Array
