@@ -90,10 +90,6 @@ class Core
     "-n" => [ true,  "Show the last n commands."                      ],
     "-c" => [ false, "Clear command history and history file."        ])
 
-  @@irb_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-e" => [ true,  "Expression to evaluate."                        ])
-
   # Returns the list of commands supported by this command dispatcher
   def commands
     {
@@ -108,7 +104,6 @@ class Core
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
       "history"    => "Show command history",
-      "irb"        => "Drop into irb scripting mode",
       "load"       => "Load a framework plugin",
       "quit"       => "Exit the console",
       "route"      => "Route traffic through a session",
@@ -544,48 +539,6 @@ class Core
   def cmd_sleep(*args)
     return if not (args and args.length == 1)
     Rex::ThreadSafe.sleep(args[0].to_f)
-  end
-
-  def cmd_irb_help
-    print_line "Usage: irb"
-    print_line
-    print_line "Execute commands in a Ruby environment"
-    print @@irb_opts.usage
-  end
-
-  #
-  # Goes into IRB scripting mode
-  #
-  def cmd_irb(*args)
-    expressions = []
-
-    # Parse the command options
-    @@irb_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-e'
-        expressions << val
-      when '-h'
-        cmd_irb_help
-        return false
-      end
-    end
-
-    if expressions.empty?
-      print_status("Starting IRB shell...\n")
-
-      begin
-        Rex::Ui::Text::IrbShell.new(binding).run
-      rescue
-        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
-      end
-
-      # Reset tab completion
-      if (driver.input.supports_readline)
-        driver.input.reset_tab_completion
-      end
-    else
-      expressions.each { |expression| eval(expression, binding) }
-    end
   end
 
   def cmd_threads_help
