@@ -15,11 +15,14 @@ cgit before v1.2.1 has a directory traversal vulnerabiltiy when `cgitrc` has the
 5. Enable `rewrite.load` and `cgi.load` in apache2.
 6. Create bare repo. `mkdir -p repo/test.git && cd repo/test.git && git init --bare`
 
-Example files were only used for testing and are likely not secure (probably not the best examples either...). I'm adding the files because it took me a long time to get this setup (re: my apache skills are lacking).
+Example files were only used for testing and are not secure or usable in non-testing environments.  These WILL make your system insecure, but will enable exploitation
+by this module.
 
-[cgit.conf.txt](https://github.com/rapid7/metasploit-framework/files/2284678/cgit.conf.txt)
-[cgitrc.txt](https://github.com/rapid7/metasploit-framework/files/2284679/cgitrc.txt)
-[htaccess.txt](https://github.com/rapid7/metasploit-framework/files/2284680/htaccess.txt)
+[cgit.conf](https://github.com/rapid7/metasploit-framework/files/2284678/cgit.conf.txt)
+
+[cgitrc](https://github.com/rapid7/metasploit-framework/files/2284679/cgitrc.txt)
+
+[.htaccess](https://github.com/rapid7/metasploit-framework/files/2284680/htaccess.txt)
 
 ### Vulnerability Details from Project Zero
 
