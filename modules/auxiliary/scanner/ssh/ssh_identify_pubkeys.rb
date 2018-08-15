@@ -210,7 +210,8 @@ class MetasploitModule < Msf::Auxiliary
         :use_agent     => false,
         :config =>false,
         :proxy	  => factory,
-        :non_interactive => true
+        :non_interactive => true,
+	:verify_host_key => :never
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
