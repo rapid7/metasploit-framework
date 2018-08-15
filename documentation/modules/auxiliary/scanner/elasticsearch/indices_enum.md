@@ -6,6 +6,7 @@ This module identifies a list of indices which an Elasticsearch NoSQL database h
 With this install, we'll install the free community edition of Elasticsearch, which does not require authentication to the API. However, this is unrealistic in a production environment which will often leverage a support contract to gain authentication, a reverse proxy to add basic authentication, and/or a host firewall to restrict access to this API.
 
 The following instructions assume you are beginning with a fresh Kali installation as the root user.
+
 1. `useradd -M -r elasticsearch`
 2. `su elasticsearch`
 3. `cd /tmp`
@@ -17,10 +18,10 @@ The following instructions assume you are beginning with a fresh Kali installati
 9. In the new terminal, `curl -X PUT http://127.0.0.1:9200/msf_test` to create an index for validation purposes
 
 ## Verification Steps
-1. Do: `use auxiliary/scanner/elasticsearch/indices_enum`
-2. Do: `set RHOSTS [ips]`
-3. Do: `set RPORT [port]`
-4. Do: `run`
+1. `use auxiliary/scanner/elasticsearch/indices_enum`
+2. `set RHOSTS [ips]`
+3. `set RPORT [port]`
+4. `run`
 
 
 ## Scenarios
