@@ -198,6 +198,7 @@ class DataProxy
         @error = 'disabled'
       end
     rescue => e
+      @error = e
       raise "Unable to initialize data service: #{e.message}"
     end
   end
@@ -206,6 +207,13 @@ class DataProxy
     raise "Invalid data_service: #{data_service.class}, not of type Metasploit::Framework::DataService" unless data_service.is_a? (Metasploit::Framework::DataService)
     raise 'Cannot register null data service data_service' unless data_service
     raise 'Data Service already exists' if data_service_exist?(data_service)
+    # Raising an error for local DB causes startup to fail if there is a DB configured but we are unable to connect
+    # TODO: The check here shouldn't be dependent on if the data_service is local or not. We shouldn't
+    # connect to any data service if it is not online/active. This can likely be fixed by making a true
+    # LocalDataService instead of using DBManager.
+    unless data_service.is_local?
+      raise 'Data Service does not appear to be responding' unless data_service.active
+    end
   end
 
   def data_service_exist?(data_service)

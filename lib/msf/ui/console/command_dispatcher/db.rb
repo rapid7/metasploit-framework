@@ -1705,21 +1705,55 @@ class Db
   end
 
   def cmd_db_connect_help
-    # Help is specific to each driver
-    cmd_db_connect("-h")
+    print_line("   Usage: db_connect <user:pass>@<host:port>/<database>")
+    print_line("      OR: db_connect -y [path/to/database.yml]")
+    print_line("      OR: db_connect <options> <http|https>://<host:port>")
+    print_line("Examples:")
+    print_line("       db_connect user@metasploit3")
+    print_line("       db_connect user:pass@192.168.0.2/metasploit3")
+    print_line("       db_connect user:pass@192.168.0.2:1500/metasploit3")
+    print_line("       db_connect http://localhost:8080")
+    print_line("       db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
+    print_line(" ")
+    print_line("   OPTIONS:")
+    print_line("       -c,--cert        Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
+    print_line("       -t,--token       The API token used to authenticate to the remote data service.")
+    print_line("       --skip-verify    Skip validating authenticity of server's certificate. NOT RECOMMENDED.")
+    return
   end
 
   def cmd_db_connect(*args)
     return if not db_check_driver
 
-    if args[0] =~ /http/
+    opts = {}
+    https_opts = {}
+    while (arg = args.shift)
+      case arg
+        when '-h', '--help'
+          cmd_db_connect_help
+        when '-y', '--yaml'
+          yaml_file = args.shift
+        when '-c', '--cert'
+          https_opts[:cert] = args.shift
+        when '-t', '--token'
+          opts[:api_token] = args.shift
+        when '--skip-verify'
+          https_opts[:skip_verify] = true
+        else
+          opts[:uri] = arg
+      end
+    end
+
+    opts[:https_opts] = https_opts unless https_opts.empty?
+    
+    if opts[:uri] =~ /http/
       new_conn_type = 'http'
     else
       new_conn_type = framework.db.driver
     end
 
     # Currently only able to be connected to one DB at a time
-    if args[0] != '-h' && framework.db.connection_established?
+    if framework.db.connection_established?
       # But the http connection still requires a local database to support AR, so we have to allow that
       # Don't allow more than one HTTP service, though
       if new_conn_type != 'http' || framework.db.get_services_metadata.count >= 2
@@ -1730,12 +1764,12 @@ class Db
       end
     end
 
-    if (args[0] == "-y")
-      if (args[1] and not ::File.exist? ::File.expand_path(args[1]))
+    if yaml_file
+      if (yaml_file and not ::File.exist? ::File.expand_path(yaml_file))
         print_error("File not found")
         return
       end
-      file = args[1] || ::File.join(Msf::Config.get_config_root, "database.yml")
+      file = yaml_file || ::File.join(Msf::Config.get_config_root, "database.yml")
       file = ::File.expand_path(file)
       if (::File.exist? file)
         db = YAML.load(::File.read(file))['production']
@@ -1746,7 +1780,7 @@ class Db
 
     meth = "db_connect_#{new_conn_type}"
     if(self.respond_to?(meth, true))
-      self.send(meth, *args)
+      self.send(meth, opts)
     else
       print_error("This database driver #{new_conn_type} is not currently supported")
     end
@@ -1819,18 +1853,8 @@ class Db
   #
   # Connect to an existing Postgres database
   #
-  def db_connect_postgresql(*args)
-    if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
-      print_status("   Usage: db_connect <user:pass>@<host:port>/<database>")
-      print_status("      OR: db_connect -y [path/to/database.yml]")
-      print_status("Examples:")
-      print_status("       db_connect user@metasploit3")
-      print_status("       db_connect user:pass@192.168.0.2/metasploit3")
-      print_status("       db_connect user:pass@192.168.0.2:1500/metasploit3")
-      return
-    end
-
-    info = db_parse_db_uri_postgresql(args[0])
+  def db_connect_postgresql(cli_opts)
+    info = db_parse_db_uri_postgresql(cli_opts[:uri])
     opts = { 'adapter' => 'postgresql' }
 
     opts['username'] = info[:user] if (info[:user])
@@ -1872,28 +1896,15 @@ class Db
     end
   end
 
-  def db_connect_http(*args)
+  def db_connect_http(opts)
     # local database is required to use Mdm objects
     unless framework.db.active
       print_error("No local database connected. Please connect to a local database before connecting to a remote data service.")
       return
     end
 
-    opts = { }
-    https_opts = { }
+    uri = db_parse_db_uri_http(opts[:uri])
 
-    while (arg = args.shift)
-      case arg
-        when '-c', '--cert'
-          https_opts[:cert] = args.shift
-        when '--skip-verify'
-          https_opts[:skip_verify] = true
-        else
-          uri = db_parse_db_uri_http(arg)
-      end
-    end
-
-    opts[:https_opts] = https_opts unless https_opts.empty?
     remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(uri.to_s, opts)
     begin
       framework.db.register_data_service(remote_data_service)
