@@ -326,16 +326,16 @@ module Msf
             print_line
             print_line "Keywords:"
             {
-              'app'      => 'Modules that are client or server attacks',
-              'author'   => 'Modules written by this author',
-              'bid'      => 'Modules with a matching Bugtraq ID',
-              'cve'      => 'Modules with a matching CVE ID',
-              'edb'      => 'Modules with a matching Exploit-DB ID',
-              'name'     => 'Modules with a matching descriptive name',
-              'platform' => 'Modules affecting this platform',
-              'port'     => 'Modules with a matching port',
-              'ref'      => 'Modules with a matching ref',
-              'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
+              'app'         => 'Modules that are client or server attacks',
+              'author'      => 'Modules written by this author',
+              'bid'         => 'Modules with a matching Bugtraq ID',
+              'cve'         => 'Modules with a matching CVE ID',
+              'edb'         => 'Modules with a matching Exploit-DB ID',
+              'name'        => 'Modules with a matching descriptive name',
+              'platform'    => 'Modules affecting this platform',
+              'port'        => 'Modules with a matching port',
+              'ref'         => 'Modules with a matching ref',
+              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, or post)',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 10}:  #{description}"
             end
@@ -381,13 +381,13 @@ module Msf
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
             framework.search(match, logger: self).each do |m|
-              tbl << [
+                tbl << [
                 m.fullname,
                 m.disclosure_date.nil? ? "" : m.disclosure_date.strftime("%Y-%m-%d"),
-                RankingName[m.rank].to_s,
-                m.name
-              ]
-            end
+                    RankingName[m.rank].to_s,
+                    m.name
+                ]
+              end
 
             if output_file
               print_status("Wrote search results to #{output_file}")
