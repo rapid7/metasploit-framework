@@ -60,10 +60,6 @@ module UserApiDoc
         end
       end
 
-      response 200 do
-        key :description, 'Authenticate to access this resource'
-      end
-
       response 401 do
         key :description, 'Authenticate to access this resource.'
         schema do
