@@ -445,8 +445,11 @@ def init_web_service
   end
 
   if start_web_service(expect_auth: false)
-    if add_web_service_user
+    if add_web_service_workspace && add_web_service_user
       output_web_service_information
+    else
+      puts 'Failed to complete MSF web service configuration, please reinitialize.'
+      stop_web_service
     end
   end
 end
@@ -583,6 +586,21 @@ def web_service_online_check(expect_auth:)
   response_data
 end
 
+def add_web_service_workspace(name: 'default')
+  # Send request to create new workspace
+  workspace_data = { name: name }
+  workspaces_uri = get_web_service_uri(path: '/api/v1/workspaces')
+  response_data = http_request(uri: workspaces_uri, data: workspace_data, method: :post,
+                               skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
+  response = response_data[:response]
+  puts "add_web_service_workspace: add workspace response=#{response}" if @options[:debug]
+  if response.nil? || response.dig(:data, :name) != name
+    puts "Error creating MSF web service workspace '#{name}'"
+    return false
+  end
+  return true
+end
+
 def add_web_service_user
   puts "Creating MSF web service user #{@msf_ws_user}"
 
@@ -672,8 +690,9 @@ def process_active?(pid)
   end
 end
 
-def http_request(uri:, query: nil, data: nil, method: :get, skip_verify: false, cert: nil)
-  headers = { 'User-Agent': @script_name }
+def http_request(uri:, query: nil, data: nil, method: :get, headers: nil, skip_verify: false, cert: nil)
+  all_headers = { 'User-Agent': @script_name }
+  all_headers.merge!(headers) unless headers.nil?
   query_str = (!query.nil? && !query.empty?) ? URI.encode_www_form(query.compact) : nil
   uri.query = query_str
 
@@ -699,9 +718,9 @@ def http_request(uri:, query: nil, data: nil, method: :get, skip_verify: false, 
     response_data = { response: nil }
     case method
       when :get
-        request = Net::HTTP::Get.new(uri.request_uri, initheader=headers)
+        request = Net::HTTP::Get.new(uri.request_uri, initheader=all_headers)
       when :post
-        request = Net::HTTP::Post.new(uri.request_uri, initheader=headers)
+        request = Net::HTTP::Post.new(uri.request_uri, initheader=all_headers)
       else
         raise Exception, "Request method #{method} is not handled"
     end
