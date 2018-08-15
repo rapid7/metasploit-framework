@@ -208,7 +208,7 @@ class MetasploitModule < Msf::Auxiliary
         :port            => port,
         :key_data        => key_data[:public],
         :use_agent       => false,
-        :config          =>false,
+        :config          => false,
         :proxy           => factory,
         :non_interactive => true,
         :verify_host_key => :never
