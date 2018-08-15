@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Post
     end
 
 # A recursive ls through the whole system could be added to find extra binaries
- 
+
     binaries.uniq
     binaries.sort
 
