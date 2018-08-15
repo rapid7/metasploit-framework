@@ -4,7 +4,9 @@ module UserApiDoc
   include Swagger::Blocks
 
   USERNAME_DESC = 'The username of the user.'
+  USERNAME_EXAMPLE = 'bmoose'
   PASSWORD_DESC = 'The password of the user.'
+  PASSWORD_EXAMPLE = 'pass123'
   CRYPTED_PASSWORD_DESC = 'The encrypted password of the user.'
   CRYPTED_PASSWORD_EXAMPLE = '$2a$10$ZOmd0VVkcVLTKW/0Cw0BMeqVITeVN4tPQvRvwBizNyM1NIz45oxda'
   PASSWORD_SALT_DESC = 'The password salt for the user\'s password.'
@@ -28,7 +30,7 @@ module UserApiDoc
   swagger_schema :User do
     key :required, [:username, :password]
     property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
-    property :username, type: :string, description: USERNAME_DESC
+    property :username, type: :string, description: USERNAME_DESC, example: USERNAME_EXAMPLE
     property :crypted_password, type: :string, description: CRYPTED_PASSWORD_DESC, example: CRYPTED_PASSWORD_EXAMPLE
     property :password_salt, type: :string, description: PASSWORD_SALT_DESC
     property :persistence_token, type: :string, description: PERSISTENCE_TOKEN_DESC, example: PERSISTENCE_TOKEN_EXAMPLE
@@ -86,8 +88,8 @@ module UserApiDoc
         key :description, 'The attributes to assign to the user.'
         key :required, true
         schema do
-          property :username, type: :string, required: true, description: USERNAME_DESC
-          property :password, type: :string, required: true, description: PASSWORD_DESC
+          property :username, type: :string, required: true, description: USERNAME_DESC, example: USERNAME_EXAMPLE
+          property :password, type: :string, required: true, description: PASSWORD_DESC, example: PASSWORD_EXAMPLE
           property :fullname, type: :string, description: FULLNAME_DESC, example: FULLNAME_EXAMPLE
           property :email, type: :string, description: EMAIL_DESC, example: EMAIL_EXAMPLE
           property :phone, type: :string, description: PHONE_DESC, example: PHONE_EXAMPLE

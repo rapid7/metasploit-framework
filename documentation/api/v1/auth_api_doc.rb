@@ -24,7 +24,7 @@ module AuthApiDoc
       parameter do
         key :name, :username
         key :in, :query
-        key :description, ''
+        key :description, 'The username for the user you want to authenticate.'
         key :required, true
         key :type, :string
       end
@@ -32,7 +32,7 @@ module AuthApiDoc
       parameter do
         key :name, :password
         key :in, :query
-        key :description, ''
+        key :description, 'The password for the user you want to authenticate.'
         key :required, true
         key :type, :string
       end
