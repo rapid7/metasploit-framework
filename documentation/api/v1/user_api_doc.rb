@@ -61,14 +61,14 @@ module UserApiDoc
       end
 
       response 401 do
-        key :description, 'Authenticate to access this resource.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, 'An error occurred during the operation. See the message for more details.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -97,7 +97,7 @@ module UserApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :type, :array
@@ -109,14 +109,14 @@ module UserApiDoc
       end
 
       response 401 do
-        key :description, 'Authenticate to access this resource.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, 'An error occurred during the operation. See the message for more details.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

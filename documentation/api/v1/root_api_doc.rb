@@ -17,7 +17,10 @@ module RootApiDoc
   AUTH_CODE_DESC = 'The authentication error code that was generated.'
   AUTH_CODE_EXAMPLE = 401
   AUTH_MESSAGE_DESC = 'A message describing the authentication error that occurred.'
-  AUTH_MESSAGE_EXAMPLE = 'Authenticate to access this resource'
+
+  DEFAULT_RESPONSE_200 = 'Successful operation.'
+  DEFAULT_RESPONSE_401 = 'Authenticate to access this resource.'
+  DEFAULT_RESPONSE_500 = 'An error occurred during the operation. See the message for more details.'
 
   swagger_root do
     key :swagger, '2.0'
@@ -155,7 +158,7 @@ module RootApiDoc
       property :message do
         key :type, :string
         key :description, AUTH_MESSAGE_DESC
-        key :example, AUTH_MESSAGE_EXAMPLE
+        key :example, DEFAULT_RESPONSE_401
       end
     end
   end
