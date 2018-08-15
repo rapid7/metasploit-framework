@@ -429,6 +429,18 @@ protected
     rlog(buf, log_source) if (log_source)
   end
 
+  #
+  # Prompt the user for input if possible. Special edition for use inside commands.
+  #
+  def prompt_yesno(query)
+    p = "#{query} [y/N]"
+    old_p = [self.prompt.sub(/#{self.prompt_char} $/, ''), self.prompt_char]
+    update_prompt p, ' ', true
+    /^y/ === get_input_line
+  ensure
+    update_prompt *old_p, true
+  end
+
   attr_writer   :input, :output # :nodoc:
   attr_accessor :stop_flag, :init_prompt, :cont_prompt # :nodoc:
   attr_accessor :prompt # :nodoc:

@@ -506,12 +506,10 @@ protected
         return
       elsif framework.modules.create(method)
         super
-        print_error("This is a module we can load. Do you want to use #{method}?")
-        old_p = self.prompt.sub /#{self.prompt_char} $/, ''
-        update_prompt "(y/N) ", nil, true
-        resp = get_input_line
-        update_prompt old_p, nil, true
-        run_single "use #{method}" if resp =~ /^y/i
+        if prompt_yesno "This is a module we can load. Do you want to use #{method}?"
+          run_single "use #{method}"
+        end
+
         return
       end
     end
