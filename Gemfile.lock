@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.6)
+    metasploit-framework (4.17.7)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -103,7 +103,7 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     afm (0.2.2)
     arel (6.0.4)
-    arel-helpers (2.7.0)
+    arel-helpers (2.8.0)
       activerecord (>= 3.1.0, < 6)
     backports (3.11.3)
     bcrypt (3.1.12)
@@ -181,7 +181,7 @@ GEM
     nexpose (7.2.1)
     nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
-    octokit (4.9.0)
+    octokit (4.10.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
@@ -204,7 +204,7 @@ GEM
     pry (0.11.3)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    public_suffix (3.0.2)
+    public_suffix (3.0.3)
     rack (1.6.10)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -327,7 +327,7 @@ GEM
       activemodel (>= 4.2.7)
       activesupport (>= 4.2.7)
     xmlrpc (0.3.0)
-    yard (0.9.15)
+    yard (0.9.16)
 
 PLATFORMS
   ruby
