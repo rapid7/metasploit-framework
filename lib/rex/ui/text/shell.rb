@@ -434,9 +434,9 @@ protected
   #
   def prompt_yesno(query)
     p = "#{query} [y/N]"
-    old_p = [self.prompt.sub(/#{self.prompt_char} $/, ''), self.prompt_char]
+    old_p = [self.prompt.sub(/#{Regexp.escape(self.prompt_char)} $/, ''), self.prompt_char]
     update_prompt p, ' ', true
-    /^y/ === get_input_line
+    /^y/i === get_input_line
   ensure
     update_prompt *old_p, true
   end
