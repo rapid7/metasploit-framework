@@ -80,13 +80,14 @@ class MetasploitModule < Msf::Auxiliary
     pass = Rex::Text.rand_text_alphanumeric(64_000)
     factory = ssh_socket_factory
     opt_hash = {
-      :auth_methods  => ['password', 'keyboard-interactive'],
-      :port          => port,
-      :use_agent     => false,
-      :password      => pass,
-      :config        => false,
-      :proxy         => factory,
-      :non_interactive => true
+      :auth_methods    => ['password', 'keyboard-interactive'],
+      :port            => port,
+      :use_agent       => false,
+      :password        => pass,
+      :config          => false,
+      :proxy           => factory,
+      :non_interactive => true,
+      :verify_host_key => :never
     }
 
     opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

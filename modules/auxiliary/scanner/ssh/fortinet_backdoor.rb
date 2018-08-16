@@ -55,6 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       non_interactive: true,
       config:          false,
       use_agent:       false,
+      verify_host_key: :never,
       proxy:           factory
     }
 
