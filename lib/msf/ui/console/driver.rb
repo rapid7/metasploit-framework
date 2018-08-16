@@ -504,6 +504,13 @@ protected
         end
         self.busy = false
         return
+      elsif framework.modules.create(method)
+        super
+        if prompt_yesno "This is a module we can load. Do you want to use #{method}?"
+          run_single "use #{method}"
+        end
+
+        return
       end
     end
 
