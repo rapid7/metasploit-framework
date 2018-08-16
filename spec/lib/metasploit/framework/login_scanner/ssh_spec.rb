@@ -138,13 +138,13 @@ RSpec.describe Metasploit::Framework::LoginScanner::SSH do
       it 'calls Net::SSH with the correct arguments' do
         factory = Rex::Socket::SSHFactory.new(nil,nil,nil)
         opt_hash = {
-            :port          => ssh_scanner.port,
-            :use_agent     => false,
-            :config        => false,
-            :verbose       => ssh_scanner.verbosity,
-            :proxy         => factory,
-            :auth_methods  => ['password','keyboard-interactive'],
-            :password      => private,
+            :port            => ssh_scanner.port,
+            :use_agent       => false,
+            :config          => false,
+            :verbose         => ssh_scanner.verbosity,
+            :proxy           => factory,
+            :auth_methods    => ['password','keyboard-interactive'],
+            :password        => private,
             :non_interactive => true,
             :verify_host_key => :never
         }
