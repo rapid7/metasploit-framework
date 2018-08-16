@@ -29,7 +29,7 @@ Example steps in this format (is also in the PR):
 10. `set RHOST [IP]`.
 11. `set HTTP_METHOD get` (optional)
 12. `set HTTP_PARAMETER foo` (required)
-13. `set URI /path/to/vulnerable/route` (optional)
+13. `set TARGETURI /path/to/vulnerable/route` (optional)
 14. `run`.
 15. In vulnerable installations, Module should have positive output and the test application should accept no further requests.
 16. In non-vulnerable installations, module should have negative output and the test application should accept further requests.
