@@ -768,7 +768,11 @@ class ReadableText
 
     # Get the persistent job info.
     if verbose
-      persist_list = JSON.parse(File.read(Msf::Config.persist_file)) rescue []
+      begin
+        persist_list = JSON.parse(File.read(Msf::Config.persist_file))
+      rescue Errno::ENOENT, JSON::ParserError
+        persist_list = []
+      end
     end
 
     # jobs are stored as a hash with the keys being a numeric String job_id.
