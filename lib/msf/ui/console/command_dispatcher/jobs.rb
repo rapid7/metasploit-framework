@@ -147,11 +147,17 @@ module Msf
                 job_id = val
               when "-p"
                 job_list = build_range_array(val)
-                job_list.each{|job_id| add_persist_job(job_id)}
+                job_list.each do |job_id|
+                  add_persist_job(job_id)
+                end
               when "-P"
                 print_line("Making all jobs persistent ...")
-                job_list = framework.jobs.map{|k,v|v.jid.to_s}
-                job_list.each{|job_id| add_persist_job(job_id)}
+                job_list = framework.jobs.map do |k,v|
+                  v.jid.to_s
+                end
+                job_list.each do |job_id|
+                  add_persist_job(job_id)
+                end
               when "-S", "--search"
                 search_term = val
                 dump_list = true
@@ -208,7 +214,9 @@ module Msf
                 persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
               end
               # Write persist job back to config file.
-              File.open(Msf::Config.persist_file,"w"){|file| file.puts(JSON.pretty_generate(persist_list))}
+              File.open(Msf::Config.persist_file,"w") do |file|
+                file.puts(JSON.pretty_generate(persist_list))
+              end
 
               # Stop the job by job id.
               job_list.map(&:to_s).each do |job|
@@ -243,9 +251,15 @@ module Msf
                 'mod_options'    => payload_opts
               }
 
-              persist_list = JSON.parse(File.read(Msf::Config.persist_file)) rescue []
+              begin
+                persist_list = JSON.parse(File.read(Msf::Config.persist_file))
+              rescue Errno::ENOENT, JSON::ParserError
+                persist_list = []
+              end
               persist_list << mod_opts
-              File.open(Msf::Config.persist_file,"w"){|file| file.puts(JSON.pretty_generate(persist_list))}
+              File.open(Msf::Config.persist_file,"w") do |file|
+                file.puts(JSON.pretty_generate(persist_list))
+              end
               print_line("Added persistence to job #{job_id}.")
             else
               print_line("Invalid Job ID")
