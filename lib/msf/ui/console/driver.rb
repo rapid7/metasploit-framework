@@ -448,7 +448,7 @@ class Driver < Msf::Ui::Driver
       pchar = framework.datastore['PromptChar'] || DefaultPromptChar
       p = framework.datastore['Prompt'] || DefaultPrompt
       p = "#{p} #{active_module.type}(%bld%red#{active_module.promptname}%clr) " if active_module
-      super(p, pchar, true)
+      super(p, pchar)
     else
       # Don't squash calls from within lib/rex/ui/text/shell.rb
       super(*args)
