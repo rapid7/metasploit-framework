@@ -67,7 +67,6 @@ module Shell
         self.hist_last_saved = Readline::HISTORY.length
       end
       self.input.output = self.output
-      update_prompt(input.prompt)
     end
   end
 
@@ -88,7 +87,6 @@ module Shell
 
       self.input.output = self.output
     end
-    update_prompt('')
   end
 
   #
@@ -131,62 +129,7 @@ module Shell
         break if self.stop_flag || self.stop_count > 1
 
         init_tab_complete
-
-        if framework
-          if input.prompt.include?("%T")
-            t = Time.now
-            # This %T is the strftime shorthand for %H:%M:%S
-            format = framework.datastore['PromptTimeFormat'] || "%T"
-            t = t.strftime(format)
-            # This %T is the marker in the prompt where we need to place the time
-            input.prompt.gsub!(/%T/, t.to_s)
-          end
-
-          if input.prompt.include?("%H")
-            hostname = ENV['HOSTNAME']
-            if hostname.nil?
-              hostname = `hostname`.split('.')[0]
-            end
-
-            # check if hostname is still nil
-            if hostname.nil?
-              hostname = ENV['COMPUTERNAME']
-            end
-
-            if hostname.nil?
-              hostname = 'unknown'
-            end
-
-            input.prompt.gsub!(/%H/, hostname.chomp)
-          end
-
-          if input.prompt.include?("%U")
-            user = ENV['USER']
-            if user.nil?
-              user = `whoami`
-            end
-
-            # check if username is still nil
-            if user.nil?
-              user = ENV['USERNAME']
-            end
-
-            if user.nil?
-              user = 'unknown'
-            end
-
-            input.prompt.gsub!(/%U/, user.chomp)
-          end
-
-          input.prompt.gsub!(/%S/, framework.sessions.length.to_s)
-          input.prompt.gsub!(/%J/, framework.jobs.length.to_s)
-          input.prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
-          input.prompt.gsub!(/%D/, ::Dir.getwd)
-          if framework.db.active
-            input.prompt.gsub!(/%W/, framework.db.workspace.name)
-          end
-          self.init_prompt = input.prompt
-        end
+        update_prompt
 
         line = get_input_line
 
@@ -260,7 +203,7 @@ module Shell
 
       # Set the actual prompt to the saved prompt with any substitutions
       # or updates from our output driver, be they color or whatever
-      self.input.prompt = self.output.update_prompt(new_prompt)
+      self.input.prompt = self.output.update_prompt(format_prompt(new_prompt))
       self.prompt_char  = new_prompt_char if (new_prompt_char)
     end
   end
@@ -439,6 +382,44 @@ protected
     /^y/i === get_input_line
   ensure
     update_prompt *old_p, true
+  end
+
+  #
+  # Handle prompt substitutions
+  #
+  def format_prompt(str)
+    if framework
+      if str.include?("%T")
+        t = Time.now
+        # This %T is the strftime shorthand for %H:%M:%S
+        format = framework.datastore['PromptTimeFormat'] || "%T"
+        t = t.strftime(format)
+        # This %T is the marker in the prompt where we need to place the time
+        str.gsub!(/%T/, t.to_s)
+      end
+
+      if str.include?("%H")
+        hostname = ENV['HOSTNAME'] || `hostname`.split('.')[0] ||
+          ENV['COMPUTERNAME'] || 'unknown'
+
+        str.gsub!(/%H/, hostname.chomp)
+      end
+
+      if str.include?("%U")
+        user = ENV['USER'] || `whoami` || ENV['USERNAME'] || 'unknown'
+        str.gsub!(/%U/, user.chomp)
+      end
+
+      str.gsub!(/%S/, framework.sessions.length.to_s)
+      str.gsub!(/%J/, framework.jobs.length.to_s)
+      str.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
+      str.gsub!(/%D/, ::Dir.getwd)
+      if framework.db.active
+        str.gsub!(/%W/, framework.db.workspace.name)
+      end
+    end
+
+    str
   end
 
   attr_writer   :input, :output # :nodoc:
