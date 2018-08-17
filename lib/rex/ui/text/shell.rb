@@ -45,7 +45,6 @@ module Shell
     self.stop_count     = 0
 
     # Initialize the prompt
-    self.init_prompt = prompt
     self.cont_prompt = ' > '
     self.cont_flag = false
     self.prompt_char = prompt_char
@@ -185,26 +184,17 @@ module Shell
   #
   # prompt - the actual prompt
   # new_prompt_char the char to append to the prompt
-  # mode - append or not to append - false = append true = make a new prompt
-  def update_prompt(prompt = nil, new_prompt_char = nil, mode = false)
+  def update_prompt(new_prompt = self.prompt, new_prompt_char = self.prompt_char)
     if (self.input)
-      if prompt
-        new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
-      else
-        new_prompt = self.prompt || ''
-      end
-
-      if mode
-        new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
-      end
+      p = new_prompt + new_prompt_char + ' '
 
       # Save the prompt before any substitutions
       self.prompt = new_prompt
+      self.prompt_char  = new_prompt_char
 
       # Set the actual prompt to the saved prompt with any substitutions
       # or updates from our output driver, be they color or whatever
-      self.input.prompt = self.output.update_prompt(format_prompt(new_prompt))
-      self.prompt_char  = new_prompt_char if (new_prompt_char)
+      self.input.prompt = self.output.update_prompt(format_prompt(p))
     end
   end
 
@@ -377,11 +367,11 @@ protected
   #
   def prompt_yesno(query)
     p = "#{query} [y/N]"
-    old_p = [self.prompt.sub(/#{Regexp.escape(self.prompt_char)} $/, ''), self.prompt_char]
-    update_prompt p, ' ', true
+    old_p = [self.prompt, self.prompt_char]
+    update_prompt p, ' '
     /^y/i === get_input_line
   ensure
-    update_prompt *old_p, true
+    update_prompt *old_p
   end
 
   #
@@ -423,7 +413,7 @@ protected
   end
 
   attr_writer   :input, :output # :nodoc:
-  attr_accessor :stop_flag, :init_prompt, :cont_prompt # :nodoc:
+  attr_accessor :stop_flag, :cont_prompt # :nodoc:
   attr_accessor :prompt # :nodoc:
   attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
   attr_accessor :histfile # :nodoc:
