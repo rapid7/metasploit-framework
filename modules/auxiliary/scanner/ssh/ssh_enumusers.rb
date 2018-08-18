@@ -66,7 +66,9 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('THRESHOLD',
                    [true,
                    'Amount of seconds needed before a user is considered ' \
-                   'found (timing attack only)', 10])
+                   'found (timing attack only)', 10]),
+        OptBool.new('CHECK_FALSE',
+                    [false, 'Check for false positives (random username)', false])
       ]
     )
 
@@ -231,15 +233,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_status "#{peer(ip)} Using #{action.name.downcase} technique"
-    print_status "#{peer(ip)} Checking for false positives"
-    if check_false_positive(ip)
-      print_error "#{peer(ip)} throws false positive results. Aborting."
-      return
-    else
-      print_status "#{peer(ip)} Starting scan"
-      user_list.each{ |user| show_result(attempt_user(user, ip), user, ip) }
+    print_status("#{peer(ip)} Using #{action.name.downcase} technique")
+
+    if datastore['CHECK_FALSE']
+      print_status("#{peer(ip)} Checking for false positives")
+      if check_false_positive(ip)
+        print_error("#{peer(ip)} throws false positive results. Aborting.")
+        return
+      end
     end
+
+    print_status("#{peer(ip)} Starting scan")
+    user_list.each { |user| show_result(attempt_user(user, ip), user, ip) }
   end
 end
 
