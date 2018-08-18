@@ -24,6 +24,8 @@ class MetasploitModule < Msf::Auxiliary
         On some versions of OpenSSH under some configurations, OpenSSH will return a
         "permission denied" error for an invalid user faster than for a valid user,
         creating an opportunity for a timing attack to enumerate users.
+
+        Testing note: invalid users were logged, while valid users were not. YMMV.
       },
       'Author'         => [
         'kenkeiras',     # Timing attack
