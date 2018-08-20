@@ -40,7 +40,9 @@ class Console::CommandDispatcher::Lua
       return
     end
     
-    client.lua.execute(code)
+    response = client.lua.execute(code)
+    print_status("Output:\n#{response[:output]}")
+    return true
   end
 
   #

@@ -33,6 +33,9 @@ class Lua < Extension
     request = Packet.create_request('lua_dostring')
     request.add_tlv(TLV_TYPE_LUA_CODE, code)
     response = client.send_request(request)
+    {
+        :output => response.get_tlv_value(TLV_TYPE_STRING)
+    }
   end
 
 end
