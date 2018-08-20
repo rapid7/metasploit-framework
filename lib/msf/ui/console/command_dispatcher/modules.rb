@@ -335,7 +335,7 @@ module Msf
               'platform'    => 'Modules affecting this platform',
               'port'        => 'Modules with a matching port',
               'ref'         => 'Modules with a matching ref',
-              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, or post)',
+              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, post, or nop)',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 10}:  #{description}"
             end
@@ -415,7 +415,7 @@ module Msf
           end
 
           def cmd_show_help
-            global_opts = %w{all encoders nops exploits payloads auxiliary plugins info options}
+            global_opts = %w{all encoders nops exploits payloads auxiliary post plugins info options}
             print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
             module_opts = %w{ missing advanced evasion targets actions }
