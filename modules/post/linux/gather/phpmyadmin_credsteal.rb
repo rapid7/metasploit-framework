@@ -16,6 +16,7 @@ class MetasploitModule < Msf::Post
       },
       'License'              => MSF_LICENSE,
       'Platform'             => ['linux'],
+      'Privileged'     => 'true', #This requires root privileges
       'SessionTypes'         => ['meterpreter'],
       'Arch'       => 'x86_x64',
       'References'            =>
@@ -51,6 +52,6 @@ class MetasploitModule < Msf::Post
     print_good('PhpMyAdmin config found!')
     print_good("Extracting config file!\n")
     res = read_file(conf_path)
-    vprint_line res
+    print_line res
   end
 end
