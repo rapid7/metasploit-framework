@@ -31,7 +31,8 @@ require 'yaml'
 @ws_generated_ssl = false
 @ws_api_token = nil
 
-@components = %w[database webservice]
+@components = %w(database webservice)
+@environments = %w(production development)
 
 @options = {
     component: :all,
@@ -773,83 +774,87 @@ def parse_args(args)
     opts.separator('Manage a Metasploit Framework database and web service')
     opts.separator('')
     opts.separator('General Options:')
-    opts.on("--component COMPONENT", @components + ['all'], "Component used with provided command (default: all)",
+    opts.on('--component COMPONENT', @components + ['all'], 'Component used with provided command (default: all)',
             "  (#{@components.join(', ')})") { |component|
       @options[:component] = component.to_sym
     }
 
-    opts.on("-d", "--debug", "Enable debug output") { |d| @options[:debug] = d }
+    opts.on('-d', '--debug', 'Enable debug output') { |d| @options[:debug] = d }
+    opts.on('-h', '--help', 'Show this help message') {
+      puts opts
+      exit
+    }
 
     opts.separator('')
     opts.separator('Database Options:')
-    opts.on("--msf-db-name NAME", "Database name (default: #{@options[:msf_db_name]})") { |n|
+    opts.on('--msf-db-name NAME', "Database name (default: #{@options[:msf_db_name]})") { |n|
       @options[:msf_db_name] = n
     }
 
-    opts.on("--msf-db-user-name USER", "Database username (default: #{@options[:msf_db_user]})") { |u|
+    opts.on('--msf-db-user-name USER', "Database username (default: #{@options[:msf_db_user]})") { |u|
       @options[:msf_db_user] = u
     }
 
-    opts.on("--msf-test-db-name NAME", "Test database name (default: #{@options[:msftest_db_name]})") { |n|
+    opts.on('--msf-test-db-name NAME', "Test database name (default: #{@options[:msftest_db_name]})") { |n|
       @options[:msftest_db_name] = n
     }
 
-    opts.on("--msf-test-db-user-name USER", "Test database username (default: #{@options[:msftest_db_user]})") { |u|
+    opts.on('--msf-test-db-user-name USER', "Test database username (default: #{@options[:msftest_db_user]})") { |u|
       @options[:msftest_db_user] = u
     }
 
-    opts.on("--db-port PORT", Integer, "Database port (default: #{@options[:db_port]})") { |p|
+    opts.on('--db-port PORT', Integer, "Database port (default: #{@options[:db_port]})") { |p|
       @options[:db_port] = p
     }
 
-    opts.on("--db-pool MAX", Integer, "Database connection pool size (default: #{@options[:db_pool]})") { |m|
+    opts.on('--db-pool MAX', Integer, "Database connection pool size (default: #{@options[:db_pool]})") { |m|
       @options[:db_pool] = m
     }
 
     opts.separator('')
     opts.separator('Web Service Options:')
-    opts.on("-a", "--address ADDRESS",
+    opts.on('-a', '--address ADDRESS',
             "Bind to host address (default: #{@options[:address]})") { |a|
       @options[:address] = a
     }
 
-    opts.on("-p", "--port PORT", Integer,
+    opts.on('-p', '--port PORT', Integer,
             "Web service port (default: #{@options[:port]})") { |p|
       @options[:port] = p
     }
 
-    opts.on("--[no-]ssl", "Enable SSL (default: #{@options[:ssl]})") { |s| @options[:ssl] = s }
+    opts.on('--[no-]ssl', "Enable SSL (default: #{@options[:ssl]})") { |s| @options[:ssl] = s }
 
-    opts.on("--ssl-key-file PATH", "Path to private key (default: #{@options[:ssl_key]})") { |p|
+    opts.on('--ssl-key-file PATH', "Path to private key (default: #{@options[:ssl_key]})") { |p|
       @options[:ssl_key] = p
     }
 
-    opts.on("--ssl-cert-file PATH", "Path to certificate (default: #{@options[:ssl_cert]})") { |p|
+    opts.on('--ssl-cert-file PATH', "Path to certificate (default: #{@options[:ssl_cert]})") { |p|
       @options[:ssl_cert] = p
     }
 
-    opts.on("--[no-]ssl-disable-verify",
+    opts.on('--[no-]ssl-disable-verify',
             "Disables (optional) client cert requests (default: #{@options[:ssl_disable_verify]})") { |v|
       @options[:ssl_disable_verify] = v
     }
 
-    opts.on("--environment ENV", ['production', 'development'],
+    opts.on('--environment ENV', @environments,
             "Web service framework environment (default: #{@options[:ws_env]})",
-            "  (production, development)") { |e|
+            "  (#{@environments.join(', ')})") { |e|
       @options[:ws_env] = e
     }
 
-    opts.on("--retry-max MAX", Integer,
+    opts.on('--retry-max MAX', Integer,
             "Maximum number of web service connect attempts (default: #{@options[:retry_max]})") { |m|
       @options[:retry_max] = m
     }
 
-    opts.on("--retry-delay DELAY", Float,
+    opts.on('--retry-delay DELAY', Float,
             "Delay in seconds between web service connect attempts (default: #{@options[:retry_delay]})") { |d|
       @options[:retry_delay] = d
     }
 
-    opts.on("--user USER", "Initial web service admin username (default: #{@options[:ws_user]})") { |u|
+    opts.on('--user USER', 'Initial web service admin username') { |u|
       @options[:ws_user] = u
     }
 
