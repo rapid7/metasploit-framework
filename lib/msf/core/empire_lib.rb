@@ -84,6 +84,7 @@ module Msf::Empire
     end
     #
     #Method to detect the number of listeners already active over the API and
+    #k
     #returns the latest created listener name,
     #which can be reused in post modules, reducing the need to create several
     #listeners and clogging ports
@@ -202,14 +203,6 @@ module Msf::Empire
       end
     end
     #
-    #Method to generate raw powershell launcher
-    #
-    def generate_launcher(listener_name)
-      stagerOutput = gen_stager(listener_name, 'windows/launcher_bat')
-      stagerCode = stagerOutput.to_s.split(" ")[10]
-      return stagerCode
-    end
-    #
     #Empire API isn't yet able to create injectable DLL, and for that reason
     #we will use a custom python script which takes the base powershell code
     #from Empire and patches the raw DLL to form a injectable DLL
@@ -282,7 +275,7 @@ module Msf::Empire
       parser['agents'].each do |agent|
         if agent['session_id'] == agent_name
           agent.each do |sys_attribute, value|
-            puts "#{sys_attribute} : #{value}"
+            print_line "#{sys_attribute} : #{value}"
           end
         end
       end
@@ -389,7 +382,7 @@ module Msf::Empire
     def kill_all_agents
       uri = URI.parse("https://0.0.0.0:1337/api/agents/all/kill?token=#{@token}")
       request = Net::HTTP::Get.new(uri)
-      request.content_type = "application/json" 
+      request.content_type = "application/json"
       req_options = self.set_options(uri)
       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
         http.request(request)
@@ -404,9 +397,9 @@ module Msf::Empire
     #COMMAND EXECUTION METHODS
     #--------------------------
     #
-    #In Empire code execution is not a single process. 
+    #In Empire code execution is not a single process.
     #The first step is to task an agent to execute a command. The command gets executed and
-    #and stored in the results. Then a result method is used to retrieve the outputs of the 
+    #and stored in the results. Then a result method is used to retrieve the outputs of the
     #commands executed
     #
     #Method to task an agent to execute a command
@@ -553,8 +546,8 @@ module Msf::Empire
       end
       parser = JSON.parse(response.body)
       parser['modules'].each do |module_search|
-        puts "#{module_search['Name']}\t :\t#{module_search['Description']}"
-        puts ""
+        print_line "#{module_search['Name']}\t :\t#{module_search['Description']}"
+        print_line ""
       end
     end
     #
@@ -590,21 +583,26 @@ module Msf::Empire
         parser = JSON.parse(response.body)
         parser['modules'][0].each do |attribute, description|
           if attribute != 'options'
-            puts "#{attribute} : #{description}"
+            print_line "#{attribute} : #{description}"
           else
-            puts "--------------------\n"
-            puts "AVAILABLE OPTIONS\n"
-            puts "--------------------"
+            print_line "--------------------\n"
+            print_line
+            print_line "AVAILABLE OPTIONS\n"
+            print_line
+            print_line "--------------------"
+            print_line
             description.each do |option, options|
-              puts "#{option} :\n"
+              print_line "#{option} :\n"
+              print_line
               options.each do |attr, value|
-                puts "\t #{attr} : #{value}"
+                print_line "\t #{attr} : #{value}"
+                print_line
               end
             end
           end
         end
       else
-        puts "Invalid module name"
+        print_line "Invalid module name"
       end
      end
     #
@@ -616,10 +614,10 @@ module Msf::Empire
       options_completed.store("Agent", "#{agent_name}")
       options.each do |opt, values|
         if opt.split(" ").first != 'Agent'
-          puts "set #{opt} "
+          print_line "set #{opt} "
           print "Press Enter to go with Default : [#{values}] >> "
           value = gets.chomp
-          puts ""
+          print_line
           if value.empty?
             options_completed.store("#{opt.split(" ").first}","#{values}")
           else
@@ -658,11 +656,11 @@ module Msf::Empire
       if response.code == 200
         parser = JSON.parse(response.body)
         parser['creds'].each do |cred|
-          puts "-----------------------------\n"
-          puts "CREDENTIAL DETAILS {#{i}}\n"
-          puts "-----------------------------"
+          print_line "-----------------------------\n"
+          print_line "CREDENTIAL DETAILS {#{i}}\n"
+          print_line "-----------------------------"
           cred.each do |attr, detail|
-            puts "#{attr} :: #{detail}\n"
+          print_line "#{attr} :: #{detail}\n"
           end
           i = i + 1
         end
