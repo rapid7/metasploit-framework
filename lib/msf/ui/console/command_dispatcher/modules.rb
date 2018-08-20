@@ -488,8 +488,6 @@ module Msf
             
             mod = self.active_module
 
-            args << "all" if (args.length == 0)
-
             args.each { |type|
               case type
                 when '-h'
