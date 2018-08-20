@@ -379,7 +379,10 @@ class Driver < Msf::Ui::Driver
         print_warning("\t#{path}: #{error}")
       end
     end
-    framework.db.workspace = framework.db.default_workspace if framework.db && framework.db.active
+
+    if framework.db && framework.db.active
+      framework.db.workspace = framework.db.default_workspace unless framework.db.workspace
+    end
 
     framework.events.on_ui_start(Msf::Framework::Revision)
 
