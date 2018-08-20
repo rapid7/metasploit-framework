@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind CloudFlare',
-      'Version' => '$Release: 1.0',
+      'Version' => '$Release: 1.0.1',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
@@ -29,8 +29,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('HOSTNAME', [true, 'The hostname to find real IP', 'discordapp.com']),
         OptString.new('URIPATH', [true, 'The URI path (for custom comparison)', '/']),
-        OptString.new('RPORT', [true, 'The target port (for custom comparison)', '443']),
-        OptString.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections (for custom comparison)', true]),
+        OptInt.new('RPORT', [true, 'The target port (for custom comparison)', '443']),
+        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections (for custom comparison)', true]),
         OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]'])
       ])
   end
@@ -59,13 +59,12 @@ class MetasploitModule < Msf::Auxiliary
       return(false)
     end
 
-    print_status('Previous lookups for this domain')
     arIps = Array.new
     rows  = html.search('li')
     rows.each_with_index do | row, index |
       date = /(\d*\-\d*\-\d*)/.match(row)
       arIps.push(/(\d*\.\d*\.\d*\.\d*)/.match(row))
-      print_line("  * #{index} | #{date} | #{arIps[index]}")
+      print_status("  * #{date} | #{arIps[index]}")
     end
 
     if arIps.empty? then
@@ -76,22 +75,15 @@ class MetasploitModule < Msf::Auxiliary
     return(arIps)
   end
 
-  ## TODO: Improve the comparison module (more efficient).
-  def do_check_bypass(host, ip, port, ssl, uri, proxies)
-
-    # Initial HTTP request to the server (for <title> comparison).
-    response = do_simple_get_request_raw(host, port, ssl, nil, uri, proxies)
-    html     = response.get_html_document
-    web_sign = html.at('title')
+  def do_check_bypass(fingerprint, host, ip, uri, proxies)
 
     # Check for "misconfigured" web server on TCP/80.
-    if do_check_tcp_port(ip, port, proxies) then
+    if do_check_tcp_port(ip, 80, proxies) then
       response = do_simple_get_request_raw(ip, 80, false, host, uri, proxies)
 
       if response != false then
         html = response.get_html_document
-        sign = html.at('title')
-        if web_sign.to_s.eql? sign.to_s then
+        if fingerprint.to_s.eql? html.at('head').to_s then
           print_good("A direct-connect IP address was found: #{ip}")
           return(true)
         end
@@ -104,8 +96,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if response != false then
         html = response.get_html_document
-        sign = html.at('title')
-        if web_sign.to_s.eql? sign.to_s then
+        if fingerprint.to_s.eql? html.at('head').to_s then
           print_good("A direct-connect IP address was found: #{ip}")
           return(true)
         end
@@ -156,17 +147,37 @@ class MetasploitModule < Msf::Auxiliary
 
   ## TODO: Improve the efficiency by mixing the sources (dnsenum, censys, shodan, ...).
   def run
-    ip_list = do_crimflare_request(datastore['HOSTNAME'], datastore['PROXIES'])
+    domain_name = PublicSuffix.parse(datastore['HOSTNAME']).domain
+
+    print_status('Previous lookups from Crimeflare...')
+    ip_list     = do_crimflare_request(datastore['HOSTNAME'], datastore['PROXIES'])
+    print_status()
+
     unless ip_list.eql? false then
       print_status('Bypass Cloudflare is in progress...')
 
-      ret_val = false
+      # Initial HTTP request to the server (for <head> comparison).
+      print_status(' * Initial request to the original server for comparison')
+      response = do_simple_get_request_raw(
+        datastore['HOSTNAME'],
+        datastore['RPORT'],
+        datastore['SSL'],
+        nil,
+        datastore['URIPATH'],
+        datastore['PROXIES']
+      )
+
+      html     = response.get_html_document
+      head     = html.at('head')
+
+      ret_val  = false
       ip_list.each_with_index do | ip, index |
+        vprint_status(" * Trying: #{ip[index].to_s}")
+
         ret_val = do_check_bypass(
+          head,
           datastore['HOSTNAME'],
           ip[index].to_s,
-          datastore['RPORT'].to_i,
-          datastore['SSL'],
           datastore['URIPATH'],
           datastore['PROXIES']
         )
