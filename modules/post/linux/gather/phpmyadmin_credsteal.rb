@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
         ],
       'Author'               => [
         'bofheaded',
-        'Dhiraj Mishra'
+        'Dhiraj Mishra <dhiraj@notsosecure.com>'
         ]
     ))
 
