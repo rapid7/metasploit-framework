@@ -139,7 +139,7 @@ module Msf
                 framework.jobs.each_key do |i|
                   framework.jobs.stop_job(i)
                 end
-                File.truncate(Msf::Config.persist_file,0) if File.exist?(Msf::Config.persist_file)
+                File.write(Msf::Config.persist_file, '') if File.writable?(Msf::Config.persist_file)
               when "-i"
                 # Defer printing anything until the end of option parsing
                 # so we can check for the verbose flag.
