@@ -19,6 +19,8 @@ class Db
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
 
+  DB_CONFIG_PATH = 'framework/database'
+
   #
   # The dispatcher's name.
   #
@@ -34,6 +36,7 @@ class Db
       "db_connect"    => "Connect to an existing database",
       "db_disconnect" => "Disconnect from the current database instance",
       "db_status"     => "Show the current database status",
+      "db_save"       => "Save the current database connection so it is re-used on startup"
     }
 
     more = {
@@ -1830,6 +1833,63 @@ class Db
     print_line
     print_line "Purge and rebuild the SQL module cache."
     print_line
+  end
+
+  def cmd_db_save_help
+    print_line "Usage: db_save <options> <name>"
+    print_line
+    print_line("   OPTIONS:")
+    print_line("       -d,--default           Set this data service as the default connection.")
+    print_line("       -c,--clear-default     Clear the currently set default data service.")
+  end
+
+  def cmd_db_save(*args)
+    while (arg = args.shift)
+      case arg
+        when '-h', '--help'
+          cmd_db_save_help
+          return
+        when '-d', '--default'
+          default = true
+        when '-c','--clear-default'
+          Msf::Config.save(DB_CONFIG_PATH => { })
+          print_line "Cleared the default database."
+          return
+        else
+          name = arg
+      end
+    end
+
+    if name.nil? || name.empty?
+      cmd_db_save_help
+      return
+    end
+
+    save_db_to_config(framework.db, name)
+
+    Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => name }) if default
+  end
+
+  def save_db_to_config(database, database_name)
+    if !database.is_local?
+      begin
+        config_path = "#{DB_CONFIG_PATH}/#{database_name}"
+        config_opts = {}
+        config_opts['url'] = database.endpoint
+        if database.https_opts
+          config_opts['cert'] = database.https_opts[:cert]
+          config_opts['skip_verify'] = true if database.https_opts[:skip_verify]
+        end
+        if database.api_token
+          config_opts['token'] = database.api_token
+        end
+        Msf::Config.save(config_path => config_opts)
+      rescue => e
+        print_error "There was an error saving the data service configuration: #{e.message}"
+      end
+    else
+      print_line "Saving local database configuration is handled in the database.yml file."
+    end
   end
 
   def db_find_tools(tools)

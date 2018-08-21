@@ -22,6 +22,8 @@ class RemoteHTTPDataService
   DELETE_REQUEST = 'DELETE'
   PUT_REQUEST = 'PUT'
 
+  attr_reader :endpoint, :https_opts, :api_token
+
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
