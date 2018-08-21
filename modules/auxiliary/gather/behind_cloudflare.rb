@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind CloudFlare',
-      'Version'        => '$Release: 1.0.2',
+      'Version'        => '$Release: 1.0.3',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
@@ -27,10 +27,10 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('HOSTNAME', [true, 'The hostname to find real IP', 'discordapp.com']),
-        OptString.new('URIPATH', [true, 'The URI path (for custom comparison)', '/']),
-        OptInt.new('RPORT', [true, 'The target port (for custom comparison)', '443']),
-        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections (for custom comparison)', true]),
+        OptString.new('HOSTNAME', [true, 'The hostname or domain name where we want to find the real IP address',]),
+        OptString.new('URIPATH', [true, 'The URI path on which to perform the page comparison', '/']),
+        OptInt.new('RPORT', [true, 'The target TCP port on which the protected website responds', '443']),
+        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
         OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]'])
       ])
   end
@@ -59,20 +59,20 @@ class MetasploitModule < Msf::Auxiliary
       return false
     end
 
-    arIps = []
+    ar_ips = []
     rows  = html.search('li')
     rows.each_with_index do | row, index |
       date = /(\d*\-\d*\-\d*)/.match(row)
-      arIps.push(/(\d*\.\d*\.\d*\.\d*)/.match(row))
-      print_status(" * #{date} | #{arIps[index]}")
+      ar_ips.push(/(\d*\.\d*\.\d*\.\d*)/.match(row))
+      print_status(" * #{date} | #{ar_ips[index]}")
     end
 
-    if arIps.empty?
+    if ar_ips.empty?
       print_bad('No previous lookups founds.')
       return false
     end
 
-    return arIps
+    return ar_ips
   end
 
   def do_check_bypass(fingerprint, host, ip, uri, proxies)
@@ -120,7 +120,6 @@ class MetasploitModule < Msf::Auxiliary
     return true
   end
 
-  ## TODO: Improve on-demand response (send_recv? Timeout).
   def do_simple_get_request_raw(host, port, ssl, host_header=nil, uri, proxies)
     begin
       http    = Rex::Proto::Http::Client.new(host, port, {}, ssl, nil, proxies)
@@ -145,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
     return response
   end
 
-  ## TODO: Improve the efficiency by mixing the sources (dnsenum, censys, shodan, ...).
+  ## TODO: Improve the efficiency by mixing the sources (dnsenum, censys).
   def run
     domain_name = PublicSuffix.parse(datastore['HOSTNAME']).domain
 
