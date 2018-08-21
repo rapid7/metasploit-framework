@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind BinarySec/IngenSecurity',
-      'Version' => '$Release: 1.0.1',
+      'Version' => '$Release: 1.0.2',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
