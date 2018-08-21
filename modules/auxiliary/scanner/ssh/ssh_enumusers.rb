@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         This module uses a malformed packet or timing attack to enumerate users on
         an OpenSSH server.
 
-        The default action sends a malformed (truncated) SSH_MSG_USERAUTH_REQUEST
+        The default action sends a malformed (corrupted) SSH_MSG_USERAUTH_REQUEST
         packet using public key authentication (must be enabled) to enumerate users.
 
         On some versions of OpenSSH under some configurations, OpenSSH will return a
