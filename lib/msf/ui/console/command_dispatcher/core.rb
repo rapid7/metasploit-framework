@@ -495,7 +495,7 @@ class Core
 
         # Portable file truncation?
         if File.writable?(Msf::Config.history_file)
-          File.open(Msf::Config.history_file, 'w') {}
+          File.write(Msf::Config.history_file, '')
         end
 
         print_good('Command history and history file cleared')
