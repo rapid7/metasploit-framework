@@ -33,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(6161),
-        OptString.new('HttpUsername', [ false, 'The username for Snare remote access', 'snare' ]),
-        OptString.new('HttpPassword', [ false, 'The password for Snare remote access', '' ]),
+        OptString.new('HttpUsername', [ true, 'The username for Snare remote access', 'snare' ]),
+        OptString.new('HttpPassword', [ true, 'The password for Snare remote access', '' ]),
         OptString.new('REG_DUMP_KEY', [ false, 'Retrieve this registry key and all sub-keys', 'HKLM\\HARDWARE\\DESCRIPTION\\System' ]),
         OptBool.new('REG_DUMP_ALL', [false, 'Retrieve the entire Windows registry', false]),
         OptInt.new('TIMEOUT', [true, 'Timeout in seconds for downloading each registry key/hive', 300])
