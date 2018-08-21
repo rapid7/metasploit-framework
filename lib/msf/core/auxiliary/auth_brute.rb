@@ -45,8 +45,6 @@ module Auxiliary::AuthBrute
     ], Auxiliary::AuthBrute)
   end
 
-  def 
-
   def setup
     @@max_per_service = nil
   end
