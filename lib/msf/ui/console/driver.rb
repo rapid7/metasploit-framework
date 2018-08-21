@@ -229,7 +229,7 @@ class Driver < Msf::Ui::Driver
       restore_handlers = nil
     end
 
-    unless restore_handlers.nil?
+    if restore_handlers
       print_status("Starting persistent handler(s)...")
 
       restore_handlers.each do |handler_opts|
