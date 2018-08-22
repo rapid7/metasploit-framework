@@ -1428,7 +1428,7 @@ class Db
     print_line "    CI"
     print_line "    Foundstone"
     print_line "    FusionVM XML"
-    print_line "    Group Policy Preferences"
+    print_line "    Group Policy Preferences Credentials"
     print_line "    IP Address List"
     print_line "    IP360 ASPL"
     print_line "    IP360 XML v3"

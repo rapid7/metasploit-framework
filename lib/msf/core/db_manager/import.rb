@@ -362,7 +362,7 @@ module Msf::DBManager::Import
           @import_filedata[:type] = "Outpost24 XML"
           return :outpost24_xml
         when "Groups"
-          @import_filedata[:type] = "Group Policy Preferences"
+          @import_filedata[:type] = "Group Policy Preferences Credentials"
           return :gpp_xml
         else
           # Give up if we haven't hit the root tag in the first few lines
