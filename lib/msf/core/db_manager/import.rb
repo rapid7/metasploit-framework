@@ -361,7 +361,7 @@ module Msf::DBManager::Import
         when "main"
           @import_filedata[:type] = "Outpost24 XML"
           return :outpost24_xml
-        when "Groups"
+        when /Groups|DataSources|Drives|ScheduledTasks|NTServices/
           @import_filedata[:type] = "Group Policy Preferences Credentials"
           return :gpp_xml
         else
