@@ -40,6 +40,8 @@ module Metasploit
 
         def do_login(username, password)
           session_info = get_session_info
+          # Failed to retrieve session info
+          return session_info if session_info.is_a?(Hash)
 
           protocol  = ssl ? 'https' : 'http'
           peer      = "#{host}:#{port}"

@@ -98,8 +98,15 @@ module VulnApiDoc
         end
       end
 
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
-        key :description, 'An error occurred during the operation. See the message for more details.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -141,8 +148,15 @@ module VulnApiDoc
         end
       end
 
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
-        key :description, 'An error occurred during the operation. See the message for more details.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -168,8 +182,15 @@ module VulnApiDoc
         end
       end
 
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
-        key :description, 'An error occurred during the operation. See the message for more details.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -201,8 +222,15 @@ module VulnApiDoc
         end
       end
 
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
-        key :description, 'An error occurred during the operation. See the message for more details.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -235,8 +263,15 @@ module VulnApiDoc
         end
       end
 
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
       response 500 do
-        key :description, 'An error occurred during the operation. See the message for more details.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

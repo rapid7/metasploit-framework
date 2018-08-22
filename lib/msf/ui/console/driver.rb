@@ -181,6 +181,22 @@ class Driver < Msf::Ui::Driver
       }
     end
 
+    # Process persistent job handler
+    begin
+      restore_handlers = JSON.parse(File.read(Msf::Config.persist_file))
+    rescue Errno::ENOENT, JSON::ParserError
+      restore_handlers = nil
+    end
+
+    if restore_handlers
+      print_status("Starting persistent handler(s)...")
+
+      restore_handlers.each do |handler_opts|
+        handler = framework.modules.create(handler_opts['mod_name'])
+        handler.exploit_simple(handler_opts['mod_options'])
+      end
+    end
+
     # Process any additional startup commands
     if opts['XCommands'] and opts['XCommands'].kind_of? Array
       opts['XCommands'].each { |c|
@@ -441,6 +457,13 @@ protected
           print_error("Permission denied exec: #{line}")
         end
         self.busy = false
+        return
+      elsif framework.modules.create(method)
+        super
+        if prompt_yesno "This is a module we can load. Do you want to use #{method}?"
+          run_single "use #{method}"
+        end
+
         return
       end
     end
