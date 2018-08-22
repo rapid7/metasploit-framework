@@ -41,7 +41,8 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2018-15473'],
         ['OSVDB', '32721'],
         ['BID', '20418'],
-        ['URL', 'http://seclists.org/oss-sec/2018/q3/124']
+        ['URL', 'http://seclists.org/oss-sec/2018/q3/124'],
+        ['URL', 'https://sekurak.pl/openssh-users-enumeration-cve-2018-15473/']
       ],
       'License'        => MSF_LICENSE,
       'Actions'        => [
