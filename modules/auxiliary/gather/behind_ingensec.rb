@@ -4,11 +4,12 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind BinarySec/IngenSecurity',
-      'Version' => '$Release: 1.0.2',
+      'Version'        => '$Release: 1.0.3',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
@@ -18,20 +19,21 @@ class MetasploitModule < Msf::Auxiliary
         'mekhalleh',
         'RAMELLA Sébastien <sebastien.ramella[at]Pirates.RE>'
       ],
-      'References' => [
-        ['URL', 'https://www.ingensecurity.com/fct_apercu.html']
+      'References'     => [
+        ['URL', 'https://www.ingensecurity.com/fct_apercu.html'],
+        ['URL', 'https://reunion.orange.fr/actu/reunion/binarysec-une-start-up-reunionnaise-tres-surveillee.html']
       ],
       'License'        => MSF_LICENSE
     ))
 
     register_options(
       [
-        OptString.new('HOSTNAME', [true, 'The hostname to find real IP']),
-        OptString.new('URIPATH', [true, 'The URI path (for custom comparison)', '/']),
-        OptInt.new('RPORT', [true, 'The target port (for custom comparison)', 443]),
-        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections (for custom comparison)', true]),
+        OptString.new('HOSTNAME', [true, 'The hostname or domain name where we want to find the real IP address', 'www.ingensec.com']),
+        OptString.new('URIPATH', [true, 'The URI path on which to perform the page comparison', '/']),
+        OptInt.new('RPORT', [true, 'The target TCP port on which the protected website responds', 443]),
+        OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
         OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]']),
-        OptInt.new('THREADS', [false, 'Threads for DNS enumeration', 1]),
+        OptInt.new('THREADS', [true, 'Threads for DNS enumeration', 15]),
         OptPath.new('WORDLIST', [true, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
       ])
   end
@@ -72,20 +74,20 @@ class MetasploitModule < Msf::Auxiliary
     table = html.css('table.table').first
     rows  = table.css('tr')
 
-    arIps = []
+    ar_ips = []
     rows.each_with_index.map do | row, index |
       row = /(\d*\.\d*\.\d*\.\d*)/.match(row.css('td').map(&:text).to_s)
       unless row.nil?
-        arIps.push(row)
+        ar_ips.push(row)
       end
     end
 
-    if arIps.empty?
+    if ar_ips.empty?
       print_bad('No domain IP(s) history founds.')
       return false
     end
 
-    return arIps
+    return ar_ips
   end
 
   ## auxiliary/gather/enum_dns.rb
@@ -99,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
       queue << "#{line.chomp}.#{domain}"
     end
 
-    arIps = []
+    ar_ips = []
     until queue.empty?
       t = []
       threads = 1 if threads <= 0
@@ -114,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
           t << framework.threads.spawn("Module(#{refname})", false, queue.shift) do | test_current |
             Thread.current.kill unless test_current
             a = /(\d*\.\d*\.\d*\.\d*)/.match(do_dns_get_a(test_current, 'DNS bruteforce records').to_s)
-            arIps.push(a) if a
+            ar_ips.push(a) if a
           end
         end
         t.map(&:join)
@@ -125,12 +127,12 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    if arIps.empty?
+    if ar_ips.empty?
       print_bad('No enumerated domain IP(s) founds.')
       return false
     end
 
-    return arIps
+    return ar_ips
   end
 
   ## auxiliary/gather/enum_dns.rb
@@ -158,7 +160,12 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  ## TODO: Improve on-demand response (send_recv? Timeout).
+  ## auxiliary/gather/enum_dns.rb
+  def do_save_note(hostname, ip)
+    data = { 'target' => hostname, 'real_ip' => ip }
+    report_note(host: hostname, type: 'direct-connect IP', data: data)
+  end
+
   def do_simple_get_request_raw(host, port, ssl, host_header=nil, uri, proxies)
     begin
       http    = Rex::Proto::Http::Client.new(host, port, {}, ssl, nil, proxies)
@@ -184,34 +191,41 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_check_bypass(fingerprint, host, ip, uri, proxies)
+    ret_value = false
 
     # Check for "misconfigured" web server on TCP/80.
     if do_check_tcp_port(ip, 80, proxies)
       response = do_simple_get_request_raw(ip, 80, false, host, uri, proxies)
 
       if response != false
-        html = response.get_html_document
-        if fingerprint.to_s.eql? html.at('head').to_s
-          print_good("A direct-connect IP address was found: #{ip}")
-          return true
+        unless response.headers.to_s.include? 'Server: gatejs'
+          html = response.get_html_document
+          if html.at('head').to_s.include? host
+            print_good("A direct-connect IP address was found: #{ip}:80")
+            do_save_note(host, ip)
+            ret_value = true
+          end
         end
       end
     end
 
     # Check for "misconfigured" web server on TCP/443.
     if do_check_tcp_port(ip, 443, proxies)
-        response = do_simple_get_request_raw(ip, 443, true, host, uri, proxies)
+      response = do_simple_get_request_raw(ip, 443, true, host, uri, proxies)
 
-        if response != false
+      if response != false
+        unless response.headers.to_s.include? 'Server: gatejs'
           html = response.get_html_document
-          if fingerprint.to_s.eql? html.at('head').to_s
-            print_good("A direct-connect IP address was found: #{ip}")
-            return true
+          if html.at('head').to_s.include? host
+            print_good("A direct-connect IP address was found: #{ip}:443")
+            do_save_note(host, ip)
+            ret_value = true
           end
         end
       end
+    end
 
-    return false
+    return ret_value
   end
 
   def run
