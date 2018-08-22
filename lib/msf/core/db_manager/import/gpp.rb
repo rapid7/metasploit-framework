@@ -13,6 +13,17 @@ module Msf::DBManager::Import::GPP
     return unless wspace && wspace.respond_to?(:id)
 
     gpp.each do |p|
+      # Store parsed data as a note
+      report_note(
+        workspace: wspace,
+        type:      'Group Policy Preferences',
+        data:      gpp
+      )
+
+      # Skip incomplete creds
+      next unless p[:USER] && p[:PASS]
+
+      # Store decrypted creds
       create_credential(
         workspace_id: wspace.id,
         origin_type:  :import,
@@ -23,6 +34,7 @@ module Msf::DBManager::Import::GPP
       )
     end
 
+    # Store entire file as loot
     report_loot(
       workspace: wspace,
       path:      args[:filename],
@@ -30,7 +42,7 @@ module Msf::DBManager::Import::GPP
       data:      args[:data],
       type:      'microsoft.windows.gpp',
       ctype:     'text/xml',
-      info:      gpp
+      info:      'Group Policy Preferences'
     )
   end
 end
