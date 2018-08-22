@@ -1722,7 +1722,6 @@ class Db
     print_line("       -c,--cert        Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
     print_line("       -t,--token       The API token used to authenticate to the remote data service.")
     print_line("       --skip-verify    Skip validating authenticity of server's certificate. NOT RECOMMENDED.")
-    return
   end
 
   def cmd_db_connect(*args)
@@ -1734,22 +1733,44 @@ class Db
       case arg
         when '-h', '--help'
           cmd_db_connect_help
+          return
         when '-y', '--yaml'
           yaml_file = args.shift
         when '-c', '--cert'
           https_opts[:cert] = args.shift
         when '-t', '--token'
           opts[:api_token] = args.shift
+        when '-l', '--list-services'
+          list_saved_data_services
+          return
+        when '-n', '--name'
+          conf = Msf::Config.load
+          name = args.shift
+          conf_options = conf["#{DB_CONFIG_PATH}/#{name}"]
+          if conf_options
+            opts[:url] = conf_options['url'] if conf_options['url']
+            opts[:api_token] = conf_options['api_token'] if conf_conf_options['api_token']
+            https_opts[:cert] = conf[conf_path]['cert'] if conf[conf_path]['cert']
+            https_opts[:skip_verify] = conf[conf_path]['skip_verify'] if conf[conf_path]['skip_verify']
+          else
+            print_error "Unable to locate saved data service with name '#{name}'"
+            return
+          end
+          break # Don't process other args since they will overwrite the values from the config
         when '--skip-verify'
           https_opts[:skip_verify] = true
+      else
+        if opts[:url].nil?
+          opts[:url] = arg
         else
-          opts[:uri] = arg
+          cmd_db_connect_help
+        end
       end
     end
 
     opts[:https_opts] = https_opts unless https_opts.empty?
     
-    if opts[:uri] =~ /http/
+    if opts[:url] =~ /http/
       new_conn_type = 'http'
     else
       new_conn_type = framework.db.driver
@@ -1914,7 +1935,7 @@ class Db
   # Connect to an existing Postgres database
   #
   def db_connect_postgresql(cli_opts)
-    info = db_parse_db_uri_postgresql(cli_opts[:uri])
+    info = db_parse_db_uri_postgresql(cli_opts[:url])
     opts = { 'adapter' => 'postgresql' }
 
     opts['username'] = info[:user] if (info[:user])
@@ -1963,7 +1984,7 @@ class Db
       return
     end
 
-    uri = db_parse_db_uri_http(opts[:uri])
+    uri = db_parse_db_uri_http(opts[:url])
 
     remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(uri.to_s, opts)
     begin
@@ -2053,6 +2074,22 @@ class Db
       end
     end
     print_status("Connection type: #{framework.db.driver}. Connected to #{cdb}")
+  end
+
+  def list_saved_data_services
+    conf = Msf::Config.load
+    default = nil
+    conf.each_pair do |k,v|
+      if k =~ /#{DB_CONFIG_PATH}/
+        default = v['default_db'] if v['default_db']
+        name = k.split('/').last
+        next if name == 'database' # Data service information is not stored in 'framework/database', just metadata
+        url = v['url']
+        line = "#{name} - #{url}"
+        line += " (default)" if name == default
+        print_line line
+      end
+    end
   end
 
   def print_msgs(status_msg, error_msg)
