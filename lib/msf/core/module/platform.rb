@@ -473,6 +473,13 @@ class Msf::Module::Platform
   end
 
   #
+  #Empire
+  #
+  class Empire < Msf::Module::Platform
+    Rank = 100
+    Alias = 'empire'
+  end
+  #
   # AIX
   #
   class AIX < Msf::Module::Platform
