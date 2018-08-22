@@ -16,7 +16,6 @@ module ModuleCommandDispatcher
 
   def commands
     {
-      "pry"    => "Open a Pry session on the current module",
       "reload" => "Reload the current module from disk",
       "check"  => "Check to see if a target is vulnerable"
     }
@@ -266,24 +265,6 @@ module ModuleCommandDispatcher
       print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     end
-  end
-
-  def cmd_pry_help
-    print_line "Usage: pry"
-    print_line
-    print_line "Open a pry session on the current module.  Be careful, you"
-    print_line "can break things."
-    print_line
-  end
-
-  def cmd_pry(*args)
-    begin
-      require 'pry'
-    rescue LoadError
-      print_error("Failed to load pry, try 'gem install pry'")
-      return
-    end
-    mod.pry
   end
 
   #

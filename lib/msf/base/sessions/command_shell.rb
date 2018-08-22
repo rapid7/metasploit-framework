@@ -87,8 +87,9 @@ class CommandShell
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
         'resource'     => 'Run the commands stored in a file',
-        'shell'        => 'Spawn an interactive shell',
-        'download'     => 'Download files'
+        'shell'        => 'Spawn an interactive shell (*NIX Only)',
+        'download'     => 'Download files (*NIX Only)',
+        'upload'       => 'Upload files (*NIX Only)',
     }
   end
 
@@ -337,7 +338,89 @@ class CommandShell
     file = File.open(dst, "wb")
     file.write(content)
     file.close
-    print_status("Done")
+    print_good("Done")
+  end
+
+  def cmd_upload_help
+    print_line("Usage: upload [src] [dst]")
+    print_line
+    print_line("Uploads load file to the victim machine.")
+    print_line("This command does not support to upload a FOLDER yet")
+    print_line
+  end
+
+  def cmd_upload(*args)
+    if args.length != 2
+      # no argumnets, just print help message
+      return cmd_upload_help
+    end
+
+    src = args[0]
+    dst = args[1]
+
+    # Check target file exists on the target machine
+    if file_exists(dst)
+      print_warning("The file <#{dst}> already exists on the target machine")
+      if prompt_yesno("Overwrite the target file <#{dst}>?")
+        # Create an empty file on the target machine
+        # Notice here does not check the permission of the target file (folder)
+        # So if you generate a reverse shell with out redirection the STDERR
+        # you will not realise that the current user does not have permission to write to the target file
+        # IMPORTANT:
+        #   assume(the current have the write access on the target file)
+        #   if (the current user can not write on the target file) && (stderr did not redirected)
+        #     No error reporting, you must check the file created or not manually
+        result = shell_command_token("cat /dev/null > #{dst}")
+        if !result.empty?
+          print_error("Create new file on the target machine failed. (#{result})")
+          return
+        end
+        print_good("Create new file on the target machine succeed")
+      else
+        return
+      end
+    end
+
+    buffer_size = 0x100
+
+    begin
+      # Open local file
+      src_fd = open src
+      # Get local file size
+      src_size = File.size(src)
+      # Calc how many time to append to the remote file
+      times = src_size / buffer_size + (src_size % buffer_size == 0 ? 0 : 1)
+      print_status("File <#{src}> size: #{src_size}, need #{times} times writes to upload")
+      # Start transfer
+
+      for i in 1..times do
+        print_status("Uploading (#{i * buffer_size}/#{src_size})")
+        chunk = src_fd.read(buffer_size)
+        chunk_repr = repr(chunk)
+        result = shell_command_token("echo -ne '#{chunk_repr}' >> #{dst}")
+        if !result.empty?
+          print_error("Appending content to the target file <#{dst}> failed. (#{result})")
+          # Do some cleanup
+          # Delete the target file
+          shell_command_token("rm -rf #{dst}")
+          print_status("Target file <#{dst}> deleted")
+          return
+        end
+      end
+      print_good("File <#{dst}> upload finished")
+    rescue
+      print_error("Error occurs while uploading <#{src}> to <#{dst}> ")
+      return
+    end
+  end
+
+  def repr(data)
+    data_repr = ''
+    data.each_char {|c|
+      data_repr << "\\x"
+      data_repr << c.unpack("H*")[0]
+    }
+    return data_repr
   end
 
   #
