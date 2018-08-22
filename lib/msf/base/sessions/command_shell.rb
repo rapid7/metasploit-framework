@@ -86,10 +86,11 @@ class CommandShell
         'help'         =>  'Help menu',
         'background'   => 'Backgrounds the current shell session',
         'sessions'     => 'Quickly switch to another session',
-        'resource'     => 'Run the commands stored in a file',
+        'resource'     => 'Run a meta commands script stored in a local file',
         'shell'        => 'Spawn an interactive shell (*NIX Only)',
         'download'     => 'Download files (*NIX Only)',
         'upload'       => 'Upload files (*NIX Only)',
+        'source'       => 'Run a shell script on remote machine (*NIX Only)',
     }
   end
 
@@ -423,6 +424,40 @@ class CommandShell
       data_repr << c.unpack("H*")[0]
     }
     return data_repr
+  end
+
+  def cmd_source_help
+    print_line("Usage: source [file] [background]")
+    print_line
+    print_line("Execute a local shell script file on remote machine")
+    print_line("This meta command will upload the script then execute it on the remote machine")
+    print_line
+    print_line("background")
+    print_line("`y` represent execute the script in background, `n` represent on foreground")
+  end
+
+  def cmd_source(*args)
+    if args.length != 2
+      # no argumnets, just print help message
+      return cmd_source_help
+    end
+
+    background = args[1].downcase == 'y'
+
+    local_file = args[0]
+    remote_file = "/tmp/." + ::Rex::Text.rand_text_alpha(32) + ".sh"
+
+    cmd_upload(local_file, remote_file)
+
+    if background
+      print_status("Executing on remote machine background")
+      print_line(shell_command("nohup sh -x #{remote_file} &"))
+    else
+      print_status("Executing on remote machine foreground")
+      print_line(shell_command("sh -x #{remote_file}"))
+    end
+    print_status("Cleaning temp file on remote machine")
+    shell_command("rm -rf #{remote_file}")
   end
 
   #
