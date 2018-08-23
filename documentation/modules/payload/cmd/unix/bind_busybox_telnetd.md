@@ -28,3 +28,14 @@ To set the payload:
 1. In msfconsole, load the exploit.
 2. Do: `set PAYLOAD cmd/unix/bind_busybox_telnetd`
 3. Do: `exploit`
+
+## Notes
+
+The shell cleanup command should result in the payload automatically
+terminating the telnetd service as the session completes. However, intermittent
+behavior was observed and the source has not been identified. When closing a
+session please verify, via a port scan or other desired method, that the port
+is no longer open. If the port remains open, then the unauthenticated telnetd
+service is still running. Establish a connection to the unauthenticated telnetd
+service and manually terminate the process (`pkill telnetd`) to avoid leaving
+the host more insecure.
