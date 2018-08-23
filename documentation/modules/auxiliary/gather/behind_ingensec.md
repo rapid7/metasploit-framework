@@ -55,6 +55,14 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
 
 ## Advanced options
 
+  **COMPSTR**
+
+  You can use a custom string to perform the comparison. Default: HOSTNAME if it's empty.
+
+  **NS**
+
+  Specify the nameserver to use for queries. Default: is system DNS
+
   **VERBOSE**
 
   You can also enable the verbose mode to have more information displayed in the console.
@@ -75,8 +83,8 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
   [*] 
   [*] Bypass BinarySec/IngenSec is in progress...
   [*]  * Initial request to the original server for comparison
-  [*]  * Trying: 41.213.137.67
-  [+] A direct-connect IP address was found: 41.213.137.67
+  [*]  * Trying: XXX.XXX.XXX.XXX
+  [+] A direct-connect IP address was found: XXX.XXX.XXX.XXX
   [*] Auxiliary module execution completed
   ```
 
@@ -95,11 +103,40 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
   ...
   ```
 
+  You can also run this script and take the results in the notes.
+
+  ```
+  use auxiliary/gather/behind_ingensec
+
+  <ruby>
+  File.open('/tmp/ingensec_hosts.lst', 'r') do | file |
+    file.each_line do | hostname |
+      run_single("set HOSTNAME #{hostname}")
+      run_single('run')
+
+      # run_single("set RPORT 80")
+      # run_single("set SSL false")
+      # run_single('run')
+    end
+  end
+  </ruby>
+  ```
+
+  ```
+  msf > resource /tmp/auto_discover_ingensec.rc
+  [*] Processing /tmp/auto_discover_ingensec.rc for ERB directives.
+  resource (/tmp/auto_discover_ingensec.rc)> use auxiliary/gather/behind_ingensec
+  [*] resource (/tmp/auto_discover_ingensec.rc)> Ruby Code (248 bytes)
+  ...
+  ...
+  msf auxiliary(gather/behind_ingensec) > notes 
+  [*] Time: 2018-08-23 12:27:35 UTC Note: host=XXX.XXX.XXX.XXX type=behind_ingensec data={"vhost"=>"www.xxxxxxx.com", "real_ip"=>"XXX.XXX.XXX.XXX", "sname"=>"http"}
+  [*] Time: 2018-08-23 12:27:35 UTC Note: host=XXX.XXX.XXX.XXX type=behind_ingensec data={"vhost"=>"www.xxxxxxx.com", "real_ip"=>"XXX.XXX.XXX.XXX", "sname"=>"https"}
+  ```
+
 ## TOTO list
 
   1. Add other data sources (censys, ...)
-  2. Add customized DNS resolver
-  3. Add customized string comparison
 
 ## References
 
