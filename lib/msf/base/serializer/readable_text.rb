@@ -183,6 +183,10 @@ class ReadableText
     output << "Available targets:\n"
     output << dump_exploit_targets(mod, indent)
 
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
+
     # Options
     if (mod.options.has_options?)
       output << "Basic options:\n"
@@ -240,6 +244,10 @@ class ReadableText
       output << "Available actions:\n"
       output << dump_module_actions(mod, indent)
     end
+
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
@@ -497,7 +505,6 @@ class ReadableText
   def self.dump_references(mod, indent = '')
     output = ''
 
-
     if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
       output << "References:\n"
 
@@ -506,7 +513,7 @@ class ReadableText
         output << "#{indent}CVE: Not available\n"
       end
 
-      mod.references.each { |ref|
+      mod.references.each do |ref|
         case ref.ctx_id
         when 'CVE', 'cve'
           if !cve_collection.empty? && ref.ctx_val.blank?
@@ -514,10 +521,14 @@ class ReadableText
           else
             output << indent + ref.to_s + "\n"
           end
+        when 'LOGO', 'SOUNDTRACK'
+          output << indent + ref.to_s + "\n"
+          Rex::Compat.open_browser(ref.ctx_val) if Rex::Compat.getenv('FUEL_THE_HYPE_MACHINE')
         else
           output << indent + ref.to_s + "\n"
         end
-      }
+      end
+
       output << "\n"
     end
 
@@ -770,10 +781,10 @@ class ReadableText
   # @param col [Integer] the column wrap width.
   # @return [String] the formatted list of running jobs.
   def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
-    columns = [ 'Id', 'Name', "Payload", "Payload opts" ]
+    columns = [ 'Id', 'Name', "Payload", "Payload opts"]
 
     if (verbose)
-      columns += [ "URIPATH", "Start Time", "Handler opts" ]
+      columns += [ "URIPATH", "Start Time", "Handler opts", "Persist" ]
     end
 
     tbl = Rex::Text::Table.new(
@@ -781,6 +792,15 @@ class ReadableText
       'Header'  => "Jobs",
       'Columns' => columns
       )
+
+    # Get the persistent job info.
+    if verbose
+      begin
+        persist_list = JSON.parse(File.read(Msf::Config.persist_file))
+      rescue Errno::ENOENT, JSON::ParserError
+        persist_list = []
+      end
+    end
 
     # jobs are stored as a hash with the keys being a numeric String job_id.
     framework.jobs.keys.sort_by(&:to_i).each do |job_id|
@@ -816,11 +836,17 @@ class ReadableText
         row[4] = uripath
         row[5] = framework.jobs[job_id].start_time
         row[6] = ''
+        row[7] = 'false'
 
         if pinst.respond_to?(:listener_uri)
           listener_uri = pinst.listener_uri.strip
           row[6] = listener_uri unless listener_uri == payload_uri
         end
+
+        persist_list.each do |e|
+          row[7] = 'true' if e['mod_options']['Options'] == framework.jobs[job_id.to_s].ctx[1].datastore
+        end
+
       end
       tbl << row
     end

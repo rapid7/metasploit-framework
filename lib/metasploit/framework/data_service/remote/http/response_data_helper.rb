@@ -5,6 +5,18 @@ require 'digest'
 #
 module ResponseDataHelper
 
+
+  def process_response(response_wrapper)
+    begin
+      if response_wrapper.expected
+        response_wrapper.response.body
+      end
+    rescue => e
+      elog "Error processing response: #{e.message}"
+      e.backtrace.each { |line| elog line }
+    end
+  end
+
   #
   # Converts an HTTP response to a Hash
   #
@@ -13,14 +25,13 @@ module ResponseDataHelper
   #
   def json_to_hash(response_wrapper)
     begin
-      if response_wrapper.expected
-        body = response_wrapper.response.body
-        unless body.nil? && body.empty?
-          return JSON.parse(body).symbolize_keys
-        end
+      body = process_response(response_wrapper)
+      if !body.nil? && !body.empty?
+        parsed_body = JSON.parse(body, symbolize_names: true)
+        return parsed_body[:data]
       end
     rescue => e
-      elog "Error parsing response: #{e.message}"
+      elog "Error parsing response as JSON: #{e.message}"
       e.backtrace.each { |line| elog line }
     end
   end
@@ -36,18 +47,19 @@ module ResponseDataHelper
   def json_to_mdm_object(response_wrapper, mdm_class, returns_on_error = nil)
     if response_wrapper.expected
       begin
-        body = response_wrapper.response.body
+        body = process_response(response_wrapper)
         if !body.nil? && !body.empty?
-          parsed_body = Array.wrap(JSON.parse(body))
+          parsed_body = JSON.parse(body).symbolize_keys
+          data = Array.wrap(parsed_body[:data])
           rv = []
-          parsed_body.each do |json_object|
+          data.each do |json_object|
             rv << to_ar(mdm_class.constantize, json_object)
           end
           return rv
         end
       rescue => e
         elog "Mdm Object conversion failed #{e.message}"
-        e.backtrace.each { |line| elog "#{line}\n" }
+        e.backtrace.each { |line| elog "#{line}" }
       end
     end
 
@@ -102,6 +114,8 @@ module ResponseDataHelper
       case association.macro
         when :belongs_to
           data.delete("#{k}_id")
+          # Polymorphic associations do not auto-create the 'build_model' method
+          next if association.options[:polymorphic]
           to_ar(association.klass, v, obj.send("build_#{k}"))
           obj.class_eval do
             define_method("#{k}_id") { obj.send(k).id }

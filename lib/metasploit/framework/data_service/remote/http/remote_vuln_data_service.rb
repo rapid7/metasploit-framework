@@ -7,7 +7,8 @@ module RemoteVulnDataService
   VULN_MDM_CLASS = 'Mdm::Vuln'
 
   def vulns(opts)
-    json_to_mdm_object(self.get_data(VULN_API_PATH, nil, opts), VULN_MDM_CLASS, [])
+    path = get_path_select(opts, VULN_API_PATH)
+    json_to_mdm_object(self.get_data(path, nil, opts), VULN_MDM_CLASS, [])
   end
 
   def report_vuln(opts)

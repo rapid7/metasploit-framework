@@ -207,11 +207,10 @@ module Shell
         else
           ret = run_single(line)
           # don't bother saving lines that couldn't be found as a
-          # command, create the file if it doesn't exist
-          if ret and self.histfile
-            File.open(self.histfile, "a+") { |f|
-              f.puts(line)
-            }
+          # command, create the file if it doesn't exist, don't save dupes
+          if ret && self.histfile && line != @last_line
+            File.open(self.histfile, "a+") { |f| f.puts(line) }
+            @last_line = line
           end
           self.stop_count = 0
         end
@@ -428,6 +427,18 @@ protected
   #
   def log_output(buf)
     rlog(buf, log_source) if (log_source)
+  end
+
+  #
+  # Prompt the user for input if possible. Special edition for use inside commands.
+  #
+  def prompt_yesno(query)
+    p = "#{query} [y/N]"
+    old_p = [self.prompt.sub(/#{Regexp.escape(self.prompt_char)} $/, ''), self.prompt_char]
+    update_prompt p, ' ', true
+    /^y/i === get_input_line
+  ensure
+    update_prompt *old_p, true
   end
 
   attr_writer   :input, :output # :nodoc:

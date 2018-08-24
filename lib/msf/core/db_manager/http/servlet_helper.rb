@@ -2,9 +2,12 @@ require 'json'
 require 'msf/core/db_manager/http/db_manager_proxy'
 require 'msf/core/db_manager/http/job_processor'
 require 'metasploit/framework/data_service/remote/http/response_data_helper'
+require 'rex/ui/text/output/stdio'
 
 module ServletHelper
   include ResponseDataHelper
+
+  @@console_printer = Rex::Ui::Text::Output::Stdio.new
 
   def set_error_on_response(error)
     print_error "Error handling request: #{error.message}", error
@@ -13,12 +16,22 @@ module ServletHelper
   end
 
   def set_empty_response
-    [200,  '']
+    set_json_data_response(response: '')
   end
 
-  def set_json_response(data, includes = nil)
-    headers = {'Content-Type' => 'application/json'}
-    [200, headers, to_json(data, includes)]
+  def set_json_response(data, includes = nil, code = 200)
+    headers = { 'Content-Type' => 'application/json' }
+    [code, headers, to_json(data, includes)]
+  end
+
+  def set_json_data_response(response:, includes: nil, code: 200)
+    data_response = { data: response }
+    set_json_response(data_response, includes = includes, code = code)
+  end
+
+  def set_json_error_response(response:, code:)
+    error_response = { error: response }
+    set_json_response(error_response, nil, code = code)
   end
 
   def set_html_response(data)
@@ -37,6 +50,15 @@ module ServletHelper
     hash.deep_symbolize_keys
   end
 
+  def print_error_and_create_response(error: , message:, code:)
+    print_error "Error handling request: #{error.message}.", error
+    error_response = {
+        code: code,
+        message: "#{message} #{error.message}"
+    }
+    set_json_error_response(response: error_response, code: code)
+  end
+
   def exec_report_job(request, includes = nil, &job)
     begin
 
@@ -49,11 +71,11 @@ module ServletHelper
         return set_empty_response
       else
         data = job.call(opts)
-        return set_json_response(data, includes)
+        return set_json_data_response(response: data, includes: includes)
       end
 
     rescue => e
-      set_error_on_response(e)
+      print_error_and_create_response(error: e, message: 'There was an error creating the record:', code: 500)
     end
   end
 
@@ -63,12 +85,83 @@ module ServletHelper
 
   # Sinatra injects extra parameters for some reason: https://github.com/sinatra/sinatra/issues/453
   # This method cleans those up so we don't have any unexpected values before passing on.
+  # It also inspects the query string for any invalid parameters.
   #
   # @param [Hash] params Hash containing the parameters for the request.
+  # @param [Hash] query_hash The query_hash variable from the rack request.
   # @return [Hash] Returns params with symbolized keys and the injected parameters removed.
-  def sanitize_params(params)
+  def sanitize_params(params, query_hash = {})
+    # Reject id passed as a query parameter for GET requests.
+    # API standards say path ID should be used for single records.
+    if query_hash.key?('id')
+      raise ArgumentError, ("'id' is not a valid query parameter. Please use /api/v1/<resource>/{ID} instead.")
+    end
     params.symbolize_keys.except(:captures, :splat)
   end
+
+  # Determines if this data set should be output as a single object instead of an array.
+  #
+  # @param [Array] data Array containing the data to be returned to the user.
+  # @param [Hash] params The parameters included in the request.
+  #
+  # @return [Bool] true if the data should be printed as a single object, false otherwise
+  def is_single_object?(data, params)
+    # Check to see if the ID parameter was present. If so, print as a single object.
+    # Note that ID is not valid as a query parameter, so we assume that the user
+    # used <resource>/{ID} notation if ID is present in params.
+    !params[:id].nil? && data.count == 1
+  end
+
+  def format_cred_json(data)
+    includes = [:logins, :public, :private, :realm, :origin]
+
+    response = []
+    Array.wrap(data).each do |cred|
+      json = cred.as_json(include: includes)
+      json['origin'] = json['origin'].merge('type' => cred.origin.class.to_s) if cred.origin
+      json['public'] = json['public'].merge('type' => cred.public.type) if cred.public
+      json['private'] = json['private'].merge('type' => cred.private.type) if cred.private
+      response << json
+    end
+    response
+  end
+
+  # Get Warden::Proxy object from the Rack environment.
+  # @return [Warden::Proxy] The Warden::Proxy object from the Rack environment.
+  def warden
+    env['warden']
+  end
+
+  # Get Warden options hash from the Rack environment.
+  # @return [Hash] The Warden options hash from the Rack environment.
+  def warden_options
+    env['warden.options']
+  end
+
+  def print_line(msg)
+    @@console_printer.print_line(msg)
+  end
+
+  def print_warning(msg)
+    @@console_printer.print_warning(msg)
+  end
+
+  def print_good(msg)
+    @@console_printer.print_good(msg)
+  end
+
+  def print_error(msg, exception = nil)
+    unless exception.nil?
+      msg += "\n    Call Stack:"
+      exception.backtrace.each {|line|
+        msg += "\n"
+        msg += "\t #{line}"
+      }
+    end
+
+    @@console_printer.print_error(msg)
+  end
+
 
   #######
   private

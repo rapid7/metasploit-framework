@@ -40,7 +40,7 @@ module Metasploit
         # @param cpu [Metasm::CPU] A Metasm cpu object, for example: Metasm::Ia32.new
         # @return [Integer] The number of bytes written.
         def self.compile_c_to_file(out_file, c_template, type=:exe, cpu=Metasm::Ia32.new)
-          pe = self.compile(c_template, type)
+          pe = self.compile_c(c_template, type)
           File.write(out_file, pe)
         end
 

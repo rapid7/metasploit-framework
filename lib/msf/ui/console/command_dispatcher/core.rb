@@ -19,7 +19,10 @@ require 'msf/ui/console/command_dispatcher/post'
 require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
+require 'msf/ui/console/command_dispatcher/developer'
 require 'msf/util/document_generator'
+
+require 'optparse'
 
 module Msf
 module Ui
@@ -77,17 +80,6 @@ class Core
     "-w" => [ true,  "Specify connect timeout."                       ],
     "-z" => [ false, "Just try to connect, then return."              ])
 
-  @@grep_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-i" => [ false, "Ignore case."                                   ],
-    "-m" => [ true,  "Stop after arg matches."                        ],
-    "-v" => [ false, "Invert match."                                  ],
-    "-A" => [ true,  "Show arg lines of output After a match."        ],
-    "-B" => [ true,  "Show arg lines of output Before a match."       ],
-    "-s" => [ true,  "Skip arg lines of output before attempting match."],
-    "-k" => [ true,  "Keep (include) arg lines at start of output."   ],
-    "-c" => [ false, "Only print a count of matching lines."          ])
-
   @@search_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner."                                   ],
     "-S" => [ true, "Row search filter."                              ])
@@ -96,11 +88,7 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
     "-n" => [ true,  "Show the last n commands."                      ],
-    "-u" => [ false, "Show only unique commands."                     ])
-
-  @@irb_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-e" => [ true,  "Expression to evaluate."                        ])
+    "-c" => [ false, "Clear command history and history file."        ])
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -116,7 +104,6 @@ class Core
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
       "history"    => "Show command history",
-      "irb"        => "Drop into irb scripting mode",
       "load"       => "Load a framework plugin",
       "quit"       => "Exit the console",
       "route"      => "Route traffic through a session",
@@ -494,7 +481,6 @@ class Core
 
   def cmd_history(*args)
     length = Readline::HISTORY.length
-    uniq   = false
 
     if length < @history_limit
       limit = length
@@ -504,18 +490,34 @@ class Core
 
     @@history_opts.parse(args) do |opt, idx, val|
       case opt
-      when "-a"
+      when '-a'
         limit = length
-      when "-n"
+      when '-n'
         return cmd_history_help unless val && val.match(/\A[-+]?\d+\z/)
         if length < val.to_i
           limit = length
         else
           limit = val.to_i
         end
-      when "-u"
-        uniq = true
-      when "-h"
+      when '-c'
+        if Readline::HISTORY.respond_to?(:clear)
+          Readline::HISTORY.clear
+        elsif defined?(RbReadline)
+          RbReadline.clear_history
+        else
+          print_error('Could not clear history, skipping file')
+          return false
+        end
+
+        # Portable file truncation?
+        if File.writable?(Msf::Config.history_file)
+          File.write(Msf::Config.history_file, '')
+        end
+
+        print_good('Command history and history file cleared')
+
+        return true
+      when '-h'
         cmd_history_help
         return false
       end
@@ -525,9 +527,6 @@ class Core
     pad_len = length.to_s.length
 
     (start..length-1).each do |pos|
-      if uniq && Readline::HISTORY[pos] == Readline::HISTORY[pos-1]
-        next unless pos == 0
-      end
       cmd_num = (pos + 1).to_s
       print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
     end
@@ -537,7 +536,9 @@ class Core
     print_line "Usage: history [options]"
     print_line
     print_line "Shows the command history."
+    print_line
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
+    print_line 'If -c is specified, the command history and history file will be cleared.'
     print @@history_opts.usage
   end
 
@@ -559,53 +560,6 @@ class Core
   def cmd_sleep(*args)
     return if not (args and args.length == 1)
     Rex::ThreadSafe.sleep(args[0].to_f)
-  end
-
-  def cmd_irb_help
-    print_line "Usage: irb"
-    print_line
-    print_line "Execute commands in a Ruby environment"
-    print @@irb_opts.usage
-  end
-
-  #
-  # Goes into IRB scripting mode
-  #
-  def cmd_irb(*args)
-    expressions = []
-
-    # Parse the command options
-    @@irb_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-e'
-        expressions << val
-      when '-h'
-        cmd_irb_help
-        return false
-      end
-    end
-
-    if expressions.empty?
-      print_status("Starting IRB shell...\n")
-
-      begin
-        Rex::Ui::Text::IrbShell.new(binding).run
-      rescue
-        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
-      end
-
-      # Reset tab completion
-      if (driver.input.supports_readline)
-        driver.input.reset_tab_completion
-      end
-    else
-      expressions.each { |expression| eval(expression, binding) }
-    end
-  end
-
-  def cmd_irb_tabs(str, words)
-    return [] if words.length > 1
-    @@irb_opts.fmt.keys
   end
 
   def cmd_threads_help
@@ -1624,7 +1578,7 @@ class Core
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
-      return true
+      return false
     end
 
     begin
@@ -1636,6 +1590,11 @@ class Core
     rescue OptionValidateError => e
       print_error(e.message)
       elog(e.message)
+    end
+
+    # Set PAYLOAD from TARGET
+    if name.upcase == 'TARGET' && active_module && active_module.exploit?
+      active_module.import_target_datastore
     end
 
     print_line("#{name} => #{datastore[name]}")
@@ -1980,10 +1939,7 @@ class Core
   end
 
   def cmd_grep_help
-    print_line "Usage: grep [options] pattern cmd"
-    print_line
-    print_line "Grep the results of a console command (similar to Linux grep command)"
-    print(@@grep_opts.usage())
+    cmd_grep '-h'
   end
 
   #
@@ -1995,59 +1951,57 @@ class Core
   # @return [String,nil] Results matching the regular expression given
 
   def cmd_grep(*args)
-    return cmd_grep_help if args.length < 2
     match_mods = {:insensitive => false}
     output_mods = {:count => false, :invert => false}
-    @@grep_opts.parse(args.dup) do |opt, idx, val|
-      case opt
-        when "-h"
-          return cmd_grep_help
-        when "-m"
-          # limit to arg matches
-          match_mods[:max] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-A"
-          # also return arg lines after a match
-          output_mods[:after] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-B"
-          # also return arg lines before a match
-          output_mods[:before] = val.to_i
-          # delete opt and val from args list
-          args.shift(2)
-        when "-v"
-          # invert match
-          match_mods[:invert] = true
-          # delete opt from args list
-          args.shift
-        when "-i"
-          # case insensitive
-          match_mods[:insensitive] = true
-          args.shift
-        when "-c"
-          # just count matches
-          output_mods[:count] = true
-          args.shift
-        when "-k"
-          # keep arg number of lines at the top of the output, useful for commands with table headers in output
-          output_mods[:keep] = val.to_i
-          args.shift(2)
-        when "-s"
-          # skip arg number of lines at the top of the output, useful for avoiding undesirable matches
-          output_mods[:skip] = val.to_i
-          args.shift(2)
+
+    opts = OptionParser.new do |opts|
+      opts.banner = "Usage: grep [OPTIONS] [--] PATTERN CMD..."
+      opts.separator "Grep the results of a console command (similar to Linux grep command)"
+      opts.separator ""
+
+      opts.on '-m num', '--max-count num', 'Stop after num matches.', Integer do |max|
+        match_mods[:max] = max
+      end
+      opts.on '-A num', '--after-context num', 'Show num lines of output after a match.', Integer do |num|
+        output_mods[:after] = num
+      end
+      opts.on '-B num', '--before-context num', 'Show num lines of output before a match.', Integer do |num|
+        output_mods[:before] = num
+      end
+      opts.on '-C num', '--context num', 'Show num lines of output around a match.', Integer do |num|
+        output_mods[:before] = output_mods[:after] = num
+      end
+      opts.on '-v', '--[no-]invert-match', 'Invert match.' do |invert|
+        match_mods[:invert] = invert
+      end
+      opts.on '-i', '--[no-]ignore-case', 'Ignore case.' do |insensitive|
+        match_mods[:insensitive] = insensitive
+      end
+      opts.on '-c', '--count', 'Only print a count of matching lines.' do |count|
+        output_mods[:count] = count
+      end
+      opts.on '-k num', '--keep-header num', 'Keep (include) num lines at start of output', Integer do |num|
+        output_mods[:keep] = num
+      end
+      opts.on '-s num', '--skip-header num', 'Skip num lines of output before attempting match.', Integer do |num|
+        output_mods[:skip] = num
+      end
+      opts.on '-h', '--help', 'Help banner.' do
+        return print(opts.help)
+      end
+
+      # Internal use
+      opts.on '--generate-completions str', 'Return possible tab completions for given string.' do |str|
+        return opts.candidate str
       end
     end
-    # after deleting parsed options, the only args left should be the pattern, the cmd to run, and cmd args
-    pattern = args.shift
-    if match_mods[:insensitive]
-      rx = Regexp.new(pattern, true)
-    else
-      rx = Regexp.new(pattern)
-    end
-    cmd = args.join(" ")
+
+    # OptionParser#order allows us to take the rest of the line for the command
+    pattern, *cmd = opts.order(args)
+    cmd = cmd.join(" ")
+    return print(opts.help) if !pattern || cmd.empty?
+
+    rx = Regexp.new(pattern, match_mods[:insensitive])
 
     # get a ref to the current console driver
     orig_driver = self.driver
@@ -2070,7 +2024,7 @@ class Core
     prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
     mod = active_module
     if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
     else
       driver.update_prompt("#{prompt} ", prompt_char, true)
     end
@@ -2119,7 +2073,9 @@ class Core
   # at least 1 when tab completion has reached this stage since the command itself has been completed
 
   def cmd_grep_tabs(str, words)
-    tabs = @@grep_opts.fmt.keys || [] # default to use grep's options
+    str = '-' if str.empty? # default to use grep's options
+    tabs = cmd_grep '--generate-completions', str
+
     # if not an opt, use normal tab comp.
     # @todo uncomment out next line when tab_completion normalization is complete RM7649 or
     # replace with new code that permits "nested" tab completion
