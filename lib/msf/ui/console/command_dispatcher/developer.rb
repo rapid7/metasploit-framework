@@ -51,6 +51,11 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     load path
   end
 
+  def cmd_irb_tabs(str, words)
+    return [] if words.length > 1
+    @@irb_opts.fmt.keys
+  end
+
   def cmd_irb_help
     print_line "Usage: irb"
     print_line
