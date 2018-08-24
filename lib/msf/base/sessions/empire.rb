@@ -157,7 +157,7 @@ class EmpireShell < Msf::Sessions::CommandShell
   end
 
   #Defining results command
-  def results(*args)
+  def cmd_results(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
       return get_help("results <taskID_of_the_action>","results 9","Fetch the respective results of a task from the Empire Database")
     else
@@ -167,7 +167,7 @@ class EmpireShell < Msf::Sessions::CommandShell
   end
 
   #Defining the credentials command
-  def credentials
+  def cmd_credentials
     @client_emp.get_creds
   end
 

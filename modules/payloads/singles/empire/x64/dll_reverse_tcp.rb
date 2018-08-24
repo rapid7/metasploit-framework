@@ -117,4 +117,3 @@ module MetasploitModule
     return @stagerCode
   end
 end
-
