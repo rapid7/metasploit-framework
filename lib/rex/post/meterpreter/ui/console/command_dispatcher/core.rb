@@ -165,7 +165,7 @@ class Console::CommandDispatcher::Core
       return @@pivot_supported_archs
     when '-i'
       matches = []
-      client.pivot_listeners.each_value{|v|matches << v.id.unpack('H*')[0]}
+      client.pivot_listeners.each_value { |v| matches << v.id.unpack('H*')[0] }
       return matches
     when '-p'
       return @@pivot_supported_platforms
@@ -443,7 +443,7 @@ class Console::CommandDispatcher::Core
   # Closes a supplied channel.
   #
   def cmd_close(*args)
-    if args.length == 0 || args.include?("-h")
+    if args.empty? || args.include?('-h')
       cmd_close_help
       return true
     end
@@ -509,7 +509,7 @@ class Console::CommandDispatcher::Core
   # Interacts with a channel.
   #
   def cmd_interact(*args)
-    if args.length == 0 || args.include?("-h")
+    if args.empty? || args.include?('-h')
       cmd_info_help
       return true
     end
@@ -763,7 +763,7 @@ class Console::CommandDispatcher::Core
   # Handle the sleep command.
   #
   def cmd_sleep(*args)
-    if args.length == 0 || args.include?("-h")
+    if args.empty? || args.include?('-h')
       cmd_sleep_help
       return
     end
@@ -1325,7 +1325,7 @@ class Console::CommandDispatcher::Core
   # Reads data from a channel.
   #
   def cmd_read(*args)
-    if args.length == 0 || args.include?("-h")
+    if args.empty? || args.include?('-h')
       cmd_read_help
       return true
     end
@@ -1365,7 +1365,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session.
   #
   def cmd_run(*args)
-    if args.length == 0 || args.include?("-h")
+    if args.empty? || args.include?('-h')
       cmd_run_help
       return true
     end
@@ -1435,11 +1435,12 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session in the background
   #
   def cmd_bgrun(*args)
-    if args.length == 0 || args.include?("-h")
-        print_line('Usage: bgrun <script> [arguments]')
-        print_line
-        print_line('Executes a ruby script in the context of the meterpreter session.')
-        print_line
+    if args.empty? || args.include?('-h')
+      print_line('Usage: bgrun <script> [arguments]')
+      print_line
+      print_line('Executes a ruby script in the context of the meterpreter session.')
+      print_line
+
       return true
     end
 
@@ -1475,7 +1476,7 @@ class Console::CommandDispatcher::Core
   # Kill a background job
   #
   def cmd_bgkill(*args)
-    if args.length == 0 || args.include?("-h")
+    if args.empty? || args.include?('-h')
       print_line('Usage: bgkill [id]')
       return
     end
@@ -1558,8 +1559,7 @@ class Console::CommandDispatcher::Core
 
   def cmd_write_tabs(str, words)
     return tab_complete_filenames(str, words) if words[-1] == '-f'
-
-    return tab_complete_channels
+    tab_complete_channels
   end
 
   def cmd_write(*args)

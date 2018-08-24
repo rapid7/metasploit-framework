@@ -129,7 +129,7 @@ module Msf
           # Saves commands executed since the ui started to the specified msfrc file
           #
           def cmd_makerc(*args)
-            if args.include?('-h') or args.empty?
+            if args.empty? || args.include?('-h')
               cmd_makerc_help
               return false
             end

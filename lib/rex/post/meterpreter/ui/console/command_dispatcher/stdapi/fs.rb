@@ -306,7 +306,6 @@ class Console::CommandDispatcher::Stdapi::Fs
     tab_complete_directory(str, words)
   end
 
-
   #
   # Retrieve the checksum of a file
   #
@@ -354,9 +353,8 @@ class Console::CommandDispatcher::Stdapi::Fs
     return true
   end
 
-  alias :cmd_rm_tabs  :cmd_cat_tabs
-
   alias :cmd_del :cmd_rm
+  alias :cmd_rm_tabs :cmd_cat_tabs
   alias :cmd_del_tabs :cmd_cat_tabs
 
   #
@@ -375,10 +373,9 @@ class Console::CommandDispatcher::Stdapi::Fs
     return true
   end
 
-  alias :cmd_mv_tabs :cmd_cat_tabs
-
   alias :cmd_move :cmd_mv
   alias :cmd_rename :cmd_mv
+  alias :cmd_mv_tabs :cmd_cat_tabs
   alias :cmd_move_tabs :cmd_cat_tabs
   alias :cmd_rename_tabs :cmd_cat_tabs
 
@@ -398,10 +395,8 @@ class Console::CommandDispatcher::Stdapi::Fs
     return true
   end
 
-  alias :cmd_cp_tabs :cmd_cat_tabs
-
   alias :cmd_copy :cmd_cp
-
+  alias :cmd_cp_tabs :cmd_cat_tabs
 
   def cmd_download_help
     print_line("Usage: download [options] src1 src2 src3 ... destination")
@@ -540,7 +535,6 @@ class Console::CommandDispatcher::Stdapi::Fs
     true
   end
 
-
   def cmd_edit_help
     print_line('Edit a file on remote machine.')
     print_line("Usage: edit file")
@@ -552,7 +546,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   # the contents to the remote machine after completion.
   #
   def cmd_edit(*args)
-    if args.length == 0 || args.include?("-h")
+    if args.empty? || args.include?('-h')
       cmd_edit_help
       return true
     end
@@ -739,9 +733,9 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   # Alias the ls command to dir, for those of us who have windows muscle-memory
   #
-  alias cmd_dir cmd_ls
-  alias cmd_dir_help cmd_ls_help
-  alias cmd_dir_tabs cmd_cd_tabs
+  alias :cmd_dir :cmd_ls
+  alias :cmd_dir_help :cmd_ls_help
+  alias :cmd_dir_tabs :cmd_ls_tabs
 
   def cmd_lls_help
     print_line "Usage: lls [options]"
@@ -865,7 +859,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   # Alias the lls command to dir, for those of us who have windows muscle-memory
   #
-  alias cmd_ldir cmd_lls
+  alias :cmd_ldir :cmd_lls
 
   #
   # Make one or more directory.
@@ -915,7 +909,6 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   alias :cmd_rmdir_tabs :cmd_cd_tabs
-
 
   def cmd_upload_help
     print_line("Usage: upload [options] src1 src2 src3 ... destination")

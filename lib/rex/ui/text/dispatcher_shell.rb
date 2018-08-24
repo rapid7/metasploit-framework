@@ -256,7 +256,7 @@ module DispatcherShell
     #
     def tab_complete_directory(str, words)
       str = '.' + ::File::SEPARATOR if str.empty?
-      dirs = Dir.glob(str.concat('*'),File::FNM_CASEFOLD).select{|x| File.directory?(x) }
+      dirs = Dir.glob(str.concat('*'), File::FNM_CASEFOLD).select { |x| File.directory?(x) }
 
       dirs
     end

@@ -246,7 +246,6 @@ class Console::CommandDispatcher::Stdapi::Sys
 
   def cmd_execute_tabs(str, words)
     return @@execute_opts.fmt.keys if words.length == 1
-
     []
   end
 
@@ -638,12 +637,12 @@ class Console::CommandDispatcher::Stdapi::Sys
       return %w[x86 x64]
     when '-S'
       process = []
-      client.sys.process.get_processes.each{|p|process << p['name']} rescue nil
+      client.sys.process.get_processes.each { |p| process << p['name'] } rescue nil
       return process.uniq!
     when '-U'
       user = []
-      client.sys.process.get_processes.each{|p|user << p['user']} rescue nil
-      return user.uniq!                       # buggy on windows
+      client.sys.process.get_processes.each { |p| user << p['user'] } rescue nil
+      return user.uniq! # buggy on windows
     end
 
     []
@@ -916,23 +915,22 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_reg_tabs(str, words)
     if words.length == 1
-      return  %w[enumkey createkey deletekey queryclass setval deleteval queryval] +
-                @@reg_opts.fmt.keys
+      return %w[enumkey createkey deletekey queryclass setval deleteval queryval] + @@reg_opts.fmt.keys
     end
 
     case words[-1]
     when '-k'
-      reg_root_keys = %w[HKLM  HKCC  HKCR  HKCU  HKU]
+      reg_root_keys = %w[HKLM HKCC HKCR HKCU HKU]
       # Split the key into its parts
       root_key, base_key = client.sys.registry.splitkey(str) rescue nil
       return reg_root_keys unless root_key
       # Open the registry
       open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + 0x0000) rescue (return [])
-      return  open_key.enum_key.map{|e|str.gsub(/[\\]*$/,'') + '\\\\' + e}
+      return open_key.enum_key.map { |e| str.gsub(/[\\]*$/, '') + '\\\\' + e }
     when '-t'
       # Reference https://msdn.microsoft.com/en-us/library/windows/desktop/bb773476(v=vs.85).aspx
       return %w[REG_BINARY REG_DWORD REG_QWORD REG_DWORD_BIG_ENDIAN REG_EXPAND_SZ
-              REG_LINK REG_MULTI_SZ REG_NONE REG_RESOURCE_LIST REG_SZ]
+                REG_LINK REG_MULTI_SZ REG_NONE REG_RESOURCE_LIST REG_SZ]
     when '-w'
       return %w[32 64]
     when 'enumkey', 'createkey', 'deletekey', 'queryclass', 'setval', 'deleteval', 'queryval'
@@ -989,10 +987,11 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Tries to steal the primary token from the target process.
   #
   def cmd_steal_token(*args)
-    if(args.length != 1 or args[0] == "-h")
-      print_line("Usage: steal_token [pid]")
-      return
+    if args.empty? || args.include?('-h')
+      print_line('Usage: steal_token [pid]')
+      return true
     end
+
     print_line("Stolen token with username: " + client.sys.config.steal_token(args[0]))
   end
 
@@ -1033,7 +1032,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_shutdown(*args)
     force = 0
 
-    if args.length == 1 and args[0].strip == "-h"
+    if args.length == 1 && args.first.strip == '-h'
       cmd_shutdown_help
       return true
     end
@@ -1051,9 +1050,9 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   def cmd_shutdown_help
-    print_line("Usage: shutdown [options]")
+    print_line('Usage: shutdown [options]')
     print_line
-    print_line("Shutdown the remote machine.")
+    print_line('Shutdown the remote machine.')
     print @@shutdown_opts.usage
   end
 
@@ -1148,7 +1147,6 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_suspend_tabs(str, words)
     return @@suspend_opts.fmt.keys if words.length == 1
-
     []
   end
 

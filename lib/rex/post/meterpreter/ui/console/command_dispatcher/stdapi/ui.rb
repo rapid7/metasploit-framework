@@ -133,7 +133,6 @@ class Console::CommandDispatcher::Stdapi::Ui
     []
   end
 
-
   #
   # Grab a screenshot of the current interactive desktop.
   #

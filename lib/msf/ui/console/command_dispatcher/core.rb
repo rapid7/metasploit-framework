@@ -169,7 +169,7 @@ class Core
   # @param str [String] the string currently being typed before tab was hit
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
-
+  #
   def cmd_color_tabs(str, words)
     return [] if words.length > 1
     %w[auto true false]
@@ -199,7 +199,7 @@ class Core
   end
 
   def cmd_cd_tabs(str, words)
-     tab_complete_directory(str, words)
+    tab_complete_directory(str, words)
   end
 
   def cmd_banner_help

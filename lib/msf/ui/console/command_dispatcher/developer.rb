@@ -51,11 +51,6 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     load path
   end
 
-  def cmd_irb_tabs(str, words)
-    return [] if words.length > 1
-    @@irb_opts.fmt.keys
-  end
-
   def cmd_irb_help
     print_line "Usage: irb"
     print_line
@@ -96,6 +91,14 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     else
       expressions.each { |expression| eval(expression, binding) }
     end
+  end
+
+  #
+  # Tab completion for the irb command
+  #
+  def cmd_irb_tabs(str, words)
+    return [] if words.length > 1
+    @@irb_opts.fmt.keys
   end
 
   def cmd_pry_help

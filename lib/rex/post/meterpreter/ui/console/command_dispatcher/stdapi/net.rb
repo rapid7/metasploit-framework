@@ -244,13 +244,13 @@ class Console::CommandDispatcher::Stdapi::Net
     end
 
     # Check to see if they specified -h
-    @@route_opts.parse(args) { |opt, idx, val|
+    @@route_opts.parse(args) do |opt, idx, val|
       case opt
-        when '-h'
-          cmd_route_help
-          return true
+      when '-h'
+        cmd_route_help
+        return true
       end
-    }
+    end
 
     cmd = args.shift
 
@@ -585,7 +585,7 @@ class Console::CommandDispatcher::Stdapi::Net
       return tab_complete_source_address
     when '-i'
       if client.respond_to?('pfservice')
-        return (1..client.pfservice.each_tcp_relay{|lh, lp, rh, rp, opts|}.length).to_a.map!(&:to_s)
+        return (1..client.pfservice.each_tcp_relay { |lh, lp, rh, rp, opts| }.length).to_a.map!(&:to_s)
       end
     when 'add', 'delete', 'list', 'flush'
       return @@portfwd_opts.fmt.keys
