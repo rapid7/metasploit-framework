@@ -147,10 +147,10 @@ class EmpireShell < Msf::Sessions::CommandShell
   def cmd_shell(*args)
     if args.length = 1
       command = args[0]
-      puts @client_emp.exec_command(@agent_name, command)
+      print_line(@client_emp.exec_command(@agent_name, command))
     elsif args.length > 1
       command = args.join(" ")
-      puts @client_emp.exec_command(@agent_name, command)
+      print_line(@client_emp.exec_command(@agent_name, command))
     elsif args.length.zero? || args[0] == '-h' or args[0] == 'help'
       return get_help("shell <shell_command>","shell start notepad.exe","Runs a shell command in target host and stores the result in Empire Database. Please wait few moments before fetching the results, for results to be properly populated")
     end
