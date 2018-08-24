@@ -203,10 +203,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         when "-k"
           desktop = true
         when "-h"
-          print(
-            "Usage: execute -f file [options]\n\n" +
-            "Executes a command on the remote machine.\n" +
-            @@execute_opts.usage)
+          cmd_execute_help
           return true
         when "-i"
           channelized = true
@@ -241,6 +238,16 @@ class Console::CommandDispatcher::Stdapi::Sys
     end
   end
 
+  def cmd_execute_help
+    print_line("Usage: execute -f file [options]")
+    print_line("Executes a command on the remote machine.")
+    print @@execute_opts.usage
+  end
+
+  def cmd_execute_tabs(str, words)
+    return @@execute_opts.fmt.keys if words.length == 1
+    []
+  end
 
   #
   # Drop into a system shell as specified by %COMSPEC% or
@@ -620,6 +627,28 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   #
+  # Tab completion for the ps command
+  #
+  def cmd_ps_tabs(str, words)
+    return @@ps_opts.fmt.keys if words.length == 1
+
+    case words[-1]
+    when '-A'
+      return %w[x86 x64]
+    when '-S'
+      process = []
+      client.sys.process.get_processes.each { |p| process << p['name'] } rescue nil
+      return process.uniq!
+    when '-U'
+      user = []
+      client.sys.process.get_processes.each { |p| user << p['user'] } rescue nil
+      return user.uniq! # buggy on windows
+    end
+
+    []
+  end
+
+  #
   # Reboots the remote computer.
   #
   def cmd_reboot(*args)
@@ -668,18 +697,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     @@reg_opts.parse(args) { |opt, idx, val|
       case opt
         when "-h"
-          print_line(
-            "Usage: reg [command] [options]\n\n" +
-            "Interact with the target machine's registry.\n" +
-            @@reg_opts.usage +
-            "COMMANDS:\n\n" +
-            "    enumkey	Enumerate the supplied registry key [-k <key>]\n" +
-            "    createkey	Create the supplied registry key  [-k <key>]\n" +
-            "    deletekey	Delete the supplied registry key  [-k <key>]\n" +
-            "    queryclass Queries the class of the supplied key [-k <key>]\n" +
-            "    setval	Set a registry value [-k <key> -v <val> -d <data>]\n" +
-            "    deleteval	Delete the supplied registry value [-k <key> -v <val>]\n" +
-            "    queryval	Queries the data contents of a value [-k <key> -v <val>]\n\n")
+          cmd_reg_help
           return false
         when "-k"
           key   = val
@@ -874,6 +892,56 @@ class Console::CommandDispatcher::Stdapi::Sys
   end
 
   #
+  # help for the reg command
+  #
+  def cmd_reg_help
+    print_line("Usage: reg [command] [options]")
+    print_line("Interact with the target machine's registry.")
+    print @@reg_opts.usage
+    print_line("COMMANDS:")
+    print_line
+    print_line("    enumkey  Enumerate the supplied registry key [-k <key>]")
+    print_line("    createkey  Create the supplied registry key  [-k <key>]")
+    print_line("    deletekey  Delete the supplied registry key  [-k <key>]")
+    print_line("    queryclass Queries the class of the supplied key [-k <key>]")
+    print_line("    setval Set a registry value [-k <key> -v <val> -d <data>]")
+    print_line("    deleteval  Delete the supplied registry value [-k <key> -v <val>]")
+    print_line("    queryval Queries the data contents of a value [-k <key> -v <val>]")
+    print_line
+  end
+
+  #
+  # Tab completion for the reg command
+  #
+  def cmd_reg_tabs(str, words)
+    if words.length == 1
+      return %w[enumkey createkey deletekey queryclass setval deleteval queryval] + @@reg_opts.fmt.keys
+    end
+
+    case words[-1]
+    when '-k'
+      reg_root_keys = %w[HKLM HKCC HKCR HKCU HKU]
+      # Split the key into its parts
+      root_key, base_key = client.sys.registry.splitkey(str) rescue nil
+      return reg_root_keys unless root_key
+      # Open the registry
+      open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + 0x0000) rescue (return [])
+      return open_key.enum_key.map { |e| str.gsub(/[\\]*$/, '') + '\\\\' + e }
+    when '-t'
+      # Reference https://msdn.microsoft.com/en-us/library/windows/desktop/bb773476(v=vs.85).aspx
+      return %w[REG_BINARY REG_DWORD REG_QWORD REG_DWORD_BIG_ENDIAN REG_EXPAND_SZ
+                REG_LINK REG_MULTI_SZ REG_NONE REG_RESOURCE_LIST REG_SZ]
+    when '-w'
+      return %w[32 64]
+    when 'enumkey', 'createkey', 'deletekey', 'queryclass', 'setval', 'deleteval', 'queryval'
+      return @@reg_opts.fmt.keys
+    end
+
+    []
+  end
+
+
+  #
   # Calls RevertToSelf() on the remote machine.
   #
   def cmd_rev2self(*args)
@@ -919,10 +987,11 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Tries to steal the primary token from the target process.
   #
   def cmd_steal_token(*args)
-    if(args.length != 1 or args[0] == "-h")
-      print_error("Usage: steal_token [pid]")
-      return
+    if args.empty? || args.include?('-h')
+      print_line('Usage: steal_token [pid]')
+      return true
     end
+
     print_line("Stolen token with username: " + client.sys.config.steal_token(args[0]))
   end
 
@@ -963,12 +1032,9 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_shutdown(*args)
     force = 0
 
-    if args.length == 1 and args[0].strip == "-h"
-      print(
-        "Usage: shutdown [options]\n\n" +
-        "Shutdown the remote machine.\n" +
-        @@shutdown_opts.usage)
-        return true
+    if args.length == 1 && args.first.strip == '-h'
+      cmd_shutdown_help
+      return true
     end
 
     @@shutdown_opts.parse(args) { |opt, idx, val|
@@ -982,6 +1048,27 @@ class Console::CommandDispatcher::Stdapi::Sys
 
     client.sys.power.shutdown(force, SHTDN_REASON_DEFAULT)
   end
+
+  def cmd_shutdown_help
+    print_line('Usage: shutdown [options]')
+    print_line
+    print_line('Shutdown the remote machine.')
+    print @@shutdown_opts.usage
+  end
+
+  def cmd_shutdown_tabs(str, words)
+    return @@shutdown_opts.fmt.keys if words.length == 1
+
+    case words[-1]
+    when '-f'
+      return %w[1  2]
+    end
+
+    []
+  end
+
+
+
 
   #
   # Suspends or resumes a list of one or more pids
@@ -1053,6 +1140,14 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line("Usage: suspend [options] pid1 pid2 pid3 ...")
     print_line("Suspend one or more processes.")
     print @@suspend_opts.usage
+  end
+
+  #
+  # Tab completion for the suspend command
+  #
+  def cmd_suspend_tabs(str, words)
+    return @@suspend_opts.fmt.keys if words.length == 1
+    []
   end
 
 end

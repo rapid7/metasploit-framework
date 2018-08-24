@@ -163,6 +163,18 @@ class Core
     driver.update_prompt
   end
 
+  #
+  # Tab completion for the color command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  #
+  def cmd_color_tabs(str, words)
+    return [] if words.length > 1
+    %w[auto true false]
+  end
+
   def cmd_cd_help
     print_line "Usage: cd <directory>"
     print_line
@@ -184,6 +196,10 @@ class Core
     rescue ::Exception
       print_error("The specified path does not exist")
     end
+  end
+
+  def cmd_cd_tabs(str, words)
+    tab_complete_directory(str, words)
   end
 
   def cmd_banner_help
@@ -529,6 +545,11 @@ class Core
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
     print_line 'If -c is specified, the command history and history file will be cleared.'
     print @@history_opts.usage
+  end
+
+  def cmd_history_tabs(str, words)
+    return [] if words.length > 1
+    @@history_opts.fmt.keys
   end
 
   def cmd_sleep_help
@@ -1045,6 +1066,10 @@ class Core
     print_line "Example:"
     print_line "  spool /tmp/console.log"
     print_line
+  end
+
+  def cmd_spool_tabs(str, words)
+    tab_complete_filenames(str, words)
   end
 
   def cmd_spool(*args)

@@ -93,6 +93,14 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     end
   end
 
+  #
+  # Tab completion for the irb command
+  #
+  def cmd_irb_tabs(str, words)
+    return [] if words.length > 1
+    @@irb_opts.fmt.keys
+  end
+
   def cmd_pry_help
     print_line 'Usage: pry'
     print_line
