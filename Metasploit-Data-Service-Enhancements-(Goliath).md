@@ -39,16 +39,6 @@ This approach enables us to:
 * Isolate component testing
 * Users of metasploit can now leverage a rigid API to build other tools easily (documentation to be provided soon)
 
-## Components
+## Usage
 
-_**Metasploit Database as a Web Service**_ (msfdb_ws)
-* We have provided an example of an implementation of the current DB API which allow users to use the DB via JSON/HTTP
-* Usage: `./msfdb_ws -h`
-* Server code path: `lib/msf/core/db_manager/http`
-
-_**Using msfdb_ws from Metasploit Framework**_:
-* We have created a command that allows users to add/use remote data services.
-* Usage: `data_services -h`
-* Core client code path: `lib/metasploit/framework/data_service`
-
-More information on setting up the Remote Data Service and using the REST API can be found [here](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Remote-Data-Service-and-REST-API).
+For more information on setting up the Remote Data Service and using the REST API see [Metasploit Remote Data Service and REST API](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Remote-Data-Service-and-REST-API).
