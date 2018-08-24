@@ -296,6 +296,65 @@ class Module
     false
   end
 
+  def required_cred_options
+    @required_cred_options ||= lambda {
+      self.options.select { |name, opt|
+        (
+          opt.type?('string') &&
+          opt.required &&
+          (opt.name.match(/user(name)*$/i) || name.match(/pass(word)*$/i))
+        ) ||
+        (
+          opt.type?('bool') &&
+          opt.required &&
+          opt.name.match(/^allow_guest$/i)
+        )
+      }
+    }.call
+  end
+
+  def black_listed_auth_filenames
+    @black_listed_auth_filenames ||= lambda {
+      [
+        'fileformat',
+        'browser'
+      ]
+    }.call
+  end
+
+  def post_auth?
+    if self.kind_of?(Msf::Auxiliary::AuthBrute)
+      return true
+    else
+      # Some modules will never be post auth, so let's not waste our time
+      # determining it and create more potential false positives.
+      # If these modules happen to be post auth for some reason, then we it
+      # should manually override the post_auth? method as true.
+      directory_name = self.fullname.split('/')[0..-2]
+      black_listed_auth_filenames.each do |black_listed_name|
+        return false if directory_name.include?(black_listed_name)
+      end
+
+      # Some modules create their own username and password datastore
+      # options, not relying on the AuthBrute mixin. In that case we
+      # just have to go through the options and try to identify them.
+      !required_cred_options.empty?
+    end
+  end
+
+  def default_cred?
+    return false unless post_auth?
+
+    cred_opts_with_default = required_cred_options.select { |name, opt|
+      case opt.type
+      when 'string'
+        return true unless opt.default.blank?
+      end
+    }
+
+    false
+  end
+
   #
   # The array of zero or more platforms.
   #
