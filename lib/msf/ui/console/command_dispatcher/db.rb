@@ -1749,9 +1749,9 @@ class Db
           conf_options = conf["#{DB_CONFIG_PATH}/#{name}"]
           if conf_options
             opts[:url] = conf_options['url'] if conf_options['url']
-            opts[:api_token] = conf_options['api_token'] if conf_conf_options['api_token']
-            https_opts[:cert] = conf[conf_path]['cert'] if conf[conf_path]['cert']
-            https_opts[:skip_verify] = conf[conf_path]['skip_verify'] if conf[conf_path]['skip_verify']
+            opts[:api_token] = conf_options['api_token'] if conf_options['api_token']
+            https_opts[:cert] = conf_options['cert'] if conf_options['cert']
+            https_opts[:skip_verify] = conf_options['skip_verify'] if conf_options['skip_verify']
           else
             print_error "Unable to locate saved data service with name '#{name}'"
             return
@@ -1892,10 +1892,10 @@ class Db
   end
 
   def save_db_to_config(database, database_name)
+    config_path = "#{DB_CONFIG_PATH}/#{database_name}"
+    config_opts = {}
     if !database.is_local?
       begin
-        config_path = "#{DB_CONFIG_PATH}/#{database_name}"
-        config_opts = {}
         config_opts['url'] = database.endpoint
         if database.https_opts
           config_opts['cert'] = database.https_opts[:cert]
@@ -1909,7 +1909,15 @@ class Db
         print_error "There was an error saving the data service configuration: #{e.message}"
       end
     else
-      print_line "Saving local database configuration is handled in the database.yml file."
+      conn_params = ActiveRecord::Base.connection_config
+      url = ""
+      url += "#{conn_params[:username]}" if conn_params[:username]
+      url += ":#{conn_params[:password]}" if conn_params[:password]
+      url += "@#{conn_params[:host]}" if conn_params[:host]
+      url += ":#{conn_params[:port]}" if conn_params[:port]
+      url += "/#{conn_params[:database]}" if conn_params[:database]
+      config_opts['url'] = url
+      Msf::Config.save(config_path => config_opts)
     end
   end
 

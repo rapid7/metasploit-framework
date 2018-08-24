@@ -24,6 +24,7 @@ class Driver < Msf::Ui::Driver
 
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
+  DbConfigGroup = "framework/database"
 
   DefaultPrompt     = "%undmsf5%clr"
   DefaultPromptChar = "%clr>"
@@ -127,6 +128,8 @@ class Driver < Msf::Ui::Driver
       enstack_dispatcher(dispatcher)
     end
 
+    load_db_config(opts['Config'])
+
     if !framework.db || !framework.db.active
       print_error("***")
       if framework.db.error == "disabled"
@@ -206,6 +209,48 @@ class Driver < Msf::Ui::Driver
     end
   end
 
+  def load_db_config(path=nil)
+    begin
+      conf = Msf::Config.load(path)
+    rescue
+      wlog("Failed to load configuration: #{$!}")
+      return
+    end
+
+    if conf.group?(DbConfigGroup)
+      conf[DbConfigGroup].each_pair do |k, v|
+        if k.downcase == 'default_db'
+          ilog "Default data service found. Attempting to connect..."
+          default_db_config_path = "#{DbConfigGroup}/#{v}"
+          default_db = conf[default_db_config_path]
+          if default_db
+            connect_string = "db_connect"
+            if default_db['cert']
+              connect_string += " -c #{default_db['cert']}"
+              if default_db['skip_verify']
+                connect_string += " --skip-verify"
+              end
+            end
+            if default_db['api_token']
+              connect_string += " -t #{default_db['api_token']}"
+            end
+            connect_string += " #{default_db['url']}"
+
+            if framework.db.active && default_db['url'] !~ /http/
+              ilog "Existing local data connection found. Disconnecting first."
+              run_single("db_disconnect")
+            end
+
+            run_single(connect_string)
+          else
+            elog "Config entry for '#{default_db_config_path}' could not be found. Config file might be corrupt."
+            return
+          end
+        end
+      end
+    end
+  end
+
   #
   # Loads configuration for the console.
   #
@@ -230,33 +275,6 @@ class Driver < Msf::Ui::Driver
             end
         end
       }
-    end
-    if conf.group?('framework/database')
-      conf['framework/database'].each_pair do |k, v|
-        if k.downcase == 'default_db'
-          print_line "Default data service found. Attempting to connect..."
-          default_db_config_path = "#{Msf::Ui::Console::CommandDispatcher::Db::DB_CONFIG_PATH}/#{v}"
-          default_db = conf[default_db_config_path]
-          if default_db
-            connect_string = "db_connect"
-            if default_db['cert']
-              connect_string += " -c #{default_db['cert']}"
-              if default_db['skip_verify']
-                connect_string += " --skip-verify"
-              end
-            end
-            if default_db['api_token']
-              connect_string += " -t #{default_db['api_token']}"
-            end
-            connect_string += " #{default_db['url']}"
-
-            run_single(connect_string)
-          else
-            print_error "Config entry for '#{default_db_config_path}' could not be found. Config file might be corrupt."
-            return
-          end
-        end
-      end
     end
   end
 
