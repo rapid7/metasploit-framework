@@ -4,11 +4,12 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind CloudFlare',
-      'Version'        => '$Release: 1.0.3',
+      'Version'        => '$Release: 1.1',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
@@ -20,90 +21,30 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'     => [
         ['URL', 'http://www.crimeflare.com/cfs.html'],
-        ['URL', 'https://github.com/HatBashBR/HatCloud']
+        ['URL', 'https://github.com/HatBashBR/HatCloud'],
+        ['URL', 'https://github.com/christophetd/CloudFlair']
       ],
       'License'        => MSF_LICENSE
     ))
 
     register_options(
       [
-        OptString.new('HOSTNAME', [true, 'The hostname or domain name where we want to find the real IP address',]),
+        OptString.new('HOSTNAME', [true, 'The hostname or domain name where we want to find the real IP address']),
         OptString.new('URIPATH', [true, 'The URI path on which to perform the page comparison', '/']),
-        OptInt.new('RPORT', [true, 'The target TCP port on which the protected website responds', '443']),
+        OptInt.new('RPORT', [true, 'The target TCP port on which the protected website responds', 443]),
         OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
-        OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]'])
+        OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]']),
+        OptInt.new('THREADS', [true, 'Threads for DNS enumeration', 15]),
+        OptPath.new('WORDLIST', [true, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')]),
+        OptString.new('CENSYS_UID', [false, 'The Censys API UID']),
+        OptString.new('CENSYS_SECRET', [false, 'The Censys API SECRET'])
       ])
-  end
 
-  def do_crimflare_request(hostname, proxies)
-    begin
-      cli = Rex::Proto::Http::Client.new('www.crimeflare.us', 82, {}, false, nil, proxies)
-      cli.connect
-
-      request = cli.request_cgi({
-        'uri'    => '/cgi-bin/cfsearch.cgi',
-        'method' => 'POST',
-        'data'   => "cfS=#{hostname}"
-      })
-      response = cli.send_recv(request)
-      cli.close
-
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      print_error('HTTP connection failed to Crimflare website.')
-      return false
-    end
-
-    html  = response.get_html_document
-    unless /No working nameservers are registered/.match(html).nil? then
-      print_bad('No working nameservers are registered! :(')
-      return false
-    end
-
-    ar_ips = []
-    rows  = html.search('li')
-    rows.each_with_index do | row, index |
-      date = /(\d*\-\d*\-\d*)/.match(row)
-      ar_ips.push(/(\d*\.\d*\.\d*\.\d*)/.match(row))
-      print_status(" * #{date} | #{ar_ips[index]}")
-    end
-
-    if ar_ips.empty?
-      print_bad('No previous lookups founds.')
-      return false
-    end
-
-    return ar_ips
-  end
-
-  def do_check_bypass(fingerprint, host, ip, uri, proxies)
-
-    # Check for "misconfigured" web server on TCP/80.
-    if do_check_tcp_port(ip, 80, proxies)
-      response = do_simple_get_request_raw(ip, 80, false, host, uri, proxies)
-
-      if response != false
-        html = response.get_html_document
-        if fingerprint.to_s.eql? html.at('head').to_s
-          print_good("A direct-connect IP address was found: #{ip}")
-          return true
-        end
-      end
-    end
-
-    # Check for "misconfigured" web server on TCP/443.
-    if do_check_tcp_port(ip, 443, proxies)
-      response = do_simple_get_request_raw(ip, 443, true, host, uri, proxies)
-
-      if response != false
-        html = response.get_html_document
-        if fingerprint.to_s.eql? html.at('head').to_s
-          print_good("A direct-connect IP address was found: #{ip}")
-          return true
-        end
-      end
-    end
-
-    return false
+      register_advanced_options(
+        [
+          OptString.new('COMPSTR', [false, 'You can use a custom string to perform the comparison (default is HOSTNAME).']),
+          OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)'])
+        ])
   end
 
   def do_check_tcp_port(ip, port, proxies)
@@ -118,6 +59,132 @@ class MetasploitModule < Msf::Auxiliary
     end
     sock.close
     return true
+  end
+
+  def do_grab_domain_ip_history(hostname, proxies)
+    begin
+      cli = Rex::Proto::Http::Client.new('www.prepostseo.com', 443, {}, true, nil, proxies)
+      cli.connect
+
+      request = cli.request_cgi({
+        'uri'    => '/domain-ip-history-checker',
+        'method' => 'POST',
+        'data'   => "url=#{hostname}&submit=Check+Reverse+Ip+Domains"
+      })
+      response = cli.send_recv(request)
+      cli.close
+
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+      print_error('HTTP connection failed to PrePost SEO website.')
+      return false
+    end
+
+    html  = response.get_html_document
+    table = html.css('table.table').first
+    rows  = table.css('tr')
+
+    ar_ips = []
+    rows.each_with_index.map do | row, index |
+      row = /(\d*\.\d*\.\d*\.\d*)/.match(row.css('td').map(&:text).to_s)
+      unless row.nil?
+        ar_ips.push(row)
+      end
+    end
+
+    if ar_ips.empty?
+      print_bad('No domain IP(s) history founds.')
+      return false
+    end
+
+    return ar_ips
+  end
+
+  ## auxiliary/gather/enum_dns.rb
+  def do_dns_enumeration(domain, threads)
+    wordlist = datastore['WORDLIST']
+    return if wordlist.blank?
+    threads  = 1 if threads <= 0
+
+    queue    = []
+    File.foreach(wordlist) do | line |
+      queue << "#{line.chomp}.#{domain}"
+    end
+
+    ar_ips = []
+    until queue.empty?
+      t = []
+      threads = 1 if threads <= 0
+
+      if queue.length < threads
+        # work around issue where threads not created as the queue isn't large enough
+        threads = queue.length
+      end
+
+      begin
+        1.upto(threads) do
+          t << framework.threads.spawn("Module(#{refname})", false, queue.shift) do | test_current |
+            Thread.current.kill unless test_current
+            a = /(\d*\.\d*\.\d*\.\d*)/.match(do_dns_get_a(test_current, 'DNS bruteforce records').to_s)
+            ar_ips.push(a) if a
+          end
+        end
+        t.map(&:join)
+
+      rescue ::Timeout::Error
+      ensure
+        t.each { | x | x.kill rescue nil }
+      end
+    end
+
+    if ar_ips.empty?
+      print_bad('No enumerated domain IP(s) founds.')
+      return false
+    end
+
+    return ar_ips
+  end
+
+  ## auxiliary/gather/enum_dns.rb
+  def do_dns_get_a(domain, type='DNS A records')
+    response = do_dns_query(domain, 'A')
+    return if response.blank? || response.answer.blank?
+
+    response.answer.each do | row |
+      next unless row.class == Net::DNS::RR::A
+    end
+  end
+
+  ## auxiliary/gather/enum_dns.rb
+  def do_dns_query(domain, type)
+    begin
+      nameserver         = datastore['NS']
+
+      if nameserver.blank?
+        dns = Net::DNS::Resolver.new
+      else
+        dns = Net::DNS::Resolver.new(nameservers: ::Rex::Socket.resolv_to_dotted(nameserver))
+      end
+
+      dns.use_tcp        = false
+      dns.udp_timeout    = 8
+      dns.retry_number   = 2
+      dns.retry_interval = 2
+      dns.query(domain, type)
+    rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
+      print_error("Query #{domain} DNS #{type} - exception: #{e}")
+      return nil
+    end
+  end
+
+  ## auxiliary/gather/enum_dns.rb
+  def do_save_note(hostname, ip, sname)
+    data = { 'vhost' => hostname, 'real_ip' => ip, 'sname' => sname }
+    report_note(
+      :host  => hostname,
+      :type  => "behind_cloudflare",
+      :data  => data,
+      update: :unique_data
+    )
   end
 
   def do_simple_get_request_raw(host, port, ssl, host_header=nil, uri, proxies)
@@ -136,56 +203,237 @@ class MetasploitModule < Msf::Auxiliary
       response = http.send_recv(request)
       http.close
 
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      print_error('HTTP Connection Failed')
-      return false
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, StandardError => error
+      print_error(error.message)
     end
+    return false if response.nil?
 
     return response
   end
 
-  ## TODO: Improve the efficiency by mixing the sources (dnsenum, censys).
-  def run
-    domain_name = PublicSuffix.parse(datastore['HOSTNAME']).domain
+  def get_cloudflare_ips
+    response = do_simple_get_request_raw(
+      'www.cloudflare.com',
+      443,
+      true,
+      nil,
+      '/ips-v4',
+      datastore['PROXIES']
+    )
+    return false if response.nil?
 
-    print_status('Previous lookups from Crimeflare...')
-    ip_list     = do_crimflare_request(datastore['HOSTNAME'], datastore['PROXIES'])
-    print_status()
+    ip_list  = []
+    response.get_html_document.css('p').text.split("\n").each do | ip |
+      ip_list.push(ip)
+    end
 
-    unless ip_list.eql? false
-      print_status('Bypass Cloudflare is in progress...')
+    return ip_list
+  end
 
-      # Initial HTTP request to the server (for <head> comparison).
-      print_status(' * Initial request to the original server for comparison')
-      response = do_simple_get_request_raw(
-        datastore['HOSTNAME'],
-        datastore['RPORT'],
-        datastore['SSL'],
-        nil,
-        datastore['URIPATH'],
-        datastore['PROXIES']
-      )
+  def do_check_bypass(fingerprint, tag, host, ip, uri, proxies)
+    ret_value = false
 
-      html     = response.get_html_document
-      head     = html.at('head')
+    # Check for "misconfigured" web server on TCP/80.
+    if do_check_tcp_port(ip, 80, proxies)
+      vprint_status(" * Trying: #{ip}:80")
+      response = do_simple_get_request_raw(ip, 80, false, host, uri, proxies)
+      if response != false
 
-      ret_val  = false
-      ip_list.each_with_index do | ip, index |
-        vprint_status(" * Trying: #{ip[index].to_s}")
+        if response.code.eql? 200
+          html = response.get_html_document
 
-        ret_val = do_check_bypass(
-          head,
-          datastore['HOSTNAME'],
-          ip[index].to_s,
-          datastore['URIPATH'],
-          datastore['PROXIES']
-        )
-        break if ret_val.eql? true
+          if html.at(tag).to_s.include? fingerprint.to_s
+            print_good("A direct-connect IP address was found: #{ip}")
+            do_save_note(host, ip, 'http')
+            ret_value = true
+          end
+        else
+          vprint_line("      --> responded with an unexpected HTTP status code: #{response.code.to_s}")
+        end
       end
     end
 
-    if ret_val.eql? false
-      print_bad('No direct-connect IP address found :-(')
+    # Check for "misconfigured" web server on TCP/443.
+    if do_check_tcp_port(ip, 443, proxies)
+      vprint_status(" * Trying: #{ip}:443")
+      response = do_simple_get_request_raw(ip, 443, true, host, uri, proxies)
+      if response != false
+
+        if response.code.eql? 200
+          if response != false
+            html = response.get_html_document
+            if html.at(tag).to_s.include? fingerprint.to_s
+              print_good("A direct-connect IP address was found: #{ip}")
+              do_save_note(host, ip, 'https')
+              ret_value = true
+            end
+          end
+        else
+          vprint_line("      --> responded with an unexpected HTTP status code: #{response.code.to_s}")
+        end
+      end
+    end
+
+    return ret_value
+  end
+
+  ## auxiliary/gather/censys_search.rb
+  def basic_auth_header(username, password)
+    auth_str = username.to_s + ":" + password.to_s
+    auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
+  end
+
+  ## auxiliary/gather/censys_search.rb
+  def search(keyword, search_type, uid, secret)
+    begin
+      payload  = {
+        'query' => keyword
+      }
+
+      cli      = Rex::Proto::Http::Client.new('www.censys.io', 443, {}, true)
+      cli.connect
+
+      response = cli.request_cgi(
+        'method'  => 'post',
+        'uri'     => "/api/v1/search/#{search_type}",
+        'headers' => {
+          'Authorization' => basic_auth_header(uid, secret)
+        },
+        'data'    => payload.to_json
+      )
+      results  = cli.send_recv(response)
+
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+      print_error("HTTP Connection Failed")
+    end
+
+    unless results
+      print_error('server_response_error')
+      return false
+    end
+
+    records = ActiveSupport::JSON.decode(results.body)
+    results = records['results']
+
+    return parse_ipv4(results)
+  end
+
+  ## auxiliary/gather/censys_search.rb
+  def parse_ipv4(records)
+    ip_list = []
+    records.each do | ipv4 |
+      ip_list.push(ipv4['ip'])
+    end
+    return ip_list
+  end
+
+  ## auxiliary/gather/censys_search.rb
+  def valid_domain?(domain)
+    domain =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/
+  end
+
+  def run
+    print_status('Passive gathering information...')
+
+    domain_name   = PublicSuffix.parse(datastore['HOSTNAME']).domain
+    ip_list       = []
+
+    # PrePost SEO
+    ip_records    = do_grab_domain_ip_history(domain_name, datastore['Proxies'])
+    ip_list      |= ip_records unless ip_records.eql? false
+    unless ip_records.eql? false
+      print_status(" * PrePost SEO: #{ip_records.count.to_s} IP address found(s).")
+    end
+
+    # DNS Enum.
+    ip_records   = do_dns_enumeration(domain_name, datastore['THREADS'])
+    ip_list     |= ip_records unless ip_records.eql? false
+    unless ip_records.eql? false
+      print_status(" * DNS Enumeration: #{ip_records.count.to_s} IP address found(s).")
+    end
+
+    # Censys search.
+    if [datastore['CENSYS_UID'], datastore['CENSYS_SECRET']].none?(&:nil?)
+      ip_records  = search(domain_name, 'ipv4', datastore['CENSYS_UID'], datastore['CENSYS_SECRET'])
+      ip_list    |= ip_records unless ip_records.eql? false
+      unless ip_records.eql? false
+        print_status(" * Censys IPv4: #{ip_records.count.to_s} IP address found(s).")
+        print_status()
+      end
+    end
+
+    unless ip_list.empty?
+
+      # Cleaning the results.
+      print_status("Clean cloudflare server(s)...")
+      ip_blacklist = get_cloudflare_ips
+      records      = []
+      ip_list.uniq.each do | ip |
+        is_listed = false
+
+        ip_blacklist.each do | ip_range |
+          if IPAddr.new(ip_range).include? ip.to_s
+            is_listed = true
+            break
+          end
+        end
+
+        unless is_listed.eql? true
+          records << ip.to_s
+        end
+      end
+
+      if records.empty?
+        print_bad(" * TOTAL: #{records.count.to_s} IP address found(s) after cleaning.")
+      else
+        print_good(" * TOTAL: #{records.count.to_s} IP address found(s) after cleaning.")
+        print_status()
+      end
+
+      # Processing bypass...
+      print_status('Bypass cloudflare is in progress...')
+
+      if datastore['COMPSTR'].nil?
+        tag         = 'title'
+
+        # Initial HTTP request to the server (for <title> comparison).
+        print_status(' * Initial request to the original server for comparison')
+        response    = do_simple_get_request_raw(
+          datastore['HOSTNAME'],
+          datastore['RPORT'],
+          datastore['SSL'],
+          nil,
+          datastore['URIPATH'],
+          datastore['PROXIES']
+        )
+        html        = response.get_html_document
+        fingerprint = html.at(tag).text
+        if fingerprint.eql? 'Attention Required! | Cloudflare'
+          tag         = 'html'
+          fingerprint = datastore['HOSTNAME']
+        end
+      else
+        tag         = 'html'
+        fingerprint = datastore['COMPSTR']
+      end
+
+      ret_val  = false
+      records.uniq.each do | ip |
+
+        found = do_check_bypass(
+          fingerprint,
+          tag,
+          datastore['HOSTNAME'],
+          ip,
+          datastore['URIPATH'],
+          datastore['PROXIES']
+        )
+        ret_val = true if found.eql? true
+      end
+
+      unless ret_val.eql? true
+        print_bad('No direct-connect IP address found :-(')
+      end
     end
   end
 

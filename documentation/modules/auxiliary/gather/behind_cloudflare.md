@@ -2,9 +2,7 @@
 This module can be useful if you need to test the security of your server and your
 website behind CloudFlare by discovering the real IP address.
 
-More precisely, it is an "hatcloud" implementation for metasploit-framework. With the
-difference that this module operates the verification itself because the Crimeflare databases
-does not seem up to date.
+More precisely, it is an simple "cloudflair" implementation for metasploit-framework.
 
 ## Verification Steps
 
@@ -40,7 +38,23 @@ does not seem up to date.
 
   A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
 
+  **THREADS**
+
+  Number of concurent threads needed for DNS enumeration. Default: 15
+
+  **WORDLIST**
+
+  Name list required for DNS enumeration. Default: ~/metasploit-framework/data/wordlists/namelist.txt
+
 ## Advanced options
+
+  **COMPSTR**
+
+  You can use a custom string to perform the comparison. Default: HOSTNAME if it's empty.
+
+  **NS**
+
+  Specify the nameserver to use for queries. Default: is system DNS
 
   **VERBOSE**
 
@@ -50,15 +64,32 @@ does not seem up to date.
 
 ### For auditing purpose
 
-  If successful, you must be able to obtain the IP address of the website as follows:
+  If successful, you must be able to obtain the IP(s) address of the website as follows:
 
   ```
-  [*] Previous lookups from Crimeflare...
-  [*]  * 2018-08-20 | XXX.XXX.XXX.XXX
+  msf auxiliary(gather/behind_cloudflare) > set verbose true
+  verbose => true
+  msf auxiliary(gather/behind_cloudflare) > run
+
+  [*] Passive gathering information...
+  [*]  * PrePost SEO: 3 IP address found(s).
+  [*]  * DNS Enumeration: 12 IP address found(s).
+  [*] Clean cloudflare server(s)...
+  [+]  * TOTAL: 13 IP address found(s) after cleaning.
   [*] 
-  [*] Bypass Cloudflare is in progress...
-  [*]  * Initial request to the original server for comparison
+  [*] Bypass cloudflare is in progress...
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
   [+] A direct-connect IP address was found: XXX.XXX.XXX.XXX
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
+        --> responded with an unexpected HTTP status code: 302
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+        --> responded with an unexpected HTTP status code: 301
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
+        --> responded with an unexpected HTTP status code: 404
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+        --> responded with an unexpected HTTP status code: 302
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
+        --> responded with an unexpected HTTP status code: 404
   [*] Auxiliary module execution completed
   ```
 
@@ -70,19 +101,17 @@ does not seem up to date.
   ```
   msf > use auxiliary/gather/behind_cloudflare
   msf auxiliary(gather/behind_cloudflare) > set HOSTNAME www.zataz.com
-  hostname => adopteunartiste.com
+  hostname => www.zataz.com
   msf auxiliary(gather/behind_cloudflare) > set URIPATH /contacter/
   uripath => /contacter/
+  msf auxiliary(gather/behind_cloudflare) > set compstr Contacter ZATAZ
+  compstr => Contacter ZATAZ
   msf auxiliary(gather/behind_cloudflare) > run
   ...
   ```
-
-## TOTO list
-
-  1. Add other data sources (enumeration DNS, censys, ...)
 
 ## References
 
   1. <http://www.crimeflare.us:82/cfs.html#box>
   2. <https://github.com/HatBashBR>
-
+  3. <https://github.com/christophetd/CloudFlair>
