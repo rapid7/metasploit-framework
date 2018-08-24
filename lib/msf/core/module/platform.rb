@@ -471,7 +471,13 @@ class Msf::Module::Platform
   class FreeBSD < Msf::Module::Platform
     Rank = 100
   end
-
+  #
+  #Empire
+  #
+  class Empire < Msf::Module::Platform
+    Rank = 100
+    Alias = 'empire'
+  end
   #
   # AIX
   #
