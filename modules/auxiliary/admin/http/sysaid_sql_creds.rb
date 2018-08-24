@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
     else
-      fail_with(Failure::NotVulnerable, "#{peer} - Failed to obtain database credentials, response was: #{res.code}")
+      fail_with(Failure::NotVulnerable, "#{peer} - Failed to obtain database credentials, response was: #{res ? res.code : 'unknown'}")
     end
   end
 
