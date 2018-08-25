@@ -76,15 +76,37 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
   ```
   [*] Passive gathering information...
   [*]  * PrePost SEO: 1 IP address found(s).
-  [*]  * DNS Enumeration: 12 IP address found(s).
+  [*]  * DNS Enumeration: 13 IP address found(s).
+  [*]  * Censys IPv4: 4 IP address found(s).
   [*] 
   [*] Clean binarysec/ingensec server(s)...
-  [+]  * TOTAL: 3 IP address found(s) after cleaning.
+  [+]  * TOTAL: 12 IP address found(s) after cleaning.
   [*] 
   [*] Bypass BinarySec/IngenSec is in progress...
   [*]  * Initial request to the original server for comparison
-  [*]  * Trying: XXX.XXX.XXX.XXX
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+        --> responded with an unexpected HTTP status code: 403
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
+        --> responded with an unexpected HTTP status code: 301
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+        --> responded with an unexpected HTTP status code: 404
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
+        --> responded with an unexpected HTTP status code: 404
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
+        --> responded with an unexpected HTTP status code: 404
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+        --> responded with an unexpected HTTP status code: 301
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+        --> responded with an unexpected HTTP status code: 301
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
   [+] A direct-connect IP address was found: XXX.XXX.XXX.XXX
+  [*]  * Trying: XXX.XXX.XXX.XXX:80
+  [*]  * Trying: XXX.XXX.XXX.XXX:443
   [*] Auxiliary module execution completed
   ```
 
@@ -133,10 +155,6 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
   [*] Time: 2018-08-23 12:27:35 UTC Note: host=XXX.XXX.XXX.XXX type=behind_ingensec data={"vhost"=>"www.xxxxxxx.com", "real_ip"=>"XXX.XXX.XXX.XXX", "sname"=>"http"}
   [*] Time: 2018-08-23 12:27:35 UTC Note: host=XXX.XXX.XXX.XXX type=behind_ingensec data={"vhost"=>"www.xxxxxxx.com", "real_ip"=>"XXX.XXX.XXX.XXX", "sname"=>"https"}
   ```
-
-## TOTO list
-
-  1. Add other data sources (censys, ...)
 
 ## References
 

@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind BinarySec/IngenSecurity',
-      'Version'        => '$Release: 1.0.4',
+      'Version'        => '$Release: 1.1',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
@@ -34,7 +34,9 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
         OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]']),
         OptInt.new('THREADS', [true, 'Threads for DNS enumeration', 15]),
-        OptPath.new('WORDLIST', [true, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
+        OptPath.new('WORDLIST', [true, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')]),
+        OptString.new('CENSYS_UID', [false, 'The Censys API UID']),
+        OptString.new('CENSYS_SECRET', [false, 'The Censys API SECRET'])
       ])
 
     register_advanced_options(
@@ -209,25 +211,27 @@ class MetasploitModule < Msf::Auxiliary
     return response
   end
 
-  def do_check_bypass(host, ip, uri, proxies)
+  def do_check_bypass(fingerprint, tag, host, ip, uri, proxies)
     ret_value = false
-
-    if datastore['COMPSTR'].blank?
-      fingerprint = host
-    end
 
     # Check for "misconfigured" web server on TCP/80.
     if do_check_tcp_port(ip, 80, proxies)
+      vprint_status(" * Trying: #{ip}:80")
       response = do_simple_get_request_raw(ip, 80, false, host, uri, proxies)
-
       if response != false
         unless response.headers.to_s.include? 'Server: gatejs'
           unless response.headers.to_s.include? 'binarysec'
-            html = response.get_html_document
-            if html.at('html').to_s.include? fingerprint
-              print_good("A direct-connect IP address was found: #{ip}:80")
-              do_save_note(host, ip, 'http')
-              ret_value = true
+
+            if response.code.eql? 200
+              html = response.get_html_document
+
+              if html.at(tag).to_s.include? fingerprint.to_s
+                print_good("A direct-connect IP address was found: #{ip}")
+                do_save_note(host, ip, 'http')
+                ret_value = true
+              end
+            else
+              vprint_line("      --> responded with an unexpected HTTP status code: #{response.code.to_s}")
             end
           end
         end
@@ -236,16 +240,23 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check for "misconfigured" web server on TCP/443.
     if do_check_tcp_port(ip, 443, proxies)
+      vprint_status(" * Trying: #{ip}:443")
       response = do_simple_get_request_raw(ip, 443, true, host, uri, proxies)
-
       if response != false
         unless response.headers.to_s.include? 'Server: gatejs'
           unless response.headers.to_s.include? 'binarysec'
-            html = response.get_html_document
-            if html.at('html').to_s.include? fingerprint
-              print_good("A direct-connect IP address was found: #{ip}:443")
-              do_save_note(host, ip, 'https')
-              ret_value = true
+
+            if response.code.eql? 200
+              if response != false
+                html = response.get_html_document
+                if html.at(tag).to_s.include? fingerprint.to_s
+                  print_good("A direct-connect IP address was found: #{ip}")
+                  do_save_note(host, ip, 'https')
+                  ret_value = true
+                end
+              end
+            else
+              vprint_line("      --> responded with an unexpected HTTP status code: #{response.code.to_s}")
             end
           end
         end
@@ -253,6 +264,61 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return ret_value
+  end
+
+  ## auxiliary/gather/censys_search.rb
+  def basic_auth_header(username, password)
+    auth_str = username.to_s + ":" + password.to_s
+    auth_str = "Basic " + Rex::Text.encode_base64(auth_str)
+  end
+
+  ## auxiliary/gather/censys_search.rb
+  def search(keyword, search_type, uid, secret)
+    begin
+      payload  = {
+        'query' => keyword
+      }
+
+      cli      = Rex::Proto::Http::Client.new('www.censys.io', 443, {}, true)
+      cli.connect
+
+      response = cli.request_cgi(
+        'method'  => 'post',
+        'uri'     => "/api/v1/search/#{search_type}",
+        'headers' => {
+          'Authorization' => basic_auth_header(uid, secret)
+        },
+        'data'    => payload.to_json
+      )
+      results  = cli.send_recv(response)
+
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+      print_error("HTTP Connection Failed")
+    end
+
+    unless results
+      print_error('server_response_error')
+      return false
+    end
+
+    records = ActiveSupport::JSON.decode(results.body)
+    results = records['results']
+
+    return parse_ipv4(results)
+  end
+
+  ## auxiliary/gather/censys_search.rb
+  def parse_ipv4(records)
+    ip_list = []
+    records.each do | ipv4 |
+      ip_list.push(ipv4['ip'])
+    end
+    return ip_list
+  end
+
+  ## auxiliary/gather/censys_search.rb
+  def valid_domain?(domain)
+    domain =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/
   end
 
   def run
@@ -273,7 +339,16 @@ class MetasploitModule < Msf::Auxiliary
     ip_list     |= ip_records unless ip_records.eql? false
     unless ip_records.eql? false
       print_status(" * DNS Enumeration: #{ip_records.count.to_s} IP address found(s).")
-      print_status()
+    end
+
+    # Censys search.
+    if [datastore['CENSYS_UID'], datastore['CENSYS_SECRET']].none?(&:nil?)
+      ip_records  = search(domain_name, 'ipv4', datastore['CENSYS_UID'], datastore['CENSYS_SECRET'])
+      ip_list    |= ip_records unless ip_records.eql? false
+      unless ip_records.eql? false
+        print_status(" * Censys IPv4: #{ip_records.count.to_s} IP address found(s).")
+        print_status()
+      end
     end
 
     unless ip_list.empty?
@@ -281,12 +356,14 @@ class MetasploitModule < Msf::Auxiliary
       # Cleaning the results.
       print_status("Clean binarysec/ingensec server(s)...")
       records      = []
-      ip_list.each do | ip |
+      ip_list.uniq.each do | ip |
         a = do_dns_get_a(ip.to_s)
         unless a.to_s.include? "binarysec"
-          unless a.to_s.include? "ingensec"
-            unless ip.to_s.eql? "127.0.0.1"
-              records |= ip.to_a
+          unless a.to_s.include? "easywaf"
+            unless ip.to_s.eql? "ingensec"
+              unless ip.to_s.eql? "127.0.0.1"
+                records << ip.to_s
+              end
             end
           end
         end
@@ -295,30 +372,51 @@ class MetasploitModule < Msf::Auxiliary
       if records.empty?
         print_bad(" * TOTAL: #{records.count.to_s} IP address found(s) after cleaning.")
       else
-        print_good(" * TOTAL: #{records.count.to_s} IP address found(s) after cleaning.")
+        print_good(" * TOTAL: #{records.uniq.count.to_s} IP address found(s) after cleaning.")
         print_status()
 
         # Processing bypass...
         print_status('Bypass BinarySec/IngenSec is in progress...')
 
-        ret_val  = false
-        records.each_with_index do | ip, index |
-          vprint_status(" * Trying: #{ip}")
+        if datastore['COMPSTR'].nil?
+          tag         = 'title'
 
-          ret_val = do_check_bypass(
+          # Initial HTTP request to the server (for <title> comparison).
+          print_status(' * Initial request to the original server for comparison')
+          response    = do_simple_get_request_raw(
+            datastore['HOSTNAME'],
+            datastore['RPORT'],
+            datastore['SSL'],
+            nil,
+            datastore['URIPATH'],
+            datastore['PROXIES']
+          )
+          html        = response.get_html_document
+          fingerprint = html.at(tag).text
+        else
+          tag         = 'html'
+          fingerprint = datastore['COMPSTR']
+        end
+
+        ret_val  = false
+        records.uniq.each do | ip |
+
+          found = do_check_bypass(
+            fingerprint,
+            tag,
             datastore['HOSTNAME'],
             ip,
             datastore['URIPATH'],
             datastore['PROXIES']
           )
-          break if ret_val.eql? true
+          ret_val = true if found.eql? true
         end
+      end
 
-        if ret_val.eql? false
-          print_bad('No direct-connect IP address found :-(')
-        end
-
+      unless ret_val.eql? true
+        print_bad('No direct-connect IP address found :-(')
       end
     end
   end
+
 end
