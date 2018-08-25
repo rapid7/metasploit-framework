@@ -31,12 +31,12 @@ module MetasploitModule
       [
 
       OptString.new(
-        'USERNAME',
+        'EmpireUser',
         [true,
         'Username for Empire Web-API'
         ]),
       OptString.new(
-        'PASSWORD',
+        'EmpirePass',
         [true,
         'Password for Empire Web-API'
         ]),
@@ -67,8 +67,8 @@ module MetasploitModule
     #
     #Storing data from user
     #
-    @empire_username = datastore['USERNAME'].to_s
-    @empire_password = datastore['PASSWORD'].to_s
+    @empire_username = datastore['EmpireUser'].to_s
+    @empire_password = datastore['EmpirePass'].to_s
     if @empire_username.empty?
       return ""
     end

