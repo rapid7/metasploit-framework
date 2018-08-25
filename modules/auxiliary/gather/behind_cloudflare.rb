@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind CloudFlare',
-      'Version'        => '$Release: 1.1',
+      'Version'        => '$Release: 1.1.2',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
@@ -386,49 +386,49 @@ class MetasploitModule < Msf::Auxiliary
       if records.empty?
         print_bad(" * TOTAL: #{records.count.to_s} IP address found(s) after cleaning.")
       else
-        print_good(" * TOTAL: #{records.count.to_s} IP address found(s) after cleaning.")
+        print_good(" * TOTAL: #{records.uniq.count.to_s} IP address found(s) after cleaning.")
         print_status()
-      end
 
-      # Processing bypass...
-      print_status('Bypass cloudflare is in progress...')
+        # Processing bypass...
+        print_status('Bypass cloudflare is in progress...')
 
-      if datastore['COMPSTR'].nil?
-        tag         = 'title'
+        if datastore['COMPSTR'].nil?
+          tag         = 'title'
 
-        # Initial HTTP request to the server (for <title> comparison).
-        print_status(' * Initial request to the original server for comparison')
-        response    = do_simple_get_request_raw(
-          datastore['HOSTNAME'],
-          datastore['RPORT'],
-          datastore['SSL'],
-          nil,
-          datastore['URIPATH'],
-          datastore['PROXIES']
-        )
-        html        = response.get_html_document
-        fingerprint = html.at(tag).text
-        if fingerprint.eql? 'Attention Required! | Cloudflare'
+          # Initial HTTP request to the server (for <title> comparison).
+          print_status(' * Initial request to the original server for comparison')
+          response    = do_simple_get_request_raw(
+            datastore['HOSTNAME'],
+            datastore['RPORT'],
+            datastore['SSL'],
+            nil,
+            datastore['URIPATH'],
+            datastore['PROXIES']
+          )
+          html        = response.get_html_document
+          fingerprint = html.at(tag).text
+          if fingerprint.eql? 'Attention Required! | Cloudflare'
+            tag         = 'html'
+            fingerprint = datastore['HOSTNAME']
+          end
+        else
           tag         = 'html'
-          fingerprint = datastore['HOSTNAME']
+          fingerprint = datastore['COMPSTR']
         end
-      else
-        tag         = 'html'
-        fingerprint = datastore['COMPSTR']
-      end
 
-      ret_val  = false
-      records.uniq.each do | ip |
+        ret_val  = false
+        records.uniq.each do | ip |
 
-        found = do_check_bypass(
-          fingerprint,
-          tag,
-          datastore['HOSTNAME'],
-          ip,
-          datastore['URIPATH'],
-          datastore['PROXIES']
-        )
-        ret_val = true if found.eql? true
+          found = do_check_bypass(
+            fingerprint,
+            tag,
+            datastore['HOSTNAME'],
+            ip,
+            datastore['URIPATH'],
+            datastore['PROXIES']
+          )
+          ret_val = true if found.eql? true
+        end
       end
 
       unless ret_val.eql? true
