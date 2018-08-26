@@ -106,6 +106,6 @@ module Msf::Payload::EmpireSingle
     #Generating payload
     #check the persistence of objects through out the method
     #
-    return stagerGenerator(client_emp)
+    return stager_generaor(client_emp)
   end
 end

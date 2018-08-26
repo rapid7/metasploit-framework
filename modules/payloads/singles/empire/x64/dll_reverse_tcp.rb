@@ -21,7 +21,7 @@ module MetasploitModule
       )])
   end
 
-  def stagerGenerator(empireClient)
+  def stager_generator(empireClient)
     @stagerCode = empireClient.generate_dll(@listener_name, 'x64', @path)
     return @stagerCode
   end
