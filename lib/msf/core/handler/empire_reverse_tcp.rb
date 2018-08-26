@@ -68,8 +68,8 @@ module Msf
             end
           end
           #Storing user inputs
-          @empire_username = datastore['USERNAME']
-          @empire_password = datastore['PASSWORD']
+          @empire_username = datastore['EmpireUser']
+          @empire_password = datastore['EmpirePass']
           @listener_name = datastore['ListenerName']
           #
           #Validate environment to check if Empire is running at 1337
