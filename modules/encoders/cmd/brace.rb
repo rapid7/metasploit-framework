@@ -5,20 +5,20 @@
 
 class MetasploitModule < Msf::Encoder
 
-  # This may produce incorrect code, such as in quoted strings
+  # This may produce incorrect code due to minimal escaping
   Rank = LowRanking
 
   def initialize
     super(
-      'Name'        => 'Bourne ${IFS} Substitution Command Encoder',
+      'Name'        => 'Bash Brace Expansion Command Encoder',
       'Description' => %q{
-        This encoder uses Bourne ${IFS} substitution to avoid whitespace
-        without being overly fancy.
+        This encoder uses brace expansion in Bash and other shells
+        to avoid whitespace without being overly fancy.
       },
-      'Author'      => ['egypt', 'wvu'],
+      'Author'      => ['wvu', 'egypt'],
       'Platform'    => 'unix',
       'Arch'        => ARCH_CMD,
-      'EncoderType' => Msf::Encoder::Type::CmdUnixIFS
+      'EncoderType' => Msf::Encoder::Type::CmdUnixBrace
     )
   end
 
@@ -26,8 +26,8 @@ class MetasploitModule < Msf::Encoder
     # Skip encoding if there are no badchars
     return buf if state.badchars !~ /\s/
 
-    # Perform ${IFS} encoding
-    buf.gsub(/\s+/, '${IFS}')
+    # Perform brace expansion encoding
+    "{#{buf.gsub(',', '\\,').gsub(/\s+/, ',')}}"
   end
 
 end
