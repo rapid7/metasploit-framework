@@ -19,7 +19,7 @@ class EmpireShell < Msf::Sessions::CommandShell
   attr_accessor :max_threads
   attr_accessor :platform
   attr_accessor :arch
-  attr_accessor :alive
+  attr_accessor :alive # :nodoc:
 
   def desc
     "Empire Shell #{self.platform}"
@@ -31,14 +31,6 @@ class EmpireShell < Msf::Sessions::CommandShell
 
   def self.type
     "Empire"
-  end
-
-  def framework
-
-  end
-
-  def sid
-
   end
 
   def name
@@ -59,7 +51,40 @@ class EmpireShell < Msf::Sessions::CommandShell
     return self.alive
   end
 
+  def alive?
+    self.alive
+  end
 
+  def shell_init
+    return true
+  end
+
+  ##
+  # :category> Msf::Sessions::Interactive implemetors
+  # Initializes the console's I/O handles.
+  #
+  def init_ui(input, output)
+    self.user_input = input
+    self.user_output = output
+    console.init_ui(input, output)
+    console.set_log_source(log_source)
+
+    super
+  end
+
+  #Resets the console's I/O handles
+  def reset_ui
+    console.unset_log_source
+    console.reset_ui
+  end
+
+  #Interacts with the empire agent at a user interface level
+  def _interact
+    framework.events.on_session_interact(self)
+    console.interact { self.interacting != true }
+
+    raise EOFError if (console.stopped? == true)
+  end
   #list of available commands
   def commands
     {
@@ -147,17 +172,17 @@ class EmpireShell < Msf::Sessions::CommandShell
   def cmd_shell(*args)
     if args.length = 1
       command = args[0]
-      print_line(@client_emp.exec_command(@agent_name, command))
+      puts @client_emp.exec_command(@agent_name, command)
     elsif args.length > 1
       command = args.join(" ")
-      print_line(@client_emp.exec_command(@agent_name, command))
+      puts @client_emp.exec_command(@agent_name, command)
     elsif args.length.zero? || args[0] == '-h' or args[0] == 'help'
       return get_help("shell <shell_command>","shell start notepad.exe","Runs a shell command in target host and stores the result in Empire Database. Please wait few moments before fetching the results, for results to be properly populated")
     end
   end
 
   #Defining results command
-  def cmd_results(*args)
+  def results(*args)
     if args.length.zero? || args[0] == '-h' or args[0] == 'help'
       return get_help("results <taskID_of_the_action>","results 9","Fetch the respective results of a task from the Empire Database")
     else
@@ -167,7 +192,7 @@ class EmpireShell < Msf::Sessions::CommandShell
   end
 
   #Defining the credentials command
-  def cmd_credentials
+  def credentials
     @client_emp.get_creds
   end
 
