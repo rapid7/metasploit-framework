@@ -836,7 +836,9 @@ class ReadableText
         end
 
         persist_list.each do |e|
-          row[7] = 'true' if e['mod_options']['Options'] == framework.jobs[job_id.to_s].ctx[1].datastore
+          if framework.jobs[job_id.to_s].ctx[1]
+             row[7] = 'true' if e['mod_options']['Options'] == framework.jobs[job_id.to_s].ctx[1].datastore
+          end
         end
 
       end
