@@ -109,21 +109,3 @@ module Msf::Payload::EmpireSingle
     return stagerGenerator(client_emp)
   end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
