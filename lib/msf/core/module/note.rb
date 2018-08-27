@@ -22,7 +22,7 @@ class Msf::Module::Notes
   end
 
   def self.transform(src)
-    Rex::Transformer.transform(src, Array, [ Hash ], 'Notes')
+    Rex::Transformer.transform(src, Array, [ Hash ], 'Notes').first
   end
 
   #

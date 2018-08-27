@@ -78,6 +78,7 @@ class Msf::Modules::External::Shim
     meta[:targets]     = mod.meta['targets'].map do |t|
       "[#{t['platform'].dump} + ' ' + #{t['arch'].dump}, {'Arch' => ARCH_#{t['arch'].upcase}, 'Platform' => #{t['platform'].dump} }]"
     end.join(",\n          ")
+    meta[:notes] = transform_notes(mod.meta['notes'])
     meta
   end
 
@@ -105,7 +106,7 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
-
+    meta[:notes] = transform_notes(mod.meta['notes'])
     render_template('single_scanner.erb', meta)
   end
 
@@ -115,6 +116,7 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
+    meta[:notes] = transform_notes(mod.meta['notes'])
 
     render_template('single_host_login_scanner.erb', meta)
   end
@@ -125,6 +127,7 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
+    meta[:notes] = transform_notes(mod.meta['notes'])
 
     render_template('multi_scanner.erb', meta)
   end
@@ -135,7 +138,26 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
+    meta[:notes] = transform_notes(mod.meta['notes'])
 
     render_template('dos.erb', meta)
   end
+
+  #
+  # In case certain notes like AKA and NOCVE are not properly capitalized in the external module definition,
+  # ensure that they are properly capitalized before rendering.
+  #
+  def self.transform_notes(notes)
+    upcase_keys = %w[aka nocve]
+    formatted_notes = {}
+    notes.each do |k, v|
+      if upcase_keys.include? k.downcase
+        formatted_notes[k.upcase] = v
+      else
+        formatted_notes[k] = v
+      end
+    end
+    formatted_notes
+  end
+
 end
