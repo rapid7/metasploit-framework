@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'DefaultAction'  => 'Service',
       'References' => [
-        [ 'AKA', 'Shellshock' ],
         [ 'CVE', '2014-6271' ],
         [ 'CWE', '94' ],
         [ 'OSVDB', '112004' ],
@@ -44,7 +43,11 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://seclists.org/oss-sec/2014/q3/649' ],
         [ 'URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014'
+      'DisclosureDate' => 'Sep 24 2014',
+      'Notes' =>
+          {
+              'AKA' => ['Shellshock']
+          }
     )
 
     register_options(
