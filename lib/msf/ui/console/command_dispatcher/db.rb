@@ -1764,6 +1764,7 @@ class Db
           opts[:url] = arg
         else
           cmd_db_connect_help
+          return
         end
       end
     end
@@ -1862,6 +1863,7 @@ class Db
     print_line("   OPTIONS:")
     print_line("       -d,--default           Set this data service as the default connection.")
     print_line("       -c,--clear-default     Clear the currently set default data service.")
+    print_line("       --delete               Delete the specified data service.")
   end
 
   def cmd_db_save(*args)
@@ -1873,9 +1875,10 @@ class Db
         when '-d', '--default'
           default = true
         when '-c','--clear-default'
-          Msf::Config.save(DB_CONFIG_PATH => { })
-          print_line "Cleared the default database."
+          clear_default_db
           return
+        when '--delete'
+          mode = :delete
         else
           name = arg
       end
@@ -1886,9 +1889,17 @@ class Db
       return
     end
 
-    save_db_to_config(framework.db, name)
+    if mode && mode == :delete
+      conf = Msf::Config.load
+      clear_default_db if conf[DB_CONFIG_PATH]['default_db'] && conf[DB_CONFIG_PATH]['default_db'] == name
+      Msf::Config.delete_group("#{DB_CONFIG_PATH}/#{name}")
+      print_line "Successfully deleted data service: #{name}"
+    else
+      save_db_to_config(framework.db, name)
 
-    Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => name }) if default
+      Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => name }) if default
+      print_line "Successfully saved data service: #{name}"
+    end
   end
 
   def save_db_to_config(database, database_name)
@@ -1919,6 +1930,14 @@ class Db
       config_opts['url'] = url
       Msf::Config.save(config_path => config_opts)
     end
+  end
+
+  def clear_default_db
+    conf = Msf::Config.load
+    updated_opts = conf[DB_CONFIG_PATH]
+    updated_opts.delete('default_db')
+    Msf::Config.save(DB_CONFIG_PATH => updated_opts)
+    print_line "Cleared the default database."
   end
 
   def db_find_tools(tools)
