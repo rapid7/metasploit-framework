@@ -24,7 +24,7 @@ class Msf::Module::Reference
   end
 
   #
-  # Compares references to see if their equal.
+  # Compares references to see if they're equal.
   #
   def ==(tgt)
     return (tgt.to_s == to_s)

@@ -27,6 +27,7 @@ class Module
   autoload :ModuleInfo, 'msf/core/module/module_info'
   autoload :ModuleStore, 'msf/core/module/module_store'
   autoload :Network, 'msf/core/module/network'
+  autoload :Notes, 'msf/core/module/note'
   autoload :Options, 'msf/core/module/options'
   autoload :Platform, 'msf/core/module/platform'
   autoload :PlatformList, 'msf/core/module/platform_list'
@@ -121,6 +122,7 @@ class Module
     self.arch = Rex::Transformer.transform(module_info['Arch'], Array, [ String ], 'Arch')
     self.platform = PlatformList.transform(module_info['Platform'])
     self.references = Rex::Transformer.transform(module_info['References'], Array, [ SiteReference, Reference ], 'Ref')
+    self.notes = Notes.transform(module_info['Notes'])
 
     # Create and initialize the option container for this module
     self.options = Msf::OptionContainer.new
@@ -366,6 +368,11 @@ class Module
   attr_reader   :references
 
   #
+  # The notes for the module
+  #
+  attr_reader :notes
+
+  #
   # The license under which this module is provided.
   #
   attr_reader   :license
@@ -408,7 +415,7 @@ class Module
     self.module_store = {}
   end
 
-  attr_writer   :platform, :references # :nodoc:
+  attr_writer   :platform, :references, :notes # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
 
