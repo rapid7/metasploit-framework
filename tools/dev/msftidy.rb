@@ -179,15 +179,15 @@ class Msftidy
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
         when 'URL' || 'AKA'
-          if value =~ /^http:\/\/cvedetails\.com\/cve/
+          if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.securityfocus\.com\/bid\//
+          elsif value =~ /^https?:\/\/www\.securityfocus\.com\/bid\//
             warn("Please use 'BID' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
+          elsif value =~ /^https?:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
             warn("Please use 'MSB' for '#{value}'")
           elsif value =~ /^https?:\/\/www\.exploit\-db\.com\/exploits\//
             warn("Please use 'EDB' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
+          elsif value =~ /^https?:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
           elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
