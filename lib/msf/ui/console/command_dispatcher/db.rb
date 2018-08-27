@@ -2106,17 +2106,25 @@ class Db
   def list_saved_data_services
     conf = Msf::Config.load
     default = nil
+    tbl = Rex::Text::Table.new({
+                                   'Header'    => 'Data Services',
+                                   'Columns'   => ['name', 'url', 'default?']
+                               })
+
     conf.each_pair do |k,v|
       if k =~ /#{DB_CONFIG_PATH}/
         default = v['default_db'] if v['default_db']
         name = k.split('/').last
         next if name == 'database' # Data service information is not stored in 'framework/database', just metadata
         url = v['url']
-        line = "#{name} - #{url}"
-        line += " (default)" if name == default
-        print_line line
+        default_output = ''
+        default_output = '*' if name == default
+        line = [name, url, default_output]
+        tbl << line
       end
     end
+    print_line
+    print_line tbl.to_s
   end
 
   def print_msgs(status_msg, error_msg)
