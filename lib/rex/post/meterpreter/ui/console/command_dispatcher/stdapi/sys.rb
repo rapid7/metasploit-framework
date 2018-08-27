@@ -45,7 +45,9 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   @@shell_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help menu."						   ],
-    "-b" => [ false, "NX Bash PTY"						   ])
+    "-b" => [ false, "NX Bash Shell."						   ],
+    "-l" => [ false, "NX List Available Shells."                                   ],
+    "-s" => [ true,  "NX Alternative Shell (E.g. /bin/zsh)."                       ])
 
   #
   # Options used by the 'shutdown' command.
@@ -253,7 +255,8 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Drop into a system shell as specified by %COMSPEC% or
   # as appropriate for the host.
   def cmd_shell(*args)
-    bash = false
+    use_alt = false
+    alt_path = ""
 
     @@shell_opts.parse(args) { |opt, idx, val|
       case opt
@@ -264,7 +267,27 @@ class Console::CommandDispatcher::Stdapi::Sys
             @@shell_opts.usage)
           return true
         when "-b"
-          bash = true
+          use_alt = true
+          alt_path = "/bin/bash"
+        when "-s"
+          use_alt = true
+          alt_path = val
+          if (alt_path == "")
+            print_error("You must specify a shell path with -s")
+            return true
+          end
+        when "-l"
+          if client.fs.file.exist?('/etc/shells')
+            fd = client.fs.file.new("/etc/shells", "rb")
+            begin
+              until fd.eof?
+                print(fd.read)
+              end
+            rescue EOFError
+            end
+            fd.close
+          end
+          return true
       end
     }
 
@@ -283,8 +306,8 @@ class Console::CommandDispatcher::Stdapi::Sys
       end
     when 'linux', 'osx'
       # Don't expand_path() this because it's literal anyway
-      if bash
-        return true if bash_shell
+      if use_alt
+        return true if alt_shell(alt_path)
       end
       path = "/bin/sh"
       cmd_execute("-f", path, "-c", "-i")
@@ -294,18 +317,18 @@ class Console::CommandDispatcher::Stdapi::Sys
       path = client.fs.file.expand_path("%COMSPEC%")
       # If that failed for whatever reason, guess it's unix
       path = (path and not path.empty?) ? path : "/bin/sh"
-      if bash && path == "/bin/sh"
-        return true if bash_shell
+      if use_alt && path == "/bin/sh"
+        return true if alt_shell(alt_path)
       end
       cmd_execute("-f", path, "-c", "-i")
     end
   end
 
   #
-  # Spawn a bash shell
+  # Spawn an alternative shell
   #
-  def bash_shell
-    sh_path = client.fs.file.exist?('/bin/bash') ? '/bin/bash' : '/bin/sh'
+  def alt_shell(sh_path)
+    sh_path = client.fs.file.exist?(sh_path) ? sh_path : '/bin/sh'
 
     if client.session_type =~ /python/
       cmd_execute('-if', sh_path)
@@ -318,11 +341,13 @@ class Console::CommandDispatcher::Stdapi::Sys
     path = '/usr/bin/python'  if client.fs.file.exist?('/usr/bin/python') && !path
     path = '/usr/bin/python2' if client.fs.file.exist?('/usr/bin/python2') && !path
     path = '/usr/bin/python3' if client.fs.file.exist?('/usr/bin/python3') && !path
+    path = '/usr/bin/expect'  if client.fs.file.exist?('/usr/bin/expect') && !path
     return false unless path
 
     cmd = "export TERM=xterm; #{path} - exec:'#{sh_path} -li',pty,stderr,setsid,sigint,sane" if path =~ /socat/
-    cmd = "export TERM=xterm; #{path} -qc #{sh_path} /dev/null" if path =~ /script/
+    cmd = "export TERM=xterm; #{path} -qc #{sh_path} /dev/null || #{path} -q /dev/null #{sh_path}" if path =~ /script/
     cmd = "export TERM=xterm; #{path} -c \'import pty;pty.spawn(\"#{sh_path}\")\'" if path =~ /python/
+    cmd = "export TERM=xterm; #{path} -c 'spawn #{sh_path}; interact'" if path =~ /expect/
     cmd_execute('-if', cmd)
 
     true
