@@ -28,7 +28,7 @@ module MetasploitModule
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'netcat',
+      'RequiredCmd'   => 'toybox',
       'Payload'       =>
         {
           'Offsets' => { },
