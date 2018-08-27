@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          '_devalias - Sparty tool',
+          'Aditya K Sood @adityaksood - Sparty tool',
           'averagesecurityguy - Metasploit module'
         ],
       'License'        => MSF_LICENSE,
