@@ -185,7 +185,7 @@ class Msftidy
             warn("Please use 'BID' for '#{value}'")
           elsif value =~ /^http:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
             warn("Please use 'MSB' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.exploit\-db\.com\/exploits\//
+          elsif value =~ /^https?:\/\/www\.exploit\-db\.com\/exploits\//
             warn("Please use 'EDB' for '#{value}'")
           elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
