@@ -1913,7 +1913,7 @@ class Db
           config_opts['skip_verify'] = true if database.https_opts[:skip_verify]
         end
         if database.api_token
-          config_opts['token'] = database.api_token
+          config_opts['api_token'] = database.api_token
         end
         Msf::Config.save(config_path => config_opts)
       rescue => e
