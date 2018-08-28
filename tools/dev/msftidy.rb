@@ -745,7 +745,7 @@ if __FILE__ == $PROGRAM_NAME
       Find.find(dir) do |full_filepath|
         next if full_filepath =~ /\.git[\x5c\x2f]/
         next unless File.file? full_filepath
-        next unless full_filepath =~ /\.rb$/
+        next unless File.extname(full_filepath) == '.rb'
         # Executable files are now assumed to be external modules
         next if File.executable?(full_filepath)
         msftidy = Msftidy.new(full_filepath)
