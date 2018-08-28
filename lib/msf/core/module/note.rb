@@ -1,72 +1,86 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
-###
-#
-# A note containing extra information pertaining to the module.
-#
-###
-class Msf::Module::Notes
+module Msf
 
-  def initialize(opts)
-    opts = {} unless opts
+  ###
+  #
+  # Some modules require an extra annotation to provide extra information useful when searching or referencing.
+  # The NotesContainer holds various Note objects that might pertain to an alias name (AKA), an explanation as
+  # to why a module lacks a CVE (NOCVE), or other data.
+  #
+  ###
 
-    if opts['AKA']
-      self.aka = Msf::Module::Aka.new(opts['AKA'])
+  class NoteContainer < Hash
+
+    def initialize(opts = {})
+
+      opts.each do |note_type, note|
+        case note_type
+        when 'AKA'
+          self.aka = Module::Aka.new(note)
+        when 'NOCVE'
+          self.nocve = Module::NoCve.new(note)
+        end
+      end
+
     end
 
-    if opts['NOCVE']
-      self.nocve = Msf::Module::NoCve.new(opts['NOCVE'])
+    def transform
+      attrs = {}
+      self.instance_variables.each do | a |
+        attr = instance_variable_get(a)
+        if attr.is_a?(Module::Note)
+          attrs[attr.type] = attr.value
+        end
+      end
+      Rex::Transformer.transform(attrs, Array, [ Hash ], 'Notes').first
+    end
+
+    #
+    # Alias names (also-known-as) for the module
+    #
+    attr_reader :aka
+
+    #
+    # A description explaining why a module lacks a CVE, if applicable
+    #
+    attr_reader :nocve
+
+  protected
+
+    attr_writer :aka, :nocve
+
+  end
+
+
+
+  class Module::Note
+
+    def initialize(type, value)
+      @type = type
+      @value = value
+    end
+
+    attr_reader :type, :value
+
+  end
+
+
+  class Module::Aka < Module::Note
+
+    def initialize(value)
+      super('AKA', value)
     end
 
   end
 
-  def self.transform(src)
-    Rex::Transformer.transform(src, Array, [ Hash ], 'Notes').first
-  end
 
-  #
-  # Alias names (also-known-as) for the module
-  #
-  attr_reader :aka
+  class Module::NoCve < Module::Note
 
-  #
-  # A description explaining why a module lacks a CVE, if applicable
-  #
-  attr_reader :nocve
+    def initialize(value)
+      super('NOCVE', value)
+    end
 
-protected
-
-  attr_writer :aka, :nocve
-
-end
-
-
-class Msf::Module::GenericNote
-
-  def initialize(type, value)
-    @type = type
-    @value = value
-  end
-
-  attr_reader :type, :value
-
-end
-
-
-class Msf::Module::Aka < Msf::Module::GenericNote
-
-  def initialize(value)
-    super('AKA', value)
-  end
-
-end
-
-
-class Msf::Module::NoCve < Msf::Module::GenericNote
-
-  def initialize(value)
-    super('NOCVE', value)
   end
 
 end

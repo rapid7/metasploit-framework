@@ -94,7 +94,7 @@ class Obj
     # Store whether a module has a check method
     @check = module_instance.respond_to?(:check) ? true : false
 
-    @notes = module_instance.notes
+    @notes = module_instance.notes.transform
 
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(Encoding::UTF_8)
@@ -175,7 +175,7 @@ class Obj
     @check              = obj_hash['check'] ? true : false
     @post_auth          = obj_hash['post_auth']
     @default_credential = obj_hash['default_credential']
-    @notes              = obj_hash['notes'].nil? ? [] : obj_hash['notes']
+    @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
   end
 
   def sort_platform_string

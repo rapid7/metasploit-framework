@@ -4,6 +4,7 @@ require 'msf/core'
 module Msf
 
   autoload :OptionContainer, 'msf/core/option_container'
+  autoload :NoteContainer, 'msf/core/module/note'
 
 ###
 #
@@ -27,7 +28,6 @@ class Module
   autoload :ModuleInfo, 'msf/core/module/module_info'
   autoload :ModuleStore, 'msf/core/module/module_store'
   autoload :Network, 'msf/core/module/network'
-  autoload :Notes, 'msf/core/module/note'
   autoload :Options, 'msf/core/module/options'
   autoload :Platform, 'msf/core/module/platform'
   autoload :PlatformList, 'msf/core/module/platform_list'
@@ -122,7 +122,9 @@ class Module
     self.arch = Rex::Transformer.transform(module_info['Arch'], Array, [ String ], 'Arch')
     self.platform = PlatformList.transform(module_info['Platform'])
     self.references = Rex::Transformer.transform(module_info['References'], Array, [ SiteReference, Reference ], 'Ref')
-    self.notes = Notes.transform(module_info['Notes'])
+
+    # Create and initialize the notes container for this module
+    self.notes = Msf::NoteContainer.new(module_info['Notes'])
 
     # Create and initialize the option container for this module
     self.options = Msf::OptionContainer.new
