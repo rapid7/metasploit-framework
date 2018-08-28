@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'Aditya K Sood @adityaksood', # Sparty tool',
+          'Aditya K Sood @adityaksood', # Sparty tool'
           'Stephen Haywood @averagesecguy' # Metasploit module'
         ],
       'License'        => MSF_LICENSE,
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("Found #{uri}.")
 
-    unless res.body.lines.first.chomp == '# -FrontPage-"
+    unless res.body.lines.first.chomp == '# -FrontPage-'
       vprint_status("File does not contain FrontPage credentials.")
       vprint_status(res.body)
       return nil
