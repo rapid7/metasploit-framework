@@ -25,7 +25,6 @@ information on the data models and various endpoints by connecting to the follow
 http://\<interface\>:\<port\>/api/v1/api-docs
 
 ## Utilizing the Data Service in msfconsole
-The `db_connect` command can be used to connect to the remote data service, or a Postgres database, to enable data storage.
 
 ### Connecting
 You can use the `db_connect` command to connect to the desired data service. Please note that you can only be connected to one data service at a time. The `db_disconnect` command will need to be used before switching to a new data service. You can use `db_status` to see information about the currently connected data service.
