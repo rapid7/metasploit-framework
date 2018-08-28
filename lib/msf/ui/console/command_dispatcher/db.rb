@@ -1719,9 +1719,11 @@ class Db
     print_line("       db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
     print_line(" ")
     print_line("   OPTIONS:")
-    print_line("       -c,--cert        Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
-    print_line("       -t,--token       The API token used to authenticate to the remote data service.")
-    print_line("       --skip-verify    Skip validating authenticity of server's certificate. NOT RECOMMENDED.")
+    print_line("       -l,--list-services List the available data services that have been previously saved.")
+    print_line("       -n,--name          Connect to a previously saved data service by specifying the name.")
+    print_line("       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
+    print_line("       -t,--token         The API token used to authenticate to the remote data service.")
+    print_line("       --skip-verify      Skip validating authenticity of server's certificate. NOT RECOMMENDED.")
   end
 
   def cmd_db_connect(*args)
