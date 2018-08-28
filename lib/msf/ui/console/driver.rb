@@ -224,17 +224,7 @@ class Driver < Msf::Ui::Driver
           default_db_config_path = "#{DbConfigGroup}/#{v}"
           default_db = conf[default_db_config_path]
           if default_db
-            connect_string = "db_connect"
-            if default_db['cert']
-              connect_string += " -c #{default_db['cert']}"
-              if default_db['skip_verify']
-                connect_string += " --skip-verify"
-              end
-            end
-            if default_db['api_token']
-              connect_string += " -t #{default_db['api_token']}"
-            end
-            connect_string += " #{default_db['url']}"
+            connect_string = "db_connect -n #{v}"
 
             if framework.db.active && default_db['url'] !~ /http/
               ilog "Existing local data connection found. Disconnecting first."
