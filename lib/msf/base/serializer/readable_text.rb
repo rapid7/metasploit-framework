@@ -214,6 +214,9 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
+    # AKA
+    output << dump_aka(mod, indent)
+
     return output
 
   end
@@ -263,6 +266,9 @@ class ReadableText
 
     # References
     output << dump_references(mod, indent)
+
+    # AKA
+    output << dump_aka(mod, indent)
 
     return output
   end
@@ -318,6 +324,9 @@ class ReadableText
 
     # References
     output << dump_references(mod, indent)
+
+    # AKA
+    output << dump_aka(mod, indent)
 
     return output
   end
@@ -527,6 +536,27 @@ class ReadableText
         else
           output << indent + ref.to_s + "\n"
         end
+      end
+
+      output << "\n"
+    end
+
+    output
+  end
+
+  # Dumps the aka/alias names associated with the supplied module.
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use.
+  # @return [String] the string form of the information.
+  def self.dump_aka(mod, indent = '')
+    output = ''
+
+    if mod.respond_to?(:notes) && mod.notes.aka && mod.notes.aka.value.length > 0
+      output << "AKA:\n"
+
+      mod.notes.aka.value.each do |aka_name|
+        output << indent + aka_name + "\n"
       end
 
       output << "\n"
