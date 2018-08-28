@@ -326,6 +326,7 @@ module Msf
             print_line
             print_line "Keywords:"
             {
+              'aka'         => 'Modules with a matching alias (also-known-as) name',
               'app'         => 'Modules that are client or server attacks',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
