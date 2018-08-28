@@ -43,9 +43,9 @@ You can use the `db_connect` command to connect to the desired data service. Ple
   * `db_connect -l` - List the data services that have been saved using the `db_save` command.
   * `db_connect -n LA_server` - Connect to the data service named "LA_server" that has been previously saved using `db_save`.
 * URL Formats
- * HTTP - `http://<host>:<port>`
- * HTTPS - `https://<host>:<port>`
- * Postgres - `<user>:<password>@<host>:<port>/<database name>`
+  * HTTP - `http://<host>:<port>`
+  * HTTPS - `https://<host>:<port>`
+  * Postgres - `<user>:<password>@<host>:<port>/<database name>`
 
 
 ### Saving the Connection
@@ -66,4 +66,5 @@ The currently connected data service can be saved for later use using the `db_sa
 There are a few pieces of information to keep in mind when using data services with Metasploit Framework.
 * A Postgres database connection is required before connecting to a remote data service.
 * The configuration from the `database.yml` will still be honored for the foreseeable future, but a saved default data service will take priority when it is present.
+* The saved data services are stored in the Metasploit config file, which is located at `~/.msf4/config` by default.
 
