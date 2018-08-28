@@ -28,7 +28,7 @@ metadata = {
     'references': [
         {'type': 'cve', 'ref': '2007-6750'},
         {'type': 'cve', 'ref': '2010-2227'},
-        {'type': 'url', 'ref': 'https://www.exploit-db.com/exploits/8976/'},
+        {'type': 'edb', 'ref': '8976'},
         {'type': 'url', 'ref': 'https://github.com/gkbrk/slowloris'}
      ],
     'type': 'dos',
