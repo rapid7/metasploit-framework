@@ -1830,16 +1830,18 @@ class Db
       return
     end
 
+    db_name = framework.db.name
+
     if framework.db.driver == 'http'
       begin
         framework.db.delete_current_data_service
-        print_line "Successfully disconnected from the data service."
       rescue => e
         print_error "Unable to disconnect from the remote data service: #{e.message}"
       end
     else
       framework.db.disconnect
     end
+    print_line "Successfully disconnected from the data service: #{db_name}."
   end
 
   def cmd_db_rebuild_cache
@@ -2008,8 +2010,10 @@ class Db
       opts['host'] = '127.0.0.1'
     end
 
-    if (not framework.db.connect(opts))
-      raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
+    if framework.db.connect(opts)
+      print_line "Connected to Postgres data service: #{info[:host]}/#{info[:name]}"
+    else
+      raise RuntimeError.new("Failed to connect to the data service: #{framework.db.error}")
     end
   end
 
