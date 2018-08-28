@@ -1936,10 +1936,14 @@ class Db
 
   def clear_default_db
     conf = Msf::Config.load
-    updated_opts = conf[DB_CONFIG_PATH]
-    updated_opts.delete('default_db')
-    Msf::Config.save(DB_CONFIG_PATH => updated_opts)
-    print_line "Cleared the default database."
+    if conf[DB_CONFIG_PATH] && conf[DB_CONFIG_PATH]['default_db']
+      updated_opts = conf[DB_CONFIG_PATH]
+      updated_opts.delete('default_db')
+      Msf::Config.save(DB_CONFIG_PATH => updated_opts)
+      print_line "Cleared the default database."
+    else
+      print_line "No default database was configured."
+    end
   end
 
   def db_find_tools(tools)
