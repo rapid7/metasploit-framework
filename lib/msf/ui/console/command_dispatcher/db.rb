@@ -1785,8 +1785,10 @@ class Db
       # Don't allow more than one HTTP service, though
       if new_conn_type != 'http' || framework.db.get_services_metadata.count >= 2
         print_error('Connection already established. Only one connection is allowed at a time.')
-        print_connection_info
         print_error('Run db_disconnect first if you wish to connect to a different database.')
+        print_line
+        print_line 'Current connection information:'
+        print_connection_info
         return
       end
     end
@@ -1831,6 +1833,7 @@ class Db
     if framework.db.driver == 'http'
       begin
         framework.db.delete_current_data_service
+        print_line "Successfully disconnected from the data service."
       rescue => e
         print_error "Unable to disconnect from the remote data service: #{e.message}"
       end
