@@ -104,5 +104,4 @@ class MetasploitModule < Msf::Post
       print_error(e.to_s)
     end
   end
-
 end
