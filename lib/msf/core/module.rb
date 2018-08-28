@@ -411,6 +411,7 @@ class Module
       'Ref'         => nil,
       'Privileged'  => false,
       'License'     => MSF_LICENSE,
+      'Notes'       => {}
     }.update(self.module_info)
     self.module_store = {}
   end
