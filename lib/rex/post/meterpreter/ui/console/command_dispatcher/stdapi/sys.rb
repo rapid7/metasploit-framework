@@ -346,11 +346,11 @@ class Console::CommandDispatcher::Stdapi::Sys
     path = '/usr/bin/expect'  if client.fs.file.exist?('/usr/bin/expect')  && !path
     return false unless path
 
-    # Commands for methods - "export TERM=xterm" provides colors, "clear" command, etc. as available on the target.
-    cmd = "export TERM=xterm; #{path} - exec:'#{sh_path} -li',pty,stderr,setsid,sigint,sane" if path =~ /socat/
-    cmd = "export TERM=xterm; #{path} -qc #{sh_path} /dev/null || #{path} -q /dev/null #{sh_path}" if path =~ /script/
-    cmd = "export TERM=xterm; #{path} -c \'import pty;pty.spawn(\"#{sh_path}\")\'" if path =~ /python/
-    cmd = "export TERM=xterm; #{path} -c 'spawn #{sh_path}; interact'" if path =~ /expect/
+    # Commands for methods - "env TERM=xterm" provides colors, "clear" command, etc. as available on the target.
+    cmd = "env TERM=xterm #{path} - exec:'#{sh_path} -li',pty,stderr,setsid,sigint,sane" if path =~ /socat/
+    cmd = "env TERM=xterm #{path} -qc #{sh_path} /dev/null || #{path} -q /dev/null #{sh_path}" if path =~ /script/
+    cmd = "env TERM=xterm #{path} -c \'import pty;pty.spawn(\"#{sh_path}\")\'" if path =~ /python/
+    cmd = "env TERM=xterm #{path} -c 'spawn #{sh_path}; interact'" if path =~ /expect/
     cmd_execute('-if', cmd)
 
     true
