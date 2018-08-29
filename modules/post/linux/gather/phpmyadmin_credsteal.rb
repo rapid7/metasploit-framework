@@ -18,7 +18,6 @@ class MetasploitModule < Msf::Post
       'License'      => MSF_LICENSE,
       'Platform'     => ['linux'],
       'SessionTypes' => ['meterpreter'],
-      'Arch'         => 'x86_x64',
       'Author'       => [
         'Chaitanya Haritash [bofheaded]',
         'Dhiraj Mishra <dhiraj@notsosecure.com>'
