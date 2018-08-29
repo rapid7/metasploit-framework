@@ -56,13 +56,13 @@ require 'yaml'
 }
 
 
-def run_cmd(cmd, input = nil)
+def run_cmd(cmd, input: nil, env: {})
   exitstatus = 0
   err = out = ""
 
-  puts "run_cmd: cmd=#{cmd}, input=#{input}" if @options[:debug]
+  puts "run_cmd: cmd=#{cmd}, input=#{input}, env=#{env}" if @options[:debug]
 
-  Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+  Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
     stdin.puts(input) if input
     if @options[:debug]
       err = stderr.read
@@ -216,9 +216,9 @@ def init_db
   run_psql("alter role #{@options[:msf_db_user]} with password '#{@msf_pass}'")
   run_psql("alter role #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
   run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msf_db_user]} -h 127.0.0.1 -U #{@options[:msf_db_user]} -E UTF-8 -T template0 #{@options[:msf_db_name]}",
-          "#{@msf_pass}\n#{@msf_pass}\n")
+          input: "#{@msf_pass}\n#{@msf_pass}\n")
   run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msftest_db_user]} -h 127.0.0.1 -U #{@options[:msftest_db_user]} -E UTF-8 -T template0 #{@options[:msftest_db_name]}",
-          "#{@msftest_pass}\n#{@msftest_pass}\n")
+          input: "#{@msftest_pass}\n#{@msftest_pass}\n")
 
   write_db_client_auth_config
   restart_db
