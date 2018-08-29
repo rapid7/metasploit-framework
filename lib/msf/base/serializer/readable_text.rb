@@ -32,6 +32,8 @@ class ReadableText
         return dump_auxiliary_module(mod, indent)
       when Msf::MODULE_POST
         return dump_post_module(mod, indent)
+      when Msf::MODULE_EVASION
+        return dump_evasion_module(mod, indent)
       else
         return dump_generic_module(mod, indent)
     end
@@ -303,6 +305,52 @@ class ReadableText
       output << "Available actions:\n"
       output << dump_module_actions(mod, indent)
     end
+
+    # Options
+    if (mod.options.has_options?)
+      output << "Basic options:\n"
+      output << dump_options(mod, indent)
+      output << "\n"
+    end
+
+    # Description
+    output << "Description:\n"
+    output << word_wrap(Rex::Text.compress(mod.description))
+    output << "\n"
+
+    # References
+    output << dump_references(mod, indent)
+
+    return output
+  end
+
+  # Dumps information about an evasion module.
+  #
+  # @param mod [Msf::Evasion] The evasion module instance.
+  # @param indent [String] The indentation to use.
+  # @return [String] The string form of the information
+  def self.dump_evasion_module(mod, indent = '')
+    output  = "\n"
+    output << "       Name: #{mod.name}\n"
+    output << "     Module: #{mod.fullname}\n"
+    output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
+    output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << "    License: #{mod.license}\n"
+    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
+    output << "\n"
+
+    # Authors
+    output << "Provided by:\n"
+    mod.each_author { |author|
+      output << indent + author.to_s + "\n"
+    }
+    output << "\n"
+
+    # Check
+    output << "Check supported:\n"
+    output << "#{indent}#{mod.respond_to?(:check) ? 'Yes' : 'No'}\n\n"
 
     # Options
     if (mod.options.has_options?)
