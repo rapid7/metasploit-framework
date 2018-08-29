@@ -641,13 +641,13 @@ end
 def output_web_service_information
   puts ''
   puts 'MSF web service configuration complete'
-  puts 'Add the data service in msfconsole using the command:'
-  # build data services command based on install options
-  ds_cmd = "data_services --add --token #{@ws_api_token}"
-  ds_cmd << " --ssl --cert #{@options[:ssl_cert]}" if @options[:ssl]
-  ds_cmd << " --skip-verify" if skip_ssl_verify?
-  ds_cmd << " #{get_web_service_host}"
-  puts "#{ds_cmd}"
+  puts 'Connect to the data service in msfconsole using the command:'
+  # build db_connect command based on install options
+  connect_cmd = "db_connect --token #{@ws_api_token}"
+  connect_cmd << " --cert #{@options[:ssl_cert]}" if @options[:ssl]
+  connect_cmd << " --skip-verify" if skip_ssl_verify?
+  connect_cmd << " #{get_web_service_uri}"
+  puts "#{connect_cmd}"
   puts ''
   puts 'The username and password are credentials for the API account:'
   puts "#{get_web_service_uri(path: '/api/v1/auth/account')}"
