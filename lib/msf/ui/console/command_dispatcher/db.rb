@@ -1837,7 +1837,7 @@ class Db
       begin
         framework.db.delete_current_data_service
       rescue => e
-        print_error "Unable to disconnect from the remote data service: #{e.message}"
+        print_error "Unable to disconnect from the data service: #{e.message}"
       end
     else
       framework.db.disconnect
@@ -2014,7 +2014,7 @@ class Db
     if framework.db.connect(opts)
       print_line "Connected to Postgres data service: #{info[:host]}/#{info[:name]}"
     else
-      raise RuntimeError.new("Failed to connect to the data service: #{framework.db.error}")
+      raise RuntimeError.new("Failed to connect to the Postgres data service: #{framework.db.error}")
     end
   end
 
@@ -2030,10 +2030,10 @@ class Db
     remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(uri.to_s, opts)
     begin
       framework.db.register_data_service(remote_data_service)
-      print_line "Connected to remote data service: #{remote_data_service.name}"
+      print_line "Connected to HTTP data service: #{remote_data_service.name}"
       framework.db.workspace = framework.db.default_workspace
     rescue => e
-      print_error "There was a problem connecting to the remote data service: #{e.message}"
+      print_error "There was a problem connecting to the HTTP data service: #{e.message}"
     end
   end
 
