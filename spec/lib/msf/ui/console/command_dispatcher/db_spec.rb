@@ -146,7 +146,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       it "should show a help message" do
         db.cmd_loot "-h"
         expect(@output).to match_array [
-          "Usage: loot <options>",
+          "Usage: loot [options]",
           " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
           "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]",
           "  Del: loot -d [addr1 addr2 ...]",
