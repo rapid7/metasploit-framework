@@ -23,6 +23,16 @@ module Msf
       if (info['Payload'] and info['Payload']['ActiveTimeout'])
         self.active_timeout = info['Payload']['ActiveTimeout'].to_i
       end
+
+      register_options([
+        OptString.new(
+          'FILENAME',
+            [
+              true,
+              'Filename for the evasive file (default: random)',
+              "#{Rex::Text.rand_text_alpha(3..10)}.exe"
+            ])
+      ], self.class)
     end
 
     def self.type
