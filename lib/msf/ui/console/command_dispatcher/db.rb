@@ -1833,16 +1833,20 @@ class Db
 
     db_name = framework.db.name
 
-    if framework.db.driver == 'http'
-      begin
-        framework.db.delete_current_data_service
-      rescue => e
-        print_error "Unable to disconnect from the data service: #{e.message}"
+    if framework.db.active
+      if framework.db.driver == 'http'
+        begin
+          framework.db.delete_current_data_service
+        rescue => e
+          print_error "Unable to disconnect from the data service: #{e.message}"
+        end
+      else
+        framework.db.disconnect
       end
+      print_line "Successfully disconnected from the data service: #{db_name}."
     else
-      framework.db.disconnect
+      print_error "Not currently connected to a data service."
     end
-    print_line "Successfully disconnected from the data service: #{db_name}."
   end
 
   def cmd_db_rebuild_cache
@@ -1892,6 +1896,11 @@ class Db
       end
     end
 
+    unless framework.db.active
+      print_error "Not currently connected to a data service."
+      return
+    end
+
     if name.nil? || name.empty?
       cmd_db_save_help
       return
@@ -1899,17 +1908,22 @@ class Db
 
     if mode && mode == :delete
       conf = Msf::Config.load
-      clear_default_db if conf[DB_CONFIG_PATH]['default_db'] && conf[DB_CONFIG_PATH]['default_db'] == name
-      Msf::Config.delete_group("#{DB_CONFIG_PATH}/#{name}")
-      print_line "Successfully deleted data service: #{name}"
+      db_path = "#{DB_CONFIG_PATH}/#{name}"
+      if conf[db_path]
+        clear_default_db if conf[DB_CONFIG_PATH]['default_db'] && conf[DB_CONFIG_PATH]['default_db'] == name
+        Msf::Config.delete_group(db_path)
+        print_line "Successfully deleted data service: #{name}"
+      else
+        print_line "Unable to locate saved data service with name #{name}."
+      end
     else
       begin
         save_db_to_config(framework.db, name)
 
         Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => name }) if default
         print_line "Successfully saved data service: #{name}"
-      rescue ArgumentError
-        print_error "Database name contains an invalid character."
+      rescue ArgumentError => e
+        print_error e.message
       end
 
     end
@@ -1917,7 +1931,7 @@ class Db
 
   def save_db_to_config(database, database_name)
     if database_name =~ /\/|\[|\]/
-      raise ArgumentError, "Database name contains an invalid character."
+      raise ArgumentError, 'Database name contains an invalid character.'
     end
     config_path = "#{DB_CONFIG_PATH}/#{database_name}"
     config_opts = {}
