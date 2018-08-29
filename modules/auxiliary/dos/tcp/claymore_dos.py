@@ -25,7 +25,7 @@ metadata = {
     'date': '2018-02-06',
 
     'references': [
-        {'type': 'cve', 'ref': 'CVE-2018-6317'},
+        {'type': 'cve', 'ref': '2018-6317'},
         {'type': 'edb', 'ref': '43972'},
         {'type': 'url', 'ref': 'https://github.com/nanopool/Claymore-Dual-Miner'}
     ],
