@@ -1903,21 +1903,29 @@ class Db
       Msf::Config.delete_group("#{DB_CONFIG_PATH}/#{name}")
       print_line "Successfully deleted data service: #{name}"
     else
-      save_db_to_config(framework.db, name)
+      begin
+        save_db_to_config(framework.db, name)
 
-      Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => name }) if default
-      print_line "Successfully saved data service: #{name}"
+        Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => name }) if default
+        print_line "Successfully saved data service: #{name}"
+      rescue ArgumentError
+        print_error "Database name contains an invalid character."
+      end
+
     end
   end
 
   def save_db_to_config(database, database_name)
+    if database_name =~ /\/|\[|\]/
+      raise ArgumentError, "Database name contains an invalid character."
+    end
     config_path = "#{DB_CONFIG_PATH}/#{database_name}"
     config_opts = {}
     if !database.is_local?
       begin
         config_opts['url'] = database.endpoint
         if database.https_opts
-          config_opts['cert'] = database.https_opts[:cert]
+          config_opts['cert'] = database.https_opts[:cert] if database.https_opts[:cert]
           config_opts['skip_verify'] = true if database.https_opts[:skip_verify]
         end
         if database.api_token
