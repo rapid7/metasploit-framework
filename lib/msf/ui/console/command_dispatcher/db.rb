@@ -1183,7 +1183,7 @@ class Db
   end
 
   def cmd_loot_help
-    print_line "Usage: loot <options>"
+    print_line "Usage: loot [options]"
     print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
     print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]"
     print_line "  Del: loot -d [addr1 addr2 ...]"
@@ -1710,7 +1710,7 @@ class Db
   def cmd_db_connect_help
     print_line("   Usage: db_connect <user:pass>@<host:port>/<database>")
     print_line("      OR: db_connect -y [path/to/database.yml]")
-    print_line("      OR: db_connect <options> <http|https>://<host:port>")
+    print_line("      OR: db_connect [options] <http|https>://<host:port>")
     print_line("Examples:")
     print_line("       db_connect user@metasploit3")
     print_line("       db_connect user:pass@192.168.0.2/metasploit3")
@@ -1720,10 +1720,11 @@ class Db
     print_line(" ")
     print_line("   OPTIONS:")
     print_line("       -l,--list-services List the available data services that have been previously saved.")
+    print_line("       -y,--yaml          Connect to the database specified in the provided database.yml file.")
     print_line("       -n,--name          Connect to a previously saved data service by specifying the name.")
     print_line("       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
     print_line("       -t,--token         The API token used to authenticate to the remote data service.")
-    print_line("       --skip-verify      Skip validating authenticity of server's certificate. NOT RECOMMENDED.")
+    print_line("       --skip-verify      Skip validating authenticity of server's certificate (NOT RECOMMENDED).")
   end
 
   def cmd_db_connect(*args)
@@ -1865,10 +1866,10 @@ class Db
   end
 
   def cmd_db_save_help
-    print_line "Usage: db_save <options> <name>"
+    print_line "Usage: db_save [options] <name>"
     print_line
     print_line("   OPTIONS:")
-    print_line("       -d,--default           Set this data service as the default connection.")
+    print_line("       -d,--default           Set current data service as the default connection.")
     print_line("       -c,--clear-default     Clear the currently set default data service.")
     print_line("       --delete               Delete the specified data service.")
   end
