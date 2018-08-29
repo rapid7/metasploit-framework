@@ -45,9 +45,9 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   @@shell_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help menu."						   ],
-    "-b" => [ false, "NX Bash Shell."						   ],
-    "-l" => [ false, "NX List Available Shells."                                   ],
-    "-s" => [ true,  "NX Alternative Shell (E.g. /bin/zsh)."                       ])
+    "-b" => [ false, "Spawn bash PTY shell. (/bin/bash)"                           ],
+    "-l" => [ false, "List available shells. (Linux, OSX, BSD)"                    ],
+    "-s" => [ true,  "Spawn alternative PTY shell. (E.g. /bin/zsh)"                ])
 
   #
   # Options used by the 'shutdown' command.
@@ -330,20 +330,23 @@ class Console::CommandDispatcher::Stdapi::Sys
   def alt_shell(sh_path)
     sh_path = client.fs.file.exist?(sh_path) ? sh_path : '/bin/sh'
 
+    # Python Meterpreter calls pty.openpty() - No need for other methods
     if client.session_type =~ /python/
       cmd_execute('-if', sh_path)
       return true
     end
 
+    # Select method for spawning PTY Shell based on availability on the target.
     path = nil
     path = '/usr/bin/socat'   if client.fs.file.exist?('/usr/bin/socat')
-    path = '/usr/bin/script'  if client.fs.file.exist?('/usr/bin/script') && !path
-    path = '/usr/bin/python'  if client.fs.file.exist?('/usr/bin/python') && !path
+    path = '/usr/bin/script'  if client.fs.file.exist?('/usr/bin/script')  && !path
+    path = '/usr/bin/python'  if client.fs.file.exist?('/usr/bin/python')  && !path
     path = '/usr/bin/python2' if client.fs.file.exist?('/usr/bin/python2') && !path
     path = '/usr/bin/python3' if client.fs.file.exist?('/usr/bin/python3') && !path
-    path = '/usr/bin/expect'  if client.fs.file.exist?('/usr/bin/expect') && !path
+    path = '/usr/bin/expect'  if client.fs.file.exist?('/usr/bin/expect')  && !path
     return false unless path
 
+    # Commands for methods - "export TERM=xterm" provides colors, "clear" command, etc. as available on the target.
     cmd = "export TERM=xterm; #{path} - exec:'#{sh_path} -li',pty,stderr,setsid,sigint,sane" if path =~ /socat/
     cmd = "export TERM=xterm; #{path} -qc #{sh_path} /dev/null || #{path} -q /dev/null #{sh_path}" if path =~ /script/
     cmd = "export TERM=xterm; #{path} -c \'import pty;pty.spawn(\"#{sh_path}\")\'" if path =~ /python/
