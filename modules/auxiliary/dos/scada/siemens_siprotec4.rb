@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           'References'     =>
             [
               [ 'CVE' '2015-5374' ],
-              [ 'URL', 'https://www.exploit-db.com/exploits/44103/' ],
+              [ 'EDB', '44103' ],
               [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-15-202-01' ]
             ])
         register_options([Opt::RPORT(50000),])
