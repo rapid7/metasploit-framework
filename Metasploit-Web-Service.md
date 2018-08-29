@@ -37,8 +37,8 @@ The `msfdb` tool allows you to manage both the Metasploit Framework database and
 * A simple verification that web service is up and running can be performed using cURL: `curl --insecure -H "Accept: application/json" -H "Authorization: Bearer <token>" https://localhost:8080/api/v1/msf/version`
 
 ### Accessing the API
-The API can be accessed by utilizing your preferred HTTP client. You can find more
-information on the data models and various API endpoints by connecting to the following URL: `https://<address>:<port>/api/v1/api-docs`
+The API account can be accessed with your preferred web browser by visiting `https://localhost:8080/api/v1/auth/account`. If you want to change the API token for your account you can log in to the API account page and generate a new API token. You can find more
+information on the data models and various API endpoints by visiting the API Documentation at: `https://<address>:<port>/api/v1/api-docs`
 
 ## Utilizing the Data Service in msfconsole
 
