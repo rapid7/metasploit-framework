@@ -45,8 +45,7 @@ information on the data models and various API endpoints by visiting the API Doc
 ### Connecting
 You can use the `db_connect` command to connect to the desired data service. Please note that you can only be connected to one data service at a time. The `db_disconnect` command will need to be used before switching to a new data service. You can use `db_status` to see information about the currently connected data service.
 
-**Usage:**
-* `db_connect <options> <url>`
+**Usage:** `db_connect <options> <url>`
 * Options:
   * `-l`,`--list-services` - List the available data services that have been previously saved.")
   * `-n`,`--name` - Connect to a previously saved data service by specifying the name.")
@@ -67,8 +66,7 @@ You can use the `db_connect` command to connect to the desired data service. Ple
 ### Saving the Connection
 The currently connected data service can be saved for later use using the `db_save` command. The `default` connection is the data service that msfconsole will connect to on startup.
 
-**Usage:**
-* `db_save <options> <name>`
+**Usage:** `db_save <options> <name>`
 * Options:
   * `-d`,`--default` - Set this data service as the default connection.
   * `-c`,`--clear-default` - Clear the currently set default data service.
