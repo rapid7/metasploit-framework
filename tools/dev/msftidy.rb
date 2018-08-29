@@ -749,7 +749,7 @@ if __FILE__ == $PROGRAM_NAME
         msftidy = Msftidy.new(full_filepath)
         # Executable files are now assumed to be external modules
         # but also check for some content to be sure
-        next if File.executable?(full_filepath) && msftidy.source.include?("require 'metasploit'")
+        next if File.executable?(full_filepath) && msftidy.source =~ /require ["']metasploit["']/
         msftidy.run_checks
         @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
       end
