@@ -1,28 +1,44 @@
-The Metasploit Remote Data service is a tool that allows you to host a web service to interact
-with Metasploit's various data models through a REST API.
+The Metasploit web service allows interaction with Metasploit's various data models through a REST API.
+
+## Managing the Web Service
 
 ### Requirements
-To use the remote data service you will need a PostgreSQL database running to serve as the backend. You can find more information on setting that up on the 
-[Metasploit help page](https://metasploit.help.rapid7.com/docs/managing-the-database).
+To use the web service you will need a PostgreSQL database to serve as the backend data store. The `msfdb` tool allows you to manage both the Metasploit Framework database and web service. If you are going configure the database manually you can find more information on the [Managing the Database](https://metasploit.help.rapid7.com/docs/managing-the-database) page.
 
-### Starting Up
-To start up the web server, navigate to the root directory of metasploit-framework and run the
-following command: `./msfdb_ws`
+### Getting Started
 
-Command line options:
+#### Initialize the Database and Web Service
+Execute `msfdb init` and respond to prompts during the interactive initialization. The script first creates and configures the database, then it configures the web service, and finally configures the local `msfconsole` with the new data service connection.
 
- - `-i`,`--interface` Specify the interface for the web service to listen on. Default: 0.0.0.0
- - `-p`,`--port` Specify the port for the web service to listen on. Default: 8080
- - `-s`,`--ssl` Enable SSL on the web server.
- - `-c`,`--cert /path/to/cert_file` Path to SSL certificate file. Required if `-s` is set.
- - `-k`,`--key /path/to/key_file` Path to SSL Key file.
- - `-h`,`--help` Display the help information.
- 
+#### msfdb
+
+The `msfdb` tool allows you to manage both the Metasploit Framework database and web service components together or independently. If the `--component` option is not provided then the specified command will be executed for the database followed by the web service. This default mode of operation is useful when first setting up the database and web service. The component may be specified if you wish to make changes to a given component independent of the other.
+
+**Usage:** `msfdb [options] <command>`
+* Options:
+  * Execute `msfdb --help` for the complete usage information
+* Commands:
+  * init - initialize the component
+  * reinit - delete and reinitialize the component
+  * delete - delete and stop the component
+  * status - check component status
+  * start - start the component
+  * stop - stop the component
+  * restart - restart the component
+  
+##### Examples
+* `msfdb start` - Start the database and web service
+* `msfdb --component webservice stop` - Stop the web service
+* `msfdb --component webservice --address 0.0.0.0 start` - Start the web service, listening on any host address
+
+#### Notes
+* SSL is enabled by default and `msfdb` will generate a fake "snakeoil" SSL certificate during initialization using `Rex::Socket::Ssl.ssl_generate_certificate` if one is not provided. The generated SSL certificate uses a random common name (CN) which will not match your hostname, therefore, you will need to make appropriate accommodations when operating the web service with such a certificate. **Please** generate your own SSL certificate and key instead and supply those to `msfdb` using the `--ssl-cert-file` and `--ssl-key-file` options, and enable SSL verification by passing the option `--no-ssl-disable-verify`.
+
+* A simple verification that web service is up and running can be performed using cURL: `curl --insecure -H "Accept: application/json" -H "Authorization: Bearer <token>" https://localhost:8080/api/v1/msf/version`
+
 ### Accessing the API
-The API can be accessed by utilizing your preferred HTTP client of choice. You can find more
-information on the data models and various endpoints by connecting to the following URL:
-
-http://\<interface\>:\<port\>/api/v1/api-docs
+The API can be accessed by utilizing your preferred HTTP client. You can find more
+information on the data models and various API endpoints by connecting to the following URL: `https://<address>:<port>/api/v1/api-docs`
 
 ## Utilizing the Data Service in msfconsole
 
@@ -62,7 +78,7 @@ The currently connected data service can be saved for later use using the `db_sa
   * `db_save -d LA_server` - Save the current connection as "LA_server" and set it as the default.
   * `db-save --delete new_york_server` - Delete the "new_york_server" entry.
 
-### Notes ###
+### Notes
 There are a few pieces of information to keep in mind when using data services with Metasploit Framework.
 * A Postgres database connection is required before connecting to a remote data service.
 * The configuration from the `database.yml` will still be honored for the foreseeable future, but a saved default data service will take priority when it is present.
