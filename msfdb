@@ -651,6 +651,24 @@ def output_web_service_information
   puts ''
   puts 'The username and password are credentials for the API account:'
   puts "#{get_web_service_uri(path: '/api/v1/auth/account')}"
+  puts ''
+
+  persist_data_service(connect_cmd: connect_cmd)
+end
+
+def persist_data_service(connect_cmd:)
+  if ask_yn('Add data service connection to local msfconsole and persist as default?')
+    data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+    data_service_name = ask_value('Data service connection name?', data_service_name)
+    # execute msfconsole commands to add and persist the data service connection
+    cmd = "msfconsole -qx \"#{connect_cmd}; db_save -d #{data_service_name}; exit\""
+    if run_cmd(cmd) != 0
+      # attempt to execute msfconsole in the current working directory
+      if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+        puts 'Failed to run msfconsole and persist the data service connection'
+      end
+    end
+  end
 end
 
 def get_web_service_uri(path: nil)
