@@ -746,9 +746,10 @@ if __FILE__ == $PROGRAM_NAME
         next if full_filepath =~ /\.git[\x5c\x2f]/
         next unless File.file? full_filepath
         next unless File.extname(full_filepath) == '.rb'
-        # Executable files are now assumed to be external modules
-        next if File.executable?(full_filepath)
         msftidy = Msftidy.new(full_filepath)
+        # Executable files are now assumed to be external modules
+        # but also check for some content to be sure
+        next if File.executable?(full_filepath) && msftidy.source.include?("require 'metasploit'")
         msftidy.run_checks
         @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
       end
