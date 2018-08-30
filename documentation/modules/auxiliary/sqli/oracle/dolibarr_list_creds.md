@@ -1,4 +1,3 @@
-
 ## Description
 
   This module enables an authenticated user to collect usernames and encrypted passwords of other users of the ERP/CRM Dolibarr software via SQL injection.
