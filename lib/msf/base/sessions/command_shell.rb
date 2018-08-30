@@ -449,6 +449,9 @@ class CommandShell
 
     cmd_upload(local_file, remote_file)
 
+    # Change file permission in case of TOCTOU
+    shell_command("chmod 0600 #{remote_file}")
+
     if background
       print_status("Executing on remote machine background")
       print_line(shell_command("nohup sh -x #{remote_file} &"))
