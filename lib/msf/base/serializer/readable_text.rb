@@ -544,7 +544,7 @@ class ReadableText
     output
   end
 
-  # Dumps the aka/alias names associated with the supplied module.
+  # Dumps the aka names associated with the supplied module.
   #
   # @param mod [Msf::Module] the module.
   # @param indent [String] the indentation to use.

@@ -5,8 +5,8 @@ module Msf
   ###
   #
   # Some modules require an extra annotation to provide extra information useful when searching or referencing.
-  # The NotesContainer holds various Note objects that might pertain to an alias name (AKA), an explanation as
-  # to why a module lacks a CVE (NOCVE), or other data.
+  # The NotesContainer holds various Note objects that might pertain to an AKA name, an explanation as to why a module
+  # lacks a CVE (NOCVE), or other data.
   #
   ###
 
@@ -37,7 +37,7 @@ module Msf
     end
 
     #
-    # Alias names (also-known-as) for the module
+    # AKA names (also-known-as) for the module
     #
     attr_reader :aka
 
