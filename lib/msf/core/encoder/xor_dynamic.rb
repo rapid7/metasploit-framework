@@ -7,11 +7,11 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
       super(info)
   end
 
-  def minKeyLen
+  def min_key_len
     Integer(datastore['KEYMIN'] || 0)
   end
 
-  def maxKeyLen
+  def max_key_len
     Integer(datastore['KEYMAX'] || 0)
   end
 
@@ -19,11 +19,11 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
     nil
   end
 
-  def stubKeyTerm
+  def stub_key_term
     nil
   end
 
-  def stubPayloadTerm
+  def stub_payload_term
     nil
   end
 
@@ -34,20 +34,20 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
     bufLen = buf.length
 
     # Search for a valid key
-    _minKeyLen = minKeyLen
-    if _minKeyLen < 1
-      _minKeyLen = Integer(buf.length / 100 * (0.2 + 0.05 * badchars.length))
-      if _minKeyLen < 1
-        _minKeyLen = 1
+    _min_key_len = min_key_len
+    if _min_key_len < 1
+      _min_key_len = Integer(buf.length / 100 * (0.2 + 0.05 * badchars.length))
+      if _min_key_len < 1
+        _min_key_len = 1
       end
     end
 
-    _maxKeyLen = maxKeyLen
-    if _maxKeyLen < 1
-      _maxKeyLen = buf.length
+    _max_key_len = max_key_len
+    if _max_key_len < 1
+      _max_key_len = buf.length
     end
 
-    for keyLen in _minKeyLen.._maxKeyLen do
+    for keyLen in _min_key_len.._max_key_len do
       $stderr.print "\rKey size: #{keyLen}"
       $stderr.flush
 
@@ -90,7 +90,7 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
     badchars = "\x00\x0a\x0d" if (badchars == nil or badchars == '')
 
     # Check badchars in stub
-    if Rex::Text.badchar_index(stub.gsub(stubKeyTerm, "").gsub(stubPayloadTerm, ""), badchars)
+    if Rex::Text.badchar_index(stub.gsub(stub_key_term, "").gsub(stub_payload_term, ""), badchars)
       raise EncodingError, "Bad character found in stub for the #{self.name} encoder.", caller
     end
 
@@ -145,7 +145,7 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
       raise EncodingError, "Payload terminator could not be found for the #{self.name} encoder.", caller
     end
 
-    finalPayload = stub.gsub(stubKeyTerm, keyTerm).gsub(stubPayloadTerm, payloadTerm) + key + keyTerm + encoded + payloadTerm
+    finalPayload = stub.gsub(stub_key_term, keyTerm).gsub(stub_payload_term, payloadTerm) + key + keyTerm + encoded + payloadTerm
 
     # Check badchars in finalPayload
     if Rex::Text.badchar_index(finalPayload, badchars)

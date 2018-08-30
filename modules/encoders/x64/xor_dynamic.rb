@@ -40,11 +40,11 @@ class MetasploitModule < Msf::Encoder::XorDynamic
     "\xe8\xc7\xff\xff\xff"    # _call:  call  _ret
   end
 
-  def stubKeyTerm
+  def stub_key_term
     /A/
   end
 
-  def stubPayloadTerm
+  def stub_payload_term
     /BB/
   end
 end
