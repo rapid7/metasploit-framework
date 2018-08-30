@@ -518,6 +518,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/bind_awk'
   end
 
+  context 'cmd/unix/bind_busybox_telnetd' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/cmd/unix/bind_busybox_telnetd'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'cmd/unix/bind_busybox_telnetd'
+  end
+
   context 'cmd/unix/bind_inetd' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

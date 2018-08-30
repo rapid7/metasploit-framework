@@ -84,6 +84,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "    CI",
           "    Foundstone",
           "    FusionVM XML",
+          "    Group Policy Preferences Credentials",
           "    IP Address List",
           "    IP360 ASPL",
           "    IP360 XML v3",

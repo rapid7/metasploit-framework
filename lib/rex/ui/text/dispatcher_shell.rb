@@ -252,6 +252,16 @@ module DispatcherShell
     end
 
     #
+    # Return a list of possible directory for tab completion.
+    #
+    def tab_complete_directory(str, words)
+      str = '.' + ::File::SEPARATOR if str.empty?
+      dirs = Dir.glob(str.concat('*'), File::FNM_CASEFOLD).select { |x| File.directory?(x) }
+
+      dirs
+    end
+
+    #
     # Provide a generic tab completion function based on the specification
     # pass as fmt. The fmt argument in a hash where values are an array
     # defining how the command should be completed. The first element of the
@@ -392,7 +402,7 @@ module DispatcherShell
 
     # Match based on the partial word
     items.find_all { |e|
-      e =~ /^#{str}/i
+      e.downcase.start_with?(str.downcase) || e =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |e|
       tab_words.dup.push(e).join(' ')

@@ -210,6 +210,7 @@ module Msf
               end
 
               job_list.map(&:to_s).each do |job|
+                next unless framework.jobs[job.to_s].ctx[1] # next if no payload context in the job
                 payload_option = framework.jobs[job.to_s].ctx[1].datastore
                 persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
               end
@@ -237,6 +238,11 @@ module Msf
 
           def add_persist_job(job_id)
             if job_id && framework.jobs.has_key?(job_id.to_s)
+              unless framework.jobs[job_id.to_s].ctx[1]
+                print_error("Add persistent job failed: job #{job_id} is not payload handler.")
+                return
+              end
+
               mod     = framework.jobs[job_id.to_s].ctx[0].replicant
               payload = framework.jobs[job_id.to_s].ctx[1].replicant
 

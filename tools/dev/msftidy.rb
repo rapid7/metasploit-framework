@@ -179,17 +179,17 @@ class Msftidy
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
         when 'URL' || 'AKA'
-          if value =~ /^http:\/\/cvedetails\.com\/cve/
+          if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.securityfocus\.com\/bid\//
+          elsif value =~ /^https?:\/\/www\.securityfocus\.com\/bid\//
             warn("Please use 'BID' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
+          elsif value =~ /^https?:\/\/www\.microsoft\.com\/technet\/security\/bulletin\//
             warn("Please use 'MSB' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.exploit\-db\.com\/exploits\//
+          elsif value =~ /^https?:\/\/www\.exploit\-db\.com\/exploits\//
             warn("Please use 'EDB' for '#{value}'")
-          elsif value =~ /^http:\/\/www\.kb\.cert\.org\/vuls\/id\//
+          elsif value =~ /^https?:\/\/www\.kb\.cert\.org\/vuls\/id\//
             warn("Please use 'US-CERT-VU' for '#{value}'")
-          elsif value =~ /^https:\/\/wpvulndb\.com\/vulnerabilities\//
+          elsif value =~ /^https?:\/\/wpvulndb\.com\/vulnerabilities\//
             warn("Please use 'WPVDB' for '#{value}'")
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
@@ -745,10 +745,11 @@ if __FILE__ == $PROGRAM_NAME
       Find.find(dir) do |full_filepath|
         next if full_filepath =~ /\.git[\x5c\x2f]/
         next unless File.file? full_filepath
-        next unless full_filepath =~ /\.rb$/
-        # Executable files are now assumed to be external modules
-        next if File.executable?(full_filepath)
+        next unless File.extname(full_filepath) == '.rb'
         msftidy = Msftidy.new(full_filepath)
+        # Executable files are now assumed to be external modules
+        # but also check for some content to be sure
+        next if File.executable?(full_filepath) && msftidy.source =~ /require ["']metasploit["']/
         msftidy.run_checks
         @exit_status = msftidy.status if (msftidy.status > @exit_status.to_i)
       end

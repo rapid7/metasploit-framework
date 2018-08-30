@@ -1493,6 +1493,7 @@ public
   #  * :ci_xml
   #  * :foundstone_xml
   #  * :fusionvm_xml
+  #  * :gpp_xml
   #  * :ip360_aspl_xml
   #  * :ip360_xml_v3
   #  * :ip_list

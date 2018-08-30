@@ -121,11 +121,15 @@ module Msf
             print_line
           end
 
+          def cmd_makerc_tabs(str, words)
+            tab_complete_filenames(str, words)
+          end
+
           #
           # Saves commands executed since the ui started to the specified msfrc file
           #
           def cmd_makerc(*args)
-            if args.empty?
+            if args.empty? || args.include?('-h')
               cmd_makerc_help
               return false
             end
