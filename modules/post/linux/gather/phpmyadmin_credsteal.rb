@@ -23,11 +23,6 @@ class MetasploitModule < Msf::Post
         'Dhiraj Mishra <dhiraj@notsosecure.com>'
         ]
     ))
-
-    register_options(
-      [
-        OptString.new('SESSION', [ true, 'The session number to run this module on'])
-      ])
    end
 
   def run
@@ -49,6 +44,10 @@ class MetasploitModule < Msf::Post
     print_good('PhpMyAdmin config found!')
     print_good("Extracting Creds")
     res = read_file(conf_path)
+    unless res
+      print_error("You may not have permissions to read the file.")
+      return
+    end
 
     cred_dump << res
     p = store_loot('phpmyadmin_conf', 'text/plain', session, cred_dump, 'phpmyadmin_conf.txt', 'phpmyadmin_conf')
