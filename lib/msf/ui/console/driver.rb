@@ -224,7 +224,7 @@ class Driver < Msf::Ui::Driver
           default_db_config_path = "#{DbConfigGroup}/#{v}"
           default_db = conf[default_db_config_path]
           if default_db
-            connect_string = "db_connect -n #{v}"
+            connect_string = "db_connect #{v}"
 
             if framework.db.active && default_db['url'] !~ /http/
               ilog "Existing local data connection found. Disconnecting first."

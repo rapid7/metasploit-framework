@@ -36,7 +36,8 @@ class Db
       "db_connect"    => "Connect to an existing database",
       "db_disconnect" => "Disconnect from the current database instance",
       "db_status"     => "Show the current database status",
-      "db_save"       => "Save the current database connection so it is re-used on startup"
+      "db_save"       => "Save the current database connection so it is re-used on startup",
+      "db_remove"     => "Remove the saved entry for the specified data service."
     }
 
     more = {
@@ -1721,7 +1722,7 @@ class Db
     print_line("   OPTIONS:")
     print_line("       -l,--list-services List the available data services that have been previously saved.")
     print_line("       -y,--yaml          Connect to the database specified in the provided database.yml file.")
-    print_line("       -n,--name          Connect to a previously saved data service by specifying the name.")
+    print_line("       -n,--name          Specify a name to save this connection as. Providing the name of a connection that already exists will overwrite existing connection.")
     print_line("       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
     print_line("       -t,--token         The API token used to authenticate to the remote data service.")
     print_line("       --skip-verify      Skip validating authenticity of server's certificate (NOT RECOMMENDED).")
@@ -1731,7 +1732,6 @@ class Db
     return if not db_check_driver
 
     opts = {}
-    https_opts = {}
     while (arg = args.shift)
       case arg
         when '-h', '--help'
@@ -1747,33 +1747,26 @@ class Db
           list_saved_data_services
           return
         when '-n', '--name'
-          conf = Msf::Config.load
           name = args.shift
-          conf_options = conf["#{DB_CONFIG_PATH}/#{name}"]
-          if conf_options
-            opts[:url] = conf_options['url'] if conf_options['url']
-            opts[:api_token] = conf_options['api_token'] if conf_options['api_token']
-            https_opts[:cert] = conf_options['cert'] if conf_options['cert']
-            https_opts[:skip_verify] = conf_options['skip_verify'] if conf_options['skip_verify']
-          else
-            print_error "Unable to locate saved data service with name '#{name}'"
-            return
-          end
-          break # Don't process other args since they will overwrite the values from the config
         when '--skip-verify'
           https_opts[:skip_verify] = true
       else
-        if opts[:url].nil?
-          opts[:url] = arg
+        found_name = data_service_search(arg)
+        if found_name
+          opts = load_db_config(found_name)
         else
-          cmd_db_connect_help
-          return
+          opts[:url] = arg
         end
       end
     end
 
-    opts[:https_opts] = https_opts unless https_opts.empty?
-    
+    unless opts[:url]
+      print_error 'A URL or saved data service name is required.'
+      print_line
+      cmd_db_connect_help
+      return
+    end
+
     if opts[:url] =~ /http/
       new_conn_type = 'http'
     else
@@ -1814,12 +1807,24 @@ class Db
     else
       print_error("This database driver #{new_conn_type} is not currently supported")
     end
+
+    if framework.db.active
+      if !name || name.empty?
+        if found_name
+          name = found_name
+        else
+          name = Rex::Text.rand_text_alphanumeric(8)
+        end
+      end
+      save_db_to_config(framework.db, name)
+      @current_data_service = name
+    end
   end
 
   def cmd_db_disconnect_help
     print_line "Usage: db_disconnect"
     print_line
-    print_line "Disconnect from the database."
+    print_line "Disconnect from the data service."
     print_line
   end
 
@@ -1844,6 +1849,7 @@ class Db
         framework.db.disconnect
       end
       print_line "Successfully disconnected from the data service: #{db_name}."
+      @current_data_service = nil
     else
       print_error "Not currently connected to a data service."
     end
@@ -1870,12 +1876,10 @@ class Db
   end
 
   def cmd_db_save_help
-    print_line "Usage: db_save [options] <name>"
+    print_line "Usage: db_save"
     print_line
-    print_line("   OPTIONS:")
-    print_line("       -d,--default           Set current data service as the default connection.")
-    print_line("       -c,--clear-default     Clear the currently set default data service.")
-    print_line("       --delete               Delete the specified data service.")
+    print_line "Save the current data service connection as the default to reconnect on startup."
+    print_line
   end
 
   def cmd_db_save(*args)
@@ -1884,48 +1888,19 @@ class Db
         when '-h', '--help'
           cmd_db_save_help
           return
-        when '-d', '--default'
-          default = true
-        when '-c','--clear-default'
-          clear_default_db
-          return
-        when '--delete'
-          mode = :delete
-        else
-          name = arg
       end
     end
 
-    unless framework.db.active
+    if !framework.db.active || !@current_data_service
       print_error "Not currently connected to a data service."
       return
     end
 
-    if name.nil? || name.empty?
-      cmd_db_save_help
-      return
-    end
-
-    if mode && mode == :delete
-      conf = Msf::Config.load
-      db_path = "#{DB_CONFIG_PATH}/#{name}"
-      if conf[db_path]
-        clear_default_db if conf[DB_CONFIG_PATH]['default_db'] && conf[DB_CONFIG_PATH]['default_db'] == name
-        Msf::Config.delete_group(db_path)
-        print_line "Successfully deleted data service: #{name}"
-      else
-        print_line "Unable to locate saved data service with name #{name}."
-      end
-    else
-      begin
-        save_db_to_config(framework.db, name)
-
-        Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => name }) if default
-        print_line "Successfully saved data service: #{name}"
-      rescue ArgumentError => e
-        print_error e.message
-      end
-
+    begin
+      Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => @current_data_service })
+      print_line "Successfully saved data service as default: #{@current_data_service}"
+    rescue ArgumentError => e
+      print_error e.message
     end
   end
 
@@ -1959,6 +1934,33 @@ class Db
       url += "/#{conn_params[:database]}" if conn_params[:database]
       config_opts['url'] = url
       Msf::Config.save(config_path => config_opts)
+    end
+  end
+
+  def cmd_db_remove_help
+    print_line "Usage: db_remove <name>"
+    print_line
+    print_line "Delete the specified saved data service."
+    print_line
+  end
+
+  def cmd_db_remove(*args)
+    if args[0] == '-h' || args[0] == '--help' || args[0].nil? || args[0].empty?
+      cmd_db_remove_help
+      return
+    end
+    delete_db_from_config(args[0])
+  end
+
+  def delete_db_from_config(db_name)
+    conf = Msf::Config.load
+    db_path = "#{DB_CONFIG_PATH}/#{db_name}"
+    if conf[db_path]
+      clear_default_db if conf[DB_CONFIG_PATH]['default_db'] && conf[DB_CONFIG_PATH]['default_db'] == db_name
+      Msf::Config.delete_group(db_path)
+      print_line "Successfully deleted data service: #{db_name}"
+    else
+      print_line "Unable to locate saved data service with name #{db_name}."
     end
   end
 
@@ -2139,12 +2141,44 @@ class Db
     print_status("Connection type: #{framework.db.driver}. Connected to #{cdb}")
   end
 
+  def data_service_search(search_criteria)
+    conf = Msf::Config.load
+    rv = nil
+
+    conf.each_pair do |k,v|
+      name = k.split('/').last
+      rv = name if name == search_criteria
+      rv = name if v.values.include?(search_criteria)
+    end
+    rv
+  end
+
+  def load_db_config(db_name)
+    conf = Msf::Config.load
+    conf_options = conf["#{DB_CONFIG_PATH}/#{db_name}"]
+    opts = {}
+    https_opts = {}
+    if conf_options
+      opts[:url] = conf_options['url'] if conf_options['url']
+      opts[:api_token] = conf_options['api_token'] if conf_options['api_token']
+      https_opts[:cert] = conf_options['cert'] if conf_options['cert']
+      https_opts[:skip_verify] = conf_options['skip_verify'] if conf_options['skip_verify']
+    else
+      print_error "Unable to locate saved data service with name '#{db_name}'"
+      return
+    end
+
+    opts[:https_opts] = https_opts unless https_opts.empty?
+    opts
+  end
+
   def list_saved_data_services
     conf = Msf::Config.load
     default = nil
     tbl = Rex::Text::Table.new({
                                    'Header'    => 'Data Services',
-                                   'Columns'   => ['name', 'url', 'default?']
+                                   'Columns'   => ['current', 'name', 'url', 'default?'],
+                                   'SortIndex' => 1
                                })
 
     conf.each_pair do |k,v|
@@ -2153,9 +2187,11 @@ class Db
         name = k.split('/').last
         next if name == 'database' # Data service information is not stored in 'framework/database', just metadata
         url = v['url']
+        current = ''
+        current = '*' if name == @current_data_service
         default_output = ''
         default_output = '*' if name == default
-        line = [name, url, default_output]
+        line = [current, name, url, default_output]
         tbl << line
       end
     end
