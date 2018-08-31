@@ -1892,7 +1892,7 @@ class Db
     end
 
     if !framework.db.active || !@current_data_service
-      print_error "Not currently connected to a data service."
+      print_error "Not currently connected to a data service that can be saved."
       return
     end
 
@@ -2138,7 +2138,9 @@ class Db
         end
       end
     end
-    print_status("Connection type: #{framework.db.driver}. Connected to #{cdb}")
+    output = "Connected to #{cdb}. Connection type: #{framework.db.driver}."
+    output += " Connection name: #{@current_data_service}." if @current_data_service
+    print_status(output)
   end
 
   def data_service_search(search_criteria)
