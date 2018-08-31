@@ -6,7 +6,7 @@ module Msf
 class EvasionDriver
 
   #
-  # Initializes the exploit driver using the supplied framework instance.
+  # Initializes the evasion driver using the supplied framework instance.
   #
   def initialize(framework)
     self.payload                = nil
@@ -17,12 +17,30 @@ class EvasionDriver
     self.semaphore              = Mutex.new
   end
 
+  def target_idx=(target_idx)
+    if (target_idx)
+      # Make sure the target index is valid
+      if (target_idx >= evasion.targets.length)
+        raise Rex::ArgumentError, "Invalid target index.", caller
+      end
+    end
+
+     # Set the active target
+    @target_idx = target_idx
+  end
+
+  def target_idx
+    @target_idx
+  end
+
+
   #
   # Checks to see if the supplied payload is compatible with the
-  # current exploit.  Assumes that target_idx is valid.
+  # current evasion module.  Assumes that target_idx is valid.
   #
   def compatible_payload?(payload)
-    return ((payload.platform & evasion.platform).empty? == false)
+    evasion_platform = evasion.targets[target_idx].platform || evasion.platform
+    return ((payload.platform & evasion_platform).empty? == false)
   end
 
   def validate
@@ -37,15 +55,15 @@ class EvasionDriver
         "Incompatible payload", caller
     end
 
-    # Associate the payload instance with the exploit
+    # Associate the payload instance with the evasion
     payload.assoc_exploit = evasion
 
-    # Finally, validate options on the exploit module to ensure that things
+    # Finally, validate options on the evasion module to ensure that things
     # are ready to operate as they should.
     evasion.options.validate(evasion.datastore)
 
     # Validate the payload's options.  The payload's datastore is
-    # most likely shared against the exploit's datastore, but in case it
+    # most likely shared against the evasion's datastore, but in case it
     # isn't.
     payload.options.validate(payload.datastore)
 
@@ -53,12 +71,12 @@ class EvasionDriver
   end
 
   #
-  # Kicks off an exploitation attempt and performs the following four major
+  # Kicks off an evasion attempt and performs the following four major
   # operations:
   #
   #   - Generates the payload
   #   - Initializes & monitors the handler
-  #   - Launches the exploit
+  #   - Launches the evasion
   #   - Cleans up the handler
   #
   def run
@@ -72,7 +90,7 @@ class EvasionDriver
     evasion.job_id = nil
 
     # Generate the encoded version of the supplied payload on the
-    # exploit module instance
+    # evasion module instance
     evasion.generate_payload(payload)
 
     # No need to copy since we aren't creating a job.  We wait until

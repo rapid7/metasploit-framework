@@ -57,6 +57,17 @@ module Evasion
       # Verify the payload options
       driver.payload.options.validate(driver.payload.datastore)
 
+      # Set the target and then work some magic to derive index
+      evasion.datastore['TARGET'] = opts['Target'] if opts['Target']
+      target_idx = evasion.target_index
+
+      if (target_idx == nil or target_idx < 0)
+        raise MissingTargetError,
+          "You must select a target.", caller
+      end
+
+      driver.target_idx = target_idx
+
       # Set the payload and evasion's subscriber values
       if ! opts['Quiet']
         driver.evasion.init_ui(opts['LocalInput'] || evasion.user_input, opts['LocalOutput'] || evasion.user_output)

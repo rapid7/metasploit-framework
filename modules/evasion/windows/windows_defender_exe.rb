@@ -78,12 +78,12 @@ int main() {
 
   def run
     puts target.inspect
-=begin
-    puts c_template
+
+    #puts c_template
     bin = Metasploit::Framework::Compiler::Windows.compile_random_c(c_template)
     print_status("Compiled binary size: #{bin.length}")
     file_create(bin)
-=end
+
   end
 
 end
