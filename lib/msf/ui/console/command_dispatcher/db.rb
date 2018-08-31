@@ -1802,6 +1802,7 @@ class Db
       if (::File.exist? file)
         db = YAML.load(::File.read(file))['production']
         framework.db.connect(db)
+        print_line('Connected to the database specified in the YAML file.')
         return
       end
     end
