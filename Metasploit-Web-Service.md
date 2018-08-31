@@ -43,41 +43,46 @@ information on the data models and various API endpoints by visiting the API Doc
 ## Utilizing the Data Service in msfconsole
 
 ### Connecting
-You can use the `db_connect` command to connect to the desired data service. Please note that you can only be connected to one data service at a time. The `db_disconnect` command will need to be used before switching to a new data service. You can use `db_status` to see information about the currently connected data service.
+You can use the `db_connect` command to connect to the desired data service. When you successfully connect to a data service that connection will be saved in the Metasploit config file. You can provide a name with the `-n` option, otherwise one will be randomly generated. You can then use that name to reconnect to the data service at a later time.
+
+Please note that you can only be connected to one data service at a time. The `db_disconnect` command will need to be used before switching to a new data service. You can use `db_status` to see information about the currently connected data service.
 
 **Usage:** `db_connect <options> <url>`
 * Options:
-  * `-l`,`--list-services` - List the available data services that have been previously saved.")
-  * `-n`,`--name` - Connect to a previously saved data service by specifying the name.")
+  * `-l`,`--list-services` - List the available data services that have been previously saved.
+  * `-y`,`--yaml` - Connect to the data service specified in the provided database.yml file.
+  * `-n`,`--name` - Name used to store the connection. Providing an existing name will overwrite the settings for that connection.
   * `-c`,`--cert` - Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.
   * `-t`,`--token` - The API token used to authenticate to the remote data service.
-  * `--skip-verify` - Skip validating authenticity of server's certificate. NOT RECOMMENDED.
+  * `--skip-verify` - Skip validating authenticity of server's certificate (NOT RECOMMENDED).
 * Examples:
   * `db_connect http://localhost:8080` - Connect to the Metasploit REST API instance at localhost running on port 8080
   * `db_connect -c ~/.msf4/msf-ws-cert.pem -t 72ce00fd9ab1a96970137e5a12faa12f38dcc4a9e42158bdd3ce7043c65f5ca37b862f3faf3630d2 https://localhost:8080` - Connect to the server running at localhost on port 8080 that has SSL and authentication enabled.
-  * `db_connect -l` - List the data services that have been saved using the `db_save` command.
-  * `db_connect -n LA_server` - Connect to the data service named "LA_server" that has been previously saved using `db_save`.
+  * `db_connect -l` - List the data services that have been saved.
+  * `db_connect -n LA_server http://localhost:8080` - Connect to the data service running on localhost port 8080 and assign the name "LA_server" to the saved entry.
 * URL Formats
   * HTTP - `http://<host>:<port>`
   * HTTPS - `https://<host>:<port>`
   * Postgres - `<user>:<password>@<host>:<port>/<database name>`
 
+### Setting a Default Data Service
+The `db_save` command can be used to save the currently connected data service as the default. Every time msfconsole starts up it will attempt to connect to that data service. You can always switch between data services if you have a default set, this will just determine which data service you are connected to when msfconsole is started.
 
-### Saving the Connection
-The currently connected data service can be saved for later use using the `db_save` command. The `default` connection is the data service that msfconsole will connect to on startup.
-
-**Usage:** `db_save <options> <name>`
-* Options:
-  * `-d`,`--default` - Set this data service as the default connection.
-  * `-c`,`--clear-default` - Clear the currently set default data service.
-  * `--delete` - Delete the specified data service.
+**Usage:** `db_save`
 * Examples:
-  * `db_save new_york_server` - Save the current connection as "new_york_server".
-  * `db_save -d LA_server` - Save the current connection as "LA_server" and set it as the default.
-  * `db-save --delete new_york_server` - Delete the "new_york_server" entry.
+  * `db_connect http://localhost:8080` then `db_save` - Connect to the data service running on localhost port 8080 then set it as the default connection.
+
+### Removing Saved Data Services
+Saved data services can be removed using the `db_remove` command. This can be useful if the data service no longer exists at that location, or if you no longer want to keep a record of it around for fast connection.
+
+**Usage:** `db_remove <name>`
+ * Examples:
+   * `db_remove LA_server` - Remove the saved data service entry called "LA_server"
 
 ### Notes
 There are a few pieces of information to keep in mind when using data services with Metasploit Framework.
+* Specifying the name of an existing saved data service connection will overwrite those settings.
+* A data service must already have an existing entry in the list of saved data services to be set as the default. Data services that were connected to using a database.yml file cannot be saved as default using this method.
 * A Postgres database connection is required before connecting to a remote data service.
 * The configuration from the `database.yml` will still be honored for the foreseeable future, but a saved default data service will take priority when it is present.
 * The saved data services are stored in the Metasploit config file, which is located at `~/.msf4/config` by default.
