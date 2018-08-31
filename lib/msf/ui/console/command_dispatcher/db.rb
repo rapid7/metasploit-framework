@@ -1718,6 +1718,8 @@ class Db
     print_line("       db_connect user:pass@192.168.0.2:1500/metasploit3")
     print_line("       db_connect http://localhost:8080")
     print_line("       db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
+    print_line("       db_connect --name LA-server http://laoffice.org:8080")
+    print_line("       db_connect LA-server")
     print_line(" ")
     print_line("   OPTIONS:")
     print_line("       -l,--list-services List the available data services that have been previously saved.")
@@ -1732,6 +1734,7 @@ class Db
     return if not db_check_driver
 
     opts = {}
+    https_opts = {}
     while (arg = args.shift)
       case arg
         when '-h', '--help'
@@ -1759,6 +1762,8 @@ class Db
         end
       end
     end
+
+    opts[:https_opts] = https_opts unless https_opts.empty?
 
     if !opts[:url] && !yaml_file
       print_error 'A URL or saved data service name is required.'
