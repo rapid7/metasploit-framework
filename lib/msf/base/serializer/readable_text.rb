@@ -64,6 +64,23 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
+  def self.dump_evasion_targets(mod, indent = '', h = nil)
+    tbl = Rex::Text::Table.new(
+      'Indent'  => indent.length,
+      'Header'  => h,
+      'Columns' =>
+        [
+          'Id',
+          'Name',
+        ])
+
+    mod.targets.each_with_index { |target, idx|
+      tbl << [ idx.to_s, target.name || 'All' ]
+    }
+
+    tbl.to_s + "\n"
+  end
+
   # Dumps the exploit's selected target
   #
   # @param mod [Msf::Exploit] the exploit module.
@@ -72,6 +89,27 @@ class ReadableText
   # @param h [String] the string to display as the table heading.
   # @return [String] the string form of the table.
   def self.dump_exploit_target(mod, indent = '', h = nil)
+    tbl = Rex::Text::Table.new(
+      'Indent'  => indent.length,
+      'Header'  => h,
+      'Columns' =>
+        [
+          'Id',
+          'Name',
+        ])
+
+    tbl << [ mod.target_index, mod.target.name || 'All' ]
+
+    tbl.to_s + "\n"
+  end
+
+  # Dumps the evasion module's selected target
+  #
+  # @param mod [Msf::Evasion] The evasion module.
+  # @param indent [String] The indentation to use (only the length matters)
+  # @param h [String] The string to display as the table heading.
+  # @return [String] The strong form of the table.
+  def self.dump_evasion_target(mod, indent = '', h = nil)
     tbl = Rex::Text::Table.new(
       'Indent'  => indent.length,
       'Header'  => h,

@@ -548,7 +548,7 @@ module Msf
                 when "plugins"
                   show_plugins
                 when "targets"
-                  if (mod and mod.exploit?)
+                  if (mod and (mod.exploit? or mod.evasion?))
                     show_targets(mod)
                   else
                     print_error("No exploit module selected.")
@@ -1055,8 +1055,14 @@ module Msf
           end
 
           def show_targets(mod) # :nodoc:
-            mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
-            print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+            case mod
+            when Msf::Exploit
+              mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
+              print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+            when Msf::Evasion
+              mod_targs = Serializer::ReadableText.dump_evasion_targets(mod, '   ')
+              print("\nEvasion targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+            end
           end
 
           def show_actions(mod) # :nodoc:
@@ -1093,7 +1099,7 @@ module Msf
 
             # If it's an exploit and a payload is defined, create it and
             # display the payload's options
-            if (mod.exploit? and mod.datastore['PAYLOAD'])
+            if (mod.evasion? and mod.datastore['PAYLOAD'])
               p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
               if (!p)

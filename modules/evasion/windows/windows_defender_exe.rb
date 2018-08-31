@@ -21,8 +21,13 @@ class MetasploitModule < Msf::Evasion
       },
       'Author'      => [ 'sinn3r' ],
       'License'     => MSF_LICENSE,
-      'Platform'    => 'win',
-      'Arch'        => ARCH_X86
+      #'Platform'    => 'win',
+      #'Arch'        => ARCH_X86,
+      'Targets'     =>
+        [
+          [ 'Linux',   { 'Arch' => ARCH_X86, 'Platform' => 'linux' } ],
+          [ 'Windows', { 'Arch' => ARCH_X86, 'Platform' => 'win' } ]
+        ]
     ))
   end
 
@@ -72,10 +77,13 @@ int main() {
   end
 
   def run
+    puts target.inspect
+=begin
     puts c_template
     bin = Metasploit::Framework::Compiler::Windows.compile_random_c(c_template)
     print_status("Compiled binary size: #{bin.length}")
     file_create(bin)
+=end
   end
 
 end

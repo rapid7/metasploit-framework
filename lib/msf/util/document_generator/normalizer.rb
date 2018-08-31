@@ -64,6 +64,7 @@ module Msf
         POST_DEMO_TEMPLATE              = 'post_demo_template.erb'
         AUXILIARY_SCANNER_DEMO_TEMPLATE = 'auxiliary_scanner_template.erb'
         PAYLOAD_DEMO_TEMPLATE           = 'payload_demo_template.erb'
+        EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'
 
         # Special messages
         NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-is-a-CVE-Not-Available%3F)|
@@ -309,6 +310,8 @@ module Msf
             load_demo_template(mod, AUXILIARY_SCANNER_DEMO_TEMPLATE)
           elsif is_remote_exploit?(mod)
             load_demo_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
+          elsif mod.kind_of?(Msf::Evasion)
+            load_demo_template(mod, EVASION_DEMO_TEMPLATE)
           else
             load_demo_template(mod, GENERIC_DEMO_TEMPLATE)
           end
