@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_availability
-    login_page = target_uri.path << '/index.php' unless target_uri.path.include?('index.php')
+    login_page = target_uri.path.end_with?('index.php') ? normalize_uri(target_uri.path) : normalize_uri(target_uri.path, '/index.php')
     res = send_request_cgi(
       'method'  =>  'GET',
       'uri'     =>  normalize_uri(login_page)
@@ -48,13 +48,13 @@ class MetasploitModule < Msf::Auxiliary
   def login(response)
     return false unless response
 
-    login_uri = target_uri.path << '/index.php' unless target_uri.path.include?('index.php')
+    login_uri = target_uri.path.end_with?('index.php') ? normalize_uri(target_uri.path) : normalize_uri(target_uri.path, '/index.php')
     cookies = response.get_cookies
     print_status("Logging in...")
 
     login_res = send_request_cgi(
        'method'  =>  'POST',
-       'uri'     =>  normalize_uri(login_uri),
+       'uri'     =>  login_uri,
        'cookie'  =>  cookies,
        'vars_post' =>  {
          'username'  =>  datastore['USERNAME'],
