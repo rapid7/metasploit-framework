@@ -14,7 +14,7 @@ module MetasploitModule
     ))
   end
 
-  def stagerGenerator(empireClient)
+  def stager_generator(empireClient)
     @stagerCode = empireClient.gen_stager(@listener_name, 'osx/teensy')
     return @stagerCode
   end
