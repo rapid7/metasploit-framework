@@ -1749,8 +1749,12 @@ class Db
         when '-l', '--list-services'
           list_saved_data_services
           return
-        when '-n', '--name'
+      when '-n', '--name'
           name = args.shift
+          if name =~ /\/|\[|\]/
+            print_error "Provided name contains an invalid character. Aborting connection."
+            return
+          end
         when '--skip-verify'
           https_opts[:skip_verify] = true
       else
