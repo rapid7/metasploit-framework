@@ -15,6 +15,10 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
     Integer(datastore['KEYMAX'] || 0)
   end
 
+  def key_inc
+    Integer(datastore['KEYINC'] || 0)
+  end
+
   def stub
     nil
   end
@@ -47,9 +51,26 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
       _max_key_len = buf.length
     end
 
-    for keyLen in _min_key_len.._max_key_len do
-      $stderr.print "\rKey size: #{keyLen}"
-      $stderr.flush
+    if _min_key_len > _max_key_len or min_key_len == -1
+      _min_key_len = _max_key_len
+    end
+
+    _key_inc = key_inc
+    if _key_inc < 1
+      _key_inc = Integer(buf.length / 100 * (0.01 + 0.001 * badchars.length))
+      if _key_inc < 1
+        _key_inc = 1
+      end
+    end
+
+    keyLen = _min_key_len
+    while keyLen < _max_key_len + _key_inc do
+      if keyLen > _max_key_len
+        keyLen = _max_key_len
+      end
+
+      #$stderr.print "\rKey size: #{keyLen}"
+      #$stderr.flush
 
       myKey = ""
       for x in 0..keyLen - 1 do
@@ -69,7 +90,6 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
             myKey << j.chr
             break
           end
-
         end
       end
 
@@ -77,10 +97,13 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
         keyFound = myKey
         break
       end
+
+      keyLen += _key_inc
     end
 
-    $stderr.print "\n"
-    $stderr.flush
+    #$stderr.print "\n"
+    #$stderr.flush
+
     return keyFound
   end
 
@@ -106,7 +129,7 @@ class Msf::Encoder::XorDynamic < Msf::Encoder
     key = find_key(buf, badchars, keyChars)
 
     if key == nil
-      raise NoKeyError, "A key could not be found for the #{self.name} encoder.", caller
+      raise EncodingError, "A key could not be found for the #{self.name} encoder.", caller
     end
 
     # Search for key terminator
