@@ -25,7 +25,7 @@ module Msf
         self.default_target = info['DefaultTarget']
       else
         self.default_target = 0
-        # Add an auto-target to the exploit if it doesn't have one
+        # Add an auto-target to the evasion if it doesn't have one
         if info['Targets'] && info['Targets'].count > 1 && !has_auto_target?(info['Targets'])
           # Finally, only add the target if there is a remote host option
           if self.respond_to?(:rhost) && self.respond_to?(:auto_targeted_index)
@@ -108,7 +108,7 @@ module Msf
       # what not?
       return false if !compatible?(pi)
 
-      # If the payload is privileged but the exploit does not give
+      # If the payload is privileged but the evasion does not give
       # privileged access, then fail it.
       return false if !self.privileged && pi.privileged
 
@@ -148,7 +148,7 @@ module Msf
     # Generates the encoded version of the supplied payload using the payload
     # requirements specific to this evasion module. The encoded instance is returned
     # to the caller. This method is exposed in the manner that it is such that passive
-    # exploits and re-generate an encoded payload on the fly rather than having to use
+    # evasions and re-generate an encoded payload on the fly rather than having to use
     # the pre-generated one.
     def generate_payload(pinst = nil)
       # Set the encoded payload to the result of the encoding process
@@ -194,7 +194,7 @@ module Msf
         real_payload.reset
       end
 
-      # Duplicate the exploit payload requirements
+      # Duplicate the evasion payload requirements
       reqs = self.payload_info.dup
 
       # Pass save register requirements to the NOP generator
@@ -212,7 +212,7 @@ module Msf
       reqs['EncoderType']     = payload_info['EncoderType']
       reqs['EncoderOptions']  = payload_info['EncoderOptions']
       reqs['ExtendedOptions'] = payload_info['ExtendedOptions']
-      reqs['Exploit']         = self
+      reqs['Evasion']         = self
 
       # Pass along the encoder don't fall through flag
       reqs['EncoderDontFallThrough'] = datastore['EncoderDontFallThrough']
@@ -238,7 +238,7 @@ module Msf
       # context information.  In the future, we might support obtaining
       # temporal information remotely.
 
-      # Pass along the information specified in our exploit datastore as
+      # Pass along the information specified in our evasion datastore as
       # encoder options
       reqs['EncoderOptions'] = {} if reqs['EncoderOptions'].nil?
       reqs['EncoderOptions']['EnableContextEncoding']  = datastore['EnableContextEncoding']
