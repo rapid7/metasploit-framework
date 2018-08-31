@@ -33,11 +33,11 @@ class Db
   #
   def commands
     base = {
-      "db_connect"    => "Connect to an existing database",
-      "db_disconnect" => "Disconnect from the current database instance",
-      "db_status"     => "Show the current database status",
-      "db_save"       => "Save the current database connection so it is re-used on startup",
-      "db_remove"     => "Remove the saved entry for the specified data service."
+      "db_connect"    => "Connect to an existing data service",
+      "db_disconnect" => "Disconnect from the current data service",
+      "db_status"     => "Show the current data service status",
+      "db_save"       => "Save the current data service connection as the default to reconnect on startup",
+      "db_remove"     => "Remove the saved data service entry"
     }
 
     more = {
@@ -1721,8 +1721,8 @@ class Db
     print_line(" ")
     print_line("   OPTIONS:")
     print_line("       -l,--list-services List the available data services that have been previously saved.")
-    print_line("       -y,--yaml          Connect to the database specified in the provided database.yml file.")
-    print_line("       -n,--name          Specify a name to save this connection as. Providing the name of a connection that already exists will overwrite existing connection.")
+    print_line("       -y,--yaml          Connect to the data service specified in the provided database.yml file.")
+    print_line("       -n,--name          Name used to store the connection. Providing an existing name will overwrite the settings for that connection.")
     print_line("       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
     print_line("       -t,--token         The API token used to authenticate to the remote data service.")
     print_line("       --skip-verify      Skip validating authenticity of server's certificate (NOT RECOMMENDED).")
@@ -1760,7 +1760,7 @@ class Db
       end
     end
 
-    unless opts[:url]
+    if !opts[:url] && !yaml_file
       print_error 'A URL or saved data service name is required.'
       print_line
       cmd_db_connect_help
@@ -1779,7 +1779,7 @@ class Db
       # Don't allow more than one HTTP service, though
       if new_conn_type != 'http' || framework.db.get_services_metadata.count >= 2
         print_error('Connection already established. Only one connection is allowed at a time.')
-        print_error('Run db_disconnect first if you wish to connect to a different database.')
+        print_error('Run db_disconnect first if you wish to connect to a different data service.')
         print_line
         print_line 'Current connection information:'
         print_connection_info
@@ -1906,7 +1906,7 @@ class Db
 
   def save_db_to_config(database, database_name)
     if database_name =~ /\/|\[|\]/
-      raise ArgumentError, 'Database name contains an invalid character.'
+      raise ArgumentError, 'Data service name contains an invalid character.'
     end
     config_path = "#{DB_CONFIG_PATH}/#{database_name}"
     config_opts = {}
@@ -1970,9 +1970,9 @@ class Db
       updated_opts = conf[DB_CONFIG_PATH]
       updated_opts.delete('default_db')
       Msf::Config.save(DB_CONFIG_PATH => updated_opts)
-      print_line "Cleared the default database."
+      print_line "Cleared the default data service."
     else
-      print_line "No default database was configured."
+      print_line "No default data service was configured."
     end
   end
 
