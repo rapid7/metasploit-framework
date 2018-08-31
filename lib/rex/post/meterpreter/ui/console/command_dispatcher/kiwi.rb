@@ -38,7 +38,7 @@ class Console::CommandDispatcher::Kiwi
     super
     print_line
     print_line
-    print_line("  .#####.   mimikatz 2.1.1 20170608 (#{client.session_type})")
+    print_line("  .#####.   mimikatz 2.1.1 20180820 (#{client.session_type})")
     print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
     print_line(" ## / \\ ##  /* * *")
     print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
