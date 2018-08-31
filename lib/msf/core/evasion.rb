@@ -94,6 +94,11 @@ module Msf
       return c_platform, c_arch
     end
 
+    # Returns whether the requested payload is compatible with the module
+    #
+    # @param [String] name The payload name
+    # @param [TrueClass] Payload is compatible.
+    # @param [FlaseClass] Payload is not compatible.
     def is_payload_compatible?(name)
       p = framework.payloads[name]
 
@@ -110,6 +115,8 @@ module Msf
       return true
     end
 
+    # Returns a list of compatible payloads based on platform, architecture,
+    # and size requirements.
     def compatible_payloads
       payloads = []
 
@@ -138,6 +145,11 @@ module Msf
       {}
     end
 
+    # Generates the encoded version of the supplied payload using the payload
+    # requirements specific to this evasion module. The encoded instance is returned
+    # to the caller. This method is exposed in the manner that it is such that passive
+    # exploits and re-generate an encoded payload on the fly rather than having to use
+    # the pre-generated one.
     def generate_payload(pinst = nil)
       # Set the encoded payload to the result of the encoding process
       self.payload = generate_single_payload(pinst)
