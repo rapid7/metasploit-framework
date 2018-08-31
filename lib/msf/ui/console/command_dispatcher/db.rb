@@ -1848,14 +1848,17 @@ class Db
       if framework.db.driver == 'http'
         begin
           framework.db.delete_current_data_service
+          local_db_url = build_postgres_url
+          local_name = data_service_search(local_db_url)
+          @current_data_service = local_name
         rescue => e
           print_error "Unable to disconnect from the data service: #{e.message}"
         end
       else
         framework.db.disconnect
+        @current_data_service = nil
       end
       print_line "Successfully disconnected from the data service: #{db_name}."
-      @current_data_service = nil
     else
       print_error "Not currently connected to a data service."
     end
@@ -1931,13 +1934,7 @@ class Db
         print_error "There was an error saving the data service configuration: #{e.message}"
       end
     else
-      conn_params = ActiveRecord::Base.connection_config
-      url = ""
-      url += "#{conn_params[:username]}" if conn_params[:username]
-      url += ":#{conn_params[:password]}" if conn_params[:password]
-      url += "@#{conn_params[:host]}" if conn_params[:host]
-      url += ":#{conn_params[:port]}" if conn_params[:port]
-      url += "/#{conn_params[:database]}" if conn_params[:database]
+      url = build_postgres_url
       config_opts['url'] = url
       Msf::Config.save(config_path => config_opts)
     end
@@ -2205,6 +2202,17 @@ class Db
     end
     print_line
     print_line tbl.to_s
+  end
+
+  def build_postgres_url
+    conn_params = ActiveRecord::Base.connection_config
+    url = ""
+    url += "#{conn_params[:username]}" if conn_params[:username]
+    url += ":#{conn_params[:password]}" if conn_params[:password]
+    url += "@#{conn_params[:host]}" if conn_params[:host]
+    url += ":#{conn_params[:port]}" if conn_params[:port]
+    url += "/#{conn_params[:database]}" if conn_params[:database]
+    url
   end
 
   def print_msgs(status_msg, error_msg)
