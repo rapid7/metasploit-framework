@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Encoder::Xor
       state.context = 1
     rescue RuntimeError => e
       raise BadcharError if e.message == "No valid set instruction could be created!"
-    end 
+    end
     return decoder
   end
 
