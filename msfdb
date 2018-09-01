@@ -642,26 +642,22 @@ def output_web_service_information
   puts ''
   puts 'MSF web service configuration complete'
   puts 'Connect to the data service in msfconsole using the command:'
-  # build db_connect command based on install options
-  connect_cmd = "db_connect --token #{@ws_api_token}"
-  connect_cmd << " --cert #{@options[:ssl_cert]}" if @options[:ssl]
-  connect_cmd << " --skip-verify" if skip_ssl_verify?
-  connect_cmd << " #{get_web_service_uri}"
-  puts "#{connect_cmd}"
+  puts "#{get_db_connect_command}"
   puts ''
   puts 'The username and password are credentials for the API account:'
   puts "#{get_web_service_uri(path: '/api/v1/auth/account')}"
   puts ''
 
-  persist_data_service(connect_cmd: connect_cmd)
+  persist_data_service
 end
 
-def persist_data_service(connect_cmd:)
+def persist_data_service
   if ask_yn('Add data service connection to local msfconsole and persist as default?')
     data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
     data_service_name = ask_value('Data service connection name?', data_service_name)
     # execute msfconsole commands to add and persist the data service connection
-    cmd = "msfconsole -qx \"#{connect_cmd}; db_save -d #{data_service_name}; exit\""
+    connect_cmd = get_db_connect_command(name: data_service_name)
+    cmd = "msfconsole -qx \"#{connect_cmd}; db_save; exit\""
     if run_cmd(cmd) != 0
       # attempt to execute msfconsole in the current working directory
       if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
@@ -669,6 +665,17 @@ def persist_data_service(connect_cmd:)
       end
     end
   end
+end
+
+def get_db_connect_command(name: nil)
+  # build db_connect command based on install options
+  connect_cmd = "db_connect"
+  connect_cmd << " --name #{name}" unless name.nil?
+  connect_cmd << " --token #{@ws_api_token}"
+  connect_cmd << " --cert #{@options[:ssl_cert]}" if @options[:ssl]
+  connect_cmd << " --skip-verify" if skip_ssl_verify?
+  connect_cmd << " #{get_web_service_uri}"
+  connect_cmd
 end
 
 def get_web_service_uri(path: nil)
