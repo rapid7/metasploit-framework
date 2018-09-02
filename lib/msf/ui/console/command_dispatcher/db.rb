@@ -2042,7 +2042,7 @@ class Db
       opts['host'] = '127.0.0.1'
     end
 
-    if framework.db.connect(opts)
+    if framework.db.connect(opts) && framework.db.connection_established?
       print_line "Connected to Postgres data service: #{info[:host]}/#{info[:name]}"
     else
       raise RuntimeError.new("Failed to connect to the Postgres data service: #{framework.db.error}")
@@ -2064,7 +2064,7 @@ class Db
       print_line "Connected to HTTP data service: #{remote_data_service.name}"
       framework.db.workspace = framework.db.default_workspace
     rescue => e
-      print_error "There was a problem connecting to the HTTP data service: #{e.message}"
+      raise RuntimeError.new("Failed to connect to the HTTP data service: #{e.message}")
     end
   end
 
