@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Post
 
   # @return [Array<String>] list of user names
   def users
-    @users ||= cmd_exec("/bin/ls /Users").each_line.collect.map(&:chomp) - OSX_IGNORE_ACCOUNTS
+    @tmp = cmd_exec("/bin/ls /Users").split("\t").delete_if(&:empty?) - OSX_IGNORE_ACCOUNTS
   end
 
   # @return [String] version string (e.g. 10.8.5)
