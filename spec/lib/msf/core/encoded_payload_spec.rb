@@ -142,14 +142,14 @@ RSpec.describe Msf::EncodedPayload do
       end
 
     end
-    context 'with bad characters: "\\x00\\x0a\\x0d"' do
+    context 'with meterpreter/ bad characters: "\\x00\\x0a\\x0d"' do
       let(:badchars) { "\x00\x0a\x0d".force_encoding('binary') }
       let(:ancestor_reference_names) {
-        %w{singles/linux/x86/meterpreter_reverse_tcp}
+        %w{singles/windows/meterpreter_bind_tcp}
       }
 
       let(:reference_name) {
-        'linux/x86/meterpreter_reverse_tcp'
+        'windows/meterpreter_bind_tcp'
       }
 
       specify 'chooses x86/xor_dynamic' do
