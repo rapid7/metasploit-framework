@@ -8,7 +8,7 @@ require 'rexml/document'
 
 class MetasploitModule < Msf::Post
   # set of accounts to ignore while pilfering data
-  OSX_IGNORE_ACCOUNTS = ["Shared", ".localized"]
+  # OSX_IGNORE_ACCOUNTS = ["Shared", ".localized"]
 
   include Msf::Post::File
   include Msf::Post::OSX::Priv
@@ -203,7 +203,10 @@ class MetasploitModule < Msf::Post
 
   # @return [Array<String>] list of user names
   def users
-    @tmp = cmd_exec("/bin/ls /Users").split("\t").delete_if(&:empty?) - OSX_IGNORE_ACCOUNTS
+    tmp = cmd_exec("dscacheutil -q user").split(/$/).map(&:strip) - OSX_IGNORE_ACCOUNTS
+    res = Array.new()
+    tmp.each_with_index{ |val, index| res << val.split("name: ")[1] if val.include?("name: ") and tmp[index+1].include?("**")}
+    res
   end
 
   # @return [String] version string (e.g. 10.8.5)
