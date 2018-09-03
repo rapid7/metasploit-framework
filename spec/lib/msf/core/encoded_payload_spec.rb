@@ -142,7 +142,7 @@ RSpec.describe Msf::EncodedPayload do
       end
 
     end
-    context 'with meterpreter/ bad characters: "\\x00\\x0a\\x0d"' do
+    context 'with windows/meterpreter_bind_tcp and bad characters: "\\x00\\x0a\\x0d"' do
       let(:badchars) { "\x00\x0a\x0d".force_encoding('binary') }
       let(:ancestor_reference_names) {
         %w{singles/windows/meterpreter_bind_tcp}
