@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Post
 
   # @return [Array<String>] list of user names
   def users
-    tmp = cmd_exec("dscacheutil -q user").split(/$/).map(&:strip) - OSX_IGNORE_ACCOUNTS
+    tmp = cmd_exec("dscacheutil -q user").split(/$/).map(&:strip) #- OSX_IGNORE_ACCOUNTS
     res = Array.new()
     tmp.each_with_index{ |val, index| res << val.split("name: ")[1] if val.include?("name: ") and tmp[index+1].include?("**")}
     res
