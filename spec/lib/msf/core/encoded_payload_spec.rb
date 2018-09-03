@@ -133,8 +133,8 @@ RSpec.describe Msf::EncodedPayload do
     context 'with bad characters: "\\xD9\\x00"' do
       let(:badchars) { "\xD9\x00".force_encoding('binary') }
 
-      specify 'chooses x86/call4_dword_xor' do
-        expect(encoded_payload.encoder.refname).to eq("x86/call4_dword_xor")
+      specify 'chooses x86/xor_dynamic' do
+        expect(encoded_payload.encoder.refname).to eq("x86/xor_dynamic")
       end
 
       specify do
