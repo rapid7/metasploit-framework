@@ -210,6 +210,15 @@ class RPC_Module < RPC_Base
 
   alias :rpc_compatible_exploit_payloads :rpc_compatible_payloads
 
+
+  # Returns the compatible payloads for a specific evasion module.
+  #
+  # @param [String] mname Evasion module name. For example: 'windows/windows_defender_exe'
+  # @raise [Msf::RPC::Exception] Module not found (wrong name).
+  # @return [Hash] The evasion module's compatible payloads. It contains the following key:
+  #  * 'payloads' [Array<String>] A list of payloads.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.compatible_evasion_payloads', 'windows/windows_defender_exe')
   def rpc_compatible_evasion_payloads(mname)
     m = _find_module('evasion', mname)
     res = {}
