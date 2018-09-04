@@ -45,14 +45,12 @@ class EvasionDriver
 
   def validate
     if (payload == nil)
-      raise MissingPayloadError,
-        "A payload has not been selected.", caller
+      raise MissingPayloadError, "A payload has not been selected.", caller
     end
 
     # Make sure the payload is compatible after all
     if (compatible_payload?(payload) == false)
-      raise IncompatiblePayloadError.new(payload.refname),
-        "Incompatible payload", caller
+      raise IncompatiblePayloadError.new(payload.refname), "Incompatible payload", caller
     end
 
     # Associate the payload instance with the evasion
@@ -70,15 +68,6 @@ class EvasionDriver
     return true
   end
 
-  #
-  # Kicks off an evasion attempt and performs the following four major
-  # operations:
-  #
-  #   - Generates the payload
-  #   - Initializes & monitors the handler
-  #   - Launches the evasion
-  #   - Cleans up the handler
-  #
   def run
     # First thing's first -- validate the state.  Make sure all requirement
     # parameters are set, including those that are derived from the
@@ -108,32 +97,32 @@ class EvasionDriver
   attr_accessor :payload # :nodoc:
   attr_accessor :use_job # :nodoc:
   #
-  # The identifier of the job this exploit is launched as, if it's run as a
+  # The identifier of the job this evasion module is launched as, if it's run as a
   # job.
   #
   attr_accessor :job_id
   attr_accessor :force_wait_for_session # :nodoc:
   attr_accessor :session # :nodoc:
 
-  # To synchronize threads cleaning up the exploit and the handler
+  # To synchronize threads cleaning up the evasion
   attr_accessor :semaphore
 
 protected
 
   #
-  # Job run proc, sets up the exploit and kicks it off.
+  # Job run proc, sets up the eevasion and kicks it off.
   #
   def job_run_proc(ctx)
     evasion, payload = ctx
     evasion.setup
     evasion.framework.events.on_module_run(evasion)
 
-    # Launch the exploit
+    # Launch the evasion module
     evasion.run
   end
 
   #
-  # Clean up the exploit and the handler after the job completes.
+  # Clean up the evasion after the job completes.
   #
   def job_cleanup_proc(ctx)
     evasion, payload = ctx

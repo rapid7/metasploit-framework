@@ -43,6 +43,10 @@ class MetasploitModule < Msf::Evasion
     }.call
   end
 
+  def primer
+    print_status("test")
+  end
+
   def c_template
     @c_template ||= %Q|#include <Windows.h>
 #include <rc4.h>
