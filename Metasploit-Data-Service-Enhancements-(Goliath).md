@@ -41,4 +41,4 @@ This approach enables us to:
 
 ## Usage
 
-For more information on setting up the Remote Data Service and using the REST API see [Metasploit Remote Data Service and REST API](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Remote-Data-Service-and-REST-API).
+For more information on setting up the web service and using the data services see [Metasploit Web Service](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service).
