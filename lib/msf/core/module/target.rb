@@ -139,7 +139,7 @@ class Msf::Module::Target
     self.name            = name
     self.opts            = opts
     self.save_registers  = opts['SaveRegisters']
-    self.ret             = opts['Ret'],
+    self.ret             = opts['Ret']
     self.default_options = opts['DefaultOptions']
 
     if opts['Platform']
