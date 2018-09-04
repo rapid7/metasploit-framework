@@ -145,6 +145,18 @@ module Msf
       {}
     end
 
+    def stance
+      'passive'
+    end
+
+    def passive?
+      true
+    end
+
+    def aggressive?
+      false
+    end
+
     # Generates the encoded version of the supplied payload using the payload
     # requirements specific to this evasion module. The encoded instance is returned
     # to the caller. This method is exposed in the manner that it is such that passive

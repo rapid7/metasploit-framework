@@ -124,7 +124,7 @@ class RPC_Module < RPC_Base
       res['references'] << [r.ctx_id, r.ctx_val]
     end
 
-    if m.type == 'exploit'
+    if m.type == 'exploit' || m.type == 'evasion'
       res['targets'] = {}
       m.targets.each_index do |i|
         res['targets'][i] = m.targets[i].name
