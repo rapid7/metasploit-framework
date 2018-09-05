@@ -193,6 +193,8 @@ The external modules communicate with framework via JSON-RPC. If your Python mod
 
 [Rapid7 Blog: Regifting Python in Metasploit](https://blog.rapid7.com/2017/12/28/regifting-python-in-metasploit/)
 
+[Rapid7 Blog: External Metasploit Modules: The Gift That Keeps On Slithering](https://blog.rapid7.com/2018/09/05/external-metasploit-modules-the-gift-that-keeps-on-slithering/)
+
 [Metasploit Python library](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/modules/external/python/)
 
 [ERB Templates](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/modules/external/templates)
