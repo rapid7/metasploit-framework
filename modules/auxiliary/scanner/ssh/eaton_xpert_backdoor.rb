@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         'BrianWGray'
       ],
       'References'     => [
-        ['CVE', 'CVE-2018-16158'],
+        ['CVE', '2018-16158'],
         ['EDB', '45283'],
         ['URL', 'http://www.eaton.com/content/dam/eaton/company/news-insights/cybersecurity/security-bulletins/PXM-Advisory.pdf'],
         ['URL', 'https://www.ctrlu.net/vuln/0006.html']
