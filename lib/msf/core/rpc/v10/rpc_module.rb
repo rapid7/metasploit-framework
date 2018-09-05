@@ -543,6 +543,8 @@ private
 
   def _run_evasion(mod, opts)
     Msf::Simple::Evasion.run_simple(mod, {
+      'Payload'  => opts['PAYLOAD'],
+      'Target'   => opts['TARGET'],
       'RunAsJob' => true,
       'Options'  => opts
     })

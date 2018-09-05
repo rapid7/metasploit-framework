@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Evasion
   end
 
   def rc4_key
-    '4ASMkFslyhwXehNZw048cF1Vh1ACzyyA'.freeze
+    @rc4_key ||= Rex::Text.rand_text_alpha(32)
   end
 
   def get_payload
