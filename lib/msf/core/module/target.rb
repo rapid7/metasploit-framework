@@ -220,6 +220,13 @@ class Msf::Module::Target
   end
 
   #
+  # Whether NOP generation should be enabled or disabled
+  #
+  def payload_disable_nops
+    opts['Payload'] ? opts['Payload']['DisableNops'] : nil
+  end
+
+  #
   # Payload max nops information for this target.
   #
   def payload_max_nops
