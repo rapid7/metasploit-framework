@@ -145,15 +145,11 @@ class Msf::Modules::External::Shim
   #
   def self.transform_notes(notes)
     upcase_keys = %w[aka nocve]
-    formatted_notes = {}
-    notes.each do |k, v|
-      if upcase_keys.include? k.downcase
-        formatted_notes[k.upcase] = v
-      else
-        formatted_notes[k] = v
-      end
+    notes.reduce({}) do |acc, (key, val)|
+      key = (upcase_keys.include? key.downcase) ? key.upcase : key
+      acc[key] = val
+      acc
     end
-    formatted_notes
   end
 
 end
