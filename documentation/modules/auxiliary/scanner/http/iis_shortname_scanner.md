@@ -1,0 +1,67 @@
+
+## Microsoft IIS shortname vulnerability scanner
+
+The vulnerability is caused by a tilde character "~" in a GET or OPTIONS request, which could allow remote attackers to diclose 8.3 filenames (short names). This is a new technique for an existing bug (CVE-2009-4444), which relied on the use of the ;(semicolon) character. Soroush Dalili discovered the original bug, while the new ~ technique was discovered by Soroush Dalili and Ali Abbasnejad. 
+
+
+## Vulnerable Application
+
+Older Microsoft IIS installations are vulnerable with GET, newer installations with OPTIONS
+  
+  
+## Verification Steps
+
+  Example steps in this format (is also in the PR):
+
+  1. Install IIS (default installations are vulnerable)
+  2. Start msfconsole
+  3. Check:
+  
+  ```
+  msf > use auxiliary/scanner/http/iis_shortname_scanner
+  msf auxiliary(iis_shortname_scanner) > set 172.16.249.128
+  msf auxiliary(iis_shortname_scanner) > check
+  [+] 172.16.249.128:80 The target is vulnerable.
+  ```
+
+  4. Scan:
+  
+  ```
+  msf auxiliary(iis_shortname_scanner) > run
+  [*] Scanning in progress...
+  [+] Directories found
+  http://172.16.249.128/aspnet~1
+  http://172.16.249.128/secret~1
+  [+] Files found
+  http://172.16.249.128/web~1.con
+  http://172.16.249.128/index~1.htm
+  http://172.16.249.128/upload~1.asp
+  http://172.16.249.128/upload~2.asp
+  [*] Auxiliary module execution completed
+  ```
+
+## Options
+
+```
+  Module options (auxiliary/scanner/http/iis_shortname_scanner):
+
+  Name     Current Setting  Required  Description
+  ----     ---------------  --------  -----------
+  PATH     /                yes       The base path to start scanning from
+  Proxies                   no        A proxy chain of format type:host:port[,type:host:port][...]
+  RHOST                     yes       The target address
+  RPORT    80               yes       The target port (TCP)
+  SSL      false            no        Negotiate SSL/TLS for outgoing connections
+  VHOST                     no        HTTP server virtual host
+```
+
+## Remediation
+
+Create registry key NtfsDisable8dot3NameCreation at HKLM\SYSTEM\CurrentControlSet\Control\FileSystem, with a value of 1
+
+
+## References
+
+    CVE-2009-4444
+    https://soroush.secproject.com/blog/tag/iis-tilde-vulnerability/
+    https://support.detectify.com/customer/portal/articles/1711520-microsoft-iis-tilde-vulnerability
