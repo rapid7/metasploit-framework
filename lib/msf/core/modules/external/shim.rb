@@ -58,6 +58,7 @@ class Msf::Modules::External::Shim
     end.join(",\n          ")
 
     meta[:capabilities] = mod.meta['capabilities']
+    meta[:notes] = transform_notes(mod.meta['notes'])
     meta
   end
 
@@ -78,7 +79,6 @@ class Msf::Modules::External::Shim
     meta[:targets]     = mod.meta['targets'].map do |t|
       "[#{t['platform'].dump} + ' ' + #{t['arch'].dump}, {'Arch' => ARCH_#{t['arch'].upcase}, 'Platform' => #{t['platform'].dump} }]"
     end.join(",\n          ")
-    meta[:notes] = transform_notes(mod.meta['notes'])
     meta
   end
 
@@ -106,7 +106,6 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
-    meta[:notes] = transform_notes(mod.meta['notes'])
     render_template('single_scanner.erb', meta)
   end
 
@@ -116,7 +115,6 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
-    meta[:notes] = transform_notes(mod.meta['notes'])
 
     render_template('single_host_login_scanner.erb', meta)
   end
@@ -127,7 +125,6 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
-    meta[:notes] = transform_notes(mod.meta['notes'])
 
     render_template('multi_scanner.erb', meta)
   end
@@ -138,7 +135,6 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
-    meta[:notes] = transform_notes(mod.meta['notes'])
 
     render_template('dos.erb', meta)
   end
