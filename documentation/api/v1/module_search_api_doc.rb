@@ -83,7 +83,7 @@ module ModuleSearchApiDoc
       'Windows 7 and Server 2008 R2 (x64) All Service Packs'
   ]
   NOTES_EXAMPLE = {
-      'AKA': [ 'ETERNALBLUE' ]
+      'AKA' => [ 'ETERNALBLUE' ]
   }
 
 
