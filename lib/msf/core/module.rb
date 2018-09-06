@@ -123,9 +123,6 @@ class Module
     self.platform = PlatformList.transform(module_info['Platform'])
     self.references = Rex::Transformer.transform(module_info['References'], Array, [ SiteReference, Reference ], 'Ref')
 
-    # Create and initialize the notes container for this module
-    self.notes = Msf::NoteContainer.new(module_info['Notes'])
-
     # Create and initialize the option container for this module
     self.options = Msf::OptionContainer.new
     self.options.add_options(info['Options'], self.class)
@@ -370,11 +367,6 @@ class Module
   attr_reader   :references
 
   #
-  # The notes for the module
-  #
-  attr_reader :notes
-
-  #
   # The license under which this module is provided.
   #
   attr_reader   :license
@@ -418,7 +410,7 @@ class Module
     self.module_store = {}
   end
 
-  attr_writer   :platform, :references, :notes # :nodoc:
+  attr_writer   :platform, :references # :nodoc:
   attr_writer   :privileged # :nodoc:
   attr_writer   :license # :nodoc:
 

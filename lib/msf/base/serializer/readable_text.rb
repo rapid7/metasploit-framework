@@ -552,7 +552,7 @@ class ReadableText
   def self.dump_aka(mod, indent = '')
     output = ''
 
-    if mod.respond_to?(:notes) && mod.notes.aka && mod.notes.aka.value.length > 0
+    if mod.notes['AKA'].present?
       output << "AKA:\n"
 
       mod.notes.aka.value.each do |aka_name|
