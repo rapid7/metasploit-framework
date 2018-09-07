@@ -78,12 +78,12 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       rescue Rex::ConnectionError
+        vprint_error("Connection failed")
         return Exploit::CheckCode::Unknown
     end
   end
 
   def is_vul
-    begin
       for method in ['GET', 'OPTIONS']
         res1 = send_request_cgi({
           'uri' => normalize_uri(datastore['PATH'], '*~1*'),
@@ -106,8 +106,9 @@ class MetasploitModule < Msf::Auxiliary
       else
         return false
       end
+  rescue Rex::ConnectionError
+    print_bad("Failed to connect to target")
     end
-  end
 
   def get_status(f , digit , match)
     res2 = send_request_cgi({
@@ -232,9 +233,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if !is_vul
+    unless is_vul
       print_status("Target is not vulnerable, or no shortname scannable files are present.")
       return
+    end
     else
       print_status("Scanning in progress...")
       @threads << Thread.new { reduce }
@@ -254,6 +256,7 @@ class MetasploitModule < Msf::Auxiliary
 
       @threads.each(&:join)
       if @dirs.empty?
+        print_status("No directories were found")
       else
         print_good("Directories found")
         @dirs.each do |x|
@@ -261,6 +264,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
       if @files.empty?
+        print_status("No files were found")
       else
         print_good("Files found")
         @files.each do |x|
