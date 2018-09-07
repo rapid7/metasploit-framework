@@ -32,10 +32,13 @@ module Msf
         kb_path = nil
         kb = ''
 
-        if File.exists?(File.join(PullRequestFinder::USER_MANUAL_BASE_PATH, "#{mod.fullname}.md"))
-          kb_path = File.join(PullRequestFinder::USER_MANUAL_BASE_PATH, "#{mod.fullname}.md")
-        elsif File.exists?(File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md"))
-          kb_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
+        user_path = File.join(PullRequestFinder::USER_MANUAL_BASE_PATH, "#{mod.fullname}.md")
+        global_path = File.join(PullRequestFinder::MANUAL_BASE_PATH, "#{mod.fullname}.md")
+
+        if File.exists?(user_path)
+          kb_path = user_path
+        elsif File.exists?(global_path)
+          kb_path = global_path
         end
 
         unless kb_path.nil?
