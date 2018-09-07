@@ -41,6 +41,7 @@ PhpMyAdmin Creds Stealer!
 [+] User: admin
 [+] Password: acoolpassword
 [*] Storing credentials...
+[+] Config file located at /Users/space/.msf4/loot/20180907081056_default_192.168.37.226_phpmyadmin_conf_580315.txt
 [*] Post module execution completed
 msf5 post(linux/gather/phpmyadmin_credsteal) > 
 

