@@ -237,7 +237,6 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Target is not vulnerable, or no shortname scannable files are present.")
       return
     end
-    else
       print_status("Scanning in progress...")
       @threads << Thread.new { reduce }
       @threads << Thread.new { dup }
@@ -273,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-end
+
 
 
 
