@@ -103,7 +103,7 @@ try:
             'OUTPUT': {
                 'type': 'string',
                 'description': 'Output file (will be appended to)',
-                'required': True,
+                'required': False,
                 'default': None
             },
             'PASSWORD': {
@@ -141,7 +141,7 @@ try:
             'LOGFILE': {
                 'type': 'string',
                 'description': 'Log file',
-                'required': True,
+                'required': False,
                 'default': None
             },
             # TODO: RPORT needs to exist or reporting the valid/invalid creds causes an error...
@@ -260,53 +260,54 @@ def report(out_q, output_file):
         VALID_LOGIN: "!",
         UNKNOWN: "?"
     }
-    
-    with open(output_file, "a", 1) as f:
-        while not SHUTDOWN_EVENT.is_set():
-            try:
-                result = out_q.get()
-            except queue.Empty as e:
-                msg = "report: out_q empty"
-                if MSF:
-                    module.log(msg, "debug")
-                else:
-                    logging.debug(msg)
-                continue
-            if result == DIE:
-                out_q.task_done()
-                msg = "report thread dying."
-                if MSF:
-                    module.log(msg, "debug")
-                else:
-                    logging.debug(msg)
-                break 
+
+    while not SHUTDOWN_EVENT.is_set():
+        try:
+            result = out_q.get()
+        except queue.Empty as e:
+            msg = "report: out_q empty"
+            if MSF:
+                module.log(msg, "debug")
             else:
-                user, password, valid, r = result
-                if r is None:
-                    code = "???"
+                logging.debug(msg)
+            continue
+        if result == DIE:
+            out_q.task_done()
+            msg = "report thread dying."
+            if MSF:
+                module.log(msg, "debug")
+            else:
+                logging.debug(msg)
+            break
+        else:
+            user, password, valid, r = result
+            if r is None:
+                code = "???"
+            else:
+                code = r.status_code
+            s = symbols.get(valid)
+            output = template.format(s=s, code=code, valid=valid, user=user, password=password)
+            if MSF:
+                msf_output = msf_template.format(code=code, valid=valid, user=user, password=password)
+                msf_reporters = {
+                    VALID_USER: module.report_wrong_password,
+                    VALID_PASSWD_2FA: module.report_correct_password,
+                    VALID_LOGIN: module.report_correct_password
+                }
+                module.log(msf_output, "debug")
+                msf_reporter = msf_reporters.get(valid)
+                if msf_reporter is not None:
+                    msf_reporter(user, password)
+                if valid in [VALID_LOGIN, VALID_PASSWD_2FA, VALID_USER]:
+                    module.log(msf_output, "good")
                 else:
-                    code = r.status_code
-                s = symbols.get(valid)
-                output = template.format(s=s, code=code, valid=valid, user=user, password=password)
-                if MSF:
-                    msf_output = msf_template.format(code=code, valid=valid, user=user, password=password)
-                    msf_reporters = {
-                        VALID_USER: module.report_wrong_password,
-                        VALID_PASSWD_2FA: module.report_correct_password,
-                        VALID_LOGIN: module.report_correct_password
-                    }
-                    module.log(msf_output, "debug")
-                    msf_reporter = msf_reporters.get(valid)
-                    if msf_reporter is not None:
-                        msf_reporter(user, password)
-                    if valid in [VALID_LOGIN, VALID_PASSWD_2FA, VALID_USER]:
-                        module.log(msf_output, "good")
-                    else:
-                        module.log(msf_output, "error")
-                else:
-                    logging.info(output)
-                f.write("{}\n".format(output))
-                out_q.task_done()
+                    module.log(msf_output, "error")
+            else:
+                logging.info(output)
+            if output_file:
+                with open(output_file, "a", 1) as f:
+                    f.write("{}\n".format(output))
+            out_q.task_done()
 
 
 def run(args):
