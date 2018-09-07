@@ -11,8 +11,6 @@ Older Microsoft IIS installations are vulnerable with GET, newer installations w
   
 ## Verification Steps
 
-  Example steps in this format (is also in the PR):
-
   1. Install IIS (default installations are vulnerable)
   2. Start msfconsole
   3. Check:
