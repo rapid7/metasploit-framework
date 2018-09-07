@@ -26,16 +26,14 @@ class MetasploitModule < Msf::Post
    end
 
   def parse_creds(contents)
-    db_user = /\$dbuser=['"](.*)['"];/.match(contents)
-    db_pass = /\$dbpass=['"](.*)['"];/.match(contents)
+    db_user = contents.scan(/\$dbuser\s*=\s*['"](.*)['"];/).flatten.first
+    db_pass = contents.scan(/\$dbpass\s*=\s*['"](.*)['"];/).flatten.first
 
     unless db_user && db_pass
       print_error("Couldn't find PhpMyAdmin credentials")
       return
     end
 
-    db_user = db_user[1]
-    db_pass = db_pass[1]
     print_good("User: #{db_user}")
     print_good("Password: #{db_pass}")
 
