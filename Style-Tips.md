@@ -46,4 +46,4 @@ While we understand that the world reads many, many languages, Metasploit is dev
 
 Module titles should read like titles. For capitalization rules in English, see: http://owl.english.purdue.edu/owl/resource/592/01/
     
-The only exceptions are function names (like 'thisFunc()') and specific filenames (like thisfile.ocx). Module titles should be contrived so both the first and last word begins with a capital letter, as this is an [msftidy.rb](https://github.com/rapid7/metasploit-framework/blob/master/tools/msftidy.rb) check.
+The only exceptions are function names (like 'thisFunc()') and specific filenames (like thisfile.ocx). 
