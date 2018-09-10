@@ -3,12 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# XXX: This shouldn't be necessary but is now
-require 'net/ssh/command_stream'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SSH
-  include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Report
