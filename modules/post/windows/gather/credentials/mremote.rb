@@ -50,9 +50,9 @@ class MetasploitModule < Msf::Post
     begin
       if file_exist?(path)
         condata = read_file(path)
-	loot_path = store_loot('confCons.xml', 'text/plain', session, condata)
-	vprint_good("confCons.xml saved to #{loot_path}")
-	parse_xml(condata)
+        loot_path = store_loot('confCons.xml', 'text/plain', session, condata)
+        vprint_good("confCons.xml saved to #{loot_path}")
+        parse_xml(condata)
         print_status("Finished processing #{path}")
       end
     rescue Rex::Post::Meterpreter::RequestError
