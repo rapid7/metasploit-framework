@@ -36,7 +36,7 @@ class Console::CommandDispatcher::Mimikatz
     super
 
     si = client.sys.config.sysinfo
-    if client.arch == ARCH_X86 and si['Architecture'] == ARCH_X64
+    if client.arch == ARCH_X86 && si['Architecture'] == ARCH_X64
       print_warning('Loaded x86 Mimikatz on an x64 architecture.')
       print_line
     end
