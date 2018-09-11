@@ -93,7 +93,8 @@ module System
   # @return [Boolean]
   #
   def has_gcc?
-    command_exists? 'gcc'
+    # https://github.com/rapid7/metasploit-framework/pull/10437#issuecomment-419984613
+    command_exists?('gcc') || command_exists?('/usr/sfw/bin/gcc')
   rescue
     raise 'Unable to check for gcc'
   end
