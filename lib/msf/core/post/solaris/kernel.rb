@@ -3,7 +3,7 @@ require 'msf/core/post/common'
 
 module Msf
 class Post
-module Linux
+module Solaris
 module Kernel
   include ::Msf::Post::Common
 
