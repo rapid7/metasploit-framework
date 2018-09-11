@@ -109,7 +109,10 @@ class MetasploitModule < Msf::Auxiliary
         STARTTLS may also be vulnerable.
 
         The module supports several actions, allowing for scanning, dumping of
-        memory contents, and private key recovery.
+        memory contents, and private key recovery. The `repeat` command can be
+        used to make running the `DUMP` many times more convient. As in:
+            repeat -t 60 run; sleep 2
+        To run every two seconds for one minute.
       },
       'Author'         => [
         'Neel Mehta', # Vulnerability discovery
