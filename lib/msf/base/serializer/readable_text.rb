@@ -664,7 +664,7 @@ class ReadableText
       end
 
       if session.exploit_datastore && session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
-        row << "(#{exploit_datastore['LURI']})"
+        row << "(#{session.exploit_datastore['LURI']})"
       else
         row << '?'
       end
