@@ -1997,8 +1997,8 @@ class Core
     end
 
     # OptionParser#order allows us to take the rest of the line for the command
-    pattern, *cmd = opts.order(args)
-    cmd = cmd.join(" ")
+    pattern, *rest = opts.order(args)
+    cmd = Shellwords.shelljoin(rest)
     return print(opts.help) if !pattern || cmd.empty?
 
     rx = Regexp.new(pattern, match_mods[:insensitive])
@@ -2034,7 +2034,7 @@ class Core
 
     # Bail if the command failed
     if cmd_output =~ /Unknown command:/
-      print_error("Unknown command: #{args[0]}.")
+      print_error("Unknown command: '#{rest[0]}'.")
       return false
     end
     # put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
