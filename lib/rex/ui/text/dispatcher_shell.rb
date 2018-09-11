@@ -456,7 +456,7 @@ module DispatcherShell
         rescue ::Interrupt
           print_error("#{method}: Interrupted")
           raise if propogate_errors
-        rescue OptionParser::ParseError
+        rescue OptionParser::ParseError => e
           print_error("#{method}: #{e.message}")
           raise if propogate_errors
         rescue
