@@ -42,7 +42,7 @@ class Console::CommandDispatcher::Mimikatz
     end
 
     unless si['OS'] =~ /Windows (NT|XP|2000|2003|\.NET)/i
-      print_warning("Loaded Mimikatz on a newer OS (#{si['OS']}). Did you mean to 'load mimikatz' instead?")
+      print_warning("Loaded Mimikatz on a newer OS (#{si['OS']}). Did you mean to 'load kiwi' instead?")
     end
   end
 
