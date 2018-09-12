@@ -414,10 +414,6 @@ class Driver < Msf::Ui::Driver
         handle_console_logging(val) if (glob)
       when "loglevel"
         handle_loglevel(val) if (glob)
-      when "prompt"
-        update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
-      when "promptchar"
-        update_prompt(framework.datastore['Prompt'] || DefaultPrompt, val, true)
     end
   end
 
@@ -433,6 +429,21 @@ class Driver < Msf::Ui::Driver
         handle_console_logging('0') if (glob)
       when "loglevel"
         handle_loglevel(nil) if (glob)
+    end
+  end
+
+  #
+  # Proxies to shell.rb's update prompt with our own extras
+  #
+  def update_prompt(*args)
+    if args.empty?
+      pchar = framework.datastore['PromptChar'] || DefaultPromptChar
+      p = framework.datastore['Prompt'] || DefaultPrompt
+      p = "#{p} #{active_module.type}(%bld%red#{active_module.promptname}%clr)" if active_module
+      super(p, pchar)
+    else
+      # Don't squash calls from within lib/rex/ui/text/shell.rb
+      super(*args)
     end
   end
 
