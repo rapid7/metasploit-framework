@@ -399,6 +399,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_copy :cmd_cp
   alias :cmd_cp_tabs :cmd_cat_tabs
+  alias :cmd_chmod_tabs :cmd_cat_tabs
 
   #
   # Change the permissions on a remote file
