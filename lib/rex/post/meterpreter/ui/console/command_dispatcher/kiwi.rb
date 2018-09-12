@@ -8,7 +8,7 @@ module Ui
 
 ###
 #
-# Kiwi extension - grabs credentials from windows memory.
+# Kiwi extension - grabs credentials from windows memory (newer OSes).
 #
 # Benjamin DELPY `gentilkiwi`
 # http://blog.gentilkiwi.com/mimikatz
@@ -46,9 +46,14 @@ class Console::CommandDispatcher::Kiwi
     print_line("  '#####'    Ported to Metasploit by OJ Reeves `TheColonial` * * */")
     print_line
 
-    if client.arch == ARCH_X86 and client.sys.config.sysinfo['Architecture'] == ARCH_X64
+    si = client.sys.config.sysinfo
+    if client.arch == ARCH_X86 && si['Architecture'] == ARCH_X64
       print_warning('Loaded x86 Kiwi on an x64 architecture.')
       print_line
+    end
+
+    if si['OS'] =~ /Windows (NT|XP|2000|2003|\.NET)/i
+      print_warning("Loaded Kiwi on an old OS (#{si['OS']}). Did you mean to 'load mimikatz' instead?")
     end
   end
 
@@ -87,9 +92,9 @@ class Console::CommandDispatcher::Kiwi
   # Valid options for the password change feature
   #
   @@password_change_usage_opts = Rex::Parser::Arguments.new(
-    '-h'  => [false, 'Help banner'],
-    '-u'  => [true,  'User name of the password to change.'],
-    '-s'  => [true,  'Server to perform the action on (eg. Domain Controller).'],
+    '-h' => [false, 'Help banner'],
+    '-u' => [true,  'User name of the password to change.'],
+    '-s' => [true,  'Server to perform the action on (eg. Domain Controller).'],
     '-p' => [true,  'The known existing/old password (do not use with -n).'],
     '-n' => [true,  'The known existing/old hash (do not use with -p).'],
     '-P' => [true,  'The new password to set for the account (do not use with -N).'],
