@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' =>
           [
-            ['CVE','2017-12635']
+            ['CVE','2017-12635'],
             ['URL','https://cve.mitre.org/cgi-bin/cvename.cgi?name=2017-12635'],
             ['URL','https://justi.cz/security/2017/11/14/couchdb-rce-npm.html'],
           ]
@@ -33,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('URIPATH', [true, 'The base path', '/_users/org.couchdb.user:']),
           OptString.new('RPORT', [true, 'CouchDB Port', '5984']),
           OptString.new('RHOST', [true, 'CouchDB Host', '']),
-          OptString.new('USER', [true, 'CouchDB Username', Rex::Text.rand_text_alpha(12,"")]),
-          OptString.new('PASSWORD', [true, 'CouchDB Password', Rex::Text.rand_text_alpha(12,"")]),
+          OptString.new('USER', [true, 'CouchDB Username you wish to add to database', Rex::Text.rand_text_alpha(12,"")]),
+          OptString.new('PASSWORD', [true, 'CouchDB Password you wish to add to database', Rex::Text.rand_text_alpha(12,"")]),
           OptString.new('ROLES', [true, 'CouchDB Roles', '_admin'])
         ], self.class)
         
