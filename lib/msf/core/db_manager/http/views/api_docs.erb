@@ -79,9 +79,13 @@
                 SwaggerUIBundle.presets.apis,
                 SwaggerUIStandalonePreset
             ],
-            layout: "StandaloneLayout"
-        })
-
+            layout: "StandaloneLayout",
+            requestInterceptor: function (request) {
+                let token = request.headers.Authorization;
+                request.headers.Authorization = "Bearer " + token;
+                return request;
+            }
+        });
         window.ui = ui
     }
 </script>

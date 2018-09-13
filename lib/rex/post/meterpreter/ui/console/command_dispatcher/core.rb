@@ -157,6 +157,27 @@ class Console::CommandDispatcher::Core
     print_line
   end
 
+  def cmd_pivot_tabs(str, words)
+    return %w[list add remove] + @@pivot_opts.fmt.keys if words.length == 1
+
+    case words[-1]
+    when '-a'
+      return @@pivot_supported_archs
+    when '-i'
+      matches = []
+      client.pivot_listeners.each_value { |v| matches << v.id.unpack('H*')[0] }
+      return matches
+    when '-p'
+      return @@pivot_supported_platforms
+    when '-t'
+      return ['pipe']
+    when 'add', 'remove'
+      return @@pivot_opts.fmt.keys
+    end
+
+    []
+  end
+
   def cmd_pivot(*args)
     if args.length == 0 || args.include?('-h')
       cmd_pivot_help
@@ -422,7 +443,7 @@ class Console::CommandDispatcher::Core
   # Closes a supplied channel.
   #
   def cmd_close(*args)
-    if args.length == 0
+    if args.empty? || args.include?('-h')
       cmd_close_help
       return true
     end
@@ -488,7 +509,7 @@ class Console::CommandDispatcher::Core
   # Interacts with a channel.
   #
   def cmd_interact(*args)
-    if args.length == 0
+    if args.empty? || args.include?('-h')
       cmd_info_help
       return true
     end
@@ -512,6 +533,11 @@ class Console::CommandDispatcher::Core
     print_line
     print_line('Execute commands in a Ruby environment')
     print @@irb_opts.usage
+  end
+
+  def cmd_irb_tabs(str, words)
+    return [] if words.length > 1
+    @@irb_opts.fmt.keys
   end
 
   #
@@ -557,6 +583,11 @@ class Console::CommandDispatcher::Core
     print_line('Set the current timeout options.')
     print_line('Any or all of these can be set at once.')
     print_line(@@set_timeouts_opts.usage)
+  end
+
+  def cmd_set_timeouts_tabs(str, words)
+    return [] if words.length > 1
+    @@set_timeouts_opts.fmt.keys
   end
 
   def cmd_set_timeouts(*args)
@@ -732,7 +763,7 @@ class Console::CommandDispatcher::Core
   # Handle the sleep command.
   #
   def cmd_sleep(*args)
-    if args.length == 0
+    if args.empty? || args.include?('-h')
       cmd_sleep_help
       return
     end
@@ -790,6 +821,25 @@ class Console::CommandDispatcher::Core
     print_line('   prev: jump to the previous transport in the list (no options).')
     print_line(' remove: remove an existing, non-active transport.')
     print_line(@@transport_opts.usage)
+  end
+
+  def cmd_transport_tabs(str, words)
+    return %w[list change add next prev remove] + @@transport_opts.fmt.keys if words.length == 1
+
+    case words[-1]
+    when '-c'
+      return tab_complete_filenames(str, words)
+    when '-i'
+      return (1..client.core.transport_list[:transports].length).to_a.map!(&:to_s)
+    when '-l'
+      return tab_complete_source_address
+    when '-t'
+      return %w[reverse_tcp reverse_http reverse_https bind_tcp]
+    when 'add', 'remove', 'change'
+      return @@transport_opts.fmt.keys
+    end
+
+    []
   end
 
   def update_transport_map
@@ -1275,7 +1325,7 @@ class Console::CommandDispatcher::Core
   # Reads data from a channel.
   #
   def cmd_read(*args)
-    if args.length == 0
+    if args.empty? || args.include?('-h')
       cmd_read_help
       return true
     end
@@ -1315,7 +1365,7 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session.
   #
   def cmd_run(*args)
-    if args.length == 0
+    if args.empty? || args.include?('-h')
       cmd_run_help
       return true
     end
@@ -1385,11 +1435,12 @@ class Console::CommandDispatcher::Core
   # Executes a script in the context of the meterpreter session in the background
   #
   def cmd_bgrun(*args)
-    if args.length == 0
-        print_line('Usage: bgrun <script> [arguments]')
-        print_line
-        print_line('Executes a ruby script in the context of the meterpreter session.')
-        print_line
+    if args.empty? || args.include?('-h')
+      print_line('Usage: bgrun <script> [arguments]')
+      print_line
+      print_line('Executes a ruby script in the context of the meterpreter session.')
+      print_line
+
       return true
     end
 
@@ -1425,7 +1476,7 @@ class Console::CommandDispatcher::Core
   # Kill a background job
   #
   def cmd_bgkill(*args)
-    if args.length == 0
+    if args.empty? || args.include?('-h')
       print_line('Usage: bgkill [id]')
       return
     end
@@ -1506,6 +1557,11 @@ class Console::CommandDispatcher::Core
     print_line(@@write_opts.usage)
   end
 
+  def cmd_write_tabs(str, words)
+    return tab_complete_filenames(str, words) if words[-1] == '-f'
+    tab_complete_channels
+  end
+
   def cmd_write(*args)
     if args.length == 0 || args.include?("-h")
       cmd_write_help
@@ -1580,7 +1636,7 @@ class Console::CommandDispatcher::Core
   def cmd_resource_help
     print_line "Usage: resource path1 [path2 ...]"
     print_line
-    print_line "Run the commands stored in the supplied files (- for stdin)."
+    print_line "Run the commands stored in the supplied files. (- for stdin, press CTRL+D to end input from stdin)"
     print_line "Resource files may also contain ERB or Ruby code between <ruby></ruby> tags."
     print_line
   end

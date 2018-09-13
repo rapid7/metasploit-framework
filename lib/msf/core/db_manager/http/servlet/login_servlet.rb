@@ -22,11 +22,12 @@ module LoginServlet
   def self.get_logins
     lambda {
       begin
-        sanitized_params = sanitize_params(params)
-        response = get_db.logins(sanitized_params)
-        set_json_response(response)
+        sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
+        data = get_db.logins(sanitized_params)
+        data = data.first if is_single_object?(data, sanitized_params)
+        set_json_response(data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving logins:', code: 500)
       end
     }
   end
@@ -40,7 +41,7 @@ module LoginServlet
         response = get_db.create_credential_login(opts)
         set_json_response(response)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error creating the login:', code: 500)
       end
     }
   end
@@ -54,7 +55,7 @@ module LoginServlet
         data = get_db.update_login(opts)
         set_json_response(data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error updating the login:', code: 500)
       end
     }
   end
@@ -66,7 +67,7 @@ module LoginServlet
         data = get_db.delete_logins(opts)
         set_json_response(data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the logins:', code: 500)
       end
     }
   end

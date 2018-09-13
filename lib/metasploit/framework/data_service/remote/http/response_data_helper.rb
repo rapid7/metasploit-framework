@@ -26,8 +26,9 @@ module ResponseDataHelper
   def json_to_hash(response_wrapper)
     begin
       body = process_response(response_wrapper)
-      unless body.nil? || body.empty?
-        return JSON.parse(body).symbolize_keys
+      if !body.nil? && !body.empty?
+        parsed_body = JSON.parse(body, symbolize_names: true)
+        return parsed_body[:data]
       end
     rescue => e
       elog "Error parsing response as JSON: #{e.message}"
@@ -47,17 +48,18 @@ module ResponseDataHelper
     if response_wrapper.expected
       begin
         body = process_response(response_wrapper)
-        unless body.nil? || body.empty?
-          parsed_body = Array.wrap(JSON.parse(body))
+        if !body.nil? && !body.empty?
+          parsed_body = JSON.parse(body).symbolize_keys
+          data = Array.wrap(parsed_body[:data])
           rv = []
-          parsed_body.each do |json_object|
+          data.each do |json_object|
             rv << to_ar(mdm_class.constantize, json_object)
           end
           return rv
         end
       rescue => e
         elog "Mdm Object conversion failed #{e.message}"
-        e.backtrace.each { |line| elog "#{line}\n" }
+        e.backtrace.each { |line| elog "#{line}" }
       end
     end
 

@@ -23,13 +23,13 @@ module VulnServlet
     lambda {
       warden.authenticate!
       begin
-        opts = parse_json_request(request, false)
-        sanitized_params = sanitize_params(params)
+        sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.vulns(sanitized_params)
         includes = [:host, :vulns_refs, :refs, :module_refs]
-        set_json_response(data, includes)
+        data = data.first if is_single_object?(data, sanitized_params)
+        set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving vulns:', code: 500)
       end
     }
   end
@@ -37,14 +37,10 @@ module VulnServlet
   def self.report_vuln
     lambda {
       warden.authenticate!
-      begin
-        job = lambda { |opts|
-          get_db.report_vuln(opts)
-        }
-        exec_report_job(request, &job)
-      rescue => e
-        set_error_on_response(e)
-      end
+      job = lambda { |opts|
+        get_db.report_vuln(opts)
+      }
+      exec_report_job(request, &job)
     }
   end
 
@@ -56,9 +52,9 @@ module VulnServlet
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_vuln(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error updating the vuln:', code: 500)
       end
     }
   end
@@ -69,9 +65,9 @@ module VulnServlet
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_vuln(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the vulns:', code: 500)
       end
     }
   end

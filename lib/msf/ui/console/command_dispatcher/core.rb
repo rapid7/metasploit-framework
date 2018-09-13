@@ -88,11 +88,7 @@ class Core
     "-h" => [ false, "Help banner."                                   ],
     "-a" => [ false, "Show all commands in history."                  ],
     "-n" => [ true,  "Show the last n commands."                      ],
-    "-u" => [ false, "Show only unique commands."                     ])
-
-  @@irb_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                   ],
-    "-e" => [ true,  "Expression to evaluate."                        ])
+    "-c" => [ false, "Clear command history and history file."        ])
 
   # Returns the list of commands supported by this command dispatcher
   def commands
@@ -108,7 +104,6 @@ class Core
       "grep"       => "Grep the output of another command",
       "help"       => "Help menu",
       "history"    => "Show command history",
-      "irb"        => "Drop into irb scripting mode",
       "load"       => "Load a framework plugin",
       "quit"       => "Exit the console",
       "route"      => "Route traffic through a session",
@@ -165,7 +160,18 @@ class Core
       cmd_color_help
       return
     end
-    driver.update_prompt
+  end
+
+  #
+  # Tab completion for the color command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  #
+  def cmd_color_tabs(str, words)
+    return [] if words.length > 1
+    %w[auto true false]
   end
 
   def cmd_cd_help
@@ -189,6 +195,10 @@ class Core
     rescue ::Exception
       print_error("The specified path does not exist")
     end
+  end
+
+  def cmd_cd_tabs(str, words)
+    tab_complete_directory(str, words)
   end
 
   def cmd_banner_help
@@ -470,7 +480,6 @@ class Core
 
   def cmd_history(*args)
     length = Readline::HISTORY.length
-    uniq   = false
 
     if length < @history_limit
       limit = length
@@ -480,18 +489,34 @@ class Core
 
     @@history_opts.parse(args) do |opt, idx, val|
       case opt
-      when "-a"
+      when '-a'
         limit = length
-      when "-n"
+      when '-n'
         return cmd_history_help unless val && val.match(/\A[-+]?\d+\z/)
         if length < val.to_i
           limit = length
         else
           limit = val.to_i
         end
-      when "-u"
-        uniq = true
-      when "-h"
+      when '-c'
+        if Readline::HISTORY.respond_to?(:clear)
+          Readline::HISTORY.clear
+        elsif defined?(RbReadline)
+          RbReadline.clear_history
+        else
+          print_error('Could not clear history, skipping file')
+          return false
+        end
+
+        # Portable file truncation?
+        if File.writable?(Msf::Config.history_file)
+          File.write(Msf::Config.history_file, '')
+        end
+
+        print_good('Command history and history file cleared')
+
+        return true
+      when '-h'
         cmd_history_help
         return false
       end
@@ -501,9 +526,6 @@ class Core
     pad_len = length.to_s.length
 
     (start..length-1).each do |pos|
-      if uniq && Readline::HISTORY[pos] == Readline::HISTORY[pos-1]
-        next unless pos == 0
-      end
       cmd_num = (pos + 1).to_s
       print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
     end
@@ -513,8 +535,15 @@ class Core
     print_line "Usage: history [options]"
     print_line
     print_line "Shows the command history."
+    print_line
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
+    print_line 'If -c is specified, the command history and history file will be cleared.'
     print @@history_opts.usage
+  end
+
+  def cmd_history_tabs(str, words)
+    return [] if words.length > 1
+    @@history_opts.fmt.keys
   end
 
   def cmd_sleep_help
@@ -530,48 +559,6 @@ class Core
   def cmd_sleep(*args)
     return if not (args and args.length == 1)
     Rex::ThreadSafe.sleep(args[0].to_f)
-  end
-
-  def cmd_irb_help
-    print_line "Usage: irb"
-    print_line
-    print_line "Execute commands in a Ruby environment"
-    print @@irb_opts.usage
-  end
-
-  #
-  # Goes into IRB scripting mode
-  #
-  def cmd_irb(*args)
-    expressions = []
-
-    # Parse the command options
-    @@irb_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-e'
-        expressions << val
-      when '-h'
-        cmd_irb_help
-        return false
-      end
-    end
-
-    if expressions.empty?
-      print_status("Starting IRB shell...\n")
-
-      begin
-        Rex::Ui::Text::IrbShell.new(binding).run
-      rescue
-        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
-      end
-
-      # Reset tab completion
-      if (driver.input.supports_readline)
-        driver.input.reset_tab_completion
-      end
-    else
-      expressions.each { |expression| eval(expression, binding) }
-    end
   end
 
   def cmd_threads_help
@@ -1075,6 +1062,10 @@ class Core
     print_line
   end
 
+  def cmd_spool_tabs(str, words)
+    tab_complete_filenames(str, words)
+  end
+
   def cmd_spool(*args)
     if args.include?('-h') or args.empty?
       cmd_spool_help
@@ -1091,19 +1082,10 @@ class Core
       msg = "Spooling to file #{args[0]}..."
     end
 
-    # Restore color and prompt
+    # Restore color
     driver.output.config[:color] = color
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    if active_module
-      # intentionally += and not << because we don't want to modify
-      # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.promptname}%clr)"
-    end
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} ", prompt_char, true)
 
     print_status(msg)
-    return
   end
 
   def cmd_sessions_help
@@ -1586,7 +1568,7 @@ class Core
     # If the driver indicates that the value is not valid, bust out.
     if (driver.on_variable_set(global, name, value) == false)
       print_error("The value specified for #{name} is not valid.")
-      return true
+      return false
     end
 
     begin
@@ -1598,6 +1580,11 @@ class Core
     rescue OptionValidateError => e
       print_error(e.message)
       elog(e.message)
+    end
+
+    # Set PAYLOAD from TARGET
+    if name.upcase == 'TARGET' && active_module && active_module.exploit?
+      active_module.import_target_datastore
     end
 
     print_line("#{name} => #{datastore[name]}")
@@ -2006,31 +1993,19 @@ class Core
 
     rx = Regexp.new(pattern, match_mods[:insensitive])
 
-    # get a ref to the current console driver
-    orig_driver = self.driver
-    # redirect output after saving the old ones and getting a new output buffer to use for redirect
-    orig_driver_output = orig_driver.output
-    orig_driver_input = orig_driver.input
+    # redirect output after saving the old one and getting a new output buffer to use for redirect
+    orig_output = driver.output
 
     # we use a rex buffer but add a write method to the instance, which is
     # required in order to be valid $stdout
     temp_output = Rex::Ui::Text::Output::Buffer.new
     temp_output.extend Rex::Ui::Text::Output::Buffer::Stdout
 
-    orig_driver.init_ui(orig_driver_input,temp_output)
+    driver.init_ui(driver.input, temp_output)
     # run the desired command to be grepped
-    orig_driver.run_single(cmd)
+    driver.run_single(cmd)
     # restore original output
-    orig_driver.init_ui(orig_driver_input,orig_driver_output)
-    # restore the prompt so we don't get "msf >  >".
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    mod = active_module
-    if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
-    else
-      driver.update_prompt("#{prompt} ", prompt_char, true)
-    end
+    driver.init_ui(driver.input, orig_output)
 
     # dump the command's output so we can grep it
     cmd_output = temp_output.dump_buffer
