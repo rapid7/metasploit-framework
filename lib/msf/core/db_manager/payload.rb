@@ -15,11 +15,10 @@ module Msf::DBManager::Payload
     end
   end
 
-  def find_or_create_payload(opts)
-    payload = get_payload(opts.clone)
-    return payload unless payload.nil?
-
-    create_payload(opts)
+  def payload_count
+    ::ActiveRecord::Base.connection_pool.with_connection do
+      Mdm::Payload.count
+    end
   end
 
   def update_payload(opts)
