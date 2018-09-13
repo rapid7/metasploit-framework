@@ -115,9 +115,9 @@ module System
   #
   def pidof(program)
     pids = []
-    full = cmd_exec('ps aux').to_s
+    full = cmd_exec('ps -elf').to_s
     full.split("\n").each do |pid|
-      pids << pid.split(' ')[1].to_i if pid.include? program
+      pids << pid.split(' ')[3].to_i if pid.include? program
     end
     pids
   end
