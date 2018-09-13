@@ -2132,6 +2132,9 @@ class Core
       Shellwords.shelljoin(c)
     end
 
+    # Print help if we have no commands, or all the commands are empty
+    return cmd_repeat '-h' if cmds.all? &:empty?
+
     begin
       looper.call do
         cmds.each do |c|
