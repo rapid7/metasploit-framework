@@ -2135,7 +2135,7 @@ class Core
     begin
       looper.call do
         cmds.each do |c|
-          driver.run_single c, propogate_errors: true
+          driver.run_single c, propagate_errors: true
         end
       end
     rescue ::Exception

@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
 
         The module supports several actions, allowing for scanning, dumping of
         memory contents, and private key recovery. The `repeat` command can be
-        used to make running the `DUMP` many times more convient. As in:
+        used to make running the `DUMP` many times more convenient. As in:
             repeat -t 60 run; sleep 2
         To run every two seconds for one minute.
       },

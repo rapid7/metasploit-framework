@@ -432,7 +432,7 @@ module DispatcherShell
   #
   # Run a single command line.
   #
-  def run_single(line, propogate_errors: false)
+  def run_single(line, propagate_errors: false)
     arguments = parse_line(line)
     method    = arguments.shift
     found     = false
