@@ -47,6 +47,7 @@ module Shell
     # Initialize the prompt
     self.cont_prompt = ' > '
     self.cont_flag = false
+    self.prompt = prompt
     self.prompt_char = prompt_char
 
     self.histfile = histfile
