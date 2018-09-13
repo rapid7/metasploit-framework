@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.12)
+    metasploit-framework (4.17.13)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -181,7 +181,7 @@ GEM
     nexpose (7.2.1)
     nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
-    octokit (4.11.0)
+    octokit (4.12.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
     openvas-omp (0.0.4)
@@ -298,7 +298,7 @@ GEM
     rspec-support (3.8.0)
     ruby-macho (2.0.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (1.0.3)
+    ruby_smb (1.0.4)
       bindata
       rubyntlm
       windows_error
