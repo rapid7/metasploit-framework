@@ -11,19 +11,12 @@ module Priv
   # Returns true if running as root, false if not.
   #
   def is_root?
-    root_priv = false
-    user_id = cmd_exec("id -u")
-    clean_user_id = user_id.to_s.gsub(/[^\d]/,"")
-    unless clean_user_id.empty?
-      if clean_user_id =~ /^0$/
-        root_priv = true
-      elsif clean_user_id =~ /^\d*$/
-        root_priv = false
-      end
-    else
+    user_id = cmd_exec('id -u')
+    clean_user_id = user_id.to_s.gsub(/[^\d]/, '')
+    if clean_user_id.empty?
       raise "Could not determine UID: #{user_id.inspect}"
     end
-    return root_priv
+    (clean_user_id == '0')
   end
 
 end # Priv
