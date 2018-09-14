@@ -4,7 +4,6 @@ require 'msf/core'
 module Msf
 
   autoload :OptionContainer, 'msf/core/option_container'
-  autoload :NoteContainer, 'msf/core/module/note'
 
 ###
 #

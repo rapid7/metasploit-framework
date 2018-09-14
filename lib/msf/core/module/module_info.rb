@@ -44,7 +44,7 @@ module Msf::Module::ModuleInfo
   # Return the module's notes (including AKA and NOCVE descriptors).
   #
   def notes
-    Msf::NoteContainer.new(module_info['Notes'])
+    module_info['Notes']
   end
 
   protected

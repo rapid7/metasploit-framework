@@ -94,7 +94,7 @@ class Obj
     # Store whether a module has a check method
     @check = module_instance.respond_to?(:check) ? true : false
 
-    @notes = module_instance.notes.transform
+    @notes = module_instance.notes
 
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(Encoding::UTF_8)

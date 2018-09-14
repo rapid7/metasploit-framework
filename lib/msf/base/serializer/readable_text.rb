@@ -555,7 +555,7 @@ class ReadableText
     if mod.notes['AKA'].present?
       output << "AKA:\n"
 
-      mod.notes.aka.value.each do |aka_name|
+      mod.notes['AKA'].each do |aka_name|
         output << indent + aka_name + "\n"
       end
 
