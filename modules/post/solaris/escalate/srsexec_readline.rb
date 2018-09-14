@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
         'License'       => MSF_LICENSE,
         'Author'        => [
           'h00die', # metasploit module
-          'iDefence' # discovery reported anonymously to https://labs.idefense.com           
+          'iDefence' # discovery reported anonymously to https://labs.idefense.com
         ],
         'Platform'      => [ 'solaris' ],
         'SessionTypes'  => [ 'shell', 'meterpreter' ],
