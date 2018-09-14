@@ -140,14 +140,12 @@ class Msf::Modules::External::Shim
   end
 
   #
-  # In case certain notes like AKA and NOCVE are not properly capitalized in the external module definition,
+  # In case certain notes are not properly capitalized in the external module definition,
   # ensure that they are properly capitalized before rendering.
   #
   def self.transform_notes(notes)
-    upcase_keys = %w[aka nocve]
     notes.reduce({}) do |acc, (key, val)|
-      key = (upcase_keys.include? key.downcase) ? key.upcase : key
-      acc[key] = val
+      acc[key.upcase] = val
       acc
     end
   end
