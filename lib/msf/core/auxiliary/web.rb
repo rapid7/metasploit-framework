@@ -253,7 +253,7 @@ module Auxiliary::Web
 
     confidence = calculate_confidence( parent.vulns[mode][vhash] )
 
-    parent.vulns[mode][vhash].merge!( :confidence => confidence )
+    parent.vulns[mode][vhash][:confidence] = confidence
 
     if !(payload = opts[:payload])
       if payloads
