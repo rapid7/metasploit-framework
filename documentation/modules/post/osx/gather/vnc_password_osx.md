@@ -10,7 +10,7 @@ This module show Apple VNC Password from Mac OS X High Sierra.
   Example steps in this format (is also in the PR):
 
   1. Start `msfconsole`
-  2. Do: `osx/gather/vnc_password_osx`
+  2. Do: `post/osx/gather/vnc_password_osx`
   3. Do: set the `SESSION [ID]`
   4. Do: ```run```
   5. You should get the password
@@ -21,7 +21,7 @@ This module show Apple VNC Password from Mac OS X High Sierra.
   Typical run against an OSX session, with the vnc service activated:
 
 ```
-msf5 exploit(multi/handler) > use osx/gather/vnc_password_osx
+msf5 exploit(multi/handler) > use post/osx/gather/vnc_password_osx
 msf5 post(osx/gather/vnc_password_osx) > set SESSION 1
 SESSION => 1
 msf5 post(osx/gather/vnc_password_osx) > exploit
