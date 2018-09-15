@@ -1205,6 +1205,10 @@ class Core
       end
     end
 
+    if show_inactive && !framework.db.active
+      print_warning("Database not connected; list of inactive sessions unavailable")
+    end
+
     last_known_timeout = nil
 
     # Now, perform the actual method

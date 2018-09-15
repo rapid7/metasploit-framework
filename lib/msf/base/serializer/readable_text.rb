@@ -612,10 +612,12 @@ class ReadableText
           'Indent' => indent,
           'SortIndex' => 1)
 
-      framework.db.sessions.each do |session|
-        unless session.closed_at.nil?
-          row = create_mdm_session_row(session, show_extended)
-          tbl << row
+      if framework.db.active
+        framework.db.sessions.each do |session|
+          unless session.closed_at.nil?
+            row = create_mdm_session_row(session, show_extended)
+            tbl << row
+          end
         end
       end
 
