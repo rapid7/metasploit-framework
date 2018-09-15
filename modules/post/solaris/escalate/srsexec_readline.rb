@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         'Name'          => 'Solaris srsexec Arbitrary File Reader',
         'Description'   => %q{ This module exploits a vulnerability in NetCommander 3.2.3 and 3.2.5.
-                               When srsexec is executed in debug (-d) verbose (-v) mode, 
+                               When srsexec is executed in debug (-d) verbose (-v) mode,
                                the first line of an arbitrary file can be read due to the suid bit set.
                                The most widely accepted exploitation vector is reading /etc/shadow,
                                which will reveal root's hash for cracking.},
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
     vprint_good("Output: #{output}")
     return unless datastore['FILE'] == '/etc/shadow'
 
-    # The first line of the file is cut at 20 characters. 
+    # The first line of the file is cut at 20 characters.
     # If the output is longer than 20 characters, then
     # the next line will start with the last 2 characters from the previous line,
     # followed by the next 18 characters.
