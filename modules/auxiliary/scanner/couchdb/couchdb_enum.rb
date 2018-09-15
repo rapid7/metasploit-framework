@@ -22,7 +22,8 @@ class MetasploitModule < Msf::Auxiliary
           ['URL','https://justi.cz/security/2017/11/14/couchdb-rce-npm.html']
         ],
       'Author'         => [ 'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
-                            'Hendrik Van Belleghem - @hendrikvb'
+                            'Hendrik Van Belleghem - @hendrikvb', # Database dump enhancements
+                            'Green-m <greenm.xxoo[at]gmail.com>' # Portions from apache_couchdb_cmd_exec.rb used
                           ],
       'License'        => MSF_LICENSE
     ))
