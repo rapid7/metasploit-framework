@@ -17,11 +17,12 @@ class MetasploitModule < Msf::Auxiliary
         ),
         'License'        => MSF_LICENSE,
         'Author'         => [
-          'pwnsdx'
+          'Sabri Haddouche', # twitter.com/pwnsdx
         ],
         'References'     => [
           ['URL', 'https://twitter.com/pwnsdx/status/1040944750973595649'],
           ['URL', 'https://gist.github.com/pwnsdx/ce64de2760996a6c432f06d612e33aea'],
+          ['URL', 'https://nbulischeck.github.io/apple-safari-crash'],
         ],
         'DisclosureDate' => "Sep 15 2018",
         'Actions'        => [[ 'WebServer' ]],
