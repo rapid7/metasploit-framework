@@ -565,16 +565,19 @@ class Console::CommandDispatcher::Android
 
   def cmd_wlan_geolocate(*args)
     wlan_geolocate_opts = Rex::Parser::Arguments.new(
-      '-h' => [ false, 'Help Banner' ]
+      '-h' => [ false, 'Help Banner' ],
+      '-a' => [ true, 'API key' ],
     )
 
-    wlan_geolocate_opts.parse(args) do |opt, _idx, _val|
+    wlan_geolocate_opts.parse(args) do |opt, _idx, val|
       case opt
       when '-h'
         print_line('Usage: wlan_geolocate')
         print_line('Tries to get device geolocation from WLAN information and Google\'s API')
         print_line(wlan_geolocate_opts.usage)
         return
+      when '-a'
+        api_key = val
       end
     end
 
@@ -592,6 +595,7 @@ class Console::CommandDispatcher::Android
       return
     end
     g = Rex::Google::Geolocation.new
+    g.set_api_key(api_key)
 
     wlan_list.each do |wlan|
       g.add_wlan(*wlan)
