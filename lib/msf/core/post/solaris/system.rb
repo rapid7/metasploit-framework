@@ -95,7 +95,8 @@ module System
   def has_gcc?
     # /usr/sfw/bin - default gcc path on some systems
     # /opt/sfw/bin - default gcc path for gcc package
-    command_exists?('gcc') || command_exists?('/usr/sfw/bin/gcc') || command_exists?('/opt/sfw/bin/gcc')
+    # /opt/csw/bin - default gcc path for OpenCSW gcc package
+    command_exists?('gcc') || command_exists?('/usr/sfw/bin/gcc') || command_exists?('/opt/sfw/bin/gcc') || command_exists?('/opt/csw/bin/gcc')
   rescue
     raise 'Unable to check for gcc'
   end
