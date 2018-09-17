@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2016-1909'],
         ['EDB', '39224'],
         ['PACKETSTORM', '135225'],
-        ['URL', 'http://seclists.org/fulldisclosure/2016/Jan/26'],
+        ['URL', 'https://seclists.org/fulldisclosure/2016/Jan/26'],
         ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
       ],
       'DisclosureDate' => 'Jan 9 2016',
