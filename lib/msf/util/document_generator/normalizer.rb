@@ -215,8 +215,6 @@ module Msf
 
           refs.each do |ref|
             case ref.ctx_id
-            when 'AKA'
-              normalized << "* *Also known as:* #{ref.ctx_val}"
             when 'MSB'
               normalized << "* [#{ref.ctx_val}](#{ref.site})"
             when 'URL'

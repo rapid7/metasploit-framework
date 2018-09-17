@@ -326,18 +326,29 @@ module Msf
             print_line
             print_line "Keywords:"
             {
-              'app'      => 'Modules that are client or server attacks',
-              'author'   => 'Modules written by this author',
-              'bid'      => 'Modules with a matching Bugtraq ID',
-              'cve'      => 'Modules with a matching CVE ID',
-              'edb'      => 'Modules with a matching Exploit-DB ID',
-              'name'     => 'Modules with a matching descriptive name',
-              'platform' => 'Modules affecting this platform',
+              'aka'         => 'Modules with a matching AKA (also-known-as) name',
+              'app'         => 'Modules that are client or server attacks',
+              'author'      => 'Modules written by this author',
+              'arch'        => 'Modules affecting this architecture',
+              'bid'         => 'Modules with a matching Bugtraq ID',
+              'cve'         => 'Modules with a matching CVE ID',
+              'edb'         => 'Modules with a matching Exploit-DB ID',
+              'check'       => 'Modules that support the \'check\' method',
+              'date'        => 'Modules with a matching disclosure date',
+              'description' => 'Modules with a matching description',
+              'full_name'   => 'Modules with a matching full name',
+              'mod_time'    => 'Modules with a matching modification date',
+              'name'        => 'Modules with a matching descriptive name',
+              'path'        => 'Modules with a matching path',
+              'platform'    => 'Modules affecting this platform',
               'port'        => 'Modules with a matching port',
-              'ref'      => 'Modules with a matching ref',
-              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, post, or nop)',
+              'rank'        => 'Modules with a matching rank (Can be descriptive (ex: \'good\') or numeric with comparison operators (ex: \'gte400\'))',
+              'ref'         => 'Modules with a matching ref',
+              'reference'   => 'Modules with a matching reference',
+              'target'      => 'Modules affecting this target',
+              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
             }.each_pair do |keyword, description|
-              print_line "  #{keyword.ljust 10}:  #{description}"
+              print_line "  #{keyword.ljust 12}:  #{description}"
             end
             print_line
             print_line "Examples:"
@@ -355,7 +366,7 @@ module Msf
               return
             end
 
-            match   = ''
+            match = ''
             search_term = nil
             output_file = nil
             @@search_opts.parse(args) { |opt, idx, val|
@@ -380,14 +391,20 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            Msf::Modules::Metadata::Cache.instance.find(match).each do |m|
-              tbl << [
-                  m.full_name,
-                  m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
-                  RankingName[m.rank].to_s,
-                  m.check ? 'Yes' : 'No',
-                  m.name
-              ]
+            search_params = parse_search_string(match)
+            begin
+              Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
+                tbl << [
+                    m.full_name,
+                    m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
+                    RankingName[m.rank].to_s,
+                    m.check ? 'Yes' : 'No',
+                    m.name
+                ]
+              end
+            rescue ArgumentError
+              print_error("Invalid argument(s)\n")
+              cmd_search_help
             end
 
             if output_file
@@ -396,9 +413,45 @@ module Msf
                 ofd.write(tbl.to_csv)
               }
             else
-            print_line(tbl.to_s)
+              print_line(tbl.to_s)
+            end
           end
+
+          #
+          # Parses command line search string into a hash
+          #
+          # Resulting Hash Example:
+          # {"platform"=>[["android"], []]} will match modules targeting the android platform
+          # {"platform"=>[[], ["android"]]} will exclude modules targeting the android platform
+          #
+          def parse_search_string(search_string)
+            # Split search terms by space, but allow quoted strings
+            terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
+            terms.delete('')
+
+            # All terms are either included or excluded
+            res = {}
+
+            terms.each do |term|
+              keyword, search_term = term.split(":", 2)
+              unless search_term
+                search_term = keyword
+                keyword = 'text'
+              end
+              next if search_term.length == 0
+              keyword.downcase!
+              search_term.downcase!
+              res[keyword] ||=[   [],    []   ]
+              if search_term[0,1] == "-"
+                next if search_term.length == 1
+                res[keyword][1] << search_term[1,search_term.length-1]
+              else
+                res[keyword][0] << search_term
+              end
+            end
+            res
           end
+
 
           #
           # Tab completion for the search command

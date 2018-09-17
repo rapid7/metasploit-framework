@@ -53,6 +53,8 @@ class Obj
   attr_reader :post_auth
   # @return [Boolean]
   attr_reader :default_credential
+  # @return [Hash]
+  attr_reader :notes
 
   def initialize(module_instance, obj_hash = nil)
     unless obj_hash.nil?
@@ -102,6 +104,8 @@ class Obj
     # Store whether a module has a check method
     @check = module_instance.respond_to?(:check) ? true : false
 
+    @notes = module_instance.notes
+
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(Encoding::UTF_8)
   end
@@ -133,7 +137,8 @@ class Obj
       'ref_name'           => @ref_name,
       'check'              => @check,
       'post_auth'          => @post_auth,
-      'default_credential' => @default_credential
+      'default_credential' => @default_credential,
+      'notes'              => @notes
     }.to_json(*args)
   end
 
@@ -182,6 +187,7 @@ class Obj
     @check              = obj_hash['check'] ? true : false
     @post_auth          = obj_hash['post_auth']
     @default_credential = obj_hash['default_credential']
+    @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
   end
 
   def sort_platform_string
