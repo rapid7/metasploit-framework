@@ -62,6 +62,36 @@ class DataProxy
   end
 
   #
+  # Delete the specified data service
+  #
+  def delete_data_service(data_service_id)
+    raise ArgumentError.new('Cannot delete data service id: 1') if data_service_id.to_i == 1
+
+    data_service = @data_services.delete(data_service_id.to_i)
+    if data_service.nil?
+      raise "Data service with id: #{data_service_id} does not exist"
+    end
+
+    if @current_data_service == data_service
+      # set the current data service to the first data service created
+      @current_data_service = @data_services[1]
+    end
+  end
+
+  def delete_current_data_service
+    @data_services.each do |id, ds|
+      if ds == @current_data_service
+        if id == 1
+          raise "Unable to delete the local data service. Please use db_disconnect."
+        else
+          @data_services.delete(id)
+          @current_data_service = @data_services[1]
+        end
+      end
+    end
+  end
+
+  #
   # Set the data service to be used
   #
   def set_data_service(data_service_id)
@@ -134,6 +164,9 @@ class DataProxy
   # @param [String] wspace A specific workspace name to add to the opts hash.
   # @return [Hash] The opts hash with a valid :workspace value added.
   def add_opts_workspace(opts, wspace = nil)
+    # If :id is present the user only wants a specific record, so workspace isn't needed
+    return if opts.key?(:id)
+
     # Some methods use the key :wspace. Let's standardize on :workspace and clean it up here.
     opts[:workspace] = opts.delete(:wspace) unless opts[:wspace].nil?
 
@@ -165,6 +198,7 @@ class DataProxy
         @error = 'disabled'
       end
     rescue => e
+      @error = e
       raise "Unable to initialize data service: #{e.message}"
     end
   end
@@ -173,6 +207,13 @@ class DataProxy
     raise "Invalid data_service: #{data_service.class}, not of type Metasploit::Framework::DataService" unless data_service.is_a? (Metasploit::Framework::DataService)
     raise 'Cannot register null data service data_service' unless data_service
     raise 'Data Service already exists' if data_service_exist?(data_service)
+    # Raising an error for local DB causes startup to fail if there is a DB configured but we are unable to connect
+    # TODO: The check here shouldn't be dependent on if the data_service is local or not. We shouldn't
+    # connect to any data service if it is not online/active. This can likely be fixed by making a true
+    # LocalDataService instead of using DBManager.
+    unless data_service.is_local?
+      raise 'Data Service does not appear to be responding' unless data_service.active
+    end
   end
 
   def data_service_exist?(data_service)

@@ -24,7 +24,7 @@ def initialize(info = {})
   super
 
   register_options([
-    OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
+    Opt::RHOSTS,
     OptBool.new('NMAP_VERBOSE', [ false, 'Display nmap output', true]),
     OptString.new('RPORTS', [ false, 'Ports to target']), # RPORT supersedes RPORTS
   ], Auxiliary::Nmap)

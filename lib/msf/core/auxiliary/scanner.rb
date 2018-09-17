@@ -17,6 +17,7 @@ def initialize(info = {})
   super
 
   register_options([
+      Opt::RHOSTS,
       OptInt.new('THREADS', [ true, "The number of concurrent threads", 1 ] )
     ], Auxiliary::Scanner)
 

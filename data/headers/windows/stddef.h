@@ -6,6 +6,8 @@
 #define NULL ((void *)0)
 #define TRUE 1
 #define FALSE 0
+#define true 1
+#define false 0
 #define VOID void
 #define _tWinMain WinMain
 #define CALLBACK __stdcall
@@ -104,6 +106,7 @@ typedef void* LPCVOID;
 typedef ULONG_PTR DWORD_PTR;
 typedef void* HWND;
 typedef int BOOL;
+typedef int bool;
 typedef BOOL* PBOOL;
 typedef LONG_PTR LRESULT;
 typedef UINT_PTR WPARAM;
@@ -115,6 +118,7 @@ typedef LRESULT (CALLBACK* HOOKPROC)(int, WPARAM, LPARAM);
 typedef __stdcall int (*FARPROC)();
 typedef struct _iobuf FILE;
 typedef long fpos_t;
+typedef int* LPINT;
 
 typedef struct {
    unsigned int gp_offset;

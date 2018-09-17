@@ -196,6 +196,9 @@
 #define SERVICE_WIN32 0x00000030
 #define SERVICE_WIN32_OWN_PROCESS 0x00000010
 #define SERVICE_WIN32_SHARE_PROCESS 0x00000020
+#define MAKEWORD(a,b) ((WORD)(((BYTE)(a))|(((WORD)((BYTE)(b)))<<8)))
+#define RtlZeroMemory(Destination,Length) memset((Destination),0,(Length))
+#define ZeroMemory RtlZeroMemory
 
 typedef struct _SECURITY_ATTRIBUTES {
   DWORD nLength;
@@ -320,6 +323,13 @@ typedef struct _ENUM_SERVICE_STATUS {
   SERVICE_STATUS ServiceStatus;
 } ENUM_SERVICE_STATUS, *LPENUM_SERVICE_STATUS;
 
+typedef struct _GUID {
+  DWORD Data1;
+  WORD  Data2;
+  WORD  Data3;
+  BYTE  Data4[8];
+} GUID;
+
 typedef VOID (CALLBACK *LPOVERLAPPED_COMPLETION_ROUTINE)(DWORD,DWORD,LPOVERLAPPED);
 
 typedef enum _PROCESSINFOCLASS {
@@ -409,11 +419,6 @@ typedef enum _FINDEX_SEARCH_OPS {
   FindExSearchLimitToDevices
 } FINDEX_SEARCH_OPS;
 
-WORD MAKEWORD(
-   BYTE bLow,
-   BYTE bHigh
-);
-
 WINAPI void OutputDebugString __attribute__((dllimport))(LPCTSTR);
 WINAPI HGLOBAL GlobalAlloc __attribute__((dllimport))(UINT, size_t);
 WINAPI LPVOID GlobalLock __attribute__((dllimport))(HGLOBAL);
@@ -440,7 +445,6 @@ WINAPI BOOL WriteProcessMemory __attribute__((dllimport))(HANDLE, LPVOID, LPCVOI
 WINAPI BOOL ReadProcessMemory __attribute__((dllimport))(HANDLE, LPCVOID, LPVOID, size_t, size_t*);
 WINAPI HANDLE CreateThread __attribute__((dllimport))(LPSECURITY_ATTRIBUTES, size_t, LPTHREAD_START_ROUTINE, LPVOID, DWORD, LPDWORD );
 WINAPI HANDLE CreateRemoteThread __attribute__((dllimport))(HANDLE, LPSECURITY_ATTRIBUTES, size_t, LPTHREAD_START_ROUTINE, LPVOID, DWORD, LPDWORD );
-WINAPI void ZeroMemory __attribute__((dllimport))(PVOID, size_t);
 WINAPI DWORD GetProcessId __attribute__((dllimport))(HANDLE);
 WINAPI BOOL CreateProcess __attribute__((dllimport))(LPCTSTR, LPTSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCTSTR, LPSTARTUPINFO, LPPROCESS_INFORMATION);
 WINAPI BOOL CreateProcessAsUser __attribute__((dllimport))(HANDLE, LPCTSTR, LPTSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCTSTR, LPSTARTUPINFO, LPPROCESS_INFORMATION);

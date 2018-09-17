@@ -171,12 +171,12 @@ module Msf
     # This method takes a payload module and tries to reconcile a chosen
     # arch with the arches supported by the module.
     # @param mod [Msf::Payload] The module class to choose an arch for
-    # @return [String] String form of the Arch if a valid arch found
+    # @return [String] String form of the arch if a valid arch found
     # @return [Nil] if no valid arch found
     def choose_arch(mod)
       if arch.blank?
         @arch = mod.arch.first
-        cli_print "No Arch selected, selecting Arch: #{arch} from the payload"
+        cli_print "[-] No arch selected, selecting arch: #{arch} from the payload"
         datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return mod.arch.first
       elsif mod.arch.include? arch
@@ -198,7 +198,7 @@ module Msf
 
       if chosen_platform.platforms.empty?
         chosen_platform = mod.platform
-        cli_print "No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
+        cli_print "[-] No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
         @platform = mod.platform.platforms.first.to_s.split("::").last
       elsif (chosen_platform & mod.platform).empty?
         chosen_platform = Msf::Module::PlatformList.new
@@ -429,11 +429,15 @@ module Msf
         encoder.split(',').each do |chosen_encoder|
           e = framework.encoders.create(chosen_encoder)
           if e.nil?
-            cli_print "Skipping invalid encoder #{chosen_encoder}"
+            cli_print "[-] Skipping invalid encoder #{chosen_encoder}"
             next
           end
           e.datastore.import_options_from_hash(datastore)
           encoders << e if e
+        end
+        if encoders.empty?
+          cli_print "[!] Couldn't find encoder to use"
+          return encoders
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif !badchars.empty? && !badchars.nil?

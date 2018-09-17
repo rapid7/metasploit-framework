@@ -42,6 +42,7 @@ class Msf::DBManager
   autoload :Import, 'msf/core/db_manager/import'
   autoload :ImportMsfXml, 'msf/core/db_manager/import_msf_xml'
   autoload :IPAddress, 'msf/core/db_manager/ip_address'
+  autoload :Login, 'msf/core/db_manager/login'
   autoload :Loot, 'msf/core/db_manager/loot'
   autoload :Migration, 'msf/core/db_manager/migration'
   autoload :ModuleCache, 'msf/core/db_manager/module_cache'
@@ -53,6 +54,7 @@ class Msf::DBManager
   autoload :Session, 'msf/core/db_manager/session'
   autoload :SessionEvent, 'msf/core/db_manager/session_event'
   autoload :Task, 'msf/core/db_manager/task'
+  autoload :User, 'msf/core/db_manager/user'
   autoload :Vuln, 'msf/core/db_manager/vuln'
   autoload :VulnAttempt, 'msf/core/db_manager/vuln_attempt'
   autoload :VulnDetail, 'msf/core/db_manager/vuln_detail'
@@ -78,6 +80,7 @@ class Msf::DBManager
   include Msf::DBManager::HostTag
   include Msf::DBManager::Import
   include Msf::DBManager::IPAddress
+  include Msf::DBManager::Login
   include Msf::DBManager::Loot
   include Msf::DBManager::Migration
   include Msf::DBManager::ModuleCache
@@ -89,6 +92,7 @@ class Msf::DBManager
   include Msf::DBManager::Session
   include Msf::DBManager::SessionEvent
   include Msf::DBManager::Task
+  include Msf::DBManager::User
   include Msf::DBManager::Vuln
   include Msf::DBManager::VulnAttempt
   include Msf::DBManager::VulnDetail

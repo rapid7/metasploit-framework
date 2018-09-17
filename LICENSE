@@ -115,6 +115,10 @@ Files: data/webcam/api.js
 Copyright: Copyright 2013 Muaz Khan<@muazkh>.
 License: MIT
 
+Files: lib/msf/core/db_manager/http/public/*, lib/msf/core/db_manager/http/views/api_docs.erb
+Copyright: Copyright 2018 SmartBear Software
+License: Apache 2.0
+
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
