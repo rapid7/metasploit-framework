@@ -243,6 +243,14 @@ class Config < Hash
     self.new.save(opts)
   end
 
+  # Deletes the specified config group from the ini file
+  #
+  # @param group [String] The name of the group to remove
+  # @return [void]
+  def self.delete_group(group)
+    self.new.delete_group(group)
+  end
+
   # Updates the config class' self with the default hash.
   #
   # @return [Hash] the updated Hash.
@@ -424,6 +432,17 @@ class Config < Hash
     ini.to_file
   end
 
+  # Deletes the specified config group from the ini file
+  #
+  # @param group [String] The name of the group to remove
+  # @return [void]
+  def delete_group(group)
+    ini = Rex::Parser::Ini.new(config_file)
+
+    ini.delete(group)
+
+    ini.to_file
+  end
 end
 
 end

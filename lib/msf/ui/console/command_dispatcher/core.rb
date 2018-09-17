@@ -160,7 +160,6 @@ class Core
       cmd_color_help
       return
     end
-    driver.update_prompt
   end
 
   #
@@ -1083,19 +1082,10 @@ class Core
       msg = "Spooling to file #{args[0]}..."
     end
 
-    # Restore color and prompt
+    # Restore color
     driver.output.config[:color] = color
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    if active_module
-      # intentionally += and not << because we don't want to modify
-      # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.promptname}%clr)"
-    end
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} ", prompt_char, true)
 
     print_status(msg)
-    return
   end
 
   def cmd_sessions_help
@@ -1208,6 +1198,10 @@ class Core
         print_error("Please specify valid session identifier(s)")
         return false
       end
+    end
+
+    if show_inactive && !framework.db.active
+      print_warning("Database not connected; list of inactive sessions unavailable")
     end
 
     last_known_timeout = nil
@@ -2003,31 +1997,19 @@ class Core
 
     rx = Regexp.new(pattern, match_mods[:insensitive])
 
-    # get a ref to the current console driver
-    orig_driver = self.driver
-    # redirect output after saving the old ones and getting a new output buffer to use for redirect
-    orig_driver_output = orig_driver.output
-    orig_driver_input = orig_driver.input
+    # redirect output after saving the old one and getting a new output buffer to use for redirect
+    orig_output = driver.output
 
     # we use a rex buffer but add a write method to the instance, which is
     # required in order to be valid $stdout
     temp_output = Rex::Ui::Text::Output::Buffer.new
     temp_output.extend Rex::Ui::Text::Output::Buffer::Stdout
 
-    orig_driver.init_ui(orig_driver_input,temp_output)
+    driver.init_ui(driver.input, temp_output)
     # run the desired command to be grepped
-    orig_driver.run_single(cmd)
+    driver.run_single(cmd)
     # restore original output
-    orig_driver.init_ui(orig_driver_input,orig_driver_output)
-    # restore the prompt so we don't get "msf >  >".
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    mod = active_module
-    if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
-    else
-      driver.update_prompt("#{prompt} ", prompt_char, true)
-    end
+    driver.init_ui(driver.input, orig_output)
 
     # dump the command's output so we can grep it
     cmd_output = temp_output.dump_buffer

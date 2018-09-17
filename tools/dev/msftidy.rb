@@ -140,6 +140,7 @@ class Msftidy
   def check_ref_identifiers
     in_super     = false
     in_refs      = false
+    in_notes     = false
     cve_assigned = false
 
     @lines.each do |line|
@@ -153,6 +154,10 @@ class Msftidy
       if in_super and line =~ /["']References["'][[:space:]]*=>/
         in_refs = true
       elsif in_super and in_refs and line =~ /^[[:space:]]+\],*/m
+        in_refs = false
+      elsif in_super and line =~ /["']Notes["'][[:space:]]*=>/
+        in_notes = true
+      elsif in_super and in_notes and line =~ /^[[:space:]]+\},*/m
         break
       elsif in_super and in_refs and line =~ /[^#]+\[[[:space:]]*['"](.+)['"][[:space:]]*,[[:space:]]*['"](.+)['"][[:space:]]*\]/
         identifier = $1.strip.upcase
@@ -178,7 +183,7 @@ class Msftidy
           warn("Invalid WPVDB reference") if value !~ /^\d+$/
         when 'PACKETSTORM'
           warn("Invalid PACKETSTORM reference") if value !~ /^\d+$/
-        when 'URL' || 'AKA'
+        when 'URL'
           if value =~ /^https?:\/\/cvedetails\.com\/cve/
             warn("Please use 'CVE' for '#{value}'")
           elsif value =~ /^https?:\/\/www\.securityfocus\.com\/bid\//
@@ -194,12 +199,21 @@ class Msftidy
           elsif value =~ /^https?:\/\/(?:[^\.]+\.)?packetstormsecurity\.(?:com|net|org)\//
             warn("Please use 'PACKETSTORM' for '#{value}'")
           end
+        when 'AKA'
+          warn("Please include AKA values in the 'notes' section, rather than in 'references'.")
         end
+      end
+
+      # If a NOCVE reason was provided in notes, ignore the fact that the references might lack a CVE
+      if in_super and in_notes and line =~ /^[[:space:]]+["']NOCVE["'][[:space:]]+=>[[:space:]]+\[*["'](.+)["']\]*/
+        cve_assigned = true
       end
     end
 
     # This helps us track when CVEs aren't assigned
-    info('No CVE references found. Please check before you land!') unless cve_assigned
+    unless cve_assigned
+      info('No CVE references found. Please check before you land!')
+    end
   end
 
   def check_self_class

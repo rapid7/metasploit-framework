@@ -22,6 +22,8 @@ class RemoteHTTPDataService
   DELETE_REQUEST = 'DELETE'
   PUT_REQUEST = 'PUT'
 
+  attr_reader :endpoint, :https_opts, :api_token
+
   #
   # @param [String] endpoint A valid http or https URL. Cannot be nil
   #
@@ -69,6 +71,10 @@ class RemoteHTTPDataService
 
   def error
     'none'
+  end
+
+  def driver
+    'http'
   end
 
   #
@@ -289,7 +295,7 @@ class RemoteHTTPDataService
       if @endpoint.is_a?(URI::HTTPS)
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        unless @https_opts.empty?
+        if @https_opts && !@https_opts.empty?
           if @https_opts[:skip_verify]
             http.verify_mode = OpenSSL::SSL::VERIFY_NONE
           else

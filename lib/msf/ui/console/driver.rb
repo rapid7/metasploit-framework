@@ -24,6 +24,7 @@ class Driver < Msf::Ui::Driver
 
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
+  DbConfigGroup = "framework/database"
 
   DefaultPrompt     = "%undmsf5%clr"
   DefaultPromptChar = "%clr>"
@@ -129,6 +130,8 @@ class Driver < Msf::Ui::Driver
       enstack_dispatcher(dispatcher)
     end
 
+    load_db_config(opts['Config'])
+
     if !framework.db || !framework.db.active
       print_error("***")
       if framework.db.error == "disabled"
@@ -221,6 +224,38 @@ class Driver < Msf::Ui::Driver
       conf[ConfigCore].each_pair { |k, v|
         on_variable_set(true, k, v)
       }
+    end
+  end
+
+  def load_db_config(path=nil)
+    begin
+      conf = Msf::Config.load(path)
+    rescue
+      wlog("Failed to load configuration: #{$!}")
+      return
+    end
+
+    if conf.group?(DbConfigGroup)
+      conf[DbConfigGroup].each_pair do |k, v|
+        if k.downcase == 'default_db'
+          ilog "Default data service found. Attempting to connect..."
+          default_db_config_path = "#{DbConfigGroup}/#{v}"
+          default_db = conf[default_db_config_path]
+          if default_db
+            connect_string = "db_connect #{v}"
+
+            if framework.db.active && default_db['url'] !~ /http/
+              ilog "Existing local data connection found. Disconnecting first."
+              run_single("db_disconnect")
+            end
+
+            run_single(connect_string)
+          else
+            elog "Config entry for '#{default_db_config_path}' could not be found. Config file might be corrupt."
+            return
+          end
+        end
+      end
     end
   end
 
@@ -333,7 +368,10 @@ class Driver < Msf::Ui::Driver
         print_warning("\t#{path}: #{error}")
       end
     end
-    framework.db.workspace = framework.db.default_workspace if framework.db && framework.db.active
+
+    if framework.db && framework.db.active
+      framework.db.workspace = framework.db.default_workspace unless framework.db.workspace
+    end
 
     framework.events.on_ui_start(Msf::Framework::Revision)
 
@@ -376,10 +414,6 @@ class Driver < Msf::Ui::Driver
         handle_console_logging(val) if (glob)
       when "loglevel"
         handle_loglevel(val) if (glob)
-      when "prompt"
-        update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
-      when "promptchar"
-        update_prompt(framework.datastore['Prompt'] || DefaultPrompt, val, true)
     end
   end
 
@@ -395,6 +429,21 @@ class Driver < Msf::Ui::Driver
         handle_console_logging('0') if (glob)
       when "loglevel"
         handle_loglevel(nil) if (glob)
+    end
+  end
+
+  #
+  # Proxies to shell.rb's update prompt with our own extras
+  #
+  def update_prompt(*args)
+    if args.empty?
+      pchar = framework.datastore['PromptChar'] || DefaultPromptChar
+      p = framework.datastore['Prompt'] || DefaultPrompt
+      p = "#{p} #{active_module.type}(%bld%red#{active_module.promptname}%clr)" if active_module
+      super(p, pchar)
+    else
+      # Don't squash calls from within lib/rex/ui/text/shell.rb
+      super(*args)
     end
   end
 

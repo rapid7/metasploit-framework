@@ -326,6 +326,7 @@ module Msf
             print_line
             print_line "Keywords:"
             {
+              'aka'         => 'Modules with a matching AKA (also-known-as) name',
               'app'         => 'Modules that are client or server attacks',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
@@ -677,11 +678,6 @@ module Msf
             end
 
             mod.init_ui(driver.input, driver.output)
-
-            # Update the command prompt
-            prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-            prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
           end
 
           #
@@ -864,11 +860,6 @@ module Msf
 
               # Destack the current dispatcher
               driver.destack_dispatcher
-
-              # Restore the prompt
-              prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-              prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-              driver.update_prompt("#{prompt} ", prompt_char, true)
             end
           end
 
