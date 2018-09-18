@@ -129,7 +129,6 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'     =>
         [
-          [ 'AKA', 'Heartbleed' ],
           [ 'CVE', '2014-0160' ],
           [ 'US-CERT-VU', '720951' ],
           [ 'URL', 'https://www.us-cert.gov/ncas/alerts/TA14-098A' ],
@@ -146,7 +145,11 @@ class MetasploitModule < Msf::Auxiliary
           ['DUMP',  {'Description' => 'Dump memory contents'}],
           ['KEYS',  {'Description' => 'Recover private keys from memory'}]
         ],
-      'DefaultAction' => 'SCAN'
+      'DefaultAction' => 'SCAN',
+      'Notes' =>
+          {
+              'AKA' => ['Heartbleed']
+          }
     )
 
     register_options(

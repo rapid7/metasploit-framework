@@ -31,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
         'lcamtuf' # CVE-2014-6278
       ],
       'References' => [
-        [ 'AKA', 'Shellshock' ],
         [ 'CVE', '2014-6271' ],
         [ 'CVE', '2014-6278' ],
         [ 'OSVDB', '112004' ],
@@ -40,7 +39,11 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ]
       ],
       'DisclosureDate' => 'Sep 24 2014',
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' =>
+          {
+            'AKA' => ['Shellshock']
+          }
     ))
 
     register_options([
