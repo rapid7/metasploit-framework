@@ -2,7 +2,7 @@
 
   This module exploits a SQL injection vulnerability in Pimcore's REST web service for versions below 5.3.0. By using a UNION query on the `object inquire` service, this module can steal the usernames and password hashes of all users of Pimcore.
 
-  Pimcore begins to create password hashes by concatenating a user's username, the name of the application, and the user's password like so: `USERNAME:pimcore:PASSWORD`.
+  Pimcore begins to create password hashes by concatenating a user's username, the name of the application, and the user's password in the format `USERNAME:pimcore:PASSWORD`.
   The resulting string is then used to generate an MD5 hash, and then that MD5 hash is used to create the final hash, which is generated using PHP's built-in `password_hash` function.
 
 ## Vulnerable Application
@@ -17,11 +17,11 @@
   1. Install the application
   2. Start msfconsole
   3. Do: `use auxiliary/sqli/oracle/pimcore_list_creds`
-  3. Do: `set RHOSTS [IP]`
-  3. Do: `set TARGETURI [URI]`
-  3. Do: `set APIKEY [KEY]`
-  4. Do: `run`
-  5. You should get a list of Pimcore user credentials
+  4. Do: `set RHOSTS [IP]`
+  5. Do: `set TARGETURI [URI]`
+  6. Do: `set APIKEY [KEY]`
+  7. Do: `run`
+  8. You should get a list of Pimcore user credentials
 
 ## Options
 
@@ -32,7 +32,6 @@
 ## Scenarios
 
 ### Tested on Ubuntu 18.04.1 Running Pimcore v5.2.3
-
 
   ```
   msf5 > use auxiliary/sqli/oracle/pimcore_list_creds
