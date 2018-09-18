@@ -14,8 +14,6 @@
 
 ## Verification Steps
 
-  Example steps in this format (is also in the PR):
-
   1. Install the application
   2. Start msfconsole
   3. Do: `use auxiliary/sqli/oracle/pimcore_list_creds`
