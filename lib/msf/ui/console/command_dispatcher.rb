@@ -88,6 +88,7 @@ module CommandDispatcher
         return if ele.count('-') > 1
         return if ele.first == '-' || ele[-1] == '-'
         return if ele.first == '.' || ele[-1] == '.'
+        return unless ele =~ (/^(\d)+$/)  # Not a number
 
         if ele.include? '-'
           temp_array = (ele.split("-").inject { |s, e| s.to_i..e.to_i }).to_a
