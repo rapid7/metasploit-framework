@@ -239,7 +239,7 @@ module ReverseHttp
     lookup_proxy_settings
 
     if datastore['IgnoreUnknownPayloads']
-      print_status("Handler is ignoring unknown payloads, there are #{framework.db.payload_count} UUIDs whitelisted")
+      print_status("Handler is ignoring unknown payloads, there are #{framework.db.payloads({}).length} UUIDs whitelisted")
     end
   end
 

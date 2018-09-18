@@ -14,12 +14,6 @@ module Msf::DBManager::Payload
     end
   end
 
-  def payload_count
-    ::ActiveRecord::Base.connection_pool.with_connection do
-      Mdm::Payload.count
-    end
-  end
-
   def update_payload(opts)
     ::ActiveRecord::Base.connection_pool.with_connection do
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
