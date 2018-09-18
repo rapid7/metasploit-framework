@@ -209,7 +209,7 @@ module Msf
                 persist_list = []
               end
 
-              # Stop the job and remove persistence by job id.
+              # Remove persistence by job id.
               job_list.map(&:to_s).each do |job|
                 if framework.jobs.key?(job)
                   next unless framework.jobs[job.to_s].ctx[1] # next if no payload context in the job
