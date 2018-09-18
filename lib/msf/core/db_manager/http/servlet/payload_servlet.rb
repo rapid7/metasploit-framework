@@ -51,6 +51,8 @@ module PayloadServlet
       warden.authenticate!
       begin
         opts = parse_json_request(request, false)
+        tmp_params = sanitize_params(params)
+        opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_payload(opts)
         set_json_data_response(response: data)
       rescue => e
