@@ -31,16 +31,16 @@ module Msf::DBManager::Payload
   end
 
   def delete_payload(opts)
-    raise ArgumentError.new("The following options are required: :uuids") if opts[:uuids].nil?
+    raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
     ::ActiveRecord::Base.connection_pool.with_connection do
       deleted = []
-      opts[:uuids].each do |uuid|
-        payload = Mdm::Payload.find_by(uuid: uuid)
+      opts[:ids].each do |payload_id|
+        payload = Mdm::Payload.find(payload_id)
         begin
           deleted << payload.destroy
-        rescue # refs suck
-          elog("Forcibly deleting #{payload.address}")
+        rescue
+          elog("Forcibly deleting #{payload}")
           deleted << payload.delete
         end
       end
