@@ -2225,7 +2225,9 @@ class Core
   # Provide valid session options for the current post-exploit module
   #
   def option_values_sessions
-    active_module.compatible_sessions.map { |sid| sid.to_s }
+    if active_module.respond_to?(:compatible_sessions)
+      active_module.compatible_sessions.map { |sid| sid.to_s }
+    end
   end
 
   #
