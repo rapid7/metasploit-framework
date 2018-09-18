@@ -6,12 +6,13 @@ module RemotePayloadDataService
   PAYLOAD_API_PATH = '/api/v1/payloads'
   PAYLOAD_MDM_CLASS = 'Mdm::Payload'
 
-  def create_payload(opts)
-    json_to_mdm_object(self.post_data(PAYLOAD_API_PATH, opts), PAYLOAD_MDM_CLASS, []).first
+  def payloads(opts)
+    path = get_path_select(opts, PAYLOAD_API_PATH)
+    json_to_mdm_object(self.get_data(path, nil, opts), PAYLOAD_MDM_CLASS, [])
   end
 
-  def get_payload(opts)
-    json_to_mdm_object(self.get_data(PAYLOAD_API_PATH, nil, opts), PAYLOAD_MDM_CLASS, [])
+  def create_payload(opts)
+    json_to_mdm_object(self.post_data(PAYLOAD_API_PATH, opts), PAYLOAD_MDM_CLASS, []).first
   end
 
   def update_payload(opts)

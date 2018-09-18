@@ -224,7 +224,7 @@ protected
       # Pass along any associated payload uuid if specified
       if opts[:payload_uuid]
         s.payload_uuid = opts[:payload_uuid]
-        if s.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.db.get_payload({uuid: s.payload_uuid.puid_hex}))
+        if s.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.db.payloads({uuid: s.payload_uuid.puid_hex}).first)
           s.payload_uuid.registered = true
           s.payload_uuid.name = uuid_info['name']
           s.payload_uuid.timestamp = uuid_info['timestamp']

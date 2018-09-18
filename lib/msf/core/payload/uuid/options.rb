@@ -107,10 +107,10 @@ module Msf::Payload::UUID::Options
     framework.db.create_payload(uuid_info)
   end
 
-  # Store a UUID URL in the JSON database if tracking is enabled
+  # Store a UUID URL in the database if tracking is enabled
   def record_payload_uuid_url(uuid, url)
     return unless datastore['PayloadUUIDTracking']
-    payload = framework.db.get_payload({:uuid => uuid.puid_hex})
+    payload = framework.db.payloads({:uuid => uuid.puid_hex}).first
     urls = payload.urls.nil? ? [] : payload.urls
     urls << url
     urls.uniq!

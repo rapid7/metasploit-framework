@@ -330,7 +330,7 @@ protected
 
     # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
     if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
-      payload = framework.db.get_payload({uuid: uuid.puid_hex})
+      payload = framework.db.payloads({uuid: uuid.puid_hex}).first
       allowed_urls = payload ? payload.urls : []
       unless allowed_urls.include?(req.relative_resource)
         print_status("Ignoring unknown UUID URL: #{request_summary}")

@@ -1,20 +1,20 @@
 module PayloadDataProxy
 
+  def payloads(opts)
+    begin
+      data_service = self.get_data_service
+      data_service.payloads(opts)
+    rescue => e
+      self.log_error(e, "Problem retrieving payload")
+    end
+  end
+
   def create_payload(opts)
     begin
       data_service = self.get_data_service
       data_service.create_payload(opts)
     rescue => e
       self.log_error(e, "Problem creating payload")
-    end
-  end
-
-  def get_payload(opts)
-    begin
-      data_service = self.get_data_service
-      data_service.get_payload(opts)
-    rescue => e
-      self.log_error(e, "Problem retrieving payload")
     end
   end
 

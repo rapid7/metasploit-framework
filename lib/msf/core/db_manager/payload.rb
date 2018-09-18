@@ -4,14 +4,13 @@ module Msf::DBManager::Payload
     Mdm::Payload.create(opts)
   end
 
-  def get_payload(opts)
-    if opts.kind_of? Mdm::Payload
-      return opts
-    else
-      uuid = opts[:uuid] || return
-    end
+  def payloads(opts)
     ::ActiveRecord::Base.connection_pool.with_connection do
-      return Mdm::Payload.find_by(uuid: uuid)
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Payload.find(opts[:id]))
+      end
+
+      return Mdm::Payload.where(opts)
     end
   end
 
