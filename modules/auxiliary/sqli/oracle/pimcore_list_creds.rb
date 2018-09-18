@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri'     =>  normalize_uri(target_uri.path)
     )
 
-    (res && res.body.include?('pimcore')) ? true : false
+    res && res.code == 200 && res.body.include?('pimcore')
   end
 
   def get_creds
