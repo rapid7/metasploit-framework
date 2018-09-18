@@ -38,9 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri'     =>  normalize_uri(target_uri.path)
     )
 
-    false unless res && res.body.include?('pimcore')
-
-    true
+    (res && res.body.include?('pimcore')) ? true : false
   end
 
   def get_creds
@@ -54,9 +52,11 @@ class MetasploitModule < Msf::Auxiliary
       'uri'     =>  api_uri << cmd
     )
 
-    unless res and res.body.include?('"success":true')
+    unless res
       fail_with(Failure::NotFound, 'The request returned no results.')
     end
+
+    fail_with(Failure::NoAccess, 'API key is invalid') if res.body.include?('API request needs either a valid API key or a valid session.')
 
     format_results(res.get_json_document['data'])
   end
