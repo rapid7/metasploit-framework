@@ -1,16 +1,17 @@
-## This module requires Metasploit: https://metasploit.com/download
+##                                                                                                              
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Post
-    Rank = GoodRanking
+  Rank = GoodRanking
 
   include Msf::Post::File
   include Msf::Post::Windows::Registry
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'        => 'Win32k Elevation of Privilege Vulnerability',
+      'Name'        => 'Wink32.sys fails to handle objects in memory (Win32k Elevation of Privilege Vulnerability)',
       'Description' => %q{
         This module exploits elevation of privilege vulnerability exists in Windows 7 and 2008 R2
         when the Win32k component fails to properly handle objects in memory. An attacker who
@@ -19,6 +20,7 @@ class MetasploitModule < Msf::Post
         accounts with full user rights.},
       'References'  =>
         [
+          ['BID', '104034'],
           ['CVE', '2018-8120'],
           ['URL', 'https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-8120'],
           ['URL', 'http://bigric3.blogspot.com/2018/05/cve-2018-8120-analysis-and-exploit.html'],
@@ -31,7 +33,7 @@ class MetasploitModule < Msf::Post
           'Anton Cherepanov', # Vulnerability discovery
           'Dhiraj Mishra <dhiraj@notsosecure.com>' # Metasploit module
         ],
-      'DisclosureDate' => 'Aug 05 2018',
+      'DisclosureDate' => 'May 9 2018',
       'Arch'           => [ARCH_X64, ARCH_X86],
       'SessionTypes'   => ['meterpreter'],
       'License'        => MSF_LICENSE
