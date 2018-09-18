@@ -21,6 +21,19 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
 
 ## Options
 
+  **CENSYS_SECRET**
+
+  Your Censys API SECRET.
+
+  **CENSYS_UID**
+
+  Your Censys API UID.
+
+  **COMPSTR**
+
+  You can use a custom string to perform the comparison. Default: TITLE if it's empty.
+  The best way is always to use COMPSTR for a better result.
+
   **HOSTNAME**
 
   This is the hostname [fqdn] on which the website responds. But this can also be a domain.
@@ -28,6 +41,10 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
     msf auxiliary(gather/behind_ingensec) > set hostname www.ingensec.com
     --or--
     msf auxiliary(gather/behind_ingensec) > set hostname ingensec.com
+
+  **Poxies**
+
+  A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
 
   **RPORT**
 
@@ -37,17 +54,13 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
 
   Negotiate SSL/TLS for outgoing connections. Default: true
 
-  **URIPATH**
-
-  The URI path on which to perform the page comparison. Default: '/'
-
-  **Poxies**
-
-  A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
-
   **THREADS**
 
   Number of concurent threads needed for DNS enumeration. Default: 15
+
+  **URIPATH**
+
+  The URI path on which to perform the page comparison. Default: '/'
 
   **WORDLIST**
 
@@ -55,9 +68,9 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
 
 ## Advanced options
 
-  **COMPSTR**
+  **DNSENUM**
 
-  You can use a custom string to perform the comparison. Default: HOSTNAME if it's empty.
+  Set DNS enumeration as optional. Default: true
 
   **NS**
 

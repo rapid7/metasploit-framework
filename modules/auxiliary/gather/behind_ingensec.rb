@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind BinarySec/IngenSecurity',
-      'Version'        => '$Release: 1.1',
+      'Version'        => '$Release: 1.1.1',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
@@ -28,20 +28,21 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('CENSYS_SECRET', [false, 'The Censys API SECRET']),
+        OptString.new('CENSYS_UID', [false, 'The Censys API UID']),
+        OptString.new('COMPSTR', [false, 'You can use a custom string to perform the comparison (default is TITLE).']),
         OptString.new('HOSTNAME', [true, 'The hostname or domain name where we want to find the real IP address', 'www.ingensec.com']),
-        OptString.new('URIPATH', [true, 'The URI path on which to perform the page comparison', '/']),
+        OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]']),
         OptInt.new('RPORT', [true, 'The target TCP port on which the protected website responds', 443]),
         OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
-        OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]']),
         OptInt.new('THREADS', [true, 'Threads for DNS enumeration', 15]),
-        OptPath.new('WORDLIST', [true, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')]),
-        OptString.new('CENSYS_UID', [false, 'The Censys API UID']),
-        OptString.new('CENSYS_SECRET', [false, 'The Censys API SECRET'])
+        OptString.new('URIPATH', [true, 'The URI path on which to perform the page comparison', '/']),
+        OptPath.new('WORDLIST', [true, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
       ])
 
     register_advanced_options(
       [
-        OptString.new('COMPSTR', [false, 'You can use a custom string to perform the comparison (default is HOSTNAME).']),
+        OptBool.new('DNSENUM', [true, 'Set DNS enumeration as optional', true]),
         OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)'])
       ])
   end
@@ -62,36 +63,37 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_grab_domain_ip_history(hostname, proxies)
     begin
-      cli = Rex::Proto::Http::Client.new('www.prepostseo.com', 443, {}, true, nil, proxies)
+      cli = Rex::Proto::Http::Client.new('viewdns.info', 443, {}, true, nil, proxies)
       cli.connect
 
       request = cli.request_cgi({
-        'uri'    => '/domain-ip-history-checker',
-        'method' => 'POST',
-        'data'   => "url=#{hostname}&submit=Check+Reverse+Ip+Domains"
+        'uri'    => "/iphistory/?domain=#{hostname}",
+        'method' => 'GET'
       })
       response = cli.send_recv(request)
       cli.close
 
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      print_error('HTTP connection failed to PrePost SEO website.')
+      print_error('HTTP connection failed to ViewDNS.info website.')
       return false
     end
 
     html  = response.get_html_document
+    table = html.css('table')[2]
 
-    table = html.css('table.table').first
-    rows  = table.css('tr')
+    unless table.nil?
+      rows   = table.css('tr')
 
-    ar_ips = []
-    rows.each_with_index.map do | row, index |
-      row = /(\d*\.\d*\.\d*\.\d*)/.match(row.css('td').map(&:text).to_s)
-      unless row.nil?
-        ar_ips.push(row)
+      ar_ips = []
+      rows.each.map do | row |
+        row = /(\d*\.\d*\.\d*\.\d*)/.match(row.css('td').map(&:text).to_s)
+        unless row.nil?
+          ar_ips.push(row)
+        end
       end
     end
 
-    if ar_ips.empty?
+    if ar_ips.nil?
       print_bad('No domain IP(s) history founds.')
       return false
     end
@@ -327,18 +329,20 @@ class MetasploitModule < Msf::Auxiliary
     domain_name  = PublicSuffix.parse(datastore['HOSTNAME']).domain
     ip_list      = []
 
-    # PrePost SEO
+    # ViewDNS.info
     ip_records   = do_grab_domain_ip_history(domain_name, datastore['Proxies'])
     ip_list     |= ip_records unless ip_records.eql? false
     unless ip_records.eql? false
-      print_status(" * PrePost SEO: #{ip_records.count.to_s} IP address found(s).")
+      print_status(" * ViewDNS.info: #{ip_records.count.to_s} IP address found(s).")
     end
 
     # DNS Enum.
-    ip_records   = do_dns_enumeration(domain_name, datastore['THREADS'])
-    ip_list     |= ip_records unless ip_records.eql? false
-    unless ip_records.eql? false
-      print_status(" * DNS Enumeration: #{ip_records.count.to_s} IP address found(s).")
+    if datastore['DNSENUM'].eql? true
+      ip_records   = do_dns_enumeration(domain_name, datastore['THREADS'])
+      ip_list     |= ip_records unless ip_records.eql? false
+      unless ip_records.eql? false
+        print_status(" * DNS Enumeration: #{ip_records.count.to_s} IP address found(s).")
+      end
     end
 
     # Censys search.
