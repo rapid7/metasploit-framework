@@ -13,9 +13,9 @@ class MetasploitModule < Msf::Post
       'Name'        => 'Win32k Elevation of Privilege Vulnerability',
       'Description' => %q{
         This module exploits elevation of privilege vulnerability exists in Windows 7 and 2008 R2
-        when the Win32k component fails to properly handle objects in memory. An attacker who 
-        successfully exploited this vulnerability could run arbitrary code in kernel mode. An 
-        attacker could then install programs; view, change, or delete data; or create new 
+        when the Win32k component fails to properly handle objects in memory. An attacker who
+        successfully exploited this vulnerability could run arbitrary code in kernel mode. An
+        attacker could then install programs; view, change, or delete data; or create new
         accounts with full user rights.},
       'References'  =>
         [
