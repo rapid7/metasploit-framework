@@ -55,7 +55,7 @@ module Analysis::Timing
       timeout = opts[:delay]
 
       seed    = p.altered_value.dup
-      payload = fuzzer.payloads.select{ |pl| seed.include?( pl ) }.max
+      payload = fuzzer.payloads.select{ |pl| seed.include?( pl ) }.max_by(&:size)
 
       # 1st pass, make sure the webapp is responsive
       if_responsive do
