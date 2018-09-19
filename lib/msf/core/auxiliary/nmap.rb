@@ -224,7 +224,7 @@ def nmap_validate_arg(str)
   end
   # Check for commas outside of quoted arguments
   quoted_22 = /\x22[^\x22]*\x22/n
-  requoted_str = str.gsub(/'/,"\"")
+  requoted_str = str.tr('\'','"')
   if requoted_str.split(quoted_22).join[/,/]
     print_error "Malformed nmap arguments (unquoted comma): #{str}"
     return false
