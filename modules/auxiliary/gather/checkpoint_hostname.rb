@@ -21,11 +21,11 @@ class MetasploitModule < Msf::Auxiliary
         networks where the hostname reveals the physical location and rack number
         of the device, which may be unintentionally published to the world.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'DisclosureDate' => 'Dec 14 2011', # Looks like this module is first real reference
       'References'     =>
         [
-          # patrickw - None? Stumbled across, probably an old bug/feature but unsure.
+          # aushack - None? Stumbled across, probably an old bug/feature but unsure.
           [ 'URL', 'http://www.osisecurity.com.au/advisories/checkpoint-firewall-securemote-hostname-information-disclosure' ],
           [ 'URL', 'https://supportcenter.checkpoint.com/supportcenter/portal?eventSubmit_doGoviewsolutiondetails=&solutionid=sk69360' ]
         ]

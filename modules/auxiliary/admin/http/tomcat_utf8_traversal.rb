@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2008-2938' ],
           [ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
         ],
-      'Author'         => [ 'patrick','guerrino <ruggine> di massa' ],
+      'Author'         => [ 'aushack','guerrino <ruggine> di massa' ],
       'License'        => MSF_LICENSE,
       'DisclosureDate' => 'Jan 9 2009'
     )

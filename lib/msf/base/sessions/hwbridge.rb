@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/base'
-
+require 'msf/base/sessions/scriptable'
 require 'rex/post/hwbridge'
 
 module Msf
@@ -24,6 +24,7 @@ class HWBridge  < Rex::Post::HWBridge::Client
   # This interface supports interactive commands.
   #
   include Msf::Session::Interactive
+  include Msf::Session::Scriptable
 
   #
   # Initialize the HWBridge console

@@ -21,6 +21,7 @@ module Msf::DBManager::Import
   autoload :CI, 'msf/core/db_manager/import/ci'
   autoload :Foundstone, 'msf/core/db_manager/import/foundstone'
   autoload :FusionVM, 'msf/core/db_manager/import/fusion_vm'
+  autoload :GPP, 'msf/core/db_manager/import/gpp'
   autoload :IP360, 'msf/core/db_manager/import/ip360'
   autoload :IPList, 'msf/core/db_manager/import/ip_list'
   autoload :Libpcap, 'msf/core/db_manager/import/libpcap'
@@ -47,6 +48,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::CI
   include Msf::DBManager::Import::Foundstone
   include Msf::DBManager::Import::FusionVM
+  include Msf::DBManager::Import::GPP
   include Msf::DBManager::Import::IP360
   include Msf::DBManager::Import::IPList
   include Msf::DBManager::Import::Libpcap
@@ -85,14 +87,14 @@ module Msf::DBManager::Import
   # import_file_detect will raise an error if the filetype
   # is unknown.
   def import(args={}, &block)
-    wspace = args[:wspace] || args['wspace'] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
     preserve_hosts = args[:task].options["DS_PRESERVE_HOSTS"] if args[:task].present? && args[:task].options.present?
     wspace.update_attribute(:import_fingerprint, true)
     existing_host_ids = wspace.hosts.map(&:id)
     data = args[:data] || args['data']
     ftype = import_filetype_detect(data)
     yield(:filetype, @import_filedata[:type]) if block
-    self.send "import_#{ftype}".to_sym, args, &block
+    self.send "import_#{ftype}".to_sym, args.merge(workspace: wspace.name), &block
     if preserve_hosts
       new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id)
       (new_host_ids - existing_host_ids).each do |id|
@@ -111,7 +113,7 @@ module Msf::DBManager::Import
   #
   def import_file(args={}, &block)
     filename = args[:filename] || args['filename']
-    wspace = args[:wspace] || args['wspace'] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework)
     @import_filedata            = {}
     @import_filedata[:filename] = filename
 
@@ -148,9 +150,9 @@ module Msf::DBManager::Import
     REXML::Security.entity_expansion_text_limit = 51200
 
     if block
-      import(args.merge(:data => data)) { |type,data| yield type,data }
+      import(args.merge(data: data, workspace: wspace.name)) { |type,data| yield type,data }
     else
-      import(args.merge(:data => data))
+      import(args.merge(data: data, workspace: wspace.name))
     end
   end
 
@@ -164,6 +166,7 @@ module Msf::DBManager::Import
   # :ci_xml
   # :foundstone_xml
   # :fusionvm_xml
+  # :gpp_xml
   # :ip360_aspl_xml
   # :ip360_xml_v3
   # :ip_list
@@ -358,6 +361,9 @@ module Msf::DBManager::Import
         when "main"
           @import_filedata[:type] = "Outpost24 XML"
           return :outpost24_xml
+        when /Groups|DataSources|Drives|ScheduledTasks|NTServices/
+          @import_filedata[:type] = "Group Policy Preferences Credentials"
+          return :gpp_xml
         else
           # Give up if we haven't hit the root tag in the first few lines
           break if line_count > 10

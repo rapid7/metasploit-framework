@@ -59,7 +59,7 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def directory?(path)
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       stat = session.fs.file.stat(path) rescue nil
       return false unless stat
       return stat.directory?
@@ -70,9 +70,9 @@ module Msf::Post::File
         f = session.shell_command_token("test -d \"#{path}\" && echo true")
       end
 
-      return false if f.nil? or f.empty?
+      return false if f.nil? || f.empty?
       return false unless f =~ /true/
-      return true
+      true
     end
   end
 
@@ -93,7 +93,7 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def file?(path)
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       stat = session.fs.file.stat(path) rescue nil
       return false unless stat
       return stat.file?
@@ -107,20 +107,53 @@ module Msf::Post::File
         f = session.shell_command_token("test -f \"#{path}\" && echo true")
       end
 
-      return false if f.nil? or f.empty?
+      return false if f.nil? || f.empty?
       return false unless f =~ /true/
-      return true
+      true
     end
   end
 
   alias file_exist? file?
 
   #
+  # See if +path+ on the remote system is a setuid file
+  #
+  # @param path [String] Remote filename to check
+  def setuid?(path)
+    if session.type == 'meterpreter'
+      stat = session.fs.file.stat(path) rescue nil
+      return false unless stat
+      return stat.setuid?
+    else
+      if session.platform != 'windows'
+        f = session.shell_command_token("test -u \"#{path}\" && echo true")
+      end
+
+      return false if f.nil? || f.empty?
+      return false unless f =~ /true/
+      true
+    end
+  end
+
+  #
+  # See if +path+ on the remote system exists and is writable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is writable
+  #
+  def writable?(path)
+    raise "writable?' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
+  end
+
+  #
   # Check for existence of +path+ on the remote file system
   #
   # @param path [String] Remote filename to check
   def exist?(path)
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       stat = session.fs.file.stat(path) rescue nil
       return !!(stat)
     else
@@ -130,9 +163,9 @@ module Msf::Post::File
         f = cmd_exec("test -e \"#{path}\" && echo true")
       end
 
-      return false if f.nil? or f.empty?
+      return false if f.nil? || f.empty?
       return false unless f =~ /true/
-      return true
+      true
     end
   end
 
@@ -290,7 +323,7 @@ module Msf::Post::File
       end
 
     end
-    return true
+    true
   end
 
   #
@@ -314,7 +347,7 @@ module Msf::Post::File
         _write_file_unix_shell(file_name, data, true)
       end
     end
-    return true
+    true
   end
 
   #
@@ -348,7 +381,28 @@ module Msf::Post::File
     end
   end
 
+  #
+  # Delete remote directories
+  #
+  # @param remote_dirs [Array<String>] List of remote directories to
+  #   delete
+  # @return [void]
+  def rm_rf(*remote_dirs)
+    remote_dirs.each do |remote|
+      if session.type == "meterpreter"
+        session.fs.dir.rmdir(remote) if exist?(remote)
+      else
+        if session.platform == 'windows'
+          cmd_exec("rd /s /q \"#{remote}\"")
+        else
+          cmd_exec("rm -rf \"#{remote}\"")
+        end
+      end
+    end
+  end
+
   alias :file_rm :rm_f
+  alias :dir_rm :rm_rf
 
   #
   # Rename a remote file.
@@ -380,22 +434,22 @@ protected
   #
   # @return [String]
   def _read_file_meterpreter(file_name)
-    begin
-      fd = session.fs.file.new(file_name, "rb")
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      print_error("Failed to open file: #{file_name}: #{e}")
-      return nil
-    end
+    fd = session.fs.file.new(file_name, "rb")
 
     data = fd.read
-    begin
-      until fd.eof?
-        data << fd.read
-      end
-    ensure
-      fd.close
+    until fd.eof?
+      data << fd.read
     end
+
     data
+  rescue EOFError
+    # Sometimes fd isn't marked EOF in time?
+    ''
+  rescue ::Rex::Post::Meterpreter::RequestError => e
+    print_error("Failed to open file: #{file_name}: #{e}")
+    return nil
+  ensure
+    fd.close if fd
   end
 
   #

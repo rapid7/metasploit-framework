@@ -43,7 +43,7 @@ RSpec.describe Rex::Proto::Http::Client do
 
   end
 
-  it "should respond to intialize" do
+  it "should respond to initialize" do
     expect(cli).to be
   end
 
@@ -119,6 +119,7 @@ RSpec.describe Rex::Proto::Http::Client do
     it "should send creds after receiving a 401" do
       conn = double
       allow(conn).to receive(:put)
+      allow(conn).to receive(:peerinfo)
       allow(conn).to receive(:shutdown)
       allow(conn).to receive(:close)
       allow(conn).to receive(:closed?).and_return(false)

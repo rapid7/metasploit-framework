@@ -46,8 +46,6 @@ module Metasploit
               service_name: 'vnc'
           }
 
-          credential.public = nil
-
           begin
             # Make our initial socket to the target
             disconnect if self.sock
@@ -57,7 +55,11 @@ module Metasploit
             vnc = Rex::Proto::RFB::Client.new(sock, :allow_none => false)
 
             if vnc.handshake
-              if vnc_auth(vnc,credential.private)
+              type = vnc.negotiate_authentication
+              if type != Rex::Proto::RFB::AuthType::ARD
+                credential.public = nil
+              end
+              if vnc_auth(vnc,type,credential.public,credential.private)
                 result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
               else
                 result_options.merge!(
@@ -106,11 +108,13 @@ module Metasploit
         # This method attempts the actual VNC authentication. It has built in retries to handle
         # delays built into the VNC RFB authentication.
         # @param client [Rex::Proto::RFB::Client] The VNC client object to authenticate through
+        # @param type [Rex::Proto::RFB::AuthType] The VNC authentication type to attempt
+        # @param username [String] the username to attempt the authentication with
         # @param password [String] the password to attempt the authentication with
-        def vnc_auth(client,password)
+        def vnc_auth(client,type,username,password)
           success = false
           5.times do |n|
-            if client.authenticate(password)
+            if client.authenticate_with_type(type,username,password)
               success = true
               break
             end

@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
           :exploited_at => Time.now.utc,
           :info         => "Mongo server has no authentication."
         )
-        print_good("Mongo server #{ip.to_s} dosn't use authentication")
+        print_good("Mongo server #{ip.to_s} doesn't use authentication")
       end
       disconnect
     rescue ::Exception => e

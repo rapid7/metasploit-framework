@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         verifies that the directory has been created, then deletes it and verifies deletion
         to confirm the bug.
       },
-      'Author'		=> [ 'patrick' ],
+      'Author'		=> [ 'aushack' ],
       'License'		=> MSF_LICENSE,
       'References'	=>
         [

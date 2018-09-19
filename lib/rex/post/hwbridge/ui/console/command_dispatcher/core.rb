@@ -414,11 +414,11 @@ class Console::CommandDispatcher::Core
     if !words[1] || !words[1].match(/^\//)
       begin
         if msf_loaded?
-          tabs << tab_complete_postmods
+          tabs = tab_complete_postmods
         end
         [  # We can just use Meterpreters script path
-          ::Msf::Sessions::Meterpreter.script_base,
-          ::Msf::Sessions::Meterpreter.user_script_base
+          ::Msf::Sessions::HWBridge.script_base,
+          ::Msf::Sessions::HWBridge.user_script_base
         ].each do |dir|
           next unless ::File.exist? dir
           tabs += ::Dir.new(dir).find_all { |e|

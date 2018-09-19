@@ -27,7 +27,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
       "clipboard_monitor_pause"  => "Pause the active clipboard monitor",
       "clipboard_monitor_resume" => "Resume the paused clipboard monitor",
       "clipboard_monitor_dump"   => "Dump all captured clipboard content",
-      "clipboard_monitor_purge"  => "Delete all captured cilpboard content without dumping it",
+      "clipboard_monitor_purge"  => "Delete all captured clipboard content without dumping it",
       "clipboard_monitor_stop"   => "Stop the clipboard monitor"
     }
     reqs = {

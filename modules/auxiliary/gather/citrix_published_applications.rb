@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to query Citrix Metaframe ICA server to obtain
         a published list of applications.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'References'     =>
         [
           [ 'URL', 'http://www.securiteam.com/exploits/5CP0B1F80S.html' ],

@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'      =>
         [
-          'patrick',
+          'aushack',
           'j0hn__f'
         ],
       'References'  =>

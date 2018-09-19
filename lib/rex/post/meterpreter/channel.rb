@@ -251,6 +251,13 @@ class Channel
   end
 
   #
+  # Wrapper around check for self.cid
+  #
+  def closed?
+    self.cid.nil?
+  end
+
+  #
   # Wrapper around the low-level close.
   #
   def close(addends = nil)

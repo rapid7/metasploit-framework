@@ -83,6 +83,15 @@ module Msf
     # @!attribute  var_name
     #   @return [String] The custom variable string for certain output formats
     attr_accessor :var_name
+    # @!attribute encryption_format
+    #   @return [String] The encryption format to use for the shellcode.
+    attr_accessor :encryption_format
+    # @!attribute encryption_key
+    #   @return [String] The key to use for the encryption
+    attr_accessor :encryption_key
+    # @!attribute encryption_iv
+    #   @return [String] The initialization vector for the encryption (not all apply)
+    attr_accessor :encryption_iv
 
 
     # @param opts [Hash] The options hash
@@ -123,6 +132,9 @@ module Msf
       @var_name   = opts.fetch(:var_name, 'buf')
       @smallest   = opts.fetch(:smallest, false)
       @encoder_space = opts.fetch(:encoder_space, @space)
+      @encryption_format = opts.fetch(:encryption_format, nil)
+      @encryption_key = opts.fetch(:encryption_key, nil)
+      @encryption_iv = opts.fetch(:encryption_iv, nil)
 
       @framework  = opts.fetch(:framework)
 
@@ -159,12 +171,12 @@ module Msf
     # This method takes a payload module and tries to reconcile a chosen
     # arch with the arches supported by the module.
     # @param mod [Msf::Payload] The module class to choose an arch for
-    # @return [String] String form of the Arch if a valid arch found
+    # @return [String] String form of the arch if a valid arch found
     # @return [Nil] if no valid arch found
     def choose_arch(mod)
       if arch.blank?
         @arch = mod.arch.first
-        cli_print "No Arch selected, selecting Arch: #{arch} from the payload"
+        cli_print "[-] No arch selected, selecting arch: #{arch} from the payload"
         datastore['ARCH'] = arch if mod.kind_of?(Msf::Payload::Generic)
         return mod.arch.first
       elsif mod.arch.include? arch
@@ -186,7 +198,7 @@ module Msf
 
       if chosen_platform.platforms.empty?
         chosen_platform = mod.platform
-        cli_print "No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
+        cli_print "[-] No platform was selected, choosing #{chosen_platform.platforms.first} from the payload"
         @platform = mod.platform.platforms.first.to_s.split("::").last
       elsif (chosen_platform & mod.platform).empty?
         chosen_platform = Msf::Module::PlatformList.new
@@ -276,15 +288,20 @@ module Msf
     # @param shellcode [String] the processed shellcode to be formatted
     # @return [String] The final formatted form of the payload
     def format_payload(shellcode)
+      encryption_opts = {}
+      encryption_opts[:format] = encryption_format if encryption_format
+      encryption_opts[:iv] = encryption_iv if encryption_iv
+      encryption_opts[:key] = encryption_key if encryption_key
+
       case format.downcase
         when "js_be"
           if Rex::Arch.endian(arch) != ENDIAN_BIG
             raise IncompatibleEndianess, "Big endian format selected for a non big endian payload"
           else
-            ::Msf::Simple::Buffer.transform(shellcode, format, @var_name)
+            ::Msf::Simple::Buffer.transform(shellcode, format, @var_name, encryption_opts)
           end
         when *::Msf::Simple::Buffer.transform_formats
-          ::Msf::Simple::Buffer.transform(shellcode, format, @var_name)
+          ::Msf::Simple::Buffer.transform(shellcode, format, @var_name, encryption_opts)
         when *::Msf::Util::EXE.to_executable_fmt_formats
           ::Msf::Util::EXE.to_executable_fmt(framework, arch, platform_list, shellcode, format, exe_options)
         else
@@ -298,7 +315,7 @@ module Msf
     # @return [String] Java payload as a JAR or WAR file
     def generate_java_payload
       payload_module = framework.payloads.create(payload)
-      payload_module.datastore.merge!(datastore)
+      payload_module.datastore.import_options_from_hash(datastore)
       case format
       when "raw", "jar"
         if payload_module.respond_to? :generate_jar
@@ -412,11 +429,15 @@ module Msf
         encoder.split(',').each do |chosen_encoder|
           e = framework.encoders.create(chosen_encoder)
           if e.nil?
-            cli_print "Skipping invalid encoder #{chosen_encoder}"
+            cli_print "[-] Skipping invalid encoder #{chosen_encoder}"
             next
           end
           e.datastore.import_options_from_hash(datastore)
           encoders << e if e
+        end
+        if encoders.empty?
+          cli_print "[!] Couldn't find encoder to use"
+          return encoders
         end
         encoders.sort_by { |my_encoder| my_encoder.rank }.reverse
       elsif !badchars.empty? && !badchars.nil?

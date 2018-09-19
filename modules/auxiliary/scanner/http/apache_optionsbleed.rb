@@ -17,18 +17,21 @@ class MetasploitModule < Msf::Auxiliary
         server has a .htaccess file with an invalid Limit method defined.
       },
       'Author' => [
-        'Hanno Boeck', # Vulnerability discovery
+        'Hanno Böck', # Vulnerability discovery
         'h00die', # Metasploit module
       ],
       'References' => [
-        [ 'AKA', 'Optionsbleed' ],
         [ 'CVE', '2017-9798' ],
         [ 'EDB', '42745' ],
         [ 'URL', 'https://github.com/hannob/optionsbleed' ],
         [ 'URL', 'https://blog.fuzzing-project.org/60-Optionsbleed-HTTP-OPTIONS-method-can-leak-Apaches-server-memory.html' ]
       ],
       'DisclosureDate' => 'Sep 18 2017',
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' =>
+          {
+              'AKA' => ['Optionsbleed']
+          }
     ))
 
     register_options([

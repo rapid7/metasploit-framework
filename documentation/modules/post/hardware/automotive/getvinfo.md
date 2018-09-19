@@ -1,4 +1,5 @@
-Gathers several pieces of information from the vehicle.  First it reports
+## Introduction
+This module gathers several pieces of information from the vehicle.  First it reports
 the available PIDS for pulling realtime current_data from Mode $01.  If some of
 the common PIDs are returned it will print those as well, such as Engine Temp and
 Vehicle speed.  If there are any Diagnostic Trouble Codes (DTCs) it will list those.
@@ -22,7 +23,7 @@ PIDs to ASCII.
 
   Determines which CAN bus to communicate on.  Type 'supported_buses' for valid options.
 
-  **CLEAR_DTCS***
+  **CLEAR_DTCS**
 
   If any Diagnostic Trouble Codes (DTCs) are present it will clear those and reset the MIL (Engine Light).
 

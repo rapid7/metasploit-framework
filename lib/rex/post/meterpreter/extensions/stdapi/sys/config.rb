@@ -122,6 +122,7 @@ class Config
         'Computer'        => response.get_tlv_value(TLV_TYPE_COMPUTER_NAME),
         'OS'              => response.get_tlv_value(TLV_TYPE_OS_NAME),
         'Architecture'    => response.get_tlv_value(TLV_TYPE_ARCHITECTURE),
+        'BuildTuple'      => response.get_tlv_value(TLV_TYPE_BUILD_TUPLE),
         'System Language' => response.get_tlv_value(TLV_TYPE_LANG_SYSTEM),
         'Domain'          => response.get_tlv_value(TLV_TYPE_DOMAIN),
         'Logged On Users' => response.get_tlv_value(TLV_TYPE_LOGGED_ON_USER_COUNT)

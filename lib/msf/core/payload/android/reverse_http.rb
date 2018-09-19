@@ -2,6 +2,7 @@
 
 require 'msf/core'
 require 'msf/core/payload/transport_config'
+require 'msf/core/payload/android/payload_options'
 require 'msf/core/payload/uuid/options'
 
 module Msf
@@ -16,7 +17,16 @@ module Payload::Android::ReverseHttp
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Android
+  include Msf::Payload::Android::PayloadOptions
   include Msf::Payload::UUID::Options
+
+  #
+  # Register reverse_http specific options
+  #
+  def initialize(*args)
+    super
+    register_advanced_options(Msf::Opt::http_header_options)
+  end
 
   #
   # Generate the transport-specific configuration

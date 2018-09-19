@@ -1,11 +1,9 @@
 ## <%= items[:mod_name] %>
-<p>
 <%= normalize_description(items[:mod_description]) %>
-</p>
 
 ## Module Name
 
-<%= Rex::Text.html_encode(items[:mod_fullname]) %>
+<%= CGI::escapeHTML(items[:mod_fullname]) %>
 
 ## Authors
 

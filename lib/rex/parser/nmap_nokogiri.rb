@@ -376,12 +376,13 @@ module Rex
       reported = []
       @report_data[:ports].each do |svc|
         scripts = svc.delete(:scripts) || []
-        svc_obj = db_report(:service, svc.merge(:host => host_object))
+        wspace = db.workspaces({:id => host_object.workspace.id}).first
+        svc_obj = db_report(:service, svc.merge(:host => host_object, :workspace => wspace.name))
         scripts.each do |script|
           script.each_pair do |k,v|
             ntype =
             nse_note = {
-              :workspace => host_object.workspace,
+              :workspace => wspace,
               :host => host_object,
               :service => svc_obj,
               :type => "nmap.nse.#{k}." + (svc[:proto] || "tcp") +".#{svc[:port]}",

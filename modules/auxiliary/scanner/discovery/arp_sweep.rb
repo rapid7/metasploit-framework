@@ -46,11 +46,11 @@ class MetasploitModule < Msf::Auxiliary
     @interface = datastore['INTERFACE'] || Pcap.lookupdev
     shost = datastore['SHOST']
     shost ||= get_ipv4_addr(@interface) if @netifaces
-    raise RuntimeError ,'SHOST should be defined' unless shost
+    raise 'SHOST should be defined' unless shost
 
     smac  = datastore['SMAC']
     smac ||= get_mac(@interface) if @netifaces
-    raise RuntimeError ,'SMAC should be defined' unless smac
+    raise 'SMAC should be defined' unless smac
 
     begin
 

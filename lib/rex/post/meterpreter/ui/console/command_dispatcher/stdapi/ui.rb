@@ -120,9 +120,23 @@ class Console::CommandDispatcher::Stdapi::Ui
   end
 
   #
+  # Tab completion for the uictl command
+  #
+  def cmd_uictl_tabs(str, words)
+    return %w[enable disable] if words.length == 1
+
+    case words[-1]
+    when 'enable', 'disable'
+      return %w[keyboard mouse all]
+    end
+
+    []
+  end
+
+  #
   # Grab a screenshot of the current interactive desktop.
   #
-  def cmd_screenshot( *args )
+  def cmd_screenshot(*args)
     path    = Rex::Text.rand_text_alpha(8) + ".jpeg"
     quality = 50
     view    = false
@@ -134,34 +148,39 @@ class Console::CommandDispatcher::Stdapi::Ui
       "-v" => [ true, "Automatically view the JPEG image (Default: '#{view}')" ]
     )
 
-    screenshot_opts.parse( args ) { | opt, idx, val |
+    screenshot_opts.parse(args) { | opt, idx, val |
       case opt
         when "-h"
-          print_line( "Usage: screenshot [options]\n" )
-          print_line( "Grab a screenshot of the current interactive desktop." )
-          print_line( screenshot_opts.usage )
+          print_line("Usage: screenshot [options]\n")
+          print_line("Grab a screenshot of the current interactive desktop.")
+          print_line(screenshot_opts.usage)
           return
         when "-q"
           quality = val.to_i
         when "-p"
           path = val
         when "-v"
-          view = true if ( val =~ /^(t|y|1)/i )
+          view = true if (val =~ /^(t|y|1)/i)
       end
     }
 
-    data = client.ui.screenshot( quality )
+    data = client.ui.screenshot(quality)
 
-    if( data )
-      ::File.open( path, 'wb' ) do |fd|
-        fd.write( data )
+    if data
+      ::File.open(path, 'wb') do |fd|
+        fd.write(data)
       end
 
-      path = ::File.expand_path( path )
+      path = ::File.expand_path(path)
 
-      print_line( "Screenshot saved to: #{path}" )
+      print_line("Screenshot saved to: #{path}")
 
-      Rex::Compat.open_file( path ) if view
+      Rex::Compat.open_file(path) if view
+    else
+      print_error("No screenshot data was returned.")
+      if client.platform == 'android'
+        print_error("With Android, the screenshot command can only capture the host application. If this payload is hosted in an app without a user interface (default behavior), it cannot take screenshots at all.")
+      end
     end
 
     return true
@@ -171,7 +190,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   # Enumerate desktops
   #
   def cmd_enumdesktops(*args)
-    print_line( "Enumerating all accessible desktops" )
+    print_line("Enumerating all accessible desktops")
 
     desktops = client.ui.enum_desktops
 
@@ -189,10 +208,10 @@ class Console::CommandDispatcher::Stdapi::Ui
       desktopstable << [ session, desktop['station'], desktop['name'] ]
     }
 
-    if( desktops.length == 0 )
-      print_line( "No accessible desktops were found." )
+    if desktops.length == 0
+      print_line("No accessible desktops were found.")
     else
-      print( "\n" + desktopstable.to_s + "\n" )
+      print("\n" + desktopstable.to_s + "\n")
     end
 
     return true
@@ -207,7 +226,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 
     session = desktop['session'] == 0xFFFFFFFF ? '' : "Session #{desktop['session'].to_s}\\"
 
-    print_line( "#{session}#{desktop['station']}\\#{desktop['name']}" )
+    print_line("#{session}#{desktop['station']}\\#{desktop['name']}")
 
     return true
   end
@@ -215,7 +234,7 @@ class Console::CommandDispatcher::Stdapi::Ui
   #
   # Change the meterpreters current desktop.
   #
-  def cmd_setdesktop( *args )
+  def cmd_setdesktop(*args)
 
     switch   = false
     dsession = -1
@@ -230,12 +249,12 @@ class Console::CommandDispatcher::Stdapi::Ui
       "-i" => [ true, "Set this desktop as the interactive desktop (Default: '#{switch}')" ]
     )
 
-    setdesktop_opts.parse( args ) { | opt, idx, val |
+    setdesktop_opts.parse(args) { | opt, idx, val |
       case opt
         when "-h"
-          print_line( "Usage: setdesktop [options]\n" )
-          print_line( "Change the meterpreters current desktop." )
-          print_line( setdesktop_opts.usage )
+          print_line("Usage: setdesktop [options]\n")
+          print_line("Change the meterpreters current desktop.")
+          print_line(setdesktop_opts.usage)
           return
         #when "-s"
         #  dsession = val.to_i
@@ -244,14 +263,14 @@ class Console::CommandDispatcher::Stdapi::Ui
         when "-n"
           dname = val
         when "-i"
-          switch = true if ( val =~ /^(t|y|1)/i )
+          switch = true if (val =~ /^(t|y|1)/i)
       end
     }
 
-    if( client.ui.set_desktop( dsession, dstation, dname, switch ) )
-      print_line( "#{ switch ? 'Switched' : 'Changed' } to desktop #{dstation}\\#{dname}" )
+    if client.ui.set_desktop(dsession, dstation, dname, switch)
+      print_line("#{ switch ? 'Switched' : 'Changed' } to desktop #{dstation}\\#{dname}")
     else
-      print_line( "Failed to #{ switch ? 'switch' : 'change' } to desktop #{dstation}\\#{dname}" )
+      print_line("Failed to #{ switch ? 'switch' : 'change' } to desktop #{dstation}\\#{dname}")
     end
 
     return true
@@ -262,11 +281,11 @@ class Console::CommandDispatcher::Stdapi::Ui
   #
   def cmd_unlockdesktop(*args)
     mode = 0
-    if(args.length > 0)
+    if args.length > 0
       mode = args[0].to_i
     end
 
-    if(mode == 0)
+    if mode == 0
       print_line("Unlocking the workstation...")
       client.ui.unlock_desktop(true)
     else
@@ -288,7 +307,7 @@ class Console::CommandDispatcher::Stdapi::Ui
       "-v" => [ false, "Verbose logging: tracks the current active window in which keystrokes are occuring." ]
     )
 
-    keyscan_opts.parse( args ) { | opt |
+    keyscan_opts.parse(args) { | opt |
       case opt
        when "-h"
         print_line("Usage: keyscan_start <options>")

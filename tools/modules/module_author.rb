@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-# $Revision$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script lists each module by its author(s) and
 # the number of modules per author

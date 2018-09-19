@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         parsing SMTP headers. Due to the prescan function, only 0x5c and 0x00
         bytes can be used, limiting the likelihood for arbitrary code execution.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'References'     =>
         [
           [ 'OSVDB', '2577' ],

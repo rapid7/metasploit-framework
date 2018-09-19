@@ -142,7 +142,8 @@ module Payload::Windows::ReverseTcpRc4
         dec [esp]               ; decrement the counter
 
         ; try again
-        jmp create_socket
+        jnz create_socket
+        jmp failure
       ^
     end
 

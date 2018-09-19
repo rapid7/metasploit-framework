@@ -40,7 +40,9 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
 
       # Try to load modules from all the files in the supplied path
       Rex::Find.find(full_entry_path) do |entry_descendant_path|
-        if File.executable?(entry_descendant_path) && !File.directory?(entry_descendant_path)
+        # Assume that all modules are scripts for now, workaround
+        # filesystems where all files are labeled as executable.
+        if script_path?(entry_descendant_path)
           entry_descendant_pathname = Pathname.new(entry_descendant_path)
           relative_entry_descendant_pathname = entry_descendant_pathname.relative_path_from(full_entry_pathname)
           relative_entry_descendant_path = relative_entry_descendant_pathname.to_s
@@ -83,9 +85,15 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
       return ''
     end
     begin
-      Msf::Modules::External::Shim.generate(full_path)
+      content = Msf::Modules::External::Shim.generate(full_path, @module_manager.framework)
+      if content
+        return content
+      else
+        elog "Unable to load module #{full_path}, unknown module type"
+        return ''
+      end
     rescue ::Exception => e
-      elog "Unable to load module #{full_path} #{e.class} #{e}"
+      elog "Unable to load module #{full_path} #{e.class} #{e} #{e.backtrace.join "\n"}"
       # XXX migrate this to a full load_error when we can tell the user why the
       # module did not load and/or how to resolve it.
       # load_error(full_path, e)

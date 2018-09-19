@@ -184,6 +184,7 @@ module Net # :nodoc:
           nscount += 1
         end
         @additional.each do |rr|
+          next if rr.nil?
           data += rr.data#(data.length)
           arcount += 1
         end

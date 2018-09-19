@@ -36,6 +36,7 @@ class AuthType
   GtkVncSasl = 20
   MD5Hash = 21
   ColinDeanXVP = 22
+  ARD = 30
 
   def self.to_s(num)
     self.constants.each { |c|

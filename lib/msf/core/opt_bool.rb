@@ -1,48 +1,33 @@
 # -*- coding: binary -*-
 
 module Msf
+  # Boolean option type
+  class OptBool < OptBase
+    TRUE_REGEX = /^(y|yes|t|1|true)$/i
+    ANY_REGEX = /^(y|yes|n|no|t|f|0|1|true|false)$/i
 
-###
-#
-# Boolean option.
-#
-###
-class OptBool < OptBase
-
-  TrueRegex = /^(y|yes|t|1|true)$/i
-
-  def type
-    return 'bool'
-  end
-
-  def valid?(value, check_empty: true)
-    return false if empty_required_value?(value)
-
-    if ((value != nil and
-        (value.to_s.empty? == false) and
-        (value.to_s.match(/^(y|yes|n|no|t|f|0|1|true|false)$/i) == nil)))
-      return false
+    # This overrides default from 'nil' to 'false'
+    def initialize(in_name, attrs = [],
+                   required: true, desc: nil, default: false, aliases: [])
+      super
     end
 
-    true
-  end
+    def type
+      return 'bool'
+    end
 
-  def normalize(value)
-    if(value.nil? or value.to_s.match(TrueRegex).nil?)
-      false
-    else
-      true
+    def valid?(value, check_empty: true)
+      return false if check_empty && empty_required_value?(value)
+      return true if value.nil? && !required?
+
+      !(value.nil? ||
+        value.to_s.empty? ||
+        value.to_s.match(ANY_REGEX).nil?)
+    end
+
+    def normalize(value)
+      !(value.nil? ||
+        value.to_s.match(TRUE_REGEX).nil?)
     end
   end
-
-  def is_true?(value)
-    return normalize(value)
-  end
-
-  def is_false?(value)
-    return !is_true?(value)
-  end
-
-end
-
 end

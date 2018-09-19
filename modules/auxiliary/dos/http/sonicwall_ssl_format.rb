@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         string data. With physical access to the device and debugging,
         this module may be able to be used to execute arbitrary code remotely.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     => [
         [ 'BID', '35145' ],

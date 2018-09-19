@@ -75,6 +75,36 @@ class Cipher
     c.update(cipher)
   end
 
+
+  def self.encrypt_ard(username, password, generator, key_length, prime_modulus, peer_public_key)
+    generator = OpenSSL::BN.new(generator, 2)
+    prime_modulus = OpenSSL::BN.new(prime_modulus, 2)
+    peer_public_key = OpenSSL::BN.new(peer_public_key, 2)
+
+    user_struct = username + ("\0" * (64 - username.length)) + password + ("\0" * (64 - password.length))
+
+    dh_peer = OpenSSL::PKey::DH.new(key_length * 8, generator)
+    dh_peer.set_key(peer_public_key, nil)
+
+    dh = OpenSSL::PKey::DH.new(dh_peer)
+    dh.set_pqg(prime_modulus, nil, generator)
+    dh.generate_key!
+
+    shared_key = dh.compute_key(dh_peer.pub_key)
+
+    md5 = OpenSSL::Digest::MD5.new
+    key_digest = md5.digest(shared_key)
+
+    cipher = OpenSSL::Cipher.new("aes-128-ecb")
+    cipher.encrypt
+    cipher.key = key_digest
+    cipher.padding = 0
+    ciphertext = cipher.update(user_struct) + cipher.final
+
+    response = ciphertext + dh.pub_key.to_s(2)
+    return response
+  end
+
 end
 
 end

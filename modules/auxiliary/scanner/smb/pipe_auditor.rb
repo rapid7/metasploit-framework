@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::SMB::Client::PipeAuditor
 
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
@@ -24,34 +25,6 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('RPORT')
   end
 
-  @@target_pipes = [
-    'netlogon',
-    'lsarpc',
-    'samr',
-    'browser',
-    'atsvc',
-    'DAV RPC SERVICE',
-    'epmapper',
-    'eventlog',
-    'InitShutdown',
-    'keysvc',
-    'lsass',
-    'LSM_API_service',
-    'ntsvcs',
-    'plugplay',
-    'protected_storage',
-    'router',
-    'SapiServerPipeS-1-5-5-0-70123',
-    'scerpc',
-    'srvsvc',
-    'tapsrv',
-    'trkwks',
-    'W32TIME_ALT',
-    'wkssvc',
-    'PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER',
-    'db2remotecmd'
-  ]
-
   # Fingerprint a single host
   def run_host(ip)
 
@@ -65,14 +38,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect()
       smb_login()
-      @@target_pipes.each do |pipe|
-        begin
-          fid = smb_create("\\#{pipe}")
-          #print_status("Opened pipe \\#{pipe}")
-          pass.push(pipe)
-        rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-          #print_error("Could not open \\#{pipe}: Error 0x%.8x" % e.error_code)
-        end
+      check_named_pipes.each do |pipe_name, _|
+        pass.push(pipe_name)
       end
 
       disconnect()
@@ -85,14 +52,14 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if(pass.length > 0)
-      print_status("Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
+      print_good("Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
       # Add Report
       report_note(
         :host	=> ip,
         :proto => 'tcp',
         :sname	=> 'smb',
         :port	=> rport,
-        :type	=> 'Pipes Founded',
+        :type	=> 'Pipes Found',
         :data	=> "Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}"
       )
     end

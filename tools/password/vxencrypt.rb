@@ -1,10 +1,7 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
 #
 # This script can be used to calculate hash values for VxWorks passwords.
-#
-# $Revision$
 #
 
 def hashit(inp)

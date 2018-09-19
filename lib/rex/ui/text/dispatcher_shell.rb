@@ -2,6 +2,7 @@
 require 'rex/ui'
 require 'pp'
 require 'rex/text/table'
+require 'erb'
 
 module Rex
 module Ui
@@ -18,6 +19,8 @@ module Text
 #
 ###
 module DispatcherShell
+
+  include Resource
 
   ###
   #
@@ -128,8 +131,8 @@ module DispatcherShell
     #
     # Wraps shell.update_prompt
     #
-    def update_prompt(prompt=nil, prompt_char = nil, mode = false)
-      shell.update_prompt(prompt, prompt_char, mode)
+    def update_prompt(*args)
+      shell.update_prompt(*args)
     end
 
     def cmd_help_help
@@ -248,6 +251,64 @@ module DispatcherShell
       matches
     end
 
+    #
+    # Return a list of possible directory for tab completion.
+    #
+    def tab_complete_directory(str, words)
+      str = '.' + ::File::SEPARATOR if str.empty?
+      dirs = Dir.glob(str.concat('*'), File::FNM_CASEFOLD).select { |x| File.directory?(x) }
+
+      dirs
+    end
+
+    #
+    # Provide a generic tab completion function based on the specification
+    # pass as fmt. The fmt argument in a hash where values are an array
+    # defining how the command should be completed. The first element of the
+    # array can be one of:
+    #   nil      - This argument is a flag and takes no option.
+    #   true     - This argument takes an option with no suggestions.
+    #   :address - This option is a source address.
+    #   :bool    - This option is a boolean.
+    #   :file    - This option is a file path.
+    #   Array    - This option is an array of possible values.
+    #
+    def tab_complete_generic(fmt, str, words)
+      last_word = words[-1]
+      fmt = fmt.select { |key, value| last_word == key || !words.include?(key) }
+
+      val = fmt[last_word]
+      return fmt.keys if !val  # the last word does not look like a fmtspec
+      arg = val[0]
+      return fmt.keys if !arg  # the last word is a fmtspec that takes no argument
+
+      tabs = []
+      if arg.to_s.to_sym == :address
+        tabs = tab_complete_source_address
+      elsif arg.to_s.to_sym == :bool
+        tabs = ['true', 'false']
+      elsif arg.to_s.to_sym == :file
+        tabs = tab_complete_filenames(str, words)
+      elsif arg.kind_of?(Array)
+        tabs = arg.map {|a| a.to_s}
+      end
+      tabs
+    end
+
+    #
+    # Return a list of possible source addresses for tab completion.
+    #
+    def tab_complete_source_address
+      addresses = [Rex::Socket.source_address]
+      # getifaddrs was introduced in 2.1.2
+      if ::Socket.respond_to?(:getifaddrs)
+        ifaddrs = ::Socket.getifaddrs.select do |ifaddr|
+          ifaddr.addr && ifaddr.addr.ip?
+        end
+        addresses += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+      end
+      addresses
+    end
   end
 
   #
@@ -331,7 +392,7 @@ module DispatcherShell
 
     # Verify that our search string is a valid regex
     begin
-      Regexp.compile(str)
+      Regexp.compile(str,Regexp::IGNORECASE)
     rescue RegexpError
       str = Regexp.escape(str)
     end
@@ -341,7 +402,7 @@ module DispatcherShell
 
     # Match based on the partial word
     items.find_all { |e|
-      e =~ /^#{str}/
+      e.downcase.start_with?(str.downcase) || e =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |e|
       tab_words.dup.push(e).join(' ')
@@ -429,6 +490,8 @@ module DispatcherShell
     else
       dispatcher.send('cmd_' + method, *arguments)
     end
+  rescue OptionParser::ParseError => e
+    print_error("#{method}: #{e.message}")
   ensure
     self.busy = false
   end
@@ -464,7 +527,7 @@ module DispatcherShell
     inst = dispatcher.new(self)
     self.dispatcher_stack.each { |disp|
       if (disp.name == inst.name)
-        raise RuntimeError.new("Attempting to load already loaded dispatcher #{disp.name}")
+        raise "Attempting to load already loaded dispatcher #{disp.name}"
       end
     }
     self.dispatcher_stack.push(inst)

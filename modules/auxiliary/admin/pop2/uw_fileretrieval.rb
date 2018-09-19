@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         be exploited with a valid username and password. The From address is
         the file owner.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [

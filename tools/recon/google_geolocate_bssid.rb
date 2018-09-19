@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This tool asks Google for the location of a given set of BSSIDs
 #

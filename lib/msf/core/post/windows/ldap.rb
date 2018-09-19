@@ -119,7 +119,7 @@ module LDAP
     domain ||= get_domain
 
     if domain.blank?
-      raise RuntimeError, "Unable to find the domain to query."
+      raise "Unable to find the domain to query."
     end
 
     if load_extapi
@@ -338,7 +338,7 @@ module LDAP
     init_result = wldap32.ldap_sslinitA(domain, 389, 0)
     session_handle = init_result['return']
     if session_handle == 0
-      raise RuntimeError.new("Unable to initialize ldap server: #{init_result["ErrorMessage"]}")
+      raise "Unable to initialize ldap server: #{init_result["ErrorMessage"]}"
     end
 
     vprint_status("LDAP Handle: #{session_handle}")
@@ -352,7 +352,7 @@ module LDAP
     bind = bind_result['return']
     unless bind == 0
       wldap32.ldap_unbind(session_handle)
-      raise RuntimeError.new("Unable to bind to ldap server: #{ERROR_CODE_TO_CONSTANT[bind]}")
+      raise "Unable to bind to ldap server: #{ERROR_CODE_TO_CONSTANT[bind]}"
     end
 
     if (block_given?)

