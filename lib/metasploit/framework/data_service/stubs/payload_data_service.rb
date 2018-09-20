@@ -1,7 +1,7 @@
 module PayloadDataService
 
-  def get_payload(opts)
-    raise 'PayloadDataService#get_payload is not implemented'
+  def payloads(opts)
+    raise 'PayloadDataService#payloads is not implemented'
   end
 
   def create_payload(opts)
