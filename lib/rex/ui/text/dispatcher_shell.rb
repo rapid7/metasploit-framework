@@ -455,10 +455,10 @@ module DispatcherShell
           end
         rescue ::Interrupt
           print_error("#{method}: Interrupted")
-          raise if propogate_errors
+          raise if propagate_errors
         rescue OptionParser::ParseError => e
           print_error("#{method}: #{e.message}")
-          raise if propogate_errors
+          raise if propagate_errors
         rescue
           error = $!
 
@@ -466,14 +466,14 @@ module DispatcherShell
             "Error while running command #{method}: #{$!}" +
             "\n\nCall stack:\n#{$@.join("\n")}")
 
-          raise if propogate_errors
+          raise if propagate_errors
         rescue ::Exception => e
           error = $!
 
           print_error(
             "Error while running command #{method}: #{$!}")
 
-          raise if propogate_errors
+          raise if propagate_errors
         end
 
         # If the dispatcher stack changed as a result of this command,
