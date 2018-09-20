@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Pimcore List Credentials',
+      'Name'           => 'Pimcore Gather Credentials via SQL Injection',
       'Description'    => %q{
         This module extracts the usernames and hashed passwords of all users of
         the Pimcore web service by exploiting a SQL injection vulnerability in
