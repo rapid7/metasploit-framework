@@ -8,9 +8,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'           => 'Dolibarr List Creds',
+      'Name'           => 'Dolibarr Gather Credentials via SQL Injection',
       'Description'    => %q{
-         This module enables an authenticated user to collect the usernames and encrypted passwords of other users in the Dolibarr ERP/CRM via SQL injection.
+         This module enables an authenticated user to collect the usernames and
+         encrypted passwords of other users in the Dolibarr ERP/CRM via SQL
+         injection.
       },
       'Author'         => [
                             'Issam Rabhi',  # PoC
