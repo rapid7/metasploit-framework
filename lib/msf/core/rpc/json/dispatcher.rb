@@ -15,16 +15,12 @@ module Msf::RPC::JSON
 
     def set_command(command)
       @command = command
-      $stderr.puts("Msf::RPC::JSON::Dispatcher.set_command(): command=#{command}, @command=#{@command}")  # TODO: remove
     end
 
     def process(source)
       begin
-        $stderr.puts("Msf::RPC::JSON::Dispatcher.process(): source=#{source}")  # TODO: remove
         request = parse_json_request(source)
-        $stderr.puts("Msf::RPC::JSON::Dispatcher.process(): request=#{request}")  # TODO: remove
         if request.is_a?(Array)
-          $stderr.puts("Msf::RPC::JSON::Dispatcher.process(): batch request")  # TODO: remove
           # If the batch rpc call itself fails to be recognized as an valid
           # JSON or as an Array with at least one value, the response from
           # the Server MUST be a single Response object.
@@ -58,8 +54,6 @@ module Msf::RPC::JSON
 
     def process_request(request)
       begin
-        $stderr.puts("Msf::RPC::JSON::Dispatcher.process_request(): request=#{request}")  # TODO: remove
-
         if !validate_rpc_request(request)
           response = self.class.create_error_response(InvalidRequest.new)
           return response
@@ -67,7 +61,6 @@ module Msf::RPC::JSON
 
         # dispatch method execution to command
         result = @command.execute(request[:method], request[:params])
-        $stderr.puts("Msf::RPC::JSON::Dispatcher.process_request(): dispatch result=#{result}, result.class=#{result.class}")  # TODO: remove
 
         # A Notification is a Request object without an "id" member. A Request
         # object that is a Notification signifies the Client's lack of interest
@@ -85,8 +78,6 @@ module Msf::RPC::JSON
         raise InvalidParams.new
       rescue Msf::RPC::Exception => e
         ApplicationServerError.new(e.message, data: { code: e.code })
-      # rescue => e
-      #   raise ApplicationServerError.new(e)
       end
     end
 
@@ -113,29 +104,18 @@ module Msf::RPC::JSON
           id: [Integer, String, NilClass]
       }
 
-      $stderr.puts("Msf::RPC::JSON::Dispatcher.validate_rpc_request(): request.is_a?(Hash)=#{request.is_a?(Hash)}, request=#{request}")
       # validate request is an object
       return false unless request.is_a?(Hash)
 
       # validate request contains required members
       required_members.each { |member| return false unless request.key?(member) }
-      # required_members.each do |member|
-      #   $stderr.puts("Msf::RPC::JSON::Dispatcher.validate_rpc_request(): member=#{member}, request.key?(member)=#{request.key?(member)}")
-      #   return false unless request.key?(member)
-      # end
 
-      $stderr.puts("Msf::RPC::JSON::Dispatcher.validate_rpc_request(): request[:jsonrpc] != JSON_RPC_VERSION=#{request[:jsonrpc] != JSON_RPC_VERSION}")
       return false if request[:jsonrpc] != JSON_RPC_VERSION
 
       # validate request members are correct types
       request.each do |member, value|
         return false if member_types.key?(member) &&
             !member_types[member].one? { |type| value.is_a?(type) }
-        # if member_types.key?(member) && !member_types[member].one? { |type| value.is_a?(type) }
-        #   return false
-        # else
-        #   return false
-        # end
       end
 
       true
@@ -172,7 +152,6 @@ module Msf::RPC::JSON
       }
 
       self.add_response_id_member(response, request)
-      $stderr.puts("Msf::RPC::JSON::Dispatcher.success_response(): response=#{response}")
 
       response
     end
@@ -189,7 +168,6 @@ module Msf::RPC::JSON
       }
 
       self.add_response_id_member(response, request)
-      $stderr.puts("Msf::RPC::JSON::Dispatcher.error_response(): response=#{response}")
 
       response
     end

@@ -19,9 +19,6 @@ module Msf::RPC::JSON
         @legacy_rpc_service	= ::Msf::RPC::Service.new(@framework, {
             execute_timeout: @execute_timeout
         })
-
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.initialize(): @framework=#{@framework}, @framework.object_id=#{@framework.object_id}")
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.initialize(): @legacy_rpc_service=#{@legacy_rpc_service}, @legacy_rpc_service.handlers=#{@legacy_rpc_service.handlers}")
       end
 
       def register_method(method, name: nil)
@@ -42,25 +39,14 @@ module Msf::RPC::JSON
 
       # Call method on the receiver object previously registered.
       def execute_internal(method, params)
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): method=#{method}, params=#{params}")
-
         # parse method string
         group, base_method = parse_method_group(method)
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): group=#{group}, base_method=#{base_method}")  # TODO: remove
 
         method_name = "rpc_#{base_method}"
         method_name_noauth = "rpc_#{base_method}_noauth"
 
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): method_name=#{base_method}, method_name_noauth=#{method_name_noauth}, @legacy_rpc_service.handlers[group]=#{@legacy_rpc_service.handlers[group]}")
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): @legacy_rpc_service.handlers[group].nil?=#{@legacy_rpc_service.handlers[group].nil?}")
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): @legacy_rpc_service.handlers[group].respond_to?(method_name)=#{@legacy_rpc_service.handlers[group].respond_to?(method_name)}")
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): @legacy_rpc_service.handlers[group].respond_to?(method_name_noauth)=#{@legacy_rpc_service.handlers[group].respond_to?(method_name_noauth)}")
-
-
         handler = (find_handler(@legacy_rpc_service.handlers, group, method_name) || find_handler(@legacy_rpc_service.handlers, group, method_name_noauth))
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): handler=#{handler}")
         if handler.nil?
-          $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): raising MethodNotFound...")
           raise MethodNotFound.new(method)
         end
 
@@ -68,8 +54,6 @@ module Msf::RPC::JSON
           method_name = method_name_noauth
         end
 
-
-        $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.execute(): calling method_name=#{method_name}...")
         ::Timeout.timeout(@execute_timeout) do
           params = prepare_params(params)
           if params.nil?
@@ -107,7 +91,6 @@ module Msf::RPC::JSON
         if method == MODULE_EXECUTE_KEY && params.size >= 2 &&
             params[0] == PAYLOAD_MODULE_TYPE_KEY && result.key?(PAYLOAD_KEY)
           result[PAYLOAD_KEY] = Base64.strict_encode64(result[PAYLOAD_KEY])
-          $stderr.puts("Msf::RPC::JSON::V1_0::RpcCommand.post_process_result(): converted result key '#{PAYLOAD_KEY}': new value=#{result[PAYLOAD_KEY]}")
         end
 
         result

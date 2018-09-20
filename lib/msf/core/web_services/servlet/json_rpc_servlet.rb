@@ -19,10 +19,7 @@ module JsonRpcServlet
       warden.authenticate!
       begin
         body = request.body.read
-        $stderr.puts("JsonRpcServlet: body=#{body}")
         tmp_params = sanitize_params(params)
-        $stderr.puts("JsonRpcServlet: tmp_params=#{tmp_params}")
-
         data = get_dispatcher(settings.dispatchers, tmp_params[:version], settings.framework).process(body)
         set_raw_response(data)
       rescue => e

@@ -7,18 +7,12 @@ module Msf::RPC::JSON
       @framework = framework
       @execute_timeout = execute_timeout
       @methods = {}
-
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.initialize(): @framework=#{@framework}, @framework.object_id=#{@framework.object_id}")
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.initialize(): @execute_timeout=#{@execute_timeout}")
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.initialize(): @methods=#{@methods}")
     end
 
     # Add a method to the RPC Command
     def register_method(method, name: nil)
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.register_method(): method.class=#{method.class}, method.inspect=#{method.inspect}, name=#{name}")
       if name.nil?
         if method.is_a?(Method)
-          $stderr.puts("Msf::RPC::JSON::RpcCommand.register_method(): method.name=#{method.name}")
           name = method.name.to_s
         else
           name = method.to_s
@@ -29,16 +23,10 @@ module Msf::RPC::JSON
 
     # Call method on the receiver object previously registered.
     def execute(method, params)
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.execute(): method=#{method}, params=#{params}")
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.execute(): @methods.key?(method)=#{@methods.key?(method)}")
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.execute(): @methods[method]=#{@methods[method]}") if @methods.key?(method)
-
       unless @methods.key?(method)
-        $stderr.puts("Msf::RPC::JSON::RpcCommand.execute(): raising MethodNotFound...")
         raise MethodNotFound.new(method)
       end
 
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.execute(): calling method_name=#{method}...")
       ::Timeout.timeout(@execute_timeout) do
         params = prepare_params(params)
         if params.nil?
@@ -68,7 +56,6 @@ module Msf::RPC::JSON
         clean_params = stringify_names(params)
       end
 
-      $stderr.puts("Msf::RPC::JSON::RpcCommand.prepare_params(): params=#{params}, clean_params=#{clean_params}")
       clean_params
     end
 
