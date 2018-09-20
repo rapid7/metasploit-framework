@@ -10,7 +10,17 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Pimcore List Credentials',
       'Description'    => %q{
-        This module extracts the usernames and hashed passwords of all users of the Pimcore web service by exploiting a SQL injection vulnerability in Pimcore's REST API.
+        This module extracts the usernames and hashed passwords of all users of
+        the Pimcore web service by exploiting a SQL injection vulnerability in
+        Pimcore's REST API.
+
+        Pimcore begins to create password hashes by concatenating a user's
+        username, the name of the application, and the user's password in the
+        format USERNAME:pimcore:PASSWORD.
+
+        The resulting string is then used to generate an MD5 hash, and then that
+        MD5 hash is used to create the final hash, which is generated using
+        PHP's built-in password_hash function.
       },
       'Author'         => [ 'Thongchai Silpavarangkura', # PoC
                             'N. Rai-Ngoen',              # PoC
