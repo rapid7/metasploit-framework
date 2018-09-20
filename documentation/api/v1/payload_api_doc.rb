@@ -6,17 +6,20 @@ module PayloadApiDoc
   NAME_DESC = 'A name for the payload'
   UUID_DESC = 'A payload\'s unique identifier'
   UUID_EXAMPLE = '6dde5ce0e94c9f43'
-  TIMESTAMP_DESC = 'The time at which the payload was generated'
+  TIMESTAMP_DESC = 'The Unix format timestamp when this payload was created'
   TIMESTAMP_EXAMPLE = '1536777407'
-  ARCH_DESC = 'The architecture the payload is targeting'
+  ARCH_DESC = 'The architecture this payload supports'
   ARCH_EXAMPLE = 'x86'
-  PLATFORM_DESC = 'The platform the payload is targeting'
+  PLATFORM_DESC = 'The platform this payload supports'
   PLATFORM_EXAMPLE = 'windows'
-  URLS_DESC = 'URLs associated with the payload'
+  URLS_DESC = 'The unique, encoded urls used to host this payload. Only applicable for http(s) payloads.'
   URLS_EXAMPLE = ['/bd5c4OlMn0OeQp9AxdvC_Q2EIcdSRvg7gzLdQwU__Mb1WtjGR8C4UbjohhRIgbmBfFFBsNJ-wZMyFZKK33aorc8qfD0xCsmxSEyHaiyjGn0ykbJOlYFF1j1HXShiKiiwbfh_wPf2uqSWk2tnaLAqwuvxPcRuDPF-kdkmDDC2']
-  DESCRIPTION_DESC = 'A description of the payload'
-  WORKSPACE_ID_DESC = 'The workspace ID associated with the payload.'
+  DESCRIPTION_DESC = 'A description of why this payload was created and what it is being used for.'
+  WORKSPACE_ID_DESC = 'The Workspace this payload belongs to.'
   WORKSPACE_ID_EXAMPLE = 'default'
+  RAW_PAYLOAD_DESC = 'A URL pointing to where the binary payload can be downloaded from.'
+  RAW_PAYLOAD_HASH_DESC = 'The unique hash value for the generated payload binary'
+  BUILD_OPTS_DESC = 'A hash containing various options used to build this payload'
 
 # Swagger documentation for payloads model
   swagger_schema :Payload do
@@ -30,6 +33,9 @@ module PayloadApiDoc
     property :urls, description: URLS_DESC, example: URLS_EXAMPLE, type: :array do items type: :string end
     property :description, type: :string, description: DESCRIPTION_DESC
     property :workspace_id, type: :string, description: WORKSPACE_ID_DESC, example: WORKSPACE_ID_EXAMPLE
+    property :raw_payload, type: :string, description: RAW_PAYLOAD_DESC
+    property :raw_payload_hash, type: :string, description: RAW_PAYLOAD_HASH_DESC
+    property :build_opts, type: :string, description: BUILD_OPTS_DESC
     property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
     property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
   end
@@ -87,6 +93,9 @@ module PayloadApiDoc
           property :platform, type: :string, description: PLATFORM_DESC, example: PLATFORM_EXAMPLE
           property :urls, type: :string, description: URLS_DESC, example: URLS_EXAMPLE
           property :description, type: :string, description: DESCRIPTION_DESC
+          property :raw_payload, type: :string, description: RAW_PAYLOAD_DESC
+          property :raw_payload_hash, type: :string, description: RAW_PAYLOAD_HASH_DESC
+          property :build_opts, type: :string, description: BUILD_OPTS_DESC
           property :workspace_id, type: :string, description: WORKSPACE_ID_DESC, example: WORKSPACE_ID_EXAMPLE
         end
       end
