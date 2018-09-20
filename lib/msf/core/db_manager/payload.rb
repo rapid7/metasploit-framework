@@ -3,7 +3,7 @@ module Msf::DBManager::Payload
   def create_payload(opts)
     if opts[:uuid] && !opts[:uuid].to_s.empty?
       if Mdm::Payload.find_by(uuid: opts[:uuid])
-        raise ArgumentError.new("A payload with this uuid already exists.") if opts[:ids].nil?
+        raise ArgumentError.new("A payload with this uuid already exists.")
       end
     end
 
