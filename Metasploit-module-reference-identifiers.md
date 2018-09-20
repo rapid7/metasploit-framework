@@ -14,7 +14,9 @@ ZDI | zerodayinitiative.com | ```['ZDI', '10-123']```
 WPVDB | wpvulndb.com | ```['WPVDB', '7615']```
 PACKETSTORM | packetstormsecurity.com | ```['PACKETSTORM', '132721']```
 URL | anything | ```['URL', 'http://example.com/blog.php?id=123']```
-AKA | anything | ```['AKA', 'shellshock']```
+AKA (_deprecated_*) | anything | ~~`['AKA', 'shellshock']`~~
+
+*Note: AKA names for modules are no longer stored as a reference identifier, but rather in the `Notes` metadata field as shown in the example below.
 
 ## Code Example of having references in a module ##
 
@@ -49,7 +51,11 @@ class MetasploitModule < Msf::Exploit::Remote
         },
       'Privileged'     => false,
       'DisclosureDate' => "Apr 1 2014",
-      'DefaultTarget'  => 0))
+      'DefaultTarget'  => 0,
+      'Notes'          => {
+          'AKA'        => [ 'shellshock' ]
+        }
+      ))
   end
 
   def exploit
