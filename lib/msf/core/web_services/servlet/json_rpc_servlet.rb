@@ -20,7 +20,7 @@ module JsonRpcServlet
       begin
         body = request.body.read
         tmp_params = sanitize_params(params)
-        data = get_dispatcher(settings.dispatchers, tmp_params[:version], settings.framework).process(body)
+        data = get_dispatcher(settings.dispatchers, tmp_params[:version].to_sym, settings.framework).process(body)
         set_raw_response(data)
       rescue => e
         print_error("There was an error executing the RPC: #{e.message}.", e)

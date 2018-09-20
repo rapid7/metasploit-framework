@@ -3,12 +3,11 @@ require 'msf/core/rpc'
 module Msf::RPC::JSON
   module DispatcherHelper
     def get_dispatcher(dispatchers, version, framework)
-      version_sym = version.to_sym
-      unless dispatchers.key?(version_sym)
-        dispatchers[version_sym] = create_dispatcher(version_sym, framework)
+      unless dispatchers.key?(version)
+        dispatchers[version] = create_dispatcher(version, framework)
       end
 
-      dispatchers[version_sym]
+      dispatchers[version]
     end
 
     def create_dispatcher(version, framework)
