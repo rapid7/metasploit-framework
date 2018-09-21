@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    cred_table = Rex::Text::Table.new(                                      
+    cred_table = Rex::Text::Table.new(
       'Header'  => 'FrontPage Credentials',
       'Indent'  => 1,
       'Columns' => ['Source', 'Username', 'Password Hash']
