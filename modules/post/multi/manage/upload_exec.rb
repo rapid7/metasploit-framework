@@ -30,16 +30,16 @@ class MetasploitModule < Msf::Post
     if session.platform == 'windows'
       cmd = "cmd.exe /c start #{rpath}"
     else
+      begin
+        # client is an alias for session
+        client.fs.file.chmod(rpath, 0700)
+      rescue
+        # Fall back if unimplemented or unavailable
+        cmd_exec("chmod 700 #{rpath}")
+      end
+
       # Handle absolute paths
       cmd = rpath.start_with?('/') ? rpath : "./#{rpath}"
-    end
-
-    begin
-      # client is an alias for session
-      client.fs.file.chmod(rpath, 0700)
-    rescue
-      # Fall back if unimplemented or unavailable
-      cmd_exec("chmod 700 #{rpath}")
     end
 
     output = cmd_exec(cmd, args, timeout)
