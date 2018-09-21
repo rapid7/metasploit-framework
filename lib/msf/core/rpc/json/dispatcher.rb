@@ -4,6 +4,27 @@ require 'msf/core/rpc'
 module Msf::RPC::JSON
   class Dispatcher
     JSON_RPC_VERSION = '2.0'
+    JSON_RPC_REQUIRED_MEMBERS = %i(jsonrpc method)
+    JSON_RPC_MEMBER_TYPES = {
+        # A String specifying the version of the JSON-RPC protocol.
+        jsonrpc: [String],
+        # A String containing the name of the method to be invoked.
+        method: [String],
+        # If present, parameters for the rpc call MUST be provided as a Structured
+        # value. Either by-position through an Array or by-name through an Object.
+        # * by-position: params MUST be an Array, containing the values in the
+        #   Server expected order.
+        # * by-name: params MUST be an Object, with member names that match the
+        #   Server expected parameter names. The absence of expected names MAY
+        #   result in an error being generated. The names MUST match exactly,
+        #   including case, to the method's expected parameters.
+        params: [Array, Hash],
+        # An identifier established by the Client that MUST contain a String,
+        # Number, or NULL value if included. If it is not included it is assumed
+        # to be a notification. The value SHOULD normally not be Null [1] and
+        # Numbers SHOULD NOT contain fractional parts [2]
+        id: [Integer, String, NilClass]
+    }
 
     attr_reader :framework
     attr_reader :command
@@ -101,40 +122,18 @@ module Msf::RPC::JSON
     # @param request [Hash] the JSON-RPC request
     # @returns [Boolean] true if the JSON-RPC request is a valid; otherwise, false.
     def validate_rpc_request(request)
-      required_members = %i(jsonrpc method)
-      member_types = {
-          # A String specifying the version of the JSON-RPC protocol.
-          jsonrpc: [String],
-          # A String containing the name of the method to be invoked.
-          method: [String],
-          # If present, parameters for the rpc call MUST be provided as a Structured
-          # value. Either by-position through an Array or by-name through an Object.
-          # * by-position: params MUST be an Array, containing the values in the
-          #   Server expected order.
-          # * by-name: params MUST be an Object, with member names that match the
-          #   Server expected parameter names. The absence of expected names MAY
-          #   result in an error being generated. The names MUST match exactly,
-          #   including case, to the method's expected parameters.
-          params: [Array, Hash],
-          # An identifier established by the Client that MUST contain a String,
-          # Number, or NULL value if included. If it is not included it is assumed
-          # to be a notification. The value SHOULD normally not be Null [1] and
-          # Numbers SHOULD NOT contain fractional parts [2]
-          id: [Integer, String, NilClass]
-      }
-
       # validate request is an object
       return false unless request.is_a?(Hash)
 
       # validate request contains required members
-      required_members.each { |member| return false unless request.key?(member) }
+      JSON_RPC_REQUIRED_MEMBERS.each { |member| return false unless request.key?(member) }
 
       return false if request[:jsonrpc] != JSON_RPC_VERSION
 
       # validate request members are correct types
       request.each do |member, value|
-        return false if member_types.key?(member) &&
-            !member_types[member].one? { |type| value.is_a?(type) }
+        return false if JSON_RPC_MEMBER_TYPES.key?(member) &&
+            !JSON_RPC_MEMBER_TYPES[member].one? { |type| value.is_a?(type) }
       end
 
       true
