@@ -12,13 +12,13 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'FrontPage .pwd File Credential Dump',
       'Description'    => %q{
-        This module downloads and parses the '_vti_pvt/service.pwd', 
+        This module downloads and parses the '_vti_pvt/service.pwd',
         '_vti_pvt/administrators.pwd', and '_vti_pvt/authors.pwd' files on a FrontPage
          server to find credentials.
       },
       'References'     =>
         [
-          [ 'URL', 'https://packetstormsecurity.com/files/11556/cgi-check99v4.r.html'],
+          [ 'PACKETSTORM', '11556'],
           [ 'URL', 'https://insecure.org/sploits/Microsoft.frontpage.insecurities.html'],
           [ 'URL', 'http://sparty.secniche.org/' ]
         ],
