@@ -10,6 +10,9 @@ module Msf::RPC::JSON
       PAYLOAD_MODULE_TYPE_KEY = 'payload'
       PAYLOAD_KEY = 'payload'
 
+      # Instantiate an RpcCommand.
+      # @param framework [Msf::Simple::Framework] Framework wrapper instance
+      # @param execute_timeout [Integer] execute timeout duration in seconds
       def initialize(framework, execute_timeout: 7200)
         super(framework, execute_timeout: execute_timeout)
 
@@ -21,15 +24,18 @@ module Msf::RPC::JSON
         })
       end
 
+      # @raise [RuntimeError] The method is not implemented
       def register_method(method, name: nil)
         raise "#{self.class.name}##{__method__} is not implemented"
       end
 
-      # Call method on the receiver object previously registered.
+      # Invokes the method on the receiver object with the specified params,
+      # returning the method's return value.
+      # @param method [String] the RPC method name
+      # @param params [Array, Hash] parameters for the RPC call
+      # @returns [Object] the method's return value.
       def execute(method, params)
         result = execute_internal(method, params)
-
-        # post process result
         result = post_process_result(result, method, params)
 
         result
@@ -37,9 +43,13 @@ module Msf::RPC::JSON
 
       private
 
-      # Call method on the receiver object previously registered.
+      # Internal method that invokes the method on the receiver object with
+      # the specified params, returning the method's return value.
+      # @param method [String] the RPC method name
+      # @param params [Array, Hash] parameters for the RPC call
+      # @raise [MethodNotFound] The method does not exist
+      # @returns [Object] the method's return value.
       def execute_internal(method, params)
-        # parse method string
         group, base_method = parse_method_group(method)
 
         method_name = "rpc_#{base_method}"
@@ -66,6 +76,9 @@ module Msf::RPC::JSON
         end
       end
 
+      # Parse method string in the format "group.base_method_name".
+      # @param method [String] the RPC method name
+      # @returns [Array] Tuple of strings, group and base_method
       def parse_method_group(method)
         idx = method.rindex(METHOD_GROUP_SEPARATOR)
         if idx.nil?
@@ -78,6 +91,11 @@ module Msf::RPC::JSON
         return group, base_method
       end
 
+      # Find the concrete Msf::RPC::RPC_Base handler for the group and method name.
+      # @param handlers [Hash] hash of group String - Msf::RPC::RPC_Base object pairs
+      # @param group [String] the RPC group
+      # @param method_name [String] the RPC method name
+      # @returns [Msf::RPC::RPC_Base] concrete Msf::RPC::RPC_Base instance if one exists; otherwise, nil.
       def find_handler(handlers, group, method_name)
         handler = nil
         if !handlers[group].nil? && handlers[group].respond_to?(method_name)
@@ -87,7 +105,13 @@ module Msf::RPC::JSON
         handler
       end
 
+      # Perform custom post processing of the execute result data.
+      # @param result [Object] the method's return value
+      # @param method [String] the RPC method name
+      # @param params [Array, Hash] parameters for the RPC call
+      # @returns [Object] processed method's return value
       def post_process_result(result, method, params)
+        # post-process payload module result for JSON output
         if method == MODULE_EXECUTE_KEY && params.size >= 2 &&
             params[0] == PAYLOAD_MODULE_TYPE_KEY && result.key?(PAYLOAD_KEY)
           result[PAYLOAD_KEY] = Base64.strict_encode64(result[PAYLOAD_KEY])

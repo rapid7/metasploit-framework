@@ -4,6 +4,11 @@ require 'msf/core/rpc/json/v2_0/rpc_test'
 
 module Msf::RPC::JSON
   class RpcCommandFactory
+    # Create an RpcCommand for the provided version.
+    # @param version [Symbol] the RPC version
+    # @param framework [Msf::Simple::Framework] Framework wrapper instance
+    # @raise [ArgumentError] invalid RPC version
+    # @returns [RpcCommand] an RpcCommand for the specified version
     def self.create(version, framework)
       case version
       when :v1, :v1_0, :v10
@@ -15,6 +20,9 @@ module Msf::RPC::JSON
       end
     end
 
+    # Creates an RpcCommand for a demonstration RPC version 2.0.
+    # @param framework [Msf::Simple::Framework] Framework wrapper instance
+    # @returns [RpcCommand] an RpcCommand for a demonstration RPC version 2.0
     def self.create_rpc_command_v2_0(framework)
       # TODO: does belong in some sort of loader class for an RPC version?
       # instantiate receiver

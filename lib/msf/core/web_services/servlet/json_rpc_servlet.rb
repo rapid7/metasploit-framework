@@ -14,6 +14,7 @@ module JsonRpcServlet
   private
   #######
 
+  # Process JSON-RPC request
   def self.post_rpc
     lambda {
       warden.authenticate!

@@ -8,15 +8,23 @@ module Msf::RPC::JSON
     attr_reader :framework
     attr_reader :command
 
+    # Instantiate a Dispatcher.
+    # @param framework [Msf::Simple::Framework] Framework wrapper instance
     def initialize(framework)
       @framework = framework
       @command = nil
     end
 
+    # Set the command.
+    # @param command [RpcCommand] the command used by the Dispatcher.
     def set_command(command)
       @command = command
     end
 
+    # Process the JSON-RPC request.
+    # @param source [String] the JSON-RPC request
+    # @return [String] JSON-RPC response that encapsulates the RPC result
+    # if successful; otherwise, a JSON-RPC error response.
     def process(source)
       begin
         request = parse_json_request(source)
@@ -52,6 +60,14 @@ module Msf::RPC::JSON
       self.class.to_json(response)
     end
 
+    # Validate and execute the JSON-RPC request.
+    # @param request [Hash] the JSON-RPC request
+    # @returns [RpcCommand] an RpcCommand for the specified version
+    # @raise [InvalidParams] ArgumentError occurred during execution.
+    # @raise [ApplicationServerError] General server-error wrapper around an
+    # Msf::RPC::Exception that occurred during execution.
+    # @returns [Hash] JSON-RPC response that encapsulates the RPC result
+    # if successful; otherwise, a JSON-RPC error response.
     def process_request(request)
       begin
         if !validate_rpc_request(request)
@@ -81,6 +97,9 @@ module Msf::RPC::JSON
       end
     end
 
+    # Validate the JSON-RPC request.
+    # @param request [Hash] the JSON-RPC request
+    # @returns [Boolean] true if the JSON-RPC request is a valid; otherwise, false.
     def validate_rpc_request(request)
       required_members = %i(jsonrpc method)
       member_types = {
@@ -122,7 +141,10 @@ module Msf::RPC::JSON
     end
 
     # Parse the JSON document source into a Hash or Array with symbols for the names (keys).
-    # @return [Hash or Array] source
+    # @param source [String] the JSON source
+    # @raise [ParseError] Invalid JSON was received by the server.
+    # An error occurred on the server while parsing the JSON text.
+    # @return [Hash or Array] Hash or Array representation of source
     def parse_json_request(source)
       begin
         JSON.parse(source, symbolize_names: true)
@@ -132,6 +154,7 @@ module Msf::RPC::JSON
     end
 
     # Serialize data as JSON string.
+    # @param data [Hash] data
     # @return [String] data serialized JSON string if data not nil; otherwise, nil.
     def self.to_json(data)
       return nil if data.nil?
@@ -140,6 +163,10 @@ module Msf::RPC::JSON
       return json.to_s
     end
 
+    # Create a JSON-RPC success response.
+    # @param result [Object] the RPC method's return value
+    # @param request [Hash] the JSON-RPC request
+    # @returns [Hash] JSON-RPC success response.
     def self.create_success_response(result, request = nil)
       response = {
           # A String specifying the version of the JSON-RPC protocol.
@@ -156,6 +183,10 @@ module Msf::RPC::JSON
       response
     end
 
+    # Create a JSON-RPC error response.
+    # @param error [RpcError] a RpcError instance
+    # @param request [Hash] the JSON-RPC request
+    # @returns [Hash] JSON-RPC error response.
     def self.create_error_response(error, request = nil)
       response = {
           # A String specifying the version of the JSON-RPC protocol.
@@ -173,6 +204,8 @@ module Msf::RPC::JSON
     end
 
     # Adds response id based on request id.
+    # @param response [Hash] the JSON-RPC response
+    # @param request [Hash] the JSON-RPC request
     def self.add_response_id_member(response, request)
       if !request.nil? && request.key?(:id)
         response[:id] = request[:id]

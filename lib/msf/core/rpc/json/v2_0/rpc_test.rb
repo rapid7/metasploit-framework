@@ -1,4 +1,5 @@
 module Msf::RPC::JSON::V2_0
+  # Receiver class for demonstration RPC version 2.0.
   class RpcTest
 
     def initialize

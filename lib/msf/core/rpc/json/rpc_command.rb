@@ -3,6 +3,9 @@ module Msf::RPC::JSON
     attr_reader :framework
     attr_accessor :execute_timeout
 
+    # Instantiate an RpcCommand.
+    # @param framework [Msf::Simple::Framework] Framework wrapper instance
+    # @param execute_timeout [Integer] execute timeout duration in seconds
     def initialize(framework, execute_timeout: 7200)
       @framework = framework
       @execute_timeout = execute_timeout
@@ -10,6 +13,9 @@ module Msf::RPC::JSON
     end
 
     # Add a method to the RPC Command
+    # @param method [Method] the Method
+    # @param name [String] the name the method is register under. The method name is used if nil.
+    # @returns [Method] the Method.
     def register_method(method, name: nil)
       if name.nil?
         if method.is_a?(Method)
@@ -21,7 +27,12 @@ module Msf::RPC::JSON
       @methods[name] = method
     end
 
-    # Call method on the receiver object previously registered.
+    # Invokes the method on the receiver object with the specified params,
+    # returning the method's return value.
+    # @param method [String] the RPC method name
+    # @param params [Array, Hash] parameters for the RPC call
+    # @raise [MethodNotFound] The method does not exist
+    # @returns [Object] the method's return value.
     def execute(method, params)
       unless @methods.key?(method)
         raise MethodNotFound.new(method)
@@ -41,7 +52,10 @@ module Msf::RPC::JSON
 
     private
 
-    # Prepare params for use by RPC methods by converting all hashes to use strings for their names (keys).
+    # Prepare params for use by RPC methods by converting all hashes
+    # to use strings for their names (keys).
+    # @param params [Array, Hash] parameters for the RPC call
+    # @returns [Array, Hash] modified parameters
     def prepare_params(params)
       clean_params = params
       if params.is_a?(Array)
@@ -59,7 +73,9 @@ module Msf::RPC::JSON
       clean_params
     end
 
-    # Returns a new hash with strings for the names (keys).
+    # Stringify the names (keys) in hash.
+    # @param hash [Hash] input hash
+    # @returns [Hash] a new hash with strings for the keys.
     def stringify_names(hash)
       JSON.parse(JSON.dump(hash), symbolize_names: false)
     end
