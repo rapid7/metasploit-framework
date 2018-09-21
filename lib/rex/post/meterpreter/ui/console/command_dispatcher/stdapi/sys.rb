@@ -333,7 +333,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         return true
       end
 
-      cmd_execute('-f', comspec, '-c', '-i')
+      cmd_execute('-f', path, '-c', '-i')
     end
   end
 
