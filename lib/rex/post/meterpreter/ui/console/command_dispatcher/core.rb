@@ -53,6 +53,7 @@ class Console::CommandDispatcher::Core
       'exit'         => 'Terminate the meterpreter session',
       'help'         => 'Help menu',
       'irb'          => 'Drop into irb scripting mode',
+      'pry'          => 'Open a Pry session on the current session',
       'use'          => 'Deprecated alias for "load"',
       'load'         => 'Load one or more meterpreter extensions',
       'machine_id'   => 'Get the MSF ID of the machine attached to the session',
@@ -568,6 +569,27 @@ class Console::CommandDispatcher::Core
     else
       expressions.each { |expression| eval(expression, binding) }
     end
+  end
+
+  def cmd_pry_help
+    print_line 'Usage: pry'
+    print_line
+    print_line 'Open a Pry session on the current session.'
+    print_line
+  end
+
+  #
+  # Open a Pry session on the current session
+  #
+  def cmd_pry(*args)
+    begin
+      require 'pry'
+    rescue LoadError
+      print_error("Failed to load Pry, try 'gem install pry'")
+      return
+    end
+
+    client.pry
   end
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
