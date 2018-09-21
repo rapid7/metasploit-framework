@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
          The vulnerability is caused by a tilde character "~" in a GET or OPTIONS request, which
          could allow remote attackers to diclose 8.3 filenames (short names). In 2010, Soroush Dalili
-	 and Ali Abbasnejad discovered the original bug (GET request). This was publicly disclosed in
+         and Ali Abbasnejad discovered the original bug (GET request). This was publicly disclosed in
          2012. In 2014, Soroush Dalili discovered that newer IIS installations are vulnerable with OPTIONS.
         },
         'Author'         =>
