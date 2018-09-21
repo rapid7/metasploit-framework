@@ -590,9 +590,12 @@ class Console::CommandDispatcher::Core
     begin
       require 'pry'
     rescue LoadError
-      print_error("Failed to load Pry, try 'gem install pry'")
+      print_error('Failed to load Pry, try "gem install pry"')
       return
     end
+
+    print_status('Starting Pry shell...')
+    print_status("You are in the \"client\" (session) object\n")
 
     client.pry
   end
