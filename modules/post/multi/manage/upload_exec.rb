@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
     end
 
     output = cmd_exec(cmd, args, timeout)
-    vprint_good(output) unless output.blank?
+    vprint_line(output) unless output.blank?
 
     rm_f(rpath)
   end
