@@ -509,7 +509,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Stores received data
   def loot_and_report(heartbeat_data)
-    if heartbeat_data.nil? || heartbeat_data.empty?
+    if heartbeat_data.to_s.empty?
       vprint_error("Looks like there isn't leaked information...")
       return
     end
