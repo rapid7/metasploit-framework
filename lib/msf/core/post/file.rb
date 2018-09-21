@@ -143,7 +143,7 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is writable
   #
   def writable?(path)
-    raise "writable?' method does not support Windows systems" if session.platform == 'windows'
+    raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
 
     cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
   end
