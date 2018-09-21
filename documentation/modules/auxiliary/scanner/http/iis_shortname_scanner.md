@@ -1,8 +1,7 @@
 
 ## Microsoft IIS shortname vulnerability scanner
 
-The vulnerability is caused by a tilde character "~" in a GET or OPTIONS request, which could allow remote attackers to diclose 8.3 filenames (short names). This is a new technique for an existing bug (CVE-2009-4444), which relied on the use of the ;(semicolon) character. Soroush Dalili discovered the original bug, while the new ~ technique was discovered by Soroush Dalili and Ali Abbasnejad. 
-
+The vulnerability is caused by a tilde character "~" in a GET or OPTIONS request, which could allow remote attackers to diclose 8.3 filenames (short names). In 2010, Soroush Dalili and Ali Abbasnejad discovered the original bug (GET request) This was publicly disclosed in 2012. In 2014, Soroush Dalili discovered that newer IIS installations are vulnerable with OPTIONS.
 
 ## Vulnerable Application
 
@@ -60,6 +59,5 @@ Create registry key NtfsDisable8dot3NameCreation at HKLM\SYSTEM\CurrentControlSe
 
 ## References
 
-    CVE-2009-4444
     https://soroush.secproject.com/blog/tag/iis-tilde-vulnerability/
     https://support.detectify.com/customer/portal/articles/1711520-microsoft-iis-tilde-vulnerability
