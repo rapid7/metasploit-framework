@@ -112,6 +112,11 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   # Open a Pry session on the current module or Framework
   #
   def cmd_pry(*args)
+    if args.include?('-h')
+      cmd_pry_help
+      return
+    end
+
     begin
       require 'pry'
     rescue LoadError
