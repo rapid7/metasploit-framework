@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
         OptPath.new('LPATH', [true, 'Local file path to upload and execute']),
         OptString.new('RPATH', [false, 'Remote file path on target (default is basename of LPATH)']),
         OptString.new('ARGS', [false, 'Command-line arguments to pass to the uploaded file']),
-        OptInt.new('TIMEOUT', [true, 'Timeout for command execution', 0])
+        OptInt.new('TIMEOUT', [true, 'Timeout for command execution', 15])
       ])
   end
 
