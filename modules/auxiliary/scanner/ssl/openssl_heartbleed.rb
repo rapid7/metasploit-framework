@@ -219,7 +219,7 @@ class MetasploitModule < Msf::Auxiliary
 
         1.upto(leak_count) do |count|
           vprint_status("Leaking heartbeat response ##{count}")
-          bleeded << (bleed || '')
+          bleeded << bleed.to_s
         end
 
         loot_and_report(bleeded)
