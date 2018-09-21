@@ -93,7 +93,7 @@ module Msf::RPC::JSON
       rescue ArgumentError
         raise InvalidParams.new
       rescue Msf::RPC::Exception => e
-        ApplicationServerError.new(e.message, data: { code: e.code })
+        raise ApplicationServerError.new(e.message, data: { code: e.code })
       end
     end
 
