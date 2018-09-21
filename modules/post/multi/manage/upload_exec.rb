@@ -28,7 +28,8 @@ class MetasploitModule < Msf::Post
     upload_file(rpath, lpath)
 
     if session.platform == 'windows'
-      cmd = "cmd.exe /c start #{rpath}"
+      # Don't use cmd.exe /c start so we can fetch output
+      cmd = rpath
     else
       begin
         # client is an alias for session
