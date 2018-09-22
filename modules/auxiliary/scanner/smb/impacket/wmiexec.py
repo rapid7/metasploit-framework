@@ -34,8 +34,7 @@ metadata = {
     'date': '2018-03-19',
     'license': 'CORE_LICENSE',
     'references': [
-        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/wmiexec.py'},
-        {'type': 'aka', 'ref': 'wmiexec.py'},
+        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/wmiexec.py'}
      ],
     'type': 'single_scanner',
     'options': {
@@ -44,6 +43,9 @@ metadata = {
         'SMBDomain':  {'type': 'string', 'description': 'The Windows domain to use for authentication', 'required': False, 'default': '.'},
         'SMBPass':    {'type': 'string', 'description': 'The password for the specified username', 'required': True, 'default': None},
         'SMBUser':    {'type': 'string', 'description': 'The username to authenticate as', 'required': True, 'default': None},
+    },
+    'notes': {
+        'AKA': ['wmiexec.py']
     }
 }
 

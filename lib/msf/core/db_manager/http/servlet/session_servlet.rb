@@ -19,20 +19,22 @@ module SessionServlet
 
   def self.get_session
     lambda {
+      warden.authenticate!
       begin
-        opts = parse_json_request(request, false)
-        sanitized_params = sanitize_params(params)
+        sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.sessions(sanitized_params)
         includes = [:host]
-        set_json_response(data, includes)
+        data = data.first if is_single_object?(data, sanitized_params)
+        set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving sessions:', code: 500)
       end
     }
   end
 
   def self.report_session
     lambda {
+      warden.authenticate!
       begin
         job = lambda { |opts|
           if opts[:session_data]
@@ -43,7 +45,7 @@ module SessionServlet
         }
         exec_report_job(request, &job)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error creating the session:', code: 500)
       end
     }
   end

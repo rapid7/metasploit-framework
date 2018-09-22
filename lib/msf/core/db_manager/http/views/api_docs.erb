@@ -67,8 +67,8 @@
 
 <div id="swagger-ui"></div>
 
-<script src="/swagger-ui-bundle.js"> </script>
-<script src="/swagger-ui-standalone-preset.js"> </script>
+<script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+<script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js"> </script>
 <script>
     window.onload = function() {
         // Build a system
@@ -79,9 +79,13 @@
                 SwaggerUIBundle.presets.apis,
                 SwaggerUIStandalonePreset
             ],
-            layout: "StandaloneLayout"
-        })
-
+            layout: "StandaloneLayout",
+            requestInterceptor: function (request) {
+                let token = request.headers.Authorization;
+                request.headers.Authorization = "Bearer " + token;
+                return request;
+            }
+        });
         window.ui = ui
     }
 </script>

@@ -35,10 +35,26 @@ module SessionEventApiDoc
       response 200 do
         key :description, 'Returns session event data.'
         schema do
-          key :type, :array
-          items do
-            key :'$ref', :SessionEvent
+          property :data do
+            key :type, :array
+            items do
+              key :'$ref', :SessionEvent
+            end
           end
+        end
+      end
+
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
+      response 500 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end
@@ -64,10 +80,65 @@ module SessionEventApiDoc
       end
 
       response 200 do
-        key :description, 'Successful operation.'
+        key :description, RootApiDoc::DEFAULT_RESPONSE_200
         schema do
-          key :type, :object
-          key :'$ref', :SessionEvent
+          property :data do
+            key :'$ref', :SessionEvent
+          end
+        end
+      end
+
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
+      response 500 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        schema do
+          key :'$ref', :ErrorModel
+        end
+      end
+    end
+  end
+
+  swagger_path '/api/v1/session-events/{id}' do
+    # Swagger documentation for api/v1/session-events/:id GET
+    operation :get do
+      key :description, 'Return a specific session_event that is stored in the database.'
+      key :tags, [ 'session_event' ]
+
+      parameter do
+        key :name, :id
+        key :in, :path
+        key :description, 'ID of session_event to retrieve.'
+        key :required, true
+        key :type, :integer
+        key :format, :int32
+      end
+
+      response 200 do
+        key :description, 'Returns session event data.'
+        schema do
+          property :data do
+            key :'$ref', :SessionEvent
+          end
+        end
+      end
+
+      response 401 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        schema do
+          key :'$ref', :AuthErrorModel
+        end
+      end
+
+      response 500 do
+        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        schema do
+          key :'$ref', :ErrorModel
         end
       end
     end

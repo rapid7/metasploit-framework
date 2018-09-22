@@ -9,7 +9,7 @@ module LootServlet
   end
 
   def self.registered(app)
-    app.get LootServlet.api_path, &get_loot
+    app.get LootServlet.api_path_with_id, &get_loot
     app.post LootServlet.api_path, &report_loot
     app.put LootServlet.api_path_with_id, &update_loot
     app.delete LootServlet.api_path, &delete_loot
@@ -21,23 +21,25 @@ module LootServlet
 
   def self.get_loot
     lambda {
+      warden.authenticate!
       begin
-        opts = parse_json_request(request, false)
-        sanitized_params = sanitize_params(params)
+        sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.loots(sanitized_params)
         includes = [:host]
         data.each do |loot|
           loot.data = Base64.urlsafe_encode64(loot.data) if loot.data
         end
-        set_json_response(data, includes)
+        data = data.first if is_single_object?(data, sanitized_params)
+        set_json_data_response(response: data, includes: includes)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving the loot:', code: 500)
       end
     }
   end
 
   def self.report_loot
     lambda {
+      warden.authenticate!
       job = lambda { |opts|
         if opts[:data]
           filename = File.basename(opts[:path])
@@ -54,26 +56,28 @@ module LootServlet
 
   def self.update_loot
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_loot(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error updating the loot:', code: 500)
       end
     }
   end
 
   def self.delete_loot
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_loot(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
-        set_error_on_response(e)
+        print_error_and_create_response(error: e, message: 'There was an error deleting the loot:', code: 500)
       end
     }
   end

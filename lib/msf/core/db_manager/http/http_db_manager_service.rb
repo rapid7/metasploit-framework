@@ -1,5 +1,5 @@
 require 'rack'
-require 'msf/core/db_manager/http/sinatra_app'
+require 'msf/core/db_manager/http/metasploit_api_app'
 require 'metasploit/framework/parsed_options/remote_db'
 require 'rex/ui/text/output/stdio'
 
@@ -26,14 +26,14 @@ class HttpDBManagerService
 
   def start_http_server(opts)
 
-    Rack::Handler::Thin.run(SinatraApp, opts) do |server|
+    Rack::Handler::Thin.run(MetasploitApiApp, opts) do |server|
 
       if opts[:ssl] && opts[:ssl] = true
-        print_good "SSL Enabled"
+        print_good('SSL Enabled')
         server.ssl = true
         server.ssl_options = opts[:ssl_opts]
       else
-        print_warning 'SSL Disabled'
+        print_warning('SSL Disabled')
       end
       server.threaded = true
     end

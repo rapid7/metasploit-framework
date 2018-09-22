@@ -27,7 +27,6 @@ module Msf
           def commands
             {
               "back"       => "Move back from the current context",
-              "edit"       => "Edit the current module or a file with the preferred editor",
               "advanced"   => "Displays advanced options for one or more modules",
               "info"       => "Displays information about one or more modules",
               "options"    => "Displays global options or for one or more modules",
@@ -39,7 +38,6 @@ module Msf
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Selects a module by name",
-              "reload_lib" => "Reload one or more library files from specified paths",
             }
           end
 
@@ -60,98 +58,6 @@ module Msf
           #
           def name
             "Module"
-          end
-
-          def local_editor
-            framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
-          end
-
-          # XXX: This will try to reload *any* .rb and break on modules
-          def reload_file(path)
-            unless File.exist?(path) && path.end_with?('.rb')
-              print_error("#{path} must exist and be a .rb file")
-              return
-            end
-
-            # The file must exist to reach this, so we try our best here
-            if path =~ %r{^(?:\./)?modules/}
-              print_error('Reloading Metasploit modules is not supported (try "reload")')
-              return
-            end
-
-            print_status("Reloading #{path}")
-            load path
-          end
-
-          def cmd_reload_lib_help
-            print_line 'Usage: reload_lib [lib/to/load.rb]...'
-            print_line
-            print_line 'Reload one or more library files from specified paths.'
-          end
-
-          #
-          # Reload one or more library files from specified paths
-          #
-          def cmd_reload_lib(*args)
-            if args.empty? || args.include?('-h') || args.include?('--help')
-              cmd_reload_lib_help
-              return
-            end
-
-            args.each { |path| reload_file(path) }
-          end
-
-          def cmd_reload_lib_tabs(str, words)
-            tab_complete_filenames(str, words)
-          end
-
-          def cmd_edit_help
-            print_line "Usage: edit [file/to/edit.rb]"
-            print_line
-            print_line "Edit the currently active module or a local file with #{local_editor}."
-            print_line "If a file path is specified, it will automatically be reloaded after editing."
-            print_line "Otherwise, you can reload the active module with 'reload' or 'rerun'."
-            print_line
-          end
-
-          #
-          # Edit the currently active module or a local file
-          #
-          def cmd_edit(*args)
-            editing_module = false
-
-            if args.length > 0
-              path = args[0]
-            elsif active_module
-              editing_module = true
-              path = active_module.file_path
-            end
-
-            if path.nil?
-              print_error('Nothing to edit. Try using a module first or specifying a library file to edit.')
-              return
-            end
-
-            editor = local_editor
-
-            if editor.nil?
-              editor = 'vim'
-              print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
-            end
-
-            print_status("Launching #{editor} #{path}")
-            system(*editor.split, path)
-
-            return if editing_module
-
-            reload_file(path)
-          end
-
-          #
-          # Tab completion for the edit command
-          #
-          def cmd_edit_tabs(str, words)
-            tab_complete_filenames(str, words)
           end
 
           def cmd_advanced_help
@@ -420,18 +326,29 @@ module Msf
             print_line
             print_line "Keywords:"
             {
-              'app'      => 'Modules that are client or server attacks',
-              'author'   => 'Modules written by this author',
-              'bid'      => 'Modules with a matching Bugtraq ID',
-              'cve'      => 'Modules with a matching CVE ID',
-              'edb'      => 'Modules with a matching Exploit-DB ID',
-              'name'     => 'Modules with a matching descriptive name',
-              'platform' => 'Modules affecting this platform',
-              'port'     => 'Modules with a matching port',
-              'ref'      => 'Modules with a matching ref',
-              'type'     => 'Modules of a specific type (exploit, auxiliary, or post)',
+              'aka'         => 'Modules with a matching AKA (also-known-as) name',
+              'app'         => 'Modules that are client or server attacks',
+              'author'      => 'Modules written by this author',
+              'arch'        => 'Modules affecting this architecture',
+              'bid'         => 'Modules with a matching Bugtraq ID',
+              'cve'         => 'Modules with a matching CVE ID',
+              'edb'         => 'Modules with a matching Exploit-DB ID',
+              'check'       => 'Modules that support the \'check\' method',
+              'date'        => 'Modules with a matching disclosure date',
+              'description' => 'Modules with a matching description',
+              'full_name'   => 'Modules with a matching full name',
+              'mod_time'    => 'Modules with a matching modification date',
+              'name'        => 'Modules with a matching descriptive name',
+              'path'        => 'Modules with a matching path',
+              'platform'    => 'Modules affecting this platform',
+              'port'        => 'Modules with a matching port',
+              'rank'        => 'Modules with a matching rank (Can be descriptive (ex: \'good\') or numeric with comparison operators (ex: \'gte400\'))',
+              'ref'         => 'Modules with a matching ref',
+              'reference'   => 'Modules with a matching reference',
+              'target'      => 'Modules affecting this target',
+              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, post, or nop)',
             }.each_pair do |keyword, description|
-              print_line "  #{keyword.ljust 10}:  #{description}"
+              print_line "  #{keyword.ljust 12}:  #{description}"
             end
             print_line
             print_line "Examples:"
@@ -474,13 +391,20 @@ module Msf
 
             # Display the table of matches
             tbl = generate_module_table("Matching Modules", search_term)
-            Msf::Modules::Metadata::Cache.instance.find(match).each do |m|
-              tbl << [
-                  m.full_name,
-                  m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
-                  RankingName[m.rank].to_s,
-                  m.name
-              ]
+            search_params = parse_search_string(match)
+            begin
+              Msf::Modules::Metadata::Cache.instance.find(search_params).each do |m|
+                tbl << [
+                    m.full_name,
+                    m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
+                    RankingName[m.rank].to_s,
+                    m.check ? 'Yes' : 'No',
+                    m.name
+                ]
+              end
+            rescue ArgumentError
+              print_error("Invalid argument(s)\n")
+              cmd_search_help
             end
 
             if output_file
@@ -492,6 +416,42 @@ module Msf
               print_line(tbl.to_s)
             end
           end
+
+          #
+          # Parses command line search string into a hash
+          #
+          # Resulting Hash Example:
+          # {"platform"=>[["android"], []]} will match modules targeting the android platform
+          # {"platform"=>[[], ["android"]]} will exclude modules targeting the android platform
+          #
+          def parse_search_string(search_string)
+            # Split search terms by space, but allow quoted strings
+            terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
+            terms.delete('')
+
+            # All terms are either included or excluded
+            res = {}
+
+            terms.each do |term|
+              keyword, search_term = term.split(":", 2)
+              unless search_term
+                search_term = keyword
+                keyword = 'text'
+              end
+              next if search_term.length == 0
+              keyword.downcase!
+              search_term.downcase!
+              res[keyword] ||=[   [],    []   ]
+              if search_term[0,1] == "-"
+                next if search_term.length == 1
+                res[keyword][1] << search_term[1,search_term.length-1]
+              else
+                res[keyword][0] << search_term
+              end
+            end
+            res
+          end
+
 
           #
           # Tab completion for the search command
@@ -509,7 +469,7 @@ module Msf
           end
 
           def cmd_show_help
-            global_opts = %w{all encoders nops exploits payloads auxiliary plugins info options}
+            global_opts = %w{all encoders nops exploits payloads auxiliary post plugins info options}
             print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
             module_opts = %w{ missing advanced evasion targets actions }
@@ -521,9 +481,13 @@ module Msf
           # no type is provided.
           #
           def cmd_show(*args)
+            if args.empty?
+              print_error("Argument required\n")
+              cmd_show_help
+              return
+            end
+            
             mod = self.active_module
-
-            args << "all" if (args.length == 0)
 
             args.each { |type|
               case type
@@ -636,7 +600,7 @@ module Msf
           # Uses a module.
           #
           def cmd_use(*args)
-            if (args.length == 0)
+            if args.length == 0 || args.first == '-h'
               cmd_use_help
               return false
             end
@@ -714,11 +678,6 @@ module Msf
             end
 
             mod.init_ui(driver.input, driver.output)
-
-            # Update the command prompt
-            prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-            prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
           end
 
           #
@@ -901,11 +860,6 @@ module Msf
 
               # Destack the current dispatcher
               driver.destack_dispatcher
-
-              # Restore the prompt
-              prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-              prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-              driver.update_prompt("#{prompt} ", prompt_char, true)
             end
           end
 
@@ -1195,6 +1149,7 @@ module Msf
                       refname,
                       o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
                       o.rank_to_s,
+                      o.respond_to?(:check) ? 'Yes' : 'No',
                       o.name
                     ]
                   end
@@ -1211,7 +1166,7 @@ module Msf
               'Header'     => type,
               'Prefix'     => "\n",
               'Postfix'    => "\n",
-              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ],
+              'Columns'    => [ 'Name', 'Disclosure Date', 'Rank', 'Check', 'Description' ],
               'SearchTerm' => search_term
             )
           end

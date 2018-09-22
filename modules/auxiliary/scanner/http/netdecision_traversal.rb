@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'References'     =>
         [
+          [ 'CVE', '2012-1465' ],
           [ 'OSVDB', '79863' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/netdecision_1-adv.txt' ],
         ],

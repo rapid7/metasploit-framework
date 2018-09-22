@@ -26,16 +26,17 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(5984),
         OptString.new('TARGETURI', [true, 'Path to list all the databases', '/_all_dbs']),
+        OptBool.new('SERVERINFO', [true, 'Print server info']),
         OptString.new('HttpUsername', [false, 'The username to login as']),
         OptString.new('HttpPassword', [false, 'The password to login with'])
       ])
   end
 
-  def run
-    username = datastore['HttpUsername']
-    password = datastore['HttpPassword']
-    auth = basic_auth(username, password) if username && password
+  def valid_response(res)
+    return res.code == 200 && res.headers['Server'].include?('CouchDB')
+  end
 
+  def get_dbs(auth)
     begin
       res = send_request_cgi(
         'uri'           => normalize_uri(target_uri.path),
@@ -45,26 +46,66 @@ class MetasploitModule < Msf::Auxiliary
 
       temp = JSON.parse(res.body)
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
-      print_error("The following Error was encountered: #{e.class}")
+      print_error("#{peer} The following Error was encountered: #{e.class}")
       return
     end
 
-    if res.code == 200 && res.headers['Server'].include?('CouchDB')
-      print_status('Enumerating...')
+    if valid_response(res)
+      print_status("#{peer} Enumerating Databases...")
       results = JSON.pretty_generate(temp)
-      print_good("Found:\n\n#{results}\n")
+      print_good("#{peer} Databases:\n\n#{results}\n")
 
       path = store_loot(
         'couchdb.enum',
-        'text/plain',
+        'application/json',
         rhost,
         results,
-        'CouchDB Enum'
+        'CouchDB Databases'
       )
 
-      print_good("File saved in: #{path}")
+      print_good("#{peer} File saved in: #{path}")
     else
-      print_error("Unable to enum, received \"#{res.code}\"")
+      print_error("#{peer} Unable to enum, received \"#{res.code}\"")
     end
+  end
+
+  def get_server_info(auth)
+    begin
+      res = send_request_cgi(
+        'uri'           => '/',
+        'method'        => 'GET',
+        'authorization' => auth
+      )
+
+      temp = JSON.parse(res.body)
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, JSON::ParserError => e
+      print_error("#{peer} The following Error was encountered: #{e.class}")
+      return
+    end
+
+    if valid_response(res)
+      # Example response: {"couchdb":"Welcome","uuid":"6f08e89795bd845efc6c2bf3d57799e5","version":"1.6.1","vendor":{"version":"16.04","name":"Ubuntu"}}
+
+      print_good("#{peer} #{JSON.pretty_generate(temp)}")
+      report_service(
+        host: rhost,
+        port: rport,
+        name: 'couchdb',
+        proto: 'tcp',
+        info: res.body
+      )
+    else
+      print_error("#{peer} Unable to enum, received \"#{res.code}\"")
+    end
+  end
+
+  def run
+    username = datastore['HttpUsername']
+    password = datastore['HttpPassword']
+    auth = basic_auth(username, password) if username && password
+    if datastore['SERVERINFO']
+      get_server_info(auth)
+    end
+    get_dbs(auth)
   end
 end
