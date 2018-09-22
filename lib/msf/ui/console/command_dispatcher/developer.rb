@@ -112,14 +112,28 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   # Open a Pry session on the current module or Framework
   #
   def cmd_pry(*args)
-    begin
-      require 'pry'
-    rescue LoadError
-      print_error("Failed to load Pry, try 'gem install pry'")
+    if args.include?('-h')
+      cmd_pry_help
       return
     end
 
-    active_module ? active_module.pry : framework.pry
+    begin
+      require 'pry'
+    rescue LoadError
+      print_error('Failed to load Pry, try "gem install pry"')
+      return
+    end
+
+    print_status('Starting Pry shell...')
+
+    unless active_module
+      print_status("You are in the \"framework\" object\n")
+      framework.pry
+      return
+    end
+
+    print_status("You are in #{active_module.fullname}\n")
+    active_module.pry
   end
 
   def cmd_edit_help
