@@ -30,7 +30,6 @@ class MetasploitModule < Msf::Auxiliary
         'License'     => MSF_LICENSE,
         'References'     =>
           [
-            [ 'CVE', '2009-4444' ],
             [ 'URL', 'https://soroush.secproject.com/blog/tag/iis-tilde-vulnerability/' ]
           ],
         'Targets' => [[ 'Automatic', {} ]]
@@ -55,32 +54,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    begin
-      for method in ['GET', 'OPTIONS']
-        res1 = send_request_cgi({
-          'uri' => normalize_uri(datastore['PATH'], '*~1*'),
-          'method' => method
-        })
-
-        res2 = send_request_cgi({
-          'uri' => normalize_uri(datastore['PATH'],'QYKWO*~1*'),
-          'method' => method
-        })
-
-        if res1.code == 404 && res2.code != 404
-          vuln = 1
-        end
-      end
-      if vuln == 1
-        return Exploit::CheckCode::Vulnerable
-      else
-        return Exploit::CheckCode::Safe
-      end
-
-      rescue Rex::ConnectionError
-        vprint_error("Connection failed")
-        return Exploit::CheckCode::Unknown
+    if is_vul
+      return Exploit::CheckCode::Vulnerable
+    else
+      return Exploit::CheckCode::Safe
     end
+  rescue Rex::ConnectionError
+      print_bad("Failed to connect to target")
   end
 
   def is_vul
@@ -96,16 +76,11 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       if res1.code == 404 && res2.code != 404
-        vuln = 1
         @verb = method
-        break
+        return true
       end
     end
-    if vuln == 1
-      return true
-    else
-      return false
-    end
+    return false
   rescue Rex::ConnectionError
     print_bad("Failed to connect to target")
   end
