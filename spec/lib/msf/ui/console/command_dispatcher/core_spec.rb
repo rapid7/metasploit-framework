@@ -114,7 +114,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
 
       all_options.each do |option|
         describe "with #{option} arguments" do
-          it "should return a instance of array" do
+          it "should return array or nil" do
             set_tabs_test(option)
           end
         end
@@ -130,7 +130,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
 
       all_options.each do |option|
         describe "with #{option} arguments" do
-          it "should return a instance of array" do
+          it "should return array or nil" do
             set_tabs_test(option)
           end
         end
@@ -146,7 +146,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
 
       all_options.each do |option|
         describe "with #{option} arguments" do
-          it "should return a instance of array" do
+          it "should return array or nil" do
             set_tabs_test(option)
           end
         end
