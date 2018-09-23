@@ -89,6 +89,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'rm'         => 'Delete the specified file',
       'mv'         => 'Move source to destination',
       'cp'         => 'Copy source to destination',
+      'chmod'      => 'Change the permissions of a file',
       'rmdir'      => 'Remove directory',
       'search'     => 'Search for files',
       'upload'     => 'Upload a file or directory',
@@ -115,6 +116,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'rm'         => ['stdapi_fs_delete_file'],
       'mv'         => ['stdapi_fs_file_move'],
       'cp'         => ['stdapi_fs_file_copy'],
+      'chmod'      => ['stdapi_fs_chmod'],
       'search'     => ['stdapi_fs_search'],
       'upload'     => [],
       'show_mount' => ['stdapi_fs_mount_show'],
@@ -397,6 +399,21 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_copy :cmd_cp
   alias :cmd_cp_tabs :cmd_cat_tabs
+  alias :cmd_chmod_tabs :cmd_cat_tabs
+
+  #
+  # Change the permissions on a remote file
+  #
+  def cmd_chmod(*args)
+    if (args.length != 2)
+      print_line("Usage: chmod permission file")
+      return true
+    end
+    file_path = args[1]
+    file_path = client.fs.file.expand_path(file_path) if file_path =~ PATH_EXPAND_REGEX
+    client.fs.file.chmod(file_path, args[0].to_i(8))
+    return true
+  end
 
   def cmd_download_help
     print_line("Usage: download [options] src1 src2 src3 ... destination")

@@ -209,10 +209,13 @@ module Msf
                 persist_list = []
               end
 
+              # Remove persistence by job id.
               job_list.map(&:to_s).each do |job|
-                next unless framework.jobs[job.to_s].ctx[1] # next if no payload context in the job
-                payload_option = framework.jobs[job.to_s].ctx[1].datastore
-                persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
+                if framework.jobs.key?(job)
+                  next unless framework.jobs[job.to_s].ctx[1] # next if no payload context in the job
+                  payload_option = framework.jobs[job.to_s].ctx[1].datastore
+                  persist_list.delete_if{|pjob|pjob['mod_options']['Options'] == payload_option}
+                end
               end
               # Write persist job back to config file.
               File.open(Msf::Config.persist_file,"w") do |file|
