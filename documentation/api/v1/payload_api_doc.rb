@@ -3,14 +3,14 @@ require 'swagger/blocks'
 module PayloadApiDoc
   include Swagger::Blocks
 
-  NAME_DESC = 'A name for the payload'
-  UUID_DESC = 'A payload\'s unique identifier'
+  NAME_DESC = 'A name for the payload.'
+  UUID_DESC = 'A payload\'s unique identifier.'
   UUID_EXAMPLE = '6dde5ce0e94c9f43'
-  TIMESTAMP_DESC = 'The Unix format timestamp when this payload was created'
+  TIMESTAMP_DESC = 'The Unix format timestamp when this payload was created.'
   TIMESTAMP_EXAMPLE = '1536777407'
-  ARCH_DESC = 'The architecture this payload supports'
+  ARCH_DESC = 'The architecture this payload supports.'
   ARCH_EXAMPLE = 'x86'
-  PLATFORM_DESC = 'The platform this payload supports'
+  PLATFORM_DESC = 'The platform this payload supports.'
   PLATFORM_EXAMPLE = 'windows'
   URLS_DESC = 'The unique, encoded urls used to host this payload. Only applicable for http(s) payloads.'
   URLS_EXAMPLE = ['/bd5c4OlMn0OeQp9AxdvC_Q2EIcdSRvg7gzLdQwU__Mb1WtjGR8C4UbjohhRIgbmBfFFBsNJ-wZMyFZKK33aorc8qfD0xCsmxSEyHaiyjGn0ykbJOlYFF1j1HXShiKiiwbfh_wPf2uqSWk2tnaLAqwuvxPcRuDPF-kdkmDDC2']
@@ -18,8 +18,8 @@ module PayloadApiDoc
   WORKSPACE_ID_DESC = 'The Workspace this payload belongs to.'
   WORKSPACE_ID_EXAMPLE = 'default'
   RAW_PAYLOAD_DESC = 'A URL pointing to where the binary payload can be downloaded from.'
-  RAW_PAYLOAD_HASH_DESC = 'The unique hash value for the generated payload binary'
-  BUILD_OPTS_DESC = 'A hash containing various options used to build this payload'
+  RAW_PAYLOAD_HASH_DESC = 'The unique hash value for the generated payload binary.'
+  BUILD_OPTS_DESC = 'A hash containing various options used to build this payload.'
 
 # Swagger documentation for payloads model
   swagger_schema :Payload do
