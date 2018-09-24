@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
       'Description'  => %q{Push a file and execute it.},
       'Author'       => 'egypt',
       'License'      => MSF_LICENSE,
-      'Platform'     => ['win', 'unix', 'linux', 'osx'],
+      'Platform'     => ['win', 'unix', 'linux', 'osx', 'bsd', 'solaris'],
       'SessionTypes' => ['meterpreter', 'shell']
     ))
 
