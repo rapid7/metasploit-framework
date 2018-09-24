@@ -31,13 +31,7 @@ class MetasploitModule < Msf::Post
       # Don't use cmd.exe /c start so we can fetch output
       cmd = rpath
     else
-      begin
-        # client is an alias for session
-        client.fs.file.chmod(rpath, 0700)
-      rescue
-        # Fall back if unimplemented or unavailable
-        cmd_exec("chmod 700 #{rpath}")
-      end
+      chmod_x_file(rpath)
 
       # Handle absolute paths
       cmd = rpath.start_with?('/') ? rpath : "./#{rpath}"

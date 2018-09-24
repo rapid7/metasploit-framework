@@ -362,6 +362,18 @@ module Msf::Post::File
   end
 
   #
+  # Sets the executable permissions on a remote file
+  #
+  # @param remote [String] Destination file name on the remote filesystem
+  def chmod_x_file(remote)
+    if session.type == "meterpreter" and session.commands.include?('stdapi_fs_chmod')
+      session.fs.file.chmod(remote, 0700)
+    else
+      cmd_exec("chmod 700 \"#{remote}\"")
+    end
+  end
+
+  #
   # Delete remote files
   #
   # @param remote_files [Array<String>] List of remote filenames to
