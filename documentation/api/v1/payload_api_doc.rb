@@ -15,6 +15,8 @@ module PayloadApiDoc
   URLS_DESC = 'The unique, encoded urls used to host this payload. Only applicable for http(s) payloads.'
   URLS_EXAMPLE = ['/bd5c4OlMn0OeQp9AxdvC_Q2EIcdSRvg7gzLdQwU__Mb1WtjGR8C4UbjohhRIgbmBfFFBsNJ-wZMyFZKK33aorc8qfD0xCsmxSEyHaiyjGn0ykbJOlYFF1j1HXShiKiiwbfh_wPf2uqSWk2tnaLAqwuvxPcRuDPF-kdkmDDC2']
   DESCRIPTION_DESC = 'A description of why this payload was created and what it is being used for.'
+  WORKSPACE_ID_DESC = 'The ID of the workspace this payload belongs to.'
+  WORKSPACE_ID_EXAMPLE = 1
   RAW_PAYLOAD_DESC = 'A URL pointing to where the binary payload can be downloaded from.'
   RAW_PAYLOAD_HASH_DESC = 'The unique hash value for the generated payload binary.'
   BUILD_OPTS_DESC = 'A hash containing various options used to build this payload.'
