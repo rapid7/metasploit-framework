@@ -11,7 +11,7 @@ The device will "re-spring" the operating system, but not actually restart the d
 1. Do: `use auxiliary/dos/apple_ios/webkit_backdrop_filter_blur`
 1. Do: `set URIPATH /` (Optional)
 1. Do: `run`
-1. When you visit the device on a vulnerable device, it should crash the operating system
+1. When you visit the page on a vulnerable device, it should crash the operating system
 
 ## Scenarios
 
