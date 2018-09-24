@@ -48,6 +48,7 @@ module Msf::RPC::JSON
       # @param method [String] the RPC method name
       # @param params [Array, Hash] parameters for the RPC call
       # @raise [MethodNotFound] The method does not exist
+      # @raise [Timeout::Error] The method failed to terminate in @execute_timeout seconds
       # @returns [Object] the method's return value.
       def execute_internal(method, params)
         group, base_method = parse_method_group(method)
