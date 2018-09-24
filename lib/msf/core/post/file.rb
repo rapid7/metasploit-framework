@@ -136,6 +136,19 @@ module Msf::Post::File
   end
 
   #
+  # See if +path+ on the remote system exists and is writable
+  #
+  # @param path [String] Remote path to check
+  #
+  # @return [Boolean] true if +path+ exists and is writable
+  #
+  def writable?(path)
+    raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
+
+    cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
+  end
+
+  #
   # Check for existence of +path+ on the remote file system
   #
   # @param path [String] Remote filename to check

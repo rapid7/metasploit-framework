@@ -39,7 +39,6 @@ module WorkspaceDataProxy
       else
         # This is mostly a failsafe to prevent bad things from happening. @current_workspace should always be set
         # outside of here, but this will save us from crashes/infinite loops if that happens
-        warn "@current_workspace was not set. Setting to default_workspace: #{default_workspace.name}"
         @current_workspace = default_workspace
       end
     rescue => e

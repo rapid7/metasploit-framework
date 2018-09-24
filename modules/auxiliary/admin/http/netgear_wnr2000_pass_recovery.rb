@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-10175'],
           ['CVE', '2016-10176'],
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear-wnr2000.txt'],
-          ['URL', 'http://seclists.org/fulldisclosure/2016/Dec/72'],
+          ['URL', 'https://seclists.org/fulldisclosure/2016/Dec/72'],
           ['URL', 'http://kb.netgear.com/000036549/Insecure-Remote-Access-and-Command-Execution-Security-Vulnerability']
         ],
       'DisclosureDate'  => 'Dec 20 2016'))
@@ -148,33 +148,6 @@ class MetasploitModule < Msf::Auxiliary
     return [username, password]
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: 'netgear',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      last_attempted_at: DateTime.now,
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
   def send_req(timestamp)
     begin
       query_str = (timestamp == nil ? \
@@ -241,7 +214,7 @@ class MetasploitModule < Msf::Auxiliary
         if res && res.code == 200
           credentials = get_creds
           print_good("#{peer} - Success! Got admin username \"#{credentials[0]}\" and password \"#{credentials[1]}\"")
-          report_cred({ 'user' => credentials[0], 'password' => credentials[1] })
+          store_valid_credential(user: credentials[0], private: credentials[1]) # more consistent service_name and protocol, now supplies ip and port
           return
         end
       end

@@ -45,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     @version = datastore['SRVVERSION']
-    print_status("Listening on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}...")
     exploit()
   end
 

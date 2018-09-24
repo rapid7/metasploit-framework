@@ -152,6 +152,20 @@ class Post
 
   alias cmd_exploit cmd_run
 
+  #
+  # Tab completion for the run command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  #
+  def cmd_run_tabs(str, words)
+    return [] if words.length > 1
+    @@post_opts.fmt.keys
+  end
+
+  alias cmd_exploit_tabs cmd_run_tabs
+
   def cmd_run_help
     print_line "Usage: run [options]"
     print_line

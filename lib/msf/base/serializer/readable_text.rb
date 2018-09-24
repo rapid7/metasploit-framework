@@ -254,6 +254,9 @@ class ReadableText
     # References
     output << dump_references(mod, indent)
 
+    # AKA
+    output << dump_aka(mod, indent)
+
     return output
 
   end
@@ -303,6 +306,9 @@ class ReadableText
 
     # References
     output << dump_references(mod, indent)
+
+    # AKA
+    output << dump_aka(mod, indent)
 
     return output
   end
@@ -358,6 +364,9 @@ class ReadableText
 
     # References
     output << dump_references(mod, indent)
+
+    # AKA
+    output << dump_aka(mod, indent)
 
     return output
   end
@@ -621,6 +630,27 @@ class ReadableText
     output
   end
 
+  # Dumps the aka names associated with the supplied module.
+  #
+  # @param mod [Msf::Module] the module.
+  # @param indent [String] the indentation to use.
+  # @return [String] the string form of the information.
+  def self.dump_aka(mod, indent = '')
+    output = ''
+
+    if mod.notes['AKA'].present?
+      output << "AKA:\n"
+
+      mod.notes['AKA'].each do |aka_name|
+        output << indent + aka_name + "\n"
+      end
+
+      output << "\n"
+    end
+
+    output
+  end
+
   # Dumps the contents of a datastore.
   #
   # @param name [String] displayed as the table header.
@@ -706,10 +736,12 @@ class ReadableText
           'Indent' => indent,
           'SortIndex' => 1)
 
-      framework.db.sessions.each do |session|
-        unless session.closed_at.nil?
-          row = create_mdm_session_row(session, show_extended)
-          tbl << row
+      if framework.db.active
+        framework.db.sessions.each do |session|
+          unless session.closed_at.nil?
+            row = create_mdm_session_row(session, show_extended)
+            tbl << row
+          end
         end
       end
 
@@ -750,7 +782,7 @@ class ReadableText
       end
 
       if session.exploit_datastore && session.exploit_datastore.has_key?('LURI') && !session.exploit_datastore['LURI'].empty?
-        row << "(#{exploit_datastore['LURI']})"
+        row << "(#{session.exploit_datastore['LURI']})"
       else
         row << '?'
       end
@@ -867,10 +899,10 @@ class ReadableText
   # @param col [Integer] the column wrap width.
   # @return [String] the formatted list of running jobs.
   def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
-    columns = [ 'Id', 'Name', "Payload", "Payload opts" ]
+    columns = [ 'Id', 'Name', "Payload", "Payload opts"]
 
     if (verbose)
-      columns += [ "URIPATH", "Start Time", "Handler opts" ]
+      columns += [ "URIPATH", "Start Time", "Handler opts", "Persist" ]
     end
 
     tbl = Rex::Text::Table.new(
@@ -878,6 +910,15 @@ class ReadableText
       'Header'  => "Jobs",
       'Columns' => columns
       )
+
+    # Get the persistent job info.
+    if verbose
+      begin
+        persist_list = JSON.parse(File.read(Msf::Config.persist_file))
+      rescue Errno::ENOENT, JSON::ParserError
+        persist_list = []
+      end
+    end
 
     # jobs are stored as a hash with the keys being a numeric String job_id.
     framework.jobs.keys.sort_by(&:to_i).each do |job_id|
@@ -913,11 +954,19 @@ class ReadableText
         row[4] = uripath
         row[5] = framework.jobs[job_id].start_time
         row[6] = ''
+        row[7] = 'false'
 
         if pinst.respond_to?(:listener_uri)
           listener_uri = pinst.listener_uri.strip
           row[6] = listener_uri unless listener_uri == payload_uri
         end
+
+        persist_list.each do |e|
+          if framework.jobs[job_id.to_s].ctx[1]
+             row[7] = 'true' if e['mod_options']['Options'] == framework.jobs[job_id.to_s].ctx[1].datastore
+          end
+        end
+
       end
       tbl << row
     end

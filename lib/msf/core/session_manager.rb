@@ -276,7 +276,7 @@ class SessionManager < Hash
     if sid > 0
       session = self[sid]
     elsif sid == -1
-      sid = self.keys.sort[-1]
+      sid = self.keys.max
       session = self[sid]
     end
 

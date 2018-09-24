@@ -32,11 +32,14 @@ matrix:
 jobs:
   # build docker image
   include:
-  - env: CMD="docker-compose build" DOCKER="true"
+  - env: CMD="/usr/bin/docker-compose build" DOCKER="true"
     # we do not need any setup
     before_install: skip
     install: skip
-    before_script: skip
+    before_script:
+      - curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
+      - chmod +x docker-compose
+      - sudo mv docker-compose /usr/bin
 before_install:
   - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
   - rake --version
@@ -56,7 +59,9 @@ before_script:
 script:
   - echo "${CMD}"
     # we need travis_wait because the Docker build job can take longer than 10 minutes
-  - if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
+    #- if [[ "${DOCKER}" == "true" ]]; then echo "Starting Docker build job"; travis_wait 40 "${CMD}"; else bash -c "${CMD}"; fi
+    # docker_wait is currently broken on travis-ci, so let's just run CMD directly for now
+  - bash -c "${CMD}"
 
 notifications:
   irc: "irc.freenode.org#msfnotify"

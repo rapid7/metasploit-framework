@@ -19,6 +19,8 @@ class Db
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
 
+  DB_CONFIG_PATH = 'framework/database'
+
   #
   # The dispatcher's name.
   #
@@ -31,9 +33,11 @@ class Db
   #
   def commands
     base = {
-      "db_connect"    => "Connect to an existing database",
-      "db_disconnect" => "Disconnect from the current database instance",
-      "db_status"     => "Show the current database status",
+      "db_connect"    => "Connect to an existing data service",
+      "db_disconnect" => "Disconnect from the current data service",
+      "db_status"     => "Show the current data service status",
+      "db_save"       => "Save the current data service connection as the default to reconnect on startup",
+      "db_remove"     => "Remove the saved data service entry"
     }
 
     more = {
@@ -47,7 +51,6 @@ class Db
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache",
-      "data_services" => "Command to add, list and set a data service",
     }
 
     # Always include commands that only make sense when connected.
@@ -81,28 +84,6 @@ class Db
     end
     true
   end
-
-  def cmd_data_services(*args)
-    while (arg = args.shift)
-      case arg
-        when '-h', '--help'
-          data_service_help
-          return
-        when '-a', '--add'
-          add_data_service(*args)
-          return
-        when '-d', '--delete'
-          delete_data_service(args.shift)
-          return
-        when '-s', '--set'
-          set_data_service(args.shift)
-          return
-      end
-    end
-
-    list_data_services
-  end
-
 
   def cmd_workspace_help
     print_line "Usage:"
@@ -1203,7 +1184,7 @@ class Db
   end
 
   def cmd_loot_help
-    print_line "Usage: loot <options>"
+    print_line "Usage: loot [options]"
     print_line " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
     print_line "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]"
     print_line "  Del: loot -d [addr1 addr2 ...]"
@@ -1428,6 +1409,7 @@ class Db
     print_line "    CI"
     print_line "    Foundstone"
     print_line "    FusionVM XML"
+    print_line "    Group Policy Preferences Credentials"
     print_line "    IP Address List"
     print_line "    IP360 ASPL"
     print_line "    IP360 XML v3"
@@ -1721,75 +1703,139 @@ class Db
     return if not db_check_driver
 
     if framework.db.connection_established?
-      cdb = ''
-      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
-        if conn.respond_to?(:current_database)
-          cdb = conn.current_database
-        end
-      end
-      print_status("#{framework.db.driver} connected to #{cdb}")
+      print_connection_info
     else
       print_status("#{framework.db.driver} selected, no connection")
     end
   end
 
   def cmd_db_connect_help
-    # Help is specific to each driver
-    cmd_db_connect("-h")
+    print_line("   Usage: db_connect <user:pass>@<host:port>/<database>")
+    print_line("      OR: db_connect -y [path/to/database.yml]")
+    print_line("      OR: db_connect [options] <http|https>://<host:port>")
+    print_line("Examples:")
+    print_line("       db_connect user@metasploit3")
+    print_line("       db_connect user:pass@192.168.0.2/metasploit3")
+    print_line("       db_connect user:pass@192.168.0.2:1500/metasploit3")
+    print_line("       db_connect http://localhost:8080")
+    print_line("       db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
+    print_line("       db_connect --name LA-server http://laoffice.org:8080")
+    print_line("       db_connect LA-server")
+    print_line(" ")
+    print_line("   OPTIONS:")
+    print_line("       -l,--list-services List the available data services that have been previously saved.")
+    print_line("       -y,--yaml          Connect to the data service specified in the provided database.yml file.")
+    print_line("       -n,--name          Name used to store the connection. Providing an existing name will overwrite the settings for that connection.")
+    print_line("       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
+    print_line("       -t,--token         The API token used to authenticate to the remote data service.")
+    print_line("       --skip-verify      Skip validating authenticity of server's certificate (NOT RECOMMENDED).")
   end
 
   def cmd_db_connect(*args)
     return if not db_check_driver
-    if args[0] != '-h' && framework.db.connection_established?
-      cdb = ''
-      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
-        if conn.respond_to?(:current_database)
-          cdb = conn.current_database
+
+    opts = {}
+    https_opts = {}
+    while (arg = args.shift)
+      case arg
+        when '-h', '--help'
+          cmd_db_connect_help
+          return
+        when '-y', '--yaml'
+          yaml_file = args.shift
+        when '-c', '--cert'
+          https_opts[:cert] = args.shift
+        when '-t', '--token'
+          opts[:api_token] = args.shift
+        when '-l', '--list-services'
+          list_saved_data_services
+          return
+      when '-n', '--name'
+          name = args.shift
+          if name =~ /\/|\[|\]/
+            print_error "Provided name contains an invalid character. Aborting connection."
+            return
+          end
+        when '--skip-verify'
+          https_opts[:skip_verify] = true
+      else
+        found_name = data_service_search(arg)
+        if found_name
+          opts = load_db_config(found_name)
+        else
+          opts[:url] = arg
         end
       end
-      print_error("#{framework.db.driver} already connected to #{cdb}")
-      print_error('Run db_disconnect first if you wish to connect to a different database')
+    end
+
+    opts[:https_opts] = https_opts unless https_opts.empty?
+
+    if !opts[:url] && !yaml_file
+      print_error 'A URL or saved data service name is required.'
+      print_line
+      cmd_db_connect_help
       return
     end
-    if (args[0] == "-y")
-      if (args[1] and not ::File.exist? ::File.expand_path(args[1]))
+
+    if opts[:url] =~ /http/
+      new_conn_type = 'http'
+    else
+      new_conn_type = framework.db.driver
+    end
+
+    # Currently only able to be connected to one DB at a time
+    if framework.db.connection_established?
+      # But the http connection still requires a local database to support AR, so we have to allow that
+      # Don't allow more than one HTTP service, though
+      if new_conn_type != 'http' || framework.db.get_services_metadata.count >= 2
+        print_error('Connection already established. Only one connection is allowed at a time.')
+        print_error('Run db_disconnect first if you wish to connect to a different data service.')
+        print_line
+        print_line 'Current connection information:'
+        print_connection_info
+        return
+      end
+    end
+
+    if yaml_file
+      if (yaml_file and not ::File.exist? ::File.expand_path(yaml_file))
         print_error("File not found")
         return
       end
-      file = args[1] || ::File.join(Msf::Config.get_config_root, "database.yml")
+      file = yaml_file || ::File.join(Msf::Config.get_config_root, "database.yml")
       file = ::File.expand_path(file)
       if (::File.exist? file)
         db = YAML.load(::File.read(file))['production']
         framework.db.connect(db)
-
-        if framework.db.active and not framework.db.modules_cached
-          print_status("Rebuilding the module cache in the background...")
-          framework.threads.spawn("ModuleCacheRebuild", true) do
-            framework.db.update_all_module_details
-          end
-        end
-
+        print_line('Connected to the database specified in the YAML file.')
         return
       end
     end
-    meth = "db_connect_#{framework.db.driver}"
+
+    meth = "db_connect_#{new_conn_type}"
     if(self.respond_to?(meth, true))
-      self.send(meth, *args)
-      if framework.db.active and not framework.db.modules_cached
-        print_status("Rebuilding the module cache in the background...")
-        framework.threads.spawn("ModuleCacheRebuild", true) do
-          framework.db.update_all_module_details
+      self.send(meth, opts)
+    else
+      print_error("This database driver #{new_conn_type} is not currently supported")
+    end
+
+    if framework.db.active
+      if !name || name.empty?
+        if found_name
+          name = found_name
+        else
+          name = Rex::Text.rand_text_alphanumeric(8)
         end
       end
-    else
-      print_error("This database driver #{framework.db.driver} is not currently supported")
+      save_db_to_config(framework.db, name)
+      @current_data_service = name
     end
   end
 
   def cmd_db_disconnect_help
     print_line "Usage: db_disconnect"
     print_line
-    print_line "Disconnect from the database."
+    print_line "Disconnect from the data service."
     print_line
   end
 
@@ -1801,8 +1847,25 @@ class Db
       return
     end
 
-    if (framework.db)
-      framework.db.disconnect()
+    db_name = framework.db.name
+
+    if framework.db.active
+      if framework.db.driver == 'http'
+        begin
+          framework.db.delete_current_data_service
+          local_db_url = build_postgres_url
+          local_name = data_service_search(local_db_url)
+          @current_data_service = local_name
+        rescue => e
+          print_error "Unable to disconnect from the data service: #{e.message}"
+        end
+      else
+        framework.db.disconnect
+        @current_data_service = nil
+      end
+      print_line "Successfully disconnected from the data service: #{db_name}."
+    else
+      print_error "Not currently connected to a data service."
     end
   end
 
@@ -1826,6 +1889,101 @@ class Db
     print_line
   end
 
+  def cmd_db_save_help
+    print_line "Usage: db_save"
+    print_line
+    print_line "Save the current data service connection as the default to reconnect on startup."
+    print_line
+  end
+
+  def cmd_db_save(*args)
+    while (arg = args.shift)
+      case arg
+        when '-h', '--help'
+          cmd_db_save_help
+          return
+      end
+    end
+
+    if !framework.db.active || !@current_data_service
+      print_error "Not currently connected to a data service that can be saved."
+      return
+    end
+
+    begin
+      Msf::Config.save(DB_CONFIG_PATH => { 'default_db' => @current_data_service })
+      print_line "Successfully saved data service as default: #{@current_data_service}"
+    rescue ArgumentError => e
+      print_error e.message
+    end
+  end
+
+  def save_db_to_config(database, database_name)
+    if database_name =~ /\/|\[|\]/
+      raise ArgumentError, 'Data service name contains an invalid character.'
+    end
+    config_path = "#{DB_CONFIG_PATH}/#{database_name}"
+    config_opts = {}
+    if !database.is_local?
+      begin
+        config_opts['url'] = database.endpoint
+        if database.https_opts
+          config_opts['cert'] = database.https_opts[:cert] if database.https_opts[:cert]
+          config_opts['skip_verify'] = true if database.https_opts[:skip_verify]
+        end
+        if database.api_token
+          config_opts['api_token'] = database.api_token
+        end
+        Msf::Config.save(config_path => config_opts)
+      rescue => e
+        print_error "There was an error saving the data service configuration: #{e.message}"
+      end
+    else
+      url = build_postgres_url
+      config_opts['url'] = url
+      Msf::Config.save(config_path => config_opts)
+    end
+  end
+
+  def cmd_db_remove_help
+    print_line "Usage: db_remove <name>"
+    print_line
+    print_line "Delete the specified saved data service."
+    print_line
+  end
+
+  def cmd_db_remove(*args)
+    if args[0] == '-h' || args[0] == '--help' || args[0].nil? || args[0].empty?
+      cmd_db_remove_help
+      return
+    end
+    delete_db_from_config(args[0])
+  end
+
+  def delete_db_from_config(db_name)
+    conf = Msf::Config.load
+    db_path = "#{DB_CONFIG_PATH}/#{db_name}"
+    if conf[db_path]
+      clear_default_db if conf[DB_CONFIG_PATH]['default_db'] && conf[DB_CONFIG_PATH]['default_db'] == db_name
+      Msf::Config.delete_group(db_path)
+      print_line "Successfully deleted data service: #{db_name}"
+    else
+      print_line "Unable to locate saved data service with name #{db_name}."
+    end
+  end
+
+  def clear_default_db
+    conf = Msf::Config.load
+    if conf[DB_CONFIG_PATH] && conf[DB_CONFIG_PATH]['default_db']
+      updated_opts = conf[DB_CONFIG_PATH]
+      updated_opts.delete('default_db')
+      Msf::Config.save(DB_CONFIG_PATH => updated_opts)
+      print_line "Cleared the default data service."
+    else
+      print_line "No default data service was configured."
+    end
+  end
+
   def db_find_tools(tools)
     missed  = []
     tools.each do |name|
@@ -1847,18 +2005,8 @@ class Db
   #
   # Connect to an existing Postgres database
   #
-  def db_connect_postgresql(*args)
-    if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
-      print_status("   Usage: db_connect <user:pass>@<host:port>/<database>")
-      print_status("      OR: db_connect -y [path/to/database.yml]")
-      print_status("Examples:")
-      print_status("       db_connect user@metasploit3")
-      print_status("       db_connect user:pass@192.168.0.2/metasploit3")
-      print_status("       db_connect user:pass@192.168.0.2:1500/metasploit3")
-      return
-    end
-
-    info = db_parse_db_uri_postgresql(args[0])
+  def db_connect_postgresql(cli_opts)
+    info = db_parse_db_uri_postgresql(cli_opts[:url])
     opts = { 'adapter' => 'postgresql' }
 
     opts['username'] = info[:user] if (info[:user])
@@ -1895,8 +2043,29 @@ class Db
       opts['host'] = '127.0.0.1'
     end
 
-    if (not framework.db.connect(opts))
-      raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
+    if framework.db.connect(opts) && framework.db.connection_established?
+      print_line "Connected to Postgres data service: #{info[:host]}/#{info[:name]}"
+    else
+      raise RuntimeError.new("Failed to connect to the Postgres data service: #{framework.db.error}")
+    end
+  end
+
+  def db_connect_http(opts)
+    # local database is required to use Mdm objects
+    unless framework.db.active
+      print_error("No local database connected. Please connect to a local database before connecting to a remote data service.")
+      return
+    end
+
+    uri = db_parse_db_uri_http(opts[:url])
+
+    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(uri.to_s, opts)
+    begin
+      framework.db.register_data_service(remote_data_service)
+      print_line "Connected to HTTP data service: #{remote_data_service.name}"
+      framework.db.workspace = framework.db.default_workspace
+    rescue => e
+      raise RuntimeError.new("Failed to connect to the HTTP data service: #{e.message}")
     end
   end
 
@@ -1914,6 +2083,10 @@ class Db
     end
     res[:name] = name || 'metasploit3'
     res
+  end
+
+  def db_parse_db_uri_http(path)
+    URI.parse(path)
   end
 
   #
@@ -1962,97 +2135,89 @@ class Db
   private
   #######
 
-  def add_data_service(*args)
-    # database is required to use Mdm objects
-    unless framework.db.active
-      print_error("Database not connected; connect to an existing database with db_connect before using data_services")
-      return
-    end
-
-    protocol = "http"
-    port = 8080
-    opts = {}
-    https_opts = {}
-    while (arg = args.shift)
-      case arg
-        when '-p', '--port'
-          port = args.shift
-        when '-t', '--token'
-          opts[:api_token] = args.shift
-        when '-s', '--ssl'
-          protocol = "https"
-        when '-c', '--cert'
-          https_opts[:cert] = args.shift
-        when '--skip-verify'
-          https_opts[:skip_verify] = true
-        else
-          host = arg
+  def print_connection_info
+    cdb = ''
+    if framework.db.driver == 'http'
+      cdb = framework.db.name
+    else
+      ::ActiveRecord::Base.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
+          cdb = conn.current_database
+        end
       end
     end
+    output = "Connected to #{cdb}. Connection type: #{framework.db.driver}."
+    output += " Connection name: #{@current_data_service}." if @current_data_service
+    print_status(output)
+  end
 
-    if host.nil? || port.nil?
-      print_error("Host and port are required")
+  def data_service_search(search_criteria)
+    conf = Msf::Config.load
+    rv = nil
+
+    conf.each_pair do |k,v|
+      name = k.split('/').last
+      rv = name if name == search_criteria
+      rv = name if v.values.include?(search_criteria)
+    end
+    rv
+  end
+
+  def load_db_config(db_name)
+    conf = Msf::Config.load
+    conf_options = conf["#{DB_CONFIG_PATH}/#{db_name}"]
+    opts = {}
+    https_opts = {}
+    if conf_options
+      opts[:url] = conf_options['url'] if conf_options['url']
+      opts[:api_token] = conf_options['api_token'] if conf_options['api_token']
+      https_opts[:cert] = conf_options['cert'] if conf_options['cert']
+      https_opts[:skip_verify] = conf_options['skip_verify'] if conf_options['skip_verify']
+    else
+      print_error "Unable to locate saved data service with name '#{db_name}'"
       return
     end
 
     opts[:https_opts] = https_opts unless https_opts.empty?
-    endpoint = "#{protocol}://#{host}:#{port}"
-    remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(endpoint, opts)
-    begin
-      framework.db.register_data_service(remote_data_service)
-      print_line "Registered data service: #{remote_data_service.name}"
-      framework.db.workspace = framework.db.default_workspace
-    rescue => e
-      print_error "There was a problem registering the remote data service: #{e.message}"
-    end
+    opts
   end
 
-  def delete_data_service(service_id)
-    begin
-      data_service = framework.db.delete_data_service(service_id)
-      framework.db.workspace = framework.db.default_workspace
-      data_service
-    rescue => e
-      print_error "Unable to delete data service: #{e.message}"
-    end
-  end
+  def list_saved_data_services
+    conf = Msf::Config.load
+    default = nil
+    tbl = Rex::Text::Table.new({
+                                   'Header'    => 'Data Services',
+                                   'Columns'   => ['current', 'name', 'url', 'default?'],
+                                   'SortIndex' => 1
+                               })
 
-  def set_data_service(service_id)
-    begin
-      data_service = framework.db.set_data_service(service_id)
-      framework.db.workspace = framework.db.default_workspace
-      data_service
-    rescue => e
-      print_error "Unable to set data service: #{e.message}"
-    end
-  end
-
-  def list_data_services()
-    framework.db.get_services_metadata.each {|metadata|
-      out = "id: #{metadata.id}, name: #{metadata.name}"
-      if metadata.active
-        out += " [active]"
+    conf.each_pair do |k,v|
+      if k =~ /#{DB_CONFIG_PATH}/
+        default = v['default_db'] if v['default_db']
+        name = k.split('/').last
+        next if name == 'database' # Data service information is not stored in 'framework/database', just metadata
+        url = v['url']
+        current = ''
+        current = '*' if name == @current_data_service
+        default_output = ''
+        default_output = '*' if name == default
+        line = [current, name, url, default_output]
+        tbl << line
       end
-      print_line out
-    }
+    end
+    print_line
+    print_line tbl.to_s
   end
 
-  def data_service_help
-    print_line "Usage: data_services [ options ] - list data services by default"
-    print_line
-    print_line "OPTIONS:"
-
-    print_line "  -h, --help                    Show this help information."
-    print_line "  -d, --delete <id>             Delete the data service by identifier."
-    print_line "  -s, --set <id>                Set the active data service by identifier."
-    print_line "  -a, --add [ options ] <host>  Add a new data service"
-    print_line "  Add Data Service Options:"
-    print_line "  -p, --port <port>   The port the data service is listening on. Default is 8080."
-    print_line "  -t, --token <token> API Token for MSF web service"
-    print_line "  -s, --ssl           Enable SSL. Required for HTTPS data services."
-    print_line "  -c, --cert          Certificate file matching the server's certificate. Needed when using self-signed SSL cert."
-    print_line "  --skip-verify       Skip validating authenticity of server's certificate. NOT RECOMMENDED."
-    print_line
+  def build_postgres_url
+    conn_params = ActiveRecord::Base.connection_config
+    url = ""
+    url += "#{conn_params[:username]}" if conn_params[:username]
+    url += ":#{conn_params[:password]}" if conn_params[:password]
+    url += "@#{conn_params[:host]}" if conn_params[:host]
+    url += ":#{conn_params[:port]}" if conn_params[:port]
+    url += "/#{conn_params[:database]}" if conn_params[:database]
+    url
   end
 
   def print_msgs(status_msg, error_msg)
