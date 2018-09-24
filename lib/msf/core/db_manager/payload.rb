@@ -16,8 +16,8 @@ module Msf::DBManager::Payload
         return Array.wrap(Mdm::Payload.find(opts[:id]))
       end
 
-      opts.delete(:workspace)
-      return Mdm::Payload.where(opts)
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      return wspace.payloads.where(opts)
     end
   end
 
