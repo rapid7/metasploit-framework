@@ -27,7 +27,7 @@ module PayloadApiDoc
     property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
     property :name, type: :string, description: NAME_DESC
     property :uuid, type: :string, description: UUID_DESC, example: UUID_EXAMPLE
-    property :timestamp, type: :string, description: TIMESTAMP_DESC, example: TIMESTAMP_EXAMPLE
+    property :timestamp, type: :integer, description: TIMESTAMP_DESC, example: TIMESTAMP_EXAMPLE
     property :arch, type: :string, description: ARCH_DESC, example: ARCH_EXAMPLE
     property :platform, type: :string, description: PLATFORM_DESC, example: PLATFORM_EXAMPLE
     property :urls, description: URLS_DESC, example: URLS_EXAMPLE, type: :array do items type: :string end
