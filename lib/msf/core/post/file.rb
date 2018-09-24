@@ -362,14 +362,19 @@ module Msf::Post::File
   end
 
   #
-  # Sets the executable permissions on a remote file
+  # Sets the permissions on a remote file
   #
-  # @param remote [String] Destination file name on the remote filesystem
-  def chmod_x_file(remote)
-    if session.type == "meterpreter" && session.commands.include?('stdapi_fs_chmod')
-      session.fs.file.chmod(remote, 0700)
+  # @param path [String] Path on the remote filesystem
+  # @param mode [Fixnum] Mode as an octal number
+  def chmod(path, mode = 0700)
+    if session.platform == 'windows'
+      raise "`chmod_x_file?' method does not support Windows systems"
+    end
+
+    if session.type == 'meterpreter' && session.commands.include?('stdapi_fs_chmod')
+      session.fs.file.chmod(path, mode)
     else
-      cmd_exec("chmod 700 \"#{remote}\"")
+      cmd_exec("chmod #{mode.to_s(8)} '#{path}'")
     end
   end
 
