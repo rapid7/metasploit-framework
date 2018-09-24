@@ -15,8 +15,6 @@ module PayloadApiDoc
   URLS_DESC = 'The unique, encoded urls used to host this payload. Only applicable for http(s) payloads.'
   URLS_EXAMPLE = ['/bd5c4OlMn0OeQp9AxdvC_Q2EIcdSRvg7gzLdQwU__Mb1WtjGR8C4UbjohhRIgbmBfFFBsNJ-wZMyFZKK33aorc8qfD0xCsmxSEyHaiyjGn0ykbJOlYFF1j1HXShiKiiwbfh_wPf2uqSWk2tnaLAqwuvxPcRuDPF-kdkmDDC2']
   DESCRIPTION_DESC = 'A description of why this payload was created and what it is being used for.'
-  WORKSPACE_ID_DESC = 'The Workspace this payload belongs to.'
-  WORKSPACE_ID_EXAMPLE = 'default'
   RAW_PAYLOAD_DESC = 'A URL pointing to where the binary payload can be downloaded from.'
   RAW_PAYLOAD_HASH_DESC = 'The unique hash value for the generated payload binary.'
   BUILD_OPTS_DESC = 'A hash containing various options used to build this payload.'
@@ -24,6 +22,7 @@ module PayloadApiDoc
 # Swagger documentation for payloads model
   swagger_schema :Payload do
     key :required, [:ntype]
+    property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_EXAMPLE
     property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
     property :name, type: :string, description: NAME_DESC
     property :uuid, type: :string, description: UUID_DESC, example: UUID_EXAMPLE
@@ -32,7 +31,6 @@ module PayloadApiDoc
     property :platform, type: :string, description: PLATFORM_DESC, example: PLATFORM_EXAMPLE
     property :urls, description: URLS_DESC, example: URLS_EXAMPLE, type: :array do items type: :string end
     property :description, type: :string, description: DESCRIPTION_DESC
-    property :workspace_id, type: :string, description: WORKSPACE_ID_DESC, example: WORKSPACE_ID_EXAMPLE
     property :raw_payload, type: :string, description: RAW_PAYLOAD_DESC
     property :raw_payload_hash, type: :string, description: RAW_PAYLOAD_HASH_DESC
     property :build_opts, type: :string, description: BUILD_OPTS_DESC
