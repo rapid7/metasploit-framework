@@ -25,9 +25,6 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://nbulischeck.github.io/apple-safari-crash'],
         ],
         'DisclosureDate' => "Sep 15 2018",
-        'Actions'        => [[ 'WebServer' ]],
-        'PassiveActions' => [ 'WebServer' ],
-        'DefaultAction'  => 'WebServer'
       )
     )
   end
@@ -36,8 +33,8 @@ class MetasploitModule < Msf::Auxiliary
     exploit
   end
 
-  def on_request_uri(cli, _request)
-    print_status('Sending response')
+  def on_request_uri(cli, request)
+    print_status("#{cli.peerhost}: Sending response to User-Agent: #{request['User-Agent']}")
     html = %|
 <html>
  <head>
