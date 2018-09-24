@@ -366,7 +366,7 @@ module Msf::Post::File
   #
   # @param remote [String] Destination file name on the remote filesystem
   def chmod_x_file(remote)
-    if session.type == "meterpreter" and session.commands.include?('stdapi_fs_chmod')
+    if session.type == "meterpreter" && session.commands.include?('stdapi_fs_chmod')
       session.fs.file.chmod(remote, 0700)
     else
       cmd_exec("chmod 700 \"#{remote}\"")
