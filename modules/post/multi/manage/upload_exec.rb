@@ -31,7 +31,8 @@ class MetasploitModule < Msf::Post
       # Don't use cmd.exe /c start so we can fetch output
       cmd = rpath
     else
-      chmod_x_file(rpath)
+      # Set 700 so only we can execute the file
+      chmod(rpath, 0700)
 
       # Handle absolute paths
       cmd = rpath.start_with?('/') ? rpath : "./#{rpath}"
