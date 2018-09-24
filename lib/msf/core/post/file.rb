@@ -368,7 +368,7 @@ module Msf::Post::File
   # @param mode [Fixnum] Mode as an octal number
   def chmod(path, mode = 0700)
     if session.platform == 'windows'
-      raise "`chmod_x_file?' method does not support Windows systems"
+      raise "`chmod' method does not support Windows systems"
     end
 
     if session.type == 'meterpreter' && session.commands.include?('stdapi_fs_chmod')
