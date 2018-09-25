@@ -1,5 +1,5 @@
 # Description
-This is a module for exploitation an anon directory traversal vulnerability at SAP NetWeaver Application Server Java in Redwood module. The vulnerability active exploited from Chines hackers in the wild in 2017.
+This is a module for exploitation an anon directory traversal vulnerability in SAP NetWeaver Application Server Java in Redwood module. The vulnerability was active exploited from Chines hackers in the wild in 2017.
 
 
 # Verification Steps
