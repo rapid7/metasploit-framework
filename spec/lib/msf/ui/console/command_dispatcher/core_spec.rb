@@ -89,6 +89,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
     # always assume set variables validate (largely irrelevant because ours are random)
     allow(driver).to receive(:on_variable_set).and_return(true)
 
+    double = double('framework')
+    allow(double).to receive(:get).and_return(nil)
+    allow(double).to receive(:sessions).and_return([])
+    allow_any_instance_of(Msf::Post).to receive(:framework).and_return(double)
+
     # Test for setting uncomplete option
     output = core.cmd_set_tabs(option, ["set"])
     expect(output).to be_kind_of(Array).or eq(nil)
