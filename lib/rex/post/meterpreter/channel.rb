@@ -140,6 +140,7 @@ class Channel
     self.cid    = cid
     self.type   = type
     self.flags  = flags
+    @mutex  = Mutex.new
 
     # Add this instance to the list
     if (cid and client)
@@ -306,6 +307,13 @@ class Channel
 
   def _close(addends = nil)
     # let the finalizer do the work behind the scenes
+    @mutex.synchronize {
+      unless self.cid.nil?
+        ObjectSpace.undefine_finalizer(self)
+        self.class._close(self.client, self.cid, addends)
+        self.cid = nil
+      end
+    }
   end
   #
   # Enables or disables interactive mode.
@@ -370,8 +378,10 @@ class Channel
   # Stub close handler.
   #
   def dio_close_handler(packet)
-    cid = self.cid
-    self.cid = nil
+    @mutex.synchronize {
+      cid = self.cid
+      self.cid = nil
+    }
     client.remove_channel(cid)
 
     # Trap IOErrors as parts of the channel may have already been closed
