@@ -27,7 +27,15 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def git?
-    File.directory?(File.join(Msf::Config.install_root, ".git")) && Msf::Util::Helper.which("git")
+    unless Msf::Util::Helper.which("git")
+      print_error "'git' is not found."
+      return false
+    end
+
+    unless File.directory?(File.join(Msf::Config.install_root, ".git"))
+      print_error "Framework installation is not a git repository. \n    Did you install using a nightly installer or package manager?"
+      return false
+    end
   end
 
   def local_editor
@@ -57,12 +65,14 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
   def reload_diff_files
     unless git?
-      print_error 'No git repository found.'
       return
     end
-    files = %x(git diff --name-only).split("\n")
-    files.each do | file |
-      reload_file(file)
+    output, status = Open3.capture2e *%w(git diff --name-only)
+    if status.success?
+      files = output.split("\n")
+      files.each { |file| reload_file(file) }
+    else
+      print_error output
     end
   end
 
