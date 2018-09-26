@@ -87,10 +87,10 @@ SCREEN_EFFECTS         = 'screen-effects'
 # Reliability
 #
 
-# The module is expected to work at first attempt
-FIRST_ATTEMPT_SUCCESS = 'first-attempt-success'
+# The module is may fail at first attempt
+FIRST_ATTEMPT_FAIL = 'first-attempt-fail'
 # The module is expected to get a shell every time it fires
-REPEATABLE            = 'repeatable'
+REPEATABLE_SESSION = 'repeatable-session'
 
 module HttpClients
   IE = "MSIE"

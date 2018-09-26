@@ -12,4 +12,8 @@ module Msf::Module::SideEffects
     self.class.side_effects
   end
 
+  def side_effects_to_s
+    side_effects * ', '
+  end
+
 end

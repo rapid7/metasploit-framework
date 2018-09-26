@@ -12,4 +12,8 @@ module Msf::Module::Stability
     self.class.stability
   end
 
+  def stability_to_s
+    stability * ', '
+  end
+
 end

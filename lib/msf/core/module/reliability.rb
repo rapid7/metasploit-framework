@@ -11,4 +11,8 @@ module Msf::Module::Reliability
   def reliability
     self.class.reliability
   end
+
+  def reliability_to_s
+    reliability * ', '
+  end
 end
