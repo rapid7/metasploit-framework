@@ -221,7 +221,12 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def cmd_reload_diff_files
-    files = %x(git diff --name-only).split
+    output = %x(git diff --name-only 2>&1)
+    if output.include?('Not a git repository')
+      print_error 'No git repository found.'
+      return
+    end
+    files = output.split
     files.each do | file |
       reload_file(file)
     end
