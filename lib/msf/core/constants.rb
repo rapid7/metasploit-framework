@@ -49,6 +49,49 @@ RankingName         =
     ExcellentRanking => "excellent"
   }
 
+#
+# Stability traits
+#
+
+# Module does not crash the service
+CRASH_SAFE             = 'crash-safe'
+# Module crashes service, but service restarts.
+CRASH_SERVICE_RESTARTS = 'crash-service-restarts'
+# Module crashes service, and service remains down.
+CRASH_SERVICE_DEAD     = 'crash-service-dead'
+# Module crashes the OS, but OS restarts.
+CRASH_OS_RESTARTS      = 'crash-os-restarts'
+# Module crashes the OS, and OS remains down.
+CRASH_OS_DEAD          = 'crash-os-dead'
+# Module causes a resource (such as a file or data in database) to be unavailable for the service.
+SERVICE_RESOURCE_LOSS  = 'service-resource-loss'
+# Modules causes a resource (such as a file) to be unavailable for the OS.
+OS_RESOURCE_LOSS       = 'os-resource-loss'
+
+#
+# Side-effect traits
+#
+
+# Modules leaves payload or a dropper on the target machine
+PAYLOAD_ON_DISK        = 'payload-on-disk'
+# Module modifies some config file on the target machine
+CONFIG_CHANGES         = 'config-changes'
+# Module leaves attack traces in a log file (Example: SQL injection data found in HTTP log)
+MALICIOUS_INPUT_IN_LOG = 'malicious-input-in-log'
+# Module may cause account lockouts (likely due to brute-forcing)
+LOCKOUTS               = 'lockouts'
+# Module may show something on the screen (Example: a window pops up)
+SCREEN_EFFECTS         = 'screen-effects'
+
+#
+# Reliability
+#
+
+# The module is expected to work at first attempt
+FIRST_ATTEMPT_SUCCESS = 'first-attempt-success'
+# The module is expected to get a shell every time it fires
+REPEATABLE            = 'repeatable'
+
 module HttpClients
   IE = "MSIE"
   FF = "Firefox"

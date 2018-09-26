@@ -51,6 +51,12 @@ class Obj
   attr_reader :default_credential
   # @return [Hash]
   attr_reader :notes
+  # @return [Hash]
+  attr_reader :side_effects
+  # @return [Hash]
+  attr_reader :stability
+  # @return [Hash]
+  attr_reader :reliability
 
   def initialize(module_instance, obj_hash = nil)
     unless obj_hash.nil?
