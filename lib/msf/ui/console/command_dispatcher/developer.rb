@@ -51,6 +51,18 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     load path
   end
 
+  def reload_diff_files
+    output = %x(git diff --name-only 2>&1)
+    if output.include?('Not a git repository')
+      print_error 'No git repository found.'
+      return
+    end
+    files = output.split("\n")
+    files.each do | file |
+      reload_file(file)
+    end
+  end
+
   def cmd_irb_help
     print_line "Usage: irb"
     print_line
@@ -192,10 +204,12 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def cmd_reload_lib_help
-    print_line 'Usage: reload_lib lib/to/reload.rb [...] [diff]'
+    print_line 'Usage: reload_lib lib/to/reload.rb [...]'
     print_line
     print_line 'Reload one or more library files from specified paths.'
-    print_line 'Use the argument \'diff\' to reload all changed files in your current git working tree.'
+    print_line
+    print_line 'OPTIONS:'
+    print_line '   -a, --all    Reload all changed files in your current git working tree.'
   end
 
   #
@@ -205,8 +219,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     if args.empty? || args.include?('-h') || args.include?('--help')
       cmd_reload_lib_help
       return
-    elsif args.include?('diff')
-      cmd_reload_diff_files
+    elsif args.include?('-a') || args.include?('--all')
+      reload_diff_files
       return
     end
 
@@ -218,18 +232,6 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   #
   def cmd_reload_lib_tabs(str, words)
     tab_complete_filenames(str, words)
-  end
-
-  def cmd_reload_diff_files
-    output = %x(git diff --name-only 2>&1)
-    if output.include?('Not a git repository')
-      print_error 'No git repository found.'
-      return
-    end
-    files = output.split
-    files.each do | file |
-      reload_file(file)
-    end
   end
 
   def cmd_log_help
