@@ -192,11 +192,10 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def cmd_reload_lib_help
-    print_line 'Usage: reload_lib lib/to/reload.rb [...]'
-    print_line '       reload_lib diff'
+    print_line 'Usage: reload_lib lib/to/reload.rb [...] [diff]'
     print_line
     print_line 'Reload one or more library files from specified paths.'
-    print_line 'Use \'diff\' to reload all changed files in your current git working tree.'
+    print_line 'Use the argument \'diff\' to reload all changed files in your current git working tree.'
   end
 
   #
