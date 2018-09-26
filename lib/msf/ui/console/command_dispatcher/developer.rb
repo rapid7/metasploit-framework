@@ -26,6 +26,10 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     }
   end
 
+  def git?
+    File.directory?(File.join(Msf::Config.install_root, ".git"))
+  end
+
   def local_editor
     framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
   end
@@ -52,12 +56,11 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def reload_diff_files
-    output = %x(git diff --name-only 2>&1)
-    if output.include?('Not a git repository')
+    unless git?
       print_error 'No git repository found.'
       return
     end
-    files = output.split("\n")
+    files = %x(git diff --name-only).split("\n")
     files.each do | file |
       reload_file(file)
     end
