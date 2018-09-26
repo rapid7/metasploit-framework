@@ -204,27 +204,32 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def cmd_reload_lib_help
-    print_line 'Usage: reload_lib lib/to/reload.rb [...]'
-    print_line
-    print_line 'Reload one or more library files from specified paths.'
-    print_line
-    print_line 'OPTIONS:'
-    print_line '   -a, --all    Reload all changed files in your current git working tree.'
+    cmd_reload_lib '-h'
   end
 
   #
   # Reload one or more library files from specified paths
   #
   def cmd_reload_lib(*args)
-    if args.empty? || args.include?('-h') || args.include?('--help')
-      cmd_reload_lib_help
-      return
-    elsif args.include?('-a') || args.include?('--all')
-      reload_diff_files
-      return
+
+    opts = OptionParser.new do |opts|
+      opts.banner = 'Usage: reload_lib lib/to/reload.rb [...]'
+      opts.separator 'Reload one or more library files from specified paths.'
+      opts.separator ''
+
+      opts.on '-h', '--help', 'Help banner.' do
+        return print(opts.help)
+      end
+
+      opts.on '-a', '--all', 'Reload all changed files in your current git working tree.' do
+        reload_diff_files
+        return
+      end
+
     end
 
-    args.each { |path| reload_file(path) }
+    rest = opts.order(args)
+    rest.each { |path| reload_file(path) }
   end
 
   #
