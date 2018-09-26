@@ -27,7 +27,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def git?
-    File.directory?(File.join(Msf::Config.install_root, ".git"))
+    File.directory?(File.join(Msf::Config.install_root, ".git")) && Msf::Util::Helper.which("git")
   end
 
   def local_editor
