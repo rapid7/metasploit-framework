@@ -36,6 +36,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       print_error "Framework installation is not a git repository. \n    Did you install using a nightly installer or package manager?"
       return false
     end
+
+    true
   end
 
   def local_editor
