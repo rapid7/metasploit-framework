@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
                           ],
       'Notes'          =>
         {
-          'SideEffects' => [ MALICIOUS_INPUT_IN_LOG ]
+          'SideEffects' => [ IOC_IN_LOGS ]
         },
       'DisclosureDate' => 'Aug 13, 2018'
     ))

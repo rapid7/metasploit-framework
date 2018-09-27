@@ -53,19 +53,19 @@ RankingName         =
 # Stability traits
 #
 
-# Module does not crash the service
+# Module should not crash the service
 CRASH_SAFE             = 'crash-safe'
-# Module crashes service, but service restarts.
+# Module may crash the service, but the service restarts.
 CRASH_SERVICE_RESTARTS = 'crash-service-restarts'
-# Module crashes service, and service remains down.
+# Module may crash the service, and the service remains down.
 CRASH_SERVICE_DOWN     = 'crash-service-down'
-# Module crashes the OS, but OS restarts.
+# Module may crash the OS, but the OS restarts.
 CRASH_OS_RESTARTS      = 'crash-os-restarts'
-# Module crashes the OS, and OS remains down.
+# Module may crash the OS, and the OS remains down.
 CRASH_OS_DOWN          = 'crash-os-down'
-# Module causes a resource (such as a file or data in database) to be unavailable for the service.
+# Module may cause a resource (such as a file or data in database) to be unavailable for the service.
 SERVICE_RESOURCE_LOSS  = 'service-resource-loss'
-# Modules causes a resource (such as a file) to be unavailable for the OS.
+# Modules may cause a resource (such as a file) to be unavailable for the OS.
 OS_RESOURCE_LOSS       = 'os-resource-loss'
 
 #
@@ -77,9 +77,9 @@ ARTIFACTS_ON_DISK      = 'artifacts-on-disk'
 # Module modifies some config file on the target machine
 CONFIG_CHANGES         = 'config-changes'
 # Module leaves attack traces in a log file (Example: SQL injection data found in HTTP log)
-MALICIOUS_INPUT_IN_LOG = 'malicious-input-in-log'
+IOC_IN_LOGS            = 'inc-in-logs'
 # Module may cause account lockouts (likely due to brute-forcing)
-LOCKOUTS               = 'lockouts'
+ACCOUNT_LOCKOUTS       = 'account-lockouts'
 # Module may show something on the screen (Example: a window pops up)
 SCREEN_EFFECTS         = 'screen-effects'
 
