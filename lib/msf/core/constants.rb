@@ -73,7 +73,7 @@ OS_RESOURCE_LOSS       = 'os-resource-loss'
 #
 
 # Modules leaves payload or a dropper on the target machine
-PAYLOAD_ON_DISK        = 'payload-on-disk'
+ARTIFACTS_ON_DISK      = 'artifacts-on-disk'
 # Module modifies some config file on the target machine
 CONFIG_CHANGES         = 'config-changes'
 # Module leaves attack traces in a log file (Example: SQL injection data found in HTTP log)
