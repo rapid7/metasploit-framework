@@ -96,11 +96,6 @@ class Obj
 
     @notes = module_instance.notes
 
-    if @name =~ /ms08_059_his2006/
-      require 'pry'
-      pry.binding
-    end
-
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(Encoding::UTF_8)
   end
