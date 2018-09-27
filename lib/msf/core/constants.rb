@@ -77,7 +77,7 @@ ARTIFACTS_ON_DISK      = 'artifacts-on-disk'
 # Module modifies some config file on the target machine
 CONFIG_CHANGES         = 'config-changes'
 # Module leaves signs of a compromise in a log file (Example: SQL injection data found in HTTP log)
-IOC_IN_LOGS            = 'inc-in-logs'
+IOC_IN_LOGS            = 'ioc-in-logs'
 # Module may cause account lockouts (likely due to brute-forcing)
 ACCOUNT_LOCKOUTS       = 'account-lockouts'
 # Module may show something on the screen (Example: a window pops up)
