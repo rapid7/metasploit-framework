@@ -35,15 +35,16 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   # XXX: This will try to reload *any* .rb and break on modules
-  def reload_file(path)
+  # If silent is true, errors will not be printed
+  def reload_file(path, silent=false)
     unless File.exist?(path) && path.end_with?('.rb')
-      print_error("#{path} must exist and be a .rb file")
+      print_error("#{path} must exist and be a .rb file") unless silent
       return
     end
 
     # The file must exist to reach this, so we try our best here
     if path =~ %r{^(?:\./)?modules/}
-      print_error("Reloading Metasploit modules is not supported (try 'reload')")
+      print_error("Reloading Metasploit modules is not supported (try 'reload')") unless silent
       return
     end
 
@@ -52,10 +53,10 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def reload_diff_files
-    output, status = Open3.capture2e *%w(git diff --name-only)
+    output, status = Open3.capture2e *%w(git diff --name-only -- '*.rb' ':!modules')
     if status.success?
       files = output.split("\n")
-      files.each { |file| reload_file(file) }
+      files.each { |file| reload_file(file, true) }
     else
       print_error "Git is not available."
     end
@@ -209,7 +210,6 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   # Reload one or more library files from specified paths
   #
   def cmd_reload_lib(*args)
-
     opts = OptionParser.new do |opts|
       opts.banner = 'Usage: reload_lib lib/to/reload.rb [...]'
       opts.separator 'Reload one or more library files from specified paths.'
