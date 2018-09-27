@@ -215,14 +215,15 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   def cmd_reload_lib(*args)
     opts = OptionParser.new do |opts|
       opts.banner = 'Usage: reload_lib lib/to/reload.rb [...]'
-      opts.separator 'Reload one or more library files from specified paths.'
+      opts.separator 'Reload specified Ruby library files.'
       opts.separator ''
 
       opts.on '-h', '--help', 'Help banner.' do
         return print(opts.help)
       end
 
-      opts.on '-a', '--all', 'Reload all changed files in your current git working tree.' do
+      opts.on '-a', '--all', 'Reload all* changed files in your current git working tree.
+                                     *Excludes modules and non-Ruby files.' do
         reload_diff_files
         return
       end
