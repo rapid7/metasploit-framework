@@ -53,10 +53,13 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def reload_diff_files
-    output, status = Open3.capture2e *%w(git diff --name-only -- '*.rb' ':!modules')
+    output, status = Open3.capture2e(*%w(git diff --name-only *.rb :!modules), chdir: Msf::Config.install_root)
     if status.success?
       files = output.split("\n")
-      files.each { |file| reload_file(file, true) }
+      files.each do |file|
+        f = File.join(Msf::Config.install_root, file)
+        reload_file(f, true)
+      end
     else
       print_error "Git is not available."
     end
