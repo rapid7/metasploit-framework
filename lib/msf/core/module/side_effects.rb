@@ -4,7 +4,7 @@ module Msf::Module::SideEffects
   module ClassMethods
     def side_effects
       instance = self.new
-      instance.notes['SideEffects'] ? instance.notes['SideEffects'] : []
+      instance.notes['SideEffects'] || []
     end
   end
 

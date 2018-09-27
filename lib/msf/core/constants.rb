@@ -58,11 +58,11 @@ CRASH_SAFE             = 'crash-safe'
 # Module crashes service, but service restarts.
 CRASH_SERVICE_RESTARTS = 'crash-service-restarts'
 # Module crashes service, and service remains down.
-CRASH_SERVICE_DEAD     = 'crash-service-dead'
+CRASH_SERVICE_DOWN     = 'crash-service-down'
 # Module crashes the OS, but OS restarts.
 CRASH_OS_RESTARTS      = 'crash-os-restarts'
 # Module crashes the OS, and OS remains down.
-CRASH_OS_DEAD          = 'crash-os-dead'
+CRASH_OS_DOWN          = 'crash-os-down'
 # Module causes a resource (such as a file or data in database) to be unavailable for the service.
 SERVICE_RESOURCE_LOSS  = 'service-resource-loss'
 # Modules causes a resource (such as a file) to be unavailable for the OS.
@@ -87,7 +87,7 @@ SCREEN_EFFECTS         = 'screen-effects'
 # Reliability
 #
 
-# The module is may fail at first attempt
+# The module tends to fail to get a session at first attempt
 FIRST_ATTEMPT_FAIL = 'first-attempt-fail'
 # The module is expected to get a shell every time it fires
 REPEATABLE_SESSION = 'repeatable-session'

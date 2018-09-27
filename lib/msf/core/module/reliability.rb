@@ -4,7 +4,7 @@ module Msf::Module::Reliability
   module ClassMethods
     def reliability
       instance = self.new
-      instance.notes['Reliability'] ? instance.notes['Reliability'] : []
+      instance.notes['Reliability'] || []
     end
   end
 

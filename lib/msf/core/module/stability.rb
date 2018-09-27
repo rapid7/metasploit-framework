@@ -4,7 +4,7 @@ module Msf::Module::Stability
   module ClassMethods
     def stability
       instance = self.new
-      instance.notes['Stability'] ? instance.notes['Stability'] : []
+      instance.notes['Stability'] || []
     end
   end
 
