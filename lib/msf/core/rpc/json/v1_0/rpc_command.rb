@@ -72,7 +72,7 @@ module Msf::RPC::JSON
           elsif params.is_a?(Array)
             return handler.send(method_name, *params)
           else
-            return handler.send(method_name, params)
+            return handler.send(method_name, **params)
           end
         end
       end
@@ -107,9 +107,10 @@ module Msf::RPC::JSON
       end
 
       # Prepare params for use by RPC methods by converting all hashes
-      # to use strings for their names (keys).
-      # @param params [Array, Hash] parameters for the RPC call
-      # @returns [Array, Hash] modified parameters
+      # inside of Arrays to use strings for their names (keys).
+      # @param params [Object] parameters for the RPC call
+      # @returns [Object] If params is an Array all hashes it contains will be
+      # modified; otherwise, the object will simply pass-through.
       def prepare_params(params)
         clean_params = params
         if params.is_a?(Array)
@@ -120,8 +121,6 @@ module Msf::RPC::JSON
               p
             end
           end
-        # elsif params.is_a?(Hash)
-        #   clean_params = stringify_names(params)
         end
 
         clean_params

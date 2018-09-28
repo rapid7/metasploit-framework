@@ -45,7 +45,7 @@ module Msf::RPC::JSON
         elsif params.is_a?(Array)
           return @methods[method].call(*params)
         else
-          return @methods[method].call(params)
+          return @methods[method].call(**params)
         end
       end
     end
