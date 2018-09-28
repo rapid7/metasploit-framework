@@ -40,7 +40,6 @@ module Msf::RPC::JSON
       end
 
       ::Timeout.timeout(@execute_timeout) do
-        params = prepare_params(params)
         if params.nil?
           return @methods[method].call()
         elsif params.is_a?(Array)
@@ -49,36 +48,6 @@ module Msf::RPC::JSON
           return @methods[method].call(params)
         end
       end
-    end
-
-    private
-
-    # Prepare params for use by RPC methods by converting all hashes
-    # to use strings for their names (keys).
-    # @param params [Array, Hash] parameters for the RPC call
-    # @returns [Array, Hash] modified parameters
-    def prepare_params(params)
-      clean_params = params
-      if params.is_a?(Array)
-        clean_params = params.map do |p|
-          if p.is_a?(Hash)
-            stringify_names(p)
-          else
-            p
-          end
-        end
-      elsif params.is_a?(Hash)
-        clean_params = stringify_names(params)
-      end
-
-      clean_params
-    end
-
-    # Stringify the names (keys) in hash.
-    # @param hash [Hash] input hash
-    # @returns [Hash] a new hash with strings for the keys.
-    def stringify_names(hash)
-      JSON.parse(JSON.dump(hash), symbolize_names: false)
     end
   end
 end
