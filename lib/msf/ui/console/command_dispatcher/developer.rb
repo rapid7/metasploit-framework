@@ -244,12 +244,15 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
       opts.on '-a', '--all', 'Reload all* changed files in your current Git working tree.
                                      *Excludes modules and non-Ruby files.' do
-        reload_changed_files
-        return
+        return reload_changed_files
       end
     end
 
+    # The remaining unparsed arguments are files
     files = options.order(args)
+
+    return print(options.help) if files.empty?
+
     files.each { |file| reload_file(file) }
   end
 
