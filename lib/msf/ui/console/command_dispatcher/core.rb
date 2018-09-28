@@ -821,7 +821,7 @@ class Core
     print_line "  print - show all active routes"
     print_line
     print_line "Examples:"
-    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.0 through session 1"
+    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.255 through session 1"
     print_line "    route add 192.168.0.0 255.255.255.0 1"
     print_line "    route add 192.168.0.0/24 1"
     print_line
