@@ -54,10 +54,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     load full_path
   end
 
-  # NOTE: At present, we include *.rb and exclude modules
   def reload_changed_files
     # Using an array avoids shelling out, so we avoid escaping/quoting
-    changed_files = %w[git diff --name-only *.rb :!modules]
+    changed_files = %w[git diff --name-only]
 
     output, status = Open3.capture2e(*changed_files, chdir: Msf::Config.install_root)
 
