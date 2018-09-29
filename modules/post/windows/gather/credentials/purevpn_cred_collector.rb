@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
     locations.compact.uniq!
     return locations
   end
-  
+
   def get_content(locations)
     datfile = 'login.conf'
     begin
