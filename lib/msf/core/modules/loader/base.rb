@@ -503,9 +503,7 @@ class Msf::Modules::Loader::Base
 
   # Returns an Array of names to make a fully qualified module name to
   # wrap the MetasploitModule class so that it doesn't overwrite other
-  # (metasploit) module's classes. Invalid module name characters are
-  # escaped by using 'H*' unpacking and prefixing each code with X so
-  # the code remains a valid module name when it starts with a digit.
+  # (metasploit) module's classes.
   #
   # @param [String] module_full_name The unique canonical name
   #   for the module including type.
@@ -513,7 +511,18 @@ class Msf::Modules::Loader::Base
   #
   # @see namespace_module
   def namespace_module_names(module_full_name)
-    NAMESPACE_MODULE_NAMES + [ "Mod" + module_full_name.unpack("H*").first.downcase ]
+    relative_name = module_full_name.split('/').map(&:capitalize).join('__')
+    NAMESPACE_MODULE_NAMES + [relative_name]
+  end
+
+  # This reverses a namespace module's relative name to a module full name
+  #
+  # @param [String] relative_name The namespace module's relative name
+  # @return [String] The module full name
+  #
+  # @see namespace_module_names
+  def reverse_relative_name(relative_name)
+    relative_name.split('__').map(&:downcase).join('/')
   end
 
   def namespace_module_transaction(module_full_name, options={}, &block)
