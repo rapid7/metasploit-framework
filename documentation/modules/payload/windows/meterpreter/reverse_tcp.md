@@ -261,7 +261,7 @@ meterpreter > getsystem
 **hashdump**
 
 The ```hashdump``` commands allows you to dump the Windows hashes if there are the right privileges.
-For sxample:
+For example:
 
 ```
 meterpreter > hashdump
