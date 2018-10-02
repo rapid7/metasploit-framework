@@ -102,11 +102,9 @@ class MetasploitModule < Msf::Post
       print_error("Error: #{e}")
     else
       print_status(g.to_s)
-      print_status("Google Maps URL:  #{g.google_maps_url}")
+      print_status("Google Maps URL: #{g.google_maps_url}")
     end
-
   end
-
 
   # Run Method for when run command is issued
   def run

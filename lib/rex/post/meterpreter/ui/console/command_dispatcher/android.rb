@@ -590,8 +590,9 @@ class Console::CommandDispatcher::Android
     wlan_list = []
     log.each do |x|
       mac = x['bssid']
+      ssid = x['ssid']
       ss = x['level']
-      wlan_list << [mac, ss.to_s]
+      wlan_list << [mac, ssid, ss.to_s]
     end
 
     if wlan_list.to_s.empty?
@@ -602,7 +603,7 @@ class Console::CommandDispatcher::Android
     g.set_api_key(api_key)
 
     wlan_list.each do |wlan|
-      g.add_wlan(*wlan)
+      g.add_wlan(wlan[0], wlan[2]) # bssid, signalstrength
     end
     begin
       g.fetch!
