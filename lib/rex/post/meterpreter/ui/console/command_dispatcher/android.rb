@@ -385,7 +385,6 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_geolocate(*args)
-
     generate_map = false
     geolocate_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
@@ -423,10 +422,8 @@ class Console::CommandDispatcher::Android
   def cmd_dump_calllog(*args)
     path = "calllog_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_calllog_opts = Rex::Parser::Arguments.new(
-
       '-h' => [ false, 'Help Banner' ],
       '-o' => [ true, 'Output path for call log']
-
     )
 
     dump_calllog_opts.parse(args) do |opt, _idx, val|
@@ -569,6 +566,7 @@ class Console::CommandDispatcher::Android
       '-a' => [ true, 'API key' ],
     )
 
+    api_key = ''
     wlan_geolocate_opts.parse(args) do |opt, _idx, val|
       case opt
       when '-h'
@@ -581,13 +579,19 @@ class Console::CommandDispatcher::Android
       end
     end
 
+    if api_key.blank?
+      print_error("You must enter an api_key")
+      print_error("e.g. wlan_geolocate -a YOUR_API_KEY")
+      print_line(wlan_geolocate_opts.usage)
+      return
+    end
+
     log = client.android.wlan_geolocate
     wlan_list = []
     log.each do |x|
       mac = x['bssid']
-      ssid = x['ssid']
       ss = x['level']
-      wlan_list << [mac, ssid, ss.to_s]
+      wlan_list << [mac, ss.to_s]
     end
 
     if wlan_list.to_s.empty?
@@ -606,7 +610,7 @@ class Console::CommandDispatcher::Android
       print_error("Error: #{e}")
     else
       print_status(g.to_s)
-      print_status("Google Maps URL:  #{g.google_maps_url}")
+      print_status("Google Maps URL: #{g.google_maps_url}")
     end
   end
 
