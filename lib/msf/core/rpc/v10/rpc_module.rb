@@ -456,7 +456,7 @@ class RPC_Module < RPC_Base
 
   # Returns a list of encoding formats.
   #
-  # @return [Array<String>] Encoding foramts.
+  # @return [Array<String>] Encoding formats.
   # @example Here's how you would use this from the client:
   #  rpc.call('module.encode_formats')
   def rpc_encode_formats
