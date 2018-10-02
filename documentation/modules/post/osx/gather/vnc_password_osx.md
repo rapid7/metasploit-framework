@@ -1,4 +1,7 @@
-This module show Apple VNC Password from Mac OS X High Sierra.
+This module shows Apple VNC Password from Mac OS X High Sierra.
+
+The password can be set by visiting:
+System Preferences > Sharing > Screen Sharing > Computer Settings
 
 ## Vulnerable Application
 
