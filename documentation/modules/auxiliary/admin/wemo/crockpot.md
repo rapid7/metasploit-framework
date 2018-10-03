@@ -41,6 +41,7 @@ action => Stop
 msf5 auxiliary(admin/wemo/crockpot) > run
 
 [*] Setting temperature to Off and cook time to 0s
+[+] Cook time set to 0s
 [*] Auxiliary module execution completed
 msf5 auxiliary(admin/wemo/crockpot) >
 ```
