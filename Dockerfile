@@ -1,9 +1,8 @@
-FROM ruby:2.5.1-alpine3.7
+FROM ruby:2.5.1-alpine3.7 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_ARGS="--jobs=8 --without development test coverage"
 ENV APP_HOME /usr/src/metasploit-framework/
-ENV NMAP_PRIVILEGED=""
 ENV BUNDLE_IGNORE_MESSAGES="true"
 WORKDIR $APP_HOME
 
@@ -12,20 +11,7 @@ COPY lib/metasploit/framework/version.rb $APP_HOME/lib/metasploit/framework/vers
 COPY lib/metasploit/framework/rails_version_constraint.rb $APP_HOME/lib/metasploit/framework/rails_version_constraint.rb
 COPY lib/msf/util/helper.rb $APP_HOME/lib/msf/util/helper.rb
 
-RUN apk update && \
-    apk add \
-      bash \
-      sqlite-libs \
-      nmap \
-      nmap-scripts \
-      nmap-nselibs \
-      postgresql-libs \
-      python \
-      python3 \
-      ncurses \
-      libcap \
-      su-exec \
-    && apk add --virtual .ruby-builddeps \
+RUN apk add --no-cache \
       autoconf \
       bison \
       build-base \
@@ -44,14 +30,25 @@ RUN apk update && \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
     && gem update --system \
     && gem install bundler \
-    && bundle install --system $BUNDLER_ARGS \
-    && apk del .ruby-builddeps \
-    && rm -rf /var/cache/apk/*
+    && bundle install --system $BUNDLER_ARGS
 
+COPY . $APP_HOME
+
+FROM ruby:2.5.1-alpine3.7
+LABEL maintainer="Rapid7"
+
+ENV APP_HOME /usr/src/metasploit-framework/
+ENV NMAP_PRIVILEGED=""
+
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+COPY --from=builder $APP_HOME $APP_HOME
+
+RUN chmod -R a+r /usr/local/bundle
+RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs postgresql-libs python python3 ncurses libcap su-exec
+
+WORKDIR $APP_HOME
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
-
-ADD ./ $APP_HOME
 
 # we need this entrypoint to dynamically create a user
 # matching the hosts UID and GID so we can mount something
