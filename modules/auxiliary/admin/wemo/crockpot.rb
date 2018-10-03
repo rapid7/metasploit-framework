@@ -51,11 +51,18 @@ class MetasploitModule < Msf::Auxiliary
     case action.name
     when 'Cook'
       print_status("Cooking on #{datastore['TEMP']} for #{datastore['TIME']}s")
-      send_request_cook(datastore['TEMP'], datastore['TIME'])
+      res = send_request_cook(datastore['TEMP'], datastore['TIME'])
     when 'Stop'
       print_status('Setting temperature to Off and cook time to 0s')
-      send_request_cook('Off', 0)
+      res = send_request_cook('Off', 0)
     end
+
+    unless res && res.code == 200 && (time = res.get_xml_document.at('//time'))
+      print_error("Failed to #{action.name.downcase}, aborting!")
+      return
+    end
+
+    print_good("Cook time set to #{time.text}s")
   end
 
   def send_request_cook(temp, time)
