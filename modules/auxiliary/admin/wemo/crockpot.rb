@@ -5,6 +5,8 @@
 
 class MetasploitModule < Msf::Auxiliary
 
+  HttpFingerprint = {pattern: [/Unspecified, UPnP\/1\.0, Unspecified/]}
+
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -38,13 +40,38 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      OptBool.new('DefangedMode', [true, 'Run in defanged mode', true])
+      OptBool.new('DefangedMode', [true, 'Run in defanged mode', true]),
+      OptBool.new('ForceRun',     [true, 'Override check result', false])
     ])
+  end
+
+  def check
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri'    => '/setup.xml'
+    )
+
+    if res && res.code == 200 && res.headers['X-User-Agent'] == 'redsonic'
+      if res.body.include?('urn:Belkin:device:crockpot:1')
+        vprint_good('Wemo-enabled Crock-Pot detected')
+        return Exploit::CheckCode::Appears
+      end
+
+      vprint_status('Wemo device detected, but it is not a Crock-Pot')
+      return Exploit::CheckCode::Detected
+    end
+
+    Exploit::CheckCode::Safe
   end
 
   def run
     if datastore['DefangedMode']
       print_error('Running in defanged mode')
+      return
+    end
+
+    if (checkcode = check) != Exploit::CheckCode::Appears
+      print_error("#{checkcode[1]} Set ForceRun to override.")
       return
     end
 
