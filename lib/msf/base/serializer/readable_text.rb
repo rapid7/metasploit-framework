@@ -155,6 +155,36 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
+  def self.dump_traits(mod, indent=' ')
+    output = ''
+
+    unless mod.side_effects.empty?
+      output << "Module side effects:\n"
+      mod.side_effects.each { |side_effect|
+        output << indent + side_effect + "\n"
+      }
+      output << "\n"
+    end
+
+    unless mod.stability.empty?
+      output << "Module stability:\n"
+      mod.stability.each { |stability|
+        output << indent + stability + "\n"
+      }
+      output << "\n"
+    end
+
+    unless mod.reliability.empty?
+      output << "Module reliability:\n"
+      mod.reliability.each { |reliability|
+        output << indent + reliability + "\n"
+      }
+      output << "\n"
+    end
+
+    output
+  end
+
   # Dumps information about an exploit module.
   #
   # @param mod [Msf::Exploit] the exploit module.
@@ -178,6 +208,8 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
+
+    output << dump_traits(mod)
 
     # Targets
     output << "Available targets:\n"
@@ -239,6 +271,8 @@ class ReadableText
     }
     output << "\n"
 
+    output << dump_traits(mod)
+
     # Actions
     if mod.action
       output << "Available actions:\n"
@@ -288,6 +322,8 @@ class ReadableText
       output << indent + author.to_s + "\n"
     end
     output << "\n"
+
+    output << dump_traits(mod)
 
     # Compatible session types
     if mod.session_types
@@ -382,6 +418,8 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
+
+    output << dump_traits(mod)
 
     # Description
     output << "Description:\n"
