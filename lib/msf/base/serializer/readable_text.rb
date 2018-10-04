@@ -155,29 +155,8 @@ class ReadableText
     tbl.to_s + "\n"
   end
 
-  # Dumps information about an exploit module.
-  #
-  # @param mod [Msf::Exploit] the exploit module.
-  # @param indent [String] the indentation to use.
-  # @return [String] the string form of the information.
-  def self.dump_exploit_module(mod, indent = '')
-    output  = "\n"
-    output << "       Name: #{mod.name}\n"
-    output << "     Module: #{mod.fullname}\n"
-    output << "   Platform: #{mod.platform_to_s}\n"
-    output << "       Arch: #{mod.arch_to_s}\n"
-    output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
-    output << "    License: #{mod.license}\n"
-    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
-    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
-    output << "\n"
-
-    # Authors
-    output << "Provided by:\n"
-    mod.each_author { |author|
-      output << indent + author.to_s + "\n"
-    }
-    output << "\n"
+  def self.dump_traits(mod, indent=' ')
+    output = ''
 
     unless mod.side_effects.empty?
       output << "Module side effects:\n"
@@ -202,6 +181,35 @@ class ReadableText
       }
       output << "\n"
     end
+
+    output
+  end
+
+  # Dumps information about an exploit module.
+  #
+  # @param mod [Msf::Exploit] the exploit module.
+  # @param indent [String] the indentation to use.
+  # @return [String] the string form of the information.
+  def self.dump_exploit_module(mod, indent = '')
+    output  = "\n"
+    output << "       Name: #{mod.name}\n"
+    output << "     Module: #{mod.fullname}\n"
+    output << "   Platform: #{mod.platform_to_s}\n"
+    output << "       Arch: #{mod.arch_to_s}\n"
+    output << " Privileged: " + (mod.privileged? ? "Yes" : "No") + "\n"
+    output << "    License: #{mod.license}\n"
+    output << "       Rank: #{mod.rank_to_s.capitalize}\n"
+    output << "  Disclosed: #{mod.disclosure_date}\n" if mod.disclosure_date
+    output << "\n"
+
+    # Authors
+    output << "Provided by:\n"
+    mod.each_author { |author|
+      output << indent + author.to_s + "\n"
+    }
+    output << "\n"
+
+    output << dump_traits(mod)
 
     # Targets
     output << "Available targets:\n"
@@ -266,6 +274,8 @@ class ReadableText
     }
     output << "\n"
 
+    output << dump_traits(mod)
+
     # Actions
     if mod.action
       output << "Available actions:\n"
@@ -318,6 +328,8 @@ class ReadableText
       output << indent + author.to_s + "\n"
     end
     output << "\n"
+
+    output << dump_traits(mod)
 
     # Compatible session types
     if mod.session_types
@@ -415,6 +427,8 @@ class ReadableText
       output << indent + author.to_s + "\n"
     }
     output << "\n"
+
+    output << dump_traits(mod)
 
     # Description
     output << "Description:\n"
