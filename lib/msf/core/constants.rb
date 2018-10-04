@@ -80,9 +80,11 @@ CONFIG_CHANGES         = 'config-changes'
 IOC_IN_LOGS            = 'ioc-in-logs'
 # Module may cause account lockouts (likely due to brute-forcing)
 ACCOUNT_LOCKOUTS       = 'account-lockouts'
-# Module may show something on the screen (Example: a window pops up)
+# Module may cause software to show something on the screen (Example: a window pops up)
 SCREEN_EFFECTS         = 'screen-effects'
-# Module may produce physical effects in hardware (Examples: light, sound, or heat)
+# Module may cause software to output audio from the speakers (Example: the app plays music)
+AUDIO_EFFECTS          = 'audio-effects'
+# Module may produce physical effects in hardware (Examples: LED or LCD changes or hardware beeps)
 PHYSICAL_EFFECTS       = 'physical-effects'
 
 #
