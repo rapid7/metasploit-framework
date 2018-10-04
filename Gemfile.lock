@@ -113,7 +113,7 @@ GEM
     backports (3.11.4)
     bcrypt (3.1.12)
     bcrypt_pbkdf (1.0.0)
-    bindata (2.4.3)
+    bindata (2.4.4)
     bit-struct (0.16)
     builder (3.2.3)
     coderay (1.1.2)
