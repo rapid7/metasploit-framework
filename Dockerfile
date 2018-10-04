@@ -30,7 +30,9 @@ RUN apk add --no-cache \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
     && gem update --system \
     && gem install bundler \
-    && bundle install --clean --no-cache --system $BUNDLER_ARGS
+    && bundle install --clean --no-cache --system $BUNDLER_ARGS \
+    # temp fix for https://github.com/bundler/bundler/issues/6680
+    && rm -rf /usr/local/bundle/cache
 
 FROM ruby:2.5.1-alpine3.7
 LABEL maintainer="Rapid7"
