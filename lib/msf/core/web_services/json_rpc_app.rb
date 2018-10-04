@@ -6,7 +6,6 @@ require 'msf/core/rpc'
 require 'msf/core/db_manager/http/authentication'
 require 'msf/core/db_manager/http/servlet_helper'
 require 'msf/core/db_manager/http/servlet/auth_servlet'
-require 'msf/core/db_manager/http/servlet/user_servlet'
 require 'msf/core/web_services/servlet/json_rpc_servlet'
 
 class JsonRpcApp < Sinatra::Base
@@ -15,7 +14,6 @@ class JsonRpcApp < Sinatra::Base
 
   # Servlet registration
   register AuthServlet
-  register UserServlet
   register JsonRpcServlet
 
   set :framework, Msf::Simple::Framework.create({})
