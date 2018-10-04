@@ -30,9 +30,7 @@ RUN apk add --no-cache \
     && echo "gem: --no-ri --no-rdoc" > /etc/gemrc \
     && gem update --system \
     && gem install bundler \
-    && bundle install --system $BUNDLER_ARGS
-
-COPY . $APP_HOME
+    && bundle install --clean --no-cache --system $BUNDLER_ARGS
 
 FROM ruby:2.5.1-alpine3.7
 LABEL maintainer="Rapid7"
@@ -41,7 +39,7 @@ ENV APP_HOME /usr/src/metasploit-framework/
 ENV NMAP_PRIVILEGED=""
 
 COPY --from=builder /usr/local/bundle /usr/local/bundle
-COPY --from=builder $APP_HOME $APP_HOME
+COPY . $APP_HOME
 
 RUN chmod -R a+r /usr/local/bundle
 RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs postgresql-libs python python3 ncurses libcap su-exec
