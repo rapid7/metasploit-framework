@@ -256,6 +256,32 @@ module Msf
         end
 
 
+        # Returns the markdown format for module side effects.
+        #
+        # @param side_effects [Array<String>] Module effects.
+        # @return [String]
+        def normalize_side_effects(side_effects)
+          md_side_effects = side_effects.collect { |s| "* #{s}\n" }.join
+          md_side_effects.empty? ? 'N/A' : md_side_effects
+        end
+
+
+        # Returns the markdown format for module reliability.
+        #
+        # @param reliability [Array<String>] Module reliability.
+        # @return [String]
+        def normalize_reliability(reliability)
+          md_reliability = reliability.collect { |r| "* #{r}\n" }.join
+          md_reliability.empty? ? 'N/A' : md_reliability
+        end
+
+
+        def normalize_stability(stability)
+          md_stability = stability.collect { |s| "* #{s}\n" }.join
+          md_stability.empty? ? 'N/A' : md_stability
+        end
+
+
         # Returns a parsed demo ERB template.
         #
         # @param mod [Msf::Module] Metasploit module.
