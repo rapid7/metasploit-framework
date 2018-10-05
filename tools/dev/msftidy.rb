@@ -242,8 +242,7 @@ class Msftidy
 
   # This check also enforces namespace module name reversibility
   def check_snake_case_filename
-    # TODO: Can we add the __ check to the look{ahead,behind}?
-    if @name !~ /^(?!_)[a-z0-9_]+(?<!_)\.rb$/ || @name.include?('__')
+    if @name !~ /^[a-z0-9]+(?:_[a-z0-9]+)*\.rb$/
       warn('Filenames should be lowercase alphanumeric snake case.')
     end
   end
