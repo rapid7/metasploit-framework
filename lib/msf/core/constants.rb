@@ -82,9 +82,9 @@ IOC_IN_LOGS            = 'ioc-in-logs'
 ACCOUNT_LOCKOUTS       = 'account-lockouts'
 # Module may show something on the screen (Example: a window pops up)
 SCREEN_EFFECTS         = 'screen-effects'
-# Module may output audio from the speakers (Example: the app plays music)
+# Module may cause a noise (Examples: audio output from the speakers or hardware beeps)
 AUDIO_EFFECTS          = 'audio-effects'
-# Module may produce physical effects (Example: the device moves)
+# Module may produce physical effects (Examples: the device makes movement or flashes LEDs)
 PHYSICAL_EFFECTS       = 'physical-effects'
 
 #
