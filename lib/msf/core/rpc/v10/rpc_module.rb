@@ -47,9 +47,12 @@ class RPC_Module < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('module.payloads')
   def rpc_payloads(module_info = nil, arch = nil)
+    module_info_contains_size = false
+
     unless module_info.nil?
       module_info = module_info.strip.split(',').map(&:strip)
       module_info.map!(&:to_sym)
+      module_info_contains_size = module_info.include?(:size)
     end
 
     unless arch.nil?
@@ -62,7 +65,20 @@ class RPC_Module < RPC_Base
       if module_info.nil?
         data << name
       else
-        tmp_mod_info = ::JSON.parse(Msf::Serializer::Json.dump_module(mod.new), symbolize_names: true)
+        module_instance = mod.new
+        if !module_info_contains_size && mod.method_defined?(:generate)
+          # Unless the size field is specified in module_info, modify the generate
+          # method for the module instance in order to skip payload generation when
+          # the size method is called by Msf::Serializer::Json.dump_module, thus
+          # reducing the processing time.
+          class << module_instance
+            def generate
+              ''
+            end
+          end
+        end
+
+        tmp_mod_info = ::JSON.parse(Msf::Serializer::Json.dump_module(module_instance), symbolize_names: true)
         data[name] = tmp_mod_info.select { |k,v| module_info.include?(k) }
       end
     end
