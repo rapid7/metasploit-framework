@@ -31,14 +31,16 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     framework.datastore['LocalEditor'] ||
     Rex::Compat.getenv('VISUAL')       ||
     Rex::Compat.getenv('EDITOR')       ||
-    Msf::Util::Helper.which('vim')
+    Msf::Util::Helper.which('vim')     ||
+    Msf::Util::Helper.which('vi')
   end
 
   def local_pager
     framework.datastore['LocalPager'] ||
     Rex::Compat.getenv('PAGER')       ||
     Rex::Compat.getenv('MANPAGER')    ||
-    Msf::Util::Helper.which('less')
+    Msf::Util::Helper.which('less')   ||
+    Msf::Util::Helper.which('more')
   end
 
   # XXX: This will try to reload *any* .rb and break on modules
