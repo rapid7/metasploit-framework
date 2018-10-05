@@ -240,11 +240,11 @@ class Msftidy
     line =~ /^\s*(require|load)\s+['"]#{lib}['"]/
   end
 
+  # This check also enforces namespace module name reversibility
   def check_snake_case_filename
-    sep = File::SEPARATOR
-    good_name = Regexp.new "^[a-z0-9_#{sep}]+\.rb$"
-    unless @name =~ good_name
-      warn "Filenames should be alphanum and snake case."
+    # TODO: Can we add the __ check to the look{ahead,behind}?
+    if @name !~ /^(?!_)[a-z0-9_]+(?<!_)\.rb$/ || @name.include?('__')
+      warn('Filenames should be lowercase alphanumeric snake case.')
     end
   end
 
