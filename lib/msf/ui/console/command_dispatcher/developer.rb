@@ -28,11 +28,19 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   end
 
   def local_editor
-    framework.datastore['LocalEditor'] || Rex::Compat.getenv('VISUAL') || Rex::Compat.getenv('EDITOR')
+    framework.datastore['LocalEditor'] ||
+    Rex::Compat.getenv('VISUAL')       ||
+    Rex::Compat.getenv('EDITOR')       ||
+    Msf::Util::Helper.which('vim')     ||
+    Msf::Util::Helper.which('vi')
   end
 
   def local_pager
-    framework.datastore['LocalPager'] || Rex::Compat.getenv('PAGER') || Rex::Compat.getenv('MANPAGER')
+    framework.datastore['LocalPager'] ||
+    Rex::Compat.getenv('PAGER')       ||
+    Rex::Compat.getenv('MANPAGER')    ||
+    Msf::Util::Helper.which('less')   ||
+    Msf::Util::Helper.which('more')
   end
 
   # XXX: This will try to reload *any* .rb and break on modules
@@ -199,7 +207,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     editor = local_editor
 
     unless editor
-      editor = 'vim'
+      # ed(1) is the standard editor
+      editor = 'ed'
       print_warning("LocalEditor or $VISUAL/$EDITOR should be set. Falling back on #{editor}.")
     end
 
@@ -283,7 +292,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     pager = local_pager.to_s.include?('less') ? "#{local_pager} +G" : local_pager
 
     unless pager
-      pager = 'tail -n 24'
+      pager = 'tail -n 50'
       print_warning("LocalPager or $PAGER/$MANPAGER should be set. Falling back on #{pager}.")
     end
 
