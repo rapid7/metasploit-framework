@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
         pcap.setfilter(getfilter(shost, sport, dhost, dport))
 
         # Add the delay based on JITTER and DELAY if needs be
-        add_delay_jitter(delay_value,jitter_value)
+        add_delay_jitter(delay_value, jitter_value)
 
         begin
           probe = buildprobe(shost, sport, dhost, dport)
