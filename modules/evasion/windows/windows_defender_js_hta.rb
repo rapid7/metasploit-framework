@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Evasion
             'Filename for the evasive file (default: random)',
             "#{Rex::Text.rand_text_alpha(3..10)}.hta"
           ])
-    ], self.class)
+    ])
   end
 
   def run
