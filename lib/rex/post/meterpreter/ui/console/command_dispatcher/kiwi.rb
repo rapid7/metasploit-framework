@@ -37,13 +37,12 @@ class Console::CommandDispatcher::Kiwi
   def initialize(shell)
     super
     print_line
-    print_line
-    print_line("  .#####.   mimikatz 2.1.1 20180820 (#{client.session_type})")
+    print_line("  .#####.   mimikatz 2.1.1 20180925 (#{client.session_type})")
     print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
-    print_line(" ## / \\ ##  /* * *")
-    print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
-    print_line(" '## v ##'   http://blog.gentilkiwi.com/mimikatz             (oe.eo)")
-    print_line("  '#####'    Ported to Metasploit by OJ Reeves `TheColonial` * * */")
+    print_line(" ## / \\ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
+    print_line(" ## \\ / ##       > http://blog.gentilkiwi.com/mimikatz")
+    print_line(" '## v ##'        Vincent LE TOUX            ( vincent.letoux@gmail.com )")
+    print_line("  '#####'         > http://pingcastle.com / http://mysmartlogon.com  ***/")
     print_line
 
     si = client.sys.config.sysinfo

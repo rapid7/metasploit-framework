@@ -144,6 +144,8 @@ class Msf::Modules::External::Shim
   # ensure that they are properly capitalized before rendering.
   #
   def self.transform_notes(notes)
+    return {} unless notes
+
     notes.reduce({}) do |acc, (key, val)|
       acc[key.upcase] = val
       acc

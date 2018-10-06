@@ -39,6 +39,9 @@ class Module
   autoload :Type, 'msf/core/module/type'
   autoload :UI, 'msf/core/module/ui'
   autoload :UUID, 'msf/core/module/uuid'
+  autoload :SideEffects, 'msf/core/module/side_effects'
+  autoload :Stability, 'msf/core/module/stability'
+  autoload :Reliability, 'msf/core/module/reliability'
 
   include Msf::Module::Arch
   include Msf::Module::Auth
@@ -56,6 +59,9 @@ class Module
   include Msf::Module::Type
   include Msf::Module::UI
   include Msf::Module::UUID
+  include Msf::Module::SideEffects
+  include Msf::Module::Stability
+  include Msf::Module::Reliability
 
   # The key where a comma-separated list of Ruby module names will live in the
   # datastore, consumed by #replicant to allow clean override of MSF module methods.

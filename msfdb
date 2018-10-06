@@ -12,6 +12,17 @@ require 'sysrandom/securerandom'
 require 'uri'
 require 'yaml'
 
+msfbase = __FILE__
+while File.symlink?(msfbase)
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+require 'msf/util/helper'
+
+
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
 
@@ -906,12 +917,37 @@ def invoke_command(commands, component, command)
   end
 end
 
+def has_requirements
+  ret_val = true
+  postgresql_cmds = %w(psql pg_ctl initdb createdb)
+  other_cmds = %w(bundle thin)
+  missing_msg = 'Missing requirement: %<name>s does not appear to be installed or is not in the environment path'
+
+  unless postgresql_cmds.all? { |cmd| !Msf::Util::Helper.which(cmd).nil? }
+    puts missing_msg % { name: 'PostgreSQL' }
+    ret_val = false
+  end
+
+  other_cmds.each do |cmd|
+    if Msf::Util::Helper.which(cmd).nil?
+      puts missing_msg % { name: "'#{cmd}'" }
+      ret_val = false
+    end
+  end
+
+  ret_val
+end
+
 
 
 if $PROGRAM_NAME == __FILE__
   # Bomb out if we're root
   if !Gem.win_platform? && Process.uid.zero?
     puts "Please run #{@script_name} as a non-root user"
+    abort
+  end
+
+  unless has_requirements
     abort
   end
 

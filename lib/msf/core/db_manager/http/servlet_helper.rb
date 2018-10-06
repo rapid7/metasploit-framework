@@ -19,6 +19,11 @@ module ServletHelper
     set_json_data_response(response: '')
   end
 
+  def set_raw_response(data, code: 200)
+    headers = { 'Content-Type' => 'application/json' }
+    [code, headers, data]
+  end
+
   def set_json_response(data, includes = nil, code = 200)
     headers = { 'Content-Type' => 'application/json' }
     [code, headers, to_json(data, includes)]

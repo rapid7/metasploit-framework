@@ -40,10 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'DisclosureDate' => 'Sep 24 2014',
       'License' => MSF_LICENSE,
-      'Notes' =>
-          {
-            'AKA' => ['Shellshock']
-          }
+      'Notes' => {'AKA' => ['Shellshock']}
     ))
 
     register_options([

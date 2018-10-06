@@ -454,6 +454,7 @@ module DispatcherShell
             found = true
           end
         rescue ::Interrupt
+          found = true
           print_error("#{method}: Interrupted")
           raise if propagate_errors
         rescue OptionParser::ParseError => e

