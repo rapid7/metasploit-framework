@@ -165,21 +165,3 @@ func Run(metadata *Metadata, callback RunCallback) {
 		rpc_send(res)
 	}
 }
-/*
-	//type RunCallback func(struct) string
-    def run(metadata, callback, soft_check: nil)
-      elsif req[:method] == 'run'
-        cb = callback
-      end
-
-      if cb
-        ret = cb.call req[:params]
-        rpc_send({
-          jsonrpc: '2.0', id: req[:id], result: {
-            message: 'Module completed',
-            'return' => ret
-          }
-        })
-      end
-*/
-//}
