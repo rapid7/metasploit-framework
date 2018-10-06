@@ -12,6 +12,8 @@ class MetasploitModule < Msf::Evasion
         This module will generate an HTA file that writes and compiles a JScript.NET file
         containing shellcode on the target machine. After compilation, the generated EXE will
         execute the shellcode without interference from Windows Defender.
+
+        It is recommended that you use a payload that uses RC4 or HTTPS for best experience.
       },
       'Author'      =>
         [
