@@ -192,7 +192,6 @@ end
 
 class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
   def self.applies?(module_name)
-    $stderr.puts module_name
     module_name.match? /\.go$/
   end
 
