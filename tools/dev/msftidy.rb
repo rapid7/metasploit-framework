@@ -481,6 +481,7 @@ class Msftidy
     end
 
     prefix_super_map = {
+      'evasion' => /^Msf::Evasion$/,
       'auxiliary' => /^Msf::Auxiliary$/,
       'exploits' => /^Msf::Exploit(?:::Local|::Remote)?$/,
       'encoders' => /^(?:Msf|Rex)::Encoder/,
