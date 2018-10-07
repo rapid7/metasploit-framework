@@ -23,7 +23,7 @@ class Evasion
   def cmd_run(*args)
     opts = {
       'Encoder'    => mod.datastore['ENCODER'],
-      'Payload'    => mod.datastore['PAYLOAD'],
+      'Payload'    => mod.datastore['PAYLOAD'] || Evasion.choose_payload(mod),
       'Nop'        => mod.datastore['NOP'],
       'LocalInput' => driver.input,
       'LocalOutput' => driver.output
@@ -67,7 +67,7 @@ class Evasion
 
   private
 
-  def self.choose_payload(mod, target)
+  def self.choose_payload(mod)
 
     # Choose either the real target or an invalid address
     # This is used to determine the LHOST value
@@ -75,29 +75,24 @@ class Evasion
 
     # A list of preferred payloads in the best-first order
     pref = [
+      'windows/meterpreter/reverse_https',
+      'windows/meterpreter/reverse_tcp_rc4',
       'windows/meterpreter/reverse_tcp',
+      'windows/x64/meterpreter/reverse_https',
+      'windows/x64/meterpreter/reverse_tcp_rc4',
+      'windows/x64/meterpreter/reverse_tcp',
       'linux/x86/meterpreter/reverse_tcp',
       'java/meterpreter/reverse_tcp',
       'php/meterpreter/reverse_tcp',
       'php/meterpreter_reverse_tcp',
       'ruby/shell_reverse_tcp',
       'nodejs/shell_reverse_tcp',
-
-      #
-      # The interact payload is a do-nothing stub that hijacks an existing connection
-      #
       'cmd/unix/interact',
-
       'cmd/unix/reverse',
       'cmd/unix/reverse_perl',
       'cmd/unix/reverse_netcat_gaping',
-
-      #
-      # These stubs are used in exploits which provide their own payloads
-      #
       'cmd/unix/reverse_stub',
       'cmd/unix/bind_stub',
-
       'windows/meterpreter/reverse_nonx_tcp',
       'windows/meterpreter/reverse_ord_tcp',
       'windows/shell/reverse_tcp',
