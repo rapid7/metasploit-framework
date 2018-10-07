@@ -18,6 +18,17 @@ class RPC_Module < RPC_Base
   end
 
 
+  # Returns a list of evasion module names. The 'evasion/' prefix will not be included.
+  #
+  # @return [Hash] A list of evasion module names. It contains the following key:
+  #  * 'modules' [Array<string>] Evasion names, for example: ['windows/windows_defender_exe']
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.evasion')
+  def rpc_evasion
+    { "modules" => self.framework.evasion.keys }
+  end
+
+
   # Returns a list of auxiliary module names. The 'auxiliary/' prefix will not be included.
   #
   # @return [Hash] A list of auxiliary module names. It contains the following key:
@@ -220,7 +231,7 @@ class RPC_Module < RPC_Base
       res['references'] << [r.ctx_id, r.ctx_val]
     end
 
-    if m.type == 'exploit'
+    if m.type == 'exploit' || m.type == 'evasion'
       res['targets'] = {}
       m.targets.each_index do |i|
         res['targets'][i] = m.targets[i].name
@@ -304,6 +315,29 @@ class RPC_Module < RPC_Base
     res
   end
 
+  alias :rpc_compatible_exploit_payloads :rpc_compatible_payloads
+
+
+  # Returns the compatible payloads for a specific evasion module.
+  #
+  # @param [String] mname Evasion module name. For example: 'windows/windows_defender_exe'
+  # @raise [Msf::RPC::Exception] Module not found (wrong name).
+  # @return [Hash] The evasion module's compatible payloads. It contains the following key:
+  #  * 'payloads' [Array<String>] A list of payloads.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.compatible_evasion_payloads', 'windows/windows_defender_exe')
+  def rpc_compatible_evasion_payloads(mname)
+    m = _find_module('evasion', mname)
+    res = {}
+    res['payloads'] = []
+
+    m.compatible_payloads.each do |k|
+      res['payloads'] << k[0]
+    end
+
+    res
+  end
+
 
   # Returns the compatible sessions for a specific post module.
   #
@@ -334,6 +368,30 @@ class RPC_Module < RPC_Base
   #  rpc.call('module.target_compatible_payloads', 'windows/smb/ms08_067_netapi', 1)
   def rpc_target_compatible_payloads(mname, target)
     m   = _find_module('exploit',mname)
+    res = {}
+    res['payloads'] = []
+    m.datastore['TARGET'] = target.to_i
+    m.compatible_payloads.each do |k|
+      res['payloads'] << k[0]
+    end
+
+    res
+  end
+
+  alias :rpc_target_compatible_exploit_payloads :rpc_target_compatible_payloads
+
+
+  # Returns the compatible target-specific payloads for an evasion module.
+  #
+  # @param [String] mname Evasion module name. For example: windows/windows_defender_exe
+  # @param [Integer] target A specific target the evasion module provides.
+  # @raise [Msf::RPC::Exception] Module not found (wrong name)
+  # @return [Hash] The evasion module's target-specific payloads. It contains the following key:
+  #  * 'payloads' [Array<String>] A list of payloads.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.target_compatible_evasion_payloads', 'windows/windows_defender_exe')
+  def rpc_target_compatible_evasion_payloads(mname, target)
+    m   = _find_module('evasion',mname)
     res = {}
     res['payloads'] = []
     m.datastore['TARGET'] = target.to_i
@@ -393,6 +451,7 @@ class RPC_Module < RPC_Base
   #                       * auxiliary
   #                       * post
   #                       * payload
+  #                       * evasion
   # @param [String] mname Module name. For example: 'windows/smb/ms08_067_netapi'.
   # @param [Hash] opts Options for the module (such as datastore options).
   # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
@@ -418,6 +477,8 @@ class RPC_Module < RPC_Base
         _run_payload(mod, opts)
       when 'post'
         _run_post(mod, opts)
+      when 'evasion'
+        _run_evasion(mod, opts)
     end
 
   end
@@ -588,7 +649,7 @@ private
 
   def _find_module(mtype,mname)
 
-    if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post)\//
+    if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post|evasion)\//
       mname = mtype + "/" + mname
     end
 
@@ -631,6 +692,20 @@ private
     {
       "job_id" => mod.job_id,
       "uuid" => mod.uuid
+    }
+  end
+
+  def _run_evasion(mod, opts)
+    Msf::Simple::Evasion.run_simple(mod, {
+      'Payload'  => opts['PAYLOAD'],
+      'Target'   => opts['TARGET'],
+      'RunAsJob' => true,
+      'Options'  => opts
+    })
+
+    {
+      'job_id' => mod.job_id,
+      'uuid'   => mod.uuid
     }
   end
 
