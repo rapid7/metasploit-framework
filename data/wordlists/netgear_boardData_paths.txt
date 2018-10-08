@@ -1,0 +1,5 @@
+boardData102.php
+boardData103.php
+boardDataJP.php
+boardDataNA.php
+boardDataWW.php
