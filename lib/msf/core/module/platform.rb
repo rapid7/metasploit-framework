@@ -191,10 +191,22 @@ class Msf::Module::Platform
   ##
 
   #
+  # Unknown
+  #
+  # This is a special case for when we're completely unsure of the
+  # platform, such as a crash or default case in code.  Only
+  # utilize this as a catch-all.
+  #
+  class Unknown < Msf::Module::Platform
+    Rank = 0 # safeguard with 0 since the platform is completely unknown
+    Alias = "unknown"
+  end
+
+  #
   # Windows
   #
   class Windows < Msf::Module::Platform
-    Rank  = 100
+    Rank = 100
     # Windows 95
     class W95 < Windows
       Rank = 100
@@ -574,17 +586,6 @@ class Msf::Module::Platform
   class Apple_iOS < Msf::Module::Platform
     Rank = 100
     Alias = "apple_ios"
-  end
-
-  #
-  # Unknown
-  # This is a special case for when we're completely unsure of the
-  # platform, such as a crash or default case in code.  Only
-  # utilize this as a catch-all.
-  #
-  class Unknown < Msf::Module::Platform
-    Rank = 0 # safeguard with 0 since the platform is completely unknown
-    Alias = "unknown"
   end
 
 end

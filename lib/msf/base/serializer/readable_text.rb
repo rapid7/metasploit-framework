@@ -768,9 +768,8 @@ class ReadableText
       sess_checkin = "<none>"
       sess_registration = "No"
 
-      # to_s is required incase something bugged earlier and .platform is nil
-      if session.respond_to?(:platform) && !session.platform.nil?
-        sess_type << " " + session.platform.to_s
+      if session.respond_to?(:platform) && session.platform
+        sess_type << " #{session.platform}"
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin

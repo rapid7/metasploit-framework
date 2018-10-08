@@ -165,7 +165,7 @@ module Metasploit
             'aix'
           when /Win32|Windows/
             'windows'
-          when /Unknown command or computer name/, /Line has invalid autocommand/
+          when /Unknown command or computer name|Line has invalid autocommand/
             'cisco-ios'
           when /unknown keyword/ # ScreenOS
             'juniper'
