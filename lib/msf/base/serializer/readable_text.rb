@@ -769,7 +769,7 @@ class ReadableText
       sess_registration = "No"
 
       # to_s is required incase something bugged earlier and .platform is nil
-      if session.respond_to?(:platform)
+      if session.respond_to?(:platform) && !session.platform.nil?
         sess_type << " " + session.platform.to_s
       end
 
