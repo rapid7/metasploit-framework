@@ -12,6 +12,17 @@ require 'sysrandom/securerandom'
 require 'uri'
 require 'yaml'
 
+msfbase = __FILE__
+while File.symlink?(msfbase)
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+require 'msf/util/helper'
+
+
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
 
@@ -56,13 +67,13 @@ require 'yaml'
 }
 
 
-def run_cmd(cmd, input = nil)
+def run_cmd(cmd, input: nil, env: {})
   exitstatus = 0
   err = out = ""
 
-  puts "run_cmd: cmd=#{cmd}, input=#{input}" if @options[:debug]
+  puts "run_cmd: cmd=#{cmd}, input=#{input}, env=#{env}" if @options[:debug]
 
-  Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+  Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
     stdin.puts(input) if input
     if @options[:debug]
       err = stderr.read
@@ -216,9 +227,9 @@ def init_db
   run_psql("alter role #{@options[:msf_db_user]} with password '#{@msf_pass}'")
   run_psql("alter role #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
   run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msf_db_user]} -h 127.0.0.1 -U #{@options[:msf_db_user]} -E UTF-8 -T template0 #{@options[:msf_db_name]}",
-          "#{@msf_pass}\n#{@msf_pass}\n")
+          input: "#{@msf_pass}\n#{@msf_pass}\n")
   run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msftest_db_user]} -h 127.0.0.1 -U #{@options[:msftest_db_user]} -E UTF-8 -T template0 #{@options[:msftest_db_name]}",
-          "#{@msftest_pass}\n#{@msftest_pass}\n")
+          input: "#{@msftest_pass}\n#{@msftest_pass}\n")
 
   write_db_client_auth_config
   restart_db
@@ -641,16 +652,41 @@ end
 def output_web_service_information
   puts ''
   puts 'MSF web service configuration complete'
-  puts 'Add the data service in msfconsole using the command:'
-  # build data services command based on install options
-  ds_cmd = "data_services --add --token #{@ws_api_token}"
-  ds_cmd << " --ssl --cert #{@options[:ssl_cert]}" if @options[:ssl]
-  ds_cmd << " --skip-verify" if skip_ssl_verify?
-  ds_cmd << " #{get_web_service_host}"
-  puts "#{ds_cmd}"
+  puts 'Connect to the data service in msfconsole using the command:'
+  puts "#{get_db_connect_command}"
   puts ''
   puts 'The username and password are credentials for the API account:'
   puts "#{get_web_service_uri(path: '/api/v1/auth/account')}"
+  puts ''
+
+  persist_data_service
+end
+
+def persist_data_service
+  if ask_yn('Add data service connection to local msfconsole and persist as default?')
+    data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+    data_service_name = ask_value('Data service connection name?', data_service_name)
+    # execute msfconsole commands to add and persist the data service connection
+    connect_cmd = get_db_connect_command(name: data_service_name)
+    cmd = "msfconsole -qx \"#{connect_cmd}; db_save; exit\""
+    if run_cmd(cmd) != 0
+      # attempt to execute msfconsole in the current working directory
+      if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+        puts 'Failed to run msfconsole and persist the data service connection'
+      end
+    end
+  end
+end
+
+def get_db_connect_command(name: nil)
+  # build db_connect command based on install options
+  connect_cmd = "db_connect"
+  connect_cmd << " --name #{name}" unless name.nil?
+  connect_cmd << " --token #{@ws_api_token}"
+  connect_cmd << " --cert #{@options[:ssl_cert]}" if @options[:ssl]
+  connect_cmd << " --skip-verify" if skip_ssl_verify?
+  connect_cmd << " #{get_web_service_uri}"
+  connect_cmd
 end
 
 def get_web_service_uri(path: nil)
@@ -881,12 +917,37 @@ def invoke_command(commands, component, command)
   end
 end
 
+def has_requirements
+  ret_val = true
+  postgresql_cmds = %w(psql pg_ctl initdb createdb)
+  other_cmds = %w(bundle thin)
+  missing_msg = 'Missing requirement: %<name>s does not appear to be installed or is not in the environment path'
+
+  unless postgresql_cmds.all? { |cmd| !Msf::Util::Helper.which(cmd).nil? }
+    puts missing_msg % { name: 'PostgreSQL' }
+    ret_val = false
+  end
+
+  other_cmds.each do |cmd|
+    if Msf::Util::Helper.which(cmd).nil?
+      puts missing_msg % { name: "'#{cmd}'" }
+      ret_val = false
+    end
+  end
+
+  ret_val
+end
+
 
 
 if $PROGRAM_NAME == __FILE__
   # Bomb out if we're root
   if !Gem.win_platform? && Process.uid.zero?
     puts "Please run #{@script_name} as a non-root user"
+    abort
+  end
+
+  unless has_requirements
     abort
   end
 

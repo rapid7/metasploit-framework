@@ -139,7 +139,7 @@ class Msf::Module::Target
     self.name            = name
     self.opts            = opts
     self.save_registers  = opts['SaveRegisters']
-    self.ret             = opts['Ret'],
+    self.ret             = opts['Ret']
     self.default_options = opts['DefaultOptions']
 
     if opts['Platform']
@@ -217,6 +217,13 @@ class Msf::Module::Target
   #
   def payload_stack_adjustment
     opts['Payload'] ? opts['Payload']['StackAdjustment'] : nil
+  end
+
+  #
+  # Whether NOP generation should be enabled or disabled
+  #
+  def payload_disable_nops
+    opts['Payload'] ? opts['Payload']['DisableNops'] : nil
   end
 
   #

@@ -23,8 +23,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'James Hooker',                    # Disclosure
-          'Rob Carr <rob[at]rastating.com>'  # Metasploit module
+          'James Hooker', # Disclosure
+          'rastating'     # Metasploit module
         ],
       'References'      =>
         [

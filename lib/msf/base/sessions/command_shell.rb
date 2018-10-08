@@ -69,6 +69,13 @@ class CommandShell
     "Command shell"
   end
 
+  #
+  # Calls the class method
+  #
+  def type
+    self.class.type
+  end
+
   ##
   # :category: Msf::Session::Provider::SingleCommandShell implementors
   #
