@@ -30,7 +30,7 @@ Another way to use windows/meterpreter/reverse_tcp is to generate it as an execu
 you would want to do it with msfvenom. If you are old school, you have probably also heard of
 msfpayload and msfencode. msfvenom is a replacement of those.
 
-The following is a basic example of using msfvenom to to generate windows/meterpreter/reverse_tcp
+The following is a basic example of using msfvenom to generate windows/meterpreter/reverse_tcp
 as an executable:
 
 ```
@@ -261,7 +261,7 @@ meterpreter > getsystem
 **hashdump**
 
 The ```hashdump``` commands allows you to dump the Windows hashes if there are the right privileges.
-For sxample:
+For example:
 
 ```
 meterpreter > hashdump

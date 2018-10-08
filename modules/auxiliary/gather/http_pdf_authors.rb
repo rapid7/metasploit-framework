@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('URL_TYPE', [ true, 'The type of URL(s) specified', 'html', [ 'pdf', 'html' ] ]),
         OptBool.new('STORE_LOOT', [ false, 'Store authors in loot', true ])
       ])
-    deregister_options 'RHOST', 'RPORT', 'VHOST'
+    deregister_options 'RHOST', 'RHOSTS', 'RPORT', 'VHOST', 'SSL'
   end
 
   def progress(current, total)

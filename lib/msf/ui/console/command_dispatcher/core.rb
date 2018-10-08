@@ -16,6 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'msf/ui/console/command_dispatcher/evasion'
 require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
@@ -106,6 +107,7 @@ class Core
       "history"    => "Show command history",
       "load"       => "Load a framework plugin",
       "quit"       => "Exit the console",
+      "repeat"     => "Repeat a list of commands",
       "route"      => "Route traffic through a session",
       "save"       => "Saves the active datastores",
       "sessions"   => "Dump session listings and display information about sessions",
@@ -238,12 +240,14 @@ class Core
     version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
     exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
     pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
+    eva         = "#{stats.num_evasion} evasion",
     dev_note    = "** This is Metasploit 5 development branch **"
     padding     = 48
 
     banner << ("       =[ %-#{padding+8}s]\n" % version)
     banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
     banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
     banner << ("+ -- --=[ %-#{padding}s]\n" % dev_note)
 
     if ::Msf::Framework::EICARCorrupted
@@ -820,7 +824,7 @@ class Core
     print_line "  print - show all active routes"
     print_line
     print_line "Examples:"
-    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.0 through session 1"
+    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.255 through session 1"
     print_line "    route add 192.168.0.0 255.255.255.0 1"
     print_line "    route add 192.168.0.0/24 1"
     print_line
@@ -1991,8 +1995,8 @@ class Core
     end
 
     # OptionParser#order allows us to take the rest of the line for the command
-    pattern, *cmd = opts.order(args)
-    cmd = cmd.join(" ")
+    pattern, *rest = opts.order(args)
+    cmd = Shellwords.shelljoin(rest)
     return print(opts.help) if !pattern || cmd.empty?
 
     rx = Regexp.new(pattern, match_mods[:insensitive])
@@ -2016,7 +2020,7 @@ class Core
 
     # Bail if the command failed
     if cmd_output =~ /Unknown command:/
-      print_error("Unknown command: #{args[0]}.")
+      print_error("Unknown command: '#{rest[0]}'.")
       return false
     end
     # put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
@@ -2057,6 +2061,81 @@ class Core
   def cmd_grep_tabs(str, words)
     str = '-' if str.empty? # default to use grep's options
     tabs = cmd_grep '--generate-completions', str
+
+    # if not an opt, use normal tab comp.
+    # @todo uncomment out next line when tab_completion normalization is complete RM7649 or
+    # replace with new code that permits "nested" tab completion
+    # tabs = driver.get_all_commands if (str and str =~ /\w/)
+    tabs
+  end
+
+  def cmd_repeat_help
+    cmd_repeat '-h'
+  end
+
+  #
+  # Repeats (loops) a given list of commands
+  #
+  def cmd_repeat(*args)
+    looper = method :loop
+
+    opts = OptionParser.new do |opts|
+      opts.banner = 'Usage: repeat [OPTIONS] COMMAND...'
+      opts.separator 'Repeat (loop) a ;-separated list of msfconsole commands indefinitely, or for a'
+      opts.separator 'number of iterations or a certain amount of time.'
+      opts.separator ''
+
+      opts.on '-t SECONDS', '--time SECONDS', 'Number of seconds to repeat COMMAND...', Integer do |n|
+        looper = ->(&block) do
+          # While CLOCK_MONOTONIC is a Linux thing, Ruby emulates it for *BSD, MacOS, and Windows
+          ending_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) + n
+          while Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) < ending_time
+            block.call
+          end
+        end
+      end
+
+      opts.on '-n TIMES', '--number TIMES', 'Number of times to repeat COMMAND..', Integer do |n|
+        looper = n.method(:times)
+      end
+
+      opts.on '-h', '--help', 'Help banner.' do
+        return print(opts.help)
+      end
+
+      # Internal use
+      opts.on '--generate-completions str', 'Return possible tab completions for given string.' do |str|
+        return opts.candidate str
+      end
+    end
+
+    cmds = opts.order(args).slice_when do |prev, _|
+      # If the last character of a shellword was a ';' it's probably to
+      # delineate commands and we can remove it
+      prev[-1] == ';' && prev[-1] = ''
+    end.map do |c|
+      Shellwords.shelljoin(c)
+    end
+
+    # Print help if we have no commands, or all the commands are empty
+    return cmd_repeat '-h' if cmds.all? &:empty?
+
+    begin
+      looper.call do
+        cmds.each do |c|
+          driver.run_single c, propagate_errors: true
+        end
+      end
+    rescue ::Exception
+      # Stop looping on exception
+      nil
+    end
+  end
+
+  # Almost the exact same as grep
+  def cmd_repeat_tabs(str, words)
+    str = '-' if str.empty? # default to use repeat's options
+    tabs = cmd_repeat '--generate-completions', str
 
     # if not an opt, use normal tab comp.
     # @todo uncomment out next line when tab_completion normalization is complete RM7649 or
@@ -2225,7 +2304,9 @@ class Core
   # Provide valid session options for the current post-exploit module
   #
   def option_values_sessions
-    active_module.compatible_sessions.map { |sid| sid.to_s }
+    if active_module.respond_to?(:compatible_sessions)
+      active_module.compatible_sessions.map { |sid| sid.to_s }
+    end
   end
 
   #

@@ -32,10 +32,6 @@ class MetasploitModule < Msf::Auxiliary
 
       'License'        => MSF_LICENSE,
       'References'     => [
-        [ 'AKA', 'ETERNALSYNERGY' ],
-        [ 'AKA', 'ETERNALROMANCE' ],
-        [ 'AKA', 'ETERNALCHAMPION' ],
-        [ 'AKA', 'ETERNALBLUE'],  # does not use any CVE from Blue, but Search should show this, it is preferred
         [ 'MSB', 'MS17-010' ],
         [ 'CVE', '2017-0143'], # EternalRomance/EternalSynergy - Type confusion between WriteAndX and Transaction requests
         [ 'CVE', '2017-0146'], # EternalChampion/EternalSynergy - Race condition with Transaction requests
@@ -44,7 +40,16 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://hitcon.org/2017/CMT/slide-files/d2_s2_r0.pdf' ],
         [ 'URL', 'https://blogs.technet.microsoft.com/srd/2017/06/29/eternal-champion-exploit-analysis/' ],
       ],
-      'DisclosureDate' => 'Mar 14 2017'
+      'DisclosureDate' => 'Mar 14 2017',
+      'Notes' =>
+          {
+              'AKA' => [
+                  'ETERNALSYNERGY',
+                  'ETERNALROMANCE',
+                  'ETERNALCHAMPION',
+                  'ETERNALBLUE'      # does not use any CVE from Blue, but Search should show this, it is preferred
+              ]
+          }
     ))
 
     register_options([

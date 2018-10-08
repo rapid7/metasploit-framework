@@ -32,8 +32,7 @@ metadata = {
     'license': 'MSF_LICENSE',
     'references': [
         {'type': 'url', 'ref': 'https://developer.teradata.com/tools/reference/teradata-python-module'},
-        {'type': 'url', 'ref': 'https://downloads.teradata.com/download/connectivity/odbc-driver/linux'},
-        {'type': 'aka', 'ref': 'Teradata ODBC Authentication Scanner'}
+        {'type': 'url', 'ref': 'https://downloads.teradata.com/download/connectivity/odbc-driver/linux'}
     ],
     'type': 'single_scanner',
     'options': {
@@ -42,6 +41,9 @@ metadata = {
         'username': {'type': 'string', 'description': 'Username', 'required': True, 'default': 'dbc'},
         'password': {'type': 'string', 'description': 'Password', 'required': True, 'default': 'dbc'},
         'sql': {'type': 'string', 'description': 'SQL query to perform', 'required': True, 'default': 'SELECT DATABASENAME FROM DBC.DATABASES'},
+    },
+    'notes': {
+        'AKA': ['Teradata ODBC Authentication Scanner']
     }
 }
 

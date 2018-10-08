@@ -143,7 +143,7 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is writable
   #
   def writable?(path)
-    raise "writable?' method does not support Windows systems" if session.platform == 'windows'
+    raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
 
     cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
   end
@@ -359,6 +359,23 @@ module Msf::Post::File
   # @return (see #write_file)
   def upload_file(remote, local)
     write_file(remote, ::File.read(local))
+  end
+
+  #
+  # Sets the permissions on a remote file
+  #
+  # @param path [String] Path on the remote filesystem
+  # @param mode [Fixnum] Mode as an octal number
+  def chmod(path, mode = 0700)
+    if session.platform == 'windows'
+      raise "`chmod' method does not support Windows systems"
+    end
+
+    if session.type == 'meterpreter' && session.commands.include?('stdapi_fs_chmod')
+      session.fs.file.chmod(path, mode)
+    else
+      cmd_exec("chmod #{mode.to_s(8)} '#{path}'")
+    end
   end
 
   #

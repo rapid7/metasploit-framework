@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2014-7862'],
           ['OSVDB', '116554'],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/2'],
+          ['URL', 'https://seclists.org/fulldisclosure/2015/Jan/2'],
           ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_dc9_admin.txt'],
         ],
       'DisclosureDate' => 'Dec 31 2014'))
