@@ -576,4 +576,14 @@ class Msf::Module::Platform
     Alias = "apple_ios"
   end
 
+  #
+  # Unknown
+  # This is a special case for when we're completely unsure of the
+  # platform, such as a crash or default case in code.  Only
+  # utilize this as a catch-all.
+  #
+  class Unknown < Msf::Module::Platform
+    Alias = "unknown"
+  end
+
 end
