@@ -583,6 +583,7 @@ class Msf::Module::Platform
   # utilize this as a catch-all.
   #
   class Unknown < Msf::Module::Platform
+    Rank = 0 # safeguard with 0 since the platform is completely unknown
     Alias = "unknown"
   end
 
