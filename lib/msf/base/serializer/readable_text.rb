@@ -892,8 +892,8 @@ class ReadableText
       sess_checkin = "<none>"
       sess_registration = "No"
 
-      if session.respond_to?(:platform)
-        sess_type << " " + session.platform
+      if session.respond_to?(:platform) && session.platform
+        sess_type << " #{session.platform}"
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin
