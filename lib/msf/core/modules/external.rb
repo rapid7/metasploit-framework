@@ -5,6 +5,7 @@ class Msf::Modules::External
 
   autoload :Bridge, 'msf/core/modules/external/bridge'
   autoload :Message, 'msf/core/modules/external/message'
+  autoload :CLI, 'msf/core/modules/external/cli'
 
   attr_reader :path
 

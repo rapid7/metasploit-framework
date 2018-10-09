@@ -10,6 +10,17 @@ module RootApiDoc
   WORKSPACE_POST_DESC = 'The name of the workspace where this record should be created.'
   WORKSPACE_POST_EXAMPLE = 'default'
   HOST_EXAMPLE = '127.0.0.1'
+  CODE_DESC = 'The error code that was generated.'
+  CODE_EXAMPLE = 500
+  MESSAGE_DESC = 'A message describing the error that occurred.'
+  MESSAGE_EXAMPLE = 'Undefined method \'empty?\' for nil:NilClass'
+  AUTH_CODE_DESC = 'The authentication error code that was generated.'
+  AUTH_CODE_EXAMPLE = 401
+  AUTH_MESSAGE_DESC = 'A message describing the authentication error that occurred.'
+
+  DEFAULT_RESPONSE_200 = 'Successful operation.'
+  DEFAULT_RESPONSE_401 = 'Authenticate to access this resource.'
+  DEFAULT_RESPONSE_500 = 'An error occurred during the operation. See the message for more details.'
 
   swagger_root do
     key :swagger, '2.0'
@@ -25,23 +36,37 @@ module RootApiDoc
     key :consumes, ['application/json']
     key :produces, ['application/json']
 
+    security_definition :api_key do
+      key :type, :apiKey
+      key :name, :Authorization
+      key :in, :header
+    end
+
+    security do
+      key :api_key, []
+    end
+
     #################################
     #
     # Documentation Tags
     #
     #################################
+    tag name: 'auth', description: 'Authorization operations.'
     tag name: 'credential', description: 'Credential operations.'
     tag name: 'db_export', description: 'Endpoint for generating and retrieving a database backup.'
     tag name: 'event', description: 'Event operations.'
     tag name: 'exploit', description: 'Exploit operations.'
     tag name: 'host', description: 'Host operations.'
+    tag name: 'login', description: 'Login operations.'
     tag name: 'loot', description: 'Loot operations.'
+    tag name: 'module', description: 'Module search operations.'
     tag name: 'msf', description: 'Utility operations around Metasploit Framework.'
     tag name: 'nmap', description: 'Nmap operations.'
     tag name: 'note', description: 'Note operations.'
     tag name: 'service', description: 'Service operations.'
     tag name: 'session', description: 'Session operations.'
     tag name: 'session_event', description: 'Session Event operations.'
+    tag name: 'user', description: 'User operations.'
     tag name: 'vuln', description: 'Vuln operations.'
     tag name: 'vuln_attempt', description: 'Vuln Attempt operations.'
     tag name: 'workspace', description: 'Workspace operations.'
@@ -105,4 +130,37 @@ module RootApiDoc
       key :type, :string
     end
   end
+
+  swagger_schema :ErrorModel do
+    key :required, [:message]
+    property :error do
+      property :code do
+        key :type, :int32
+        key :description, CODE_DESC
+        key :example, CODE_EXAMPLE
+      end
+      property :message do
+        key :type, :string
+        key :description, MESSAGE_DESC
+        key :example, MESSAGE_EXAMPLE
+      end
+    end
+  end
+
+  swagger_schema :AuthErrorModel do
+    key :required, [:message]
+    property :error do
+      property :code do
+        key :type, :int32
+        key :description, AUTH_CODE_DESC
+        key :example, AUTH_CODE_EXAMPLE
+      end
+      property :message do
+        key :type, :string
+        key :description, AUTH_MESSAGE_DESC
+        key :example, DEFAULT_RESPONSE_401
+      end
+    end
+  end
+
 end

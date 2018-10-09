@@ -9,43 +9,6 @@ module Msf
 module Auxiliary::Juniper
   include Msf::Auxiliary::Report
 
-  def create_credential_and_login(opts={})
-    return nil unless active_db?
-
-    if self.respond_to?(:[]) and self[:task]
-      opts[:task_id] ||= self[:task].record.id
-    end
-
-    core               = opts.fetch(:core, create_credential(opts))
-    access_level       = opts.fetch(:access_level, nil)
-    last_attempted_at  = opts.fetch(:last_attempted_at, nil)
-    status             = opts.fetch(:status, Metasploit::Model::Login::Status::UNTRIED)
-
-    login_object = nil
-    retry_transaction do
-      service_object = create_credential_service(opts)
-      login_object = Metasploit::Credential::Login.where(core_id: core.id, service_id: service_object.id).first_or_initialize
-
-      if opts[:task_id]
-        login_object.tasks << Mdm::Task.find(opts[:task_id])
-      end
-
-      login_object.access_level      = access_level if access_level
-      login_object.last_attempted_at = last_attempted_at if last_attempted_at
-      if status == Metasploit::Model::Login::Status::UNTRIED
-        if login_object.last_attempted_at.nil?
-          login_object.status = status
-        end
-      else
-        login_object.status = status
-      end
-      login_object.save!
-    end
-
-    login_object
-  end
-  
-
   def juniper_screenos_config_eater(thost, tport, config)
     # this is for the netscreen OS, which came on SSG (ie SSG5) type devices.
     # It is similar to cisco, however it doesn't always put all fields we care
