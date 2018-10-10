@@ -513,8 +513,6 @@ module Msf
                   show_auxiliary
                 when 'post'
                   show_post
-                when 'evasion'
-                  show_evasion
                 when 'info'
                   cmd_info(*args[1, args.length])
                 when 'options'
@@ -539,7 +537,7 @@ module Msf
                   if (mod)
                     show_evasion_options(mod)
                   else
-                    print_error("No module selected.")
+                    show_evasion
                   end
                 when 'sessions'
                   if (active_module and active_module.respond_to?(:compatible_sessions))
@@ -1022,8 +1020,8 @@ module Msf
             end
           end
 
-          def show_evasion(mod)
-            puts "Place holder for show_evasion"
+          def show_evasion(regex = nil, minrank = nil, opts = nil) # :nodoc:
+            show_module_set('evasion', framework.evasion, regex, minrank, opts)
           end
 
           def show_global_options
