@@ -522,7 +522,7 @@ class Msf::Modules::Loader::Base
   # @return [String] The module full name
   #
   # @see namespace_module_names
-  def reverse_relative_name(relative_name)
+  def self.reverse_relative_name(relative_name)
     relative_name.split('__').map(&:downcase).join('/')
   end
 
