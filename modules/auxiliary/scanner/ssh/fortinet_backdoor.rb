@@ -3,12 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-# XXX: This shouldn't be necessary but is now
-require 'net/ssh/command_stream'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SSH
-  include Msf::Exploit::Remote::Fortinet
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Report
@@ -27,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2016-1909'],
         ['EDB', '39224'],
         ['PACKETSTORM', '135225'],
-        ['URL', 'http://seclists.org/fulldisclosure/2016/Jan/26'],
+        ['URL', 'https://seclists.org/fulldisclosure/2016/Jan/26'],
         ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
       ],
       'DisclosureDate' => 'Jan 9 2016',

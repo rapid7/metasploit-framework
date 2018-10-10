@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-1524'],
           ['US-CERT-VU', '777024'],
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear_nms_rce.txt'],
-          ['URL', 'http://seclists.org/fulldisclosure/2016/Feb/30']
+          ['URL', 'https://seclists.org/fulldisclosure/2016/Feb/30']
         ],
       'DisclosureDate' => 'Feb 4 2016'))
 

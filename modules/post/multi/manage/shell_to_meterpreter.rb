@@ -265,8 +265,9 @@ class MetasploitModule < Msf::Post
     framework.threads.spawn('ShellToMeterpreterUpgradeCleanup', false) {
       if !aborted
         timer = 0
-        vprint_status("Waiting up to #{HANDLE_TIMEOUT} seconds for the session to come back")
-        while !framework.jobs[listener_job_id].nil? && timer < HANDLE_TIMEOUT
+        timeout = datastore['HANDLE_TIMEOUT']
+        vprint_status("Waiting up to #{timeout} seconds for the session to come back")
+        while !framework.jobs[listener_job_id].nil? && timer < timeout
           sleep(1)
           timer += 1
         end

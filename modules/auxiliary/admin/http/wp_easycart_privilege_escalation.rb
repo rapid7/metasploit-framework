@@ -22,14 +22,14 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'          =>
         [
-          'Rob Carr <rob[at]rastating.com>' # Discovery and Metasploit module
+          'rastating' # Discovery and Metasploit module
         ],
       'License'         => MSF_LICENSE,
       'References'      =>
         [
           ['CVE', '2015-2673'],
           ['WPVDB', '7808'],
-          ['URL', 'http://blog.rastating.com/wp-easycart-privilege-escalation-information-disclosure']
+          ['URL', 'https://rastating.github.io/wp-easycart-privilege-escalation-information-disclosure/']
         ],
       'DisclosureDate'  => 'Feb 25 2015'
       ))

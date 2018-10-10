@@ -16,6 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'msf/ui/console/command_dispatcher/evasion'
 require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
@@ -106,6 +107,7 @@ class Core
       "history"    => "Show command history",
       "load"       => "Load a framework plugin",
       "quit"       => "Exit the console",
+      "repeat"     => "Repeat a list of commands",
       "route"      => "Route traffic through a session",
       "save"       => "Saves the active datastores",
       "sessions"   => "Dump session listings and display information about sessions",
@@ -160,7 +162,6 @@ class Core
       cmd_color_help
       return
     end
-    driver.update_prompt
   end
 
   #
@@ -239,12 +240,14 @@ class Core
     version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
     exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
     pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
+    eva         = "#{stats.num_evasion} evasion",
     dev_note    = "** This is Metasploit 5 development branch **"
     padding     = 48
 
     banner << ("       =[ %-#{padding+8}s]\n" % version)
     banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
     banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
     banner << ("+ -- --=[ %-#{padding}s]\n" % dev_note)
 
     if ::Msf::Framework::EICARCorrupted
@@ -821,7 +824,7 @@ class Core
     print_line "  print - show all active routes"
     print_line
     print_line "Examples:"
-    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.0 through session 1"
+    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.255 through session 1"
     print_line "    route add 192.168.0.0 255.255.255.0 1"
     print_line "    route add 192.168.0.0/24 1"
     print_line
@@ -1083,19 +1086,10 @@ class Core
       msg = "Spooling to file #{args[0]}..."
     end
 
-    # Restore color and prompt
+    # Restore color
     driver.output.config[:color] = color
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    if active_module
-      # intentionally += and not << because we don't want to modify
-      # datastore or the constant DefaultPrompt
-      prompt += " #{active_module.type}(%bld%red#{active_module.promptname}%clr)"
-    end
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    driver.update_prompt("#{prompt} ", prompt_char, true)
 
     print_status(msg)
-    return
   end
 
   def cmd_sessions_help
@@ -1208,6 +1202,10 @@ class Core
         print_error("Please specify valid session identifier(s)")
         return false
       end
+    end
+
+    if show_inactive && !framework.db.active
+      print_warning("Database not connected; list of inactive sessions unavailable")
     end
 
     last_known_timeout = nil
@@ -1997,44 +1995,32 @@ class Core
     end
 
     # OptionParser#order allows us to take the rest of the line for the command
-    pattern, *cmd = opts.order(args)
-    cmd = cmd.join(" ")
+    pattern, *rest = opts.order(args)
+    cmd = Shellwords.shelljoin(rest)
     return print(opts.help) if !pattern || cmd.empty?
 
     rx = Regexp.new(pattern, match_mods[:insensitive])
 
-    # get a ref to the current console driver
-    orig_driver = self.driver
-    # redirect output after saving the old ones and getting a new output buffer to use for redirect
-    orig_driver_output = orig_driver.output
-    orig_driver_input = orig_driver.input
+    # redirect output after saving the old one and getting a new output buffer to use for redirect
+    orig_output = driver.output
 
     # we use a rex buffer but add a write method to the instance, which is
     # required in order to be valid $stdout
     temp_output = Rex::Ui::Text::Output::Buffer.new
     temp_output.extend Rex::Ui::Text::Output::Buffer::Stdout
 
-    orig_driver.init_ui(orig_driver_input,temp_output)
+    driver.init_ui(driver.input, temp_output)
     # run the desired command to be grepped
-    orig_driver.run_single(cmd)
+    driver.run_single(cmd)
     # restore original output
-    orig_driver.init_ui(orig_driver_input,orig_driver_output)
-    # restore the prompt so we don't get "msf >  >".
-    prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-    prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-    mod = active_module
-    if mod # if there is an active module, give them the fanciness they have come to expect
-      driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
-    else
-      driver.update_prompt("#{prompt} ", prompt_char, true)
-    end
+    driver.init_ui(driver.input, orig_output)
 
     # dump the command's output so we can grep it
     cmd_output = temp_output.dump_buffer
 
     # Bail if the command failed
     if cmd_output =~ /Unknown command:/
-      print_error("Unknown command: #{args[0]}.")
+      print_error("Unknown command: '#{rest[0]}'.")
       return false
     end
     # put lines into an array so we can access them more easily and split('\n') doesn't work on the output obj.
@@ -2075,6 +2061,81 @@ class Core
   def cmd_grep_tabs(str, words)
     str = '-' if str.empty? # default to use grep's options
     tabs = cmd_grep '--generate-completions', str
+
+    # if not an opt, use normal tab comp.
+    # @todo uncomment out next line when tab_completion normalization is complete RM7649 or
+    # replace with new code that permits "nested" tab completion
+    # tabs = driver.get_all_commands if (str and str =~ /\w/)
+    tabs
+  end
+
+  def cmd_repeat_help
+    cmd_repeat '-h'
+  end
+
+  #
+  # Repeats (loops) a given list of commands
+  #
+  def cmd_repeat(*args)
+    looper = method :loop
+
+    opts = OptionParser.new do |opts|
+      opts.banner = 'Usage: repeat [OPTIONS] COMMAND...'
+      opts.separator 'Repeat (loop) a ;-separated list of msfconsole commands indefinitely, or for a'
+      opts.separator 'number of iterations or a certain amount of time.'
+      opts.separator ''
+
+      opts.on '-t SECONDS', '--time SECONDS', 'Number of seconds to repeat COMMAND...', Integer do |n|
+        looper = ->(&block) do
+          # While CLOCK_MONOTONIC is a Linux thing, Ruby emulates it for *BSD, MacOS, and Windows
+          ending_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) + n
+          while Process.clock_gettime(Process::CLOCK_MONOTONIC, :second) < ending_time
+            block.call
+          end
+        end
+      end
+
+      opts.on '-n TIMES', '--number TIMES', 'Number of times to repeat COMMAND..', Integer do |n|
+        looper = n.method(:times)
+      end
+
+      opts.on '-h', '--help', 'Help banner.' do
+        return print(opts.help)
+      end
+
+      # Internal use
+      opts.on '--generate-completions str', 'Return possible tab completions for given string.' do |str|
+        return opts.candidate str
+      end
+    end
+
+    cmds = opts.order(args).slice_when do |prev, _|
+      # If the last character of a shellword was a ';' it's probably to
+      # delineate commands and we can remove it
+      prev[-1] == ';' && prev[-1] = ''
+    end.map do |c|
+      Shellwords.shelljoin(c)
+    end
+
+    # Print help if we have no commands, or all the commands are empty
+    return cmd_repeat '-h' if cmds.all? &:empty?
+
+    begin
+      looper.call do
+        cmds.each do |c|
+          driver.run_single c, propagate_errors: true
+        end
+      end
+    rescue ::Exception
+      # Stop looping on exception
+      nil
+    end
+  end
+
+  # Almost the exact same as grep
+  def cmd_repeat_tabs(str, words)
+    str = '-' if str.empty? # default to use repeat's options
+    tabs = cmd_repeat '--generate-completions', str
 
     # if not an opt, use normal tab comp.
     # @todo uncomment out next line when tab_completion normalization is complete RM7649 or
@@ -2243,7 +2304,9 @@ class Core
   # Provide valid session options for the current post-exploit module
   #
   def option_values_sessions
-    active_module.compatible_sessions.map { |sid| sid.to_s }
+    if active_module.respond_to?(:compatible_sessions)
+      active_module.compatible_sessions.map { |sid| sid.to_s }
+    end
   end
 
   #

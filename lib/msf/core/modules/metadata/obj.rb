@@ -35,6 +35,10 @@ class Obj
   attr_reader :arch
   # @return [Integer]
   attr_reader :rport
+  # @return [Array<Integer>]
+  attr_reader :autofilter_ports
+  # @return [Array<String>]
+  attr_reader :autofilter_services
   # @return [Array<String>]
   attr_reader :targets
   # @return [Time]
@@ -49,6 +53,8 @@ class Obj
   attr_reader :post_auth
   # @return [Boolean]
   attr_reader :default_credential
+  # @return [Hash]
+  attr_reader :notes
 
   def initialize(module_instance, obj_hash = nil)
     unless obj_hash.nil?
@@ -78,6 +84,12 @@ class Obj
     @path               = module_instance.file_path
     @mod_time           = ::File.mtime(@path) rescue Time.now
     @ref_name           = module_instance.refname
+    if module_instance.respond_to?(:autofilter_ports)
+      @autofilter_ports = module_instance.autofilter_ports
+    end
+    if module_instance.respond_to?(:autofilter_services)
+      @autofilter_services = module_instance.autofilter_services
+    end
 
     install_path = Msf::Config.install_root.to_s
     if (@path.to_s.include? (install_path))
@@ -91,6 +103,8 @@ class Obj
 
     # Store whether a module has a check method
     @check = module_instance.respond_to?(:check) ? true : false
+
+    @notes = module_instance.notes
 
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
     force_encoding(Encoding::UTF_8)
@@ -114,6 +128,8 @@ class Obj
       'platform'           => @platform,
       'arch'               => @arch,
       'rport'              => @rport,
+      'autofilter_ports'   => @autofilter_ports,
+      'autofilter_services'=> @autofilter_services,
       'targets'            => @targets,
       'mod_time'           => @mod_time.to_s,
       'path'               => @path,
@@ -121,7 +137,8 @@ class Obj
       'ref_name'           => @ref_name,
       'check'              => @check,
       'post_auth'          => @post_auth,
-      'default_credential' => @default_credential
+      'default_credential' => @default_credential,
+      'notes'              => @notes
     }.to_json(*args)
   end
 
@@ -170,6 +187,7 @@ class Obj
     @check              = obj_hash['check'] ? true : false
     @post_auth          = obj_hash['post_auth']
     @default_credential = obj_hash['default_credential']
+    @notes              = obj_hash['notes'].nil? ? {} : obj_hash['notes']
   end
 
   def sort_platform_string

