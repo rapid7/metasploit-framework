@@ -91,7 +91,7 @@ class RPC_Session < RPC_Base
     s = _valid_session(sid,"shell")
     begin
       res = s.shell_read()
-      { "seq" => 0, "data" => res}
+      { "seq" => 0, "data" => res.to_s}
     rescue ::Exception => e
       error(500, "Session Disconnected: #{e.class} #{e}")
     end
