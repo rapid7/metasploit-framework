@@ -346,7 +346,7 @@ module Msf
               'ref'         => 'Modules with a matching ref',
               'reference'   => 'Modules with a matching reference',
               'target'      => 'Modules affecting this target',
-              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, post, or nop)',
+              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 12}:  #{description}"
             end
