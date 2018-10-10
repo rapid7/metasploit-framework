@@ -44,5 +44,19 @@ class Msf::Payload::MachO
     output_data
   end
 
+  def to_dylib(name)
+    new_lc = MachO::LoadCommands::LoadCommand.create(:LC_ID_DYLIB, "@executable_path/#{name}.dylib", 0, 0, 0)
+    @macho.add_command(new_lc)
+
+    raw_data = @macho.serialize
+    raw_data[12] = MachO::Headers::MH_DYLIB.chr
+    raw_data[36,7] = "__ZERO\x00"
+    raw_data
+  end
+
+  def raw
+    @macho.serialize
+  end
+
 end
 
