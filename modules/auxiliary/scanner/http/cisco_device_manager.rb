@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
 
 
       # Report a vulnerability only if no password was specified
-      if datastore['PASSWORD'].to_s.length == 0
+      if datastore['HttpUsername'].to_s.length == 0
 
         report_vuln(
           {
