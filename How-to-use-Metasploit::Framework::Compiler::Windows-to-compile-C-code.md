@@ -24,7 +24,7 @@ Metasploit::Framework::Compiler::Windows.compile_c_to_file('/tmp/test.exe', c_te
 # DLL Example
 
 ```ruby
-c_template %Q|#include <Windows.h>
+c_template = %Q|#include <Windows.h>
 
 BOOL APIENTRY DllMain __attribute__((export))(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
   switch (dwReason) {
