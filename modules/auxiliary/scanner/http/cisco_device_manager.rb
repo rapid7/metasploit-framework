@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'Cisco Device HTTP Device Manager Access',
       'Description'    => %q{
           This module gathers data from a Cisco device (router or switch) with the device manager
-        web interface exposed. The USERNAME and PASSWORD options can be used to specify
+        web interface exposed. The HttpUsername and HttpPassword options can be used to specify
         authentication.
       },
       'Author'		=> [ 'hdm' ],
@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '444'],
         ],
       'DisclosureDate' => 'Oct 26 2000'))
+    register_options(
+      [
+        OptString.new('HttpUsername', [true, 'The HTTP username to specify for basic authentication', 'cisco']),
+        OptString.new('HttpPassword', [true, 'The HTTP password to specify for basic authentication', 'cisco'])
+      ])
   end
 
   def run_host(ip)
@@ -54,6 +59,32 @@ class MetasploitModule < Msf::Auxiliary
 
     if res and res.body and res.body =~ /Cisco (Internetwork Operating System|IOS) Software/
       print_good("#{rhost}:#{rport} Successfully authenticated to this device")
+      service_data = {
+        address: rhost,
+        port: rport,
+        service_name: 'http',
+        protocol: 'tcp',
+        workspace_id: myworkspace_id
+      }
+
+      credential_data = {
+        module_fullname: self.fullname,
+        origin_type: :service,
+        private_data: datastore['HttpPassword'],
+        private_type: :password,
+        username: datastore['HttpUsername']
+      }
+
+      credential_data.merge!(service_data)
+      credential_core = create_credential(credential_data)
+      login_data = {
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL
+      }
+      login_data.merge!(service_data)
+      create_credential_login(login_data)
+
 
       # Report a vulnerability only if no password was specified
       if datastore['PASSWORD'].to_s.length == 0
