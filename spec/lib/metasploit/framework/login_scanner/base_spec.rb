@@ -29,7 +29,6 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
   }
 
   let(:options) {
-
     {
       connection_timeout: 1,
       cred_details: cred_collection,
@@ -37,7 +36,9 @@ RSpec.describe Metasploit::Framework::LoginScanner::Base do
       port: 4444,
       stop_on_success: true,
       bruteforce_speed: 5,
-
+      password_spray: true,
+      cycle_delay: 1,
+      passwords_per_cycle: 2
     }
   }
 
