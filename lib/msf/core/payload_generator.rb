@@ -316,7 +316,7 @@ module Msf
     def generate_java_payload
       payload_module = framework.payloads.create(payload)
       payload_module.datastore.import_options_from_hash(datastore)
-      case format
+      case format.downcase
       when "raw", "jar"
         if payload_module.respond_to? :generate_jar
           payload_module.generate_jar.pack
@@ -373,7 +373,7 @@ module Msf
       elsif gen_payload.length > @space and not @smallest
         raise PayloadSpaceViolation, 'The payload exceeds the specified space'
       else
-        if format.to_s != 'raw'
+        if format.to_s.downcase != 'raw'
           cli_print "Final size of #{format} file: #{gen_payload.length} bytes"
         end
 

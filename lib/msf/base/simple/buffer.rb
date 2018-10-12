@@ -25,7 +25,7 @@ module Buffer
       buf = encrypt_buffer(buf, encryption_opts)
     end
 
-    case fmt
+    case fmt.downcase
       when 'raw'
       when 'num'
         buf = Rex::Text.to_num(buf)
@@ -69,7 +69,7 @@ module Buffer
   # raw, ruby, python, perl, bash, js_be, js_le, c, and java.
   #
   def self.comment(buf, fmt = "ruby")
-    case fmt
+    case fmt.downcase
       when 'raw'
       when 'num', 'dword', 'dw', 'hex'
         buf = Rex::Text.to_js_comment(buf)
@@ -138,7 +138,7 @@ module Buffer
   def self.encrypt_buffer(value, encryption_opts)
     buf = ''
 
-    case encryption_opts[:format]
+    case encryption_opts[:format].downcase
     when 'aes256'
       if encryption_opts[:iv].blank?
         raise ArgumentError, 'Initialization vector is missing'
