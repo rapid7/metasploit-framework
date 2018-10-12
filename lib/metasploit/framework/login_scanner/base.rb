@@ -45,6 +45,15 @@ module Metasploit
           # @!attribute bruteforce_speed
           #   @return [Integer] The desired speed, with 5 being 'fast' and 0 being 'slow.'
           attr_accessor :bruteforce_speed
+          # @!attribute password_spray
+          #   @return [Bool] Loop over passwords instead of usernames
+          attr_accessor :password_spray
+          # @!attribute passwords_per_cycle
+          #   @return [Integer] Number of passwords to try before the delay
+          attr_accessor :passwords_per_cycle
+          # @!attribute cycle_delay
+          #   @return [Integer] Number of minutes to sleep between cycles
+          attr_accessor :cycle_delay
 
           validates :connection_timeout,
                     presence: true,
@@ -74,6 +83,25 @@ module Metasploit
                       only_integer:             true,
                       greater_than_or_equal_to: 0,
                       less_than_or_equal_to:    5
+                    }
+
+          validates :password_spray,
+                    inclusion: { in: [true, false] }
+
+          validates :passwords_per_cycle,
+                    presence: true,
+                    numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 0,
+                      less_than_or_equal_to:    65535
+                    }
+
+          validates :cycle_delay,
+                    presence: true,
+                    numericality: {
+                      only_integer:             true,
+                      greater_than_or_equal_to: 0,
+                      less_than_or_equal_to:    65535
                     }
 
           validate :host_address_must_be_valid
@@ -139,11 +167,9 @@ module Metasploit
 
           def each_credential
             cred_details.each do |raw_cred|
-
               # This could be a Credential object, or a Credential Core, or an Attempt object
               # so make sure that whatever it is, we end up with a Credential.
               credential = raw_cred.to_credential
-
               if credential.realm.present? && self.class::REALM_KEY.present?
                 # The class's realm_key will always be the right thing for the
                 # service it knows how to login to. Override the credential's
@@ -202,7 +228,33 @@ module Metasploit
             ignored_users = Set.new
             first_attempt = true
 
-            each_credential do |credential|
+            # previous password so we know when a new cycle begins
+            prev_password = nil
+            cycles = 0
+
+            # run through each_credential and put yielded results into array
+            all_creds = []
+            each_credential { |c| all_creds << c }
+
+            # if we're password spraying, sort by password so we can tell when a
+            # new cycle begins
+            all_creds.sort! { |a, b| a.private <=> b.private } if password_spray
+
+            all_creds.each do |credential|
+              if password_spray
+                if !prev_password.nil?
+                  if passwords_per_cycle != 0 && cycle_delay != 0 && credential.private != prev_password
+                    cycles += 1
+                    if cycles % passwords_per_cycle == 0
+                      framework_module.print_status("Sleeping #{cycle_delay} minutes between cycles")
+                      sleep cycle_delay * 60
+                    end
+                  end
+                end
+                # cache current password to check next iteration
+                prev_password = credential.private
+              end
+
               # Skip users for whom we've have already found a password
               if successful_users.include?(credential.public)
                 # For Pro bruteforce Reuse and Guess we need to note that we
