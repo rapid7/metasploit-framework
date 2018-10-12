@@ -41,6 +41,7 @@
   [+] 2.2.2.2:80 MD5 Encrypted Enable Password: $1$TF.y$3E7pZ2szVvQw5JG8SDjNa1
   [+] 2.2.2.2:80 Username 'cisco' with MD5 Encrypted Password: $1$DaqN$iP32E5WcOOui/H66R63QB0
   [+] 2.2.2.2:80 SNMP Community (RO): public
+  [+] 2.2.2.2:80 ePhone Username 'phoneone' with Password: 111111
   [*] Scanned 1 of 1 hosts (100% complete)
   [*] Auxiliary module execution completed
   ```
