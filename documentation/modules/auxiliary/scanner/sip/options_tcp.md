@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
-  SIP is a signaling protocol for voice, and video typically assoicatd with VOIP and typically used in commercial
-  phone systems.  SIP and VOIP are gaining popularity with home and celluar voice/video calling systems as well.
+  SIP is a signaling protocol for voice, and video typically associated with VOIP and typically used in commercial
+  phone systems.  SIP and VOIP are gaining popularity with home and cellular voice/video calling systems as well.
 
   This module scans the TCP port to identify what OPTIONS are available on the SIP service.
 
@@ -9,7 +9,7 @@
 
   1. Start msfconsole
   2. Do: ```use auxiliary/scanner/sip/options_tcp```
-  2. Do: ```set rhosts [ip]```
+  3. Do: ```set rhosts [ip]```
   4. Do: ```run```
 
 ## Scenarios
