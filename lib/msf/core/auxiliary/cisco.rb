@@ -289,10 +289,10 @@ module Auxiliary::Cisco
           spass = $2
           print_good("#{thost}:#{tport} ePhone Username '#{user}' with Password: #{spass}")
           store_loot("cisco.ios.ephone.username_password", "text/plain", thost, "#{user}:#{spass}", "ephone_username_password.txt", "Cisco IOS ephone Username and Password")
-            cred = credential_data.dup
-            cred[:private_data] = spass
-            cred[:private_type] = :nonreplayable_hash
-            create_credential_and_login(cred)
+          cred = credential_data.dup
+          cred[:private_data] = spass
+          cred[:private_type] = :nonreplayable_hash
+          create_credential_and_login(cred)
 
         when /^\s*username ([^\s]+) (secret|password) (\d+) ([^\s]+)/i
           user  = $1
