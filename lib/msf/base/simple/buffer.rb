@@ -18,8 +18,12 @@ module Buffer
   # Serializes a buffer to a provided format.  The formats supported are raw,
   # num, dword, ruby, python, perl, bash, c, js_be, js_le, java and psh
   #
-  def self.transform(buf, fmt = "ruby", var_name = 'buf')
+  def self.transform(buf, fmt = "ruby", var_name = 'buf', encryption_opts={})
     default_wrap = 60
+
+    unless encryption_opts.empty?
+      buf = encrypt_buffer(buf, encryption_opts)
+    end
 
     case fmt
       when 'raw'
@@ -118,6 +122,50 @@ module Buffer
       'vbapplication',
       'vbscript'
     ]
+  end
+
+  def self.encryption_formats
+    [
+      'xor',
+      'base64',
+      'aes256',
+      'rc4'
+    ]
+  end
+
+  private
+
+  def self.encrypt_buffer(value, encryption_opts)
+    buf = ''
+
+    case encryption_opts[:format]
+    when 'aes256'
+      if encryption_opts[:iv].blank?
+        raise ArgumentError, 'Initialization vector is missing'
+      elsif encryption_opts[:key].blank?
+        raise ArgumentError, 'Encryption key is missing'
+      end
+
+      buf = Rex::Crypto.encrypt_aes256(encryption_opts[:iv], encryption_opts[:key], value)
+    when 'base64'
+      buf = Rex::Text.encode_base64(value)
+    when 'xor'
+      if encryption_opts[:key].blank?
+        raise ArgumentError, 'XOR key is missing'
+      end
+
+      buf = Rex::Text.xor(encryption_opts[:key], value)
+    when 'rc4'
+      if encryption_opts[:key].blank?
+        raise ArgumentError, 'Encryption key is missing'
+      end
+
+      buf = Rex::Crypto.rc4(encryption_opts[:key], value)
+    else
+      raise ArgumentError, "Unsupported encryption format: #{encryption_opts[:format]}", caller
+    end
+
+    return buf
   end
 
 end

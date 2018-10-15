@@ -130,11 +130,13 @@ module Payload::Python::MeterpreterLoader
 
     # patch in any optional stageless tcp socket setup
     unless opts[:stageless_tcp_socket_setup].nil?
+      offset_string = ""
+      /(?<offset_string>\s+)# PATCH-SETUP-STAGELESS-TCP-SOCKET #/ =~ met
       socket_setup = opts[:stageless_tcp_socket_setup]
       socket_setup = socket_setup.split("\n")
-      socket_setup.map! {|line| "        #{line}\n"}
+      socket_setup.map! {|line| "#{offset_string}#{line}\n"}
       socket_setup = socket_setup.join
-      met.sub!("        # PATCH-SETUP-STAGELESS-TCP-SOCKET #", socket_setup)
+      met.sub!("#{offset_string}# PATCH-SETUP-STAGELESS-TCP-SOCKET #", socket_setup)
     end
 
     met

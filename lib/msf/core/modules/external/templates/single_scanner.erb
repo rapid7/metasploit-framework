@@ -22,10 +22,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     print_status("Running for #{ip}...")
-    mod = Msf::Modules::External::Bridge.open(<%= meta[:path] %>)
     rhost = datastore.delete('RHOST')
     datastore['rhost'] = rhost
-    mod.run(datastore)
-    wait_status(mod)
+    execute_module(<%= meta[:path] %>)
   end
 end

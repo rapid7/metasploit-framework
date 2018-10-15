@@ -1,5 +1,4 @@
-class Mic
-end# -*- coding: binary -*-
+# -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'bindata'
 

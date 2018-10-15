@@ -136,9 +136,13 @@ class Encoder < Module
     #
     CmdUnixEcho = 'echo'
     #
-    # Bourne shell IFS encoding.
+    # Bourne shell ${IFS} encoding.
     #
-    CmdUnixIfs = 'ifs'
+    CmdUnixIFS = 'ifs'
+    #
+    # Bash brace expansion encoding.
+    #
+    CmdUnixBrace = 'brace'
   end
 
   #

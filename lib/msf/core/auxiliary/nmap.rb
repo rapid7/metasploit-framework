@@ -24,7 +24,7 @@ def initialize(info = {})
   super
 
   register_options([
-    OptAddressRange.new('RHOSTS', [ true, "The target address range or CIDR identifier"]),
+    Opt::RHOSTS,
     OptBool.new('NMAP_VERBOSE', [ false, 'Display nmap output', true]),
     OptString.new('RPORTS', [ false, 'Ports to target']), # RPORT supersedes RPORTS
   ], Auxiliary::Nmap)
@@ -224,7 +224,7 @@ def nmap_validate_arg(str)
   end
   # Check for commas outside of quoted arguments
   quoted_22 = /\x22[^\x22]*\x22/n
-  requoted_str = str.gsub(/'/,"\"")
+  requoted_str = str.tr('\'','"')
   if requoted_str.split(quoted_22).join[/,/]
     print_error "Malformed nmap arguments (unquoted comma): #{str}"
     return false

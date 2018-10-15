@@ -20,15 +20,11 @@ class CommandStream
     channel[:data] = ''
 
     channel.on_eof do
-      self.rsock.close rescue nil
-      self.ssh.close rescue nil
-      self.thread.kill
+      cleanup
     end
 
     channel.on_close do
-      self.rsock.close rescue nil
-      self.ssh.close rescue nil
-      self.thread.kill
+      cleanup
     end
 
     channel.on_data do |ch,data|
@@ -42,7 +38,7 @@ class CommandStream
     self.channel = channel
   end
 
-  def initialize(ssh, cmd = nil, cleanup = true)
+  def initialize(ssh, cmd = nil, cleanup = false)
 
     self.lsock, self.rsock = Rex::Socket.tcp_socket_pair()
     self.lsock.extend(Rex::IO::Stream)
@@ -60,10 +56,10 @@ class CommandStream
         self.lsock.localinfo = "#{info[1]}:#{info[2]}"
 
         rssh.open_channel do |rch|
-          if cmd.nil?
+          if rcmd.nil?
             rch.send_channel_request("shell", &method(:shell_requested))
           else
-            rch.exec(rsh, &method(:shell_requested))
+            rch.exec(rcmd, &method(:shell_requested))
           end
         end
 
@@ -90,7 +86,7 @@ class CommandStream
       end
 
       # Shut down the SSH session if requested
-      if rcleanup
+      if !rcmd.nil? && rcleanup
         rssh.close
       end
     end
@@ -104,6 +100,14 @@ class CommandStream
       raise EOFError if ! self.thread.alive?
       ::IO.select(nil, nil, nil, 0.10)
     end
+  end
+
+  def cleanup
+    self.monitor.kill
+    self.lsock.close rescue nil
+    self.rsock.close rescue nil
+    self.ssh.close rescue nil
+    self.thread.kill
   end
 
 end

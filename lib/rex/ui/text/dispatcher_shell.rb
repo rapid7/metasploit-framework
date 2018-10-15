@@ -20,6 +20,8 @@ module Text
 ###
 module DispatcherShell
 
+  include Resource
+
   ###
   #
   # Empty template base class for command dispatchers.
@@ -129,8 +131,8 @@ module DispatcherShell
     #
     # Wraps shell.update_prompt
     #
-    def update_prompt(prompt=nil, prompt_char = nil, mode = false)
-      shell.update_prompt(prompt, prompt_char, mode)
+    def update_prompt(*args)
+      shell.update_prompt(*args)
     end
 
     def cmd_help_help
@@ -250,6 +252,16 @@ module DispatcherShell
     end
 
     #
+    # Return a list of possible directory for tab completion.
+    #
+    def tab_complete_directory(str, words)
+      str = '.' + ::File::SEPARATOR if str.empty?
+      dirs = Dir.glob(str.concat('*'), File::FNM_CASEFOLD).select { |x| File.directory?(x) }
+
+      dirs
+    end
+
+    #
     # Provide a generic tab completion function based on the specification
     # pass as fmt. The fmt argument in a hash where values are an array
     # defining how the command should be completed. The first element of the
@@ -289,11 +301,9 @@ module DispatcherShell
     def tab_complete_source_address
       addresses = [Rex::Socket.source_address]
       # getifaddrs was introduced in 2.1.2
-      if Socket.respond_to?(:getifaddrs)
-        ifaddrs = Socket.getifaddrs.find_all do |ifaddr|
-          ((ifaddr.flags & Socket::IFF_LOOPBACK) == 0) &&
-            ifaddr.addr &&
-            ifaddr.addr.ip?
+      if ::Socket.respond_to?(:getifaddrs)
+        ifaddrs = ::Socket.getifaddrs.select do |ifaddr|
+          ifaddr.addr && ifaddr.addr.ip?
         end
         addresses += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
       end
@@ -382,7 +392,7 @@ module DispatcherShell
 
     # Verify that our search string is a valid regex
     begin
-      Regexp.compile(str)
+      Regexp.compile(str,Regexp::IGNORECASE)
     rescue RegexpError
       str = Regexp.escape(str)
     end
@@ -392,7 +402,7 @@ module DispatcherShell
 
     # Match based on the partial word
     items.find_all { |e|
-      e =~ /^#{str}/
+      e.downcase.start_with?(str.downcase) || e =~ /^#{str}/i
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |e|
       tab_words.dup.push(e).join(' ')
@@ -419,77 +429,10 @@ module DispatcherShell
     return items
   end
 
-  # Processes a resource script file for the console.
-  #
-  # @param path [String] Path to a resource file to run
-  # @return [void]
-  def load_resource(path)
-    if path == '-'
-      resource_file = $stdin.read
-      path = 'stdin'
-    elsif ::File.exist?(path)
-      resource_file = ::File.read(path)
-    else
-      print_error("Cannot find resource script: #{path}")
-      return
-    end
-
-    # Process ERB directives first
-    print_status "Processing #{path} for ERB directives."
-    erb = ERB.new(resource_file)
-    processed_resource = erb.result(binding)
-
-    lines = processed_resource.each_line.to_a
-    bindings = {}
-    while lines.length > 0
-
-      line = lines.shift
-      break if not line
-      line.strip!
-      next if line.length == 0
-      next if line =~ /^#/
-
-      # Pretty soon, this is going to need an XML parser :)
-      # TODO: case matters for the tag and for binding names
-      if line =~ /<ruby/
-        if line =~ /\s+binding=(?:'(\w+)'|"(\w+)")(>|\s+)/
-          bin = ($~[1] || $~[2])
-          bindings[bin] = binding unless bindings.has_key? bin
-          bin = bindings[bin]
-        else
-          bin = binding
-        end
-        buff = ''
-        while lines.length > 0
-          line = lines.shift
-          break if not line
-          break if line =~ /<\/ruby>/
-          buff << line
-        end
-        if ! buff.empty?
-          session = client
-          framework = client.framework
-
-          print_status("resource (#{path})> Ruby Code (#{buff.length} bytes)")
-          begin
-            eval(buff, bin)
-          rescue ::Interrupt
-            raise $!
-          rescue ::Exception => e
-            print_error("resource (#{path})> Ruby Error: #{e.class} #{e} #{e.backtrace}")
-          end
-        end
-      else
-        print_line("resource (#{path})> #{line}")
-        run_single(line)
-      end
-    end
-  end
-
   #
   # Run a single command line.
   #
-  def run_single(line)
+  def run_single(line, propagate_errors: false)
     arguments = parse_line(line)
     method    = arguments.shift
     found     = false
@@ -510,17 +453,28 @@ module DispatcherShell
             run_command(dispatcher, method, arguments)
             found = true
           end
+        rescue ::Interrupt
+          found = true
+          print_error("#{method}: Interrupted")
+          raise if propagate_errors
+        rescue OptionParser::ParseError => e
+          print_error("#{method}: #{e.message}")
+          raise if propagate_errors
         rescue
           error = $!
 
           print_error(
             "Error while running command #{method}: #{$!}" +
             "\n\nCall stack:\n#{$@.join("\n")}")
-        rescue ::Exception
+
+          raise if propagate_errors
+        rescue ::Exception => e
           error = $!
 
           print_error(
             "Error while running command #{method}: #{$!}")
+
+          raise if propagate_errors
         end
 
         # If the dispatcher stack changed as a result of this command,

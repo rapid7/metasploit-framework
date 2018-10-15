@@ -2,6 +2,11 @@
 require 'builder'
 
 RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Awaiting a port of all components")}
+  end
+
   # Serialized format from pro/modules/auxiliary/pro/report.rb
   def serialize(object)
     # FIXME https://www.pivotaltracker.com/story/show/46578647
@@ -35,7 +40,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   let(:host_attributes) do
-    FactoryGirl.attributes_for(:mdm_host)
+    FactoryBot.attributes_for(:mdm_host)
   end
 
   let(:msf_web_text_element_names) do
@@ -65,15 +70,15 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   let(:service_attributes) do
-    FactoryGirl.attributes_for(:web_service)
+    FactoryBot.attributes_for(:web_service)
   end
 
   let(:web_form_attributes) do
-    FactoryGirl.attributes_for(:mdm_web_form, :exported)
+    FactoryBot.attributes_for(:mdm_web_form, :exported)
   end
 
   let(:web_page_attributes) do
-    FactoryGirl.attributes_for(:mdm_web_page)
+    FactoryBot.attributes_for(:mdm_web_page)
   end
 
   let(:workspace) do
@@ -304,7 +309,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       let(:web_vuln) do
-        FactoryGirl.create(:mdm_web_vuln)
+        FactoryBot.create(:mdm_web_vuln)
       end
 
       before(:example) do
@@ -345,7 +350,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
       context 'without :workspace' do
         let(:workspace) do
-          FactoryGirl.create(:mdm_workspace)
+          FactoryBot.create(:mdm_workspace)
         end
 
         before(:example) do
@@ -831,7 +836,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     end
 
     let(:web_vuln_attributes) do
-      FactoryGirl.attributes_for(:exported_web_vuln)
+      FactoryBot.attributes_for(:exported_web_vuln)
     end
 
     subject(:import_msf_web_vuln_element) do
@@ -1150,7 +1155,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       let(:web_vuln) do
-        FactoryGirl.create(:mdm_web_vuln)
+        FactoryBot.create(:mdm_web_vuln)
       end
 
       it 'should call #import_msf_web_vuln_element' do

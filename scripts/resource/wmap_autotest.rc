@@ -32,7 +32,7 @@ end
 if (framework.plugins.to_s =~ /[Ww]map/)
 	print_line("Wmap plugin already loaded ...")
 else
-	print_line("loading the wmap plugin ...")
+	print_line("Loading the wmap plugin ...")
 	run_single("load wmap")
 end
 
@@ -78,7 +78,7 @@ framework.db.hosts.each do |host|
 		end
 		run_single("wmap_targets -c")
 		print_line("")
-		print_line("finished analysing the webservern on IP #{host.address.to_s}, Port: #{serv.port.to_s}")
+		print_line("Finished analysing the webserver on IP #{host.address.to_s}, Port: #{serv.port.to_s}")
 		print_line("")
 	end
 end

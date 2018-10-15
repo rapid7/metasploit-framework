@@ -28,26 +28,27 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Options for the download command.
   #
   @@download_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ],
-    "-c" => [ false, "Resume getting a partially-downloaded file." ],
-    "-a" => [ false, "Enable adaptive download buffer size." ],
-    "-b" => [ true,  "Set the initial block size for the download." ],
-    "-l" => [ true,  "Set the limit of retries (0 unlimits)." ],
-    "-r" => [ false, "Download recursively." ],
-    "-t" => [ false, "Timestamp downloaded files." ])
+    "-h" => [ false, "Help banner" ],
+    "-c" => [ false, "Resume getting a partially-downloaded file" ],
+    "-a" => [ false, "Enable adaptive download buffer size" ],
+    "-b" => [ true,  "Set the initial block size for the download" ],
+    "-l" => [ true,  "Set the limit of retries (0 unlimits)" ],
+    "-r" => [ false, "Download recursively" ],
+    "-t" => [ false, "Timestamp downloaded files" ])
+
   #
   # Options for the upload command.
   #
   @@upload_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ],
-    "-r" => [ false, "Upload recursively." ])
+    "-h" => [ false, "Help banner" ],
+    "-r" => [ false, "Upload recursively" ])
   
   #
   # Options for the ls command
   #
   @@ls_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ],
-    "-S" => [ true,  "Search string." ],
+    "-h" => [ false, "Help banner" ],
+    "-S" => [ true,  "Search string on filename (as regular expression)" ],
     "-t" => [ false, "Sort by time" ],
     "-s" => [ false, "Sort by size" ],
     "-r" => [ false, "Reverse sort order" ],
@@ -59,8 +60,8 @@ class Console::CommandDispatcher::Stdapi::Fs
   # Options for the lls command
   #
   @@lls_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner." ],
-    "-S" => [ true,  "Search string." ],
+    "-h" => [ false, "Help banner" ],
+    "-S" => [ true,  "Search string on filename (as regular expression)" ],
     "-t" => [ false, "Sort by time" ],
     "-s" => [ false, "Sort by size" ],
     "-r" => [ false, "Reverse sort order" ])
@@ -88,6 +89,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'rm'         => 'Delete the specified file',
       'mv'         => 'Move source to destination',
       'cp'         => 'Copy source to destination',
+      'chmod'      => 'Change the permissions of a file',
       'rmdir'      => 'Remove directory',
       'search'     => 'Search for files',
       'upload'     => 'Upload a file or directory',
@@ -114,6 +116,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       'rm'         => ['stdapi_fs_delete_file'],
       'mv'         => ['stdapi_fs_file_move'],
       'cp'         => ['stdapi_fs_file_copy'],
+      'chmod'      => ['stdapi_fs_chmod'],
       'search'     => ['stdapi_fs_search'],
       'upload'     => [],
       'show_mount' => ['stdapi_fs_mount_show'],
@@ -140,7 +143,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     files   = []
 
     opts = Rex::Parser::Arguments.new(
-      "-h" => [ false, "Help Banner." ],
+      "-h" => [ false, "Help Banner" ],
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
       "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
       "-r" => [ true,  "Recursivly search sub directories. (Default: #{recurse})" ]
@@ -254,6 +257,13 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   #
+  # Tab completion for the cat command
+  #
+  def cmd_cat_tabs(str, words)
+    tab_complete_cfilenames(str, words)
+  end
+
+  #
   # Change the working directory.
   #
   def cmd_cd(*args)
@@ -271,6 +281,13 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   #
+  # Tab completion for the cd command
+  #
+  def cmd_cd_tabs(str, words)
+    tab_complete_cdirectory(str, words)
+  end
+
+  #
   # Change the local working directory.
   #
   def cmd_lcd(*args)
@@ -282,6 +299,13 @@ class Console::CommandDispatcher::Stdapi::Fs
     ::Dir.chdir(args[0])
 
     return true
+  end
+
+  #
+  # Tab completion for the lcd command
+  #
+  def cmd_lcd_tabs(str, words)
+    tab_complete_directory(str, words)
   end
 
   #
@@ -332,6 +356,8 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   alias :cmd_del :cmd_rm
+  alias :cmd_rm_tabs :cmd_cat_tabs
+  alias :cmd_del_tabs :cmd_cat_tabs
 
   #
   # Move source to destination
@@ -351,6 +377,9 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_move :cmd_mv
   alias :cmd_rename :cmd_mv
+  alias :cmd_mv_tabs :cmd_cat_tabs
+  alias :cmd_move_tabs :cmd_cat_tabs
+  alias :cmd_rename_tabs :cmd_cat_tabs
 
   #
   # Move source to destination
@@ -369,7 +398,22 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   alias :cmd_copy :cmd_cp
+  alias :cmd_cp_tabs :cmd_cat_tabs
+  alias :cmd_chmod_tabs :cmd_cat_tabs
 
+  #
+  # Change the permissions on a remote file
+  #
+  def cmd_chmod(*args)
+    if (args.length != 2)
+      print_line("Usage: chmod permission file")
+      return true
+    end
+    file_path = args[1]
+    file_path = client.fs.file.expand_path(file_path) if file_path =~ PATH_EXPAND_REGEX
+    client.fs.file.chmod(file_path, args[0].to_i(8))
+    return true
+  end
 
   def cmd_download_help
     print_line("Usage: download [options] src1 src2 src3 ... destination")
@@ -508,13 +552,19 @@ class Console::CommandDispatcher::Stdapi::Fs
     true
   end
 
+  def cmd_edit_help
+    print_line('Edit a file on remote machine.')
+    print_line("Usage: edit file")
+    print_line
+  end
+
   #
   # Downloads a file to a temporary file, spawns and editor, and then uploads
   # the contents to the remote machine after completion.
   #
   def cmd_edit(*args)
-    if (args.length == 0)
-      print_line("Usage: edit file")
+    if args.empty? || args.include?('-h')
+      cmd_edit_help
       return true
     end
 
@@ -538,6 +588,8 @@ class Console::CommandDispatcher::Stdapi::Fs
     ::File.delete(temp_path) rescue nil
   end
 
+  alias :cmd_edit_tabs :cmd_cat_tabs
+
   #
   # Display the local working directory.
   #
@@ -550,7 +602,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 
   def cmd_ls_help
-    print_line "Usage: ls [options]"
+    print_line "Usage: ls [options] [glob/path]"
     print_line
     print_line "Lists contents of directory or file info, searchable"
     print_line @@ls_opts.usage
@@ -689,9 +741,18 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   #
+  # Tab completion for the ls command
+  #
+  def cmd_ls_tabs(str, words)
+    tab_complete_cdirectory(str, words)
+  end
+
+  #
   # Alias the ls command to dir, for those of us who have windows muscle-memory
   #
-  alias cmd_dir cmd_ls
+  alias :cmd_dir :cmd_ls
+  alias :cmd_dir_help :cmd_ls_help
+  alias :cmd_dir_tabs :cmd_ls_tabs
 
   def cmd_lls_help
     print_line "Usage: lls [options]"
@@ -810,10 +871,12 @@ class Console::CommandDispatcher::Stdapi::Fs
     list_local_path(path, sort, order, search_term)
   end
 
+  alias :cmd_lls_tabs :cmd_lcd_tabs
+
   #
   # Alias the lls command to dir, for those of us who have windows muscle-memory
   #
-  alias cmd_ldir cmd_lls
+  alias :cmd_ldir :cmd_lls
 
   #
   # Make one or more directory.
@@ -832,6 +895,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     return true
   end
+
+  alias :cmd_mkdir_tabs :cmd_cd_tabs
 
   #
   # Display the working directory.
@@ -859,6 +924,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 
     return true
   end
+
+  alias :cmd_rmdir_tabs :cmd_cd_tabs
 
   def cmd_upload_help
     print_line("Usage: upload [options] src1 src2 src3 ... destination")
@@ -937,6 +1004,30 @@ class Console::CommandDispatcher::Stdapi::Fs
     return [] if words.length > 1
 
     tab_complete_filenames(str, words)
+  end
+
+  #
+  # Provide a generic tab completion for client file names.
+  # This tab complete method would create request to the client, so
+  # sometimes it wouldn't execute successfully especailly on bad network.
+  #
+  def tab_complete_cfilenames(str, words)
+    if client.commands.include?('stdapi_fs_ls')
+      return client.fs.dir.match(str) rescue nil
+    end
+
+    []
+  end
+
+  #
+  # Provide a generic tab completion for client directory names.
+  #
+  def tab_complete_cdirectory(str, words)
+    if client.commands.include?('stdapi_fs_ls')
+      return client.fs.dir.match(str, true) rescue nil
+    end
+
+    []
   end
 
 end

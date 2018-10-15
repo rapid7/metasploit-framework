@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'  => [
         [ 'CVE', '2015-1126' ],
-        [ 'URL', 'http://seclists.org/fulldisclosure/2015/Apr/30' ]
+        [ 'URL', 'https://seclists.org/fulldisclosure/2015/Apr/30' ]
       ],
       'Actions'        => [ [ 'WebServer' ] ],
       'PassiveActions' => [ 'WebServer' ],
