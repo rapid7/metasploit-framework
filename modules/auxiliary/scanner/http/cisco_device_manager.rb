@@ -59,32 +59,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res and res.body and res.body =~ /Cisco (Internetwork Operating System|IOS) Software/
       print_good("#{rhost}:#{rport} Successfully authenticated to this device")
-      service_data = {
-        address: rhost,
-        port: rport,
-        service_name: 'http',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
-      }
-
-      credential_data = {
-        module_fullname: self.fullname,
-        origin_type: :service,
-        private_data: datastore['HttpPassword'],
-        private_type: :password,
-        username: datastore['HttpUsername']
-      }
-
-      credential_data.merge!(service_data)
-      credential_core = create_credential(credential_data)
-      login_data = {
-        core: credential_core,
-        last_attempted_at: DateTime.now,
-        status: Metasploit::Model::Login::Status::SUCCESSFUL
-      }
-      login_data.merge!(service_data)
-      create_credential_login(login_data)
-
+      store_valid_credential(user: datastore['HttpUsername'], private: datastore['HttpPassword'])
 
       # Report a vulnerability only if no password was specified
       if datastore['HttpPassword'].to_s.length == 0
