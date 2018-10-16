@@ -50,6 +50,7 @@ class Console::CommandDispatcher::Core
     c = {
       '?'            => 'Help menu',
       'background'   => 'Backgrounds the current session',
+      'bg'           => 'Alias for background',
       'close'        => 'Closes a channel',
       'channel'      => 'Displays information or control active channels',
       'exit'         => 'Terminate the meterpreter session',
@@ -329,6 +330,9 @@ class Console::CommandDispatcher::Core
     print_status("Backgrounding session #{client.name}...")
     client.interacting = false
   end
+
+  alias cmd_bg cmd_background
+  alias cmd_bg_help cmd_background_help
 
   #
   # Displays information about active channels
