@@ -11,13 +11,14 @@ module Metasploit
         def self.normalize_code(code, headers)
           code = code.lines.map { |line|
             if line =~ /^#include <([[:print:]]+)>$/
-              %Q|<%= headers.include('#{$1}') %>\n|
+              h = headers.include("#{$1}")
+              %Q|#{h}\n|
             else
               line
             end
           }.join
 
-          ERB.new(code).result(binding)
+          code
         end
 
       end
