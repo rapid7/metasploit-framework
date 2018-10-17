@@ -22,6 +22,15 @@ module System
     system_data[:version] = version
     system_data[:kernel] = kernel_version
     system_data[:hostname] = kernel_version.split(" ")[1]
+    host_info = {
+      :host => rhost,
+      :os_name => 'Solaris',
+      :name => system_data[:hostname]
+    }
+    if system_data[:version] =~ /([\d]?\d\.\d)/
+      host_info[:os_flavor] = $1
+    end
+    report_host(host_info)
     return system_data
   end
 
