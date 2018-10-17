@@ -57,7 +57,7 @@ module Auxiliary::Cisco
 
     host_info = {
       :host => thost,
-      :os_name => 'Cisco',
+      :os_name => 'Cisco IOS',
     }
     report_host(host_info)
 
@@ -66,12 +66,11 @@ module Auxiliary::Cisco
 #
 # Cover host details
 #
-        when /^version (\d\d)\.(\d)/i
-          host_info[:os_name] = "Cisco IOS #{$1}"
-          host_info[:os_sp] = $2
+        when /^version (\d\d\.\d)/i
+          host_info[:os_flavor] = $1.to_s
           report_host(host_info)
         when /^hostname (\S+)/i
-          host_info[:name] = $1
+          host_info[:name] = $1.to_s
           report_host(host_info)
 #
 # Enable passwords
