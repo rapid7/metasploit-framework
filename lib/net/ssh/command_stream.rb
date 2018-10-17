@@ -45,7 +45,7 @@ class CommandStream
     self.rsock.extend(Rex::IO::Stream)
 
     self.ssh = ssh
-    self.thread = Thread.new(ssh,cmd,pty,cleanup) do |rssh, rcmd, rpty, rcleanup|
+    self.thread = Thread.new(ssh, cmd, pty, cleanup) do |rssh, rcmd, rpty, rcleanup|
       begin
         info = rssh.transport.socket.getpeername_as_array
         self.lsock.peerinfo  = "#{info[1]}:#{info[2]}"
