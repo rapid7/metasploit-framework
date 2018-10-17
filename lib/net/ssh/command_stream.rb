@@ -38,16 +38,14 @@ class CommandStream
     self.channel = channel
   end
 
-  def initialize(ssh, cmd = nil, cleanup = false)
-
+  def initialize(ssh, cmd = nil, pty: false, cleanup: false)
     self.lsock, self.rsock = Rex::Socket.tcp_socket_pair()
     self.lsock.extend(Rex::IO::Stream)
     self.lsock.extend(PeerInfo)
     self.rsock.extend(Rex::IO::Stream)
 
     self.ssh = ssh
-    self.thread = Thread.new(ssh,cmd,cleanup) do |rssh, rcmd, rcleanup|
-
+    self.thread = Thread.new(ssh, cmd, pty, cleanup) do |rssh, rcmd, rpty, rcleanup|
       begin
         info = rssh.transport.socket.getpeername_as_array
         self.lsock.peerinfo  = "#{info[1]}:#{info[2]}"
@@ -56,6 +54,8 @@ class CommandStream
         self.lsock.localinfo = "#{info[1]}:#{info[2]}"
 
         rssh.open_channel do |rch|
+          # A PTY will write us to {u,w}tmp and lastlog
+          rch.request_pty if rpty
           if rcmd.nil?
             rch.send_channel_request("shell", &method(:shell_requested))
           else
