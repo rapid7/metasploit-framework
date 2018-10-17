@@ -738,7 +738,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       it 'should be reversible' do
         namespace_module_name = subject.send(:namespace_module_name, module_full_name)
         relative_name = namespace_module_name.gsub(/^.*::/, '')
-        reversed_name = subject.send(:reverse_relative_name, relative_name)
+        reversed_name = described_class.reverse_relative_name(relative_name)
 
         expect(reversed_name).to eq module_full_name
       end
@@ -752,7 +752,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       it 'should be reversible' do
         namespace_module_names = subject.send(:namespace_module_names, module_full_name)
         relative_name = namespace_module_names.last
-        reversed_name = subject.send(:reverse_relative_name, relative_name)
+        reversed_name = described_class.reverse_relative_name(relative_name)
 
         expect(reversed_name).to eq module_full_name
       end
