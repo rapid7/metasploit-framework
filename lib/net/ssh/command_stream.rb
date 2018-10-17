@@ -38,7 +38,7 @@ class CommandStream
     self.channel = channel
   end
 
-  def initialize(ssh, cmd = nil, pty = false, cleanup = false)
+  def initialize(ssh, cmd = nil, pty: false, cleanup: false)
     self.lsock, self.rsock = Rex::Socket.tcp_socket_pair()
     self.lsock.extend(Rex::IO::Stream)
     self.lsock.extend(PeerInfo)
