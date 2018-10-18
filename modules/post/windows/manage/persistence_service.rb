@@ -11,10 +11,11 @@ class MetasploitModule < Msf::Post
 
   def initialize(info = {})
     super(update_info(info,
-      'Name' => 'Windows Persistent Reverse Service Installer',
+      'Name' => 'Windows Persistent Service Installer',
       'Description'   => %q{
-        This Module will generate and upload an executable to a remote host and make it persistent service.
-        It will create a new service which will start the payload whenever the service is running. Privilege is required.
+        This Module will generate and upload an executable to a remote host, next will make it a persistent service.
+        It will create a new service which will start the payload whenever the service is running. Admin or system
+        privilege is required.
       },
       'License'       => MSF_LICENSE,
       'Author'        => [ 'Green-m <greenm.xxoo[at]gmail.com>' ],
