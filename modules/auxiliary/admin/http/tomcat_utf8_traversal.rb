@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_raw(
         {
           'method'  => 'GET',
-          'uri'     => normalize_uri(datastore['TARGETURI']) + try + files,
+          'uri'     => normalize_uri(datastore['TARGETURI'], try, files),
           }, 25)
       if (res and res.code == 200)
         print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
