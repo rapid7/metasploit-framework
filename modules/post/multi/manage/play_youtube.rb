@@ -72,7 +72,8 @@ class MetasploitModule < Msf::Post
     begin
       # Create a profile
       profile_name = Rex::Text.rand_text_alpha(8)
-      o = cmd_exec(%Q|firefox --display :0 -CreateProfile "#{profile_name} /tmp/#{profile_name}"|)
+      display = get_env('DISPLAY') || ':0'
+      o = cmd_exec(%Q|firefox --display #{display} -CreateProfile "#{profile_name} /tmp/#{profile_name}"|)
 
       # Add user-defined settings to profile
       s = %Q|
@@ -84,7 +85,7 @@ class MetasploitModule < Msf::Post
       # Start the video
       url = "#{YOUTUBE_BASE_URL}#{id}?#{PLAY_OPTIONS}"
       data_js = %Q|"data:text/html,<script>window.open('#{url}','','width:100000px;height:100000px');</script>"|
-      joe = "firefox --display :0 -p #{profile_name} #{data_js} &"
+      joe = "firefox --display #{display} -p #{profile_name} #{data_js} &"
       cmd_exec("/bin/sh -c #{joe.shellescape}")
     rescue EOFError
       return false
