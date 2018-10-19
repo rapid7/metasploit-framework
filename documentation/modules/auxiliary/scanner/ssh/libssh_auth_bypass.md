@@ -16,7 +16,7 @@ additional code paths to be followed.
 
 1. `git clone git://git.libssh.org/projects/libssh.git`
 2. `cd libssh` and `git checkout libssh-0.8.3`
-3. `patch -p0 < /path/to/metasploit-framework/external/source/libssh/ssh_server_fork.patch`
+3. `git apply -p0 /path/to/metasploit-framework/external/source/libssh/ssh_server_fork.patch`
 4. Follow the steps in `INSTALL` to build libssh
 5. Run `build/examples/ssh_server_fork` (I like to `strace` it)
 
