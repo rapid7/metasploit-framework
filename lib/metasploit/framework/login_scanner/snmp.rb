@@ -24,7 +24,8 @@ module Metasploit
 
         attr_accessor :queued_credentials #:nodoc:
         attr_accessor :queued_results #:nodoc:
-        attr_accessor :sock #:nodoc:
+        attr_accessor :udp_sock #:nodoc:
+        attr_accessor :tcp_sock #:nodoc:
 
         # The SNMP version to scan
         # @return [String]
@@ -193,10 +194,10 @@ module Metasploit
           process_responses(1.0)
         end
 
-        # Process any responses on the UDP socket and queue the results
+        # Process any responses on the UDP and TCP sockets and queue the results
         def process_responses(timeout=1.0)
           queue = []
-          while (res = sock.recvfrom(65535, timeout))
+          while (res = udp_sock.recvfrom(65535, timeout))
 
             # Ignore invalid responses
             break if not res[1]
@@ -215,6 +216,34 @@ module Metasploit
               host: host,
               port: port,
               protocol: 'udp',
+              service_name: 'snmp',
+              proof: response[:proof],
+              status: Metasploit::Model::Login::Status::SUCCESSFUL,
+              access_level: 'read-only',
+              snmp_version: response[:version],
+              snmp_error: response[:error]
+            }
+          end
+
+          while (res = tcp_sock.recvfrom(65535, timeout))
+
+            # Ignore invalid responses
+            break if not res[1]
+
+            # Ignore empty responses
+            next if not (res[0] and res[0].length > 0)
+
+            # Trim the IPv6-compat prefix off if needed
+            shost = res[1].sub(/^::ffff:/, '')
+
+            response = parse_snmp_response(res[0])
+            next unless response
+
+            self.queued_results << {
+              community: response[:community],
+              host: host,
+              port: port,
+              protocol: 'tcp',
               service_name: 'snmp',
               proof: response[:proof],
               status: Metasploit::Model::Login::Status::SUCCESSFUL,
@@ -244,7 +273,7 @@ module Metasploit
           resend_count = 0
 
           begin
-            sock.sendto(pkt, self.host, self.port, 0)
+            udp_sock.sendto(pkt, self.host, self.port, 0)
           rescue ::Errno::ENOBUFS
             resend_count += 1
             if resend_count > MAX_RESEND_COUNT
@@ -255,6 +284,21 @@ module Metasploit
           rescue ::Rex::ConnectionError
             # This fires for host unreachable, net unreachable, and broadcast sends
             # We can safely ignore all of these for UDP sends
+          end
+
+          begin
+            tcp_sock.sendto(pkt, self.host, self.port, 0)
+          rescue ::Errno::ENOBUFS
+            resend_count += 1
+            if resend_count > MAX_RESEND_COUNT
+              return false
+            end
+            ::IO.select(nil, nil, nil, 0.25)
+            retry
+          rescue ::Rex::ConnectionError
+            # This fires for host unreachable, net unreachable, and broadcast sends
+            # Can't be ignored for TCP sends
+            fail_with(Failure::Unreachable, "No response from target")
           end
         end
 
@@ -318,8 +362,12 @@ module Metasploit
 
         # Create a new socket for this scanner
         def configure_socket
-          shutdown_socket if self.sock
-          self.sock = ::Rex::Socket::Udp.create(
+          shutdown_socket if self.udp_sock || self.tcp_sock
+          self.udp_sock = ::Rex::Socket::Udp.create(
+            'Context'  =>
+              { 'Msf' => framework, 'MsfExploit' => framework_module }
+            )
+          self.tcp_sock = ::Rex::Socket::Tcp.create(
             'Context'  =>
               { 'Msf' => framework, 'MsfExploit' => framework_module }
             )
@@ -327,8 +375,10 @@ module Metasploit
 
         # Close any open socket if it exists
         def shutdown_socket
-          self.sock.close if self.sock
-          self.sock = nil
+          self.udp_sock.close if self.udp_sock
+          self.udp_sock = nil
+          self.tcp_sock.close if self.tcp_sock
+          self.tcp_sock = nil
         end
 
         # Sets the SNMP parameters if not specified
