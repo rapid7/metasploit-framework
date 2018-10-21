@@ -13,7 +13,6 @@ else
   # if the users group already exists, create a random GID, otherwise
   # reuse it
   if ! grep ":$MSF_GID:" /etc/group > /dev/null; then
-    echo "asdf"
     addgroup -g $MSF_GID $MSF_GROUP
   else
     addgroup $MSF_GROUP
@@ -21,7 +20,6 @@ else
 
   # check if user id already exists
   if ! grep ":$MSF_UID:" /etc/passwd > /dev/null; then
-    echo "cvbb"
     adduser -u $MSF_UID -D $MSF_USER -g $MSF_USER -G $MSF_GROUP $MSF_USER
     # add user to metasploit group so it can read the source
     addgroup $MSF_USER $METASPLOIT_GROUP
