@@ -7,7 +7,7 @@ module Msf
 #
 ###
 module Auxiliary::Cisco
-  #include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Report
 
   def cisco_ios_decrypt7(inp)
     xlat = [
