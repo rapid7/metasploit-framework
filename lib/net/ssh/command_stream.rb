@@ -21,6 +21,7 @@ class CommandStream
     end
 
     channel[:data] = ''
+    channel[:extended_data] = ''
 
     channel.on_eof do
       cleanup
@@ -32,10 +33,12 @@ class CommandStream
 
     channel.on_data do |ch, data|
       self.rsock.write(data)
+      channel[:data] << data
     end
 
     channel.on_extended_data do |ch, ctype, data|
       self.rsock.write(data)
+      channel[:extended_data] << data
     end
 
     self.channel = channel

