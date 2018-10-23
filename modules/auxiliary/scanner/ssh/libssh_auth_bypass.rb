@@ -75,8 +75,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     if action.name == 'Execute' && datastore['CMD'].blank?
-      print_error('CMD is required to be set for the Execute action')
-      return
+      fail_with(Failure::BadConfig, 'Execute action requires CMD to be set')
     end
 
     factory = ssh_socket_factory
