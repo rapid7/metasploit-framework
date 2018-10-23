@@ -62,18 +62,15 @@ class MetasploitModule < Msf::Auxiliary
 
     if v.nil?
       vprint_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
-      return Exploit::CheckCode::Safe
+      Exploit::CheckCode::Unknown
     elsif v.between?(Gem::Version.new('0.6.0'), Gem::Version.new('0.7.5')) ||
           v.between?(Gem::Version.new('0.8.0'), Gem::Version.new('0.8.3'))
       vprint_good("#{ip}:#{rport} - #{version} appears to be unpatched")
-      return Exploit::CheckCode::Appears
+      Exploit::CheckCode::Appears
     else
       vprint_error("#{ip}:#{rport} - #{version} appears to be patched")
-      return Exploit::CheckCode::Safe
+      Exploit::CheckCode::Safe
     end
-
-    # Hopefully we never hit this
-    Exploit::CheckCode::Unknown
   end
 
   def run_host(ip)
