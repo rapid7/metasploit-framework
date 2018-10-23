@@ -37,8 +37,6 @@ class MetasploitModule < Msf::Post
       ])
   end
 
-  
-
   def youtube_url
     if datastore['EMBED']
       "https://youtube.com/embed/#{datastore['VID']}?autoplay=1&loop=1&disablekb=1&modestbranding=1&iv_load_policy=3&controls=0&showinfo=0&rel=0"
