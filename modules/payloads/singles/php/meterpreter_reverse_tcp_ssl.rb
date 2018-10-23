@@ -41,7 +41,7 @@ module MetasploitModule
     session_guid = '\x00' * 16
     met = met.sub(%q|"SESSION_GUID", ""|, %Q|"SESSION_GUID", "#{session_guid}"|)
 
-    met.gsub!(/#.*$/, '') 
+    met.gsub!(/#.*$/, '')
     met = Rex::Text.compress(met)
     return met
   end

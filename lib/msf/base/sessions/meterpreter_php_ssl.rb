@@ -1,9 +1,6 @@
 # -*- coding: binary -*-
-##
-# $Id$
-##
 
-require 'msf/base/sessions/meterpreter'
+require 'msf/base/sessions/meterpreter_php'
 
 module Msf
 module Sessions
@@ -17,7 +14,7 @@ class Meterpreter_Php_Ssl < Msf::Sessions::Meterpreter_Php_Php
   def supports_ssl?
     true
   end
-  
+
   def initialize(rstream, opts={})
     super
   end

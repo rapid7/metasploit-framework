@@ -1,7 +1,6 @@
 
 # -*- coding: binary -*-
 
-require 'msf/core'
 require 'msf/core/payload/php/reverse_tcp'
 
 module Msf
