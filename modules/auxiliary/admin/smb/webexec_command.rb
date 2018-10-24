@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('COMMAND', [true, 'The command you want to execute on the remote host', 'net user testuser testpass /add']),
       OptString.new('RPORT', [true, 'The Target port', 445]),
-      OptString.new('FORCE_GUI', [true, 'Ensure a GUI is created via wmic', 'false']),
+      OptBool.new('FORCE_GUI', [true, 'Ensure a GUI is created via wmic', false]),
     ])
   end
 
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       command = datastore['COMMAND']
-      if(datastore['FORCE_GUI'] == "true")
+      if datastore['FORCE_GUI']
         command = "WMIC PROCESS CALL Create \"#{command}\""
       end
 
