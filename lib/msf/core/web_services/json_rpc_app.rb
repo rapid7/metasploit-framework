@@ -4,6 +4,7 @@ require 'sysrandom/securerandom'
 require 'warden'
 require 'msf/core/rpc'
 require 'msf/core/web_services/authentication'
+require 'msf/core/web_services/framework_extension'
 require 'msf/core/web_services/servlet_helper'
 require 'msf/core/web_services/servlet/auth_servlet'
 require 'msf/core/web_services/servlet/json_rpc_servlet'
@@ -13,16 +14,18 @@ module Msf::WebServices
     helpers ServletHelper
     helpers Msf::RPC::JSON::DispatcherHelper
 
+    # Extension registration
+    register FrameworkExtension
+
     # Servlet registration
     register AuthServlet
     register JsonRpcServlet
 
-    set :framework, Msf::Simple::Framework.create({})
-    set :dispatchers, {}
-
     configure do
+      set :dispatchers, {}
+
       set :sessions, {key: 'msf-ws.session', expire_after: 300}
-      set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET') { SecureRandom.hex(16) }
+      set :session_secret, ENV.fetch('MSF_WS_SESSION_SECRET', SecureRandom.hex(16))
     end
 
     before do
