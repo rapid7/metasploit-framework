@@ -1,9 +1,7 @@
 module SessionEventDataProxy
 
   def report_session_event(opts)
-    unless self.active
-      return
-    end
+    return unless self.active
 
     begin
       data_service = self.get_data_service()

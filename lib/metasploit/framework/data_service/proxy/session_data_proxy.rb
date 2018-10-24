@@ -10,9 +10,7 @@ module SessionDataProxy
   end
 
   def report_session(opts)
-    unless self.active
-      return
-    end
+    return unless self.active
 
     begin
       data_service = self.get_data_service
