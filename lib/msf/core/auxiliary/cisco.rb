@@ -55,23 +55,8 @@ module Auxiliary::Cisco
 
     tuniface = nil
 
-    host_info = {
-      :host => thost,
-      :os_name => 'Cisco IOS',
-    }
-    report_host(host_info)
-
     config.each_line do |line|
       case line
-#
-# Cover host details
-#
-        when /^version (\d\d\.\d)/i
-          host_info[:os_flavor] = $1.to_s
-          report_host(host_info)
-        when /^hostname (\S+)/i
-          host_info[:name] = $1.to_s
-          report_host(host_info)
 #
 # Enable passwords
 #
