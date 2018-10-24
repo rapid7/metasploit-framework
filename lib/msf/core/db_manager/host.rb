@@ -196,7 +196,9 @@ module Msf::DBManager::Host
       os_name, os_flavor = split_windows_os_name(opts[:os_name])
       opts[:os_name] = os_name if os_name.present?
       if opts[:os_flavor].present?
-        opts[:os_flavor] = os_flavor + opts[:os_flavor]
+        if os_flavor.present? # only prepend if there is a value that needs it
+          opts[:os_flavor] = os_flavor + opts[:os_flavor]
+        end
       else
         opts[:os_flavor] = os_flavor
       end
