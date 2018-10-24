@@ -38,4 +38,3 @@ int vsprintf(char*, const char*, va_list);
 int vsnprintf(char*, size_t, const char*, va_list);
 int vasprintf(char**, const char*, va_list);
 int vdprintf(int, const char*, va_list);
-int _snprintf(char*, size_t, const char*, ...);
