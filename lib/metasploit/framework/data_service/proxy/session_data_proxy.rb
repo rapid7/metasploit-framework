@@ -10,6 +10,10 @@ module SessionDataProxy
   end
 
   def report_session(opts)
+    unless self.active
+      return
+    end
+
     begin
       data_service = self.get_data_service
       add_opts_workspace(opts)
