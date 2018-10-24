@@ -17,7 +17,8 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'WebEx Remote Command Execution Utility',
       'Description'    => %q{
-      TODO
+        This module enables the execution of a single command as System by exploiting a remote
+        code execution vulnerability in Cisco's WebEx client software.
       },
 
       'Author'         => [
@@ -26,7 +27,8 @@ class MetasploitModule < Msf::Auxiliary
 
       'License'        => MSF_LICENSE,
       'References'     => [
-        # TODO
+        ['URL', 'https://webexec.org'],
+        ['CVE', '2018-15442']
       ]
     ))
 
@@ -35,12 +37,9 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('FORCE_GUI', [true, 'Ensure a GUI is created via wmic', 'false']),
     ])
-
-    register_advanced_options([
-    ])
   end
 
-  # This is the main controle method
+  # This is the main control method
   def run_host(ip)
     @smbshare = datastore['SMBSHARE']
     @ip = ip
