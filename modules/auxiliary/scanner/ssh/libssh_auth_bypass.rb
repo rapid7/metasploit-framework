@@ -58,11 +58,14 @@ class MetasploitModule < Msf::Auxiliary
 
   # Vulnerable since 0.6.0 and patched in 0.7.6 and 0.8.4
   def check_banner(ip, version)
-    version =~ /libssh_([\d.]+)$/ && $1 && (v = Gem::Version.new($1))
+    version =~ /libssh[-_]*([\d.]*)$/ && $1 && (v = Gem::Version.new($1))
 
     if v.nil?
       vprint_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
       Exploit::CheckCode::Unknown
+    elsif v == Gem::Version.new('0')
+      vprint_warning("#{ip}:#{rport} - libssh version unknow")
+      Exploit::CheckCode::Detected
     elsif v.between?(Gem::Version.new('0.6.0'), Gem::Version.new('0.7.5')) ||
           v.between?(Gem::Version.new('0.8.0'), Gem::Version.new('0.8.3'))
       vprint_good("#{ip}:#{rport} - #{version} appears to be unpatched")
@@ -110,8 +113,10 @@ class MetasploitModule < Msf::Auxiliary
     version = ssh.transport.server_version.version
 
     # XXX: The OOB authentication leads to false positives, so check banner
-    return if datastore['CHECK_BANNER'] &&
-              check_banner(ip, version) != Exploit::CheckCode::Appears
+    if datastore['CHECK_BANNER']
+      return if check_banner(ip, version) != (Exploit::CheckCode::Appears  ||
+                                              Exploit::CheckCode::Detected)
+    end
 
     report_vuln(
       host: ip,
