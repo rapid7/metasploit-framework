@@ -155,17 +155,14 @@ class DataProxy
   # If there is no current data service registered, the block is not
   # executed and the method simply returns.
   def data_service_operation(&block)
-    $stderr.puts("data_service_operation(): #{block_given?}")
     return unless block_given?
 
     begin
       data_service = self.get_data_service
     rescue
-      $stderr.puts("data_service_operation(): in rescue, returning...")
       return
     end
 
-    $stderr.puts("data_service_operation(): calling block...")
     block.call(data_service) unless data_service.nil?
   end
 
