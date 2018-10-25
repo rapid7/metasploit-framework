@@ -43,8 +43,6 @@ module Auxiliary::AuthBrute
         be tried up to the MaxGuessesPerUser limit.	If set to zero or a non-number,
         this option will not be used.}.gsub(/[\t\r\n\s]+/nm,"\s"), 0]) # Tracked in @@brute_start_time
     ], Auxiliary::AuthBrute)
-
-
   end
 
   def setup

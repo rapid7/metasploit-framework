@@ -35,6 +35,10 @@ class MetasploitModule < Msf::Auxiliary
         ])
   end
 
+  def post_auth?
+    false
+  end
+
   def run
 
     print_status("Attempting to connect to http://#{rhost}/xslt?PAGE=A07 to gather information")
