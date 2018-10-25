@@ -239,7 +239,7 @@ GEM
     redcarpet (3.4.0)
     rex-arch (0.1.13)
       rex-text
-    rex-bin_tools (0.1.4)
+    rex-bin_tools (0.1.5)
       metasm
       rex-arch
       rex-core
@@ -296,7 +296,7 @@ GEM
     rspec-mocks (3.8.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)
-    rspec-rails (3.8.0)
+    rspec-rails (3.8.1)
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       railties (>= 3.0)
