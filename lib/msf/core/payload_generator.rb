@@ -371,7 +371,9 @@ module Msf
           encoded_payload = encode_payload(raw_payload)
         end
         encoded_payload = prepend_nops(encoded_payload)
-				encoded_payload = pad_size(encoded_payload, padsize - encoded_payload.length)
+				if(@padsize > 0)
+					encoded_payload = pad_size(encoded_payload, padsize - encoded_payload.length)
+				end
         cli_print "Payload size: #{encoded_payload.length} bytes"
         gen_payload = format_payload(encoded_payload)
       end
@@ -500,7 +502,7 @@ module Msf
 		# @param sub_nops [Integer] Value derived from a subtraction of the encoded payload length from the padsize.
     def pad_size(shellcode, sub_nops)
 			if @padsize < shellcode.length
-				raise PadSizeViolation, "pad-size value is less than payload size."
+				raise PadSizeViolation, "pad-size value #{@padsize} is less than payload size."
 			else	
       	@nops = sub_nops
 			end

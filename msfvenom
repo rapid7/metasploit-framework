@@ -377,10 +377,6 @@ def dump_nops
   "\n" + tbl.to_s + "\n"
 end
 
-def dump_pad_size
-	dump_nops
-end 
-
 begin
   generator_opts = parse_args(ARGV)
 
