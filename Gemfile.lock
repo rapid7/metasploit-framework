@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.21)
+    metasploit-framework (4.17.22)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -300,7 +300,7 @@ GEM
     rspec-support (3.8.0)
     ruby-macho (2.1.0)
     ruby-rc4 (0.1.5)
-    ruby_smb (1.0.4)
+    ruby_smb (1.0.5)
       bindata
       rubyntlm
       windows_error
@@ -349,4 +349,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.17.0
+   1.17.1
