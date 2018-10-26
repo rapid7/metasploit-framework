@@ -152,8 +152,8 @@ class DataProxy
 
   # Performs a set of data service operations declared within the block.
   # This passes the @current_data_service as a parameter to the block.
-  # If there is no current data service registered, the block is not
-  # executed and the method simply returns.
+  # If there is no current data service registered or the data service
+  # is not active, the block is not executed and the method simply returns.
   def data_service_operation(&block)
     return unless block_given?
 
@@ -163,7 +163,7 @@ class DataProxy
       return
     end
 
-    block.call(data_service) unless data_service.nil?
+    block.call(data_service) if !data_service.nil? && self.active
   end
 
   def log_error(exception, ui_message)
