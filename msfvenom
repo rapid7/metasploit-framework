@@ -397,8 +397,6 @@ if generator_opts[:list]
       $stdout.puts dump_encoders(generator_opts[:arch])
     when "nops", "nop", "n"
       $stdout.puts dump_nops
-		when "padnops", "padnop", "p"
-			$stdout.puts dump_pad_size
     when "platforms", "dump_platform"
       $stdout.puts dump_platforms
     when "archs", "dump_arch"
@@ -414,7 +412,6 @@ if generator_opts[:list]
       $stdout.puts dump_payloads
       $stdout.puts dump_encoders
       $stdout.puts dump_nops
-      $stdout.puts dump_pad_size
       $stdout.puts dump_platforms
       $stdout.puts dump_archs
       $stdout.puts dump_encrypt
