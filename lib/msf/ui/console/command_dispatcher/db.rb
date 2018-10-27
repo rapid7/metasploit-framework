@@ -4,6 +4,7 @@ require 'json'
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
+require 'msf/ui/console/command_dispatcher/db/analyze'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'
 
@@ -18,6 +19,7 @@ class Db
 
   include Msf::Ui::Console::CommandDispatcher
   include Msf::Ui::Console::CommandDispatcher::Common
+  include Msf::Ui::Console::CommandDispatcher::Analyze
 
   DB_CONFIG_PATH = 'framework/database'
 
@@ -51,11 +53,13 @@ class Db
       "db_export"     => "Export a file containing the contents of the database",
       "db_nmap"       => "Executes nmap and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache",
+      "analyze"       => "Analyze database information about a specific address or address range",
     }
 
     # Always include commands that only make sense when connected.
     # This avoids the problem of them disappearing unexpectedly if the
     # database dies or times out.  See #1923
+
     base.merge(more)
   end
 
