@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
                   end
                 end
                 if data_recv.nil?
-                  
+                  print_status("No response received. Try increasing timeout.")
                   next
                 end
                 if data_recv[-4..-1] == "\x18\x00\x00\x00"
