@@ -107,7 +107,7 @@ module Msf
     end
 
     #
-    # If it's required and the value is nil or empty, then it's not valid.
+    # If it's required and the value is nil, then it's not valid.
     #
     def valid?(value, check_empty: true)
       if value.nil? && required?
