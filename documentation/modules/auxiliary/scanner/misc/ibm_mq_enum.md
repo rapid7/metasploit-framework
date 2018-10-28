@@ -16,6 +16,16 @@
   5. Do: ```set rhosts <target_IP>```
   6. Do: ```set rport <port>```
   7. Do: ```run```
+  
+  Example output:
+```
+msf auxiliary(scanner/misc/ibm_mq_enum) > run
+
+[+] 10.1.1.144:           - 10.1.1.144:1414 - Queue Manager Name: TESTQM - MQ Version: 9.1.0.0
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+
+```
 
 ## Options
    **The CHANNEL option**
