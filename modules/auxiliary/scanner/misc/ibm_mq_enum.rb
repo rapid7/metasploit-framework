@@ -89,6 +89,11 @@ class MetasploitModule < Msf::Auxiliary
 
 
   def run_host(ip)
+    chan = datastore['CHANNEL']
+    if chan.length > 20
+      print_error("Channel name must be less than 20 characters.")
+      raise Msf::OptionValidateError.new(['CHANNEL'])
+    end
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
     while(ports.length > 0)
       t = []
