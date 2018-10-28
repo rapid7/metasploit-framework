@@ -20,6 +20,21 @@
   5. Do: ```set rhosts <target_IP>```
   6. Do: ```set rport <port>```
   7. Do: ```run```
+  
+  Example output:
+  ```
+  msf auxiliary(scanner/misc/ibm_mq_channel_brute) > run
+  
+[*] 10.1.1.144:1414       - Found channel: TEST.CHANNEL, IsEncrypted: False, IsMQI: True
+[*] 10.1.1.144:1414       - Found channel: SYSTEM.ADMIN.SVRCONN, IsEncrypted: False, IsMQI: True
+
+[+] 10.1.1.144:1414       - Channels found: ["TEST.CHANNEL", "SYSTEM.ADMIN.SVRCONN"]
+[+] 10.1.1.144:1414       - Unencrypted MQI Channels found: ["TEST.CHANNEL", "SYSTEM.ADMIN.SVRCONN"]
+
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+
+  ```
 
 ## Options
 
