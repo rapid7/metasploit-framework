@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :type => 'mq.channels'
         )
-      print("\n")
+      print_line
     end
   end
 
