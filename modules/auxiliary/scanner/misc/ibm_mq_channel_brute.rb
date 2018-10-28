@@ -160,7 +160,6 @@ class MetasploitModule < Msf::Auxiliary
       File.open(datastore['CHANNELS_FILE'], "rb") do |fd|
         data = fd.read(fd.stat.size)
         @common = data.split(/\n/).compact.uniq
-        @common.delete("")
       end
     end
     @common
