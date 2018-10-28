@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("#{e} #{e.backtrace}")
       end
       report_service(:host => rhost, :port => rport, :name => "finger")
-      print("\n")
+      print_line
       if(@channels.empty?)
         print_status("#{ip}:#{rport} No channels found.")
       else
