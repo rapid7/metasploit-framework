@@ -130,11 +130,9 @@ module Msf::RPC::JSON
       error_key = @symbolize_names ? :error : :error.to_s
       if response.key?(error_key)
         # process error response
-        # fail(response[error_key])
         fail(ErrorResponse.parse(response, symbolize_names: @symbolize_names))
       else
         # process successful response
-        # succeed(response[result_key])
         succeed(Response.parse(response, symbolize_names: @symbolize_names))
       end
     end
