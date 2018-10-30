@@ -21,11 +21,13 @@ module MetasploitModule
         'Platform'      => 'win',
         'Arch'          => ARCH_X64)
     )
+
+    icon_opts = ['NO', 'ERROR', 'INFORMATION', 'WARNING', 'QUESTION']
     register_options(
       [
         OptString.new('TITLE', [true, "Messagebox Title", "MessageBox"]),
         OptString.new('TEXT', [true, "Messagebox Text", "Hello, from MSF!"]),
-        OptString.new('ICON', [true, "Icon type can be NO, ERROR, INFORMATION, WARNING or QUESTION", "NO"])
+        OptEnum.new('ICON', [true, "Icon type", icon_opts[0], icon_opts])
       ]
     )
   end
