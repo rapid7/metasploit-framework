@@ -80,7 +80,7 @@ module MetasploitModule
         mov r10d, #{api_hash("kernel32.dll", "GetVersion")}
         call rbp
         add rsp,0x28
-        cmp al,0x6 
+        cmp al,0x6
         jl use_exitthread   ; is older than Vista or Server 2003 R2?
         cmp bl,0xe0         ; check if GetVersion change the hash stored in EBX
         jne use_exitthread
@@ -191,7 +191,7 @@ module MetasploitModule
     payload_data << exitfunc
     payload_data << datastore['TEXT'] + "\x00"
     payload_data << datastore['TITLE'] + "\x00"
-  
+
     return payload_data
 
   end
