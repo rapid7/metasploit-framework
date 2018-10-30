@@ -12,37 +12,39 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'          => 'Windows MessageBox x64',
-      'Description'   => 'Spawn a dialog via MessageBox using a customizable title, text & icon',
-      'Author'        => [
-        'pasta <jaguinaga[at]infobytesec.com>'
-      ],
-      'License'       => GPL_LICENSE,
-      'Platform'      => 'win',
-      'Arch'          => ARCH_X64,
-    ))
-    register_options([
-      OptString.new('TITLE', [ true, "Messagebox Title", "MessageBox" ]),
-      OptString.new('TEXT', [ true, "Messagebox Text", "Hello, from MSF!" ]),
-      OptString.new('ICON', [ true, "Icon type can be NO, ERROR, INFORMATION, WARNING or QUESTION", "NO" ]),
-    ])
+        'Name'          => 'Windows MessageBox x64',
+        'Description'   => 'Spawn a dialog via MessageBox using a customizable title, text & icon',
+        'Author'        => [
+          'pasta <jaguinaga[at]infobytesec.com>'
+        ],
+        'License'       => GPL_LICENSE,
+        'Platform'      => 'win',
+        'Arch'          => ARCH_X64)
+    )
+    register_options(
+      [
+        OptString.new('TITLE', [true, "Messagebox Title", "MessageBox"]),
+        OptString.new('TEXT', [true, "Messagebox Text", "Hello, from MSF!"]),
+        OptString.new('ICON', [true, "Icon type can be NO, ERROR, INFORMATION, WARNING or QUESTION", "NO"])
+      ]
+    )
   end
 
-  def ror(x, n, bits=32)
-    mask = (2**n) - 1
-    mask_bits = x & mask
-    return (x >> n) | (mask_bits << (bits - n))
+  def ror(dword, arg, bits = 32)
+    mask = (2**arg) - 1
+    mask_bits = dword & mask
+    return (dword >> arg) | (mask_bits << (bits - arg))
   end
 
-  def rol(x, n, bits = 32)
-    return ror(x, bits - n, bits)
+  def rol(dword, arg, bits = 32)
+    return ror(dword, bits - arg, bits)
   end
 
   def hash(msg)
     hash = 0
-    msg.each_byte {|c|
+    msg.each_byte do |c|
       hash = ror(c.ord + hash, 0xd)
-    }
+    end
     return hash
   end
 
@@ -57,7 +59,7 @@ module MetasploitModule
   def generate
     style = 0x00
     case datastore['ICON'].upcase.strip
-      #default = NO
+      # default = NO
     when 'ERROR'
       style = 0x10
     when 'QUESTION'
@@ -71,20 +73,20 @@ module MetasploitModule
     if datastore['EXITFUNC'].upcase.strip == 'PROCESS'
       exitfunc_asm = %(
         xor rcx,rcx
-        mov r10d, #{api_hash("kernel32.dll", "ExitProcess")}
+        mov r10d, #{api_hash('kernel32.dll', 'ExitProcess')}
         call rbp
       )
     elsif datastore['EXITFUNC'].upcase.strip == 'THREAD'
       exitfunc_asm = %(
-        mov ebx, #{api_hash("kernel32.dll", "ExitThread")}
-        mov r10d, #{api_hash("kernel32.dll", "GetVersion")}
+        mov ebx, #{api_hash('kernel32.dll', 'ExitThread')}
+        mov r10d, #{api_hash('kernel32.dll', 'GetVersion')}
         call rbp
         add rsp,0x28
         cmp al,0x6
         jl use_exitthread   ; is older than Vista or Server 2003 R2?
         cmp bl,0xe0         ; check if GetVersion change the hash stored in EBX
         jne use_exitthread
-        mov ebx, #{api_hash("ntdll.dll", "RtlExitUserThread")}
+        mov ebx, #{api_hash('ntdll.dll', 'RtlExitUserThread')}
 
         use_exitthread:
         push 0
@@ -183,7 +185,7 @@ module MetasploitModule
       lea rdx,qword ptr ds:[rbp + #{exitfunc.length + 0xf3}]
       lea r8,qword ptr ds:[rbp + #{exitfunc.length + datastore['TEXT'].length + 0xf4}]
       xor rcx,rcx
-      mov r10d, #{api_hash("user32.dll", "MessageBoxA")}
+      mov r10d, #{api_hash('user32.dll', 'MessageBoxA')}
       call rbp
     )
 
@@ -193,6 +195,5 @@ module MetasploitModule
     payload_data << datastore['TITLE'] + "\x00"
 
     return payload_data
-
   end
 end
