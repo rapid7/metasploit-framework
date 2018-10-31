@@ -32,13 +32,13 @@ module Exe
 
       # Create a new section
       s = Metasm::PE::Section.new
-			if @secname.blank?
-      	s.name = '.' + Rex::Text.rand_text_alpha_lower(4)
+      if secname.blank?
+        s.name = '.' + Rex::Text.rand_text_alpha_lower(4)
       else
-				s.name = '.' + @secname
-				$stderr.puts "Created custom section \".#{secname}\""
-			end
-			s.encoded = payload_stub prefix
+        s.name = '.' + secname.downcase
+        $stderr.puts "Created custom section \"#{s.name}\""
+      end
+      s.encoded = payload_stub prefix
       s.characteristics = %w[MEM_READ MEM_WRITE MEM_EXECUTE]
 
       pe.sections << s

@@ -250,7 +250,7 @@ require 'msf/core/exe/segment_appender'
           :payload  => code,
           :template => opts[:template],
           :arch     => :x86,
-					:secname  => opts[:secname]
+          :secname  => opts[:secname]
       })
       return injector.generate_pe
     end
@@ -272,7 +272,7 @@ require 'msf/core/exe/segment_appender'
           :payload  => code,
           :template => opts[:template],
           :arch     => :x86,
-					:secname  => opts[:secname]
+          :secname  => opts[:secname]
       })
       return appender.generate_pe
     end
@@ -606,7 +606,7 @@ require 'msf/core/exe/segment_appender'
          :payload  => code,
          :template => opts[:template],
          :arch     => :x64,
-				 :secname  => opts[:secname]
+         :secname  => opts[:secname]
       })
       return injector.generate_pe
     end
@@ -616,7 +616,7 @@ require 'msf/core/exe/segment_appender'
       :payload  => code,
       :template => opts[:template],
       :arch     => :x64,
-			:secname	=> opts[:secname]
+      :secname	=> opts[:secname]
     })
     return appender.generate_pe
   end

@@ -97,7 +97,7 @@ def parse_args(args)
     opts[:encoder] = e
   end
 
-	opt.on('--sec-name        <value>', String, 'The new section name to use when generating Windows binaries. Default: random 4-character alpha string') do |s|
+  opt.on('--sec-name        <value>', String, 'The new section name to use when generating Windows binaries. Default: random 4-character alpha string') do |s|
     opts[:secname] = s
   end
 
