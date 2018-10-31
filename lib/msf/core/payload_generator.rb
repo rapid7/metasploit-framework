@@ -44,7 +44,7 @@ module Msf
     # @!attribute  encoder
     #   @return [String] The encoder(s) you want applied to the payload
     attr_accessor :encoder
-		# @!attribute  secname
+    # @!attribute  secname
     #   @return [String] The name of the new section within the generated Windows binary
     attr_accessor :secname
     # @!attribute  format
@@ -104,7 +104,7 @@ module Msf
     # @option opts [String] :payload (see #payload)
     # @option opts [String] :format (see #format)
     # @option opts [String] :encoder (see #encoder)
-		# @option opts [String] :secname (see #secname)
+    # @option opts [String] :secname (see #secname)
     # @option opts [Integer] :iterations (see #iterations)
     # @option opts [String] :arch (see #arch)
     # @option opts [String] :platform (see #platform)
@@ -128,7 +128,7 @@ module Msf
       @cli        = opts.fetch(:cli, false)
       @datastore  = opts.fetch(:datastore, {})
       @encoder    = opts.fetch(:encoder, '')
-			@secname    = opts.fetch(:secname, '')
+      @secname    = opts.fetch(:secname, '')
       @format     = opts.fetch(:format, 'raw')
       @iterations = opts.fetch(:iterations, 1)
       @keep       = opts.fetch(:keep, false)
@@ -291,7 +291,7 @@ module Msf
         opts[:template]      = File.basename(template)
       end
 			unless secname.blank?
-				opts[:secname]			 = @secname
+				opts[:secname]			 = secname
 			end
       opts
     end
