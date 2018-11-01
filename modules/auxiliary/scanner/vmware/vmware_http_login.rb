@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
       if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
         # Report a fingerprint match for OS identification
         report_note(
-          :host  => ip,
+          :host  => rhost,
           :ntype => 'fingerprint.match',
           :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
         )
