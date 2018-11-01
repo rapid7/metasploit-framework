@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionError => e
       vprint_error("#{rhost}:#{rport} Error: could not connect")
       return false
-    rescue
+    rescue => e
       vprint_error("#{rhost}:#{rport} Error: #{e}")
       return false
     end
