@@ -290,9 +290,9 @@ module Msf
         opts[:template_path] = File.dirname(template)
         opts[:template]      = File.basename(template)
       end
-			unless secname.blank?
-				opts[:secname]			 = secname
-			end
+      unless secname.blank?
+        opts[:secname]       = secname
+      end
       opts
     end
 
