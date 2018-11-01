@@ -59,8 +59,8 @@ class ThreadManager < Array
 
     # XXX: Preserve Ruby < 2.5 thread exception reporting behavior
     # https://ruby-doc.org/core-2.5.0/Thread.html#method-c-report_on_exception
-    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5.0')
-      Thread.report_on_exception = false if Thread.report_on_exception
+    if Thread.respond_to?(:report_on_exception)
+      Thread.report_on_exception = false
     end
   end
 
