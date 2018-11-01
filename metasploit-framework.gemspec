@@ -195,4 +195,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'xdr'
   # Needed for ::Msf...CertProvider
   spec.add_runtime_dependency 'faker'
+  # Pinned as a dependency of i18n to the last working version
+  spec.add_runtime_dependency 'concurrent-ruby','1.0.5'
 end
