@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
     ios_imgs.each do |img|
       begin
         print_status("Downloading image: #{img}")
-        client.fs.file.download_file("#{local_path}/#{img}", "#{pwd}/#{img}", opts)
+        client.fs.file.download_file("#{local_path}/#{img}", "#{f_path}/#{img}", opts)
       rescue
         print_error("#{img} could not be downloaded")
       end
