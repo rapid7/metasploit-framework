@@ -56,6 +56,10 @@ class ThreadManager < Array
   def initialize(framework)
     self.framework = framework
     self.monitor   = spawn_monitor
+
+    # XXX: Preserve Ruby < 2.5 thread exception reporting behavior
+    # https://ruby-doc.org/core-2.5.0/Thread.html#method-c-report_on_exception
+    Thread.report_on_exception = false
   end
 
   #
