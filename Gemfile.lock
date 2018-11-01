@@ -9,6 +9,7 @@ PATH
       bcrypt
       bcrypt_pbkdf
       bit-struct
+      concurrent-ruby (= 1.0.5)
       dnsruby
       ed25519
       faker
