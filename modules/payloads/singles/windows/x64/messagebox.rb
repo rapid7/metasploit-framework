@@ -12,15 +12,15 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-        'Name'          => 'Windows MessageBox x64',
-        'Description'   => 'Spawn a dialog via MessageBox using a customizable title, text & icon',
-        'Author'        => [
-          'pasta <jaguinaga[at]infobytesec.com>'
-        ],
-        'License'       => GPL_LICENSE,
-        'Platform'      => 'win',
-        'Arch'          => ARCH_X64)
-    )
+      'Name'        => 'Windows MessageBox x64',
+      'Description' => 'Spawn a dialog via MessageBox using a customizable title, text & icon',
+      'Author'      => [
+        'pasta <jaguinaga[at]infobytesec.com>'
+      ],
+      'License'     => GPL_LICENSE,
+      'Platform'    => 'win',
+      'Arch'        => ARCH_X64
+    ))
 
     icon_opts = ['NO', 'ERROR', 'INFORMATION', 'WARNING', 'QUESTION']
     register_options(
