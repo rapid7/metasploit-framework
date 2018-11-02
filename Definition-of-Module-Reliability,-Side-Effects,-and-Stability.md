@@ -2,7 +2,7 @@
 
 | Constant         | Description    |
 | -------------- | ------------- |
-| CRASH_SAFE  | Module should not crash the service |
+| CRASH_SAFE  | Module should not crash the service or OS |
 | CRASH_SERVICE_RESTARTS | Module may crash the service, but it will restart |
 | CRASH_SERVICE_DOWN | Module may crash the service, and remain down |
 | CRASH_OS_RESTARTS | Module may crash the OS, but it will restart |
