@@ -35,6 +35,10 @@ class Obj
   attr_reader :arch
   # @return [Integer]
   attr_reader :rport
+  # @return [Array<Integer>]
+  attr_reader :autofilter_ports
+  # @return [Array<String>]
+  attr_reader :autofilter_services
   # @return [Array<String>]
   attr_reader :targets
   # @return [Time]
@@ -80,6 +84,12 @@ class Obj
     @path               = module_instance.file_path
     @mod_time           = ::File.mtime(@path) rescue Time.now
     @ref_name           = module_instance.refname
+    if module_instance.respond_to?(:autofilter_ports)
+      @autofilter_ports = module_instance.autofilter_ports
+    end
+    if module_instance.respond_to?(:autofilter_services)
+      @autofilter_services = module_instance.autofilter_services
+    end
 
     install_path = Msf::Config.install_root.to_s
     if (@path.to_s.include? (install_path))
@@ -118,6 +128,8 @@ class Obj
       'platform'           => @platform,
       'arch'               => @arch,
       'rport'              => @rport,
+      'autofilter_ports'   => @autofilter_ports,
+      'autofilter_services'=> @autofilter_services,
       'targets'            => @targets,
       'mod_time'           => @mod_time.to_s,
       'path'               => @path,

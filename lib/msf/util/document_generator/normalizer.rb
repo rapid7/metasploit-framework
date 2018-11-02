@@ -64,6 +64,7 @@ module Msf
         POST_DEMO_TEMPLATE              = 'post_demo_template.erb'
         AUXILIARY_SCANNER_DEMO_TEMPLATE = 'auxiliary_scanner_template.erb'
         PAYLOAD_DEMO_TEMPLATE           = 'payload_demo_template.erb'
+        EVASION_DEMO_TEMPLATE           = 'evasion_demo_template.erb'
 
         # Special messages
         NO_CVE_MESSAGE = %Q|CVE: [Not available](https://github.com/rapid7/metasploit-framework/wiki/Why-is-a-CVE-Not-Available%3F)|
@@ -256,6 +257,32 @@ module Msf
         end
 
 
+        # Returns the markdown format for module side effects.
+        #
+        # @param side_effects [Array<String>] Module effects.
+        # @return [String]
+        def normalize_side_effects(side_effects)
+          md_side_effects = side_effects.collect { |s| "* #{s}\n" }.join
+          md_side_effects.empty? ? 'N/A' : md_side_effects
+        end
+
+
+        # Returns the markdown format for module reliability.
+        #
+        # @param reliability [Array<String>] Module reliability.
+        # @return [String]
+        def normalize_reliability(reliability)
+          md_reliability = reliability.collect { |r| "* #{r}\n" }.join
+          md_reliability.empty? ? 'N/A' : md_reliability
+        end
+
+
+        def normalize_stability(stability)
+          md_stability = stability.collect { |s| "* #{s}\n" }.join
+          md_stability.empty? ? 'N/A' : md_stability
+        end
+
+
         # Returns a parsed demo ERB template.
         #
         # @param mod [Msf::Module] Metasploit module.
@@ -307,6 +334,8 @@ module Msf
             load_demo_template(mod, AUXILIARY_SCANNER_DEMO_TEMPLATE)
           elsif is_remote_exploit?(mod)
             load_demo_template(mod, REMOTE_EXPLOIT_DEMO_TEMPLATE)
+          elsif mod.kind_of?(Msf::Evasion)
+            load_demo_template(mod, EVASION_DEMO_TEMPLATE)
           else
             load_demo_template(mod, GENERIC_DEMO_TEMPLATE)
           end

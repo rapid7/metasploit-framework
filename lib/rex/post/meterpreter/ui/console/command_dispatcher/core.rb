@@ -34,12 +34,14 @@ class Console::CommandDispatcher::Core
   end
 
   @@irb_opts = Rex::Parser::Arguments.new(
-    '-h' => [false, 'Help banner.'],
-    '-e' => [true,  'Expression to evaluate.'])
+    '-h' => [false, 'Help menu.'             ],
+    '-e' => [true,  'Expression to evaluate.']
+  )
 
   @@load_opts = Rex::Parser::Arguments.new(
-    '-l' => [false, 'List all available extensions'],
-    '-h' => [false, 'Help menu.'])
+    '-h' => [false, 'Help menu.'                    ],
+    '-l' => [false, 'List all available extensions.']
+  )
 
   #
   # List of supported commands.
@@ -48,12 +50,13 @@ class Console::CommandDispatcher::Core
     c = {
       '?'            => 'Help menu',
       'background'   => 'Backgrounds the current session',
+      'bg'           => 'Alias for background',
       'close'        => 'Closes a channel',
       'channel'      => 'Displays information or control active channels',
       'exit'         => 'Terminate the meterpreter session',
       'help'         => 'Help menu',
-      'irb'          => 'Drop into irb scripting mode',
-      'pry'          => 'Open a Pry session on the current session',
+      'irb'          => 'Open an interactive Ruby shell on the current session',
+      'pry'          => 'Open the Pry debugger on the current session',
       'use'          => 'Deprecated alias for "load"',
       'load'         => 'Load one or more meterpreter extensions',
       'machine_id'   => 'Get the MSF ID of the machine attached to the session',
@@ -328,6 +331,9 @@ class Console::CommandDispatcher::Core
     client.interacting = false
   end
 
+  alias cmd_bg cmd_background
+  alias cmd_bg_help cmd_background_help
+
   #
   # Displays information about active channels
   #
@@ -532,7 +538,7 @@ class Console::CommandDispatcher::Core
   def cmd_irb_help
     print_line('Usage: irb')
     print_line
-    print_line('Execute commands in a Ruby environment')
+    print_line('Open an interactive Ruby shell on the current session.')
     print @@irb_opts.usage
   end
 
@@ -542,7 +548,7 @@ class Console::CommandDispatcher::Core
   end
 
   #
-  # Runs the IRB scripting shell
+  # Open an interactive Ruby shell on the current session
   #
   def cmd_irb(*args)
     expressions = []
@@ -561,12 +567,16 @@ class Console::CommandDispatcher::Core
     framework = client.framework
 
     if expressions.empty?
-      print_status('Starting IRB shell')
-      print_status('The "client" variable holds the meterpreter client')
-      print_line
+      print_status('Starting IRB shell...')
+      print_status("You are in the \"client\" (session) object\n")
 
-      Rex::Ui::Text::IrbShell.new(binding).run
+      Rex::Ui::Text::IrbShell.new(client).run
     else
+      # XXX: No vprint_status here
+      if framework.datastore['VERBOSE'].to_s == 'true'
+        print_status("You are executing expressions in #{binding.receiver}")
+      end
+
       expressions.each { |expression| eval(expression, binding) }
     end
   end
@@ -574,12 +584,12 @@ class Console::CommandDispatcher::Core
   def cmd_pry_help
     print_line 'Usage: pry'
     print_line
-    print_line 'Open a Pry session on the current session.'
+    print_line 'Open the Pry debugger on the current session.'
     print_line
   end
 
   #
-  # Open a Pry session on the current session
+  # Open the Pry debugger on the current session
   #
   def cmd_pry(*args)
     if args.include?('-h')

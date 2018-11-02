@@ -18,9 +18,9 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'Javier Nieto Arevalo',           # Vulnerability disclosure
-          'Andres Rojas Guerrero',          # Vulnerability disclosure
-          'Rob Carr <rob[at]rastating.com>' # Metasploit module
+          'Javier Nieto Arevalo',  # Vulnerability disclosure
+          'Andres Rojas Guerrero', # Vulnerability disclosure
+          'rastating'              # Metasploit module
         ],
       'References'      =>
         [

@@ -16,6 +16,7 @@ require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
 require 'msf/ui/console/command_dispatcher/post'
+require 'msf/ui/console/command_dispatcher/evasion'
 require 'msf/ui/console/command_dispatcher/jobs'
 require 'msf/ui/console/command_dispatcher/resource'
 require 'msf/ui/console/command_dispatcher/modules'
@@ -239,12 +240,14 @@ class Core
     version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
     exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
     pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
+    eva         = "#{stats.num_evasion} evasion",
     dev_note    = "** This is Metasploit 5 development branch **"
     padding     = 48
 
     banner << ("       =[ %-#{padding+8}s]\n" % version)
     banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
     banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
     banner << ("+ -- --=[ %-#{padding}s]\n" % dev_note)
 
     if ::Msf::Framework::EICARCorrupted
@@ -821,7 +824,7 @@ class Core
     print_line "  print - show all active routes"
     print_line
     print_line "Examples:"
-    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.0 through session 1"
+    print_line "  Add a route for all hosts from 192.168.0.0 to 192.168.0.255 through session 1"
     print_line "    route add 192.168.0.0 255.255.255.0 1"
     print_line "    route add 192.168.0.0/24 1"
     print_line
