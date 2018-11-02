@@ -15,6 +15,7 @@ If you're an exploit developer, you will want to review our [[Guidelines for Acc
 
 # Contributing #
 
+- [[Definition of Module Reliability, Side Effects, and Stability]]
 - [[Contributing to Metasploit]]
 - [[Creating Metasploit Framework LoginScanners]]
 - [[Guidelines for Accepting Modules and Enhancements]]
