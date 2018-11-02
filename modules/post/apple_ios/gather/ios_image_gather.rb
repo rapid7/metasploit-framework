@@ -21,10 +21,6 @@ class MetasploitModule < Msf::Post
     ))
   end
 
-  def check_for_img_path(f_path)
-    directory?(f_path)
-  end
-
   def enum_img(f_path)
     path = File.join(Msf::Config.loot_directory, Rex::Text.rand_text_alpha(6))
     local_path = File.expand_path(path)
@@ -45,7 +41,7 @@ class MetasploitModule < Msf::Post
 
   def run
     img_path = '/private/var/mobile/Media/DCIM/100APPLE'
-    unless check_for_img_path(img_path)
+    unless directory?(img_path)
       fail_with(Failure::NotFound, "Could not find the default image file path")
     end
     print_good('Image path found. Will begin searching for images...')
