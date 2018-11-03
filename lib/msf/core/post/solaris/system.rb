@@ -27,8 +27,9 @@ module System
       :os_name => 'Solaris',
       :name => system_data[:hostname]
     }
-    if system_data[:version] =~ /([\d]?\d\.\d)/
-      host_info[:os_flavor] = $1
+    # http://rubular.com/r/SWIU4O3Zow
+    if /(?<major>[\d]?\d)x?(\.|_u)(?<minor>[\d]?\d)/ =~ system_data[:version]
+      host_info[:os_flavor] = "#{major}.#{minor}"
     end
     report_host(host_info)
     return system_data

@@ -20,7 +20,7 @@ module Msf::Post::OSX::System
     report_host({
       :host => rhost,
       :os_name => 'osx',
-      :os_flavor => system_data["Kernel"],
+      :os_flavor => system_info["Kernel"],
       :name => system_info["Hostname"]
     })
 
