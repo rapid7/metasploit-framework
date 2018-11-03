@@ -70,7 +70,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '1.3.52'
+  spec.add_runtime_dependency 'metasploit-payloads', '1.3.53'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '0.4.2'
   # Needed by msfgui and other rpc components
@@ -195,4 +195,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'xdr'
   # Needed for ::Msf...CertProvider
   spec.add_runtime_dependency 'faker'
+  # Pinned as a dependency of i18n to the last working version
+  spec.add_runtime_dependency 'concurrent-ruby','1.0.5'
 end
