@@ -8,10 +8,10 @@ class MetasploitModule < Msf::Encoder
 
   def initialize
     super(
-      'Name'             => 'Ruby Md5 Encoder',
+      'Name'             => 'Ruby Base32 Encoder',
       'Description'      => %q{
-        This encoder returns a Md5 string encapsulated in
-        eval(%(Md5 encoded string).unpack(%(m0)).first).
+        This encoder returns a Base32 string encapsulated in
+        eval(%(Base32 encoded string).unpack(%(m0)).first).
       },
       'Author'           => 'Ismail Tasdelen',
       'References'  =>
@@ -28,12 +28,12 @@ class MetasploitModule < Msf::Encoder
       raise BadcharError if state.badchars.include?(c)
     end
 
-    md5 = Rex::Text.encode_md5(buf)
+    Base32 = Rex::Text.encode_Base32(buf)
 
     state.badchars.each_byte do |byte|
-      raise BadcharError if md5.include?(byte.chr)
+      raise BadcharError if Base32.include?(byte.chr)
     end
 
-    return "eval(%(" + md5 + ").unpack(%(m0)).first)"
+    return "eval(%(" + Base32 + ").unpack(%(m0)).first)"
   end
 end
