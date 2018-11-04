@@ -90,7 +90,7 @@ def parse_args(args)
   end
 
   opt.on('-f', '--format          <format>', String, "Output format (use --list formats to list)") do |f|
-    opts[:format] = f
+    opts[:format] = f.downcase
   end
 
   opt.on('-e', '--encoder         <encoder>', String, 'The encoder to use (use --list encoders to list)') do |e|
