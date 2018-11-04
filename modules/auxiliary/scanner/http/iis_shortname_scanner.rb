@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
 
       @charset_duplicates.each do |x|
         if get_complete_status(url, x , ext) == 404
-          @files << "#{url}~#{x}.#{ext}"
+          @files << "#{url}*~#{x}.#{ext}*"
         end
       end
 
@@ -141,10 +141,11 @@ class MetasploitModule < Msf::Auxiliary
       url = @queue.pop
       status = get_status(url , "1" , "*")
       # Check strings only upto 6 chars in length
-      if url.size == @name_size && status == 404
+      next unless status == 404
+      if url.size == @name_size
         @charset_duplicates.each do |x|
           if get_status(url , x , "") == 404
-            @dirs << "#{url}~#{x}"
+            @dirs << "#{url}*~#{x}"
           end
         end
         # If a url exists then add to new queue for extension scan
@@ -152,10 +153,10 @@ class MetasploitModule < Msf::Auxiliary
           @queue_ext << ( url + ':' + ext )
           @threads << framework.threads.spawn("scanner", false) { scanner }
         end
-      elsif status == 404
+      else
         @charset_duplicates.each do |x|
           if get_complete_status(url, x , "") == 404
-            @dirs << "#{url}~#{x}"
+            @dirs << "#{url}*~#{x}"
             break
           end
         end
@@ -164,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
             @queue_ext << ( url + ':' + ext )
             @threads << framework.threads.spawn("scanner", false) { scanner }
           end
-        elsif url.size   < 6
+        elsif url.size < @name_size
           for c in @charset_names
             @queue  <<(url +c)
           end
@@ -217,6 +218,9 @@ class MetasploitModule < Msf::Auxiliary
     unless is_vul
       print_status("Target is not vulnerable, or no shortname scannable files are present.")
       return
+    end
+    if datastore['PATH'][-1] != '/'
+      datastore['PATH'] += '/'
     end
       print_status("Scanning in progress...")
       @threads << framework.threads.spawn("reduce_names",false) { reduce }
