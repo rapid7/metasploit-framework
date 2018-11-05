@@ -12,6 +12,7 @@ This module creates a mock FTP server which accepts and credentials before throw
 
   The Banner which should be displayed (200 server message).  Default is `FTP Server Ready`.
   Some notable banners to emulate:
+
   * `Microsoft FTP Service`
   * `ucftpd FTP server ready.`
   * `Serv-U FTP Server v6.4 for WinSock ready...`
