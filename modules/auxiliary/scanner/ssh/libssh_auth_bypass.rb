@@ -130,8 +130,8 @@ class MetasploitModule < Msf::Auxiliary
     # XXX: Wait for CommandStream to log a channel request failure
     sleep 0.1
 
-    if shell.error
-      print_error("#{ip}:#{rport} - #{shell.error}")
+    if (e = shell.error)
+      print_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
       return
     end
 
@@ -139,10 +139,10 @@ class MetasploitModule < Msf::Auxiliary
     when 'Shell'
       start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
     when 'Execute'
-      output = shell.channel[:data].chomp
+      output = shell.channel && (shell.channel[:data] || '').chomp
 
       if output.blank?
-        print_error("Empty or blank output: #{datastore['CMD']}")
+        print_error("#{ip}:#{rport} - Empty or blank command output")
         return
       end
 
