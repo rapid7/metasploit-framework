@@ -16,6 +16,7 @@ If you're a committer on metasploit-framework, and you need an invite, just ask.
 | [@bpatterson-r7](https://github.com/bpatterson-r7)| [bpatterson](https://keybase.io/bpatterson)        |
 | [@bwatters-r7](https://github.com/bwatters-r7)    | [bwatters](https://keybase.io/bwatters)            |
 | [@chiggins](https://github.com/chiggins)          | [chiggins](https://keybase.io/chiggins)            |
+| [@clee-r7](https://github.com/clee-r7)            | [cleer7](https://keybase.io/cleer7)                |
 | [@egypt](https://github.com/egypt)                | [egypt](https://keybase.io/egypt)                  |
 | [@FireFart](https://github.com/FireFart)          | [firefart](https://keybase.io/firefart)            |
 | [@h00die](https://github.com/h00die)              | [h00die](https://keybase.io/h00die)                |
