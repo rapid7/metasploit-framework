@@ -5,18 +5,28 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strings"
 )
 
 type response struct {
 	Jsonrpc string `json:"jsonrpc"`
-	Id      string `json:"id"`
+	ID      string `json:"id"`
 }
 
-func rpc_send(res interface{}) {
-	res_str, _ := json.Marshal(res)
+func rpcSend(res interface{}) error {
+	resStr, err := json.Marshal(res)
+	if err != nil {
+		return err
+	}
 	f := bufio.NewWriter(os.Stdout)
-	defer f.Flush()
-	f.Write(res_str)
+	if _, err := f.Write(resStr); err != nil {
+		return err
+	}
+	if err := f.Flush(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type (
@@ -25,17 +35,18 @@ type (
 		Message string `json:"message"`
 	}
 
-	LogRequest struct {
+	logRequest struct {
 		Jsonrpc string    `json:"jsonrpc"`
 		Method  string    `json:"method"`
 		Params  logparams `json:"params"`
 	}
 )
 
-// 'debug'
 func Log(message string, level string) {
-	req := &LogRequest{"2.0", "message", logparams{level, message}}
-	rpc_send(req)
+	req := &logRequest{"2.0", "message", logparams{level, message}}
+	if err := rpcSend(req); err != nil {
+		log.Fatal(err)
+	}
 }
 
 type (
@@ -44,44 +55,54 @@ type (
 		Data map[string]string `json:"data"`
 	}
 
-	ReportRequest struct {
+	reportRequest struct {
 		Jsonrpc string       `json:"jsonrpc"`
 		Method  string       `json:"method"`
 		Params  reportparams `json:"params"`
 	}
 )
 
-func report(kind string, base map[string]string, opts map[string]string) {
+func report(kind string, base map[string]string, opts map[string]string) error {
 	for k, v := range base {
 		opts[k] = v
 	}
-	req := &ReportRequest{"2.0", "report", reportparams{kind, opts}}
-	rpc_send(req)
+	req := &reportRequest{"2.0", "report", reportparams{kind, opts}}
+	return rpcSend(req)
 }
 
 func ReportHost(ip string, opts map[string]string) {
 	base := map[string]string{"host": ip}
-	report("host", base, opts)
+	if err := report("host", base, opts); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func ReportService(ip string, opts map[string]string) {
 	base := map[string]string{"host": ip}
-	report("service", base, opts)
+	if err := report("service", base, opts); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func ReportVuln(ip string, name string, opts map[string]string) {
 	base := map[string]string{"host": ip, "name": name}
-	report("vuln", base, opts)
+	if err := report("vuln", base, opts); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func ReportCorrectPassword(username string, password string, opts map[string]string) {
 	base := map[string]string{"username": username, "password": password}
-	report("correct_password", base, opts)
+	if err := report("correct_password", base, opts); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func ReportWrongPassword(username string, password string, opts map[string]string) {
 	base := map[string]string{"username": username, "password": password}
-	report("wrong_password", base, opts)
+	if err := report("wrong_password", base, opts); err != nil {
+		log.Fatal(err)
+	}
 }
 
 type (
@@ -112,22 +133,22 @@ type (
 		Rank         string              `json:"rank"`
 		WFSDelay     int                 `json:"wfsdelay"`
 		Privileged   bool                `json:"privileged"`
-		Targets      []Target            `json:"targets",omitempty`
+		Targets      []Target            `json:"targets,omitempty"`
 		Capabilities []string            `json:"capabilities"`
-		Payload      map[string]string   `json:"payload",omitempty`
-		Options      map[string]Option   `json:"options",omitempty`
-		Notes        map[string][]string `json:"notes",omitempty`
+		Payload      map[string]string   `json:"payload,omitempty"`
+		Options      map[string]Option   `json:"options,omitempty"`
+		Notes        map[string][]string `json:"notes,omitempty"`
 	}
 
 	Request struct {
 		Jsonrpc string `json:"jsonrpc"`
 		Method  string `json:"method"`
-		Id      string `json:"id"`
+		ID      string `json:"id"`
 	}
 
 	MetadataResponse struct {
 		Jsonrpc string    `json:"jsonrpc"`
-		Id      string    `json:"id"`
+		ID      string    `json:"id"`
 		Result  *Metadata `json:"result"`
 	}
 
@@ -138,29 +159,37 @@ type (
 
 	RunResponse struct {
 		Jsonrpc string    `json:"jsonrpc"`
-		Id      string    `json:"id"`
+		ID      string    `json:"id"`
 		Result  RunResult `json:"result"`
 	}
 )
 
+// RunCallback represents the exploit method to call from the module
 type RunCallback func(req *Request) string
 
+// Run runs the exploit
 func Run(metadata *Metadata, callback RunCallback) {
 	var req Request
 
 	err := json.NewDecoder(os.Stdin).Decode(&req)
 	if err != nil {
-		log.Fatal(err)
-	}
-	if req.Method == "describe" {
-		metadata.Capabilities = []string{"run"}
-		res := &MetadataResponse{"2.0", req.Id, metadata}
-		rpc_send(res)
+		log.Fatalf("could not decode JSON: %v", err)
 	}
 
-	if req.Method == "run" {
+	switch strings.ToLower(req.Method) {
+	case "describe":
+		metadata.Capabilities = []string{"run"}
+		res := &MetadataResponse{"2.0", req.ID, metadata}
+		if err := rpcSend(res); err != nil {
+			log.Fatalf("error on running %s: %v", req.Method, err)
+		}
+	case "run":
 		ret := callback(&req)
-		res := &RunResponse{"2.0", req.Id, RunResult{"Module complete", ret}}
-		rpc_send(res)
+		res := &RunResponse{"2.0", req.ID, RunResult{"Module complete", ret}}
+		if err := rpcSend(res); err != nil {
+			log.Fatalf("error on running %s: %v", req.Method, err)
+		}
+	default:
+		log.Fatalf("method %s not implemented yet", req.Method)
 	}
 }
