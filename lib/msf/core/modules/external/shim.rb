@@ -4,7 +4,7 @@ require 'msf/core/modules/external'
 class Msf::Modules::External::Shim
   def self.generate(module_path, framework)
     mod = Msf::Modules::External.new(module_path, framework: framework)
-    return '' unless mod.meta
+    return nil unless mod.meta
     case mod.meta['type']
     when 'remote_exploit'
       remote_exploit(mod)
