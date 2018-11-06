@@ -23,20 +23,30 @@ module System
 
     # Debian
     if etc_files.include?("debian_version")
+      version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
       if kernel_version =~ /Ubuntu/
-        version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
         system_data[:distro] = "ubuntu"
         system_data[:version] = version
       else
-        version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
         system_data[:distro] = "debian"
         system_data[:version] = version
       end
 
-    # Amazon
-    elsif etc_files.include?("system-release")
-      version = read_file("/etc/system-release").gsub(/\n|\\n|\\l/,'')
-      system_data[:distro] = "amazon"
+    # Amazon / CentOS
+    elsif etc_files.include?('system-release')
+      version = read_file('/etc/system-release').gsub(/\n|\\n|\\l/,'')
+      if version.include? 'CentOS'
+        system_data[:distro] = 'centos'
+        system_data[:version] = version
+      else
+        system_data[:distro] = 'amazon'
+        system_data[:version] = version
+      end
+
+    # Alpine
+    elsif etc_files.include?('alpine-release')
+      version = read_file('/etc/alpine-release').gsub(/\n|\\n|\\l/,'')
+      system_data[:distro] = 'alpine'
       system_data[:version] = version
 
     # Fedora
