@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-1524'],
           ['US-CERT-VU', '777024'],
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear_nms_rce.txt'],
-          ['URL', 'http://seclists.org/fulldisclosure/2016/Feb/30']
+          ['URL', 'https://seclists.org/fulldisclosure/2016/Feb/30']
         ],
       'DisclosureDate' => 'Feb 4 2016'))
 
@@ -148,45 +148,13 @@ class MetasploitModule < Msf::Auxiliary
     print_good("File saved in: #{path}")
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: rhost,
-      port: rport,
-      service_name: 'netgear',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      last_attempted_at: DateTime.now,
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
-
   def run
     cookie = authenticate
     if cookie == nil
       fail_with(Failure::Unknown, "#{peer} - Failed to log in with the provided credentials.")
     else
       print_good("#{peer} - Logged in with #{datastore['USERNAME']}:#{datastore['PASSWORD']} successfully.")
-      report_cred(
-        user: datastore['USERNAME'],
-        password: datastore['PASSWORD'],
-        proof: cookie
-      )
+      store_valid_credential(user: datastore['USERNAME'], private: datastore['PASSWORD'], proof: cookie) # more consistent service_name and protocol
     end
 
     if datastore['FILEPATH'].blank?

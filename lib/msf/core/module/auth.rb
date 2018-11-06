@@ -1,7 +1,6 @@
 module Msf::Module::Auth
-  def store_valid_credential(user:, private:, private_type: :password, proof: nil)
-    service_data = {}
-    if self.respond_to? ("service_details")
+  def store_valid_credential(user:, private:, private_type: :password, proof: nil, service_data: {})
+    if service_data.empty? && self.respond_to?("service_details")
       service_data = service_details
     end
 
@@ -18,14 +17,14 @@ module Msf::Module::Auth
         origin_type: :import,
         filename: 'msfconsole' # default as values provided on the console
       }.merge(creation_data)
-      create_credential(cred_data)
+      framework.db.create_credential(cred_data)
     else
       login_data = {
         proof: proof,
         last_attempted_at: DateTime.now,
         status: Metasploit::Model::Login::Status::SUCCESSFUL
       }.merge(creation_data)
-      create_credential_and_login(login_data)
+      framework.db.create_credential_and_login(login_data)
     end
 
     nil

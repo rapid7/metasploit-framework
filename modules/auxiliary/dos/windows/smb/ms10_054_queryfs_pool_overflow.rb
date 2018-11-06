@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2010-2550'],
           ['OSVDB', '66974'],
           ['MSB', 'MS10-054'],
-          ['URL', 'http://seclists.org/fulldisclosure/2010/Aug/122']
+          ['URL', 'https://seclists.org/fulldisclosure/2010/Aug/122']
         ],
       'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'jduck' ],
       'License'        => MSF_LICENSE

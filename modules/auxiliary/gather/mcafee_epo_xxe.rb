@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2015-0921'],
           ['CVE', '2015-0922'],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jan/8']
+          ['URL', 'https://seclists.org/fulldisclosure/2015/Jan/8']
         ],
       'DisclosureDate' => 'Jan 6 2015'
     ))

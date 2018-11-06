@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 module Msf
-require 'digest'
 
 ###
 #
@@ -24,7 +23,7 @@ module Auxiliary::Report
 
   def create_cracked_credential(opts={})
     if active_db?
-      super(opts)
+      framework.db.create_cracked_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -33,7 +32,6 @@ module Auxiliary::Report
   def create_credential(opts={})
     if active_db?
       framework.db.create_credential(opts)
-      #super(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -41,7 +39,15 @@ module Auxiliary::Report
 
   def create_credential_login(opts={})
     if active_db?
-      super(opts)
+      framework.db.create_credential_login(opts)
+    elsif !db_warning_given?
+      vprint_warning('No active DB -- Credential data will not be saved!')
+    end
+  end
+
+  def create_credential_and_login(opts={})
+    if active_db?
+      framework.db.create_credential_and_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -49,7 +55,7 @@ module Auxiliary::Report
 
   def invalidate_login(opts={})
     if active_db?
-      super(opts)
+      framework.db.invalidate_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
     end
@@ -379,35 +385,28 @@ module Auxiliary::Report
       FileUtils.mkdir_p(Msf::Config.loot_directory)
     end
 
-    # fix eg: ext bug，and no filename .docx, .pptx,delete and parts[-1].length < 4
-    # ext = 'bin'
-    # if filename
-    #   parts = filename.to_s.split('.')
-    #   if parts.length > 1 
-    #     ext = parts[-1]
-    #   end
-    # end
+    ext = 'bin'
+    if filename
+      parts = filename.to_s.split('.')
+      if parts.length > 1 and parts[-1].length < 4
+        ext = parts[-1]
+      end
+    end
 
-    # case ctype
-    # when /^text\/[\w\.]+$/
-    #   ext = "txt"
-    # end
+    case ctype
+    when /^text\/[\w\.]+$/
+      ext = "txt"
+    end
     # This method is available even if there is no database, don't bother checking
     host = Msf::Util::Host.normalize_host(host)
 
     ws = (db ? myworkspace.name[0,16] : 'default')
-    # fix eg: .docx, .pptx,delete and parts[-1].length < 4
-    # name =
-    #   Time.now.strftime("%Y%m%d%H%M%S") + "_" + ws + "_" +
-    #   (host || 'unknown') + '_' + ltype[0,16] + '_' +
-    #   Rex::Text.rand_text_numeric(6) + '.' + ext
-    myMd5 = Digest::MD5.hexdigest data
-    # %H%M%S，now no repeat file
     name =
-      Time.now.strftime("%Y%m%d") + "_" + (host || 'unknown') + "_" +
-      myMd5 + '_' + filename
-    # fix: allow china
-    # name.gsub!(/[^a-z0-9\.\_]+/i, '')
+      Time.now.strftime("%Y%m%d%H%M%S") + "_" + ws + "_" +
+      (host || 'unknown') + '_' + ltype[0,16] + '_' +
+      Rex::Text.rand_text_numeric(6) + '.' + ext
+
+    name.gsub!(/[^a-z0-9\.\_]+/i, '')
 
     path = File.join(Msf::Config.loot_directory, name)
     full_path = ::File.expand_path(path)

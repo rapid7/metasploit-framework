@@ -51,11 +51,6 @@ class MainframeShell < Msf::Sessions::CommandShell
   # override shell_read to include decode of cp1047
   #
   def shell_read(length=-1, timeout=1)
-    #mfimpl
-    if self.respond_to?(:ring)
-      return Rex::Text.from_ibm1047(shell_read_ring(length,timeout))
-    end
-
     begin
       rv = Rex::Text.from_ibm1047(rstream.get_once(length, timeout))
       framework.events.on_session_output(self, rv) if rv
@@ -103,47 +98,6 @@ class MainframeShell < Msf::Sessions::CommandShell
                                   # translation on file transfers, for instance
 
   protected
-
-  ##
-  #
-  # _interact_ring overridden to include decoding of cp1047 data
-  #
-  def _interact_ring
-    begin
-      rdr = framework.threads.spawn("RingMonitor", false) do
-        seq = nil
-
-        while self.interacting
-          # Look for any pending data from the remote ring
-          nseq,data = ring.read_data(seq)
-
-          # Update the sequence number if necessary
-          seq = nseq || seq
-
-          # Write output to the local stream if successful
-          user_output.print(Rex::Text.from_ibm1047(data)) if data
-
-          begin
-            # Wait for new data to arrive on this session
-            ring.wait(seq)
-          rescue EOFError => e
-            print_error("EOFError: #{e.class}: #{e}")
-            break
-          end
-        end
-      end
-
-      while self.interacting
-        # Look for any pending input or errors from the local stream
-        sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
-
-        # Write input to the ring's input mechanism
-        shell_write(user_input.gets) if sd
-      end
-    ensure
-      rdr.kill
-    end
-  end
 
 end
 end

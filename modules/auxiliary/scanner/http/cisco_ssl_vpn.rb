@@ -36,6 +36,10 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('GROUP', [false, "A specific VPN group to use", ''])
       ])
+    register_advanced_options(
+      [
+        OptBool.new('EmptyGroup', [true, "Use an empty group with authentication requests", false])
+      ])
   end
 
   def run_host(ip)
@@ -52,7 +56,9 @@ class MetasploitModule < Msf::Auxiliary
     vprint_good("Application appears to be Cisco SSL VPN. Module will continue.")
 
     groups = Set.new
-    if datastore['GROUP'].empty?
+    if datastore['EmptyGroup'] == true
+      groups << ""
+    elsif datastore['GROUP'].empty?
       vprint_status("Attempt to Enumerate VPN Groups...")
       groups = enumerate_vpn_groups
 
@@ -67,7 +73,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       groups << datastore['GROUP']
     end
-    groups << ""
 
     vprint_status("Starting login brute force...")
     groups.each do |group|

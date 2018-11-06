@@ -1,9 +1,9 @@
 module ServiceDataProxy
 
-  def services(wspace = workspace.name, opts = {})
+  def services(opts = {})
     begin
       data_service = self.get_data_service
-      add_opts_workspace(opts, wspace)
+      add_opts_workspace(opts)
       data_service.services(opts)
     rescue => e
       self.log_error(e, 'Problem retrieving services')
@@ -11,7 +11,23 @@ module ServiceDataProxy
   end
 
   def find_or_create_service(opts)
-    report_service(opts)
+    begin
+      # create separate opts for find operation since the report operation uses slightly different keys
+      # TODO: standardize option keys used for the find and report operations
+      find_opts = opts.clone
+      # convert host to nested hosts address
+      find_opts[:hosts] = {address: find_opts.delete(:host)} if find_opts.key?(:host)
+
+      service = services(find_opts)
+      if service.nil? || service.first.nil?
+        service = report_service(opts.clone)
+      else
+        service = service.first
+      end
+      service
+    rescue => e
+      self.log_error(e, "Problem finding or creating service")
+    end
   end
 
   def report_service(opts)

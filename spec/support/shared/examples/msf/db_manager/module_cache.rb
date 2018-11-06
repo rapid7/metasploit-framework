@@ -1,4 +1,9 @@
 RSpec.shared_examples_for 'Msf::DBManager::ModuleCache' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Module Cache methods will not be ported, instead the newer module metadata cache should be used")}
+  end
+
   it { is_expected.to respond_to :match_values }
   it { is_expected.to respond_to :module_to_details_hash }
   it { is_expected.to respond_to :modules_cached }

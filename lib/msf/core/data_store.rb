@@ -176,10 +176,19 @@ class DataStore < Hash
   # Hack on a hack for the external modules
   def to_nested_values
     datastore_hash = {}
+
+    array_nester = ->(arr) do
+      if arr.first.is_a? Array
+        arr.map &array_nester
+      else
+        arr.map &:to_s
+      end
+    end
+
     self.keys.each do |k|
       # TODO arbitrary depth
       if self[k].is_a? Array
-        datastore_hash[k.to_s] = self[k].map(&:to_s)
+        datastore_hash[k.to_s] = array_nester.call(self[k])
       else
         datastore_hash[k.to_s] = self[k].to_s
       end

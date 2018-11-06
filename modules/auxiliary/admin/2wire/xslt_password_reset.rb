@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2007-4387' ],
           [ 'OSVDB', '37667' ],
           [ 'BID', '36075' ],
-          [ 'URL', 'http://seclists.org/bugtraq/2007/Aug/225' ],
+          [ 'URL', 'https://seclists.org/bugtraq/2007/Aug/225' ],
         ],
       'DisclosureDate' => "Aug 15 2007" ))
 
@@ -33,6 +33,10 @@ class MetasploitModule < Msf::Auxiliary
         [
           OptString.new('PASSWORD', [ true, 'The password to reset to', 'admin'])
         ])
+  end
+
+  def post_auth?
+    false
   end
 
   def run

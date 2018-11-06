@@ -14,8 +14,13 @@ module EventServlet
 
   def self.report_event
     lambda {
-      job = lambda { |opts| get_db().report_event(opts) }
-      exec_report_job(request, &job)
+      begin
+        warden.authenticate!
+        job = lambda { |opts| get_db.report_event(opts) }
+        exec_report_job(request, &job)
+      rescue => e
+        print_error_and_create_response(error: e, message: 'There was an error creating the event:', code: 500)
+      end
     }
   end
 end

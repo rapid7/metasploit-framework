@@ -24,7 +24,7 @@ class Msf::Module::Reference
   end
 
   #
-  # Compares references to see if their equal.
+  # Compares references to see if they're equal.
   #
   def ==(tgt)
     return (tgt.to_s == to_s)
@@ -115,8 +115,10 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "https://packetstormsecurity.com/files/#{in_ctx_val}"
     elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
-    elsif in_ctx_id == 'AKA'
-      self.site = "Also known as: #{in_ctx_val}"
+    elsif in_ctx_id == 'LOGO'
+      self.site = "Logo: #{in_ctx_val}"
+    elsif in_ctx_id == 'SOUNDTRACK'
+      self.site = "Soundtrack: #{in_ctx_val}"
     else
       self.site  = in_ctx_id
       self.site += " (#{in_ctx_val})" if (in_ctx_val)

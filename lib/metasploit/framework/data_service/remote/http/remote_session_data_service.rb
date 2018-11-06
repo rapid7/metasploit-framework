@@ -1,7 +1,15 @@
+require 'metasploit/framework/data_service/remote/http/response_data_helper'
+
 module RemoteSessionDataService
+  include ResponseDataHelper
 
   SESSION_API_PATH = '/api/v1/sessions'
   SESSION_MDM_CLASS = 'Mdm::Session'
+
+  def sessions(opts)
+    path = get_path_select(opts, SESSION_API_PATH)
+    json_to_mdm_object(self.get_data(path, nil, opts), SESSION_MDM_CLASS, [])
+  end
 
   def report_session(opts)
     session = opts[:session]
@@ -31,14 +39,6 @@ module RemoteSessionDataService
       hash[:vuln_info] = parse_vuln_info(msf_session)
     end
 
-    return hash
-  end
-
-  def parse_host_opts(msf_session)
-    hash = Hash.new()
-    hash[:host] = msf_session.session_host
-    hash[:arch] = msf_session.arch if msf_session.respond_to?(:arch) and msf_session.arch
-    hash[:workspace] = msf_session[:workspace] || msf_session.workspace
     return hash
   end
 

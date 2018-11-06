@@ -1,4 +1,9 @@
 RSpec.shared_examples_for 'Msf::DBManager::Migration' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Migration is not tested for a remoted DB")}
+  end
+
   it { is_expected.to be_a Msf::DBManager::Migration }
 
 

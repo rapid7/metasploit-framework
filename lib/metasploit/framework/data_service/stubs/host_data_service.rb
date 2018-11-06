@@ -1,5 +1,9 @@
 module HostDataService
 
+  def get_host(opts)
+    raise 'HostDataService#get_host is not implemented'
+  end
+
   def report_host(opts)
     raise 'HostDataService#report_host is not implemented'
   end
@@ -14,6 +18,10 @@ module HostDataService
 
   def find_or_create_host(opts)
     raise 'HostDataService#find_or_create_host is not implemented'
+  end
+
+  def update_host(opts)
+    raise 'HostDataService#update_host is not implemented'
   end
 
   def delete_host(opts)

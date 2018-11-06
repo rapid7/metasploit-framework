@@ -20,7 +20,6 @@ module RemoteWorkspaceDataService
     # will not return the correct results. Run it back through the proxy.
     wlog "[DEPRECATION] Calling workspace from within the RemoteDataService is no longer supported. Please call from WorkspaceDataProxy instead."
     caller.each { |line| wlog "#{line}"}
-    framework.db.workspace
   end
 
   def workspace=(workspace)
@@ -28,11 +27,11 @@ module RemoteWorkspaceDataService
     # will not return the correct results. Run it back through the proxy.
     wlog "[DEPRECATION] Setting the current workspace from the RemoteDataService is no longer supported. Please call from WorkspaceDataProxy instead."
     caller.each { |line| wlog "#{line}"}
-    framework.db.workspace = workspace
   end
 
   def workspaces(opts)
-    json_to_mdm_object(self.get_data(WORKSPACE_API_PATH, nil, opts), WORKSPACE_MDM_CLASS, [])
+    path = get_path_select(opts, WORKSPACE_API_PATH)
+    json_to_mdm_object(self.get_data(path, nil, opts), WORKSPACE_MDM_CLASS, [])
   end
 
   def delete_workspaces(opts)

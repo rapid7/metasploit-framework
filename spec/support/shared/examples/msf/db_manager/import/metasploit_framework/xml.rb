@@ -2,6 +2,11 @@
 require 'builder'
 
 RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Awaiting a port of all components")}
+  end
+
   # Serialized format from pro/modules/auxiliary/pro/report.rb
   def serialize(object)
     # FIXME https://www.pivotaltracker.com/story/show/46578647

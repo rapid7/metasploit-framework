@@ -23,10 +23,22 @@ module Msf::DBManager::Note
   #
   def notes(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
+      # If we have the ID, there is no point in creating a complex query.
+      if opts[:id] && !opts[:id].to_s.empty?
+        return Array.wrap(Mdm::Note.find(opts[:id]))
+      end
+
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
+      data = opts.delete(:data)
       search_term = opts.delete(:search_term)
       results = wspace.notes.includes(:host).where(opts)
+
+      # Compare the deserialized data from the DB to the search data since the column is serialized.
+      unless data.nil?
+        results = results.select { |note| note.data == data }
+      end
+
       if search_term && !search_term.empty?
         re_search_term = /#{search_term}/mi
         results = results.select { |note|
@@ -87,12 +99,16 @@ module Msf::DBManager::Note
         when 'tcp','udp'
           proto = proto_lower
           sname = opts[:sname] if opts[:sname]
+        # XXX: These normalizations are lazy af
+        when 'http', 'smb'
+          proto = 'tcp'
+          sname = proto_lower
         when 'dns','snmp','dhcp'
           proto = 'udp'
-          sname = opts[:proto]
+          sname = proto_lower
         else
           proto = 'tcp'
-          sname = opts[:proto]
+          sname = proto_lower
         end
         sopts = {
           :workspace => wspace,
@@ -112,8 +128,8 @@ module Msf::DBManager::Note
     if addr and not host
       host = get_host(:workspace => wspace, :host => addr)
     end
-    if host and (opts[:port] and opts[:proto])
-      service = get_service(wspace, host, opts[:proto], opts[:port])
+    if host and (opts[:port] and proto)
+      service = get_service(wspace, host, proto, opts[:port])
     elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
       service = opts[:service]
     end

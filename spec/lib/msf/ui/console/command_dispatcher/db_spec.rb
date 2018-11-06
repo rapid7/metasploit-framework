@@ -84,6 +84,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "    CI",
           "    Foundstone",
           "    FusionVM XML",
+          "    Group Policy Preferences Credentials",
           "    IP Address List",
           "    IP360 ASPL",
           "    IP360 XML v3",
@@ -146,7 +147,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       it "should show a help message" do
         db.cmd_loot "-h"
         expect(@output).to match_array [
-          "Usage: loot <options>",
+          "Usage: loot [options]",
           " Info: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]",
           "  Add: loot -f [fname] -i [info] -a [addr1 addr2 ...] -t [type]",
           "  Del: loot -d [addr1 addr2 ...]",
@@ -214,31 +215,52 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
     end
     describe "-p" do
       before(:example) do
-        host = FactoryBot.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryBot.create(:mdm_service, :host => host, :port => 1024, name: 'Service1', proto: 'udp')
-        FactoryBot.create(:mdm_service, :host => host, :port => 1025, name: 'Service2', proto: 'tcp')
-        FactoryBot.create(:mdm_service, :host => host, :port => 1026, name: 'Service3', proto: 'udp')
+        @services = []
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1024, name: 'service1', proto: 'udp'})
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1025, name: 'service2', proto: 'tcp'})
+        @services << framework.db.report_service({host: '192.168.0.1', port: 1026, name: 'service3', proto: 'udp'})
       end
+
+      after(:example) do
+        ids = []
+        @services.each{|service|
+          ids << service.id
+        }
+
+        framework.db.delete_service({ids: ids})
+      end
+
       it "should list services that are on a given port" do
-        db.cmd_services "-S", "1024|1025"
+        db.cmd_services "-p", "1024, 1025"
         expect(@output).to match_array [
           "Services",
           "========",
           "",
           "host         port  proto  name      state  info",
           "----         ----  -----  ----      -----  ----",
-          "192.168.0.1  1024  udp    Service1  open   ",
-          "192.168.0.1  1025  tcp    Service2  open   "
+          "192.168.0.1  1024  udp    service1  open   ",
+          "192.168.0.1  1025  tcp    service2  open   "
         ]
       end
     end
+
     describe "-np" do
       before(:example) do
-        host = FactoryBot.create(:mdm_host, :workspace => framework.db.workspace, :address => "192.168.0.1")
-        FactoryBot.create(:mdm_service, :host => host, :port => 1024)
-        FactoryBot.create(:mdm_service, :host => host, :port => 1025)
-        FactoryBot.create(:mdm_service, :host => host, :port => 1026)
+        @services = []
+        @services << framework.db.report_service({host: '192.168.0.2', port: 1024})
+        @services << framework.db.report_service({host: '192.168.0.2', port: 1025})
+        @services << framework.db.report_service({host: '192.168.0.2', port: 1026})
       end
+
+      after(:example) do
+        ids = []
+        @services.each{|service|
+          ids << service.id
+        }
+
+        framework.db.delete_service({ids: ids})
+      end
+
       it "should list services that are not on a given port" do
         skip {
           db.cmd_services "-np", "1024"
@@ -249,8 +271,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
             "",
             "host         port  proto  name  state  info",
             "----         ----  -----  ----  -----  ----",
-            "192.168.0.1  1025  snmp         open   ",
-            "192.168.0.1  1026  snmp         open   "
+            "192.168.0.2  1025  snmp         open   ",
+            "192.168.0.2  1026  snmp         open   "
           ]
         }
       end

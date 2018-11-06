@@ -3,6 +3,7 @@ require 'spec_helper'
 require 'msf/ui'
 require 'msf/ui/console/module_command_dispatcher'
 require 'msf/ui/console/command_dispatcher/core'
+require 'readline'
 
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
   include_context 'Msf::DBManager'
@@ -14,6 +15,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
 
   it { is_expected.to respond_to :cmd_get }
   it { is_expected.to respond_to :cmd_getg }
+  it { is_expected.to respond_to :cmd_set_tabs }
+  it { is_expected.to respond_to :cmd_setg_tabs }
 
   def set_and_test_variable(name, framework_value, module_value, framework_re, module_re)
     # set the current module
@@ -77,6 +80,82 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
           set_and_test_variable(name, 'FRAMEWORK', 'MODULE', /^#{name} => FRAMEWORK$/, /^#{name} => MODULE$/)
         end
 
+      end
+    end
+  end
+
+
+  def set_tabs_test(option)
+    allow(core).to receive(:active_module).and_return(mod)
+    # always assume set variables validate (largely irrelevant because ours are random)
+    allow(driver).to receive(:on_variable_set).and_return(true)
+
+    double = double('framework')
+    allow(double).to receive(:get).and_return(nil)
+    allow(double).to receive(:sessions).and_return([])
+    allow_any_instance_of(Msf::Post).to receive(:framework).and_return(double)
+
+    # Test for setting uncomplete option
+    output = core.cmd_set_tabs(option, ["set"])
+    expect(output).to be_kind_of(Array).or eq(nil)
+
+    # Test for setting option
+    output = core.cmd_set_tabs("", ["set", option])
+    expect(output).to be_kind_of(Array).or eq(nil)
+  end
+
+  describe "#cmd_set_tabs" do
+    # The options of all kinds of modules.
+    all_options =  ::Msf::Exploit.new.datastore.keys   +
+                   ::Msf::Post.new.datastore.keys      +
+                   ::Msf::Auxiliary.new.datastore.keys
+    all_options.uniq!
+
+    context "with a Exploit active module" do
+      let(:mod) do
+        mod = ::Msf::Exploit.new
+        mod.send(:initialize, {})
+        mod
+      end
+
+      all_options.each do |option|
+        describe "with #{option} arguments" do
+          it "should return array or nil" do
+            set_tabs_test(option)
+          end
+        end
+      end
+    end
+
+    context "with a Post active module" do
+      let(:mod) do
+        mod = ::Msf::Post.new
+        mod.send(:initialize, {})
+        mod
+      end
+
+      all_options.each do |option|
+        describe "with #{option} arguments" do
+          it "should return array or nil" do
+            set_tabs_test(option)
+          end
+        end
+      end
+    end
+
+    context "with a Auxiliary active module" do
+      let(:mod) do
+        mod = ::Msf::Auxiliary.new
+        mod.send(:initialize, {})
+        mod
+      end
+
+      all_options.each do |option|
+        describe "with #{option} arguments" do
+          it "should return array or nil" do
+            set_tabs_test(option)
+          end
+        end
       end
     end
   end

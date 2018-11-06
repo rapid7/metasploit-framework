@@ -16,7 +16,6 @@ class Msf::Author
   # A hash that maps known author names to email addresses
   KNOWN = {
     'amaloteaux'          => 'alex_maloteaux' + 0x40.chr + 'metasploit.com',
-    'anonymous'           => 'Unknown',
     'aushack'             => 'patrick' + 0x40.chr + 'osisecurity.com.au',
     'bannedit'            => 'bannedit' + 0x40.chr + 'metasploit.com',
     'Carlos Perez'        => 'carlos_perez' + 0x40.chr + 'darkoperator.com',
