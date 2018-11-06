@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints protocol="smtp" database_type="service">
+  <!--
+  This file is currently unused.
+  -->
+  <fingerprint pattern="250 .* is syntactically correct *">
+    <description>exim</description>
+    <example>250 &lt;nosuchuser@rapid7.com&gt; is syntactically correct</example>
+    <param pos="0" name="service.vendor" value="exim"/>
+    <param pos="0" name="service.family" value="exim"/>
+    <param pos="0" name="service.product" value="exim"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:exim:exim:-"/>
+  </fingerprint>
+  <fingerprint pattern="501[ -]System error\. *">
+    <description>GNAT Box SMTP</description>
+    <param pos="0" name="service.vendor" value="Global Technology Associates"/>
+    <param pos="0" name="service.family" value="GNAT Box"/>
+    <param pos="0" name="service.product" value="GNAT Box"/>
+  </fingerprint>
+</fingerprints>

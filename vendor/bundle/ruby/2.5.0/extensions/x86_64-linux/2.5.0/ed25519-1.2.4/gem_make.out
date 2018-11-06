@@ -1,0 +1,24 @@
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/ed25519-1.2.4/ext/ed25519_ref10
+/usr/bin/ruby2.5 -r ./siteconf20181028-14830-1q3k9dz.rb extconf.rb
+creating Makefile
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/ed25519-1.2.4/ext/ed25519_ref10
+make "DESTDIR=" clean
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/ed25519-1.2.4/ext/ed25519_ref10
+make "DESTDIR="
+compiling ed25519_ref10.c
+compiling fe.c
+compiling ge.c
+compiling keypair.c
+compiling open.c
+compiling sc_muladd.c
+compiling sc_reduce.c
+compiling sha512.c
+compiling sign.c
+compiling verify.c
+linking shared-object ed25519_ref10.so
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/ed25519-1.2.4/ext/ed25519_ref10
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 ed25519_ref10.so ./.gem.20181028-14830-5682qv

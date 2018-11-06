@@ -1,0 +1,3468 @@
+#!/usr/bin/env ruby
+
+###
+### $Release: 2.7.0 $
+### copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+###
+
+#--begin of require 'erubis/main'
+###
+### $Release: 2.7.0 $
+### copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+###
+
+require 'yaml'
+#--begin of require 'erubis'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+##
+## an implementation of eRuby
+##
+## ex.
+##   input = <<'END'
+##    <ul>
+##     <% for item in @list %>
+##      <li><%= item %>
+##          <%== item %></li>
+##     <% end %>
+##    </ul>
+##   END
+##   list = ['<aaa>', 'b&b', '"ccc"']
+##   eruby = Erubis::Eruby.new(input)
+##   puts "--- code ---"
+##   puts eruby.src
+##   puts "--- result ---"
+##   context = Erubis::Context.new()   # or new(:list=>list)
+##   context[:list] = list
+##   puts eruby.evaluate(context)
+##
+## result:
+##   --- source ---
+##   _buf = ''; _buf << '<ul>
+##   ';  for item in @list 
+##    _buf << '  <li>'; _buf << ( item ).to_s; _buf << '
+##   '; _buf << '      '; _buf << Erubis::XmlHelper.escape_xml( item ); _buf << '</li>
+##   ';  end 
+##    _buf << '</ul>
+##   ';
+##   _buf.to_s
+##   --- result ---
+##    <ul>
+##      <li><aaa>
+##          &lt;aaa&gt;</li>
+##      <li>b&b
+##          b&amp;b</li>
+##      <li>"ccc"
+##          &quot;ccc&quot;</li>
+##    </ul>
+##
+
+
+module Erubis
+  VERSION = ('$Release: 2.7.0 $' =~ /([.\d]+)/) && $1
+end
+
+#--begin of require 'erubis/engine'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+
+#--begin of require 'erubis/generator'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--begin of require 'erubis/util'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+module Kernel
+
+  ##
+  ## raise NotImplementedError
+  ##
+  def not_implemented     #:doc:
+    backtrace = caller()
+    method_name = (backtrace.shift =~ /`(\w+)'$/) && $1
+    mesg = "class #{self.class.name} must implement abstract method '#{method_name}()'."
+    #mesg = "#{self.class.name}##{method_name}() is not implemented."
+    err = NotImplementedError.new mesg
+    err.set_backtrace backtrace
+    raise err
+  end
+  private :not_implemented
+
+end
+#--end of require 'erubis/util'
+
+module Erubis
+
+
+  ##
+  ## code generator, called by Converter module
+  ##
+  module Generator
+
+    def self.supported_properties()  # :nodoc:
+      return [
+              [:escapefunc,    nil,    "escape function name"],
+            ]
+    end
+
+    attr_accessor :escapefunc
+
+    def init_generator(properties={})
+      @escapefunc = properties[:escapefunc]
+    end
+
+
+    ## (abstract) escape text string
+    ##
+    ## ex.
+    ##   def escape_text(text)
+    ##     return text.dump
+    ##     # or return "'" + text.gsub(/['\\]/, '\\\\\&') + "'"
+    ##   end
+    def escape_text(text)
+      not_implemented
+    end
+
+    ## return escaped expression code (ex. 'h(...)' or 'htmlspecialchars(...)')
+    def escaped_expr(code)
+      code.strip!
+      return "#{@escapefunc}(#{code})"
+    end
+
+    ## (abstract) add @preamble to src
+    def add_preamble(src)
+      not_implemented
+    end
+
+    ## (abstract) add text string to src
+    def add_text(src, text)
+      not_implemented
+    end
+
+    ## (abstract) add statement code to src
+    def add_stmt(src, code)
+      not_implemented
+    end
+
+    ## (abstract) add expression literal code to src. this is called by add_expr().
+    def add_expr_literal(src, code)
+      not_implemented
+    end
+
+    ## (abstract) add escaped expression code to src. this is called by add_expr().
+    def add_expr_escaped(src, code)
+      not_implemented
+    end
+
+    ## (abstract) add expression code to src for debug. this is called by add_expr().
+    def add_expr_debug(src, code)
+      not_implemented
+    end
+
+    ## (abstract) add @postamble to src
+    def add_postamble(src)
+      not_implemented
+    end
+
+
+  end
+
+
+end
+#--end of require 'erubis/generator'
+#--begin of require 'erubis/converter'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/util'
+
+module Erubis
+
+
+  ##
+  ## convert
+  ##
+  module Converter
+
+    attr_accessor :preamble, :postamble, :escape
+
+    def self.supported_properties    # :nodoc:
+      return [
+              [:preamble,  nil,    "preamble (no preamble when false)"],
+              [:postamble, nil,    "postamble (no postamble when false)"],
+              [:escape,    nil,    "escape expression or not in default"],
+             ]
+    end
+
+    def init_converter(properties={})
+      @preamble  = properties[:preamble]
+      @postamble = properties[:postamble]
+      @escape    = properties[:escape]
+    end
+
+    ## convert input string into target language
+    def convert(input)
+      codebuf = ""    # or []
+      @preamble.nil? ? add_preamble(codebuf) : (@preamble && (codebuf << @preamble))
+      convert_input(codebuf, input)
+      @postamble.nil? ? add_postamble(codebuf) : (@postamble && (codebuf << @postamble))
+      @_proc = nil    # clear cached proc object
+      return codebuf  # or codebuf.join()
+    end
+
+    protected
+
+    ##
+    ## detect spaces at beginning of line
+    ##
+    def detect_spaces_at_bol(text, is_bol)
+      lspace = nil
+      if text.empty?
+        lspace = "" if is_bol
+      elsif text[-1] == ?\n
+        lspace = ""
+      else
+        rindex = text.rindex(?\n)
+        if rindex
+          s = text[rindex+1..-1]
+          if s =~ /\A[ \t]*\z/
+            lspace = s
+            #text = text[0..rindex]
+            text[rindex+1..-1] = ''
+          end
+        else
+          if is_bol && text =~ /\A[ \t]*\z/
+            #lspace = text
+            #text = nil
+            lspace = text.dup
+            text[0..-1] = ''
+          end
+        end
+      end
+      return lspace
+    end
+
+    ##
+    ## (abstract) convert input to code
+    ##
+    def convert_input(codebuf, input)
+      not_implemented
+    end
+
+  end
+
+
+  module Basic
+  end
+
+
+  ##
+  ## basic converter which supports '<% ... %>' notation.
+  ##
+  module Basic::Converter
+    include Erubis::Converter
+
+    def self.supported_properties    # :nodoc:
+      return [
+              [:pattern,  '<% %>', "embed pattern"],
+              [:trim,      true,   "trim spaces around <% ... %>"],
+             ]
+    end
+
+    attr_accessor :pattern, :trim
+
+    def init_converter(properties={})
+      super(properties)
+      @pattern = properties[:pattern]
+      @trim    = properties[:trim] != false
+    end
+
+    protected
+
+    ## return regexp of pattern to parse eRuby script
+    def pattern_regexp(pattern)
+      @prefix, @postfix = pattern.split()   # '<% %>' => '<%', '%>'
+      #return /(.*?)(^[ \t]*)?#{@prefix}(=+|\#)?(.*?)-?#{@postfix}([ \t]*\r?\n)?/m
+      #return /(^[ \t]*)?#{@prefix}(=+|\#)?(.*?)-?#{@postfix}([ \t]*\r?\n)?/m
+      return /#{@prefix}(=+|-|\#|%)?(.*?)([-=])?#{@postfix}([ \t]*\r?\n)?/m
+    end
+    module_function :pattern_regexp
+
+    #DEFAULT_REGEXP = /(.*?)(^[ \t]*)?<%(=+|\#)?(.*?)-?%>([ \t]*\r?\n)?/m
+    #DEFAULT_REGEXP = /(^[ \t]*)?<%(=+|\#)?(.*?)-?%>([ \t]*\r?\n)?/m
+    #DEFAULT_REGEXP = /<%(=+|\#)?(.*?)-?%>([ \t]*\r?\n)?/m
+    DEFAULT_REGEXP = pattern_regexp('<% %>')
+
+    public
+
+    def convert_input(src, input)
+      pat = @pattern
+      regexp = pat.nil? || pat == '<% %>' ? DEFAULT_REGEXP : pattern_regexp(pat)
+      pos = 0
+      is_bol = true     # is beginning of line
+      input.scan(regexp) do |indicator, code, tailch, rspace|
+        match = Regexp.last_match()
+        len  = match.begin(0) - pos
+        text = input[pos, len]
+        pos  = match.end(0)
+        ch   = indicator ? indicator[0] : nil
+        lspace = ch == ?= ? nil : detect_spaces_at_bol(text, is_bol)
+        is_bol = rspace ? true : false
+        add_text(src, text) if text && !text.empty?
+        ## * when '<%= %>', do nothing
+        ## * when '<% %>' or '<%# %>', delete spaces iff only spaces are around '<% %>'
+        if ch == ?=              # <%= %>
+          rspace = nil if tailch && !tailch.empty?
+          add_text(src, lspace) if lspace
+          add_expr(src, code, indicator)
+          add_text(src, rspace) if rspace
+        elsif ch == ?\#          # <%# %>
+          n = code.count("\n") + (rspace ? 1 : 0)
+          if @trim && lspace && rspace
+            add_stmt(src, "\n" * n)
+          else
+            add_text(src, lspace) if lspace
+            add_stmt(src, "\n" * n)
+            add_text(src, rspace) if rspace
+          end
+        elsif ch == ?%           # <%% %>
+          s = "#{lspace}#{@prefix||='<%'}#{code}#{tailch}#{@postfix||='%>'}#{rspace}"
+          add_text(src, s)
+        else                     # <% %>
+          if @trim && lspace && rspace
+            add_stmt(src, "#{lspace}#{code}#{rspace}")
+          else
+            add_text(src, lspace) if lspace
+            add_stmt(src, code)
+            add_text(src, rspace) if rspace
+          end
+        end
+      end
+      #rest = $' || input                        # ruby1.8
+      rest = pos == 0 ? input : input[pos..-1]   # ruby1.9
+      add_text(src, rest)
+    end
+
+    ## add expression code to src
+    def add_expr(src, code, indicator)
+      case indicator
+      when '='
+        @escape ? add_expr_escaped(src, code) : add_expr_literal(src, code)
+      when '=='
+        @escape ? add_expr_literal(src, code) : add_expr_escaped(src, code)
+      when '==='
+        add_expr_debug(src, code)
+      end
+    end
+
+  end
+
+
+  module PI
+  end
+
+  ##
+  ## Processing Instructions (PI) converter for XML.
+  ## this class converts '<?rb ... ?>' and '${...}' notation.
+  ##
+  module PI::Converter
+    include Erubis::Converter
+
+    def self.desc   # :nodoc:
+      "use processing instructions (PI) instead of '<% %>'"
+    end
+
+    def self.supported_properties    # :nodoc:
+      return [
+              [:trim,      true,   "trim spaces around <% ... %>"],
+              [:pi,        'rb',   "PI (Processing Instrunctions) name"],
+              [:embchar,   '@',    "char for embedded expression pattern('@{...}@')"],
+              [:pattern,  '<% %>', "embed pattern"],
+             ]
+    end
+
+    attr_accessor :pi, :prefix
+
+    def init_converter(properties={})
+      super(properties)
+      @trim    = properties.fetch(:trim, true)
+      @pi      = properties[:pi] if properties[:pi]
+      @embchar = properties[:embchar] || '@'
+      @pattern = properties[:pattern]
+      @pattern = '<% %>' if @pattern.nil?  #|| @pattern == true
+    end
+
+    def convert(input)
+      code = super(input)
+      return @header || @footer ? "#{@header}#{code}#{@footer}" : code
+    end
+
+    protected
+
+    def convert_input(codebuf, input)
+      unless @regexp
+        @pi ||= 'e'
+        ch = Regexp.escape(@embchar)
+        if @pattern
+          left, right = @pattern.split(' ')
+          @regexp = /<\?#{@pi}(?:-(\w+))?(\s.*?)\?>([ \t]*\r?\n)?|#{ch}(!*)?\{(.*?)\}#{ch}|#{left}(=+)(.*?)#{right}/m
+        else
+          @regexp = /<\?#{@pi}(?:-(\w+))?(\s.*?)\?>([ \t]*\r?\n)?|#{ch}(!*)?\{(.*?)\}#{ch}/m
+        end
+      end
+      #
+      is_bol = true
+      pos = 0
+      input.scan(@regexp) do |pi_arg, stmt, rspace,
+                              indicator1, expr1, indicator2, expr2|
+        match = Regexp.last_match
+        len = match.begin(0) - pos
+        text = input[pos, len]
+        pos = match.end(0)
+        lspace = stmt ? detect_spaces_at_bol(text, is_bol) : nil
+        is_bol = stmt && rspace ? true : false
+        add_text(codebuf, text) # unless text.empty?
+        #
+        if stmt
+          if @trim && lspace && rspace
+            add_pi_stmt(codebuf, "#{lspace}#{stmt}#{rspace}", pi_arg)
+          else
+            add_text(codebuf, lspace) if lspace
+            add_pi_stmt(codebuf, stmt, pi_arg)
+            add_text(codebuf, rspace) if rspace
+          end
+        else
+          add_pi_expr(codebuf, expr1 || expr2, indicator1 || indicator2)
+        end
+      end
+      #rest = $' || input                        # ruby1.8
+      rest = pos == 0 ? input : input[pos..-1]   # ruby1.9
+      add_text(codebuf, rest)
+    end
+
+    #--
+    #def convert_input(codebuf, input)
+    #  parse_stmts(codebuf, input)
+    #  #parse_stmts2(codebuf, input)
+    #end
+    #
+    #def parse_stmts(codebuf, input)
+    #  #regexp = pattern_regexp(@pattern)
+    #  @pi ||= 'e'
+    #  @stmt_pattern ||= /<\?#{@pi}(?:-(\w+))?(\s.*?)\?>([ \t]*\r?\n)?/m
+    #  is_bol = true
+    #  pos = 0
+    #  input.scan(@stmt_pattern) do |pi_arg, code, rspace|
+    #    match = Regexp.last_match
+    #    len  = match.begin(0) - pos
+    #    text = input[pos, len]
+    #    pos  = match.end(0)
+    #    lspace = detect_spaces_at_bol(text, is_bol)
+    #    is_bol = rspace ? true : false
+    #    parse_exprs(codebuf, text) # unless text.empty?
+    #    if @trim && lspace && rspace
+    #      add_pi_stmt(codebuf, "#{lspace}#{code}#{rspace}", pi_arg)
+    #    else
+    #      add_text(codebuf, lspace)
+    #      add_pi_stmt(codebuf, code, pi_arg)
+    #      add_text(codebuf, rspace)
+    #    end
+    #  end
+    #  rest = $' || input
+    #  parse_exprs(codebuf, rest)
+    #end
+    #
+    #def parse_exprs(codebuf, input)
+    #  unless @expr_pattern
+    #    ch = Regexp.escape(@embchar)
+    #    if @pattern
+    #      left, right = @pattern.split(' ')
+    #      @expr_pattern = /#{ch}(!*)?\{(.*?)\}#{ch}|#{left}(=+)(.*?)#{right}/
+    #    else
+    #      @expr_pattern = /#{ch}(!*)?\{(.*?)\}#{ch}/
+    #    end
+    #  end
+    #  pos = 0
+    #  input.scan(@expr_pattern) do |indicator1, code1, indicator2, code2|
+    #    indicator = indicator1 || indicator2
+    #    code = code1 || code2
+    #    match = Regexp.last_match
+    #    len  = match.begin(0) - pos
+    #    text = input[pos, len]
+    #    pos  = match.end(0)
+    #    add_text(codebuf, text) # unless text.empty?
+    #    add_pi_expr(codebuf, code, indicator)
+    #  end
+    #  rest = $' || input
+    #  add_text(codebuf, rest)
+    #end
+    #++
+
+    def add_pi_stmt(codebuf, code, pi_arg)  # :nodoc:
+      case pi_arg
+      when nil      ;  add_stmt(codebuf, code)
+      when 'header' ;  @header = code
+      when 'footer' ;  @footer = code
+      when 'comment';  add_stmt(codebuf, "\n" * code.count("\n"))
+      when 'value'  ;  add_expr_literal(codebuf, code)
+      else          ;  add_stmt(codebuf, code)
+      end
+    end
+
+    def add_pi_expr(codebuf, code, indicator)  # :nodoc:
+      case indicator
+      when nil, '', '=='    # @{...}@ or <%== ... %>
+        @escape == false ? add_expr_literal(codebuf, code) : add_expr_escaped(codebuf, code)
+      when '!', '='         # @!{...}@ or <%= ... %>
+        @escape == false ? add_expr_escaped(codebuf, code) : add_expr_literal(codebuf, code)
+      when '!!', '==='      # @!!{...}@ or <%=== ... %>
+        add_expr_debug(codebuf, code)
+      else
+        # ignore
+      end
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/converter'
+#--begin of require 'erubis/evaluator'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--begin of require 'erubis/error'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+module Erubis
+
+
+  ##
+  ## base error class
+  ##
+  class ErubisError < StandardError
+  end
+
+
+  ##
+  ## raised when method or function is not supported
+  ##
+  class NotSupportedError < ErubisError
+  end
+
+
+end
+#--end of require 'erubis/error'
+#--begin of require 'erubis/context'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+
+module Erubis
+
+
+  ##
+  ## context object for Engine#evaluate
+  ##
+  ## ex.
+  ##   template = <<'END'
+  ##   Hello <%= @user %>!
+  ##   <% for item in @list %>
+  ##    - <%= item %>
+  ##   <% end %>
+  ##   END
+  ##
+  ##   context = Erubis::Context.new(:user=>'World', :list=>['a','b','c'])
+  ##   # or
+  ##   # context = Erubis::Context.new
+  ##   # context[:user] = 'World'
+  ##   # context[:list] = ['a', 'b', 'c']
+  ##
+  ##   eruby = Erubis::Eruby.new(template)
+  ##   print eruby.evaluate(context)
+  ##
+  class Context
+    include Enumerable
+
+    def initialize(hash=nil)
+      hash.each do |name, value|
+        self[name] = value
+      end if hash
+    end
+
+    def [](key)
+      return instance_variable_get("@#{key}")
+    end
+
+    def []=(key, value)
+      return instance_variable_set("@#{key}", value)
+    end
+
+    def keys
+      return instance_variables.collect { |name| name[1..-1] }
+    end
+
+    def each
+      instance_variables.each do |name|
+        key = name[1..-1]
+        value = instance_variable_get(name)
+        yield(key, value)
+      end
+    end
+
+    def to_hash
+      hash = {}
+      self.keys.each { |key| hash[key] = self[key] }
+      return hash
+    end
+
+    def update(context_or_hash)
+      arg = context_or_hash
+      if arg.is_a?(Hash)
+        arg.each do |key, val|
+          self[key] = val
+        end
+      else
+        arg.instance_variables.each do |varname|
+          key = varname[1..-1]
+          val = arg.instance_variable_get(varname)
+          self[key] = val
+        end
+      end
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/context'
+
+
+module Erubis
+
+  EMPTY_BINDING = binding()
+
+
+  ##
+  ## evaluate code
+  ##
+  module Evaluator
+
+    def self.supported_properties    # :nodoc:
+      return []
+    end
+
+    attr_accessor :src, :filename
+
+    def init_evaluator(properties)
+      @filename = properties[:filename]
+    end
+
+    def result(*args)
+      raise NotSupportedError.new("evaluation of code except Ruby is not supported.")
+    end
+
+    def evaluate(*args)
+      raise NotSupportedError.new("evaluation of code except Ruby is not supported.")
+    end
+
+  end
+
+
+  ##
+  ## evaluator for Ruby
+  ##
+  module RubyEvaluator
+    include Evaluator
+
+    def self.supported_properties    # :nodoc:
+      list = Evaluator.supported_properties
+      return list
+    end
+
+    ## eval(@src) with binding object
+    def result(_binding_or_hash=TOPLEVEL_BINDING)
+      _arg = _binding_or_hash
+      if _arg.is_a?(Hash)
+        _b = binding()
+        eval _arg.collect{|k,v| "#{k} = _arg[#{k.inspect}]; "}.join, _b
+      elsif _arg.is_a?(Binding)
+        _b = _arg
+      elsif _arg.nil?
+        _b = binding()
+      else
+        raise ArgumentError.new("#{self.class.name}#result(): argument should be Binding or Hash but passed #{_arg.class.name} object.")
+      end
+      return eval(@src, _b, (@filename || '(erubis'))
+    end
+
+    ## invoke context.instance_eval(@src)
+    def evaluate(_context=Context.new)
+      _context = Context.new(_context) if _context.is_a?(Hash)
+      #return _context.instance_eval(@src, @filename || '(erubis)')
+      #@_proc ||= eval("proc { #{@src} }", Erubis::EMPTY_BINDING, @filename || '(erubis)')
+      @_proc ||= eval("proc { #{@src} }", binding(), @filename || '(erubis)')
+      return _context.instance_eval(&@_proc)
+    end
+
+    ## if object is an Class or Module then define instance method to it,
+    ## else define singleton method to it.
+    def def_method(object, method_name, filename=nil)
+      m = object.is_a?(Module) ? :module_eval : :instance_eval
+      object.__send__(m, "def #{method_name}; #{@src}; end", filename || @filename || '(erubis)')
+    end
+
+
+  end
+
+
+end
+#--end of require 'erubis/evaluator'
+#--already included require 'erubis/context'
+
+
+module Erubis
+
+
+  ##
+  ## (abstract) abstract engine class.
+  ## subclass must include evaluator and converter module.
+  ##
+  class Engine
+    #include Evaluator
+    #include Converter
+    #include Generator
+
+    def initialize(input=nil, properties={})
+      #@input = input
+      init_generator(properties)
+      init_converter(properties)
+      init_evaluator(properties)
+      @src    = convert(input) if input
+    end
+
+
+    ##
+    ## convert input string and set it to @src
+    ##
+    def convert!(input)
+      @src = convert(input)
+    end
+
+
+    ##
+    ## load file, write cache file, and return engine object.
+    ## this method create code cache file automatically.
+    ## cachefile name can be specified with properties[:cachename],
+    ## or filname + 'cache' is used as default.
+    ##
+    def self.load_file(filename, properties={})
+      cachename = properties[:cachename] || (filename + '.cache')
+      properties[:filename] = filename
+      timestamp = File.mtime(filename)
+      if test(?f, cachename) && timestamp == File.mtime(cachename)
+        engine = self.new(nil, properties)
+        engine.src = File.read(cachename)
+      else
+        input = File.open(filename, 'rb') {|f| f.read }
+        engine = self.new(input, properties)
+        tmpname = cachename + rand().to_s[1,8]
+        File.open(tmpname, 'wb') {|f| f.write(engine.src) }
+        File.rename(tmpname, cachename)
+        File.utime(timestamp, timestamp, cachename)
+      end
+      engine.src.untaint   # ok?
+      return engine
+    end
+
+
+    ##
+    ## helper method to convert and evaluate input text with context object.
+    ## context may be Binding, Hash, or Object.
+    ##
+    def process(input, context=nil, filename=nil)
+      code = convert(input)
+      filename ||= '(erubis)'
+      if context.is_a?(Binding)
+        return eval(code, context, filename)
+      else
+        context = Context.new(context) if context.is_a?(Hash)
+        return context.instance_eval(code, filename)
+      end
+    end
+
+
+    ##
+    ## helper method evaluate Proc object with contect object.
+    ## context may be Binding, Hash, or Object.
+    ##
+    def process_proc(proc_obj, context=nil, filename=nil)
+      if context.is_a?(Binding)
+        filename ||= '(erubis)'
+        return eval(proc_obj, context, filename)
+      else
+        context = Context.new(context) if context.is_a?(Hash)
+        return context.instance_eval(&proc_obj)
+      end
+    end
+
+
+  end  # end of class Engine
+
+
+  ##
+  ## (abstract) base engine class for Eruby, Eperl, Ejava, and so on.
+  ## subclass must include generator.
+  ##
+  class Basic::Engine < Engine
+    include Evaluator
+    include Basic::Converter
+    include Generator
+  end
+
+
+  class PI::Engine < Engine
+    include Evaluator
+    include PI::Converter
+    include Generator
+  end
+
+
+end
+#--end of require 'erubis/engine'
+#require 'erubis/generator'
+#require 'erubis/converter'
+#require 'erubis/evaluator'
+#require 'erubis/error'
+#require 'erubis/context'
+#requier 'erubis/util'
+#--begin of require 'erubis/helper'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+
+module Erubis
+
+  ##
+  ## helper for xml
+  ##
+  module XmlHelper
+
+    module_function
+
+    ESCAPE_TABLE = {
+      '&' => '&amp;',
+      '<' => '&lt;',
+      '>' => '&gt;',
+      '"' => '&quot;',
+      "'" => '&#039;',
+    }
+
+    def escape_xml(value)
+      value.to_s.gsub(/[&<>"]/) { |s| ESCAPE_TABLE[s] }   # or /[&<>"']/
+      #value.to_s.gsub(/[&<>"]/) { ESCAPE_TABLE[$&] }
+    end
+
+    def escape_xml2(value)
+      return value.to_s.gsub(/\&/,'&amp;').gsub(/</,'&lt;').gsub(/>/,'&gt;').gsub(/"/,'&quot;')
+    end
+
+    alias h escape_xml
+    alias html_escape escape_xml
+
+    def url_encode(str)
+      return str.gsub(/[^-_.a-zA-Z0-9]+/) { |s|
+        s.unpack('C*').collect { |i| "%%%02X" % i }.join
+      }
+    end
+
+    alias u url_encode
+
+  end
+
+
+end
+#--end of require 'erubis/helper'
+#--begin of require 'erubis/enhancer'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+
+module Erubis
+
+
+  ##
+  ## switch '<%= ... %>' to escaped and '<%== ... %>' to unescaped
+  ##
+  ## ex.
+  ##   class XmlEruby < Eruby
+  ##     include EscapeEnhancer
+  ##   end
+  ##
+  ## this is language-indenedent.
+  ##
+  module EscapeEnhancer
+
+    def self.desc   # :nodoc:
+      "switch '<%= %>' to escaped and '<%== %>' to unescaped"
+    end
+
+    #--
+    #def self.included(klass)
+    #  klass.class_eval <<-END
+    #    alias _add_expr_literal add_expr_literal
+    #    alias _add_expr_escaped add_expr_escaped
+    #    alias add_expr_literal _add_expr_escaped
+    #    alias add_expr_escaped _add_expr_literal
+    #  END
+    #end
+    #++
+
+    def add_expr(src, code, indicator)
+      case indicator
+      when '='
+        @escape ? add_expr_literal(src, code) : add_expr_escaped(src, code)
+      when '=='
+        @escape ? add_expr_escaped(src, code) : add_expr_literal(src, code)
+      when '==='
+        add_expr_debug(src, code)
+      end
+    end
+
+  end
+
+
+  #--
+  ## (obsolete)
+  #module FastEnhancer
+  #end
+  #++
+
+
+  ##
+  ## use $stdout instead of string
+  ##
+  ## this is only for Eruby.
+  ##
+  module StdoutEnhancer
+
+    def self.desc   # :nodoc:
+      "use $stdout instead of array buffer or string buffer"
+    end
+
+    def add_preamble(src)
+      src << "#{@bufvar} = $stdout;"
+    end
+
+    def add_postamble(src)
+      src << "\n''\n"
+    end
+
+  end
+
+
+  ##
+  ## use print statement instead of '_buf << ...'
+  ##
+  ## this is only for Eruby.
+  ##
+  module PrintOutEnhancer
+
+    def self.desc   # :nodoc:
+      "use print statement instead of '_buf << ...'"
+    end
+
+    def add_preamble(src)
+    end
+
+    def add_text(src, text)
+      src << " print '#{escape_text(text)}';" unless text.empty?
+    end
+
+    def add_expr_literal(src, code)
+      src << " print((#{code}).to_s);"
+    end
+
+    def add_expr_escaped(src, code)
+      src << " print #{escaped_expr(code)};"
+    end
+
+    def add_postamble(src)
+      src << "\n" unless src[-1] == ?\n
+    end
+
+  end
+
+
+  ##
+  ## enable print function
+  ##
+  ## Notice: use Eruby#evaluate() and don't use Eruby#result()
+  ## to be enable print function.
+  ##
+  ## this is only for Eruby.
+  ##
+  module PrintEnabledEnhancer
+
+    def self.desc   # :nodoc:
+      "enable to use print function in '<% %>'"
+    end
+
+    def add_preamble(src)
+      src << "@_buf = "
+      super
+    end
+
+    def print(*args)
+      args.each do |arg|
+        @_buf << arg.to_s
+      end
+    end
+
+    def evaluate(context=nil)
+      _src = @src
+      if context.is_a?(Hash)
+        context.each do |key, val| instance_variable_set("@#{key}", val) end
+      elsif context
+        context.instance_variables.each do |name|
+          instance_variable_set(name, context.instance_variable_get(name))
+        end
+      end
+      return instance_eval(_src, (@filename || '(erubis)'))
+    end
+
+  end
+
+
+  ##
+  ## return array instead of string
+  ##
+  ## this is only for Eruby.
+  ##
+  module ArrayEnhancer
+
+    def self.desc   # :nodoc:
+      "return array instead of string"
+    end
+
+    def add_preamble(src)
+      src << "#{@bufvar} = [];"
+    end
+
+    def add_postamble(src)
+      src << "\n" unless src[-1] == ?\n
+      src << "#{@bufvar}\n"
+    end
+
+  end
+
+
+  ##
+  ## use an Array object as buffer (included in Eruby by default)
+  ##
+  ## this is only for Eruby.
+  ##
+  module ArrayBufferEnhancer
+
+    def self.desc   # :nodoc:
+      "use an Array object for buffering (included in Eruby class)"
+    end
+
+    def add_preamble(src)
+      src << "_buf = [];"
+    end
+
+    def add_postamble(src)
+      src << "\n" unless src[-1] == ?\n
+      src << "_buf.join\n"
+    end
+
+  end
+
+
+  ##
+  ## use String class for buffering
+  ##
+  ## this is only for Eruby.
+  ##
+  module StringBufferEnhancer
+
+    def self.desc   # :nodoc:
+      "use a String object for buffering"
+    end
+
+    def add_preamble(src)
+      src << "#{@bufvar} = '';"
+    end
+
+    def add_postamble(src)
+      src << "\n" unless src[-1] == ?\n
+      src << "#{@bufvar}.to_s\n"
+    end
+
+  end
+
+
+  ##
+  ## use StringIO class for buffering
+  ##
+  ## this is only for Eruby.
+  ##
+  module StringIOEnhancer  # :nodoc:
+
+    def self.desc   # :nodoc:
+      "use a StringIO object for buffering"
+    end
+
+    def add_preamble(src)
+      src << "#{@bufvar} = StringIO.new;"
+    end
+
+    def add_postamble(src)
+      src << "\n" unless src[-1] == ?\n
+      src << "#{@bufvar}.string\n"
+    end
+
+  end
+
+
+  ##
+  ## set buffer variable name to '_erbout' as well as '_buf'
+  ##
+  ## this is only for Eruby.
+  ##
+  module ErboutEnhancer
+
+    def self.desc   # :nodoc:
+      "set '_erbout = _buf = \"\";' to be compatible with ERB."
+    end
+
+    def add_preamble(src)
+      src << "_erbout = #{@bufvar} = '';"
+    end
+
+    def add_postamble(src)
+      src << "\n" unless src[-1] == ?\n
+      src << "#{@bufvar}.to_s\n"
+    end
+
+  end
+
+
+  ##
+  ## remove text and leave code, especially useful when debugging.
+  ##
+  ## ex.
+  ##   $ erubis -s -E NoText file.eruby | more
+  ##
+  ## this is language independent.
+  ##
+  module NoTextEnhancer
+
+    def self.desc   # :nodoc:
+      "remove text and leave code (useful when debugging)"
+    end
+
+    def add_text(src, text)
+      src << ("\n" * text.count("\n"))
+      if text[-1] != ?\n
+        text =~ /^(.*?)\z/
+        src << (' ' * $1.length)
+      end
+    end
+
+  end
+
+
+  ##
+  ## remove code and leave text, especially useful when validating HTML tags.
+  ##
+  ## ex.
+  ##   $ erubis -s -E NoCode file.eruby | tidy -errors
+  ##
+  ## this is language independent.
+  ##
+  module NoCodeEnhancer
+
+    def self.desc   # :nodoc:
+      "remove code and leave text (useful when validating HTML)"
+    end
+
+    def add_preamble(src)
+    end
+
+    def add_postamble(src)
+    end
+
+    def add_text(src, text)
+      src << text
+    end
+
+    def add_expr(src, code, indicator)
+      src << "\n" * code.count("\n")
+    end
+
+    def add_stmt(src, code)
+      src << "\n" * code.count("\n")
+    end
+
+  end
+
+
+  ##
+  ## get convert faster, but spaces around '<%...%>' are not trimmed.
+  ##
+  ## this is language-independent.
+  ##
+  module SimplifyEnhancer
+
+    def self.desc   # :nodoc:
+      "get convert faster but leave spaces around '<% %>'"
+    end
+
+    #DEFAULT_REGEXP = /(^[ \t]*)?<%(=+|\#)?(.*?)-?%>([ \t]*\r?\n)?/m
+    SIMPLE_REGEXP = /<%(=+|\#)?(.*?)-?%>/m
+
+    def convert(input)
+      src = ""
+      add_preamble(src)
+      #regexp = pattern_regexp(@pattern)
+      pos = 0
+      input.scan(SIMPLE_REGEXP) do |indicator, code|
+        match = Regexp.last_match
+        index = match.begin(0)
+        text  = input[pos, index - pos]
+        pos   = match.end(0)
+        add_text(src, text)
+        if !indicator              # <% %>
+          add_stmt(src, code)
+        elsif indicator[0] == ?\#  # <%# %>
+          n = code.count("\n")
+          add_stmt(src, "\n" * n)
+        else                       # <%= %>
+          add_expr(src, code, indicator)
+        end
+      end
+      #rest = $' || input                      # ruby1.8
+      rest = pos == 0 ? input : input[pos..-1]  # ruby1.9
+      add_text(src, rest)
+      add_postamble(src)
+      return src
+    end
+
+  end
+
+
+  ##
+  ## enable to use other embedded expression pattern (default is '\[= =\]').
+  ##
+  ## notice! this is an experimental. spec may change in the future.
+  ##
+  ## ex.
+  ##   input = <<END
+  ##   <% for item in list %>
+  ##     <%= item %> : <%== item %>
+  ##     [= item =] : [== item =]
+  ##   <% end %>
+  ##   END
+  ##
+  ##   class BiPatternEruby
+  ##     include BiPatternEnhancer
+  ##   end
+  ##   eruby = BiPatternEruby.new(input, :bipattern=>'\[= =\]')
+  ##   list = ['<a>', 'b&b', '"c"']
+  ##   print eruby.result(binding())
+  ##
+  ##   ## output
+  ##     <a> : &lt;a&gt;
+  ##     <a> : &lt;a&gt;
+  ##     b&b : b&amp;b
+  ##     b&b : b&amp;b
+  ##     "c" : &quot;c&quot;
+  ##     "c" : &quot;c&quot;
+  ##
+  ## this is language independent.
+  ##
+  module BiPatternEnhancer
+
+    def self.desc   # :nodoc:
+      "another embedded expression pattern (default '\[= =\]')."
+    end
+
+    def initialize(input, properties={})
+      self.bipattern = properties[:bipattern]    # or '\$\{ \}'
+      super
+    end
+
+    ## when pat is nil then '\[= =\]' is used
+    def bipattern=(pat)   # :nodoc:
+      @bipattern = pat || '\[= =\]'
+      pre, post = @bipattern.split()
+      @bipattern_regexp = /(.*?)#{pre}(=*)(.*?)#{post}/m
+    end
+
+    def add_text(src, text)
+      return unless text
+      m = nil
+      text.scan(@bipattern_regexp) do |txt, indicator, code|
+        m = Regexp.last_match
+        super(src, txt)
+        add_expr(src, code, '=' + indicator)
+      end
+      #rest = $' || text                    # ruby1.8
+      rest = m ? text[m.end(0)..-1] : text  # ruby1.9
+      super(src, rest)
+    end
+
+  end
+
+
+  ##
+  ## regards lines starting with '^[ \t]*%' as program code
+  ##
+  ## in addition you can specify prefix character (default '%')
+  ##
+  ## this is language-independent.
+  ##
+  module PrefixedLineEnhancer
+
+    def self.desc   # :nodoc:
+      "regard lines matched to '^[ \t]*%' as program code"
+    end
+
+    def init_generator(properties={})
+      super
+      @prefixchar = properties[:prefixchar]
+    end
+
+    def add_text(src, text)
+      unless @prefixrexp
+        @prefixchar ||= '%'
+        @prefixrexp = Regexp.compile("^([ \\t]*)\\#{@prefixchar}(.*?\\r?\\n)")
+      end
+      pos = 0
+      text2 = ''
+      text.scan(@prefixrexp) do
+        space = $1
+        line  = $2
+        space, line = '', $1 unless $2
+        match = Regexp.last_match
+        len   = match.begin(0) - pos
+        str   = text[pos, len]
+        pos   = match.end(0)
+        if text2.empty?
+          text2 = str
+        else
+          text2 << str
+        end
+        if line[0, 1] == @prefixchar
+          text2 << space << line
+        else
+          super(src, text2)
+          text2 = ''
+          add_stmt(src, space + line)
+        end
+      end
+      #rest = pos == 0 ? text : $'             # ruby1.8
+      rest = pos == 0 ? text : text[pos..-1]   # ruby1.9
+      unless text2.empty?
+        text2 << rest if rest
+        rest = text2
+      end
+      super(src, rest)
+    end
+
+  end
+
+
+  ##
+  ## regards lines starting with '%' as program code
+  ##
+  ## this is for compatibility to eruby and ERB.
+  ##
+  ## this is language-independent.
+  ##
+  module PercentLineEnhancer
+    include PrefixedLineEnhancer
+
+    def self.desc   # :nodoc:
+      "regard lines starting with '%' as program code"
+    end
+
+    #--
+    #def init_generator(properties={})
+    #  super
+    #  @prefixchar = '%'
+    #  @prefixrexp = /^\%(.*?\r?\n)/
+    #end
+    #++
+
+    def add_text(src, text)
+      unless @prefixrexp
+        @prefixchar = '%'
+        @prefixrexp = /^\%(.*?\r?\n)/
+      end
+      super(src, text)
+    end
+
+  end
+
+
+  ##
+  ## [experimental] allow header and footer in eRuby script
+  ##
+  ## ex.
+  ##   ====================
+  ##   ## without header and footer
+  ##   $ cat ex1.eruby
+  ##   <% def list_items(list) %>
+  ##   <%   for item in list %>
+  ##   <li><%= item %></li>
+  ##   <%   end %>
+  ##   <% end %>
+  ##
+  ##   $ erubis -s ex1.eruby
+  ##   _buf = []; def list_items(list)
+  ##   ;   for item in list
+  ##   ; _buf << '<li>'; _buf << ( item ).to_s; _buf << '</li>
+  ##   ';   end
+  ##   ; end
+  ##   ;
+  ##   _buf.join
+  ##
+  ##   ## with header and footer
+  ##   $ cat ex2.eruby
+  ##   <!--#header:
+  ##   def list_items(list)
+  ##    #-->
+  ##   <%  for item in list %>
+  ##   <li><%= item %></li>
+  ##   <%  end %>
+  ##   <!--#footer:
+  ##   end
+  ##    #-->
+  ##
+  ##   $ erubis -s -c HeaderFooterEruby ex4.eruby
+  ##
+  ##   def list_items(list)
+  ##    _buf = []; _buf << '
+  ##   ';  for item in list
+  ##   ; _buf << '<li>'; _buf << ( item ).to_s; _buf << '</li>
+  ##   ';  end
+  ##   ; _buf << '
+  ##   ';
+  ##   _buf.join
+  ##   end
+  ##
+  ##   ====================
+  ##
+  ## this is language-independent.
+  ##
+  module HeaderFooterEnhancer
+
+    def self.desc   # :nodoc:
+      "allow header/footer in document (ex. '<!--#header: #-->')"
+    end
+
+    HEADER_FOOTER_PATTERN = /(.*?)(^[ \t]*)?<!--\#(\w+):(.*?)\#-->([ \t]*\r?\n)?/m
+
+    def add_text(src, text)
+      m = nil
+      text.scan(HEADER_FOOTER_PATTERN) do |txt, lspace, word, content, rspace|
+        m = Regexp.last_match
+        flag_trim = @trim && lspace && rspace
+        super(src, txt)
+        content = "#{lspace}#{content}#{rspace}" if flag_trim
+        super(src, lspace) if !flag_trim && lspace
+        instance_variable_set("@#{word}", content)
+        super(src, rspace) if !flag_trim && rspace
+      end
+      #rest = $' || text                    # ruby1.8
+      rest = m ? text[m.end(0)..-1] : text  # ruby1.9
+      super(src, rest)
+    end
+
+    attr_accessor :header, :footer
+
+    def convert(input)
+      source = super
+      return @src = "#{@header}#{source}#{@footer}"
+    end
+
+  end
+
+
+  ##
+  ## delete indentation of HTML.
+  ##
+  ## this is language-independent.
+  ##
+  module DeleteIndentEnhancer
+
+    def self.desc   # :nodoc:
+      "delete indentation of HTML."
+    end
+
+    def convert_input(src, input)
+      input = input.gsub(/^[ \t]+</, '<')
+      super(src, input)
+    end
+
+  end
+
+
+  ##
+  ## convert "<h1><%=title%></h1>" into "_buf << %Q`<h1>#{title}</h1>`"
+  ##
+  ## this is only for Eruby.
+  ##
+  module InterpolationEnhancer
+
+    def self.desc   # :nodoc:
+      "convert '<p><%=text%></p>' into '_buf << %Q`<p>\#{text}</p>`'"
+    end
+
+    def convert_input(src, input)
+      pat = @pattern
+      regexp = pat.nil? || pat == '<% %>' ? Basic::Converter::DEFAULT_REGEXP : pattern_regexp(pat)
+      pos = 0
+      is_bol = true     # is beginning of line
+      str = ''
+      input.scan(regexp) do |indicator, code, tailch, rspace|
+        match = Regexp.last_match()
+        len  = match.begin(0) - pos
+        text = input[pos, len]
+        pos  = match.end(0)
+        ch   = indicator ? indicator[0] : nil
+        lspace = ch == ?= ? nil : detect_spaces_at_bol(text, is_bol)
+        is_bol = rspace ? true : false
+        _add_text_to_str(str, text)
+        ## * when '<%= %>', do nothing
+        ## * when '<% %>' or '<%# %>', delete spaces iff only spaces are around '<% %>'
+        if ch == ?=              # <%= %>
+          rspace = nil if tailch && !tailch.empty?
+          str << lspace if lspace
+          add_expr(str, code, indicator)
+          str << rspace if rspace
+        elsif ch == ?\#          # <%# %>
+          n = code.count("\n") + (rspace ? 1 : 0)
+          if @trim && lspace && rspace
+            add_text(src, str)
+            str = ''
+            add_stmt(src, "\n" * n)
+          else
+            str << lspace if lspace
+            add_text(src, str)
+            str = ''
+            add_stmt(src, "\n" * n)
+            str << rspace if rspace
+          end
+        else                     # <% %>
+          if @trim && lspace && rspace
+            add_text(src, str)
+            str = ''
+            add_stmt(src, "#{lspace}#{code}#{rspace}")
+          else
+            str << lspace if lspace
+            add_text(src, str)
+            str = ''
+            add_stmt(src, code)
+            str << rspace if rspace
+          end
+        end
+      end
+      #rest = $' || input                       # ruby1.8
+      rest = pos == 0 ? input : input[pos..-1]  # ruby1.9
+      _add_text_to_str(str, rest)
+      add_text(src, str)
+    end
+
+    def add_text(src, text)
+      return if !text || text.empty?
+      #src << " _buf << %Q`" << text << "`;"
+      if text[-1] == ?\n
+        text[-1] = "\\n"
+        src << " #{@bufvar} << %Q`#{text}`\n"
+      else
+        src << " #{@bufvar} << %Q`#{text}`;"
+      end
+    end
+
+    def _add_text_to_str(str, text)
+      return if !text || text.empty?
+      str << text.gsub(/[`\#\\]/, '\\\\\&')
+    end
+
+    def add_expr_escaped(str, code)
+      str << "\#{#{escaped_expr(code)}}"
+    end
+
+    def add_expr_literal(str, code)
+      str << "\#{#{code}}"
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/enhancer'
+#require 'erubis/tiny'
+#--begin of require 'erubis/engine/eruby'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/engine'
+#--already included require 'erubis/enhancer'
+
+
+module Erubis
+
+
+  ##
+  ## code generator for Ruby
+  ##
+  module RubyGenerator
+    include Generator
+    #include ArrayBufferEnhancer
+    include StringBufferEnhancer
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= "Erubis::XmlHelper.escape_xml"
+      @bufvar     = properties[:bufvar] || "_buf"
+    end
+
+    def self.supported_properties()  # :nodoc:
+      return []
+    end
+
+    def escape_text(text)
+      text.gsub(/['\\]/, '\\\\\&')   # "'" => "\\'",  '\\' => '\\\\'
+    end
+
+    def escaped_expr(code)
+      return "#{@escapefunc}(#{code})"
+    end
+
+    #--
+    #def add_preamble(src)
+    #  src << "#{@bufvar} = [];"
+    #end
+    #++
+
+    def add_text(src, text)
+      src << " #{@bufvar} << '" << escape_text(text) << "';" unless text.empty?
+    end
+
+    def add_stmt(src, code)
+      #src << code << ';'
+      src << code
+      src << ';' unless code[-1] == ?\n
+    end
+
+    def add_expr_literal(src, code)
+      src << " #{@bufvar} << (" << code << ').to_s;'
+    end
+
+    def add_expr_escaped(src, code)
+      src << " #{@bufvar} << " << escaped_expr(code) << ';'
+    end
+
+    def add_expr_debug(src, code)
+      code.strip!
+      s = (code.dump =~ /\A"(.*)"\z/) && $1
+      src << ' $stderr.puts("*** debug: ' << s << '=#{(' << code << ').inspect}");'
+    end
+
+    #--
+    #def add_postamble(src)
+    #  src << "\n#{@bufvar}.join\n"
+    #end
+    #++
+
+  end
+
+
+  ##
+  ## engine for Ruby
+  ##
+  class Eruby < Basic::Engine
+    include RubyEvaluator
+    include RubyGenerator
+  end
+
+
+  ##
+  ## fast engine for Ruby
+  ##
+  class FastEruby < Eruby
+    include InterpolationEnhancer
+  end
+
+
+  ##
+  ## swtich '<%= %>' to escaped and '<%== %>' to not escaped
+  ##
+  class EscapedEruby < Eruby
+    include EscapeEnhancer
+  end
+
+
+  ##
+  ## sanitize expression (<%= ... %>) by default
+  ##
+  ## this is equivalent to EscapedEruby and is prepared only for compatibility.
+  ##
+  class XmlEruby < Eruby
+    include EscapeEnhancer
+  end
+
+
+  class PI::Eruby < PI::Engine
+    include RubyEvaluator
+    include RubyGenerator
+
+    def init_converter(properties={})
+      @pi = 'rb'
+      super(properties)
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/engine/eruby'
+#require 'erubis/engine/enhanced'    # enhanced eruby engines
+#require 'erubis/engine/optimized'   # generates optimized ruby code
+#require 'erubis/engine/ephp'
+#require 'erubis/engine/ec'
+#require 'erubis/engine/ejava'
+#require 'erubis/engine/escheme'
+#require 'erubis/engine/eperl'
+#require 'erubis/engine/ejavascript'
+
+#--begin of require 'erubis/local-setting'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+##
+## you can add site-local settings here.
+## this files is required by erubis.rb
+##
+#--end of require 'erubis/local-setting'
+#--end of require 'erubis'
+#--begin of require 'erubis/tiny'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+module Erubis
+
+  ##
+  ## tiny and the simplest implementation of eRuby
+  ##
+  ## ex.
+  ##   eruby = TinyEruby.new(File.read('example.rhtml'))
+  ##   print eruby.src                 # print ruby code
+  ##   print eruby.result(binding())   # eval ruby code with Binding object
+  ##   print eruby.evalute(context)    # eval ruby code with context object
+  ##
+  class TinyEruby
+
+    def initialize(input=nil)
+      @src = convert(input) if input
+    end
+    attr_reader :src
+
+    EMBEDDED_PATTERN = /<%(=+|\#)?(.*?)-?%>/m
+
+    def convert(input)
+      src = "_buf = '';"           # preamble
+      pos = 0
+      input.scan(EMBEDDED_PATTERN) do |indicator, code|
+        m = Regexp.last_match
+        text = input[pos...m.begin(0)]
+        pos  = m.end(0)
+        #src << " _buf << '" << escape_text(text) << "';"
+        text.gsub!(/['\\]/, '\\\\\&')
+        src << " _buf << '" << text << "';" unless text.empty?
+        if !indicator              # <% %>
+          src << code << ";"
+        elsif indicator == '#'     # <%# %>
+          src << ("\n" * code.count("\n"))
+        else                       # <%= %>
+          src << " _buf << (" << code << ").to_s;"
+        end
+      end
+      #rest = $' || input                        # ruby1.8
+      rest = pos == 0 ? input : input[pos..-1]   # ruby1.9
+      #src << " _buf << '" << escape_text(rest) << "';"
+      rest.gsub!(/['\\]/, '\\\\\&')
+      src << " _buf << '" << rest << "';" unless rest.empty?
+      src << "\n_buf.to_s\n"       # postamble
+      return src
+    end
+
+    #def escape_text(text)
+    #  return text.gsub!(/['\\]/, '\\\\\&') || text
+    #end
+
+    def result(_binding=TOPLEVEL_BINDING)
+      eval @src, _binding
+    end
+
+    def evaluate(_context=Object.new)
+      if _context.is_a?(Hash)
+        _obj = Object.new
+        _context.each do |k, v| _obj.instance_variable_set("@#{k}", v) end
+        _context = _obj
+      end
+      _context.instance_eval @src
+    end
+
+  end
+
+
+
+  module PI
+  end
+
+  class PI::TinyEruby
+
+    def initialize(input=nil, options={})
+      @escape  = options[:escape] || 'Erubis::XmlHelper.escape_xml'
+      @src = convert(input) if input
+    end
+
+    attr_reader :src
+
+    EMBEDDED_PATTERN = /(^[ \t]*)?<\?rb(\s.*?)\?>([ \t]*\r?\n)?|@(!+)?\{(.*?)\}@/m
+
+    def convert(input)
+      src = "_buf = '';"           # preamble
+      pos = 0
+      input.scan(EMBEDDED_PATTERN) do |lspace, stmt, rspace, indicator, expr|
+        match = Regexp.last_match
+        len   = match.begin(0) - pos
+        text  = input[pos, len]
+        pos   = match.end(0)
+        #src << " _buf << '" << escape_text(text) << "';"
+        text.gsub!(/['\\]/, '\\\\\&')
+        src << " _buf << '" << text << "';" unless text.empty?
+        if stmt                # <?rb ... ?>
+          if lspace && rspace
+            src << "#{lspace}#{stmt}#{rspace}"
+          else
+            src << " _buf << '" << lspace << "';" if lspace
+            src << stmt << ";"
+            src << " _buf << '" << rspace << "';" if rspace
+          end
+        else                       # ${...}, $!{...}
+          if !indicator
+            src << " _buf << " << @escape << "(" << expr << ");"
+          elsif indicator == '!'
+            src << " _buf << (" << expr << ").to_s;"
+          end
+        end
+      end
+      #rest = $' || input                        # ruby1.8
+      rest = pos == 0 ? input : input[pos..-1]   # ruby1.9
+      #src << " _buf << '" << escape_text(rest) << "';"
+      rest.gsub!(/['\\]/, '\\\\\&')
+      src << " _buf << '" << rest << "';" unless rest.empty?
+      src << "\n_buf.to_s\n"       # postamble
+      return src
+    end
+
+    #def escape_text(text)
+    #  return text.gsub!(/['\\]/, '\\\\\&') || text
+    #end
+
+    def result(_binding=TOPLEVEL_BINDING)
+      eval @src, _binding
+    end
+
+    def evaluate(_context=Object.new)
+      if _context.is_a?(Hash)
+        _obj = Object.new
+        _context.each do |k, v| _obj.instance_variable_set("@#{k}", v) end
+        _context = _obj
+      end
+      _context.instance_eval @src
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/tiny'
+#--begin of require 'erubis/engine/enhanced'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/enhancer'
+#--already included require 'erubis/engine/eruby'
+
+
+module Erubis
+
+
+  #--
+  ## moved to engine/ruby.rb
+  #class EscapedEruby < Eruby
+  #  include EscapeEnhancer
+  #end
+  #++
+
+
+  #--
+  ### (obsolete)
+  #class FastEruby < Eruby
+  #  include FastEnhancer
+  #end
+  #++
+
+
+  class StdoutEruby < Eruby
+    include StdoutEnhancer
+  end
+
+
+  class PrintOutEruby < Eruby
+    include PrintOutEnhancer
+  end
+
+
+  class PrintEnabledEruby < Eruby
+    include PrintEnabledEnhancer
+  end
+
+
+  class ArrayEruby < Eruby
+    include ArrayEnhancer
+  end
+
+
+  class ArrayBufferEruby < Eruby
+    include ArrayBufferEnhancer
+  end
+
+
+  class StringBufferEruby < Eruby
+    include StringBufferEnhancer
+  end
+
+
+  class StringIOEruby < Eruby
+    include StringIOEnhancer
+  end
+
+
+  class ErboutEruby < Eruby
+    include ErboutEnhancer
+  end
+
+
+  class NoTextEruby < Eruby
+    include NoTextEnhancer
+  end
+
+
+  class NoCodeEruby < Eruby
+    include NoCodeEnhancer
+  end
+
+
+  class SimplifiedEruby < Eruby
+    include SimplifyEnhancer
+  end
+
+
+  class StdoutSimplifiedEruby < Eruby
+    include StdoutEnhancer
+    include SimplifyEnhancer
+  end
+
+
+  class PrintOutSimplifiedEruby < Eruby
+    include PrintOutEnhancer
+    include SimplifyEnhancer
+  end
+
+
+  class BiPatternEruby < Eruby
+    include BiPatternEnhancer
+  end
+
+
+  class PercentLineEruby < Eruby
+    include PercentLineEnhancer
+  end
+
+
+  class PrefixedLineEruby < Eruby
+    include PrefixedLineEnhancer
+  end
+
+
+  class HeaderFooterEruby < Eruby
+    include HeaderFooterEnhancer
+  end
+
+
+  class DeleteIndentEruby < Eruby
+    include DeleteIndentEnhancer
+  end
+
+
+  class InterpolationEruby < Eruby
+    include InterpolationEnhancer
+  end
+
+
+end
+#--end of require 'erubis/engine/enhanced'
+#--begin of require 'erubis/engine/optimized'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+
+#--already included require 'erubis/engine/eruby'
+
+
+module Erubis
+
+
+  module OptimizedGenerator
+    include Generator
+
+    def self.supported_properties()  # :nodoc:
+      return []
+    end
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= "Erubis::XmlHelper.escape_xml"
+      @initialized = false
+      @prev_is_expr = false
+    end
+
+    protected
+
+    def escape_text(text)
+      text.gsub(/['\\]/, '\\\\\&')   # "'" => "\\'",  '\\' => '\\\\'
+    end
+
+    def escaped_expr(code)
+      @escapefunc ||= 'Erubis::XmlHelper.escape_xml'
+      return "#{@escapefunc}(#{code})"
+    end
+
+    def switch_to_expr(src)
+      return if @prev_is_expr
+      @prev_is_expr = true
+      src << ' _buf'
+    end
+
+    def switch_to_stmt(src)
+      return unless @prev_is_expr
+      @prev_is_expr = false
+      src << ';'
+    end
+
+    def add_preamble(src)
+      #@initialized = false
+      #@prev_is_expr = false
+    end
+
+    def add_text(src, text)
+      return if text.empty?
+      if @initialized
+        switch_to_expr(src)
+        src << " << '" << escape_text(text) << "'"
+      else
+        src << "_buf = '" << escape_text(text) << "';"
+        @initialized = true
+      end
+    end
+
+    def add_stmt(src, code)
+      switch_to_stmt(src) if @initialized
+      #super
+      src << code
+      src << ';' unless code[-1] == ?\n
+    end
+
+    def add_expr_literal(src, code)
+      unless @initialized; src << "_buf = ''"; @initialized = true; end
+      switch_to_expr(src)
+      src << " << (" << code << ").to_s"
+    end
+
+    def add_expr_escaped(src, code)
+      unless @initialized; src << "_buf = ''"; @initialized = true; end
+      switch_to_expr(src)
+      src << " << " << escaped_expr(code)
+    end
+
+    def add_expr_debug(src, code)
+      code.strip!
+      s = (code.dump =~ /\A"(.*)"\z/) && $1
+      src << ' $stderr.puts("*** debug: ' << s << '=#{(' << code << ').inspect}");'
+    end
+
+    def add_postamble(src)
+      #super if @initialized
+      src << "\n_buf\n" if @initialized
+    end
+
+  end  # end of class OptimizedEruby
+
+
+  ##
+  ## Eruby class which generates optimized ruby code
+  ##
+  class OptimizedEruby < Basic::Engine    # Eruby
+    include RubyEvaluator
+    include OptimizedGenerator
+
+    def init_converter(properties={})
+      @pi = 'rb'
+      super(properties)
+    end
+
+  end
+
+
+  ##
+  ## XmlEruby class which generates optimized ruby code
+  ##
+  class OptimizedXmlEruby < OptimizedEruby
+    include EscapeEnhancer
+
+    def add_expr_debug(src, code)
+      switch_to_stmt(src) if indicator == '===' && !@initialized
+      super
+    end
+
+  end  # end of class OptimizedXmlEruby
+
+end
+#--end of require 'erubis/engine/optimized'
+#--already included require 'erubis/engine/eruby'
+#--begin of require 'erubis/engine/ephp'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/engine'
+#--already included require 'erubis/enhancer'
+
+
+module Erubis
+
+
+  module PhpGenerator
+    include Generator
+
+    def self.supported_properties()  # :nodoc:
+      return []
+    end
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= 'htmlspecialchars'
+    end
+
+    def add_preamble(src)
+      # empty
+    end
+
+    def escape_text(text)
+      return text.gsub!(/<\?xml\b/, '<<?php ?>?xml') || text
+    end
+
+    def add_text(src, text)
+      src << escape_text(text)
+    end
+
+    def add_expr_literal(src, code)
+      code.strip!
+      src << "<?php echo #{code}; ?>"
+    end
+
+    def add_expr_escaped(src, code)
+      add_expr_literal(src, escaped_expr(code))
+    end
+
+    def add_expr_debug(src, code)
+      code.strip!
+      s = code.gsub(/\'/, "\\'")
+      src << "<?php error_log('*** debug: #{s}='.(#{code}), 0); ?>"
+    end
+
+    def add_stmt(src, code)
+      src << "<?php"
+      src << " " if code[0] != ?\ #
+      if code[-1] == ?\n
+        code.chomp!
+        src << code << "?>\n"
+      else
+        src << code << "?>"
+      end
+    end
+
+    def add_postamble(src)
+      # empty
+    end
+
+  end
+
+
+  ##
+  ## engine for PHP
+  ##
+  class Ephp < Basic::Engine
+    include PhpGenerator
+  end
+
+
+  class EscapedEphp < Ephp
+    include EscapeEnhancer
+  end
+
+
+  #class XmlEphp < Ephp
+  #  include EscapeEnhancer
+  #end
+
+
+  class PI::Ephp < PI::Engine
+    include PhpGenerator
+
+    def init_converter(properties={})
+      @pi = 'php'
+      super(properties)
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/engine/ephp'
+#--begin of require 'erubis/engine/ec'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/engine'
+#--already included require 'erubis/enhancer'
+
+
+module Erubis
+
+
+  module CGenerator
+    include Generator
+
+    def self.supported_properties()  # :nodoc:
+      return [
+              [:indent, '',       "indent spaces (ex. '  ')"],
+              [:out,    'stdout', "output file pointer name"],
+            ]
+    end
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= "escape"
+      @indent = properties[:indent] || ''
+      @out = properties[:out] || 'stdout'
+    end
+
+    def add_preamble(src)
+      src << "#line 1 \"#{self.filename}\"\n" if self.filename
+    end
+
+    def escape_text(text)
+      @@table_ ||= { "\r"=>"\\r", "\n"=>"\\n", "\t"=>"\\t", '"'=>'\\"', "\\"=>"\\\\" }
+      text.gsub!(/[\r\n\t"\\]/) { |m| @@table_[m] }
+      return text
+    end
+
+    def escaped_expr(code)
+      return "#{@escapefunc}(#{code.strip}, #{@out})"
+    end
+
+    def add_text(src, text)
+      return if text.empty?
+      src << (src.empty? || src[-1] == ?\n ? @indent : ' ')
+      src << "fputs("
+      i = 0
+      text.each_line do |line|
+        src << "\n" << @indent << '      ' if i > 0
+        i += 1
+        src << '"' << escape_text(line) << '"'
+      end
+      src << ", #{@out});"   #<< (text[-1] == ?\n ? "\n" : "")
+      src << "\n" if text[-1] == ?\n
+    end
+
+    def add_stmt(src, code)
+      src << code
+    end
+
+    def add_expr_literal(src, code)
+      src << @indent if src.empty? || src[-1] == ?\n
+      src << " fprintf(#{@out}, " << code.strip << ');'
+    end
+
+    def add_expr_escaped(src, code)
+      src << @indent if src.empty? || src[-1] == ?\n
+      src << ' ' << escaped_expr(code) << ';'
+    end
+
+    def add_expr_debug(src, code)
+      code.strip!
+      s = nil
+      if code =~ /\A\".*?\"\s*,\s*(.*)/
+        s = $1.gsub(/[%"]/, '\\\1') + '='
+      end
+      src << @indent if src.empty? || src[-1] == ?\n
+      src << " fprintf(stderr, \"*** debug: #{s}\" #{code});"
+    end
+
+    def add_postamble(src)
+      # empty
+    end
+
+  end
+
+
+  ##
+  ## engine for C
+  ##
+  class Ec < Basic::Engine
+    include CGenerator
+  end
+
+
+  class EscapedEc < Ec
+    include EscapeEnhancer
+  end
+
+
+  #class XmlEc < Ec
+  #  include EscapeEnhancer
+  #end
+
+  class PI::Ec < PI::Engine
+    include CGenerator
+
+    def init_converter(properties={})
+      @pi = 'c'
+      super(properties)
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/engine/ec'
+#--begin of require 'erubis/engine/ecpp'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/engine'
+#--already included require 'erubis/enhancer'
+
+
+module Erubis
+
+
+  module CppGenerator
+    include Generator
+
+    def self.supported_properties()  # :nodoc:
+      return [
+              [:indent, '',       "indent spaces (ex. '  ')"],
+              [:bufvar, '_buf',   "buffer variable name"],
+            ]
+    end
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= "escape"
+      @indent = properties[:indent] || ''
+      @bufvar = properties[:bufvar] || '_buf'
+    end
+
+    def add_preamble(src)
+      src << "#line 1 \"#{self.filename}\"\n" if self.filename
+    end
+
+    def escape_text(text)
+      @@table_ ||= { "\r"=>"\\r", "\n"=>"\\n", "\t"=>"\\t", '"'=>'\\"', "\\"=>"\\\\" }
+      text.gsub!(/[\r\n\t"\\]/) { |m| @@table_[m] }
+      return text
+    end
+
+    def escaped_expr(code)
+      return "#{@escapefunc}(#{code.strip})"
+    end
+
+    def add_text(src, text)
+      return if text.empty?
+      src << (src.empty? || src[-1] == ?\n ? @indent : ' ')
+      src << "_buf << "
+      i = 0
+      text.each_line do |line|
+        src << "\n" << @indent << "        " if i > 0
+        i += 1
+        src << '"' << escape_text(line) << '"'
+      end
+      src << ";"   #<< (text[-1] == ?\n ? "\n" : "")
+      src << "\n" if text[-1] == ?\n
+    end
+
+    def add_stmt(src, code)
+      src << code
+    end
+
+    def add_expr_literal(src, code)
+      src << @indent if src.empty? || src[-1] == ?\n
+      src << " _buf << (" << code.strip << ");"
+    end
+
+    def add_expr_escaped(src, code)
+      src << @indent if src.empty? || src[-1] == ?\n
+      src << ' ' << escaped_expr(code) << ';'
+    end
+
+    def add_expr_debug(src, code)
+      code.strip!
+      src << @indent if src.empty? || src[-1] == ?\n
+      src << " std::cerr << \"*** debug: #{code.gsub(/(")/, '\\\&')}=\" << (#{code});"
+    end
+
+    def add_postamble(src)
+      # empty
+    end
+
+  end
+
+
+  ##
+  ## engine for C
+  ##
+  class Ecpp < Basic::Engine
+    include CppGenerator
+  end
+
+
+  class EscapedEcpp < Ecpp
+    include EscapeEnhancer
+  end
+
+
+  #class XmlEcpp < Ecpp
+  #  include EscapeEnhancer
+  #end
+
+  class PI::Ecpp < PI::Engine
+    include CppGenerator
+
+    def init_converter(properties={})
+      @pi = 'cpp'
+      super(properties)
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/engine/ecpp'
+#--begin of require 'erubis/engine/ejava'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/engine'
+#--already included require 'erubis/enhancer'
+
+
+module Erubis
+
+
+  module JavaGenerator
+    include Generator
+
+    def self.supported_properties()   # :nodoc:
+      return [
+              [:indent,   '',       "indent spaces (ex. '  ')"],
+              [:bufvar,   '_buf',   "output buffer variable name"],
+              [:bufclass, 'StringBuffer', "output buffer class (ex. 'StringBuilder')"],
+            ]
+    end
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= 'escape'
+      @indent = properties[:indent] || ''
+      @bufvar = properties[:bufvar] || '_buf'
+      @bufclass = properties[:bufclass] || 'StringBuffer'
+    end
+
+    def add_preamble(src)
+      src << "#{@indent}#{@bufclass} #{@bufvar} = new #{@bufclass}();"
+    end
+
+    def escape_text(text)
+      @@table_ ||= { "\r"=>"\\r", "\n"=>"\\n", "\t"=>"\\t", '"'=>'\\"', "\\"=>"\\\\" }
+      return text.gsub!(/[\r\n\t"\\]/) { |m| @@table_[m] } || text
+    end
+
+    def add_text(src, text)
+      return if text.empty?
+      src << (src.empty? || src[-1] == ?\n ? @indent : ' ')
+      src << @bufvar << ".append("
+      i = 0
+      text.each_line do |line|
+        src << "\n" << @indent << '          + ' if i > 0
+        i += 1
+        src << '"' << escape_text(line) << '"'
+      end
+      src << ");" << (text[-1] == ?\n ? "\n" : "")
+    end
+
+    def add_stmt(src, code)
+      src << code
+    end
+
+    def add_expr_literal(src, code)
+      src << @indent if src.empty? || src[-1] == ?\n
+      code.strip!
+      src << " #{@bufvar}.append(#{code});"
+    end
+
+    def add_expr_escaped(src, code)
+      add_expr_literal(src, escaped_expr(code))
+    end
+
+    def add_expr_debug(src, code)
+      code.strip!
+      src << @indent if src.empty? || src[-1] == ?\n
+      src << " System.err.println(\"*** debug: #{code}=\"+(#{code}));"
+    end
+
+    def add_postamble(src)
+      src << "\n" if src[-1] == ?;
+      src << @indent << "return " << @bufvar << ".toString();\n"
+      #src << @indent << "System.out.print(" << @bufvar << ".toString());\n"
+    end
+
+  end
+
+
+  ##
+  ## engine for Java
+  ##
+  class Ejava < Basic::Engine
+    include JavaGenerator
+  end
+
+
+  class EscapedEjava < Ejava
+    include EscapeEnhancer
+  end
+
+
+  #class XmlEjava < Ejava
+  #  include EscapeEnhancer
+  #end
+
+  class PI::Ejava < PI::Engine
+    include JavaGenerator
+
+    def init_converter(properties={})
+      @pi = 'java'
+      super(properties)
+    end
+
+  end
+
+end
+#--end of require 'erubis/engine/ejava'
+#--begin of require 'erubis/engine/escheme'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/engine'
+#--already included require 'erubis/enhancer'
+
+
+module Erubis
+
+
+  module SchemeGenerator
+    include Generator
+
+    def self.supported_properties()  # :nodoc:
+      return [
+              [:func,  '_add',   "function name (ex. 'display')"],
+              ]
+    end
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= 'escape'
+      @func = properties[:func] || '_add'   # or 'display'
+    end
+
+    def add_preamble(src)
+      return unless @func == '_add'
+      src << "(let ((_buf '())) " + \
+               "(define (_add x) (set! _buf (cons x _buf))) "
+      #src << "(let* ((_buf '())" + \
+      #             " (_add (lambda (x) (set! _buf (cons x _buf))))) "
+    end
+
+    def escape_text(text)
+      @table_ ||= { '"'=>'\\"', '\\'=>'\\\\' }
+      text.gsub!(/["\\]/) { |m| @table_[m] }
+      return text
+    end
+
+    def escaped_expr(code)
+      code.strip!
+      return "(#{@escapefunc} #{code})"
+    end
+
+    def add_text(src, text)
+      return if text.empty?
+      t = escape_text(text)
+      if t[-1] == ?\n
+        t[-1, 1] = ''
+        src << "(#{@func} \"" << t << "\\n\")\n"
+      else
+        src << "(#{@func} \"" << t << '")'
+      end
+    end
+
+    def add_stmt(src, code)
+      src << code
+    end
+
+    def add_expr_literal(src, code)
+      code.strip!
+      src << "(#{@func} #{code})"
+    end
+
+    def add_expr_escaped(src, code)
+      add_expr_literal(src, escaped_expr(code))
+    end
+
+    def add_expr_debug(src, code)
+      s = (code.strip! || code).gsub(/\"/, '\\"')
+      src << "(display \"*** debug: #{s}=\")(display #{code.strip})(display \"\\n\")"
+    end
+
+    def add_postamble(src)
+      return unless @func == '_add'
+      src << "\n" unless src[-1] == ?\n
+      src << "  (reverse _buf))\n"
+    end
+
+  end
+
+
+  ##
+  ## engine for Scheme
+  ##
+  class Escheme < Basic::Engine
+    include SchemeGenerator
+  end
+
+
+  class EscapedEscheme < Escheme
+    include EscapeEnhancer
+  end
+
+
+  #class XmlEscheme < Escheme
+  #  include EscapeEnhancer
+  #end
+
+
+  class PI::Escheme < PI::Engine
+    include SchemeGenerator
+
+    def init_converter(properties={})
+      @pi = 'scheme'
+      super(properties)
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/engine/escheme'
+#--begin of require 'erubis/engine/eperl'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/engine'
+#--already included require 'erubis/enhancer'
+
+
+module Erubis
+
+
+  module PerlGenerator
+    include Generator
+
+    def self.supported_properties()  # :nodoc:
+      return [
+              [:func, 'print', "function name"],
+              ]
+    end
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= 'encode_entities'
+      @func = properties[:func] || 'print'
+    end
+
+    def add_preamble(src)
+      src << "use HTML::Entities; ";
+    end
+
+    def escape_text(text)
+      return text.gsub!(/['\\]/, '\\\\\&') || text
+    end
+
+    def add_text(src, text)
+      src << @func << "('" << escape_text(text) << "'); " unless text.empty?
+    end
+
+    def add_expr_literal(src, code)
+      code.strip!
+      src << @func << "(" << code << "); "
+    end
+
+    def add_expr_escaped(src, code)
+      add_expr_literal(src, escaped_expr(code))
+    end
+
+    def add_expr_debug(src, code)
+      code.strip!
+      s = code.gsub(/\'/, "\\'")
+      src << @func << "('*** debug: #{code}=', #{code}, \"\\n\");"
+    end
+
+    def add_stmt(src, code)
+      src << code
+    end
+
+    def add_postamble(src)
+      src << "\n" unless src[-1] == ?\n
+    end
+
+  end
+
+
+  ##
+  ## engine for Perl
+  ##
+  class Eperl < Basic::Engine
+    include PerlGenerator
+  end
+
+
+  class EscapedEperl < Eperl
+    include EscapeEnhancer
+  end
+
+
+  #class XmlEperl < Eperl
+  #  include EscapeEnhancer
+  #end
+
+
+  class PI::Eperl < PI::Engine
+    include PerlGenerator
+
+    def init_converter(properties={})
+      @pi = 'perl'
+      super(properties)
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/engine/eperl'
+#--begin of require 'erubis/engine/ejavascript'
+##
+## $Release: 2.7.0 $
+## copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+##
+
+#--already included require 'erubis/engine'
+#--already included require 'erubis/enhancer'
+
+
+module Erubis
+
+
+  module JavascriptGenerator
+    include Generator
+
+    def self.supported_properties()   # :nodoc:
+      list = []
+      #list << [:indent,   '',       "indent spaces (ex. '  ')"]
+      #list << [:bufvar,      '_buf',   "output buffer variable name"]
+      list << [:docwrite, true,     "use 'document.write()' when true"]
+      return list
+    end
+
+    def init_generator(properties={})
+      super
+      @escapefunc ||= 'escape'
+      @indent = properties[:indent] || ''
+      @bufvar = properties[:bufvar] || '_buf'
+      @docwrite = properties[:docwrite] != false  # '!= false' will be removed in the next release
+    end
+
+    def add_preamble(src)
+      src << "#{@indent}var #{@bufvar} = [];"
+    end
+
+    def escape_text(text)
+      @@table_ ||= { "\r"=>"\\r", "\n"=>"\\n\\\n", "\t"=>"\\t", '"'=>'\\"', "\\"=>"\\\\" }
+      return text.gsub!(/[\r\n\t"\\]/) { |m| @@table_[m] } || text
+    end
+
+    def add_indent(src, indent)
+      src << (src.empty? || src[-1] == ?\n ? indent : ' ')
+    end
+
+    def add_text(src, text)
+      return if text.empty?
+      add_indent(src, @indent)
+      src << @bufvar << '.push("'
+      s = escape_text(text)
+      if s[-1] == ?\n
+        s[-2, 2] = ''
+        src << s << "\");\n"
+      else
+        src << s << "\");"
+      end
+    end
+
+    def add_stmt(src, code)
+      src << code
+    end
+
+    def add_expr_literal(src, code)
+      add_indent(src, @indent)
+      code.strip!
+      src << "#{@bufvar}.push(#{code});"
+    end
+
+    def add_expr_escaped(src, code)
+      add_expr_literal(src, escaped_expr(code))
+    end
+
+    def add_expr_debug(src, code)
+      add_indent(src, @indent)
+      code.strip!
+      src << "alert(\"*** debug: #{code}=\"+(#{code}));"
+    end
+
+    def add_postamble(src)
+      src << "\n" if src[-1] == ?;
+      if @docwrite
+        src << @indent << 'document.write(' << @bufvar << ".join(\"\"));\n"
+      else
+        src << @indent << @bufvar << ".join(\"\");\n"
+      end
+    end
+
+  end
+
+
+  ##
+  ## engine for JavaScript
+  ##
+  class Ejavascript < Basic::Engine
+    include JavascriptGenerator
+  end
+
+
+  class EscapedEjavascript < Ejavascript
+    include EscapeEnhancer
+  end
+
+
+  #class XmlEjavascript < Ejavascript
+  #  include EscapeEnhancer
+  #end
+
+
+  class PI::Ejavascript < PI::Engine
+    include JavascriptGenerator
+
+    def init_converter(properties={})
+      @pi = 'js'
+      super(properties)
+    end
+
+  end
+
+
+end
+#--end of require 'erubis/engine/ejavascript'
+
+
+module Erubis
+
+
+  Ejs = Ejavascript
+  EscapedEjs = EscapedEjavascript
+
+
+  class CommandOptionError < ErubisError
+  end
+
+
+  ##
+  ## main class of command
+  ##
+  ## ex.
+  ##   Main.main(ARGV)
+  ##
+  class Main
+
+    def self.main(argv=ARGV)
+      status = 0
+      begin
+        Main.new.execute(ARGV)
+      rescue CommandOptionError => ex
+        $stderr.puts ex.message
+        status = 1
+      end
+      exit(status)
+    end
+
+    def initialize
+      @single_options = "hvxztTSbeBXNUC"
+      @arg_options    = "pcrfKIlaE" #C
+      @option_names   = {
+        'h' => :help,
+        'v' => :version,
+        'x' => :source,
+        'z' => :syntax,
+        'T' => :unexpand,
+        't' => :untabify,      # obsolete
+        'S' => :intern,
+        'b' => :bodyonly,
+        'B' => :binding,
+        'p' => :pattern,
+        'c' => :context,
+        #'C' => :class,
+        'e' => :escape,
+        'r' => :requires,
+        'f' => :datafiles,
+        'K' => :kanji,
+        'I' => :includes,
+        'l' => :lang,
+        'a' => :action,
+        'E' => :enhancers,
+        'X' => :notext,
+        'N' => :linenum,
+        'U' => :unique,
+        'C' => :compact,
+      }
+      assert unless @single_options.length + @arg_options.length == @option_names.length
+      (@single_options + @arg_options).each_byte do |ch|
+        assert unless @option_names.key?(ch.chr)
+      end
+    end
+
+
+    def execute(argv=ARGV)
+      ## parse command-line options
+      options, properties = parse_argv(argv, @single_options, @arg_options)
+      filenames = argv
+      options['h'] = true if properties[:help]
+      opts = Object.new
+      arr = @option_names.collect {|ch, name| "def #{name}; @#{name}; end\n" }
+      opts.instance_eval arr.join
+      options.each do |ch, val|
+        name = @option_names[ch]
+        opts.instance_variable_set("@#{name}", val)
+      end
+
+      ## help, version, enhancer list
+      if opts.help || opts.version
+        puts version()         if opts.version
+        puts usage()           if opts.help
+        puts show_properties() if opts.help
+        puts show_enhancers()  if opts.help
+        return
+      end
+
+      ## include path
+      opts.includes.split(/,/).each do |path|
+        $: << path
+      end if opts.includes
+
+      ## require library
+      opts.requires.split(/,/).each do |library|
+        require library
+      end if opts.requires
+
+      ## action
+      action = opts.action
+      action ||= 'syntax'  if opts.syntax
+      action ||= 'convert' if opts.source || opts.notext
+
+      ## lang
+      lang = opts.lang || 'ruby'
+      action ||= 'convert' if opts.lang
+
+      ## class name of Eruby
+      #classname = opts.class
+      classname = nil
+      klass = get_classobj(classname, lang, properties[:pi])
+
+      ## kanji code
+      $KCODE = opts.kanji if opts.kanji
+
+      ## read context values from yaml file
+      datafiles = opts.datafiles
+      context = load_datafiles(datafiles, opts)
+
+      ## parse context data
+      if opts.context
+        context = parse_context_data(opts.context, opts)
+      end
+
+      ## properties for engine
+      properties[:escape]   = true         if opts.escape && !properties.key?(:escape)
+      properties[:pattern]  = opts.pattern if opts.pattern
+      #properties[:trim]     = false        if opts.notrim
+      properties[:preamble] = properties[:postamble] = false if opts.bodyonly
+      properties[:pi]       = nil          if properties[:pi] == true
+
+      ## create engine and extend enhancers
+      engine = klass.new(nil, properties)
+      enhancers = get_enhancers(opts.enhancers)
+      #enhancers.push(Erubis::EscapeEnhancer) if opts.escape
+      enhancers.each do |enhancer|
+        engine.extend(enhancer)
+        engine.bipattern = properties[:bipattern] if enhancer == Erubis::BiPatternEnhancer
+      end
+
+      ## no-text
+      engine.extend(Erubis::NoTextEnhancer) if opts.notext
+
+      ## convert and execute
+      val = nil
+      msg = "Syntax OK\n"
+      if filenames && !filenames.empty?
+        filenames.each do |filename|
+          File.file?(filename)  or
+            raise CommandOptionError.new("#{filename}: file not found.")
+          engine.filename = filename
+          engine.convert!(File.read(filename))
+          val = do_action(action, engine, context, filename, opts)
+          msg = nil if val
+        end
+      else
+        engine.filename = filename = '(stdin)'
+        engine.convert!($stdin.read())
+        val = do_action(action, engine, context, filename, opts)
+        msg = nil if val
+      end
+      print msg if action == 'syntax' && msg
+
+    end
+
+    private
+
+    def do_action(action, engine, context, filename, opts)
+      case action
+      when 'convert'
+        s = manipulate_src(engine.src, opts)
+      when nil, 'exec', 'execute'
+        s = opts.binding ? engine.result(context.to_hash) : engine.evaluate(context)
+      when 'syntax'
+        s = check_syntax(filename, engine.src)
+      else
+        raise "*** internal error"
+      end
+      print s if s
+      return s
+    end
+
+    def manipulate_src(source, opts)
+      flag_linenum   = opts.linenum
+      flag_unique    = opts.unique
+      flag_compact   = opts.compact
+      if flag_linenum
+        n = 0
+        source.gsub!(/^/) { n += 1; "%5d:  " % n }
+        source.gsub!(/^ *\d+:\s+?\n/, '')      if flag_compact
+        source.gsub!(/(^ *\d+:\s+?\n)+/, "\n") if flag_unique
+      else
+        source.gsub!(/^\s*?\n/, '')      if flag_compact
+        source.gsub!(/(^\s*?\n)+/, "\n") if flag_unique
+      end
+      return source
+    end
+
+    def usage(command=nil)
+      command ||= File.basename($0)
+      buf = []
+      buf << "erubis - embedded program converter for multi-language"
+      buf << "Usage: #{command} [..options..] [file ...]"
+      buf << "  -h, --help    : help"
+      buf << "  -v            : version"
+      buf << "  -x            : show converted code"
+      buf << "  -X            : show converted code, only ruby code and no text part"
+      buf << "  -N            : numbering: add line numbers            (for '-x/-X')"
+      buf << "  -U            : unique: compress empty lines to a line (for '-x/-X')"
+      buf << "  -C            : compact: remove empty lines            (for '-x/-X')"
+      buf << "  -b            : body only: no preamble nor postamble   (for '-x/-X')"
+      buf << "  -z            : syntax checking"
+      buf << "  -e            : escape (equal to '--E Escape')"
+      buf << "  -p pattern    : embedded pattern (default '<% %>')"
+      buf << "  -l lang       : convert but no execute (ruby/php/c/cpp/java/scheme/perl/js)"
+      buf << "  -E e1,e2,...  : enhancer names (Escape, PercentLine, BiPattern, ...)"
+      buf << "  -I path       : library include path"
+      buf << "  -K kanji      : kanji code (euc/sjis/utf8) (default none)"
+      buf << "  -c context    : context data string (yaml inline style or ruby code)"
+      buf << "  -f datafile   : context data file ('*.yaml', '*.yml', or '*.rb')"
+      #buf << "  -t            : expand tab characters in YAML file"
+      buf << "  -T            : don't expand tab characters in YAML file"
+      buf << "  -S            : convert mapping key from string to symbol in YAML file"
+      buf << "  -B            : invoke 'result(binding)' instead of 'evaluate(context)'"
+      buf << "  --pi=name     : parse '<?name ... ?>' instead of '<% ... %>'"
+      #'
+      #  -T            : don't trim spaces around '<% %>'
+      #  -c class      : class name (XmlEruby/PercentLineEruby/...) (default Eruby)
+      #  -r library    : require library
+      #  -a            : action (convert/execute)
+      return buf.join("\n")
+    end
+
+    def collect_supported_properties(erubis_klass)
+      list = []
+      erubis_klass.ancestors.each do |klass|
+        if klass.respond_to?(:supported_properties)
+          list.concat(klass.supported_properties)
+        end
+      end
+      return list
+    end
+
+    def show_properties
+      s = "supported properties:\n"
+      basic_props = collect_supported_properties(Erubis::Basic::Engine)
+      pi_props    = collect_supported_properties(Erubis::PI::Engine)
+      list = []
+      common_props = basic_props & pi_props
+      list << ['(common)', common_props]
+      list << ['(basic)',  basic_props - common_props]
+      list << ['(pi)',     pi_props    - common_props]
+      %w[ruby php c cpp java scheme perl javascript].each do |lang|
+        klass = Erubis.const_get("E#{lang}")
+        list << [lang, collect_supported_properties(klass) - basic_props]
+      end
+      list.each do |lang, props|
+        s << "  * #{lang}\n"
+        props.each do |name, default_val, desc|
+          s << ("     --%-23s : %s\n" % ["#{name}=#{default_val.inspect}", desc])
+        end
+      end
+      s << "\n"
+      return s
+    end
+
+    def show_enhancers
+      dict = {}
+      ObjectSpace.each_object(Module) do |mod|
+        dict[$1] = mod if mod.name =~ /\AErubis::(.*)Enhancer\z/
+      end
+      s = "enhancers:\n"
+      dict.sort_by {|name, mod| name }.each do |name, mod|
+        s << ("  %-13s : %s\n" % [name, mod.desc])
+      end
+      return s
+    end
+
+    def version
+      return Erubis::VERSION
+    end
+
+    def parse_argv(argv, arg_none='', arg_required='', arg_optional='')
+      options = {}
+      context = {}
+      while argv[0] && argv[0][0] == ?-
+        optstr = argv.shift
+        optstr = optstr[1, optstr.length-1]
+        #
+        if optstr[0] == ?-    # context
+          optstr =~ /\A\-([-\w]+)(?:=(.*))?/  or
+            raise CommandOptionError.new("-#{optstr}: invalid context value.")
+          name, value = $1, $2
+          name  = name.gsub(/-/, '_').intern
+          #value = value.nil? ? true : YAML.load(value)   # error, why?
+          value = value.nil? ? true : YAML.load("---\n#{value}\n")
+          context[name] = value
+          #
+        else                  # options
+          while optstr && !optstr.empty?
+            optchar = optstr[0].chr
+            optstr = optstr[1..-1]
+            if arg_none.include?(optchar)
+              options[optchar] = true
+            elsif arg_required.include?(optchar)
+              arg = optstr.empty? ? argv.shift : optstr  or
+                raise CommandOptionError.new("-#{optchar}: #{@option_names[optchar]} required.")
+              options[optchar] = arg
+              optstr = nil
+            elsif arg_optional.include?(optchar)
+              arg = optstr.empty? ? true : optstr
+              options[optchar] = arg
+              optstr = nil
+            else
+              raise CommandOptionError.new("-#{optchar}: unknown option.")
+            end
+          end
+        end
+        #
+      end  # end of while
+
+      return options, context
+    end
+
+
+    def untabify(str, width=8)
+      list = str.split(/\t/)
+      last = list.pop
+      sb = ''
+      list.each do |s|
+        column = (n = s.rindex(?\n)) ? s.length - n - 1 : s.length
+        n = width - (column % width)
+        sb << s << (' ' * n)
+      end
+      sb << last
+      return sb
+    end
+    #--
+    #def untabify(str, width=8)
+    #  sb = ''
+    #  str.scan(/(.*?)\t/m) do |s, |
+    #    len = (n = s.rindex(?\n)) ? s.length - n - 1 : s.length
+    #    sb << s << (" " * (width - len % width))
+    #  end
+    #  return $' ? (sb << $') : str
+    #end
+    #++
+
+
+    def get_classobj(classname, lang, pi)
+      classname ||= "E#{lang}"
+      base_module = pi ? Erubis::PI : Erubis
+      begin
+        klass = base_module.const_get(classname)
+      rescue NameError
+        klass = nil
+      end
+      unless klass
+        if lang
+          msg = "-l #{lang}: invalid language name (class #{base_module.name}::#{classname} not found)."
+        else
+          msg = "-c #{classname}: invalid class name."
+        end
+        raise CommandOptionError.new(msg)
+      end
+      return klass
+    end
+
+    def get_enhancers(enhancer_names)
+      return [] unless enhancer_names
+      enhancers = []
+      shortname = nil
+      begin
+        enhancer_names.split(/,/).each do |name|
+          shortname = name
+          enhancers << Erubis.const_get("#{shortname}Enhancer")
+        end
+      rescue NameError
+        raise CommandOptionError.new("#{shortname}: no such Enhancer (try '-h' to show all enhancers).")
+      end
+      return enhancers
+    end
+
+    def load_datafiles(filenames, opts)
+      context = Erubis::Context.new
+      return context unless filenames
+      filenames.split(/,/).each do |filename|
+        filename.strip!
+        test(?f, filename) or raise CommandOptionError.new("#{filename}: file not found.")
+        if filename =~ /\.ya?ml$/
+          if opts.unexpand
+            ydoc = YAML.load_file(filename)
+          else
+            ydoc = YAML.load(untabify(File.read(filename)))
+          end
+          ydoc.is_a?(Hash) or raise CommandOptionError.new("#{filename}: root object is not a mapping.")
+          intern_hash_keys(ydoc) if opts.intern
+          context.update(ydoc)
+        elsif filename =~ /\.rb$/
+          str = File.read(filename)
+          context2 = Erubis::Context.new
+          _instance_eval(context2, str)
+          context.update(context2)
+        else
+          CommandOptionError.new("#{filename}: '*.yaml', '*.yml', or '*.rb' required.")
+        end
+      end
+      return context
+    end
+
+    def _instance_eval(_context, _str)
+      _context.instance_eval(_str)
+    end
+
+    def parse_context_data(context_str, opts)
+      if context_str[0] == ?{
+        require 'yaml'
+        ydoc = YAML.load(context_str)
+        unless ydoc.is_a?(Hash)
+          raise CommandOptionError.new("-c: root object is not a mapping.")
+        end
+        intern_hash_keys(ydoc) if opts.intern
+        return ydoc
+      else
+        context = Erubis::Context.new
+        context.instance_eval(context_str, '-c')
+        return context
+      end
+    end
+
+    def intern_hash_keys(obj, done={})
+      return if done.key?(obj.__id__)
+      case obj
+      when Hash
+        done[obj.__id__] = obj
+        obj.keys.each do |key|
+          obj[key.intern] = obj.delete(key) if key.is_a?(String)
+        end
+        obj.values.each do |val|
+          intern_hash_keys(val, done) if val.is_a?(Hash) || val.is_a?(Array)
+        end
+      when Array
+        done[obj.__id__] = obj
+        obj.each do |val|
+          intern_hash_keys(val, done) if val.is_a?(Hash) || val.is_a?(Array)
+        end
+      end
+    end
+
+    def check_syntax(filename, src)
+      require 'open3'
+      #command = (ENV['_'] || 'ruby') + ' -wc'   # ENV['_'] stores command name
+      bin = ENV['_'] && File.basename(ENV['_']) =~ /^ruby/ ? ENV['_'] : 'ruby'
+      command = bin + ' -wc'
+      stdin, stdout, stderr = Open3.popen3(command)
+      stdin.write(src)
+      stdin.close
+      result = stdout.read()
+      stdout.close()
+      errmsg = stderr.read()
+      stderr.close()
+      return nil unless errmsg && !errmsg.empty?
+      errmsg =~ /\A-:(\d+): /
+      linenum, message = $1, $'
+      return "#{filename}:#{linenum}: #{message}"
+    end
+
+    if defined?(RUBY_ENGINE) && RUBY_ENGINE == "rbx"
+      def check_syntax(filename, src)
+        require 'compiler'
+        verbose = $VERBOSE
+        msg = nil
+        begin
+          $VERBOSE = true
+          Rubinius::Compiler.compile_string(src, filename)
+        rescue SyntaxError => ex
+          ex_linenum = ex.line
+          linenum = 0
+          srcline = src.each_line do |line|
+            linenum += 1
+            break line if linenum == ex_linenum
+          end
+          msg = "#{ex.message}\n"
+          msg << srcline
+          msg << "\n" unless srcline =~ /\n\z/
+          msg << (" " * (ex.column-1)) << "^\n"
+        ensure
+          $VERBOSE = verbose
+        end
+        return msg
+      end
+    end
+
+  end
+
+end
+#--end of require 'erubis/main'
+
+Erubis::Main.main(ARGV)

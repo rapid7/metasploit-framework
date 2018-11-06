@@ -1,0 +1,8 @@
+class Foo
+
+  # @api public
+  # @return nil
+  def foo
+  end
+
+end

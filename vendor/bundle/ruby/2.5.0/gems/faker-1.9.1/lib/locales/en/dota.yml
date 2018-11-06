@@ -1,0 +1,102 @@
+en:
+  faker:
+    dota:
+      hero: ["Abaddon", "Alchemist", "Axe", "Beastmaster", "Brewmaster", "Bristleback", "Centaur Warrunner", "Chaos Knight", "Clockwerk"]
+      abaddon:
+        quote: ["You have called death upon yourself.", "From House Avernus, I set forth.", "The mist chose me, it is not mine to command.", "To die at a noble hand is no guarantee of a noble death."]
+      alchemist:
+        quote: ["Easy now, this stuff is explosive!", "Better living through alchemy!", "Tell the ogre you're sorry."]
+      axe:
+        quote: ["Let the carnage begin.", "Come and get it!", "You get nothing. Good day, sir!", "Feel the axe of Axe!", "What happened? Axe happened!", "No business but war. No family but death. No mercy but the grave!"]
+      beastmaster:
+        quote: ["Meet your master…snuhg… beastmaster.", "I'm a natural disaster.", "A death not fit for man or beast."]
+      brewmaster:
+        quote: ["I fight any thing in the house.", "Here's beer in your eye.", "Let's raise a cup before battle!"]
+      bristleback:
+        quote: ["Time to mash some faces, I'd say.", "A good bashing, never hurt nobody.", "I'm more than a pretty face."]
+      centaur:
+        quote: ["Long shall my name be remembered.", "I don't always wear a saddlebag, but when I do, I put this one in it.", "Hurts you more than it hurts me."]
+      chaos_knight:
+        quote: ["All that is light shall be cast in darkness.", "Like the heads of my enemies, this one is in the bag.", "We descend into chaos.", "The light shall be blackened, and chaos shall reign.", "Chaos is Fun…damental."]
+      clockwerk:
+        quote: ["I've a mind like a steel trap, and the physique to go with it!", "What time is it? It's killing time.", "A good offense is the best armor. Good armor is also good armor."]
+      doom:
+        quote: ["Face your demons.", "I am the midnight of your soul.", "Speak of me, and I shall appear. Face me and face the furnace!"]
+      dragon_knight:
+        quote: ["Who calls the Dragon Knight?", "A Knight in dragon's armor.", "Face the knight, face the dragon.", "Live by the sword, die by the dragon.", "Good night, Sven. I mean bad knight. [Talking to Sven]", "Never make a deal with a dragon, unless you're prepared to keep your end of it."]
+      earth_spirit:
+        quote: ["Body is flesh, but spirit immortal.", "Knowledge is golden.", "Your flesh is soft. Your Spirit weak."]
+      earthshaker:
+        quote: ["Time to shake things up and see where they settle.", "The earth moves under my feet!", "Tiny, your name is still too big for you. [Talking to Tiny]", "There may be many earths, but there's only one Earthshaker."]
+      elder_titan:
+        quote: ["The battle is joined, like the pieces of a broken world.", "Strong as a world new-formed.", "What is weak must break.", "I broke the world, did you think I could not break you?"]
+      huskar:
+        quote: ["You must learn to sacrifice.", "The gods grant me life, nor shall I waste it.", "You gave all you could give but it was not enough.", "As my body falls, my spirit rises up like the smoke of offerings, pleasing to the gods."]
+      io:
+        quote: ["Really?! If you play DotA, you know IO can't talk. ¬¬'"]
+      kunkka:
+        quote: ["An old vessel, but more than seaworthy.", "Tidehunter? More like dead hunter. [Talking to Tidehunter]", "There is no bad weather, only thin armor.", "Damn, I thought this bottle would have rum in it. [Acquiring Bottle]", "That's a lot for an empty bottle. [Acquiring Bottle]", "When I'm done with this, I'll fill it with rum. [Acquiring Bottle]"]
+      legion_commander:
+        quote: ["I've come to put an end to hope.", "You won't win the war by dying for your Ancient. You'll win by making the other dumb, unfed bastard die for theirs!", "It's the smells of battle that stay with you long after they've ended. In Stonehall it was blood and sulfur, smoke, and rot and fear…"]
+      lifestealer:
+        quote: ["Better to die free than to live in chains.", "Wait until I get my claws in you!", "I steal your life…someone else already stole your face. [Talking to Faceless Void]", "Even a thief must sometimes pay the asking price. [buying an item]", "It pains me to purchase what ought to be stolen. [Buying an item]"]
+      lycan:
+        quote: ["A wolf in man's clothing.", "Who fears the wolf should fear the forest.", "A peaceful man is but a patient wolf."]
+      magnus:
+        quote: ["Under my hoof you will find your fate.", "My horn is sharp, my pike is sharper still.", "Compared to my horn, all precious items are cheap."]
+      night_stalker:
+        quote: ["Day walker, night stalker.", "Devil by day, demon by night.", "Flesh sustains, gold remains.", "I feed the darkness and the darkness feeds me."]
+      omniknight:
+        quote: ["Fear not my friends, our guardian is here.", "Knowledge is peace.", "Let this be the last crusade. Let me find peace."]
+      phoenix:
+        quote: ["Really?! If you play DotA, you know Phoenix can't talk. ¬¬'"]
+      pudge:
+        quote: ["They call me the Butcher.", "Look who's coming for dinner!", "Come to Pudge!", "Get over here!", "I'm gonna need bigger pants.", "You'll look good with an apple in yer mouth!", "You can't chop a chopper!", "Sweetbreads ain't sweet and they ain't bread…and they need a butcher, not a baker.", "Only trouble with carrion…an hour after eating you're hungry again!"]
+      sand_king:
+        quote: ["King of the Desert.", "All we are is sand in the wind…", "True horror is a verdant garden…", "Where some see an oasis, I see only mud."]
+      slardar:
+        quote: ["Guardian of the deeps.", "The riches of the darkest sea abysses are mine to protect.", "Too bright up here and far too light. I long for the pressures of the deep, and the subtle luminosities of the sunken world."]
+      spirit_breaker:
+        quote: ["The peace is broken!", "I'll break their spirits and their backs.", "Attack is the best defense.", "You'll be dead before you know it."]
+      sven:
+        quote: ["Rogue Knight at your service!", "One man…in a world of foes…", "It's Rogue Knight, dammit! It's not rouge knight", "I will crush my foe as I crushed the Vigil Knights."]
+      tidehunter:
+        quote: ["Time and Tidehunter wait for no man.", "Time to make waves.", "I'm hungry enough to eat a plankton.", "I could eat a sea cucumber.", "I'm so hungry I could eat a mackerel.", "I'm hungry enough to eat a manta ray.", "I'm stuffed! [Level 25]", "Who needs a big brain when you've got teeth like mine?"]
+      timbersaw:
+        quote: ["I'm Rizzrack. Don't touch me!", "I cut things. It's what I do. What else would I do?", "Trees? What do you mean there's trees out there?", "Nobody takes me seriously.", "This one is in the bag. And that one is too. And that one! They are all in the bag.",
+                "Cut cut cutcutcutcutcutcutcutcutcutcutcutcutcutcut!", "Someone once told me I needed to face fear to get over it, and I thought well why not take a step further and cut my fear into little pieces then set my fear on fire then throw the hot ash of my fear into a lake and then poison the lake. Simple!"]
+      tiny:
+        quote: ["Sticks and stones will break their bones!", "The road ahead looks rocky, but that's all right with me.", "Why do they call it the Mineral Kingdom? We don't even have a king."]
+      treant_protector:
+        quote: ["Thoughts cross my mind as the sun crosses the sky.", "Trees can be ferocious if provoked.", "Nature is not always kind.", "I would like nothing more than to plant myself in the sunshine, next to a cool stream."]
+      tusk:
+        quote: ["They call me the Terror from the Barrier. They call me the Snowball from Cobalt. But you may call me Tusk!", "Who's ready for a fight? The first hit is free! Anyone?", "It's a great day to do some squat thrusts and lift a barrel of fish, is it not?"]
+      underlord:
+        quote: ["I rule the Abyssal Horde.", "Fear is my dominion.", "The Abyss knows no mercy. It knows no light. It knows only fear and despair.", "Nothing can stop us. Nothing can slow our march. And when we have arrived, all will burn."]
+      undying:
+        quote: ["I bring the song of death.", "I need… gummy vitamins.", "I need to work out more, but… my arm keeps snapping off."]
+      wraith_king:
+        quote: ["King am I of all the wraiths.", "Submit to the Wraith King's rule!", "Purer than flesh, stronger than bone, imperishable is the essence of the wraith.", "I miss my bones.", "Where once was bone, wraith flesh as far as the eye can see."]
+      item: ["Animal Courier", "Clarity", "Town Portal Scroll", "Faerie Fire", "Observer Ward", "Smoke of Deceit", "Tango", "Enchanted Mango", "Sentry Ward", "Healing Salve", "Tome of Knowledge",
+             "Dust of Appearance", "Bottle", "Iron Branch", "Gauntlets of Strength", "Mantle of Intelligence", "Slippers of Agility", "Circlet", "Band of Elvenskin", "Belt of Strength", "Robe of the Magi",
+             "Blade of Alacrity", "Ogre Axe", "Staff of Wizardry", "Ring of Protection", "Quelling Blade", "Stout Shield", "Infused Raindrop", "Orb of Venom", "Blight Stone", "Blades of Attack", "Chainmail",
+             "Quarterstaff", "Helm of Iron Will", "Javelin", "Broadsword", "Claymore", "Mithril Hammer", "Magic Stick", "Wind Lace", "Ring of Regen", "Sage's Mask", "Boots of Speed", "Gloves of Haste", "Cloak",
+             "Ring of Health", "Void Stone", "Gem of True Sight", "Morbid Mask", "Shadow Amulet", "Ghost Scepter", "Blink Dagger", "Energy Booster", "Vitality Booster", "Point Booster", "Platemail", "Talisman of Evasion",
+             "Hyperstone", "Ultimate Orb", "Demon Edge", "Mystic Staff", "Reaver", "Eaglesong", "Sacred Relic", "Magic Wand", "Bracer", "Null Talisman", "Wraith Band", "Soul Ring", "Phase Boots", "Power Treads", "Oblivion Staff",
+             "Perseverance", "Hand of Midas", "Boots of Travel", "Moon Shard", "Ring of Basilius", "Headdress", "Buckler", "Urn of Shadows", "Tranquil Boots", "Ring of Aquila", "Medallion of Courage", "Arcane Boots", "Drum of Endurance",
+             "Vladmir's Offering", "Mekansm", "Spirit Vessel", "Pipe of Insight", "Guardian Greaves", "Glimmer Cape", "Force Staff", "Veil of Discord", "Aether Lens", "Necronomicon", "Solar Crest", "Dagon", "Eul's Scepter of Divinity",
+             "Rod of Atos", "Orchid Malevolence", "Aghanim's Scepter", "Nullifier", "Refresher Orb", "Scythe of Vyse", "Octarine Core", "Hood of Defiance", "Vanguard", "Blade Mail", "Soul Booster", "Aeon Disk", "Crimson Guard", "Black King Bar",
+             "Lotus Orb", "Hurricane Pike", "Shiva's Guard", "Bloodstone", "Manta Style", "Linken's Sphere", "Heart of Tarrasque", "Assault Cuirass", "Crystalys", "Armlet of Mordiggian", "Meteor Hammer", "Shadow Blade", "Skull Basher", "Battle Fury",
+             "Monkey King Bar", "Ethereal Blade", "Radiance", "Daedalus", "Butterfly", "Silver Edge", "Divine Rapier", "Abyssal Blade", "Bloodthorn", "Dragon Lance", "Kaya", "Sange", "Yasha", "Mask of Madness", "Helm of the Dominator", "Echo Sabre",
+             "Maelstrom", "Diffusal Blade", "Heaven's Halberd", "Desolator", "Sange and Yasha", "Eye of Skadi", "Satanic", "Mjollnir", "Aegis of the Immortal", "Cheese", "Refresher Shard"]
+      team: ["Evil Geniuses", "OG", "Natus Vincere", "Team Liquid", "Fnatic", "Team Secret", "Alliance", "OpTic Gaming", "Iceberg Esports", "Mineski.亿鼎博", "PENTA Sports", "Team. Spirit", "LGD-GAMING",
+             "M19", "WarriorsGaming.Unity", "Newbee", "Virtus.pro", "VGJ.Storm", "Immortals", "LGD.Forever Young", "Vici Gaming", "Kingdra", "TNC Pro Team", "compLexity Gaming", "Invictus Gaming",
+             "Double Dimension", "Gambit Esports", "Team HighGround", "Vega Squadron", "EHOME", "5 Anchors No Captain", "Forsaken", "Entity Gaming", "The Final Tribe", "Eclipse", "VGJ Thunder", "Team Empire",
+             "EHOME.immortal", "Natural 9", "Sun Gaming", "Ten Twenty", "iG.Vitality", "mousesports", "Spartak Esports", "Effect", "Fire Dragoon", "TEAM MAX", "SG e-sports team", "paiN Gaming", "Rock.Y"]
+      player: ["Alliance.AdmiralBulldog", "Dendi", "s4", "rtz YB`a", "Loda", "Miracle-", "Aui_2000", "Puppey", "Wagamama", "SumaiL", "BigDaddyN0tail", "Fear", "EternaLEnVy", "Ferrari_430", "w33", "syndereN",
+               "Universe", "KuroKy", "zai", "Peterpandam", "BurNIng", "冰冰冰", "Funn1k", "Meracle-", "IllidanSTR SF46", "JerAx", "1437", "ChuaN", "Pajkatt", "qojqva", "BSJ", "SoNNeikO", "fy", "Cr1t-", "xiao8",
+               "Mushi", "artstyle", "Fata", "bOne7", "Resolut1on", "DeMoN", "QO", "FoREv", "ZSMJ", "Trixi", "Fng", "ddz`", "Agressif", "ixmike88", "Fly", "ana", "BuLba", "Mag", "pieliedie", "kpii", "SmAsH",
+               "VANSKOR", "Fenrir", "Solo", "Somnus丶M", "MATUMBAMAN", "Scandal", "Abed", "ALWAYSWANNAFLY", "FLUFFNSTUFF", "Ar1se.", "Lil", "kid", "Moo", "Gh", "MoonS", "Super!", "NighTmAre", "MISERY", "Slayer",
+               "Era", "Sccc", "Yao", "No[o]ne-", "Hao", "Sneyking", "RAMZES666", "LaNm", "thereayou", "canceL^^", "Ohaiyo", "ComeWithMe", "MidOne", "Sylar", "MinD_ContRoL", "monkeys-forever", "kaka", "Silent",
+               "Faith", "火", "G", "YapzOr", "Febby?", "丶MINI幂", "DC.MSS", "Jeyo", "MP", "Ditya Ra", "Yawar", "GeneRaL", "633", "balla", "マテリス", "9pasha", "yol", "Nofear", "Limmp", "Sedoy", "DkPhobos",
+               "Paparazi灬", "★Ice ice☆", "xfreedom", "Chessie", "AME", "Jenkins", "JoHnNy", "shadow"]

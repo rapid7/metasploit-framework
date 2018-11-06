@@ -1,0 +1,20 @@
+= StaticHash
+
+A StaticHash is simply a Hash that can only be assigned
+once per key. Once assigned a subsequent attempt to assign
+a value to the same key will raise an ArgumentError.
+
+  h = StaticHash.new
+
+  h["x"] = 1
+
+  expect ArgumentError do
+    h["x"] = 2
+  end
+
+The same error will be raised when using #update or #merge!.
+
+  expect ArgumentError do
+    h.update( "x"=>3 )
+  end
+

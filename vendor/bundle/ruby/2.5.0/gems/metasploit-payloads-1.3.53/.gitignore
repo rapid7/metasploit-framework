@@ -1,0 +1,43 @@
+*.gem
+*.rbc
+.bundle
+.config
+coverage
+InstalledFiles
+lib/bundler/man
+rdoc
+spec/reports
+test/tmp
+test/version_tmp
+tmp
+
+# YARD artifacts
+.yardoc
+_yardoc
+doc/
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# temp stuff
+*.swp
+Gemfile.lock
+
+# and the generated output
+pkg/*
+data/*
+
+# never include private bins!
+# If you're interested in these, consider http://metasploit.pro
+data/meterpreter/ext_server_pivot.*

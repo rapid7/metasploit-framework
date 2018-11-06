@@ -1,0 +1,22 @@
+# @note This file is only for use in travis-ci.  If you need to make a `spec/dummy/config/database.yml` for running
+# rake, rake spec, or rspec locally, please customize `spec/dummy/config/database.yml.example`.
+#
+# @example Customizing config/database.yml.example
+#   cp spec/dummy/config/database.yml.example spec/dummy/config/database.yml
+#   # update password fields for each environment's user
+
+# Using the postgres user locally without a host and port is the supported configuration from Travis-CI
+#
+# @see http://about.travis-ci.org/docs/user/database-setup/#PostgreSQL
+development: &pgsql
+  adapter: postgresql
+  database: metasploit_model_development
+  username: postgres
+  pool: 5
+  timeout: 5
+
+# Warning: The database defined as "test" will be erased and re-generated from your development database when you run
+# `rake`.  Do not set this db to the same as development or production.
+test:
+  <<: *pgsql
+  database: metasploit_model_test

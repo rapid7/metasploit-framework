@@ -1,0 +1,11 @@
+<% if @files && @files.size > 0 %>
+  <h2>File Listing</h2>
+  <ul id="files" class="index_inline_list">
+  <% n = 1 %>
+  <% @files.each_with_index do |file, i| %>
+    <li class="r<%= n %>"><%= link_file(file) %></li>
+    <% n = n == 2 ? 1 : 2 %>
+  <% end %>
+  </ul>
+<% end %>
+<div class="clear"></div>

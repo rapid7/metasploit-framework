@@ -1,0 +1,18 @@
+<div id="search_results">
+  <h1>Search Results <small>(for '<%= h @query %>')</small></h1>
+  <p>Showing <%= @visible_results.size %> of <%= @results.size %> results</p>
+  <ul>
+    <% n = 1 %>
+    <% @visible_results.each do |result| %>
+      <% name = result.type == :method ? result.name(true).to_s : result.name.to_s %>
+      <% path = name.gsub(/(#{Regexp.quote @query})/i, '<strong>\1</strong>') %>
+      <li class="r<%= n %>">
+        <a href="<%= url_for(result) %>" title="<%= result.path %>"><%= path %></a>
+          <% if !result.namespace.root? %>
+          <small>(<%= result.namespace.path %>)</small>
+          <% end %>
+      </li>
+      <% n = n == 2 ? 1 : 2 %>
+    <% end %>
+  </ul>
+</div>

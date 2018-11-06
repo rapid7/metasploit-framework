@@ -1,0 +1,125 @@
+mappings:
+  apache:
+    vendor: apache
+    products:
+      httpd: http_server
+  alt-n:
+    vendor: altn
+  bea:
+    vendor: bea
+    products:
+      weblogic: weblogic_server
+  blue_coat:
+    vendor: bluecoat
+  centos:
+    vendor: centos
+    products:
+      linux: centos
+  check_point:
+    vendor: checkpoint
+  cisco:
+    vendor: cisco
+    products:
+      adaptive_security_appliance: adaptive_security_appliance_software
+      pix: pix_firewall_software
+      telepresence: telepresence_video_communication_server_software
+  debian:
+    vendor: debian
+    products:
+      linux: debian_linux
+  f5:
+    vendor: f5
+    products:
+      big-ip: big-ip_local_traffic_manager
+      big-ip_ltm: big-ip_local_traffic_manager
+  hp:
+    vendor: hp
+    products:
+      ilo: integrated_lights_out
+      lotus_domino: lotus_domino_server
+      tru64_unix: tru64
+  ibm:
+    vendor: ibm
+    products:
+      lotus_domino: lotus_domino_server
+  juniper:
+    vendor: juniper
+    products:
+      junos_os: junos
+  linux:
+    vendor: linux
+    products:
+      linux: linux_kernel
+  microsoft:
+    vendor: microsoft
+    products:
+      active_directory_controller: active_directory
+      exchange_server_5.5: exchange_server
+      exchange_2000_server: exchange_server
+      exchange_2003_server: exchange_server
+      exchange_2007_server: exchange_server
+      lightweight_directory_server: active_directory_lightweight_directory_service
+      windows_server_2003_datacenter_edition: windows_server_2003
+      windows_server_2003_r2: windows_server_2003
+      windows_2008_r2: windows_server_2008
+      windows_server_2008_datacenter_edition: windows_server_2008
+      windows_server_2008_r2: windows_server_2008
+      windows_server_2008_r2_datacenter_edition: windows_server_2008
+      windows_server_2012_r2: windows_server_2012
+      nt: windows_nt
+      windows_nt_desktop: windows_nt
+      windows_nt_server: windows_nt
+      windows_server_2000: windows_2000
+      windows_2000_server: windows_2000
+      windows_2000_datacenter_server: windows_2000
+      pws: personal_web_server
+  mod_ssl:
+    vendor: modssl
+  mod_wsgi:
+    vendor: modwsgi
+  mort_bay:
+    vendor: mortbay
+  net-snmp:
+    vendor: net-snmp
+    products:
+      snmp_agent: net-snmp
+  palo_alto_networks:
+    vendor: paloaltonetworks
+    products:
+      pa_firewall: pan-os
+  proftpd_project:
+    vendor: proftpd
+  realvnc_ltd.:
+    vendor: realvnc
+  red_hat:
+    vendor: redhat
+    products:
+      cygwin_x_server_project: cygwin
+      fedora_core_linux: fedora_core
+      jboss_as: jboss_wildfly_application_server
+      jboss_eap: jboss_enterprise_application_platform
+      jbossweb: jboss_web_framework_kit
+      red_hat_directory_server: directory_server
+  sun:
+    vendor: sun
+    products:
+      solaris: sunos
+  ubuntu:
+    vendor: canonical
+    products:
+      linux: ubuntu_linux
+  vandyke_software:
+    vendor: vandyke
+  vmware:
+    vendor: vmware
+    products:
+      photon_linux: photon_os
+      zimbra: zimbra_desktop
+      vmware_esx_server: esx
+      vmware_esxi_server: esxi
+  wind_river:
+    vendor: windriver
+  x.org:
+    vendor: x.org
+    products:
+      x.org_x11: x11

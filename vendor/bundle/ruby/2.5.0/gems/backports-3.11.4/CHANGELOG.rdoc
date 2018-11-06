@@ -1,0 +1,447 @@
+= Backports --- History
+
+== Version 3.11.0 - December 25th, 2017
+
+* New Ruby version 2.5.0
+  * Array
+    * +append+, +prepend+
+  * Dir
+    * +children+, +each_child+
+  * Enumerable
+    * +any?+, +all?+, +none?+, +one?+ (with pattern argument)
+  * Hash
+    * +slice+
+    * +transform_keys+
+  * Integer
+    * +sqrt+
+    * +allbits?+, +anybits?+ and +nobits?+
+  * Kernel
+    * +yield_self+
+  * Module
+    * +attr+, +attr_accessor+, +attr_reader+, +attr_writer+ (now public)
+    * +define_method+, +alias_method+, +undef_method+, +remove_method+ (now public)
+  * String
+    * +delete_prefix+, +delete_prefix!+
+    * +delete_suffix+, +delete_suffix!+
+  * Struct
+    * +new+ (with <code>keyword_init: true</code>)
+* <tt>require 'backports/latest'</tt> is now the way to require everything, but is discouraged
+
+== Version 3.10.0 - October 17, 2017
+
+* Additional features of 2.4.0
+  * Enumerable
+    * +uniq+
+    * +sum+
+  * Hash
+    * +compact+
+    * +transform_values+
+
+== Version 3.9.0 -  October 07, 2017
+
+* From 2.4.0: +dup+ for +true+, +false+, +nil+, Numeric
+* From 2.2.0: <tt>Method#super_method</tt>
+
+== Version 3.8.0 - April 26, 2017
+
+* From 2.4.0: <tt>String#match?</tt>, <tt>Regexp#match?</tt>
+* From 2.3.0:
+  * unary <tt>String#+</tt>, +-+
+  * Numeric: +positive?+, +negative?+
+  * Hash: +to_proc+, +fetch_values+, <tt>></tt>, <tt><</tt>, <tt>>=</tt>, <tt><=</tt>
+  * Enumerable: +chunk_while+, +grep_v+
+  * <tt>{Array|Hash|Struct}#dig</tt>
+  * <tt>Array#bsearch_index</tt>
+* From 2.2.0:
+  * <tt>Method#curry</tt>
+  * <tt>String#unicode_normalize{|?|!}</tt>
+  * <tt>Kernel#itself</tt>
+  * Float: +next_float+, +prev_float+
+
+== Version 3.7.0 - March 28, 2017
+
+* Initiate work on backports of 2.2, 2.3, 2.4
+* From 2.4.0:
+  * <tt>Comparable#clamp</tt>
+* From 2.2.0:
+  * Enumerable: +slice_when+, +slice_after+
+
+== Version 3.6.0 - February 14th, 2014
+
+* Additional features of 2.1.0
+  * Bignum#bit_length
+  * Fixnum#bit_length
+  * Module#include (now public)
+
+== Version 3.5.0 - February 3rd, 2014
+
+* Additional features of 2.0.0
+  * Range#size
+
+== Version 3.4.0 - December 29th, 2013
+
+* Additional features of 2.1.0
+  * Array#to_h, Enumerable#to_h
+
+== Version 3.3.0 - April 3rd, 2013
+
+* Moved `Proc#yield` & `Hash#key` from 1.8.7 to 1.9.1
+
+== Version 3.2.0 - April 2nd, 2013
+
+* Moved `Dir.mktmpdir` to the stdlib 'tmpdir' for Ruby 1.8.7
+
+* Removed `returning` as it is no longer part of Rails.
+
+== Version 3.1.0 - March 5th, 2013
+
+* Backports can now be loaded separately!
+
+* Small tweaks and fixes for many methods to pass more RubySpecs
+
+== Version 3.0.0 - February 24th, 2013
+
+* Features of 2.0.0 are now required when requiring 'backports'.
+
+* Additional features of 2.0.0
+  * Struct#to_h, NilClass#to_h, Hash#to_h
+  * Hash#default_proc = nil
+  * OpenStruct lib
+
+* 1.8.7's Enumerator#with_index (it wasn't in the 1.8.7 NEWS file...)
+
+== Version 2.8.0 - February 3rd, 2013
+
+* Added some features of 2.0.0 (must be required explicitly until official release):
+  * Array#bsearch
+  * Range#bsearch
+
+== Version 2.7.0 - January 14th, 2013
+
+* Added some features of 2.0.0 (must be required explicitly until official release):
+  * Enumerable#lazy
+  * Enumerator::Lazy
+
+== Version 2.6.0 - May 29th, 2012
+
+* Removed Enumerable#join
+
+== Version 2.5.0 - March 25th, 2012
+
+* Added some features of 1.9.3:
+  * IO::NULL
+  * IO#advise
+  * String#byteslice
+  * String#prepend
+
+== Version 2.4.0 - March 24th, 2012
+
+* Add backporting for libraries
+
+* Bring libraries up to date:
+  * Matrix
+  * Prime
+  * Set
+
+* Added some features of 1.9.3:
+  * IO.write, IO.binwrite
+
+* Add forcing backports (must be required explicitly):
+  * Hash#select (returns a Hash instead of an Array)
+  * Enumerable / Array#map (returns an enumerator when called without a block)
+  * String#length, size (for UTF-8 support)
+
+== Version 2.3.0 - May 13th, 2011
+
+* Added Enumerator::Yielder#<<
+
+== Version 2.2.0 - May 13th, 2011
+
+* Ruby 1.8.8 was officially cancelled; code was moved to Ruby 1.9.1 and README updated.
+
+* <tt>"".ord</tt> now raises an error.
+
+== Version 2.1.0 - April 16th, 2011
+
+* Proc#curry, #lambda (thanks Konstantine Haase)
+
+== Version 2.0.0 - December 5th, 2010
+
+Change of major version because of two small changes that are not quite compatible and because the minor version was getting quite high!
+
+* Remove attempt at faking the new method missing. Unless you used `respond_to_missing` *and* `method(:some_method_handled_with_method_missing)`, you won't see a difference, except better performance (see issue #32) and this fixes some errors (see issue #34)
+
+* Change behavior of array.flatten(0) to match Ruby 1.9 (i.e. return a dup of array, instead of array itself)
+
+== Version 1.18.0 - June 19th, 2010
+
+* Added some features of 1.9.1:
+
+  * Math#log2, Math#log with base
+
+* Also fixed Enumerator#each in 1.8.6.
+
+== Version 1.17.0 - May 17th, 2010
+
+* Added some features of 1.9.2:
+
+  * Array#repeated_combination, #repeated_permutation
+
+== Version 1.16.2 - April 11th, 2010
+
+* Added some features of 1.9.2:
+
+  * Array#uniq, #uniq! (with block)
+  * Array#product (with block)
+  * Dir.home
+  * Hash#keep_if, select!
+  * Random (new class)
+
+== Version 1.15.0 - March 23rd, 2010
+
+* Added a features of 1.9.2:
+
+  * Object#singleton_class
+
+== Version 1.14.0 - March 3rd, 2010
+
+* Added some features of 1.9.2:
+
+  * Array#rotate, rotate!
+  * Array#keep_if, select!
+  * Array#sort_by!
+  * Enumerable#join
+  * Enumerable#slice_before
+  * Float::INFINITY, NAN
+  * MatchData#==
+
+== Version 1.13.0 - January 20th, 2010
+
+* Missing for 1.8.7 were
+  * Array#permutation
+  * Hash#hash  (was only inherited)
+  * Hash#eql?  (was only inherited)
+
+== Version 1.12.0 - December 4th, 2009
+
+* Finer grain includes (see README)
+  require "backports/1.9"    # requires all ruby backports
+  require "backports/1.9.1"  # requires all ruby backports up to 1.9.1 (but not 1.9.2)
+
+* Backported all builtin methods of 1.8.8 (most of which where moved from the 1.9 backports)
+
+* Refreshed README
+
+== Version 1.11.0 - November 4th, 2009
+
+* Added Enumerable#flat_map / collect_concat (Ruby 1.9)
+
+* Added Object#public_send (Ruby 1.9)
+
+* Added Object#public_method (Ruby 1.9)
+
+* bug fixes
+
+== Version 1.10.0 - September 29th, 2009
+
+* Added Enumerable#chunk (Ruby 1.9)
+
+* Added Kernel#respond_to_missing? (Ruby 1.9)
+
+* Completed Process.exec (Ruby 1.8.7)
+
+== Version 1.9.0 - September 4th, 2009
+
+* In Ruby 1.9, most class methods of File accept filenames as String, or convertible via #to_str or #to_path.
+File#to_path is also an alias to File#path. These have been backported.
+
+* File.binread (actually IO.binread)
+
+* BasicObject available via "require 'backports/basic_object"
+
+== Version 1.8.4 - September 3rd, 2009
+
+Added Dir.mktmpdir for older version of 1.8.6
+
+== Version 1.8.1 - September 1st, 2009
+
+Added the alias String#lines (Ruby 1.8.7)
+
+== Version 1.8 - August 30, 2009
+
+Backports can be required selectively:
+* backports/1.8.7
+* backports/1.9 (which include 1.8.7)
+* rails
+
+== Version 1.8 - August 30, 2009
+
+Backports can be required selectively:
+* backports/1.8.7
+* backports/1.9 (which include 1.8.7)
+* rails
+
+== Version 1.7.1 - August 20, 2009
+
+Enumerable#take and Enumerable#first(n) are now returning as soon as possible. Previously, #each was yielding one element too many. See redmine issue #1554.
+
+== Version 1.7 - May 27, 2009
+
+Porting all 1.8.7 features to rubinius was quite enlightening (http://blog.marc-andre.ca/2009/05/schizo-ruby-puzzle.html ).
+Many improvements were made to be consistent with MRI, e.g. converting arguments using to_int if needed, etc...
+The changes are now reflected in 'backports'.
+
+Some IO and ARGF methods were missing and are now complete.
+
+== Version 1.6.6 - April 30, 2009
+
+Important bug fix. String#gsub is left alone until I find a good way to modify it.
+
+== Version 1.6 - April 29, 2009
+
+Completed backport to 1.8.7.
+
+* Array
+  * <tt>extract_options!</tt>
+
+* Binding
+  * +eval+
+
+* Dir
+  * +each+, +foreach+
+
+* Enumerator
+  * +new+
+  * +with_object+
+  * +next+, +rewind+
+
+* Hash
+  * Optional block for <tt>delete_if, each, each_key, each_pair, each_value, reject!, select</tt> (and ENV)
+
+* Integer
+  * moved stuff out of Fixnum
+  * Optional block for +downto+, +times+, +upto+
+
+* IO
+  * Optional block for +each+, +each_line+, +each_byte+, +foreach+ (and ARGF)
+
+* Kernel
+  * +loop+, +StopIteration+
+  * +__method__+, +__callee__+
+
+* Method
+  * +name+, +owner+, +receiver+
+
+* Module
+  * +class_exec+, +module_exec+
+
+* Numeric
+  * +step+
+
+* Object
+  * +define_singleton_method+
+  * +instance_exec+
+
+* ObjectSpace
+  * +each_object+
+
+* Range
+  * Optional block for +each+, +step+
+
+* Regexp
+  * +union+
+
+* String
+  * +try_convert+
+  * <tt>ascii_only?</tt>
+  * +bytesize+
+  * +chr+
+  * +clear+
+  * +codepoints+, +each_codepoint+
+  * +stringify_keys+, +stringify_keys!+
+  * +each+, +each_line+, +each_byte+
+  * +gsub+
+  * +upto+
+
+* Struct
+  * +each+, +each_pair+
+
+* Symbol
+  * <tt><=></tt>, +casecmp+
+  * +capitalize+, +downcase+, +next+, +succ+, +swapcase+, +upcase+
+  * <tt>=~, [], empty?, length, match, size</tt>
+
+* UnboundMethod
+  * +name+, +owner+
+
+== Version 1.5 - April 24, 2009
+
+* Array (completed)
+  * +combination+
+  * +try_convert+
+  * Optional block for <tt>collect!, :map!, :each, :each_index, :reject, :reject!, :delete_if</tt>
+  * +pop+, +shift+
+  * +product+
+
+* Fixnum (completed)
+  * +div+, +fdiv+
+  * +succ+
+  * +magnitude+
+
+* Enumerable (completed)
+  * +each_with_object+
+  * +inject+
+  * +max_by+, +min_by+, +minmax+, +minmax_by+
+  * +reduce+
+  * +to_a+
+
+== Version 1.4 - April 21, 2009
+
+* String
+  * +rpartition+
+
+* Proc
+  * +yield+
+
+== Version 1.3 - April 17, 2009
+
+* Enumerable
+  * <tt>none?</tt>
+
+* Array
+  * +sample+, +shuffle+, +shuffle!+
+
+* String
+  * +each_char+, +chars+
+  * +partition+
+
+Tests and fixes for <tt>String#start_with?</tt> and <tt>String#end_with?</tt>
+
+== Version 1.2 - April 12, 2009
+
+* Array
+  * +reverse_each+
+  * +cycle+
+
+* Enumerable
+  * +reverse_each+
+  * +each_slice+, +each_cons+
+  * +count+
+  * +cycle+
+  * +group_by+
+
+* Hash
+  * <tt>default_proc=</tt>
+
+== Version 1.1 - April 11, 2009
+
+* Array
+  * +flatten+, <tt>flatten!</tt>
+  * +find_index+, +index+
+
+* Hash
+  * +reverse_merge+, <tt>reverse_merge!</tt>
+
+== Version 1.0 - April 2nd, 2009
+
+=== Initial release.

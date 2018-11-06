@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints protocol="smtp" database_type="service">
+  <!--
+   <fingerprint pattern="501[ -]Invalid domain *">
+      <description>
+      </description>
+      <param pos="0" name="service.vendor" value="Global Technology Associates"/>
+      <param pos="0" name="service.family" value="GNAT Box"/>
+      <param pos="0" name="service.product" value="GNAT Box"/>
+   </fingerprint>
+
+   <fingerprint pattern="550[ -]System error\. *">
+      <description>
+      </description>
+      <param pos="0" name="service.vendor" value="Global Technology Associates"/>
+      <param pos="0" name="service.family" value="GNAT Box"/>
+      <param pos="0" name="service.product" value="GNAT Box"/>
+   </fingerprint>
+   -->
+  <fingerprint pattern="550[ -]not local host .*, not a gateway *">
+    <description>
+         550 not local host foo.bar, not a gateway
+      </description>
+    <param pos="0" name="service.vendor" value="Ipswitch"/>
+    <param pos="0" name="service.family" value="IMail Server"/>
+    <param pos="0" name="service.product" value="IMail Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:ipswitch:imail_server:-"/>
+  </fingerprint>
+</fingerprints>

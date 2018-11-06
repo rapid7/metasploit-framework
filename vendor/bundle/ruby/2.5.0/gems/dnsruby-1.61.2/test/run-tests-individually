@@ -1,0 +1,347 @@
+#!/usr/bin/env ruby
+
+# Runs each test individually in its own Ruby VM,
+# shows output from those that failed, and outputs separate lists
+# of the tests that succeeded and those that failed.
+
+# Suggest you use tee to display while running but save results to a file, e.g.:
+# test/run-tests-individually | tee run-tests-individually.out.txt
+
+test_files = Dir[File.join(File.dirname(__FILE__), 'tc_*.rb')]
+
+def run_file(filespec)
+  output = `ruby #{filespec} 2>&1`
+  return_code = $?
+  if return_code == 0
+    puts "Ok:     Test #{filespec} completed successfully"
+    true
+  else
+    puts "Failed: Test #{filespec} failed with the following errors:\n#{output}"
+    false
+  end
+end
+
+
+successes, failures = test_files.partition { |filespec| run_file(filespec) }
+
+puts "Successes:\n\n"; puts successes; puts "\n\n"
+puts "Failures:\n\n";  puts failures
+
+
+=begin
+Sample output:
+Ok:     Test test/tc_axfr.rb completed successfully
+Ok:     Test test/tc_cache.rb completed successfully
+Failed: Test test/tc_dlv.rb failed with the following errors:
+Run options: --seed 19558
+
+# Running:
+
+
+TestDlv | R
+        | 0.00 s
+Slowest tests:
+2.04 s	TestDlv#test_dlv
+Slowest suites:
+2.04 s	TestDlv
+
+
+Finished in 2.040666s, 0.4900 runs/s, 0.4900 assertions/s.
+
+  1) Error:
+TestDlv#test_dlv:
+ArgumentError: Can't make sense of nameserver : ns2.nic.se, exception : Dnsruby::NXDomain
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:293:in `rescue in rescue in rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:256:in `rescue in rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:252:in `rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:248:in `resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/packet_sender.rb:230:in `initialize'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:569:in `new'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:569:in `add_server'
+    test/tc_dlv.rb:42:in `test_dlv'
+
+1 runs, 1 assertions, 0 failures, 1 errors, 0 skips
+Ok:     Test test/tc_dns.rb completed successfully
+Ok:     Test test/tc_dnskey.rb completed successfully
+Ok:     Test test/tc_ds.rb completed successfully
+Ok:     Test test/tc_escapedchars.rb completed successfully
+Ok:     Test test/tc_gpos.rb completed successfully
+Ok:     Test test/tc_hash.rb completed successfully
+Ok:     Test test/tc_header.rb completed successfully
+Ok:     Test test/tc_hip.rb completed successfully
+Ok:     Test test/tc_hs.rb completed successfully
+Ok:     Test test/tc_ipseckey.rb completed successfully
+Ok:     Test test/tc_message.rb completed successfully
+Ok:     Test test/tc_misc.rb completed successfully
+Ok:     Test test/tc_name.rb completed successfully
+Ok:     Test test/tc_naptr.rb completed successfully
+Ok:     Test test/tc_nsec.rb completed successfully
+Ok:     Test test/tc_nsec3.rb completed successfully
+Ok:     Test test/tc_nsec3param.rb completed successfully
+Ok:     Test test/tc_nxt.rb completed successfully
+Ok:     Test test/tc_packet.rb completed successfully
+Ok:     Test test/tc_packet_unique_push.rb completed successfully
+Ok:     Test test/tc_ptrin.rb completed successfully
+Ok:     Test test/tc_question.rb completed successfully
+Ok:     Test test/tc_queue.rb completed successfully
+Ok:     Test test/tc_recur.rb completed successfully
+Ok:     Test test/tc_res_config.rb completed successfully
+Failed: Test test/tc_res_env.rb failed with the following errors:
+Run options: --seed 61787
+
+# Running:
+
+
+TestResolverEnv | F
+                | 0.00 s
+Slowest tests:
+0.00 s	TestResolverEnv#test_res_env
+Slowest suites:
+0.00 s	TestResolverEnv
+
+
+Finished in 0.002247s, 445.0378 runs/s, 1335.1135 assertions/s.
+
+  1) Failure:
+TestResolverEnv#test_res_env [test/tc_res_env.rb:38]:
+Nameserver set correctly.
+Expected: "10.128.128.128"
+  Actual: "10.0.1.128"
+
+1 runs, 3 assertions, 1 failures, 0 errors, 0 skips
+Ok:     Test test/tc_res_file.rb completed successfully
+Ok:     Test test/tc_res_opt.rb completed successfully
+Ok:     Test test/tc_resolv.rb completed successfully
+Ok:     Test test/tc_resolver.rb completed successfully
+Ok:     Test test/tc_rr-opt.rb completed successfully
+Ok:     Test test/tc_rr-txt.rb completed successfully
+Ok:     Test test/tc_rr-unknown.rb completed successfully
+Ok:     Test test/tc_rr.rb completed successfully
+Ok:     Test test/tc_rrset.rb completed successfully
+Ok:     Test test/tc_rrsig.rb completed successfully
+Ok:     Test test/tc_single_resolver.rb completed successfully
+Failed: Test test/tc_soak.rb failed with the following errors:
+Run options: --seed 6029
+
+# Running:
+
+
+TestSingleResolverSoak | RRRRRRRRtest/tc_soak.rb:283:in `create_default_single_resolver': uninitialized constant TestSingleResolverSoak::SingleResolver (NameError)
+Did you mean?  SingleForwardable
+	from test/tc_soak.rb:243:in `block (2 levels) in test_many_threads_on_many_single_resolvers'
+Ok:     Test test/tc_soak_base.rb completed successfully
+Ok:     Test test/tc_sshfp.rb completed successfully
+Ok:     Test test/tc_tcp.rb completed successfully
+Ok:     Test test/tc_tcp_pipelining.rb completed successfully
+Ok:     Test test/tc_tkey.rb completed successfully
+Failed: Test test/tc_tsig.rb failed with the following errors:
+Run options: --seed 20864
+
+# Running:
+
+
+TestTSig | R..R
+         | 11.87 s
+Slowest tests:
+11.87 s	TestTSig#test_signed_update
+10.74 s	TestTSig#test_signed_zone_transfer
+0.00 s	TestTSig#test_bad_tsig
+0.00 s	TestTSig#test_message_signing
+Slowest suites:
+22.62 s	TestTSig
+
+
+Finished in 22.616872s, 0.1769 runs/s, 0.3095 assertions/s.
+
+  1) Error:
+TestTSig#test_signed_zone_transfer:
+ArgumentError: Can't make sense of nameserver : ns0.validation-test-servers.nominet.org.uk, exception : undefined method `answer' for nil:NilClass
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:293:in `rescue in rescue in rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:256:in `rescue in rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:252:in `rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:248:in `resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/zone_transfer.rb:94:in `block in transfer'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/zone_transfer.rb:92:in `each'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/zone_transfer.rb:92:in `transfer'
+    test/tc_tsig.rb:189:in `axfr'
+    test/tc_tsig.rb:180:in `test_signed_zone_transfer'
+
+
+  2) Error:
+TestTSig#test_signed_update:
+ArgumentError: Can't make sense of nameserver : , exception : Nameserver invalid!
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:293:in `rescue in rescue in rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:256:in `rescue in rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:252:in `rescue in resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/config.rb:248:in `resolve_server'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/packet_sender.rb:230:in `initialize'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:488:in `new'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:488:in `block (2 levels) in add_config_nameservers'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:487:in `each'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:487:in `block in add_config_nameservers'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:485:in `synchronize'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:485:in `add_config_nameservers'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:514:in `set_config_nameserver'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:469:in `initialize'
+    test/tc_tsig.rb:69:in `new'
+    test/tc_tsig.rb:69:in `run_test_client_signs'
+    test/tc_tsig.rb:31:in `test_signed_update'
+
+4 runs, 7 assertions, 0 failures, 2 errors, 0 skips
+Ok:     Test test/tc_update.rb completed successfully
+Failed: Test test/tc_validator.rb failed with the following errors:
+Run options: --seed 12765
+
+# Running:
+
+Test EventType API!
+
+TestValidator | .RRTest validation configuration options!
+.
+              | 10.05 s
+Slowest tests:
+5.05 s	TestValidator#test_validation
+5.01 s	TestValidator#test_resolver_cd_validation_fails
+0.00 s	TestValidator#test_eventtype_api
+0.00 s	TestValidator#test_config_api
+Slowest suites:
+10.05 s	TestValidator
+
+
+Finished in 10.054978s, 0.3978 runs/s, 0.0000 assertions/s.
+
+  1) Error:
+TestValidator#test_resolver_cd_validation_fails:
+Dnsruby::ResolvTimeout: Query timed out
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:257:in `send_message'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:203:in `query'
+    test/tc_validator.rb:52:in `test_resolver_cd_validation_fails'
+
+
+  2) Error:
+TestValidator#test_validation:
+Dnsruby::ResolvTimeout: Query timed out
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:257:in `send_message'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:203:in `query'
+    test/tc_validator.rb:40:in `test_validation'
+
+4 runs, 0 assertions, 0 failures, 2 errors, 0 skips
+Failed: Test test/tc_verifier.rb failed with the following errors:
+Run options: --seed 23316
+
+# Running:
+
+
+VerifierTest | .R.R....RF.
+             | 14.37 s
+Slowest tests:
+5.40 s	VerifierTest#test_tcp
+5.01 s	VerifierTest#test_trusted_key
+2.01 s	VerifierTest#test_expired_keys
+1.54 s	VerifierTest#test_verify_message_fails
+1.21 s	VerifierTest#test_dsa
+0.41 s	VerifierTest#test_sendraw
+Slowest suites:
+15.91 s	VerifierTest
+
+
+Finished in 15.914313s, 0.6912 runs/s, 0.3770 assertions/s.
+
+  1) Error:
+VerifierTest#test_tcp:
+Dnsruby::ResolvTimeout: Query timed out
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:257:in `send_message'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:203:in `query'
+    test/tc_verifier.rb:183:in `test_tcp'
+
+
+  2) Error:
+VerifierTest#test_trusted_key:
+Dnsruby::ResolvTimeout: Query timed out
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:257:in `send_message'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/resolver.rb:203:in `query'
+    test/tc_verifier.rb:125:in `test_trusted_key'
+
+
+  3) Error:
+VerifierTest#test_verify_message:
+Dnsruby::VerifyError: Failed to verify DNSKEY RRSet
+    /Users/kbennett/work/dnsruby/lib/dnsruby/single_verifier.rb:277:in `block (2 levels) in verify'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/single_verifier.rb:275:in `each'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/single_verifier.rb:275:in `block in verify'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/message/message.rb:345:in `block in each_section'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/message/message.rb:345:in `each'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/message/message.rb:345:in `each_section'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/single_verifier.rb:261:in `verify'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/dnssec.rb:293:in `rescue in rescue in verify'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/dnssec.rb:290:in `rescue in verify'
+    /Users/kbennett/work/dnsruby/lib/dnsruby/dnssec.rb:287:in `verify'
+    test/tc_verifier.rb:98:in `test_verify_message'
+
+
+  4) Failure:
+VerifierTest#test_dsa [test/tc_verifier.rb:229]:
+Expected nil to be truthy.
+
+11 runs, 6 assertions, 1 failures, 3 errors, 0 skips
+Ok:     Test test/tc_zone_reader.rb completed successfully
+Successes:
+
+test/tc_axfr.rb
+test/tc_cache.rb
+test/tc_dns.rb
+test/tc_dnskey.rb
+test/tc_ds.rb
+test/tc_escapedchars.rb
+test/tc_gpos.rb
+test/tc_hash.rb
+test/tc_header.rb
+test/tc_hip.rb
+test/tc_hs.rb
+test/tc_ipseckey.rb
+test/tc_message.rb
+test/tc_misc.rb
+test/tc_name.rb
+test/tc_naptr.rb
+test/tc_nsec.rb
+test/tc_nsec3.rb
+test/tc_nsec3param.rb
+test/tc_nxt.rb
+test/tc_packet.rb
+test/tc_packet_unique_push.rb
+test/tc_ptrin.rb
+test/tc_question.rb
+test/tc_queue.rb
+test/tc_recur.rb
+test/tc_res_config.rb
+test/tc_res_file.rb
+test/tc_res_opt.rb
+test/tc_resolv.rb
+test/tc_resolver.rb
+test/tc_rr-opt.rb
+test/tc_rr-txt.rb
+test/tc_rr-unknown.rb
+test/tc_rr.rb
+test/tc_rrset.rb
+test/tc_rrsig.rb
+test/tc_single_resolver.rb
+test/tc_soak_base.rb
+test/tc_sshfp.rb
+test/tc_tcp.rb
+test/tc_tcp_pipelining.rb
+test/tc_tkey.rb
+test/tc_update.rb
+test/tc_zone_reader.rb
+
+
+Failures:
+
+test/tc_dlv.rb
+test/tc_res_env.rb
+test/tc_soak.rb
+test/tc_tsig.rb
+test/tc_validator.rb
+test/tc_verifier.rb
+
+=end
+

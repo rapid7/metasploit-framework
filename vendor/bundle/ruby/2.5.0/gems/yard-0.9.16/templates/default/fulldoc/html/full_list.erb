@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="<%= charset %>" />
+    <% stylesheets_full_list.each do |stylesheet| %>
+      <link rel="stylesheet" href="<%= mtime_url(stylesheet) %>" type="text/css" media="screen" charset="utf-8" />
+    <% end %>
+
+    <% javascripts_full_list.each do |javascript| %>
+      <script type="text/javascript" charset="utf-8" src="<%= mtime_url(javascript) %>"></script>
+    <% end %>
+
+    <title><%= @list_title %></title>
+    <base id="base_target" target="_parent" />
+  </head>
+  <body>
+    <div id="content">
+      <div class="fixed_header">
+        <h1 id="full_list_header"><%= @list_title %></h1>
+        <div id="full_list_nav">
+          <% menu_lists.each do |list| %>
+            <span><a target="_self" href="<%= url_for_list list[:type] %>">
+              <%= list[:title] %>
+            </a></span>
+          <% end %>
+        </div>
+
+        <div id="search">Search: <input type="text" /></div>
+      </div>
+
+      <ul id="full_list" class="<%= @list_class || @list_type %>">
+        <%= erb "full_list_#{@list_type}" %>
+      </ul>
+    </div>
+  </body>
+</html>

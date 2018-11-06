@@ -1,0 +1,14 @@
+Description: All block types, intermixed
+Category:    advanced
+
+Block counts:
+	CB: 1
+	DCB: 2
+	EPB: 4
+	IDB: 3
+	ISB: 6
+	NRB: 3
+	SHB: 1
+	SPB: 1
+
+Block sequence: SHB, CB, NRB, IDB, IDB, ISB, EPB, ISB, ISB, DCB, IDB, EPB, ISB, SPB, NRB, EPB, ISB, EPB, DCB, NRB, ISB

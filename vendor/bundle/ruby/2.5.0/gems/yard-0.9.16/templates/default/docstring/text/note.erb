@@ -1,0 +1,4 @@
+<% object.tags(:note).each do |tag| %>
+<%= indent(wrap("Note: #{tag.text}")) %>
+
+<% end %>

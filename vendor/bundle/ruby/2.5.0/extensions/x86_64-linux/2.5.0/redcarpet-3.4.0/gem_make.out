@@ -1,0 +1,38 @@
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/redcarpet-3.4.0/ext/redcarpet
+/usr/bin/ruby2.5 -r ./siteconf20181028-14830-p2zra0.rb extconf.rb
+creating Makefile
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/redcarpet-3.4.0/ext/redcarpet
+make "DESTDIR=" clean
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/redcarpet-3.4.0/ext/redcarpet
+make "DESTDIR="
+compiling autolink.c
+compiling buffer.c
+buffer.c: In function ‘bufcstr’:
+buffer.c:111:45: warning: passing argument 1 of ‘bufgrow’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  if (buf->size + 1 <= buf->asize || bufgrow(buf, buf->size + 1) == BUF_OK) {
+                                             ^~~
+buffer.c:60:21: note: expected ‘struct buf *’ but argument is of type ‘const struct buf *’
+ bufgrow(struct buf *buf, size_t neosz)
+         ~~~~~~~~~~~~^~~
+compiling houdini_href_e.c
+compiling houdini_html_e.c
+compiling html.c
+compiling html_smartypants.c
+compiling markdown.c
+markdown.c: In function ‘sd_markdown_render’:
+markdown.c:2836:52: warning: passing argument 1 of ‘is_codefence’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   if (codefences_enabled && (is_codefence(document + beg, doc_size - beg, NULL) != 0))
+                                           ~~~~~~~~~^~~~~
+markdown.c:1389:23: note: expected ‘uint8_t *’ {aka ‘unsigned char *’} but argument is of type ‘const uint8_t *’ {aka ‘const unsigned char *’}
+ is_codefence(uint8_t *data, size_t size, struct buf *syntax)
+              ~~~~~~~~~^~~~
+compiling rc_markdown.c
+compiling rc_render.c
+compiling stack.c
+linking shared-object redcarpet.so
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/redcarpet-3.4.0/ext/redcarpet
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 redcarpet.so ./.gem.20181028-14830-1b792nn

@@ -1,0 +1,32 @@
+<h2>Namespace Listing A-Z</h2>
+
+<% if Registry.root.meths(:included => false).size > 0 %>
+  <ul class="toplevel"><li><%= linkify(Registry.root) %></li></ul>
+<% end %>
+
+<% i = 0 %>
+<table>
+  <tr>
+    <td valign='top' width="33%">
+      <% @objects_by_letter.sort_by {|l,o| l.to_s }.each do |letter, objects| %>
+        <% if (i += 1) % 8 == 0 %>
+          </td><td valign='top' width="33%">
+          <% i = 0 %>
+        <% end %>
+        <ul id="alpha_<%= letter %>" class="alpha">
+          <li class="letter"><%= letter %></li>
+          <ul>
+            <% objects.each do |obj| %>
+              <li>
+                <%= linkify obj, obj.name %>
+                <% if !obj.namespace.root? %>
+                  <small>(<%= obj.namespace.path %>)</small>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </ul>
+      <% end %>
+    </td>
+  </tr>
+</table>

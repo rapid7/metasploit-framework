@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints protocol="smtp" database_type="service" preference="0.13">
+  <!--
+  SMTP response lines to the TURN command are matched against these patterns
+  (1 line at a time) to fingerprint SMTP servers.
+
+  See comment at the top of smtp_banners.xml for additional info.
+
+  'preference' note: This value has been set so as to implement the ordering
+    of SMTP related fingerprint databases as described in 'smtp_banners.xml'.
+  -->
+  <fingerprint pattern="^502[ -]Hey!  I don't let remote systems TURN on me\.$">
+    <description>
+         502 Hey!  I don't let remote systems TURN on me.
+      </description>
+    <param pos="0" name="service.vendor" value="Alt-N"/>
+    <param pos="0" name="service.family" value="MDaemon"/>
+    <param pos="0" name="service.product" value="MDaemon"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:altn:mdaemon:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+</fingerprints>

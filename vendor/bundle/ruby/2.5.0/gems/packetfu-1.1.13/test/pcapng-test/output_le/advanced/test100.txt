@@ -1,0 +1,11 @@
+Description: NRB with IPv4+6, unknown types, duplicate entries, etc.
+Category:    advanced
+
+Block counts:
+	EPB: 3
+	IDB: 3
+	NRB: 5
+	SHB: 1
+	SPB: 2
+
+Block sequence: SHB, IDB, NRB, SPB, NRB, IDB, NRB, EPB, IDB, NRB, SPB, EPB, EPB, NRB

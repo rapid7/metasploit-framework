@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints protocol="smtp" database_type="service" preference="0.14">
+  <!--
+  SMTP response lines to the DEBUG command are matched against these patterns
+  (1 line at a time) to fingerprint SMTP servers.
+
+  See comment at the top of smtp_banners.xml for additional info.
+
+  'preference' note: This value has been set so as to implement the ordering
+    of SMTP related fingerprint databases as described in 'smtp_banners.xml'.
+  -->
+  <fingerprint pattern="^500 No way!$">
+    <description>
+         Exim
+         example: 500 No way!
+      </description>
+    <param pos="0" name="service.vendor" value="exim"/>
+    <param pos="0" name="service.family" value="exim"/>
+    <param pos="0" name="service.product" value="exim"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:exim:exim:-"/>
+  </fingerprint>
+  <fingerprint pattern="^250[ -] *Debug set -NOT!$">
+    <description>
+         TIS FWTK and derivatives
+         http://www.tis.com/research/software/
+         This fingerprint may be ambiguous because other firewalls (like
+         Gauntlet) are derived from TIS
+      </description>
+    <param pos="0" name="service.vendor" value="TIS"/>
+    <param pos="0" name="service.family" value="FWTK"/>
+    <param pos="0" name="service.product" value="FWTK"/>
+  </fingerprint>
+  <fingerprint pattern="^500[ -]What\? I don't understand that\.$">
+    <description>
+         500 What? I don't understand that.
+      </description>
+    <param pos="0" name="service.vendor" value="Alt-N"/>
+    <param pos="0" name="service.family" value="MDaemon"/>
+    <param pos="0" name="service.product" value="MDaemon"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:altn:mdaemon:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+</fingerprints>

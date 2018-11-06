@@ -1,0 +1,120 @@
+pt-BR:
+  faker:
+    address:
+      city_prefix: [Nova, Velha, Grande, Vila, Município de]
+      city_suffix: [" do Descoberto", " de Nossa Senhora", " do Norte", " do Sul"]
+      country: [ "Afeganistão", "Albânia", "Algéria", "Samoa", "Andorra", "Angola", "Anguilla", "Antígua e Barbuda", "Argentina", "Armênia", "Aruba", "Austrália",
+                 "Áustria", "Azerbaijão", "Bahamas", "Barém", "Bangladesh", "Barbados", "Belgrado", "Bélgica", "Belize", "Benin", "Bermuda", "Butão", "Bolívia",
+                 "Bôsnia", "Batasuna", "Ilha Bouvet", "Brasil", "Arquipélago de Chagos", "Ilhas Virgens", "Brunei", "Bulgária", "Burkina Faso", "Burundi", "Camboja",
+                 "Camarões", "Canadá", "Cabo Verde", "Ilhas Cayman", "República da África Central", "Chade", "Chile", "China", "Ilhas do Natal", "Ilhas Cocos", "Colômbia",
+                 "Comores", "Congo", "Ilhas Cook", "Costa Rica", "Costa do Marfim", "Croácia", "Cuba", "Chipre", "República Checa", "Dinamarca", "Djibouti", "Dominica",
+                 "República Dominicana", "Equador", "Egito", "El Salvador", "Guiné Equatorial", "Eritreia", "Estônia", "Etiópia", "Ilhas Feroe", "Ilhas Malvinas", "Fiji",
+                 "Finlândia", "França", "Guiné Francesa", "Polinésia Francesa", "Gabão", "Gâmbia", "Georgia", "Alemanha", "Gana", "Gibraltar", "Grécia", "Groelândia",
+                 "Granada", "Guadalupe", "Guano", "Guatemala", "Guernsey", "Guiné", "Guiné-Bissau", "Guiana", "Haiti", "Ilha Heard e Ilhas McDonald", "Vaticano",
+                 "Honduras", "Hong Kong", "Hungria", "Islândia", "Índia", "Indonésia", "Irã", "Iraque", "Irlanda", "Ilha de Man", "Israel", "Itália", "Jamaica", "Japão",
+                 "Jersey", "Jordânia", "Cazaquistão", "Quênia", "Kiribati", "Coreia do Norte", "Coreia do Sul", "Kuwait", "Quirguistão", "República Democrática Popular Lau",
+                 "Latvia", "Líbano", "Lesoto", "Libéria", "Líbia", "Liechtenstein", "Lituânia", "Luxemburgo", "Macau", "Macedônia", "Madagascar", "Malawi",
+                 "Malásia", "Maldivas", "Mali", "Malta", "Ilhas Marshall", "Martinica", "Mauritânia", "Maurícia", "Mayotte", "México", "Micronésia", "Moldávia", "Mônaco",
+                 "Mongólia", "Montenegro", "Montserrat", "Marrocos", "Moçambique", "Myanmar", "Namíbia", "Nauru", "Nepal", "Antilhas Holandesas", "Holanda", "Nova Caledónia",
+                 "Nova Zelândia", "Nicarágua", "Nigéria", "Niue", "Ilha Norfolk", "Marianas Setentrionais", "Noruega", "Omã", "Paquistão", "Palau", "Palestina",
+                 "Panamá", "Papua-Nova Guiné", "Paraguai", "Peru", "Filipinas", "Polônia", "Portugal", "Porto Rico", "Catar", "Romênia", "Rússia", "Ruanda", "São Bartolomeu",
+                 "Santa Helena", "Santa Lúcia", "Ilha de São Martinho", "Saint-Pierre e Miquelon", "São Vincente e Granadinas", "Samoa", "San Marino", "Sao Tomé e Príncipe",
+                 "Arábia Saudita", "Senegal", "Sérvia", "Seicheles", "Serra Leoa", "Singapura", "Eslováquia", "Eslovênia", "Ilhas Salomão", "Somália",
+                 "África do Sul", "Geórgia do Sul e Ilhas Sandwich do Sul", "Espanha", "Sri Lanka", "Sudão", "Suriname", "Ilhas Svalbard e Jan Mayen", "Suazilândia",
+                 "Suécia", "Suíça", "Síria", "Taiwan", "Tajiquistão", "Tanzânia", "Tailândia", "Timor-Leste", "Togo", "Tokelau", "Tonga", "Trindade e Tobago", "Tunísia",
+                 "Turquia", "Turcomenistão", "Ilhas Turcas e Caicos", "Tuvalu", "Uganda", "Ucrânia", "Emirados Árabes Unidos", "Reino Unido", "Estados Unidos da América",
+                 "Estados Unidos das Ilhas Virgens", "Uruguai", "Uzbequistão", "Vanuatu", "Venezuela", "Vietnã", "Wallis e Futuna", "Saara Ocidental", "Iémen", "Zâmbia", "Zimbábue"]
+      building_number: ["#####", "####", "###", "s/n"]
+      street_suffix: ["Rua", "Avenida", "Travessa", "Ponte", "Alameda", "Marginal", "Viela", "Rodovia"]
+      street_name:
+        - "#{street_suffix} #{Name.first_name}"
+        - "#{street_suffix} #{Name.first_name} #{Name.last_name}"
+      secondary_address: ["Apto. ###", "Sobrado ##", "Casa #", "Lote ##", "Quadra ##"]
+      # Though these are US-specific, they are here (in the default locale) for backwards compatibility
+      postcode: ["#####-###"]
+      state: ["Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará", "Distrito Federal", "Espírito Santo", "Goiás", "Maranhão", "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará", "Paraíba", "Paraná", "Pernambuco", "Piauí", "Rio de Janeiro", "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia", "Roraima", "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"]
+      state_abbr: [AC, AL, AP, AM, BA, CE, DF, ES, GO, MA, MT, MS, PA, PB, PR, PE, PI, RJ, RN, RS, RO, RR, SC, SP]
+      postcode_by_state:
+        SP: ['0####-###', '1####-###']
+        RJ: ['20###-###', '21###-###', '22###-###', '23###-###', '24###-###', '25###-###', '26###-###', '27###-###', '28###-###']
+        ES: '29###-###'
+        MG: '3####-###'
+        BA: ['40###-###', '41###-###', '42###-###', '43###-###', '44###-###', '45###-###', '46###-###', '47###-###', '48###-###']
+        SE: '49###-###'
+        PE: ['50###-###', '51###-###', '52###-###', '53###-###', '54###-###', '55###-###', '56###-###']
+        AL: '57###-###'
+        PB: '58###-###'
+        RN: '59###-###'
+        CE: ['60###-###', '61###-###', '62###-###', '63###-###']
+        PI: '64###-###'
+        MA: '65###-###'
+        PA: ['66###-###', '67###-###']
+        AP: '68###-###'
+        AM: '69###-###'
+        AC: '69###-###'
+        RR: '69###-###'
+        DF: ['70###-###', '71###-###', '72###-###', '73###-###']
+        GO: ['73###-###', '74###-###', '75###-###', '76###-###']
+        RO: ['768##-###', '769##-###']
+        TO: '77###-###'
+        MT: '78###-###'
+        MS: '79###-###'
+        PR: ['80###-###', '81###-###', '82###-###', '83###-###', '84###-###', '85###-###', '86###-###', '87###-###']
+        SC: ['88###-###', '89###-###']
+        RS: '9####-###'
+      default_country: [Brasil]
+
+    company:
+      suffix: ["S.A.", "LTDA", "e Associados", "Comércio", "EIRELI"]
+      name:
+        - "#{Name.last_name} #{suffix}"
+        - "#{Name.last_name}-#{Name.last_name}"
+        - "#{Name.last_name}, #{Name.last_name} e #{Name.last_name}"
+
+    university:
+      prefix: [Universidade, Faculdade, Centro Tecnológico]
+      region: [Federal, Estadual, Municipal, Rural, Regional, Católica, Metodista]
+      suffix: ['do Sul', 'do Norte', 'a Distância', 'EAD', 'do Leste', 'do Oeste', 'do Nordeste', 'do Suldeste', 'da Floresta Amazônica', 'da Caatinga', 'Atlântica']
+      name:
+              - "#{University.prefix} #{Name.last_name} #{University.suffix}"
+              - "#{University.prefix} do(a) #{Address.state} #{University.suffix}"
+              - "#{University.prefix} do(a) #{Address.state}"
+              - "#{University.prefix} #{University.region} do(a) #{Address.state}"
+              - "#{University.prefix} #{University.region} do(a) #{Address.state} #{University.suffix}"
+              - "#{University.prefix} #{Name.last_name} #{University.suffix}"
+              - "#{University.prefix} #{Name.last_name}"
+
+    internet:
+      free_email: [gmail.com, yahoo.com, hotmail.com, live.com, bol.com.br]
+      domain_suffix: [br, com, biz, info, name, net, org]
+
+    lorem:
+      words: [alias, consequatur, aut, perferendis, sit, voluptatem, accusantium, doloremque, aperiam, eaque, ipsa, quae, ab, illo, inventore, veritatis, et, quasi, architecto, beatae, vitae, dicta, sunt, explicabo, aspernatur, aut, odit, aut, fugit, sed, quia, consequuntur, magni, dolores, eos, qui, ratione, voluptatem, sequi, nesciunt, neque, dolorem, ipsum, quia, dolor, sit, amet, consectetur, adipisci, velit, sed, quia, non, numquam, eius, modi, tempora, incidunt, ut, labore, et, dolore, magnam, aliquam, quaerat, voluptatem, ut, enim, ad, minima, veniam, quis, nostrum, exercitationem, ullam, corporis, nemo, enim, ipsam, voluptatem, quia, voluptas, sit, suscipit, laboriosam, nisi, ut, aliquid, ex, ea, commodi, consequatur, quis, autem, vel, eum, iure, reprehenderit, qui, in, ea, voluptate, velit, esse, quam, nihil, molestiae, et, iusto, odio, dignissimos, ducimus, qui, blanditiis, praesentium, laudantium, totam, rem, voluptatum, deleniti, atque, corrupti, quos, dolores, et, quas, molestias, excepturi, sint, occaecati, cupiditate, non, provident, sed, ut, perspiciatis, unde, omnis, iste, natus, error, similique, sunt, in, culpa, qui, officia, deserunt, mollitia, animi, id, est, laborum, et, dolorum, fuga, et, harum, quidem, rerum, facilis, est, et, expedita, distinctio, nam, libero, tempore, cum, soluta, nobis, est, eligendi, optio, cumque, nihil, impedit, quo, porro, quisquam, est, qui, minus, id, quod, maxime, placeat, facere, possimus, omnis, voluptas, assumenda, est, omnis, dolor, repellendus, temporibus, autem, quibusdam, et, aut, consequatur, vel, illum, qui, dolorem, eum, fugiat, quo, voluptas, nulla, pariatur, at, vero, eos, et, accusamus, officiis, debitis, aut, rerum, necessitatibus, saepe, eveniet, ut, et, voluptates, repudiandae, sint, et, molestiae, non, recusandae, itaque, earum, rerum, hic, tenetur, a, sapiente, delectus, ut, aut, reiciendis, voluptatibus, maiores, doloribus, asperiores, repellat]
+
+    name:
+      first_name: ["Alessandro","Alexandre","Alice","Alícia","Aline","Amanda","Ana","Antônio","Arthur","Beatriz","Benício","Benjamin","Bernardo","Bianca","Breno","Bruna","Bryan","Caio","Carla","Carlos","Catarina","Cauã","Cecília","Célia","César","Clara","Dalila","Daniel","Danilo","Davi","Deneval","Djalma","Eduarda","Eduardo","Elísio","Emanuel","Emanuelly","Enrico","Enzo","Esther","Fabiano","Fábio","Fabrícia","Fabrício","Felícia","Feliciano","Felipe","Félix","Fernanda","Francisco","Frederico","Gabriel","Gabriela","Giovanna","Gúbio","Guilherme","Gustavo","Heitor","Helena","Hélio","Heloísa","Henrique","Hugo","Ígor","Isaac","Isabel","Isabela","Isabella","Isabelly","Isadora","Isis","Janaína","Joana","João","Joaquim","Júlia","Júlio","Karla","Kléber","Ladislau","Lara","Larissa","Laura","Lavínia","Leonardo","Letícia","Lívia","Lorena","Lorenzo","Lorraine","Lucas","Lucca","Luiza","Manuela","Marcela","Marcelo","Márcia","Márcio","Marcos","Margarida","Maria","Mariana","Marina","Marli","Matheus","Meire","Melissa","Mércia","Miguel","Morgana","Murilo","Natália","Nataniel","Nicolas","Nicole","Norberto","Núbia","Ofélia","Pablo","Paula","Paulo","Pedro","Pietro","Rafael","Rafaela","Raul","Rebeca","Ricardo","Roberta","Roberto","Salvador","Samuel","Sara","Sarah","Silas","Sílvia","Sirineu","Sophia","Suélen","Talita","Tertuliano","Theo","Thiago","Thomas","Valentina","Vicente","Víctor","Vinicius","Vitor","Vitória","Warley","Washington","Yago","Yango","Yasmin","Yuri","Adriana","Agatha","Alessandra","Allana","Ana Beatriz","Ana Cecília","Ana Clara","Ana Júlia","Ana Laura","Ana Lívia","Ana Luiza","Ana Sophia","Ana Vitória","André","Anthony","Antonella","Antonia","Arthur Gabriel","Arthur Henrique","Arthur Miguel","Augusto","Aurora","Ayla","Bárbara","Bento","Bruno","Calebe","Camila","Carlos Eduardo","Carolina","Clarice","Davi Lucas","Davi Lucas","Davi Lucca","Davi Lucca","Davi Luiz","Davi Miguel","Elisa","Eloah","Emilly","Enzo Gabriel","Enzo Gabriel","Enzo Miguel","Erick","Fernando","Francisca","Gabrielly","Gael","Giulia","Henry","Ian","Igor","Joao","João Gabriel","João Guilherme","João Lucas","João Lucas","João Miguel","João Miguel","João Pedro","João Pedro","João Vitor","João Vitor","José","Juliana","Kaique","Kauê","Laís","Levi","Liz","Louise","Luan","Luana","Lucas Gabriel","Luiz","Luiz Felipe","Luiz Gustavo","Luiz Henrique","Luiz Miguel","Luiz Otávio","Luna","Maitê","Malu","Marcia","Maria Alice","Maria Cecília","Maria Clara","Maria Eduarda","Maria Fernanda","Maria Flor","Maria Helena","Maria Isis","Maria Júlia","Maria Laura","Maria Luiza","Maria Sophia","Maria Valentina","Maria Vitória","Mariah","Mathias","Maya","Milena","Mirella","Nathan","Noah","Oliver","Olívia","Otávio","Patricia","Pedro Henrique","Pedro Henrique","Pedro Lucas","Pedro Miguel","Pérola","Pietra","Rodrigo","Ruan","Ryan","Sophie","Stella","Tiago","Tomás","Vinícius","Vitor Hugo"]
+      last_name: ["Aguiar",  "Albuquerque",  "Almada",  "Almeida",  "Álvares",  "Alves",  "Ambrósio",  "Amoreira",  "Antena",  "Antunes",  "Aparício",  "Aragão",  "Arantes",  "Araújo",  "Aroeira",  "Arriaga",  "Assumpção",  "Banheira",  "Barata",  "Barbosa",  "Barreira",  "Barreto",  "Barros",  "Barroso",  "Batista",  "Beltrão",  "Bentes",  "Bernardes",  "Bittencourt",  "Bomdia",  "Bonfim",  "Bouças",  "Braga",  "Brites",  "Brum",  "Bulhões",  "Cabreira",  "Cachoeira",  "Caldas",  "Caldeira",  "Camacho",  "Campos",  "Cardoso",  "Carneiro",  "Carreira",  "Carvalheira",  "Carvalho",  "Caseira",  "Casqueira",  "Castanheira",  "Castanho",  "Castelo",  "Castro",  "Cavalcanti",  "Cerqueira",  "Chaves",  "Conceição",  "Coqueiro",  "Corrêa",  "Corte",  "Costa",  "Coutinho",  "Crespo",  "Cruz",  "Custódio",  "da Aldeia",  "da Bandeira",  "da Barra",  "da Barranca",  "da Conceição",  "da Costa",  "da Cruz",  "da Cunha",  "da Fonseca",  "da Fontoura",  "da Fronteira",  "da Gama",  "da Luz",  "da Madureira",  "da Maia",  "da Mata",  "da Mota",  "da Nóbrega",  "da Paz",  "da Penha",  "da Rocha",  "da Rosa",  "da Silva",  "da Silveira",  "da Terra",  "da Veiga",  "Dantas",  "das Neves",  "Datena",  "de Assunção",  "de Borba",  "de Lara",  "de Lins",  "de Oliveira",  "de Quadros",  "de Sá",  "Dias",  "Diegues",  "do Prado",  "Domingues",  "Dorneles",  "dos Reis",  "Duarte",  "Espinheira",  "Espinhosa",  "Esteves",  "Farias",  "Fernandes",  "Ferraço",  "Ferreira",  "Figueira",  "Filgueira",  "Fogaça",  "Fontes",  "Fontinhas",  "Franco",  "Freitas",  "Gabeira",  "Galego",  "Galvão",  "Garcês",  "Garcez",  "Gentil",  "Geraldes",  "Godinho",  "Godins",  "Gomes",  "Gomide",  "Gonçalves",  "Goulart",  "Grotas",  "Guedes",  "Guterres",  "Henriques",  "Hermingues",  "Hernandes",  "Jaques",  "Jesus",  "Junqueira",  "Laranjeira",  "Leiria",  "Lessa",  "Lima",  "Limeira",  "Lobos",  "Longuinho",  "Lopes",  "Louzada",  "Macedo",  "Macieira",  "Madeira",  "Mangueira",  "Marcondes",  "Marins",  "Marques",  "Martim",  "Martins",  "Matoso",  "Meira",  "Meireles",  "Melo",  "Mendanha",  "Mendes",  "Menendes",  "Modesto",  "Moniz",  "Monteira",  "Monteiro",  "Moraes",  "Morais",  "Moreira",  "Moreno",  "Moura",  "Munhoz",  "Muniz",  "Nascimento",  "Negrão",  "Neves",  "Nogueira",  "Novaes",  "Nunes",  "Oliveira",  "Ordonhes",  "Ornelas",  "Ouriques",  "Paes",  "Paiva",  "Palhares",  "Palmeira",  "Parreira",  "Passarinho",  "Pedroso",  "Peixoto",  "Pereira",  "Peres",  "Pimenta",  "Pinheira",  "Pinto",  "Pires",  "Porteira",  "Porto",  "Quaresma",  "Quarteira",  "Raia",  "Ramalho",  "Rameira",  "Ramires",  "Ramos",  "Rebouças",  "Rêgo",  "Regueira",  "Reis",  "Resende",  "Rezende",  "Ribas",  "Ribeira",  "Ribeiro",  "Rios",  "Rocha",  "Rodrigues",  "Rolim",  "Roriz",  "Roseira",  "Sá",  "Sais",  "Sales",  "Sanches",  "Santana",  "Santos",  "Saraiva",  "Silva",  "Silveira",  "Simão",  "Simões",  "Siqueira",  "Siqueiro",  "Soares",  "Soeira",  "Solimões",  "Souza",  "Tavares",  "Taveira",  "Teixeira",  "Teles",  "Vasques",  "Velasques",  "Veles",  "Veloso",  "Viana",  "Vidal",  "Videira",  "Vieira",  "Vimaranes",  "Viveiros",  "Xavier",  "Ximenes"]
+      prefix: ["Sr.", "Sra.", "Srta.", "Dr.", "Dra."]
+      suffix: ["Jr.", "Neto", "Filho"]
+    color:
+      name: ["Abóbora", "Amaranto", "Amarelo", "Âmbar", "Ameixa", "Ardósia", "Azul", "Azul-bebê", "Azul-claro", "Azul-cobalto", "Azul-esverdeado", "Azul-marinho", "Azul-persa", "Azul-violeta", "Bege", "Branco", "Carmesim", "Carmim", "Cereja", "Cerúleo", "Champagne", "Chocolate", "Cinza", "Coral", "Escarlate", "Framboesa", "Índigo", "Laranja", "Lavanda", "Lilás", "Lima", "Magenta", "Marfim", "Marrom", "Oliva", "Ouro", "Pêssego", "Prata", "Preto", "Rosa", "rosa-arroxeado", "Rosa-magenta", "Roxo", "Salmão", "Turquesa", "Uva", "Verde", "Verde-água", "Verde-claro", "Verde-jade", "Verde-limão", "Verde-primavera", "Vermelho", "Violeta"]
+    team:
+      main_teams: ['Flamengo', 'Fluminense', 'Botafogo', 'Vasco da Gama', 'Corinthians','Grêmio','Flamengo','Palmeiras','Santos','Coritiba','Cruzeiro','Ponte Preta', 'Chapecoense', 'Sport','São Paulo','Bahia', 'Vitória', 'Avaí', 'América']
+      prefix: ['Grêmio', 'Atlético', 'Clube de Regatas', 'Esporte']
+      gentile: ['Acriano', 'Alagoano', 'Amapaense', 'Amazonense', 'Baiano', 'Cearense', 'Brasiliense', 'Capixaba', 'Goiano', 'Maranhense', 'Mato-grossense', 'Sul-mato-grossense', 'Mineiro', 'Paraense', 'Paraibano', 'Paranaense', 'Pernambucano', 'Piauiense', 'Fluminense', 'Carioca', 'Potiguar', 'Gaúcho', 'Rondoniano', 'Roraimense', 'Catarinense', 'Paulista', 'Paulistano', 'Sergipano', 'Tocantinense']
+      name:
+        - "#{Team.prefix} #{Team.gentile}"
+        - "#{Team.main_teams}"
+      sport: ['handebol', 'basquete', 'futebol', 'UFC', 'volêi', 'tênis']
+    phone_number:
+      area_code: ["11", "12", "13", "14", "15", "16", "17", "18", "19", "21", "22", "24", "27", "28", "31", "32", "33", "34", "35", "37", "38", "41", "42", "43", "44", "45", "46", "47", "48", "49", "51", "53", "54", "55", "61", "62", "63", "64", "65", "66", "67", "68", "69", "71", "73", "74", "75", "77", "79", "81", "82", "83", "84", "85", "86", "87", "88", "89", "91", "92", "93", "94", "95", "96", "97", "98", "99"]
+      formats:
+        - "(#{PhoneNumber.area_code}) #{PhoneNumber.subscriber_number}-#{PhoneNumber.subscriber_number}"
+    cell_phone:
+      formats:
+        - "(#{PhoneNumber.area_code}) 9#{PhoneNumber.subscriber_number}-#{PhoneNumber.subscriber_number}"
+    food:
+      ingredients: ["Abacate","Abacaxi","Abóbora","Açafrão","Achacha","Agar","Água De Côco","Água De Rosas","Aipo","Alcachofra","Alcaçuz","Alcaparras","Alecrim","Alface","Alfafa","Alho","Alho-Poró","Amaranto","Ameixa","Ameixas","Amêndoas","Amendoim","Amora","Anchovas","Anis","Araruta","Arroz","Arroz Integral","Arroz Japonês","Arroz Mascavo","Atum","Aveia","Avelã","Azeite","Azeitonas","Bacalhau","Bacon","Banana","Barramundi","Batata","Bérberis","Beringela","Berinjela","Beterraba","Bicarbonato De Sódio","Brócolis","Broto De Feijão","Brotos","Cacau","Cacau Em Pó","Café","Camarão","Camomila","Canela","Caqui","Carambola","Caranguejo","Cardamomo","Carne","Carne De Porco","Cassia Casca","Castanha De Caju","Castanha Do Pará","Castanha Portuguesa","Cebola","Cebolinha","Cebolinhas","Cenoura","Cenoura Roxa","Centeio","Cevada","Chá Verde","Chagas","Cheddar","Chocolate Amargo","Chuchu","Coco","Coentro","Cogumelo","Cogumelos Porcini","Cominho","Cordeiro","Couve","Couve-Flor","Cravo","Creme De Leite ","Creme De Queijo","Damasco","Damascos","Dente-De-Leão","Edamame","Erva-Doce","Ervilha","Eschallots","Espargos","Espinafre","Farinha","Farinha De Arroz","Farinha De Batata","Farinha De Grão-De-Bico","Farinha De Rosca","Farinha De Soja","Farinha De Tapioca","Farinha De Trigo","Feijão","Feijão Branco","Feijão Carioca","Fenacho","Fermento Em Pó","Fígado","Figo","Flocos De Milho","Flores De Lavanda","Framboesa","Frango","Fruta Di Conde","Fruta Do Dragão","Fubá","Geléia","Goiaba","Goiabada","Grão-De-Bico","Groselha","Hortelã","Hummus","Jewfish","Kiwi","Kombu","Lagosta","Laranja","Leite","Leite Condensado","Leite De Arroz","Leite De Cabra","Leite De Soja","Lemongrass","Lentilha","Lentilha Vermelha","Lichia","Limão","Linguado","Linguiça","Linhaça","Lula","Maçã","Maçã","Macadâmia","Macarrão","Macarrão De Arroz","Mamão","Mandarins","Manga","Manjerona","Manteiga","Maracujá","Margarina","Massa De Lasanha","Mel","Melaço","Melão","Mexilhão","Mexilhões","Missô","Molho De Ostras","Molho De Peixe","Molho De Soja","Mostarda","Mussarela","Nectarinas","Noodles Asiáticos","Noz-Moscada","Nozes","Óleo De Amêndoa","Óleo De Cártamo","Óleo De Côco","Óleo De Gergelim","Óleo De Linhaça","Óleo De Macadâmia","Óleo De Milho","Óleo De Oliva","Orégano","Ostras","Ovo","Pão","Pão Da Montanha","Pão De Forma","Pão Integral","Papel De Arroz","Pato","Pepino","Pêra","Pêssego","Picanha","Pimenta","Pimenta Chili","Pimenta Da Jamaica","Pimenta Verde","Pimentão","Pistache","Polenta","Polvo","Queijo Cottage","Queijo De Cabra","Queijo Parmesão","Queijo Prato","Queijo Provolone","Quiabo","Quinoa","Rabanete","Raisin","Raspas De Limão","Repolho","Repolho Vermelho","Ricotta","Rins","Romã","Rúcula","Sábio","Sake","Sal Marinho","Salmão","Salsicha","Salsisha","Sardinha","Semente Ajowan","Semente De Abóbora","Semente De Alcaravia","Semente De Mostarda","Semente De Papoila","Semente De Sésamo","Sementes Chia","Sementes De Gergelim","Semolina","Soja","Soletrado","Soro De Leite","Star Anise","Stevi","Suco De Maçã","Tangerina","Tiras De Banbu","Tortilla De Milho","Truta Defumada","Tubarão","Uva","Vagem","Verdes Asiáticos","Vieiras","Vinagre","Vinagre Balsâmico","Vinagre De Arroz Integral","Vinagre De Malte","Vinagre De Vinho Tinto","Vinho","Xarope De Agave","Xarope De Arroz","Xarope De milho"]
+      spices: ["Açafrão", "Açafrão-da-Terra ou Cúrcuma", "Aceto", "Aceto balsamico", "Aipo Marrom", "Aipo ou Salsão", "Aji-no-moto", "Albahaca", "Alcaparra", "Alcarávia", "Alecrim", "Alecrim (ou rosmarinho)", "Alfavaca ou Basilicão", "Alho", "Alho desidratado", "Alho-poró", "Allspice", "Aneto, Dill ou Endro", "Anis", "Araruta", "Azedinha", "Azeite-de-dendê", "Basilico", "Baunilha", "Beldroega", "Benishooga", "Bouquet-garni", "Cajun", "Camomila", "Canela", "Canela em pó", "Cardamomo", "Cari", "Caril", "Casca de canela", "Cássia", "Cebola", "Cebola Frita", "Cebolinha", "Cerefólio", "Cheiro-verde", "Chili", "Chili Powder", "Chipotle", "Ciboulette", "Coentro", "Colorau ou Colorífico", "Cominho", "Cravo", "Cravo-da-Índia", "Cúrcuma", "Curry ou Caril ou Garam Masala", "Dente de Alho", "Dill", "Doenjang", "Endro", "Erva-doce", "Erva-doce de cabeça", "Ervas Finas ou Fines Herbes", "Essência de amêndoa", "Essência de baunilha", "Essência de menta", "Estragão ou Absinto Russo", "Feno Grego", "Fines Herbes", "Folha de aipo", "Folha de coentro", "Funcho ou Erva-doce de cabeça", "Funghi Secchi", "Gengibre", "Gergelim", "Gochu jan", "Herbes de Provence", "Hissopo", "Hondashi", "Hortelã", "Jalapeño", "Lavanda francesa", "Lemon Pepper", "Losna", "Louro", "Ma’ward", "Ma’zahr", "Macis", "Manjericão", "Manjerona", "Marasquino", "Masala (Garam Masala)", "Mirim", "Misk", "Missô", "Mistura de cinco especiarias", "Mistura de especiarias Dhansak", "Molho de ostra", "Mostarda", "Nirá", "Noz-moscada", "Óleo de semente de gergelim", "Orégano", "Papoula", "Paprica", "Páprica", "Pimenta", "Pimenta branca", "Pimenta Caiena", "Pimenta Chili", "Pimenta da Jamaica", "Pimenta do reino", "Pimenta síria ou Bhar", "Pimenta Vermelha ou Calabresa", "Pimenta-do-reino", "Pimento Ground", "Pimentões", "Pimentón", "Pimienta", "Pimiento", "Piripiri", "Pó de mostarda", "Quatre épices", "Raiz Forte", "Raspa de Gendibre", "Raspa de limão", "Raspa de Noz-moscada", "Raspas de laranja", "Rosmarino", "Ruibarbo", "Sal de aipo", "Sal de tempero", "Sal do himalaia", "Sal do mar grosso", "Salsa", "Salsão", "Salsinha", "Sálvia", "Segurelha ou Alfavaca-do-campo", "Semente de aipo", "Semente de alcaravia", "Semente de coentro", "Semente de mostarda Amarelo", "Semente de mostarda branca", "Semente de mostarda marrom", "Semente de mostarda preto", "Semente de papoila", "Shoga (gengibre)", "Shoyu", "Summac", "Tahine", "Tamarindo", "Tempero de churrasco", "Tempero misto", "Tomilho", "Urucum", "Wasabi", "Zeste", "Zimbro"]
+      measurements: ["Colher de Chá", "Colher de Sopa", "Copo Americano", "Xícara" , "Litro"]
+      measurement_sizes: ["Pitada", "1/4", "1/3", "1/2", "1", "2", "3"]

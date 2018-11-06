@@ -1,0 +1,8 @@
+$ erubis -xE PrintOut example.eruby
+ print '<div>
+'; for item in list 
+ print '  <p>'; print(( item ).to_s); print '</p>
+  <p>'; print Erubis::XmlHelper.escape_xml( item ); print '</p>
+'; end 
+ print '</div>
+';

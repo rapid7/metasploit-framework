@@ -1,0 +1,123 @@
+= pcaprub
+
+{<img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/pcaprub/pcaprub">}[https://gitter.im/pcaprub/pcaprub?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge]
+
+{<img src="https://travis-ci.org/pcaprub/pcaprub.png" alt="Build Status" />}[https://travis-ci.org/pcaprub/pcaprub]
+{<img src="https://ci.appveyor.com/api/projects/status/7g3x62y9rgy3twds?svg=true" alt="Windows Builds" />}[https://ci.appveyor.com/project/shadowbq/pcaprub]
+{<img src="https://codeclimate.com/github/pcaprub/pcaprub.png" />}[https://codeclimate.com/github/pcaprub/pcaprub]
+{<img src="https://badge.fury.io/rb/pcaprub.png" alt="Gem Version" />}[http://badge.fury.io/rb/pcaprub]
+{<img src="https://gemnasium.com/pcaprub/pcaprub.svg" alt="Dependency Status" />}[https://gemnasium.com/pcaprub/pcaprub]
+
+This goal of this project is to provide a consistent interface 
+to LBL's libpcap packet capture library. 
+
+== Limitations
+
+This does not provide packet processing functionality, it simply provides 
+the interface for capturing packets, and passing yielding those packets. 
+
+For packet processing capability look at ruby gems PCAPFU, PCAPLET, etc..
+
+== Requirements
+
+MRI POSIX Ruby (Native compilation) [Travis-CI Tested]
+  Ruby 1.8.7  (EOL June 2014)
+  Ruby 1.9.3
+  ~> Ruby 2.x 
+
+  libpcap - http://www.tcpdump.org
+
+Ruby with DevKit(32bit) on Windows [AppVeyor Tested]
+  Ruby 1.9.3
+  ~> Ruby 2.x
+  
+  WinPcap Developer's Pack - http://www.winpcap.org
+  
+== Installation  
+
+  gem install pcaprub
+  
+Advanced options in a Windows ENV
+  
+  gem install pcaprub --no-ri --no-rdoc -- --with-pcap-dir="c:/dev/src/WpdPack"
+
+== Usage
+
+ require 'rubygems'
+ require 'pcaprub'
+ 
+ cap = PCAPRUB::Pcap.new
+
+== Current Repository for Gemcutter source
+
+The Git Repo on Github @pcaprub is forked from the Metasploit SVN repo
+  git clone git://github.com/pcaprub/pcaprub.git
+
+== Additionals
+
+=== Notes on 0.11.x series and beyond.
+
+The gem is now a module. The module is autoincluded, but this helps with name collisions and additional growth.
+
+Some of the Error handling and basic intensive code is moving out the C base-extension (ext) and into native Ruby.
+
+The file handling in dumper is now attached to the Capture Class and not the Module as an additional singleton.
+
+  capture = PCAPRUB::Pcap.open_live('eth0', SNAPLENGTH, true, 0)
+  capture.dump_open('./Example.pcap') 
+    { ... }
+  capture.dump_close
+  
+=== Timstamps from the PCAP Header 
+
+Timestamps are now available when yeilding packets instead of strings
+
+  capture = PCAPRUB::Pcap.open_live('eth0', SNAPLENGTH, true, 0)
+  capture.each_packet do |packet|
+    puts Time.at(packet.time)
+    puts "micro => #{packet.microsec}"
+  end
+    
+=== Ruby 1.8.7 & WinPcap
+
+On Ruby 1.8 with winpcap, rb_thread_polling pauses for 100 milliseconds between reads. This may mean some packets are missed. 
+
+  
+== LICENSE
+
+GNU Lesser General Public License v2.1 (LGPL-2.1)
+
+https://www.tldrlegal.com/l/lgpl2
+
+See LICENCE for details
+
+Copyright © 2010 - 2014 
+
+=== Notes on other repositories in compliance with LGPL-2.1
+
+All original code maintains its copyright from its original authors and licensing.
+
+On March 2014 this project was migrated to https://github.com/pcaprub/pcaprub from https://github.com/shadowbq/pcaprub
+
+The Git Repo on Github @pcaprub is a forked merge from the Metasploit SVN repo
+  git clone git://github.com/shadowbq/pcaprub.git (moved)
+
+The Metasploit Project also provides a Subversion repository: (0.9-dev)
+  svn checkout http://metasploit.com/svn/framework3/trunk/external/pcaprub/
+
+Packetfu Project also provides a listing (0.9-dev) 
+  http://code.google.com/p/packetfu/source/browse/#svn/trunk/pcaprub_linux
+  
+The Marshall Beddoe's Outdate RubyForge svn version can be obtained from Subversion: (0.7-dev)
+  svn checkout http://pcaprub.rubyforge.org/svn/trunk/
+  http download Public Rubyforge (0.6)
+  https://github.com/unmarshal/pcaprub
+
+SourceForge Masaki Fukushima 2000 (0.6) -- Object Creation Heavy Implementation (PCAPLET integrated)
+  http://sourceforge.net/apps/trac/rubypcap/
+  
+Additonal Github Repos
+  https://github.com/dxoigmn/pcaprub (0.8-dev)
+  https://github.com/spox /pcaprub-spox  (0.8-dev+)
+
+  

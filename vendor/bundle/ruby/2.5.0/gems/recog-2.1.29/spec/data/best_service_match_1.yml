@@ -1,0 +1,17 @@
+---
+- service.product: IIS
+  service.vendor: Microsoft
+  service.version: 6.0
+  service.certainty: 1.0
+- service.product: Apache
+  service.vendor: Linux
+  service.version: 2.2.4
+  service.certainty: 0.5
+- service.product: IIS
+  service.vendor: Microsoft
+  service.certainty: 0.5
+  service.language: English
+- service.product: IIS
+  service.vendor: Microsoft
+  service.certainty: 0.4
+  service.language: Arabic

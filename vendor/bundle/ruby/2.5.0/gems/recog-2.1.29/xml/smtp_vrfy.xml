@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints protocol="smtp" database_type="service" preference="0.15">
+  <!--
+  SMTP response lines to the VRFY command are matched against these patterns
+  (1 line at a time) to fingerprint SMTP servers.
+
+  See comment at the top of smtp_banners.xml for additional info.
+
+  'preference' note: This value has been set so as to implement the ordering
+    of SMTP related fingerprint databases as described in 'smtp_banners.xml'.
+  -->
+  <fingerprint pattern="^500[ -]Syntax error, command &quot;XXXX.*&quot; unrecognized$">
+    <description>
+         Cisco PIX changes the command letters to 'X' before passing
+         them to the real SMTP server.
+      </description>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.family" value="PIX"/>
+    <param pos="0" name="os.product" value="PIX"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:cisco:pix_firewall_software:-"/>
+  </fingerprint>
+  <!-- XXX: Why is EXPN mentionned here ? Is this a mistake ? -->
+  <fingerprint pattern="^550[ -]EXPN not available *$">
+    <description>
+         Exim
+         example: 550 EXPN not available
+      </description>
+    <param pos="0" name="service.vendor" value="exim"/>
+    <param pos="0" name="service.family" value="exim"/>
+    <param pos="0" name="service.product" value="exim"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:exim:exim:-"/>
+  </fingerprint>
+  <fingerprint pattern="^252[ -]VRFY not available *$">
+    <description>
+         Exim
+         example: 252 VRFY not available
+      </description>
+    <param pos="0" name="service.vendor" value="exim"/>
+    <param pos="0" name="service.family" value="exim"/>
+    <param pos="0" name="service.product" value="exim"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:exim:exim:-"/>
+  </fingerprint>
+  <fingerprint pattern="^250[ -]&lt;.+&gt; is deliverable *$">
+    <description>
+         Exim
+         example: 250 &lt;root&gt; is deliverable
+      </description>
+    <param pos="0" name="service.vendor" value="exim"/>
+    <param pos="0" name="service.family" value="exim"/>
+    <param pos="0" name="service.product" value="exim"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:exim:exim:-"/>
+  </fingerprint>
+  <fingerprint pattern="^550[ -]&lt;.+&gt; is not deliverable *$">
+    <description>
+         Exim
+         example: 250 &lt;root&gt; is not deliverable
+      </description>
+    <param pos="0" name="service.vendor" value="exim"/>
+    <param pos="0" name="service.family" value="exim"/>
+    <param pos="0" name="service.product" value="exim"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:exim:exim:-"/>
+  </fingerprint>
+  <fingerprint pattern="^502[ -]command is not active$">
+    <description>
+         502 command is not active
+      </description>
+    <param pos="0" name="service.vendor" value="Alt-N"/>
+    <param pos="0" name="service.family" value="MDaemon"/>
+    <param pos="0" name="service.product" value="MDaemon"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:altn:mdaemon:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^557[ -]5\.5\.2 String does not match anything\. *$">
+    <description>
+      I've seen this on NTMail 4.30.0012, NTMail 5.06.0016
+      </description>
+    <param pos="0" name="service.vendor" value="Gordano"/>
+    <param pos="0" name="service.family" value="NTMail"/>
+    <param pos="0" name="service.product" value="NTMail"/>
+  </fingerprint>
+  <fingerprint pattern="^252[ -](?:2\.5\.2)? Cannot VRFY user; try RCPT to attempt delivery \(or try finger\) *$">
+    <description>
+         sendmail
+      </description>
+    <param pos="0" name="service.family" value="Sendmail"/>
+    <param pos="0" name="service.product" value="Sendmail"/>
+    <param pos="0" name="service.certainty" value="0.85"/>
+  </fingerprint>
+  <fingerprint pattern="^504 .*: Recipient address rejected: need fully-qualified address$">
+    <description>
+         example: 504 &lt;foo&gt;: Recipient address rejected: need fully-qualified address
+      </description>
+    <param pos="0" name="service.vendor" value="Symantec"/>
+    <param pos="0" name="service.product" value="Symantec Mail Security for SMTP"/>
+  </fingerprint>
+  <fingerprint pattern="^252 Unable to VRFY &quot;.*&quot;, but will accept message and attempt delivery *$">
+    <description>
+         Lotus Domino
+      </description>
+    <param pos="0" name="service.vendor" value="Lotus"/>
+    <param pos="0" name="service.family" value="Lotus Domino"/>
+    <param pos="0" name="service.product" value="Lotus Domino"/>
+  </fingerprint>
+</fingerprints>

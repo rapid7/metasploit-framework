@@ -1,0 +1,622 @@
+=== 5.0.1
+
+  * default_keys were not loaded even if no keys or key_data options specified [#607]
+
+=== 5.0.0
+
+ * Breaking change: ed25519 now requires ed25519 gem instead of RbNaCl gem [#563]
+ * Verify_host_key options rename (true, false, :very, :secure depreacted new equivalents are :never, :accept_new_or_local_tunnel :accept_new :always) [Jared Beck, #595]
+
+=== 5.0.0.rc2
+
+ * Add .dll extensions to dlopen on cygwin [#603]
+ * Fix host certificate validation [#601]
+
+=== 5.0.0.rc1
+
+ * Fix larger than 4GB file transfers [#599]
+ * Update HTTP proxy to version 1.1 [Connor Dunn, #597]
+
+=== 5.0.0.beta2
+
+ * Support for sha256 pubkey fingerprint [Tom Maher, #585]
+ * Don't try to load default_keys if key_data option is used [Josh Larson, #589]
+ * Added fingerprint_hash defaulting to SHA256 as fingerprint format, and MD5 can be used as an option [Miklós Fazekas, #591]
+
+=== 5.0.0.beta1
+
+ * Don't leave proxy command as zombie on timeout [DimitriosLisenko, #560]
+ * Use OpenSSL for aes*-ctr for up to 5x throughput improvement [Miklós Fazekas, Harald Sitter, #570]
+ * Optimize slice! usage in CTR for up to 2x throughput improvement [Harald Sitter, #569]
+ * Replace RbNaCl dependency with ed25519 gem [Tony Arcieri ,#563]
+ * Add initial Match support [Kasumi Hanazuki,  #553]
+
+=== 4.2.0.rc2
+
+ * Fix double close bug on auth failure (or ruby 2.2 or earlier) [#538]
+
+=== 4.2.0.rc1
+
+ * Improved logging with proxy command [Dmitriy Ivliev, #530]
+ * Close transport on proxy error [adamruzicka, #526]
+ * Support multiple identity files [Kimura Masayuki, #528]
+ * Move `none` cipher to end of cipher list [Brian Cain, #525]
+ * Deprecate `:paranoid` in favor of `:verify_host_key` [Jared Beck, #524]
+ * Support Multile Include ssh config files [Kasumi Hanazuki, #516]
+ * Support Relative path in ssh confif files [Akinori MUSHA, #510]
+ * add direct-streamlocal@openssh.com support in Forward class [Harald Sitter, #502]
+
+=== 4.1.0
+=== 4.1.0.rc1
+
+ * ProxyJump support [Ryan McGeary, #500]
+ * Fix agent detection on Windows [Christian Koehler, #495]
+
+=== 4.1.0.beta1
+
+ * Fix nil error when libsodium is not there [chapmajs ,#488]
+ * SSH certificate support for client auth [David Bartley, #485]
+
+=== 4.0.1
+=== 4.0.1.rc2
+
+ * ENV["HOME"] might be empty so filter non expandable paths [Matt Casper, #351]
+
+=== 4.0.1.rc1
+
+ * support of rbnacl 4.0 and better error message [#479]
+ * support include in config files [Kimura Masayuki, #475]
+ * fixed issue with ruby 2.2 or older on windows [#472]
+
+=== 4.0.0
+=== 4.0.0.rc3
+
+ * parse `+` character in config files [Christoph Lupprich, #470, #314]
+
+=== 4.0.0.rc2
+
+ * Fixed OpenSSL 2.0/Ruby 2.4.0 warnings [Miklós Fazekas, #468]
+ * Added ssh-ed25519 to KnownHosts:SUPPORTED_TYPE [detatka-kuzlatka-otevrete, Miklós Fazekas, #459]
+ * Allow nil for :passhrase and passing in nil option is now a depreaction warning [Miklós Fazekas, #465]
+
+=== 4.0.0.rc1
+
+ * Allow :password to be nil for capistrano v2 compatibility [Will Bryant, #357]
+ * In next_packet if prefer consuming buffer before filling it again if we have enough data [Miklós Fazekas, #454]
+
+=== 4.0.0.beta4
+
+ * Added exitstatus method to exec's return [Miklós Fazekas, #452]
+ * Don't raise from exec if server closes transport just after channel close [Miklós Fazekas, #450]
+ * Removed java_pageant, as jruby should be using regular pagent impl [Miklós Fazekas, ]
+ * Use SSH_AUTH_SOCK if possible on windows (cygwin) [Miklós Fazekas, Martin Dürst, #365, #361]
+ * HTTPS proxy support [Marcus Ilgner, #432]
+ * Supports ruby 2.4.0.dev new exception type from OpenSSL::PKey.read
+
+=== 4.0.0.beta3
+
+ * Fix Net::SSH::Disconnect exceptions when channels are closed cleanly [Miklos Fazekas, #421, #422]
+
+=== 4.0.0.beta2
+
+ * Fix raiseUnlessLoaded undefined ERROR issue [Miklos Fazekas, #418]
+
+=== 4.0.0.beta1
+
+* Fix pageant [elconas, #235]
+* Relaxed rbnacl,rbnacl-selenium contstraints ang give better errors about them [Miklos Fazekas, #398]
+* Fix UTF-8 encoding issues [Ethan J. Brown, #407]
+
+=== 4.0.0.alpha4
+
+* Experimental event loop abstraction [Miklos Fazekas]
+* RbNacl dependency is optional [Miklos Fazekas]
+* agent_socket_factory option [Alon Goldboim]
+* client sends KEXINIT, it doesn't have to wait for server [Miklos Fazekas]
+* better error message when option is nil [Kane Morgan]
+* prompting can be customized [Miklos Fazekas]
+
+=== 4.0.0.alpha3
+
+* added max_select_wait_time [Eugene Kenny]
+
+=== 4.0.0.alpha2
+
+* when transport closes we're cleaning up channels [Miklos Fazekas]
+
+=== 4.0.0.alpha1
+
+* ed25519 key support [Miklos Fazekas]
+* removed camellia [Miklos Fazekas]
+
+=== 3.1.0
+=== 3.1.0.rc1
+
+* fix Secure#verify [Jean Boussier]
+* use the smallest of don't spend longer time than keepalive if it's configured [Eugene Kenny]
+
+=== 3.1.0.beta3
+
+* forward/on_open_failed should stop listning closed socket otherwise it locks #269 [Miklos Fazekas,Scott McGillivray]
+* fix incorrect pattern handling in config files #310 [Miklos Fazekas]
+
+=== 3.1.0.beta2
+
+* trying to execute something on a not yet opend channel throws nicer messag [Miklos Fazekas]
+* calling close on a not opened channel marks the channel for close [Miklos Fazekas]
+* read keepalive configuration from ssh config files [Miklos Fazekas]
+* send client version on hadshake before waiting for server to reduce handshake time [Miklos Fazekas]
+* allow custom Net::SSH::KnownHosts implementations [Jean Boussier]
+* memoize known host so we only search it once per session [Jean Boussier, Miklos Fazekas]
+
+=== 3.0.2
+=== 3.0.2.rc1
+
+* fixed rare WaitWritable error with proxy commands [Miklos Fazkas, Andre Meij]]
+* if Net::SSH.start user is nil and config has no entry we default to Etc.getlogin
+* Bugfix: CHANNEL_CLOSE was sent before draining ouput buffer #280 [Christopher F. Auston]
+
+=== 3.0.1
+=== 3.0.1.rc1
+
+* Breaking change from 2.* series: exec! without block now returns empty string instread of nil if command has no output [https://github.com/net-ssh/net-ssh/pull/273]
+* Support remote_user as %r in proxy commands [Dominic Scheirlinck]
+* Raise Net::SSH::ConnectionTimeout from connection timeout [Carl Hoerberg]
+
+=== 3.0.0.rc1
+
+* SemVer: Major version change because of dropping of ruby 1.9
+
+=== 2.10.1.rc2
+
+* Win: Use fiddle on ruby 2.1 too [Charlie Savage]
+
+=== 2.10.1.rc1
+
+* Added ruby 2.0 requirement to gemspec [Alex Schultz]
+
+=== 2.10.0
+
+=== 2.10.0-beta2
+
+* Fix :passphrase option with :non_interactive [Jeremy Stanley]
+* Use Socket.tcp with connect_timeout instead of Timeout::timeout [Carl Hörberg]
+* Support for hostname hashes [Jef Mathiot]
+* Ruby 1.9.3 is no longer supported but should moslty work expect for stuff like connect_timeout
+
+=== 2.10.0-beta1
+
+* Fix could not parse PKey error. [Andrey Voronkov]
+* Workaround for threading issue in MRI + singleton method declaration [Matt Brictson]
+* Configuration change: we no longer append all supported algorithms, this is so you can exclude insecure algorithms. If you want to use the old behaviour specify append_all_supported_algorithms => true [voidus, mfazekas]
+* New configuration option: :non_interactive => true in case you prefer an authmethod to fail rather than prompt. [mfazekas]
+* Configuration change: password will now ask for password up to the :number_of_password_prompts times. If you want the
+2.9.1 behaviour of never asking password please set number_of_password_prompts to 0.
+
+=== 2.9.4-beta1
+
+* Use sysread and syswrite on Windows instead of read_nonblock and write [marc-etienne]
+* Windows/peagant: use fiddle on ruby 2.2+/windows [Charlie Savage]
+* Check if ssh key is a file [kiela]
+
+=== 2.9.3
+
+=== 2.9.2-rc3
+
+* Remove advertised algorithms that were not working (curve25519-sha256@libssh.org) [mfazekas]
+
+=== 2.9.2-rc2
+
+* number_of_password_prompts is now accepted as ssh option, by setting it 0 net-ssh will not ask for password for password auth as with previous versions [mfazekas]
+
+=== 2.9.2-rc1
+
+* Documentation fixes and refactoring to keepalive [detiber, mfazekas]
+
+=== 2.9.2-beta
+
+* Remove advertised algorithms that were not working (ssh-rsa-cert-* *ed25519 acm*-gcm@openssh.com) [mfazekas]
+* Unknown algorithms now ignored instead of failed [mfazekas]
+* Configuration change: Asks for password with password auth (up to number_of_password_prompts) [mfazekas]
+* Removed warnings [amatsuda]
+
+=== 2.9.1 / 13 May 2014
+
+* Fix for unknown response from agent on Windows with 64-bit PuTTY [chrahunt]
+* Support negative patterns in host lookup from the SSH config file [nirvdrum]
+
+
+=== 2.9.0 / 30 Apr 2014
+
+* New ciphers [chr4]
+  * Added host keys: ssh-rsa-cert-v01@openssh.com ssh-rsa-cert-v00@openssh.com ssh-ed25519-cert-v01@openssh.com ssh-ed25519
+  * Added HMACs: hmac-sha2-512-etm@openssh.com hmac-sha2-256-etm@openssh.com umac-128-etm@openssh.com
+  * Added Kex: aes256-gcm@openssh.com aes128-gcm@openssh.com curve25519-sha256@libssh.org
+  * Added private key support for id_ed25519
+* IdentiesOnly will not disable ssh_agent - fixes #148 and new fix for #137 [mfazekas]
+* Ignore errors during ssh agent negotiation [simonswine, jasiek]
+* Added an optional "options" argument to test socket open method [jefmathiot]
+* Added gem signing (again) with new cert [delano]
+
+
+=== 2.8.1 / 19 Feb 2014
+
+* Correct location of global known_hosts files [mfischer-zd]
+* Fix for password authentication [blackpond, zachlipton, delano]
+
+
+=== 2.8.0 / 01 Feb 2014
+
+* Handle ssh-rsa and ssh-dss certificate files [bobveznat]
+* Correctly interpret /etc/ssh_config Authentication settings based on openssh /etc/ssh_config system defaults [therealjessesanford, liggitt]
+* Fixed pageant support for Windows [jarredholman]
+* Support %r in ProxyCommand configuration in ssh_config files as defined in OpenSSH [yugui]
+* Don't use ssh-agent if :keys_only is true [SFEley]
+* Fix the bug in keys with comments [bobtfish]
+* Add a failing tests for options in pub keys [bobtfish]
+* Assert that the return value from ssh block is returned [carlhoerberg]
+* Don't close the connection it's already closed [carlhoerberg]
+* Ensure the connection closes even on exception [carlhoerberg]
+* Make the authentication error message more useful [deric]
+* Fix "ConnectionError" typo in lib/net/ssh/proxy/socks5.rb [mirakui]
+* Allow KeyManager to recover from incompatible agents [ecki, delano]
+* Fix for "Authentication Method determination can pick up a class from the root namespace" [dave.sieh]
+
+
+=== 2.7.0 / 11 Sep 2013
+
+* Fix for 'Could not parse PKey: no start line' error on private keys with passphrases (issue #101) [metametaclass]
+* Automatically forward environment variables defined in OpenSSH config files [fnordfish]
+* Guard against socket.gets being nil in Net::SSH::Proxy::HTTP [krishicks]
+* Implemented experimental keepalive feature [noric]
+
+
+=== 2.6.8 / 6 Jul 2013
+
+* Added support for host wildcard substitution [GabKlein]
+* Added a wait to the loop in close to help fix possible blocks [Josh Kalderimis]
+* Fixed test file encoding issues with Ruby 2.0 (#87) [voxik]
+
+
+=== 2.6.7 / 11 Apr 2013
+
+* Decreased default packet size to 32768 as described in RFC 4253 [Olipro]
+* Added max_pkt_size and max_win_size options to Net::SSH.start [Olipro]
+
+
+=== 2.6.6 / 03 Mar 2013
+
+* Fix for ruby 2.0 in windows [jansegre]
+
+=== 2.6.5 / 06 Feb 2013
+
+* Fixed path in gemspec [thanks priteau]
+
+=== 2.6.4 / 06 Feb 2013
+
+* Added license info to gemspec [jordimassaguerpla]
+* Added public cert. All gem releases are now signed.
+
+
+=== 2.6.3 / 10 Jan 2013
+
+* Small doc fix and correct error class for PKey::EC key type [Andreas Wolff]
+* Improve test dependencies [Kenichi Kamiya]
+
+
+=== 2.6.2 / 22 Nov 2012
+
+* Net::SSH.start now returns result of block [mhuffnagle]
+* Add stderr handling to Net::SSH::Test [ohrite]
+* Fix Invalid key size in JRuby [ohrite]
+
+
+=== 2.6.1 / 18 Oct 2012
+
+* Remove platform specific jruby dependency from gemspec
+* Changed encoding of file to prevent warnings when generating docs [iltempo]
+
+
+=== 2.6.0 / 19 Sep 2012
+
+* Use OpenSSL::PKey.read to read arbitrary private key. [nagachika]
+* Check availability of UNIXSocket and UNIXServer for Windows [Nobuhiro IMAI]
+* Bump version to 2.5.3 and depend on newer jruby-pageant version for Java 1.5 compat. [arturaz]
+* Implementation of the "none"-authentication method [dubspeed]
+* Add class for stricter host key verification [Andy Brody]
+
+
+=== 2.5.2 / 25 May 2012
+
+* Fix for Net::SSH::KnownHosts::SUPPORTED_TYPE [Marco Sandrini]
+
+=== 2.5.1 / 24 May 2012
+
+* Added missing file to manifest [Marco Sandrini]
+
+=== 2.5.0 / 24 May 2012
+
+* Implement many algorithms [Ryosuke Yamazaki]
+  * Key Exchange
+     * diffie-hellman-group14-sha1
+     * ecdh-sha2-nistp{256,384,521}
+   * Host Key
+     * ecdsa-sha2-nistp{256,384,521}
+   * Authentication
+     * ecdsa-sha2-nistp{256,384,521}
+   * HMAC
+     * hmac-ripemd160
+   * Cipher:
+     * aes{128,192,256}-ctr
+     * camellia{128,192,256}-ctr
+     * blowfish-ctr
+     * cast128-ctr
+     * 3des-ctr
+     * arcfour (has problems with weak keys, and should be used with caution)
+     * camellia{128,192,256}-cbc
+
+=== 2.4.0 / 17 May 2012
+
+* Support for JRuby + Pageant + Windows [arturaz]
+
+=== 2.3.0 / 11 Jan 2012
+
+* Support for hmac-sha2 and diffie-hellman-group-exchange-sha256 [Ryosuke Yamazaki]
+
+=== 2.2.2 / 04 Jan 2012
+
+* Fixed: Connection hangs on ServerVersion.new(socket, logger) [muffl0n]
+* Avoid dying when unsupported auth mechanisms are defined [pcn]
+
+=== 2.2.1 / 24 Aug 2011
+
+* Do not prompt any passphrases before trying all identities from agent. [musybite]
+    (see: http://net-ssh.lighthouseapp.com/projects/36253-net-ssh/tickets/30)
+
+=== 2.2.0 / 16 Aug 2011
+
+* Add support for forward a local UNIX domain socket to a remote TCP socket. [Mark Imbriaco]
+
+=== 2.1.4 / 3 Apr 2011
+
+* Add ConnectionTimeout exception class. [Joel Watson]
+    See: https://github.com/net-ssh/net-ssh-multi/pull/1
+
+
+=== 2.1.3 / 2 Mar 2011
+
+* Call to transport.closed should be transport.close [Woon Jung]
+
+
+=== 2.1.2 / 1 Mar 2011
+
+* Fix for Net::SSH Continues to attempt authentication when notified it is not allowed [Eric Hodel]
+    (see: http://net-ssh.lighthouseapp.com/projects/36253-net-ssh/tickets/26)
+* Fix for transport won't be closed if authentication fails [Patrick Marchi]
+
+
+=== 2.1 / 19 Jan 2011
+
+* Support "IdentitiesOnly" directive (LH-24) [Musy Bite, Edmund Haselwanter]
+* Speeding up the Loggable module (LH-23) [robbebob]
+
+
+=== 2.0.24 / 14 Jan 2011
+
+* Fix for process code to correctly wait until remote_id is set before sending any output, including eof. [Daniel Pittman, Markus Roberts]
+* Fix circular require warning in Ruby 1.9.2 [Gavin Brock]
+
+
+=== 2.0.23 / 03 Jun 2010
+
+* delay CHANNEL_EOF packet until output buffer is empty [Rich Lane]
+
+Previously, calling #eof! after #send_data would result in the CHANNEL_EOF
+packet being sent immediately, ahead of the data in the output buffer. Now
+buffer becomes empty.
+
+
+=== 2.0.22 / 20 Apr 2010
+
+* Fix for: "Parsing the config errors out because it coerces the "1" into an integer and then tries to split it on spaces for multiple host checking." (http://net-ssh.lighthouseapp.com/projects/36253/tickets/10) [Lee Marlow]
+
+
+=== 2.0.21 / 20 Mar 2010
+
+* Fix for "IdentifyFile" in ~/.ssh/config does not work if no "Host" statement is given (http://net-ssh.lighthouseapp.com/projects/36253/tickets/9-identifyfile-in-sshconfig-does-not-work-if-no-host-statement-is-given#ticket-9-5) [xbaldauf, Delano Mandelbaum]
+
+* Fix for client closes a forwarded connection, but the server is reading, net-ssh terminates with IOError socket closed (http://net-ssh.lighthouseapp.com/projects/36253/tickets/7) [Miklós Fazekas]
+
+* Fix for client force closes (RST) a forwarded connection, but server is reading, net-ssh terminates with exception [Miklós Fazekas]
+
+* Fix for server closes the sending side, the on_eof is not handled. [Miklós Fazekas]
+
+* Removed Hanna dependency in Rakefile [Delano Mandelbaum]
+
+
+=== 2.0.20 / 10 Feb 2010
+
+* Support "ProxyCommand none" directive [Andy Lo-A-Foe]
+
+=== 2.0.19 / 16 Jan 2010
+
+* Support plus sign in sshconfig hostname [Jason Weathered]
+
+=== 2.0.18 / 15 Jan 2010
+
+* Fix related to #recv(1) to #readpartial change in 2.0.16 [Hans de Graaff, Delano Mandelbaum]
+
+
+=== 2.0.17 / 14 Dec 2009
+
+* Don't load net/ssh/authentication/pageant on Windows with Ruby 1.9 [Travis Reeder, Delano Mandelbaum]
+
+
+=== 2.0.16 / 28 Nov 2009
+
+* Fix for "multiple hosts are separated by whitespace" [Akinori MUSHA]
+
+* Add support for the ProxyCommand directive [Akinori MUSHA]
+
+* Switched from #recv(1) to #readpartial in lib/net/ssh/transport/server_version.rb, so that closed sockets are recognized [Alex Peuchert]
+
+
+=== 2.0.15 / 03 Sep 2009
+
+* Scale back IO#select patch so it mutexes only zero-timeout calls [Daniel Azuma, Will Bryant]
+
+
+=== 2.0.14 / 28 Aug 2009
+
+* Fix for IO#select threading bug in Ruby 1.8 (LH-1) [Daniel Azuma]
+
+* Fix for "uninitialized constant OpenSSL::Digest::MD5" exception in Net::SFTP [DL Redden]
+
+
+=== 2.0.13 / 17 Aug 2009
+
+* Added fix for hanging in ServerVersion#negotiate! when using SOCKS5 proxy (GH-9) [Gerald Talton]
+
+* Added support for specifying a list of hosts in .ssh/config, with tests (GH-6) [ckoehler, Delano Mandelbaum]
+
+* Added tests for arcfour128/256/512 lengths, encryption, and decryption [Delano Mandelbaum]
+
+* Skip packet stream tests for arcfour128/256/512 [Delano Mandelbaum]
+
+* Fix for OpenSSL cipher key length because it always returns 16, even when 32 byte keys are required, e.g. for arcfour256 and arcfour512 ciphers [Karl Varga]
+
+
+=== 2.0.12 / 08 Jun 2009
+
+* Applied patch for arcfour128 and arcfour256 support [Denis Bernard]
+
+* Use unbuffered reads when negotiating the protocol version [Steven Hazel]
+
+
+=== 2.0.11 / 24 Feb 2009
+
+* Add :key_data option for specifying raw private keys in PEM format [Alex Holems, Andrew Babkin]
+
+
+=== 2.0.10 / 4 Feb 2009
+
+* Added Net::SSH.configuration_for to make it easier to query the SSH configuration file(s) [Jamis Buck]
+
+
+=== 2.0.9 / 1 Feb 2009
+
+* Specifying non-nil user argument overrides user in .ssh/config [Jamis Buck]
+
+* Ignore requests for non-existent channels (workaround ssh server bug) [Jamis Buck]
+
+* Add terminate! method for hard shutdown scenarios [Jamis Buck]
+
+* Revert to pre-2.0.7 key-loading behavior by default, but load private-key if public-key doesn't exist [Jamis Buck]
+
+* Make sure :passphrase option gets passed to key manager [Bob Cotton]
+
+
+=== 2.0.8 / 29 December 2008
+
+* Fix private key change from 2.0.7 so that keys are loaded just-in-time, avoiding unecessary prompts from encrypted keys. [Jamis Buck]
+
+
+=== 2.0.7 / 29 December 2008
+
+* Make key manager use private keys instead of requiring public key to exist [arilerner@mac.com]
+
+* Fix failing tests [arilerner@mac.com]
+
+* Don't include pageant when running under JRuby [Angel N. Sciortino]
+
+
+=== 2.0.6 / 6 December 2008
+
+* Update the Manifest file so that the gem includes all necessary files [Jamis Buck]
+
+
+=== 2.0.5 / 6 December 2008
+
+* Make the Pageant interface comply with more of the Socket interface to avoid related errors [Jamis Buck]
+
+* Don't busy-wait on session close for remaining channels to close [Will Bryant]
+
+* Ruby 1.9 compatibility [Jamis Buck]
+
+* Fix Cipher#final to correctly flag a need for a cipher reset [Jamis Buck]
+
+
+=== 2.0.4 / 27 Aug 2008
+
+* Added Connection::Session#closed? and Transport::Session#closed? [Jamis Buck]
+
+* Numeric host names in .ssh/config are now parsed correct [Yanko Ivanov]
+
+* Make sure the error raised when a public key file is malformed is more informative than a MethodMissing error [Jamis Buck]
+
+* Cipher#reset is now called after Cipher#final, with the last n bytes used as the next initialization vector [Jamis Buck]
+
+
+=== 2.0.3 / 27 Jun 2008
+
+* Make Net::SSH::Version comparable [Brian Candler]
+
+* Fix errors in port forwarding when a channel could not be opened due to a typo in the exception name [Matthew Todd]
+
+* Use #chomp instead of #strip when cleaning the version string reported by the remote host, so that trailing whitespace is preserved (this is to play nice with servers like Mocana SSH) [Timo Gatsonides]
+
+* Correctly parse ssh_config entries with eq-sign delimiters [Jamis Buck]
+
+* Ignore malformed ssh_config entries [Jamis Buck]
+
+=== 2.0.2 / 29 May 2008
+
+* Make sure the agent client understands both RSA "identities answers" [Jamis Buck]
+
+* Fixed key truncation bug that caused hmacs other than SHA1 to fail with "corrupt hmac" errors [Jamis Buck]
+
+* Fix detection and loading of public keys when the keys don't actually exist [David Dollar]
+
+
+=== 2.0.1 / 5 May 2008
+
+* Teach Net::SSH about a handful of default key names [Jamis Buck]
+
+
+=== 2.0.0 / 1 May 2008
+
+* Allow the :verbose argument to accept symbols (:debug, etc.) as well as Logger level constants (Logger::DEBUG, etc.) [Jamis Buck]
+
+
+=== 2.0 Preview Release 4 (1.99.3) / 19 Apr 2008
+
+* Make sure HOME is set to something sane, even on OS's that don't set it by default [Jamis Buck]
+
+* Add a :passphrase option to specify the passphrase to use with private keys [Francis Sullivan]
+
+* Open a new auth agent connection for every auth-agent channel request [Jamis Buck]
+
+
+=== 2.0 Preview Release 3 (1.99.2) / 10 Apr 2008
+
+* Session properties [Jamis Buck]
+
+* Make channel open failure work with a callback so that failures can be handled similarly to successes [Jamis Buck]
+
+
+=== 2.0 Preview Release 2 (1.99.1) / 22 Mar 2008
+
+* Partial support for ~/.ssh/config (and related) SSH configuration files [Daniel J. Berger, Jamis Buck]
+
+* Added Net::SSH::Test to facilitate testing complex SSH state machines [Jamis Buck]
+
+* Reworked Net::SSH::Prompt to use conditionally-selected modules [Jamis Buck, suggested by James Rosen]
+
+* Added Channel#eof? and Channel#eof! [Jamis Buck]
+
+* Fixed bug in strict host key verifier on cache miss [Mike Timm]
+
+
+=== 2.0 Preview Release 1 (1.99.0) / 21 Aug 2007
+
+* First preview release of Net::SSH v2

@@ -1,0 +1,8 @@
+Description: Empty - only SHB and IDB, but repeated so multiple SHB
+Category:    difficult
+
+Block counts:
+	IDB: 3
+	SHB: 3
+
+Block sequence: SHB, IDB, SHB, IDB, SHB, IDB

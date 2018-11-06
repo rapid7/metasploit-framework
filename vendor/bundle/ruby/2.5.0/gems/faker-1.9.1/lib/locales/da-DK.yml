@@ -1,0 +1,70 @@
+da-DK:
+  faker:
+    address:
+      city_prefix: [Nord, Birke, Ny, Frederiks, Lille, Vær, Ring, Støv, Sven, Munke, Kerte, Horn, Aa, Bør, Otte, Had, Vi, Rud, Bro, Vide, Jyde, Lange]
+      city_suffix: [by, hus, borg, holm, bjerg, lund, bro, bæk, løse, slev, rød, å, sør, skov, slet, værk, strup, købing, sted, sten, kro, toft, ring, vig, bo]
+      country: [Rusland, Canada, Kina, USA, Brasilien, Australien, Indien, Argentina, Kasakhstan, Algeriet, Den Demokratiske Republik Congo, Danmark, Færøerne, Grønland, Saudi-Arabien, Mexico, Indonesien, Sudan, Libyen, Iran, Mongoliet, Peru, Chad, Niger, Angola, Mali, Sydafrika, Colombia, Etiopien, Bolivia, Mauretanien, Egypten, Tanzania, Nigeria, Venezuela, Namibia, Pakistan, Mocambique, Tyrkiet, Chile, Zambia, Marokko, Vestsahara, Burma, Afghanistan, Somalia, Den Centralafrikanske Republik, Sydsudan, Ukraine, Botswana, Madagaskar, Kenya, Frankrig, Fransk Guyana, Yemen, Thailand, Spanien, Turkmenistan, Cameroun, Papua Ny Guinea, Sverige, Usbekistan, Irak, Paraguay, Zimbabwe, Japan, Tyskland, Congo, Finland, Malaysia, Vietnam, Norge, Svalbard, Jan Mayen, Elfenbenskysten, Polen, Italien, Filippinerne, Ecuador, Burkina Faso, Nya Zealand, Gabon, Guinea, Storbritannien, Ghana, Rumænien, Laos, Uganda, Guyana, Oman, Hviderusland, Kirgisistan, Senegal, Syrien, Cambodja, Uruguay, Tunesien, Surinam, Nepal, Bangladesh, Tadsjikistan, Grækenland, Nicaragua, Eritrea, Nordkorea, Malawi, Benin, Honduras, Liberia, Bulgarien, Cuba, Guatemala, Island, Sydkorea, Ungarn, Portugal, Jordan, Serbien, Aserbajdsjan, Østrig, De Forenede Arabiske Emirater, Tjekkiet, Panama, Sierra Leone, Irland, Georgien, Sri Lanka, Litauen, Letland, Togo, Kroatien, Bosnien og Hercegovina, Costa Rica, Slovakiet, Den Dominikanske republik, Bhutan, Estland, Danmark, Færøerne, Grønland, Nederlænderne, Schweiz, Guinea-Bissau, Taiwan, Moldova, Belgien, Lesotho, Armenien, Albanien, Salomonøerne, Ækvatorialguinea, Burundi, Haiti, Rwanda, Makedonien, Djibouti, Belize, Israel, El Salvador, Slovenien, Fiji, Kuwait, Swaziland, Østtimor, Montenegro, Bahamas, Vanuatu, Qatar, Gambia, Jamaica, Kosovo, Libanon, Cypern, Brunei, Trinidad og Tobago, Kap Verde, Samoa, Luxembourg, Comorerne, Mauritius, São Tomé og Principe, Kiribati, Dominica, Tonga, Mikronesien, Singapore, Bahrain, Saint Lucia, Andorra, Palau, Seychellerne, Antigua og Barbuda, Barbados, Saint Vincent og Grenadinerne, Grenada, Malta, Maldiverne, Saint Kitts og Nevis, Marshalløerne, Liechtenstein, San Marino, Tuvalu, Nauru, Monaco, Vatikanstaten]
+      country_code: ['DK']
+      common_street_suffix: [vej, gade]
+      street_prefix: [Vester, Øster, Nørre, Over, Under]
+      street_root: [Lærke, Birke, Vinkel, Vibe, Mølle, Ring, Skole, Skov, Ny, Ege, Sol, Industri, Kirke, Park, Strand, Eng]
+      street_suffix: [vej, gade, gyde, allé]
+      state: [Region Nordjylland, Region Midtjylland, Region Syddanmark, Region Hovedstaden, Region Sjælland]
+
+      city:
+        - "#{city_prefix}#{city_suffix}"
+      street_name:
+        - "#{street_root}#{street_suffix}"
+        - "#{street_prefix} #{street_root}#{street_suffix}"
+        - "#{Name.first_name}#{common_street_suffix}"
+        - "#{Name.last_name}#{common_street_suffix}"
+      postcode: ['####']
+      building_number: ['###', '##', '#']
+      secondary_address: ['Hus ###', '# TH.', '#TV.', '# MF.', '# ST.']
+      street_address:
+        - "#{street_name} #{building_number}"
+      default_country: [Danmark]
+
+    company:
+      suffix: ["A/S", "ApS", "I/S", "IVS", "Holding", "SMBA", "K/S", "SPW"]
+      name:
+        - "#{Name.last_name} #{suffix}"
+        - "#{Name.last_name}-#{Name.last_name}"
+        - "#{Name.last_name}, #{Name.last_name} #{suffix}"
+
+    internet:
+      domain_suffix: [dk, nu, com]
+
+    name:
+      first_name: [Peter, Jens, Lars, Michael, Henrik, Thomas, Søren, Jan, Christian, Niels, Anne, Kirsten, Hanne, Mette, Anna, Helle, Susanne, Lene, Maria, Marianne]
+      last_name: [Nielsen, Jensen, Hansen, Pedersen, Andersen, Christensen, Larsen, Sørensen, Rasmussen, Jørgensen]
+      prefix: ["Dr.", "Prof.", "Cand.mag.", "Cand.jur."]
+
+      title:
+        descriptor: [Leder, Senior, Fremtid, Produkt, National, Regional, Distrikt, Central, Global, Kunde, Investor, Dynamic, International, Legacy, Forward, Intern, HR, Direktør, Rektor]
+        level: [Solutions, Program, Brand, Sikkerhed, Research, Marketing, Directives, Implementering, Integration, Funktionalitet, Respons, Paradigme, Taktik, Identitet, Markeder, Gruppe, Division, Applikationer, Optimering, Operationer, Infrastruktur, Intranet, Kommunikation, Web, Branding, Kvalitet, Kontrol, Mobilitet, Regnskab, Data, Kreativ, Konfiguration, Interaktioner, Faktorer, Anvendelighed, Metrik]
+        job: [Supervisor, Officer, Manager, Ingeniør, Specialist, Direktør, Koordinator, Administrator, Arkitekt, Analytiker, Designer, Planner, Tekniker, Udvikler, Producer, Konsultant, Assistant, Agent, Tillidsrepræsentant, Strateg]
+      name:
+        - "#{first_name} #{last_name}"
+        - "#{prefix} #{first_name} #{last_name}"
+
+    phone_number:
+      formats:
+        - '## ## ## ##'
+        - '##-##-##-##'
+    cell_phone:
+      formats:
+        - '20 ## ## ##'
+        - '30 ## ## ##'
+        - '40 ## ## ##'
+
+    commerce:
+      color: [hvid, sølv, grå, sort, rød, grøn, blå, gul, lilla, guld, brun, rosa]
+      department: ["Bøger", "Film", "Musik", "Spil", "Elektronik", "Computere", "Hus", "Have", "Værktøj", "Fødevarer", "Helse", "Skønhed", "Legetøj", "Tøj", "Sko", "Smykker", "Sport"]
+      product_name:
+        adjective: [Lille, Ergonomisk, Robust, Intelligent, Sød, Utrolig, Fantastisk, Praktisk, Slank, Fed, Enorm, Enkel, Tung, Let, Multianvendelig, Udholdende]
+        material: [Stål, Metal, Træ, Beton, Plastic, Bomuld, Granit, Gummi, Latex, Læder, Silke, Uld, Ruskind, Linned, Marmor, Jern, Bronze, Kobber, Messing, Aluminium, Papir]
+        product: [Stol, Bil, Computer, Buks, Trøje, Bord, Hat, Tallerken, Kniv, Flaske, Jakke, Lampe, Tastatur, Taske, Bænk, Ur, Pung]
+
+      name:
+        - "#{Address.city} #{suffix}"

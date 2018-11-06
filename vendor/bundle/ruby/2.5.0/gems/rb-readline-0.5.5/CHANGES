@@ -1,0 +1,94 @@
+=== 0.5.1 / 2014-01-08
+
+* Bugfixes:
+  * Fix double require issues. Fixes #93, #95 [yui-knk]
+  * Use Fiddle to remove deprecation warning of DL. Fixes #90, #87 [Olipro]
+
+* Internal:
+  * Bundler-friendly repository (gemspec and Gemfile) to ease usage
+    and development.
+
+=== 0.5.0 / 2013-04-28
+
+* Enhancements:
+  * Port GNU Readline-5.2 (patches 003-010)
+
+* Bugfixes:
+  * Fix cursor position when scrolling through history
+  * _rl_adjust_point: improve performance
+  * Display issue scrolling past long lines. Fixes #69
+  * Exception when scolling through long lines. Fixes #73
+  * Correctly align directory name completion results
+  * Disable Vi-mode. Fixes #51
+  * Close the Readline init file after use
+  * Be explicit about source file encoding
+  * Unload Readline before loading rb-readline
+  * Removed unused variable warnings under 1.9.3-dev
+
+* Internal:
+  * dos2unix all files
+  * README is RDoc
+  * Consistently name test classes
+  * Don't use String#each_char in the tests
+  * Re-indented to the Ruby standard of two spaces
+  * Previously released as 0.5.0.pre.1 (2013-02-24)
+
+=== 0.4.2 / 2011-11-01
+
+* Bugfixes:
+  * Use encoding for Ruby 1.9.x to solve non-ascii input. GH-58 [phasis68]
+
+=== 0.4.1 / 2011-07-29
+
+* Bugfixes:
+  * Fix crash with double tab and an empty line buffer. GH-26 [phasis68]
+  * Accessing rl_line_buffer before initialization. GH-27 [phasis68]
+  * Fix hanging bug when completer finds a quote char. [Spakman]
+  * Filename completion on paths with directory components. GH-35 [Spakman]
+  * Attempted completion function now returns correct array. GH-34 [Spakman]
+  * Ensure @rl_filname_dequoting_function is used if defined. [Spakman]
+  * Remove deprecations with recent versions of RubyGems. [luislavena]
+
+=== 0.4.0 / 2011-01-10
+
+* Enhancements:
+  * Provides convenience gem for 3rd parties.
+  * Provides access to readline line_buffer (to support Bond).
+  * Initial support for gemification of the library.
+  * Reduce keyboard input delay to kill sluggishness.
+
+=== 0.3.0 / 2010-12-27
+
+* Enhancements:
+  * Yield procesor to other threads on Windows. [jduck]
+
+* Bugfixes:
+  * Fix 1.8 and 1.9 code compatibility issues. [jduck]
+  * Changes on Encoding detection. [jduck]
+  * Handle ^L properly. [jduck]
+  * Instance variable/typos cleanup. [jduck]
+
+=== 0.2.2 / 2010-10-19
+
+* Enhancements:
+  * Implemented missing _rl_input_available. [Spakman]
+  * Made code look more Ruby than C. [Spakman]
+
+* Bugfixes:
+  * Fix bugs in the reverse search. Closes GH-14. [Spakman]
+  * Do not eval inputrc defitions. Closes GH-17
+
+=== 0.2.1 / 2010-08-22
+
+* Bugfixes:
+  * Use stdcall as default calling convention under Ruby 1.9 [GH-15]
+  * Fix TERM under Windows
+
+=== 0.2.0
+
+* Bugfixes:
+  * Accept 'cygwin' as valid terminal [rogerdpack]
+  * Accept 'dumb' as valid terminal. Closes GH-7
+  * Fix crash when performing reverse look search. Closes GH-6
+
+=== 0.1.2 / 2009-05-18

@@ -1,0 +1,8 @@
+<% if class_meths.size > 0 %>
+Class methods:
+--------------
+
+<%= indent wrap(class_meths.map {|o| o.name.to_s }.join(", "), 68) %>
+
+
+<% end %>

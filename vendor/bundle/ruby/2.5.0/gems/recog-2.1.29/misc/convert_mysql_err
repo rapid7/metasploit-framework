@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+# Takes the MySQL error messages from sql/share/errmsg-utf8.txt, locates the
+# provided error message type (for example, ER_HOST_NOT_PRIVILEGED), then
+# creates XML snippets for each locale to be used in Recog.  Note that this
+# cannot be used as-is to generate mysql_errors.xml, or oftentimes even parts
+# -- it merely spits out XML snippets that you can start with; many will still
+# need to be modified by hand.
+
+require 'builder'
+require 'open-uri'
+require 'securerandom'
+
+def generate_recog(error_name, locale, error_message)
+  xml = Builder::XmlMarkup.new(target: STDOUT, indent: 2)
+  xml.fingerprint(pattern: error_message) do
+    xml.description "Oracle MySQL error #{error_name} (#{locale})"
+    xml.example(error_message)
+    xml.param(pos: 0, name: 'service.vendor', value: 'Oracle')
+    xml.param(pos: 0, name: 'service.family', value: 'MySQL')
+    xml.param(pos: 0, name: 'service.product', value: 'MySQL')
+  end
+end
+
+unless ARGV.size == 2
+  fail "Usage: #{$PROGRAM_NAME} <path/URI for errmsg-utf8.txt> <error name>"
+end
+
+path = ARGV.first
+error_name = ARGV.last
+
+lines = IO.readlines(open(path))
+
+fail "Nothing read from #{path}" if lines.empty?
+
+unless (error_start = lines.find_index { |line| line.strip =~ /^#{error_name}(?:\s+\S+)?$/ })
+  fail "Unable to find #{error_name} in #{path}"
+end
+
+locale_map = {}
+lines.slice(error_start + 1, lines.size).each do |line|
+  if /^\s+(?<locale>\S+)\s+"(?<error_message>.*)",?$/ =~ line
+    locale_map[locale] = error_message
+  else
+    break
+  end
+end
+
+# Many of the error messages contain format strings.  This can be problematic
+# in that they need to be removed or otherwise handled as part of the 'pattern'
+# attribute and appropriately filled in in any example elements.  So simply try
+# a rough count of the possible format strings and warn the user so that they
+# can deal with it.
+format_count = locale_map.values.map { |error_message| error_message.scan(/%/).size }.inject(&:+)
+unless format_count == 0
+  warn("#{format_count} possible format strings found -- you'll need to deal with this")
+end
+
+Hash[locale_map.sort].map do |locale, error_message|
+  generate_recog(error_name, locale, error_message)
+end

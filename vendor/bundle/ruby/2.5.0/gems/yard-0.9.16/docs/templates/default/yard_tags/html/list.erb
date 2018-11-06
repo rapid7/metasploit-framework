@@ -1,0 +1,18 @@
+<% [["Tag", all_tags], ["Directive", all_directives]].each do |(name, list)| %>
+<h2><%= name %> List</h2>
+
+<% list.each_with_index do |tag, i| %>
+<div class="method_details <%= i == 0 ? 'first' : '' %>">
+  <h3 class="signature"
+      id="<%= tag.name %>" toc-title="<%= tag_link_name(tag) %>">
+    <%= tag_signature tag %>
+  </h3>
+  <% if name == "Directive" %>
+    <%= yieldall :object => P("YARD::Tags::#{tag.text}") %>
+  <% else %>
+    <%= yieldall :object => tag.object %>
+  <% end %>
+</div>
+<% end %>
+
+<% end%>

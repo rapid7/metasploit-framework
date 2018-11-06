@@ -1,0 +1,82 @@
+------------------------------------------------------------- Method: #m
+                                                   (Defined in: (stdin))
+
+    root.m(opts = {}) {|a| ... } -> String 
+------------------------------------------------------------------------
+
+    Deprecated. for great justice
+
+    Abstract. override me
+
+    Comments 
+
+Examples:
+---------
+
+    # Wash your car
+    car.wash
+
+    # To kill a mockingbird
+    a = String.new
+    flip(a.reverse)
+
+Parameters:
+-----------
+
+    (Hash) opts - the options
+
+Options Hash (opts):
+--------------------
+
+    (Object) :key - default: '' - hello
+
+    (Object) :key2 - default: X - hello
+
+Yields:
+-------
+
+    - a block
+
+Yield Parameters:
+-----------------
+
+    (String) a - a value
+
+Yield Returns:
+--------------
+
+    (Hash) - a hash
+
+Returns:
+--------
+
+    (String) - the result
+
+Raises:
+-------
+
+    (Exception) - Exception class
+
+See Also:
+---------
+
+    - A
+    - http://url.com
+    - http://url.com - Example
+
+Author:
+-------
+
+    Name
+
+Since:
+------
+
+    1.0
+
+Version:
+--------
+
+    1.0
+
+

@@ -1,0 +1,12 @@
+= CastingHash
+
+A CastingHash is a Hash that allows _casting_ procedures to
+defined that the keys and values pass through upon assignment.
+
+  c = CastingHash.new
+  c.cast_proc = lambda { |k,v| [k.to_s, v.to_s.upcase] }
+
+  c[:a] = 'a'
+
+  c.assert == {'a'=>'A'}
+

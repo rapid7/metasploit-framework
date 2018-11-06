@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<fingerprints>
+  <fingerprint pattern="^-{10} Welcome to Pure-FTPd (.*)-{10}$">
+    <example>---------- Welcome to Pure-FTPd ----------</example>
+    <description>Pure-FTPd</description>
+    <param pos="1" name="pureftpd.config"/>
+    <param pos="0" name="service.family" value="Pure-FTPd"/>
+    <param pos="0" name="service.product" value="Pure-FTPd"/>
+  </fingerprint>
+  <fingerprint pattern="^-{10} Welcome to Pure-FTPd (.*)-{10}$">
+    <!-- should warn with no examples -->
+    <description>Pure-FTPd</description>
+    <param pos="1" name="pureftpd.config"/>
+    <param pos="0" name="service.family" value="Pure-FTPd"/>
+    <param pos="0" name="service.product" value="Pure-FTPd"/>
+  </fingerprint>
+</fingerprints>

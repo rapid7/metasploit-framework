@@ -1,0 +1,10 @@
+en:
+  faker:
+    university:
+      prefix: [The, Northern, North, Western, West, Southern, South, Eastern, East]
+      suffix: [University, Institute, College, Academy]
+      name:
+        - "#{Name.last_name} #{University.suffix}"
+        - "#{University.prefix} #{Name.last_name} #{University.suffix}"
+        - "#{University.prefix} #{Name.last_name}"
+        - "#{University.prefix} #{Address.state} #{University.suffix}"

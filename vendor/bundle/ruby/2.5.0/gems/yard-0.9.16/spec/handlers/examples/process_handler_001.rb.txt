@@ -1,0 +1,11 @@
+class A < NotHandler
+  process { hello }
+end
+
+class B < YARD::Handlers::Ruby::Base
+  process { test }
+end
+
+class C < YARD::Handlers::Ruby::Legacy::Base
+  process do test end
+end

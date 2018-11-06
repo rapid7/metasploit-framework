@@ -1,0 +1,6 @@
+subgraph cluster_<%= format_path object %> {
+  label = "<%= h(object.name) unless object.path == "" %>"; labelloc=b;
+  <% for obj in @modules %>
+    <%= yieldall :object => obj %>
+  <% end %>
+}

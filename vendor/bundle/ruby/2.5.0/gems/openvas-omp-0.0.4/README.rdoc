@@ -1,0 +1,44 @@
+= openvas-omp
+
+This library is used for communication with OpenVAS manager over OMP
+You can start, stop, pause and resume scan. Watch progress and status of 
+scan, download report, etc.
+
+== Usage example
+
+require 'openvas-omp'
+
+ov=OpenVASOMP::OpenVASOMP.new("user"=>'openvas',"password"=>'openvas')
+config=ov.config_get().index("Full and fast")
+target=ov.target_create({"name"=>"t", "hosts"=>"127.0.0.1", "comment"=>"t"})
+taskid=ov.task_create({"name"=>"t","comment"=>"t", "target"=>target, "config"=>config})
+ov.task_start(taskid)
+while not ov.task_finished(taskid) do
+        stat=ov.task_get_byid(taskid)
+        puts "Status: #{stat['status']}, Progress: #{stat['progress']}"
+        sleep 10
+end
+stat=ov.task_get_byid(taskid)
+content=ov.report_get_byid(stat["lastreport"],'HTML')
+File.open('report.html', 'w') {|f| f.write(content) }
+
+== Note
+
+Note that if you're using gem and Ruby 1.8, you should require 'rubygems' as 
+well.
+
+== Contributing to openvas-omp
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+== Copyright
+
+Copyright (c) 2010 Vlatko Kosturjak. See LICENSE.txt for
+further details.
+

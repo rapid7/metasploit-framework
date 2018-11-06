@@ -1,0 +1,16 @@
+$ erubis -xE NoText notext-example.eruby
+_buf = '';
+ if !@list || @list.empty? 
+
+ else 
+
+
+     @list.each_with_index do |item, i| 
+                  _buf << ( i%2 == 0 ? '#FFCCCC' : '#CCCCFF' ).to_s;
+           _buf << ( item ).to_s;
+
+     end 
+
+
+ end 
+_buf.to_s

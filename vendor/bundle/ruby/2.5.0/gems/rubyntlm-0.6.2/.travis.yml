@@ -1,0 +1,13 @@
+language: ruby
+rvm:
+  - 2.1.9
+  - 2.2.0
+  - 2.3.1
+  - 2.4.0
+before_install:
+  - gem update bundler
+
+# This prevents testing branches that are created just for PRs
+branches:
+  only:
+  - master

@@ -1,0 +1,179 @@
+#!/usr/bin/env ruby
+
+###
+### inline-require - expand 'require "foo"' into inline code
+###
+### usage: inline-require [-h] [-I path[,path2,..]] script
+###
+### copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+### 2.7.0
+### $Rev: 10 $
+###
+
+
+class InlineRequire
+
+   def initialize(opts={})
+      @opts = opts.dup
+   end
+   attr_accessor :opts
+
+   def expand(filename)
+      sbuf = ''
+      inlined = []
+      level = 0
+      expand_require(filename, sbuf, inlined, level)
+      return sbuf
+   end
+
+   private
+
+   def expand_require(filename, sbuf, inlined, level)
+      raise "*** assertion error" if inlined.include?(filename)
+      remove_comment  = @opts[:remove_comment]
+      expand_indented = @opts[:expand_indented]
+      keep_filename   = @opts[:keep_filename]
+      loaded_features = @opts[:loaded_features]
+      inlined << filename
+      prog = File.read(filename)
+      n = 0
+      flag_if_file = false
+      prog.each_line do |line|
+         n += 1
+
+         ## comment out from 'if __FILE__ == $0' to 'end'
+         if level > 0
+            if flag_if_file
+               sbuf << "#" << line
+               flag_if_file = false if line =~ /^end$/
+               next
+            end
+            if line =~ /^if\s+__FILE__\s*==\s*\$0(\s+then)?$/ || line =~ /^if\s+\$0\s*==\s*__FILE__(\s+then)?$/
+               flag_if_file = true
+               sbuf << "#" << line
+               next
+            end
+         end
+
+         ## find 'require "foo"' and expand it to inline code
+         flag_inline = false
+         pattern = expand_indented ? /^[ \t]*require ['"](.*)["']\s*$/ \
+                                   :       /^require ['"](.*)["']\s*$/
+         if line =~ pattern
+            libname = $1
+            libpath = find_library(libname)
+            $stderr.puts "*** debug: libpath=#{libpath.inspect}" if $debug_mode
+            unless libpath
+               #raise "file '#{filename}'(line #{n}): library '#{libname}' not found."
+               warn "file '#{filename}'(line #{n}): library '#{libname}' not found."
+            else
+              flag_inline = true if libpath =~ /\.rb$/ && local_library?(libpath)
+            end
+         end
+         if !flag_inline
+            sbuf << line   unless remove_comment && line =~ /^[ \t]*\#/
+         elsif inlined.include?(libpath)
+            sbuf << "#--already included #{line}"     unless remove_comment
+         else
+            if keep_filename
+               @n ||= 0;  @n += 1;  n = @n
+            end
+            sbuf << "#--begin of #{line}"             unless remove_comment
+            sbuf << "$LOADED_FEATURES << '#{libname}.rb'\n" if loaded_features
+            sbuf << "eval <<'END_OF_SCRIPT__#{n}', TOPLEVEL_BINDING, '#{libpath}', 1\n" if keep_filename
+            expand_require(libpath, sbuf, inlined, level+1)
+            sbuf << "END_OF_SCRIPT__#{n}\n"               if keep_filename
+            sbuf << "#--end of #{line}"               unless remove_comment
+         end
+      end
+      #sbuf << "\n" if sbuf[-1] != ?\n
+   end
+
+   def local_library?(libpath)
+      return libpath !~ /^\//
+   end
+
+   def find_library(libname)
+      if libname =~ /^\.rb$/
+         libname_rb = libname
+         libname_so = nil
+      elsif libname =~ /^\.so$/
+         libname_rb = nil
+         libname_so = libname
+      else
+         libname_rb = libname + ".rb"
+         libname_so = libname + ".so"
+      end
+      $LOAD_PATH.each do |path|
+         if libname_rb
+            libpath = path + "/" + libname_rb
+            return libpath if test(?f, libpath)
+         end
+         if libname_so
+            libpath = path + "/" + libname_so
+            return libpath if test(?f, libpath)
+         end
+      end
+      return nil
+   end
+
+end
+
+if __FILE__ == $0
+
+   begin
+      require "optparse"
+      op = OptionParser.new
+      options = {}
+      op.on("-h", "--help") {|v| options[:help] = v }
+      op.on("-I libpath")   {|v| options[:libpath] = v }
+      op.on("-i")           {|v| options[:expand_indented] = v }
+      op.on("-c")           {|v| options[:remove_comment] = v }
+      op.on("-k")           {|v| options[:keep_filename] = v }
+      op.on("-l")           {|v| options[:loaded_features] = v }
+      op.on("-D")           {|v| options[:debug] = v }
+      op.parse!()
+
+      $debug_mode = options[:debug]
+
+      if options[:help]
+         command = File.basename($0)
+         puts "Usage: #{command} [-h] [-I path[,path2,..]] script"
+         puts "  -h                   : help"
+         puts "  -i                   : expand indented require(), too"
+         puts "  -c                   : remove comment lines start with '#'"
+         puts "  -k                   : keep filename (for debugging)"
+         puts "  -l                   : append libs to $LOADED_FEATURES"
+         puts "  -I path[,path2,...]  : ruby library path"
+         exit(0)
+      end
+
+      if options[:libpath]
+         rubylib_paths = options[:libpath].split(/,/)
+      else
+         rubylib_paths = []
+      end
+      $stderr.puts "*** debug: rubylib_paths=#{rubylib_paths.inspect}" if $debug_mode
+      $LOAD_PATH.concat(rubylib_paths)
+
+      filenames = ARGV
+
+      opts = { :expand_indented => options[:expand_indented],
+               :remove_comment  => options[:remove_comment],
+               :keep_filename   => options[:keep_filename],
+               :loaded_features => options[:loaded_features] }
+      inline_require = InlineRequire.new(opts)
+      filenames.each do |filename|
+         print inline_require.expand(filename)
+      end
+
+   rescue => ex
+      if $debug_mode
+         raise ex
+      else
+         $stderr.puts ex.message
+      end
+
+   end
+
+end

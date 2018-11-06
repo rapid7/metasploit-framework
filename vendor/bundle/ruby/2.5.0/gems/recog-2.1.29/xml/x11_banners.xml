@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="x11.vendor" protocol="x11">
+  <!--
+  During X11 connection setup as specified in the X11 protocol
+  (page 111 https://www.x.org/archive/X11R7.5/doc/x11proto/proto.pdf) a
+  success message is sent when a clients request to connect is successful.
+  This success response contains a vendor field which can be used to
+  fingerprint systems with the following fingerprints.
+  -->
+  <fingerprint pattern="^AT&amp;T Laboratories Cambridge$">
+    <description>AT&amp;T Laboratories Cambridge</description>
+    <example>AT&amp;T Laboratories Cambridge</example>
+    <param pos="0" name="service.vendor" value="AT&amp;T Laboratories Cambridge"/>
+    <param pos="0" name="service.product" value="Xvnc"/>
+  </fingerprint>
+  <fingerprint pattern="^CentOS$">
+    <description>CentOS</description>
+    <example>CentOS</example>
+    <param pos="0" name="os.vendor" value="CentOS"/>
+    <param pos="0" name="service.vendor" value="X.Org"/>
+    <param pos="0" name="service.product" value="X.Org X11"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:x.org:x11:-"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:centos:centos:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Colin Harrison$">
+    <description>Colin Harrison</description>
+    <example>Colin Harrison</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="Colin Harrison"/>
+    <param pos="0" name="service.product" value="Xming"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^DECWINDOWS DigitalEquipmentCorporation, eXcursion$">
+    <description>DECWINDOWS DigitalEquipmentCorporation, eXcursion</description>
+    <example>DECWINDOWS DigitalEquipmentCorporation, eXcursion</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="DEC"/>
+    <param pos="0" name="service.product" value="DEC eXcursion X server"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^DECWINDOWS Hewlett-Packard Development Company OpenVMS$">
+    <description>DECWINDOWS Hewlett-Packard Development Company OpenVMS</description>
+    <example>DECWINDOWS Hewlett-Packard Development Company OpenVMS</example>
+    <param pos="0" name="os.vendor" value="DEC"/>
+    <param pos="0" name="service.vendor" value="DEC"/>
+    <param pos="0" name="service.product" value="OpenVMS"/>
+    <param pos="0" name="os.product" value="OpenVMS"/>
+    <param pos="0" name="os.family" value="OpenVMS"/>
+  </fingerprint>
+  <fingerprint pattern="^Fedora Project$">
+    <description>Fedora Project</description>
+    <example>Fedora Project</example>
+    <param pos="0" name="os.vendor" value="Red Hat"/>
+    <param pos="0" name="service.vendor" value="X.Org"/>
+    <param pos="0" name="service.product" value="X.Org X11"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:x.org:x11:-"/>
+    <param pos="0" name="os.product" value="Fedora Core Linux"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:redhat:fedora_core:-"/>
+  </fingerprint>
+  <fingerprint pattern="^freedesktop\.org$">
+    <description>freedesktop.org</description>
+    <example>freedesktop.org</example>
+    <param pos="0" name="os.vendor" value="Linux"/>
+    <param pos="0" name="service.vendor" value="X.Org"/>
+    <param pos="0" name="service.product" value="X.Org X11"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:x.org:x11:-"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:linux:linux_kernel:-"/>
+  </fingerprint>
+  <fingerprint pattern="^HC-Consult$">
+    <description>HC-Consult</description>
+    <example>HC-Consult</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="VcXsrv"/>
+    <param pos="0" name="service.product" value="VcXsrv"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Hummingbird Communications Ltd\.$|^Hummingbird Ltd\.$">
+    <description>Hummingbird Communications Ltd.</description>
+    <example>Hummingbird Communications Ltd.</example>
+    <example>Hummingbird Ltd.</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="Hummingbird Ltd."/>
+    <param pos="0" name="service.product" value="Hummingbird Exceed X server"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Labtam Inc$">
+    <description>Labtam Inc</description>
+    <example>Labtam Inc</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="Labtam Inc."/>
+    <param pos="0" name="service.product" value="XSecurePro"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Moba\/X$">
+    <description>Moba/X</description>
+    <example>Moba/X</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="Mobatek"/>
+    <param pos="0" name="service.product" value="MobaXterm"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mobatek:mobaxterm:-"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^MobaXterm$">
+    <description>MobaXterm</description>
+    <example>MobaXterm</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="Mobatek"/>
+    <param pos="0" name="service.product" value="MobaXterm"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mobatek:mobaxterm:-"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^NetSarang Computer, Inc\.$">
+    <description>NetSarang Computer, Inc.</description>
+    <example>NetSarang Computer, Inc.</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="NetSarang Computer, Inc."/>
+    <param pos="0" name="service.product" value="NetSarang XManager"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Open Text$">
+    <description>Open Text</description>
+    <example>Open Text</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="Open Text"/>
+    <param pos="0" name="service.product" value="OpenText Exceed"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Red Hat, Inc\.$">
+    <description>Red Hat, Inc.</description>
+    <example>Red Hat, Inc.</example>
+    <param pos="0" name="os.vendor" value="Red Hat"/>
+    <param pos="0" name="service.vendor" value="X.Org"/>
+    <param pos="0" name="service.product" value="X.Org X11"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:x.org:x11:-"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:redhat:linux:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Santa Cruz Operation Inc\.$">
+    <description>Santa Cruz Operation Inc.</description>
+    <example>Santa Cruz Operation Inc.</example>
+    <param pos="0" name="os.vendor" value="SCO"/>
+    <param pos="0" name="service.vendor" value="SCO"/>
+    <param pos="0" name="service.product" value="SCO X server"/>
+    <param pos="0" name="os.product" value="SCO UNIX"/>
+    <param pos="0" name="os.family" value="SCO UNIX"/>
+  </fingerprint>
+  <fingerprint pattern="^StarNet Communications Corp\.$">
+    <description>StarNet Communications Corp.</description>
+    <example>StarNet Communications Corp.</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="StarNet Communications Corp."/>
+    <param pos="0" name="service.product" value="StarNet X-Win32"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Sun Microsystems, Inc\.$">
+    <description>Sun Microsystems, Inc.</description>
+    <example>Sun Microsystems, Inc.</example>
+    <param pos="0" name="os.vendor" value="Sun"/>
+    <param pos="0" name="service.vendor" value="Sun"/>
+    <param pos="0" name="service.product" value="XSun Solaris X11 server"/>
+    <param pos="0" name="os.product" value="Solaris"/>
+    <param pos="0" name="os.family" value="Solaris"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:sun:solaris:-"/>
+  </fingerprint>
+  <fingerprint pattern="^The Cygwin\/X Project$">
+    <description>The Cygwin/X Project</description>
+    <example>The Cygwin/X Project</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="Red Hat"/>
+    <param pos="0" name="service.product" value="Cygwin X Server Project"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:redhat:cygwin:-"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^The X\.Org Foundation$">
+    <description>The X.Org Foundation</description>
+    <example>The X.Org Foundation</example>
+    <param pos="0" name="os.vendor" value="UNIX"/>
+    <param pos="0" name="service.vendor" value="X.Org"/>
+    <param pos="0" name="service.product" value="X.Org X11"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:x.org:x11:-"/>
+    <param pos="0" name="os.product" value="UNIX"/>
+    <param pos="0" name="os.family" value="UNIX"/>
+  </fingerprint>
+  <fingerprint pattern="^The XFree86 Project, Inc$">
+    <description>The XFree86 Project, Inc</description>
+    <example>The XFree86 Project, Inc</example>
+    <param pos="0" name="os.vendor" value="UNIX"/>
+    <param pos="0" name="service.vendor" value="XFree86"/>
+    <param pos="0" name="service.product" value="XFree86"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:xfree86:xfree86:-"/>
+    <param pos="0" name="os.product" value="UNIX"/>
+    <param pos="0" name="os.family" value="UNIX"/>
+  </fingerprint>
+  <fingerprint pattern="^WRQ, Inc\.$">
+    <description>WRQ, Inc.</description>
+    <example>WRQ, Inc.</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="service.vendor" value="WRQ, Inc."/>
+    <param pos="0" name="service.product" value="ReflectionX"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+</fingerprints>

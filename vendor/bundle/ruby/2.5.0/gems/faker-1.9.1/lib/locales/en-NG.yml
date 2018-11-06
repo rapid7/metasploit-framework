@@ -1,0 +1,75 @@
+# Nigeria formatted data types
+# Using Top 100 Nigerian names
+# Surnames familiar to Nigerians
+# 36 Nigerian states
+
+en-NG:
+  faker:
+    name:
+      name:
+        - "#{first_name} #{last_name}"
+      first_name: [
+                    Adedayo, Chukwu, Emmanuel, Yusuf, Chinedu, Muyiwa, Wale, Chizoba, Chinyere, Temitope, Chiamaka, Obioma, Aminat, Sekinat, Kubura, Damilola,
+                    Bukola, Johnson, Akande, Akanni, Tope, Titi, Emeka, Uzodimma, Akunna, Buchi, Ikenna, Azubuike, Ifeanyichukwu, Ifeoma, Adaugo, Adaobi, Danjuma,
+                    Musa, Yakubu, Fatima, Habiba, Kubra, Sumayyah, Zainab, Rasheedah, Aminu, Adegoke, Adeboye, Funmilayo, Funmilade, Olufunmi, Sname, Tobiloba, Tomiloba,
+                    Toluwani, Titilayo, Titilope, Kemi, Damilare, Olaide, Makinwa, Toke, Rotimi, Onome, Efe, Abisola, Abisoye, Chisom, Cherechi, Onoriode, Ifunanya, Simisola,
+                    Bankole, Mohammed, Tari, Ebiere, Ayebatari, Ebiowei, Esse, Isioma, Lola, Lolade, Augustina, Shalewa, Shade, Omolara, Gbeminiyi, Gbemisola, Jadesola,
+                    Omawunmi, Olumide, Oluwunmi, Ayinde, Chimamanda, Abimbola, Remilekun, Jolayemi, Ireti, Banji, Alade
+                  ]
+      last_name: [
+                    Tella, Justina, Ademayowa, Sabdat, Ayomide, Yussuf, Ayisat, Oyebola, Oluwanisola, Esther, Adeniyan, Olubukola, Adewale, Mayowa, Emmanuel, Ajakaiye,
+                    Mobolaji, Adeoluwa, Ajose-adeogun, Omowale, Abiola, Aremu, Ismail, Olawale, Atanda, Olasunkanmi, Taiwo, Bamisebi, Aderinsola, David, Egbochukwu,
+                    Ebubechukwu, Miracle, Ekwueme, Onyinyechukwu, Isokun, Adesina, Mustapha, Ladega, Olumide, Kayode, Leonard, Adaobi, Uchechi, Mogbadunade, Oluwatosin,
+                    Grace, Nojeem, Sekinat, Omolara, Chidinma, Maryjane, Ogunwande, Olubunmi, Agnes, Osuagwu, Elizabeth, Obianuju, Oyelude, Aminat, Odunayo, Peter,
+                    Chibuike, Sylvester, Salami, Oluwaseyi, Agboola, Abodunrin, Isreal, Ademola, Akintade, Katherine, Oluwaseun, Aligbe, Isaac, Amaechi, Bello, Adewura,
+                    Latifat, Ehigiator, Kimberly, Onohinosen, Elebiyo, Ayomide, Elizabeth, Ndukwu, Ngozi, Clare, Ogunbanwo, Olufeyikemi, Okonkwo, Makuachukwu, Obiageli,
+                    Oladeji, Odunayo, Abiodun, Wilcox, Tamunoemi, Iyalla, Adegboye, Kayode, David, Akeem-omosanya, Muinat, Wuraola, Nwuzor, Christian, Akerele, Samuel,
+                    Sanusi, Olutola, Mutiat, Elizabeth, Adebayo, Habeeb, Temitope, Adegoke, Joshua, Omobolaji, Adewale, Adewunmi, Gbogboade, Adewale, Adeyemo, Funmilayo,
+                    Afunku, Oyinkansola, Maryam, Aigbiniode, Tolulope, Onose, Babalola, Olaoluwa, Yaqub, Nwogu, Chidozie, Emmanuel, Chibike, Agboola, Mukaram, Afolabi,
+                    Gbadamosi, Saheed, Opeyemi, Jimoh, Jamiu, Babatunde, Motalo, Omobolanle, Sarah, Okunola, Oluwashina, Olasunkanmi-fasayo, Wasiu, Ayobami, Busari,
+                    Segunmaru, Aderonke, Hanifat, Balogun, Sulaimon, Oladimeji, Oluwakemi
+                  ]
+    internet:
+      domain_suffix: [com.ng, com, ng, net, edu.ng, org, gov.ng, org.ng, biz, co]
+    address:
+      street_suffix: [
+                        Avenue, Branch, Bridge, Bypass, Road, Drive, Drive, Drives, Estate, Estates, Expressway, Extension, Falls, Flat, Flats, Freeway, Garden, Gardens,
+                        Gateway, Harbor, GRA, Highway, Island, Island, Junction, Roundabout, Toll Gate, Lake, Land, Landing, Industrial Layout, Lane, Lodge, Lodge, Mill, Mills, Mission,
+                        Mission, Motorway, Overpass, Park, Parkway, Pass, Path, Pike, Mall,  Plaza, Plaza, Port, Port, Ranch, River, Road, Road, Roads, Roads, Route, Square, Square,
+                        Station, Station, Street, Street, Streets, Terrace, Underpass, Union, Via, Ville, Walk, Way
+                      ]
+      lga: [
+              Abadam, Abaji, Abak, Abakaliki, Aba North, Aba South, Abeokuta North, Abeokuta South, Afijio, Afikpo North, Afikpo South, Agaie, Agatu, Agwara, Agege, Aguata,
+              Ahoada East, Ahoada West, Ajaokuta, Ajeromi-Ifelodun, Akoko-Edo, Akoko North-East, Akoko North-West, Akoko South-West, Akoko South-East, Akuku-Toru, Akure North,
+              Akure South, Akwanga, Albasu, Alimosho, Amuwo-Odofin, Arewa Dandi, Arochukwu, Asari-Toru, Atakunmosa East,
+              Atakunmosa West, Awka North, Awka South, Bokkos, Batagarawa, Birnin Kebbi, Calabar Municipal, Calabar South, Dange Shuni, Ede North, Ede South, Ife Central, Ife East,
+              Ife North, Ife South, Efon, Egbado North, Egbado South, Enugu East,  Enugu North, Enugu South, Epe, Gayuk, Gwarzo, Gwer East, Gwer West, Ibeju-Lekki, Ibeno, Idemili North, Idemili South,
+              Igueben, Ihiala, Ikeja, Ikenne, Ikot Abasi, Ikot Ekpene, Sapele, Sardauna, Shendam, Shinkafi, Shomolu, Surulere, Ughelli North, Ughelli South, Ugwunagbo, Uyo, Wase,
+              Wudil, Yala, Yusufari
+            ]
+      state: [
+                Abia, Adamawa, Anambra, Akwa, Ibom, Bauchi, Bayelsa, Benue, Borno, Cross, River, Delta, Ebonyi, Enugu, Edo, Ekiti, Gombe,
+                Imo, Jigawa, Kaduna, Kano, Katsina, Kebbi, Kogi, Kwara, Lagos, Nasarawa, Niger, Ogun, Ondo, Osun, Oyo, Plateau, Rivers, Sokoto,
+                Taraba, Yobe, Zamfara, Abuja
+              ]
+      cities: [
+                Aba, Abakaliki, Abeokuta, Abuja, Ado, Ekiti, Agege, Akpawfu, Akure, Asaba, Awka, Bauchi, Benin, City, Birnin, Kebbi, Buguma, Calabar, Dutse, Eket,
+                Enugu, Gombe, Gusau, Ibadan, Ifelodun, Ife, Ikeja, Ikirun, Ikot-Abasi, Ikot, Ekpene, Ilorin, Iragbiji, Jalingo, Jimeta, Jos, Kaduna, Kano, Katsina,
+                Karu, Kumariya, Lafia, Lagos, Lekki, Lokoja, Maiduguri, Makurdi, Minna, Nsukka, Offa, Ogbomoso, Onitsha, Okene, Ogaminana, Omu-Aran, Oron, Oshogbo,
+                Owerri, Owo, Orlu, Oyo, Port, Harcourt, Potiskum, Sokoto, Suleja, Umuahia, Uyo, Warri, Wukari, Yenagoa, Yola, Zaria, Ogbomosho, Osogbo, Iseyin, Ilesa,
+                Ondo, Damaturu, Mubi, Sagamu, Ugep, Ijebu, Ode, Ise, Gboko, Ilawe, Ikare, Bida, Okpoko, Sapele, Ila, Shaki, Ijero, Otukpo, Kisi, Funtua, Gbongan,
+                Igboho, Amaigbo, Gashua, Bama, Uromi, Okigwe, Modakeke, Ebute, Ikorodu, Effon, Alaiye, Ikot-Ekpene, Iwo, Ikire, Shagamu, Ijebu-Ode, Nnewi, Ise-Ekiti,
+                Orangun, Saki, Ijero-Ekiti, Inisa, Kishi, Ejigbo, Okrika, Ilobu, Okigwi, Esuk, Nguru, Hadejia, Ijebu-Igbo, Pindiga, Azare, Nkpor, Ikerre, Lafiagi,
+                Kontagora, Biu, Olupona, Lere, Igbo, Ora, Emure-Ekiti, Isieke, Ifo, Igede-Ekiti, Effium, Idanre, Keffi, Epe, Gambaru, Ogaminan, Ihiala, Ipoti, Lalupon,
+                Ughelli, Bende, Oke, Mesi, Kafachan, Ikom, Agulu, Daura, Numan, Kagoro, Igbo-Ukwu, Araomoko, Igbara-Odo, Ozubulu, Aku, Oyan, Jega, Ohafia-Ifigh, Afikpo,
+                Apomu, Fiditi, Orita, Eruwa, Eha, Amufu, Malumfashi, Kaura, Namoda, Enugu-Ukwu, Idah, Obonoma, Agbor, Ezza, Ohu, Uga, Nkwerre, Auchi, Ekpoma, Ijesha,
+                Kabba, Ilaro, Argungu, Gumel, Geidam, Talata, Mafara, Gummi, Ogoja, Ala, Itu, Kumo, Pankshin, Nassarawa, Kachia, Dikwa, Moriki, Pategi, Wamba, Baro, Okuta,
+                Kudu, Badagry, Ogwashi-Uku, Kamba, Takum, Igbeti, Zungeru, Zuru, Tegina, Awgu, Wudil, Nafada, Ibi, Sofo-Birnin-Gwari, Dutsen, Wai, Kaiama, Ubiaja, Otukpa,
+                Oguta, Damboa, Jebba, Garko, Mokwa, Gaya, Tambawel, Elele, Mongonu, Kwale, Gembu, Obudu, Little, Gombi, Magumeri, Degema, Hulk, Enugu-Ezike, Kari, Darazo
+              ]
+      city:
+        - "#{cities}"
+      region: [South-West, North-East, South-South, North-Central, South-East, North-West]
+      default_country: [Nigeria]
+    phone_number:
+      formats: ['080########', '070########', '090########', '081########', '071########', '091########']

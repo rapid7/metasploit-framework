@@ -1,0 +1,8 @@
+module Hello
+  class Hi
+	# Docstring
+    def me
+      "Value"
+    end
+  end
+end

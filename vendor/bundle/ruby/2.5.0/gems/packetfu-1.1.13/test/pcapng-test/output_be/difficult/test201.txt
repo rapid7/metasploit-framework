@@ -1,0 +1,11 @@
+Description: ISBs with various options, in different SHB sections
+Category:    difficult
+
+Block counts:
+	EPB: 3
+	IDB: 5
+	ISB: 4
+	SHB: 3
+	SPB: 1
+
+Block sequence: SHB, IDB, IDB, EPB, ISB, SHB, IDB, EPB, ISB, SPB, SHB, IDB, IDB, ISB, EPB, ISB

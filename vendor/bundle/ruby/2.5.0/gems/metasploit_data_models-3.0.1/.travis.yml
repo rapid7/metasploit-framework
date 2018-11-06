@@ -1,0 +1,21 @@
+dist: trusty
+sudo: false
+group: stable
+cache: bundler
+language: ruby
+addons:
+  postgresql: '9.6'
+  apt:
+    packages:
+      - libpcap-dev
+      - graphviz
+rvm:
+  - 2.5.0
+before_script:
+  - cp spec/dummy/config/database.yml.travis spec/dummy/config/database.yml
+  - bundle exec rake --version
+  - bundle exec rake db:create db:migrate
+script:
+  - git diff --exit-code spec/dummy/db/structure.sql
+  - bundle exec rake spec
+  - bundle exec rake yard

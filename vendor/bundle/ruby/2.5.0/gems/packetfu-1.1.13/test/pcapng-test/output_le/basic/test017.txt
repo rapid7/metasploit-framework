@@ -1,0 +1,9 @@
+Description: Empty - only SHB and CB/DCB
+Category:    basic
+
+Block counts:
+	CB: 2
+	DCB: 2
+	SHB: 1
+
+Block sequence: SHB, CB, DCB, CB, DCB

@@ -1,0 +1,26 @@
+--protected
+--no-private
+--embed-mixin ClassMethods
+--exclude /server/templates/
+--exclude /yard/rubygems/
+--asset docs/images:images
+--tag yard.signature:"YARD Tag Signature"
+--type-name-tag yard.tag:"YARD Tag"
+--type-name-tag yard.directive:"YARD Directive"
+--hide-tag yard.tag
+--hide-tag yard.directive
+--hide-tag yard.signature
+--load ./docs/templates/plugin.rb
+-
+CHANGELOG.md
+docs/WhatsNew.md
+docs/GettingStarted.md
+docs/Tags.md
+docs/Overview.md
+docs/CodeObjects.md
+docs/Parser.md
+docs/Handlers.md
+docs/TagsArch.md
+docs/Templates.md
+LICENSE
+LEGAL

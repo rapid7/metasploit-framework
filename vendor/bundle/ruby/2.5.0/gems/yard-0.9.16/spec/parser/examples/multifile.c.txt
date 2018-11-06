@@ -1,0 +1,22 @@
+struct hoge *
+rb_fuga(VALUE obj)
+{
+  return Qtrue;
+}
+
+/*
+ * Hello Mars
+ */
+VALUE
+rb_hello_mars(VALUE obj, VALUE n)
+{
+    return Qtrue;
+}
+
+void
+Init_Multifile(void)
+{
+    rb_cMultifile  = rb_define_class("Multifile", rb_cObject);
+    rb_define_method(rb_cMultifile, "extra", rb_extra, 1); /* in extra.c */
+    rb_define_method(rb_cMultifile, "hello_mars", rb_hello_mars, 1);
+}

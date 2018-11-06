@@ -1,0 +1,34 @@
+fi-FI:
+  faker:
+    invoice:
+      reference:
+        # Source: https://wiki.xmldation.com/support/fk/finnish_reference_number
+        check_digit_method: method_731
+        pattern: '\d{3,19}#'
+    address:
+      city_prefix: [Haap, He, Kau, Oul, Ra, Ni, 'No', Ke, La, Or]
+      city_suffix: [sjärvi, kano, ahe, inen, esi, uma, mi, inen, valta, mina]
+      building_number: ['###', '##', '#']
+      street_suffix: [katu, gatan, ranta]
+      postcode: ['#####']
+      state: [Turun ja Porin lääni, Uudenmaan ja Hämeen lääni, Pohjanmaan lääni, Viipurin ja Savonlinnan lääni, Käkisalmen lääni, Savonlinnan ja Kymenkartanon lääni, Kymenkartanon ja Savon lääni]
+      city:
+        - "#{city_prefix}#{city_suffix}"
+      street_name:
+        - "#{Name.last_name}#{street_suffix}"
+      street_address:
+        - "#{street_name}#{building_number}"
+      default_country: [Suomi]
+
+    name:
+      first_name_women: [Maria, Helena, Anneli, Johanna, Kaarina, Marjatta, Hannele, Kristiina, Liisa, Emilia, Elina, Tuulikki, Annikki, Maarit, Sofia, Susanna, Leena, Katariina, Anna, Marja, Sinikka, Inkeri, Riitta, Kyllikki, Aino, Tuula, Anne, Päivi, Orvokki, Ritva, Tellervo, Maija, Pirjo, Karoliina, Pauliina, Minna, Sari, Irmeli, Eeva, Tiina, Laura, Eveliina, Marika, Elisabet, Tarja, Pirkko, Satu, Anja, Mari, Hanna]
+      first_name_men: [Juhani, Olavi, Antero, Tapani, Johannes, Tapio, Mikael, Kalevi, Matti, Pekka, Petteri, Ilmari, Sakari, Matias, Antti, Juha, Heikki, Kristian, Timo, Kari, Mikko, Markus, Jari, Jukka, Kalervo, Markku, Aleksi, Jaakko, Petri, Oskari, Mika, Henrik, Lauri, Erkki, Veikko, Hannu, Seppo, Ville, Ensio, Ari, Janne, Valtteri, Marko, Pentti, Tuomas, Sami, Juho, Eero, Martti, Erik]
+      first_name: [Maria, Helena, Anneli, Johanna, Kaarina, Marjatta, Hannele, Kristiina, Liisa, Emilia, Elina, Tuulikki, Annikki, Maarit, Sofia, Susanna, Leena, Katariina, Anna, Marja, Sinikka, Inkeri, Riitta, Kyllikki, Aino, Tuula, Anne, Päivi, Orvokki, Ritva, Tellervo, Maija, Pirjo, Karoliina, Pauliina, Minna, Sari, Irmeli, Eeva, Tiina, Laura, Eveliina, Marika, Elisabet, Tarja, Pirkko, Satu, Anja, Mari, Hanna, Juhani, Olavi, Antero, Tapani, Johannes, Tapio, Mikael, Kalevi, Matti, Pekka, Petteri, Ilmari, Sakari, Matias, Antti, Juha, Heikki, Kristian, Timo, Kari, Mikko, Markus, Jari, Jukka, Kalervo, Markku, Aleksi, Jaakko, Petri, Oskari, Mika, Henrik, Lauri, Erkki, Veikko, Hannu, Seppo, Ville, Ensio, Ari, Janne, Valtteri, Marko, Pentti, Tuomas, Sami, Juho, Eero, Martti, Erik]
+      last_name: [Korhonen, Virtanen, Mäkinen, Nieminen, Mäkelä, Hämäläinen, Laine, Heikkinen, Koskinen, Järvinen, Lehtonen, Lehtinen, Saarinen, Salminen, Heinonen, Niemi, Heikkilä, Kinnunen, Salonen, Turunen, Salo, Laitinen, Tuominen, Rantanen, Karjalainen, Jokinen, Mattila, Savolainen, Lahtinen, Ahonen, Ojala, Leppänen, Väisänen, Hiltunen, Kallio, Miettinen, Leinonen, Pitkänen, Aaltonen, Manninen, Hakala, Koivisto, Anttila, Laaksonen, Hirvonen, Räsänen, Lehto, Laakso, Toivonen, Mustonen]
+      name:
+        - "#{first_name} #{last_name}"
+
+    phone_number:
+      formats: ['##-######', '###-#######']
+    cell_phone:
+      formats: ['0##-#######']

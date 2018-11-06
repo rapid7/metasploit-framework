@@ -1,0 +1,68 @@
+VALUE rb_cWXRect;
+
+namespace RubyWX {
+namespace Rect {
+
+VALUE _alloc(VALUE self)
+{
+    return wrap(new wxRect());
+}
+
+/*
+ * call-seq:
+ *   inspect -> String
+ *
+ * Human-readable description.
+ * ===Return value
+ * String
+*/
+VALUE _inspect(VALUE self)
+{
+    return rb_sprintf( "%s(%d, %d, %d, %d)",
+        rb_obj_classname( self ),
+        FIX2INT(_getX(self)),
+        FIX2INT(_getY(self)),
+        FIX2INT(_getWidth(self)),
+        FIX2INT(_getHeight(self)));
+}
+
+} // namespace Rect
+} // namespace RubyWX
+
+
+/*
+ * call-seq:
+ *   hello_world -> String
+ *
+ * Human-readable description.
+ * ===Return value
+ * String
+*/
+VALUE _hello_world(VALUE self)
+{
+    return rb_sprintf( "%s(%d, %d, %d, %d)",
+        rb_obj_classname( self ),
+        FIX2INT(_getX(self)),
+        FIX2INT(_getY(self)),
+        FIX2INT(_getWidth(self)),
+        FIX2INT(_getHeight(self)));
+}
+
+/* Arrays are ordered, integer-indexed collections of any object.
+ * Array indexing starts at 0, as in C or Java.  A negative index is
+ * assumed to be relative to the end of the array---that is, an index of -1
+ * indicates the last element of the array, -2 is the next to last
+ * element in the array, and so on.
+ */
+
+void Init_Rect()
+{
+    using namespace RubyWX::Rect;
+    rb_cWXRect = rb_define_class("Rect",rb_cObject);
+
+    rb_define_alloc_func(rb_cWXRect,_alloc);
+
+    rb_define_method(rb_cWXRect,"inspect",RUBY_METHOD_FUNC(_inspect),0);
+    rb_define_method(rb_cWXRect,"hello_world",RUBY_METHOD_FUNC(_hello_world),0);
+
+}

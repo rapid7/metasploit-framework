@@ -1,0 +1,36 @@
+en:
+  faker:
+    overwatch:
+      heroes: ["Ana", "Bastion", "D.va", "Doomfist", "Genji", "Hanzo", "Junkrat", "Lucio", "McCree", "Mei", "Mercy", "Moira", "Orisa", "Pharah", "Reaper", "Reinhardt", "Roadhog", "Soldier 76", "Sombra", "Symmetra", "Torbjorn", "Tracer", "Widowmaker", "Winston", "Zarya", "Zenyatta"]
+      locations: ["Adlersbrunn", "Chateau Guillard", "Dorado", "Ecopoint: Antarctica", "Eichenwalde", "Hanamura", "Hollywood", "Ilios", "Junkertown", "King's Row", "Lijiang Tower", "Nepal", "Numbani", "Oasis", "Route 66", "Temple of Anubis", "Volskaya Industries", "Watchpoint: Gibraltar"]
+      quotes: [
+       "It's high noon",
+       "Pass into the Iris",
+       "Heroes never die",
+       "Fire at will",
+       "Hammer Down!",
+       "Molten Core!",
+       "No one can hide from my sight",
+       "Time's up",
+       "Ryuugekiken",
+       "Ryuu-ga Wa-ga-te-ki-wo Ku-ra-u",
+       "I've got you in my sights",
+       "Die! Die! Die!",
+       "Justice rains from above",
+       "Fire in the hole!",
+       "Nerf This!",
+       "Boo boo doo de doo.",
+       "Hack the planet",
+       "Love, D.va",
+       "Justice ain't gonna dispense itself",
+       "Be sure to stretch before engaging in rigorous physical activity",
+       "Overconfidence is a flimsy shield",
+       "Repetition is the path to mastery",
+       "I am on fire, but an extinguisher is not required",
+       "I'm the one who does his job. I'm thinking, you're the other one",
+       "You're just a glitch in the system",
+       "Cease your resistance!",
+       "Meteor Strike!",
+       "You know my name",
+       "Surrender to my will!"
+      ]

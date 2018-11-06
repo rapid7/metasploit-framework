@@ -1,0 +1,64 @@
+= OpenCascade
+
+The reason this class is labeled "cascade", is that every internal
+Hash is transformed into an OpenCascade dynamically upon access.
+This makes it easy to create _cascading_ references.
+
+    h = { :x => { :y => { :z => 1 } } }
+    c = OpenCascade[h]
+    assert c.x.y.z == 1
+
+As soon as you access a node it automatically becomes an OpenCascade.
+
+    c = OpenCascade.new
+    assert(OpenCascade === c.r)
+    assert(OpenCascade === c.a.b)
+
+But if you set a node, then that will be it's value.
+
+    c.a.b = 4
+    assert c.a.b == 4
+
+To query a node without causing the auto-creation of an OpenCasade
+object, use the ?-mark.
+
+   assert c.a.z? == nil
+
+OpenCascade also transforms Hashes within Arrays.
+
+   h = { :x=>[ {:a=>1}, {:a=>2} ], :y=>1 }
+   c = OpenCascade[h]
+   assert c.x.first.a == 1
+   assert c.x.last.a == 2
+
+Like OpenObject, OpenCascade allows you to insert entries as array
+pairs.
+
+   c = OpenCascade.new
+   c << [:x,8]
+   c << [:y,9]
+
+   assert c.x == 8
+   assert c.y == 9
+
+Finally, you can call methods ending in a !-mark to access the
+underlying hash (Note that these differ in behavior from the
+built-in !-methods).
+
+   bk = c.map!{ |k,v| k.to_s.upcase }
+   bk.sort.assert == ['X', 'Y']
+
+So you can see that for the most an OpenCascade is just like
+OpenHash, but it allows us to conveniently build open sub-layers
+easily.
+
+Enumerable still works with OpenCascades too.
+
+    h = {}
+    c = OpenCascade[:a=>1,:b=>{:c=>3}]
+    c.each do |k,v|
+      h[k] = v
+    end
+    OpenCascade.assert === h[:b]
+
+

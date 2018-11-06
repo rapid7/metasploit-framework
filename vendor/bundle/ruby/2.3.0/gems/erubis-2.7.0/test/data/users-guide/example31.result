@@ -1,0 +1,22 @@
+$ ruby example3.rb 2> stderr.log
+----- script source ---
+_buf = ''; for item in list 
+ _buf << '  <p>'; _buf << Erubis::XmlHelper.escape_xml( item ); _buf << '</p>
+  <p>'; _buf << ( item ).to_s; _buf << '</p>
+  <p>'; $stderr.puts("*** debug: item=#{(item).inspect}"); _buf << '</p>
+
+'; end 
+_buf.to_s
+----- result ----------
+  <p>&lt;aaa&gt;</p>
+  <p><aaa></p>
+  <p></p>
+
+  <p>b&amp;b</p>
+  <p>b&b</p>
+  <p></p>
+
+  <p>&quot;ccc&quot;</p>
+  <p>"ccc"</p>
+  <p></p>
+

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="<%= charset %>">
+	<title><%= options.title %></title>
+</head>
+<script type="text/javascript" charset="utf-8">
+  var match = unescape(window.location.hash).match(/^#!(.+)/);
+  var name = match ? match[1] : '<%= url_for_main %>';
+  name = name.replace(/^(\w+):\/\//, '').replace(/^\/\//, '');
+  window.top.location = name;
+</script>
+<noscript>
+  <h1>Oops!</h1>
+  <h2>YARD requires JavaScript!</h2>
+</noscript>
+</html>

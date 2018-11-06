@@ -1,0 +1,7 @@
+$ erubis -c '@title="Example"; @list=%w[AAA BBB CCC]' example8.eruby
+<h1>Example</h1>
+<ul>
+ <li>AAA</li>
+ <li>BBB</li>
+ <li>CCC</li>
+</ul>

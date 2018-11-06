@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="mdns.device-info.txt" protocol="mdns" database_type="util.os">
+  <!--
+    Fingerprint definitions that are matched against the string values in the
+    TXT record returned by an mDNS endpoint for the '_device-info._tcp.local.'
+    domain name (class IN). Note that the host name may need to be prepended
+    to the domain name for a server to respond with the record:
+    e.g. 'host-name._device-info._tcp.local'.
+  -->
+  <!--
+     OS X versions:
+     The number specified after osxvers= is equivalent to the major
+     version of OS X plus 4. E.g. osxvers=13 means OS X 10.9
+   -->
+  <fingerprint pattern="^osxvers=14">
+    <description>OS X 10.10 (Yosemite)</description>
+    <example>osxvers=14</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.10"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.10"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=13">
+    <description>OS X 10.9 (Mavericks)</description>
+    <example>osxvers=13</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.9"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.9"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=12">
+    <description>OS X 10.8 (Mountain Lion)</description>
+    <example>osxvers=12</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.8"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.8"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=11">
+    <description>Mac OS X 10.7 (Lion)</description>
+    <example>osxvers=11</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.7"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.7"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=10">
+    <description>Mac OS X 10.6 (Snow Leopard)</description>
+    <example>osxvers=10</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.6"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.6"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=9">
+    <description>Mac OS X 10.5 (Leopard)</description>
+    <example>osxvers=9</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.5"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.5"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=8">
+    <description>Mac OS X 10.4 (Tiger)</description>
+    <example>osxvers=8</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.4"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.4"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=7">
+    <description>Mac OS X 10.3 (Panther)</description>
+    <example>osxvers=7</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.3"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.3"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=6">
+    <description>Mac OS X 10.2 (Jaguar)</description>
+    <example>osxvers=6</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.2"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.2"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=5">
+    <description>Mac OS X 10.1 (Puma)</description>
+    <example>osxvers=5</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.1"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.1"/>
+  </fingerprint>
+  <fingerprint pattern="^osxvers=4">
+    <description>Mac OS X 10.0 (Cheetah)</description>
+    <example>osxvers=4</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.version" value="10.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:10.0"/>
+  </fingerprint>
+  <fingerprint pattern="^model=AirPort.*$">
+    <description>AirPort</description>
+    <example>model=AirPort5,114</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="AirPort"/>
+    <param pos="0" name="os.product" value="AirPort"/>
+  </fingerprint>
+</fingerprints>

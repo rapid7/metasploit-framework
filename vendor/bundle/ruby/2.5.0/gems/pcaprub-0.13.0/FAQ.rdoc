@@ -1,0 +1,62 @@
+= FAQ
+
+Enough already! How does this work by example!? 
+
+    #!/usr/bin/env ruby
+    require "rubygems"
+    require "pcaprub"
+
+    class CaptureExample
+
+      def initialize()
+        #interface configuration
+        @dev = ::Pcap.lookupdev
+        #promiscous_mode = true 
+        @promiscous_mode = false 
+        @timeout = 0 
+        
+        #packet information
+        @capture_packets = 100
+        @snaplength = 65535
+        @bpf = "ip and not dst net 110.0.0.0/8" 
+      end
+
+      def getpackets
+        system("ifconfig", @dev, "up")
+
+        capture = ::Pcap.open_live(@dev, @snaplength, @promiscous_mode, @timeout)  
+        capture.setfilter(@bpf)
+          
+        begin
+          puts "Started capture..(#{@dev} => \"#{@bpf}\")"
+          capture.each do |packet|
+            # Handling the number of packets to process
+            @capture_packets -= 1
+            if @capture_packets == 0
+              break
+            end
+          end
+          
+        # ^C to stop sniffing
+        rescue Interrupt
+          puts "\nPacket Capture stopped by interrupt signal."
+          
+        rescue Exception => e
+          puts "\nERROR: #{e}"
+          retry
+        end
+        
+        puts "Captured #{100 - @capture_packets} packets"
+            
+        return capture
+        
+      end
+
+    end
+
+
+    mycapture = CaptureExample.new()
+    packet_capture = mycapture.getpackets
+    puts "capture.stats['recv'] = #{packet_capture.stats['recv']}"
+    puts "capture.stats['drop'] = #{packet_capture.stats['drop']}"
+

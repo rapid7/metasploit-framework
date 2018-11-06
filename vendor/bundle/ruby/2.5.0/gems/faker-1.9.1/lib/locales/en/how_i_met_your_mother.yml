@@ -1,0 +1,28 @@
+en:
+  faker:
+    how_i_met_your_mother:
+      character: ["Ted Mosby", "Marshall Eriksen", "Lily Aldrin", "Robin Scherbatsky", "Barney Stinson", "Tracy Mosby", "Luke Mosby", "Penny Mosby", "Alan Thicke", "Arthur Hobbs", "Bilson", "Brad Morris", "Carl MacLaren", "Claudia Grice", "Don Frank", "Doug Martin",
+       "Gary Blauman", "George Van Smoot", "Hammond Druthers", "James Stinson", "Jerome Whittaker", "Judy Eriksen", "Loretta Stinson", "Marcus Eriksen", "Marvin Eriksen Jr.", "Marvin Eriksen Sr.", "Mickey Aldrin", "Nick Podarutti", "Quinn Garvey", "Ranjit Singh", "Robin Scherbatsky Sr.",
+       "Sandy Rivers", "Stella Zinman", "Stuart Bowers", "Wendy the Waitress", "Virginia Mosby", "William Zabka", "Zoey Pierson"]
+      catch_phrase: ["Legendary", "Suit Up", "Wait For it", "But… umm", "Lawyered", "Challenege Accepted", "Just… O.K?", "Where’s the poop?", "That’s the Dream", "True Story", "Patent Pending", "What Up", "Classic Shmosby"]
+      high_five: ["Arthritis Five", "Relapse Five", "Phone Five", "Solemn Low Five", "Hypothetical High Five", "Self Five", "Freeze Fram High Five", "Tiny Five", "High Two", "Multiple High Fives", "The Highest of Fives", "Door Five", "High Six", "Motility Five", "Claw Five", "High V",
+       "Word Play Five", "Condolence Five", "Almighty Five", "Mental Self Five", "Retraction Five", "Angry Self Five", "Mushroom Five", "Get-this-over-with-quickly-so-we-can-move-past-how-awkward-it-was-that-I-just-said-that Five", "High Infinity"]
+      quote: [
+       "Whenever I’m sad, I stop being sad and be awesome instead.",
+       "Because sometimes even if you know how something’s gonna end that doesn’t mean you can’t enjoy the ride.",
+       "The littlest thing can cause a ripple effect that changes your life.",
+       "That’s life, you know, we never end up where you thought you wanted to be.",
+       "We’re going to get older whether we like it or not, so the only question is whether we get on with our lives, or desperately cling to the past.",
+       "Ted, how many times have I told you to put the lid back on the peanut butter jar?! It’s this inconsiderate, immature jackassery that makes me feel like I’m living in The Real World House! And not the early days when they all had jobs and social consciences, I’m talking about Hawaii, and after!",
+       "There are a lot of little reasons why the big things in our lives happen.",
+       "I keep waiting for it to happen. I’m waiting for it to happen. I guess I’m just tired of waiting. And that is all I’m going to say on that subject.",
+       "Look, you can’t design your life like a building. It doesn’t work that way. You just have to live it… and it’ll design itself.",
+       "Definitions are important.",
+       "You can’t just skip ahead to where you think your life should be.",
+       "It’s just, eventually we’re all gonna move on. It’s called growing up.",
+       "There are two big days in any love story: the day you meet the girl of your dreams and the day you marry her.",
+       "The future is scary but you can’t just run back to the past because it’s familiar.",
+       "I realized that I’m searching, searching for what I really want in life. And you know what? I have absolutely no idea what that is.",
+       "Revenge fantasies never work out the way you want.",
+       "Whether a gesture’s charming or alarming, depends on how it’s received."
+      ]

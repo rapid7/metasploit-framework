@@ -1,0 +1,109 @@
+# This file shows how to do common tasks with Dnsruby :
+
+require 'rubygems'
+require 'dnsruby'
+include Dnsruby
+
+# Use the system configured nameservers to run a query
+res = Resolver.new
+ret = res.query("example.com") # Defaults to A record
+a_recs = ret.answer.rrset("A")
+
+# Use a defined nameserver to run an asynchronous query
+# with no recursion
+res = Resolver.new({:nameserver => ["a.iana-servers.net",
+        "b.iana-servers.net"]})
+queue = Queue.new
+m = Message.new("example.com", Types.NS)
+m.header.rd = false
+res.send_async(m, queue, 1)
+# ... do some other stuff ...
+id, reply, error = queue.pop
+if (error)
+  print "Error : #{error}\n"
+else
+  # See where the answer came from
+  print "Got response from : #{reply.answerfrom}, #{reply.answerip}\n"
+end
+
+# Use a Recursor to recursively query authoritative nameservers,
+# starting from the root. Note that a cache of authoritative servers
+# is built up for use by future queries by any Recursors.
+rec = Recursor.new
+ret = rec.query("uk-dnssec.nic.uk", "NS")
+
+# Ask Dnsruby to send the query without using the cache.
+m.do_caching = false
+ret = res.send_message(m)
+
+# Ask Dnsruby to send a Message without doing any pre- or post-processing
+ret = res.send_plain_message(Message.new("example.com"))
+
+# Send a TSIG signed dynamic update to a resolver
+# and verify the response
+res = Dnsruby::Resolver.new("ns0.validation-test-servers.nominet.org.uk")
+res.dnssec = false
+tsig = Dnsruby::RR.create({
+        :name        => "rubytsig",
+        :type        => "TSIG",
+        :ttl         => 0,
+        :klass       => "ANY",
+        :algorithm   => "hmac-md5",
+        :fudge       => 300,
+        :key         => "8n6gugn4aJ7MazyNlMccGKH1WxD2B3UvN/O/RA6iBupO2/03u9CTa3Ewz3gBWTSBCH3crY4Kk+tigNdeJBAvrw==",
+        :error       => 0
+      })
+update = Dnsruby::Update.new("validation-test-servers.nominet.org.uk")
+# ... add stuff to the update
+update.absent("notthere.update.validation-test-servers.nominet.org.uk", 'TXT')
+tsig.apply(update)
+response = res.send_message(update)
+print "TSIG response was verified? : #{response.verified?}\n"
+
+#
+# DNSSEC stuff
+#
+
+# Load the ISC DLV key and query some signed zones
+dlv_key = RR.create("dlv.isc.org. IN DNSKEY 257 3 5 BEAAAAPHMu/5onzrEE7z1egmhg/WPO0+juoZrW3euWEn4MxDCE1+lLy2 brhQv5rN32RKtMzX6Mj70jdzeND4XknW58dnJNPCxn8+jAGl2FZLK8t+ 1uq4W+nnA3qO2+DL+k6BD4mewMLbIYFwe0PG73Te9fZ2kJb56dhgMde5 ymX4BI/oQ+cAK50/xvJv00Frf8kw6ucMTwFlgPe+jnGxPPEmHAte/URk Y62ZfkLoBAADLHQ9IrS2tryAe7mbBZVcOwIeU/Rw/mRx/vwwMCTgNboM QKtUdvNXDrYJDSHZws3xiRXF1Rf+al9UmZfSav/4NWLKjHzpT59k/VSt TDN0YUuWrBNh")
+Dnssec.add_dlv_key(dlv_key)
+res = Recursor.new
+ret = res.query("frobbit.se", "NS")
+print "Security level for signed zone from DLV : #{ret.security_level}\n"
+frobbit_servers = ret.answer.rrset("frobbit.se", Types.NS)
+
+
+# and query for a zone which is not signed
+r = Resolver.new
+ret = r.query("ed.ac.uk")
+print "Security level of unsigned zone : #{ret.security_level}\n"
+
+res = Resolver.new
+frobbit_servers.rrs.each {|s| print "Adding nameserver : #{s.nsdname}\n"; res.add_server(s.nsdname)}
+
+# and some non-existent domains in signed ones
+res.send_async(Message.new("notthere.frobbit.se"), queue, 2)
+id, reply, error = queue.pop
+print "Error returned from non-existent name in signed zone : #{error}, security level : #{reply.security_level}\n"
+
+# Clear the keys and caches
+Dnsruby::Dnssec.clear_trusted_keys
+Dnsruby::Dnssec.clear_trust_anchors
+Dnsruby::PacketSender.clear_caches
+Dnsruby::Recursor.clear_caches
+
+# Load a specific trust anchor and query some signed zones
+trusted_key = Dnsruby::RR.create({:name => "uk-dnssec.nic.uk.",
+        :type => Dnsruby::Types.DNSKEY,
+        :flags => 257,
+        :protocol => 3,
+        :algorithm => 5,
+        :key=> "AQPJO6LjrCHhzSF9PIVV7YoQ8iE31FXvghx+14E+jsv4uWJR9jLrxMYm sFOGAKWhiis832ISbPTYtF8sxbNVEotgf9eePruAFPIg6ZixG4yMO9XG LXmcKTQ/cVudqkU00V7M0cUzsYrhc4gPH/NKfQJBC5dbBkbIXJkksPLv Fe8lReKYqocYP6Bng1eBTtkA+N+6mSXzCwSApbNysFnm6yfQwtKlr75p m+pd0/Um+uBkR4nJQGYNt0mPuw4QVBu1TfF5mQYIFoDYASLiDQpvNRN3 US0U5DEG9mARulKSSw448urHvOBwT9Gx5qF2NE4H9ySjOdftjpj62kjb Lmc8/v+z"
+      })
+Dnssec.add_trust_anchor(trusted_key)
+res = Dnsruby::Resolver.new("dnssec.nominet.org.uk")
+r = res.query("aaa.bigzone.uk-dnssec.nic.uk", Dnsruby::Types.DNSKEY)
+print "Security level of signed zone under manually install trusted key : #{r.security_level}\n"
+
+# See if we are using a Recursor for DNSSEC queries
+print "Using recursion to validate DNSSEC responses? : #{Dnssec.do_validation_with_recursor?}\n"

@@ -1,0 +1,5 @@
+--markup markdown
+--private
+--protected
+{app,lib}/**/*.rb
+db/migrate/*.rb

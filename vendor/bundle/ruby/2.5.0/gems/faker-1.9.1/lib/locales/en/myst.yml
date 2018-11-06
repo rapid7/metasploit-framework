@@ -1,0 +1,47 @@
+en:
+  faker:
+    myst:
+      games: [ "Myst", "Riven: The Sequel to Myst", "Myst III: Exile", "Myst IV: Revelation", "Uru: Ages Beyond Myst", "Myst V: End of Ages" ]
+      creatures: [ "squee", "sunner", "wahrks", "ytrams", "scarab beetles", "bahro", "karnaks", "Mangree", "Zeftyr" ]
+      characters: [ "The Stranger", "Atrus", "Sirrus", "Achenar", "Gehn", "Catherine", "Saavedro", "Yeesha", "Esher", "Atrius", "Ti'ana" ]
+      ages: [
+        # Myst
+        "Myst", "Stoneship", "Mechanical", "Channelwood", "Selenitic", "Earth", "Rime",
+        # Riven
+        "Riven", "Tay", "Age 233",
+        # Exile
+        "J'nanin", "Edanna", "Voltanic", "Amateria", "Narayan",
+        # Revelation
+        "Spire", "Haven", "Serenia",
+        # Uru (all versions)
+        "Relto", "Teledahn", "Gahreesen", "Kadish Tolesa", "Eder Gira", "Eder Kemo", "Nexus", "Er'cana", "Ahnonay", "Eder Delin", "Eder Tsogal", "Pod Age", "Minkata", "Jalak Dador",
+        # End of Ages
+        "Direbo", "Tahgira", "Todelmer", "Laki'ahn", "Noloben",
+        # Books
+        "Ko'ah", "Gemedet", "Age 37", "Inception", "Torus Age", "Averone", "Chroma'agana", "Terahnee",
+      ]
+      quotes: [
+        # Atrus
+        "The ending has not yet been written.",
+        "I realized, the moment I fell into the fissure, that the Book would not be destroyed as I had planned.",
+        "Try moving the slider.",
+        "Remember the tower rotation.",
+
+        # Gehn
+        "Who the devil are you?",
+        "One thing I know about linking books is that the doors they open don't close behind you.",
+
+        # Achenar
+        "Find the blue pages.",
+        "Bring me blue pages.",
+
+        # Sirrus
+        "Find the red pages.",
+        "Bring me the red pages.",
+
+        # Saavedro
+        "Atrus? Is that you? Come to rescue your Book so soon? Not yet, old friend... not yet.",
+
+        # Ti'ana
+        "Atrus... what do you see?",
+      ]

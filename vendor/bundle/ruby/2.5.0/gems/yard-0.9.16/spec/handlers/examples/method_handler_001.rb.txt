@@ -1,0 +1,128 @@
+class Foo
+  class << self
+    def inherited; end
+    def included; end
+    # docstring
+    def extended; end
+    def method_added; end
+    def method_removed; end
+    def method_undefined; end
+  end
+
+  # A docstring but no return type
+  def initialize; end
+
+  def ==(other)
+    'hello'
+  end
+  def /(other) 'hi' end
+
+  attr_reader :method1
+
+  def method1
+    def dynamic; end
+  end
+
+  def self.method2; end
+
+  # Docstring
+  def String :: hello; "" end
+
+  def self.new() end
+
+  def [](key = 'default') puts key end
+  def []=(key, value) end
+  def
+allowed?
+end
+
+  def ` param; end
+  def /(x = File.new('x', 'w'), y = 2) end
+  def |; end; def =~ ()
+  def -@; end;
+  def d_splat(reg, **opts); end
+  def d_unnamed_splat(**); end
+end
+  def *(o) def +@; end
+    def ~@
+    end end
+  def &(o) end
+  def %(o) end
+  def ^(o) end
+
+  def optsmeth(x, opts = {}) end
+  def blockmeth(x, &block) end
+
+  # @param a [Fixnum]
+  # @overload def bar(a, b = 1)
+  #   @param a [String]
+  #   @return [String]
+  # @overload def baz(b, c)
+  #   @return [Fixnum]
+  # @overload bang(d, e)
+  def foo(*args); end
+
+  # No return tag
+  def boolean?; end
+
+  # @return without type
+  def boolean2?; end
+
+  # @return [NotBoolean, nil]
+  def boolean3?; end
+
+  # @overload rainy?
+  #   @return whether today is the rainy day.
+  def rainy?; end
+
+  attr_writer :attr_name
+  def attr_name; end
+
+  attr_reader :attr_name2
+  def attr_name2=; end
+
+  # @option opts :bar [String] It's bar!
+  def auto_opts(opts)
+  end
+end
+
+CONST = Foo
+def CONST.meth_on_const; end
+CONST2 = CONST
+def CONST2.meth2_on_const; end
+
+class D
+  alias b a
+
+  # foo bar
+  def a; end
+end
+
+class E
+  # @!macro prop
+  #   @!method $1(value)
+  #   $3
+  #   @return [$2]
+  def self.property(name, ret_type, docstring)
+  end
+
+  property :foo, String, "create a foo"
+
+  # @!macro xyz
+  #   @!method $1
+  def xyz; end
+
+  xyz :a
+end
+
+module F
+  class A
+    def foo; end
+
+    def end
+    end
+
+    # PASS
+    def bar; end
+  end
+end

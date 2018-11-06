@@ -1,0 +1,40 @@
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/thin-1.7.2/ext/thin_parser
+/usr/bin/ruby2.5 -r ./siteconf20181028-39725-1uy370y.rb extconf.rb
+checking for main() in -lc... yes
+creating Makefile
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/thin-1.7.2/ext/thin_parser
+make "DESTDIR=" clean
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/thin-1.7.2/ext/thin_parser
+make "DESTDIR="
+compiling parser.c
+compiling thin.c
+thin.c: In function ‘Thin_HttpParser_alloc’:
+thin.c:242:3: warning: implicit declaration of function ‘thin_http_parser_init’; did you mean ‘http_parser_init’? [-Wimplicit-function-declaration]
+   thin_http_parser_init(hp);
+   ^~~~~~~~~~~~~~~~~~~~~
+   http_parser_init
+thin.c: In function ‘Thin_HttpParser_finish’:
+thin.c:294:3: warning: implicit declaration of function ‘thin_http_parser_finish’; did you mean ‘Thin_HttpParser_finish’? [-Wimplicit-function-declaration]
+   thin_http_parser_finish(http);
+   ^~~~~~~~~~~~~~~~~~~~~~~
+   Thin_HttpParser_finish
+thin.c:296:10: warning: implicit declaration of function ‘thin_http_parser_is_finished’; did you mean ‘http_parser_is_finished’? [-Wimplicit-function-declaration]
+   return thin_http_parser_is_finished(http) ? Qtrue : Qfalse;
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          http_parser_is_finished
+thin.c: In function ‘Thin_HttpParser_execute’:
+thin.c:334:5: warning: implicit declaration of function ‘thin_http_parser_execute’; did you mean ‘Thin_HttpParser_execute’? [-Wimplicit-function-declaration]
+     thin_http_parser_execute(http, dptr, dlen, from);
+     ^~~~~~~~~~~~~~~~~~~~~~~~
+     Thin_HttpParser_execute
+thin.c:338:8: warning: implicit declaration of function ‘thin_http_parser_has_error’; did you mean ‘http_parser_has_error’? [-Wimplicit-function-declaration]
+     if(thin_http_parser_has_error(http)) {
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+        http_parser_has_error
+linking shared-object thin_parser.so
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/thin-1.7.2/ext/thin_parser
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 thin_parser.so ./.gem.20181028-39725-8imd6o

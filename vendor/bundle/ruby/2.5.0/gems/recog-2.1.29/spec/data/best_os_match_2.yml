@@ -1,0 +1,17 @@
+---
+- os.product: Windows 2008
+  os.vendor: Microsoft
+  os.version: Service Pack 2
+  os.certainty: 1.0
+- os.product: Windows 2012
+  os.vendor: Microsoft
+  os.version: Service Pack 1
+  os.certainty: 0.7
+- os.product: Windows 2008
+  os.vendor: Microsoft
+  os.certainty: 0.3
+  os.language: English
+- os.product: Windows 2012
+  os.vendor: Microsoft
+  os.certainty: 0.8
+  os.language: Arabic

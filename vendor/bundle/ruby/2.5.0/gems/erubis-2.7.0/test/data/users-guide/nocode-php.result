@@ -1,0 +1,20 @@
+$ erubis -l php --pi=php -N -E NoCode --trim=false notext-example.php
+    1:  <html>
+    2:    <body>
+    3:      <h3>List</h3>
+    4:      
+    5:      <p>not found.</p>
+    6:      
+    7:      <table>
+    8:        <tbody>
+    9:          
+   10:          
+   11:          <tr bgcolor="">
+   12:            <td></td>
+   13:          </tr>
+   14:          
+   15:        </tbody>
+   16:      </table>
+   17:      
+   18:    </body>
+   19:  </html>

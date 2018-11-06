@@ -1,0 +1,4 @@
+<% object.tags(:todo).each do |tag| %>
+<%= indent(wrap("TODO: #{tag.text}")) %>
+
+<% end %>

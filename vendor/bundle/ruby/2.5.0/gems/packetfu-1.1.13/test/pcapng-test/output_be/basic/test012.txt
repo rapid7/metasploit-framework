@@ -1,0 +1,10 @@
+Description: SPBs and EPBs with IDB snaplen bigger than some, less than others
+Category:    basic
+
+Block counts:
+	EPB: 2
+	IDB: 1
+	SHB: 1
+	SPB: 2
+
+Block sequence: SHB, IDB, SPB, SPB, EPB, EPB

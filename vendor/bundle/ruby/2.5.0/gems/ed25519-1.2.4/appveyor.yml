@@ -1,0 +1,21 @@
+branches:
+  only:
+    - master
+
+environment:
+  PATH: C:\Ruby%RUBY_VERSION%\DevKit\mingw\bin;C:\Ruby%RUBY_VERSION%\bin;C:\Ruby%RUBY_VERSION%\DevKit\bin;%PATH%
+  matrix:
+  - RUBY_VERSION: "21-x64"
+  - RUBY_VERSION: "22-x64"
+  - RUBY_VERSION: "23-x64"
+  - RUBY_VERSION: "24-x64"
+
+build: off
+
+test_script:
+  - SET RAKEOPT=-rdevkit
+  - ruby -v
+  - gem -v
+  - bundle -v
+  - bundle
+  - bundle exec rake compile spec

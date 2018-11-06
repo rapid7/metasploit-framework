@@ -1,0 +1,24 @@
+sudo: false
+language: ruby
+cache: bundler
+rvm:
+- 2.0.0
+- 2.1.2
+- 2.2.0
+
+gemfile:
+  - gemfiles/Gemfile.activerecord-4.0.x
+  - gemfiles/Gemfile.activerecord-4.1.x
+  - gemfiles/Gemfile.activerecord-4.2.x
+
+env: DATABASE_URL=postgres://postgres@localhost/postgres_ext_test
+
+before_script:
+- psql -c 'create database postgres_ext_test;' -U postgres -h localhost
+- bundle exec rake db:migrate
+
+notifications:
+  email:
+  - git@danmcclain.net
+addons:
+  postgresql: '9.3'

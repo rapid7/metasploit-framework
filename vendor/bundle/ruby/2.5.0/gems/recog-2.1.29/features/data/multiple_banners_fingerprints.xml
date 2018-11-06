@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<fingerprints>
+  <fingerprint pattern="FTP">
+    <example>---- FTP Stuff ----</example>
+    <example>FTP server</example>
+    <description>Generic FTP,
+      Checks for the existence of the word FTP in the line
+    </description>
+    <!-- Asserting nothing -->
+  </fingerprint>
+  <fingerprint pattern="^-{10} Welcome to Pure-FTPd (.*)-{10}$">
+    <example>---------- Welcome to Pure-FTPd ----------</example>
+    <description>Pure-FTPd
+      Config data can be zero or more of: [privsep] [TLS]
+    </description>
+    <param pos="1" name="pureftpd.config"/>
+    <param pos="0" name="service.family" value="Pure-FTPd"/>
+    <param pos="0" name="service.product" value="Pure-FTPd"/>
+    <param pos="0" name="service.protocol" value="ftp"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP Server \(SunOS (\S+)\) ready\.?$" flags="REG_ICASE">
+    <description>SunOS/Solaris</description>
+    <example>example.com FTP server (SunOS 5.7) ready.</example>
+    <param pos="0" name="service.protocol" value="ftp"/>
+    <param pos="0" name="os.vendor" value="Sun"/>
+    <param pos="0" name="os.family" value="Solaris"/>
+    <param pos="0" name="os.product" value="Solaris"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+</fingerprints>

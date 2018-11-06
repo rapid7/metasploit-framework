@@ -1,0 +1,35 @@
+module A
+  class B
+	notaconstant = 2
+    SOMECONSTANT= "hello"
+
+    def method
+      SOMECONSTANT = "don't document this"
+    end
+
+    MYCONSTANT = A +
+      B +
+      C +
+      D
+  end
+end
+
+MyClass = Struct.new(:a, :b, :c)
+NotMyClass = Struct.new("NotMyClass2", :b, :c)
+MyEmptyStruct = Struct.new
+
+MyStructWithConstant = Struct.new do
+  # A constant.
+  CONSTANT = 42
+  # Special constant (empty symbol)
+  EMPTY = :''
+end
+
+# A crazy struct.
+#
+# @attr [String] bar An attr
+# @attr [Number] baz Another attr
+# @!attribute new_syntax
+#   Attribute defined with the new syntax
+#   @return [Symbol] something useful
+DocstringStruct = Struct.new(:bar, :baz, :new_syntax)

@@ -1,0 +1,8 @@
+en:
+  faker:
+    esport:
+      players: ["Froggen", "Dendi", "Surefour", "Seagull", "xPeke", "shroud", "KennyS", "pasha", "RamboRay", "Crimsix", "ACE", "Grubby", "f0rest", "cArn", "Flash", "Faker", "Boxer"]
+      teams: ["Dignitas", "OpTic", "FaZe", "iBUYPOWER", "Evil Genius", "Ninjas in Pajamas", "NaVi", "SoloMid", "Cloud9", "fnatic", "CLG", "EnVyUs", "Virtus Pro"]
+      events: ["ESL Cologne", "MLG Meadowlands", "GFinity London", "Worlds", "IEM Championship", "League All Stars"]
+      leagues: ["ESL", "IEM", "MLG", "GFinity"]
+      games: ["CS:GO", "League of Legends", "Overwatch", "StarCraft II", "Dota2", "Super Smash Bros. Melee", "Hearthstone"]

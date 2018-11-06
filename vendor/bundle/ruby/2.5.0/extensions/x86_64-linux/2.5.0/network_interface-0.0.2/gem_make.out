@@ -1,0 +1,55 @@
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/network_interface-0.0.2/ext/network_interface_ext
+/usr/bin/ruby2.5 -r ./siteconf20181028-14830-1d3c3fi.rb extconf.rb
+
+[*] Running checks for netifaces code...
+[*] Warning : this platform as not been tested
+checking for getifaddrs()... yes
+checking for getnameinfo()... yes
+checking for net/if_dl.h... no
+checking for netash/ash.h... yes
+checking for netatalk/at.h... yes
+checking for netax25/ax25.h... yes
+checking for neteconet/ec.h... yes
+checking for netipx/ipx.h... yes
+checking for netpacket/packet.h... yes
+checking for netrose/rose.h... yes
+checking for linux/irda.h... no
+checking for linux/atm.h... yes
+checking for linux/llc.h... yes
+checking for linux/tipc.h... yes
+checking for linux/dn.h... yes
+checking for struct sockaddr.sa_len in sys/types.h,sys/socket.h,net/if.h... no
+checking for struct sockaddr_at in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_ax25 in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_dl in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... no
+checking for struct sockaddr_eon in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... no
+checking for struct sockaddr_in in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_in6 in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_inarp in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... no
+checking for struct sockaddr_ipx in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_iso in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... no
+checking for struct sockaddr_ns in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... no
+checking for struct sockaddr_un in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_x25 in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... no
+checking for struct sockaddr_rose in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_ash in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_ec in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_ll in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_atmpvc in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_atmsvc in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_dn in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+checking for struct sockaddr_irda in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... no
+checking for struct sockaddr_llc in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... yes
+creating Makefile
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/network_interface-0.0.2/ext/network_interface_ext
+make "DESTDIR=" clean
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/network_interface-0.0.2/ext/network_interface_ext
+make "DESTDIR="
+compiling netifaces.c
+linking shared-object network_interface_ext.so
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/network_interface-0.0.2/ext/network_interface_ext
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 network_interface_ext.so ./.gem.20181028-14830-1qwpewr

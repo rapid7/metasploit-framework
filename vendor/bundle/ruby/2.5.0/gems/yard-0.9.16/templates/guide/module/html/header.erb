@@ -1,0 +1,7 @@
+<div class='module_header'>
+  <em><%= object.type %></em> <span class="path"><%= object.namespace == Registry.root ? '' : object.namespace.path + '::' %><strong><%= object.name %></strong></span>
+  <% if object.has_tag?(:since) %><span class="since">since <%= object.tag(:since).text %></span><% end %>
+</div>
+<div class="module_methods">
+  <%= yieldall %>
+</div>

@@ -1,0 +1,17 @@
+en-PAK:
+  faker:
+    name:
+      first_name: [ Hamza, Harris, Raees, Ehtisham, Zohair, Zuhaib, Aslam, Nadeem, Younas, Danish, Zahoor, Abdul , Nizam, Taimur, Iftikhar, Kashif, Naseer, Zohaib, Mazhar, Saeed, Jawad, Wakeel Khan, Quddus, Nasir, Tabraiz, Shahbaz, Wasi, Rahim, Suleman, Akbar, Maqbool Ahmed, Sajjad, Akif, Sarmad, Zarar, Zulqarnain, Sunny, Nawaz, Sattar, Humayun, Khurshid, Abid, Ahmed, Ijaz, Tariq, Sarim Hayat, Syed Najum, Rashid, Umair, Zubair, Salim, Sultan, Nauman, Waqar, Imran, Fazal, Usman, Adam, Ilyas, Saghar, Azeem, Ali, Akram, Dawood, Sohrab, Zeeshan, Amjad, Majid, Naveed, Yousaf, Safeer, Akhtar, Muzaffar, Saqlain, Afzal, Maqsood, Hassan, Moheem, Zaighum, Amir, Saqib, Vazir, Vakeel, Qadir, Malik, Jafar, Sikandar, Ismail, Junaid, Mehr, Idrees Khan, Jamal, Shafqat, Taufeeq, Rasheed, Shakoor, Wasim, Saadat, Siddiq, Shabbir, Umair, Shams, Habib, Salahuddin, Fayaz, Faiz, Zaeem, Yasir, Shan, Wasif, Khan, Adnan, Arsalan, Shamsher, Nafees, Mumtaz, Javid, Yahya, Uzaif, Ayub, Noman, Zameer, Mian, Mushtaq, Aleem, Ghayoor, Khalid, Taj, Parvez, Zahid, Aziz, Tanvir, Musharraf, Shakir, Sohail, Arif, Sabir, Zain, Tauseef, Saif, Rahman, Aqib, Zulfiqar, Salman, Sibtain, Hamid, Sohaib, Najib, Sadaqat, Inzamam, Haroon, Danial, Imran, Fahid, Aqeel, Subhan, Shakeel, Rana, Hammad, Faizan, Muhammad, Ahmer, Jabbar, Aamir Saleem, Kaleem, Tauqeer, Bilal, Razzaq, Zafar, Shahzad, Latif, Mohammed, Raja Zohaib, Munawar, Karim, Waheed, Mustafa, Sameer, Sarwar, Sarfraz, Jaleel, Jamal, Salman, Sagheer, Qasim, Mustansar, Umar, Mohammad, Waheed, Sadiq, Taha, Amin, Mujtaba, Mahmood, Hameed, Zareef, Fahad, Irfan, Yawar, Waqas, Ishaq, Arshad, Mustafa, Khushal, Murtaza, Qaiser, Farrukh, Naeem, Abbas, Qais, Idrees, Masood, Aon, Daniyal , Zaman, Zia, Obaid, Mubashar, Wasay, Yasin, Zakir, Shoaib, Bashir, Azhar, Jarrar, Waseem, Yar, Zain, Naeem, Zakaria, Jameel, Sahir, Ibrahim, Ahsan, Shafiq, Haji, Babar, Shahid, Sheraz, Saad, Ghous, Tajammul, Saif, Mohsin, Azad, Zaheer, Farooq, Rauf, Ghafoor, Babar, Sajid, Abrar, Haider, Shaukat, Omar, Sohail, Irfan, Wakeel, Wazir, Mohammad, Hadier, Shuja, Chaudhary, Adeel, Asad, Saad, Afzaal, Mudassar, Nabeel, Fazal, Altaf, Wajid, Ayaaz, Wahid, Usman, Fawad, Ajmal, Ibrahim, Raza, Danial, Rizwan, Wali]
+      last_name: [Jutt, Khan, Butt, Mughal, Bhatti, Sindho, Virk, Dar, Nambardar, Qazi, Gujjar, Iqbal, Adil, Ali Raza, Azam, Zarnosh Khan, Riaz, Farid, Asim, Uzair, Tahir, Saud, Hasan, Muhammad, Tehsin, Sher, Ahmed, Tufail, Faisal, Shujaat, Shehzad, Sharjeel, A Haq Ansari, Kabir, Sheharyar, Safdar, Talat, Jalal, Hussain, Anwar, Hafeez, Ash, Rameez, Badar, Javed]
+
+    address:
+      postcode: ['####0']
+      state: [Balochistan, Khyber Pakhtunkhwa, Punjab, Sindh, Islamabad Capital Territory, Federally Administered Tribal Areas, Azad Jammu and Kashmir, Gilgit-Baltistan]
+      default_country: [Pakistan, Islamic Republic of Pakistan]
+    internet:
+      free_email: [gmail.com, yahoo.com, hotmail.com]
+      domain_suffix: [pk, com, com.pk, name, net, org, html, edu]
+    company:
+      suffix: [Pvt Ltd, Limited, Ltd, and Sons, Corp, Group, Brothers, CO]
+    phone_number:
+      formats: ['+92##########', '+92 ### #######', '03##-#######']

@@ -1,0 +1,38 @@
+Usage: msu_finder [options]
+
+The following example will download all IE updates to directory /tmp:
+msu_finder -q "Internet Explorer" -d /tmp/
+
+Searching advisories via Technet:
+
+When you submit a query, the Technet search engine will first look it up from a product list,
+and then return all the advisories that include the keyword you are looking for. If there's
+no match from the product list, then the script will try a generic search. The generic method
+also means you can search by MSB, KB, or even the CVE number.
+
+Searching advisories via Google:
+
+Searching via Google requires an API key and an Search Engine ID from Google. To obtain these,
+make sure you have a Google account (such as Gmail), and then do the following:
+
+1. Go to Google Developer's Console
+    1. Enable Custom Search API
+    2. Create a browser type credential. The credential is the API key.
+2. Go to Custom Search
+    1. Create a new search engine
+    2. Under Sites to Search, set: technet.microsoft.com
+    3. In your search site, get the Search Engine ID under the Basics tab.
+
+By default, Google has a quota limit of 1000 queries per day. You can raise this limit with
+a fee.
+
+The way this tool uses Google to find advisories is the same as doing the following manually:
+[Query] site:technet.microsoft.com intitle:"Microsoft Security Bulletin" -"Microsoft Security Bulletin Summary"
+
+Dryrun mode:
+Without the -d flag (destination), the tool will not download the patches, it will just find you
+the download links.
+
+Patch Extraction:
+After downloading the patch, you can use the extract_msu.bat tool to automatically extract
+Microsoft patches.

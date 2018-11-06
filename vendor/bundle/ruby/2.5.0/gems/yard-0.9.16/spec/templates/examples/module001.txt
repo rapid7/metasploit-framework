@@ -1,0 +1,33 @@
+-------------------------------------------------------------- Module: A
+
+    Comments 
+
+
+
+------------------------------------------------------------------------
+
+Defined Under Namespace:
+------------------------
+
+    Z (modules)
+
+    Q, X, Y (classes)
+
+Includes:
+---------
+
+    D, E, F, A::B::C, B, BaseMod
+
+
+Class methods:
+--------------
+
+    a
+
+
+Instance methods:
+-----------------
+
+    a, test_multi_overload, test_overload, void_meth
+
+

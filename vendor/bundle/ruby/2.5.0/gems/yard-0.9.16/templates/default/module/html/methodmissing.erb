@@ -1,0 +1,12 @@
+<div id="method_missing_details" class="method_details_list">
+  <h2>Dynamic Method Handling</h2>
+  <p class="notice <%= @mm.namespace == object ? 'this' : 'super' %>">
+    This class handles dynamic methods through the <tt>method_missing</tt> method
+    <% if @mm.namespace != object %>
+      in the class <%= linkify @mm, @mm.namespace.path %>
+    <% end %>
+  </p>
+  <% if @mm.namespace == object %>
+    <%= yieldall :object => @mm, :index => 0 %>
+  <% end %>
+</div>

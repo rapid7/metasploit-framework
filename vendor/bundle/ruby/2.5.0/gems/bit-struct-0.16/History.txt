@@ -1,0 +1,127 @@
+bit-struct 0.16
+
+- updated for ruby 2.4
+
+bit-struct 0.15
+
+- modernize rakefile and gemspec
+- switch to minitest
+
+bit-struct 0.14
+
+- updated for ruby 2.0
+
+bit-struct 0.13.6
+
+- Fixed bug in #to_a. Thanks Michael Edgar.
+
+bit-struct 0.13
+
+- Packaged as a gem using bones.
+
+- Added nest fields defined with blocks. (Markus Fischer)
+
+- Vector length may be specified as argument or :length option. (Markus Fischer)
+
+bit-struct 0.12
+
+- Added vectors.
+
+- BitStruct#initialize can take an IO argument.
+
+bit-struct 0.11
+
+- Allow unaligned fields to cross up to two byte boundaries.
+  See examples/byte-bdy.rb.
+
+bit-struct 0.10
+
+- Fixed a bug when calling #to_yaml on a BitStruct with a pad field. Thanks
+  to Jay Reitz for reporting it and providing the solution.
+
+- Added BitStruct.default_options. Particularly useful for default endian
+  settings--see examples/native.rb.
+
+- Fixed a bug that prevented warning about field name conflicts with
+  existing methods when the name is given as a symbol.
+
+- Fixed point fields may now have fractional divisors (like :fixed => 0.001).
+
+bit-struct 0.9
+
+- Added examples/field-ripper.rb.
+
+- Added BitStruct#field_by_name.
+
+- Added more warnings about nested field accessors returning a *copy* of the
+  nested data.
+
+- Added "pad" fields. See documentation in pad-field.rb and examples/pad.rb.
+
+- The #initial_value method now yields the value to a block, if given.
+
+- A BitStruct class is only closed when an instance is created. (After this
+  point no fields can be added.) Formerly, a class was closed when any method
+  requested the total length of the structure. This change makes it easier
+  to add groups of fields modularly, each with their own initial_value block.
+
+- Added examples/modular-def.rb to explain how to factor a BitStruct
+  definition into modules.
+
+bit-struct 0.8
+
+- Signed fields can now (like unsigned fields) be any multiple of 8 bits, and are accessed as fixnums or bignums, as needed.
+
+- It's easier to subclass BitStruct::OctetField. BitStruct::HexOctetField is now implemented in this way, just by defining three constants and two trivial class methods.
+
+bit-struct 0.7
+
+- BitStruct.describe now takes an option hash, and the :expand=>true option causes nested fields to be expanded in the description.
+
+- Unsigned integer fields can now be any multiple of 8 bytes: 8, 16, 24, 32, 40, ... (Fields of 1..15 bits in length are of course still supported.)
+
+- Added the :endian => :little option to signed integer, unsigned integer, and float fields. The full set of endian options is now [:little, :big, :network, :native]. The default is always :network.
+
+- Option names may be strings or symbols. Values that can be symbols can also be strings.
+
+- Added examples/bignum.rb.
+
+- Added support for the YAML in ruby 1.8.2 (the YAML in 1.8.4 was already supported).
+
+bit-struct 0.6
+
+- Added the :endian => :native option for numerical fields (signed, unsigned, float).
+
+- Fixed error message with 9..15 bit fields aligned on byte boundary.
+
+- The #initial_value is now inherited (before applying defaults).
+
+- New examples: raw.rb, native.rb.
+
+bit-struct 0.5
+
+- Integer fields may now cross byte boundaries, as long as the field fits within two whole bytes.
+
+bit-struct 0.4
+
+- Fixed a bug in reading text and char fields in YAML: if the value was interpreted by YAML as something other than a string, an error would result.
+
+- When BitStructs are loaded from yaml, the key is treated as a setter method, rather than a field. This is useful in case there is a field that needs special setters to accept humanly readable input. (For example, a char field with length-prefixed subfields.)
+
+bit-struct 0.3
+
+- BitStruct classes are now YAML friendly.
+
+- The default behavior of BitStruct#inspect and BitStruct#inspect_detailed is changed to print out the "rest" field, if any. This can be disabled by passing inspect an options hash with :include_rest => false. See BitStruct::DEFAULT_INSPECT_OPTS and BitStruct::DETAILED_INSPECT_OPTS. See examples/ip.rb and examples/rest.rb.
+
+- The default behavior of BitStruct#to_h is changed to include the "rest" field. As above, this can be disabled by passing to_h an options hash with :include_rest => false.
+
+- The default behavior of BitStruct#to_a is changed to include the "rest" field. As above, this can be disabled by passing false as an argument to to_a.
+
+bit-struct 0.2
+
+- first public release
+
+bit-struct 0.1
+
+- first release

@@ -1,0 +1,2 @@
+object @foo
+attributes :bar

@@ -1,0 +1,14 @@
+<%= object.type %> <%= h object.name %>
+<% if options.full %>
+|
+<% object.attributes.each do |scope, list| %>
+<% list.sort_by {|name, rw| name.to_s }.each do |name, rw| %>
+<%= uml_visibility(rw.values.compact.first) %> <%= h (rw[:read]||rw[:write]).name(true).gsub(/=$/,'') %> [<%= 'R' if rw[:read] %><%= 'W' if rw[:write] %>]\l
+<% end %>
+<% end %>
+|
+<% method_listing.each do |obj| %>
+<%= uml_visibility obj %> <%= h obj.name(true) %>
+<%= h(" : #{obj.tag(:return).types.first}") if obj.has_tag?(:return) && obj.tag(:return).types && obj.tag(:return).types.size > 0 %>\l
+<% end %>
+<% end %>

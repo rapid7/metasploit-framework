@@ -1,0 +1,34 @@
+This stuff would be great
+- improved access to document level objects and data
+  - bookmarks?
+  - outline?
+  - articles?
+  - viewer prefs?
+- Improve the speed of Encoding#to_utf8
+- Tweak encoding mappings to differentiate between bytes that are invalid for an encoding, and bytes that are unchanged.
+  poppler seems to do this in a quite reasonable way. Original Encoding -> Glyph Names -> Unicode. As of 0.6 we go straight
+  from the Original encoding to Unicode.
+- detect when a font's encoding is a CMap (generally used for pre-Unicode, multibyte asian encodings), and display a user friendly error
+- Improve interpretation of non content stream data (ie metadata). recognise dates, etc
+
+
+
+This might be useful, more research required
+- Support for CJK text (convert to UTF-8 like all other encodings. See Section 5.9 of the PDF spec)
+  - Will require significantly improved handling of CMaps, including creating a bunch of predefined ones
+
+- Work out why specs/data/zlib*.pdf isn't parsed correctly when all the major PDF viewers can display it correctly
+
+- Ship some extra receivers in the standard package, particuarly ones that are useful for running
+  rspec over generated PDF files
+
+- Add support for additional filters: CCITTFaxDecode, JBIG2Decode, DCTDecode, JPXDecode
+
+- Add support for additional encodings:
+  - Identity-V(I *think* this relates to vertical text. Not sure how we'd support it sensibly)
+
+- Investigate how R->L text is handled
+
+- fix all callbacks to only ever return basic ruby objects (strings, ints,
+  attays, symbols, hashes, etc). No PDF::Reader::Reference or
+  PDF::Reader::Font, etc.

@@ -1,0 +1,13 @@
+<ul>
+  <% @libraries.sort_by {|name, y| name.downcase }.each do |name, library_versions| %>
+  <li class="r<%= @row = (!defined?(@row) || @row == 1) ? 2 : 1 %>">
+    <% library_versions = library_versions.dup %>
+    <% first_lib = library_versions.pop %>
+    <a href="<%= abs_url(router.docs_prefix, first_lib.name) %>"><%= name %></a>
+    <% if first_lib.version %>
+      <small>(<%= first_lib.version %><% if library_versions.size > 0 %>,
+        <%= library_versions.reverse.map {|lib| "<a href=\"#{abs_url(router.docs_prefix, lib.to_s)}\">#{lib.version}</a>" }.join(', ') %><% end %>)</small>
+    <% end %>
+  </li>
+  <% end %>
+</ul>

@@ -1,0 +1,22 @@
+Signed updates with Dnsruby
+===========================
+
+In order to use TSIG records to automatically perform TSIG signing/verification of messages :
+
+    res = Dnsruby::Resolver.new("ns0.validation-test-servers.nominet.org.uk")
+        
+    # Now configure the resolver with the TSIG key for signing/verifying
+    KEY_NAME="rubytsig"
+    KEY = "8n6gugn4aJ7MazyNlMccGKH1WxD2B3UvN/O/RA6iBupO2/03u9CTa3Ewz3gBWTSBCH3crY4Kk+tigNdeJBAvrw=="
+    res.tsig=KEY_NAME, KEY
+    
+
+    # Now try sending/receiving some update messages
+    update = Dnsruby::Update.new("validation-test-servers.nominet.org.uk")
+    update_name = generate_update_name
+    update.absent(update_name)
+    update.add(update_name, 'TXT', 100, "test signed update")
+        
+    # Resolver will automatically sign message and verify response
+    response = res.send_message(update)
+    assert(response.verified?) # Check that the response has been verified

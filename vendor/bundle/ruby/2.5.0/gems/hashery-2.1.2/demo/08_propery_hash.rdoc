@@ -1,0 +1,34 @@
+= PropertyHash
+
+The Property hash can be used an object in itself.
+
+     h = PropertyHash.new(:a=>1, :b=>2)
+     h[:a]        #=> 1
+     h[:a] = 3
+     h[:a]        #=> 3
+
+Becuase the properties are fixed, if we try to set a key that is not present,
+then we will get an error.
+
+    expect ArgumentError do
+      h[:x] = 5
+    end
+
+The PropertyHash can also be used as a superclass.
+
+    class MyPropertyHash < PropertyHash
+      property :a, :default => 1
+      property :b, :default => 2
+    end
+
+    h = MyPropertyHash.new
+    h[:a]        #=> 1
+    h[:a] = 3
+    h[:a]        #=> 3
+
+Again, if we try to set key that was not fixed, then we will get an error.
+
+    expect ArgumentError do
+      h[:x] = 5
+    end
+

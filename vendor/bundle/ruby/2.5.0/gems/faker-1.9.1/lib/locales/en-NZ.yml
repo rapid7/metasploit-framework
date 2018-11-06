@@ -1,0 +1,43 @@
+# New Zealand formatted data types
+# Using Top 20 New Zealand maori baby boys names of 2015
+# Using Top 20 New Zealand baby boys names of 2015
+# Using Top 20 New Zealand  maori baby girls names of 2015
+# Using Top 20 New Zealand baby girls names of 2015
+# Using commonly used domain suffixes in New Zealand
+# Using surnames familiar to New Zealand population
+# Using popular New Zealand Sport & National Team Names
+
+en-NZ:
+  faker:
+    name:
+      first_name: [Nikau, Ari, Manaia, Wiremu, Kauri, Mikaere, Rawiri, Ihaia, Kai, Manaaki, Tai, Tane, Tamati, Taika, Kahurangi, Tangaroa, Manawa, Ihaka, Tama, Tawhiri, Oliver, Jack, William, James, Benjamin, Mason, Hunter, Charlie, Liam, Jacob, Noah, Thomas, Max, Lucas, George, Samuel, Ryan, Alexander, Ethan, Cooper, Maia, Manaia, Anahera, Ana, Aroha, Kaia, Hana, Ataahua, Tia, Kora, Amaia, Tui, Te Aroha, Kahurangi, Awhina, Manawa, Kara, Aaria, Rui, Te Ao, Olivia, Charlotte, Harper, Sophie, Emily, Ella, Isla, Mia, Amelia, Isabella, Ruby, Grace, Emma, Chloe, Ava, Lucy, Zoe, Mila, Sophia, Lily]
+      last_name: [Smith, Jones, Williams, Brown, Wilson, Taylor, Johnson, White, Martin, Anderson, Thompson, Nguyen, Thomas, Walker, Harris, Lee, Ryan, Robinson, Kelly, King, Davis, Wright, Evans, Roberts, Green, Hall, Wood, Jackson, Clarke, Patel, Khan, Lewis, James, Phillips, Mason, Mitchell, Rose, Davies, Rodriguez, Cox, Alexander, Garden, Campbell, Johnston, Moore, Smyth, Oneill, Doherty, Stewart, Quinn, Murphy, Graham, Mclaughlin, Hamilton, Murray, Hughes, Robertson, Thomson, Scott, Macdonald, Reid, Clark, Ross, Young, Watson, Paterson, Morrison, Morgan, Griffiths, Edwards, Rees, Jenkins, Owen, Price, Moss, Richards, Abbott, Adams, Armstrong, Bahringer, Bailey, Barrows, Bartell, Bartoletti, Barton, Bauch, Baumbach, Bayer, Beahan, Beatty, Becker, Beier, Berge, Bergstrom, Bode, Bogan, Borer, Bosco, Botsford, Boyer, Boyle, Braun, Bruen, Carroll, Carter, Cartwright, Casper, Cassin, Champlin, Christiansen, Cole, Collier, Collins, Connelly, Conroy, Corkery, Cormier, Corwin, Cronin, Crooks, Cruickshank, Cummings, Damore, Daniel, Dare, Daugherty, Dickens, Dickinson, Dietrich, Donnelly, Dooley, Douglas, Doyle, Durgan, Ebert, Emard, Emmerich, Erdman, Ernser, Fadel, Fahey, Farrell, Fay, Feeney, Feil, Ferry, Fisher, Flatley, Gibson, Gleason, Glover, Goldner, Goodwin, Grady, Grant, Greenfelder, Greenholt, Grimes, Gutmann, Hackett, Hahn, Haley, Hammes, Hand, Hane, Hansen, Harber, Hartmann, Harvey, Hayes, Heaney, Heathcote, Heller, Hermann, Hermiston, Hessel, Hettinger, Hickle, Hill, Hills, Hoppe, Howe, Howell, Hudson, Huel, Hyatt, Jacobi, Jacobs, Jacobson, Jerde, Johns, Keeling, Kemmer, Kessler, Kiehn, Kirlin, Klein, Koch, Koelpin, Kohler, Koss, Kovacek, Kreiger, Kris, Kuhlman, Kuhn, Kulas, Kunde, Kutch, Lakin, Lang, Langworth, Larkin, Larson, Leannon, Leffler, Little, Lockman, Lowe, Lynch, Mann, Marks, Marvin, Mayer, Mccullough, Mcdermott, Mckenzie, Miller, Mills, Monahan, Morissette, Mueller, Muller, Nader, Nicolas, Nolan, O''connell, O''conner, O''hara, O''keefe, Olson, O''reilly, Parisian, Parker, Quigley, Reilly, Reynolds, Rice, Ritchie, Rohan, Rolfson, Rowe, Russel, Rutherford, Sanford, Sauer, Schmidt, Schmitt, Schneider, Schroeder, Schultz, Shields, Smitham, Spencer, Stanton, Stark, Stokes, Swift, Tillman, Towne, Tremblay, Tromp, Turcotte, Turner, Walsh, Walter, Ward, Waters, Weber, Welch, West, Wilderman, Wilkinson, Williamson, Windler, Wolf]
+    company:
+      suffix: [Ltd, Ltc, and Sons, Group, Brothers, Partners]
+    internet:
+      domain_suffix: [co.nz, com, net.nz, net, org.nz, org, govt.nz, iwi.nz]
+    address:
+      region_abbr: [NTL, AUK, WKO, BOP, GIS, HKB, TKI, MWT, WGN, TAS, NSN, MBH, WTC, CAN, OTA, STL]
+      region: [Northland, Auckland, Waikato, Bay of Plenty, Gisborne, Hawkes Bay, Taranaki, Manawatu, Wellington, Tasman, Nelson, Marlborough, West Coast, Canterbury, Otago, Southland]
+      postcode: ['0###', '2###', '3###', '4###', '5###', '6###', '7###', '8###', '9###']
+      building_number: ['####', '###', '##']
+      street_suffix: [Avenue, Boulevard, Circle, Circuit, Court, Crescent, Crest, Drive, Estate Dr, Grove, Hill, Island, Junction, Knoll, Lane, Loop, Mall, Manor, Meadow, Mews, Parade, Parkway, Pass, Place, Plaza, Ridge, Road, Run, Square, Station St, Street, Summit, Terrace, Track, Trail, View Rd, Way]
+      default_country: [New Zealand]
+
+    phone_number:
+      formats: ['0# ### ####', '+64 # ### ####']
+    cell_phone:
+      formats: ['02##-###-###', '02## ### ###', '02# ### ###', '02#-###-####']
+
+    university:
+      name: [Auckland University of Technology, Lincoln University, Massey University, University of Auckland, University of Canterbury, University of Otago, University of Waikato, Victoria University of Wellington]
+
+    company:
+      suffix: [Ltd, Ltc, and Sons, Group, Brothers, Partners]
+
+    internet:
+      domain_suffix: [co.nz, com, net.nz, net, org.nz, org, govt.nz, iwi.nz, nz, io, co]
+
+    team:
+      sport: [basketball, football, rugby league, netball, rugby union, hockey, cricket, golf, boxing, rowing, motorsport, tennis, athletics, sailing, surf life saving, squash]
+      name: [Tall Blacks, All Whites, Warriors, Silver Ferns, All Blacks, Black Sticks, Black Caps]

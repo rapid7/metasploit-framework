@@ -1,0 +1,24 @@
+# encoding: utf-8
+ca-CAT:
+  faker:
+    address:
+      city: [Amposta, Badalona, Barberà del Vallès, Barcelona, Blanes, Calafell, Cambrils, Castellar del Vallès, Castelldefels, Cerdanyola del Vallès, Cornellà de Llobregat, El Masnou, El Prat de Llobregat, El Vendrell, Esparreguera, Esplugues de Llobregat, Figueres, Gavà, Girona, Granollers, Igualada, Lleida, Lloret de Mar, Manlleu, Manresa, Martorell, Mataró, Molins de Rei, Mollet del Vallès, Montcada i Reixac, Olesa de Montserrat, Olot, Palafrugell, Pineda de Mar, Premià de Mar, Reus, Ripollet, Rubí, Sabadell, Salou, Salt, Sant Adrià de Besòs, Sant Andreu de la Barca, Sant Boi de Llobregat, Sant Cugat del Vallès, Sant Feliu de Guíxols, Sant Feliu de Llobregat, Sant Joan Despí, Sant Pere de Ribes, Sant Vicenç dels Horts, Santa Coloma de Gramenet, Santa Perpètua de Mogoda, Sitges, Tarragona, Terrassa, Tortosa, Valls, Vic, Vila-seca, Viladecans, Vilafranca del Penedès, Vilanova i la Geltrú]
+      country: [Afganistan, Albània, Alemanya, Algèria, Andorra, Angola, Antigua i Barbuda, Aràbia Saudita, Argentina, Armènia, Austràlia, Àustria, Azerbaidjan, Bahames, Bahrain, Bangla Desh, Barbados, Bèlgica, Belize, Benín, Bhutan, Bielorússia, Bolívia, Bòsnia i Hercegovina, Botswana, Brasil, Brunei, Bulgària, Burkina Faso, Burundi, Cambodja, Camerun, Canadà, Cap Verd, Catalunya, Ciutat del Vaticà, Colòmbia, Comores, Corea del Nord, Corea del Sud, Costa d''Ivori, Costa Rica, Croàcia, Cuba, Dinamarca, Djibouti, Dominica, Egipte, El Salvador, Emirats Àrabs Units, Equador, Eritrea, Eslovàquia, Eslovènia, Espanya, Estats Federats de Micronèsia, Estats Units, Estònia, Etiòpia, Fiji, Filipines, Finlàndia, França, Gabon, Gàmbia, Geòrgia, Ghana, Grècia, Grenada, Guatemala, Guinea, Guinea Bissau, Guinea Equatorial, Guyana, Haití, Hondures, Hongria, Iemen, Illes Marshall, Índia, Indonèsia, Iran, Iraq, Islàndia, Israel, Itàlia, Jamaica, Japó, Jordània, Kazakhstan, Kenya, Kirguizistan, Kiribati, Kuwait, Laos, Lesotho, Letònia, Líban, Libèria, Líbia, Liechtenstein, Lituània, Luxemburg, Macedònia, Madagascar, Malàisia, Malawi, Maldives, Mali, Malta, Marroc, Maurici, Mauritània, Mèxic, Moçambic, Moldàvia, Mònaco, Mongòlia, Myanmar, Namíbia, Nauru, Nepal, Nicaragua, Níger, Nigèria, Noruega, Nova Zelanda, Oman, Països Baixos, Pakistan, Palau, Panamà, Papua Nova Guinea, Paraguai, Perú, Polònia, Portugal, Qatar, Regne Unit, República Centreafricana, República d''Irlanda, República de la Xina, República del Congo, República Democràtica del Congo, República Dominicana, República Popular de la Xina, República Txeca, Romania, Rússia, Rwanda, Saint Kitts i Nevis, Saint Lucia, Saint Vincent i les Grenadines, Salomó, Samoa Occidental, San Marino, São Tomé i Príncipe, Senegal, Sèrbia i Montenegro, Seychelles, Sierra Leone, Singapur, Síria, Somàlia, Sri Lanka, Sud-àfrica, Sudan, Sudan del Sud, Suècia, Suïssa, Surinam, Swazilàndia, Tadjikistan, Tailàndia, Tanzània, Timor Oriental, Togo, Tonga, Trinitat i Tobago, Tunísia, Turkmenistan, Turquia, Tuvalu, Txad, Ucraïna, Uganda, Uruguai, Uzbekistan, Vanuatu, Veneçuela, Vietnam, Xile, Xipre, Zàmbia, Zimbabwe]
+      building_number: [' s/n.', ', #', ', ##', ' #', ' ##']
+      street_suffix: [Avinguda, Baixada, Barranc, Barri, Carrer, Camí, Carretera, Coll, Passeig, Plaça, Polígon, Rambla, Riera, Ronda, Torrent, Travessia]
+      secondary_address: ['Esc. ###', 'Porta ###']
+      postcode: ['#####']
+      province: [Barcelona, Girona, Lleida, Tarragona]
+      state: [l''Alt Camp, l''Alt Empordà, l''Alt Penedès, l''Alt Urgell, l''Alta Ribagorça, l''Anoia, el Bages, el Baix Camp, el Baix Ebre, el Baix Empordà, el Baix Llobregat, el Baix Penedès, el Barcelonès, el Berguedà, la Cerdanya, la Conca de Barberà, el Garraf, les Garrigues, la Garrotxa, el Gironès, el Maresme, el Moianès, el Montsià, la Noguera, Osona, el Pallars Jussà, el Pallars Sobirà, el Pla d''Urgell, el Pla de l''Estany, el Priorat, la Ribera d''Ebre, el Ripollès, la Segarra, el Segrià, la Selva, el Solsonès, el Tarragonès, la Terra Alta, l''Urgell, la Val d''Aran, el Vallès Occidental, el Vallès Oriental]
+      street_name:
+        - "#{street_suffix} #{Name.first_name}"
+        - "#{street_suffix} #{Name.first_name} #{Name.last_name}"
+        - "#{street_suffix} #{country}"
+      street_address:
+        - "#{street_name}#{building_number}"
+        - "#{street_name}#{building_number} #{secondary_address}"
+      default_country: [Catalunya]
+    phone_number:
+      formats: ['9##-###-###', '9##.###.###', '9## ### ###', '9########']
+    cell_phone:
+      formats: ['6##-###-###', '6##.###.###', '6## ### ###', '6########']

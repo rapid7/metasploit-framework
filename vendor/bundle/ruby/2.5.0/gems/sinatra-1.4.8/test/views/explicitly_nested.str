@@ -1,0 +1,1 @@
+<content>#{render :str, :hello, :layout => :layout2}</content>

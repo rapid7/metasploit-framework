@@ -1,0 +1,10 @@
+/Gemfile.lock
+doc
+rdoc
+ri
+pkg
+*.swp
+test/integration/.vagrant
+test/integration/playbook.retry
+
+.byebug_history

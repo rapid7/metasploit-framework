@@ -1,0 +1,13 @@
+<div id="search">
+  <% [menu_lists.first].each do |field| %>
+    <a class="full_list_link" id="<%= field[:type] %>_list_link"
+        href="<%= url_for_list(field[:type]) %>">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  <% end %>
+</div>

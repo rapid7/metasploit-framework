@@ -1,0 +1,52 @@
+language: ruby
+sudo: true
+dist: trusty
+
+addon:
+  hosts:
+    gateway.netssh
+
+rvm:
+  - 2.2
+  - 2.3.7
+  - 2.4.4
+  - 2.5.1
+  - jruby-9.1.13.0
+  - rbx-3.84
+  - ruby-head
+env:
+  NET_SSH_RUN_INTEGRATION_TESTS=1
+
+matrix:
+  exclude:
+    - rvm: rbx-3.84
+    - rvm: jruby-9.1.13.0
+  include:
+    - rvm: rbx-3.84
+      env: NET_SSH_RUN_INTEGRATION_TESTS=
+    - rvm: jruby-9.1.13.0
+      env: JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -Xcext.enabled=false -J-Xss2m -Xcompile.invokedynamic=false' NET_SSH_RUN_INTEGRATION_TESTS=
+  fast_finish: true
+  allow_failures:
+    - rvm: rbx-3.84
+    - rvm: jruby-9.1.13.0
+    - rvm: ruby-head
+
+install:
+  - export JRUBY_OPTS='--client -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -Xcext.enabled=false -J-Xss2m -Xcompile.invokedynamic=false'
+  - sudo pip install ansible
+  - gem install bundler -v "= 1.16"
+  - gem list bundler
+  - bundle _1.16_ install
+  - bundle _1.16_ -v
+  - BUNDLE_GEMFILE=./Gemfile.noed25519 bundle _1.16_ install
+  - sudo ansible-galaxy install rvm_io.ruby
+  - sudo chown -R travis:travis /home/travis/.ansible
+  - ansible-playbook ./test/integration/playbook.yml -i "localhost," --become -c local -e 'no_rvm=true' -e 'myuser=travis' -e 'mygroup=travis' -e 'homedir=/home/travis'
+
+script:
+  - ssh -V
+  - bundle _1.16_ exec rake test
+  - BUNDLE_GEMFILE=./Gemfile.noed25519 bundle _1.16_ exec rake test
+  - bundle _1.16_ exec rake test_test
+  - bundle _1.16_ exec rubocop

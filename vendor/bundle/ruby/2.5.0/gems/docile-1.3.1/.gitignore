@@ -1,0 +1,11 @@
+*.gem
+.bundle
+Gemfile.lock
+pkg
+.idea
+doc
+.yardoc
+coverage
+vendor
+.ruby-gemset
+.ruby-version

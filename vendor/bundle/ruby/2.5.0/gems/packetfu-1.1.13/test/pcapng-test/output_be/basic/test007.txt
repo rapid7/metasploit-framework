@@ -1,0 +1,9 @@
+Description: SHB with all options
+Category:    basic
+
+Block counts:
+	EPB: 1
+	IDB: 1
+	SHB: 1
+
+Block sequence: SHB, IDB, EPB

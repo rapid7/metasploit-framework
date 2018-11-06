@@ -1,0 +1,10 @@
+<% even_odd = 'odd'  %>
+<% @items.each do |item| %>
+  <li class="<%= even_odd %> <%= item.has_tag?(:deprecated) ? 'deprecated' : '' %>">
+    <div class="item">
+      <%= linkify item, h(item.name(true)) %>
+      <small><%= item.namespace.title %></small>
+    </div>
+  </li>
+  <% even_odd = (even_odd == 'even' ? 'odd' : 'even') %>
+<% end %>

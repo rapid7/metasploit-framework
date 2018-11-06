@@ -1,0 +1,8 @@
+/*
+ * foo
+ */
+VALUE
+rb_extra(VALUE obj, VALUE n)
+{
+  return Qtrue;
+}

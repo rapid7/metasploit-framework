@@ -1,0 +1,508 @@
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5  -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return 0;
+6: }
+/* end */
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC    -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main() {return 0;}
+/* end */
+
+have_library: checking for gzdopen() in -lz... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5 -lz  -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <zlib.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     printf("%p", &t);
+11:   }
+12: 
+13:   return 0;
+14: }
+15: int t(void) { void ((*volatile p)()); p = (void ((*)()))gzdopen; return !p; }
+/* end */
+
+--------------------
+
+have_iconv?: checking for iconv... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5  -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <stdlib.h>
+ 4: #include <iconv.h>
+ 5: 
+ 6: int main(void)
+ 7: {
+ 8:     iconv_t cd = iconv_open("", "");
+ 9:     iconv(cd, NULL, NULL, NULL, NULL);
+10:     return EXIT_SUCCESS;
+11: }
+/* end */
+
+--------------------
+
+have_library: checking for -llzma... -------------------- no
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5 -llzma  -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+/usr/bin/ld: cannot find -llzma
+collect2: error: ld returned 1 exit status
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: 
+14: int t(void) { ; return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlParseDoc() in libxml/parser.h... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <libxml/parser.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     printf("%p", &t);
+11:   }
+12: 
+13:   return 0;
+14: }
+15: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlParseDoc; return !p; }
+/* end */
+
+--------------------
+
+have_func: checking for xsltParseStylesheetDoc() in libxslt/xslt.h... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+conftest.c: In function ‘t’:
+conftest.c:15:57: error: ‘xsltParseStylesheetDoc’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))xsltParseStylesheetDoc; return !p; }
+                                                         ^~~~~~~~~~~~~~~~~~~~~~
+conftest.c:15:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <libxslt/xslt.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     printf("%p", &t);
+11:   }
+12: 
+13:   return 0;
+14: }
+15: int t(void) { void ((*volatile p)()); p = (void ((*)()))xsltParseStylesheetDoc; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <libxslt/xslt.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     printf("%p", &t);
+11:   }
+12: 
+13:   return 0;
+14: }
+15: extern void xsltParseStylesheetDoc();
+16: int t(void) { xsltParseStylesheetDoc(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for exsltFuncRegister() in libexslt/exslt.h... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <libexslt/exslt.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     printf("%p", &t);
+11:   }
+12: 
+13:   return 0;
+14: }
+15: int t(void) { void ((*volatile p)()); p = (void ((*)()))exsltFuncRegister; return !p; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlHasFeature()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘xmlHasFeature’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlHasFeature; return !p; }
+                                                         ^~~~~~~~~~~~~
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlHasFeature; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void xmlHasFeature();
+14: int t(void) { xmlHasFeature(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlFirstElementChild()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘xmlFirstElementChild’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlFirstElementChild; return !p; }
+                                                         ^~~~~~~~~~~~~~~~~~~~
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlFirstElementChild; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void xmlFirstElementChild();
+14: int t(void) { xmlFirstElementChild(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlRelaxNGSetParserStructuredErrors()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘xmlRelaxNGSetParserStructuredErrors’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlRelaxNGSetParserStructuredErrors; return !p; }
+                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlRelaxNGSetParserStructuredErrors; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void xmlRelaxNGSetParserStructuredErrors();
+14: int t(void) { xmlRelaxNGSetParserStructuredErrors(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlRelaxNGSetParserStructuredErrors()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘xmlRelaxNGSetParserStructuredErrors’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlRelaxNGSetParserStructuredErrors; return !p; }
+                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlRelaxNGSetParserStructuredErrors; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void xmlRelaxNGSetParserStructuredErrors();
+14: int t(void) { xmlRelaxNGSetParserStructuredErrors(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlRelaxNGSetValidStructuredErrors()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘xmlRelaxNGSetValidStructuredErrors’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlRelaxNGSetValidStructuredErrors; return !p; }
+                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlRelaxNGSetValidStructuredErrors; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void xmlRelaxNGSetValidStructuredErrors();
+14: int t(void) { xmlRelaxNGSetValidStructuredErrors(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlSchemaSetValidStructuredErrors()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘xmlSchemaSetValidStructuredErrors’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlSchemaSetValidStructuredErrors; return !p; }
+                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlSchemaSetValidStructuredErrors; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void xmlSchemaSetValidStructuredErrors();
+14: int t(void) { xmlSchemaSetValidStructuredErrors(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlSchemaSetParserStructuredErrors()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘xmlSchemaSetParserStructuredErrors’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlSchemaSetParserStructuredErrors; return !p; }
+                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlSchemaSetParserStructuredErrors; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/include -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -I/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/include/libxml2 -Wdate-time -D_FORTIFY_SOURCE=2   "-DNOKOGIRI_LIBXML2_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8\"" "-DNOKOGIRI_LIBXML2_PATCHES=\"0001-Revert-Do-not-URI-escape-in-server-side-includes.patch 0002-Fix-nullptr-deref-with-XPath-logic-ops.patch 0003-Fix-infinite-loop-in-LZMA-decompression.patch\"" "-DNOKOGIRI_LIBXSLT_PATH=\"/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32\"" "-DNOKOGIRI_LIBXSLT_PATCHES=\"\"" -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  -g -DXP_UNIX -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline -DNOKOGIRI_USE_PACKAGED_LIBRARIES conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib -L/root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic    /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lruby-2.5 /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libexslt.a -lm -ldl -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxslt/1.1.32/lib/libxslt.a -ldl -lm -lz /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/nokogiri-1.8.5/ports/x86_64-pc-linux-gnu/libxml2/2.9.8/lib/libxml2.a -lpthread -lgmp -ldl -lcrypt -lm   -lc "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void xmlSchemaSetParserStructuredErrors();
+14: int t(void) { xmlSchemaSetParserStructuredErrors(); return 0; }
+/* end */
+
+--------------------
+

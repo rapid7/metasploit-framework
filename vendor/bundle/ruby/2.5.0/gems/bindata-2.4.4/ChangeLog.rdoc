@@ -1,0 +1,304 @@
+= BinData Changelog
+
+== Version 2.4.4 (2018-10-03)
+
+* Display a hint when endian is omitted.  Requested by Tails.
+* Add thread safety to Integer/BitField creation.  Requested by jbpeirce.
+* Ensure windows sockets are unseekable.  Thanks to Brent Cook.
+
+== Version 2.4.3 (2018-03-10)
+
+* Add Uint8Arrays.  Requested by masarakki.
+
+== Version 2.4.2 (2018-01-31)
+
+* Allow boolean values as parameters.  Requested by Patrik Wenger.
+
+== Version 2.4.1 (2017-08-30)
+
+* Fix crash with String :length invoking :rel_offset.  Reported by Claudius
+  Coenen.
+
+== Version 2.4.0 (2017-04-09)
+
+* Reworked internal sanitizing API.
+* Fix bit-based integers inside buffers.  Reported by Claudius Coenen.
+
+== Version 2.3.5 (2017-01-19)
+
+* Enforce Integer#nbits > 0.  Reported by Keenan Tims.
+* Fix auto_call_delayed_io crash.  Reported by Michael Petter.
+
+== Version 2.3.4 (2016-10-17)
+
+* Memoize dynamic methods for primitives.  Thanks to hiroeorz.
+
+== Version 2.3.3 (2016-09-07)
+
+* Fix bug #80.  Thanks to Michael Petter.
+* Add Buffer#raw_num_bytes.
+
+== Version 2.3.2 (2016-09-02)
+
+* IO#num_bytes_remaining now works inside Buffers.
+* Added ability to skip to arbitrary byte patterns.  Requested by Stefan Kolb.
+
+== Version 2.3.1 (2016-06-17)
+
+* Improve list of reserved words.  Thanks to Claudius Coenen.
+* Fix virtual fields to be bit aligned.  Thanks to hopesea.
+
+== Version 2.3.0 (2016-03-25)
+
+* Add :to_abs_offset to Skip.
+* Added backwards seeking via multi pass I/O.  See DelayedIO.
+* Removed #offset, which was deprecated in 2.1.0.
+* Removed :adjust_offset.  See NEWS.rdoc for details.
+
+== Version 2.2.0 (2016-01-30)
+
+* Warn if String has :value but no :read_length.  Requested by Michael
+  Genereux.
+* Prevent running under Ruby 2.1.0p0 due to ruby bug 44525.
+* Added #to_hex convenience method.  Thanks to Gregory Romé.
+* Added namespacing via search_prefix. Requested by sumofparts.
+
+== Version 2.1.0 (2014-04-16)
+
+* Performance improvements.
+* Removed deprecated parameters.
+* Code refactored to use Ruby 1.9 features.
+* #eval_parameters can now call private methods.  Requested by Ole Rasmussen.
+* Can now determine state of :onlyif fields.  Requested by Ole Rasmussen.
+* Renamed #offset to #abs_offset for clarity.  #offset is now deprecated.
+* Support :byte_align for fields in structs.  Requested by Igor Yamolov.
+* Added bit fields with dynamic length.  Requested by Jacob Dam.
+* Added "endian :big_and_little" option which creates :big and :little
+  versions of the class.  Thanks to Jacob Lukas for the prototype.
+
+== Version 2.0.0 (2014-02-02)
+
+* Ruby 1.8 now has its own separate branch.
+* Struct now uses symbols for field names instead of strings.
+* Added signed bitfields.  Requested by redood.
+* Virtual fields can now have names.
+* Bug fixes.
+
+== Version 1.8.0 (2014-01-06)
+
+* Allow custom types to have endian, not just numerics.
+* Added missing field to TCP example.  Thanks to Bertrand Paquet.
+* Made tests compatible with JRuby.  Thanks to Charles Oliver Nutter.
+* Support travis ci for those that use it.  Thanks to Charles Oliver Nutter.
+* Added Buffer for easier handling of nested streams.
+* Added Virtual field.
+
+== Version 1.6.0 (2013-09-02)
+
+* Added license to .gemspec
+* Moved test suite from RSpec to Minitest.
+* Added :assert and :asserted_value.
+* :check_value has been deprecated. Use :assert instead.
+
+== Version 1.5.1 (2013-08-16)
+
+* Rework build system and include .gemspec.  Requested by Simon Shortman.
+* Fixed bug when Choice#clear didn't clear everything.  Thanks to Simon
+  Shortman for the bug report.
+* Moved BinData::VERSION into its own file.  Thanks to John Van Enk.
+
+== Version 1.5.0 (2013-05-21)
+
+* Moved to github.
+* Updated to Ruby 2.0
+* Arrays now accept BinData object factories for :type (feature request by
+  Matt Dainty).
+* Dynamically generated BinData objects can use the :name parameter to
+  register themselves.
+* Remove functionality that has been deprecated for two years.
+
+== Version 1.4.5 (2012-07-24)
+
+* Added the :pad_front option for padding to occur at the front of a String.
+  (suggested by Eduardo Mourão).
+
+== Version 1.4.4 (2012-06-21)
+
+* Fixed bug where user defined boolean primitive wouldn't set its
+  value to false (reported by Frank Roland).
+* Fixed infinite looping bug caused by nested Choices.
+* Renamed String parameter :pad_char to :pad_byte.
+* Updated manual.
+
+== Version 1.4.3 (2011-10-01)
+
+* Exceptions no longer ignored inside lambdas when reading until eof 
+  in an array (thanks John Labovitz).
+* Fixed interaction bug between choices and records (reported by
+  Refrigerator Johnny).
+
+== Version 1.4.2 (2011-08-06)
+
+* \=~ now works for strings.
+
+== Version 1.4.1 (2011-06-20)
+
+* Added :default option for Choices.
+* Added count_bytes_remaining keyword.
+* Increased speed of lazy evaluation.
+
+== Version 1.4.0 (2011-06-14)
+
+* Record#snapshot now returns fields in order.
+* Removed the need to call #register_self in subclasses.
+* Wrapper is now deprecated.  Use subclassing instead.
+* Updated license to mimic changes to the Ruby License.
+* Refactoring to reduce memory usage.
+
+== Version 1.3.1 (2011-01-25)
+
+* Fixed file permissions problem.
+
+== Version 1.3.0 (2011-01-25)
+
+* BinData objects can now assign values when instantiating.
+* Improved support for bit-based alignment.
+* Updated reference manual.
+* Added examples for declaring recursive structures.
+* Objects deriving from BinData::Base should no longer override #initialize.
+* Added BinData::Base(#new, #initialize_instance) to speed up
+  instantiation of multiple objects.
+* Updated specs to rspec-1.3.0
+* BinData::Struct.hide now expects symbols instead of strings.
+
+== Version 1.2.2 (2010-12-14)
+
+* Added Base.bindata_name method.
+* Removed Base#done_read to reduce memory usage and cpu usage.
+* Derived classes should now use do_read et al, instead of _do_read.
+* Added predefinition of record fields to improve speed.
+* Made compatible with ruby 1.9.2.  Thanks to Andrew Watts.
+
+== Version 1.2.1 (2010-07-20)
+
+* Updated specs to be compatible with ruby 1.9.1
+
+== Version 1.2.0 (2010-07-09)
+
+* Deprecated Base#register. Use #register_self or #register_subclasses instead.
+* Syntax improvement.  Array, Structs and Choices can now use blocks to
+  specify fields.
+* Reduced startup time (suggestion courtesy of Mike Ryan).
+
+== Version 1.1.0 (2009-11-24)
+
+* Allow anonymous fields in Records and Primitives.
+* Add the ability to skip over unused data.
+* Allow Records, Primitives and Wrappers to be derived from.
+* Classes for integers are now defined on demand.
+
+== Version 1.0.0 (2009-09-13)
+
+* Is now compatible with Ruby 1.9
+* Added reference manual.
+* Added #rel_offset to Base.
+* Removed support for deprecated functionality.
+
+== Version 0.11.1 (2009-08-28)
+
+* Allow wrapped types to work with struct's :onlyif parameter
+* Use Array#index instead of #find_index for compatibility with Ruby 1.8.6
+  (patch courtesy of Joe Rozner).
+
+== Version 0.11.0 (2009-06-28)
+
+* Sanitizing code was refactored for speed.
+* Arbitrary sized integers and bit fields are now automatically instantiated.
+* Add ability to wrap existing types and override their parameters.
+
+== Version 0.10.0 (2009-04-17)
+
+* Arbitrary byte sized integers are now supported (e.g. 24bit, 808bit).
+* Renamed String :trim_value parameter to :trim_padding.
+* BinData::Array now behaves more like Ruby's Array.
+* Added debug_name
+* Added ability to trace reading
+* Primitives now behave as their value.  Calling #value is no longer needed.
+* Renamed #to_s -> #to_binary_s to avoid confusion with Ruby's #to_s.
+* Added #assign as the generic way to assign values to objects.
+* Added :copy_on_change parameter to Choice.
+* Implement #offset for all objects.
+* Renamed Single -> BasePrimitive.
+* Renamed SingleValue -> Primitive.
+* Renamed MultiValue -> Record.
+* The :onlyif parameter now only applies to fields inside Structs.
+* LazyEvaluator can now supply arguments when invoking methods
+
+== Version 0.9.3 (2008-12-03)
+
+* Arrays can now :read_until => :eof
+* TCPSocket and UDPSocket can now be used as input streams (patch courtesy
+  of Peter Suschlik).
+* Added 128 bit integers.
+* Significant memory usage reduction.
+* Added custom mandatory and default parameters for user defined MultiValues.
+
+== Version 0.9.2 (2008-07-18)
+
+* Added lazy instantiation to allow recursive definitions.
+* Array elements can be appended at any position.
+* Deprecated the :readwrite parameter.
+* Removed feature where Struct fields names could be nil.
+* Reworked sanitizing system.
+
+== Version 0.9.1 (2008-06-15)
+
+* Implemented bit fields.
+* Added :onlyif parameter to Base for specifying optional fields.
+* Fixed IO offset bug with SingleValues.
+
+== Version 0.9.0 (2008-06-02)
+
+* Added :adjust_offset option to automatically seek to a given offset.
+* Modified #read to accept strings as well as IO streams.
+* Choice now accepts sparse arrays and hashes as :choice.
+* Added BinData::Rest to help with debugging.
+* Major internal restructuring - memory usage is much better.
+* Improved documentation.
+
+== Version 0.8.1 (2008-01-14)
+
+* Reduced memory consumption.
+* Increased execution speed.
+* Deprecated BinData::Base.parameters.
+* Fixed spec syntax (thanks to David Goodlad).
+
+== Version 0.8.0 (2007-10-14)
+
+* Add reserved field names to Struct.
+* Prevent warnings about method redefinition.
+* Allow Struct to masquerade as one of its fields.
+* Renamed String param :initial_length to :read_length.
+* BinData::Array now behaves more like the internal Ruby array.
+
+== Version 0.7.0 (2007-08-26)
+
+* Arrays now support terminating conditions as well as fixed length reads.
+* Updated specs to new rspec syntax (0.9).
+* Added scoped resolution of variables in lambdas.
+* Added ability to append elements to arrays.
+
+== Version 0.6.0 (2007-03-28)
+
+* Added 64 bit integers.
+* Added floating point numbers.
+* Added endian keyword to Struct to reduce the amount of typing needed.
+
+== Version 0.5.1 (2007-03-21)
+
+* Updated documentation.
+* Struct now raises an error if a field name shadows an existing method.
+
+== Version 0.5.0 (2007-03-14)
+
+* Initial public release.

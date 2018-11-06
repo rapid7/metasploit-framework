@@ -1,0 +1,46 @@
+module A
+  def a; end
+  alias_method :b, :a
+  alias_method :"cstrmeth", :"a"
+
+  # Handle keyword syntax too
+  alias :c :a
+  alias :"cstrkey" :a
+  alias d? a
+  alias [] a
+  alias []= a
+  alias -@ a
+  alias % a
+  alias * a
+  alias for a
+  alias ConstantName a
+
+  # Handle quoted symbols
+  alias :'foo' :'a'
+end
+
+class C
+  def x; end
+end
+
+class B < C
+  alias_method(:q, :x)
+  alias_method :r?, :x
+  alias_method :s, :to_s
+  alias_method :t, :inspect if 500 == 3 * CONSTANT
+  alias_method :<<, :a
+  alias_method :for, :a
+  alias do x
+  alias x2 do
+end
+
+class D
+  # Foo bar
+  def a; "FOO" end
+
+  # @return [String]
+  alias b a
+
+  # @return [Numeric]
+  def a; 0 end
+end

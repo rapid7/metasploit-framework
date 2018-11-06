@@ -1,0 +1,56 @@
+version: '{build}'
+
+skip_tags: true
+
+environment:
+  matrix:
+    - ruby_version: "jruby-9.1.2.0"
+    - ruby_version: "23"
+    - ruby_version: "23-x64"
+    - ruby_version: "22-x64"
+
+matrix:
+  allow_failures:
+    - ruby_version: "jruby-9.1.2.0"
+
+#init:
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+
+platform:
+  - x86
+
+install:
+  - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
+  - if "%ruby_version%" == "jruby-9.1.2.0" ( cinst javaruntime -i )
+  - if "%ruby_version%" == "jruby-9.1.2.0" ( cinst jruby --version 9.1.2.0 -i --allow-empty-checksums )
+  - if "%ruby_version%" == "jruby-9.1.2.0" ( SET "PATH=C:\jruby-9.1.2.0\bin\;%PATH%" )
+  - ruby --version
+  - gem install bundler --no-document --user-install -v 1.16
+  - SET BUNDLE_GEMFILE=Gemfile.noed25519
+  - bundle install --retry=3
+  - cinst freesshd
+  - cinst putty --allow-empty-checksums
+  - ps: |
+          if ($env:Processor_Architecture -eq "x86")
+          {
+            dir 'C:\Program Files\'
+            dir 'C:\Program Files\freeSSHd'
+            cp 'test\win_integration\FreeSSHDService.ini' 'C:\Program Files\freeSSHd\FreeSSHDService.ini'
+            & 'C:\Program Files\freeSSHd\FreeSSHDService.exe'
+          } else {
+            dir 'C:\Program Files (x86)\'
+            dir 'C:\Program Files (x86)\freeSSHd'
+            cp 'test\win_integration\FreeSSHDService32.ini' 'C:\Program Files (x86)\freeSSHd\FreeSSHDService.ini'
+            & 'C:\Program Files (x86)\freeSSHd\FreeSSHDService.exe'
+          }
+
+test_script:
+  - SET BUNDLE_GEMFILE=Gemfile.noed25519
+  - SET NET_SSH_RUN_WIN_INTEGRATION_TESTS=YES
+  - bundle exec rake test
+
+build: off

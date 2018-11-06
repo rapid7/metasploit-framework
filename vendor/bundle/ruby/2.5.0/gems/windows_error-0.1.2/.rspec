@@ -1,0 +1,4 @@
+--require spec_helper
+--format Fivemat
+--color
+--require spec_helper

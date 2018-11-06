@@ -1,0 +1,1911 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="apache_modules" database_type="service" preference="0.90">
+  <!--
+       When an HTTP server is fingerprinted as apache, the "server" string
+       (taken from the Server header, among other locations) may advertise the
+       Apache version, OS and modules in use by Apache in space separated list, such as:
+
+       Apache/1.3.37 (Unix) FrontPage/5.0.2.2623 mod_ssl/2.8.28 OpenSSL/0.9.7e-p1
+
+       In this example, the Apache instance is running (at least) the modules
+       FrontPage, mod_ssl and OpenSSL.
+
+       This fingerprint file is meant to be used to fingerprint each of the
+       modules individually after splitting the module string on whitespace.
+  -->
+  <fingerprint pattern="^(Ben-SSL|Communique|DAV|FrontPage|JRun|LibreSSL|NSS|mpm-itk|OpenSSL|Perl|PHP\d?|proxy_html|Python|Resin|Ruby|SVN|Tomcat)/(\S+)$">
+    <description>Language-specific apache modules with a version</description>
+    <example service.component.product="PHP" service.component.version="7.0.30">PHP/7.0.30</example>
+    <param pos="1" name="service.component.product"/>
+    <param pos="2" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(Ben-SSL|Communique|DAV|FrontPage|JRun|LibreSSL|mpm-itk|NSS|OpenSSL|Perl|PHP\d?|proxy_html|Python|Resin|Ruby|SVN|Tomcat)/?$">
+    <description>Language-specific apache modules without a version</description>
+    <example service.component.product="PHP">PHP</example>
+    <example service.component.product="Perl">Perl/</example>
+    <param pos="1" name="service.component.product"/>
+  </fingerprint>
+  <fingerprint pattern="mod_access/(\S+)$">
+    <description>mod_access with version</description>
+    <example service.component.version="1.2.3">mod_access/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_access"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_access/?$">
+    <description>mod_access without version</description>
+    <example>mod_access/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_access"/>
+  </fingerprint>
+  <fingerprint pattern="mod_access_compat/(\S+)$">
+    <description>mod_access_compat with version</description>
+    <example service.component.version="1.2.3">mod_access_compat/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_access_compat"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_access_compat/?$">
+    <description>mod_access_compat without version</description>
+    <example>mod_access_compat/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_access_compat"/>
+  </fingerprint>
+  <fingerprint pattern="mod_actions/(\S+)$">
+    <description>mod_actions with version</description>
+    <example service.component.version="1.2.3">mod_actions/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_actions"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_actions/?$">
+    <description>mod_actions without version</description>
+    <example>mod_actions/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_actions"/>
+  </fingerprint>
+  <fingerprint pattern="mod_alias/(\S+)$">
+    <description>mod_alias with version</description>
+    <example service.component.version="1.2.3">mod_alias/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_alias"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_alias/?$">
+    <description>mod_alias without version</description>
+    <example>mod_alias/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_alias"/>
+  </fingerprint>
+  <fingerprint pattern="mod_allowmethods/(\S+)$">
+    <description>mod_allowmethods with version</description>
+    <example service.component.version="1.2.3">mod_allowmethods/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_allowmethods"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_allowmethods/?$">
+    <description>mod_allowmethods without version</description>
+    <example>mod_allowmethods/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_allowmethods"/>
+  </fingerprint>
+  <fingerprint pattern="mod_asis/(\S+)$">
+    <description>mod_asis with version</description>
+    <example service.component.version="1.2.3">mod_asis/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_asis"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_asis/?$">
+    <description>mod_asis without version</description>
+    <example>mod_asis/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_asis"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth/(\S+)$">
+    <description>mod_auth with version</description>
+    <example service.component.version="1.2.3">mod_auth/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth/?$">
+    <description>mod_auth without version</description>
+    <example>mod_auth/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_anon/(\S+)$">
+    <description>mod_auth_anon with version</description>
+    <example service.component.version="1.2.3">mod_auth_anon/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_anon"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_anon/?$">
+    <description>mod_auth_anon without version</description>
+    <example>mod_auth_anon/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_anon"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_basic/(\S+)$">
+    <description>mod_auth_basic with version</description>
+    <example service.component.version="1.2.3">mod_auth_basic/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_basic"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_basic/?$">
+    <description>mod_auth_basic without version</description>
+    <example>mod_auth_basic/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_basic"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_dbm/(\S+)$">
+    <description>mod_auth_dbm with version</description>
+    <example service.component.version="1.2.3">mod_auth_dbm/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_dbm"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_dbm/?$">
+    <description>mod_auth_dbm without version</description>
+    <example>mod_auth_dbm/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_dbm"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_digest/(\S+)$">
+    <description>mod_auth_digest with version</description>
+    <example service.component.version="1.2.3">mod_auth_digest/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_digest"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_digest/?$">
+    <description>mod_auth_digest without version</description>
+    <example>mod_auth_digest/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_digest"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_form/(\S+)$">
+    <description>mod_auth_form with version</description>
+    <example service.component.version="1.2.3">mod_auth_form/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_form"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_form/?$">
+    <description>mod_auth_form without version</description>
+    <example>mod_auth_form/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_form"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_ldap/(\S+)$">
+    <description>mod_auth_ldap with version</description>
+    <example service.component.version="1.2.3">mod_auth_ldap/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_ldap"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_ldap/?$">
+    <description>mod_auth_ldap without version</description>
+    <example>mod_auth_ldap/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_ldap"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_radius/(\S+)$">
+    <description>mod_auth_radius with version</description>
+    <example service.component.version="1.2.3">mod_auth_radius/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_radius"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_auth_radius:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_auth_radius/?$">
+    <description>mod_auth_radius without version</description>
+    <example>mod_auth_radius/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_auth_radius"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_auth_radius:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_alias/(\S+)$">
+    <description>mod_authn_alias with version</description>
+    <example service.component.version="1.2.3">mod_authn_alias/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_alias"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_alias/?$">
+    <description>mod_authn_alias without version</description>
+    <example>mod_authn_alias/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_alias"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_anon/(\S+)$">
+    <description>mod_authn_anon with version</description>
+    <example service.component.version="1.2.3">mod_authn_anon/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_anon"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_anon/?$">
+    <description>mod_authn_anon without version</description>
+    <example>mod_authn_anon/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_anon"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_core/(\S+)$">
+    <description>mod_authn_core with version</description>
+    <example service.component.version="1.2.3">mod_authn_core/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_core"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_core/?$">
+    <description>mod_authn_core without version</description>
+    <example>mod_authn_core/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_core"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_dbd/(\S+)$">
+    <description>mod_authn_dbd with version</description>
+    <example service.component.version="1.2.3">mod_authn_dbd/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_dbd"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_dbd/?$">
+    <description>mod_authn_dbd without version</description>
+    <example>mod_authn_dbd/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_dbd"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_dbm/(\S+)$">
+    <description>mod_authn_dbm with version</description>
+    <example service.component.version="1.2.3">mod_authn_dbm/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_dbm"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_dbm/?$">
+    <description>mod_authn_dbm without version</description>
+    <example>mod_authn_dbm/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_dbm"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_default/(\S+)$">
+    <description>mod_authn_default with version</description>
+    <example service.component.version="1.2.3">mod_authn_default/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_default"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_default/?$">
+    <description>mod_authn_default without version</description>
+    <example>mod_authn_default/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_default"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_file/(\S+)$">
+    <description>mod_authn_file with version</description>
+    <example service.component.version="1.2.3">mod_authn_file/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_file"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_file/?$">
+    <description>mod_authn_file without version</description>
+    <example>mod_authn_file/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_file"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_socache/(\S+)$">
+    <description>mod_authn_socache with version</description>
+    <example service.component.version="1.2.3">mod_authn_socache/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_socache"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authn_socache/?$">
+    <description>mod_authn_socache without version</description>
+    <example>mod_authn_socache/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authn_socache"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authnz_fcgi/(\S+)$">
+    <description>mod_authnz_fcgi with version</description>
+    <example service.component.version="1.2.3">mod_authnz_fcgi/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authnz_fcgi"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authnz_fcgi/?$">
+    <description>mod_authnz_fcgi without version</description>
+    <example>mod_authnz_fcgi/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authnz_fcgi"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authnz_ldap/(\S+)$">
+    <description>mod_authnz_ldap with version</description>
+    <example service.component.version="1.2.3">mod_authnz_ldap/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authnz_ldap"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authnz_ldap/?$">
+    <description>mod_authnz_ldap without version</description>
+    <example>mod_authnz_ldap/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authnz_ldap"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_core/(\S+)$">
+    <description>mod_authz_core with version</description>
+    <example service.component.version="1.2.3">mod_authz_core/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_core"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_core/?$">
+    <description>mod_authz_core without version</description>
+    <example>mod_authz_core/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_core"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_dbd/(\S+)$">
+    <description>mod_authz_dbd with version</description>
+    <example service.component.version="1.2.3">mod_authz_dbd/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_dbd"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_dbd/?$">
+    <description>mod_authz_dbd without version</description>
+    <example>mod_authz_dbd/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_dbd"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_dbm/(\S+)$">
+    <description>mod_authz_dbm with version</description>
+    <example service.component.version="1.2.3">mod_authz_dbm/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_dbm"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_dbm/?$">
+    <description>mod_authz_dbm without version</description>
+    <example>mod_authz_dbm/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_dbm"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_default/(\S+)$">
+    <description>mod_authz_default with version</description>
+    <example service.component.version="1.2.3">mod_authz_default/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_default"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_default/?$">
+    <description>mod_authz_default without version</description>
+    <example>mod_authz_default/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_default"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_groupfile/(\S+)$">
+    <description>mod_authz_groupfile with version</description>
+    <example service.component.version="1.2.3">mod_authz_groupfile/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_groupfile"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_groupfile/?$">
+    <description>mod_authz_groupfile without version</description>
+    <example>mod_authz_groupfile/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_groupfile"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_host/(\S+)$">
+    <description>mod_authz_host with version</description>
+    <example service.component.version="1.2.3">mod_authz_host/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_host"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_host/?$">
+    <description>mod_authz_host without version</description>
+    <example>mod_authz_host/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_host"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_owner/(\S+)$">
+    <description>mod_authz_owner with version</description>
+    <example service.component.version="1.2.3">mod_authz_owner/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_owner"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_owner/?$">
+    <description>mod_authz_owner without version</description>
+    <example>mod_authz_owner/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_owner"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_user/(\S+)$">
+    <description>mod_authz_user with version</description>
+    <example service.component.version="1.2.3">mod_authz_user/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_user"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_authz_user/?$">
+    <description>mod_authz_user without version</description>
+    <example>mod_authz_user/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_authz_user"/>
+  </fingerprint>
+  <fingerprint pattern="mod_autoindex/(\S+)$">
+    <description>mod_autoindex with version</description>
+    <example service.component.version="1.2.3">mod_autoindex/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_autoindex"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_autoindex/?$">
+    <description>mod_autoindex without version</description>
+    <example>mod_autoindex/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_autoindex"/>
+  </fingerprint>
+  <fingerprint pattern="mod_brotli/(\S+)$">
+    <description>mod_brotli with version</description>
+    <example service.component.version="1.2.3">mod_brotli/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_brotli"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_brotli/?$">
+    <description>mod_brotli without version</description>
+    <example>mod_brotli/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_brotli"/>
+  </fingerprint>
+  <fingerprint pattern="mod_buffer/(\S+)$">
+    <description>mod_buffer with version</description>
+    <example service.component.version="1.2.3">mod_buffer/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_buffer"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_buffer/?$">
+    <description>mod_buffer without version</description>
+    <example>mod_buffer/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_buffer"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cache/(\S+)$">
+    <description>mod_cache with version</description>
+    <example service.component.version="1.2.3">mod_cache/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cache"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cache/?$">
+    <description>mod_cache without version</description>
+    <example>mod_cache/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cache"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cache_disk/(\S+)$">
+    <description>mod_cache_disk with version</description>
+    <example service.component.version="1.2.3">mod_cache_disk/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cache_disk"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cache_disk/?$">
+    <description>mod_cache_disk without version</description>
+    <example>mod_cache_disk/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cache_disk"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cache_socache/(\S+)$">
+    <description>mod_cache_socache with version</description>
+    <example service.component.version="1.2.3">mod_cache_socache/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cache_socache"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cache_socache/?$">
+    <description>mod_cache_socache without version</description>
+    <example>mod_cache_socache/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cache_socache"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cern_meta/(\S+)$">
+    <description>mod_cern_meta with version</description>
+    <example service.component.version="1.2.3">mod_cern_meta/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cern_meta"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cern_meta/?$">
+    <description>mod_cern_meta without version</description>
+    <example>mod_cern_meta/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cern_meta"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cgi/(\S+)$">
+    <description>mod_cgi with version</description>
+    <example service.component.version="1.2.3">mod_cgi/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cgi"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cgi/?$">
+    <description>mod_cgi without version</description>
+    <example>mod_cgi/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cgi"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cgid/(\S+)$">
+    <description>mod_cgid with version</description>
+    <example service.component.version="1.2.3">mod_cgid/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cgid"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_cgid/?$">
+    <description>mod_cgid without version</description>
+    <example>mod_cgid/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_cgid"/>
+  </fingerprint>
+  <fingerprint pattern="mod_charset_lite/(\S+)$">
+    <description>mod_charset_lite with version</description>
+    <example service.component.version="1.2.3">mod_charset_lite/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_charset_lite"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_charset_lite/?$">
+    <description>mod_charset_lite without version</description>
+    <example>mod_charset_lite/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_charset_lite"/>
+  </fingerprint>
+  <fingerprint pattern="mod_data/(\S+)$">
+    <description>mod_data with version</description>
+    <example service.component.version="1.2.3">mod_data/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_data"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_data/?$">
+    <description>mod_data without version</description>
+    <example>mod_data/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_data"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dav/(\S+)$">
+    <description>mod_dav with version</description>
+    <example service.component.version="1.2.3">mod_dav/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dav"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dav/?$">
+    <description>mod_dav without version</description>
+    <example>mod_dav/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dav"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dav_fs/(\S+)$">
+    <description>mod_dav_fs with version</description>
+    <example service.component.version="1.2.3">mod_dav_fs/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dav_fs"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dav_fs/?$">
+    <description>mod_dav_fs without version</description>
+    <example>mod_dav_fs/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dav_fs"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dav_lock/(\S+)$">
+    <description>mod_dav_lock with version</description>
+    <example service.component.version="1.2.3">mod_dav_lock/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dav_lock"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dav_lock/?$">
+    <description>mod_dav_lock without version</description>
+    <example>mod_dav_lock/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dav_lock"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dav_svn/(\S+)$">
+    <description>mod_dav_svn with version</description>
+    <example service.component.version="1.2.3">mod_dav_svn/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dav_svn"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_dav_svn:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dav_svn/?$">
+    <description>mod_dav_svn without version</description>
+    <example>mod_dav_svn/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dav_svn"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_dav_svn:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dbd/(\S+)$">
+    <description>mod_dbd with version</description>
+    <example service.component.version="1.2.3">mod_dbd/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dbd"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dbd/?$">
+    <description>mod_dbd without version</description>
+    <example>mod_dbd/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dbd"/>
+  </fingerprint>
+  <fingerprint pattern="mod_deflate/(\S+)$">
+    <description>mod_deflate with version</description>
+    <example service.component.version="1.2.3">mod_deflate/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_deflate"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_deflate/?$">
+    <description>mod_deflate without version</description>
+    <example>mod_deflate/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_deflate"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dialup/(\S+)$">
+    <description>mod_dialup with version</description>
+    <example service.component.version="1.2.3">mod_dialup/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dialup"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dialup/?$">
+    <description>mod_dialup without version</description>
+    <example>mod_dialup/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dialup"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dir/(\S+)$">
+    <description>mod_dir with version</description>
+    <example service.component.version="1.2.3">mod_dir/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dir"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dir/?$">
+    <description>mod_dir without version</description>
+    <example>mod_dir/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dir"/>
+  </fingerprint>
+  <fingerprint pattern="mod_disk_cache/(\S+)$">
+    <description>mod_disk_cache with version</description>
+    <example service.component.version="1.2.3">mod_disk_cache/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_disk_cache"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_disk_cache/?$">
+    <description>mod_disk_cache without version</description>
+    <example>mod_disk_cache/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_disk_cache"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dontdothat/(\S+)$">
+    <description>mod_dontdothat with version</description>
+    <example service.component.version="1.2.3">mod_dontdothat/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dontdothat"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_dontdothat:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dontdothat/?$">
+    <description>mod_dontdothat without version</description>
+    <example>mod_dontdothat/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dontdothat"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_dontdothat:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dumpio/(\S+)$">
+    <description>mod_dumpio with version</description>
+    <example service.component.version="1.2.3">mod_dumpio/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dumpio"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_dumpio/?$">
+    <description>mod_dumpio without version</description>
+    <example>mod_dumpio/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_dumpio"/>
+  </fingerprint>
+  <fingerprint pattern="mod_echo/(\S+)$">
+    <description>mod_echo with version</description>
+    <example service.component.version="1.2.3">mod_echo/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_echo"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_echo/?$">
+    <description>mod_echo without version</description>
+    <example>mod_echo/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_echo"/>
+  </fingerprint>
+  <fingerprint pattern="mod_env/(\S+)$">
+    <description>mod_env with version</description>
+    <example service.component.version="1.2.3">mod_env/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_env"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_env/?$">
+    <description>mod_env without version</description>
+    <example>mod_env/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_env"/>
+  </fingerprint>
+  <fingerprint pattern="mod_example/(\S+)$">
+    <description>mod_example with version</description>
+    <example service.component.version="1.2.3">mod_example/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_example"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_example/?$">
+    <description>mod_example without version</description>
+    <example>mod_example/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_example"/>
+  </fingerprint>
+  <fingerprint pattern="mod_example_hooks/(\S+)$">
+    <description>mod_example_hooks with version</description>
+    <example service.component.version="1.2.3">mod_example_hooks/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_example_hooks"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_example_hooks/?$">
+    <description>mod_example_hooks without version</description>
+    <example>mod_example_hooks/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_example_hooks"/>
+  </fingerprint>
+  <fingerprint pattern="mod_expires/(\S+)$">
+    <description>mod_expires with version</description>
+    <example service.component.version="1.2.3">mod_expires/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_expires"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_expires/?$">
+    <description>mod_expires without version</description>
+    <example>mod_expires/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_expires"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ext_filter/(\S+)$">
+    <description>mod_ext_filter with version</description>
+    <example service.component.version="1.2.3">mod_ext_filter/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_ext_filter"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ext_filter/?$">
+    <description>mod_ext_filter without version</description>
+    <example>mod_ext_filter/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_ext_filter"/>
+  </fingerprint>
+  <fingerprint pattern="mod_fcgid/(\S+)$">
+    <description>mod_fcgid with version</description>
+    <example service.component.version="1.2.3">mod_fcgid/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_fcgid"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_fcgid:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_fcgid/?$">
+    <description>mod_fcgid without version</description>
+    <example>mod_fcgid/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_fcgid"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_fcgid:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_file_cache/(\S+)$">
+    <description>mod_file_cache with version</description>
+    <example service.component.version="1.2.3">mod_file_cache/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_file_cache"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_file_cache/?$">
+    <description>mod_file_cache without version</description>
+    <example>mod_file_cache/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_file_cache"/>
+  </fingerprint>
+  <fingerprint pattern="mod_filter/(\S+)$">
+    <description>mod_filter with version</description>
+    <example service.component.version="1.2.3">mod_filter/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_filter"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_filter/?$">
+    <description>mod_filter without version</description>
+    <example>mod_filter/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_filter"/>
+  </fingerprint>
+  <fingerprint pattern="mod_headers/(\S+)$">
+    <description>mod_headers with version</description>
+    <example service.component.version="1.2.3">mod_headers/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_headers"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_headers/?$">
+    <description>mod_headers without version</description>
+    <example>mod_headers/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_headers"/>
+  </fingerprint>
+  <fingerprint pattern="mod_heartbeat/(\S+)$">
+    <description>mod_heartbeat with version</description>
+    <example service.component.version="1.2.3">mod_heartbeat/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_heartbeat"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_heartbeat/?$">
+    <description>mod_heartbeat without version</description>
+    <example>mod_heartbeat/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_heartbeat"/>
+  </fingerprint>
+  <fingerprint pattern="mod_heartmonitor/(\S+)$">
+    <description>mod_heartmonitor with version</description>
+    <example service.component.version="1.2.3">mod_heartmonitor/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_heartmonitor"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_heartmonitor/?$">
+    <description>mod_heartmonitor without version</description>
+    <example>mod_heartmonitor/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_heartmonitor"/>
+  </fingerprint>
+  <fingerprint pattern="mod_http2/(\S+)$">
+    <description>mod_http2 with version</description>
+    <example service.component.version="1.2.3">mod_http2/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_http2"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_http2/?$">
+    <description>mod_http2 without version</description>
+    <example>mod_http2/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_http2"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ident/(\S+)$">
+    <description>mod_ident with version</description>
+    <example service.component.version="1.2.3">mod_ident/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_ident"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ident/?$">
+    <description>mod_ident without version</description>
+    <example>mod_ident/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_ident"/>
+  </fingerprint>
+  <fingerprint pattern="mod_imagemap/(\S+)$">
+    <description>mod_imagemap with version</description>
+    <example service.component.version="1.2.3">mod_imagemap/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_imagemap"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_imagemap/?$">
+    <description>mod_imagemap without version</description>
+    <example>mod_imagemap/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_imagemap"/>
+  </fingerprint>
+  <fingerprint pattern="mod_imap/(\S+)$">
+    <description>mod_imap with version</description>
+    <example service.component.version="1.2.3">mod_imap/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_imap"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_imap:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_imap/?$">
+    <description>mod_imap without version</description>
+    <example>mod_imap/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_imap"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_imap:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_include/(\S+)$">
+    <description>mod_include with version</description>
+    <example service.component.version="1.2.3">mod_include/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_include"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_include/?$">
+    <description>mod_include without version</description>
+    <example>mod_include/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_include"/>
+  </fingerprint>
+  <fingerprint pattern="mod_info/(\S+)$">
+    <description>mod_info with version</description>
+    <example service.component.version="1.2.3">mod_info/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_info"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_info/?$">
+    <description>mod_info without version</description>
+    <example>mod_info/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_info"/>
+  </fingerprint>
+  <fingerprint pattern="mod_isapi/(\S+)$">
+    <description>mod_isapi with version</description>
+    <example service.component.version="1.2.3">mod_isapi/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_isapi"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_isapi/?$">
+    <description>mod_isapi without version</description>
+    <example>mod_isapi/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_isapi"/>
+  </fingerprint>
+  <fingerprint pattern="mod_jk/(\S+)$">
+    <description>mod_jk with version</description>
+    <example service.component.version="1.2.3">mod_jk/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_jk"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_jk/?$">
+    <description>mod_jk without version</description>
+    <example>mod_jk/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_jk"/>
+  </fingerprint>
+  <fingerprint pattern="mod_jk2/(\S+)$">
+    <description>mod_jk2 with version</description>
+    <example service.component.version="1.2.3">mod_jk2/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_jk2"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_jk2/?$">
+    <description>mod_jk2 without version</description>
+    <example>mod_jk2/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_jk2"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lbmethod_bybusyness/(\S+)$">
+    <description>mod_lbmethod_bybusyness with version</description>
+    <example service.component.version="1.2.3">mod_lbmethod_bybusyness/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lbmethod_bybusyness"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lbmethod_bybusyness/?$">
+    <description>mod_lbmethod_bybusyness without version</description>
+    <example>mod_lbmethod_bybusyness/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lbmethod_bybusyness"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lbmethod_byrequests/(\S+)$">
+    <description>mod_lbmethod_byrequests with version</description>
+    <example service.component.version="1.2.3">mod_lbmethod_byrequests/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lbmethod_byrequests"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lbmethod_byrequests/?$">
+    <description>mod_lbmethod_byrequests without version</description>
+    <example>mod_lbmethod_byrequests/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lbmethod_byrequests"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lbmethod_bytraffic/(\S+)$">
+    <description>mod_lbmethod_bytraffic with version</description>
+    <example service.component.version="1.2.3">mod_lbmethod_bytraffic/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lbmethod_bytraffic"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lbmethod_bytraffic/?$">
+    <description>mod_lbmethod_bytraffic without version</description>
+    <example>mod_lbmethod_bytraffic/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lbmethod_bytraffic"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lbmethod_heartbeat/(\S+)$">
+    <description>mod_lbmethod_heartbeat with version</description>
+    <example service.component.version="1.2.3">mod_lbmethod_heartbeat/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lbmethod_heartbeat"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lbmethod_heartbeat/?$">
+    <description>mod_lbmethod_heartbeat without version</description>
+    <example>mod_lbmethod_heartbeat/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lbmethod_heartbeat"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ldap/(\S+)$">
+    <description>mod_ldap with version</description>
+    <example service.component.version="1.2.3">mod_ldap/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_ldap"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ldap/?$">
+    <description>mod_ldap without version</description>
+    <example>mod_ldap/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_ldap"/>
+  </fingerprint>
+  <fingerprint pattern="mod_log_config/(\S+)$">
+    <description>mod_log_config with version</description>
+    <example service.component.version="1.2.3">mod_log_config/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_log_config"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_log_config/?$">
+    <description>mod_log_config without version</description>
+    <example>mod_log_config/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_log_config"/>
+  </fingerprint>
+  <fingerprint pattern="mod_log_debug/(\S+)$">
+    <description>mod_log_debug with version</description>
+    <example service.component.version="1.2.3">mod_log_debug/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_log_debug"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_log_debug/?$">
+    <description>mod_log_debug without version</description>
+    <example>mod_log_debug/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_log_debug"/>
+  </fingerprint>
+  <fingerprint pattern="mod_log_forensic/(\S+)$">
+    <description>mod_log_forensic with version</description>
+    <example service.component.version="1.2.3">mod_log_forensic/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_log_forensic"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_log_forensic/?$">
+    <description>mod_log_forensic without version</description>
+    <example>mod_log_forensic/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_log_forensic"/>
+  </fingerprint>
+  <fingerprint pattern="mod_logio/(\S+)$">
+    <description>mod_logio with version</description>
+    <example service.component.version="1.2.3">mod_logio/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_logio"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_logio/?$">
+    <description>mod_logio without version</description>
+    <example>mod_logio/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_logio"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lua/(\S+)$">
+    <description>mod_lua with version</description>
+    <example service.component.version="1.2.3">mod_lua/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lua"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_lua/?$">
+    <description>mod_lua without version</description>
+    <example>mod_lua/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_lua"/>
+  </fingerprint>
+  <fingerprint pattern="mod_macro/(\S+)$">
+    <description>mod_macro with version</description>
+    <example service.component.version="1.2.3">mod_macro/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_macro"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_macro/?$">
+    <description>mod_macro without version</description>
+    <example>mod_macro/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_macro"/>
+  </fingerprint>
+  <fingerprint pattern="mod_md/(\S+)$">
+    <description>mod_md with version</description>
+    <example service.component.version="1.2.3">mod_md/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_md"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_md/?$">
+    <description>mod_md without version</description>
+    <example>mod_md/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_md"/>
+  </fingerprint>
+  <fingerprint pattern="mod_mem_cache/(\S+)$">
+    <description>mod_mem_cache with version</description>
+    <example service.component.version="1.2.3">mod_mem_cache/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_mem_cache"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_mem_cache/?$">
+    <description>mod_mem_cache without version</description>
+    <example>mod_mem_cache/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_mem_cache"/>
+  </fingerprint>
+  <fingerprint pattern="mod_mime/(\S+)$">
+    <description>mod_mime with version</description>
+    <example service.component.version="1.2.3">mod_mime/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_mime"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_mime/?$">
+    <description>mod_mime without version</description>
+    <example>mod_mime/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_mime"/>
+  </fingerprint>
+  <fingerprint pattern="mod_mime_magic/(\S+)$">
+    <description>mod_mime_magic with version</description>
+    <example service.component.version="1.2.3">mod_mime_magic/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_mime_magic"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_mime_magic/?$">
+    <description>mod_mime_magic without version</description>
+    <example>mod_mime_magic/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_mime_magic"/>
+  </fingerprint>
+  <fingerprint pattern="mod_negotiation/(\S+)$">
+    <description>mod_negotiation with version</description>
+    <example service.component.version="1.2.3">mod_negotiation/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_negotiation"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_negotiation/?$">
+    <description>mod_negotiation without version</description>
+    <example>mod_negotiation/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_negotiation"/>
+  </fingerprint>
+  <fingerprint pattern="mod_nw_ssl/(\S+)$">
+    <description>mod_nw_ssl with version</description>
+    <example service.component.version="1.2.3">mod_nw_ssl/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_nw_ssl"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_nw_ssl/?$">
+    <description>mod_nw_ssl without version</description>
+    <example>mod_nw_ssl/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_nw_ssl"/>
+  </fingerprint>
+  <fingerprint pattern="mod_perl/(\S+)$">
+    <description>mod_perl with version</description>
+    <example service.component.version="1.2.3">mod_perl/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_perl"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_perl:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_perl/?$">
+    <description>mod_perl without version</description>
+    <example>mod_perl/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_perl"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_perl:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_privileges/(\S+)$">
+    <description>mod_privileges with version</description>
+    <example service.component.version="1.2.3">mod_privileges/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_privileges"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_privileges/?$">
+    <description>mod_privileges without version</description>
+    <example>mod_privileges/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_privileges"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy/(\S+)$">
+    <description>mod_proxy with version</description>
+    <example service.component.version="1.2.3">mod_proxy/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy/?$">
+    <description>mod_proxy without version</description>
+    <example>mod_proxy/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_ajp/(\S+)$">
+    <description>mod_proxy_ajp with version</description>
+    <example service.component.version="1.2.3">mod_proxy_ajp/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_ajp"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_ajp/?$">
+    <description>mod_proxy_ajp without version</description>
+    <example>mod_proxy_ajp/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_ajp"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_balancer/(\S+)$">
+    <description>mod_proxy_balancer with version</description>
+    <example service.component.version="1.2.3">mod_proxy_balancer/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_balancer"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_balancer/?$">
+    <description>mod_proxy_balancer without version</description>
+    <example>mod_proxy_balancer/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_balancer"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_connect/(\S+)$">
+    <description>mod_proxy_connect with version</description>
+    <example service.component.version="1.2.3">mod_proxy_connect/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_connect"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_connect/?$">
+    <description>mod_proxy_connect without version</description>
+    <example>mod_proxy_connect/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_connect"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_express/(\S+)$">
+    <description>mod_proxy_express with version</description>
+    <example service.component.version="1.2.3">mod_proxy_express/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_express"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_express/?$">
+    <description>mod_proxy_express without version</description>
+    <example>mod_proxy_express/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_express"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_fcgi/(\S+)$">
+    <description>mod_proxy_fcgi with version</description>
+    <example service.component.version="1.2.3">mod_proxy_fcgi/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_fcgi"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_fcgi/?$">
+    <description>mod_proxy_fcgi without version</description>
+    <example>mod_proxy_fcgi/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_fcgi"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_fdpass/(\S+)$">
+    <description>mod_proxy_fdpass with version</description>
+    <example service.component.version="1.2.3">mod_proxy_fdpass/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_fdpass"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_fdpass/?$">
+    <description>mod_proxy_fdpass without version</description>
+    <example>mod_proxy_fdpass/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_fdpass"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_ftp/(\S+)$">
+    <description>mod_proxy_ftp with version</description>
+    <example service.component.version="1.2.3">mod_proxy_ftp/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_ftp"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_ftp/?$">
+    <description>mod_proxy_ftp without version</description>
+    <example>mod_proxy_ftp/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_ftp"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_hcheck/(\S+)$">
+    <description>mod_proxy_hcheck with version</description>
+    <example service.component.version="1.2.3">mod_proxy_hcheck/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_hcheck"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_hcheck/?$">
+    <description>mod_proxy_hcheck without version</description>
+    <example>mod_proxy_hcheck/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_hcheck"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_html/(\S+)$">
+    <description>mod_proxy_html with version</description>
+    <example service.component.version="1.2.3">mod_proxy_html/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_html"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_html/?$">
+    <description>mod_proxy_html without version</description>
+    <example>mod_proxy_html/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_html"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_http/(\S+)$">
+    <description>mod_proxy_http with version</description>
+    <example service.component.version="1.2.3">mod_proxy_http/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_http"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_http/?$">
+    <description>mod_proxy_http without version</description>
+    <example>mod_proxy_http/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_http"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_http2/(\S+)$">
+    <description>mod_proxy_http2 with version</description>
+    <example service.component.version="1.2.3">mod_proxy_http2/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_http2"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_http2/?$">
+    <description>mod_proxy_http2 without version</description>
+    <example>mod_proxy_http2/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_http2"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_scgi/(\S+)$">
+    <description>mod_proxy_scgi with version</description>
+    <example service.component.version="1.2.3">mod_proxy_scgi/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_scgi"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_scgi/?$">
+    <description>mod_proxy_scgi without version</description>
+    <example>mod_proxy_scgi/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_scgi"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_uwsgi/(\S+)$">
+    <description>mod_proxy_uwsgi with version</description>
+    <example service.component.version="1.2.3">mod_proxy_uwsgi/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_uwsgi"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_uwsgi/?$">
+    <description>mod_proxy_uwsgi without version</description>
+    <example>mod_proxy_uwsgi/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_uwsgi"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_wstunnel/(\S+)$">
+    <description>mod_proxy_wstunnel with version</description>
+    <example service.component.version="1.2.3">mod_proxy_wstunnel/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_wstunnel"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_proxy_wstunnel/?$">
+    <description>mod_proxy_wstunnel without version</description>
+    <example>mod_proxy_wstunnel/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_proxy_wstunnel"/>
+  </fingerprint>
+  <fingerprint pattern="mod_python/(\S+)$">
+    <description>mod_python with version</description>
+    <example service.component.version="1.2.3">mod_python/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_python"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_python:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_python/?$">
+    <description>mod_python without version</description>
+    <example>mod_python/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_python"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:apache:mod_python:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ratelimit/(\S+)$">
+    <description>mod_ratelimit with version</description>
+    <example service.component.version="1.2.3">mod_ratelimit/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_ratelimit"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ratelimit/?$">
+    <description>mod_ratelimit without version</description>
+    <example>mod_ratelimit/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_ratelimit"/>
+  </fingerprint>
+  <fingerprint pattern="mod_reflector/(\S+)$">
+    <description>mod_reflector with version</description>
+    <example service.component.version="1.2.3">mod_reflector/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_reflector"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_reflector/?$">
+    <description>mod_reflector without version</description>
+    <example>mod_reflector/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_reflector"/>
+  </fingerprint>
+  <fingerprint pattern="mod_remoteip/(\S+)$">
+    <description>mod_remoteip with version</description>
+    <example service.component.version="1.2.3">mod_remoteip/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_remoteip"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_remoteip/?$">
+    <description>mod_remoteip without version</description>
+    <example>mod_remoteip/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_remoteip"/>
+  </fingerprint>
+  <fingerprint pattern="mod_reqtimeout/(\S+)$">
+    <description>mod_reqtimeout with version</description>
+    <example service.component.version="1.2.3">mod_reqtimeout/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_reqtimeout"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_reqtimeout/?$">
+    <description>mod_reqtimeout without version</description>
+    <example>mod_reqtimeout/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_reqtimeout"/>
+  </fingerprint>
+  <fingerprint pattern="mod_request/(\S+)$">
+    <description>mod_request with version</description>
+    <example service.component.version="1.2.3">mod_request/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_request"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_request/?$">
+    <description>mod_request without version</description>
+    <example>mod_request/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_request"/>
+  </fingerprint>
+  <fingerprint pattern="mod_rewrite/(\S+)$">
+    <description>mod_rewrite with version</description>
+    <example service.component.version="1.2.3">mod_rewrite/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_rewrite"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_rewrite/?$">
+    <description>mod_rewrite without version</description>
+    <example>mod_rewrite/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_rewrite"/>
+  </fingerprint>
+  <fingerprint pattern="mod_sed/(\S+)$">
+    <description>mod_sed with version</description>
+    <example service.component.version="1.2.3">mod_sed/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_sed"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_sed/?$">
+    <description>mod_sed without version</description>
+    <example>mod_sed/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_sed"/>
+  </fingerprint>
+  <fingerprint pattern="mod_session/(\S+)$">
+    <description>mod_session with version</description>
+    <example service.component.version="1.2.3">mod_session/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_session"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_session/?$">
+    <description>mod_session without version</description>
+    <example>mod_session/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_session"/>
+  </fingerprint>
+  <fingerprint pattern="mod_session_cookie/(\S+)$">
+    <description>mod_session_cookie with version</description>
+    <example service.component.version="1.2.3">mod_session_cookie/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_session_cookie"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_session_cookie/?$">
+    <description>mod_session_cookie without version</description>
+    <example>mod_session_cookie/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_session_cookie"/>
+  </fingerprint>
+  <fingerprint pattern="mod_session_crypto/(\S+)$">
+    <description>mod_session_crypto with version</description>
+    <example service.component.version="1.2.3">mod_session_crypto/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_session_crypto"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_session_crypto/?$">
+    <description>mod_session_crypto without version</description>
+    <example>mod_session_crypto/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_session_crypto"/>
+  </fingerprint>
+  <fingerprint pattern="mod_session_dbd/(\S+)$">
+    <description>mod_session_dbd with version</description>
+    <example service.component.version="1.2.3">mod_session_dbd/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_session_dbd"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_session_dbd/?$">
+    <description>mod_session_dbd without version</description>
+    <example>mod_session_dbd/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_session_dbd"/>
+  </fingerprint>
+  <fingerprint pattern="mod_setenvif/(\S+)$">
+    <description>mod_setenvif with version</description>
+    <example service.component.version="1.2.3">mod_setenvif/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_setenvif"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_setenvif/?$">
+    <description>mod_setenvif without version</description>
+    <example>mod_setenvif/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_setenvif"/>
+  </fingerprint>
+  <fingerprint pattern="mod_slotmem_plain/(\S+)$">
+    <description>mod_slotmem_plain with version</description>
+    <example service.component.version="1.2.3">mod_slotmem_plain/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_slotmem_plain"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_slotmem_plain/?$">
+    <description>mod_slotmem_plain without version</description>
+    <example>mod_slotmem_plain/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_slotmem_plain"/>
+  </fingerprint>
+  <fingerprint pattern="mod_slotmem_shm/(\S+)$">
+    <description>mod_slotmem_shm with version</description>
+    <example service.component.version="1.2.3">mod_slotmem_shm/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_slotmem_shm"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_slotmem_shm/?$">
+    <description>mod_slotmem_shm without version</description>
+    <example>mod_slotmem_shm/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_slotmem_shm"/>
+  </fingerprint>
+  <fingerprint pattern="mod_so/(\S+)$">
+    <description>mod_so with version</description>
+    <example service.component.version="1.2.3">mod_so/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_so"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_so/?$">
+    <description>mod_so without version</description>
+    <example>mod_so/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_so"/>
+  </fingerprint>
+  <fingerprint pattern="mod_socache_dbm/(\S+)$">
+    <description>mod_socache_dbm with version</description>
+    <example service.component.version="1.2.3">mod_socache_dbm/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_socache_dbm"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_socache_dbm/?$">
+    <description>mod_socache_dbm without version</description>
+    <example>mod_socache_dbm/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_socache_dbm"/>
+  </fingerprint>
+  <fingerprint pattern="mod_socache_dc/(\S+)$">
+    <description>mod_socache_dc with version</description>
+    <example service.component.version="1.2.3">mod_socache_dc/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_socache_dc"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_socache_dc/?$">
+    <description>mod_socache_dc without version</description>
+    <example>mod_socache_dc/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_socache_dc"/>
+  </fingerprint>
+  <fingerprint pattern="mod_socache_memcache/(\S+)$">
+    <description>mod_socache_memcache with version</description>
+    <example service.component.version="1.2.3">mod_socache_memcache/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_socache_memcache"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_socache_memcache/?$">
+    <description>mod_socache_memcache without version</description>
+    <example>mod_socache_memcache/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_socache_memcache"/>
+  </fingerprint>
+  <fingerprint pattern="mod_socache_shmcb/(\S+)$">
+    <description>mod_socache_shmcb with version</description>
+    <example service.component.version="1.2.3">mod_socache_shmcb/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_socache_shmcb"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_socache_shmcb/?$">
+    <description>mod_socache_shmcb without version</description>
+    <example>mod_socache_shmcb/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_socache_shmcb"/>
+  </fingerprint>
+  <fingerprint pattern="mod_speling/(\S+)$">
+    <description>mod_speling with version</description>
+    <example service.component.version="1.2.3">mod_speling/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_speling"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_speling/?$">
+    <description>mod_speling without version</description>
+    <example>mod_speling/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_speling"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ssl/(\S+)$">
+    <description>mod_ssl with version</description>
+    <example service.component.version="1.2.3">mod_ssl/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="mod_ssl"/>
+    <param pos="0" name="service.component.product" value="mod_ssl"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:modssl:mod_ssl:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_ssl/?$">
+    <description>mod_ssl without version</description>
+    <example>mod_ssl/</example>
+    <param pos="0" name="service.component.vendor" value="mod_ssl"/>
+    <param pos="0" name="service.component.product" value="mod_ssl"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:modssl:mod_ssl:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_status/(\S+)$">
+    <description>mod_status with version</description>
+    <example service.component.version="1.2.3">mod_status/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_status"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_status/?$">
+    <description>mod_status without version</description>
+    <example>mod_status/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_status"/>
+  </fingerprint>
+  <fingerprint pattern="mod_substitute/(\S+)$">
+    <description>mod_substitute with version</description>
+    <example service.component.version="1.2.3">mod_substitute/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_substitute"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_substitute/?$">
+    <description>mod_substitute without version</description>
+    <example>mod_substitute/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_substitute"/>
+  </fingerprint>
+  <fingerprint pattern="mod_suexec/(\S+)$">
+    <description>mod_suexec with version</description>
+    <example service.component.version="1.2.3">mod_suexec/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_suexec"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_suexec/?$">
+    <description>mod_suexec without version</description>
+    <example>mod_suexec/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_suexec"/>
+  </fingerprint>
+  <fingerprint pattern="mod_unique_id/(\S+)$">
+    <description>mod_unique_id with version</description>
+    <example service.component.version="1.2.3">mod_unique_id/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_unique_id"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_unique_id/?$">
+    <description>mod_unique_id without version</description>
+    <example>mod_unique_id/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_unique_id"/>
+  </fingerprint>
+  <fingerprint pattern="mod_unixd/(\S+)$">
+    <description>mod_unixd with version</description>
+    <example service.component.version="1.2.3">mod_unixd/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_unixd"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_unixd/?$">
+    <description>mod_unixd without version</description>
+    <example>mod_unixd/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_unixd"/>
+  </fingerprint>
+  <fingerprint pattern="mod_userdir/(\S+)$">
+    <description>mod_userdir with version</description>
+    <example service.component.version="1.2.3">mod_userdir/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_userdir"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_userdir/?$">
+    <description>mod_userdir without version</description>
+    <example>mod_userdir/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_userdir"/>
+  </fingerprint>
+  <fingerprint pattern="mod_usertrack/(\S+)$">
+    <description>mod_usertrack with version</description>
+    <example service.component.version="1.2.3">mod_usertrack/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_usertrack"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_usertrack/?$">
+    <description>mod_usertrack without version</description>
+    <example>mod_usertrack/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_usertrack"/>
+  </fingerprint>
+  <fingerprint pattern="mod_version/(\S+)$">
+    <description>mod_version with version</description>
+    <example service.component.version="1.2.3">mod_version/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_version"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_version/?$">
+    <description>mod_version without version</description>
+    <example>mod_version/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_vhost_alias/(\S+)$">
+    <description>mod_vhost_alias with version</description>
+    <example service.component.version="1.2.3">mod_vhost_alias/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_vhost_alias"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_vhost_alias/?$">
+    <description>mod_vhost_alias without version</description>
+    <example>mod_vhost_alias/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_vhost_alias"/>
+  </fingerprint>
+  <fingerprint pattern="mod_watchdog/(\S+)$">
+    <description>mod_watchdog with version</description>
+    <example service.component.version="1.2.3">mod_watchdog/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_watchdog"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_watchdog/?$">
+    <description>mod_watchdog without version</description>
+    <example>mod_watchdog/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_watchdog"/>
+  </fingerprint>
+  <fingerprint pattern="mod_wsgi/(\S+)$">
+    <description>mod_wsgi with version</description>
+    <example service.component.version="1.2.3">mod_wsgi/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="mod_wsgi"/>
+    <param pos="0" name="service.component.product" value="mod_wsgi"/>
+    <param pos="1" name="service.component.version"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:modwsgi:mod_wsgi:{service.component.version}"/>
+  </fingerprint>
+  <fingerprint pattern="mod_wsgi/?$">
+    <description>mod_wsgi without version</description>
+    <example>mod_wsgi/</example>
+    <param pos="0" name="service.component.vendor" value="mod_wsgi"/>
+    <param pos="0" name="service.component.product" value="mod_wsgi"/>
+    <param pos="0" name="service.component.cpe23" value="cpe:/a:modwsgi:mod_wsgi:-"/>
+  </fingerprint>
+  <fingerprint pattern="mod_xml2enc/(\S+)$">
+    <description>mod_xml2enc with version</description>
+    <example service.component.version="1.2.3">mod_xml2enc/1.2.3</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_xml2enc"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+  <fingerprint pattern="mod_xml2enc/?$">
+    <description>mod_xml2enc without version</description>
+    <example>mod_xml2enc/</example>
+    <param pos="0" name="service.component.vendor" value="Apache"/>
+    <param pos="0" name="service.component.product" value="mod_xml2enc"/>
+  </fingerprint>
+  <fingerprint pattern="^Phusion_Passenger/(\S+)$">
+    <description>Phusion passenger with version</description>
+    <example service.component.version="1.1">Phusion_Passenger/1.1</example>
+    <param pos="0" name="service.component.product" value="Phusion Passenger"/>
+    <param pos="1" name="service.component.version"/>
+  </fingerprint>
+</fingerprints>

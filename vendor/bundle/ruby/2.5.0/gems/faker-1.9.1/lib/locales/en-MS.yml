@@ -1,0 +1,41 @@
+en-MS:
+  faker:
+    name:
+      prefix: [Dato, Datin]
+      malay_male_first_name: [Abu, Ahmad, Malik, Osman, Abdullah, Abu Bakar, Azuan, Sulaiman, Daud, Azizi, Jaafar]
+      malay_female_first_name: [Siti, Aminah, Aiza, Hajar, Sofia, Dahlia, Akma, Nur, Sariha, Syazana, Nuratika, Farah]
+      chinese_male_first_name: [Jin Quan, Wen Jun, Jun Jie, Cheng Han, Tze-Kwang, Jin Leong, Zi Liang, Zhi Ren, Jin Quan, Wen Jun, Chee Hin, Guo Jun, Kai Jie, Kun Qiang,Jun Kiat, Yong Zheng, Yong Jun, Chit Boon, You Ren, Wen Zhong, Yang Shun, Qi Guang, Kang Soon, Wee Heng, Kah Yang, Siew Beng, Jia Woei, Chean Meng, Wai Kay, Keng Hua, Yew Meng, Cheng Wen, Jiun Wei, Yee Sian, Shao Hong, Bin Shen, Wing Yiu, Ee Hong, Yu Pyn, Yong Sheng, Jun Peng, Jia Jie, Guang Yi, Si Heng, Wei Hou, Kang Sheng, Hong Ern, Jia Liang, Wei Lip, Wee Chen, Wee Leng, Yu Xi, Ming Yang, Wen Hao, Siang Meng, Mong Li, Ghim Huat, Jun Yi, Jie Kai, Zhiming, Wei Jie, Teng Qing, Wei Jian, Wei Kwan, Chee Chin]
+      chinese_male_last_name: [Tan, Lim, Lee, Ng, Ong, Wong, Goh, Chua, Chan, Koh, Teo, Ang, Yeo, Tay, Ho, Low]
+      chinese_female_first_name: [Xiu Yi, Wai Teng, Sing Yee, Jing Yi, Jia Yee, Jia Xuan, Shu En, Pei Ying, Pei Yu, Pih Foung, Li-ann, Shi Xuan, Yi Xuan, Shu En, Yi Xin, Hui Juan, Yu En, Yihui, Xin Yi, Yun Xuan, Xuan Xuan]
+      first_name:
+        - "#{malay_male_first_name}"
+        - "#{malay_female_first_name}"
+        - "#{chinese_male_first_name}"
+        - "#{chinese_female_first_name}"
+      name:
+        - "#{malay_male_first_name} bin #{malay_male_first_name}"
+        - "#{malay_female_first_name} binti #{malay_male_first_name}"
+        - "#{chinese_male_last_name} #{chinese_male_first_name}"
+        - "#{chinese_female_first_name} #{chinese_male_first_name}"
+        - "#{prefix} #{malay_male_first_name} bin #{malay_male_first_name}"
+        - "#{prefix} #{malay_female_first_name} binti #{malay_male_first_name}"
+        - "#{prefix} #{chinese_male_last_name} #{chinese_male_first_name}"
+        - "#{prefix} #{chinese_female_first_name} #{chinese_male_first_name}"
+    address:
+      city_name: [Subang Jaya, Kuala Lumpur, Johor Bahru, Ipoh, Klang, Seberang Perai, Ampang, Georgetown, Gombak, Kuching, Shah Alam, Seremban, Petaling Jaya, Cheras, Bandaraya Melaka, Kota Bharu, Kota Kinabalu, Kuantan, Sungai Petani, Kajang, Batu Pahat, Tawau, Sandakan, Alor Setar, Kuala Terengganu, Taiping, Miri, Kluang, Kulim, Selayang, Kulai, Sibu, Muar, Manjung, Perlis, Kubang Pasu, Sepang, Teluk Intan, Lahad Datu, Kota Tinggi, Segamat, Pasir Mas, Bintulu, Alor Gajah, Kerian, Batang Padang, Keningau, Kemaman, Temerloh, Kuala Kangsar, Pontian, Dungun, Tumpat, Kinabatangan, Besut, Semporna, Ledang, Baling, Jasin, Bachok, Papar, Penampang, Tanah Merah, Bentong, Pasir Puteh, Jempol, Maran, Port Dickson, Rompin, Pekan, Kuala Krai, Beluran, Sabak Bernam, Tuaran, Perak Tengah, Bera, Marang, Ranau, Raub, Pendang, Langkawi, Kota Belud, Machang, Serian, Hulu Perak, Jerantut, Gua Musang, Lipis, Samarahan, Labuan, Kudat, Tampin, Putrajaya, Hulu Terengganu, Mersing, Yan, Kota Marudu, Sik, Sri Aman, Beaufort, Kuala Pilah, Marudi, Kuala Nerang, Kunak, Betong, Sarikei, Tenom, Kapit, Putatan, Setiu, Bau, Pokok Sena, Limbang, Saratok, Rembau, Mukah, Bandar Baharu, Jeli, Simunjan, Jelebu, Pitas, Cameron Highlands, Lawas, Tambunan, Tongod, Belaga, Sipitang, Lundu, Nabawan, Asajaya, Daro, Tatau, Maradong, Kanowit, Lubok Antu, Selangau, Song, Kuala Penyu, Dalat, Matu, Julau, Pakan, Padawan, Lojing, Kampa, Muallim]
+      city:
+        - "#{city_name}"
+      province: [Johor, Kedah, Kelantan, Melaka, Negeri Sembilan, Pahang, Pulau Pinang, Perak, Perlis, Selangor, Terengganu, Sabah, Sarawak, WP Kuala Lumpur, WP Labuan, WP Putrajaya]
+      postcode: ['#####']
+      building_number: ['##']
+      street_prefix: [Jalan, Lorong, Pinggiran, Medan, Persiaran, Selekoh, Persisiran, Perkarangan, Pengkalan, Lurah, Lintang, Lingkungan, Lingkaran, Lengkung, Lengkok, Lebuhraya, Lebuh, Langgak, Laman, Halaman, Gerbang, Dataran, Bulatan, Laluan]
+      street_title: [Makmur, Bukit Bintang, Bangsar, Chow Kit, Hang Jebat, Hang Tuah, Kinabalu, Kuching, Maharajalela, Masjid India, Istana, Pudu]
+      street_name:
+        - "#{street_prefix} #{street_title}"
+      street_address:
+        - "No. #{building_number}, #{street_name}"
+      default_country: [Malaysia]
+    phone_number:
+      formats: ['03#######', '+601########']
+    bank:
+      name: [Affin Bank Berhad, Agro Bank Berhad, Alliance Bank Malaysia Berhad, AmBank Berhad, Bank Islam Berhad, Bank Muamalat Berhad, Bank Rakyat Berhad, Bank Simpanan Nasional, CIMB Bank Berhad, Hong Leong Bank Berhad, Malayan Banking Berhad, Public Bank Berhad, RHB Bank Berhad, Tabung Haji]

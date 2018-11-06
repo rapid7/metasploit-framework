@@ -1,0 +1,94 @@
+en:
+  activerecord:
+    ancestors:
+      mdm/service:
+        search:
+          operator:
+            names:
+              info:
+                help: "Filters the results by service information or banners that contain the specified value."
+              name:
+                help: "Filters the results by service name."
+              proto:
+                help: "Filters the results by transport protocol."
+              port:
+                help: "Filters the results by port number."
+      mdm/host:
+        search:
+          operator:
+            names:
+              name:
+                help: "Filters the results by host name."
+              address:
+                help: "Filters the results by IP address or range."
+              os:
+                help: "Filters the results by operating system."
+              os_name:
+                help: "Filters the results by operating system."
+      mdm/tag:
+        model:
+          errors:
+            messages:
+              character: "Tag names can only contain alphanumeric characters, dots, dashes, and underscores."
+              length: "desc must be less than 8k."
+
+        search:
+          operator:
+            names:
+              name:
+                help: "Filters the results by tag."
+              desc:
+                help: "Filters the results by the description field of an associated tag."
+  metasploit:
+    model:
+      errors:
+        messages:
+          # have to duplicate activerecord.model.errors.message.taken because of the different i18n_scope
+          taken: "has already been taken"
+        models:
+          metasploit_data_models/ip_address/range:
+            attributes:
+              value:
+                order: "beginning of range (%{begin}) cannot be after end of range (%{end})"
+          metasploit_data_models/ip_address/v4/segmented:
+            attributes:
+              segments:
+                segment_invalid: "has invalid segment (%{segment}) at index %{index}"
+                wrong_length: "is the wrong length (should be %{count} segments)"
+          metasploit_data_models/ip_address/v4/segment/nmap/list:
+            attributes:
+              value:
+                array: "is not an Array"
+                element: "has invalid element (%{element}) at index %{index}"
+          metasploit_data_models/ip_address/v4/segment/nmap/range:
+            attributes:
+              value:
+                order: "beginning of range (%{begin}) cannot be after end of range (%{end})"
+          metasploit_data_models/search/operation/ip_address/invalid_range:
+            attributes:
+              value:
+                format: "does not match any known formats (IPv4, IPv4 CIDR, IPv4 NMAP, IPv4 Range, IPv6, IPv6 CIDR, IPv6 Range)"
+          metasploit_data_models/search/operation/ip_address/v4/range:
+            attributes:
+              value:
+                extreme: "%{extreme} (%{extreme_value}) is not an IPAddr"
+                order: "beginning of range (%{begin}) cannot be after end of range (%{end})"
+                type: "is not a range"
+          metasploit_data_models/search/operation/ip_address/v4/single:
+            attributes:
+              value:
+                format: "does not match IPv4 dotted decimal format"
+          metasploit_data_models/search/operation/port/range:
+            attributes:
+              value:
+                port_range_extreme_inclusion: "has extreme (%{extreme}) value (%{extreme_value}) outside range (%{minimum}-%{maximum})."
+                port_range_extreme_not_an_integer: "has extreme (%{extreme}) value (%{extreme_value}) that is not an integer."
+          metasploit_data_models/search/operation/range:
+            attributes:
+              value:
+                order: "is not in order: begin (%{begin} is greater than end (%{end})."
+                range: "is not a range"
+          metasploit_data_models/search/operator/multitext:
+            attributes:
+              operator_names:
+                too_short: "is too short (minimum is %{count} operator names)"

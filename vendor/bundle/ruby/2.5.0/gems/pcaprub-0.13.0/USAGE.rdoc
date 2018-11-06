@@ -1,0 +1,140 @@
+= Usage of Pcaprub
+
+Pcaprub is a ruby wrapper to the libpcap libary. It provides a common method to access the c bindings defined in libpcap. 
+
+Many of the methods require the Pcap instance to be "ready". 
+
+ - "Ready" is defined as being initiated with open_live open_dead or open_offline.
+ 
+== Basics of Pcaprub  
+
+  require "rubygems"
+  require "pcaprub"
+
+  mypcap = PCAPRUB::Pcap.new  
+  
+== Backwards Compatibility
+
+Pcaprub is included automatically upon load. This mixes in ::Pcap for backwards compatibility.
+
+  require "rubygems"
+  require "pcaprub"
+
+  mypcap = ::Pcap.new  
+
+
+== Setting up a live Capture
+
+  dev = PCAPRUB::Pcap.lookupdev
+
+  snaplength = 65535
+  promiscous_mode = true 
+  timeout = 0 
+  
+  system("ifconfig", dev, "up")
+  
+  capture = ::Pcap.open_live(dev, snaplength, promiscous_mode, timeout)  
+  
+== Open an existing pcap file
+  
+  pcapfile = File.dirname(__FILE__) + "/foo.pcap"
+  
+  if(not File.exists?(pcapfile))
+    raise RuntimeError, "The PCAP file #{pcapfile} could not be found"
+  end
+  
+  capture = ::Pcap.open_offline(pcapfile)
+  
+== Setting a BPF Filter
+  
+  bpf = "ip and not net 10.0.0.0/8"
+  
+  capture.setfilter(bpf)
+
+== Reading Capture Statistics
+
+Packets Received 
+  capture.stats['recv']
+
+Packets Dropped  
+	capture.stats['drop']
+
+Packets Dropped by Interface
+	capture.stats['ifdrop']
+
+== Running the Capture
+
+Sniffing a set number of packets and also letting the user Interrupt Early
+
+  capture_packets = 100
+  
+  begin
+    capture.each do |packet|
+      p packet 
+      # Handling the number of packets to process
+      capture_packets -= 1
+      if capture_packets == 0
+        break
+      end
+    end
+    
+  # ^C to stop sniffing
+  rescue Interrupt
+    puts "\nPacket Capture stopped by interrupt signal."
+    
+  rescue Exception => e
+    puts "\nERROR: #{e}"
+    retry
+  end
+	
+== Examining the DataLink
+
+Ethernet or Linux loopback
+  if capture.datalink == PCAPRUB::Pcap::DLT_EN10MB
+    puts "Ethernet 10MB Link detected"
+  end
+
+== Examining Packet Internals
+
+Sniffing and yielding Packet Objects using "each_packet"
+
+  require 'pcaprub'
+  SNAPLENGTH = 65535
+  capture = PCAPRUB::Pcap.open_live('wlan0', SNAPLENGTH, true, 0)
+  capture.setfilter('port 80')
+
+  capture_packets = 10
+  capture.each_packet do |packet|
+    puts packet.class
+    puts Time.at(packet.time)
+    puts "micro => #{packet.microsec}"
+    puts "Packet Length => #{packet.length}"
+    p packet.data
+    
+    capture_packets -= 1
+    if capture_packets == 0
+      break
+    end
+  end  
+
+  
+== Using the Packet Dump Capabilities
+Write to file Example.pcap the first 10 packets on eth0.
+
+  require 'pcaprub'
+  SNAPLENGTH = 65535
+  capture = PCAPRUB::Pcap.open_live('eth0', SNAPLENGTH, true, 0)
+  dumper = capture.dump_open('./Example.pcap')
+
+  capture_packets = 10
+  capture.each do |packet|
+    capture.dump(packet.length, packet.length, packet)
+    capture_packets -= 1
+    if capture_packets == 0
+      break
+    end
+  end
+  
+  capture.dump_close
+  
+    

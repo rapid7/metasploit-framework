@@ -1,0 +1,36 @@
+----------------------------------------------------------- Class: A < B
+
+    Abstract. override this class
+
+    Comments 
+
+See Also:
+---------
+
+    - A
+    - http://example.com - Example
+
+Author:
+-------
+
+    Test
+
+Version:
+--------
+
+    1.0
+
+
+------------------------------------------------------------------------
+
+Direct Known Subclasses:
+------------------------
+
+    C
+
+Instance methods:
+-----------------
+
+    a, initialize, method_missing
+
+

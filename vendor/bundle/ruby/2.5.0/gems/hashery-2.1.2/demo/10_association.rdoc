@@ -1,0 +1,59 @@
+= Association
+
+An Association is a class for creating simple pairings.
+
+    require 'hashery/association'
+
+An Association can bew created through the usual means 
+of instantiation.
+
+    Association.new(:a, :b)
+
+Or the shortcut method #>> can be used in most cases.
+
+    :x >> :z
+
+An association provides two methods to access its content, #index and #value.
+
+    a = 'foo' >> 'bar'
+
+    a.index.assert == 'foo'
+    a.value.assert == 'bar'
+
+Associations can be used to create ordered-hashes via normal
+arrays.
+
+    keys = []
+    vals = []
+
+    ohash = [ 'A' >> '3', 'B' >> '2', 'C' >> '1' ]
+
+    ohash.each{ |k,v| keys << k ; vals << v }
+
+    keys.assert == ['A','B','C']
+    vals.assert == ['3','2','1']
+
+
+Becuase Associations are objects in themselves more complex
+collections can also be created.
+
+    complex = [
+      'parent' >> 'child',
+      'childless',
+      'another_parent' >> [
+        'subchildless',
+        'subparent' >> 'subchild'
+      ]
+    ]
+
+An experimental feature of Association keeps a cache of all defined associations.
+
+    o = Object.new
+    o >> :a
+    o >> :b
+    o >> :c
+
+    o.associations.assert == [:a, :b, :c]
+
+However this feature will probably be deprecated.
+

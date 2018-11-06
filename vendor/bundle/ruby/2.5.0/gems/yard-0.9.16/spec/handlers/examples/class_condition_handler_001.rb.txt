@@ -1,0 +1,69 @@
+class A
+  if some_condition
+    def a; end
+  elsif 1 == 1
+    def b; end
+  else
+    def c; end
+  end
+
+  def d; end if 50 * 2 == 101
+
+  unless false
+    def e; end
+  else
+    def enot; end
+  end
+
+  def g; end unless 5 * 2 == 101
+
+  def h
+    if 1
+      def hnot; end
+    end
+  end
+
+  if defined? A
+    def j; end
+  else
+    def jnot; end
+  end
+
+  if defined? RUBY_VERSION
+    def k; end
+  else
+    def knot; end
+  end
+
+  if 0
+    def nnot; end
+  else
+    def n; end
+  end
+
+  if 256
+    def o; end
+  else
+    def onot; end
+  end
+
+  if true
+    def p; end
+  else
+    def pnot; end
+  end
+
+  if false
+    def qnot; end
+  else
+    def q; end
+  end
+
+  private
+
+  if a == 1
+    def m; end
+  else
+    def mnot; end
+  end
+end

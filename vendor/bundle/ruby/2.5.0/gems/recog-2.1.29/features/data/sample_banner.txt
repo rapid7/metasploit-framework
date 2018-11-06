@@ -1,0 +1,2 @@
+---------- Welcome to Pure-FTPd [privsep] [TLS] ----------
+polaris FTP server (SunOS 5.8) ready.

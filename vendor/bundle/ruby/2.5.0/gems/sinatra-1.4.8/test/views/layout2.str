@@ -1,0 +1,2 @@
+<h1>String Layout!</h1>
+#{yield}

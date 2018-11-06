@@ -1,0 +1,37 @@
+<form class="search" method="get" action="<%= abs_url base_path(router.search_prefix) %>">
+  <input name="q" type="search" placeholder="Search" id="search_box" size="30" value="<%= h @query %>" />
+</form>
+<script type="text/javascript" charset="utf-8">
+  $(function() {
+    $('#search_box').autocomplete($('#search_box').parent().attr('action'), {
+      width: 200,
+      formatItem: function(item) {
+        var values = item[0].split(",");
+        return values[0] + (values[1] == '' ? "" : " <small>(" + values[1] + ")</small>");
+      }
+    }).result(function(event, item) {
+      var values = item[0].split(",")
+      $('#search_box').val(values[1]);
+      location.href = values[3];
+      return false;
+    });
+  });
+</script>
+
+<div id="menu">
+  <% unless @single_library %>
+    <a href="<%= abs_url router.docs_prefix %>" target="_top">Libraries</a> &raquo;
+    <span class="title"><%= @library.name %> <% if @library.version %><small>(<%= @library.version %>)</small><% end %></span>
+  <% end %>
+  <% if object.is_a?(CodeObjects::Base) && @file.nil? %>
+    <% unless @single_library %>&raquo;<% end %>
+    <a href="<%= url_for_index %>"><% if object.root? || object.type == :method %>Index<% else %>Index (<%= object.name.to_s[0] %>)<% end %></a> &raquo;
+    <%= @breadcrumb.map {|obj| "<span class='title'>" + linkify(obj, obj.name) + "</span>" }.join(" &raquo; ") %>
+    <%= @breadcrumb.size > 0 ? " &raquo; " : "" %>
+    <span class='title'><%= object.root? ? "Top Level Namespace" : object.name(true) %></span>
+  <% else %>
+    <% if (@breadcrumb_title || object != '_index.html') && !@single_library %>&raquo; <% end %>
+    <% if object != '_index.html' %><a href="<%= url_for_index %>">Index</a> &raquo; <% end %>
+    <span class='title'><%= @breadcrumb_title %></span>
+  <% end %>
+</div>

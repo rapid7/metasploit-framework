@@ -1,0 +1,34 @@
+language: ruby
+
+# Apparently sudo is required to test on Rubinius and JRuby-head
+sudo: required
+
+# See https://docs.travis-ci.com/user/languages/ruby/#Rubinius
+dist: trusty
+
+rvm:
+  # MRI
+  - ruby-head
+  - 2.5
+  - 2.4
+  - 2.3
+  - 2.2
+  - 2.1
+  - 1.9.3
+  - 1.8.7
+  - ree
+  # JRuby
+  - jruby-head
+  - jruby-9.1.15.0 # Specific version to work around https://github.com/travis-ci/travis-ci/issues/9049
+  - jruby-9.0
+  - jruby-19mode
+  - jruby-18mode
+  # Rubinius
+  - rubinius-3
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: jruby-head
+    - rvm: rubinius-3
+  fast_finish: true

@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'rspec/core'
+RSpec::Core::Runner.invoke

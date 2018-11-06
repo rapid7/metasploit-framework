@@ -1,0 +1,23 @@
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/pcaprub-0.13.0/ext/pcaprub_c
+/usr/bin/ruby2.5 -r ./siteconf20181028-14830-jghpjm.rb extconf.rb
+
+[*] Running checks for pcaprub_c code...
+platform is x86_64-linux-gnu
+checking for ruby/thread.h... yes
+checking for rb_thread_blocking_region()... no
+checking for rb_thread_call_without_gvl()... yes
+checking for pcap_open_live() in -lpcap... yes
+checking for pcap_setnonblock() in -lpcap... yes
+creating Makefile
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/pcaprub-0.13.0/ext/pcaprub_c
+make "DESTDIR=" clean
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/pcaprub-0.13.0/ext/pcaprub_c
+make "DESTDIR="
+compiling pcaprub.c
+linking shared-object pcaprub_c.so
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/pcaprub-0.13.0/ext/pcaprub_c
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 pcaprub_c.so ./.gem.20181028-14830-1w748r9

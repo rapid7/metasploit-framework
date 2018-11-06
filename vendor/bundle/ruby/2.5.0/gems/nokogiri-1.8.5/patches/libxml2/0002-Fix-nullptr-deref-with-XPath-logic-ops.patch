@@ -1,0 +1,54 @@
+From a436374994c47b12d5de1b8b1d191a098fa23594 Mon Sep 17 00:00:00 2001
+From: Nick Wellnhofer <wellnhofer@aevum.de>
+Date: Mon, 30 Jul 2018 12:54:38 +0200
+Subject: [PATCH] Fix nullptr deref with XPath logic ops
+
+If the XPath stack is corrupted, for example by a misbehaving extension
+function, the "and" and "or" XPath operators could dereference NULL
+pointers. Check that the XPath stack isn't empty and optimize the
+logic operators slightly.
+
+Closes: https://gitlab.gnome.org/GNOME/libxml2/issues/5
+
+Also see
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=901817
+https://bugzilla.redhat.com/show_bug.cgi?id=1595985
+
+This is CVE-2018-14404.
+
+Thanks to Guy Inbar for the report.
+---
+ xpath.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/xpath.c b/xpath.c
+index 3fae0bf..5e3bb9f 100644
+--- a/xpath.c
++++ b/xpath.c
+@@ -13234,9 +13234,8 @@ xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr op)
+ 		return(0);
+ 	    }
+             xmlXPathBooleanFunction(ctxt, 1);
+-            arg1 = valuePop(ctxt);
+-            arg1->boolval &= arg2->boolval;
+-            valuePush(ctxt, arg1);
++            if (ctxt->value != NULL)
++                ctxt->value->boolval &= arg2->boolval;
+ 	    xmlXPathReleaseObject(ctxt->context, arg2);
+             return (total);
+         case XPATH_OP_OR:
+@@ -13252,9 +13251,8 @@ xmlXPathCompOpEval(xmlXPathParserContextPtr ctxt, xmlXPathStepOpPtr op)
+ 		return(0);
+ 	    }
+             xmlXPathBooleanFunction(ctxt, 1);
+-            arg1 = valuePop(ctxt);
+-            arg1->boolval |= arg2->boolval;
+-            valuePush(ctxt, arg1);
++            if (ctxt->value != NULL)
++                ctxt->value->boolval |= arg2->boolval;
+ 	    xmlXPathReleaseObject(ctxt->context, arg2);
+             return (total);
+         case XPATH_OP_EQUAL:
+-- 
+2.17.1
+

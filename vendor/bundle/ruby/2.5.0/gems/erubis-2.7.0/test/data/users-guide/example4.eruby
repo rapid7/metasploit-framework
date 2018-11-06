@@ -1,0 +1,3 @@
+<!--% for item in list %-->
+  <p><!--%= item %--></p>
+<!--% end %-->

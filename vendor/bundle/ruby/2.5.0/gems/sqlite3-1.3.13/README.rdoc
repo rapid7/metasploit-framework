@@ -1,0 +1,118 @@
+= SQLite3/Ruby Interface
+
+* https://github.com/sparklemotion/sqlite3-ruby
+* http://groups.google.com/group/sqlite3-ruby
+* http://rubygems.org/gems/sqlite3
+* http://www.rubydoc.info/gems/sqlite3/frames
+
+{<img src="https://travis-ci.org/sparklemotion/sqlite3-ruby.svg?branch=master" alt="Build Status" />}[https://travis-ci.org/sparklemotion/sqlite3-ruby]
+
+== DESCRIPTION
+
+This module allows Ruby programs to interface with the SQLite3
+database engine (http://www.sqlite.org).  You must have the
+SQLite engine installed in order to build this module.
+
+Note that this module is only compatible with SQLite 3.6.16 or newer.
+
+== SYNOPSIS
+
+  require "sqlite3"
+  
+  # Open a database
+  db = SQLite3::Database.new "test.db"
+  
+  # Create a table
+  rows = db.execute <<-SQL
+    create table numbers (
+      name varchar(30),
+      val int
+    );
+  SQL
+  
+  # Execute a few inserts
+  {
+    "one" => 1,
+    "two" => 2,
+  }.each do |pair|
+    db.execute "insert into numbers values ( ?, ? )", pair
+  end
+
+  # Find a few rows
+  db.execute( "select * from numbers" ) do |row|
+    p row
+  end
+
+  # Create another table with multiple columns
+
+  db.execute <<-SQL
+    create table students (
+      name varchar(50),
+      email varchar(50),
+      grade varchar(5),
+      blog varchar(50)
+    );
+  SQL
+
+  # Execute inserts with parameter markers
+  db.execute("INSERT INTO students (name, email, grade, blog) 
+              VALUES (?, ?, ?, ?)", ["Jane", "me@janedoe.com", "A", "http://blog.janedoe.com"])
+  
+  db.execute( "select * from students" ) do |row|
+    p row
+  end
+
+
+== Compilation and Installation
+
+Install SQLite3, enabling the option SQLITE_ENABLE_COLUMN_METADATA (see
+www.sqlite.org/compile.html for details).
+
+Then do the following:
+
+  ruby setup.rb config
+  ruby setup.rb setup
+  ruby setup.rb install
+
+Alternatively, you can download and install the RubyGem package for
+SQLite3/Ruby (you must have RubyGems and SQLite3 installed, first):
+
+  gem install sqlite3
+
+If you have sqlite3 installed in a non-standard location, you can specify the location of the include and lib files by doing:
+
+  gem install sqlite3 -- --with-sqlite3-include=/opt/local/include \
+     --with-sqlite3-lib=/opt/local/lib
+
+= SUPPORT!!!
+
+== OMG!  Something has gone wrong!  Where do I get help?
+
+The best place to get help is from the
+{sqlite3-ruby mailing list}[http://groups.google.com/group/sqlite3-ruby] which
+can be found here:
+
+  * http://groups.google.com/group/sqlite3-ruby
+
+== I've found a bug!  Where do I file it?
+
+Uh oh.  After contacting the mailing list, you've found that you've actually
+discovered a bug.  You can file the bug at the
+{github issues page}[https://github.com/sparklemotion/sqlite3-ruby/issues]
+which can be found here:
+
+  * https://github.com/sparklemotion/sqlite3-ruby/issues
+
+== Usage
+
+For help figuring out the SQLite3/Ruby interface, check out the
+SYNOPSIS as well as the RDoc. It includes examples of
+usage. If you have any questions that you feel should be address in the
+FAQ, please send them to {the mailing list}[http://groups.google.com/group/sqlite3-ruby]
+
+== Source Code
+
+The source repository is accessible via git:
+
+  git clone git://github.com/sparklemotion/sqlite3-ruby.git
+

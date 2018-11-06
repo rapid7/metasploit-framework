@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="snmp.sys_object_id" protocol="snmp" database_type="service">
+  <!--
+    SNMP fingerprint definitions for SysObjectIDs. These are matched against the value of the
+    'sysObjectID' (OID 1.3.6.1.2.1.1.2) variable.
+  -->
+  <!--======================================================================
+                              MICROSOFT
+   =======================================================================-->
+  <!--
+      These are baseline patterns that map to sysObjectID with their associated sysDescr.
+   -->
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.[23] Hardware: x86.*Software: Windows NT Version 4\.0.*$">
+    <description>Windows NT 4 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: x86 Family 6 Model 8 Stepping 3 AT/AT COMPATIBLE  - Software: Windows NT Version 4.0  (Build Number: 1381 Uniprocessor Free )</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: x86 Family 6 Model 8 Stepping 3 AT/AT COMPATIBLE  - Software: Windows NT Version 4.0  (Build Number: 1381 Uniprocessor Free )</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows NT Server"/>
+    <param pos="0" name="os.version" value="4.0"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_nt:4.0"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: x86.*Software: Windows 2000 Version 5\.0.*$">
+    <description>Windows 2000 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: x86 Family 15 Model 4 Stepping 8 AT/AT COMPATIBLE - Software: Windows 2000 Version 5.0 (Build 2195 Uniprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows 2000 Server"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_2000:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: x86.*Software: Windows 2000 Version 5\.0.*$">
+    <description>Windows 2000 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: x86 Family 15 Model 4 Stepping 8 AT/AT COMPATIBLE - Software: Windows 2000 Version 5.0 (Build 2195 Uniprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows 2000 Datacenter Server"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_2000:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: x86.*Software: Windows Version 5\.2.*$">
+    <description>Windows Server 2003 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: x86 Family 15 Model 4 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 5.2 (Build 3790 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2003"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2003:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: x86.*Software: Windows Version 5\.2.*$">
+    <description>Windows Server 2003 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: x86 Family 15 Model 4 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 5.2 (Build 3790 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2003, Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2003:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: \S+64.*Software: Windows Version 5\.2.*$">
+    <description>Windows Server 2003 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: AMD64 Family 15 Model 4 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 5.2 (Build 3790 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: Intel64 Family 6 Model 15 Stepping 6 AT/AT COMPATIBLE - Software: Windows Version 5.2 (Build 3790 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2003"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2003:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: \S+64.*Software: Windows Version 5\.2.*$">
+    <description>Windows Server 2003 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: AMD64 Family 15 Model 4 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 5.2 (Build 3790 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: Intel64 Family 6 Model 15 Stepping 6 AT/AT COMPATIBLE - Software: Windows Version 5.2 (Build 3790 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2003, Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2003:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Microsoft Windows CE Version ([\d.]+).*$">
+    <description>Windows CE</description>
+    <example>Microsoft Windows CE Version 4.20 (Build 0)</example>
+    <example>Microsoft Windows CE Version 4.20 (Build 1088)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows CE"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_ce:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: x86.*Software: Windows Version 6\.0 \(Build 6001.*$">
+    <description>Windows Server 2008 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: x86 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6001 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: x86.*Software: Windows Version 6\.0 \(Build 6001.*$">
+    <description>Windows Server 2008 Datacenter on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: x86 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6001 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: \S+64.*Software: Windows Version 6\.0 \(Build 6001.*$">
+    <description>Windows Server 2008 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: AMD64 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6001 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: Intel64 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6001 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: \S+64.*Software: Windows Version 6\.0 \(Build 6001.*$">
+    <description>Windows Server 2008 Datacenter on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: AMD64 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6001 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: Intel64 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6001 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: x86.*Software: Windows Version 6\.0 \(Build 6002.*$">
+    <description>Windows Server 2008 SP2 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: x86 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6002 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.version" value="SP2"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:SP2"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: x86.*Software: Windows Version 6\.0 \(Build 6002.*$">
+    <description>Windows Server 2008 Datacenter SP2 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: x86 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6002 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.version" value="SP2"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:SP2"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: \S+64.*Software: Windows Version 6\.0 \(Build 6002.*$">
+    <description>Windows Server 2008 SP2 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: AMD64 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6002 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: Intel64 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6002 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.version" value="SP2"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:SP2"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: \S+64.*Software: Windows Version 6\.0 \(Build 6002.*$">
+    <description>Windows Server 2008 Datacenter SP2 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: AMD64 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6002 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: Intel64 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.0 (Build 6002 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.version" value="SP2"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:SP2"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: x86.*Software: Windows Version 6\.1 \(Build 7600.*$">
+    <description>Windows Server 2008 R2 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: x86 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7600 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: x86.*Software: Windows Version 6\.1 \(Build 7600.*$">
+    <description>Windows Server 2008 Datacenter R2 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: x86 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7600 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2, Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: \S+64.*Software: Windows Version 6\.1 \(Build 7600.*$">
+    <description>Windows Server 2008 R2 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: AMD64 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7600 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: Intel64 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7600 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: \S+64.*Software: Windows Version 6\.1 \(Build 7600.*$">
+    <description>Windows Server 2008 Datacenter R2 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: AMD64 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7600 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: Intel64 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7600 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2, Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: x86.*Software: Windows Version 6\.1 \(Build 7601.*$">
+    <description>Windows Server 2008 R2 SP1 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: x86 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7601 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.version" value="SP1"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:SP1"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: x86.*Software: Windows Version 6\.1 \(Build 7601.*$">
+    <description>Windows Server 2008 Datacenter R2 SP1 on x86</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: x86 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7601 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2, Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.version" value="SP1"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:SP1"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: \S+64.*Software: Windows Version 6\.1 \(Build 7601.*$">
+    <description>Windows Server 2008 R2 SP1 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: AMD64 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7601 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: Intel64 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7601 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.version" value="SP1"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:SP1"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.3 Hardware: \S+64.*Software: Windows Version 6\.1 \(Build 7601.*$">
+    <description>Windows Server 2008 Datacenter R2 SP1 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: AMD64 Family 16 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7601 Multiprocessor Free)</example>
+    <example>1.3.6.1.4.1.311.1.1.3.1.3 Hardware: Intel64 Family 15 Model 2 Stepping 5 AT/AT COMPATIBLE - Software: Windows Version 6.1 (Build 7601 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2, Datacenter Edition"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.version" value="SP1"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:SP1"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.311\.1\.1\.3\.1\.2 Hardware: \S+64.*Software: Windows Version 6\.2 \(Build 9200.*$">
+    <description>Windows Server 2012 on x86_64</description>
+    <example>1.3.6.1.4.1.311.1.1.3.1.2 Hardware: Intel64 Family 6 Model 2 Stepping 3 AT/AT COMPATIBLE - Software: Windows Version 6.2 (Build 9200 Multiprocessor Free)</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2012"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.arch" value="x86_64"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2012:-"/>
+  </fingerprint>
+  <!-- Various OIDs for Net-SNMP agents which are OS specific -->
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.1$">
+    <description>Net-SNMP on hpux9</description>
+    <example>1.3.6.1.4.1.8072.3.2.1</example>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.family" value="HP-UX"/>
+    <param pos="0" name="os.product" value="HP-UX"/>
+    <param pos="0" name="os.version" value="9"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:hp:hp-ux:9"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.2$">
+    <description>Net-SNMP on sunos4</description>
+    <example>1.3.6.1.4.1.8072.3.2.2</example>
+    <param pos="0" name="os.vendor" value="Sun"/>
+    <param pos="0" name="os.family" value="Solaris"/>
+    <param pos="0" name="os.product" value="Solaris"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:sun:solaris:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.3$">
+    <description>Net-SNMP on solaris</description>
+    <example>1.3.6.1.4.1.8072.3.2.3</example>
+    <param pos="0" name="os.vendor" value="Sun"/>
+    <param pos="0" name="os.family" value="Solaris"/>
+    <param pos="0" name="os.product" value="Solaris"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:sun:solaris:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.4$">
+    <description>Net-SNMP on osf</description>
+    <example>1.3.6.1.4.1.8072.3.2.4</example>
+    <param pos="0" name="os.vendor" value="DEC"/>
+    <param pos="0" name="os.product" value="OSF/1"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.5$">
+    <description>Net-SNMP on ultrix</description>
+    <example>1.3.6.1.4.1.8072.3.2.5</example>
+    <param pos="0" name="os.vendor" value="DEC"/>
+    <param pos="0" name="os.product" value="Ultrix"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.6$">
+    <description>Net-SNMP on hpux10</description>
+    <example>1.3.6.1.4.1.8072.3.2.6</example>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.family" value="HP-UX"/>
+    <param pos="0" name="os.product" value="HP-UX"/>
+    <param pos="0" name="os.version" value="10"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:hp:hp-ux:10"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.7$">
+    <description>Net-SNMP on netbsd</description>
+    <example>1.3.6.1.4.1.8072.3.2.7</example>
+    <param pos="0" name="os.vendor" value="NetBSD"/>
+    <param pos="0" name="os.family" value="NetBSD"/>
+    <param pos="0" name="os.product" value="NetBSD"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:netbsd:netbsd:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.8$">
+    <description>Net-SNMP on freebsd</description>
+    <example>1.3.6.1.4.1.8072.3.2.8</example>
+    <param pos="0" name="os.vendor" value="FreeBSD"/>
+    <param pos="0" name="os.family" value="FreeBSD"/>
+    <param pos="0" name="os.product" value="FreeBSD"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:freebsd:freebsd:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.9$">
+    <description>Net-SNMP on irix</description>
+    <example>1.3.6.1.4.1.8072.3.2.9</example>
+    <param pos="0" name="os.vendor" value="SGI"/>
+    <param pos="0" name="os.family" value="IRIX"/>
+    <param pos="0" name="os.product" value="IRIX"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:sgi:irix:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.10$">
+    <description>Net-SNMP on linux</description>
+    <example>1.3.6.1.4.1.8072.3.2.10</example>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.11$">
+    <description>Net-SNMP on bsdi</description>
+    <example>1.3.6.1.4.1.8072.3.2.11</example>
+    <param pos="0" name="os.vendor" value="Berkeley Software Design Inc."/>
+    <param pos="0" name="os.product" value="BSD/OS"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.12$">
+    <description>Net-SNMP on openbsd</description>
+    <example>1.3.6.1.4.1.8072.3.2.12</example>
+    <param pos="0" name="os.vendor" value="OpenBSD"/>
+    <param pos="0" name="os.family" value="OpenBSD"/>
+    <param pos="0" name="os.product" value="OpenBSD"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:openbsd:openbsd:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.13$">
+    <description>Net-SNMP on win32</description>
+    <example>1.3.6.1.4.1.8072.3.2.13</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.14$">
+    <description>Net-SNMP on hpux11</description>
+    <example>1.3.6.1.4.1.8072.3.2.14</example>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.family" value="HP-UX"/>
+    <param pos="0" name="os.product" value="HP-UX"/>
+    <param pos="0" name="os.version" value="11"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:hp:hp-ux:11"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.15$">
+    <description>Net-SNMP on aix</description>
+    <example>1.3.6.1.4.1.8072.3.2.15</example>
+    <param pos="0" name="os.vendor" value="IBM"/>
+    <param pos="0" name="os.family" value="AIX"/>
+    <param pos="0" name="os.product" value="AIX"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:ibm:aix:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+  <fingerprint pattern="^1\.3\.6\.1\.4\.1\.8072\.3\.2\.16$">
+    <description>Net-SNMP on macosx</description>
+    <example>1.3.6.1.4.1.8072.3.2.16</example>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:-"/>
+    <param pos="0" name="service.vendor" value="Net-SNMP"/>
+    <param pos="0" name="service.product" value="SNMP Agent"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:net-snmp:net-snmp:-"/>
+  </fingerprint>
+</fingerprints>

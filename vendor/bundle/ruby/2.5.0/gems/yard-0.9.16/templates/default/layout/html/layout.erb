@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%= erb(:headers) %>
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="<%= @nav_url %>?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <%= erb(:breadcrumb) %>
+        <%= erb(:search) %>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><%= yieldall %></div>
+
+      <%= erb(:footer) %>
+    </div>
+  </body>
+</html>

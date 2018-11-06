@@ -1,0 +1,6 @@
+en:
+  faker:
+    invoice:
+      reference:
+        check_digit_method: method_731
+        pattern: '\d{3,19}#'

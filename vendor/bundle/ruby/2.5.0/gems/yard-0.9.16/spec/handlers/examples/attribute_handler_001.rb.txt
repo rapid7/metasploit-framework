@@ -1,0 +1,32 @@
+module A
+  attr_writer :x
+end
+
+class B
+  class << self
+    attr_accessor :z
+  end
+
+  attr :a, true
+  attr :a2, false
+  attr :a3
+  # Docstring
+  attr_reader :b, :c, :d
+  attr_writer :e
+  attr_accessor 'f'
+
+  attr_accessor :z
+end
+
+class C
+  def foo; end
+  attr_writer :foo
+
+  def bar=(value); end
+  attr_reader :bar
+end
+
+class D
+protected
+attr_reader :parser
+end

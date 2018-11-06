@@ -1,0 +1,12 @@
+
+ClassLength:
+  Max: 256
+
+MethodLength:
+  Max: 32
+
+CyclomaticComplexity:
+  Max: 8
+
+Documentation:
+  Enabled: false

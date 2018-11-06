@@ -1,0 +1,10 @@
+sudo: false
+group: stable
+cache: bundler
+language: ruby
+rvm:
+  - 2.5.1
+before_script:
+  # https://github.com/travis-ci/travis-ci/issues/8978
+  - gem update --system
+  - gem install bundler

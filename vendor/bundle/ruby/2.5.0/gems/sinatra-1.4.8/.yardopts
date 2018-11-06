@@ -1,0 +1,5 @@
+--readme README.md
+--title 'Sinatra API Documentation'
+--charset utf-8
+--markup markdown
+'lib/**/*.rb' - '*.md'

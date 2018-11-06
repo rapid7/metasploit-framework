@@ -1,0 +1,11 @@
+--no-private
+--exclude features
+--exclude lib/generators/([^/]+/)*.*_spec.rb
+--exclude lib/generators/([^/]+/)*templates/([^/]+/)*.rb
+--exclude lib/generators/([^/]+/)*templates/.+\.rb
+--markup markdown
+--template-path yard/template/
+-
+Changelog.md
+LICENSE.md
+Capybara.md

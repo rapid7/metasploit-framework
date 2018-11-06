@@ -1,0 +1,43 @@
+<div class="box_info">
+  <% if CodeObjects::ClassObject === object && object.superclass %>
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><%= linkify object.superclass %></span>
+      <% if object.superclass.name != :BasicObject %>
+        <ul class="fullTree">
+          <li><%= linkify P(:Object) %></li>
+          <% object.inheritance_tree.reverse.each_with_index do |obj, i| %>
+            <li class="next"><%= obj == object ? obj.path : linkify(obj) %></li>
+          <% end %>
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      <% end %>
+    </dd>
+  </dl>
+  <% end %>
+
+  <% [[:class, "Extended by"], [:instance, "Includes"]].each do |scope, name| %>
+  <% if (mix = run_verifier(object.mixins(scope))).size > 0 %>
+  <dl>
+      <dt><%= name %>:</dt>
+      <dd><%= mix.sort_by {|o| o.path }.map {|o| linkify(o) }.join(", ") %></dd>
+  </dl>
+  <% end %>
+  <% end %>
+
+  <% if (mixed_into = mixed_into(object)).size > 0 %>
+  <dl>
+    <dt>Included in:</dt>
+    <dd><%= mixed_into.sort_by {|o| o.path }.map {|o| linkify(o) }.join(", ") %></dd>
+  </dl>
+  <% end %>
+
+  <% unless object.root? %>
+  <dl>
+    <dt>Defined in:</dt>
+    <dd><%= erb(:defines) %></dd>
+  </dl>
+  <% end %>
+</div>
+

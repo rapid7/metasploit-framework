@@ -1,0 +1,16 @@
+module A; end
+module B
+  extend A
+end
+
+module C
+  extend self
+end
+
+module Q
+  module R
+    module S
+      extend A
+    end
+  end
+end

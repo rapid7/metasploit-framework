@@ -1,0 +1,28 @@
+en:
+  faker:
+    breaking_bad:
+      character: [
+        "Walter White", "Hank Schrader", "Skyler White", "Jesse Pinkman", "Gustavo Fring",
+        "Mike Ehrmantraut", "Jimmy McGill", "Hector 'Tio' Salamanca", "Lydia Rodarte-Quayle",
+        "Jane Margolis", "Tuco Salamanca", "The Cousins", "Ted Beneke", "Gale Boetticher",
+        "Walter White Jr.", "Todd Alquist", "Brock Cantillo", "Andrea Cantillo", "Jack Welker",
+        "Krazy-8", "'Don' Eladio Vuente", "Marie Schrader", "Gretchen Schwartz",
+        "Huell Babineaux", "Tortuga", "Victor", "Juan Bolsa", "Tomás Cantillo", "Holly White",
+        "Steven Gomez", "Emilio Koyama", "Drew Sharp", "Declan", "Carmen Molina",
+        "Brandon 'Badger' Mayhew", "Christian 'Combo' Ortega", "Rival Dealers", "Ed", "Ken",
+        "Kenny", "Group Leader", "George Merkert", "Adam Pinkman", "Mrs Pinkman", "No-Doze",
+        "Gonzo"
+      ]
+      episode: [
+        "Pilot", "Cat's in the Bag...", "...And the Bag's in the River", "Cancer Man",
+        "Gray Matter", "Crazy Handful of Nothin", "A No-Rough-Stuff-Type Deal",
+        "Seven Thirty-Seven", "Grilled", "Bit by a Dead Bee", "Down", "Breakage", "Peekaboo",
+        "Negro y Azul", "Better Call Saul", "4 Days Out", "Over", "Mandala", "Phoenix", "ABQ",
+        "No Más", "Caballo Sin Nombre", "I.F.T.", "Green Light", "Más", "Sunset", "One Minute",
+        "I See You", "Kafkaesque", "Fly", "Abiquiu", "Half Measures", "Full Measure",
+        "Box Cutter", "Thirty-Eight Snub", "Open House", "Bullet Points", "Shotgun",
+        "Cornered", "Problem Dog", "Hermanos", "Bug", "Salud", "Crawl Space", "End Times",
+        "Face Off", "Live Free or Die", "Madrigal", "Hazard Pay", "Fifty-One", "Dead Freight",
+        "Buyout", "Say My Name", "Gliding Over All", "Blood Money", "Buried", "Confessions",
+        "Rabid Dog", "To'hajiilee", "Ozymandias", "Granite State", "Felina"
+      ]

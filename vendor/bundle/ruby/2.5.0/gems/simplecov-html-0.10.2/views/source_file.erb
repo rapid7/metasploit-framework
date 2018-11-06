@@ -1,0 +1,23 @@
+<div class="source_table" id="<%= id source_file %>">
+  <div class="header">
+    <h3><%= shortened_filename source_file %></h3>
+    <h4><span class="<%= coverage_css_class(source_file.covered_percent) %>"><%= source_file.covered_percent.round(2).to_s %> %</span> covered</h4>
+    <div>
+      <b><%= source_file.lines_of_code %></b> relevant lines. 
+      <span class="green"><b><%= source_file.covered_lines.count %></b> lines covered</span> and
+      <span class="red"><b><%= source_file.missed_lines.count %></b> lines missed.</span>
+    </div>
+  </div>
+  
+  <pre>
+    <ol>
+      <% source_file.lines.each do |line| %>
+        <li class="<%= line.status %>" data-hits="<%= line.coverage ? line.coverage : '' %>" data-linenumber="<%= line.number %>">
+          <% if line.covered? %><span class="hits"><%= line.coverage %></span><% end %>
+          <% if line.skipped? %><span class="hits">skipped</span><% end %>
+          <code class="ruby"><%= CGI.escapeHTML(line.src.chomp) %></code>
+        </li>
+      <% end %>
+    </ol>
+  </pre>
+</div>

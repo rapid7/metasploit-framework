@@ -1,0 +1,9 @@
+*.sw?
+*.rbc
+.DS_Store
+coverage
+rdoc
+pkg
+assets
+rs
+Gemfile.lock

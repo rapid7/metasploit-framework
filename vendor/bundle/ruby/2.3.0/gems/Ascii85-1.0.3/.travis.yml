@@ -1,0 +1,7 @@
+language: ruby
+rvm:
+  - 1.8
+  - 1.9
+  - 2.5
+  - ruby-head
+  - jruby

@@ -1,0 +1,1 @@
+Dnsruby no longer supports EventMachine - the inbuilt select loop now works on all platforms.

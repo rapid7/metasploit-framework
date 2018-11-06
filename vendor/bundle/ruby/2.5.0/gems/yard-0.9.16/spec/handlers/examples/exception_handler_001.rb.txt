@@ -1,0 +1,59 @@
+class Testing
+  # Ignore yields outside methods
+  raise NoMethodError, "reason"
+
+  # Should document this
+  def mymethod
+    raise ArgumentError, "Argument is missing"
+  end
+
+  # Don't document this
+  def mymethod2
+    raise(a)
+  end
+
+  # Don't document this (docstring takes precedence)
+  # @raise [A]
+  def mymethod3
+    raise SomethingElse
+  end
+
+  # Only document the first one (limitation of exc handler)
+  def mymethod4
+    raise(A)
+    raise B, "Argument", somethingelse
+  end
+
+  def mymethod5
+    raise YARD::Parser::UndocumentableError
+  end
+
+  def mymethod6
+    raise YARD::Handlers.constants("test")
+  end
+
+  def mymethod7
+    raise MethodCall('argument')
+  end
+
+  def mymethod8
+    raise ExceptionClass.new('blah')
+  end
+
+  def mymethod9
+    obj.raise IgnoreMe
+	obj.raise(IgnoreMe)
+  end
+
+  def mymethod10
+    raise ArgumentError 'Message' # actually a method call
+  end
+
+  def mymethod11
+    raise foo('bar')
+  end
+
+  def mymethod12
+    raise
+  end
+end

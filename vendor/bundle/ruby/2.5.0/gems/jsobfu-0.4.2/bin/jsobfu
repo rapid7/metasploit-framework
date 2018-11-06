@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+require 'jsobfu'
+require 'optparse'
+
+iterations = [(ARGV[0] || 1).to_i, 1].max
+
+preserved_identifiers = []
+global = 'window'
+
+opt_parser = OptionParser.new do |opts|
+  opts.banner = 'Usage: jsobfu [iterations] [options]'
+  opts.on('--preserved-identifiers id1,id2') do |ids|
+    preserved_identifiers += ids.split(',')
+  end
+  opts.on('--global window') do |global_opt|
+    global = global_opt
+  end
+end
+
+opt_parser.parse(ARGV)
+
+js = JSObfu.new(STDIN.read)
+
+puts js.obfuscate(
+  iterations: iterations,
+  preserved_identifiers: preserved_identifiers,
+  global: global
+)

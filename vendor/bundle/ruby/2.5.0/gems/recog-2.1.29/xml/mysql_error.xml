@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="mysql.error" protocol="mysql" database_type="service" preference=".80">
+  <!--
+      Upon successful connection to a MySQL/derivative TCP endpoint, if the
+      connecting client is not allowed to speak to the MySQL service (for
+      example, it has been blocked for too many failed password attempts or it
+      isn't explicitly allowed to connect from this client, among other
+      reasons), the first packet received will contain an error message that is
+      used to inform the client of this failure prior to forcibly disconnecting
+      the client:
+
+      $  mysql -u root -h mysql.example.com
+      ERROR 1130 (HY000): Host '192.168.0.100' is not allowed to connect to this MySQL server
+
+      This free-form field starts at the 7th byte and ends at the end of the TCP
+      payload.  The fingerprints below are used to match and extract from this
+      field.
+
+      More details on the various error codes can be found here:
+      http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
+
+      The values for the various error messages below can be found in
+      sql/share/errmsg-utf8.txt from the MySQL source, for example
+      http://osxr.org/mysql/source/sql/share/errmsg-utf8.txt or
+      https://github.com/twitter/mysql/blob/master/sql/share/errmsg-utf8.txt
+  -->
+  <!-- ER_HOST_NOT_PRIVILEGED -->
+  <fingerprint pattern="^Stroj '[^']+' nemá povoleno se k tomuto MySQL serveru připojit$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (cze)</description>
+    <example>Stroj '10.10.10.10' nemá povoleno se k tomuto MySQL serveru připojit</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Værten '[^']+' kan ikke tilkoble denne MySQL-server$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (dan)</description>
+    <example>Værten '10.10.10.10' kan ikke tilkoble denne MySQL-server</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Het is host '[^']+' is niet toegestaan verbinding te maken met deze MySQL server$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (nla)</description>
+    <example>Het is host '10.10.10.10' is niet toegestaan verbinding te maken met deze MySQL server</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^^(?:#HY000)?Host '[^']+' is not allowed to connect to this MySQL server$$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (eng)</description>
+    <example>Host '10.10.10.10' is not allowed to connect to this MySQL server</example>
+    <example>Host '10.10.10.10' is not allowed to connect to this MySQL server</example>
+    <example>#HY000Host '10.10.10.10' is not allowed to connect to this MySQL server</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Masinal '[^']+' puudub ligipääs sellele MySQL serverile$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (est)</description>
+    <example>Masinal '10.10.10.10' puudub ligipääs sellele MySQL serverile</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Le hôte '[^']+' n'est pas authorisé à se connecter à ce serveur MySQL$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (fre)</description>
+    <example>Le hôte '10.10.10.10' n'est pas authorisé à se connecter à ce serveur MySQL</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Host '[^']+' hat keine Berechtigung, sich mit diesem MySQL-Server zu verbinden$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (ger)</description>
+    <example>Host '10.10.10.10' hat keine Berechtigung, sich mit diesem MySQL-Server zu verbinden</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Ο υπολογιστής '[^']+' δεν έχει δικαίωμα σύνδεσης με τον MySQL server$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (greek)</description>
+    <example>Ο υπολογιστής '10.10.10.10' δεν έχει δικαίωμα σύνδεσης με τον MySQL server</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^A '[^']+' host szamara nem engedelyezett a kapcsolodas ehhez a MySQL szerverhez$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (hun)</description>
+    <example>A '10.10.10.10' host szamara nem engedelyezett a kapcsolodas ehhez a MySQL szerverhez</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Al sistema '[^']+' non e` consentita la connessione a questo server MySQL$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (ita)</description>
+    <example>Al sistema '10.10.10.10' non e` consentita la connessione a questo server MySQL</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^ホスト '[^']+' からのこの MySQL server への接続は許可されていません。$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (jpn)</description>
+    <example>ホスト '10.10.10.10' からのこの MySQL server への接続は許可されていません。</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^'[^']+' 호스트는 이 MySQL서버에 접속할 허가를 받지 못했습니다.$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (kor)</description>
+    <example>'10.10.10.10' 호스트는 이 MySQL서버에 접속할 허가를 받지 못했습니다.</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^'Host' '[^']+' não tem permissão para se conectar com este servidor MySQL$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (por)</description>
+    <example>'Host' '10.10.10.10' não tem permissão para se conectar com este servidor MySQL</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Host-ul '[^']+' nu este permis a se conecta la aceste server MySQL$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (rum)</description>
+    <example>Host-ul '10.10.10.10' nu este permis a se conecta la aceste server MySQL</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Хосту '[^']+' не разрешается подключаться к этому серверу MySQL$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (rus)</description>
+    <example>Хосту '10.10.10.10' не разрешается подключаться к этому серверу MySQL</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Host-u '[^']+' nije dozvoljeno da se konektuje na ovaj MySQL server$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (serbian)</description>
+    <example>Host-u '10.10.10.10' nije dozvoljeno da se konektuje na ovaj MySQL server</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Servidor '[^']+' no está permitido para conectar con este servidor MySQL$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (spa)</description>
+    <example>Servidor '10.10.10.10' no está permitido para conectar con este servidor MySQL</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Denna dator, '[^']+', har inte privileger att använda denna MySQL server$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (swe)</description>
+    <example>Denna dator, '10.10.10.10', har inte privileger att använda denna MySQL server</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Хосту '[^']+' не доволено зв'язуватись з цим сервером MySQL$">
+    <description>Oracle MySQL error ER_HOST_NOT_PRIVILEGED (ukr)</description>
+    <example>Хосту '10.10.10.10' не доволено зв'язуватись з цим сервером MySQL</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <!-- ER_HOST_IS_BLOCKED -->
+  <fingerprint pattern="Stroj '[^']+' je zablokován kvůli mnoha chybám při připojování. Odblokujete použitím 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (cze)</description>
+    <example>Stroj '10.10.10.10' je zablokován kvůli mnoha chybám při připojování. Odblokujete použitím 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Værten '[^']+' er blokeret på grund af mange fejlforespørgsler. Lås op med 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (dan)</description>
+    <example>Værten '10.10.10.10' er blokeret på grund af mange fejlforespørgsler. Lås op med 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Host '[^']+' is geblokkeeerd vanwege te veel verbindings fouten. Deblokkeer met 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (nla)</description>
+    <example>Host '10.10.10.10' is geblokkeeerd vanwege te veel verbindings fouten. Deblokkeer met 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Host '[^']+' is blocked because of many connection errors; unblock with 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (eng)</description>
+    <example>Host '10.10.10.10' is blocked because of many connection errors; unblock with 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Masin '[^']+' on blokeeritud hulgaliste ühendusvigade tõttu. Blokeeringu saab tühistada 'mysqladmin flush-hosts' käsuga">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (est)</description>
+    <example>Masin '10.10.10.10' on blokeeritud hulgaliste ühendusvigade tõttu. Blokeeringu saab tühistada 'mysqladmin flush-hosts' käsuga</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="L'hôte '[^']+' est bloqué à cause d'un trop grand nombre d'erreur de connexion. Débloquer le par 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (fre)</description>
+    <example>L'hôte '10.10.10.10' est bloqué à cause d'un trop grand nombre d'erreur de connexion. Débloquer le par 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Host '[^']+' blockiert wegen zu vieler Verbindungsfehler. Aufheben der Blockierung mit 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (ger)</description>
+    <example>Host '10.10.10.10' blockiert wegen zu vieler Verbindungsfehler. Aufheben der Blockierung mit 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Ο υπολογιστής '[^']+' έχει αποκλεισθεί λόγω πολλαπλών λαθών σύνδεσης. Προσπαθήστε να διορώσετε με 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (greek)</description>
+    <example>Ο υπολογιστής '10.10.10.10' έχει αποκλεισθεί λόγω πολλαπλών λαθών σύνδεσης. Προσπαθήστε να διορώσετε με 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="A '[^']+' host blokkolodott, tul sok kapcsolodasi hiba miatt. Hasznalja a 'mysqladmin flush-hosts' parancsot">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (hun)</description>
+    <example>A '10.10.10.10' host blokkolodott, tul sok kapcsolodasi hiba miatt. Hasznalja a 'mysqladmin flush-hosts' parancsot</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Sistema '[^']+' bloccato a causa di troppi errori di connessione. Per sbloccarlo: 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (ita)</description>
+    <example>Sistema '10.10.10.10' bloccato a causa di troppi errori di connessione. Per sbloccarlo: 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="接続エラーが多いため、ホスト '[^']+' は拒否されました。'mysqladmin flush-hosts' で解除できます。">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (jpn)</description>
+    <example>接続エラーが多いため、ホスト '10.10.10.10' は拒否されました。'mysqladmin flush-hosts' で解除できます。</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="너무 많은 연결오류로 인하여 호스트 '[^']+'는 블락되었습니다. 'mysqladmin flush-hosts'를 이용하여 블락을 해제하세요">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (kor)</description>
+    <example>너무 많은 연결오류로 인하여 호스트 '10.10.10.10'는 블락되었습니다. 'mysqladmin flush-hosts'를 이용하여 블락을 해제하세요</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="'Host' '[^']+' está bloqueado devido a muitos erros de conexão. Desbloqueie com 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (por)</description>
+    <example>'Host' '10.10.10.10' está bloqueado devido a muitos erros de conexão. Desbloqueie com 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Host-ul '[^']+' e blocat din cauza multelor erori de conectie. Poti deploca folosind 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (rum)</description>
+    <example>Host-ul '10.10.10.10' e blocat din cauza multelor erori de conectie. Poti deploca folosind 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Хост '[^']+' заблокирован из-за слишком большого количества ошибок соединения. Разблокировать его можно с помощью 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (rus)</description>
+    <example>Хост '10.10.10.10' заблокирован из-за слишком большого количества ошибок соединения. Разблокировать его можно с помощью 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Host '[^']+' je blokiran zbog previše grešaka u konekciji.  Možete ga odblokirati pomoću komande 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (serbian)</description>
+    <example>Host '10.10.10.10' je blokiran zbog previše grešaka u konekciji.  Možete ga odblokirati pomoću komande 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Servidor '[^']+' está bloqueado por muchos errores de conexión.  Desbloquear con 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (spa)</description>
+    <example>Servidor '10.10.10.10' está bloqueado por muchos errores de conexión.  Desbloquear con 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Denna dator, '[^']+', är blockerad pga många felaktig paket. Gör 'mysqladmin flush-hosts' för att ta bort alla blockeringarna">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (swe)</description>
+    <example>Denna dator, '10.10.10.10', är blockerad pga många felaktig paket. Gör 'mysqladmin flush-hosts' för att ta bort alla blockeringarna</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Хост '[^']+' заблоковано з причини великої кількості помилок з'єднання. Для розблокування використовуйте 'mysqladmin flush-hosts'">
+    <description>Oracle MySQL error ER_HOST_IS_BLOCKED (ukr)</description>
+    <example>Хост '10.10.10.10' заблоковано з причини великої кількості помилок з'єднання. Для розблокування використовуйте 'mysqladmin flush-hosts'</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <!-- ER_CANT_CREATE_THREAD -->
+  <fingerprint pattern="Nemohu vytvořit nový thread \(errno -?\d+\). Pokud je ještě nějaká volná paměť, podívejte se do manuálu na část o chybách specifických pro jednotlivé operační systémy">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (cze)</description>
+    <example>Nemohu vytvořit nový thread (errno 4). Pokud je ještě nějaká volná paměť, podívejte se do manuálu na část o chybách specifických pro jednotlivé operační systémy</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kan ikke danne en ny tråd \(fejl nr. -?\d+\). Hvis computeren ikke er løbet tør for hukommelse, kan du se i brugervejledningen for en mulig operativ-system - afhængig fejl">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (dan)</description>
+    <example>Kan ikke danne en ny tråd (fejl nr. 4). Hvis computeren ikke er løbet tør for hukommelse, kan du se i brugervejledningen for en mulig operativ-system - afhængig fejl</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kan geen nieuwe thread aanmaken \(Errcode: -?\d+\). Indien er geen tekort aan geheugen is kunt u de handleiding consulteren over een mogelijke OS afhankelijke fout">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (nla)</description>
+    <example>Kan geen nieuwe thread aanmaken (Errcode: 4). Indien er geen tekort aan geheugen is kunt u de handleiding consulteren over een mogelijke OS afhankelijke fout</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Can't create a new thread \(errno -?\d+\); if you are not out of available memory, you can consult the manual for a possible OS-dependent bug">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (eng, pol, nor, norwegian-ny)</description>
+    <example>Can't create a new thread (errno 4); if you are not out of available memory, you can consult the manual for a possible OS-dependent bug</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Ei suuda luua uut lõime \(veakood -?\d+\). Kui mälu ei ole otsas, on tõenäoliselt tegemist operatsioonisüsteemispetsiifilise veaga">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (est)</description>
+    <example>Ei suuda luua uut lõime (veakood 4). Kui mälu ei ole otsas, on tõenäoliselt tegemist operatsioonisüsteemispetsiifilise veaga</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Impossible de créer une nouvelle tâche \(errno -?\d+\). S'il reste de la mémoire libre, consultez le manual pour trouver un éventuel bug dépendant de l'OS">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (fre)</description>
+    <example>Impossible de créer une nouvelle tâche (errno 4). S'il reste de la mémoire libre, consultez le manual pour trouver un éventuel bug dépendant de l'OS</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kann keinen neuen Thread erzeugen \(Fehler: -?\d+\). Sollte noch Speicher verfügbar sein, bitte im Handbuch wegen möglicher Fehler im Betriebssystem nachschlagen">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (ger)</description>
+    <example>Kann keinen neuen Thread erzeugen (Fehler: 4). Sollte noch Speicher verfügbar sein, bitte im Handbuch wegen möglicher Fehler im Betriebssystem nachschlagen</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Uj thread letrehozasa nem lehetseges \(Hibakod: -?\d+\). Amenyiben van meg szabad memoria, olvassa el a kezikonyv operacios rendszerfuggo hibalehetosegekrol szolo reszet">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (hun)</description>
+    <example>Uj thread letrehozasa nem lehetseges (Hibakod: 4). Amenyiben van meg szabad memoria, olvassa el a kezikonyv operacios rendszerfuggo hibalehetosegekrol szolo reszet</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Impossibile creare un nuovo thread \(errno -?\d+\). Se non ci sono problemi di memoria disponibile puoi consultare il manuale per controllare possibili problemi dipendenti dal SO">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (ita)</description>
+    <example>Impossibile creare un nuovo thread (errno 4). Se non ci sono problemi di memoria disponibile puoi consultare il manuale per controllare possibili problemi dipendenti dal SO</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="新規にスレッドを作成できません。\(エラー番号 -?\d+\) もしも使用可能メモリーの不足でなければ、OS依存のバグである可能性があります。">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (jpn)</description>
+    <example>新規にスレッドを作成できません。(エラー番号 4) もしも使用可能メモリーの不足でなければ、OS依存のバグである可能性があります。</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="새로운 쓰레드를 만들 수 없습니다.\(에러번호 -?\d+\). 만약 여유메모리가 있다면 OS-dependent버그 의 메뉴얼 부분을 찾아보시오.">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (kor)</description>
+    <example>새로운 쓰레드를 만들 수 없습니다.(에러번호 4). 만약 여유메모리가 있다면 OS-dependent버그 의 메뉴얼 부분을 찾아보시오.</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Não pode criar uma nova 'thread' \(erro no. -?\d+\). Se você não estiver sem memória disponível, você pode consultar o manual sobre um possível 'bug' dependente do sistema operacional">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (por)</description>
+    <example>Não pode criar uma nova 'thread' (erro no. 4). Se você não estiver sem memória disponível, você pode consultar o manual sobre um possível 'bug' dependente do sistema operacional</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Nu pot crea un thread nou \(Eroare -?\d+\). Daca mai aveti memorie disponibila in sistem, puteti consulta manualul - ar putea exista un potential bug in legatura cu sistemul de operare">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (rum)</description>
+    <example>Nu pot crea un thread nou (Eroare 4). Daca mai aveti memorie disponibila in sistem, puteti consulta manualul - ar putea exista un potential bug in legatura cu sistemul de operare</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Невозможно создать новый поток \(ошибка -?\d+\). Если это не ситуация, связанная с нехваткой памяти, то вам следует изучить документацию на предмет описания возможной ошибки работы в конкретной ОС">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (rus)</description>
+    <example>Невозможно создать новый поток (ошибка 4). Если это не ситуация, связанная с нехваткой памяти, то вам следует изучить документацию на предмет описания возможной ошибки работы в конкретной ОС</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Ne mogu da kreiram novi thread \(errno -?\d+\). Ako imate još slobodne memorije, trebali biste da pogledate u priručniku da li je ovo specifična greška vašeg operativnog sistema">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (serbian)</description>
+    <example>Ne mogu da kreiram novi thread (errno 4). Ako imate još slobodne memorije, trebali biste da pogledate u priručniku da li je ovo specifična greška vašeg operativnog sistema</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="No puedo crear un nuevo thread \(errno -?\d+\). Si tu está con falta de memoria disponible, tu puedes consultar el Manual para posibles problemas con SO">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (spa)</description>
+    <example>No puedo crear un nuevo thread (errno 4). Si tu está con falta de memoria disponible, tu puedes consultar el Manual para posibles problemas con SO</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kan inte skapa en ny tråd \(errno -?\d+\)">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (swe)</description>
+    <example>Kan inte skapa en ny tråd (errno 4)</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Не можу створити нову гілку \(помилка -?\d+\). Якщо ви не використали усю пам'ять, то прочитайте документацію до вашої ОС - можливо це помилка ОС">
+    <description>Oracle MySQL error ER_CANT_CREATE_THREAD (ukr)</description>
+    <example>Не можу створити нову гілку (помилка 4). Якщо ви не використали усю пам'ять, то прочитайте документацію до вашої ОС - можливо це помилка ОС</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <!-- ER_CON_COUNT_ERROR -->
+  <fingerprint pattern="Příliš mnoho spojení">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (cze)</description>
+    <example>Příliš mnoho spojení</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="For mange forbindelser \(connections\)">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (dan)</description>
+    <example>For mange forbindelser (connections)</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Te veel verbindingen">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (nla)</description>
+    <example>Te veel verbindingen</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Too many connections">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (eng)</description>
+    <example>Too many connections</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Liiga palju samaaegseid ühendusi">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (est)</description>
+    <example>Liiga palju samaaegseid ühendusi</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Trop de connexions">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (fre)</description>
+    <example>Trop de connexions</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Zu viele Verbindungen">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (ger)</description>
+    <example>Zu viele Verbindungen</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Υπάρχουν πολλές συνδέσεις...">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (greek)</description>
+    <example>Υπάρχουν πολλές συνδέσεις...</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Tul sok kapcsolat">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (hun)</description>
+    <example>Tul sok kapcsolat</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Troppe connessioni">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (ita)</description>
+    <example>Troppe connessioni</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="接続が多すぎます。">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (jpn)</description>
+    <example>接続が多すぎます。</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="너무 많은 연결... max_connection을 증가 시키시오...">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (kor)</description>
+    <example>너무 많은 연결... max_connection을 증가 시키시오...</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="For mange tilkoblinger \(connections\)">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (nor)</description>
+    <example>For mange tilkoblinger (connections)</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="For mange tilkoplingar \(connections\)">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (norwegian-ny)</description>
+    <example>For mange tilkoplingar (connections)</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Zbyt wiele poł\?czeń">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (pol)</description>
+    <example>Zbyt wiele poł?czeń</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Excesso de conexões">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (por)</description>
+    <example>Excesso de conexões</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Prea multe conectiuni">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (rum)</description>
+    <example>Prea multe conectiuni</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Слишком много соединений">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (rus)</description>
+    <example>Слишком много соединений</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Previše konekcija">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (serbian)</description>
+    <example>Previše konekcija</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Príliš mnoho spojení">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (slo)</description>
+    <example>Príliš mnoho spojení</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Demasiadas conexiones">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (spa)</description>
+    <example>Demasiadas conexiones</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="För många anslutningar">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (swe)</description>
+    <example>För många anslutningar</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Забагато з'єднань">
+    <description>Oracle MySQL error ER_CON_COUNT_ERROR (ukr)</description>
+    <example>Забагато з'єднань</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <!-- ER_BAD_HOST_ERROR -->
+  <fingerprint pattern="Nemohu zjistit jméno stroje pro Vaši adresu">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (cze)</description>
+    <example>Nemohu zjistit jméno stroje pro Vaši adresu</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kan ikke få værtsnavn for din adresse">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (dan)</description>
+    <example>Kan ikke få værtsnavn for din adresse</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kan de hostname niet krijgen van uw adres">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (nla)</description>
+    <example>Kan de hostname niet krijgen van uw adres</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Can't get hostname for your address">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (eng)</description>
+    <example>Can't get hostname for your address</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Ei suuda lahendada IP aadressi masina nimeks">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (est)</description>
+    <example>Ei suuda lahendada IP aadressi masina nimeks</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Ne peut obtenir de hostname pour votre adresse">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (fre)</description>
+    <example>Ne peut obtenir de hostname pour votre adresse</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kann Hostnamen für diese Adresse nicht erhalten">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (ger)</description>
+    <example>Kann Hostnamen für diese Adresse nicht erhalten</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Δεν έγινε γνωστό το hostname για την address σας">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (greek)</description>
+    <example>Δεν έγινε γνωστό το hostname για την address σας</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="A gepnev nem allapithato meg a cimbol">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (hun)</description>
+    <example>A gepnev nem allapithato meg a cimbol</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Impossibile risalire al nome dell'host dall'indirizzo \(risoluzione inversa\)">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (ita)</description>
+    <example>Impossibile risalire al nome dell'host dall'indirizzo (risoluzione inversa)</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="IPアドレスからホスト名を解決できません。">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (jpn)</description>
+    <example>IPアドレスからホスト名を解決できません。</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="당신의 컴퓨터의 호스트이름을 얻을 수 없읍니다.">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (kor)</description>
+    <example>당신의 컴퓨터의 호스트이름을 얻을 수 없읍니다.</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kan ikke få tak i vertsnavn for din adresse">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (nor)</description>
+    <example>Kan ikke få tak i vertsnavn for din adresse</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kan ikkje få tak i vertsnavn for di adresse">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (norwegian-ny)</description>
+    <example>Kan ikkje få tak i vertsnavn for di adresse</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Nie można otrzymać nazwy hosta dla twojego adresu">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (pol)</description>
+    <example>Nie można otrzymać nazwy hosta dla twojego adresu</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Não pode obter nome do 'host' para seu endereço">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (por)</description>
+    <example>Não pode obter nome do 'host' para seu endereço</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Nu pot sa obtin hostname-ul adresei tale">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (rum)</description>
+    <example>Nu pot sa obtin hostname-ul adresei tale</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Невозможно получить имя хоста для вашего адреса">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (rus)</description>
+    <example>Невозможно получить имя хоста для вашего адреса</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Ne mogu da dobijem ime host-a za vašu IP adresu">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (serbian)</description>
+    <example>Ne mogu da dobijem ime host-a za vašu IP adresu</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Nemôžem zistiť meno hostiteľa pre vašu adresu">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (slo)</description>
+    <example>Nemôžem zistiť meno hostiteľa pre vašu adresu</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="No puedo obtener el nombre de maquina de tu direccion">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (spa)</description>
+    <example>No puedo obtener el nombre de maquina de tu direccion</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Kan inte hitta 'hostname' för din adress">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (swe)</description>
+    <example>Kan inte hitta 'hostname' för din adress</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="Не можу визначити ім'я хосту для вашої адреси">
+    <description>Oracle MySQL error ER_BAD_HOST_ERROR (ukr)</description>
+    <example>Не можу визначити ім'я хосту для вашої адреси</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Host '[^']+' is not allowed to connect to this MariaDB server$">
+    <description>MariaDB MariaDB - Error: Host not allowed to connect (English) </description>
+    <example>Host '10.10.10.10' is not allowed to connect to this MariaDB server</example>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:-"/>
+  </fingerprint>
+  <fingerprint pattern="^#07000Proxy Warning - IP Forbidden$">
+    <description>Oracle MySQL Proxy - Error: Host not allowed to connect</description>
+    <example>#07000Proxy Warning - IP Forbidden</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL Proxy"/>
+  </fingerprint>
+  <fingerprint pattern="^\(proxy\) all backends are down$">
+    <description>Oracle MySQL Proxy - Error: Backends down</description>
+    <example>(proxy) all backends are down</example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL Proxy"/>
+  </fingerprint>
+</fingerprints>

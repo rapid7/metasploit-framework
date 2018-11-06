@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+
+$LOAD_PATH.unshift(File.dirname(__FILE__) + "/../lib")
+
+USAGE = "USAGE: " + File.basename(__FILE__) + " <file> <object id> [generation]"
+
+require 'pdf/reader'
+
+filename, id, gen = *ARGV
+
+if filename.nil? || id.nil?
+  puts USAGE
+  exit 1
+elsif !File.file?(filename)
+  $stderr.puts "#{filename} does not exist"
+  exit 1
+end
+
+# tweak the users options
+id  =  id.to_i
+gen ||= 0
+gen = gen.to_i
+
+# make magic happen
+begin
+  obj = nil
+  PDF::Reader.open(filename) do |pdf|
+    obj = pdf.objects[PDF::Reader::Reference.new(id, gen)]
+  end
+
+  case obj
+  when Hash, Array
+    puts obj.inspect
+  when PDF::Reader::Stream
+    puts obj.hash.inspect
+    puts obj.unfiltered_data
+  else
+    puts obj
+  end
+rescue PDF::Reader::InvalidObjectError
+  $stderr.puts "Error retreiving object #{id}, gen #{gen}. Does it exist?"
+  exit 1
+rescue PDF::Reader::MalformedPDFError => e
+  $stderr.puts "Malformed PDF file: #{e.message}"
+  exit 1
+rescue PDF::Reader::UnsupportedFeatureError => e
+  $stderr.puts "PDF file implements a feature unsupported by PDF::Reader: #{e.message}"
+  exit 1
+end

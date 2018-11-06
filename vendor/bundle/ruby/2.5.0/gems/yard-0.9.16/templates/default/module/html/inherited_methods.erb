@@ -1,0 +1,19 @@
+<% found_method = false %>
+<% object.inheritance_tree(true)[1..-1].each do |superclass| %>
+  <% next if superclass.is_a?(YARD::CodeObjects::Proxy) %>
+  <% next if options.embed_mixins.size > 0 && options.embed_mixins_match?(superclass) != false %>
+  <% meths = prune_method_listing(superclass.meths(:included => false, :inherited => false)) %>
+  <% meths.reject! {|m| object.child(:scope => m.scope, :name => m.name) != nil } %>
+  <% meths.reject! {|m| m.is_alias? || m.is_attribute? } %>
+  <% next if meths.size == 0 %>
+  <% if method_listing.size == 0 && !found_method %><h2>Method Summary</h2><% end %>
+  <% found_method = true %>
+  <h3 class="inherited">Methods <%= superclass.type == :class ? 'inherited' : 'included' %> from <%= linkify superclass %></h3>
+  <p class="inherited"><%=
+    meths.sort_by {|o| o.name.to_s }.map do |m|
+      name = m.name(true)
+      name = name.gsub(/^#/,'') if superclass.type == :module && object.class_mixins.include?(superclass)
+      linkify(m, name)
+    end.join(", ")
+  %></p>
+<% end %>

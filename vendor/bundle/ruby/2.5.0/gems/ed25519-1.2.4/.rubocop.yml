@@ -1,0 +1,35 @@
+AllCops:
+  TargetRubyVersion: 2.4
+  DisplayCopNames: true
+
+#
+# Style
+#
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+#
+# Metrics
+#
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Metrics/BlockLength:
+  Max: 100
+
+Metrics/ClassLength:
+  Max: 100
+
+Metrics/LineLength:
+  Max: 128
+
+Metrics/MethodLength:
+  Max: 25

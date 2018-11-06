@@ -1,0 +1,78 @@
+From c5538465c08a8ea248a370bf55bc39cd3385e4af Mon Sep 17 00:00:00 2001
+From: Mike Dalessio <mike.dalessio@gmail.com>
+Date: Thu, 29 Mar 2018 14:09:00 -0400
+Subject: [PATCH] Revert "Do not URI escape in server side includes"
+
+This reverts commit 960f0e275616cadc29671a218d7fb9b69eb35588.
+---
+ HTMLtree.c | 49 +++++++++++--------------------------------------
+ 1 file changed, 11 insertions(+), 38 deletions(-)
+
+diff --git a/HTMLtree.c b/HTMLtree.c
+index 2fd0c9c..67160c5 100644
+--- a/HTMLtree.c
++++ b/HTMLtree.c
+@@ -717,49 +717,22 @@ htmlAttrDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlAttrPtr cur,
+ 		 (!xmlStrcasecmp(cur->name, BAD_CAST "src")) ||
+ 		 ((!xmlStrcasecmp(cur->name, BAD_CAST "name")) &&
+ 		  (!xmlStrcasecmp(cur->parent->name, BAD_CAST "a"))))) {
++		xmlChar *escaped;
+ 		xmlChar *tmp = value;
+-		/* xmlURIEscapeStr() escapes '"' so it can be safely used. */
+-		xmlBufCCat(buf->buffer, "\"");
+ 
+ 		while (IS_BLANK_CH(*tmp)) tmp++;
+ 
+-		/* URI Escape everything, except server side includes. */
+-		for ( ; ; ) {
+-		    xmlChar *escaped;
+-		    xmlChar endChar;
+-		    xmlChar *end = NULL;
+-		    xmlChar *start = (xmlChar *)xmlStrstr(tmp, BAD_CAST "<!--");
+-		    if (start != NULL) {
+-			end = (xmlChar *)xmlStrstr(tmp, BAD_CAST "-->");
+-			if (end != NULL) {
+-			    *start = '\0';
+-			}
+-		    }
+-
+-		    /* Escape the whole string, or until start (set to '\0'). */
+-		    escaped = xmlURIEscapeStr(tmp, BAD_CAST"@/:=?;#%&,+");
+-		    if (escaped != NULL) {
+-		        xmlBufCat(buf->buffer, escaped);
+-		        xmlFree(escaped);
+-		    } else {
+-		        xmlBufCat(buf->buffer, tmp);
+-		    }
+-
+-		    if (end == NULL) { /* Everything has been written. */
+-			break;
+-		    }
+-
+-		    /* Do not escape anything within server side includes. */
+-		    *start = '<'; /* Restore the first character of "<!--". */
+-		    end += 3; /* strlen("-->") */
+-		    endChar = *end;
+-		    *end = '\0';
+-		    xmlBufCat(buf->buffer, start);
+-		    *end = endChar;
+-		    tmp = end;
++		/*
++		 * the < and > have already been escaped at the entity level
++		 * And doing so here breaks server side includes
++		 */
++		escaped = xmlURIEscapeStr(tmp, BAD_CAST"@/:=?;#%&,+<>");
++		if (escaped != NULL) {
++		    xmlBufWriteQuotedString(buf->buffer, escaped);
++		    xmlFree(escaped);
++		} else {
++		    xmlBufWriteQuotedString(buf->buffer, value);
+ 		}
+-
+-		xmlBufCCat(buf->buffer, "\"");
+ 	    } else {
+ 		xmlBufWriteQuotedString(buf->buffer, value);
+ 	    }
+-- 
+2.9.5
+

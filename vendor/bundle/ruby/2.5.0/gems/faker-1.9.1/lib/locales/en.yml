@@ -1,0 +1,9 @@
+en:
+  time:
+    formats:
+      us: "%m/%d/%Y %I:%M %p"
+    am: "AM"
+    pm: "PM"
+  multibyte: ['😀', "\xF0\x9F\x98\xA1", "\xE2\x9D\xA4"]
+  faker:
+    separator: ' & '

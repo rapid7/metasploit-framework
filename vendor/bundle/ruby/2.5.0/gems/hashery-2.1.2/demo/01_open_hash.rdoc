@@ -1,0 +1,63 @@
+= OpenHash
+
+An OpenHash is a Hash that provides +open+ access to its entries via method
+calls. Writers (methods ending in =-marks) assign entries. Methods without
+special puncuation will retrieve entries. 
+
+  o = OpenHash.new
+  o.a = 1
+  o.b = 2
+  o.a.assert == 1
+  o.b.assert == 2
+
+Writers always use a Symbol for keys in the underlying Hash.
+
+  o.to_h.assert == { :a=>1, :b=>2 }
+
+All the usual Hash methods are still available in an OpenHash.
+
+  c = o.map{ |k,v| [k,v] }
+  c.assert.include?([:a,1])
+  c.assert.include?([:b,2])
+
+And they are protected from being overridden by writers.
+
+  o.map = 3
+  o.map.refute == 3
+
+Even so, the underlying Hash object does contain the entry even 
+when it cannot be accessed via a reader method.
+
+  o.to_h.assert == { :a=>1, :b=>2, :map=>3 }
+
+We can see if a method is open or not via the `#open?` method.
+
+  o.open?(:a).assert == true
+  o.open?(:map).assert == false
+
+For some usecases it may be necessary to give up access to one or
+more Hash methods in favor of access to the hash entries. This can
+be done using the `#open!` method.
+
+  o.open!(:map, :merge)
+  o.map.assert == 3
+  o.merge = 4
+  o.merge.assert == 4
+
+Becuase of nature of a writer, a certain set of Hash methods are always
+protected, in particluar all methods buffered by underscore (e.g. `__id__`).
+So these cannot be opened.
+
+  expect ArgumentError do
+    o.open!(:__id__)
+  end
+
+Even though writers alwasy use Symbols as keys, because an OpenHash
+is a true Hash object, any object can be used as a key internally.
+
+  o = OpenHash.new
+  o[nil] = "Nothing"
+  o.to_h.assert == { nil=>"Nothing" }
+
+It simply cannot be accessible via a reader method.
+

@@ -1,0 +1,7 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/rapid7/recog
+
+Files: *
+Copyright: 2014-2015, Rapid7, Inc.
+License: BSD-2-clause
+

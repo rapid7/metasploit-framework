@@ -1,0 +1,49 @@
+# Country => Nepal
+# This file is formatted for Nepal.
+
+nep:
+  faker:
+    name:
+      male_first_name: ["Kamal", "Gopal", "Hari", "Himal", "Baburam", "Prachanda", "Ganesh"]
+      female_first_name: ["Gita", "Sita", "Sarita", "Kalpana", "Neha", "Griahma", "Sujata"]
+      first_name: [
+                    "Aarav", "Ajita", "Amit", "Amita", "Amrit", "Arijit", "Ashmi", "Asmita", "Bibek", "Bijay", "Bikash", "Bina", "Bishal",
+                    "Bishnu", "Buddha", "Deepika", "Dipendra", "Gagan", "Ganesh", "Khem", "Krishna", "Laxmi", "Manisha", "Nabin", "Nikita",
+                    "Niraj", "Nischal", "Padam", "Pooja", "Prabin", "Prakash", "Prashant", "Prem", "Purna", "Rajendra", "Rajina", "Raju",
+                    "Rakesh", "Ranjan", "Ratna", "Sagar", "Sandeep", "Sanjay", "Santosh", "Sarita", "Shilpa", "Shirisha", "Shristi",
+                    "Siddhartha", "Subash", "Sumeet", "Sunita", "Suraj", "Susan", "Sushant"
+                  ]
+      middle_name: ["Bahadur", "Prasad", "Lal"]
+      last_name: [
+                    "Adhikari", "Aryal", "Baral", "Basnet", "Bastola", "Basynat", "Bhandari", "Bhattarai", "Chettri", "Devkota", "Dhakal",
+                    "Dongol", "Ghale", "Gurung", "Gyawali", "Hamal", "Jung", "KC", "Kafle", "Karki", "Khadka", "Koirala", "Lama", "Limbu",
+                    "Magar", "Maharjan", "Niroula", "Pandey", "Pradhan", "Rana", "Raut", "Sai", "Shai", "Shakya", "Sherpa", "Shrestha",
+                    "Subedi", "Tamang", "Thapa"
+                  ]
+      name:
+        - "#{male_first_name} #{last_name}"
+        - "#{male_first_name} #{middle_name} #{last_name}"
+        - "#{female_first_name} #{last_name}"
+        - "#{first_name} #{last_name}"
+    address:
+      default_time_zone: ["Asia/Kathmandu"]
+      default_country_code: ["NP"]
+      postcode: ['#####']
+      state:  [
+                "Baglung", "Banke", "Bara", "Bardiya", "Bhaktapur", "Bhojupu", "Chitwan", "Dailekh", "Dang", "Dhading", "Dhankuta", "Dhanusa", "Dolakha",
+                "Dolpha", "Gorkha", "Gulmi", "Humla", "Ilam", "Jajarkot", "Jhapa", "Jumla", "Kabhrepalanchok", "Kalikot", "Kapilvastu", "Kaski", "Kathmandu",
+                "Lalitpur", "Lamjung", "Manang", "Mohottari", "Morang", "Mugu", "Mustang", "Myagdi", "Nawalparasi", "Nuwakot", "Palpa", "Parbat", "Parsa",
+                "Ramechhap", "Rauswa", "Rautahat", "Rolpa", "Rupandehi", "Sankhuwasabha", "Sarlahi", "Sindhuli", "Sindhupalchok", "Sunsari", "Surket",
+                "Syangja", "Tanahu", "Terhathum"
+              ]
+      city: ["Bhaktapur", "Biratnagar", "Birendranagar", "Birgunj", "Butwal", "Damak", "Dharan", "Gaur", "Gorkha", "Hetauda", "Itahari", "Janakpur", "Kathmandu", "Lahan", "Nepalgunj", "Pokhara"]
+      default_country: ["Nepal"]
+    internet:
+      free_email: ['worldlink.com.np', 'gmail.com', 'yahoo.com', 'hotmail.com']
+      domain_suffix: ['np', 'com', 'info', 'net', 'org']
+    company:
+      suffix: ['Pvt Ltd', 'Group', 'Ltd', 'Limited']
+    phone_number:
+      formats: ['##-#######', '+977-#-#######', '+977########']
+
+

@@ -1,0 +1,964 @@
+have_func: checking for getifaddrs()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5  -lpthread -lgmp -ldl -lcrypt -lm   -lc"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return 0;
+6: }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5  -lpthread -lgmp -ldl -lcrypt -lm   -lc"
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘getifaddrs’ undeclared (first use in this function); did you mean ‘getpass’?
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))getifaddrs; return !p; }
+                                                         ^~~~~~~~~~
+                                                         getpass
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))getifaddrs; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5  -lpthread -lgmp -ldl -lcrypt -lm   -lc"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void getifaddrs();
+14: int t(void) { getifaddrs(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for getnameinfo()... -------------------- yes
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5  -lpthread -lgmp -ldl -lcrypt -lm   -lc"
+conftest.c: In function ‘t’:
+conftest.c:13:57: error: ‘getnameinfo’ undeclared (first use in this function)
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))getnameinfo; return !p; }
+                                                         ^~~~~~~~~~~
+conftest.c:13:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: int t(void) { void ((*volatile p)()); p = (void ((*)()))getnameinfo; return !p; }
+/* end */
+
+"gcc -o conftest -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC conftest.c  -L. -L/usr/lib/x86_64-linux-gnu -L. -Wl,-z,relro -Wl,-z,now -fstack-protector -rdynamic -Wl,-export-dynamic     -lruby-2.5  -lpthread -lgmp -ldl -lcrypt -lm   -lc"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     printf("%p", &t);
+ 9:   }
+10: 
+11:   return 0;
+12: }
+13: extern void getnameinfo();
+14: int t(void) { getnameinfo(); return 0; }
+/* end */
+
+--------------------
+
+have_header: checking for net/if_dl.h... -------------------- no
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+conftest.c:3:10: fatal error: net/if_dl.h: No such file or directory
+ #include <net/if_dl.h>
+          ^~~~~~~~~~~~~
+compilation terminated.
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <net/if_dl.h>
+/* end */
+
+--------------------
+
+have_header: checking for netash/ash.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <netash/ash.h>
+/* end */
+
+--------------------
+
+have_header: checking for netatalk/at.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <netatalk/at.h>
+/* end */
+
+--------------------
+
+have_header: checking for netax25/ax25.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <netax25/ax25.h>
+/* end */
+
+--------------------
+
+have_header: checking for neteconet/ec.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <neteconet/ec.h>
+/* end */
+
+--------------------
+
+have_header: checking for netipx/ipx.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <netipx/ipx.h>
+/* end */
+
+--------------------
+
+have_header: checking for netpacket/packet.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <netpacket/packet.h>
+/* end */
+
+--------------------
+
+have_header: checking for netrose/rose.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <netrose/rose.h>
+/* end */
+
+--------------------
+
+have_header: checking for linux/irda.h... -------------------- no
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+conftest.c:3:10: fatal error: linux/irda.h: No such file or directory
+ #include <linux/irda.h>
+          ^~~~~~~~~~~~~~
+compilation terminated.
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <linux/irda.h>
+/* end */
+
+--------------------
+
+have_header: checking for linux/atm.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <linux/atm.h>
+/* end */
+
+--------------------
+
+have_header: checking for linux/llc.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <linux/llc.h>
+/* end */
+
+--------------------
+
+have_header: checking for linux/tipc.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <linux/tipc.h>
+/* end */
+
+--------------------
+
+have_header: checking for linux/dn.h... -------------------- yes
+
+"gcc -E -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <linux/dn.h>
+/* end */
+
+--------------------
+
+have_struct_member: checking for struct sockaddr.sa_len in sys/types.h,sys/socket.h,net/if.h... -------------------- no
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+conftest.c:8:39: error: ‘struct sockaddr’ has no member named ‘sa_len’
+ int s = (char *)&((struct sockaddr*)0)->sa_len - (char *)0;
+                                       ^~
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <net/if.h>
+ 6: 
+ 7: /*top*/
+ 8: int s = (char *)&((struct sockaddr*)0)->sa_len - (char *)0;
+ 9: int main(int argc, char **argv)
+10: {
+11:   return 0;
+12: }
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_at in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_at conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_ax25 in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_ax25 conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_dl in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- no
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+conftest.c:22:24: error: invalid application of ‘sizeof’ to incomplete type ‘conftest_type’ {aka ‘struct sockaddr_dl’}
+ int conftestval[sizeof(conftest_type)?1:-1];
+                        ^~~~~~~~~~~~~
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_dl conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_eon in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- no
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+conftest.c:22:24: error: invalid application of ‘sizeof’ to incomplete type ‘conftest_type’ {aka ‘struct sockaddr_eon’}
+ int conftestval[sizeof(conftest_type)?1:-1];
+                        ^~~~~~~~~~~~~
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_eon conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_in in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_in conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_in6 in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_in6 conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_inarp in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- no
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+conftest.c:22:24: error: invalid application of ‘sizeof’ to incomplete type ‘conftest_type’ {aka ‘struct sockaddr_inarp’}
+ int conftestval[sizeof(conftest_type)?1:-1];
+                        ^~~~~~~~~~~~~
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_inarp conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_ipx in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_ipx conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_iso in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- no
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+conftest.c:22:24: error: invalid application of ‘sizeof’ to incomplete type ‘conftest_type’ {aka ‘struct sockaddr_iso’}
+ int conftestval[sizeof(conftest_type)?1:-1];
+                        ^~~~~~~~~~~~~
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_iso conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_ns in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- no
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+conftest.c:22:24: error: invalid application of ‘sizeof’ to incomplete type ‘conftest_type’ {aka ‘struct sockaddr_ns’}
+ int conftestval[sizeof(conftest_type)?1:-1];
+                        ^~~~~~~~~~~~~
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_ns conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_un in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_un conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_x25 in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- no
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+conftest.c:22:24: error: invalid application of ‘sizeof’ to incomplete type ‘conftest_type’ {aka ‘struct sockaddr_x25’}
+ int conftestval[sizeof(conftest_type)?1:-1];
+                        ^~~~~~~~~~~~~
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_x25 conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_rose in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_rose conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_ash in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_ash conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_ec in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_ec conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_ll in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_ll conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_atmpvc in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_atmpvc conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_atmsvc in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_atmsvc conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_dn in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_dn conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_irda in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- no
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+conftest.c:22:24: error: invalid application of ‘sizeof’ to incomplete type ‘conftest_type’ {aka ‘struct sockaddr_irda’}
+ int conftestval[sizeof(conftest_type)?1:-1];
+                        ^~~~~~~~~~~~~
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_irda conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+
+have_type: checking for struct sockaddr_llc in sys/types.h,sys/socket.h,sys/un.h,net/if.h,netinet/in.h,netash/ash.h,netatalk/at.h,netax25/ax25.h,neteconet/ec.h,netipx/ipx.h,netpacket/packet.h,netrose/rose.h,linux/atm.h,linux/llc.h,linux/tipc.h,linux/dn.h... -------------------- yes
+
+"gcc -I/usr/include/x86_64-linux-gnu/ruby-2.5.0 -I/usr/include/ruby-2.5.0/ruby/backward -I/usr/include/ruby-2.5.0 -I. -Wdate-time -D_FORTIFY_SOURCE=2   -g -O2 -fdebug-prefix-map=/build/ruby2.5-x7Zsb1/ruby2.5-2.5.1=. -fstack-protector-strong -Wformat -Werror=format-security -fPIC   -c conftest.c"
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <sys/types.h>
+ 4: #include <sys/socket.h>
+ 5: #include <sys/un.h>
+ 6: #include <net/if.h>
+ 7: #include <netinet/in.h>
+ 8: #include <netash/ash.h>
+ 9: #include <netatalk/at.h>
+10: #include <netax25/ax25.h>
+11: #include <neteconet/ec.h>
+12: #include <netipx/ipx.h>
+13: #include <netpacket/packet.h>
+14: #include <netrose/rose.h>
+15: #include <linux/atm.h>
+16: #include <linux/llc.h>
+17: #include <linux/tipc.h>
+18: #include <linux/dn.h>
+19: 
+20: /*top*/
+21: typedef struct sockaddr_llc conftest_type;
+22: int conftestval[sizeof(conftest_type)?1:-1];
+/* end */
+
+--------------------
+

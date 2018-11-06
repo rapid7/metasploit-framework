@@ -1,0 +1,21 @@
+language: ruby
+sudo: false
+cache: bundler
+rvm:
+  - '2.2.7'
+  - '2.3.4'
+  - '2.4.1'
+  - 'jruby-9.1.9.0'
+before_install:
+  - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
+  - rake --version
+before_script:
+  - bundle exec rake --version
+script: bundle exec rake tests
+env:
+  global:
+    - CI="travis"
+    - JRUBY_OPTS="--server -J-Xms512m -J-Xmx2G"
+branches:
+  only:
+    - master

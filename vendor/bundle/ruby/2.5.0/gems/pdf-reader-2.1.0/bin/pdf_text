@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'pdf/reader'
+
+if ARGV.empty?
+  browser = PDF::Reader.new($stdin)
+else
+  browser = PDF::Reader.new(ARGV[0])
+end
+browser.pages.each do |page|
+  puts page.text
+end

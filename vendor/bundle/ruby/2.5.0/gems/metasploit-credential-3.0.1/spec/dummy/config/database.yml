@@ -1,0 +1,13 @@
+development: &pgsql
+  adapter: postgresql
+  database: metasploit-credential_development0
+  username: msf
+  password: pass123
+  host: localhost
+  port: 5432
+  pool: 5
+  timeout: 5
+  min_messages: warning
+test:
+  <<: *pgsql
+  database: metasploit-credential_test0

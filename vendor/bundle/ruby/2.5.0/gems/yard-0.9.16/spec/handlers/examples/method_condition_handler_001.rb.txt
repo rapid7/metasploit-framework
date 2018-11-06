@@ -1,0 +1,10 @@
+def a
+  if 1
+    # ignore this
+    def b; end
+  end
+
+  # don't ignore these even though we know they're not executed
+  def c; end if false
+  def d; end unless true
+end

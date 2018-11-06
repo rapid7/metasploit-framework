@@ -1,0 +1,1373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="ftp.banner" protocol="ftp" database_type="service" preference="0.90">
+  <!--
+  FTP greeting messages (part of the banner after the response code) are matched
+  against these patterns to fingerprint FTP servers.
+  -->
+  <fingerprint pattern="^([^ ]+) Microsoft FTP Service \(Version ([1234]\.\d+)\)\.$">
+    <description>Microsoft FTP Server on Windows NT</description>
+    <example>xx Microsoft FTP Service (Version 3.0).</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="IIS"/>
+    <param pos="0" name="service.family" value="IIS"/>
+    <param pos="2" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:iis:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows NT"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_nt:-"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^([^ ]+) Microsoft FTP Service \(Version 5.0\)\.$">
+    <description>Microsoft FTP Server on Windows 2000</description>
+    <example>xxx Microsoft FTP Service (Version 5.0).</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="IIS"/>
+    <param pos="0" name="service.family" value="IIS"/>
+    <param pos="0" name="service.version" value="5.0"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:iis:5.0"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows 2000"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_2000:-"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^([^ ]+) Microsoft FTP Service \(Version 5.1\)\.$">
+    <description>Microsoft FTP Server on Windows XP, 2003 or later versions of 2000</description>
+    <example>xxx Microsoft FTP Service (Version 5.1).</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="IIS"/>
+    <param pos="0" name="service.family" value="IIS"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:iis:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^([^ ]+) Microsoft FTP Service$">
+    <description>Microsoft FTP Server on Windows XP, 2003 or later without version</description>
+    <example>hostname Microsoft FTP Service</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="IIS"/>
+    <param pos="0" name="service.family" value="IIS"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:iis:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^Microsoft FTP Service$">
+    <description>Microsoft FTP Server on Windows XP, 2003 or later without version or hostname</description>
+    <example>Microsoft FTP Service</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="IIS"/>
+    <param pos="0" name="service.family" value="IIS"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:iis:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^([^ ]+) +FTP +Server \(Version ([^\(]+)\(PHNE_\d+\) [^\)]+\) ready.?$" flags="REG_ICASE">
+    <description>
+         FTP on HPUX with a PHNE (HP Networking patch) installed
+      </description>
+    <example>example.com FTP server (Version 1.1.214.4(PHNE_38458) Mon Feb 15 06:03:12 GMT 2010) ready.</example>
+    <param pos="0" name="service.vendor" value="HP"/>
+    <param pos="0" name="service.product" value="FTPD"/>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.family" value="HP-UX"/>
+    <param pos="0" name="os.product" value="HP-UX"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:hp:hp-ux:-"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^([^ ]+) +FTP +Server \(Revision \S+ Version wuftpd-([^\(]+)\(PHNE_\d+\) [^\)]+\) ready.?$" flags="REG_ICASE">
+    <description>
+         WU-FTPD on HPUX with a PHNE (HP Networking patch) installed
+      </description>
+    <example>example.com FTP server (Revision 1.1 Version wuftpd-2.6.1(PHNE_38578) Fri Sep 5 12:10:54 GMT 2008) ready.</example>
+    <param pos="0" name="service.vendor" value="Washington University"/>
+    <param pos="0" name="service.product" value="WU-FTPD"/>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.family" value="HP-UX"/>
+    <param pos="0" name="os.product" value="HP-UX"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:hp:hp-ux:-"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+)(?: \S+)? FTP Server \((?:Revision [\d\.]+ )?Version wu(?:ftpd)?-([\d\.]+).*\) ready.?$" flags="REG_ICASE">
+    <description>WU-FTPD on various OS</description>
+    <example host.name="example.com" service.version="2.6.2">example.com FTP server (Version wu-2.6.2(1) Sat Jul 19 16:21:30 UTC 2008) ready.</example>
+    <example host.name="example.com" service.version="2.6.2">example.com 192.168.0.1 FTP server (Version wu-2.6.2(1) Wed Sep 21 11:16:21 MEST 2005) ready.</example>
+    <example host.name="example.com" service.version="2.6.2">example.com FTP server (Version wu-2.6.2-11.73.1) ready.</example>
+    <example host.name="example.com" service.version="2.6.1">example.com FTP server (Revision 5.0 Version wuftpd-2.6.1 Thu Apr 29 06:48:40 GMT 2010) ready.</example>
+    <param pos="0" name="service.vendor" value="Washington University"/>
+    <param pos="0" name="service.product" value="WU-FTPD"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+)\s+FTP Server \(Version:\s+Mac OS X Server\s+([\d\.]+).*\) ready\.?" flags="REG_ICASE,REG_MULTILINE">
+    <description>FTPD on Mac OS X Server with a version</description>
+    <example host.name="example.com" os.version="10.3">example.com FTP server (Version:  Mac OS X Server 10.3 - +GSSAPI) ready.</example>
+    <example host.name="example.com" os.version="10.3">this is a banner.  change it.&#13;
+example.com FTP server (Version:  Mac OS X Server 10.3 - +GSSAPI) ready.</example>
+    <param pos="0" name="service.vendor" value="Apple"/>
+    <param pos="0" name="service.product" value="FTP"/>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X Server"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x_server:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+)\s+FTP Server \(Version:\s+Mac OS X Server\) ready\.?" flags="REG_ICASE,REG_MULTILINE">
+    <description>FTPD on Mac OS X Server without a version</description>
+    <example host.name="example.com">example.com FTP server (Version:  Mac OS X Server) ready.</example>
+    <example host.name="example.com">this is a banner.  change it.&#13;
+example.com FTP server (Version:  Mac OS X Server) ready.</example>
+    <param pos="0" name="service.vendor" value="Apple"/>
+    <param pos="0" name="service.product" value="FTP"/>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X Server"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x_server:-"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+)\s+FTP Server \(tnftpd (.*)\) ready\.?$" flags="REG_ICASE">
+    <description>Simple tnftpd banner with a version</description>
+    <example host.name="example.com" service.version="20061217">example.com FTP server (tnftpd 20061217) ready.</example>
+    <param pos="0" name="service.product" value="tnftpd"/>
+    <param pos="2" name="service.version"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP Server \(SunOS 5.(1[1-9])\) ready\.?$" flags="REG_ICASE">
+    <description>SunOS/Solaris</description>
+    <example host.name="example.com" os.version="11">example.com FTP server (SunOS 5.11) ready.</example>
+    <param pos="0" name="os.vendor" value="Oracle"/>
+    <param pos="0" name="os.family" value="Solaris"/>
+    <param pos="0" name="os.product" value="Solaris"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:oracle:solaris:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP Server \(SunOS 5.([789]|10)\) ready\.?$" flags="REG_ICASE">
+    <description>SunOS/Solaris 5.7-5.10</description>
+    <example host.name="example.com" os.version="7">example.com FTP server (SunOS 5.7) ready.</example>
+    <example host.name="example.com" os.version="10">example.com FTP server (SunOS 5.10) ready.</example>
+    <param pos="0" name="os.vendor" value="Sun"/>
+    <param pos="0" name="os.family" value="Solaris"/>
+    <param pos="0" name="os.product" value="Solaris"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:sun:solaris:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP Server \(SunOS 5.6\) ready\." flags="REG_ICASE">
+    <description>SunOS 5.6 (Solaris 2.6)</description>
+    <example host.name="example.com">example.com FTP Server (SunOS 5.6) ready.</example>
+    <param pos="0" name="os.vendor" value="Sun"/>
+    <param pos="0" name="os.family" value="Solaris"/>
+    <param pos="0" name="os.product" value="Solaris"/>
+    <param pos="0" name="os.version" value="2.6"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:sun:solaris:2.6"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^ProFTPD (\d+\.[^\s]+) Server \(Debian\) \[(.+)\]$">
+    <description>ProFTPD on Debian Linux</description>
+    <example>ProFTPD 1.3.0rc2 Server (Debian) [host]</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:-"/>
+    <param pos="2" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^ProFTPD (\d+\.[^\s]+) Server \(Linksys(W.+)\) \[(.+)\]$">
+    <description>ProFTPD on a Linksys Wireless Access Point/Router</description>
+    <example>ProFTPD 1.3.0rc2 Server (LinksysWRT350N) [host]</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Linksys"/>
+    <param pos="0" name="os.device" value="WAP"/>
+    <param pos="2" name="os.product"/>
+    <param pos="3" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^ProFTPD (\d+\.[^\s]+) Server \(Linksys(.*)\) \[(.+)\]$">
+    <description>ProFTPD on a wired Linksys device</description>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Linksys"/>
+    <param pos="0" name="os.device" value="Router"/>
+    <param pos="2" name="os.product"/>
+    <param pos="3" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^ProFTPD (\d+\.[^\s]+) Server \((.*)\) \[(.+)\]$">
+    <description>ProFTPD with version info but no obvious OS info</description>
+    <example service.version="1.2.10">ProFTPD 1.2.10 Server (Main FTP Server) [host]</example>
+    <example proftpd.server.name="ProFTPD">ProFTPD 1.2.10 Server (ProFTPD) [host]</example>
+    <example host.name="host">ProFTPD 1.2.10rc3 Server (ProFTPD Default Installation) [host]</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:{service.version}"/>
+    <param pos="2" name="proftpd.server.name"/>
+    <param pos="3" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^ProFTPD (\d+\.[^\s]+) Server ready\.$">
+    <description>ProFTPD with only version info</description>
+    <example service.version="1.3.0rc2">ProFTPD 1.3.0rc2 Server ready.</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^ProFTPD FTP Server ready\.$">
+    <description>ProFTPD with no version info</description>
+    <example>ProFTPD FTP Server ready.</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:-"/>
+  </fingerprint>
+  <fingerprint pattern="^ProFTPD Server$">
+    <description>ProFTPD with no version info, short form</description>
+    <example>ProFTPD Server</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:-"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{4}\-\d\d\-\d\d \d\d:\d\d:\d\d,\d\d\d )?(\S+) proftpd\[\d+\]: error: no valid servers configured">
+    <description>ProFTPD no valid servers configured</description>
+    <example host.name="ftp.host.com">ftp.host.com proftpd[40312]: error: no valid servers configured\n</example>
+    <example host.name="hostname.com">2016-10-31 12:14:35,524 hostname.com proftpd[26992]: error: no valid servers configured\n</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:-"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^ProFTPD (\d+\.[^\s]+) Server \((.*)\) \[[[a-f\d].:\]]*$">
+    <description>ProFTPD with version info - truncated</description>
+    <example service.version="1.3.2c">ProFTPD 1.3.2c Server (ProFTPD Default Installation) [</example>
+    <example proftpd.server.name="svrname.hosting.com">ProFTPD 1.3.0 Server (svrname.hosting.com) [10.10.10.</example>
+    <example>ProFTPD 1.3.3a Server (randomstring) [::ff</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:{service.version}"/>
+    <param pos="2" name="proftpd.server.name"/>
+  </fingerprint>
+  <fingerprint pattern="^=\(&lt;\*&gt;\)=-\.:\. \(\( Welcome to Pure-FTPd ([\d.]+) \)\) \.:\.-=\(&lt;\*&gt;\)=-" flags="REG_MULTILINE">
+    <description>Pure-FTPd versions &lt;= 1.0.13 (at least as far back as 1.0.11)</description>
+    <example service.version="1.0.11">=(&lt;*&gt;)=-.:. (( Welcome to Pure-FTPd 1.0.11 )) .:.-=(&lt;*&gt;)=-</example>
+    <example service.version="1.0.11">=(&lt;*&gt;)=-.:. (( Welcome to Pure-FTPd 1.0.11 )) .:.-=(&lt;*&gt;)=-&#13;
+more stuff</example>
+    <param pos="0" name="service.family" value="Pure-FTPd"/>
+    <param pos="0" name="service.product" value="Pure-FTPd"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^-{9,10} Welcome to Pure-FTPd (.*)-{9,10}" flags="REG_MULTILINE">
+    <description>Pure-FTPd versions &gt;= 1.0.14
+      Config data can be zero or more of: [privsep] [TLS]
+    </description>
+    <example>---------- Welcome to Pure-FTPd ----------</example>
+    <example>--------- Welcome to Pure-FTPd [privsep] [TLS] ----------</example>
+    <example>--------- Welcome to Pure-FTPd [privsep] [TLS] ----------&#13;
+more text</example>
+    <param pos="1" name="pureftpd.config"/>
+    <param pos="0" name="service.family" value="Pure-FTPd"/>
+    <param pos="0" name="service.product" value="Pure-FTPd"/>
+  </fingerprint>
+  <fingerprint pattern="^=\(.\*.\)=-\.:\. \(\( Welcome to PureFTPd (\d+\..+) \)\) \.:\.-=\(.\*.\)=-" flags="REG_MULTILINE">
+    <description>Older Pure-FTPd versions</description>
+    <example service.version="1.1.0">=(&lt;*&gt;)=-.:. (( Welcome to PureFTPd 1.1.0 )) .:.-=(&lt;*&gt;)=-</example>
+    <example service.version="1.1.0">=(&lt;*&gt;)=-.:. (( Welcome to PureFTPd 1.1.0 )) .:.-=(&lt;*&gt;)=-&#13;
+more text</example>
+    <param pos="0" name="service.family" value="Pure-FTPd"/>
+    <param pos="0" name="service.product" value="Pure-FTPd"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^Serv-U FTP[ -]Server v(\d+\.\S+)(?: for WinSock)? ready\.*$">
+    <description>Serv-U (only runs on Windows)</description>
+    <example service.version="2.5n">Serv-U FTP-Server v2.5n for WinSock ready...</example>
+    <example service.version="6.0">Serv-U FTP Server v6.0 for WinSock ready</example>
+    <example service.version="7.2">Serv-U FTP Server v7.2 ready...</example>
+    <param pos="0" name="service.vendor" value="Rhino Software"/>
+    <param pos="0" name="service.product" value="Serv-U"/>
+    <param pos="0" name="service.family" value="Serv-U"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^zFTPServer v?(\S+), .*ready\.$" flags="REG_ICASE">
+    <description>zftpserver (only runs on Windows)</description>
+    <example service.version="4.0">zFTPServer v4.0, build 2008-12-24 01:41 ready.</example>
+    <param pos="0" name="service.vendor" value="Västgöta-Data AB"/>
+    <param pos="0" name="service.product" value="zFTPServer"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^\(vsFTPd (\d+\..+)\)(?: (.+))?$">
+    <description>vsFTPd (Very Secure FTP Daemon)</description>
+    <example service.version="1.1.3">(vsFTPd 1.1.3) host</example>
+    <example service.version="2.0.5">(vsFTPd 2.0.5)</example>
+    <param pos="0" name="service.family" value="vsFTPd"/>
+    <param pos="0" name="service.product" value="vsFTPd"/>
+    <param pos="1" name="service.version"/>
+    <param pos="2" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^ready, dude \(vsFTPd (\d+\..+): beat me, break me\)$">
+    <description>vsFTPd (Very Secure FTP Daemon)</description>
+    <example service.version="1.1.0">ready, dude (vsFTPd 1.1.0: beat me, break me)</example>
+    <param pos="0" name="service.family" value="vsFTPd"/>
+    <param pos="0" name="service.product" value="vsFTPd"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^vsFTPd ([\d.]+\+ \(ext\.3\)) ready\.\.\.$">
+    <description>vsFTPd (Very Secure FTP Daemon) extended build (vsftpd.devnet.ru)</description>
+    <example service.version="2.0.4+ (ext.3)">vsFTPd 2.0.4+ (ext.3) ready...</example>
+    <param pos="0" name="service.family" value="vsFTPd"/>
+    <param pos="0" name="service.product" value="vsFTPd Extended"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^OOPS: .*vsftp.*$">
+    <description>vsFTPd (Very Secure FTP Daemon) error message</description>
+    <example>OOPS: vsftpd: root is not mounted.</example>
+    <example>OOPS: cannot read user list file:/etc/vsftpd.user_list</example>
+    <param pos="0" name="service.family" value="vsFTPd"/>
+    <param pos="0" name="service.product" value="vsFTPd"/>
+  </fingerprint>
+  <fingerprint pattern="^FileZilla Server(?: version)? (?:v)?(\d\.[\w.]+(?: beta)?).*$">
+    <description>FileZilla FTP Server</description>
+    <example service.version="0.9.2 beta">FileZilla Server version 0.9.2 beta</example>
+    <example service.version="0.9.13a beta">FileZilla Server version 0.9.13a beta</example>
+    <example service.version="0.9.54 beta">FileZilla Server 0.9.54 beta</example>
+    <example service.version="0.9.33 beta">FileZilla Server v0.9.33 beta</example>
+    <param pos="0" name="service.family" value="FileZilla FTP Server"/>
+    <param pos="0" name="service.product" value="FileZilla FTP Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^\s*APC FTP server ready\.$">
+    <description>APC device</description>
+    <example>APC FTP server ready.</example>
+    <param pos="0" name="service.vendor" value="APC"/>
+    <param pos="0" name="service.product" value="FTP"/>
+    <param pos="0" name="os.vendor" value="APC"/>
+    <param pos="0" name="os.device" value="Power device"/>
+    <param pos="0" name="hw.vendor" value="APC"/>
+    <param pos="0" name="hw.device" value="Power device"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) Network Management Card AOS v(\d+\..+) FTP server ready\.$">
+    <description>APC power/cooling device</description>
+    <example service.version="3.3.4">AP7932 Network Management Card AOS v3.3.4 FTP server ready.</example>
+    <example os.version="3.6.1">ACRC103 Network Management Card AOS v3.6.1 FTP server ready.</example>
+    <example os.product="0G-9354-01">0G-9354-01 Network Management Card AOS v3.6.1 FTP server ready.</example>
+    <param pos="0" name="service.vendor" value="APC"/>
+    <param pos="0" name="service.product" value="AOS"/>
+    <param pos="0" name="service.family" value="AOS"/>
+    <param pos="2" name="service.version"/>
+    <param pos="0" name="os.vendor" value="APC"/>
+    <param pos="0" name="os.device" value="Power device"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="APC"/>
+    <param pos="0" name="hw.device" value="Power device"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP server \(EMC-SNAS: ([^\)]+)\)(?: \S+)?$">
+    <description>EMC Celerra</description>
+    <example service.version="5.6.47.11">foo2 FTP server (EMC-SNAS: 5.6.47.11)</example>
+    <example service.version="5.6.50.203">foo2 FTP server (EMC-SNAS: 5.6.50.203) ready.</example>
+    <example service.version="5.5.31.6">foo4 FTP server (EMC-SNAS: 5.5.31.6) r</example>
+    <param pos="0" name="service.vendor" value="EMC"/>
+    <param pos="0" name="service.product" value="Celerra"/>
+    <param pos="2" name="service.version"/>
+    <param pos="0" name="os.vendor" value="EMC"/>
+    <param pos="0" name="os.device" value="Storage"/>
+    <param pos="0" name="os.product" value="Celerra"/>
+    <param pos="2" name="os.version"/>
+    <param pos="1" name="host.name"/>
+    <param pos="0" name="hw.vendor" value="EMC"/>
+    <param pos="0" name="hw.device" value="Storage"/>
+    <param pos="0" name="hw.product" value="Celerra"/>
+  </fingerprint>
+  <fingerprint pattern="^JD FTP Server Ready.*$">
+    <description>HP JetDirect printer</description>
+    <example>JD FTP Server Ready</example>
+    <example>JD FTP Server Ready.</example>
+    <param pos="0" name="service.vendor" value="HP"/>
+    <param pos="0" name="service.product" value="JetDirect"/>
+    <param pos="0" name="service.family" value="JetDirect"/>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="0" name="os.family" value="JetDirect"/>
+    <param pos="0" name="os.product" value="JetDirect"/>
+    <param pos="0" name="hw.vendor" value="HP"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="0" name="hw.family" value="JetDirect"/>
+    <param pos="0" name="hw.product" value="JetDirect"/>
+  </fingerprint>
+  <fingerprint pattern="^Check Point FireWall-1 Secure FTP server running on (.+)$">
+    <description>Check Point FireWall-1</description>
+    <example host.name="host">Check Point FireWall-1 Secure FTP server running on host</example>
+    <param pos="0" name="service.vendor" value="Check Point"/>
+    <param pos="0" name="service.product" value="Firewall-1"/>
+    <param pos="0" name="service.family" value="Firewall-1"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:checkpoint:firewall-1:-"/>
+    <param pos="0" name="os.vendor" value="Check Point"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:checkpoint:gaia_os:-"/>
+    <param pos="0" name="os.device" value="Firewall"/>
+    <param pos="0" name="os.family" value="Firewall-1"/>
+    <param pos="0" name="os.product" value="GAiA OS"/>
+    <param pos="0" name="hw.vendor" value="Check Point"/>
+    <param pos="0" name="hw.device" value="Firewall"/>
+    <param pos="0" name="hw.family" value="Firewall-1"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^Blue Coat FTP Service$">
+    <description>Blue Coat security appliances</description>
+    <example>Blue Coat FTP Service</example>
+    <param pos="0" name="service.vendor" value="Blue Coat"/>
+    <param pos="0" name="service.product" value="Proxy"/>
+    <param pos="0" name="os.vendor" value="Blue Coat"/>
+    <param pos="0" name="os.product" value="Unknown"/>
+    <param pos="0" name="os.device" value="Web proxy"/>
+  </fingerprint>
+  <fingerprint pattern="^---freeFTPd 1.0---warFTPd 1.65---$">
+    <description>Nepenthes honeypot</description>
+    <param pos="0" name="service.family" value="Nepenthes"/>
+    <param pos="0" name="service.product" value="Nepenthes"/>
+  </fingerprint>
+  <fingerprint pattern="^[^ ]+ IBM FTP CS (V1R\d+) at ([^,]*),.*">
+    <description>IBM z/OS FTP Service</description>
+    <example>SFTPD1 IBM FTP CS V1R4 at x.y.z, 21:02:19 on 2007-12-15.</example>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.product" value="z/OS FTP Server"/>
+    <param pos="0" name="os.vendor" value="IBM"/>
+    <param pos="0" name="os.product" value="z/OS"/>
+    <param pos="0" name="os.family" value="z/OS"/>
+    <param pos="0" name="os.device" value="Mainframe"/>
+    <param pos="1" name="os.version"/>
+    <param pos="2" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^FTP server \(IBM 4690 TCP/IP FTP Version 1\.0\) ready\.">
+    <description>IBM 4690 FTP Service</description>
+    <example>FTP server (IBM 4690 TCP/IP FTP Version 1.0) ready.</example>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.product" value="4690 FTP Server"/>
+    <param pos="0" name="os.vendor" value="IBM"/>
+    <param pos="0" name="os.product" value="4690"/>
+    <param pos="0" name="os.family" value="4690"/>
+    <param pos="0" name="os.device" value="Point of sale"/>
+  </fingerprint>
+  <fingerprint pattern="^([^ ]+) NcFTPd Server \(licensed copy\) ready\.$">
+    <description>NcFTPd Server
+      http://www.ncftp.com/ncftpd/</description>
+    <example>ftp.example.com NcFTPd Server (licensed copy) ready.</example>
+    <param pos="0" name="service.vendor" value="NcFTP Software"/>
+    <param pos="0" name="service.product" value="NcFTPd Server"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) DCS-2100 FTP server ready\.$">
+    <description>D-Link DCS-2100 wireless internet camera</description>
+    <example>hostname DCS-2100 FTP server ready.</example>
+    <param pos="0" name="os.vendor" value="D-Link"/>
+    <param pos="0" name="os.product" value="DCS-2100"/>
+    <param pos="0" name="os.device" value="Web cam"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^Secure Gateway FTP server ready\.$">
+    <description>Raptor firewall</description>
+    <example>Secure Gateway FTP server ready.</example>
+    <param pos="0" name="os.vendor" value="Symantec"/>
+    <param pos="0" name="os.family" value="Raptor"/>
+    <param pos="0" name="os.product" value="Raptor"/>
+    <param pos="0" name="os.device" value="Firewall"/>
+  </fingerprint>
+  <fingerprint pattern="^SUN StorEdge (\S+) RAID FTP server ready\.$">
+    <description>Sun StorEdge disk array</description>
+    <example>SUN StorEdge 3511 RAID FTP server ready.</example>
+    <param pos="0" name="os.vendor" value="Sun"/>
+    <param pos="0" name="os.family" value="StorEdge"/>
+    <param pos="1" name="os.product"/>
+    <param pos="0" name="os.device" value="Storage"/>
+  </fingerprint>
+  <fingerprint pattern="^AXIS (\S+) (?:(?:Fixed Dome )?Network(?: Fixed Dome)? Camera) ([\d\.]+) .* ready\.?$" flags="REG_ICASE">
+    <description>Axis Network Camera</description>
+    <example os.product="2100" os.version="2.43">Axis 2100 Network Camera 2.43 Nov 04 2008 ready.</example>
+    <example os.product="207" os.version="4.40.1">AXIS 207 Network Camera 4.40.1 (Apr 16 2007) ready.</example>
+    <example os.product="216FD" os.version="4.47">AXIS 216FD Network Fixed Dome Camera 4.47 (Mar 13 2008) ready.</example>
+    <example os.product="M3203" os.version="5.12.1">AXIS M3203 Fixed Dome Network Camera 5.12.1 (Feb 07 2011) ready.</example>
+    <param pos="0" name="os.vendor" value="Axis"/>
+    <param pos="0" name="os.device" value="Web cam"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^AXIS (\S+) Video (?:Encoder Blade|Server|Decoder) ([\d\.]+) .* ready\.?$" flags="REG_ICASE">
+    <description>Axis Video encoders/servers</description>
+    <example hw.product="Q7406">AXIS Q7406 Video Encoder Blade 5.01 (Aug 01 2008) ready.</example>
+    <example os.product="241Q">AXIS 241Q Video Server 4.47.2 (Dec 11 2008) ready.</example>
+    <example os.version="5.07.2">AXIS P7701 Video Decoder 5.07.2 (Apr 20 2010) ready.</example>
+    <param pos="0" name="hw.vendor" value="Axis"/>
+    <param pos="1" name="hw.product"/>
+    <param pos="0" name="os.vendor" value="Axis"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^AXIS (\S+) .*FTP Network Print Server V?([\d\.]+\S+) .* ready\.?$" flags="REG_ICASE">
+    <description>Axis print servers</description>
+    <example hw.product="5600+">AXIS 5600+ (rev 3) FTP Network Print Server V7.00 Sep 10 2004 ready.</example>
+    <example os.product="560">AXIS 560 FTP Network Print Server V6.00 Jul 7 1999 ready.</example>
+    <example os.version="6.30.beta2">AXIS 5470e FTP Network Print Server V6.30.beta2 Sep 25 2002 ready.</example>
+    <param pos="0" name="hw.vendor" value="Axis"/>
+    <param pos="0" name="hw.device" value="Print server"/>
+    <param pos="1" name="hw.product"/>
+    <param pos="0" name="os.vendor" value="Axis"/>
+    <param pos="0" name="os.device" value="Print server"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^RICOH Aficio ((?:[MS]P )?\S+) FTP server \(([0-9\.a-zA-Z]+)\) ready.?$" flags="REG_ICASE">
+    <description>Ricoh Aficio multifunction device</description>
+    <example os.product="2045e">RICOH Aficio 2045e FTP server (4.12) ready.</example>
+    <example os.version="8.63">RICOH Aficio SP 4210N FTP server (8.63) ready.</example>
+    <example hw.product="MP C3000">RICOH Aficio MP C3000 FTP server (5.11) ready.</example>
+    <param pos="0" name="hw.vendor" value="Ricoh"/>
+    <param pos="0" name="hw.family" value="Aficio"/>
+    <param pos="0" name="hw.device" value="Multifunction Device"/>
+    <param pos="1" name="hw.product"/>
+    <param pos="0" name="os.vendor" value="Ricoh"/>
+    <param pos="0" name="os.family" value="Aficio"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^NRG ((?:[MS]P )?\S+) FTP server \(([0-9\.a-zA-Z]+)\) ready.?$" flags="REG_ICASE">
+    <description>Ricoh NRG multifunction device</description>
+    <example>NRG MP C2800 FTP server (8.25) ready.</example>
+    <example>NRG MP 3350 FTP server (7.05) ready.</example>
+    <example>NRG MP C3500 FTP server (5.17) ready.</example>
+    <example>NRG MP 171 FTP server (9.02.1) ready.</example>
+    <example>NRG MP 3350 FTP server (7.05) ready.</example>
+    <example>NRG MP C2550 FTP server (8.25) ready.</example>
+    <example>NRG MP C2800 FTP server (8.25) ready.</example>
+    <example>NRG MP C3500 FTP server (5.17) ready.</example>
+    <example>NRG MP C3500 FTP server (5.19) ready.</example>
+    <example>NRG MP C4000 FTP server (8.30) ready.</example>
+    <example>NRG MP C4500 FTP server (5.14) ready.</example>
+    <param pos="0" name="os.vendor" value="Ricoh"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Ricoh"/>
+    <param pos="0" name="hw.device" value="Multifunction Device"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^Xerox Phaser (\S+)$" certainty="1.0">
+    <description>Xerox Phaser Laser Printer</description>
+    <example>Xerox Phaser 6130N</example>
+    <example>Xerox Phaser 6180MFP-D</example>
+    <param pos="0" name="os.vendor" value="Xerox"/>
+    <param pos="0" name="os.family" value="Phaser"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.product"/>
+    <param pos="0" name="hw.vendor" value="Xerox"/>
+    <param pos="0" name="hw.family" value="Phaser"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^XEROX (\d+) Wide Format .*$" certainty="1.0">
+    <description>Xerox Wide Format Series of Printers</description>
+    <example>XEROX 6204 Wide Format FTP server ready</example>
+    <param pos="0" name="os.vendor" value="Xerox"/>
+    <param pos="0" name="os.family" value="Wide Format"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.product"/>
+    <param pos="0" name="hw.vendor" value="Xerox"/>
+    <param pos="0" name="hw.family" value="Wide Format"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^FUJI XEROX DocuPrint (.*)$" certainty="1.0">
+    <description>FUJI XEROX DocuPrint Series of Printers</description>
+    <example>FUJI XEROX DocuPrint 3055</example>
+    <example>FUJI XEROX DocuPrint C1190 FS</example>
+    <example>FUJI XEROX DocuPrint C2100</example>
+    <param pos="0" name="os.vendor" value="FUJI XEROX"/>
+    <param pos="0" name="os.family" value="DocuPrint"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.product"/>
+  </fingerprint>
+  <fingerprint pattern="^ET(\S{12}) Lexmark (\S+) FTP Server (\S+) ready\.?$" certainty="1.0" flags="REG_ICASE">
+    <description>Lexmark printers</description>
+    <example>ET000400CEA560 Lexmark T640 FTP Server NS.NP.N219 ready.</example>
+    <param pos="0" name="os.vendor" value="Lexmark"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="host.mac"/>
+    <param pos="2" name="os.product"/>
+    <param pos="3" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Lexmark"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="2" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^.*Lexmark (\S+) FTP Server (\S+) ready\.?$" certainty="1.0" flags="REG_ICASE">
+    <description>Lexmark printers</description>
+    <example os.product="T654" os.version="NR.APS.F368">ET0021718 Lexmark T654 FTP Server NR.APS.F368 ready.</example>
+    <param pos="0" name="os.vendor" value="Lexmark"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Lexmark"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^.*Lexmark (\S+) FTP Server ready\.?$" certainty="1.0" flags="REG_ICASE">
+    <description>Lexmark printers</description>
+    <example os.product="X500">Lexmark X500 FTP server ready</example>
+    <param pos="0" name="os.vendor" value="Lexmark"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.product"/>
+    <param pos="0" name="hw.vendor" value="Lexmark"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:Tornado-)?VxWorks \((?:VxWorks)?([^\)]+)\) FTP server(?: ready)?$" flags="REG_ICASE">
+    <description>VxWorks with version information</description>
+    <example os.version="5.3.1">VxWorks (5.3.1) FTP server ready</example>
+    <example os.version="5.5.1">VxWorks (VxWorks5.5.1) FTP server ready</example>
+    <example os.version="5.5.1">Tornado-vxWorks (VxWorks5.5.1) FTP server</example>
+    <param pos="0" name="os.vendor" value="Wind River"/>
+    <param pos="0" name="os.product" value="VxWorks"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:windriver:vxworks:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^Tornado-vxWorks FTP server ready$" flags="REG_ICASE">
+    <description>VxWorks without version information</description>
+    <example>Tornado-vxWorks FTP server ready</example>
+    <param pos="0" name="os.vendor" value="Wind River"/>
+    <param pos="0" name="os.product" value="VxWorks"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:windriver:vxworks:-"/>
+  </fingerprint>
+  <fingerprint pattern="^ADC iScale$">
+    <description>ADC iScale</description>
+    <example>ADC iScale</example>
+    <param pos="0" name="service.vendor" value="ADC"/>
+    <param pos="0" name="service.product" value="iScale"/>
+    <param pos="0" name="os.vendor" value="ADC"/>
+    <param pos="0" name="os.product" value="iScale"/>
+  </fingerprint>
+  <fingerprint pattern="^TASKalfa (\d+c?i) FTP server" certainty="1.0">
+    <description>Taskalfa Series of Printers</description>
+    <example>TASKalfa 300ci FTP server</example>
+    <example>TASKalfa 520i FTP server</example>
+    <param pos="0" name="os.vendor" value="Kyocera"/>
+    <param pos="0" name="os.family" value="TASKalfa"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="1" name="os.product"/>
+    <param pos="0" name="hw.vendor" value="Kyocera"/>
+    <param pos="0" name="hw.family" value="TASKalfa"/>
+    <param pos="0" name="hw.device" value="Multifunction Device"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^SAVIN (\S+) FTP server \((.*)\) ready.$" certainty="1.0">
+    <description>SAVIN Printer FTP Server</description>
+    <example os.product="4075">SAVIN 4075 FTP server (4.08) ready.</example>
+    <example hw.product="9025">SAVIN 9025 FTP server (7.23) ready.</example>
+    <example os.version="7.30">SAVIN 9050 FTP server (7.30) ready.</example>
+    <example os.version="9.03">SAVIN 917 FTP server (9.03) ready.</example>
+    <example>SAVIN 917 FTP server (9.05.2) ready.</example>
+    <example>SAVIN C2525 FTP server (5.14) ready.</example>
+    <example>SAVIN C3528 FTP server (4.08.3) ready.</example>
+    <example>SAVIN C3528 FTP server (4.17) ready.</example>
+    <example>SAVIN C6055 FTP server (7.16) ready.</example>
+    <example>SAVIN C9145 FTP server (10.51) ready.</example>
+    <param pos="0" name="os.vendor" value="Savin"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Savin"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^Oce (im\d+) Ver (\S+) FTP server\.$" certainty="1.0">
+    <description>OCE IM series Printer</description>
+    <example>Oce im4512 Ver 01.04.00.0c FTP server.</example>
+    <example>Oce im3512 Ver 01.04.00.0c FTP server.</example>
+    <param pos="0" name="os.vendor" value="Oce"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="0" name="os.family" value="IM Series"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^Oce (Plotwave\d+) FTP Service \(Version (\S+)\)\.$" certainty="1.0">
+    <description>OCE Printer</description>
+    <example>Oce Plotwave300 FTP Service (Version 4.5.7).</example>
+    <param pos="0" name="os.vendor" value="Oce"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="0" name="os.family" value="Plotwave Series"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^LinkCom Xpress (.*) FTP version ([\d\.]+) ready$" certainty="1.0">
+    <description>MPI Technologies Linkcom Express FTP Server</description>
+    <example>LinkCom Xpress 10/100 +IPDS FTP version 1.0 ready</example>
+    <param pos="0" name="os.vendor" value="MPI Technologies"/>
+    <param pos="0" name="os.family" value="LinkCom Xpress"/>
+    <param pos="0" name="os.device" value="Print server"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^LinkCom Xpress (.*)$" certainty="1.0">
+    <description>MPI Technologies Linkcom Express FTP Server</description>
+    <example>LinkCom Xpress EIO PRO 10</example>
+    <param pos="0" name="os.vendor" value="MPI Technologies"/>
+    <param pos="0" name="os.family" value="LinkCom Xpress"/>
+    <param pos="0" name="os.device" value="Print server"/>
+    <param pos="1" name="os.product"/>
+  </fingerprint>
+  <fingerprint pattern="^LXKE\S+ IBM Infoprint (\d+) FTP Server (\d+\.\d+\.\d+) ready.$" certainty="1.0">
+    <description>IBM Infoprint FTP</description>
+    <example>LXKE82124 IBM Infoprint 1332 FTP Server 55.10.21 ready.</example>
+    <example>LXKE8255D IBM Infoprint 1332 FTP Server 55.10.21 ready.</example>
+    <example>LXKE825A0 IBM Infoprint 1332 FTP Server 55.10.21 ready.</example>
+    <example>LXKE93276 IBM Infoprint 1332 FTP Server 55.10.19 ready.</example>
+    <param pos="0" name="os.vendor" value="Ricoh"/>
+    <param pos="0" name="os.family" value="Infoprint"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(Gestetner \S+(?: \S+)?) FTP server \((.*)\)" certainty="1.0">
+    <description>Gestetner Printer FTP</description>
+    <example os.product="Gestetner MP5500/DSm755" os.version="5.11c">Gestetner MP5500/DSm755 FTP server (5.11c) ready.</example>
+    <example os.product="Gestetner MP C4502" os.version="11.77">Gestetner MP C4502 FTP server (11.77) ready.</example>
+    <example>Gestetner MP 161/DSm416 FTP server (6.11) ready. </example>
+    <example>Gestetner 3502 FTP server (1.66.1) ready</example>
+    <example>Gestetner C7526dn FTP server (6.05.1) ready.</example>
+    <param pos="0" name="os.vendor" value="Ricoh"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(Gestetner \S+)$" certainty="1.0">
+    <description>Gestetner Printer FTP</description>
+    <example>Gestetner MPC2500</example>
+    <param pos="0" name="os.vendor" value="Ricoh"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="1" name="os.product"/>
+  </fingerprint>
+  <fingerprint pattern="^EUFSALE MarkNet (\S+) FTP Server (\d+\.\d+\.\d+) ready.$" certainty="1.0">
+    <description>Lexmark Marknet Printers FTP</description>
+    <example>EUFSALE MarkNet X2011e FTP Server 4.20.21 ready.</example>
+    <param pos="0" name="os.vendor" value="Lexmark"/>
+    <param pos="0" name="os.family" value="MarkNet"/>
+    <param pos="0" name="os.device" value="Print server"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^ET(\S+) Source Technologies (ST-96\S+) FTP Server (\S+) ready\.?$">
+    <description>Source Technologies ST9600 Series Secure Printer</description>
+    <example>ET0021B730F70E Source Technologies ST-9620 FTP Server NJ.APS.N254e ready.</example>
+    <example>ET0021B7549AF2 Source Technologies ST-9620 FTP Server NR.APS.N447b2 ready.</example>
+    <example>ET0021B7300F01 Source Technologies ST-9620 FTP Server NJ.APS.N254e ready.</example>
+    <param pos="0" name="os.vendor" value="Source Technologies"/>
+    <param pos="0" name="os.family" value="ST9600 Series"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="host.mac"/>
+    <param pos="2" name="os.product"/>
+    <param pos="3" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^ET(\S+) (Pro\d+) Series FTP Server ready\.$" certainty="1.0">
+    <description>Lexmark ProXXX Series of Printers</description>
+    <example>ET0020007E4D2A Pro700 Series FTP Server ready.</example>
+    <param pos="0" name="os.vendor" value="Lexmark"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="0" name="os.family" value="Pro Series"/>
+    <param pos="1" name="host.mac"/>
+    <param pos="2" name="os.product"/>
+  </fingerprint>
+  <fingerprint pattern="^ET(\S+) Lexmark Forms Printer (\d+) Ethernet FTP Server (\S+) ready\.$" certainty="1.0">
+    <description>Lexmark Forms Printer</description>
+    <example os.product="2590">ET0020004F54EE Lexmark Forms Printer 2590 Ethernet FTP Server LCL.CU.P012c ready.</example>
+    <param pos="0" name="os.vendor" value="Lexmark"/>
+    <param pos="0" name="os.family" value="Forms Printer"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="host.mac"/>
+    <param pos="2" name="os.product"/>
+    <param pos="3" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Lexmark"/>
+    <param pos="0" name="hw.family" value="Forms Printer"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="2" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^ET(\S+) TOSHIBA e-STUDIO500S FTP Server (\S+) ready\.$" certainty="1.0">
+    <description>Toshiba Printer</description>
+    <example os.version="NC2.NPS.N221">ET0004001E9C00 TOSHIBA e-STUDIO500S FTP Server NC2.NPS.N221 ready.</example>
+    <example>ET00040089BE42 TOSHIBA e-STUDIO500S FTP Server NC2.NPS.N211 ready.</example>
+    <param pos="0" name="os.vendor" value="Toshiba"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="0" name="os.product" value="e-STUDIO"/>
+    <param pos="1" name="host.mac"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Toshiba"/>
+    <param pos="0" name="hw.device" value="Multifunction Device"/>
+    <param pos="0" name="hw.product" value="e-STUDIO"/>
+  </fingerprint>
+  <fingerprint pattern="^\S+ TOSHIBA e-STUDIO500S FTP Server (\S+) ready\.$" certainty="1.0">
+    <description>Toshiba Printer</description>
+    <example os.version="NC2.NPS.N211">JHBPRN13 TOSHIBA e-STUDIO500S FTP Server NC2.NPS.N211 ready.</example>
+    <param pos="0" name="os.vendor" value="Toshiba"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="0" name="os.product" value="e-STUDIO"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Toshiba"/>
+    <param pos="0" name="hw.device" value="Multifunction Device"/>
+    <param pos="0" name="hw.product" value="e-STUDIO"/>
+  </fingerprint>
+  <fingerprint pattern="^.*Lexmark Optra (\S+) FTP Server (\S+) ready\.$" certainty="1.0">
+    <description>Lexmark Optra Printer</description>
+    <example os.product="T612">lex142785470853 Lexmark Optra T612 FTP Server 3.20.30 ready.</example>
+    <example os.version="3.20.20">oppr1.s02504.us Lexmark Optra T610 FTP Server 3.20.20 ready.</example>
+    <param pos="0" name="os.vendor" value="Lexmark"/>
+    <param pos="0" name="os.family" value="Optra"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Lexmark"/>
+    <param pos="0" name="hw.family" value="Optra"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^SHARP (MX-\S+) Ver (\S+) FTP server\.$" certainty="1.0">
+    <description>Sharp Printer/Copier/Scanne</description>
+    <example os.product="MX-6200N" os.version="01.02.00.0e">SHARP MX-6200N Ver 01.02.00.0e FTP server.</example>
+    <example>SHARP MX-M363N Ver 01.05.00.0k FTP server.</example>
+    <example>SHARP MX-M363N Ver 01.05.00.1k FTP server.</example>
+    <example>SHARP MX-5001N Ver 01.05.00.0n FTP server.</example>
+    <example>SHARP MX-5500N Ver 01.02.00.09 FTP server.</example>
+    <example>SHARP MX-M453N Ver 01.05.00.0k FTP server.</example>
+    <example>SHARP MX-M503N Ver 01.05.00.1k FTP server.</example>
+    <example>SHARP MX-M620U Ver 01.03.00 FTP server.</example>
+    <example>SHARP MX-M620U Ver 01.04.00.04 FTP server.</example>
+    <param pos="0" name="os.vendor" value="Sharp"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="0" name="os.family" value="MX Series"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Sharp"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="0" name="hw.family" value="MX Series"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^(FS-\S+MFP\S*?) FTP server\.?$" certainty="1.0">
+    <description>Kyocera Printers</description>
+    <example os.product="FS-C2126MFP">FS-C2126MFP FTP server</example>
+    <example hw.product="FS-C2026MFP+">FS-C2026MFP+ FTP server</example>
+    <example hw.product="FS-1128MFP">FS-1128MFP FTP server</example>
+    <param pos="0" name="os.vendor" value="Kyocera"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="1" name="os.product"/>
+    <param pos="0" name="hw.vendor" value="Kyocera"/>
+    <param pos="0" name="hw.device" value="Multifunction Device"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^(FS-\S+(?:DN|D|N)) FTP server\.?$" certainty="1.0">
+    <description>Kyocera Printers</description>
+    <example>FS-1370DN FTP server</example>
+    <example>FS-C5015N FTP server.</example>
+    <param pos="0" name="os.vendor" value="Kyocera"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="0" name="os.family" value="FS"/>
+    <param pos="1" name="os.product"/>
+    <param pos="0" name="hw.vendor" value="Kyocera"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="0" name="hw.family" value="FS"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^(ESI-\S+) Version (\S+) ready\.$" certainty="1.0">
+    <description>Extended Systems ExtendNet Print Server</description>
+    <example os.product="ESI-2941B">ESI-2941B Version 6.34 ready.</example>
+    <example os.version="6.03">ESI-2941A Version 6.03 ready.</example>
+    <example hw.product="ESI-2933A">ESI-2933A Version 6.40 ready.</example>
+    <example>ESI-2831 Version 2.1 ready.</example>
+    <example>ESI-2833A Version 6.3 ready.</example>
+    <example>ESI-2900A Version 6.31 ready.</example>
+    <example>ESI-2841B Version 3.01 ready.</example>
+    <example>ESI-2841C Version 5.09e ready.</example>
+    <example>ESI-2933A Version 6.40a.05 ready.</example>
+    <example>ESI-2999A Version 6.30a.07 ready.</example>
+    <param pos="0" name="os.vendor" value="Sybase"/>
+    <param pos="0" name="os.family" value="Extended Systems ExtendNet"/>
+    <param pos="0" name="os.device" value="Print server"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.family" value="Extended Systems ExtendNet"/>
+    <param pos="0" name="hw.device" value="Print server"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^SATO SATO PRINTER Ver (\S+) FTP server\.$" certainty="1.0">
+    <description>SATO Printer</description>
+    <example os.version="A1.2.3">SATO SATO PRINTER Ver A1.2.3 FTP server.</example>
+    <example>SATO SATO PRINTER Ver A2.3.0 FTP server.</example>
+    <param pos="0" name="os.vendor" value="SATO"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="SATO"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+  </fingerprint>
+  <fingerprint pattern="^Printer FTP (\d+\.\d+\.\d+) ready at (\w{3} \d{2} \d{2}:\d{2}:\d{2})$" certainty="1.0">
+    <description>AMTDatasouth Fastmark M5</description>
+    <example os.version="4.8.7">Printer FTP 4.8.7 ready at Apr 30 20:13:23</example>
+    <example system.time="Aug 31 16:43:22">Printer FTP 4.8.7 ready at Aug 31 16:43:22</example>
+    <example>Printer FTP 4.8.7 ready at Feb 28 11:27:46</example>
+    <example>Printer FTP 4.8.7 ready at Jan 31 00:40:04</example>
+    <example>Printer FTP 4.8.7 ready at Mar 31 06:28:25</example>
+    <param pos="0" name="os.vendor" value="AMTDatasouth"/>
+    <param pos="0" name="os.product" value="Fastmark M5"/>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="system.time.format" value="MMM dd HH:mm::ss"/>
+    <param pos="2" name="system.time"/>
+    <param pos="0" name="hw.vendor" value="AMTDatasouth"/>
+    <param pos="0" name="hw.product" value="Fastmark M5"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+  </fingerprint>
+  <fingerprint pattern="^EFI FTP Print server ready\.$" certainty="0.8">
+    <description>EFI FTP Print Server</description>
+    <example>EFI FTP Print server ready.</example>
+    <param pos="0" name="service.vendor" value="EFI"/>
+    <param pos="0" name="service.product" value="Fiery Print Server"/>
+    <param pos="0" name="os.vendor" value="EFI"/>
+    <param pos="0" name="os.product" value="Fiery Print Server"/>
+    <param pos="0" name="os.device" value="Print server"/>
+  </fingerprint>
+  <!-- Conjectured based on known MX FTP fingerprints -->
+  <fingerprint pattern="^SHARP (AR-\S+) Ver (\S+) FTP server">
+    <description>Sharp AR Series multifunction device</description>
+    <example os.product="AR-M450">SHARP AR-M450 Ver 01.05.00.0k FTP server.</example>
+    <param pos="0" name="os.vendor" value="Sharp"/>
+    <param pos="0" name="os.device" value="Multifunction Device"/>
+    <param pos="0" name="os.family" value="AR Series"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="Sharp"/>
+    <param pos="0" name="hw.device" value="Multifunction Device"/>
+    <param pos="0" name="hw.family" value="AR Series"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^KONICA MINOLTA FTP server ready\.?$">
+    <description>Konica Minolta FTP Server</description>
+    <example>KONICA MINOLTA FTP server ready.</example>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="0" name="os.vendor" value="Konica Minolta"/>
+    <param pos="0" name="os.product" value="Printer"/>
+    <param pos="0" name="service.vendor" value="Konica Minolta"/>
+    <param pos="0" name="service.product" value="KM FTPD"/>
+    <param pos="0" name="hw.device" value="Printer"/>
+    <param pos="0" name="hw.vendor" value="Konica Minolta"/>
+    <param pos="0" name="hw.product" value="Printer"/>
+  </fingerprint>
+  <fingerprint pattern="^(KM\S+) FTP server \(KM FTPD version (\d*(?:\.\d*))\) ready\.?$">
+    <description>Konica Minolta FTP Server</description>
+    <example>KM23BC97 FTP server (KM FTPD version 1.00) ready.</example>
+    <example>KM23BF0A FTP server (KM FTPD version 1.00) ready.</example>
+    <example>KM23CBDB FTP server (KM FTPD version 1.00) ready.</example>
+    <example>KM23E608 FTP server (KM FTPD version 1.00) ready.</example>
+    <example>KM23E8A2 FTP server (KM FTPD version 1.00) ready.</example>
+    <example>KM25015E FTP server (KM FTPD version 1.00) ready.</example>
+    <example>KM250E38 FTP server (KM FTPD version 1.00) ready.</example>
+    <example>KM251A4C FTP server (KM FTPD version 1.00) ready.</example>
+    <param pos="0" name="os.device" value="Printer"/>
+    <param pos="0" name="os.vendor" value="Konica Minolta"/>
+    <param pos="1" name="os.product"/>
+    <param pos="0" name="service.vendor" value="Konica Minolta"/>
+    <param pos="0" name="service.product" value="KM FTPD"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(ZBR-\d+) Version (\S+) ready\.?$">
+    <description>ZebraNet Print Server FTP</description>
+    <example os.product="ZBR-46686">ZBR-46686 Version 7.02 ready.</example>
+    <example os.version="V56.17.5Z">ZBR-79071 Version V56.17.5Z ready.</example>
+    <example os.version="7.02">ZBR-46687 Version 7.02 ready.</example>
+    <param pos="0" name="os.vendor" value="ZebraNet"/>
+    <param pos="0" name="os.device" value="Print server"/>
+    <param pos="1" name="os.product"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="ZebraNet"/>
+    <param pos="0" name="hw.device" value="Print server"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP server \(Version \S+ \w+ \w+ \d{1,2} \d{1,2}:\d{1,2}:\d{1,2} [A-Z]+ (?:1|2)\d{3}\) ready\.?$">
+    <description>Generic/unknown FTP Server found on HP-UX and AIX systems</description>
+    <example host.name="host.example.com">host.example.com FTP server (Version 4.1 Sat Sep 7 14:31:53 CDT 2002) ready.</example>
+    <example host.name="host.example.com">host.example.com FTP server (Version 5.3 Sat Jan 10 14:01:03 CDT 2012) ready</example>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^Welcome to the (?:Cisco )?(?:TelePresence) ([a-zA-Z\s]*?) ((?:MSE )?\d+), version (\d+.\d+\(\d+.\d+\)).*?" flags="REG_ICASE">
+    <description>Cisco TelePresence</description>
+    <example os.device="AM GW" os.version="1.1(1.34)" hw.series="3610">Welcome to the Cisco TelePresence AM GW 3610, version 1.1(1.34) </example>
+    <example os.device="IP GW" os.version="2.0(3.32)" hw.series="3510">Welcome to the Cisco TelePresence IP GW 3510, version 2.0(3.32) </example>
+    <example os.device="MCU" os.version="4.3(2.18)" hw.series="4210">Welcome to the Cisco TelePresence MCU 4210, version 4.3(2.18) </example>
+    <example os.device="MCU" os.version="4.3(1.68)" hw.series="MSE 8420">Welcome to the Cisco TelePresence MCU MSE 8420, version 4.3(1.68) </example>
+    <example os.device="Server" os.version="2.1(1.18)" hw.series="7010">Welcome to the Telepresence Server 7010, version 2.1(1.18) </example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.product" value="TelePresence"/>
+    <param pos="1" name="os.device"/>
+    <param pos="0" name="hw.vendor" value="Cisco"/>
+    <param pos="2" name="hw.series"/>
+    <param pos="3" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP server \((?:HP|Compaq) Tru64 UNIX Version (\S+)\) ready\.?$">
+    <description>Digital/Compaq/HP Tru64 Unix</description>
+    <example host.name="example.com" os.version="5.60">example.com FTP server (Compaq Tru64 UNIX Version 5.60) ready.</example>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.family" value="Unix"/>
+    <param pos="0" name="os.product" value="Tru64 Unix"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:hp:tru64:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP server \(Digital UNIX Version (\S+)\) ready\.?$">
+    <description>Digital/Compaq/HP Tru64 Unix</description>
+    <example host.name="example.com" os.version="5.60">example.com FTP server (Digital UNIX Version 5.60) ready.</example>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.family" value="Unix"/>
+    <param pos="0" name="os.product" value="Digital Unix"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP server \(MikroTik ([\d\.]+)\) ready\.?$">
+    <description>MikroTik</description>
+    <example host.name="example.com" os.version="6.18">example.com FTP server (MikroTik 6.18) ready</example>
+    <param pos="0" name="os.vendor" value="MikroTik"/>
+    <param pos="0" name="os.product" value="RouterOS"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:mikrotik:routeros:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^MikroTik FTP server \(MikroTik ([\w.]+)\) ready\.?$">
+    <description>MikroTik w/o hostname</description>
+    <example os.version="6.0rc14">MikroTik FTP server (MikroTik 6.0rc14) ready</example>
+    <param pos="0" name="os.vendor" value="MikroTik"/>
+    <param pos="0" name="os.product" value="RouterOS"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:mikrotik:routeros:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^Welcome to ASUS (B?RT-[\w.-]+) FTP service\.$">
+    <description>FTPD on an Asus Wireless Access Point/Router</description>
+    <example hw.product="RT-AC68U">Welcome to ASUS RT-AC68U FTP service.</example>
+    <example hw.product="RT-N13U.B1">Welcome to ASUS RT-N13U.B1 FTP service.</example>
+    <example hw.product="BRT-AC828">Welcome to ASUS BRT-AC828 FTP service.</example>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="hw.vendor" value="Asus"/>
+    <param pos="0" name="hw.device" value="WAP"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^Welcome to ASUS (DSL-[\w.-]+) FTP service\.$">
+    <description>FTPD on a ADSL/VDSL Modem/Wireless Access Point/Router</description>
+    <example hw.product="DSL-AC68U">Welcome to ASUS DSL-AC68U FTP service.</example>
+    <example hw.product="DSL-N55U-D1">Welcome to ASUS DSL-N55U-D1 FTP service.</example>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="hw.vendor" value="Asus"/>
+    <param pos="0" name="hw.device" value="DSL Modem"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^Welcome to ASUS (TM-\w+) FTP service\.$">
+    <description>FTPD on a T-Mobile branded Asus Wireless Access Point/Router</description>
+    <example hw.product="TM-AC1900">Welcome to ASUS TM-AC1900 FTP service.</example>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="hw.vendor" value="Asus"/>
+    <param pos="0" name="hw.device" value="WAP"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^(FRITZ!Box[\w()]+) FTP server ready\.$">
+    <description>FTPD on an AWM multifunction Modem/Wireless Access Point/Router/VoIP device</description>
+    <example hw.product="FRITZ!Box7490">FRITZ!Box7490 FTP server ready.</example>
+    <example hw.product="FRITZ!BoxFonWLAN7390">FRITZ!BoxFonWLAN7390 FTP server ready.</example>
+    <example hw.product="FRITZ!Box7490(UI)">FRITZ!Box7490(UI) FTP server ready.</example>
+    <example hw.product="FRITZ!Box7362SL(UI)">FRITZ!Box7362SL(UI) FTP server ready.</example>
+    <example hw.product="FRITZ!BoxFonWLAN7270v3">FRITZ!BoxFonWLAN7270v3 FTP server ready.</example>
+    <example hw.product="FRITZ!Box6490Cable(kdg)">FRITZ!Box6490Cable(kdg) FTP server ready.</example>
+    <param pos="0" name="hw.vendor" value="AVM"/>
+    <param pos="0" name="hw.device" value="WAP"/>
+    <param pos="0" name="hw.family" value="FRITZ!Box"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^HES_CPE FTP server \(GNU inetutils ([\w.]+)\) ready\.$">
+    <description>FTPD on a ZyXEL (Huawei rebrand) WiMax WAP</description>
+    <example service.version="1.4.1">HES_CPE FTP server (GNU inetutils 1.4.1) ready.</example>
+    <param pos="0" name="service.family" value="inetutils"/>
+    <param pos="0" name="service.product" value="inetutils ftpd"/>
+    <param pos="0" name="service.vendor" value="GNU"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="hw.vendor" value="ZyXEL"/>
+    <param pos="0" name="hw.family" value="WiMax"/>
+    <param pos="0" name="hw.device" value="WAP"/>
+  </fingerprint>
+  <fingerprint pattern="^Speedport W ?(\S+) (?:Typ [A|B] )?FTP Server v([\d.]+) ready$$">
+    <description>FTPD on Speedport WLAN/ADSL routers (Deutsche Telekom mfg by misc)</description>
+    <example hw.product="723V" os.version="1.40.000">Speedport W 723V Typ B FTP Server v1.40.000 ready</example>
+    <example hw.product="921V" os.version="1.39.000">Speedport W 921V FTP Server v1.39.000 ready</example>
+    <example hw.product="722V" os.version="1.18.000">Speedport W722V FTP Server v1.18.000 ready</example>
+    <param pos="0" name="hw.vendor" value="Deutsche Telekom"/>
+    <param pos="0" name="hw.device" value="WAP"/>
+    <param pos="0" name="hw.family" value="Speedport"/>
+    <param pos="1" name="hw.product"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^DiskStation FTP server ready\.$">
+    <description>FTPD on a Synology DiskStation NAS</description>
+    <example>DiskStation FTP server ready.</example>
+    <param pos="0" name="service.family" value="SmbFTPD"/>
+    <param pos="0" name="service.product" value="SmbFTPD"/>
+    <param pos="0" name="service.vendor" value="GNU"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="hw.vendor" value="Synology"/>
+    <param pos="0" name="hw.family" value="DiskStation"/>
+    <param pos="0" name="hw.device" value="NAS"/>
+  </fingerprint>
+  <fingerprint pattern="^Synology FTP server ready\.$" flags="REG_ICASE">
+    <description>FTPD on a Synology device</description>
+    <example>Synology FTP server ready.</example>
+    <example>SYNOLOGY FTP server ready.</example>
+    <param pos="0" name="service.family" value="SmbFTPD"/>
+    <param pos="0" name="service.product" value="SmbFTPD"/>
+    <param pos="0" name="service.vendor" value="GNU"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="hw.vendor" value="Synology"/>
+  </fingerprint>
+  <fingerprint pattern="^.Welcome to MyBookLive.$">
+    <description>FTPD on Western Digital My Book Live NAS</description>
+    <example>"Welcome to MyBookLive"</example>
+    <param pos="0" name="hw.vendor" value="Western Digital"/>
+    <param pos="0" name="hw.family" value="My Book"/>
+    <param pos="0" name="hw.product" value="My Book Live"/>
+    <param pos="0" name="hw.device" value="NAS"/>
+  </fingerprint>
+  <fingerprint pattern="^Multicraft ([\w.-]+) FTP server$">
+    <description>Multicraft FTPD Server</description>
+    <example service.version="2.0.2">Multicraft 2.0.2 FTP server</example>
+    <example service.version="2.0.0-pre19">Multicraft 2.0.0-pre19 FTP server</example>
+    <param pos="0" name="service.family" value="Multicraft"/>
+    <param pos="0" name="service.product" value="Multicraft"/>
+    <param pos="0" name="service.vendor" value="Multicraft"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^bftpd ([\d.]+) at ([[a-f\d].:]+) ready\.$">
+    <description>Bftpd FTPD Server</description>
+    <example service.version="2.2.1" host.ip="192.168.0.1">bftpd 2.2.1 at 192.168.0.1 ready.</example>
+    <example service.version="2.2" host.ip="::ffff:192.168.1.1">bftpd 2.2 at ::ffff:192.168.1.1 ready.</example>
+    <param pos="0" name="service.family" value="Bftpd"/>
+    <param pos="0" name="service.product" value="Bftpd"/>
+    <param pos="0" name="service.vendor" value="Bftpd Project"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:bftpd_project:bftpd:{service.version}"/>
+    <param pos="2" name="host.ip"/>
+  </fingerprint>
+  <fingerprint pattern="^NASFTPD Turbo station (?:2.x )?([\w.]+) Server \(ProFTPD\) \[([[a-f\d].:]+)\]$">
+    <description>ProFTPD on QNAP Turbo Station NAS</description>
+    <example service.version="1.3.5a" host.ip="192.168.1.100">NASFTPD Turbo station 1.3.5a Server (ProFTPD) [192.168.1.100]</example>
+    <example service.version="1.3.1rc2" host.ip="192.168.1.100">NASFTPD Turbo station 2.x 1.3.1rc2 Server (ProFTPD) [192.168.1.100]</example>
+    <param pos="0" name="service.family" value="ProFTPD"/>
+    <param pos="0" name="service.vendor" value="ProFTPD Project"/>
+    <param pos="0" name="service.product" value="ProFTPD"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:proftpd:proftpd:{service.version}"/>
+    <param pos="0" name="hw.vendor" value="QNAP"/>
+    <param pos="0" name="hw.family" value="Turbo Station"/>
+    <param pos="0" name="hw.device" value="NAS"/>
+    <param pos="2" name="host.ip"/>
+  </fingerprint>
+  <fingerprint pattern="^Twisted ([\w.]+) FTP Server$">
+    <description>Twisted (Python) FTP Server</description>
+    <example service.version="14.0.0">Twisted 14.0.0 FTP Server</example>
+    <example service.version="16.5.0rc2">Twisted 16.5.0rc2 FTP Server</example>
+    <param pos="0" name="service.family" value="Twisted"/>
+    <param pos="0" name="service.product" value="Twisted FTPD"/>
+    <param pos="0" name="service.vendor" value="Twisted Matrix Labs"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^Gene6 FTP Server v(\d{1,2}\.\d{1,2}\.\d{1,2}\s{1,2}\(Build \d{1,2}\)) ready\.\.\.$">
+    <description>Gene6 FTP Server on Windows</description>
+    <example service.version="3.10.0 (Build 2)">Gene6 FTP Server v3.10.0 (Build 2) ready...</example>
+    <example service.version="3.7.0  (Build 24)">Gene6 FTP Server v3.7.0  (Build 24) ready...</example>
+    <param pos="0" name="service.family" value="Gene6"/>
+    <param pos="0" name="service.product" value="FTP Server"/>
+    <param pos="0" name="service.vendor" value="Gene6"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^([\w.-]+) X2 WS_FTP Server ([\d.]{3,6}\s?\(\d+\))$">
+    <description>WS_FTP FTP Server on Windows - X2 variant</description>
+    <example service.version="7.7(50012467)" host.name="a.host.name.tld">a.host.name.tld X2 WS_FTP Server 7.7(50012467)</example>
+    <example service.version="5.0.5 (1989540204)" host.name="a.host.name.tld">a.host.name.tld X2 WS_FTP Server 5.0.5 (1989540204)</example>
+    <param pos="0" name="service.family" value="WS_FTP"/>
+    <param pos="0" name="service.product" value="WS_FTP"/>
+    <param pos="0" name="service.vendor" value="Ipswitch"/>
+    <param pos="2" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:ipswitch:ws_ftp:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^V2 WS_FTP Server ([\d.]{3,6}\s?\(\d+\))$">
+    <description>WS_FTP FTP Server on Windows - V2 variant</description>
+    <example service.version="6.1(05544322)">V2 WS_FTP Server 6.1(05544322)</example>
+    <param pos="0" name="service.family" value="WS_FTP"/>
+    <param pos="0" name="service.product" value="WS_FTP"/>
+    <param pos="0" name="service.vendor" value="Ipswitch"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:ipswitch:ws_ftp:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^FTP Server \(ZyWALL (USG\s?[\w-]+)\) \[([[a-f\d]:.]+)\]$">
+    <description>ZyXEL Unified Security Gateway</description>
+    <example hw.product="USG 20" host.ip="::ffff:192.168.0.2">FTP Server (ZyWALL USG 20) [::ffff:192.168.0.2]</example>
+    <example hw.product="USG100-PLUS" host.ip="::ffff:192.168.5.101">FTP Server (ZyWALL USG100-PLUS) [::ffff:192.168.5.101]</example>
+    <example hw.product="USG 20" host.ip="10.0.0.2">FTP Server (ZyWALL USG 20) [10.0.0.2]</example>
+    <param pos="0" name="service.vendor" value="ZyXEL"/>
+    <param pos="0" name="service.family" value="Unified Security Gateway"/>
+    <param pos="0" name="service.product" value="FTPD"/>
+    <param pos="2" name="host.ip"/>
+    <param pos="0" name="hw.vendor" value="ZyXEL"/>
+    <param pos="0" name="hw.family" value="Unified Security Gateway"/>
+    <param pos="1" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^Welcome to TP-LINK FTP server$">
+    <description>FTPD on a TP-LINK device (no version/host info)</description>
+    <example>Welcome to TP-LINK FTP server</example>
+    <param pos="0" name="hw.vendor" value="TP-LINK"/>
+  </fingerprint>
+  <fingerprint pattern="^ucftpd\((\w{3}\s+\d{1,2} \d{4}-\d\d:\d\d:\d\d)\) FTP server ready\.$">
+    <description>ucftpd with version</description>
+    <example service.version="Jul  2 2012-22:13:49">ucftpd(Jul  2 2012-22:13:49) FTP server ready.</example>
+    <example service.version="Sep 10 2010-17:23:34">ucftpd(Sep 10 2010-17:23:34) FTP server ready.</example>
+    <param pos="0" name="service.family" value="ucftpd"/>
+    <param pos="0" name="service.product" value="ucftpd"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^ucftpd FTP server ready\.$">
+    <description>ucftpd without version</description>
+    <example>ucftpd FTP server ready.</example>
+    <param pos="0" name="service.family" value="ucftpd"/>
+    <param pos="0" name="service.product" value="ucftpd"/>
+  </fingerprint>
+  <fingerprint pattern="^Welcome to TBS FTP Server\.$">
+    <description>TBS FTP Server</description>
+    <example>Welcome to TBS FTP Server.</example>
+    <param pos="0" name="service.family" value="TBS FTP Server"/>
+    <param pos="0" name="service.product" value="TBS FTP Server"/>
+  </fingerprint>
+  <fingerprint pattern="^Sofrel (S5[\w]+) SN ([\d-]+)  ready. Time is (\d{2}:\d{2}:\d{2} \d{2}\/\d{2}\/\d{2})\.$">
+    <description>Sofrel Remote Terminal Unit</description>
+    <example hw.product="S500" host.id="01-499-00427" system.time="00:11:39 01/11/16">Sofrel S500 SN 01-499-00427  ready. Time is 00:11:39 01/11/16.</example>
+    <param pos="0" name="hw.vendor" value="Sofrel"/>
+    <param pos="0" name="hw.family" value="S500 Range"/>
+    <param pos="1" name="hw.product"/>
+    <param pos="2" name="host.id"/>
+    <param pos="0" name="system.time.format" value="HH:mm::ss dd/MM/yy"/>
+    <param pos="3" name="system.time"/>
+  </fingerprint>
+  <fingerprint pattern="^TiMOS-[CB]-([\S]+) cpm\/[\w]+ ALCATEL (SR [\S]+) Copyright .{1,4}$">
+    <description>ALCATEL Service Router running TiMOS</description>
+    <example os.version="13.0.R9">TiMOS-C-13.0.R9 cpm/hops64 ALCATEL SR 7750 Copyright (</example>
+    <example hw.product="SR 7750">TiMOS-C-9.0.R8 cpm/hops ALCATEL SR 7750 Copyright (c) </example>
+    <param pos="0" name="os.vendor" value="ALCATEL"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="hw.vendor" value="ALCATEL"/>
+    <param pos="0" name="hw.family" value="Service Router"/>
+    <param pos="2" name="hw.product"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP server ready\.?$" flags="REG_ICASE">
+    <description>Generic FTP fingerprint with a hostname</description>
+    <example host.name="example.com">example.com FTP server ready.</example>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP server \(Version (\d.*)\) ready\.?$" flags="REG_ICASE">
+    <description>Generic FTP fingerprint with a hostname and a version for a generic FTP implementation</description>
+    <example host.name="example.com" service.version="6.00LS">example.com FTP server (Version 6.00LS) ready.</example>
+    <example host.name="example.com" service.version="1.2">example.com FTP server (Version 1.2) ready.</example>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^FTP (?:server|service)?(?: is)? ready\.?$" flags="REG_ICASE">
+    <description>Generic FTP fingerprint without a hostname</description>
+    <example>FTP server is ready.</example>
+    <example>FTP Server ready.</example>
+    <example>FTP Server Ready</example>
+    <example>FTP service ready.</example>
+  </fingerprint>
+  <fingerprint pattern="^Welcom to ProRat Ftp Server$">
+    <description>The FTP server of the ProRat malware</description>
+    <example>Welcom to ProRat Ftp Server</example>
+    <param pos="0" name="service.vendor" value="Pro Group"/>
+    <param pos="0" name="service.product" value="ProRat"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:(\S+) )?FTP Server \(vftpd ([\d.]+)\) ready\.?$">
+    <description>Vermillion FTP Daemon</description>
+    <example host.name="srv.name" service.version="1.23">srv.name FTP Server (vftpd 1.23) ready.</example>
+    <example service.version="1.31">FTP Server (vftpd 1.31) ready.</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+    <param pos="0" name="service.vendor" value="Vermillion"/>
+    <param pos="0" name="service.product" value="FTP Daemon"/>
+    <param pos="2" name="service.version"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:(\S+) )?FTP server \(QVT\/Net ([\d.]+)\) ready\.?$">
+    <description>QVT/Net FTP Server</description>
+    <example host.name="siren" service.version="5.1">siren FTP server (QVT/Net 5.1) ready.</example>
+    <example host.name="qpc-qvtnet" service.version="4.1">qpc-qvtnet FTP server (QVT/Net 4.1) ready.</example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+    <param pos="0" name="service.vendor" value="QPC Software"/>
+    <param pos="0" name="service.product" value="QVT/Net"/>
+    <param pos="2" name="service.version"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="Amazon\sLinux\sAMI\srelease\s(\d+\.\d+)">
+    <description>Amazon Linux AMI</description>
+    <example os.version="2016.09">Amazon Linux AMI release 2016.09</example>
+    <param pos="0" name="os.vendor" value="Amazon"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux AMI"/>
+    <param pos="1" name="os.version"/>
+  </fingerprint>
+</fingerprints>

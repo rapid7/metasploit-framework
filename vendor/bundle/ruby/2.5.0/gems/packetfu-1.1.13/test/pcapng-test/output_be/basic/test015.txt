@@ -1,0 +1,9 @@
+Description: Empty - only SHB, IDB, and NRB
+Category:    basic
+
+Block counts:
+	IDB: 1
+	NRB: 1
+	SHB: 1
+
+Block sequence: SHB, IDB, NRB

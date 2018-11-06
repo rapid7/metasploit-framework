@@ -1,0 +1,302 @@
+# Most of the iban details and the idea were copied from: https://github.com/iulianu/iban-tools
+#
+# Copyright (c) 2009 Iulian Dogariu
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+en:
+  faker:
+    bank:
+      name: ["UBS CLEARING AND EXECUTION SERVICES LIMITED", "ABN AMRO CORPORATE FINANCE LIMITED", "ABN AMRO FUND MANAGERS LIMITED", "ABN AMRO HOARE GOVETT SECURITIES", "ABN AMRO HOARE GOVETT CORPORATE FINANCE LTD.", "ALKEN ASSET MANAGEMENT", "ALKEN ASSET MANAGEMENT", "ABN AMRO HOARE GOVETT LIMITED", "AAC CAPITAL PARTNERS LIMITED", "ABBOTSTONE AGRICULTURAL PROPERTY UNIT TRUST", "ABN AMRO QUOTED INVESTMENTS (UK) LIMITED", "ABN AMRO MEZZANINE (UK) LIMITED", "ABBEY LIFE", "SANTANDER UK PLC", "OTKRITIE SECURITIES LIMITED", "ABC INTERNATIONAL BANK PLC", "ALLIED BANK PHILIPPINES (UK) PLC", "ABU DHABI ISLAMIC BANK", "ABG SUNDAL COLLIER LIMITED", "PGMS (GLASGOW) LIMITED", "ABINGWORTH MANAGEMENT LIMITED", "THE ROYAL BANK OF SCOTLAND PLC (FORMER RBS NV)"]
+      swift_bic: ["AACCGB21", "AACNGB21", "AAFMGB21", "AAHOGB21", "AAHVGB21", "AANLGB21", "AANLGB2L", "AAOGGB21", "AAPEGB21", "AAPUGB21", "AAQIGB21", "ABAZGB21", "ABBEGB21", "ABBYGB2L", "ABCCGB22", "ABCEGB2L", "ABCMGB21", "ABDIGB21", "ABECGB21", "ABFIGB21", "ABMNGB21", "ABNAGB21VOC" ]
+      iban_details:
+        # Data from http://www.tbg5-finance.org/?ibandocs.shtml/
+        ad:
+          # Andorra
+          length: 24
+          bban_pattern: '\d{8}[A-Z0-9]{12}'
+        ae:
+          # United Arab Emirates
+          length: 23
+          bban_pattern: '\d{19}'
+        al:
+          # Albania
+          length: 28
+          bban_pattern: '\d{8}[A-Z0-9]{16}'
+        at:
+          # Austria
+          length: 20
+          bban_pattern: '\d{16}'
+        az:
+          # Azerbaijan, Republic of
+          length: 28
+          bban_pattern: '[A-Z]{4}[A-Z0-9]{20}'
+        ba:
+          # Bosnia
+          length: 20
+          bban_pattern: '\d{16}'
+        be:
+          # Belgium
+          length: 16
+          bban_pattern: '\d{12}'
+        bg:
+          # Bulgaria
+          length: 22
+          bban_pattern: '[A-Z]{4}\d{6}[A-Z0-9]{8}'
+        bh:
+          # Bahrain
+          length: 22
+          bban_pattern: '[A-Z]{4}[A-Z0-9]{14}'
+        br:
+          # Brazil
+          length: 29
+          bban_pattern: '[0-9]{8}[0-9]{5}[0-9]{10}[A-Z]{1}[A-Z0-9]{1}'
+        ch:
+          # Switzerland
+          length: 21
+          bban_pattern: '\d{5}[A-Z0-9]{12}'
+        cr:
+          # Costa Rica
+          length: 22
+          bban_pattern: '0\d{3}\d{14}'
+        cy:
+          # Cyprus
+          length: 28
+          bban_pattern: '\d{8}[A-Z0-9]{16}'
+        cz:
+          # Czech Republic
+          length: 24
+          bban_pattern: '\d{20}'
+        de:
+          # Germany
+          length: 22
+          bban_pattern: '\d{18}'
+        dk:
+          # Denmark
+          length: 18
+          bban_pattern: '\d{14}'
+        do:
+          # Dominican Republic
+          length: 28
+          bban_pattern: '[A-Z]{4}\d{20}'
+        ee:
+          # Estonia
+          length: 20
+          bban_pattern: '\d{16}'
+        es:
+          # Spain
+          length: 24
+          bban_pattern: '\d{20}'
+        fi:
+          # Finland
+          length: 18
+          bban_pattern: '\d{14}'
+        fo:
+          # Faroe Islands
+          length: 18
+          bban_pattern: '\d{14}'
+        fr:
+          # France
+          length: 27
+          bban_pattern: '\d{10}[A-Z0-9]{11}\d{2}'
+        gb:
+          # United Kingdom
+          length: 22
+          bban_pattern: '[A-Z]{4}\d{14}'
+        ge:
+          # Georgia
+          length: 22
+          bban_pattern: '[A-Z]{2}\d{16}'
+        gi:
+          # Gibraltar
+          length: 23
+          bban_pattern: '[A-Z]{4}[A-Z0-9]{15}'
+        gl:
+          # Greenland
+          length: 18
+          bban_pattern: '\d{14}'
+        gr:
+          # Greece
+          length: 27
+          bban_pattern: '\d{7}[A-Z0-9]{16}'
+        gt:
+          # Guatemala
+          length: 28
+          bban_pattern: '[A-Z0-9]{4}\d{2}\d{2}[A-Z0-9]{16}'
+        hr:
+          # Croatia
+          length: 21
+          bban_pattern: '\d{17}'
+        hu:
+          # Hungary
+          length: 28
+          bban_pattern: '\d{24}'
+        ie:
+          # Ireland
+          length: 22
+          bban_pattern: '[A-Z]{4}\d{14}'
+        il:
+          # Israel
+          length: 23
+          bban_pattern: '\d{19}'
+        is:
+          # Iceland
+          length: 26
+          bban_pattern: '\d{22}'
+        it:
+          # Italy
+          length: 27
+          bban_pattern: '[A-Z]\d{10}[A-Z0-9]{12}'
+        kw:
+          # Kuwait
+          length: 30
+          bban_pattern: '[A-Z]{4}\d{22}'
+        kz:
+          # Kazakhstan
+          length: 20
+          bban_pattern: '[0-9]{3}[A-Z0-9]{13}'
+        lb:
+          # Lebanon
+          length: 28
+          bban_pattern: '\d{4}[A-Z0-9]{20}'
+        li:
+          # Liechtenstein
+          length: 21
+          bban_pattern: '\d{5}[A-Z0-9]{12}'
+        lt:
+          # Lithuania
+          length: 20
+          bban_pattern: '\d{16}'
+        lu:
+          # Luxembourg
+          length: 20
+          bban_pattern: '\d{3}[A-Z0-9]{13}'
+        lv:
+          # Latvia
+          length: 21
+          bban_pattern: '[A-Z]{4}[A-Z0-9]{13}'
+        mc:
+          # Monaco
+          length: 27
+          bban_pattern: '\d{10}[A-Z0-9]{11}\d{2}'
+        md:
+          # Moldova
+          length: 24
+          bban_pattern: '[A-Z]{2}[A-Z0-9]{18}'
+        me:
+          # Montenegro
+          length: 22
+          bban_pattern: '\d{18}'
+        mk:
+          # Macedonia
+          length: 19
+          bban_pattern: '\d{3}[A-Z0-9]{10}\d{2}'
+        mr:
+          # Mauritania
+          length: 27
+          bban_pattern: '\d{23}'
+        mt:
+          # Malta
+          length: 31
+          bban_pattern: '[A-Z]{4}\d{5}[A-Z0-9]{18}'
+        mu:
+          # Mauritius
+          length: 30
+          bban_pattern: '[A-Z]{4}\d{19}[A-Z]{3}'
+        nl:
+          # Netherlands
+          length: 18
+          bban_pattern: '[A-Z]{4}\d{10}'
+        'no':
+          # Norway
+          length: 15
+          bban_pattern: '\d{11}'
+        pk:
+          # Pakistan
+          length: 24
+          bban_pattern: '[A-Z]{4}[A-Z0-9]{16}'
+        pl:
+          # Poland
+          length: 28
+          bban_pattern: '\d{8}[A-Z0-9]{16}'
+        ps:
+          # Palestinian Territory, Occupied
+          length: 29
+          bban_pattern: '[A-Z]{4}[A-Z0-9]{21}'
+        pt:
+          # Portugal
+          length: 25
+          bban_pattern: '\d{21}'
+        qa:
+          # Qatar
+          length: 29
+          bban_pattern: '[A-Z]{4}[A-Z0-9]{21}'
+        ro:
+          # Romania
+          length: 24
+          bban_pattern: '[A-Z]{4}[A-Z0-9]{16}'
+        rs:
+          # Serbia
+          length: 22
+          bban_pattern: '\d{18}'
+        sa:
+          # Saudi Arabia
+          length: 24
+          bban_pattern: '\d{2}[A-Z0-9]{18}'
+        se:
+          # Sweden
+          length: 24
+          bban_pattern: '\d{20}'
+        si:
+          # Slovenia
+          length: 19
+          bban_pattern: '\d{15}'
+        sk:
+          # Slovakia
+          length: 24
+          bban_pattern: '\d{20}'
+        sm:
+          # San Marino
+          length: 27
+          bban_pattern: '[A-Z]\d{10}[A-Z0-9]{12}'
+        tl:
+          # Timor-Leste
+          length: 23
+          bban_pattern: '\d{19}'
+        tn:
+          # Tunisia
+          length: 24
+          bban_pattern: '\d{20}'
+        tr:
+          # Turkey
+          length: 26
+          bban_pattern: '\d{5}[A-Z0-9]{17}'
+        ua:
+          # Ukraine
+          length: 29
+          bban_pattern: '\d{25}'
+        vg:
+          # Virgin Islands, British
+          length: 24
+          bban_pattern: '[A-Z]{4}\d{16}'
+        xk:
+          # Kosovo, Republic of
+          length: 20
+          bban_pattern: '\d{16}'

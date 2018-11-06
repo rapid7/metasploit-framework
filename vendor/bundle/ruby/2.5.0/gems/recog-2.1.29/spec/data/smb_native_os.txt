@@ -1,0 +1,25 @@
+Windows Web Server 2008 R2 7601 Service Pack 1
+Windows Vista (TM) Home Premium 6002 Service Pack 2
+Windows Server (R) 2008 Standard 6002 Service Pack 2
+Windows Server (R) 2008 Enterprise without Hyper-V 6001 Service Pack 1
+Windows Server (R) 2008 Enterprise 6002 Service Pack 2
+Windows Server (R) 2008 Enterprise 6001 Service Pack 1
+Windows Server 2012 Standard 9200
+Windows Server 2012 R2 Standard 9600
+Windows Server 2008 R2 Standard 7601 Service Pack 1
+Windows Server 2008 R2 Standard 7600
+Windows Server 2008 R2 Enterprise 7601 Service Pack 1
+Windows Server 2008 R2 Enterprise 7600
+Windows Server 2008 HPC Edition 7600
+Windows Server 2003 R2 3790 Service Pack 2
+Windows Server 2003 3790 Service Pack 2
+Windows (R) Web Server 2008 6002 Service Pack 2
+Windows MultiPoint Server 2012 Premium 9200
+Windows 8 Enterprise 9200
+Windows 8.1 Enterprise 9600
+Windows 7 Ultimate 7601 Service Pack 1
+Windows 7 Ultimate 7600
+Windows 7 Starter 7601 Service Pack 1
+Windows 7 Home Premium 7600
+Windows 7 Enterprise 7601 Service Pack 1
+Windows 7 Enterprise 7600

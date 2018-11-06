@@ -1,0 +1,10 @@
+Description: Mix of SPBs and EPBs
+Category:    basic
+
+Block counts:
+	EPB: 2
+	IDB: 1
+	SHB: 1
+	SPB: 2
+
+Block sequence: SHB, IDB, SPB, EPB, SPB, EPB

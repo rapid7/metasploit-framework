@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="sip_header.server" protocol="sip" database_type="service">
+  <!--
+  SIP Server header values are matched against these patterns to fingerprint SIP devices.
+  -->
+  <fingerprint pattern="^Cisco-SIPGateway/IOS-(\d+)\.x$">
+    <description>Cisco IOS with SIPGateway with only major version</description>
+    <example os.version="12">Cisco-SIPGateway/IOS-12.x</example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.product" value="IOS"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:cisco:ios:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^Cisco-SIPGateway/IOS-([\d\.a-zA-Z]+)$">
+    <description>Cisco IOS with SIPGateway</description>
+    <example os.version="15.2.2.T1">Cisco-SIPGateway/IOS-15.2.2.T1</example>
+    <example os.version="15.2.3.T">Cisco-SIPGateway/IOS-15.2.3.T</example>
+    <example os.version="15.4.3.S5">Cisco-SIPGateway/IOS-15.4.3.S5</example>
+    <example os.version="15.6.3.M0a">Cisco-SIPGateway/IOS-15.6.3.M0a</example>
+    <example os.version="16.3.6">Cisco-SIPGateway/IOS-16.3.6</example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.product" value="IOS"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:cisco:ios:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^Cisco-CP-?(\d+G?)(?:-\S+)?/([\d\.]+)">
+    <description>Cisco CP VoIP Phone</description>
+    <example hw.model="7960G" hw.version="8.0">Cisco-CP7960G/8.0</example>
+    <example hw.model="7912" hw.version="8.0.1">Cisco-CP7912/8.0.1-060412A</example>
+    <example hw.model="7821" hw.version="11.0.0">Cisco-CP-7821-3PCC/11.0.0</example>
+    <example hw.model="6841" hw.version="11.1.1">Cisco-CP-6841-3PCC/11.1.1 (00727826a4e1) (sip68xx.11-1-1MPP-897.loads)</example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.device" value="VoIP"/>
+    <param pos="0" name="hw.vendor" value="Cisco"/>
+    <param pos="0" name="hw.product" value="CP"/>
+    <param pos="0" name="hw.device" value="VoIP"/>
+    <param pos="1" name="hw.model"/>
+    <param pos="2" name="hw.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?:Cisco|Linksys)/(SPA\d+[DG]?\d?)-([\d\.a-zA-Z]+)">
+    <description>Cisco/Linksys SPA VoIP Phone</description>
+    <example hw.model="SPA112" hw.version="1.4.1SR1">Cisco/SPA112-1.4.1SR1(002)d-hisec</example>
+    <example hw.model="SPA122" hw.version="1.3.3">Cisco/SPA122-1.3.3(004)</example>
+    <example hw.model="SPA922" hw.version="6.1.5">PhoneSystems.net aabbccddeeff Linksys/SPA922-6.1.5(a)</example>
+    <example hw.model="SPA232D" hw.version="1.4.1">Cisco/SPA232D-1.4.1(002_282)</example>
+    <example hw.model="SPA504G" hw.version="7.5.2">Cisco/SPA504G-7.5.2</example>
+    <example hw.model="SPA525G2" hw.version="7.6.1">Cisco/SPA525G2-7.6.1</example>
+    <example hw.model="SPA922" hw.version="6.1.5">Linksys/SPA922-6.1.5</example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.device" value="VoIP"/>
+    <param pos="0" name="hw.vendor" value="Cisco"/>
+    <param pos="0" name="hw.product" value="SPA"/>
+    <param pos="0" name="hw.device" value="VoIP"/>
+    <param pos="1" name="hw.model"/>
+    <param pos="2" name="hw.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?:Cisco|Linksys)(?: |/)(PAP2T?)(?:-|/)(\S+)$">
+    <description>Cisco/Linksys VoIP / Internet Phone adapter</description>
+    <example hw.version="3.1.22(LS)" hw.model="PAP2">PhoneSystems.net aabbccddeeff Linksys/PAP2-3.1.22(LS)</example>
+    <example hw.version="3.1.9(LSc)" hw.model="PAP2">aabbccddeeff Linksys/PAP2-3.1.9(LSc)</example>
+    <example hw.version="3.52.12X" hw.model="PAP2T">Linksys PAP2T/3.52.12X</example>
+    <example hw.version="2.0.10(LSb)" hw.model="PAP2">iLinksys/PAP2-2.0.10(LSb)</example>
+    <example hw.version="3.1.16(LS)" hw.model="PAP2T">Linksys/PAP2T-3.1.16(LS)</example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.device" value="VoIP"/>
+    <param pos="0" name="hw.vendor" value="Cisco"/>
+    <param pos="0" name="hw.product" value="Internet Phone Adapter"/>
+    <param pos="0" name="hw.device" value="VoIP"/>
+    <param pos="1" name="hw.model"/>
+    <param pos="2" name="hw.version"/>
+  </fingerprint>
+  <fingerprint pattern="^Cisco/(SRP\d+)-([\d\.]+)">
+    <description>Cisco Services Ready Platforms (SRP) Router</description>
+    <example hw.model="SRP541" hw.version="1.2.6">Cisco/SRP541-1.2.6(003)</example>
+    <example hw.model="SRP527" hw.version="1.02.03">Cisco/SRP527-1.02.03(002)</example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.device" value="Router"/>
+    <param pos="0" name="hw.vendor" value="Cisco"/>
+    <param pos="0" name="hw.product" value="SRP"/>
+    <param pos="0" name="hw.device" value="Router"/>
+    <param pos="1" name="hw.model"/>
+    <param pos="2" name="hw.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?:Cisco|Linksys)/(WRP\d+)-(\S+)$">
+    <description>Cisco/Linksys WRP Wireless Router</description>
+    <example hw.version="2.00.26" hw.model="WRP400">aabbccddeeff_FinalStage_Linksys/WRP400-2.00.26</example>
+    <example hw.version="1.01.08" hw.model="WRP200">Linksys/WRP200-1.01.08</example>
+    <example hw.version="1.00.05B2" hw.model="WRP400">Linksys/WRP400-1.00.05B2</example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.device" value="Router"/>
+    <param pos="0" name="hw.vendor" value="Cisco"/>
+    <param pos="0" name="hw.product" value="Wireless Router"/>
+    <param pos="0" name="hw.device" value="Router"/>
+    <param pos="1" name="hw.model"/>
+    <param pos="2" name="hw.version"/>
+  </fingerprint>
+  <fingerprint pattern="^M5T SIP(?: Stack|-UA SAFE)/v?([\d\.]+)">
+    <description>Media5 Corporation SIP Stack</description>
+    <example service.version="4.1.2.2">M5T SIP Stack/4.1.2.2</example>
+    <example service.version="3.6.4.8">M5T SIP-UA SAFE/v3.6.4.8</example>
+    <example service.version="4.1.2.2">M5T SIP Stack/4.1.2.2alliu</example>
+    <param pos="0" name="service.vendor" value="Media5 Corporation"/>
+    <param pos="0" name="service.product" value="SIP Stack"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="hw.device" value="VoIP"/>
+  </fingerprint>
+  <fingerprint pattern="^TANDBERG/\d+ \(([a-zA-Z]+\d+(?:\.\d+)+).*\)">
+    <description>Cisco TelePresence</description>
+    <example os.version="X8.2.1">TANDBERG/4130 (X8.2.1)</example>
+    <example os.version="XC2.2.1">TANDBERG/4353 (XC2.2.1-b2bua-1.0)</example>
+    <example os.version="TC5.1.4.295090">TANDBERG/516 (TC5.1.4.295090)</example>
+    <example os.version="TCNC5.1.4.295090">TANDBERG/517 (TCNC5.1.4.295090)</example>
+    <example os.version="S5.30">TANDBERG/80 (S5.30)</example>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.product" value="TelePresence"/>
+    <param pos="1" name="os.version"/>
+  </fingerprint>
+  <fingerprint pattern="^Tilgin Vood ([^_\s]+)">
+    <description>Tilgin Vood</description>
+    <example hw.model="HG238x">Tilgin Vood HG238x_ESx000-02_07_03_26</example>
+    <example hw.model="HG27xx">Tilgin Vood HG27xx</example>
+    <example hw.model="452W">Tilgin Vood 452W_S_3_4_2_RC_2</example>
+    <param pos="0" name="hw.vendor" value="Tilgin"/>
+    <param pos="0" name="hw.product" value="Vood"/>
+    <param pos="1" name="hw.model"/>
+  </fingerprint>
+  <fingerprint pattern="^(F\d{3})/VT?(\d(?:[\d\.A-Z]+))$">
+    <description>ZTE GPON Router</description>
+    <example hw.product="F620" hw.version="3.30.20P5T4S">F620/V3.30.20P5T4S</example>
+    <example hw.product="F660" hw.version="2.22.21P1T14S">F660/V2.22.21P1T14S</example>
+    <example hw.product="F668" hw.version="2.30.22P1T9">F668/VT2.30.22P1T9</example>
+    <param pos="0" name="hw.vendor" value="ZTE"/>
+    <param pos="0" name="hw.device" value="Router"/>
+    <param pos="1" name="hw.product"/>
+    <param pos="2" name="hw.version"/>
+  </fingerprint>
+  <fingerprint pattern="^ZXHN (H\d{3}N)/V?(\d(?:[\d\.A-Z_]+))$">
+    <description>ZTE ZXHN router</description>
+    <example hw.product="H218N" hw.version="1.02.01_ERS">ZXHN H218N/V1.02.01_ERS</example>
+    <example hw.product="H367N" hw.version="1.0.4">ZXHN H367N/V1.0.4</example>
+    <example hw.product="H218N" hw.version="1.02.01">ZXHN H218N/V1.02.01</example>
+    <example hw.product="H208N" hw.version="1.0.2T02">ZXHN H208N/V1.0.2T02</example>
+    <param pos="0" name="hw.vendor" value="ZTE"/>
+    <param pos="0" name="hw.device" value="Router"/>
+    <param pos="0" name="hw.family" value="ZXHN"/>
+    <param pos="1" name="hw.product"/>
+    <param pos="2" name="hw.version"/>
+  </fingerprint>
+</fingerprints>

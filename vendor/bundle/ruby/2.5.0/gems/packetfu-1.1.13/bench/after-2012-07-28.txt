@@ -1,0 +1,25 @@
+Parsing a TCP Packet...
+       user     system      total        real
+PacketFu::Packet.parse()    1.670000   0.010000   1.680000 (  1.664486)
+PacketFu::EthPacket.new.read()    0.180000   0.000000   0.180000 (  0.179386)
+PacketFu::IPPacket.new.read()    0.410000   0.000000   0.410000 (  0.415767)
+PacketFu::TCPPacket.new.read()    1.380000   0.000000   1.380000 (  1.375509)
+
+Parsing a UDP Packet...
+       user     system      total        real
+PacketFu::Packet.parse()    1.750000   0.000000   1.750000 (  1.757758)
+PacketFu::EthPacket.new.read()    0.180000   0.000000   0.180000 (  0.179951)
+PacketFu::IPPacket.new.read()    0.420000   0.000000   0.420000 (  0.416224)
+PacketFu::UDPPacket.new.read()    0.720000   0.000000   0.720000 (  0.715579)
+
+Parsing a ARP Packet...
+       user     system      total        real
+PacketFu::Packet.parse()    0.820000   0.000000   0.820000 (  0.823303)
+PacketFu::EthPacket.new.read()    0.180000   0.000000   0.180000 (  0.182247)
+PacketFu::ARPPacket.new.read()    0.670000   0.000000   0.670000 (  0.672712)
+
+Parsing a IPv6 Packet...
+       user     system      total        real
+PacketFu::Packet.parse()    0.700000   0.000000   0.700000 (  0.695721)
+PacketFu::EthPacket.new.read()    0.180000   0.000000   0.180000 (  0.180608)
+PacketFu::IPv6Packet.new.read()    0.530000   0.000000   0.530000 (  0.527124)

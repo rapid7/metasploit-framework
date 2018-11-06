@@ -1,0 +1,27 @@
+.rvmrc
+.bundle
+Gemfile.lock
+
+## MAC OS
+.DS_Store
+
+## TEXTMATE
+*.tmproj
+tmtags
+
+## EMACS
+*~
+\#*
+.\#*
+
+## VIM
+*.swp
+
+## RUBYMINE
+.idea
+
+## PROJECT::GENERAL
+coverage
+rdoc
+pkg
+.sass-cache

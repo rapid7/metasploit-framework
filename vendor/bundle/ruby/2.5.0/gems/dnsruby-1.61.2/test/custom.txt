@@ -1,0 +1,4 @@
+# $Id: custom.txt 264 2005-04-06 09:16:15Z olaf $
+domain t2.dnsruby.validation-test-servers.nominet.org.uk
+search alt.dnsruby.validation-test-servers.nominet.org.uk ext.dnsruby.validation-test-servers.nominet.org.uk
+nameserver 10.0.1.42 10.0.2.42

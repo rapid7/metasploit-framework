@@ -1,0 +1,11 @@
+Description: Multiple NRB among SPB/EPB
+Category:    basic
+
+Block counts:
+	EPB: 2
+	IDB: 1
+	NRB: 3
+	SHB: 1
+	SPB: 2
+
+Block sequence: SHB, IDB, NRB, SPB, EPB, NRB, SPB, EPB, NRB

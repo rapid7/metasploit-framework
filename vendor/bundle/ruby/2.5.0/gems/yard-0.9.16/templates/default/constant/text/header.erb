@@ -1,0 +1,11 @@
+<%= title_align_right format_object_title(object) %>
+
+
+<%= object.name %> = <%= object.value.size > 40 ? "\n\n" + indent(object.value) : object.value %>
+
+
+<%= hr %>
+
+<%= yieldall %>
+
+<%= hr %>

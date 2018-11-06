@@ -1,0 +1,6 @@
+[submodule "spec/rubyspec"]
+	path = spec/rubyspec
+	url = git://github.com/ruby/spec.git
+[submodule "frozen_old_spec/rubyspec"]
+	path = frozen_old_spec/rubyspec
+	url = git://github.com/ruby/spec.git

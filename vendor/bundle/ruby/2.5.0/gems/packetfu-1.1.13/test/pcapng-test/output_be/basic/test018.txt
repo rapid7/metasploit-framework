@@ -1,0 +1,12 @@
+Description: Multiple CB/DCB among SPB/EPB
+Category:    basic
+
+Block counts:
+	CB: 2
+	DCB: 2
+	EPB: 2
+	IDB: 1
+	SHB: 1
+	SPB: 2
+
+Block sequence: SHB, IDB, CB, SPB, EPB, DCB, SPB, CB, EPB, DCB

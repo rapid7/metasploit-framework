@@ -1,0 +1,14 @@
+Description: Multiple SHB sections of different endianness, all other blocks
+Category:    difficult
+
+Block counts:
+	CB: 1
+	DCB: 2
+	EPB: 6
+	IDB: 5
+	ISB: 4
+	NRB: 5
+	SHB: 3
+	SPB: 2
+
+Block sequence: SHB, IDB, NRB, IDB, CB, NRB, EPB, ISB, EPB, EPB, SHB, IDB, SPB, EPB, DCB, NRB, NRB, ISB, SPB, EPB, SHB, NRB, IDB, DCB, IDB, ISB, ISB, EPB

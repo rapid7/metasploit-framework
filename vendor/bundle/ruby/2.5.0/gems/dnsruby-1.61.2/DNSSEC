@@ -1,0 +1,19 @@
+DNSSEC support in Dnsruby
+=========================
+
+DNSSEC defines a set of security extensions to DNS which provide a way for a resolver to verify cryptographically the DNS RRSets returned by an upstream resolver. The main standard is defined in RFCs 4033, 4034 and 4035.
+
+Dnsruby provides a recursive, validating security-aware stub resolver which maintains a cache of trusted keys and verifies RRSIG-signed messages with those keys (adding new trusted keys from signed DNSKEY RRSets and DS records). If dnsruby does not currently have the required key, it will attempt to walk the tree from the nearest known trusted key.
+
+The dnssec security status of a message is stored in Message#security_level (defined by Message::SecurityLevel).
+
+It is possible to tell Dnsruby to use a Recursor or a defined (or system default) Resolver to perform the validation. The default is to use a Recursor, as many systems are behind dodgy servers which mangle the DNS records. Using a Recursor means that only authoritative nameservers are queried for the DNSSEC records.
+
+In the absence of a signed root, Dnsruby has no trust anchor to validate messages against. It is possible to manually configure dnsruby with individual trust ancors. It is also possible to import a trust anchor repository (such as the one maintained by IANA), and configure the ISC DLV registry. Dnsruby contains basic methods to do this, although they are not currently secured. Clients are recommended to develop their own means of obtaining the initial trust anchors.
+
+It is possible to turn off dnssec validation on a per-message basis. Simply set Message#do_validation to false.
+
+DNSSEC is on by default - if desired, you can turn it off with the dnssec flag in Dnsruby::(Single)Resolver if desired. EDNS0 support is also enabled by default - if desired, you can turn this off by setting the Dnsruby::(Single)Resolver#udp_packet_size property to be 512. There should generally be no need to do this.
+
+Dnsruby maintains a cache of responses, and a cache of trusted keys. Once the initial keys have been downloaded, and a set of trusted keys built up, very little overhead is required to enjoy the benefits of DNSSEC. There is, however, some initial cost (to build up the caches).
+

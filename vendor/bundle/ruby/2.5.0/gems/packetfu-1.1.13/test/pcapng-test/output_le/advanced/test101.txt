@@ -1,0 +1,11 @@
+Description: Duplicate ISBs with various options, intermixed in EPB/SPB
+Category:    advanced
+
+Block counts:
+	EPB: 3
+	IDB: 3
+	ISB: 6
+	SHB: 1
+	SPB: 1
+
+Block sequence: SHB, IDB, IDB, EPB, ISB, ISB, ISB, IDB, EPB, ISB, SPB, ISB, EPB, ISB

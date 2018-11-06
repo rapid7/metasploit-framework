@@ -1,0 +1,15 @@
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/pg_array_parser-0.0.9/ext/pg_array_parser
+/usr/bin/ruby2.5 -r ./siteconf20181028-14830-1qoqrsp.rb extconf.rb
+creating Makefile
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/pg_array_parser-0.0.9/ext/pg_array_parser
+make "DESTDIR=" clean
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/pg_array_parser-0.0.9/ext/pg_array_parser
+make "DESTDIR="
+compiling pg_array_parser.c
+linking shared-object pg_array_parser/pg_array_parser.so
+
+current directory: /root/mytools/metasploit-framework/vendor/bundle/ruby/2.5.0/gems/pg_array_parser-0.0.9/ext/pg_array_parser
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 pg_array_parser.so ./.gem.20181028-14830-o17av5/pg_array_parser

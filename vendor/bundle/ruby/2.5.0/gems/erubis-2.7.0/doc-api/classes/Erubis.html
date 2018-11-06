@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Module: Erubis</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+    <div id="classHeader">
+        <table class="header-table">
+        <tr class="top-aligned-row">
+          <td><strong>Module</strong></td>
+          <td class="class-name-in-header">Erubis</td>
+        </tr>
+        <tr class="top-aligned-row">
+            <td><strong>In:</strong></td>
+            <td>
+                <a href="../files/erubis/context_rb.html">
+                erubis/context.rb
+                </a>
+        <br />
+                <a href="../files/erubis/converter_rb.html">
+                erubis/converter.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/ec_rb.html">
+                erubis/engine/ec.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/ecpp_rb.html">
+                erubis/engine/ecpp.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/ejava_rb.html">
+                erubis/engine/ejava.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/ejavascript_rb.html">
+                erubis/engine/ejavascript.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/enhanced_rb.html">
+                erubis/engine/enhanced.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/eperl_rb.html">
+                erubis/engine/eperl.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/ephp_rb.html">
+                erubis/engine/ephp.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/eruby_rb.html">
+                erubis/engine/eruby.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/escheme_rb.html">
+                erubis/engine/escheme.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine/optimized_rb.html">
+                erubis/engine/optimized.rb
+                </a>
+        <br />
+                <a href="../files/erubis/engine_rb.html">
+                erubis/engine.rb
+                </a>
+        <br />
+                <a href="../files/erubis/enhancer_rb.html">
+                erubis/enhancer.rb
+                </a>
+        <br />
+                <a href="../files/erubis/error_rb.html">
+                erubis/error.rb
+                </a>
+        <br />
+                <a href="../files/erubis/evaluator_rb.html">
+                erubis/evaluator.rb
+                </a>
+        <br />
+                <a href="../files/erubis/generator_rb.html">
+                erubis/generator.rb
+                </a>
+        <br />
+                <a href="../files/erubis/helper_rb.html">
+                erubis/helper.rb
+                </a>
+        <br />
+                <a href="../files/erubis/helpers/rails_form_helper_rb.html">
+                erubis/helpers/rails_form_helper.rb
+                </a>
+        <br />
+                <a href="../files/erubis/helpers/rails_helper_rb.html">
+                erubis/helpers/rails_helper.rb
+                </a>
+        <br />
+                <a href="../files/erubis/main_rb.html">
+                erubis/main.rb
+                </a>
+        <br />
+                <a href="../files/erubis/preprocessing_rb.html">
+                erubis/preprocessing.rb
+                </a>
+        <br />
+                <a href="../files/erubis/tiny_rb.html">
+                erubis/tiny.rb
+                </a>
+        <br />
+                <a href="../files/erubis_rb.html">
+                erubis.rb
+                </a>
+        <br />
+            </td>
+        </tr>
+
+        </table>
+    </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <p>
+an implementation of eRuby
+</p>
+<p>
+ex.
+</p>
+<pre>
+  input = &lt;&lt;'END'
+   &lt;ul&gt;
+    &lt;% for item in @list %&gt;
+     &lt;li&gt;&lt;%= item %&gt;
+         &lt;%== item %&gt;&lt;/li&gt;
+    &lt;% end %&gt;
+   &lt;/ul&gt;
+  END
+  list = ['&lt;aaa&gt;', 'b&amp;b', '&quot;ccc&quot;']
+  eruby = Erubis::Eruby.new(input)
+  puts &quot;--- code ---&quot;
+  puts eruby.src
+  puts &quot;--- result ---&quot;
+  context = Erubis::Context.new()   # or new(:list=&gt;list)
+  context[:list] = list
+  puts eruby.evaluate(context)
+</pre>
+<p>
+result:
+</p>
+<pre>
+  --- source ---
+  _buf = ''; _buf &lt;&lt; '&lt;ul&gt;
+  ';  for item in @list
+   _buf &lt;&lt; '  &lt;li&gt;'; _buf &lt;&lt; ( item ).to_s; _buf &lt;&lt; '
+  '; _buf &lt;&lt; '      '; _buf &lt;&lt; Erubis::XmlHelper.escape_xml( item ); _buf &lt;&lt; '&lt;/li&gt;
+  ';  end
+   _buf &lt;&lt; '&lt;/ul&gt;
+  ';
+  _buf.to_s
+  --- result ---
+   &lt;ul&gt;
+     &lt;li&gt;&lt;aaa&gt;
+         &amp;lt;aaa&amp;gt;&lt;/li&gt;
+     &lt;li&gt;b&amp;b
+         b&amp;amp;b&lt;/li&gt;
+     &lt;li&gt;&quot;ccc&quot;
+         &amp;quot;ccc&amp;quot;&lt;/li&gt;
+   &lt;/ul&gt;
+</pre>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+    <div id="class-list">
+      <h3 class="section-bar">Classes and Modules</h3>
+
+      Module <a href="Erubis/ArrayBufferEnhancer.html" class="link">Erubis::ArrayBufferEnhancer</a><br />
+Module <a href="Erubis/ArrayEnhancer.html" class="link">Erubis::ArrayEnhancer</a><br />
+Module <a href="Erubis/Basic.html" class="link">Erubis::Basic</a><br />
+Module <a href="Erubis/BiPatternEnhancer.html" class="link">Erubis::BiPatternEnhancer</a><br />
+Module <a href="Erubis/CGenerator.html" class="link">Erubis::CGenerator</a><br />
+Module <a href="Erubis/Converter.html" class="link">Erubis::Converter</a><br />
+Module <a href="Erubis/CppGenerator.html" class="link">Erubis::CppGenerator</a><br />
+Module <a href="Erubis/DeleteIndentEnhancer.html" class="link">Erubis::DeleteIndentEnhancer</a><br />
+Module <a href="Erubis/ErboutEnhancer.html" class="link">Erubis::ErboutEnhancer</a><br />
+Module <a href="Erubis/EscapeEnhancer.html" class="link">Erubis::EscapeEnhancer</a><br />
+Module <a href="Erubis/Evaluator.html" class="link">Erubis::Evaluator</a><br />
+Module <a href="Erubis/Generator.html" class="link">Erubis::Generator</a><br />
+Module <a href="Erubis/HeaderFooterEnhancer.html" class="link">Erubis::HeaderFooterEnhancer</a><br />
+Module <a href="Erubis/Helpers.html" class="link">Erubis::Helpers</a><br />
+Module <a href="Erubis/InterpolationEnhancer.html" class="link">Erubis::InterpolationEnhancer</a><br />
+Module <a href="Erubis/JavaGenerator.html" class="link">Erubis::JavaGenerator</a><br />
+Module <a href="Erubis/JavascriptGenerator.html" class="link">Erubis::JavascriptGenerator</a><br />
+Module <a href="Erubis/NoCodeEnhancer.html" class="link">Erubis::NoCodeEnhancer</a><br />
+Module <a href="Erubis/NoTextEnhancer.html" class="link">Erubis::NoTextEnhancer</a><br />
+Module <a href="Erubis/OptimizedGenerator.html" class="link">Erubis::OptimizedGenerator</a><br />
+Module <a href="Erubis/PI.html" class="link">Erubis::PI</a><br />
+Module <a href="Erubis/PercentLineEnhancer.html" class="link">Erubis::PercentLineEnhancer</a><br />
+Module <a href="Erubis/PerlGenerator.html" class="link">Erubis::PerlGenerator</a><br />
+Module <a href="Erubis/PhpGenerator.html" class="link">Erubis::PhpGenerator</a><br />
+Module <a href="Erubis/PrefixedLineEnhancer.html" class="link">Erubis::PrefixedLineEnhancer</a><br />
+Module <a href="Erubis/PreprocessingHelper.html" class="link">Erubis::PreprocessingHelper</a><br />
+Module <a href="Erubis/PrintEnabledEnhancer.html" class="link">Erubis::PrintEnabledEnhancer</a><br />
+Module <a href="Erubis/PrintOutEnhancer.html" class="link">Erubis::PrintOutEnhancer</a><br />
+Module <a href="Erubis/RubyEvaluator.html" class="link">Erubis::RubyEvaluator</a><br />
+Module <a href="Erubis/RubyGenerator.html" class="link">Erubis::RubyGenerator</a><br />
+Module <a href="Erubis/SchemeGenerator.html" class="link">Erubis::SchemeGenerator</a><br />
+Module <a href="Erubis/SimplifyEnhancer.html" class="link">Erubis::SimplifyEnhancer</a><br />
+Module <a href="Erubis/StdoutEnhancer.html" class="link">Erubis::StdoutEnhancer</a><br />
+Module <a href="Erubis/StringBufferEnhancer.html" class="link">Erubis::StringBufferEnhancer</a><br />
+Module <a href="Erubis/XmlHelper.html" class="link">Erubis::XmlHelper</a><br />
+Class <a href="Erubis/ArrayBufferEruby.html" class="link">Erubis::ArrayBufferEruby</a><br />
+Class <a href="Erubis/ArrayEruby.html" class="link">Erubis::ArrayEruby</a><br />
+Class <a href="Erubis/BiPatternEruby.html" class="link">Erubis::BiPatternEruby</a><br />
+Class <a href="Erubis/CommandOptionError.html" class="link">Erubis::CommandOptionError</a><br />
+Class <a href="Erubis/Context.html" class="link">Erubis::Context</a><br />
+Class <a href="Erubis/DeleteIndentEruby.html" class="link">Erubis::DeleteIndentEruby</a><br />
+Class <a href="Erubis/Ec.html" class="link">Erubis::Ec</a><br />
+Class <a href="Erubis/Ecpp.html" class="link">Erubis::Ecpp</a><br />
+Class <a href="Erubis/Ejava.html" class="link">Erubis::Ejava</a><br />
+Class <a href="Erubis/Ejavascript.html" class="link">Erubis::Ejavascript</a><br />
+Class <a href="Erubis/Engine.html" class="link">Erubis::Engine</a><br />
+Class <a href="Erubis/Eperl.html" class="link">Erubis::Eperl</a><br />
+Class <a href="Erubis/Ephp.html" class="link">Erubis::Ephp</a><br />
+Class <a href="Erubis/ErboutEruby.html" class="link">Erubis::ErboutEruby</a><br />
+Class <a href="Erubis/ErubisError.html" class="link">Erubis::ErubisError</a><br />
+Class <a href="Erubis/Eruby.html" class="link">Erubis::Eruby</a><br />
+Class <a href="Erubis/EscapedEc.html" class="link">Erubis::EscapedEc</a><br />
+Class <a href="Erubis/EscapedEcpp.html" class="link">Erubis::EscapedEcpp</a><br />
+Class <a href="Erubis/EscapedEjava.html" class="link">Erubis::EscapedEjava</a><br />
+Class <a href="Erubis/EscapedEjavascript.html" class="link">Erubis::EscapedEjavascript</a><br />
+Class <a href="Erubis/EscapedEperl.html" class="link">Erubis::EscapedEperl</a><br />
+Class <a href="Erubis/EscapedEphp.html" class="link">Erubis::EscapedEphp</a><br />
+Class <a href="Erubis/EscapedEruby.html" class="link">Erubis::EscapedEruby</a><br />
+Class <a href="Erubis/EscapedEscheme.html" class="link">Erubis::EscapedEscheme</a><br />
+Class <a href="Erubis/Escheme.html" class="link">Erubis::Escheme</a><br />
+Class <a href="Erubis/FastEruby.html" class="link">Erubis::FastEruby</a><br />
+Class <a href="Erubis/HeaderFooterEruby.html" class="link">Erubis::HeaderFooterEruby</a><br />
+Class <a href="Erubis/InterpolationEruby.html" class="link">Erubis::InterpolationEruby</a><br />
+Class <a href="Erubis/Main.html" class="link">Erubis::Main</a><br />
+Class <a href="Erubis/NoCodeEruby.html" class="link">Erubis::NoCodeEruby</a><br />
+Class <a href="Erubis/NoTextEruby.html" class="link">Erubis::NoTextEruby</a><br />
+Class <a href="Erubis/NotSupportedError.html" class="link">Erubis::NotSupportedError</a><br />
+Class <a href="Erubis/OptimizedEruby.html" class="link">Erubis::OptimizedEruby</a><br />
+Class <a href="Erubis/OptimizedXmlEruby.html" class="link">Erubis::OptimizedXmlEruby</a><br />
+Class <a href="Erubis/PercentLineEruby.html" class="link">Erubis::PercentLineEruby</a><br />
+Class <a href="Erubis/PrefixedLineEruby.html" class="link">Erubis::PrefixedLineEruby</a><br />
+Class <a href="Erubis/PreprocessingEruby.html" class="link">Erubis::PreprocessingEruby</a><br />
+Class <a href="Erubis/PrintEnabledEruby.html" class="link">Erubis::PrintEnabledEruby</a><br />
+Class <a href="Erubis/PrintOutEruby.html" class="link">Erubis::PrintOutEruby</a><br />
+Class <a href="Erubis/PrintOutSimplifiedEruby.html" class="link">Erubis::PrintOutSimplifiedEruby</a><br />
+Class <a href="Erubis/SimplifiedEruby.html" class="link">Erubis::SimplifiedEruby</a><br />
+Class <a href="Erubis/StdoutEruby.html" class="link">Erubis::StdoutEruby</a><br />
+Class <a href="Erubis/StdoutSimplifiedEruby.html" class="link">Erubis::StdoutSimplifiedEruby</a><br />
+Class <a href="Erubis/StringBufferEruby.html" class="link">Erubis::StringBufferEruby</a><br />
+Class <a href="Erubis/StringIOEruby.html" class="link">Erubis::StringIOEruby</a><br />
+Class <a href="Erubis/TinyEruby.html" class="link">Erubis::TinyEruby</a><br />
+Class <a href="Erubis/XmlEruby.html" class="link">Erubis::XmlEruby</a><br />
+
+    </div>
+
+    <div id="constants-list">
+      <h3 class="section-bar">Constants</h3>
+
+      <div class="name-list">
+        <table summary="Constants">
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">EMPTY_BINDING</td>
+          <td>=</td>
+          <td class="context-item-value">binding()</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">Ejs</td>
+          <td>=</td>
+          <td class="context-item-value">Ejavascript</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">EscapedEjs</td>
+          <td>=</td>
+          <td class="context-item-value">EscapedEjavascript</td>
+        </tr>
+        <tr class="top-aligned-row context-row">
+          <td class="context-item-name">VERSION</td>
+          <td>=</td>
+          <td class="context-item-value">('$Release: 2.7.0 $' =~ /([.\d]+)/) &amp;&amp; $1</td>
+        </tr>
+        </table>
+      </div>
+    </div>
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints protocol="h.323" database_type="service" preference="0.80">
+  <!--
+  Responses to H.323 call SETUP messages are matched against these patterns
+  to fingerprint H.323 servers.
+  -->
+  <fingerprint pattern="^0x000b2d00\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Sony H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Sony"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x0400004[23]\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Deutsche Telekom AG H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Deutsche Telekom AG"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x04000082\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Siemens AG H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Siemens AG"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x04000084\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>ITO Communications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="ITO Communications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x04000086\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Hauni Elektronik H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Hauni Elektronik"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x04000088\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Dr. Neuhaus Mikroelektronik H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Dr. Neuhaus Mikroelektronik"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x0400008a\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>MPS Software H.323 Server</description>
+    <param pos="0" name="service.vendor" value="MPS Software"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x0400008b\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Ferrari Electronik GmbH H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Ferrari Electronik GmbH"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x0400008c\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>MBP Kommunikationssysteme GmbH H.323 Server</description>
+    <param pos="0" name="service.vendor" value="MBP Kommunikationssysteme GmbH"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x0400008d\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Schneider Rundfunkwerke AG H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Schneider Rundfunkwerke AG"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x0400008e\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Digitronic Computersysteme GmbH H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Digitronic Computersysteme GmbH"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x0400008f\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>DeTeWe - Deutsche Telephonwerke AG H.323 Server</description>
+    <param pos="0" name="service.vendor" value="DeTeWe - Deutsche Telephonwerke AG"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x0900003d\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Equivalence (OpenH323) H.323 Server</description>
+    <example>0x0900003D:Null Team YATE:3.3.2 (OpenH323 v1.19.0)</example>
+    <param pos="0" name="service.vendor" value="Equivalence (OpenH323)"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x20000081\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Mediatrix Telecom H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Mediatrix Telecom"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x3c000000\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Nokia H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Nokia"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x3d00031[0-9a-f]\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Swissvoice H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Swissvoice"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x(?:82000002|a5000001)\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Ericsson H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Ericsson"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0x8a000003\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Teldat H. Kruszynski, M. Cichocki Sp. J. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Teldat H. Kruszynski, M. Cichocki Sp. J."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4000[0-9a-f]00\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>British Telecommunications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="British Telecommunications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4001[0-9a-f]00\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>GPT Video Systems H.323 Server</description>
+    <param pos="0" name="service.vendor" value="GPT Video Systems"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4002000\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Marconi Communications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Marconi Communications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4002100\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Indigo Active Vision Systems H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Indigo Active Vision Systems"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4002200\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>LiveWorks Limited H.323 Server</description>
+    <param pos="0" name="service.vendor" value="LiveWorks Limited"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4002300\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>ATL Telecom Limited H.323 Server</description>
+    <param pos="0" name="service.vendor" value="ATL Telecom Limited"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4002a00\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Network Alchemy Limited H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Network Alchemy Limited"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4004200\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Motion Media Technology H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Motion Media Technology"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4004400\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Data Connection H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Data Connection"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4004500\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Westbay Engineers H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Westbay Engineers"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4004600\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>FarSite Communications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="FarSite Communications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4004900\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>ImageCom H.323 Server</description>
+    <param pos="0" name="service.vendor" value="ImageCom"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4004d00\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Madge Networks H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Madge Networks"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4005200\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Ridgeway Systems and Software H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Ridgeway Systems and Software"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4005300\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>SpliceCom H.323 Server</description>
+    <param pos="0" name="service.vendor" value="SpliceCom"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4005400\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>TeleWare H.323 Server</description>
+    <param pos="0" name="service.vendor" value="TeleWare"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4005600\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Vegastream H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Vegastream"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4006600\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Westell H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Westell"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb4006900\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>ISDN Communications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="ISDN Communications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb400c000\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Codian H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Codian"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500000[02]\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Compression Labs H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Compression Labs"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000001\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>PictureTel H.323 Server</description>
+    <param pos="0" name="service.vendor" value="PictureTel"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000003\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>VTEL H.323 Server</description>
+    <param pos="0" name="service.vendor" value="VTEL"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000005\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>ERIS H.323 Server</description>
+    <param pos="0" name="service.vendor" value="ERIS"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000007\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>AT&amp;T Worldworx H.323 Server</description>
+    <param pos="0" name="service.vendor" value="AT&amp;T Worldworx"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000009\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>VideoServer H.323 Server</description>
+    <param pos="0" name="service.vendor" value="VideoServer"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500000b\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>3Com Corporation H.323 Server</description>
+    <param pos="0" name="service.vendor" value="3Com Corporation"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500000c\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Clarent Corporation H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Clarent Corporation"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500000d\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Genesys Telecommunications Labs Inc H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Genesys Telecommunications Labs Inc"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500000e\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>C-Phone Corporation H.323 Server</description>
+    <param pos="0" name="service.vendor" value="C-Phone Corporation"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500000f\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Science Dynamics Corporation H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Science Dynamics Corporation"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000010\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>AT&amp;T Starpoint H.323 Server</description>
+    <param pos="0" name="service.vendor" value="AT&amp;T Starpoint"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000011\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Netscape Conference H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Netscape Conference"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000012\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Cisco H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Cisco"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000013\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Cirilium, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Cirilium, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000014\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Ascend Communications, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Ascend Communications, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000015\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>RADVision, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="RADVision, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000016\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Objective Communications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Objective Communications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000017\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>VocalTec Communications, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="VocalTec Communications, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000018\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Serome Technology, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Serome Technology, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000019\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Aspect Communications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Aspect Communications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500001a\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Cintech Tele-Management H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Cintech Tele-Management"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500001b\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Philips Video Conferencing Systems H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Philips Video Conferencing Systems"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500001c\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Vertical Networks, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Vertical Networks, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500001d\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Syndeo Corp. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Syndeo Corp."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500001e\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Telxon Corporation H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Telxon Corporation"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500001f\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Network Equipment Technologies H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Network Equipment Technologies"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000020\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Pagoo, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Pagoo, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000021\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>General Dynamics H.323 Server</description>
+    <param pos="0" name="service.vendor" value="General Dynamics"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000022\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Vanguard Managed Solutions H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Vanguard Managed Solutions"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000023\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>TeleStream Technologies, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="TeleStream Technologies, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000024\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Spirent Communications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Spirent Communications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000025\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>CrystalVoice Communications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="CrystalVoice Communications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000026\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Xiph.org H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Xiph.org"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000027\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>NACT Telecommunications H.323 Server</description>
+    <param pos="0" name="service.vendor" value="NACT Telecommunications"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000028\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>AudioCodes, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="AudioCodes, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000120\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>AT&amp;T - GBCS H.323 Server</description>
+    <param pos="0" name="service.vendor" value="AT&amp;T - GBCS"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000168\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Leadtek Research Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Leadtek Research Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000247\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Lucent Technologies H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Lucent Technologies"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500029a\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Symbol Technologies Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Symbol Technologies Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000378\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>StarVox, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="StarVox, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb50003f7\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Inari Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Inari Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000727\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Quintum Technologies, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Quintum Technologies, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5000918\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Netrix Corporation H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Netrix Corporation"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500101e\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>SysMaster Corporation H.323 Server</description>
+    <param pos="0" name="service.vendor" value="SysMaster Corporation"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5001a1a\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Alpha Telecom, Inc. U.S.A. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Alpha Telecom, Inc. U.S.A."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5002331\:(.*)\:Release\s[\s-]*(\d+\.+\d+\.*\d*).*$" flags="REG_ICASE">
+    <description>ViaVideo/PolyCom H.323 Server</description>
+    <example>0xb5002331:ViewStation 7.0:Release 7.5.4 - 04 Mar 2005</example>
+    <param pos="0" name="service.vendor" value="ViaVideo/PolyCom"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500301c\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Congruency, Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Congruency, Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5003039\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>MiBridge Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="MiBridge Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5003838\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>8x8 Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="8x8 Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5004147\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Agere Systems H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Agere Systems"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5004153\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Artisoft Inc. H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Artisoft Inc."/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5004156\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Avaya H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Avaya"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5004242\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>IBM H.323 Server</description>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5004257\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>StreamComm H.323 Server</description>
+    <param pos="0" name="service.vendor" value="StreamComm"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500(?:4c54|600d)\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Lucent Technologies H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Lucent Technologies"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5004d47\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>MediaGate H.323 Server</description>
+    <param pos="0" name="service.vendor" value="MediaGate"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5004e54\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Nortel Networks H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Nortel Networks"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5005243\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Siemens Business Communication Systems H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Siemens Business Communication Systems"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb500534c\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Microsoft H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^0xb5008080\:(.*)\:.*?(\d*\.*\d*\.*\d*).*$" flags="REG_ICASE">
+    <description>Intel H.323 Server</description>
+    <param pos="0" name="service.vendor" value="Intel"/>
+    <param pos="1" name="service.product"/>
+    <param pos="2" name="service.version"/>
+  </fingerprint>
+</fingerprints>

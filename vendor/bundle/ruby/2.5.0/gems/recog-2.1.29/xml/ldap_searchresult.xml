@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="ldap.search_result" protocol="ldap" database_type="service" preference=".80">
+  <!--
+    Notes: Ruby will fail to build the RegExp if it contains \x84 which is a standard
+          byte in ASN.1 Sequence length fields.
+  -->
+  <!--
+    Samba - position prior to Windows entries due to regex. When testing new
+    Samba fingerprints make sure you disable the matches for the version of
+    Windows that Samba is eumlating or else the Windows fallback fingerprint for
+    the given OS version may match.
+  -->
+  <fingerprint pattern="(?m:vendorName1.\x04.Samba.*domainControllerFunctionality1.{1,5}\x04\x014)">
+    <description>Samba Active Directory Controller</description>
+    <example _encoding="base64">
+      dmVuZG9yTmFtZTEfBB1TYW1iYSBUZWFtIChodHRwOi8vc2FtYmEub3JnKS5kYXRhLnJlbW92Z
+      WQuBB1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTEDBAE0MB4=
+    </example>
+    <param pos="0" name="service.vendor" value="Samba"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+  </fingerprint>
+  <fingerprint pattern="(?m:vendorName1.\x04.Samba.*domainFunctionality1.\x04\x0100.\x04\x13forestFunctionality1\x03\x04\x0100)">
+    <description>Samba Active Directory Controller emulating Windows 2000</description>
+    <example _encoding="base64">
+      dmVuZG9yTmFtZTEfBB1TYW1iYSBUZWFtIChodHRwOi8vc2FtYmEub3JnKS5kYXRhLnJlbW92Z
+      WQuZG9tYWluRnVuY3Rpb25hbGl0eTEDBAEwMBoEE2ZvcmVzdEZ1bmN0aW9uYWxpdHkxAwQBMD
+      AeBBQ=
+    </example>
+    <param pos="0" name="service.vendor" value="Samba"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+  </fingerprint>
+  <!--
+    Windows Active Directory and Lightweight Directory Server (ADAM)
+
+    domainControllerFunctionality reference:
+      https://msdn.microsoft.com/en-us/library/cc223272.aspx
+
+    supportedCapabilities reference (for Windows 2000)
+      https://msdn.microsoft.com/en-us/library/cc223359.aspx
+
+      1.2.840.113556.1.4.800  = Active Directory Controller
+      1.2.840.113556.1.4.1851 = Lightweight Directory Server / ADAM
+  -->
+  <!-- Windows 2016 -->
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.800.*domainControllerFunctionality1.{1,5}\x04\x017)">
+    <description>Active Directory Controller on Windows Server 2016</description>
+    <example _encoding="base64">
+      dGllczGEAAAAlQQWMS4yLjg0MC4xMTM1NTYuMS40LjgwMAQuZGF0YS5yZW1vdmVkLjCEAAAAK
+      AQdZG9tYWluQ29udHJvbGxlckZ1bmN0aW9uYWxpdHkxhAAAAAMEATc=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2016"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2016:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.1851.*domainControllerFunctionality1.{1,5}\x04\x017)">
+    <description>Microsoft LDS on Windows Server Server 2016</description>
+    <example _encoding="base64">
+      aWVzMYQAAACvBBcxLjIuODQwLjExMzU1Ni4xLjQuMTg1MQQuZGF0YS5yZW1vdmVkLjCEAAAAK
+      AQdZG9tYWluQ29udHJvbGxlckZ1bmN0aW9uYWxpdHkxhAAAAAMEATc=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Lightweight Directory Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory_lightweight_directory_service:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2016"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2016:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:domainControllerFunctionality1.{1,5}\x04\x017)">
+    <description>Windows Server Server 2016</description>
+    <example _encoding="base64">
+      MIQAAAAoBB1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBNw==
+    </example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2016"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2016:-"/>
+  </fingerprint>
+  <!-- Windows 2012 R2 -->
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.800.*domainControllerFunctionality1.{1,5}\x04\x016)">
+    <description>Active Directory Controller on Windows Server 2012 R2</description>
+    <example _encoding="base64">
+      ZXMxhAAAAJUEFjEuMi44NDAuMTEzNTU2LjEuNC44MDAELmRhdGEucmVtb3ZlZC6EAAAAKAQdZ
+      G9tYWluQ29udHJvbGxlckZ1bmN0aW9uYWxpdHkxhAAAAAMEATYw
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2012 R2"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2012:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.1851.*domainControllerFunctionality1.{1,5}\x04\x016)">
+    <description>Microsoft LDS on Windows Server Server 2012 R2</description>
+    <example _encoding="base64">
+      aWVzMYQAAACvBBcxLjIuODQwLjExMzU1Ni4xLjQuMTg1MQQuZGF0YS5yZW1vdmVkLoQAAAAoB
+      B1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBNjA=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Lightweight Directory Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory_lightweight_directory_service:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2012 R2"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2012:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:domainControllerFunctionality1.{1,5}\x04\x016)">
+    <description>Windows Server Server 2012 R2</description>
+    <example _encoding="base64">
+      MIQAAAAoBB1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBNjA=
+    </example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2012 R2"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2012:-"/>
+  </fingerprint>
+  <!-- Windows 2012 -->
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.800.*domainControllerFunctionality1.{1,5}\x04\x015)">
+    <description>Active Directory Controller on Windows Server 2012</description>
+    <example _encoding="base64">
+      aWVzMYQAAACVBBYxLjIuODQwLjExMzU1Ni4xLjQuODAwBC5kYXRhLnJlbW92ZWQwhAAAACgEH
+      WRvbWFpbkNvbnRyb2xsZXJGdW5jdGlvbmFsaXR5MYQAAAADBAE1MA==
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2012"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2012:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.1851.*domainControllerFunctionality1.{1,5}\x04\x015)">
+    <description>Microsoft LDS on Windows Server 2012 R2</description>
+    <example _encoding="base64">
+      ZXMxhAAAAK8EFzEuMi44NDAuMTEzNTU2LjEuNC4xODUxBC5kYXRhLnJlbW92ZWQuMIQAAAAoB
+      B1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBNTA=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Lightweight Directory Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory_lightweight_directory_service:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2012"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2012:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:domainControllerFunctionality1.{1,5}\x04\x015)">
+    <description>Windows Server Server 2012</description>
+    <example _encoding="base64">
+      MIQAAAAoBB1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBNTA=
+    </example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2012"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2012:-"/>
+  </fingerprint>
+  <!-- Windows 2008 R2 -->
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.800.*domainControllerFunctionality1.{1,5}\x04\x014)">
+    <description>Active Directory Controller on Windows Server 2008 R2</description>
+    <example _encoding="base64">
+      aWVzMYQAAACVBBYxLjIuODQwLjExMzU1Ni4xLjQuODAwBC5kYXRhLnJlbW92ZWQuMIQAAAAoB
+      B1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBNDA=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.1851.*domainControllerFunctionality1.{1,5}\x04\x014)">
+    <description>Microsoft LDS on Windows Server Server 2008 R2</description>
+    <example _encoding="base64">
+      aWVzMYQAAACvBBcxLjIuODQwLjExMzU1Ni4xLjQuMTg1MQQuZGF0YS5yZW1vdmVkLoQAAAAoB
+      B1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBNDA=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Lightweight Directory Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory_lightweight_directory_service:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <!--
+    This generic match for domainControllerFunctionality =  4 will capture
+    current Samba implementations.  Disable the fingerprint below when testing Samba
+  -->
+  <fingerprint pattern="(?im:domainControllerFunctionality1.{1,5}\x04\x014)">
+    <description>Windows Server Server 2008 R2</description>
+    <example _encoding="base64">
+      MIQAAAAoBB1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBNDA=
+    </example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008 R2"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <!-- Windows 2008 -->
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.800.*domainControllerFunctionality1.{1,5}\x04\x013)">
+    <description>Active Directory Controller on Windows Server 2008</description>
+    <example _encoding="base64">
+      aWVzMYQAAACVBBYxLjIuODQwLjExMzU1Ni4xLjQuODAwBC5kYXRhLnJlbW92ZWQuMIQAAAAoB
+      B1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBMzA=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.1851.*domainControllerFunctionality1.{1,5}\x04\x013)">
+    <description>Microsoft LDS on Windows Server 2008</description>
+    <example _encoding="base64">
+      aWVzMYQAAACvBBcxLjIuODQwLjExMzU1Ni4xLjQuMTg1MQQuZGF0YS5yZW1vdmVkLjCEAAAAK
+      AQdZG9tYWluQ29udHJvbGxlckZ1bmN0aW9uYWxpdHkxhAAAAAMEATMw
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Lightweight Directory Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory_lightweight_directory_service:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:domainControllerFunctionality1.{1,5}\x04\x013)">
+    <description>Windows Server Server 2008</description>
+    <example _encoding="base64">
+      MIQAAAAoBB1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBMzA=
+    </example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2008"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2008:-"/>
+  </fingerprint>
+  <!-- Windows 2003 -->
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.800.*domainControllerFunctionality1.{1,5}\x04\x012)">
+    <description>Active Directory Controller on Windows Server 2003</description>
+    <example _encoding="base64">
+      aWVzMYQAAACVBBYxLjIuODQwLjExMzU1Ni4xLjQuODAwBC5kYXRhLnJlbW92ZWQuMIQAAAAoB
+      B1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBMjA=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2003"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2003:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:1.2.840.113556.1.4.1851.*domainControllerFunctionality1.{1,5}\x04\x012)">
+    <description>Microsoft LDS on Windows Server 2003</description>
+    <example _encoding="base64">
+      aWVzMYQAAACvBBcxLjIuODQwLjExMzU1Ni4xLjQuMTg1MQQuZGF0YS5yZW1vdmVkLjCEAAAAK
+      AQdZG9tYWluQ29udHJvbGxlckZ1bmN0aW9uYWxpdHkxhAAAAAMEATIw
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Lightweight Directory Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory_lightweight_directory_service:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2003"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2003:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:domainControllerFunctionality1.{1,5}\x04\x012)">
+    <description>Windows Server Server 2003</description>
+    <example _encoding="base64">
+      MIQAAAAoBB1kb21haW5Db250cm9sbGVyRnVuY3Rpb25hbGl0eTGEAAAAAwQBMjA=
+    </example>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2003"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2003:-"/>
+  </fingerprint>
+  <!-- Win Server 2000 Service Pack 3 only has two matching supportedCapabilities OIDs, match them and look for explicit end-->
+  <fingerprint pattern="(?im:supportedCapabilities1.{1,5}\x04\x161.2.840.113556.1.4.800\x04\x171.2.840.113556.1.4.17910.{1,5}\x04.(?:supportedControl|isSynchronized))">
+    <description>Active Directory Controller on Windows Server 2000 SP 3</description>
+    <example _encoding="base64">
+      c3VwcG9ydGVkQ2FwYWJpbGl0aWVzMTEEFjEuMi44NDAuMTEzNTU2LjEuNC44MDAEFzEuMi44N
+      DAuMTEzNTU2LjEuNC4xNzkxMEQEEHN1cHBvcnRlZENvbnRyb2x8
+    </example>
+    <example _encoding="base64">
+      c3VwcG9ydGVkQ2FwYWJpbGl0aWVzMTEEFjEuMi44NDAuMTEzNTU2LjEuNC44MDAEFzEuMi44N
+      DAuMTEzNTU2LjEuNC4xNzkxMIQAAAAcBA5pc1N5bmNocm9uaXplZDE=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2000"/>
+    <param pos="0" name="os.version" value="Windows Server 2000 SP3"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_2000:Windows Server 2000 SP3"/>
+  </fingerprint>
+  <!-- Win Server 2000 RTM only has a single matching supportedCapabilities OID, match it and look for explicit end-->
+  <fingerprint pattern="(?im:supportedCapabilities1.{1,5}\x04\x161.2.840.113556.1.4.8000.{1,5}\x04.isSynchronized1)">
+    <description>Active Directory Controller on Windows Server 2000</description>
+    <example _encoding="base64">
+      c3VwcG9ydGVkQ2FwYWJpbGl0aWVzMYQAAAAYBBYxLjIuODQwLjExMzU1Ni4xLjQuODAwMIQAA
+      AAcBA5pc1N5bmNocm9uaXplZDE=
+    </example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.product" value="Active Directory Controller"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:active_directory:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2000"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_2000:-"/>
+  </fingerprint>
+  <!-- End of Microsoft Windows Section -->
+  <fingerprint pattern="(?im:top\x04..penLDAProotDSE)">
+    <description>OpenLDAP</description>
+    <example _encoding="base64">
+      dm9iamVjdENsYXNzMRYEA3RvcAQPT3BlbkxEQVByb290RFNFMA==
+    </example>
+    <param pos="0" name="service.vendor" value="OpenLDAP"/>
+    <param pos="0" name="service.product" value="OpenLDAP"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:openldap:openldap:-"/>
+  </fingerprint>
+  <fingerprint pattern="(?i:namingcontexts1.\x04.fn=ContactRoot0.[\x02\x04])">
+    <description>Kerio Connect</description>
+    <example service.product="Connect" _encoding="base64">
+      bmFtaW5nQ29udGV4dHMxEAQOZm49Q29udGFjdFJvb3QwKAQUZGVmYXVsdE5hbWluZ0NvbnRle
+      HQx
+    </example>
+    <param pos="0" name="service.vendor" value="Kerio"/>
+    <param pos="0" name="service.product" value="Connect"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vmwPlatformServicesControllerVersion1.\x04.(\d\.\d\.\d)0.)">
+    <description>VMware Platform Services Controller</description>
+    <example service.version="6.0.0" _encoding="base64">
+      dm13UGxhdGZvcm1TZXJ2aWNlc0NvbnRyb2xsZXJWZXJzaW9uMQcEBTYuMC4wMCc=
+    </example>
+    <param pos="0" name="service.vendor" value="VMware"/>
+    <param pos="0" name="service.product" value="Platform Services Controller"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <!-- Fedora / 389 Project family -->
+  <!--  http://directory.fedoraproject.org/docs/389ds/FAQ/history.html  -->
+  <fingerprint pattern="(?i:vendorname1.\x04.Fedora Project0.\x04\rvendorversion1.\x04.Fedora-Directory/(\d\.\d[\w.]* B\d+\.\d+\.\d+))">
+    <description>Fedora Project Fedora Directory Server</description>
+    <example service.version="1.0.4 B2006.312.5450" _encoding="base64">
+      dmVuZG9yTmFtZTEQBA5GZWRvcmEgUHJvamVjdDA3BA12ZW5kb3JWZXJzaW9uMSYEJEZlZG9yY
+      S1EaXJlY3RvcnkvMS4wLjQgQjIwMDYuMzEyLjU0NTA=
+    </example>
+    <example service.version="1.0.4 B2007.304.11380" _encoding="base64">
+      dmVuZG9yTmFtZTEQBA5GZWRvcmEgUHJvamVjdDA4BA12ZW5kb3JWZXJzaW9uMScEJUZlZG9yY
+      S1EaXJlY3RvcnkvMS4wLjQgQjIwMDcuMzA0LjExMzgw
+    </example>
+    <param pos="0" name="service.vendor" value="Red Hat"/>
+    <param pos="0" name="service.product" value="Fedora Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?i:vendorname1.\x04.389 Project0.\x04\rvendorversion1.\x04.389-Directory/(\d\.\d[\w.]* B\d+\.\d+\.\d+))">
+    <description>389 Project 389 Directory Server</description>
+    <example service.version="1.2.11.25 B2013.325.19510" _encoding="base64">
+      dmVuZG9yTmFtZTENBAszODkgUHJvamVjdDA5BA12ZW5kb3JWZXJzaW9uMSgEJjM4OS1EaXJlY
+      3RvcnkvMS4yLjExLjI1IEIyMDEzLjMyNS4xOTUxMA==
+    </example>
+    <param pos="0" name="service.vendor" value="389 Project"/>
+    <param pos="0" name="service.product" value="389 Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vendorName1.\x04.CentOS0.\x04\rvendorVersion1.\x04.CentOS-Directory/(\d\.\d[\w.]* B\d+\.\d+\.\d+).\x04\v)">
+    <description>CentOS CentOS Directory Server</description>
+    <example service.version="8.2.8 B2012.041.12270" _encoding="base64">
+      dmVuZG9yTmFtZTEIBAZDZW50T1MwOAQNdmVuZG9yVmVyc2lvbjEnBCVDZW50T1MtRGlyZWN0b
+      3J5LzguMi44IEIyMDEyLjA0MS4xMjI3MC8ECw==
+    </example>
+    <param pos="0" name="service.vendor" value="CentOS"/>
+    <param pos="0" name="service.product" value="CentOS Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vendorName1.\x04.Red Hat(?:, Inc.)?0.\x04\rvendorVersion1.\x04.Red Hat-Directory/(\d\.\d[\w.]* B\d+\.\d+\.\d+).\x04\v)">
+    <description>Red Hat Red Hat Directory Server</description>
+    <example service.version="8.2.0 B2010.210.0590" _encoding="base64">
+      dmVuZG9yTmFtZTEJBAdSZWQgSGF0MDgEDXZlbmRvclZlcnNpb24xJwQlUmVkIEhhdC1EaXJlY
+      3RvcnkvOC4yLjAgQjIwMTAuMjEwLjA1OTAgBAs=
+    </example>
+    <param pos="0" name="service.vendor" value="Red Hat"/>
+    <param pos="0" name="service.product" value="Red Hat Directory Server"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:redhat:directory_server:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="(?i:vendorname1.\x04.Netscape Communications Corp.0.\x04\rvendorversion1.\x04.Netscape-Directory/(\d\.\d[\d.]* B\d+\.\d+\.\d+).\x04\v)">
+    <description>Netscape Directory Server</description>
+    <example service.version="6.11 B2002.281.08530" _encoding="base64">
+      dmVuZG9yTmFtZTEfBB1OZXRzY2FwZSBDb21tdW5pY2F0aW9ucyBDb3JwLjA5BA12ZW5kb3JWZ
+      XJzaW9uMSgEJk5ldHNjYXBlLURpcmVjdG9yeS82LjExIEIyMDAyLjI4MS4wODUzMC8ECw==
+    </example>
+    <example service.version="6.11 B2002.281.08530" _encoding="base64">
+      dmVuZG9ybmFtZTEfBB1OZXRzY2FwZSBDb21tdW5pY2F0aW9ucyBDb3JwLjA5BA12ZW5kb3J2Z
+      XJzaW9uMSgEJk5ldHNjYXBlLURpcmVjdG9yeS82LjExIEIyMDAyLjI4MS4wODUzMC8ECw==
+    </example>
+    <param pos="0" name="service.vendor" value="Netscape"/>
+    <param pos="0" name="service.product" value="Netscape Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:IBM Lotus Software0.\x04\rvendorversion1.\x04.Release (\d+\.\d+[\w .]*)0.\x04.dominomajminversion)">
+    <description>IBM (Lotus) Domino LDAP Server</description>
+    <example service.version="8.5.3" _encoding="base64">
+      SUJNIExvdHVzIFNvZnR3YXJlMCAEDXZlbmRvcnZlcnNpb24xDwQNUmVsZWFzZSA4LjUuMzAeB
+      BNkb21pbm9tYWptaW52ZXJzaW9uMQcE
+    </example>
+    <example service.version="9.0.1FP6 HF130" _encoding="base64">
+      SUJNIExvdHVzIFNvZnR3YXJlMCkEDXZlbmRvcnZlcnNpb24xGAQWUmVsZWFzZSA5LjAuMUZQN
+      iBIRjEzMDAeBBNkb21pbm9tYWptaW52ZXJzaW9uMQcE
+    </example>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.product" value="Domino LDAP Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:IBM Lotus Software0.\x04\rvendorversion1.\x04.Release (\d+\.\d+[\w .]*)0\f)">
+    <description>IBM (Lotus) Domino LDAP Server</description>
+    <example service.version="9.0.1FP4 HF523" _encoding="base64">
+      dmVuZG9ybmFtZTEUBBJJQk0gTG90dXMgU29mdHdhcmUwKQQNdmVuZG9ydmVyc2lvbjEYBBZSZ
+      WxlYXNlIDkuMC4xRlA0IEhGNTIzMAwC
+    </example>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.product" value="Domino LDAP Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:IBM Lotus Software0.\x04\rvendorversion1.\x04.Build (V[\w .]*)0.\x04.dominomajminversion)">
+    <description>IBM (Lotus) Domino LDAP Server</description>
+    <example service.version="V902_12302013" _encoding="base64">
+      SUJNIExvdHVzIFNvZnR3YXJlMCYEDXZlbmRvcnZlcnNpb24xFQQTQnVpbGQgVjkwMl8xMjMwM
+      jAxMzAeBBNkb21pbm9tYWptaW52ZXJzaW9uMQcE
+    </example>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.product" value="Domino LDAP Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <!-- Attachmate Group (NetIQ) purchased Novell in 2011, and then merged w/ Micro Focus in 2014 -->
+  <fingerprint pattern="(?im:vendorName1\x13\x04\x11NetIQ Corporation0.\x04\rvendorVersion.{4}LDAP Agent for NetIQ eDirectory (\d+\.\d+[\d.]* [\w ]*\([\d.]+\))0.\x04)">
+    <description>NetIQ LDAP Agent for eDirectory</description>
+    <example service.version="8.8 SP8 (20808.06)" _encoding="base64">
+      eDA0CnZlbmRvck5hbWUxEwQRTmV0SVEgQ29ycG9yYXRpb24wRQQNdmVuZG9yVmVyc2lvbjE0B
+      DJMREFQIEFnZW50IGZvciBOZXRJUSBlRGlyZWN0b3J5IDguOCBTUDggKDIwODA4LjA2KTBJBA
+      ==
+    </example>
+    <param pos="0" name="service.vendor" value="NetIQ"/>
+    <param pos="0" name="service.product" value="LDAP Agent for eDirectory"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vendorName1\x0E\x04\fNovell, Inc.0.\x04\rvendorVersion.{4}LDAP Agent for Novell eDirectory (\d+\.\d+[\d.]* [\w ]*\([\d.]+\))0.\x04)">
+    <description>Novell LDAP Agent for eDirectory</description>
+    <example service.version="8.7.3.8 (10554.99)" _encoding="base64">
+      dmVuZG9yTmFtZTEOBAxOb3ZlbGwsIEluYy4wRgQNdmVuZG9yVmVyc2lvbjE1BDNMREFQIEFnZ
+      W50IGZvciBOb3ZlbGwgZURpcmVjdG9yeSA4LjcuMy44ICgxMDU1NC45OSkwKQQ=
+    </example>
+    <example service.version="8.8 SP4 (20217.05)" _encoding="base64">
+      dmVuZG9yTmFtZTEOBAxOb3ZlbGwsIEluYy4wRgQNdmVuZG9yVmVyc2lvbjE1BDNMREFQIEFnZ
+      W50IGZvciBOb3ZlbGwgZURpcmVjdG9yeSA4LjggU1A0ICgyMDIxNy4wNSkwHQQ=
+    </example>
+    <param pos="0" name="service.vendor" value="Novell"/>
+    <param pos="0" name="service.product" value="LDAP Agent for eDirectory"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vendorName1\x0E\x04\fNovell, Inc.0/\x04\rvendorVersion1\x1E\x04\x1CeDirectory v(\d+\.\d+[\d.]* [\w ]*\([\d.]+\))0.\x04)">
+    <description>Novell eDirectory</description>
+    <example service.version="8.6.2 (10350.18)" _encoding="base64">
+      dmVuZG9yTmFtZTEOBAxOb3ZlbGwsIEluYy4wLwQNdmVuZG9yVmVyc2lvbjEeBBxlRGlyZWN0b
+      3J5IHY4LjYuMiAoMTAzNTAuMTgpMCcE
+    </example>
+    <param pos="0" name="service.vendor" value="Novell"/>
+    <param pos="0" name="service.product" value="eDirectory"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:novell:edirectory:{service.version}"/>
+  </fingerprint>
+  <!-- Various iterations of Sun, now Oracle, Directory Server -->
+  <fingerprint pattern="(?i:vendorname1\x18\x04\x16Sun Microsystems, Inc.0.+\x04\rvendorversion1.{1,2}\x04.{1,2}Sun[- ]Java\(tm\)[- ]System[- ]Directory(?: Server)?/(\d\.\d+[\w.]*)0.{1,3}\x04)">
+    <description>Sun Java(TM) System Directory Server</description>
+    <example service.version="5.2_Patch_6" _encoding="base64">
+      dmVuZG9yTmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMEMEDXZlbmRvclZlcnNpb24xM
+      gQwU3VuIEphdmEoVE0pIFN5c3RlbSBEaXJlY3RvcnkgU2VydmVyLzUuMl9QYXRjaF82MC8E
+    </example>
+    <example service.version="6.2_PR_CUMULATIVE_6_2_6597523_6527909" _encoding="base64">
+      dmVuZG9yTmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMFYEDXZlbmRvclZlcnNpb24xR
+      QRDU3VuLUphdmEodG0pLVN5c3RlbS1EaXJlY3RvcnkvNi4yX1BSX0NVTVVMQVRJVkVfNl8yXz
+      Y1OTc1MjNfNjUyNzkwOTBNBA==
+    </example>
+    <example service.version="6.3.1" _encoding="base64">
+      dmVuZG9yTmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMDYEDXZlbmRvclZlcnNpb24xJ
+      QQjU3VuLUphdmEodG0pLVN5c3RlbS1EaXJlY3RvcnkvNi4zLjEwLwQ=
+    </example>
+    <example service.version="6.3.1.1.1" _encoding="base64">
+      dmVuZG9yTmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMDoEDXZlbmRvclZlcnNpb24xK
+      QQnU3VuLUphdmEodG0pLVN5c3RlbS1EaXJlY3RvcnkvNi4zLjEuMS4xMIGJBA==
+    </example>
+    <param pos="0" name="service.vendor" value="Sun Microsystems"/>
+    <param pos="0" name="service.product" value="Sun Java System Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?i:vendorname1\x18\x04\x16Sun Microsystems, Inc.0.\x04\rvendorversion1.\x04.Sun-Directory-Server/([\w.]+)0.{1,3}\x04)">
+    <description>Sun Directory Server</description>
+    <example service.version="7.0" _encoding="base64">
+      dmVuZG9ybmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMCsEDXZlbmRvcnZlcnNpb24xG
+      gQYU3VuLURpcmVjdG9yeS1TZXJ2ZXIvNy4wMC8E
+    </example>
+    <example service.version="7.0_sec" _encoding="base64">
+      dmVuZG9yTmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMC8EDXZlbmRvclZlcnNpb24xH
+      gQcU3VuLURpcmVjdG9yeS1TZXJ2ZXIvNy4wX3NlYzAgBA==
+    </example>
+    <example service.version="11.1.1.3.0" _encoding="base64">
+      dmVuZG9yTmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMDIEDXZlbmRvclZlcnNpb24xI
+      QQfU3VuLURpcmVjdG9yeS1TZXJ2ZXIvMTEuMS4xLjMuMDAgBA==
+    </example>
+    <param pos="0" name="service.vendor" value="Sun Microsystems"/>
+    <param pos="0" name="service.product" value="Sun Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?i:vendorname1\x14\x04\x12Oracle Corporation0.\x04\rvendorversion1.\x04.Sun-Directory-Server/([\w.]+)[0 ].{1,3}\x04)">
+    <description>Oracle Sun Directory Server</description>
+    <example service.version="11.1.1.7.2" _encoding="base64">
+      dmVuZG9yTmFtZTEUBBJPcmFjbGUgQ29ycG9yYXRpb24wMgQNdmVuZG9yVmVyc2lvbjEhBB9Td
+      W4tRGlyZWN0b3J5LVNlcnZlci8xMS4xLjEuNy4yMCAE
+    </example>
+    <example service.version="11.1.1.7.0_PR_16776826_16841985" _encoding="base64">
+      dmVuZG9yTmFtZTEUBBJPcmFjbGUgQ29ycG9yYXRpb24wRwQNdmVuZG9yVmVyc2lvbjE2BDRTd
+      W4tRGlyZWN0b3J5LVNlcnZlci8xMS4xLjEuNy4wX1BSXzE2Nzc2ODI2XzE2ODQxOTg1ME0E
+    </example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.product" value="Sun Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vendorName1\x17\x04\x15Sun Microsystems, Inc0.\x04\rvendorVersion1.\x04.Directory Proxy Server ([\w.]+)0.\x04)">
+    <description>Sun Directory Proxy Server</description>
+    <example service.version="11.1.1.7.1" _encoding="base64">
+      dmVuZG9yTmFtZTEXBBVTdW4gTWljcm9zeXN0ZW1zLCBJbmMwNAQNdmVuZG9yVmVyc2lvbjEjB
+      CFEaXJlY3RvcnkgUHJveHkgU2VydmVyIDExLjEuMS43LjEwRQQ=
+    </example>
+    <param pos="0" name="service.vendor" value="Sun Microsystems"/>
+    <param pos="0" name="service.product" value="Sun Directory Proxy Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <!-- Very old, rare, same family as above. Roll into those? -->
+  <fingerprint pattern="(?i:vendorname1.\x04.Sun Microsystems, Inc.0.\x04\rvendorversion1.\x04.Sun-ONE-Directory/([\w.]+)0.\x04)">
+    <description>Sun ONE Directory Server</description>
+    <example service.version="5.2" _encoding="base64">
+      dmVuZG9yTmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMCgEDXZlbmRvclZlcnNpb24xF
+      wQVU3VuLU9ORS1EaXJlY3RvcnkvNS4yMC8E
+    </example>
+    <example service.version="5.2_Patch_1" _encoding="base64">
+      dmVuZG9yTmFtZTEYBBZTdW4gTWljcm9zeXN0ZW1zLCBJbmMuMDAEDXZlbmRvclZlcnNpb24xH
+      wQdU3VuLU9ORS1EaXJlY3RvcnkvNS4yX1BhdGNoXzEwPgQ=
+    </example>
+    <param pos="0" name="service.vendor" value="Sun Microsystems"/>
+    <param pos="0" name="service.product" value="Sun ONE Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <!-- IBM [Tivoli | Security] Directory Server -->
+  <fingerprint pattern="(?im:International Business Machines \(IBM\)0.*\x04\rvendorversion1.\x00\x00\x00.\x04.([\d.]+)0.\x00.*ibm-osregistrycontext1.\x00\x00\x00.\x04.OS400-SYS=)">
+    <description>IBM Security Directory Server on OS/400 (IBM i)</description>
+    <example service.version="5.2" _encoding="base64">
+      SW50ZXJuYXRpb25hbCBCdXNpbmVzcyBNYWNoaW5lcyAoSUJNKTCEAAAAGgQNdmVuZG9ydmVyc
+      2lvbjGEAAAABQQDNS4yMIQAAAArBBxpYm0tc2xhcGRpc2NvbmZpZ3VyYXRpb25tb2RlMYQAAA
+      AHBAVGQUxTRTCEAAAARAQVaWJtLW9zcmVnaXN0cnljb250ZXh0MYQAAAAnBCVPUzQwMC1TWVM9
+    </example>
+    <param pos="0" name="os.vendor" value="IBM"/>
+    <param pos="0" name="os.family" value="OS/400"/>
+    <param pos="0" name="os.product" value="OS/400 (IBM i)"/>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.product" value="Security Directory Server"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:ibm:security_directory_server:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vendorname1.+?\x04%International Business Machines \(IBM\)0.+?\x04\rvendorversion1.+?\x04.([\d.]+)0.[\x00\x02\x04])">
+    <description>IBM Security Directory Server</description>
+    <example service.version="5.1" _encoding="base64">
+      dmVuZG9ybmFtZTGEAAAAJwQlSW50ZXJuYXRpb25hbCBCdXNpbmVzcyBNYWNoaW5lcyAoSUJNK
+      TCEAAAAGgQNdmVuZG9ydmVyc2lvbjGEAAAABQQDNS4xMIQA
+    </example>
+    <example service.version="6.3.1" _encoding="base64">
+      dmVuZG9ybmFtZTGEAAAAJwQlSW50ZXJuYXRpb25hbCBCdXNpbmVzcyBNYWNoaW5lcyAoSUJNK
+      TCEAAAAHAQNdmVuZG9ydmVyc2lvbjGEAAAABwQFNi4zLjEwhAA=
+    </example>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.product" value="Security Directory Server"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:ibm:security_directory_server:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vendorName1.\x00\x00\x00\v\x04\tMirapoint0.\x00\x00\x00.\x04\rvendorVersion1.\x00\x00\x00.\x04.([\d.]+)0.\x00)">
+    <description>Mirapoint LDAP Server</description>
+    <example service.version="3.2" _encoding="base64">
+      dmVuZG9yTmFtZTGEAAAACwQJTWlyYXBvaW50MIQAAAAaBA12ZW5kb3JWZXJzaW9uMYQAAAAFB
+      AMzLjIwhAA=
+    </example>
+    <param pos="0" name="service.vendor" value="Mirapoint"/>
+    <param pos="0" name="service.product" value="LDAP Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:orcldirectoryversion1.{1,5}\x04.OID ([\d.]+)0.\x00\x00)">
+    <description>Oracle Internet Directory</description>
+    <example service.version="9.0.4.0.0" _encoding="base64">
+      b3JjbGRpcmVjdG9yeXZlcnNpb24xhAAAAA8EDU9JRCA5LjAuNC4wLjAwhAAAAA==
+    </example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.product" value="Internet Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:orcldirectoryversion1.{1,5}\x04.OVD ([\d.]+)0.\x04)">
+    <description>Oracle Virtual Directory</description>
+    <example service.version="11.1.1.6.0" _encoding="base64">
+      b3JjbGRpcmVjdG9yeXZlcnNpb24xEAQOT1ZEIDExLjEuMS42LjAwLgQSc3VwcG9ydGVkRQ==
+    </example>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.product" value="Virtual Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:metaProductID.*\x04\vmetaVersion1\r\x04.([\d.]+)0.\x04)">
+    <description>estos MetaDirectory</description>
+    <example service.version="3.5.22.4291" _encoding="base64">
+      BA1tZXRhUHJvZHVjdElEMQYEBDExMDIwHAQLbWV0YVZlcnNpb24xDQQLMy41LjIyLjQyOTEwF
+      gQ=
+    </example>
+    <param pos="0" name="service.vendor" value="estos"/>
+    <param pos="0" name="service.product" value="MetaDirectory Server"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:dsaVersion1.\x04,DC Directory Server v(\d+\.\d+[\d.]* \([\w. ]+\))0.\x04)">
+    <description>Cisco Data Connection Directory</description>
+    <example service.version="8.1.00 (build 20150305)" _encoding="base64">
+      ZHNhVmVyc2lvbjEuBCxEQyBEaXJlY3RvcnkgU2VydmVyIHY4LjEuMDAgKGJ1aWxkIDIwMTUwM
+      zA1KTBeBAs=
+    </example>
+    <param pos="0" name="service.vendor" value="Cisco"/>
+    <param pos="0" name="service.product" value="Data Connection Directory"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <!-- Unbound -->
+  <fingerprint pattern="(?im:vendorName1.\x04.UnboundID Corp.0.\x04\rvendorVersion1.\x04.UnboundID Directory Server ([\d.]+)0\f)">
+    <description>UnboundID Directory Server</description>
+    <example service.version="5.1.5.2" _encoding="base64">
+      dmVuZG9yTmFtZTERBA9VbmJvdW5kSUQgQ29ycC4wNQQNdmVuZG9yVmVyc2lvbjEkBCJVbmJvd
+      W5kSUQgRGlyZWN0b3J5IFNlcnZlciA1LjEuNS4yMAw=
+    </example>
+    <param pos="0" name="service.vendor" value="UnboundID"/>
+    <param pos="0" name="service.product" value="UnboundID Directory Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:vendorName1.\x04.UnboundID Corp.0.\x04\rvendorVersion1.\x04.UnboundID Directory Proxy Server ([\d.]+)0\f)">
+    <description>UnboundID Directory Proxy Server</description>
+    <example service.version="4.7.0.7" _encoding="base64">
+      dmVuZG9yTmFtZTERBA9VbmJvdW5kSUQgQ29ycC4wOwQNdmVuZG9yVmVyc2lvbjEqBChVbmJvd
+      W5kSUQgRGlyZWN0b3J5IFByb3h5IFNlcnZlciA0LjcuMC43MAw=
+    </example>
+    <param pos="0" name="service.vendor" value="UnboundID"/>
+    <param pos="0" name="service.product" value="UnboundID Directory Proxy Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:namingContexts1.\x04.cn=.?pbx.*\x04.ldapServiceName1.\x04.IPVA-\w+-)">
+    <description>innovaphone VoIP Gateway Virtual Appliance</description>
+    <example _encoding="base64">
+      Dm5hbWluZ0NvbnRleHRzMQoECGNuPUtQQlgwMCIED2xkYXBTZXJ2aWNlTmFtZTEPBA1JUFZBL
+      TNmLTAwLTBjMAwC
+    </example>
+    <param pos="0" name="service.vendor" value="innovaphone"/>
+    <param pos="0" name="service.family" value="VoiP Gateway"/>
+    <param pos="0" name="service.product" value="IPVA"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:namingContexts1.\x04.cn=.?pbx.*\x04.ldapServiceName1.\x04.(IP\d+)-\w+-)">
+    <description>innovaphone VoIP Gateway</description>
+    <example service.product="IP800" _encoding="base64">
+      bmFtaW5nQ29udGV4dHMxCgQIY249S1BCWDAwIwQPbGRhcFNlcnZpY2VOYW1lMRAEDklQODAwL
+      TA2LTJiLTYxMA==
+    </example>
+    <param pos="0" name="service.vendor" value="innovaphone"/>
+    <param pos="0" name="service.family" value="VoiP Gateway"/>
+    <param pos="1" name="service.product"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:namingContexts1.\x04.cn=.?pbx.*\x04.ldapServiceName1.\x04.(IPBS\d*)-\w+-)">
+    <description>Ascom IP-DECT Base Station</description>
+    <example service.product="IPBS2" _encoding="base64">
+      bmFtaW5nQ29udGV4dHMxCQQHY249UEJYMDAjBA9sZGFwU2VydmljZU5hbWUxEAQOSVBCUzItM
+      TktYjEtZTcw
+    </example>
+    <param pos="0" name="service.vendor" value="Ascom"/>
+    <param pos="0" name="service.family" value="IP-DECT Base Station"/>
+    <param pos="1" name="service.product"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:namingContexts1.\x04.cn=.?pbx.*\x04.ldapServiceName1.\x04.(IPBL\d*)-\w+-)">
+    <description>Ascom IP-DECT Gateway</description>
+    <example service.product="IPBL" _encoding="base64">
+      bmFtaW5nQ29udGV4dHMxCQQHY249UEJYMDAiBA9sZGFwU2VydmljZU5hbWUxDwQNSVBCTC0zM
+      C0yYy0yNTA=
+    </example>
+    <param pos="0" name="service.vendor" value="Ascom"/>
+    <param pos="0" name="service.family" value="IP-DECT Gateway"/>
+    <param pos="1" name="service.product"/>
+  </fingerprint>
+  <fingerprint pattern="(?im:o=Scalix0.\x04.subschemasubentry1.\x04.cn=subSchema,o=Scalix0.\x04.*\x04.xserverversion1.\x04.(\d\d\.\d+\.[\w.-]+)0.\x02)">
+    <description>Scalix LDAP Server</description>
+    <example service.version="11.4.6.13676" _encoding="base64">
+      bz1NeUNvbnRhY3RzBAhvPVNjYWxpeDAsBBFzdWJzY2hlbWFzdWJlbnRyeTEXBBVjbj1zdWJTY
+      2hlbWEsbz1TY2FsaXgwDQQJYWx0c2VydmVyMQAwHgQUc3VwcG9ydGVkbGRhcHZlcnNpb24xBg
+      QBMgQBMzAgBA54c2VydmVydmVyc2lvbjEOBAwxMS40LjYuMTM2NzYwDAI=
+    </example>
+    <param pos="0" name="service.vendor" value="Scalix"/>
+    <param pos="0" name="service.product" value="LDAP Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+</fingerprints>

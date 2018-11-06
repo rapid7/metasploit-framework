@@ -1,0 +1,1 @@
+json = { :yajl => "hello" }

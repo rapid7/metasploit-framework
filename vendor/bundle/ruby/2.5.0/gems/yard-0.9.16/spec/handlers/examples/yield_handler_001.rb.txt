@@ -1,0 +1,54 @@
+class Testing
+  # Ignore yields outside methods
+  yield x, y, z
+
+  # Should document this
+  def mymethod
+    yield
+  end
+
+  # Has yield and yieldparam documentation
+  # @yield [a, b] Blah
+  # @yieldparam a Blah
+  # @yieldparam b Blah
+  def mymethod2
+    yield(b, a) # Yield something else
+  end
+
+  # Has yield documentation only
+  # @yield [a, b]
+  def mymethod3
+    yield self # Should not be changed
+  end
+
+  # Has yieldparam documentation only
+  # @yieldparam _self BLAH
+  def mymethod4
+    yield self
+  end
+
+  # Some weird possibilities..
+  # Document it all.
+
+
+  def mymethod5
+    yield :a, b, self, File.read('file', 'w'), CONSTANT if x == 2
+  end
+
+  def mymethod6
+    yield(b, a)
+  end
+
+  def mymethod7
+    yield a
+    yield b
+  end
+
+  def mymethod8
+    yield self
+  end
+
+  def mymethod9
+    yield super
+  end
+end

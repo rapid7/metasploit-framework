@@ -1,0 +1,6 @@
+= Hashery
+
+For the following demos the `hashery` script has
+been preloaded and the Hashery namespace has been
+included into the demo context for convenience.
+

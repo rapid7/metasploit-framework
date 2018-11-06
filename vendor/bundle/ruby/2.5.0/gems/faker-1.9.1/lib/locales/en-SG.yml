@@ -1,0 +1,31 @@
+
+en-SG:
+  faker:
+    name:
+      male_first_name: &male_first_name
+        [Jin Quan, Wen Jun, Jun Jie, Cheng Han, Tze-Kwang, Jin Leong, Zi Liang, Zhi Ren, Jin Quan, Wen Jun, Chee Hin, Guo Jun, Kai Jie, Kun Qiang,Jun Kiat, Yong Zheng, Yong Jun, Chit Boon, You Ren, Wen Zhong, Yang Shun, Qi Guang, Kang Soon, Wee Heng, Kah Yang, Siew Beng, Jia Woei, Chean Meng, Wai Kay, Keng Hua, Yew Meng, Cheng Wen, Jiun Wei, Yee Sian, Shao Hong, Bin Shen, Wing Yiu, Ee Hong, Yu Pyn, Yong Sheng, Jun Peng, Jia Jie, Guang Yi, Si Heng, Wei Hou, Kang Sheng, Hong Ern, Jia Liang, Wei Lip, Wee Chen, Wee Leng, Yu Xi, Ming Yang, Wen Hao, Siang Meng, Mong Li, Ghim Huat, Jun Yi, Jie Kai, Zhiming, Wei Jie, Teng Qing, Wei Jian, Wei Kwan, Chee Chin, Chun Mun, Ming Hui, Chuan Yeong, Yee Jen, Sin Tian, Jun Hao, Wai Kit, Wei Jie, Zhi Wei, Yan Han, Guo Qiang, Juin Wen, Jun Wei, Jia Jun, You Ming, Kok Keng, Jing Hui, Yi Hui, Peck Seng, Yu Ming, Yan Ming, Wang Jie, Wei Jian, Wei Xiang, Jian Yu, Kah Seng, Jia Woei, Li Heng, Shao Quan]
+      last_name: [Tan, Lim, Lee, Ng, Ong, Wong, Goh, Chua, Chan, Koh, Teo, Ang, Yeo, Tay, Ho, Low, Toh, Sim, Chong, Chia, Fong, Leong, Chow, Ou, Li, Koh, Gan, Chai, Sim, Choo, Goy, Phua, Thio, Chin, Neo, Khoo, Wee, Kok, Lai, Soh, Lin, Liew, Ko, Oh, Peh, Lam, Au, Seah, Boey, Lau, Pang, Lye, Quah, Yong, Lui, Lum, Seow, Loh, Chew, Mok, Lew, Chee, Loo, Gn, Tang, Yap, Wan, Yee, Yip, Tey, Ow, Liu, Tham, See, Woo, Heng, Leow, Chen, Foo, Poh]
+      female_first_name:
+        [Xiu Yi, Wai Teng, Sing Yee, Jing Yi, Jia Yee, Jia Xuan, Shu En, Pei Ying, Pei Yu, Pih Foung, Li-ann, Shi Xuan, Yi Xuan, Shu En, Yi Xin, Hui Juan, Yu En, Yihui, Xin Yi, Yun Xuan, Xuan Xuan, Cheuk Ying, Shiqi, Yujin, Wee Xin, Jing Xuan, Huishan, Yi Ting, Wei Xuan, Shi Ning, Zi Shan, Jing Ning, Lee Shyin, Yi Ning, Enyi, Siying, Ruitong, Rui Xuan, Siyun, Xi Xuan, Shuwei, Jie Ying, Hui Jie, Xuan Na, Sze Han, Rou'en, Wei Xuan, Kaiyi, An Xuan, Enxuan, Yu Xuan, Qi Qi, Yutong, Jia En, Chee En, Ruining, Lee Ying, Yu Qi, Ke Xuan, Teo Xinyu, Xin Yee, Xuan Ling, Zhi Yi, Yan Tong, En Qi, Yi Ting, Yanling, Sining, Yixuan, Zu'er, Ke Xuan, Ying Le, Qinyi, Li Min, Yi Ling, Xu Tong, Ser Shyann, Teng Ee, Miao Yun, Yng Qi, Xuan Yi, Yi Shan, Rui Tian, Ruishan, Jia Xuan, Kai Le, Le Xuan, Yu Tong, Kai Qi, Xuan Rong, Wen Xin, Si Xuan, Ying Xin, Tong En, Xinhui, Qingyi, En Hui, Yunwen, Zi Xuan, Kai En, Ann Ting, Yu En, Yu Xin, Ting Loh, Jia Yi, Min Wen, Jia Jia, Ke Xin, Yuxuan, Xin Ling, Lizi, Tschi-xuan, Yu Chen, Yi Lea, Ziyu, Tay Ting, Yingbi, See-yi, Fang'en, Chze Xuan, Xue Ying, Wenyan, Zi Yuan, Bei'en, Yuxi, Rei En, Yitong, Kaiting, Jing Xuan, Shu Wen, Wenxuan, Hui Xuan, Wan Ying, Rui-han, Weining, Jia'en, Hann-yi , Cze En, Zhiyu, Yen Yee, Ling Xuan, Si Ying]
+      male_english_name: [Leon, Bryan, Jack, Stephen, Andy, Jerome, Ian, Desmond, Lucas, Morgan, Keith, Ivan, Gavin, Winson, Raynor, Ryan, Kenson, Benjamin, Benny, Eugene, Melvin, Shawn, Aaron, Justin, Emmanuel, Steven, Joshua, Terence, Darren, Daniel, Aloysius, John, Jeremy, Wilson, Dave, Vincent, Ryan, Sebastian, Edward, Daryl, Eddy, William, Jason, Nicholas, Brian, Sean, Calvin, Russell, Raphael, Kenneth, Angus, James, Dennis, Mark, Jedd, Sherman, Marvin, Edmund, Henry, Kevin, Vernon, Benedict, Brendan, Gilbert, Josh, Jay, Winston, Nicholas, Eric, Daren, Nelson, Xavier, Glen, Gabriel, Matthew, Tristan]
+      female_english_name: [Alicia, Caitlin, Denise, Emerald, Erin, Jocelyn, Levene, Rosaline, Victoria, Amy, Angelyn, Chloe, Erin, Isabel, Jolene, Natalyn, Rachael, Rishi, Valerie, Anastasia, Andrea, Carina, Celeste, Flo, Janessa, Joeunn, Mabel, Riya, Samantha, Tricia, Aurelia, Chanel, Colette, Fynn, Gwyneth, Josephine, Keisha, Rachael, Sarah, Sharlene, Val, Charlotte, Chloe, Danielle, Gabrielle, Glory, Isabel, Kyra, Marilyn, Raine, Sophie, Beatrice, Cassia, Cheralyn, Christy, Dilys, Glynis, Isabelle, Megan, Shannen, Tisha, Tricia, Victoria, Bethley, Catherine, Claire, Clarissa, Eleanor, Isabelle, Megan, Mikayla, Renee, Steffi, Vera, Zoe, Alanna, Alyssa, Angeline, Anya, Ciara, Clare, Isabella, Jeanette, Kaelyn, Kate, Megan, Nieve, Shannel, Valerie, Anastasia, Ariel, Gwenn, Janine, Kara, Kate, Katelyn, Natalie, Natally, Samantha, Shannon, Tiffany, Arielle, Ashley, Claire, Jovi, Kimi, Vil, Alicia, Caroline, Chanell, Elizabeth, Heidi, Megan, Nericcia, Sharmaine, Amelia, Caitlyn, Elisha, Rachel, Rannel, Rianne, Andrea, Celeste, Chantelle, Emma, Heidi, Joey, Khloe, Maegin, Mayenne, Regina, Anna, Cherie, Christie, Janelle, Jenell, Johannah, Leah, Marissa, Arissa, Evangelyn, Faith, Phobe, Rebecca, Regina, Cindy, Karen, Jess]
+      first_name:
+        *male_first_name
+      name:
+        - "#{last_name} #{male_first_name}"
+        - "#{male_english_name} #{last_name} #{male_first_name}"
+        - "#{last_name} #{female_first_name}"
+        - "#{female_english_name} #{last_name} #{female_first_name}"
+    address:
+      postcode: ['######']
+      building_number: ['#', '##', '###']
+      streets: [Tampines,  Hougang, Sims, Bukit Timah, Jurong West, Teck Whye, Choa Chu Kang North, Woodlands, Sembawang, Ah Soo, Paya Lebar, Serangoon, Lor Lew Lian, Woodlands, Geyland, Clementi, Bukit Merah, Tanglin]
+      street_name:
+        - "#{streets} St #{building_number}"
+        - "#{streets} Ave #{building_number}"
+        - "#{streets} Road"
+      street_address:
+        - "#{building_number} #{street_name}"
+      default_country: [Singapore]
+    phone_number:
+      formats: ['+65 6### ####', '+65 9### ####', '+65 8### ####']

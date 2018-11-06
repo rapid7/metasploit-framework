@@ -1,0 +1,7 @@
+<script type="text/javascript" charset="utf-8">
+  pathId = <%= @path ? @path.inspect : 'null' %>
+  relpath = '/';
+  docsPrefix = '<%= abs_url base_path(router.docs_prefix) %>';
+  listPrefix = '<%= abs_url base_path(router.list_prefix) %>';
+  searchPrefix = '<%= abs_url base_path(router.search_prefix) %>';
+</script>

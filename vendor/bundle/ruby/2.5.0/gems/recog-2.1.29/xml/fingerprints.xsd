@@ -1,0 +1,128 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <xsd:element name="fingerprints" type="fingerprints_element"/>
+
+  <xsd:complexType name="fingerprints_element">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">
+        The attributes that follow this documentation help categorize the
+        fingerprint databases and contents as well as enable optimization of
+        their processing.
+
+        - matches: provides a XML fingerprint database identifier. It is
+            intended to be descriptive in nature and often indicates a protocol
+            and function or sub-protocol type. Examples of this would be
+            'mysql.banners' vs 'mysql.errors'. If this attribute is not present
+            in the XML then its value is the base filename without the file
+            extension. See Recog::DB#parse_fingerprints
+            This value is returned as part of any successful match.
+
+        - protocol: indicates the name of the service or protocol
+            found within the XML fingerprint database. Examples of this would
+            be 'ftp', 'smtp', 'ssh', etc. Within Recog this value will be
+            superseded by a 'service.protocol' attribute on a specific
+            fingerprint match. See Recog::DB#parse_fingerprints
+            This value has two purposes. It can be used for filtering
+            ( See Recog::Nizer#match_all_db ) and is returned as part of any
+            successful match.
+
+        - database_type: indicates the type of fingerprints matches expected
+            to be found within the database. These values are used by
+            Recog::Nizer#match_all_db to filter matches to just the type of 
+            database that is relevant to the match string.
+            This value is *NOT* returned as part of successful matches.
+
+            Current values are:
+
+            - service: These fingerprints are intended to match banners or
+              other responses from services. Fingerprint matches in 'service'
+              database do not necessarily have to return 'service.' attributes
+              in the match data.
+
+            - util.os: These fingerprints are intended to be used to identify
+              or extract OS related information from strings that are not
+              responses to service probes. This may be used in a utility
+              capacity and may provide for data enrichment via an independent
+              call after a service banner match has already be made.
+
+        - preference: indicates the relative priority/ordering that will be used
+            when Recog::Nizer performs matches against multiple databases.
+            'preference' is a float value that currently ranges from 0.0 to 1.0
+            Higher numbers are given greater priority and will be processed
+            first. If this attribute is not present in the fingerprint database
+            it will be assigned the value of 'DEFAULT_FP_PREFERENCE' within
+            Recog::DB which is currently 0.10
+
+            This value is *NOT* returned as part of successful matches.
+
+            When determining the priority of a fingerprint database the
+            following criterial and rules should be used:
+
+            - Values above 0.90 should be reserved for end user use with the
+              goal of enabling them to create fingerprint databases that will
+              always take priority over those included in the Recog project.
+
+            - Values below 0.10 should be reserved for end user use with the
+              goal of enabling them to create fingerprint databases that will
+              always be processed after those included with the Recog project.
+
+            - The highest level of preference should be given to those 
+              fingerprint databases that have very high quality matches
+              (very strict regex, accurate).
+
+            - Priority should be given to those fingerprint databases that
+              are for very common services.
+
+            - Consideration should be given to preferring databases that will
+              provide the most valuable data. For example, 'http_header.server'
+              and 'http_header.cookie' may both provide matches to the same
+              HTTP server response, but 'http_header.server' is more likely
+              to provide the best data.
+
+            - Values of 0.90 - 0.80 should be used for those very high quality,
+              highly common services.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="fingerprint" type="fingerprint_element" minOccurs="1" maxOccurs="unbounded"/>
+    </xsd:sequence>
+
+    <xsd:attribute name="matches" type="xsd:string" use="optional"/>
+    <xsd:attribute name="protocol" type="xsd:string" use="optional"/>
+    <xsd:attribute name="database_type" type="xsd:string" use="optional"/>
+    <xsd:attribute name="preference" use="optional">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:float">
+           <xsd:minInclusive value="0" />
+           <xsd:maxInclusive value="1.0" />
+        </xsd:restriction>
+     </xsd:simpleType>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="fingerprint_element" mixed="true">
+    <xsd:sequence>
+      <xsd:element name="description" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="example" type="example_element" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="param" type="param_element" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="certainty" type="xsd:string" use="optional"/>
+    <xsd:attribute name="pattern" type="xsd:string" use="required"/>
+    <xsd:attribute name="flags" type="xsd:string" use="optional"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="example_element">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:anyAttribute processContents="skip"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="param_element">
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+    <xsd:attribute name="pos" type="xsd:integer" use="required"/>
+    <xsd:attribute name="value" type="xsd:string" use="optional"/>
+  </xsd:complexType>
+
+</xsd:schema>

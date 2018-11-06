@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="architecture" database_type="util.os">
+  <!--
+    Generic rules for matching a machine architecture, platform, or chipset
+  -->
+  <fingerprint pattern="x64|amd64|x86_64" flags="REG_ICASE">
+    <description>x64 (x86_x64)</description>
+    <example>Linux claw 3.11.0-15-generic #23-Ubuntu SMP Mon Dec 9 18:17:04 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux</example>
+    <param pos="0" name="os.arch" value="x64"/>
+  </fingerprint>
+  <fingerprint pattern="x86|i[3456]86" flags="REG_ICASE">
+    <description>x86</description>
+    <example>Linux bob 3.2.0-1-generic #3-Ubuntu SMP Wed Dec 11 19:12:55 UTC 2013 i686 i686 i686 GNU/Linux</example>
+    <param pos="0" name="os.arch" value="x86"/>
+  </fingerprint>
+  <fingerprint pattern="PowerPC|PPC|POWER|ppc">
+    <description>PowerPC</description>
+    <param pos="0" name="os.arch" value="ppc"/>
+  </fingerprint>
+  <fingerprint pattern="SPARC" flags="REG_ICASE">
+    <description>SPARC</description>
+    <param pos="0" name="os.arch" value="sparc"/>
+  </fingerprint>
+  <fingerprint pattern="mips" flags="REG_ICASE">
+    <description>MIPS</description>
+    <param pos="0" name="os.arch" value="mips"/>
+  </fingerprint>
+  <fingerprint pattern="arm" flags="REG_ICASE">
+    <description>ARM</description>
+    <param pos="0" name="os.arch" value="arm"/>
+  </fingerprint>
+</fingerprints>

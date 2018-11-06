@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <%= erb(:headers) %>
+		<script type="text/javascript" charset="utf-8">
+			$(function() {
+				$('.object_link').each(function() {
+					$(this).html($(this).find('a').html())
+				});
+			});
+			$(function() {
+				generateTOC();
+				if ($('#toc li').size() == 0) {
+					$('#sidebar h2.toc').hide();
+				}
+			})
+		</script>
+  </head>
+  <body>
+		<div id="top_nav">
+			<div id="inner_nav">
+				<% if options.readme != options.file && options.title %>
+					<span class="title"><strong><%= options.title %></strong>: <%= @page_title %></span>
+					<small class="links">
+						<% links = [@prevfile ? link_file(@prevfile, '&larr;') : nil,
+						            link_file('index.html', '&uarr;'),
+									@nextfile ? link_file(@nextfile, '&rarr;') : nil].compact %>
+						<%= links.join(" ") %>
+					</small>
+				<% end %>
+			</div>
+		</div>
+		<div id="page">
+			<div id="sidebar">
+				<h2 class="toc">Table Of Contents</h2>
+				<div id="toc"></div>
+
+				<% if options.readme != options.file %>
+				<h2>Related Topics</h2>
+				<div id="links">
+					<ol class="top">
+						<% if options.readme %>
+							<li><%= link_file("index.html", "Documentation Overview") %></li>
+						<% end %>
+						<ol>
+							<% if @prevfile %>
+								<li>
+									<strong>Previous:</strong>
+									<%= link_file(@prevfile) %>
+								</li>
+							<% end %>
+							<% if @nextfile %>
+							<li>
+								<strong>Next:</strong>
+								<%= link_file(@nextfile) %>
+							</li>
+							<% end %>
+						</ol>
+					</ol>
+				</div>
+				<% else %>
+				<h2>List of Topics</h2>
+				<div id="links">
+					<ol class="top">
+						<li><a href="#">Documentation Overview</a></li>
+						<ol>
+							<% options.files.each do |file| %>
+							<li><%= link_file(file.filename, file.title) %></li>
+							<% end %>
+						</ol>
+					</ol>
+				</div>
+				<% end %>
+			</div>
+	    <div id="content"><%= yieldall %></div>
+		</div>
+		<div style="clear:both"></div>
+    <%= erb(:footer) %>
+  </body>
+</html>

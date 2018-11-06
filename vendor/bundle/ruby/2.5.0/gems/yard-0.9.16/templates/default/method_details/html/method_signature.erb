@@ -1,0 +1,25 @@
+<h3 class="signature <%= 'first' if @index == 0 %>" id="<%= anchor_for(object) %>">
+  <% if object.tags(:overload).size == 1 %>
+    <%= signature(object.tag(:overload), false) %>
+  <% elsif object.tags(:overload).size > 1 %>
+    <% object.tags(:overload).each do |overload| %>
+      <span class="overload"><%= signature(overload, false) %></span>
+    <% end %>
+  <% else %>
+    <%= signature(object, false) %>
+  <% end %>
+
+  <% if object.aliases.size > 0 %>
+    <span class="aliases">Also known as:
+    <span class="names"><%= object.aliases.map {|o|
+      "<span id='#{anchor_for(o)}'>" + h(o.name.to_s) + "</span>" }.join(", ") %></span>
+    </span>
+  <% end %>
+
+  <% if owner != object.namespace %>
+    <span class="not_defined_here">
+      Originally defined in <%= object.namespace.type %>
+        <%= linkify object, owner.relative_path(object.namespace) %>
+    </span>
+  <% end %>
+</h3>

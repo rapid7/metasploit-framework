@@ -1,0 +1,120 @@
+# Docstring
+class A
+  module B; end
+  private
+  class B::C < String;
+    def method1; end
+    def method2; end
+  end
+  class X<B::C
+  end
+  class<<self
+    def classmethod1; end
+  end
+
+  class << A::B::C; def Hello; end end
+end
+
+module B
+  class A < A
+  end
+end
+
+class RT < XX::RT; end
+
+class Test1 < R "something"
+end
+
+class Test2 < R(/something/)
+end
+
+class Test3 < Struct.new(:foo, :bar)
+end
+
+class Test4 < OStruct.new
+end
+
+class Test5 < DelegateClass(Array)
+end
+
+class Test6 < NotDelegateClass(Array)
+end
+
+class ::MyRootClass
+end
+
+module Holder
+  module SomeMod
+    class Importer
+      def parse; end
+    end
+  end
+end
+
+module Holder
+  class Importer < Holder::SomeMod::Importer
+    def a; end
+  end
+end
+
+class String; end
+CONST = String
+class << CONST
+  def classmethod; end
+end
+
+module Q
+  class Logger < ::Logger; end
+  class Foo < ::Logger; end
+end
+
+class << Symbol
+  alias toString to_s
+end
+
+# Docstring
+class Zebra
+end
+
+# Docstring 2
+
+class Zebra
+end
+
+class Zebra
+end
+
+# A simple struct
+class RegularStruct < Struct; end
+class RegularStruct2 < ::Struct; end
+
+class Point < Struct.new(:x, :y, :z)
+end
+
+class AnotherPoint < Struct.new('XPoint', :a, :b, :c, :description)
+end
+
+# @attr [IO] input the input stream
+# @attr mode the mode to read
+# @attr [Proc, #call] someproc the proc to run
+class DoccedStruct < Struct.new(:input, :mode, :someproc)
+end
+
+# @attr [String] first the first entry
+# @attr_reader [Fixnum] second this only has a reader
+# @attr_writer [Array] third this only has a writer
+# @attr_reader [#read] fourth returns a proc that reads
+# @attr_writer [IO] fourth sets the proc that writes stuff
+class SemiDoccedStruct < Struct.new(:first, :second, :third, :fourth)
+end
+
+# @attr [String] first the first entry
+# @attr_reader [Fixnum] second this only has a reader
+# @attr_writer [Array] third this only has a writer
+# @attr_reader [#read] fourth returns a proc that reads
+# @attr_writer [IO] fourth sets the proc that writes stuff
+class NotAStruct; end
+
+class Outer1
+  class Inner1 < self; end
+end

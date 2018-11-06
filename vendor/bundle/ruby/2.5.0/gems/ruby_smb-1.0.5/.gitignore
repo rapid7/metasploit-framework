@@ -1,0 +1,21 @@
+/.bundle/
+/.yardoc
+/.idea/
+/Gemfile.lock
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+*.bundle
+*.so
+*.o
+*.a
+mkmf.log
+*.gem
+/tags
+
+# RVM control
+.ruby-version
+.ruby-gemset

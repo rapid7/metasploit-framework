@@ -1,0 +1,6 @@
+lib/**/*.rb
+bin/*
+features/**/*.feature
+-
+README.rdoc
+LICENSE.txt

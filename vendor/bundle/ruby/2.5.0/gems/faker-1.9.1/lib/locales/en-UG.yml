@@ -1,0 +1,128 @@
+en-UG:
+  faker:
+    internet:
+      domain_suffix: [ug, com, org, co.ug, org.ug, net]
+    address:
+      default_country: [Uganda, The Republic of Uganda, UG]
+      # city names from http://en.wikipedia.org/wiki/List_of_cities_and_towns_in_Uganda
+      city_names: [
+        Alebtong, Abim, Adjumani, Amolatar, Amuria, Amuru, Apac, Arua,
+        Bombo, Budaka, Bugembe, Bugiri, Bukedea, Bulisa, Buikwe, Bundibugyo,
+        Busembatya, Bushenyi, Busia, Busolwe, Butaleja,Buwenge,
+        Dokolo,
+        Entebbe,
+        Fort Portal,
+        Gulu,
+        Hima,Hoima,
+        Ibanda, Iganga, Isingiro,
+        Jinja,
+        Kaabong, Kabale, Kaberamaido, Kabwohe, Kagadi, Kakinga, Kakiri, Kalangala, Kaliro,
+        Kalisizo, Kalongo, Kalungu, Kampala, Kamuli, Kanoni, Kamwenge, Kanungu, Kapchorwa,
+        Kasese, Katakwi, Kayunga, Kibaale, Kiboga, Kihiihi, Kiira, Kiruhura, Kiryandongo,
+        Kisoro, Kitgum, Koboko, Kotido, Kumi, Kyenjojo, Kyotera,
+        Lira, Lugazi, Lukaya, Luwero, Lwakhakha, Lwengo, Lyantonde,
+        Malaba, Manafwa, Masaka, Masindi, Masindi Port, Matugga, Mayuge, Mbale,Mbarara,
+        Mitooma, Mityana, Mpigi, Mpondwe, Moroto, Moyo, Mubende, Mukono, Mutukula,
+        Nagongera, Nakaseke, Nakasongola, Nakapiripirit, Namutumba, Nansana, Nebbi, Ngora,
+        Njeru, Nkokonjeru, Ntungamo,
+        Oyam,
+        Pader, Paidha, Pakwach, Pallisa,
+        Rakai, Rukungiri,
+        Sembabule, Sironko, Soroti,
+        Tororo,
+        Wakiso, Wobulenzi,
+        Yumbe
+      ]
+      # district names from http://en.wikipedia.org/wiki/Category:Districts_of_Uganda
+      district_names: [
+        Abim, Adjumani, Agago, Alebtong, Amolatar, Amudat, Amuria, Amuru, Apac, Arua,
+        Budaka, Bududa, Bugiri, Buhweju, Buikwe, Bukedea, Bukomansimbi, Bukwo, Bulambuli,
+        Buliisa, Bundibugyo, Bushenyi, Busia, Butaleja, Butambala, Buvuma, Buyende,
+        Dokolo,
+        Gomba, Gulu,
+        Hoima,
+        Ibanda, Iganga, Isingiro,
+        Jinja,
+        Kaabong, Kabale, Kabarole, Kaberamaido, Kalangala, Kaliro, Kalungu, Kampala, Kamuli,
+        Kamwenge, Kanungu, Kapchorwa, Kasese, Katakwi, Kayunga, Kibaale, Kiboga, Kibuku,
+        Kigezi, Kiruhura, Kiryandongo, Kisoro, Kitgum, Koboko, Kole, Kotido, Kumi, Kween,
+        Kyankwanzi, Kyegegwa, Kyenjojo,
+        Lamwo, Lira, Luuka, Luweero, Lwengo, Lyantonde,
+        Manafwa, Maracha, Maracha-Terego, Masaka, Masindi, Mayuge, Mbale, Mbarara, Mitooma,
+        Mityana, Moroto, Moyo, Mpigi, Mubende, Mukono,
+        Nakapiripirit, Nakaseke, Nakasongola, Namayingo, Namutumba, Napak, Nebbi, Ngora,
+        Ntoroko, Ntungamo, Nwoya,
+        Otuke, Oyam,
+        Pader, Pallisa,
+        Rakai, Rubirizi, Rukungiri,
+        Sembabule, Serere, Sheema, Sironko, Soroti,
+        Tororo,
+        Wakiso,
+        Yumbe,
+        Zombo
+      ]
+      regions: [Central, East, North, West]
+      city:
+        - "#{city_names}"
+      district:
+        - "#{district_names}"
+      region:
+        - "#{regions}"
+    phone_number:
+      formats:
+        # carrier mtn landline
+        - "256 39# ### ###"
+        - "+256 39# ### ###"
+        - "039# ### ###"
+        # carrier utl landline
+        - "256 41# ### ###"
+        - "+256 41# ### ###"
+        - "041# ### ###"
+    cell_phone:
+      formats:
+        # africell
+        - "+256 79# ### ###"
+        - "256 79# ### ###"
+        - "0 79# ### ###"
+        # airtel
+        - "+256 70# ### ###"
+        - "256 70# ### ###"
+        - "0 70# ### ###"
+        - "+256 75# ### ###"
+        - "256 75# ### ###"
+        - "0 75# ### ###"
+        # mtn
+        - "+256 77# ### ###"
+        - "256 77# ### ###"
+        - "0 77# ### ###"
+        - "+256 78# ### ###"
+        - "256 78# ### ###"
+        - "0 78# ### ###"
+        # smart
+        - "+256 74# ### ###"
+        - "256 74# ### ###"
+        - "0 74# ### ###"
+        # utl
+        - "+256 71# ### ###"
+        - "256 71# ### ###"
+        - "0 71# ### ###"
+        # vodafone
+        - "+256 72# ### ###"
+        - "256 72# ### ###"
+        - "0 72# ### ###"
+    name:
+      last_name: [
+        Abayisenga, Agaba, Ahebwe, Aisu, Akankunda, Akankwasa, Akashaba, Akashabe, Ampumuza, Ankunda, Asasira, Asiimwe, Atuhe, Atuhire, Atukunda, Atukwase, Atwine, Aurishaba,
+        Badru, Baguma, Bakabulindi, Bamwiine, Barigye, Bbosa, Bisheko, Biyinzika, Bugala, Bukenya, Buyinza, Bwana, Byanyima, Byaruhanga,
+        Ddamulira,
+        Gamwera,
+        Ijaga, Isyagi,
+        Kaaya, Kabanda, Kabuubi, Kabuye, Kafeero, Kagambira, Kakooza, Kalumba, Kanshabe, Kansiime, Kanyesigye, Kareiga, Kasekende, Kasumba, Kateregga, Katusiime, Kawooya, Kawuki, Kayemba, Kazibwe, Kibirige, Kiconco, Kiganda, Kijjoba, Kirabira, Kirabo, Kirigwajjo, Kisitu, Kitovu, Kityamuwesi, Kivumbi, Kiwanuka, Kyambadde,
+        Lunyoro,
+        Mbabazi, Migisha, Mugisa, Mugisha, Muhwezi, Mukalazi, Mulalira, Munyagwa, Murungi, Mushabe, Musinguzi, Mutabuza, Muyambi, Mwesige, Mwesigye,
+        Nabasa, Nabimanya, Nankunda, Natukunda, Nayebare, Nimukunda, Ninsiima, Nkoojo, Nkurunungi, Nuwagaba, Nuwamanya, Nyeko,
+        Obol, Odeke, Okumu, Okumuringa, Opega, Orishaba, Osiki, Ouma,
+        Rubalema, Rusiimwa, Rwabyoma,
+        Tamale, Tendo, Tizikara, Tuhame, Tumusiime, Tumwebaze, Tumwesigye, Tumwiine, Turyasingura, Tusiime, Twasiima, Twesigomwe,
+        Wasswa, Wavamuno, Were
+      ]

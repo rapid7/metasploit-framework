@@ -1,0 +1,1333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="mysql.banners" protocol="mysql" database_type="service" preference="0.75">
+  <!--
+      Upon successful connection to an MySQL/derivative TCP endpoint, provided
+      the connecting client is allowed to speak to the MySQL service (for
+      example, it hasn't been blocked for too many failed password attempts and
+      is explicitly allowed to connect from this client), the first packet
+      recieved will contain the MySQL server greeting which contains things like
+      the protocol spoken, capabilities and, most importantly, a version.  This
+      version is a null-terminated, free-form field starting at the 6th byte of
+      the TCP payload and the fingerprints below are used to match and extract
+      from this version.
+  -->
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}(?:[.-]\d{1,2})?(?:[.-]\d{1})?)(?:-m\d{1,2})?(?:-rc)?(?:-alpha)?(?:-beta)?(?:-gamma)?(?:-?max)?(?:-rs)?(?:-modified)?(?:-debug)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL (common)</description>
+    <example service.version="4.1.20">4.1.20</example>
+    <example service.version="5.5.23-55">5.5.23-55</example>
+    <example service.version="5.5.30-1.1">5.5.30-1.1</example>
+    <example service.version="5.5.18.1">5.5.18.1-log</example>
+    <example service.version="5.7.4">5.7.4-m14</example>
+    <example service.version="5.0.95">5.0.95-rs</example>
+    <example service.version="5.1.65">5.1.65-log</example>
+    <example service.version="5.4.1">5.4.1-beta-log</example>
+    <example service.version="4.1.13">4.1.13-Max-log</example>
+    <example service.version="5.1.33">5.1.33max-log</example>
+    <example service.version="5.0.87">5.0.87-modified-log</example>
+    <example service.version="5.5.3">5.5.3-m3-log</example>
+    <example service.version="4.0.20a">4.0.20a-debug</example>
+    <example service.version="5.1.37">5.1.37-debug-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})(?:-m\d)?(?:-rc)?(?:-alpha)?(?:-beta)?-community(?:-max)?(?:-debug)?(?:-log)?(?:-debug)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Community Edition</description>
+    <example service.version="5.0.95">5.0.95-community-log</example>
+    <example service.version="5.0.37">5.0.37-Community-log</example>
+    <example service.version="5.0.21">5.0.21-community-max</example>
+    <example service.version="5.5.0">5.5.0-m2-community-log</example>
+    <example service.version="6.0.4">6.0.4-alpha-community</example>
+    <example service.version="5.1.33">5.1.33-community-debug</example>
+    <example service.version="5.5.0">5.5.0-m2-community-debug-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Community Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})(?:-alpha)?(?:-beta)?(?:-rc)?-community(?:-max)?-nt(?:-log)?(?:-debug)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Community Edition with Named Pipes (Windows)</description>
+    <example service.version="4.1.22">4.1.22-community-max-nt</example>
+    <example service.version="5.0.88">5.0.88-community-nt</example>
+    <example service.version="5.0.67">5.0.67-community-nt-log</example>
+    <example service.version="5.1.20">5.1.20-beta-community-nt-debug</example>
+    <example service.version="6.0.0">6.0.0-alpha-community-nt-debug</example>
+    <example service.version="6.0.2">6.0.2-alpha-community-nt-debug-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Community Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})(?:-alpha)?(?:-beta)?(?:-rc)?(?:-gamma)?(?:-max)?-nt(?:-max)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL with Named Pipes (Windows)</description>
+    <example service.version="5.0.18">5.0.18-nt</example>
+    <example service.version="4.1.12a">4.1.12a-nt-max-log</example>
+    <example service.version="3.23.58">3.23.58-max-nt</example>
+    <example service.version="5.1.6">5.1.6-alpha-nt-max</example>
+    <example service.version="4.0.11">4.0.11-gamma-max-nt</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-cll$" flags="REG_ICASE">
+    <description>Oracle MySQL hosted on CPanel</description>
+    <example service.version="5.5.25a">5.5.25a-cll</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-community-cll$" flags="REG_ICASE">
+    <description>Oracle MySQL Community hosted on CPanel</description>
+    <example service.version="5.0.91">5.0.91-community-cll</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Community Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-cll-lve$" flags="REG_ICASE">
+    <description>Oracle MySQL on CloudLinux in a Lightweight Virtual Environment (LVE)</description>
+    <example service.version="5.1.66">5.1.66-cll-lve</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="CloudLinux"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-community-cll-lve$" flags="REG_ICASE">
+    <description>Oracle MySQL Community on CloudLinux in a Lightweight Virtual Environment (LVE)</description>
+    <example service.version="5.0.95">5.0.95-community-cll-lve</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Community Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="CloudLinux"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.\d{1,2})-0ubuntu0.(\d\d\.\d\d)[.\d]*(?:-log)?$">
+    <description>Oracle MySQL on Ubuntu</description>
+    <example service.version="5.1.66" os.version="10.04">5.1.66-0ubuntu0.10.04.3-log</example>
+    <example service.version="5.5.28" os.version="12.04">5.5.28-0ubuntu0.12.04.3-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.\d{1,2})-(?:Debian_)?\dubuntu(\d{1,2}\.\d\d)[.\d]*(?:-log)?$">
+    <description>Oracle MySQL on Ubuntu</description>
+    <example service.version="5.0.22" os.version="6.06">5.0.22-Debian_0ubuntu6.06.14-log</example>
+    <example service.version="5.1.41" os.version="12.10">5.1.41-3ubuntu12.10</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})[-_](?:Ubuntu[_-])?(?:Debian[_-])?\d{1,2}(?:~exp1)?ubuntu\d{1,2}(?:\.\d)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL on Ubuntu where trailing digits aren't OS version</description>
+    <example service.version="5.0.45">5.0.45-Debian_1ubuntu3.4</example>
+    <example service.version="5.0.51a">5.0.51a-3ubuntu5.5</example>
+    <example service.version="5.0.51a">5.0.51a-3ubuntu5.8-log</example>
+    <example service.version="5.0.75">5.0.75-0ubuntu10.2</example>
+    <example service.version="5.1.58">5.1.58-1ubuntu1</example>
+    <example service.version="4.0.24">4.0.24_Debian-10ubuntu2-log</example>
+    <example service.version="5.6.19">5.6.19-1~exp1ubuntu2-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:-"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[^+]+)\+deb\.sury\.org~precise\+\d(?:-log)?$">
+    <description>Oracle MySQL on Ubuntu 12.04 (Precise Pangolin) packaged by deb.sury.org</description>
+    <example service.version="5.6.19-1">5.6.19-1+deb.sury.org~precise+1</example>
+    <example service.version="5.6.20-1">5.6.20-1+deb.sury.org~precise+1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="12.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:12.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[^+]+)\+deb\.sury\.org~trusty\+\d(?:-log)?$">
+    <description>Oracle MySQL on Ubuntu 14.04 (Trusty Tahr) packaged by deb.sury.org</description>
+    <example service.version="5.6.21-1">5.6.21-1+deb.sury.org~trusty+1</example>
+    <example service.version="5.6.19-1">5.6.19-1+deb.sury.org~trusty+1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="14.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:14.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[^+]+)\+(?:squeeze\d|deb6u1)(?:-log)?$">
+    <description>Oracle MySQL on Debian 6.0 (squeeze)</description>
+    <example service.version="5.1.66-0">5.1.66-0+squeeze1</example>
+    <example service.version="5.1.66-0">5.1.66-0+squeeze1-log</example>
+    <example service.version="5.1.73-1">5.1.73-1+deb6u1</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="6.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:6.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[^+]+)\+wheezy\d(?:-log)?$">
+    <description>Oracle MySQL on Debian 7.0 (wheezy)</description>
+    <example service.version="5.5.41-0">5.5.41-0+wheezy1</example>
+    <example service.version="5.5.35-0">5.5.35-0+wheezy1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="7.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:7.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[^+]+)\+lenny\d*(?:\+spu\d)?(?:-log)?$">
+    <description>Oracle MySQL on Debian 5.0 (lenny)</description>
+    <example service.version="5.0.51a-24">5.0.51a-24+lenny1-log</example>
+    <example service.version="5.0.51a-24">5.0.51a-24+lenny2</example>
+    <example service.version="5.0.51a-24">5.0.51a-24+lenny2+spu1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="5.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:5.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d~bpo50" flags="REG_ICASE">
+    <description>Oracle MySQL Backport on Debian 5.0 (lenny)</description>
+    <example service.version="5.1.49">5.1.49-3~bpo50+1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="5.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:5.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}).*~?bpo40(?:\+\d)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Backport on Debian 4.0 (etch)</description>
+    <example service.version="5.0.51a">5.0.51a-24+lenny2~bpo40+1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="4.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:4.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-Debian.*~?bpo31(?:\+\d)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Backport on Debian 3.1 (sarge)</description>
+    <example service.version="5.0.32">5.0.32-Debian_7etch5~bpo31+1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="3.1"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:3.1"/>
+  </fingerprint>
+  <!-- FIXFIX -->
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-Debian_\d~?bpo\.?\d" flags="REG_ICASE">
+    <description>Oracle MySQL Backport on Debian</description>
+    <example service.version="5.0.22">5.0.22-Debian_2bpo1</example>
+    <example service.version="5.0.32">5.0.32-Debian_7~bpo.1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:-"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.\d{1,2})-Debian_\d?etch\d*(?:-log)?$">
+    <description>Oracle MySQL on Debian 4.0 (etch)</description>
+    <example service.version="4.1.11">4.1.11-Debian_etch1-log</example>
+    <example service.version="5.0.32">5.0.32-Debian_7etch6-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="4.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:4.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.\d{1,2})[_-]Debian[_-]\d{1,2}sarge\d*(?:-log)?$">
+    <description>Oracle MySQL on Debian 3.1 (sarge)</description>
+    <example service.version="4.0.24">4.0.24_Debian-10sarge2-log</example>
+    <example service.version="4.1.11">4.1.11-Debian_4sarge7-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="3.1"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:3.1"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.\d{1,2})[_-]Debian[_-]\d{1,2}woody\d*(?:-log)?$">
+    <description>Oracle MySQL on Debian 3.0 (woody)</description>
+    <example service.version="4.0.24">4.0.24_Debian-4woody1</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="3.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:3.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})(?:[_-]\d{8})?[_-]Debian[_-]\d{1,2}(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL on Debian (Generic match)</description>
+    <example service.version="4.0.23">4.0.23_Debian-3-log</example>
+    <example service.version="4.0.31">4.0.31-20070605_Debian-7-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:-"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.\d{1,2})(?:-rc)?[_-]Debian[_-]\d{1,2}~ppa\d(?:-log)?$">
+    <description>Oracle MySQL on Debian (Generic match) using PPA</description>
+    <example service.version="5.1.22">5.1.22-rc-Debian_2~ppa5-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:-"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})(?:-\d{1,2})?(?:-Debian)?(?:-Dotdeb)?[-~_\d\.]+dotdeb\.\d(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL packaged by DotDeb.org</description>
+    <example service.version="5.1.54">5.1.54-0.dotdeb.0</example>
+    <example service.version="5.1.58">5.1.58-1~dotdeb.0</example>
+    <example service.version="5.5.30">5.5.30-1~dotdeb.0-log</example>
+    <example service.version="5.1.30">5.1.30-Dotdeb_0.dotdeb.0-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:-"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})(?:-alpha)?(?:-beta)?(?:-gamma)?(?:-rc)?-standard(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Standard Edition</description>
+    <example service.version="5.0.13">5.0.13-rc-standard-log</example>
+    <example service.version="5.0.37">5.0.37-standard</example>
+    <example service.version="5.0.51a">5.0.51a-standard-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Standard Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-pro(?:-gpl)?-nt(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Commercial Edition with Named Pipes (Windows)</description>
+    <example service.version="5.0.24">5.0.24-pro-nt</example>
+    <example service.version="4.1.25">4.1.25-pro-gpl-nt-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Commercial Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-pro(?:-gpl)?(?:-cert)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Commercial Edition</description>
+    <example service.version="4.1.23">4.1.23-pro-gpl-log</example>
+    <example service.version="5.0.17c">5.0.17c-pro-gpl-cert</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Commercial Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}sp1)" flags="REG_ICASE">
+    <description>Oracle MySQL Enterprise Edition</description>
+    <example service.version="5.0.82sp1">5.0.82sp1</example>
+    <example service.version="5.1.46sp1">5.1.46sp1-enterprise-gpl-advanced-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Enterprise Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-enterprise-nt" flags="REG_ICASE">
+    <description>Oracle MySQL Enterprise Edition with Named Pipes (Windows)</description>
+    <example service.version="5.0.84">5.0.84-enterprise-nt</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Enterprise Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})(?:-rc)?-enterprise" flags="REG_ICASE">
+    <description>Oracle MySQL Enterprise Edition</description>
+    <example service.version="5.1.26">5.1.26-rc-enterprise-gpl-log</example>
+    <example service.version="5.5.27">5.5.27-enterprise-commercial-advanced-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Enterprise Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-ndb-\d\.\d{1,2}\.[a-f\d]{1,3})" flags="REG_ICASE">
+    <description>Oracle MySQL Cluster Edition</description>
+    <example service.version="5.1.30-ndb-6.3.20">5.1.30-ndb-6.3.20-cluster-gpl-log</example>
+    <example service.version="5.5.20-ndb-7.2.5">5.5.20-ndb-7.2.5-gpl</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Cluster Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-CLUSTERS?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Cluster Edition</description>
+    <example service.version="4.1.21">4.1.21-CLUSTERS</example>
+    <example service.version="5.0.46">5.0.46-cluster</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Cluster Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-classic(?:-log)?" flags="REG_ICASE">
+    <description>Oracle MySQL Classic Edition</description>
+    <example service.version="5.0.86">5.0.86-classic-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.edition" value="Classic Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <!-- Linux only - http://www.percona.com/services/mysql-support/supported-platforms -->
+  <!-- Build list - http://www.percona.com/doc/percona-server/5.1/release-notes/release-notes_index.html -->
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-?rel\d\d\.\d)(?:-log)?" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) match w/ 'rel'</description>
+    <example service.version="5.1.57-rel12.8">5.1.57-rel12.8</example>
+    <example service.version="5.1.60rel13.1">5.1.60rel13.1-log</example>
+    <example service.version="5.1.67-rel14.3">5.1.67-rel14.3-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d{1,2}-rel\d\d\.\d{1,2}(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) match w/ 'rel' variant 1</description>
+    <example service.version="5.6.17">5.6.17-65.0-rel65.0</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-(?:rc)?percona" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) w/ percona in banner</description>
+    <example service.version="5.1.50">5.1.50-percona</example>
+    <example service.version="5.5.27">5.5.27-percona-sure1-log</example>
+    <example service.version="5.5.7">5.5.7-rcPercona-Server-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d{1,2}(?:-\d\d)?(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) (just version number match)</description>
+    <example service.version="5.1.73">5.1.73-14.12</example>
+    <example service.version="5.6.20">5.6.20-68.0-56</example>
+    <example service.version="5.6.16">5.6.16-64.2-25-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-rc\d\d\.\d(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) match w/ 'rc'</description>
+    <example service.version="5.6.13">5.6.13-rc60.6</example>
+    <example service.version="5.6.13">5.6.13-rc61.0-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d-\d{3}\.trusty(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) on Ubuntu 14.04 (Trusty Tahr)</description>
+    <example service.version="5.6.17">5.6.17-65.0-583.trusty</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="14.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:14.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d-\d{3}\.saucy(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) on Ubuntu 13.10 (Saucy Salamander)</description>
+    <example service.version="5.6.17">5.6.17-65.0-587.saucy</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="13.10"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:13.10"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d-\d{3}\.quantal(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) on Ubuntu 12.10 (Quantal Quetzal)</description>
+    <example service.version="5.6.16">5.6.16-64.2-569.quantal-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="12.10"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:12.10"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d-\d{3}\.precise(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) on Ubuntu 12.04 LTS (Precise Pangolin)</description>
+    <example service.version="5.6.16">5.6.16-64.2-569.precise-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="12.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:12.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d-\d{3}\.wheezy(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) on Debian 7.0 (wheezy)</description>
+    <example service.version="5.5.36">5.5.36-34.2-648.wheezy-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="7.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:7.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d-\d{3}\.squeeze(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) on Debian 6.0 (squeeze)</description>
+    <example service.version="5.5.36">5.5.36-34.2-648.squeeze</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="6.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:6.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-nmm" flags="REG_ICASE">
+    <description>Oracle MySQL (nmm variant)</description>
+    <example service.version="4.0.27">4.0.27-nmm1-log</example>
+    <example service.version="4.1.22">4.1.22-nmm-1-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-nightly-\d{8}(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL nightly build</description>
+    <example service.version="3.23.59">3.23.59-nightly-20050301-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-SERVER" flags="REG_ICASE">
+    <description>Oracle MySQL (SERVER variant)</description>
+    <example service.version="5.1.30">5.1.30-SERVER-104</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-ISPrime" flags="REG_ICASE">
+    <description>Oracle MySQL (ISPrime variant)</description>
+    <example service.version="4.0.15a">4.0.15a-ISPrime</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-rc-\d\.\d{1,2}\.[a-f\d]{1,3}" flags="REG_ICASE">
+    <description>Oracle MySQL possibly Debian specific</description>
+    <example service.version="5.1.26">5.1.26-rc-5.1.26rc-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-ius(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL packaged for RHEL/CentOS by IUS</description>
+    <example service.version="5.1.66">5.1.66-ius-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})[\.-]d\d{1,2}-ourdelta\d{0,2}(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL tweaked and packaged by OurDelta</description>
+    <example service.version="5.0.67">5.0.67.d7-ourdelta-log</example>
+    <example service.version="5.0.87">5.0.87-d10-ourdelta65-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-Alibaba(?:-rds)?-\d{6}(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL Alibaba build? distro? Aliyun.com hosted?</description>
+    <example service.version="5.1.61">5.1.61-Alibaba-121011-log</example>
+    <example service.version="5.1.61">5.1.61-Alibaba-rds-201404-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <!--
+    MariaDB Fingerprinting note: MariaDB uses version numbers in the same range
+    as MySQL all the way through the 5.5.x family.  Banners look like this:
+
+    5.5.34-MariaDB-cll-lve
+    5.5.31-MariaDB-1~squeeze-log
+
+    After 5.5.x they jumped to 10.x.x.  Banners for the 10.x.x family will have
+    MySQL version that the code is based off of first, and then the MariaDB
+    version number will follow:
+
+    5.5.5-10.0.15-MariaDB-cll-lve
+    5.5.5-10.0.15-MariaDB-1~squeeze-log
+
+    In the banners above, 10.0.15 is the accurate version number.
+
+    Reference: https://mariadb.org/explanation-on-mariadb-10-0/
+  -->
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB-cll-lve$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on CloudLinux in a Lightweight Virtual Environment (LVE)</description>
+    <example service.version="5.5.34">5.5.34-MariaDB-cll-lve</example>
+    <example service.version="10.0.15">5.5.5-10.0.15-MariaDB-cll-lve</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="CloudLinux"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~jessie(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Debian 8.0 (jessie)</description>
+    <example service.version="5.5.37">5.5.37-MariaDB-1~jessie-log</example>
+    <example service.version="10.0.11">10.0.11-MariaDB-1~jessie-log</example>
+    <example service.version="10.0.14">5.5.5-10.0.14-MariaDB-1~jessie-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="8.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:8.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~wheezy(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Debian 7.0 (wheezy)</description>
+    <example service.version="5.5.37">5.5.37-MariaDB-1~wheezy-log</example>
+    <example service.version="10.0.11">10.0.11-MariaDB-1~wheezy-log</example>
+    <example service.version="10.0.14">5.5.5-10.0.14-MariaDB-1~wheezy-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="7.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:7.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~squeeze(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Debian 6.0 (squeeze)</description>
+    <example service.version="5.5.31">5.5.31-MariaDB-1~squeeze-log</example>
+    <example service.version="10.0.15">5.5.5-10.0.15-MariaDB-1~squeeze-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="6.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:6.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-MariaDB.+~lenny(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Debian 5.0 (lenny)</description>
+    <example service.version="5.3.2">5.3.2-MariaDB-beta-mariadb102~lenny</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="5.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:5.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~sid(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Debian Unstable/No version  (sid)</description>
+    <example service.version="10.0.16">5.5.5-10.0.16-MariaDB-1~sid</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:-"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.\d{1,4})-MariaDB-\dubuntu\d\.(\d{1,2}\.\d\d)[\.\d]*(?:-log)?$">
+    <description>MariaDB MariaDB on Ubuntu</description>
+    <example service.version="5.5.39" os.version="14.04">5.5.39-MariaDB-0ubuntu0.14.04.1</example>
+    <example service.version="10.0.31" os.version="16.04">5.5.5-10.0.31-MariaDB-0ubuntu0.16.04.2</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="2" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~xenial(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 16.04 (Xenial Xerus)</description>
+    <example service.version="10.1.23">5.5.5-10.1.23-MariaDB-1~xenial</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="16.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:16.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~utopic(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 14.10 (Utopic Unicorn)</description>
+    <example service.version="10.0.16">5.5.5-10.0.16-MariaDB-1~utopic-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="14.10"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:14.10"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~trusty(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 14.04 (Trusty Tahr)</description>
+    <example service.version="10.0.15">5.5.5-10.0.15-MariaDB-1~trusty</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="14.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:14.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~saucy(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 13.10 (Saucy Salamander)</description>
+    <example service.version="5.5.39">5.5.39-MariaDB-1~saucy-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="13.10"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:13.10"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~raring(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 13.04 (Raring Ringtail)</description>
+    <example service.version="5.5.32">5.5.32-MariaDB-1~raring-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="13.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:13.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~quantal(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 12.10 (Quantal Quetzal)</description>
+    <example service.version="10.0.12">5.5.5-10.0.12-MariaDB-1~quantal-log</example>
+    <example service.version="5.5.38">5.5.38-MariaDB-1~quantal-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="12.10"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:12.10"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~precise(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 12.04 LTS (Precise Pangolin)</description>
+    <example service.version="5.5.41">5.5.41-MariaDB-1~precise-log</example>
+    <example service.version="10.0.16">5.5.5-10.0.16-MariaDB-1~precise-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="12.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:12.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~lucid(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 10.04 (Lucid Lynx)</description>
+    <example service.version="5.5.34">5.5.34-MariaDB-1~lucid-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="10.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:10.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~hardy(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB on Ubuntu 8.04 LTS (Hardy Heron)</description>
+    <example service.version="5.5.34">5.5.34-MariaDB-mariadb122~hardy-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="8.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:8.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~trusty-wsrep(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB with Galera Cluster on Ubuntu 14.04 (Trusty Tahr)</description>
+    <example service.version="10.1.1">5.5.5-10.1.1-MariaDB-1~trusty-wsrep-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Galera Cluster"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="14.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:14.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~saucy-wsrep(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB with Galera Cluster on Ubuntu 13.10 (Saucy Salamander)</description>
+    <example service.version="10.0.10">5.5.5-10.0.10-MariaDB-1~saucy-wsrep-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Galera Cluster"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="13.10"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:13.10"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~precise-wsrep(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB with Galera Cluster on Ubuntu 12.04 (Precise Pangolin)</description>
+    <example service.version="10.1.1">5.5.5-10.1.1-MariaDB-1~precise-wsrep</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Galera Cluster"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="12.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:12.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~lucid-wsrep(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB with Galera Cluster on Ubuntu 10.04 TLS (Lucid Lynx)</description>
+    <example service.version="5.5.34">5.5.34-MariaDB-1~lucid-wsrep-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Galera Cluster"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Ubuntu"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="10.04"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:canonical:ubuntu_linux:10.04"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~wheezy-wsrep(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB with Galera Cluster on Debian 7.0 (wheezy)</description>
+    <example service.version="10.1.1">5.5.5-10.1.1-MariaDB-1~wheezy-wsrep-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Galera Cluster"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="7.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:7.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~squeeze-wsrep(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB with Galera Cluster on Debian 6.0 (squeeze)</description>
+    <example service.version="10.1.1">5.5.5-10.1.1-MariaDB-1~squeeze-wsrep</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Galera Cluster"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.version" value="6.0"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:6.0"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB.+~sid-wsrep(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB with Galera Cluster on Debian Unstable/No version (sid)</description>
+    <example service.version="10.0.16">5.5.5-10.0.16-MariaDB-1~sid-wsrep</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Galera Cluster"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:-"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB-wsrep(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB with Galera Cluster</description>
+    <example service.version="10.0.15">5.5.5-10.0.15-MariaDB-wsrep</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Galera Cluster"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-Maria(?:DB)?[-\d]*(?:-debug)?(?:-ga)?(?:-beta)?(?:-mariadb)?[~\.\d]*(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB</description>
+    <example service.version="5.1.39">5.1.39-maria-beta</example>
+    <example service.version="5.3.5">5.3.5-MariaDB-ga-mariadb113-log</example>
+    <example service.version="5.5.24">5.5.24-MariaDB-mariadb1~0.1</example>
+    <example service.version="10.0.1">10.0.1-MariaDB-log</example>
+    <example service.version="10.0.16">5.5.5-10.0.16-MariaDB-log</example>
+    <example service.version="5.5.30">5.5.30-MariaDB-debug</example>
+    <example service.version="5.2.10">5.2.10-MariaDB-mariadb107</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-Community-Maria(?:DB)?(?:-log)?$" flags="REG_ICASE">
+    <description>MariaDB MariaDB Community Edition</description>
+    <example service.version="5.1.44">5.1.44-community-maria-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Community Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}-)?(\d{1,2}\.\d{1,3}\.[a-f\d]{1,4})-MariaDB-enterprise$" flags="REG_ICASE">
+    <description>MariaDB MariaDB Enterprise Edition</description>
+    <example service.version="10.1.21">5.5.5-10.1.21-MariaDB-enterprise</example>
+    <example service.version="5.5.34">5.5.34-MariaDB-enterprise</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+    <param pos="0" name="service.edition" value="Enterprise Edition"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:mariadb:mariadb:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:\d{1,2}\.\d{1,2}\.[a-f\d]{1,2})(?:-\d{1,2}\.\d{1,2}\.[a-f\d]{1,2})?\s(\d{1,2}\.\d{1,2}\.\d{1,2})-maxscale$">
+    <description>MariaDB MaxScale</description>
+    <example service.version="2.1.14">5.5.5-10.0.0 2.1.14-maxscale</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="MariaDB"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MaxScale"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-falcon-alpha-community-nt" flags="REG_ICASE">
+    <description>Oracle MySQL with defunct Falcon Storage Engine with Named Pipes (Windows)</description>
+    <example service.version="5.2.0">5.2.0-falcon-alpha-community-nt</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-falcon-alpha(?:-community)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL with defunct Falcon Storage Engine</description>
+    <example service.version="5.2.0">5.2.0-falcon-alpha-log</example>
+    <example service.version="5.2.0">5.2.0-falcon-alpha-community</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-tokudb-\d\.\d\.\d{1,2}(?:-\d*)?(?:-log)?$" flags="REG_ICASE">
+    <description>Tokutek customized MySQL</description>
+    <example service.version="5.5.40">5.5.40-tokudb-7.5.3-log</example>
+    <example service.version="5.5.21">5.5.21-tokudb-6.0.0-42634</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Tokutek"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-tokudb-.*MariaDB(?:-log)?$" flags="REG_ICASE">
+    <description>Tokutek customized MariaDB</description>
+    <example service.version="5.5.25">5.5.25-tokudb-6.1.1-47477-MariaDB-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Tokutek"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MariaDB"/>
+  </fingerprint>
+  <fingerprint pattern="^^(\d{1,2}\.\d{1,2}\.[a-f\d]{1,3})-Sphinx" flags="REG_ICASE">
+    <description>Oracle MySQL with the Sphinx full text search engine</description>
+    <example service.version="5.1.40">5.1.40-Sphinx</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})(?:-\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})?\+tld\d" flags="REG_ICASE">
+    <description>Oracle MySQL packaged by TLD Linux</description>
+    <example service.version="5.0.91">5.0.91+tld0-log</example>
+    <example service.version="5.1.57">5.1.57-5.1.57+tld2-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="TLD"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-Debian_\d\.infrant\d$" flags="REG_ICASE">
+    <description>Oracle MySQL on a Netgear ReadyNAS</description>
+    <example service.version="5.0.24a">5.0.24a-Debian_3.infrant1</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Debian"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+    <param pos="0" name="os.device" value="Storage"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:debian:debian_linux:-"/>
+    <param pos="0" name="hw.vendor" value="Netgear"/>
+    <param pos="0" name="hw.device" value="General"/>
+    <param pos="0" name="hw.family" value="ReadyNAS"/>
+    <param pos="0" name="hw.product" value="ReadyNAS"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-beget(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL at Ukrainian hoster BeGet(?)</description>
+    <example service.version="5.1.61">5.1.61-beget-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-(?:Linuxtone.Org|LTOPS)(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL at Chinese hoster Linuxtone.org</description>
+    <example service.version="5.0.56">5.0.56-Linuxtone.Org</example>
+    <example service.version="5.1.53">5.1.53-LTOPS-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-xencdn.net(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL at Chinese hoster Xencdn.net</description>
+    <example service.version="5.1.66">5.1.66-xencdn.net-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-Comsenz(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL at Chinese hoster Comsenz</description>
+    <example service.version="5.0.27">5.0.27-Comsenz-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-www\.gamewave\.net(?:-edition)?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL at Chinese game hoster Gamewave</description>
+    <example service.version="5.1.56">5.1.56-www.gamewave.net-edition-log</example>
+    <example service.version="5.1.56">5.1.56-www.gamewave.net-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}(?:[.-]\d{1,2})?(?:[.-]\d{1})?)[-\d]*-beget(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL at Russian hoster Beget</description>
+    <example service.version="5.6.16-64.0">5.6.16-64.0-beget-log</example>
+    <example service.version="5.6.21-70.0">5.6.21-70.0-1-beget-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})yes(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL part of KB2 / Kimsboard (Korean site mgmt)?</description>
+    <example service.version="4.0.27">4.0.27yes</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})\.t\d{1,2}(?:[\.\d]{3})?(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL audited/published by Twitter</description>
+    <example service.version="5.5.24">5.5.24.t7-log</example>
+    <example service.version="5.5.31">5.5.31.t11.1</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}) Hybrid Cluster MySQL Proxy to$" flags="REG_ICASE">
+    <description>Oracle MySQL by Hybrid Cluster (hosted?)</description>
+    <example service.version="5.5.15">5.5.15 Hybrid Cluster MySQL Proxy to</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}) ScaleBase Data Traffic Manager [\.\d]+$" flags="REG_ICASE">
+    <description>Oracle MySQL behind ScaleBase Data Traffic Manager</description>
+    <example service.version="5.1.53">5.1.53 ScaleBase Data Traffic Manager 3.2.3</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3})-\d\d\.\d{1,2}-\d\.ctbanco\d+(?:-log)?$" flags="REG_ICASE">
+    <description>Percona Server (MySQL fork) with 'ctbanco' </description>
+    <example service.version="5.6.16">5.6.16-64.1-1.ctbanco60-log</example>
+    <example service.version="5.6.16">5.6.16-64.1-1.ctbanco7-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Percona"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="Percona Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:percona:percona_server:{service.version}"/>
+    <param pos="0" name="os.family" value="Linux"/>
+    <param pos="0" name="os.product" value="Linux"/>
+  </fingerprint>
+  <fingerprint pattern="^(\d{1,2}\.\d{1,3}\.[a-f\d]{1,3}) Complete MySQL by Server Logistics(?:-log)?$" flags="REG_ICASE">
+    <description>Oracle MySQL packaged by Server Logistics, Mac specific</description>
+    <example service.version="4.0.21">4.0.21 Complete MySQL by Server Logistics-log</example>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.vendor" value="Oracle"/>
+    <param pos="0" name="service.family" value="MySQL"/>
+    <param pos="0" name="service.product" value="MySQL"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:oracle:mysql:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:-"/>
+  </fingerprint>
+</fingerprints>

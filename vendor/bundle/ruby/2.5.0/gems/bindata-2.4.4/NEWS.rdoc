@@ -1,0 +1,240 @@
+= 2.4.0
+
+This release changes the internal API for sanitizing parameters.  This only
+affects those that implement the `#sanitize_parameters` method.
+
+= 2.3.x
+
+    if params.needs_sanitizing?(:type)
+      el_type, el_params = params[:type]
+      params[:type] = params.create_sanitized_object_prototype(el_type, el_params)
+    end
+
+= 2.4.0
+
+    params.sanitize_object_prototype(:type)
+
+= 2.3.0
+
+This release adds I/O features.
+
+Seeking forward to an arbitrary offset is achieved with Skip's :to_abs_offset
+parameter.
+
+Multi pass I/O has been added.  BinData performs I/O in a single pass.  See
+DelayedIO to perform multi pass (backwards seeking) I/O.
+
+The experimental :adjust_offset feature has been removed.  If you have existing
+code that uses this feature, you need to explicitly require 'bindata/offset' to
+retain this functionality.
+
+= 2.1.0
+
+Several new features in this release.
+
+* Fields can be aligned on n-bytes boundaries.  This make it easier to write
+  parsers for aligned structures.
+* The endian value :big_and_little can be used to automatically create :big and
+  :little endian versions of the class.
+* Bit fields can be defined to have their length determined at runtime.
+* The state of :onlyif fields can be determined by #field?
+
+== Deprecations
+
+The #offset method has been renamed to #abs_offset.  This make an obvious
+distinction to #rel_offset.
+
+= 2.0.0
+
+BinData 2.0.0 requires ruby 1.9 or greater.  Support for ruby 1.8 is found in
+BinData versions 1.8.x.
+
+Prior to version 2.0.0, BinData used the Ruby 1.8 conversion of strings for
+method names.  As of 2.0.0, BinData uses symbols.
+
+    class A < BinData::Record
+      uint8 :a
+      uint8 :b
+    end
+
+    # BinData 1.8.x
+    A.read "\001\002" #=> {"a"=>1, "b"=>2}
+
+    # BinData >= 2.0.0
+    A.read "\001\002" #=> {:a=>1, :b=>2}
+
+= 1.6.0
+
+Added :assert as a replacement for :check_value.  Note that :assert performs
+the checking on assignment as well as reading.
+
+The parameter :asserted_value is a new shortcut for combining :assert and :value
+    int8 :magic, :assert => 42, :value => 42
+
+Can be written more concisely as
+    int8 :magic, :asserted_value => 42
+
+= 1.5.0
+
+Finally moved the source code to github.
+
+Deprecated functionality has been removed to cleanup the codebase.
+
+= 1.4.4
+
+== Deprecations
+
+The BinData::String parameter :pad_char has been renamed to :pad_byte.  This
+aids readibilty as Ruby 1.9 characters are not necessarily one byte.
+
+= 1.4.0
+
+== Deprecations
+
+There is no longer any need to call #register_self when inheriting from
+BinData::Base.
+
+BinData::Wrapper is deprecated.  You should use direct inheritance instead.
+
+If your code looks like:
+    class Uint8Array < BinData::Wrapper
+      default_parameter :initial_element_value => 0
+  
+      array :initial_length => 2 do
+        uint8 :initial_value => :initial_element_value
+      end
+    end
+
+It should be changed to:
+    class Uint8Array < BinData::Array
+      default_parameter :initial_element_value => 0
+      default_parameter :initial_length => 2
+  
+      uint8 :initial_value => :initial_element_value
+    end
+
+See http://bindata.rubyforge.org/manual.html#extending_existing_types for details.
+
+= 1.3.0
+
+== New features
+
+You can now assign values to BinData objects when instantiating them.
+
+Previously:
+    obj = BinData::Stringz.new(:max_length => 10)
+    obj.assign("abc")
+
+Now:
+    obj = BinData::Stringz.new("abc", :max_length => 10)
+
+== Backwards incompatible changes
+
+This version makes some backwards incompatible changes for more advanced
+users of BinData.
+
+This only affects you if you have created your own custom types by
+subclassing BinData::Base or BinData::BasePrimitive.
+
+All instance variables must now be initialized in #initialize_instance.
+Implementing #initialize is no longer allowed.
+
+Run your existing code in $VERBOSE mode ("ruby -w"), and BinData will
+inform you of any changes you need to make to your code.
+
+If your code previously looked like:
+
+    class MyType < BinData::Base
+      register_self
+
+      def initialize(parameters = {}, parent = nil)
+        super
+
+        @var1 = ...
+        @var2 = ...
+      end
+      ...
+    end
+
+You must change it to look like:
+
+    class MyType < BinData::Base
+      register_self
+
+      def initialize_instance
+        @var1 = ...
+        @var2 = ...
+      end
+      ...
+    end
+
+= 1.0.0
+
+Version 1.0.0 removes all deprecated features.  If you are upgrading from a
+version prior to 0.10.0 you will need to make changes to your code before it
+will work with BinData 1.0.0 or later.
+
+It is recommended to first upgrade to 0.11.1, and run your code with the -w
+command line switch.  This will turn on warning messages that should give you
+hints about which parts of your code need changing.  See the NEWS for 0.10.0
+for details of the deprecated features.
+
+= 0.10.0
+
+There are several new features in this release.  The major ones are:
+
+* Debugging declarations is now easier with the ability to trace values when
+  reading.
+
+      BinData::trace_reading(STDERR) do
+        obj_not_quite_working_correctly.read(io)
+      end
+
+  Will result in a debugging trace written to STDERR.
+
+* Support for arbitrary sized integers and bit fields.
+
+* Struct/Array field/element access now returns a BinData object, rather than
+  the underlying Fixnum or String.  The BinData object will behave like it's
+  underlying primitive so existing code should continue to work.  This allows
+  for an improved syntax in your declarations.
+
+  If your code requires access to the underlying primitive, you can access it
+  with the #value method.
+
+There are several deprecations and one backwards incompatible change in this
+release.  Turn on $VERBOSE mode (-w command line switch) to see warnings
+regarding these deprecations.
+
+== IMPORTANT - Ruby does not warn you about this change!
+
+* The #to_s method for getting the binary string representation of a data
+  object has been renamed to #to_binary_s.  If you use this method you must
+  manually change your code or you will get strange results.
+
+== Deprecations.  Ruby will warn you of these when in $VERBOSE mode.
+
+Code using these deprecated features will still work in this release but will
+fail to work in some future release.  Change your code now.
+
+* BinData::SingleValue has been renamed to BinData::Primitive.
+
+* BinData::MultiValue has been renamed to BinData::Record.
+
+* String :trim_value parameter has been renamed to :trim_padding.
+
+* Registry.instance should be replaced with RegisteredClasses.
+
+* struct.offset_of("field") should be replaced with struct.field.offset.
+
+* struct.clear("field") should be replaced with struct.field.clear.
+
+* struct.clear?("field") should be replaced with struct.field.clear?.
+
+* struct.num_bytes("field") should be replaced with struct.field.num_bytes.
+
+* array.clear(n) should be replaced with array[n].clear.
+
+* array.clear?(n) should be replaced with array[n].clear?.
+
+* array.num_bytes(n) should be replaced with array[n].num_bytes.

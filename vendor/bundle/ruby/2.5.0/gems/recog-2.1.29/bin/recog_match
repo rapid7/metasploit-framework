@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), "..", "lib")))
+require 'optparse'
+require 'ostruct'
+require 'recog'
+require 'recog/matcher_factory'
+
+options = OpenStruct.new(color: false, detail: false, fail_fast: false, multi_match: false)
+
+option_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options] XML_FINGERPRINT_FILE [BANNERS_FILE]"
+  opts.separator "Identifies the matches and misses between the fingerprints and the banners file or STDIN"
+  opts.separator ""
+  opts.separator "Options"
+
+  opts.on("-f", "--format FORMATTER",
+          "Choose a formatter.",
+          "  [s]ummary (default - failure/match msgs)",
+          "  [d]etail  (msgs with total counts)") do |format|
+    if format.start_with? 'd'
+      options.detail = true
+    end
+  end
+
+  opts.on("--fail-fast [NUM]",
+          "Stop after number of failures (default: 10).") do |num|
+    options.fail_fast = true
+    options.stop_after = (num.to_i == 0) ? 10 : num.to_i
+  end
+
+  opts.on("-c", "--color", "Enable color in the output.") do
+    options.color = true
+  end
+
+  opts.on("--[no-]multi-match", "Enable or disable multiple matches (defaults to disabled)") do |o|
+    options.multi_match = o
+  end
+
+  opts.on("-h", "--help", "Show this message.") do
+    puts opts
+    exit
+  end
+end
+option_parser.parse!(ARGV)
+
+if ARGV.count != 1 && ARGV.count != 2
+  puts option_parser
+  exit(1)
+end
+
+ndb = Recog::DB.new(ARGV.shift)
+options.fingerprints = ndb.fingerprints
+matcher = Recog::MatcherFactory.build(options)
+matcher.match_banners(ARGV.shift || "-")

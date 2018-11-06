@@ -1,0 +1,9 @@
+Description: Basic normal pcapng file
+Category:    basic
+
+Block counts:
+	EPB: 4
+	IDB: 1
+	SHB: 1
+
+Block sequence: SHB, IDB, EPB, EPB, EPB, EPB

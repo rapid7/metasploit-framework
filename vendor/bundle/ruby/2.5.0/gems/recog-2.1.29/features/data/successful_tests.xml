@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<fingerprints>
+   <fingerprint pattern="^Cisco-SIPGateway/IOS-([\d\.x]+)$">
+      <description>Cisco SIPGateway</description>
+      <example>Cisco-SIPGateway/IOS-12.x</example>
+      <param pos="0" name="os.vendor" value="Cisco"/>
+      <param pos="0" name="os.product" value="IOS"/>
+      <param pos="1" name="os.version"/>
+   </fingerprint>
+   <fingerprint pattern="^bar ([\d.]+)$">
+     <description>bar test</description>
+     <example os.version="1.0" >bar 1.0</example>
+     <example os.version="2.0" >bar 2.0</example>
+     <example os.version="2.1" >bar 2.1</example>
+     <param pos="1" name="os.version" />
+     <param pos="0" name="os.name" value="Bar" />
+   </fingerprint>
+</fingerprints>

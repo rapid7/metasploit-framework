@@ -1,0 +1,110 @@
+Net::SSH was originally written by Jamis Buck <jamis@37signals.com>. It
+is currently maintained by Delano Mandelbaum <delano@solutious.com>. In
+addition, the following individuals are gratefully acknowledged for their
+contributions:
+
+GOTOU Yuuzou <gotoyuzo@notwork.org>
+  * help and code related to OpenSSL
+
+Guillaume Marçais <guillaume.marcais@free.fr>
+  * support for communicating with the the PuTTY "pageant" process
+
+Daniel Berger <djberg96@yahoo.com>
+  * help getting unit tests in earlier Net::SSH versions to pass in Windows
+  * initial version of Net::SSH::Config provided inspiration and encouragement
+
+Chris Andrews <chris@nodnol.org> and Lee Jensen <lee@outerim.com>
+  * support for ssh agent forwarding
+
+Hiroshi Nakamura
+  * fixed errors with JRuby tests
+
+bobveznat
+therealjessesanford
+liggitt
+jarredholman
+yugui
+SFEley
+bobtfish
+carlhoerberg
+deric
+mirakui
+ecki
+Dave Sieh
+metametaclass
+fnordfish
+krishicks
+noric
+GabKlein
+Josh Kalderimis
+voxik
+Olipro
+jansegre
+priteau
+jordimassaguerpla
+Kenichi Kamiya
+Andreas Wolff
+mhuffnagle
+ohrite
+iltempo
+nagachika
+Nobuhiro IMAI
+arturaz
+dubspeed
+Andy Brody
+Marco Sandrini
+Ryosuke Yamazaki
+muffl0n
+pcn
+musybite
+Mark Imbriaco
+Joel Watson
+Woon Jung
+Edmund Haselwanter
+robbebob
+Daniel Pittman
+Markus Roberts
+Gavin Brock
+Rich Lane
+Lee Marlow
+xbaldauf
+Delano Mandelbaum
+Miklós Fazekas
+Andy Lo-A-Foe
+Jason Weathered
+Hans de Graaff
+Travis Reeder
+Akinori MUSHA
+Alex Peuchert
+Daniel Azuma
+Will Bryant
+Gerald Talton
+ckoehler
+Karl Varga
+Denis Bernard
+Steven Hazel
+Alex Holems
+Andrew Babkin
+Bob Cotton
+Yanko Ivanov
+Angel N. Sciortino
+arilerner@mac.com
+David Dollar
+Timo Gatsonides
+Matthew Todd
+Brian Candler
+Francis Sullivan
+James Rosen
+Mike Timm
+guns
+devrandom
+kachick
+Pablo Merino
+thedarkone
+czarneckid
+jbarnette
+watsonian
+Grant Hutchins
+Michael Schubert
+mtrudel
+Aurélien Derouineau

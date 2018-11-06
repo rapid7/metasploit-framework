@@ -1,0 +1,9 @@
+Description: Two IDBs different linktype
+Category:    basic
+
+Block counts:
+	EPB: 5
+	IDB: 2
+	SHB: 1
+
+Block sequence: SHB, IDB, IDB, EPB, EPB, EPB, EPB, EPB

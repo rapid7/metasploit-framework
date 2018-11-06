@@ -1,0 +1,10 @@
+Defined Under Namespace:
+------------------------
+
+<% @inner.each do |name, list| %>
+<% if list.size > 0 %>
+<% text = list.map {|c| c.name }.join(", ") + " (#{name})" %>
+<%= indent(wrap(text)) %>
+
+<% end %>
+<% end %>

@@ -1,0 +1,8 @@
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  <% @inner.each do |name, list| %>
+    <% if list.size > 0 %>
+      <strong class="<%= name %>"><%= name.to_s.capitalize %>:</strong> <%= list.map {|child| linkify(child, child.name(true)) }.join(", ") %>
+    <% end %>
+  <% end %>
+</p>

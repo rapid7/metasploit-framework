@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints protocol="smtp" database_type="service" preference="0.18">
+  <!--
+  SMTP response lines to the HELP command are matched against these patterns
+  (1 line at a time) to fingerprint SMTP servers.
+
+  See comment at the top of smtp_banners.xml for additional info.
+
+  'preference' note: This value has been set so as to implement the ordering
+    of SMTP related fingerprint databases as described in 'smtp_banners.xml'.
+  -->
+  <fingerprint pattern="^214[ -]This is ArGoSoft Mail Server, Version [^ ]+ \(([^ ]+\.[^ ]+\.[^ ]+\.[^ ]+)\) *$">
+    <description>
+         ArgoSoft mail server HELP response
+         Example: 214-This is ArGoSoft Mail Server, Version 1.4 (1.4.0.3)
+      </description>
+    <param pos="0" name="service.vendor" value="ArGoSoft"/>
+    <param pos="0" name="service.family" value="Mail Server"/>
+    <param pos="0" name="service.product" value="Mail Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -].*support@argosoft\.com *$">
+    <description>
+         ArgoSoft mail server HELP response
+         Example: 214-To report bug, send mail to support@argosoft.com
+      </description>
+    <param pos="0" name="service.vendor" value="ArGoSoft"/>
+    <param pos="0" name="service.family" value="Mail Server"/>
+    <param pos="0" name="service.product" value="Mail Server"/>
+  </fingerprint>
+  <fingerprint pattern="^500[ -]Syntax error, command &quot;XXXX&quot; unrecognized$">
+    <description>
+         Cisco PIX changes the command letters to 'X' before passing
+         them to the real SMTP server.
+      </description>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.family" value="PIX"/>
+    <param pos="0" name="os.product" value="PIX"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:cisco:pix_firewall_software:-"/>
+  </fingerprint>
+  <fingerprint pattern="^500[ -]5.5.1 unrecognised command HELP$">
+    <description>
+         Eudora IMS uses the British spelling "unrecognised"
+      </description>
+    <param pos="0" name="service.vendor" value="Eudora"/>
+    <param pos="0" name="service.family" value="Internet Mail Server"/>
+    <param pos="0" name="service.product" value="Internet Mail Server"/>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.product" value="Mac OS"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os:-"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -]([^ ]+) is running the IBM VM operating system$">
+    <description>IBM VM</description>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.family" value="VM"/>
+    <param pos="0" name="service.product" value="VM"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <!--
+   Shouldn't we ignore XEXCH50 for the same reasons than described in the XEXCH50 regex
+   in smtp_ehlo.xml ? -mrb
+   -->
+  <fingerprint pattern="^214[ -].* XEXCH50 *.*$">
+    <description>
+         Microsoft Exchange/IIS server
+      </description>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.family" value="Exchange Server"/>
+    <param pos="0" name="service.product" value="Exchange Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:exchange_server:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -]Help system currently inactive\.$">
+    <description>
+         214 Help system currently inactive.
+      </description>
+    <param pos="0" name="service.vendor" value="Alt-N"/>
+    <param pos="0" name="service.family" value="MDaemon"/>
+    <param pos="0" name="service.product" value="MDaemon"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:altn:mdaemon:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -].*This is MERAK ([^ ]+\.[^ ]+\.[^ ]+).*$">
+    <description>
+         Merak mail server http://www.icewarp.com/merakmail/ (runs on 2000/NT/9x)
+      </description>
+    <param pos="0" name="service.vendor" value="Merak"/>
+    <param pos="0" name="service.family" value="Mail Server"/>
+    <param pos="0" name="service.product" value="Mail Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -].*This is Merak ([^ ]+\.[^ ]+\.[^ ]+).*$">
+    <description>
+         Merak mail server http://www.icewarp.com/merakmail/ (runs on 2000/NT/9x)
+      </description>
+    <param pos="0" name="service.vendor" value="Merak"/>
+    <param pos="0" name="service.family" value="Mail Server"/>
+    <param pos="0" name="service.product" value="Mail Server"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -].*bugs@merakmail\.com.*$">
+    <description>
+         Merak mail server http://www.icewarp.com/merakmail/ (runs on 2000/NT/9x)
+      </description>
+    <param pos="0" name="service.vendor" value="Merak"/>
+    <param pos="0" name="service.family" value="Mail Server"/>
+    <param pos="0" name="service.product" value="Mail Server"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -].*bugs@icewarp\.com.*$">
+    <description>
+         Merak mail server http://www.icewarp.com/merakmail/ (runs on 2000/NT/9x)
+      </description>
+    <param pos="0" name="service.vendor" value="Merak"/>
+    <param pos="0" name="service.family" value="Mail Server"/>
+    <param pos="0" name="service.product" value="Mail Server"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -]qmail home page: http://pobox.com/~djb/qmail.html *$">
+    <description>
+         example: 214 qmail home page: http://pobox.com/~djb/qmail.html
+      </description>
+    <param pos="0" name="service.vendor" value="qmail"/>
+    <param pos="0" name="service.family" value="qmail"/>
+    <param pos="0" name="service.product" value="qmail"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -].*contact the Digital Customer Support Center at 1-800-354-9000.*$">
+    <description>
+         sendmail on Digital OSF UNIX
+      </description>
+    <param pos="0" name="service.family" value="Sendmail"/>
+    <param pos="0" name="service.product" value="Sendmail"/>
+    <param pos="0" name="service.certainty" value="0.85"/>
+    <param pos="0" name="os.vendor" value="DEC"/>
+    <param pos="0" name="os.family" value="Digital UNIX"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.product" value="OSF/1"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -]2.0.0 This is [s|S]endmail version ([^ ]+)$">
+    <description>
+         sendmail often returns version information for HELP, even when the
+         greeting is obscured
+      </description>
+    <param pos="0" name="service.family" value="Sendmail"/>
+    <param pos="0" name="service.product" value="Sendmail"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -]This is [s|S]endmail version ([^ ]+)$">
+    <description>
+         sendmail often returns version information for HELP, even when the
+         greeting is obscured
+      </description>
+    <param pos="0" name="service.family" value="Sendmail"/>
+    <param pos="0" name="service.product" value="Sendmail"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^502[ -]5\.3\.0 Sendmail ([^ ]+) -- HELP not implemented$">
+    <description>
+         502 5.3.0 Sendmail 8.11.2 -- HELP not implemented
+      </description>
+    <param pos="0" name="service.family" value="Sendmail"/>
+    <param pos="0" name="service.product" value="Sendmail"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -].*sendmail-bugs@sendmail\.org.*$">
+    <description>
+         sendmail often returns version information for HELP, even when the
+         greeting is obscured
+      </description>
+    <param pos="0" name="service.family" value="Sendmail"/>
+    <param pos="0" name="service.product" value="Sendmail"/>
+    <param pos="0" name="service.certainty" value="0.85"/>
+  </fingerprint>
+  <fingerprint pattern="^241[ -].*$">
+    <description>
+         ZMailer versions earlier than 2.99.21 mistakenly return the status
+         code 241 on some HELP response lines (instead of 214).
+      </description>
+    <param pos="0" name="service.vendor" value="ZMailer"/>
+    <param pos="0" name="service.family" value="ZMailer"/>
+    <param pos="0" name="service.product" value="ZMailer"/>
+  </fingerprint>
+  <fingerprint pattern="^214[ -].*Yoyodyne Propulsion.*$">
+    <description>
+         ZMailer has distinctive default HELP text in smtpserver.conf.
+         See http://www.zmailer.org/zman/zadm-smtpserver.html#ZADM-SMTPSERVER-CONF
+      </description>
+    <param pos="0" name="service.vendor" value="ZMailer"/>
+    <param pos="0" name="service.family" value="ZMailer"/>
+    <param pos="0" name="service.product" value="ZMailer"/>
+  </fingerprint>
+</fingerprints>

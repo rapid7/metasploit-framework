@@ -1,0 +1,52 @@
+---
+name:
+  hashery
+
+version:
+  2.1.2
+
+title:
+  Hashery
+
+summary:
+  Facets-bread collection of Hash-like classes.
+
+description:
+  The Hashery is a tight collection of Hash-like classes. Included among its many
+  offerings are the auto-sorting Dictionary class, the efficient LRUHash, the
+  flexible OpenHash and the convenient KeyHash. Nearly every class is a subclass
+  of the CRUDHash which defines a CRUD model on top of Ruby's standard Hash
+  making it a snap to subclass and augment to fit any specific use case.
+
+authors:
+  - Trans <transfire@gmail.com>
+  - Kirk Haines
+  - Robert Klemme
+  - Jan Molic
+  - George Moschovitis
+  - Jeena Paradies
+  - Erik Veenstra
+
+resources:
+  home: http://rubyworks.github.com/hashery
+  code: http://github.com/rubyworks/hashery
+  mail: http://groups.google.com/group/rubyworks-mailinglist
+  docs: http://rubydoc.info/github/rubyworks/hashery/master/frames
+  wiki: http://wiki.github.com/rubyworks/hashery
+  gems: http://rubygems.org/gems/hashery
+
+repositories:
+  upstream: "git://github.com/rubyworks/hashery.git"
+
+organizations:
+  - RubyWorks (http://rubyworks.github.com/)
+
+copyrights:
+  - 2010 Rubyworks (BSD-2-Clause)
+
+load_path:
+  - lib
+  - alt
+
+created: '2010-04-21'
+

@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+
+$LOAD_PATH.unshift(File.dirname(__FILE__) + "/../lib")
+
+require 'pdf/reader'
+
+receiver = PDF::Reader::PrintReceiver.new
+
+if ARGV.empty?
+  browser = PDF::Reader.new($stdin)
+else
+  browser = PDF::Reader.new(ARGV[0])
+end
+browser.pages.each do |page|
+  puts
+  puts "********************************"
+  puts "page #{page.number}"
+  puts page.attributes.inspect
+  puts "********************************"
+  page.walk(receiver)
+end

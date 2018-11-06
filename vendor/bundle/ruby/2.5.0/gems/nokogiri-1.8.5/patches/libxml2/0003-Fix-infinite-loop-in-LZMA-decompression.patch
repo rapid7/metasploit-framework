@@ -1,0 +1,50 @@
+From 2240fbf5912054af025fb6e01e26375100275e74 Mon Sep 17 00:00:00 2001
+From: Nick Wellnhofer <wellnhofer@aevum.de>
+Date: Mon, 30 Jul 2018 13:14:11 +0200
+Subject: [PATCH] Fix infinite loop in LZMA decompression
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Check the liblzma error code more thoroughly to avoid infinite loops.
+
+Closes: https://gitlab.gnome.org/GNOME/libxml2/issues/13
+Closes: https://bugzilla.gnome.org/show_bug.cgi?id=794914
+
+This is CVE-2018-9251 and CVE-2018-14567.
+
+Thanks to Dongliang Mu and Simon Wörner for the reports.
+---
+ xzlib.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/xzlib.c b/xzlib.c
+index a839169..0ba88cf 100644
+--- a/xzlib.c
++++ b/xzlib.c
+@@ -562,6 +562,10 @@ xz_decomp(xz_statep state)
+                          "internal error: inflate stream corrupt");
+                 return -1;
+             }
++            /*
++             * FIXME: Remapping a couple of error codes and falling through
++             * to the LZMA error handling looks fragile.
++             */
+             if (ret == Z_MEM_ERROR)
+                 ret = LZMA_MEM_ERROR;
+             if (ret == Z_DATA_ERROR)
+@@ -587,6 +591,11 @@ xz_decomp(xz_statep state)
+             xz_error(state, LZMA_PROG_ERROR, "compression error");
+             return -1;
+         }
++        if ((state->how != GZIP) &&
++            (ret != LZMA_OK) && (ret != LZMA_STREAM_END)) {
++            xz_error(state, ret, "lzma error");
++            return -1;
++        }
+     } while (strm->avail_out && ret != LZMA_STREAM_END);
+ 
+     /* update available output and crc check value */
+-- 
+2.17.1
+

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="<%= abs_url('css', 'style.css') %>?<%= mtime('css/style.css') %>" type="text/css" media="screen" charset="utf-8" />
+    <link rel="stylesheet" href="<%= abs_url('css', 'custom.css') %>?<%= mtime('css/custom.css') %>" type="text/css" media="screen" charset="utf-8" />
+    <script type="text/javascript" charset="utf-8" src="<%= abs_url('js', 'jquery.js') %>?<%= mtime('js/jquery.js') %>"></script>
+    <script type="text/javascript" charset="utf-8">
+      function checkPage(process) {
+        $.ajax({cache: false, url: "<%= router.request.path %>" + (process ? "?process=true" : ""),
+          statusCode: { 200: function() { window.location.reload(true); } } });
+        setTimeout('checkPage()', 2000);
+      }
+      function setFade() {
+        centerMessage();
+        $(window).resize(function() { centerMessage(); });
+        $('#fade').fadeIn();
+        $('#processing').fadeIn();
+      }
+      function centerMessage() {
+        $('#fade').css('width', $(window).width() + 'px');
+        $('#fade').css('height', $(window).height() - parseInt($('#fade').css('top')) + 'px');
+        $('#processing').css('left', ($(window).width() / 2 - $('#processing').width() / 2) + 'px');
+        $('#processing').css('top', ($(window).height() / 2 - $('#processing').height() / 2) + 'px');
+      }
+      $(function() { checkPage(true); });
+      $(setFade);
+    </script>
+    <style type="text/css" media="screen">
+      body { overflow: hidden; margin: 12px; display: block; }
+      #menu { margin-top: 0 !important; padding-top: 0 !important; }
+    </style>
+    <title>Processing <%= @library.to_s(false) %></title>
+  </head>
+  <body>
+    <div id="menu">
+      <% unless @single_library %>
+        <a href="<%= abs_url(router.docs_prefix) %>" target="_top">Libraries</a> &raquo;
+        <span class="title"><%= @library.name %> <% if @library.version %><small>(<%= @library.version %>)</small><% end %></span>
+      <% end %>
+    </div>
+    <div id="fade"></div>
+    <div id="processing">
+      <h1>Processing <%= @library.name %></h1>
+      <p>
+        <strong><%= @library.name %></strong> <% if @library.version %>(<%= @library.version %>)<% end %> is being processed.
+        You'll be redirected when the pages are built, it shouldn't take much longer.
+      </p>
+      <img src="<%= abs_url('images', 'processing.gif') %>?<%= mtime('images/processing.gif') %>" align="center" />
+    </div>
+  </body>
+</html>

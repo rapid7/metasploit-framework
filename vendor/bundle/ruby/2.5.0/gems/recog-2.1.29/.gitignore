@@ -1,0 +1,10 @@
+.yardoc
+coverage/
+doc/
+pkg/
+.idea/
+/Gemfile.lock
+
+# ignore rvm files
+.ruby-version
+.ruby-gemset

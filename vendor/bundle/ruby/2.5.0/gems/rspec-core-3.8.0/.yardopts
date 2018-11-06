@@ -1,0 +1,8 @@
+--exclude features
+--no-private
+--markup markdown
+--default-return void
+-
+Filtering.md
+Changelog.md
+LICENSE.md

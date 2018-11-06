@@ -1,0 +1,7 @@
+no-NO:
+  faker:
+    invoice:
+      reference:
+        # Source: https://www.nordea.com/Images/37-48872/Func_Spec_Credit_Advice.pdf
+        check_digit_method: kidmod10
+        pattern: '\d{24}#'

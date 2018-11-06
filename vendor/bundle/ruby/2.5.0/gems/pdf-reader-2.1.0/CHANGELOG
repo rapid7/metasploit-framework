@@ -1,0 +1,255 @@
+v2.1.0 (15th Februar 2018)
+- Support extra encrypted PDF variants (thanks to Gyuchang Jun)
+- various bug fixes
+
+v2.0.0 (25th February 2017)
+- various bug fixes
+
+v2.0.0.beta1 (15th February 2017)
+- BREAKING CHANGE: remove all methods that were deprecated in 1.0.0
+- Bug: Support extra encrypted PDF variants (thanks to Gyuchang Jun)
+- various bug fixes
+
+v1.4.1 (2nd January 2017)
+- improve compatibility with ruby 2.4 (thanks Akira Matsuda)
+- various bug fixes
+
+v1.4.0 (22nd February 2016)
+- raise minimum ruby version to 1.9.3
+- print warnings to stderr when deprecated methods are used. These methods have been
+  deprecated for 4 years, so hopefully few people are depending on them
+- Fix exception when a non-breaking space (character 160) is used with a
+  built-in font (helvetica, etc)
+- various bug fixes
+
+v1.3.3 (7th April 2013)
+- various bug fixes
+
+v1.3.2 (26th February 2013)
+- various bug fixes
+
+v1.3.1 (12th February 2013)
+- various bug fixes
+
+v1.3.0 (30th December 2012)
+- Numerous performance optimisations (thanks Alex Dowad)
+- Improved text extraction (thanks Nathaniel Madura)
+- Load less of the hashery gem to reduce core monkey patches
+- various bug fixes
+
+v1.2.0 (28th August 2012)
+- Feature: correctly extract text using surrogate pairs and ligatures
+  (thanks Nathaniel Madura)
+- Speed optimisation: cache tokenised Form XObjects to avoid re-parsing them
+- Feature: support opening documents with some junk bytes prepended to file
+  (thanks Paul Gallagher)
+  - Acrobat does this, so it seemed reasonable to add support
+
+v1.1.1 (9th May 2012)
+- bugfix release to improve parsing of some PDFs
+
+v1.1.0 (25th March 2012)
+- new PageState class for handling common state tracking in page receivers
+  - see PageTextReceiver for example usage
+- various bugfixes to support reading more PDF dialects
+
+v1.0.0 (16th January 2012)
+- support a new encryption variation
+- bugfix in PageTextRender (thanks Paul Gallagher)
+
+v1.0.0.rc1 (19th December 2011)
+- performance optimisations (all by Bernerd Schaefer)
+- some improvements to text extraction from form xobjects
+- assume invalid font encodings are StandardEncoding
+- use binary mode when opening PDFs to stop ruby being helpful and transcoding
+    bytes for us
+
+v1.0.0.beta1 (6th October 2011)
+- ensure inline images that contain "EI" are correctly parsed
+  (thanks Bernard Schaefer)
+- fix parsing of inline image data
+
+v0.12.0.alpha (28th August 2011)
+- small breaking changes to the page-based API - it's alpha for a reason
+  - resource related methods on Page object return raw PDF objects
+  - if the caller wants the resources wrapped in a more convenient
+    Ruby object (like PDF::Reader::Font or PDF::Reader::FormXObject) will
+    need to do so themselves
+- add support for RunLengthDecode filters (thanks Bernerd Schaefer)
+- add support for standard PDF encryption (thanks Evan Brunner)
+- add support for decoding stream with TIFF prediction
+- new PDF::Reader::FormXObject class to simplify working with form XObjects
+
+v0.11.0.alpha (19th July 2011)
+- introduce experimental new page-based API
+  - old API is deprecated but will continue to work with no warnings
+- add transparent caching of common objects to ObjectHash
+
+v0.10.0 (6th July 2011)
+- support multiple receivers within a single pass over a source file
+  - massive time saving when dealing with multiple receivers
+
+v0.9.3 (2nd July 2011)
+- add PDF::Reader::Reference#hash method
+  - improves behaviour of Reference objects when tehy're used as Hash keys
+
+v0.9.2 (24th April 2011)
+- add basic support for fonts with Identity-V encoding.
+- bug: improve robustness of text extraction
+  - thanks to Evan Arnold for reporting
+- bug: fix loading of nested resources on XObjects
+  - thanks to Samuel Williams for reporting
+- bug: improve parsing of files with XRef object streams
+
+v0.9.1 (21st December 2010)
+- force gem to only install on ruby 1.8.7 or higher
+  - maintaining support for earlier versions takes more time than I have
+    available at the moment
+- bug: fix parsing of obscure pdf name format
+- bug: fix behaviour when loaded in conjunction with htmldoc gem
+
+v0.9.0 (19th November 2010)
+- support for pdf 1.5+ files that use object and xref streams
+- support streams that use a flate filter with the predictor option
+- ensure all content instructions are parsed when split over multiple stream
+  - thanks to Jack Rusher for reporting
+- Various string parsing bug
+  - some character conversions to utf-8 were failing (thanks Andrea Barisani)
+  - hashes with nested hex strings were tokenising wronly (thanks Evan Arnold)
+  - escaping bug in tokenising of literal strings (thanks David Westerink)
+- Fix a bug that prevented PDFs with white space after the EOF marker from loading
+  - thanks to Solomon White for reporting the issue
+- Add support for de-filtering some LZW compressed streams
+  - thanks to Jose Ignacio Rubio Iradi for the patch
+- some small speed improvements
+- API CHANGE: PDF::Hash renamed to PDF::Reader::ObjectHash
+  - having a class named Hash was confusing for users
+
+v0.8.6 (27th August 2010)
+- new method: hash#page_references
+  - returns references to all page objects, gives rapid access to objects
+    for a given page
+
+v0.8.5 (11th April 2010)
+- fix a regression introduced in 0.8.4.
+  - Parameters passed to resource_font callback were inadvertently changed
+
+v0.8.4 (30th March 2010)
+- fix parsing of files that use Form XObjects
+  - thanks to Andrea Barisani for reporting the issue
+- fix two issues that caused a small number of characters to convert to Unicode
+  incorrectly
+  - thanks to Andrea Barisani for reporting the issue
+- require 'pdf-reader' now works a well as 'pdf/reader'
+  - good practice to have the require file match the gem name
+  - thanks to Chris O'Meara for highlighting this
+
+v0.8.3 (14th February 2010)
+- Fix a bug in tokenising of hex strings inside dictionaries
+  - Thanks to Brad Ediger for detecting the issue and proposing a solution
+
+v0.8.2 (1st January 2010)
+- Fix parsing of files that use Form XObjects behind an indirect reference
+  (thanks Cornelius Illi and Patrick Crosby)
+- Rewrote Buffer class to fix various speed issues reported over the years
+  - On my sample file extracting full text reduced from 220 seconds to 9 seconds.
+
+v0.8.1 (27th November 2009)
+- Added PDF::Hash#version. Provides access to the source file PDF version
+
+v0.8.0 (20th November 2009)
+- Added PDF::Hash. It provides direct access to objects from a PDF file
+  with an API that emulates the standard Ruby hash
+
+v0.7.7 (11th September 2009)
+- Trigger callbacks contained in Form XObjects when we encounter them in a
+  content stream
+- Fix inheritance of page resources to comply with section 3.6.2
+
+v0.7.6 (28th August 2009)
+- Various bug fixes that increase the files we can successfully parse
+  - Treat float and integer tokens differently (thanks Neil)
+  - Correctly handle PDFs where the Kids element of a Pages dict is an indirect
+    reference (thanks Rob Holland)
+  - Fix conversion of PDF strings to Ruby strings on 1.8.6 (thanks Andrès Koetsier)
+  - Fix decoding with ASCII85 and ASCIIHex filters (thanks Andrès Koetsier)
+  - Fix extracting inline images from content streams (thanks Andrès Koetsier)
+  - Fix extracting [ ] from content streams (thanks Christian Rishøj)
+  - Fix conversion of text to UTF8 when the cmap uses bfrange (thanks Federico Gonzalez Lutteroth)
+
+v0.7.5 (27th August 2008)
+- Fix a 1.8.7ism
+
+v0.7.4 (7th August 2008)
+- Raise a MalformedPDFError if a content stream contains an unterminated string
+- Fix an bug that was causing an endless loop on some OSX systems
+  - valid strings were incorrectly thought to be unterminated
+  - thanks to Jeff Webb for playing email ping pong with me as I tracked this
+    issue down
+
+v0.7.3 (11th June 2008)
+- Add a high level way to get direct access to a PDF object, including a new executable: pdf_object
+- Fix a hard loop bug caused by a content stream that is missing a final operator
+- Significantly simplified the internal code for encoding conversions
+  - Fixes YACC parsing bug that occurs on Fedora 8's ruby VM
+- New callbacks
+  - page_count
+  - pdf_version
+- Fix a bug that prevented a font's BaseFont from being recorded correctly
+
+v0.7.2 (20th May 2008)
+- Throw an UnsupportedFeatureError if we try to open an encrypted/secure PDF
+- Correctly handle page content instruction sets with trailing whitespace
+- Represent PDF Streams with a new object, PDF::Reader::Stream
+  - their really wasn't any point in separating the stream content from it's associated dict. You need both
+    parts to correctly interpret the content
+
+v0.7.1 (6th May 2008)
+- Non-page strings (ie. metadata, etc) are now converted to UTF-8 more accurately
+- Fixed a regression between 0.6.2 and 0.7 that prevented difference tables from being applied
+  correctly when translating text into UTF-8
+
+v0.7 (6th May 2008)
+- API INCOMPATIBLE CHANGE: any hashes that are passed to callbacks use symbols as keys instead of PDF::Reader::Name instances.
+- Improved support for converting text in some PDF files to unicode
+- Behave as expected if the Contents key in a Page Dict is a reference
+- Include some basic metadata callbacks
+- Don't interpret a comment token (%) inside a string as a comment
+- Small fixes to improve 1.9 compatibility
+- Improved our Zlib deflating to make it slightly more robust - still some more issues to work out though
+- Throw an UnsupportedFeatureError if a pdf that uses XRef streams is opened
+- Added an option to PDF::Reader#file and PDF::Reader#string to enable parsing of only parts of a PDF file(ie. only metadata, etc)
+
+v0.6.2 (22nd March 2008)
+- Catch low level errors when applying filters to a content stream and raise a MalformedPDFError instead.
+- Added support for processing inline images
+- Support for parsing XRef tables that have multiple subsections
+- Added a few callbacks to improve the way we supply information on page resources
+- Ignore whitespace in hex strings, as required by the spec (section 3.2.3)
+- Use our "unknown character box" when a single character in an Identity-H string fails to decode
+- Support ToUnicode CMaps that use the bfrange operator
+- Tweaked tokenising code to ensure whitespace doesn't get in the way
+
+v0.6.1 (12th March 2008)
+- Tweaked behaviour when we encounter Identity-H encoded text that doesn't have a ToUnicode mapping. We
+  just replace each character with a little box.
+- Use the same little box when invalid characters are found in other encodings instead of throwing an ugly
+  NoMethodError.
+- Added a method to RegisterReceiver that returns all occurrences of a callback
+
+v0.6.0 (27th February 2008)
+- all text is now transparently converted to UTF-8 before being passed to the callbacks.
+  before this version, text was just passed as a byte level copy of what was in the PDF file, which
+  was mildly annoying with some encodings, and resulted in garbled text for Unicode encoded text.
+- Fonts that use a difference table are now handled correctly
+- fixed some 1.9 incompatible syntax
+- expanded RegisterReceiver class to record extra info
+- expanded rspec coverage
+- tweaked a README example
+
+v0.5.1 (1st January 2008)
+- Several documentation tweaks
+- Improve support for parsing PDFs under windows (thanks to Jari Williamsson)
+
+v0.5 (14th December 2007)
+- Initial Release

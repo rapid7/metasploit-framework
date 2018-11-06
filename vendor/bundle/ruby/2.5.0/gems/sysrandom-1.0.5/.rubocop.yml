@@ -1,0 +1,28 @@
+AllCops:
+  DisplayCopNames: true
+
+#
+# Style
+#
+
+LineLength:
+  Max: 128
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/SpaceBeforeFirstArg:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: false
+
+#
+# Metrics
+#
+
+Metrics/MethodLength:
+  Max: 22
+
+Metrics/AbcSize:
+  Max: 20

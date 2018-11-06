@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints matches="pop3.banner" protocol="pop3" database_type="service" preference="0.90">
+  <!--
+  POP3 greeting messages (part of the banner after the status indicator +OK or -ERR) are
+  matched against these patterns to fingerprint POP3 servers.
+  -->
+  <fingerprint pattern="^([^ ]+) +Cyrus POP3 v(\d+\.\d+.*)-OS X(?: Server)? ([\d\.]+).* server ready">
+    <description>OSX Cyrus POP</description>
+    <example host.domain="8.8.8.8" service.version="2.3.8" os.version="10.5">8.8.8.8 Cyrus POP3 v2.3.8-OS X Server 10.5: 9A562 server ready &lt;1999107648.1324502155@8.8.8.8&gt;</example>
+    <param pos="0" name="service.vendor" value="Carnegie Mellon University"/>
+    <param pos="0" name="service.family" value="Cyrus MTA"/>
+    <param pos="0" name="service.product" value="Cyrus POP"/>
+    <param pos="2" name="service.version"/>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="3" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:{os.version}"/>
+    <param pos="1" name="host.domain"/>
+  </fingerprint>
+  <fingerprint pattern="^([^ ]+) +Cyrus POP3 v([\d\.]+)">
+    <description>CMU Cyrus POP</description>
+    <example host.domain="foo" service.version="2.3">foo Cyrus POP3 v2.3</example>
+    <example host.domain="foo" service.version="2.3.14">foo Cyrus POP3 v2.3.14 server ready &lt;13087751828270990591.1301068892@foo&gt;</example>
+    <param pos="0" name="service.vendor" value="Carnegie Mellon University"/>
+    <param pos="0" name="service.family" value="Cyrus MTA"/>
+    <param pos="0" name="service.product" value="Cyrus POP"/>
+    <param pos="2" name="service.version"/>
+    <param pos="1" name="host.domain"/>
+  </fingerprint>
+  <fingerprint pattern="^Lotus Notes POP3 server version X[^ ]+ ready on .*$">
+    <description>IBM Lotus Notes/Domino</description>
+    <example>Lotus Notes POP3 server version X2.0 ready on foo/bar.</example>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.family" value="Lotus Domino"/>
+    <param pos="0" name="service.product" value="Lotus Domino"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:ibm:lotus_domino:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Lotus Notes POP3 server version Release ([^ ]+) ready on .*$">
+    <description>IBM Lotus Notes/Domino</description>
+    <example>Lotus Notes POP3 server version Release 8.5.1FP5 ready on foo/US.</example>
+    <param pos="0" name="service.vendor" value="IBM"/>
+    <param pos="0" name="service.family" value="Lotus Domino"/>
+    <param pos="0" name="service.product" value="Lotus Domino"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:ibm:lotus_domino:{service.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^Qpopper \(version (\d+\.\d+\.\d+), modified by Sphera Technologies\) at (.+) starting\..*$">
+    <description>Qpopper with Sphera mods</description>
+    <example>Qpopper (version 4.0.3, modified by Sphera Technologies) at domain starting.  &lt;xxx@domain&gt;</example>
+    <param pos="0" name="service.vendor" value="Sphera"/>
+    <param pos="0" name="service.family" value="Qpopper"/>
+    <param pos="0" name="service.product" value="Qpopper"/>
+    <param pos="1" name="service.version"/>
+    <param pos="2" name="host.domain"/>
+  </fingerprint>
+  <fingerprint pattern="^Qpopper \(version (\d+\.\d+\.\d+)-mysql-(.+)\) at (.+) starting\..*$">
+    <description>Qpopper with MySQL auth module</description>
+    <example>Qpopper (version 4.0.3-mysql-0.13) at domain starting.  &lt;xxx@domain&gt;</example>
+    <param pos="0" name="service.vendor" value="Qualcomm"/>
+    <param pos="0" name="service.family" value="Qpopper"/>
+    <param pos="0" name="service.product" value="Qpopper"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.component.family" value="qpopper-mysql"/>
+    <param pos="0" name="service.component.product" value="qpopper-mysql"/>
+    <param pos="2" name="service.component.version"/>
+    <param pos="3" name="host.domain"/>
+  </fingerprint>
+  <fingerprint pattern="^Qpop(?:per)? \(version ([\d\.]+)\) at (.+)(?: starting\.)?.*$" flags="REG_ICASE">
+    <description>Qpopper missing version info</description>
+    <example>Qpopper (version 4.0.16) at foo.example.com</example>
+    <example>QPOP (version 2.53) at domain starting.  &lt;xxx@domain&gt;</example>
+    <example>Qpopper (version 4.0.3) at domain starting.  &lt;xxx@domain&gt;</example>
+    <param pos="0" name="service.vendor" value="Qualcomm"/>
+    <param pos="0" name="service.family" value="Qpopper"/>
+    <param pos="0" name="service.product" value="Qpopper"/>
+    <param pos="1" name="service.version"/>
+    <param pos="2" name="host.domain"/>
+  </fingerprint>
+  <fingerprint pattern="^QPOP \(version (.*)\) at (.+) starting\..*$">
+    <description>Qpopper with missing version info</description>
+    <example>QPOP (version ?) at domain starting.  &lt;xxx@domain&gt;</example>
+    <param pos="0" name="service.vendor" value="Qualcomm"/>
+    <param pos="0" name="service.family" value="Qpopper"/>
+    <param pos="0" name="service.product" value="Qpopper"/>
+    <param pos="1" name="qpopper.version"/>
+    <param pos="2" name="host.domain"/>
+  </fingerprint>
+  <fingerprint pattern="^Microsoft Exchange Server 2003 POP3 server version (\d+\.\d+\.\d+\.\d+) (.+) ready.$">
+    <description>Microsoft Exchange Server 2003</description>
+    <example>Microsoft Exchange Server 2003 POP3 server version 6.5.6944.0 (host) ready.</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.family" value="Exchange Server"/>
+    <param pos="0" name="service.product" value="Exchange 2003 Server"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:exchange_server:{service.version}"/>
+    <param pos="2" name="host.name"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Microsoft Exchange 2000 POP3 server version (\d+\.\d+\.\d+\.\d+) (.+) ready.$">
+    <description>Microsoft Exchange Server 2000</description>
+    <example>Microsoft Exchange 2000 POP3 server version 6.0.6603.0 (host) ready.</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.family" value="Exchange Server"/>
+    <param pos="0" name="service.product" value="Exchange 2000 Server"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:exchange_server:{service.version}"/>
+    <param pos="2" name="host.name"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Microsoft Exchange POP3 server version (\d+\.\d+\.\d+\.\d+) ready$">
+    <description>Microsoft Exchange Server</description>
+    <example>Microsoft Exchange POP3 server version 5.5.2654.50 ready</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.family" value="Exchange Server"/>
+    <param pos="0" name="service.product" value="Exchange Server"/>
+    <param pos="1" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:exchange_server:{service.version}"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Microsoft Windows POP3 Service Version 1.0 &lt;.+@(.+)&gt; ready.$">
+    <description>Microsoft POP3 Services on Windows 2003</description>
+    <example>Microsoft Windows POP3 Service Version 1.0 &lt;xxx@host&gt; ready.</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.family" value="E-mail Services"/>
+    <param pos="0" name="service.product" value="E-mail Services"/>
+    <param pos="1" name="host.name"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows Server 2003"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows_server_2003:-"/>
+  </fingerprint>
+  <fingerprint pattern="^Microsoft Exchange Server 2007 POP3 service ready\.?$">
+    <description>Microsoft Exchange Server 2007</description>
+    <example>Microsoft Exchange Server 2007 POP3 service ready</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.family" value="Exchange Server"/>
+    <param pos="0" name="service.product" value="Exchange 2007 Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:exchange_server:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^The? Microsoft Exchange POP3 service is ready\.?$">
+    <description>Microsoft Exchange Server, generic</description>
+    <example>The Microsoft Exchange POP3 service is ready.</example>
+    <param pos="0" name="service.vendor" value="Microsoft"/>
+    <param pos="0" name="service.family" value="Exchange Server"/>
+    <param pos="0" name="service.product" value="Exchange Server"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:microsoft:exchange_server:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+  <fingerprint pattern="^[dD]ovecot (?:DA )?ready\.(?: &lt;.+@(.+)&gt;)?$">
+    <description>Dovecot Secure POP Server</description>
+    <param pos="0" name="service.family" value="Dovecot"/>
+    <param pos="0" name="service.product" value="Dovecot"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) Zimbra POP3 server ready\.?$">
+    <description>VMware Zimbra POP</description>
+    <example>catfood.example.com Zimbra POP3 server ready</example>
+    <example>dogfood.example.com Zimbra POP3 server ready</example>
+    <param pos="0" name="service.vendor" value="VMware"/>
+    <param pos="0" name="service.product" value="Zimbra"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:vmware:zimbra_desktop:-"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) Zimbra (\S+) POP3 server ready\.?$">
+    <description>VMware Zimbra POP</description>
+    <example>example.com Zimbra 7.0.0_GA_3079 POP3 server ready</example>
+    <param pos="0" name="service.vendor" value="VMware"/>
+    <param pos="0" name="service.product" value="Zimbra"/>
+    <param pos="2" name="service.version"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:vmware:zimbra_desktop:{service.version}"/>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^(?:S?POP3? server ready |Hello there.? )?&lt;.*@([^&gt;]+)&gt;$">
+    <description>Generic masked POP3 server</description>
+    <example>POP3 server ready &lt;58c29ae4-7316-429e-8109-060444ab1a28@foo.example.com&gt;</example>
+    <example>&lt;84427.1298535083@foo.example.com&gt;</example>
+    <param pos="1" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^ApplePasswordServer ([\d\.]+) password">
+    <description>Apple Open Directory</description>
+    <example>ApplePasswordServer 10.6.0.0 password server at 10.2.90.228 ready.</example>
+    <example>ApplePasswordServer 10.5.0.1 password serv</example>
+    <param pos="0" name="service.vendor" value="Apple"/>
+    <param pos="0" name="service.product" value="Open Directory"/>
+    <param pos="0" name="os.vendor" value="Apple"/>
+    <param pos="0" name="os.family" value="Mac OS X"/>
+    <param pos="0" name="os.product" value="Mac OS X"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="os.certainty" value="0.5"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:apple:mac_os_x:{os.version}"/>
+  </fingerprint>
+  <fingerprint pattern="^TCPIP POP server V\d\.\d\S-\S{3}, OpenVMS V(\d\.\d-\d)(?:\s+\S+)?\s+at\s+(\S+), .*$">
+    <description>TCP/IP Services for OpenVMS POP server</description>
+    <example os.version="7.3-2" host.name="example.com">TCPIP POP server V5.4J-15A, OpenVMS V7.3-2 Alpha at example.com, up since 2015-02-12 08:44:53 20400434.2</example>
+    <param pos="0" name="service.family" value="OpenVMS"/>
+    <param pos="0" name="service.product" value="TCPIP POP server"/>
+    <param pos="0" name="service.vendor" value="HP"/>
+    <param pos="0" name="os.vendor" value="HP"/>
+    <param pos="0" name="os.family" value="OpenVMS"/>
+    <param pos="0" name="os.product" value="OpenVMS"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="1" name="os.version"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:hp:openvms:{os.version}"/>
+    <param pos="2" name="host.name"/>
+  </fingerprint>
+  <fingerprint pattern="^Hello there\.$">
+    <description>Courier MTA POP</description>
+    <example>Hello there.</example>
+    <param pos="0" name="service.vendor" value="Double Precision"/>
+    <param pos="0" name="service.family" value="Courier MTA"/>
+    <param pos="0" name="service.product" value="Courier POP"/>
+  </fingerprint>
+  <fingerprint pattern="^CMailServer ([\d\.]+) POP3 Service Ready$">
+    <description>CMailServer</description>
+    <example service.version="5.0.0">CMailServer 5.0.0 POP3 Service Ready</example>
+    <param pos="0" name="service.product" value="CMailServer"/>
+    <param pos="0" name="service.vendor" value="Youngzsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^POP3 Bigfoot v(\d\.\d) server ready$">
+    <description>POP3 Bigfoot server</description>
+    <example service.version="1.0">POP3 Bigfoot v1.0 server ready</example>
+    <param pos="0" name="service.vendor" value="Bigfoot"/>
+    <param pos="0" name="service.family" value="Bigfoot Email Tools"/>
+    <param pos="0" name="service.product" value="Bigfoot Email Tools"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^CCProxy ([\d.]+) POP3 Service Ready$">
+    <description>CCProxy POP3 server</description>
+    <example service.version="8.0">CCProxy 8.0 POP3 Service Ready</example>
+    <example service.version="2010">CCProxy 2010 POP3 Service Ready</example>
+    <example service.version="6.4.2">CCProxy 6.4.2 POP3 Service Ready</example>
+    <param pos="0" name="service.vendor" value="Youngzsoft"/>
+    <param pos="0" name="service.family" value="CCProxy"/>
+    <param pos="0" name="service.product" value="CCProxy"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^POP3 on WinWebMail \[([\d.]+)\] ready\.$">
+    <description>WinWebmail POP3</description>
+    <example service.version="1.1.1.1">POP3 on WinWebMail [1.1.1.1] ready.</example>
+    <param pos="0" name="service.product" value="WinWebMail"/>
+    <param pos="0" name="service.vendor" value="Ma Jian"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^BlackJumboDog \(Version ([\d\.]+)\) ready$">
+    <description>BlackJumboDog</description>
+    <example service.version="5.7.5.0">BlackJumboDog (Version 5.7.5.0) ready</example>
+    <param pos="0" name="service.vendor" value="SapporoWorks"/>
+    <param pos="0" name="service.product" value="BlackJumboDog"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <!--
+; Mandrake 8.1 - uses UW IMAP
+; +OK POP3 mandrake81-f540k v2000.70mdk server ready
+// wu-imap?
+// +OK POP3 pytha434.rsjp.net 2004.89w server ready
+// +OK POP3 cctlaser.com 2004.89s server ready
+// +OK POP3 [158.122.12.70] v2003.83mdk server ready
+// +OK POP3 [161.58.53.189] 2006b.94 server ready
+// +OK POP3 [192.168.0.250] v2000.70rh server ready
+
+; Lotus Domino - NOTE: POP versions do not map to Domino version
+// +OK Lotus Notes POP3 server version X2.0 ready <0015521D.86257321.0000081C.00000008@Atlas/AgileTek> on Atlas/AgileTek.
+( call ?j_popPatterns add
+"^\\+OK Lotus Notes POP3 server version ([^ ]*) ready on ([^\\.]*)\\.$" )
+( call ?j_popNames add "Lotus-Domino" )
+
+// +OK alquilerpc.com.mx POP3 Server (Version 1.020h) ready.
+
+// Ipswitch IMail
+// +OK X1 NT-POP3 Server geneseenet06 (IMail 8.22 45450-1)
+
+// +OK X1 POP3 Mail Server
+
+// +OK server POP3 server (DeskNow POP3 Server 1.0) ready
+
+// +OK <1185161310.3352@goto15028.com> [XMail 1.24 POP3 Server] service ready; Mon, 23 Jul 2007 11:28:30 +0800
+
+// +OK IdeaPop3Server v0.50 ready.
+
+// +OK qxztmail POP3 server (STD Ymailserver v1.8 POP3) ready
+
+// +OK blue.forest-green.lan POP3 server (JAMES POP3 Server 2.2.0) ready
+
+// +OK xxx CMailServer 5.2 POP3 Service Ready
+
+// +OK iac3 Solstice (tm) Internet Mail Server (tm) POP3 2.0 at Mon, 23 Jul 2007 20:08:02 -0500 (CDT)
+
+// +OK Gordano Messaging Suite POP3 server ready
+// +OK Gordano Messaging Suite POP3 server ready <13501095613509@hollandcanadaline.com>
+
+// +OK unitechna.lt Merak 8.9.1 POP3 Sun, 22 Jul 2007 23:16:25 +0300 <20070722231625@unitechna.lt>
+
+
+// +OK Cubic Circle's v1.31 1998/05/13 POP3 ready <0c9300004104a246@www.dvdld.co.za>
+
+// +OK Welcome to MailEnable POP3 Server
+
+// +OK GroupWise POP3 server ready
+
+// +OK POP3 AnalogX Proxy 4.14 (Release) ready.
+
+// +OK lojack.com.ar POP MDaemon 9.6.0 ready <MDAEMON-F200707232110.AA1001241MD4604@lojack.com.ar>
+
+// +OK DBMAIL pop3 server ready to rock <4393e6301f984e87ad7cdc766595c78f@mx>
+
+// +OK POP3 Welcome to vm-pop3d 1.1.6 <83532.1185400462@romeo.hostlab.nl>
+
+// +OK Solid POP3 server ready
+
+// +OK ArGoSoft Mail Server Pro for WinNT/2000/XP, Version 1.8 (1.8.8.9)
+
+// +OK POP3 titan [cppop 20.0] at [207.150.171.34]
+
+// +OK ModusMail POP3 Server-NOTF 4.2.425.4 Ready <42760712.1185328354.283@gbso.net>
+
+// +OK DPOP Version number supressed.
+
+// +OK XPOP3 0.0.1 server ready
+
+-ERR (Proxy) connect error:socket error:No route to host
+-ERR No permission
+-ERR sorry, POP server too busy right now.  Try again later.
+-ERR This IP is not configured for POP3 service.  Please contact Allstream at 1-888-655-7670.
++OK
++OK
++OK <0bdec6022085d6c34a0e48bb77bf8cf3@juno.thinkburst.com>
++OK <869521546.23059@mail.tecedge.net>, POP3 server ready.
++OK host CMailServer 5.2 POP3 Service Ready
++OK 2net.com POP MDaemon 7.2.0 ready <MDAEMON-F200707241631.AA3131578MD3019@2net.com>
++OK alakhan.kz POP MDaemon 6.8.4 ready <MDAEMON-F200707231617.AA1715437MD3489@alakhan.kz>
++OK alquilerpc.com.mx POP3 Server (Version 1.020h) ready.
++OK ArGoSoft Mail Server Pro for WinNT/2000/XP, Version 1.8 (1.8.8.9)
++OK blue.forest-green.lan POP3 server (JAMES POP3 Server 2.2.0) ready
++OK canoeregatta.org POP3 Server (Version 1.020h) ready.
++OK codebase.com.au POP MDaemon 9.6.1 ready <MDAEMON-F200707220122.AA2235837MD8039@codebase.com.au>
++OK Cubic Circle's v1.31 1998/05/13 POP3 ready <0c9300004104a246@www.dvdld.co.za>
++OK DBMAIL pop3 server ready to rock <4393e6301f984e87ad7cdc766595c78f@mx>
++OK ddc.lv POP MDaemon 9.0.4 ready <MDAEMON-F200707221319.AA1908942MD2984@ddc.lv>
++OK DPOP Version number supressed.
++OK Gordano Messaging Suite POP3 server ready
++OK Gordano Messaging Suite POP3 server ready <13501095613509@hollandcanadaline.com>
++OK Gordano Messaging Suite POP3 server ready <17142725297473@nefonline.de>
++OK GroupWise POP3 server ready
++OK Hello there. <4405.1185250906@localhost.localdomain>
++OK iac3 Solstice (tm) Internet Mail Server (tm) POP3 2.0 at Mon, 23 Jul 2007 20:08:02 -0500 (CDT)
++OK IdeaPop3Server v0.50 ready.
++OK justkidsmagazine.com POP3 Server (Version 1.020h) ready.
++OK lojack.com.ar POP MDaemon 9.6.0 ready <MDAEMON-F200707232110.AA1001241MD4604@lojack.com.ar>
++OK Lotus Notes POP3 server version X2.0 ready <0015521D.86257321.0000081C.00000008@Atlas/AgileTek> on Atlas/AgileTek.
++OK mail.inter-ecom.com MERAK 3.00.120 POP3 Fri, 20 Jul 2007 23:01:52 -0700 <20070720230152@mail.inter-ecom.com>
++OK ModusMail POP3 Server-NOTF 4.2.425.4 Ready <42760712.1185328354.283@gbso.net>
++OK myflock.christianwebhost.com POP3 Server (Version 1.020h) ready.
++OK pchomehouston.com POP3 Server (Version 1.020h) ready.
++OK POP server version 2.53 ready from w2k1332
++OK POP3 [158.122.12.70] v2003.83mdk server ready
++OK POP3 [161.58.53.189] 2006b.94 server ready
++OK POP3 [192.168.0.250] v2000.70rh server ready
++OK POP3 [193.203.43.90] 2004.89 server ready
++OK POP3 [199.236.35.240] v2000.70 server ready
++OK POP3 [199.236.46.233] v2000.70 server ready
++OK POP3 [216.17.96.200] 2004.89 server ready
++OK POP3 [220.111.0.198] v2000.70 server ready
++OK POP3 [60.43.204.115] v2000.70 server ready
++OK POP3 [61.126.32.231] v2000.70 server ready
++OK POP3 [66.49.140.201] v2003.83rh server ready
++OK POP3 [89.110.105.178] 2004.89 server ready
++OK POP3 [89.110.111.108] 2004.89 server ready
++OK POP3 [89.110.120.59] 2004.89 server ready
++OK POP3 [89.110.123.169] 2004.89 server ready
++OK POP3 [89.110.88.248] 2004.89 server ready
++OK POP3 220-130-130-112.HINET-IP.hinet.net v2000.70 server ready
++OK POP3 AnalogX Proxy 4.14 (Release) ready.
++OK POP3 artfulssoul.com v2001.78rh server ready
++OK POP3 bibliotake.nl v2001.78rh server ready
++OK POP3 blog.celebkings.com v2003.83rh server ready
++OK POP3 bureau25.ns.utoronto.ca 2006f.96 server ready
++OK POP3 cctlaser.com 2004.89s server ready
++OK POP3 creditsuisseplm.tempdomainname.com 2004.89s server ready
++OK POP3 energypress.com 2004.89 server ready
++OK POP3 ez3 [cppop 20.0] at [64.119.173.146]
++OK POP3 frankscenterinc.com 2004.89 server ready
++OK POP3 fred08.tempdomainname.com 2004.89s server ready
++OK POP3 giantkangaroo.com v2003.83rh server ready
++OK POP3 host [cppop 20.0] at [66.45.252.61]
++OK POP3 host62 [cppop 20.0] at [216.120.237.62]
++OK POP3 hypolite.com v2001.78rh server ready
++OK POP3 juma [cppop 20.0] at [140.99.39.68]
++OK POP3 ksblist.com v2003.83rh server ready
++OK POP3 lakegeorgedaycare.com 2004.89s server ready
++OK POP3 localhost  server ready
++OK POP3 localhost 2004.89 server ready
++OK POP3 localhost v2000.69hw server ready
++OK POP3 localhost v2001.78rh server ready
++OK POP3 monki.net v2003.83rh server ready
++OK POP3 nativeamericanlinks.com v2001.78rh server ready
++OK POP3 ns.skymarkgroup.com v2001.78rh server ready
++OK POP3 oliveiradressage.com v2003.83rh server ready
++OK POP3 pegasus [cppop 20.0] at [64.235.240.105]
++OK POP3 pytha434.rsjp.net 2004.89w server ready
++OK POP3 qwiknet.com 2004.89 server ready
++OK POP3 rrm82.fastlinknet.com v2003.83rh server ready
++OK POP3 saruman [cppop 20.0] at [82.136.60.52]
++OK POP3 scitechlicensing.com v2003.83rh server ready
++OK POP3 server-p002 [cppop 19.0] at [217.26.51.207]
++OK POP3 server [cppop 20.0] at [72.249.45.83]
++OK POP3 server [cppop 21.0] at [216.227.223.68]
++OK POP3 server ready
++OK POP3 server ready QuickMail Pro Server for Mac 3.0.2 <9a937c2c@192.168.0.254>
++OK POP3 taiwanjohnson.com.tw v2001.78rh server ready
++OK POP3 telesto [cppop 20.0] at [209.123.140.118]
++OK POP3 titan [cppop 20.0] at [207.150.171.34]
++OK POP3 top [cppop 21.0] at [70.87.244.140]
++OK POP3 txsunset.com v2001.78rh server ready
++OK POP3 umb.bankersacademy.com 2004.89s server ready
++OK POP3 unrealfactory.com v2003.83rh server ready
++OK POP3 venus [cppop 20.0] at [216.54.232.223]
++OK POP3 vitalmoment.com v4.47 server ready
++OK POP3 vps [cppop 21.0] at [207.58.145.19]
++OK POP3 web1 [cppop 21.0] at [72.9.237.53]
++OK POP3 Welcome to vm-pop3d 1.1.6 <83532.1185400462@romeo.hostlab.nl>
++OK POP3 Welcome to vm-pop3d 1.1.7f-DA-2
++OK POP3 wirelessintro [cppop 20.0] at [72.18.130.64]
++OK POP3 www.boomingusedautoparts.com 2006b.94 server ready
++OK POP3 www.happytails2u.com 2004.89 server ready
++OK POP3 www.homebasedwizard.com 2004.89 server ready
++OK POP3 www.webmail.imperioe.com 2004.89 server ready
++OK qxztmail POP3 server (STD Ymailserver v1.8 POP3) ready
++OK Radish (Version 3.0.0-b021) ready
++OK ready
++OK ready  <11514.1185210732@freedom.concept69.de>
++OK ready  <14026.1184992338@s076-129.ub.firstserver.ne.jp>
++OK ready  <16013.1185110479@p1.in11.squarestart.ne.jp>
++OK ready  <1602.1185138403@p10084207.pureserver.de>
++OK ready  <17391.1185103166@www.e-shci.org>
++OK ready  <17638.1185005363@o6.s023v.squarestart.ne.jp>
++OK ready  <21400.1185465572@q7.s036v.smilestart.ne.jp>
++OK ready  <2964.1185086744@nissan-forksaitama.co.jp>
++OK ready  <9704.1185097132@h9.s011v.squarestart.ne.jp>
++OK recvmail/he.net POP3 Server
++OK refinanceloanjones.com POP3 Server (Version 1.020h) ready.
++OK samare.it POP MDaemon 6.8.5 ready <MDAEMON-F200707220351.AA513460MD5338@samare.it>
++OK server POP3 server (DeskNow POP3 Server 1.0) ready
++OK silexaviacion.com POP3 Server (Version 1.020h) ready.
++OK simple-photography.com POP3 Server (Version 1.020h) ready.
++OK Solid POP3 server ready
++OK studiovisuals.com POP3 Server (Version 1.020h) ready.
++OK themeekermall.com POP3 Server (Version 1.020h) ready.
++OK unitechna.lt Merak 8.9.1 POP3 Sun, 22 Jul 2007 23:16:25 +0300 <20070722231625@unitechna.lt>
++OK Welcome to MailEnable POP3 Server
++OK X1 NT-POP3 Server 2436681011.monstercommercesites.com (IMail 7.15 560907-1)
++OK X1 NT-POP3 Server Calvin-Serv (IMail 8.22 1107-1)
++OK X1 NT-POP3 Server chealsea.com.cn (IMail 8.15 16990-1)
++OK X1 NT-POP3 Server dedicated (IMail 9.03 34585-1)
++OK X1 NT-POP3 Server exfast114 (IMail 8.10 1204-1)
++OK X1 NT-POP3 Server exfast114 (IMail 8.10 548-1)
++OK X1 NT-POP3 Server geneseenet06 (IMail 8.22 45450-1)
++OK X1 NT-POP3 Server karunrolling.com (IMail 9.10 33410-4)
++OK X1 NT-POP3 Server mail.domainebuilders.com (IMail 8.15 562966-2)
++OK X1 NT-POP3 Server mail.ectorumc.org (IMail 8.21 421362-1)
++OK X1 NT-POP3 Server mail.oecmail2.com (IMail 9.10 135441-3)
++OK X1 NT-POP3 Server mail.saturnofdc.com (IMail 7.13 214871-3)
++OK X1 NT-POP3 Server ph18.pennyhost.com (IMail 8.22 325883-2)
++OK X1 NT-POP3 Server wddx002.wddx.net (IMail 8.15 60353-2)
++OK X1 NT-POP3 Server webgistix.com (IMail 8.05 161161-1)
++OK X1 POP3 Mail Server
++OK XPOP3 0.0.1 server ready
+220 axigen slmail mdaemon mailserver
+// apparently this is a P3Scan Proxy bug
+// http://lists.freebsd.org/pipermail/freebsd-ports/2004-May/012400.html
+Oops, that would loop!
+
+-->
+</fingerprints>

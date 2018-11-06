@@ -1,0 +1,35 @@
+------------------------------------------------------------- Method: #m
+                                                   (Defined in: (stdin))
+                                                     (Also known as: #x)
+
+    root.m(x) -> String (private)
+------------------------------------------------------------------------
+
+    Deprecated. for great justice
+
+    Comments 
+
+Parameters:
+-----------
+
+    (Hash) x - the x argument
+
+Options Hash (x):
+-----------------
+
+    (String) :key1 - default: default - first key
+
+    (Symbol) :key2 - second key
+
+Returns:
+--------
+
+    (String) - the result
+
+Raises:
+-------
+
+    (Exception) - hi!
+
+
+

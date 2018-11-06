@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<fingerprints>
+   <fingerprint pattern="^foo$">
+     <description>foo test</description>
+     <!-- Fail: doesn't match -->
+     <example>bar</example>
+   </fingerprint>
+   <fingerprint pattern="^This matches$">
+     <!-- Warn: no name -->
+     <!-- Fail: doesn't match -->
+     <example>This almost matches</example>
+   </fingerprint>
+   <fingerprint pattern="^(\S+) ([\d.]+)$">
+     <description>bar test</description>
+     <!-- Fail: expected os.version doesn't match the capture group -->
+     <example os.version="5.0" >bar 1.0</example>
+     <param pos="2" name="os.version" />
+     <param pos="1" name="os.name" value="Bar" />
+   </fingerprint>
+</fingerprints>

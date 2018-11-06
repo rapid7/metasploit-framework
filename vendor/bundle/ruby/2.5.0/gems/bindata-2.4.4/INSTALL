@@ -1,0 +1,12 @@
+This package is designed to be installed with rubygems.
+
+    $ gem install bindata
+
+If you are using ruby 1.8
+
+    $ gem install bindata -v '~> 1.8.0'
+
+If you are not using rubygems, you may like to install BinData with
+Minero Aoki's setup.rb found at:
+
+    https://github.com/rubyworks/setup

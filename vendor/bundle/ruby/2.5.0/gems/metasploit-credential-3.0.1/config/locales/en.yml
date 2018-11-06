@@ -1,0 +1,88 @@
+en:
+  activemodel:
+    models:
+      metasploit/credential/importer/csv/base: 'CSV'
+      metasploit/credential/importer/zip: 'Zip importer'
+    errors:
+      models:
+        metasploit/credential/importer/core:
+          attributes:
+            input:
+              empty_csv: "the supplied CSV file appears to contain no data"
+              incorrect_csv_headers: "your CSV has incorrect headers for this import type"
+              malformed_csv: "the supplied file is malformed and can't be parsed as CSV"
+            private_credential_type:
+              invalid_type: "the supplied credential type is not valid for this import"
+        metasploit/credential/importer/zip:
+          attributes:
+            input:
+              malformed_archive: "The provided zip file appears to be malformed and cannot be parsed"
+              missing_keys: "This Metasploit credentials zip export appears to contain no SSH keys. If you wish to import credentials not tied to keys, remove the key entries from the manifest file and upload it by itself."
+              missing_manifest: "This Metasploit credentials zip export appears to be missing its CSV manifest"
+  activerecord:
+    ancestors:
+      metasploit/credential/login:
+        search:
+          operator:
+            names:
+              access_level:
+                help: "Filters the results by login status, such as 'root' or 'Administrator'."
+              status:
+                help: "Filters the results by login status. You can search for any of the following statuses: 'Denied Access', 'Disabled', 'Incorrect', 'Locked Out', 'No Auth Required', 'Successful', 'Unable to Connect', or 'Untried'."
+      metasploit/credential/realm:
+        search:
+          operator:
+            names:
+              key:
+                help: "Filters the results by realm type. The search value must be 'Active Directory Domain', 'PostgreSQL Database', 'DB2 Database', 'Oracle System Identifier'."
+              value:
+                help: "Filters the results by database or domain names that contain the specified value."
+      metasploit/credential/private:
+        search:
+          operator:
+            names:
+              data:
+                help: "Filters the results by private credentials that contain the specified value."
+              type:
+                help: "Filters the results by private credential type. The search value must be  'Password', 'NTLM hash', 'SSH key', or 'Nonreplayable hash'."
+      metasploit/credential/public:
+        search:
+          operator:
+            names:
+              type:
+                help: "Filters the results by public credential type. The search value must be  'Username', 'Blank'."
+              username:
+                help: "Filters the results by public credentials that contain the specified username."
+    models:
+      metasploit/credential/ntlm_hash: "NTLM hash"
+      metasploit/credential/ssh_key: "SSH key"
+    errors:
+      models:
+        metasploit/credential/core:
+          attributes:
+            base:
+              minimum_presence: "can't have private and public blank - at least one must be present."
+              public_for_ssh_key: "can't have a private of type SSHKey with no associated public"
+            workspace:
+              origin_service_host_workspace: "does not match origin's service's host's workspace.  This could cause a cross-workspace credential disclosure."
+              origin_session_host_workspace: "does not match origin's session's host's workspace.  This could cause a cross-workspace credential disclosure."
+              origin_user_workspaces: "does not have a workspace that origin's user can access.  This could cause a cross-workspace credential disclosure."
+        metasploit/credential/login:
+          attributes:
+            base:
+              inconsistent_workspaces: "has inconsistent workspaces between the core credential and the service's host.  This could cause a cross-workspace credential disclosure."
+            last_attempted_at:
+              tried: "can't be nil if status is tried."
+              untried: "can't be set if status is untried."
+        metasploit/credential/ntlm_hash:
+          attributes:
+            data:
+              format: "is not in the NTLMHash data format of <LAN Manager hex digest>:<NT LAN Manager hex digest>, where each hex digest is 32 lowercase hexadecimal characters."
+        metasploit/credential/ssh_key:
+          attributes:
+            data:
+              encrypted: "is encrypted, but Metasploit::Credential::SSHKey only supports unencrypred private keys."
+              not_private: "is not a private key."
+  errors:
+    messages:
+      nil: "can't be nil, but it can be blank"

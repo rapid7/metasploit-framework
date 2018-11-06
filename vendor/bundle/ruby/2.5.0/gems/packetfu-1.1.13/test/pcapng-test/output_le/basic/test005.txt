@@ -1,0 +1,9 @@
+Description: 2 IDBs separated by EPB
+Category:    basic
+
+Block counts:
+	EPB: 4
+	IDB: 2
+	SHB: 1
+
+Block sequence: SHB, IDB, EPB, IDB, EPB, EPB, EPB

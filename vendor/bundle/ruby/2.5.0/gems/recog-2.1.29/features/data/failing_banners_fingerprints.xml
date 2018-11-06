@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<fingerprints>
+  <fingerprint pattern="^=\(.\*.\)=-\.:\. \(\( Welcome to PureFTPd (\d+\..+) \)\) \.:\.-=\(.\*.\)=-$">
+    <example>=(&lt;*&gt;)=-.:. (( Welcome to PureFTPd 1.1.0 )) .:.-=(&lt;*&gt;)=-</example>
+    <description>Older Pure-FTPd versions</description>
+    <param pos="0" name="service.family" value="Pure-FTPd"/>
+    <param pos="0" name="service.product" value="Pure-FTPd"/>
+    <param pos="1" name="service.version"/>
+  </fingerprint>
+  <fingerprint pattern="^(\S+) FTP Server \(Solaris (\S+)\) ready\.?$" flags="REG_ICASE">
+    <description>SunOS/Solaris</description>
+    <example>example.com FTP server (Solaris 5.7) ready.</example>
+    <param pos="0" name="os.vendor" value="Sun"/>
+    <param pos="0" name="os.family" value="Solaris"/>
+    <param pos="0" name="os.product" value="Solaris"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="1" name="host.name"/>
+    <param pos="2" name="os.version"/>
+  </fingerprint>
+</fingerprints>

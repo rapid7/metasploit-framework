@@ -1,0 +1,88 @@
+2005-01-05 09:40  minam
+
+	* Rakefile, sqlite3-ruby-win32.gemspec, sqlite3-ruby.gemspec: Added
+	  win32 gem.
+
+2005-01-05 07:31  minam
+
+	* Rakefile, test/tc_integration.rb, test/tests.rb: Added
+	  native-vs-dl benchmark to Rakefile. Added SQLITE3_DRIVERS
+	  environment variable to integration test to specify which
+	  driver(s) should be tested (defaults to "Native").
+
+2005-01-04 14:26  minam
+
+	* ext/sqlite3_api/sqlite3_api.i, lib/sqlite3/database.rb,
+	  lib/sqlite3/driver/native/driver.rb, test/tc_database.rb,
+	  test/tc_integration.rb, test/tests.rb: Unit tests: done. Bugs:
+	  fixed.
+
+2005-01-03 23:13  minam
+
+	* ext/sqlite3_api/sqlite3_api.i, lib/sqlite3/database.rb,
+	  lib/sqlite3/driver/dl/driver.rb,
+	  lib/sqlite3/driver/native/driver.rb, test/tc_integration.rb:
+	  Custom functions (aggregate and otherwise) are supported by the
+	  native driver now. Test cases for the same.
+
+2005-01-03 13:51  minam
+
+	* ext/sqlite3_api/MANIFEST, ext/sqlite3_api/extconf.rb,
+	  ext/sqlite3_api/post-clean.rb, ext/sqlite3_api/post-distclean.rb,
+	  ext/sqlite3_api/sqlite3_api.i, lib/sqlite3/database.rb,
+	  lib/sqlite3/resultset.rb, lib/sqlite3/version.rb,
+	  lib/sqlite3/driver/dl/driver.rb,
+	  lib/sqlite3/driver/native/driver.rb, test/native-vs-dl.rb,
+	  test/tc_integration.rb: Added preliminary implementation of
+	  native driver (swig-based), and integration tests.
+
+2004-12-29 19:37  minam
+
+	* lib/sqlite3/driver/dl/driver.rb: Some fixes to allow the DL
+	  driver to work with Ruby 1.8.1.
+
+2004-12-29 14:52  minam
+
+	* lib/sqlite3/: database.rb, version.rb: Made #quote a class method
+	  (again). Bumped version to 0.6.
+
+2004-12-25 22:59  minam
+
+	* lib/sqlite3/driver/dl/api.rb: Added check for darwin in supported
+	  platforms (thanks to bitsweat).
+
+2004-12-22 12:38  minam
+
+	* Rakefile: Rakefile wasn't packaging the README file.
+
+2004-12-21 22:28  minam
+
+	* Rakefile, sqlite3-ruby.gemspec, test/bm.rb: Packaging now works.
+	  Added benchmarks.
+
+2004-12-21 21:45  minam
+
+	* LICENSE, README, Rakefile, setup.rb, sqlite3-ruby.gemspec,
+	  doc/faq/faq.rb, doc/faq/faq.yml, lib/sqlite3.rb,
+	  lib/sqlite3/statement.rb, lib/sqlite3/constants.rb,
+	  lib/sqlite3/database.rb, lib/sqlite3/resultset.rb,
+	  lib/sqlite3/translator.rb, lib/sqlite3/value.rb,
+	  lib/sqlite3/version.rb, lib/sqlite3/errors.rb,
+	  lib/sqlite3/pragmas.rb, lib/sqlite3/driver/dl/api.rb,
+	  lib/sqlite3/driver/dl/driver.rb, test/mocks.rb,
+	  test/tc_database.rb, test/tests.rb, test/driver/dl/tc_driver.rb:
+	  Initial import
+
+2004-12-21 21:45  minam
+
+	* LICENSE, README, Rakefile, setup.rb, sqlite3-ruby.gemspec,
+	  doc/faq/faq.rb, doc/faq/faq.yml, lib/sqlite3.rb,
+	  lib/sqlite3/statement.rb, lib/sqlite3/constants.rb,
+	  lib/sqlite3/database.rb, lib/sqlite3/resultset.rb,
+	  lib/sqlite3/translator.rb, lib/sqlite3/value.rb,
+	  lib/sqlite3/version.rb, lib/sqlite3/errors.rb,
+	  lib/sqlite3/pragmas.rb, lib/sqlite3/driver/dl/api.rb,
+	  lib/sqlite3/driver/dl/driver.rb, test/mocks.rb,
+	  test/tc_database.rb, test/tests.rb, test/driver/dl/tc_driver.rb:
+	  Initial revision
+

@@ -1,0 +1,9 @@
+<!--#header:
+def list_items(items)
+#-->
+<% for item in items %>
+  <b><%= item %></b>
+<% end %>
+<!--#footer:
+end
+#-->

@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# We do all this work just to find the proper load path
+path = __FILE__
+while File.symlink?(path)
+  path = File.expand_path(File.readlink(path), File.dirname(path))
+end
+$LOAD_PATH.unshift(File.join(File.dirname(File.expand_path(path)), '..', 'lib'))
+
+require 'yard'
+
+YARD::CLI::YRI.run(*ARGV)

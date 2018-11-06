@@ -1,0 +1,8 @@
+module A
+  Foo = 1
+  class B; end
+  module C; end
+  module D; end
+
+  private_constant :Foo, 'B', C
+end

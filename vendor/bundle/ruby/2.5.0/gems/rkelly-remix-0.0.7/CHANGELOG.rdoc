@@ -1,0 +1,34 @@
+= RKelly-Remix CHANGELOG
+
+=== 0.0.7
+
+* Allow reserved words reserved only in strict mode.
+
+=== 0.0.6
+
+* Properly treat all unicode whitespace characters as whitespace.
+
+=== 0.0.5
+
+* Update list of reserved words to match ECMAScript 5
+* Fix ecma visitor for function expressions with name
+
+=== 0.0.4
+
+* Allow use of keywords in property names.
+
+=== 0.0.3
+
+* Add RKelly::Parser#stopped_at method for error reporting.
+
+=== 0.0.2
+
+* Handle multibyte characters without crashing.
+
+=== 0.0.1
+
+* A fork of RKelly
+* 10x speedup of Tokenizer.
+* Full begin/end line/char info on each node.
+* List all comment nodes in root node instead of attempting to associate them with syntax nodes and failing at it.
+* Recognize /[/]/ as valid JS regex.

@@ -1,0 +1,38 @@
+en:
+  metasploit:
+    model:
+      errors:
+        messages:
+          boolean: "is not a boolean (false or true)."
+          model_invalid: "Validation failed: %{errors}"
+
+        models:
+          metasploit/model/search/operation/date:
+            attributes:
+              value:
+                unparseable_date: "is not a parseable Date"
+
+          metasploit/model/search/operation/null:
+            attributes:
+              operator:
+                type: "is not a %{type}"
+
+          metasploit/model/search/operation/set:
+            attributes:
+              value:
+                inclusion: "is not part of the set (%{set})"
+
+          metasploit/model/search/operation/group/base:
+            attributes:
+              children:
+                too_short: "is too short (minimum is %{count} child)"
+
+          metasploit/model/search/operator/null:
+            attributes:
+              name:
+                unknown: "is unknown"
+
+          metasploit/model/search/query:
+            attributes:
+              operations:
+                too_short: "is too short (minimum is %{count} operation)"

@@ -1,0 +1,15 @@
+sudo: false
+language: ruby
+
+branches:
+  only:
+    - master
+
+rvm:
+  - 2.0
+  - 2.1
+  - 2.2
+  - 2.3.1
+  - jruby-9.1.1.0
+
+before_install: gem install bundler -v 1.12.3

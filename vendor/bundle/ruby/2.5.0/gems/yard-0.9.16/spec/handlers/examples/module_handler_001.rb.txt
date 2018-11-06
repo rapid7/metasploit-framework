@@ -1,0 +1,29 @@
+module ModName
+  private
+
+  # Docstring
+  module OtherModName
+  end
+end
+
+module            StressTest; end
+
+module A; end
+
+module Q
+	module A::B
+	end
+	module FOO; end
+end
+
+module ::Kernel
+  def x; end
+end
+
+module A; end
+module B; end
+module C; end
+class D; include A; include B; include C; end
+
+Z = Q
+module Z::FOO::A; end

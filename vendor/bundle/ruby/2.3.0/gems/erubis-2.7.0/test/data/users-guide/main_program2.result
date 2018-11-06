@@ -1,0 +1,6 @@
+$ ruby main_program2.rb
+item = foo
+item = bar
+item = baz
+** debug: local variables=["_context", "x", "_buf"]
+** debug: x=1

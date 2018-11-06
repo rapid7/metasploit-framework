@@ -1,0 +1,27 @@
+=== 1.0.3 / 2018-01-25
+
+  * Updated the gem's metadata
+
+=== 1.0.2 / 2012-09-16
+
+  * Changed test runner from RSpec to MiniSpec
+  * Support for rubygems-test
+  * Minor changes to make packaging easier
+
+=== 1.0.1 / 2011-05-05
+
+  * Removed hoe dependency in favor of bundler
+  * Minor corrections in the documentation
+
+=== 1.0.0 / 2009-12-25
+
+* 2 major enhancements
+
+  * Ruby 1.9 compatibility
+  * Added command-line en- and decoder
+
+=== 0.9.0 / 2009-02-17
+
+* 1 major enhancement
+
+  * Initial release

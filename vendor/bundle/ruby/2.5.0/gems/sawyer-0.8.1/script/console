@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Usage: script/console
+# Starts an IRB console with this library loaded.
+
+gemspec="$(ls *.gemspec | head -1)"
+
+exec bundle exec irb -r "${gemspec%.*}"
+

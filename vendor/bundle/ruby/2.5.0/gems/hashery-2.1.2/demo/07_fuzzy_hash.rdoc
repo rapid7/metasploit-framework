@@ -1,0 +1,137 @@
+= FuzzyHash
+
+Should accept strings and retrieve based on them.
+
+    l = FuzzyHash.new
+    l['asd'] = 'qwe'
+    l['asd'].should == 'qwe'
+  
+Should accept strings, but the second time you set the same string, it should overwrite.
+
+    l = FuzzyHash.new
+    l['asd'] = 'asd'
+    l['asd'] = 'qwe'
+    l['asd'].should == 'qwe'
+
+Should accept regexs too.
+
+    l = FuzzyHash.new
+    l[/asd.*/] = 'qwe'
+    l['asdqweasd'].should == 'qwe'
+
+Should accept regexs too, but the second time you set the same regex, it should overwrite.
+
+    l = FuzzyHash.new
+    l[/asd/] = 'asd'
+    l[/asd/] = 'qwe'
+    l['asdqweasd'].should == 'qwe'
+
+Should accept regexs too with the match.
+
+    l = FuzzyHash.new
+    l[/asd.*/] = 'qwe'
+    l.match_with_result('asdqweasd').should == ['qwe', 'asdqweasd']
+
+Should accept regexs that match the whole strong too with the match.
+
+    l = FuzzyHash.new
+    l[/asd/] = 'qwe'
+    l.match_with_result('asd').should == ['qwe', 'asd']
+
+Should prefer string to regex matches.
+
+    l = FuzzyHash.new
+    l['asd'] = 'qwe2'
+    l[/asd.*/] = 'qwe'
+    l['asd'].should == 'qwe2'
+
+Should allow nil keys.
+
+    l = FuzzyHash.new
+    l[nil] = 'qwe2'
+    l['asd'] = 'qwe'
+    l['asd'].should == 'qwe'
+    l[nil].should == 'qwe2'
+
+Should allow boolean keys.
+
+    l = FuzzyHash.new
+    l[false] = 'false'
+    l[true] = 'true'
+    l[/.*/] = 'everything else'
+    l[true].should == 'true'
+    l[false].should == 'false'
+    l['false'].should == 'everything else'
+
+Should pick between the correct regex.
+
+    hash = FuzzyHash.new
+    hash[/^\d+$/] = 'number'
+    hash[/.*/] = 'something'
+    hash['123asd'].should == 'something'
+
+Should be able to delete by value for hash.
+
+    l = FuzzyHash.new
+    l[nil] = 'qwe2'
+    l['asd'] = 'qwe'
+    l['asd'].should == 'qwe'
+    l[nil].should == 'qwe2'
+    l.delete_value('qwe2')
+    l[nil].should == nil
+
+Should be able to delete by value for regex.
+
+    l = FuzzyHash.new
+    l[/qwe.*/] = 'qwe2'
+    l['asd'] = 'qwe'
+    l['asd'].should == 'qwe'
+    l['qweasd'].should == 'qwe2'
+    l.delete_value('qwe2')
+    l['qweasd'].should == nil
+
+Should iterate through the keys.
+
+    l = FuzzyHash.new
+    l[/qwe.*/] = 'qwe2'
+    l['asd'] = 'qwe'
+    l['zxc'] = 'qwe'
+    l.keys.size.should == 3
+
+Should iterate through the values.
+
+    l = FuzzyHash.new
+    l[/qwe.*/] = 'qwe2'
+    l['asd'] = 'qwe'
+    l['zxc'] = 'qwelkj'
+    (['qwe2','qwe','qwelkj'] & l.values).size.should == 3
+
+Should clear.
+
+    l = FuzzyHash.new
+    l[/qwe.*/] = 'qwe2'
+    l['asd'] = 'qwe'
+    l['zxc'] = 'qwelkj'
+    l.clear
+    l.empty?.should == true
+ 
+Should handle equality.
+
+    l_1 = FuzzyHash.new
+    l_1[/qwe.*/] = 'qwe2'
+    l_1['asd'] = 'qwelkj'
+    l_1['zxc'] = 'qwe'
+    l_2 = FuzzyHash.new
+    l_2['zxc'] = 'qwe'
+    l_2['asd'] = 'qwelkj'
+    l_2[/qwe.*/] = 'qwe2'
+    l_1.should == l_2
+
+Should return the value when adding the value.
+
+    h = FuzzyHash.new
+    (h[/asd/] = '123').should == '123'
+    (h['qwe'] = '123').should == '123'
+
+That's It.
+

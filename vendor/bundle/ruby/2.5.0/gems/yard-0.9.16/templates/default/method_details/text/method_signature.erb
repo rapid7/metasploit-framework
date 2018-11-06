@@ -1,0 +1,12 @@
+
+<% if object.tags(:overload).size == 1 %>
+<%= indent wrap(signature(object.tag(:overload))) %>
+<% elsif object.tags(:overload).size > 1 %>
+<% object.tags(:overload).each do |overload| %>
+<%= indent wrap(signature(overload)) %>
+<% end %>
+<% else %>
+<%= indent wrap(signature(object)) %>
+<% end %>
+<%= hr %>
+

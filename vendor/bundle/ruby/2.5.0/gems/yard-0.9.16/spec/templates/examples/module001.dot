@@ -1,0 +1,33 @@
+A [label="{module A|+ \#attr1 [RW]\l+ \#attr2 [R]\l+ \#attr3 [RW]\l+ \#attr4 [W]\l|+ a\l+ \#a\l+ \#test_multi_overload\l+ \#test_overload\l+ \#void_meth\ \:\ void\l}" rank=sink];
+A_Y [label="{class Y||}" rank=sink];
+subgraph cluster_A_Y {
+  label = "Y"; labelloc=b;
+  
+}
+
+A_Q [label="{class Q||}" rank=sink];
+subgraph cluster_A_Q {
+  label = "Q"; labelloc=b;
+  
+}
+
+A_X [label="{class X||}" rank=sink];
+subgraph cluster_A_X {
+  label = "X"; labelloc=b;
+  
+}
+subgraph cluster_A {
+  label = "A"; labelloc=b;
+  
+    A_Z [label="{module Z||}" rank=sink];
+subgraph cluster_A_Z {
+  label = "Z"; labelloc=b;
+  
+}
+
+  
+}
+
+  A -> B [style=dotted arrowType=none];
+
+  A -> BaseMod [style=dotted arrowType=none];

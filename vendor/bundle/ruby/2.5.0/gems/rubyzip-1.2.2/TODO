@@ -1,0 +1,15 @@
+
+* ZipInputStream: Support zip-files with trailing data descriptors
+* Adjust rdoc stylesheet to advertise inherited methods if possible
+* Suggestion: Add ZipFile/ZipInputStream example that demonstrates extracting all entries.
+* Suggestion: ZipFile#extract destination should default to "."
+* Suggestion: ZipEntry should have extract(), get_input_stream() methods etc
+* (is buffering used anywhere with write?)
+* Inflater.sysread should pass the buffer to produce_input.
+* Implement ZipFsDir.glob
+* ZipFile.checkIntegrity method
+* non-MSDOS permission attributes
+** See mail from Ned Konz to ruby-talk subj. "Re: SV: [ANN] Archive 0.2"
+* Packager version, required unpacker version in zip headers
+** See mail from Ned Konz to ruby-talk subj. "Re: SV: [ANN] Archive 0.2"
+* implement storing attributes and ownership information

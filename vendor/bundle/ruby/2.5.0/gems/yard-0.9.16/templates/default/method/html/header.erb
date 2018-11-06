@@ -1,0 +1,17 @@
+<h1>Method: <%= object.path %></h1>
+<div class="box_info">
+  <dl>
+    <dt class="">Defined in:</dt>
+    <dd class="">
+    <%= object.file %><% if object.files.size > 1 %><span class="defines">,<br />
+      <%= object.files[1..-1].map {|f| f.first }.join(",<br /> ") %></div>
+    <% end %>
+    </dd>
+  </dl>
+</div>
+
+<div class="method_details_list">
+  <div id="method_details">
+    <%= yieldall :index => 0 %>
+  </div>
+</div>

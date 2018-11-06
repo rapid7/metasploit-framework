@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+###
+### $Release: 2.7.0 $
+### copyright(c) 2006-2011 kuwata-lab.com all rights reserved.
+###
+
+require 'erubis/main'
+
+Erubis::Main.main(ARGV)

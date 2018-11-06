@@ -1,0 +1,17 @@
+= KeyHash
+
+The KeyHash is essentially the same as regular Hash but instead
+of a `default_proc` the initializer takes the `key_proc` for
+normalizing keys.
+
+   kh = KeyHash.new{ |k| k.to_s.upcase }
+   kh[:a] = 1
+   kh.to_h  #=> ({'A'=>1})
+
+By default, when no `key_proc` is given, it converts all keys to strings.
+
+   kh = KeyHash.new
+   kh[:a] = 1
+   kh.to_h  #=> ({'a'=>1})
+
+

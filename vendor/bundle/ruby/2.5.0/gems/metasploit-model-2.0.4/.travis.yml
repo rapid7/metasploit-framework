@@ -1,0 +1,16 @@
+group: stable
+sudo: false
+cache: bundler
+language: ruby
+addons:
+  postgresql: '9.3'
+  apt:
+    packages:
+      - graphviz
+rvm:
+  - 2.3.2
+before_install:
+  - gem update bundler
+script:
+  - bundle exec rake spec
+  - bundle exec rake yard

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fingerprints protocol="smtp" database_type="service" preference="0.19">
+  <!--
+  SMTP response lines to the EHLO command are matched against these patterns
+  (1 line at a time) to fingerprint SMTP servers.
+
+  See comment at the top of smtp_banners.xml for additional info.
+
+  'preference' note: This value has been set so as to implement the ordering
+    of SMTP related fingerprint databases as described in 'smtp_banners.xml'.
+  -->
+  <fingerprint pattern="^500[ -]Syntax error, command &quot;XXXX&quot; unrecognized$">
+    <description>
+         Cisco PIX changes the command letters to 'X' before passing
+         them to the real SMTP server.
+      </description>
+    <param pos="0" name="os.vendor" value="Cisco"/>
+    <param pos="0" name="os.family" value="PIX"/>
+    <param pos="0" name="os.product" value="PIX"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:cisco:pix_firewall_software:-"/>
+  </fingerprint>
+  <!--
+   Don't try to infer a fingerprint from XEXCH50, because if we do, it might overwrite
+   a very precise MS IIS SMTP service or MS Exchange Server fingerprint found with the
+   help of smtp_banners.xml. Instead, this case is handled specially by the Jess rule
+   smtp-iis-xexch50-svc-fingerprint. -mrb
+
+   <fingerprint pattern="^250[ -] *XEXCH50.*$">
+      <description>
+         Microsoft Exchange/IIS server
+      </description>
+      <param pos="0" name="service.vendor" value="Microsoft"/>
+      <param pos="0" name="service.family" value="IIS"/>
+      <param pos="0" name="service.product" value="IIS"/>
+      <param pos="0" name="os.vendor" value="Microsoft"/>
+      <param pos="0" name="os.family" value="Windows"/>
+      <param pos="0" name="os.device" value="General"/>
+      <param pos="0" name="os.product" value="Windows"/>
+   </fingerprint>
+   -->
+  <fingerprint pattern="^221[ -]See ya in cyberspace$">
+    <description>
+         221 See ya in cyberspace
+      </description>
+    <param pos="0" name="service.vendor" value="Alt-N"/>
+    <param pos="0" name="service.family" value="MDaemon"/>
+    <param pos="0" name="service.product" value="MDaemon"/>
+    <param pos="0" name="service.cpe23" value="cpe:/a:altn:mdaemon:-"/>
+    <param pos="0" name="os.vendor" value="Microsoft"/>
+    <param pos="0" name="os.family" value="Windows"/>
+    <param pos="0" name="os.device" value="General"/>
+    <param pos="0" name="os.product" value="Windows"/>
+    <param pos="0" name="os.arch" value="x86"/>
+    <param pos="0" name="os.cpe23" value="cpe:/o:microsoft:windows:-"/>
+  </fingerprint>
+</fingerprints>

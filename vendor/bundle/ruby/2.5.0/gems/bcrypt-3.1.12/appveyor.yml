@@ -1,0 +1,50 @@
+###############################################################################
+#
+# This AppVeyor config is *NOT* for running the tests on Windows.
+#
+# This is to ensure that the latest version of the bcrypt gem can be installed
+# on Windows across all of the currently supported versions of Ruby.
+#
+###############################################################################
+
+version: "{branch}-{build}"
+build: off
+clone_depth: 1
+
+init:
+  # Install Ruby 1.8.7
+  - if %RUBY_VERSION%==187 (
+      appveyor DownloadFile https://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-1.8.7-p374.exe -FileName C:\ruby_187.exe &
+      C:\ruby_187.exe /verysilent /dir=C:\Ruby%RUBY_VERSION%
+    )
+
+environment:
+  matrix:
+    - RUBY_VERSION: "187"
+    - RUBY_VERSION: "193"
+    - RUBY_VERSION: "200"
+    - RUBY_VERSION: "200-x64"
+    - RUBY_VERSION: "21"
+    - RUBY_VERSION: "21-x64"
+    - RUBY_VERSION: "22"
+    - RUBY_VERSION: "22-x64"
+    - RUBY_VERSION: "23"
+    - RUBY_VERSION: "23-x64"
+    - RUBY_VERSION: "24"
+    - RUBY_VERSION: "24-x64"
+    - RUBY_VERSION: "25"
+    - RUBY_VERSION: "25-x64"
+
+install:
+  - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
+  - if %RUBY_VERSION%==187 (
+      gem update --system 2.0.17
+    )
+
+before_test:
+  - ruby -v
+  - gem -v
+
+test_script:
+  - gem install bcrypt --prerelease --no-ri --no-rdoc
+  - ruby -e "require 'rubygems'; require 'bcrypt'"

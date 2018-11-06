@@ -1,0 +1,8 @@
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  <% if @ctor.namespace != object %>
+    <p class="notice">This class inherits a constructor from <%= linkify @ctor, @ctor.namespace.path %></p>
+  <% else %>
+    <%= yieldall :object => @ctor, :index => 0 %>
+  <% end %>
+</div>

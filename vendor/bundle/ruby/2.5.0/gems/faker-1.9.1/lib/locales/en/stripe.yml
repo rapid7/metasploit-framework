@@ -1,0 +1,42 @@
+# https://stripe.com/docs/testing
+en:
+  faker:
+    stripe:
+      valid_cards:
+        visa:          "4242424242424242"
+        visa_debit:    "4000056655665556"
+        mc:            "5555555555554444"
+        mc_2_series:   "2223003122003222"
+        mc_debit:      "5200828282828210"
+        mc_prepaid:    "5105105105105100"
+        amex:          "378282246310005"
+        amex_2:        "371449635398431"
+        discover:      "6011111111111117"
+        discover_2:    "6011000990139424"
+        diners_club:   "30569309025904"
+        diners_club_2: "38520000023237"
+        jcb:           "3530111333300000"
+      valid_tokens:
+        visa:          "tok_visa"
+        visa_debit:    "tok_visa_debit"
+        mc:            "tok_mastercard"
+        mc_debit:      "tok_mastercard_debit"
+        mc_prepaid:    "tok_mastercard_prepaid"
+        amex:          "tok_amex"
+        discover:      "tok_discover"
+        diners_club:   "tok_diners"
+        jcb:           "tok_jcb"
+      invalid_cards:
+        addressZipFail:         "4000000000000010"  # The address_line1_check and address_zip_check verifications fail. If your account is blocking payments that fail ZIP code validation, the charge is declined.
+        addressFail:            "4000000000000028"  # Charge succeeds but the address_line1_check verification fails.
+        zipFail:                "4000000000000036"  # The address_zip_check verification fails. If your account is blocking payments that fail ZIP code validation, the charge is declined.
+        addressZipUnavailable:  "4000000000000044"  # Charge succeeds but the address_zip_check and address_line1_check verifications are both unavailable.
+        cvcFail:                "4000000000000101"  # If a CVC number is provided, the cvc_check fails. If your account is blocking payments that fail CVC code validation, the charge is declined.
+        customerChargeFail:     "4000000000000341"  # Attaching this card to a Customer object succeeds, but attempts to charge the customer fail.
+        successWithReview:      "4000000000009235"  # Charge succeeds with a risk_level of elevated and placed into review.
+        declineCard:            "4000000000000002"  # Charge is declined with a card_declined code.
+        declineFraudulentCard:  "4100000000000019"  # Results in a charge with a risk level of highest. The charge is blocked as it's considered fraudulent.
+        declineIncorrectCvc:    "4000000000000127"  # Charge is declined with an incorrect_cvc code.
+        declineExpired:         "4000000000000069"  # Charge is declined with an expired_card code.
+        declineProcessingError: "4000000000000119"  # Charge is declined with a processing_error code.
+        declineIncorrectNumber: "4242424242424241"  # Charge is declined with an incorrect_number code as the card number fails the Luhn check.

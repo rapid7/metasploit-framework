@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+# (C) John Mair (banisterfiend)
+# MIT license
+
+$0 = 'pry'
+
+require 'pry'
+
+# Process command line options and run Pry
+opts = Pry::CLI.parse_options
+Pry::CLI.start(opts)
