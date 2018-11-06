@@ -17,6 +17,13 @@ module Msf::Post::OSX::System
     system_info["Kernel"] = cmd_exec("uname -a")
     system_info["Hostname"] = system_info["Kernel"].split(" ")[1]
 
+    report_host({
+      :host => rhost,
+      :os_name => 'osx',
+      :os_flavor => system_info["Kernel"],
+      :name => system_info["Hostname"]
+    })
+
     return system_info
   end
 
