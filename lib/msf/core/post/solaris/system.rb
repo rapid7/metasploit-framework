@@ -27,8 +27,15 @@ module System
       :os_name => 'Solaris',
       :name => system_data[:hostname]
     }
-    # http://rubular.com/r/SWIU4O3Zow
-    if /(?<major>[\d]?\d)x?(\.|_u)(?<minor>[\d]?\d)/ =~ system_data[:version]
+    # Test cases for these can be found here:
+    #    http://rubular.com/r/MsGuhp89F0
+    #    http://rubular.com/r/DWKG0jpPCk
+    #    http://rubular.com/r/EjiIa1RFxB
+    if /(?<OS>(?<!Open|Oracle )Solaris).+s2?(?<major>\d?\d)[x|s]?(_u)(?<minor>\d?\d)/ =~ system_data[:version]
+      host_info[:os_flavor] = "#{major}.#{minor}"
+    elsif /(?<OS>Oracle Solaris) (?<major>\d\d)\.(?<minor>\d?\d)/ =~ system_data[:version]
+      host_info[:os_flavor] = "#{major}.#{minor}"
+    elsif /(?<OS>OpenSolaris|OpenIndiana [\w]+) (?<major>\d\d\d\d)\.(?<minor>\d\d)/ =~ system_data[:version]
       host_info[:os_flavor] = "#{major}.#{minor}"
     end
     report_host(host_info)
