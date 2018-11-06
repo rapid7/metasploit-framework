@@ -99,6 +99,13 @@ module System
       system_data[:version] = ''
 
     end
+
+    report_host({
+      :host => rhost,
+      :os_name => system_data[:distro],
+      :os_flavor => system_data[:version]
+    })
+
     return system_data
   end
 
@@ -148,7 +155,9 @@ module System
   # @return [String]
   #
   def get_hostname
-    cmd_exec('uname -n').to_s
+    hostname = cmd_exec('uname -n').to_s
+    report_host({:host => rhost, :name => hostname})
+
   rescue
     raise 'Unable to retrieve hostname'
   end
