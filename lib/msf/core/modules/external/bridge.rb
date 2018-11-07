@@ -185,9 +185,21 @@ class Msf::Modules::External::RbBridge < Msf::Modules::External::Bridge
 
   def initialize(module_path, framework: nil)
     super
-
     ruby_path = File.expand_path('../ruby', __FILE__)
     self.cmd = [[Gem.ruby, 'ruby'], "-I#{ruby_path}", self.path]
+  end
+end
+
+class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
+  def self.applies?(module_name)
+    module_name.match? /\.go$/
+  end
+
+  def initialize(module_path, framework: nil)
+    super
+    gopath = ENV['GOPATH'] || ''
+    self.env = self.env.merge({ 'GOPATH' => gopath + File::PATH_SEPARATOR + File.expand_path('../go', __FILE__) })
+    self.cmd = ['go', 'run', self.path]
   end
 end
 
@@ -196,6 +208,7 @@ class Msf::Modules::External::Bridge
   LOADERS = [
     Msf::Modules::External::PyBridge,
     Msf::Modules::External::RbBridge,
+    Msf::Modules::External::GoBridge,
     Msf::Modules::External::Bridge
   ]
 
