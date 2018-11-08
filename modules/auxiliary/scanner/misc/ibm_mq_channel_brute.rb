@@ -84,11 +84,13 @@ class MetasploitModule < Msf::Auxiliary
     @unencrypted_mqi_channels = []
     begin
       channel_list
-      rescue ::Rex::ConnectionError
+      rescue ::Rex::ConnectionRefused
+        fail_with(Failure::Unreachable, "TCP Port closed.")
+      rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error, Errno::ECONNRESET
+        fail_with(Failure::Unreachable, "Connection Failed.")
       rescue ::Exception => e
-        print_error("#{e} #{e.backtrace}")
+        fail_with(Failure::Unknown, e)
       end
-      print_line
       if(@channels.empty?)
         print_status("#{ip}:#{rport} No channels found.")
       else
