@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options([
       Opt::RPORT(1414),
-      OptInt.new('TIMEOUT', [true, "The socket connect timeout in seconds", 5]),
+      OptInt.new('TIMEOUT', [true, "The socket connect timeout in seconds", 10]),
       OptInt.new('CONCURRENCY', [true, "The number of concurrent channel names to check", 10]),
       OptPath.new('CHANNELS_FILE',
         [ true, "The file that contains a list of channel names"]
