@@ -2,7 +2,7 @@
 
 Every so often, we'll get a request along the lines of, "Hey, I'm new to Metasploit, and I want to help!" The usual answer is something like, "Great! Here's our [framework bug tracker](https://github.com/rapid7/metasploit-framework/issues), get crackin!"
 
-However, tackling core Metasploit Framework bugs or particularly squirrelly exploits probably isn't the right place for the new contributor. Believe me, everyone was a newbie once, there's no shame in that. Those bugs and vulns are usually complicated, nuanced, and there's so many to choose from, it's hard to get started. Here are some ideas to get you started.
+However, tackling core Metasploit Framework bugs or particularly squirrelly exploits probably isn't the right place for the new contributor. Believe me, everyone was a newbie once, there's no shame in that. Those bugs and vulns are usually complicated, and there are so many to choose from that it's hard to get started. Here are some ideas to get you started.
 
 ## [CONTRIBUTING.md](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md)
 
@@ -43,15 +43,15 @@ Along these same lines is a perennial need for better automated testing, down in
 
 ## Non-code
 
-Hey, we could always use better documentation. Those guys over at Offensive Security do a great job with [Metasploit Unleashed](http://www.offensive-security.com/metasploit-unleashed/Main_Page), but as with all complex bodies of work, there are surely bugs to be found. If you have ideas on how to make the documentation on Metasploit clear and more accessible to more people, go nuts.
+We can always use better documentation. Those guys over at Offensive Security do a great job with [Metasploit Unleashed](http://www.offensive-security.com/metasploit-unleashed/Main_Page), but as with all complex bodies of work, there are surely bugs to be found. If you have ideas on how to make the documentation on Metasploit clear and more accessible to more people, go nuts. 
 
-Write wiki articles in your fork (hint, [Gollum](https://github.com/gollum/gollum) is excellent for this) and let someone know about them, we'll be happy to reflect them here and maintain your credit.
+Write wiki articles in your fork (hint, [Gollum](https://github.com/gollum/gollum) is excellent for this) and let someone know about them, we'll be happy to reflect them here and maintain your credit. If you're interested in working with us on documentation long-term, that's even better; reach out on [Slack](https://metasploit.com/slack) for info on how best to make changes.
 
-Ditto with YouTube screencasts of particular common tasks. Narration while you do it is great, please seem to love YouTube videos of this stuff -- there are over [40,000](http://www.youtube.com/results?search_query=metasploit&oq=metasploit) of the things out there, and we'd love for someone to step up and curate a top 10 or top 100 of those that we can promote here for new and experienced users.
+Ditto with YouTube screencasts of particular common tasks. Narration while you do it is great. People seem to love YouTube videos of this stuff -- there are over [40,000](http://www.youtube.com/results?search_query=metasploit&oq=metasploit) of the things out there, and we'd love for someone to step up and curate a top 10 or top 100 of those that we can promote here for new and experienced users.
 
 For developer types: we are slowly but surely converting all of Metasploit to use standardized commenting using [YARD](yardoc.org), so we could always use more accurate and more comprehensive YARD documentation for pretty much anything found in `lib`. We will happily take pull requests that contain nothing but comment docs!
 
-Again, there's always room on #metasploit on Freenode. Be helpful with the questions there, and people are more likely to help you in the future.
+Again, there's always room on #metasploit on Freenode. Be helpful with the questions there, and people are more likely to help you in the future. Same goes for the [Metasploit Slack team](https://metasploit.com/slack), where all sorts of new and proficient users and devs are looking for help and camaraderie. 
 
 ## The Usual Warnings
 
