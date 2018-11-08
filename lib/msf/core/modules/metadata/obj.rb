@@ -70,8 +70,8 @@ class Obj
     @description        = module_instance.description.to_s.strip
     @author             = module_instance.author.map{|x| x.to_s}
     @references         = module_instance.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
-    @is_server          = (module_instance.respond_to?(:stance) and module_instance.stance == "aggressive")
-    @is_client          = (module_instance.respond_to?(:stance) and module_instance.stance == "passive")
+    @is_server          = module_instance.respond_to?(:exploit_type) && module_instance.exploit_type == Exploit::Type::Remote
+    @is_client          = module_instance.respond_to?(:exploit_type) && !@is_server
     @post_auth          = module_instance.post_auth?
     @default_credential = module_instance.default_cred?
 
