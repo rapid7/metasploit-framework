@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.24)
+    metasploit-framework (4.17.25)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -204,11 +204,11 @@ GEM
       activerecord (~> 4.0)
       arel (>= 4.0.1)
       pg_array_parser (~> 0.0.9)
-    pry (0.11.3)
+    pry (0.12.0)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
     public_suffix (3.0.3)
-    rack (1.6.10)
+    rack (1.6.11)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails-deprecated_sanitizer (1.0.3)
@@ -226,7 +226,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.1)
     rb-readline (0.5.5)
-    recog (2.1.31)
+    recog (2.1.32)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
