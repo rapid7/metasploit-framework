@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('CHANNEL', [ true, "Channel to use" ,"SYSTEM.DEF.SVRCONN"]),
         OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
-        OptInt.new('TIMEOUT', [true, "The socket connect timeout in seconds", 5]),
+        OptInt.new('TIMEOUT', [true, "The socket connect timeout in seconds", 10]),
         OptString.new('PORTS', [true, 'Ports to probe', '1414']),
 
       ])
@@ -116,14 +116,24 @@ class MetasploitModule < Msf::Auxiliary
                   end
                 end
                 if data_recv.nil?
-                  print_status("No response received. Try increasing timeout.")
+                  print_status("No response received. Try increasing TIMEOUT value.")
+                  print_line
                   next
                 end
                 if data_recv[-4..-1] == "\x18\x00\x00\x00"
                   print_status("Channel Requires SSL. Could not get more information.")
+                  print_line
                 end
                 if not data_recv[0...3].include?('TSH')
                   next
+                end
+                if data_recv[-4..-1] == "\x01\x00\x00\x00"
+                  print_error('Channel "' + chan + '" does not exist.')
+                  print_line
+                end
+                if data_recv[-4..-1] == "\x02\x00\x00\x00"
+                  print_error('Unsupported channel type. Try a different channel.')
+                  print_line
                 end
                 if data_recv.length < 180
                   next
@@ -131,6 +141,7 @@ class MetasploitModule < Msf::Auxiliary
                 qm_name = data_recv[76...124].delete(' ')
                 mq_version = data_recv[180...188].scan(/../).collect{|x| x.to_i}.join('.')
                 print_good("#{ip}:#{port} - Queue Manager Name: #{qm_name} - MQ Version: #{mq_version}")
+                print_line
             end
           end
         end
@@ -151,21 +162,22 @@ class MetasploitModule < Msf::Auxiliary
       )
       s.put(packet)
       data = s.get_once(-1,timeout)
+      return data
     rescue ::Rex::ConnectionRefused
-      vprint_status("#{ip}:#{port} - TCP closed")
-      return
+      print_error("#{ip}:#{port} - TCP Port Closed.")
+      print_line
     rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error, Errno::ECONNRESET
-      vprint_status("#{ip}:#{port} - Connection Failed")
-      return
+      print_error("#{ip}:#{port} - Connection Failed.")
+      print_line
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
-      print_error("#{ip}:#{port} exception #{e.class} #{e} #{e.backtrace}")
+      vprint_error("#{ip}:#{port} exception #{e.class} #{e} #{e.backtrace}")
+      print_line
     ensure
       if s
         disconnect(s) rescue nil
       end
-    return data
     end
   end
 
