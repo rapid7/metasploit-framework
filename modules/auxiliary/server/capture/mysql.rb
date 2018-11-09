@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
       module_fullname: fullname,
       username: opts[:user],
       private_data: opts[:password],
-      private_type: :password
+      private_type: :nonreplayable_hash
     }.merge(service_data)
 
     login_data = {
