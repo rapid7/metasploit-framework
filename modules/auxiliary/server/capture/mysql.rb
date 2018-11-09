@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
         port: datastore['SRVPORT'],
         service_name: 'mysql_client',
         user: info[:username],
-        pass: hash_line,
+        password: hash_line,
         proof: info[:database] ? info[:database] : hash_line
       )
 
