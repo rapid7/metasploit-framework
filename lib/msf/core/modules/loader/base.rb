@@ -21,7 +21,8 @@ class Msf::Modules::Loader::Base
     Msf::MODULE_EXPLOIT => 'exploits',
     Msf::MODULE_NOP => 'nops',
     Msf::MODULE_PAYLOAD => 'payloads',
-    Msf::MODULE_POST => 'post'
+    Msf::MODULE_POST => 'post',
+    Msf::MODULE_EVASION => 'evasion'
   }
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
   NAMESPACE_MODULE_LINE = __LINE__ + 4
@@ -361,17 +362,24 @@ class Msf::Modules::Loader::Base
   # @return [nil] if any module name along the chain does not exist.
   def current_module(module_names)
     # Don't want to trigger ActiveSupport's const_missing, so can't use constantize.
-    named_module = module_names.inject(Object) { |parent, module_name|
+    named_module = module_names.reduce(Object) do |parent, module_name|
       # Since we're searching parent namespaces first anyway, this is
       # semantically equivalent to providing false for the 1.9-only
       # "inherit" parameter to const_defined?. If we ever drop 1.8
       # support, we can save a few cycles here by adding it back.
-      if parent.const_defined?(module_name)
-        parent.const_get(module_name)
-      else
-        break
+      begin
+        if parent.const_defined?(module_name)
+          parent.const_get(module_name)
+        else
+          break
+        end
+      # HACK: This doesn't slow load time as much as checking proactively
+      rescue NameError
+        reversed_name = self.class.reverse_relative_name(module_name)
+        # TODO: Consolidate this with Msftidy#check_snake_case_filename ?
+        raise Msf::ModuleLoadError, "#{reversed_name} must be lowercase alphanumeric snake case"
       end
-    }
+    end
 
     named_module
   end
@@ -503,9 +511,7 @@ class Msf::Modules::Loader::Base
 
   # Returns an Array of names to make a fully qualified module name to
   # wrap the MetasploitModule class so that it doesn't overwrite other
-  # (metasploit) module's classes. Invalid module name characters are
-  # escaped by using 'H*' unpacking and prefixing each code with X so
-  # the code remains a valid module name when it starts with a digit.
+  # (metasploit) module's classes.
   #
   # @param [String] module_full_name The unique canonical name
   #   for the module including type.
@@ -513,7 +519,18 @@ class Msf::Modules::Loader::Base
   #
   # @see namespace_module
   def namespace_module_names(module_full_name)
-    NAMESPACE_MODULE_NAMES + [ "Mod" + module_full_name.unpack("H*").first.downcase ]
+    relative_name = module_full_name.split('/').map(&:capitalize).join('__')
+    NAMESPACE_MODULE_NAMES + [relative_name]
+  end
+
+  # This reverses a namespace module's relative name to a module full name
+  #
+  # @param [String] relative_name The namespace module's relative name
+  # @return [String] The module full name
+  #
+  # @see namespace_module_names
+  def self.reverse_relative_name(relative_name)
+    relative_name.split('__').map(&:downcase).join('/')
   end
 
   def namespace_module_transaction(module_full_name, options={}, &block)

