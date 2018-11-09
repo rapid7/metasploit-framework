@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def mysql_send_greeting(c)
-    # http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Handshake_Initialization_Packet
+    # https://dev.mysql.com/doc/internals/en/connection-phase-packets.html
 
     length = 68 + @version.length
     packetno = 0
