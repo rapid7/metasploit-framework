@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         13.3.x.x and below ship with a public/private key pairthat allows
         passwordless authentication to any other affected Power Xpert Meter.
         The vendor recommends updating to Version 13.4.0.10 or above.
-        Tested on: Firmware 12.1.9.1 and 13.3.2.10. As the key is easily retrievable, 
+        Tested on: Firmware 12.1.9.1 and 13.3.2.10. As the key is easily retrievable.
         an attacker can use it to gain unauthorized remote access as uid0
       },
       'Author'         => [
