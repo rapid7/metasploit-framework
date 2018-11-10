@@ -1,18 +1,7 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
-# Exploit Title: Eaton Xpert Meter SSH Private Key Exposure
-# Date: 07-16-2018
-# Exploit Author: BrianWGray
-# Contact: https://twitter.com/BrianWGray
-# WebPage: https://CTRLu.net/
-# Vendor Homepage: http://www.eaton.com/
-# Vendor Advisory: http://www.eaton.com/content/dam/eaton/company/news-insights/cybersecurity/security-bulletins/PXM-Advisory.pdf
-# Software Link: http://www.eaton.com/Eaton/ProductsServices/Electrical/ProductsandServices/PowerQualityandMonitoring/PowerandEnergyMeters/PowerXpertMeter400060008000/index.htm#tabs-2
-# Version: Firmware <= 12.x and <= 13.3.x.x and below more versions may be impacted
-# Recomended to update to Version 13.4.0.10 or above
-# Tested on: Firmware 12.1.9.1 and 13.3.2.10
-# CVE : CVE-2018-16158
-##
+# Current source: https://github.com/rapid7/metasploit-framework
+###
 
 # XXX: This shouldn't be necessary but is now
 require 'net/ssh/command_stream'
@@ -27,14 +16,12 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Eaton Xpert Meter SSH Private Key Exposure Scanner',
       'Description'    => %q{
-        Eaton Power Xpert Meters are used across industries for energy management,
-        monitoring circuit loading, and identifying power quality problems.
-        Meters running firmware 12.x.x.x or below version 13.3.x.x and below ship with
-        a public/private key pair on Power Xpert Meter hardware that allows
+        Eaton Power Xpert Meters running firmware 12.x.x.x or below version
+        13.3.x.x and below ship with a public/private key pairthat allows
         passwordless authentication to any other affected Power Xpert Meter.
-        The vendor recommends updating to Version 13.4.0.10 or above. As the key is
-        easily retrievable, an attacker can use it to gain unauthorized remote
-        access as uid0
+        The vendor recommends updating to Version 13.4.0.10 or above.
+        Tested on: Firmware 12.1.9.1 and 13.3.2.10. As the key is easily retrievable, 
+        an attacker can use it to gain unauthorized remote access as uid0
       },
       'Author'         => [
         'BrianWGray'
@@ -62,6 +49,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     factory = ssh_socket_factory
 
+    # Specified Kex/Encryption downgrade requirements must be set to connect to the Power Meters.
     ssh_opts = {
       auth_methods:    ['publickey'],
       port:            rport,
