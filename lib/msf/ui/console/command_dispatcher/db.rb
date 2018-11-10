@@ -731,6 +731,10 @@ class Db
     each_host_range_chunk(host_ranges) do |host_search|
       framework.db.services(framework.db.workspace, onlyup, proto, host_search, ports, names).each do |service|
 
+        unless service.state == 'open'
+          next if onlyup
+        end
+
         host = service.host
         if search_term
           next unless(
