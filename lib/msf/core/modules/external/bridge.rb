@@ -174,7 +174,7 @@ class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
   def initialize(module_path, framework: nil)
     super
     pythonpath = ENV['PYTHONPATH'] || ''
-    self.env = self.env.merge({ 'PYTHONPATH' => pythonpath + File::PATH_SEPARATOR + File.expand_path('../python', __FILE__) })
+    self.env = self.env.merge({ 'PYTHONPATH' => File.expand_path('../python', __FILE__) + File::PATH_SEPARATOR + pythonpath})
   end
 end
 
@@ -198,7 +198,7 @@ class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
   def initialize(module_path, framework: nil)
     super
     gopath = ENV['GOPATH'] || ''
-    self.env = self.env.merge({ 'GOPATH' => gopath + File::PATH_SEPARATOR + File.expand_path('../go', __FILE__) })
+    self.env = self.env.merge({ 'GOPATH' => File.expand_path('../go', __FILE__) + File::PATH_SEPARATOR + gopath})
     self.cmd = ['go', 'run', self.path]
   end
 end
