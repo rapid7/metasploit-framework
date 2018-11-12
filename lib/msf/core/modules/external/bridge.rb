@@ -174,11 +174,7 @@ class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
   def initialize(module_path, framework: nil)
     super
     pythonpath = ENV['PYTHONPATH'] || ''
-    if pythonpath.empty?
-      self.env = self.env.merge({ 'PYTHONPATH' => File.expand_path('../python', __FILE__)})
-    else
-      self.env = self.env.merge({ 'PYTHONPATH' => File.expand_path('../python', __FILE__) + File::PATH_SEPARATOR + pythonpath})
-    end
+    self.env = self.env.merge({ 'PYTHONPATH' => File.expand_path('../python', __FILE__) + File::PATH_SEPARATOR + pythonpath})
   end
 end
 
