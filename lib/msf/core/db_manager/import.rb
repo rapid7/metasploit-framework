@@ -97,11 +97,11 @@ module Msf::DBManager::Import
     self.send "import_#{ftype}".to_sym, args.merge(workspace: wspace.name), &block
     # post process the import here for missing default port maps
     mrefs, mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_remote_exploit_maps
-    # the map build above is a little expensive, another options is to do
+    # the map build above is a little expensive, another option is to do
     # a host by ref search for each vuln ref and then check port reported for each module
     # IMHO this front loaded cost here is worth it with only a small number of modules
     # compared to the vast number of possible references offered by a Vulnerability scanner.
-    deferred_service_ports = [ 139 ] # I hate special cases, however 139 is not longer a preferred default
+    deferred_service_ports = [ 139 ] # I hate special cases, however 139 is no longer a preferred default
 
     new_host_ids = Mdm::Host.where(workspace: wspace).map(&:id)
     (new_host_ids - existing_host_ids).each do |id|
@@ -123,10 +123,7 @@ module Msf::DBManager::Import
         # Module names that match this vulnerability
         matched = mrefs.values_at(*(vuln.refs.map { |x| x.name.upcase } & mrefs.keys)).map { |x| x.values }.flatten.uniq
         next if matched.empty?
-        match_names = []
-        matched.each do |mod|
-          match_names << mod.full_name
-        end
+        match_names = matched.map { |mod| mod.full_name }
 
         second_pass_services = []
 
@@ -135,22 +132,20 @@ module Msf::DBManager::Import
             second_pass_services << service
             next
           end
-          if mports[service.port]
-            if (match_names - mports[service.port].keys).count < match_names.count
-              serv = service
-              break
-            end
+          next unless mports[service.port]
+          if (match_names - mports[service.port].keys).count < match_names.count
+            serv = service
+            break
           end
         end
 
         # post process any deferred services if no match has been found
         if serv.nil? && !second_pass_services.empty?
           second_pass_services.each do |service|
-            if mports[service.port]
-              if (match_names - mports[service.port].keys).count < match_names.count
-                serv = service
-                break
-              end
+            next unless mports[service.port]
+            if (match_names - mports[service.port].keys).count < match_names.count
+              serv = service
+              break
             end
           end
         end
