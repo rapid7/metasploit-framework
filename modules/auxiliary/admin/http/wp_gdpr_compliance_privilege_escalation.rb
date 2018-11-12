@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         action and update any database value.
         This comes from a lack of validation in the plugin handles in WordPress’s admin-ajax.php
         functionality, which leads to unauthorized users being abler to trigger these handlers and
-        from a failure to do capability checks when executing its internal action 'save_setting to 
+        from a failure to do capability checks when executing its internal action 'save_setting to
         make configuration changes.
       },
       'Author'          =>
