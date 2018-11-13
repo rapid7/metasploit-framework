@@ -16,12 +16,10 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Eaton Xpert Meter SSH Private Key Exposure Scanner',
       'Description'    => %q{
-        Eaton Power Xpert Meters running firmware 12.x.x.x or below version
-        13.3.x.x and below ship with a public/private key pairthat allows
-        passwordless authentication to any other affected Power Xpert Meter.
-        The vendor recommends updating to Version 13.4.0.10 or above.
-        Tested on: Firmware 12.1.9.1 and 13.3.2.10. As the key is easily retrievable.
-        an attacker can use it to gain unauthorized remote access as uid0
+        Eaton Power Xpert Meters running firmware below version 12.x.x.x or
+        below version 13.3.x.x ship with a public/private key pair that
+        facilitate remote administrative access to the devices.
+        Tested on: Firmware 12.1.9.1 and 13.3.2.10.
       },
       'Author'         => [
         'BrianWGray'
