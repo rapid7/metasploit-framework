@@ -1,4 +1,4 @@
-This module creates a mock FTP server which accepts and credentials before throwing a `500` error.
+This module creates a mock FTP server which accepts credentials before throwing a `500` error.
 
 ## Verification Steps
 
