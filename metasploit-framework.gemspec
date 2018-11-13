@@ -105,6 +105,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sinatra'
   spec.add_runtime_dependency 'sysrandom'
   spec.add_runtime_dependency 'warden'
+  # Required for JSON-RPC client
+  spec.add_runtime_dependency 'em-http-request'
   # TimeZone info
   spec.add_runtime_dependency 'tzinfo-data'
   # Gem for dealing with SSHKeys
