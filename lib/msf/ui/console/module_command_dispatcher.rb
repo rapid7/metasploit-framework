@@ -16,7 +16,6 @@ module ModuleCommandDispatcher
 
   def commands
     {
-      "pry"    => "Open a Pry session on the current module",
       "reload" => "Reload the current module from disk",
       "check"  => "Check to see if a target is vulnerable"
     }
@@ -139,13 +138,20 @@ module ModuleCommandDispatcher
         last_rhosts_opt = mod.datastore['RHOSTS']
         mod.datastore['RHOSTS'] = ip_range_arg
         begin
-          check_multiple(hosts)
+          if hosts.length > 1
+            check_multiple(hosts)
+          # Short-circuit check_multiple if it's a single host
+          else
+            mod.datastore['RHOST'] = hosts.next_ip
+            check_simple
+          end
         ensure
           # Restore the original rhost if set
           mod.datastore['RHOST'] = last_rhost_opt
           mod.datastore['RHOSTS'] = last_rhosts_opt
           mod.cleanup
         end
+      # XXX: This is basically dead code now that exploits use RHOSTS
       else
         # Check a single rhost
         unless Msf::OptAddress.new('RHOST').valid?(mod.datastore['RHOST'])
@@ -243,6 +249,11 @@ module ModuleCommandDispatcher
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error => e
       # Connection issues while running check should be handled by the module
+      print_error("Check failed: #{e.class} #{e}")
+      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+    rescue ::Msf::Exploit::Failed => e
+      # Handle fail_with and other designated exploit failures
+      print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
@@ -254,24 +265,6 @@ module ModuleCommandDispatcher
       print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     end
-  end
-
-  def cmd_pry_help
-    print_line "Usage: pry"
-    print_line
-    print_line "Open a pry session on the current module.  Be careful, you"
-    print_line "can break things."
-    print_line
-  end
-
-  def cmd_pry(*args)
-    begin
-      require 'pry'
-    rescue LoadError
-      print_error("Failed to load pry, try 'gem install pry'")
-      return
-    end
-    mod.pry
   end
 
   #

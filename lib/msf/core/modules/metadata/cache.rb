@@ -146,6 +146,7 @@ class Cache
   end
 
   def initialize
+    super
     @mutex = Mutex.new
     @module_metadata_cache = {}
     @store_loaded = false

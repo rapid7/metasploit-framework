@@ -2,10 +2,12 @@
 require 'msf/core/modules/external'
 
 class Msf::Modules::External::Shim
-  def self.generate(module_path)
-    mod = Msf::Modules::External.new(module_path)
-    return '' unless mod.meta
+  def self.generate(module_path, framework)
+    mod = Msf::Modules::External.new(module_path, framework: framework)
+    return nil unless mod.meta
     case mod.meta['type']
+    when 'remote_exploit'
+      remote_exploit(mod)
     when 'remote_exploit_cmd_stager'
       remote_exploit_cmd_stager(mod)
     when 'capture_server'
@@ -36,18 +38,14 @@ class Msf::Modules::External::Shim
     render_template('common_check.erb', meta)
   end
 
-  def self.mod_meta_common(mod, meta = {}, drop_rhost: false)
+  def self.mod_meta_common(mod, meta = {}, ignore_options: [])
     meta[:path]        = mod.path.dump
     meta[:name]        = mod.meta['name'].dump
     meta[:description] = mod.meta['description'].dump
     meta[:authors]     = mod.meta['authors'].map(&:dump).join(",\n          ")
     meta[:license]     = mod.meta['license'].nil? ? 'MSF_LICENSE' : mod.meta['license']
 
-    options = if drop_rhost
-      mod.meta['options'].reject {|n, o| n == 'rhost'}
-    else
-      mod.meta['options']
-    end
+    options = mod.meta['options'].reject {|n, _| ignore_options.include? n}
 
     meta[:options]     = options.map do |n, o|
       if o['values']
@@ -60,15 +58,20 @@ class Msf::Modules::External::Shim
     end.join(",\n          ")
 
     meta[:capabilities] = mod.meta['capabilities']
+    meta[:notes] = transform_notes(mod.meta['notes'])
     meta
   end
 
   def self.mod_meta_exploit(mod, meta = {})
+    meta[:rank]        = mod.meta['rank'].nil? ? 'NormalRanking' : "#{mod.meta['rank'].capitalize}Ranking"
     meta[:date]        = mod.meta['date'].dump
     meta[:wfsdelay]    = mod.meta['wfsdelay'] || 5
     meta[:privileged]  = mod.meta['privileged'].inspect
     meta[:platform]    = mod.meta['targets'].map do |t|
       t['platform'].dump
+    end.uniq.join(",\n          ")
+    meta[:arch]        = mod.meta['targets'].map do |t|
+      t['arch'].dump
     end.uniq.join(",\n          ")
     meta[:references]  = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
@@ -79,8 +82,14 @@ class Msf::Modules::External::Shim
     meta
   end
 
-  def self.remote_exploit_cmd_stager(mod)
+  def self.remote_exploit(mod)
     meta = mod_meta_common(mod)
+    meta = mod_meta_exploit(mod, meta)
+    render_template('remote_exploit.erb', meta)
+  end
+
+  def self.remote_exploit_cmd_stager(mod)
+    meta = mod_meta_common(mod, ignore_options: ['command'])
     meta = mod_meta_exploit(mod, meta)
     meta[:command_stager_flavor] = mod.meta['payload']['command_stager_flavor'].dump
     render_template('remote_exploit_cmd_stager.erb', meta)
@@ -92,17 +101,16 @@ class Msf::Modules::External::Shim
   end
 
   def self.single_scanner(mod)
-    meta = mod_meta_common(mod, drop_rhost: true)
+    meta = mod_meta_common(mod, ignore_options: ['rhost'])
     meta[:date] = mod.meta['date'].dump
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
-
     render_template('single_scanner.erb', meta)
   end
 
   def self.single_host_login_scanner(mod)
-    meta = mod_meta_common(mod, drop_rhost: true)
+    meta = mod_meta_common(mod, ignore_options: ['rhost'])
     meta[:date] = mod.meta['date'].dump
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
@@ -130,4 +138,18 @@ class Msf::Modules::External::Shim
 
     render_template('dos.erb', meta)
   end
+
+  #
+  # In case certain notes are not properly capitalized in the external module definition,
+  # ensure that they are properly capitalized before rendering.
+  #
+  def self.transform_notes(notes)
+    return {} unless notes
+
+    notes.reduce({}) do |acc, (key, val)|
+      acc[key.upcase] = val
+      acc
+    end
+  end
+
 end

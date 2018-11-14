@@ -21,6 +21,7 @@ module Msf::DBManager::Import
   autoload :CI, 'msf/core/db_manager/import/ci'
   autoload :Foundstone, 'msf/core/db_manager/import/foundstone'
   autoload :FusionVM, 'msf/core/db_manager/import/fusion_vm'
+  autoload :GPP, 'msf/core/db_manager/import/gpp'
   autoload :IP360, 'msf/core/db_manager/import/ip360'
   autoload :IPList, 'msf/core/db_manager/import/ip_list'
   autoload :Libpcap, 'msf/core/db_manager/import/libpcap'
@@ -47,6 +48,7 @@ module Msf::DBManager::Import
   include Msf::DBManager::Import::CI
   include Msf::DBManager::Import::Foundstone
   include Msf::DBManager::Import::FusionVM
+  include Msf::DBManager::Import::GPP
   include Msf::DBManager::Import::IP360
   include Msf::DBManager::Import::IPList
   include Msf::DBManager::Import::Libpcap
@@ -164,6 +166,7 @@ module Msf::DBManager::Import
   # :ci_xml
   # :foundstone_xml
   # :fusionvm_xml
+  # :gpp_xml
   # :ip360_aspl_xml
   # :ip360_xml_v3
   # :ip_list
@@ -358,6 +361,9 @@ module Msf::DBManager::Import
         when "main"
           @import_filedata[:type] = "Outpost24 XML"
           return :outpost24_xml
+        when /Groups|DataSources|Drives|ScheduledTasks|NTServices/
+          @import_filedata[:type] = "Group Policy Preferences Credentials"
+          return :gpp_xml
         else
           # Give up if we haven't hit the root tag in the first few lines
           break if line_count > 10

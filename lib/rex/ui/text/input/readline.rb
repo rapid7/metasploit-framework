@@ -168,12 +168,23 @@ begin
         end
 
         if add_history && line
-          RbReadline.add_history(line)
+          # Don't add duplicate lines to history
+          if ::Readline::HISTORY.empty? || line != ::Readline::HISTORY[-1]
+            RbReadline.add_history(line)
+          end
         end
 
         line.try(:dup)
       else
-        ::Readline.readline(reset_sequence + prompt, true)
+        # The line that's read is immediately added to history
+        line = ::Readline.readline(reset_sequence + prompt, true)
+
+        # Don't add duplicate lines to history
+        if ::Readline::HISTORY.length > 1 && line == ::Readline::HISTORY[-2]
+          ::Readline::HISTORY.pop
+        end
+
+        line
       end
     end
 

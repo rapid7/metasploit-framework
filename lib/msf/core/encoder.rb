@@ -136,9 +136,13 @@ class Encoder < Module
     #
     CmdUnixEcho = 'echo'
     #
-    # Bourne shell IFS encoding.
+    # Bourne shell ${IFS} encoding.
     #
-    CmdUnixIfs = 'ifs'
+    CmdUnixIFS = 'ifs'
+    #
+    # Bash brace expansion encoding.
+    #
+    CmdUnixBrace = 'brace'
   end
 
   #
@@ -680,4 +684,5 @@ require 'msf/core/encoder/xor_additive_feedback'
 require 'msf/core/encoder/alphanum'
 require 'msf/core/encoder/nonalpha'
 require 'msf/core/encoder/nonupper'
+require 'msf/core/encoder/xor_dynamic'
 

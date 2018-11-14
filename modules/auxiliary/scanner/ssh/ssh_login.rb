@@ -73,6 +73,15 @@ class MetasploitModule < Msf::Auxiliary
     # Set the session platform
     s.platform = scanner.get_platform(result.proof)
 
+    # Create database host information
+    host_info = {host: scanner.host}
+
+    unless s.platform == 'unknown'
+      host_info[:os_name] = s.platform
+    end
+
+    report_host(host_info)
+
     s
   end
 

@@ -8,7 +8,7 @@ module Ui
 
 ###
 #
-# Kiwi extension - grabs credentials from windows memory.
+# Kiwi extension - grabs credentials from windows memory (newer OSes).
 #
 # Benjamin DELPY `gentilkiwi`
 # http://blog.gentilkiwi.com/mimikatz
@@ -37,18 +37,22 @@ class Console::CommandDispatcher::Kiwi
   def initialize(shell)
     super
     print_line
-    print_line
-    print_line("  .#####.   mimikatz 2.1.1 20170608 (#{client.session_type})")
+    print_line("  .#####.   mimikatz 2.1.1 20180925 (#{client.session_type})")
     print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
-    print_line(" ## / \\ ##  /* * *")
-    print_line(" ## \\ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
-    print_line(" '## v ##'   http://blog.gentilkiwi.com/mimikatz             (oe.eo)")
-    print_line("  '#####'    Ported to Metasploit by OJ Reeves `TheColonial` * * */")
+    print_line(" ## / \\ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
+    print_line(" ## \\ / ##       > http://blog.gentilkiwi.com/mimikatz")
+    print_line(" '## v ##'        Vincent LE TOUX            ( vincent.letoux@gmail.com )")
+    print_line("  '#####'         > http://pingcastle.com / http://mysmartlogon.com  ***/")
     print_line
 
-    if client.arch == ARCH_X86 and client.sys.config.sysinfo['Architecture'] == ARCH_X64
+    si = client.sys.config.sysinfo
+    if client.arch == ARCH_X86 && si['Architecture'] == ARCH_X64
       print_warning('Loaded x86 Kiwi on an x64 architecture.')
       print_line
+    end
+
+    if si['OS'] =~ /Windows (NT|XP|2000|2003|\.NET)/i
+      print_warning("Loaded Kiwi on an old OS (#{si['OS']}). Did you mean to 'load mimikatz' instead?")
     end
   end
 
@@ -87,9 +91,9 @@ class Console::CommandDispatcher::Kiwi
   # Valid options for the password change feature
   #
   @@password_change_usage_opts = Rex::Parser::Arguments.new(
-    '-h'  => [false, 'Help banner'],
-    '-u'  => [true,  'User name of the password to change.'],
-    '-s'  => [true,  'Server to perform the action on (eg. Domain Controller).'],
+    '-h' => [false, 'Help banner'],
+    '-u' => [true,  'User name of the password to change.'],
+    '-s' => [true,  'Server to perform the action on (eg. Domain Controller).'],
     '-p' => [true,  'The known existing/old password (do not use with -n).'],
     '-n' => [true,  'The known existing/old hash (do not use with -p).'],
     '-P' => [true,  'The new password to set for the account (do not use with -N).'],
@@ -237,7 +241,8 @@ class Console::CommandDispatcher::Kiwi
     '-d' => [ true,  'FQDN of the target domain (required)' ],
     '-k' => [ true,  'krbtgt domain user NTLM hash' ],
     '-t' => [ true,  'Local path of the file to store the ticket in (required)' ],
-    '-s' => [ true,  'SID of the domain' ]
+    '-s' => [ true,  'SID of the domain' ],
+    '-e' => [ true,  'End in ... Duration in hours (ex: -e 10 for 10 hours), default 10 YEARS']
   )
 
   #
@@ -267,7 +272,8 @@ class Console::CommandDispatcher::Kiwi
       domain_sid: nil,
       krbtgt_hash: nil,
       user_id: nil,
-      group_ids: nil
+      group_ids: nil,
+      end_in: 87608
     }
 
     @@golden_ticket_create_opts.parse(args) { |opt, idx, val|
@@ -286,6 +292,8 @@ class Console::CommandDispatcher::Kiwi
         opts[:group_ids] = val
       when '-s'
         opts[:domain_sid] = val
+      when '-e'
+        opts[:end_in] = val.to_i
       end
     }
 
@@ -647,4 +655,3 @@ end
 end
 end
 end
-

