@@ -1,6 +1,6 @@
 # Description
   
-  The eaton_xpert_backdoor module scans for Eaton Xpert Power meters with a vendor SSH private key used in the device firmware's build process.
+  The `eaton_xpert_backdoor` module scans for Eaton Xpert Power meters with a vendor SSH private key used in the device firmware's build process.
 
 ## Vulnerable Application
 
@@ -8,10 +8,12 @@
   Power meters sold by Eaton used a firmware build process for many years that left a developer key pair in the default profile.
   Specific models include: Power Xpert Meter 4000/6000/8000
 
-  Software Link: http://www.eaton.com/Eaton/ProductsServices/Electrical/ProductsandServices/PowerQualityandMonitoring/PowerandEnergyMeters/PowerXpertMeter400060008000/index.htm#tabs-2
+  [Software Link](http://www.eaton.com/Eaton/ProductsServices/Electrical/ProductsandServices/PowerQualityandMonitoring/PowerandEnergyMeters/PowerXpertMeter400060008000/index.htm#tabs-2)
 
-  Version: Firmware <= 12.x and <= 13.3.x.x and below more versions may be impacted
+  Vulnerable Version: Firmware <= 12.x and <= 13.3.x.x and below more versions may be impacted
+
   Tested on: Firmware 12.1.9.1 and 13.3.2.10
+
   Similar to running: `ssh -m hmac-sha1 -c aes128-cbc -o KexAlgorithms=diffie-hellman-group1-sha1 -o HostKeyAlgorithms=ssh-rsa  -i ./id_rsa admin@1.1.1.2`
 
 ## Verification Steps
@@ -20,7 +22,7 @@
   2. `use auxiliary/scanner/ssh/eaton_xpert_backdoor`
   3. `set RHOSTS 1.1.1.2`
   4. `run -z`
-  5. `Vulnerable hosts should present a shell`
+  5. Vulnerable hosts should present a shell
 
 ## Scenarios
 
