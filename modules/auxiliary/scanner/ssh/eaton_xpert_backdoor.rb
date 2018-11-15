@@ -89,13 +89,11 @@ class MetasploitModule < Msf::Auxiliary
 
     return unless shell
 
-    info = "Eaton Xpert Meter SSH Backdoor (#{version})"
-
     ds_merge = {
       'USERNAME' => 'admin'
     }
 
-    start_session(self, info, ds_merge, false, shell.lsock)
+    start_session(self, "Eaton Xpert Meter SSH Backdoor (#{version})", ds_merge, false, shell.lsock)
 
     # XXX: Ruby segfaults if we don't remove the SSH socket
     remove_socket(ssh.transport.socket)
