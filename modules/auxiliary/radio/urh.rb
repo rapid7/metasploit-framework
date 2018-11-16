@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       This module is using the Universal Radio Hacker Command Line Interface. Universal Radio Hacker: A Suite for Analyzing and Attacking Stateful Wireless Protocols.
       for more information visit: https://github.com/jopohl/urh
       If you are not incorporated in URH at all. You should read first https://github.com/jopohl/urh/wiki/Command-Line-Interface.
-      Use the URH-GUI for improv your CLI skills from URH.
+      Use the URH GUI to improve CLI skills with URH.
       For this tool you have to install the URH you can download it with git: git clone https://github.com/jopohl/urh
                         },
                       'Author' => [ 'https://github.com/ChrisVisitGit '],
