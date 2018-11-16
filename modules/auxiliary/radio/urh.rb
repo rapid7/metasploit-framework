@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
            OptString.new('MODE',[true,'Enter RX or TX mode','rx']),
            OptString.new('RECEIVE_TIME',[false,'Enter RX mode default on 3s','']),
            OptString.new('RAW',[false,'Use raw mode i.e. send/receive IQ data instead of bits', '']),
-           OptString.new('VERBOSE',[false,'Verbose',''])
+           OptString.new('VERBOOSE',[false,'Verbose',''])
        ])
 end
 
@@ -68,14 +68,14 @@ end
                  datastore['FREQUENCY'], datastore['SAMPLERATE'],datastore['BANDWIDTH'],datastore['GAIN'],
                  datastore['IF_GAIN'], datastore['BASEBAND_GAIN'],datastore['ADAPTIVE_NOISE'],datastore['BITLENGTH'],
                  datastore['NOISE'], datastore['CENTER'],datastore['TOLERANCE'],datastore['FILENAME'],
-                 datastore['MODE'],datastore['RECEIVE_TIME'],datastore['RAW'],datastore['VERBOSE']                     #array with 20 fields
+                 datastore['MODE'],datastore['RECEIVE_TIME'],datastore['RAW'],datastore['VERBOOSE']                     #array with 20 fields
 
    #fill the transmitarray,  tags and args,which we get from the datastore
    arr_tx_tags = "","-d","-di","-db","-f","-s","-b","-g","-if","-bb","-cf","-ca","-cp","-mo","-p0","-p1","-bl","","-e","-m","-file","-p","","","" #array with 25 fields
    arr_tx_args = datastore['PATH'], datastore['DEVICE'], datastore['DEVICE_IDENTIFIER'],datastore['DEVICE_BACKEND'],datastore['FREQUENCY'] ,datastore['SAMPLERATE'],
        datastore['BANDWIDTH'],datastore['GAIN'],datastore['IF_GAIN'],datastore['BASEBAND_GAIN'],datastore['MOD_CARRIER_FREQUENCY'],datastore['MOD_CARRIER_AMPLITUDE'],datastore['MOD_CARRIER_PHASE'],
        datastore['MOD_TYPE'],datastore['MOD_PARAMETER_ZERO'],datastore['MOD_PARAMETER_ONE'],datastore['BITLENGTH'],datastore['HEX'],datastore['MOD_ENCODING'],datastore['MESSAGES'],datastore['FILENAME'],
-       datastore['PAUSE'], datastore['MODE'], datastore['RAW'],datastore['VERBOSE'] #array with 25 fields
+       datastore['PAUSE'], datastore['MODE'], datastore['RAW'],datastore['VERBOOSE'] #array with 25 fields
 
 
     modestr = datastore['MODE']
