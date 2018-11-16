@@ -160,7 +160,7 @@ module Msf::PostMixin
     end
 
     # Can't do anything without a session
-    return false if s.nil?
+    return false unless s
 
     # Can't be compatible if it's the wrong type
     if session_types
@@ -169,7 +169,7 @@ module Msf::PostMixin
 
     # Check to make sure architectures match
     mod_arch = self.module_info['Arch']
-    unless mod_arch.nil?
+    if mod_arch
       mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
       # Assume ARCH_CMD modules can work on supported SessionTypes
       return true if mod_arch.include?(ARCH_CMD)
@@ -177,13 +177,13 @@ module Msf::PostMixin
     end
 
     # Arch is okay, now check the platform.
-    if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
+    if self.platform && self.platform.kind_of?(Msf::Module::PlatformList)
       return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
     # If we got here, we haven't found anything that definitely
     # disqualifies this session.  Assume that means we can use it.
-    return true
+    true
   end
 
   #
