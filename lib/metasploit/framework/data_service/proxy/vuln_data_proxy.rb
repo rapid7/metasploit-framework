@@ -3,9 +3,10 @@ module VulnDataProxy
 
   def vulns(opts)
     begin
-      data_service = self.get_data_service
-      add_opts_workspace(opts)
-      data_service.vulns(opts)
+      self.data_service_operation do |data_service|
+        add_opts_workspace(opts)
+        data_service.vulns(opts)
+      end
     rescue => e
       self.log_error(e, "Problem retrieving vulns")
     end
@@ -27,9 +28,10 @@ module VulnDataProxy
 
   def report_vuln(opts)
     begin
-      data_service = self.get_data_service
-      add_opts_workspace(opts)
-      data_service.report_vuln(opts)
+      self.data_service_operation do |data_service|
+        add_opts_workspace(opts)
+        data_service.report_vuln(opts)
+      end
     rescue => e
       self.log_error(e, "Problem reporting vuln")
     end
@@ -37,8 +39,9 @@ module VulnDataProxy
 
   def update_vuln(opts)
     begin
-      data_service = self.get_data_service
-      data_service.update_vuln(opts)
+      self.data_service_operation do |data_service|
+        data_service.update_vuln(opts)
+      end
     rescue => e
       self.log_error(e, "Problem updating vuln")
     end
@@ -46,8 +49,9 @@ module VulnDataProxy
 
   def delete_vuln(opts)
     begin
-      data_service = self.get_data_service
-      data_service.delete_vuln(opts)
+      self.data_service_operation do |data_service|
+        data_service.delete_vuln(opts)
+      end
     rescue => e
       self.log_error(e, "Problem deleting vuln")
     end
