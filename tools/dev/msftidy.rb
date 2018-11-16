@@ -452,6 +452,7 @@ class Msftidy
         ]
 
         error('Incorrect disclosure month format') if months.index(m).nil?
+      # XXX: yyyy-mm is interpreted as yyyy-01-mm by Date::iso8601
       elsif d =~ /^\d{4}-\d{2}-\d{2}$/
         begin
           Date.iso8601(d)
