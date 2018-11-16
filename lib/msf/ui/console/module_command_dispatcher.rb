@@ -221,7 +221,7 @@ module ModuleCommandDispatcher
       rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
-    peer_msg = "#{peer} - " if peer
+    peer_msg = peer ? "#{peer} - " : ''
 
     begin
       if instance.respond_to?(:check_simple)
