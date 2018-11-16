@@ -440,7 +440,7 @@ class Msftidy
     return if @source =~ /Generic Payload Handler/
 
     # Check disclosure date format
-    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
+    if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+?)['\"]/
       begin
         Date.parse($1)  #Captured date
       # Flag if overall format is wrong
