@@ -452,6 +452,12 @@ class Msftidy
         ]
 
         error('Incorrect disclosure month format') if months.index(m).nil?
+      elsif d =~ /^\d{4}-\d{2}-\d{2}$/
+        begin
+          Date.iso8601(d)
+        rescue ArgumentError
+          error('Incorrect ISO 8601 disclosure date format')
+        end
       else
         error('Incorrect disclosure date format')
       end
