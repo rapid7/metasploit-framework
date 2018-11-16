@@ -443,7 +443,7 @@ class Msftidy
     if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
       d = $1  #Captured date
       # Flag if overall format is wrong
-      if d =~ /^... \d{1,2}\,* \d{4}/
+      if d =~ /^... (?:\d{1,2}\,* )*\d{4}/
         # Flag if month format is wrong
         m = d.split[0]
         months = [
