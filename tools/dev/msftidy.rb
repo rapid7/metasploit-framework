@@ -441,18 +441,10 @@ class Msftidy
 
     # Check disclosure date format
     if @source =~ /["']DisclosureDate["'].*\=\>[\x0d\x20]*['\"](.+)['\"]/
-      d = $1  #Captured date
+      begin
+        Date.parse($1)  #Captured date
       # Flag if overall format is wrong
-      if d =~ /^... (?:\d{1,2},? )?\d{4}$/
-        # Flag if month format is wrong
-        m = d.split[0]
-        months = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ]
-
-        error('Incorrect disclosure month format') if months.index(m).nil?
-      else
+      rescue ArgumentError
         error('Incorrect disclosure date format')
       end
     else
