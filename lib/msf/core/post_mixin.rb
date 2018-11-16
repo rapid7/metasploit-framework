@@ -138,13 +138,16 @@ module Msf::PostMixin
   #
   # Checks the session's type against this module's
   # <tt>module_info["SessionTypes"]</tt> as well as examining platform
-  # compatibility.  +sess_or_sid+ can be a Session object, Integer, or
-  # String.  In the latter cases it should be a key in
+  # and arch compatibility.
+  #
+  # +sess_or_sid+ can be a Session object, Integer, or
+  # String. In the latter cases it should be a key in
   # +framework.sessions+.
   #
   # @note Because it errs on the side of compatibility, a true return
   #   value from this method does not guarantee the module will work
-  #   with the session.
+  #   with the session. For example, ARCH_CMD modules can work on a
+  #   variety of platforms and archs and thus return true in this check.
   #
   # @param sess_or_sid [Msf::Session,Integer,String]
   #   A session or session ID to compare against this module for
