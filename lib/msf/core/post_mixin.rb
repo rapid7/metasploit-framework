@@ -35,7 +35,7 @@ module Msf::PostMixin
       raise Msf::OptionValidateError.new(['SESSION'])
     end
 
-    unless session_compatible?(session)
+    if self.type == Msf::MODULE_POST && !session_compatible?(session)
       print_warning('SESSION may not be compatible with this module.')
     end
 
