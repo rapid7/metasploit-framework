@@ -35,7 +35,7 @@ module Msf::PostMixin
       raise Msf::OptionValidateError.new(['SESSION'])
     end
 
-    if self.type == Msf::MODULE_POST && !session_compatible?(session)
+    unless session_compatible?(session)
       print_warning('SESSION may not be compatible with this module.')
     end
 
@@ -167,16 +167,18 @@ module Msf::PostMixin
       return false unless session_types.include?(s.type)
     end
 
-    # Types are okay, now check the platform.
-    if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
-      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
-    end
-
     # Check to make sure architectures match
     mod_arch = self.module_info['Arch']
     unless mod_arch.nil?
       mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
+      # Assume ARCH_CMD modules can work on supported SessionTypes
+      return true if mod_arch.include?(ARCH_CMD)
       return false unless mod_arch.include?(s.arch)
+    end
+
+    # Arch is okay, now check the platform.
+    if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
+      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
     # If we got here, we haven't found anything that definitely
