@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         'License'     => MSF_LICENSE,
         'References'     =>
           [
-            [ 'URL', 'https://soroush.secproject.com/blog/tag/iis-tilde-vulnerability/' ]
+            [ 'URL', 'https://soroush.secproject.com/blog/tag/iis-tilde-vulnerability' ]
           ],
         'Targets' => [[ 'Automatic', {} ]]
       )
