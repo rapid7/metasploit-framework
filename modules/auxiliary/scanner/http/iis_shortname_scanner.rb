@@ -53,6 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     @charset_duplicates = []
     @verb = ""
     @name_size= 6
+    @path = ""
   end
 
   def check
@@ -62,16 +63,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def is_vul
+    @path = datastore['PATH']
     for method in ['GET', 'OPTIONS']
       # Check for existing file
       res1 = send_request_cgi({
-        'uri' => normalize_uri(datastore['PATH'], '*~1*'),
+        'uri' => normalize_uri(@path, '*~1*'),
         'method' => method
       })
 
       # Check for non-existing file
       res2 = send_request_cgi({
-        'uri' => normalize_uri(datastore['PATH'],'QYKWO*~1*'),
+        'uri' => normalize_uri(@path,'QYKWO*~1*'),
         'method' => method
       })
 
@@ -88,28 +90,34 @@ class MetasploitModule < Msf::Auxiliary
   def get_status(f , digit , match)
     # Get response code for a file/folder
     res2 = send_request_cgi({
-      'uri' => normalize_uri(datastore['PATH'],"#{f}#{match}~#{digit}#{match}"),
+      'uri' => normalize_uri(@path,"#{f}#{match}~#{digit}#{match}"),
       'method' => @verb
     })
     return res2.code
+  rescue NoMethodError
+      print_error("Unable to connect to #{datastore['RHOST']}")
   end
 
   def get_incomplete_status(url, match, digit , ext)
     # Check if the file/folder name is more than 6 by using wildcards
     res2 = send_request_cgi({
-      'uri' => normalize_uri(datastore['PATH'],"#{url}#{match}~#{digit}.#{ext}*"),
+      'uri' => normalize_uri(@path,"#{url}#{match}~#{digit}.#{ext}*"),
       'method' => @verb
     })
     return res2.code
+  rescue NoMethodError
+      print_error("Unable to connect to #{datastore['RHOST']}")
   end
 
   def get_complete_status(url, digit , ext)
     # Check if the file/folder name is less than 6 and complete
     res2 = send_request_cgi({
-      'uri' => normalize_uri(datastore['PATH'],"#{url}*~#{digit}.#{ext}"),
+      'uri' => normalize_uri(@path,"#{url}*~#{digit}.#{ext}"),
       'method' => @verb
     })
     return res2.code
+  rescue NoMethodError
+      print_error("Unable to connect to #{datastore['RHOST']}")
   end
 
   def scanner
@@ -178,10 +186,10 @@ class MetasploitModule < Msf::Auxiliary
     # Reduce the total charset for filenames by checking if a character exists in any of the files
     for c in @alpha.chars
       res = send_request_cgi({
-        'uri' => normalize_uri(datastore['PATH'],"*#{c}*~1*"),
+        'uri' => normalize_uri(@path,"*#{c}*~1*"),
         'method' => @verb
       })
-      if res.code == 404
+      if res && res.code == 404
         @charset_names << c
       end
     end
@@ -191,10 +199,10 @@ class MetasploitModule < Msf::Auxiliary
     # Reduce the total charset for extensions by checking if a character exists in any of the extensions
     for c in @alpha.chars
       res = send_request_cgi({
-        'uri' => normalize_uri(datastore['PATH'],"*~1.*#{c}*"),
+        'uri' => normalize_uri(@path,"*~1.*#{c}*"),
         'method' => @verb
       })
-      if res.code == 404
+      if res && res.code == 404
         @charset_extensions << c
       end
     end
@@ -205,10 +213,10 @@ class MetasploitModule < Msf::Auxiliary
     array = [*('1'..'9')]
     array.each do |c|
       res = send_request_cgi({
-        'uri' => normalize_uri(datastore['PATH'],"*~#{c}.*"),
+        'uri' => normalize_uri(@path,"*~#{c}.*"),
         'method' => @verb
       })
-      if res.code == 404
+      if res && res.code == 404
         @charset_duplicates << c
       end
     end
@@ -219,46 +227,46 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Target is not vulnerable, or no shortname scannable files are present.")
       return
     end
-    if datastore['PATH'][-1] != '/'
-      datastore['PATH'] += '/'
+    unless @path.end_with? '/'
+      @path += '/'
     end
-      print_status("Scanning in progress...")
-      @threads << framework.threads.spawn("reduce_names",false) { reduce }
-      @threads << framework.threads.spawn("reduce_duplicates",false) { dup }
-      @threads << framework.threads.spawn("reduce_extensions",false) { ext }
-      @threads.each(&:join)
+    print_status("Scanning in progress...")
+    @threads << framework.threads.spawn("reduce_names",false) { reduce }
+    @threads << framework.threads.spawn("reduce_duplicates",false) { dup }
+    @threads << framework.threads.spawn("reduce_extensions",false) { ext }
+    @threads.each(&:join)
 
-      for c in @charset_names
-        @queue << c
+    for c in @charset_names
+      @queue << c
+    end
+
+    datastore['Threads'].times {
+      @threads << framework.threads.spawn("scanner", false) { scan }
+    }
+
+    Rex.sleep(1) until @queue_ext.empty?
+
+    @threads.each(&:join)
+
+    proto = datastore['SSL'] ? 'https' : 'http'
+
+    if @dirs.empty?
+      print_status("No directories were found")
+    else
+      print_good("Found #{@dirs.size} directories")
+      @dirs.each do |x|
+        print_line("#{proto}://#{datastore['RHOST']}#{@path}#{x}")
       end
+    end
 
-      datastore['Threads'].times {
-        @threads << framework.threads.spawn("scanner", false) { scan }
-      }
-
-      Rex.sleep(1) until @queue_ext.empty?
-
-      @threads.each(&:join)
-
-      proto = datastore['SSL'] ? 'https' : 'http'
-
-      if @dirs.empty?
-        print_status("No directories were found")
-      else
-        print_good("Found #{@dirs.size} directories")
-        @dirs.each do |x|
-          print_line("#{proto}://#{datastore['RHOST']}#{datastore['PATH']}#{x}")
-        end
-      end
-
-      if @files.empty?
-        print_status("No files were found")
-      else
-        print_good("Found #{@files.size} files")
-        @files.each do |x|
-          print_line("#{proto}://#{datastore['RHOST']}#{datastore['PATH']}#{x}")
-        end
+    if @files.empty?
+      print_status("No files were found")
+    else
+      print_good("Found #{@files.size} files")
+      @files.each do |x|
+        print_line("#{proto}://#{datastore['RHOST']}#{@path}#{x}")
       end
     end
   end
+end
 
