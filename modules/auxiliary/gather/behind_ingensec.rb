@@ -1,7 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+# rev: 1.1.2
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -9,7 +10,6 @@ class MetasploitModule < Msf::Auxiliary
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Behind BinarySec/IngenSecurity',
-      'Version'        => '$Release: 1.1.1',
       'Description'    => %q{
         This module can be useful if you need to test
         the security of your server and your website
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     html  = response.get_html_document
-    table = html.css('table')[2]
+    table = html.css('table')[3]
 
     unless table.nil?
       rows   = table.css('tr')
@@ -158,24 +158,22 @@ class MetasploitModule < Msf::Auxiliary
 
   ## auxiliary/gather/enum_dns.rb
   def do_dns_query(domain, type)
-    begin
-      nameserver         = datastore['NS']
+    nameserver         = datastore['NS']
 
-      if nameserver.blank?
-        dns = Net::DNS::Resolver.new
-      else
-        dns = Net::DNS::Resolver.new(nameservers: ::Rex::Socket.resolv_to_dotted(nameserver))
-      end
-
-      dns.use_tcp        = false
-      dns.udp_timeout    = 8
-      dns.retry_number   = 2
-      dns.retry_interval = 2
-      dns.query(domain, type)
-    rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
-      print_error("Query #{domain} DNS #{type} - exception: #{e}")
-      return nil
+    if nameserver.blank?
+      dns = Net::DNS::Resolver.new
+    else
+      dns = Net::DNS::Resolver.new(nameservers: ::Rex::Socket.resolv_to_dotted(nameserver))
     end
+
+    dns.use_tcp        = false
+    dns.udp_timeout    = 8
+    dns.retry_number   = 2
+    dns.retry_interval = 2
+    dns.query(domain, type)
+  rescue ResolverArgumentError, Errno::ETIMEDOUT, ::NoResponseError, ::Timeout::Error => e
+    print_error("Query #{domain} DNS #{type} - exception: #{e}")
+    return nil
   end
 
   ## auxiliary/gather/enum_dns.rb
@@ -218,7 +216,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check for "misconfigured" web server on TCP/80.
     if do_check_tcp_port(ip, 80, proxies)
-      vprint_status(" * Trying: #{ip}:80")
+      vprint_status(" * Trying: http://#{ip}:80/")
       response = do_simple_get_request_raw(ip, 80, false, host, uri, proxies)
       if response != false
         unless response.headers.to_s.include? 'Server: gatejs'
@@ -228,7 +226,7 @@ class MetasploitModule < Msf::Auxiliary
               html = response.get_html_document
 
               if html.at(tag).to_s.include? fingerprint.to_s
-                print_good("A direct-connect IP address was found: #{ip}")
+                print_good("A direct-connect IP address was found: http://#{ip}:80/")
                 do_save_note(host, ip, 'http')
                 ret_value = true
               end
@@ -242,7 +240,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check for "misconfigured" web server on TCP/443.
     if do_check_tcp_port(ip, 443, proxies)
-      vprint_status(" * Trying: #{ip}:443")
+      vprint_status(" * Trying: https://#{ip}:443/")
       response = do_simple_get_request_raw(ip, 443, true, host, uri, proxies)
       if response != false
         unless response.headers.to_s.include? 'Server: gatejs'
@@ -252,7 +250,7 @@ class MetasploitModule < Msf::Auxiliary
               if response != false
                 html = response.get_html_document
                 if html.at(tag).to_s.include? fingerprint.to_s
-                  print_good("A direct-connect IP address was found: #{ip}")
+                  print_good("A direct-connect IP address was found: https://#{ip}:443/")
                   do_save_note(host, ip, 'https')
                   ret_value = true
                 end
@@ -355,72 +353,75 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    unless ip_list.empty?
+    if ip_list.empty?
+      print_bad('No IP address found :-(')
+      return
+    end
 
-      # Cleaning the results.
-      print_status("Clean binarysec/ingensec server(s)...")
-      records      = []
-      ip_list.uniq.each do | ip |
-        a = do_dns_get_a(ip.to_s)
-        unless a.to_s.include? "binarysec"
-          unless a.to_s.include? "easywaf"
-            unless ip.to_s.eql? "ingensec"
-              unless ip.to_s.eql? "127.0.0.1"
-                records << ip.to_s
-              end
+    # Cleaning the results.
+    print_status("Clean binarysec/ingensec server(s)...")
+    records      = []
+    ip_list.uniq.each do | ip |
+      a = do_dns_get_a(ip.to_s)
+      unless a.to_s.include? "binarysec"
+        unless a.to_s.include? "easywaf"
+          unless ip.to_s.eql? "ingensec"
+            unless ip.to_s.eql? "127.0.0.1"
+              records << ip.to_s
             end
           end
         end
       end
-
-      if records.empty?
-        print_bad(" * TOTAL: #{records.count.to_s} IP address found(s) after cleaning.")
-      else
-        print_good(" * TOTAL: #{records.uniq.count.to_s} IP address found(s) after cleaning.")
-        print_status()
-
-        # Processing bypass...
-        print_status('Bypass BinarySec/IngenSec is in progress...')
-
-        if datastore['COMPSTR'].nil?
-          tag         = 'title'
-
-          # Initial HTTP request to the server (for <title> comparison).
-          print_status(' * Initial request to the original server for comparison')
-          response    = do_simple_get_request_raw(
-            datastore['HOSTNAME'],
-            datastore['RPORT'],
-            datastore['SSL'],
-            nil,
-            datastore['URIPATH'],
-            datastore['PROXIES']
-          )
-          html        = response.get_html_document
-          fingerprint = html.at(tag).text
-        else
-          tag         = 'html'
-          fingerprint = datastore['COMPSTR']
-        end
-
-        ret_val  = false
-        records.uniq.each do | ip |
-
-          found = do_check_bypass(
-            fingerprint,
-            tag,
-            datastore['HOSTNAME'],
-            ip,
-            datastore['URIPATH'],
-            datastore['PROXIES']
-          )
-          ret_val = true if found.eql? true
-        end
-      end
-
-      unless ret_val.eql? true
-        print_bad('No direct-connect IP address found :-(')
-      end
     end
-  end
 
+    if records.empty?
+      print_bad("No IP address found after cleaning.")
+      return
+    end
+
+    print_good(" * TOTAL: #{records.uniq.count.to_s} IP address found(s) after cleaning.")
+    print_status()
+
+    # Processing bypass...
+    print_status('Bypass BinarySec/IngenSec is in progress...')
+
+    if datastore['COMPSTR'].nil?
+      tag         = 'title'
+
+      # Initial HTTP request to the server (for <title> comparison).
+      print_status(' * Initial request to the original server for comparison')
+      response    = do_simple_get_request_raw(
+        datastore['HOSTNAME'],
+        datastore['RPORT'],
+        datastore['SSL'],
+        nil,
+        datastore['URIPATH'],
+        datastore['PROXIES']
+      )
+      html        = response.get_html_document
+      fingerprint = html.at(tag).text
+    else
+      tag         = 'html'
+      fingerprint = datastore['COMPSTR']
+    end
+
+    ret_val  = false
+    records.uniq.each do | ip |
+
+      found = do_check_bypass(
+        fingerprint,
+        tag,
+        datastore['HOSTNAME'],
+        ip,
+        datastore['URIPATH'],
+        datastore['PROXIES']
+      )
+      ret_val = true if found.eql? true
+    end
+
+    unless ret_val.eql? true
+      print_bad('No direct-connect IP address found :-(')
+    end
+
+  end
 end
