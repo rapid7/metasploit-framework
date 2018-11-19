@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
         'method' => method
       })
 
-      if res1.code == 404 && res2.code != 404
+      if res1 && res1.code == 404 && res2 && res2.code != 404
         @verb = method
         return true
       end
