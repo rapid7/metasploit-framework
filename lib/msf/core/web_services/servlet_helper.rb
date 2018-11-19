@@ -1,6 +1,6 @@
 require 'json'
-require 'msf/core/db_manager/http/db_manager_proxy'
-require 'msf/core/db_manager/http/job_processor'
+require 'msf/core/web_services/db_manager_proxy'
+require 'msf/core/web_services/job_processor'
 require 'metasploit/framework/data_service/remote/http/response_data_helper'
 require 'rex/ui/text/output/stdio'
 

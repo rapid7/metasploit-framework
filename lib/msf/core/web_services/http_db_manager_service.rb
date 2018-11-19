@@ -1,5 +1,5 @@
 require 'rack'
-require 'msf/core/db_manager/http/metasploit_api_app'
+require 'msf/core/web_services/metasploit_api_app'
 require 'metasploit/framework/parsed_options/remote_db'
 require 'rex/ui/text/output/stdio'
 
@@ -51,7 +51,7 @@ class HttpDBManagerService
     # allow other Rails::Applications to use this command
     if !defined?(Rails) || Rails.application.nil?
       # @see https://github.com/rails/rails/blob/v3.2.17/railties/lib/rails/commands.rb#L39-L40
-      require Pathname.new(__FILE__).parent.parent.parent.parent.parent.parent.join('config', 'application')
+      require Pathname.new(__FILE__).parent.parent.parent.parent.parent.join('config', 'application')
     end
 
     # have to configure before requiring environment because
