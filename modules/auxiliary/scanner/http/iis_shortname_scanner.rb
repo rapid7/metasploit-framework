@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(80),
       OptString.new('PATH', [ true, "The base path to start scanning from", "/" ]),
-      OptInt.new('Threads',[ true, "Number of threads to use", 20])
+      OptInt.new('THREADS', [ true, "Number of threads to use", 20])
 
     ])
     @dirs = []
