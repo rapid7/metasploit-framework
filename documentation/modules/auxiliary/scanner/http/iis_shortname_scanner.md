@@ -59,5 +59,5 @@ Create registry key NtfsDisable8dot3NameCreation at HKLM\SYSTEM\CurrentControlSe
 
 ## References
 
-    https://soroush.secproject.com/blog/tag/iis-tilde-vulnerability/
+  * https://soroush.secproject.com/blog/tag/iis-tilde-vulnerability/
   * https://support.detectify.com/customer/portal/articles/1711520-microsoft-iis-tilde-vulnerability
