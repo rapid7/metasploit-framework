@@ -54,7 +54,7 @@ Older Microsoft IIS installations are vulnerable with GET, newer installations w
 
 ## Remediation
 
-Create registry key NtfsDisable8dot3NameCreation at HKLM\SYSTEM\CurrentControlSet\Control\FileSystem, with a value of 1
+Create registry key `NtfsDisable8dot3NameCreation` at `HKLM\SYSTEM\CurrentControlSet\Control\FileSystem`, with a value of `1`
 
 
 ## References
