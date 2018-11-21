@@ -281,6 +281,16 @@ module Msf
     # @param shellcode [String] the processed shellcode to be formatted
     # @return [String] The final formatted form of the payload
     def format_payload(shellcode)
+
+      if Msf::Util::EXE.elf?(shellcode) && format.downcase != 'elf'
+        # TODO: force generation from stager/stage if available
+        raise InvalidFormat, 'selected payload can only generate ELF files'
+      end
+      if Msf::Util::EXE.macho?(shellcode) && format.downcase != 'macho'
+        # TODO: force generation from stager/stage if available
+        raise InvalidFormat, 'selected payload can only generate MACHO files'
+      end
+
       case format.downcase
         when "js_be"
           if Rex::Arch.endian(arch) != ENDIAN_BIG
