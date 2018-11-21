@@ -321,7 +321,8 @@ protected
       return a if self.has_key?(a)
     end
 
-    search_k
+    # Return the original key if it does not exist in the datastore
+    self.has_key?(search_k) ? search_k : k
   end
 
 end
