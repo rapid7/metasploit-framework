@@ -1,4 +1,4 @@
-**This page is meant for Committers. If you are unsure whether you are a committer, you are not**
+**This page is meant for Committers. If you are unsure whether you are a committer, you are not.**
 
 Metasploit is built incrementally by the community through GitHub's [Pull Request](https://github.com/rapid7/metasploit-framework/pulls) mechanism. Submitting pull requests (or PRs) is already discussed in the [Dev environment setup](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) documentation. It's important to realize that PRs are a feature of GitHub, not git, so this document will take a look at how to get your git environment to deal with them sensibly.
 
