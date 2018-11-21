@@ -313,21 +313,15 @@ protected
   #
   def find_key_case(k)
 
-    # Scan each alias looking for a key
     search_k = k.downcase
+
+    # Find alias match if it exists
     if self.aliases.has_key?(search_k)
-      search_k = self.aliases[search_k]
+      a = self.aliases[search_k]
+      return a if self.has_key?(a)
     end
 
-    # Scan each key looking for a match
-    self.each_key do |rk|
-      if rk.downcase == search_k
-        return rk
-      end
-    end
-
-    # Fall through to the non-existent value
-    return k
+    search_k
   end
 
 end
