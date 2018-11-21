@@ -122,6 +122,10 @@ def parse_args(args)
     opts[:nops] = n.to_i
   end
 
+  opt.on('--pad-nops', 'Use nopsled size specified by -n <length> as the total payload size, thus performing a subtraction to prepend a nopsled of quantity (nops minus payload length)') do
+    opts[:padnops] = true
+  end
+
   opt.on('-s', '--space           <length>', Integer, 'The maximum size of the resulting payload') do |s|
     opts[:space] = s
   end
@@ -201,7 +205,6 @@ def parse_args(args)
 
   opts
 end
-
 # Read a raw payload from stdin (or whatever IO object we're currently
 # using as stdin, see {#initialize})
 #
@@ -361,6 +364,7 @@ end
 
 begin
   generator_opts = parse_args(ARGV)
+
 rescue HelpError => e
   $stderr.puts e.message
   exit(1)
