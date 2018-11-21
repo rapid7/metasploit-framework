@@ -31,13 +31,12 @@ class MetasploitModule < Msf::Auxiliary
     chan = datastore['CHANNEL'] + "\x20"*(20-datastore['CHANNEL'].length.to_i)
     if channel_type == 0
       chan_type = "\x26"
-    end
-    if channel_type == 1
+    elsif channel_type == 1
       chan_type = "\x07"
-    end
-    if channel_type == 2
+    elsif channel_type == 2
       chan_type = "\x08"
     end
+
     packet = "\x54\x53\x48\x20" + 		# StructID
     "\x00\x00\x01\x0c" + 			# MQSegmLen
     "\x02" + 					# ByteOrder
@@ -120,18 +119,19 @@ class MetasploitModule < Msf::Auxiliary
                   print_line
                   next
                 end
-                if data_recv[-4..-1] == "\x18\x00\x00\x00"
+                status_code = data_recv[-4..-1]
+                if status_code == "\x18\x00\x00\x00"
                   print_status("Channel Requires SSL. Could not get more information.")
                   print_line
                 end
                 if not data_recv[0...3].include?('TSH')
                   next
                 end
-                if data_recv[-4..-1] == "\x01\x00\x00\x00"
+                if status_code == "\x01\x00\x00\x00"
                   print_error('Channel "' + chan + '" does not exist.')
                   print_line
                 end
-                if data_recv[-4..-1] == "\x02\x00\x00\x00"
+                if status_code == "\x02\x00\x00\x00" or status_code == "\x06\x00\x00\x00"
                   print_error('Unsupported channel type. Try a different channel.')
                   print_line
                 end
@@ -171,9 +171,6 @@ class MetasploitModule < Msf::Auxiliary
       print_line
     rescue ::Interrupt
       raise $!
-    rescue ::Exception => e
-      vprint_error("#{ip}:#{port} exception #{e.class} #{e} #{e.backtrace}")
-      print_line
     ensure
       if s
         disconnect(s) rescue nil
