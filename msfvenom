@@ -134,9 +134,9 @@ def parse_args(args)
     opts[:nops] = n.to_i
   end
 
-	opt.on('--pad-size       <length>', Integer, 'Given [length] total payload size, automatically prepend a nopsled of size ([length] minus payload buffer size)') do |p|
-		opts[:padsize] = p.to_i
-	end
+  opt.on('--pad-nops', 'Use nopsled size specified by -n <length> as the total payload size, thus performing a subtraction to prepend a nopsled of quantity (nops minus payload length)') do
+    opts[:padnops] = true
+  end
 
   opt.on('-s', '--space           <length>', Integer, 'The maximum size of the resulting payload') do |s|
     opts[:space] = s
@@ -213,15 +213,10 @@ def parse_args(args)
     end
   end
 
-	if !opts[:padsize].nil? && !opts[:nops].nil? # --pad-size does the subtraction for the user already
-		raise UsageError, "Option --pad-size and -n cannot be used together\n"
-	end
-
   opts[:datastore] = datastore
 
   opts
 end
-
 # Read a raw payload from stdin (or whatever IO object we're currently
 # using as stdin, see {#initialize})
 #

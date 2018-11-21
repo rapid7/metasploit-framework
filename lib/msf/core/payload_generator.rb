@@ -9,10 +9,7 @@ module Msf
   class EncoderSpaceViolation < PayloadGeneratorError
   end
 
-  class PadSizeViolation < PayloadGeneratorError
-  end
-
-	class PayloadSpaceViolation < PayloadGeneratorError
+  class PayloadSpaceViolation < PayloadGeneratorError
   end
 
   class IncompatibleArch < PayloadGeneratorError
@@ -62,9 +59,9 @@ module Msf
     # @!attribute  nops
     #   @return [Integer] The size in bytes of NOP sled to prepend the payload with
     attr_accessor :nops
-    # @!attribute  padsize
-    #   @return [Integer] The size in bytes of final payload to achieve by filling with NOP sled
-    attr_accessor :padsize
+    # @!attribute  padnops
+    #   @return [Boolean] Whether to use @!attribute nops as the total payload size
+    attr_accessor :padnops
     # @!attribute  payload
     #   @return [String] The refname of the payload to generate
     attr_accessor :payload
@@ -112,6 +109,7 @@ module Msf
     # @option opts [Integer] :space (see #space)
     # @option opts [Integer] :encoder_space (see #encoder_space)
     # @option opts [Integer] :nops (see #nops)
+    # @option opts [Boolean] :padnops (see #padnops)
     # @option opts [String] :add_code (see #add_code)
     # @option opts [Boolean] :keep (see #keep)
     # @option opts [Hash] :datastore (see #datastore)
@@ -130,7 +128,7 @@ module Msf
       @iterations = opts.fetch(:iterations, 1)
       @keep       = opts.fetch(:keep, false)
       @nops       = opts.fetch(:nops, 0)
-			@padsize		= opts.fetch(:padsize, 0)
+      @padnops    = opts.fetch(:padnops, false)
       @payload    = opts.fetch(:payload, '')
       @platform   = opts.fetch(:platform, '')
       @space      = opts.fetch(:space, 1.gigabyte)
@@ -370,10 +368,10 @@ module Msf
         else
           encoded_payload = encode_payload(raw_payload)
         end
+        if padnops
+          @nops = nops - encoded_payload.length
+        end
         encoded_payload = prepend_nops(encoded_payload)
-				if(@padsize > 0)
-					encoded_payload = pad_size(encoded_payload, padsize - encoded_payload.length)
-				end
         cli_print "Payload size: #{encoded_payload.length} bytes"
         gen_payload = format_payload(encoded_payload)
       end
@@ -494,20 +492,6 @@ module Msf
         shellcode
       end
     end
-
-		# This method prepends a NOP sled onto the encoded payload with a size
-		# based on a subtraction of the payload size from the padsize value
-		# given to the generator.
-    # @param shellcode [String] The shellcode to prepend the NOPs to
-		# @param sub_nops [Integer] Value derived from a subtraction of the encoded payload length from the padsize.
-    def pad_size(shellcode, sub_nops)
-			if @padsize < shellcode.length
-				raise PadSizeViolation, "pad-size value #{@padsize} is less than payload size."
-			else	
-      	@nops = sub_nops
-			end
-			return prepend_nops(shellcode)
-		end
 
     # This method runs a specified encoder, for a number of defined iterations against the shellcode.
     # @param encoder_module [Msf::Encoder] The Encoder to run against the shellcode
