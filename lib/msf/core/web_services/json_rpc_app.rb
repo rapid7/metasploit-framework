@@ -3,9 +3,9 @@ require 'swagger/blocks'
 require 'sysrandom/securerandom'
 require 'warden'
 require 'msf/core/rpc'
-require 'msf/core/db_manager/http/authentication'
-require 'msf/core/db_manager/http/servlet_helper'
-require 'msf/core/db_manager/http/servlet/auth_servlet'
+require 'msf/core/web_services/authentication'
+require 'msf/core/web_services/servlet_helper'
+require 'msf/core/web_services/servlet/auth_servlet'
 require 'msf/core/web_services/servlet/json_rpc_servlet'
 
 class JsonRpcApp < Sinatra::Base
