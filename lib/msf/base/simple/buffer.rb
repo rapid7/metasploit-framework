@@ -14,6 +14,7 @@ module Simple
 ###
 module Buffer
 
+  class BufferFormatError < ::ArgumentError; end
   #
   # Serializes a buffer to a provided format.  The formats supported are raw,
   # num, dword, ruby, python, perl, bash, c, js_be, js_le, java and psh
@@ -54,7 +55,7 @@ module Buffer
       when 'vbapplication'
         buf = Rex::Text.to_vbapplication(buf, var_name)
       else
-        raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
+        raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
 
     return buf
@@ -84,7 +85,7 @@ module Buffer
       when 'java'
         buf = Rex::Text.to_c_comment(buf)
       else
-        raise ArgumentError, "Unsupported buffer format: #{fmt}", caller
+        raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
 
     return buf

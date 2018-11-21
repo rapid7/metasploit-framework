@@ -132,7 +132,7 @@ module Msf
       @framework  = opts.fetch(:framework)
 
       raise ArgumentError, "Invalid Payload Selected" unless payload_is_valid?
-      raise ArgumentError, "Invalid Format Selected" unless format_is_valid?
+      raise ::Msf::Simple::Buffer::BufferFormatError, "Invalid Format Selected" unless format_is_valid?
 
       # In smallest mode, override the payload @space & @encoder_space settings
       if @smallest
