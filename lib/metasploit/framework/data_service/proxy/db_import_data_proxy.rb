@@ -6,7 +6,7 @@ module DbImportDataProxy
         data_service.import(opts, &block)
       end
     rescue Exception => e
-      self.log_error(e, "Problem generating DB Export")
+      self.log_error(e, "Problem generating DB Import")
     end
   end
 
@@ -17,7 +17,7 @@ module DbImportDataProxy
         data_service.import_file(opts, &block)
       end
     rescue Exception => e
-      self.log_error(e, "Problem generating DB Export")
+      self.log_error(e, "Problem generating DB Import")
     end
   end
 end
