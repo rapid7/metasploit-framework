@@ -135,7 +135,7 @@ module Metasploit
           rescue RubySMB::Error::UnexpectedStatusCode => e
             status = Metasploit::Model::Login::Status::INCORRECT
           ensure
-            client.disconnect!
+            client.disconnect! if client
           end
 
           if status == Metasploit::Model::Login::Status::SUCCESSFUL && credential.public.empty?
