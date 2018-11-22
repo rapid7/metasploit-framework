@@ -93,10 +93,9 @@ module Metasploit
           proof = nil
 
           begin
-
-            realm       = credential.realm   || ""
-            username    = credential.public  || ""
-            password    = credential.private || ""
+            realm       = (credential.realm   || "").force_encoding('UTF-8')
+            username    = (credential.public  || "").force_encoding('UTF-8')
+            password    = (credential.private || "").force_encoding('UTF-8')
             client      = RubySMB::Client.new(self.dispatcher, username: username, password: password, domain: realm)
             status_code = client.login
 
