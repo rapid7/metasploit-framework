@@ -105,7 +105,8 @@ module Kernel
   #
   def userns_enabled?
     return false if cmd_exec('cat /proc/sys/user/max_user_namespaces').to_s.strip.eql? '0'
-    cmd_exec('cat /proc/sys/kernel/unprivileged_userns_clone').to_s.strip.eql? '1'
+    return false if cmd_exec('cat /proc/sys/kernel/unprivileged_userns_clone').to_s.strip.eql? '0'
+    true
   rescue
     raise 'Could not determine userns status'
   end
