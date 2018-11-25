@@ -39,7 +39,7 @@ If exploit dev isn't your thing, but more straightforward Ruby development is, t
  * [Recent Bugs](https://github.com/rapid7/metasploit-framework/issues?q=is%3Aissue+is%3Aopen+label%3Abug), which tend to be either very easy or very hard to fix (not a lot of middle ground).
  * [Feature requests](https://github.com/rapid7/metasploit-framework/issues?q=is%3Aissue+is%3Aopen+label%3Afeature), which is often in the same boat.
 
-Along these same lines is a perennial need for better automated testing, down in the [spec directory](https://github.com/rapid7/metasploit-framework/tree/master/spec). If you have a talent for exploring strange and wonderful code bases, pick out a chunk of the Metasploit core code and define out what you expect for working behavior. [This search](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=684) is an ideal place to start; describe the bug as a pending Rspec test, reference the bug, and then we'll have a test that works once it gets fixed.
+Along these same lines is a perennial need for better automated testing, down in the [spec directory](https://github.com/rapid7/metasploit-framework/tree/master/spec). If you have a talent for exploring strange and wonderful code bases, pick out a chunk of the Metasploit core code and define out what you expect for working behavior. ~[This search](https://dev.metasploit.com/redmine/projects/framework/issues?query_id=684) is an ideal place to start; describe the bug as a pending Rspec test, reference the bug, and then we'll have a test that works once it gets fixed.~
 
 ## Non-code
 
@@ -63,7 +63,7 @@ https://github.com/rapid7/metasploit-framework/wiki/Landing-Pull-Requests
 Also, please take a peek at our guides on using git and our acceptance guidelines for new modules in case you're not familiar with them:
 https://github.com/rapid7/metasploit-framework/wiki
 
-If you get stuck, try to explain your specific problem as best you can on our [Freenode IRC](https://freenode.net/) channel, #metasploit (joining requires a registered nick). Someone should be able to lend a hand. Apparently, some of those people never sleep.
+If you get stuck, try to explain your specific problem as best you can on our [Freenode IRC](https://freenode.net/) channel, #metasploit (joining requires a [registered nick](https://freenode.net/kb/answer/registration)). Someone should be able to lend a hand. Apparently, some of those people never sleep.
 
 ## Thank you
 
