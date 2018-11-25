@@ -240,7 +240,7 @@ class MetasploitModule < Msf::Auxiliary
       @queue << c
     end
 
-    datastore['Threads'].times {
+    datastore['THREADS'].times {
       @threads << framework.threads.spawn("scanner", false) { scan }
     }
 
