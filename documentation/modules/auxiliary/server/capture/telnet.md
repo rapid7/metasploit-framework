@@ -10,7 +10,7 @@ This module creates a mock telnet server which accepts credentials.  Upon receiv
 
   **BANNER**
 
-  The Banner which should be displayed.  Default is ``, which will display `Welcome`.
+  The Banner which should be displayed.  Default is empty, which will display `Welcome`.
 
   **SSL**
 

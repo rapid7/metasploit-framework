@@ -16,7 +16,7 @@ This module creates a mock PostgreSQL server which accepts credentials.  Upon re
   **SSLCert**
 
   File path to a combined Private Key and Certificate file.  If not provided, a certificate will be automatically
-  generated.  Default is ``.
+  generated.  Default is null.
 
 ## Scenarios
 
