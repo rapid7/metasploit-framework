@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    check_plugin_version_from_readme('wp-gdpr-compliance', '1.4.2')
+    check_plugin_version_from_readme('wp-gdpr-compliance', '1.4.3')
   end
 
   def set_wp_option(name, value, ajax_security)
