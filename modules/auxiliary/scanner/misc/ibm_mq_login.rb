@@ -20,8 +20,9 @@ class MetasploitModule < Msf::Auxiliary
       Opt::RPORT(1414),
       OptInt.new('TIMEOUT', [true, "The socket connect timeout in seconds", 5]),
       OptInt.new('CONCURRENCY', [true, "The number of usernames to check concurrently", 10]),
-      OptString.new('QUEUE_MANAGER', [ true, "Queue Manager name to use" ,""]),
-      OptString.new('CHANNEL', [ true, "Channel to use" ,"SYSTEM.ADMIN.SVRCONN"]),
+      OptString.new('QUEUE_MANAGER', [true, "Queue Manager name to use" ,""]),
+      OptString.new('CHANNEL', [true, "Channel to use" ,"SYSTEM.ADMIN.SVRCONN"]),
+      OptString.new('PASSWORD', [false, "Optional password to attempt with login"]),
       OptPath.new('USERNAMES_FILE',
         [ true, "The file that contains a list of usernames. UserIDs are case insensitive!"]
       )])
@@ -158,6 +159,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_userid(userid,uname)
+
+    if datastore['PASSWORD'].nil?
+      password = "\x00" * 12
+    else
+      password = datastore['PASSWORD']
+      if (password.length > 12)
+        print_warning("Passwords greater than 12 characters are unsupported.  Truncating...")
+        password = password[0..12]
+      end
+      password = password + ( "\x00" * (12-password.length) )
+    end
+    vprint_status("Using password: '#{password}' (Length: #{password.length})") 
+
     send_userid = "\x54\x53\x48\x4d" + 	# StructId
     "\x00\x00\x00\xa8" + 		# MQSegmLen
     "\x00\x00\x00\x01" + 		# Convers ID
@@ -172,8 +186,7 @@ class MetasploitModule < Msf::Auxiliary
     "\x00\x00" + 			# Reserved
     "\x55\x49\x44\x20" + 		# StructId
     userid + 				# UserId - Doesnt affect anything
-    "\x20\x20\x20\x20\x20\x20\x20" + 	# Password !!!
-    "\x20\x20\x20\x20\x20" + 		# Password !!!
+    password +                          # Password
     uname + 				# Long UID - This matters!
     "\x00" + 				# SID Len
     "\x00" * 39 			# Unknown
