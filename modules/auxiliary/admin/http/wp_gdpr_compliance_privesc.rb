@@ -96,6 +96,9 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Registering #{datastore['USER']} with email #{datastore['EMAIL']}")
     unless (datastore['EMAIL'] =~ URI::MailTo::EMAIL_REGEXP) && wordpress_register(datastore['USER'], datastore['EMAIL'])
       print_error("Failed to register user")
+      return
     end
+
+    vprint_good('For a shell: use exploits/unix/webapp/wp_admin_shell_upload')
   end
 end
