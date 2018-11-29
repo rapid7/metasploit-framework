@@ -30,8 +30,8 @@ module MetasploitModule
           'Offsets' =>
             {
               'LHOST'    => [ 85, 'ADDR6' ],
-              'LPORT'    => [ 81, 'n' ],
-              'SCOPEID'  => [ 105,  'V' ]
+              'LPORT'    => [ 79, 'n' ],
+              'SCOPEID'  => [ 101,  'V' ]
             },
           'Payload' =>
             # <_start>:
