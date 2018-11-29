@@ -11,12 +11,11 @@ class MetasploitModule < Msf::Auxiliary
       info,
       'Name'            => 'WordPress WP GDPR Compliance Plugin Privilege Escalation',
       'Description'     => %q{
-        The Wordpress plugin GDPR Compliance allows unauthenticated users to execute any
-        action and update any database value.
-        This comes from a lack of validation in the plugin handles in WordPress’s admin-ajax.php
-        functionality, which leads to unauthorized users being abler to trigger these handlers and
-        from a failure to do capability checks when executing its internal action 'save_setting to
-        make configuration changes.
+        The Wordpress GDPR Compliance plugin <= v1.4.2 allows unauthenticated users to set
+        wordpress administration options by overwriting values within the database.
+        The vulnerability is present in WordPress’s admin-ajax.php, which allows unauthorized
+        users to trigger handlers and make configuration changes because of a failure to do
+        capability checks when executing the 'save_setting' internal action.
       },
       'Author'          =>
         [
@@ -27,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'      =>
         [
           ['URL', 'https://www.wordfence.com/blog/2018/11/privilege-escalation-flaw-in-wp-gdpr-compliance-plugin-exploited-in-the-wild/'],
+          ['CVE', '2018-19207'],
           ['WPVDB', '9144']
         ],
       'DisclosureDate'  => 'Nov 08 2018'
