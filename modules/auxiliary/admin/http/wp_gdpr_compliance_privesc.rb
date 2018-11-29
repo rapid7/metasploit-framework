@@ -57,11 +57,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
 
-    unless res && res.code == 200
-      fail_with(Failure::UnexpectedReply, "Unable to access Wordpress: #{wordpress_url_admin_ajax}")
-    end
-
-    res
+    res && res.code == 200
   end
 
   def run
