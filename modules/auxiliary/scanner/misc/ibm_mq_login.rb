@@ -170,7 +170,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       password = password + ( "\x00" * (12-password.length) )
     end
-    vprint_status("Using password: '#{password}' (Length: #{password.length})") 
+    vprint_status("Using password: '#{password}' (Length: #{password.length})")
 
     send_userid = "\x54\x53\x48\x4d" + 	# StructId
     "\x00\x00\x00\xa8" + 		# MQSegmLen
