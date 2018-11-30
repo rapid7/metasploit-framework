@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
       prepare_exec(clean_func)
       print_status("Exploit complete!")
     rescue ::OCIError => e
-      print_status("Error!")
+      print_error("Error! #{e.message}")
     end
   end
 
