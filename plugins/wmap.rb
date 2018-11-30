@@ -1344,7 +1344,7 @@ class Plugin::Wmap < Msf::Plugin
           ssl = true
         end
 
-        site = self.framework.db.report_web_site(:wait => true, :host => uri.host, :port => uri.port, :vhost => vhost, :ssl => ssl)
+        site = self.framework.db.report_web_site(:wait => true, :host => uri.host, :port => uri.port, :vhost => vhost, :ssl => ssl, :workspace=> framework.db.workspace)
 
         return site
     end
@@ -1416,7 +1416,7 @@ class Plugin::Wmap < Msf::Plugin
         end
 
         #print_status "aaa"
-        #print_status framework.db.workspace.name
+        print_status framework.db.workspace.name
 
         sites = serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
 
