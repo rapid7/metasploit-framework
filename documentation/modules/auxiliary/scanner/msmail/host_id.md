@@ -14,7 +14,25 @@ OWA (Outlook Webapp) is vulnerable to time-based user enumeration attacks.
 ## Verification
 
 - Start `msfconsole`
-- `use auxiliary/scanner/msmail/identify`
+- `use auxiliary/scanner/msmail/host_id`
 - `set RHOSTS <target>`
 - `run`
-- **Verify** the result is as expected
+
+*Results should look like below:*
+
+```
+msf5 > use auxiliary/scanner/msmail/host_id
+msf5 auxiliary(scanner/msmail/host_id) > set RHOSTS <host>
+RHOSTS => <host>
+msf5 auxiliary(scanner/msmail/host_id) > run
+
+[*] Running for <ip>...
+[*] Attempting to harvest internal domain:
+[*] Internal Domain:
+[*] <domain>
+[*] Domain is not using o365 resources.
+[*] Identifying endpoints vulnerable to time-based enumeration:
+[*] [+] https://<host>/Microsoft-Server-ActiveSync
+[*] [+] https://<host>/autodiscover/autodiscover.xml
+[*] [+] https://<host>/owa
+```

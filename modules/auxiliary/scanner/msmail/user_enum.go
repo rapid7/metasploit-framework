@@ -14,13 +14,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"metasploit/module"
+	"msmail"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"msmail"
 )
 
 func main() {
@@ -125,7 +125,6 @@ func runO365(params map[string]interface{}, threads int) {
 
 	reportValidUsers(host, validUsers)
 }
-
 
 func importUserList(tempname string) []string {
 	userFileBytes, err := ioutil.ReadFile(tempname)
@@ -235,7 +234,7 @@ func basicAuthAvgTime(host string) time.Duration {
 		elapsedTime := time.Since(startTime)
 		if elapsedTime > time.Second*15 {
 			module.LogInfo("Response taking longer than 15 seconds, setting time:")
-			module.LogInfo("Avg Response: " + string(time.Duration(elapsedTime)))
+			module.LogInfo("Avg Response: " + time.Duration(elapsedTime).String())
 			return time.Duration(elapsedTime)
 		}
 		if i != 0 {
@@ -254,7 +253,7 @@ func basicAuthAvgTime(host string) time.Duration {
 	} else {
 		module.LogError("Error determining whether length of times gathered is even or odd to obtain median value.")
 	}
-	module.LogInfo("Avg Response: " + string(time.Duration(medianTime)))
+	module.LogInfo("Avg Response: " + time.Duration(medianTime).String())
 	return time.Duration(medianTime)
 }
 
@@ -337,10 +336,10 @@ func reportValidUsers(ip string, validUsers []string) {
 		opts := map[string]string{
 			"port":         port,
 			"service_name": service,
-			"address":         ip,
-			"protocol":		protocol,
-			"fullname": 	"auxiliary/scanner/msmail/msmail_enum",
+			"address":      ip,
+			"protocol":     protocol,
+			"fullname":     "auxiliary/scanner/msmail/user_enum",
 		}
-		module.ReportCredentialLogin(user,"", opts)
+		module.ReportCredentialLogin(user, "", opts)
 	}
 }

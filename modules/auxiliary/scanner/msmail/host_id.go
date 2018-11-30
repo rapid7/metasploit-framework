@@ -29,7 +29,7 @@ func main() {
 		Type:        "single_scanner",
 		Privileged:  false,
 		References:  []module.Reference{},
-		Options: map[string]module.Option{},
+		Options:     map[string]module.Option{},
 	}
 
 	module.Init(metadata, run_id)
@@ -101,4 +101,3 @@ func urlEnum(hostInput string) {
 		module.LogInfo("No onprem Exchange services identified.")
 	}
 }
-

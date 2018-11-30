@@ -149,7 +149,6 @@ def handle_credential_login(data, mod)
   }.merge(service_data)
 
   if data.has_key?(:password)
-    print_warning "In pass"
     credential_data[:private_data] = data['password']
     credential_data[:private_type] = :password
   end

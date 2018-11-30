@@ -14,5 +14,13 @@ OWA (Outlook Webapp) is vulnerable to time-based user enumeration attacks.
 - `set RHOSTS <target>`
 - `set OnPrem true` and (set `USER` or `USER_FILE`) OR `set O365 true` and (set `EMAIL` or `EMAIL_FILE`)
 - `run`
-- `creds` shows valid users
-- **Verify** the result is as expected
+- `creds`
+
+*Results should look something like below if valid users were found:*
+
+```
+host      origin    service        public  private  realm  private_type
+----      ------    -------        ------  -------  -----  ------------
+10.1.1.1  10.1.1.1  443/tcp (owa)
+10.1.1.1  10.1.1.1  443/tcp (owa)  chris
+```
