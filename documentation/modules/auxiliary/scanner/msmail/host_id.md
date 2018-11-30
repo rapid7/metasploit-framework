@@ -9,20 +9,12 @@ OWA (Outlook Webapp) is vulnerable to time-based user enumeration attacks.
 - Identifies services vulnerable to time-based user enumeration for onprem Exchange
 - Lists password-sprayable services exposed for onprem Exchange host
 
-**Userenum (o365) Command**
-- Error-based user enumeration for Office 365 integrated email addresses
-
 **Note:**  Currently uses RHOSTS which resolves to an IP which is NOT desired, this is currently being fixed 
 
 ## Verification
 
 - Start `msfconsole`
-- `use auxiliary/scanner/msmail/exchange_enumerator`
+- `use auxiliary/scanner/msmail/identify`
 - `set RHOSTS <target>`
-- `run`
-- **Verify** the result is as expected
-
-- `set Command userenum`
-- `set OnPrem true` and (set `UserName` or `UserNameFilePath`) OR `set O365 true` and (set `Email` or `EmailFilePath`)
 - `run`
 - **Verify** the result is as expected
