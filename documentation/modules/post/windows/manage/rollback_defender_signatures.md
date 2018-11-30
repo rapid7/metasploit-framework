@@ -64,25 +64,7 @@ msf5 post(windows/manage/rollback_defender_signatures) > run
 [*] 
 Service Version: 6.1.7600.16385
 Engine Version: 1.1.15400.5
-AntiSpyware Signature Version: 1.281.1013.0
-
-Starting engine and signature rollback to none...Done!
-[*] Post module execution completed
-msf5 post(windows/manage/rollback_defender_signatures) > 
-image
-
-msf5 post(windows/manage/rollback_defender_signatures) > set action update
-action => update
-msf5 post(windows/manage/rollback_defender_signatures) > run
-
-[*] program_path = C:\Program Files
-[*] file_path = C:\Program Files\Windows Defender\MpCmdRun.exe
-[*] Removing All Definitions for Windows Defender
-[*] update
-[*] Running cmd.exe /c "C:\Program Files\Windows Defender\MpCmdRun.exe" -SignatureUpdate
-[*] Signature update started . . .
-Signature update finished.
-[*] Post module execution completed
+AntiSpyware Signature Version: 1.281.1013.0e[*] Post module execution completed
 
 ### Options
 Module options (post/windows/manage/rollback_defender_signatures):

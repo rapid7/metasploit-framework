@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
         OptEnum.new('ACTION', [ true, 'Action to perform (Update/Rollback)', 'Rollback', ['rollback', 'update']])
       ])
   end
-  
+
   def run
     #Are we system?
     if not is_system?()
