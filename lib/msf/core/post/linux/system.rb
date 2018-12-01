@@ -167,7 +167,7 @@ module System
   def get_hostname
     hostname = cmd_exec('uname -n').to_s
     report_host({:host => rhost, :name => hostname})
-
+    hostname
   rescue
     raise 'Unable to retrieve hostname'
   end
