@@ -71,6 +71,9 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
 
     begin
+      if datastore['SMBUser'].present?
+        print_status("Authenticating to #{ip} as user '#{splitname(datastore['SMBUser'])}'...")
+      end
       eternal_pwn(ip)         # exploit Admin session
       smb_pwn(ip)             # psexec
 
