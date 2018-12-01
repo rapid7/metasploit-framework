@@ -197,7 +197,7 @@ class MetasploitModule < Msf::Post
     elsif command_exists? 'dd'
       @dump_technique = 'dd'
     else
-      fail_with Failure::NotVulnerable, "No tools to dump memory are available (#{tools.join(' / ')})"
+      fail_with Failure::NotVulnerable, "No tools to dump memory are available (gcore / dd)"
     end
 
     vprint_status 'Retrieving password hashes...'
