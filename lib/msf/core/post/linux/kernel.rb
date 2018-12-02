@@ -170,6 +170,24 @@ module Kernel
   end
 
   #
+  # Returns true if grsecurity is installed
+  #
+  def grsec_installed?
+    cmd_exec('test -c /dev/grsec && echo true').to_s.strip.include? 'true'
+  rescue
+    raise 'Could not determine grsecurity status'
+  end
+
+  #
+  # Returns true if PaX is installed
+  #
+  def pax_installed?
+    cmd_exec('test -x /sbin/paxctl && echo true').to_s.strip.include? 'true'
+  rescue
+    raise 'Could not determine PaX status'
+  end
+
+  #
   # Returns true if SELinux is installed
   #
   # @return [Boolean]
