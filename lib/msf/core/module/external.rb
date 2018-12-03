@@ -138,7 +138,7 @@ def handle_credential_login(data, mod)
       port: data['port'],
       protocol: data['protocol'],
       service_name: data['service_name'],
-      module_fullname: data['fullname'],
+      module_fullname: self.fullname,
       workspace_id: myworkspace_id
   }
 

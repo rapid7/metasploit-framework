@@ -3,6 +3,8 @@ package msmail
 import (
 	"crypto/tls"
 	"encoding/base64"
+	"fmt"
+	"io/ioutil"
 	"metasploit/module"
 	"net/http"
 	"strings"
@@ -99,4 +101,51 @@ func HarvestInternalDomain(host string, outputDomain bool) string {
 		module.LogInfo(string(internalDomainDecimal))
 	}
 	return string(internalDomainDecimal)
+}
+
+func ReportValidUsers(ip string, validUsers []string) {
+	port := "443"
+	service := "owa"
+	protocol := "tcp"
+	for _, user := range validUsers {
+		opts := map[string]string{
+			"port":         port,
+			"service_name": service,
+			"address":      ip,
+			"protocol":     protocol,
+		}
+		module.LogInfo("Loging user: " + user)
+		module.ReportCredentialLogin(user, "", opts)
+	}
+}
+
+func WebRequestBasicAuth(URI string, user string, pass string, tr *http.Transport) int {
+	timeout := time.Duration(45 * time.Second)
+	client := &http.Client{
+		Timeout:   timeout,
+		Transport: tr,
+	}
+	req, err := http.NewRequest("GET", URI, nil)
+	req.Header.Set("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1")
+	req.SetBasicAuth(user, pass)
+	resp, err := client.Do(req)
+	if err != nil {
+		module.LogInfo(fmt.Sprintf("Potential Timeout - %s \n", user))
+		module.LogInfo("One of your requests has taken longer than 45 seconds to respond.")
+		module.LogInfo("Consider lowering amount of threads used for enumeration.")
+		module.LogError(err.Error())
+	}
+	return resp.StatusCode
+}
+
+func ImportUserList(tempname string) []string {
+	userFileBytes, err := ioutil.ReadFile(tempname)
+	if err != nil {
+		module.LogError(err.Error())
+	}
+	var userFileString = string(userFileBytes)
+	userArray := strings.Split(userFileString, "\n")
+	//Delete last unnecessary newline inserted into this slice
+	userArray = userArray[:len(userArray)-1]
+	return userArray
 }

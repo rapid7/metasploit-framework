@@ -30,9 +30,13 @@ msf5 auxiliary(scanner/msmail/host_id) > run
 [*] Attempting to harvest internal domain:
 [*] Internal Domain:
 [*] <domain>
-[*] Domain is not using o365 resources.
+[*] [-] Domain is not using o365 resources.
 [*] Identifying endpoints vulnerable to time-based enumeration:
 [*] [+] https://<host>/Microsoft-Server-ActiveSync
 [*] [+] https://<host>/autodiscover/autodiscover.xml
 [*] [+] https://<host>/owa
+[*] Identifying exposed Exchange endpoints for potential spraying:
+[*] [+] https://<host>/oab
+[*] [+] https://<host>/ews
+
 ```
