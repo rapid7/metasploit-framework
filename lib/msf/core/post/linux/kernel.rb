@@ -124,6 +124,18 @@ module Kernel
   end
 
   #
+  # Returns true if Exec-Shield is enabled
+  #
+  # @return [Boolean]
+  #
+  def exec_shield_enabled?
+    exec_shield = cmd_exec('cat /proc/sys/kernel/exec-shield').to_s.strip
+    (exec_shield.eql?('1') || exec_shield.eql?('2'))
+  rescue
+    raise 'Could not determine exec-shield status'
+  end
+
+  #
   # Returns true if unprivileged bpf is disabled
   #
   # @return [Boolean]
