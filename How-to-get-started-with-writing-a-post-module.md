@@ -84,15 +84,13 @@ Here we have a post module template. As you can see, there are some required fie
 
 ```ruby
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
 
-  def initialize(info={})
+  def initialize(info = {})
     super(update_info(info,
         'Name'          => '[Platform] [Module Category] [Software] [Function]',
         'Description'   => %q{
@@ -100,7 +98,7 @@ class MetasploitModule < Msf::Post
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Name' ],
-        'Platform'      => [ 'win', 'linux', 'osx', 'unix', 'bsd' ],
+        'Platform'      => [ 'win', 'linux', 'osx', 'unix', 'bsd', 'solaris' ],
         'SessionTypes'  => [ 'meterpreter', 'shell' ]
     ))
   end
@@ -130,7 +128,7 @@ Metasploit no longer uses svn for source code management, instead we use git, so
 
 Every time you make a module, or make some changes to existing code, you should not do so on the default master branch. Why? Because when you do a ```msfupdate```, which is Metasploit's utility for updating your repository, it will do a git reset before merging the changes, and all your code go bye-bye.
 
-Another mistake people tend to do is have all the changes on master before submitting a pull request. This is a bad idea, because most likely you're submitting other crap you don't intend to change, and/or you're probably asking us to merge other unnecessary commit history when there only needs to be one commit. Thanks for contributing your module to the community, but no thanks to your crazy commit history.
+Another mistake people tend to do is have all the changes on `master` before submitting a pull request. This is a bad idea, because most likely you're submitting other crap you don't intend to change, and/or you're probably asking us to merge other unnecessary commit history when there only needs to be one commit. Thanks for contributing your module to the community, but no thanks to your crazy commit history.
 
 So as a habit, when you want to make something new, or change something, begin with a new branch that's up to date to master. First off, make sure you're on master. If you do a ```git status``` it will tell you what branch you're currently on:
 
