@@ -97,6 +97,12 @@ module System
       system_data[:distro] = "gentoo"
       system_data[:version] = version
 
+    # Openwall
+    elsif etc_files.include?("owl-release")
+      version = read_file("/etc/owl-release").gsub(/\n|\\n|\\l/,'')
+      system_data[:distro] = 'openwall'
+      system_data[:version] = version
+
     # Generic
     elsif etc_files.include?("issue")
       version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
