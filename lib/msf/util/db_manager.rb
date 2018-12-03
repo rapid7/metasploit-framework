@@ -31,11 +31,11 @@ module DBManager
   # @return [Mdm::Workspace] The workspace object that was referenced by name in opts.
   def self.process_opts_workspace(opts, framework, required = true)
     wspace = delete_opts_workspace(opts)
-    if required && (wspace.nil? || ((wspace.kind_of? String) && wspace.empty?))
+    if required && (wspace.nil? || (wspace.kind_of?(String) && wspace.empty?))
       raise ArgumentError.new("opts must include a valid :workspace")
     end
 
-    if wspace.kind_of? String
+    if wspace.kind_of?(String)
       wspace = framework.db.find_workspace(wspace)
     end
     wspace
