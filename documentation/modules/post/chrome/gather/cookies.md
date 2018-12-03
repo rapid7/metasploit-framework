@@ -24,6 +24,7 @@ Chrome does not need to be running on the target machine for this module to work
   2. Do: ```use post/chrome/gather/cookies```
   3. Do: ```set SESSION <your session ID>```
   4. Do: ```run```
+  5. The current user's Chrome cookies will be stored as loot
 
 ## Options
 
