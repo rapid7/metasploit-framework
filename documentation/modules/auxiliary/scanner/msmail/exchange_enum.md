@@ -4,8 +4,6 @@ Exchange installations to enumerate email.
 
 Error-based user enumeration for Office 365 integrated email addresses
 
-**Note:**  Currently requires RHOSTS which is not used
-
 ## Verification
 
 - Start `msfconsole`
