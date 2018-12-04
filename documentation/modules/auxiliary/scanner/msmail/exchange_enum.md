@@ -8,7 +8,6 @@ Error-based user enumeration for Office 365 integrated email addresses
 
 - Start `msfconsole`
 - `use auxiliary/scanner/msmail/exchange_enum`
-- `set RHOSTS <target>`
 - `set (`EMAIL` or `EMAIL_FILE`)`
 - `run`
 - `creds`
