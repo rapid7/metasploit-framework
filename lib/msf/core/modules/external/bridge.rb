@@ -142,7 +142,7 @@ module Msf::Modules
         elsif Process.kill('TERM', self.wait_thread.pid) && self.wait_thread.join(10)
           self.exit_status = self.wait_thread.value
         else
-          Procoess.kill('KILL', self.wait_thread.pid)
+          Process.kill('KILL', self.wait_thread.pid)
           self.exit_status = self.wait_thread.value
         end
       end
@@ -174,7 +174,7 @@ class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
   def initialize(module_path, framework: nil)
     super
     pythonpath = ENV['PYTHONPATH'] || ''
-    self.env = self.env.merge({ 'PYTHONPATH' => pythonpath + File::PATH_SEPARATOR + File.expand_path('../python', __FILE__) })
+    self.env = self.env.merge({ 'PYTHONPATH' => File.expand_path('../python', __FILE__) + File::PATH_SEPARATOR + pythonpath})
   end
 end
 
@@ -197,8 +197,19 @@ class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
 
   def initialize(module_path, framework: nil)
     super
-    gopath = ENV['GOPATH'] || ''
-    self.env = self.env.merge({ 'GOPATH' => gopath + File::PATH_SEPARATOR + File.expand_path('../go', __FILE__) })
+    default_go_path = ENV['GOPATH'] || ''
+    shared_module_lib_path = File.dirname(module_path) + "/shared"
+    go_path = File.expand_path('../go', __FILE__)
+
+    if File.exist?(default_go_path)
+      go_path = go_path + File::PATH_SEPARATOR + default_go_path
+    end
+
+    if File.exist?(shared_module_lib_path)
+      go_path = go_path + File::PATH_SEPARATOR + shared_module_lib_path
+    end
+
+    self.env = self.env.merge({'GOPATH' => go_path})
     self.cmd = ['go', 'run', self.path]
   end
 end

@@ -2,9 +2,10 @@ module WorkspaceDataProxy
 
   def find_workspace(workspace_name)
     begin
-      data_service = self.get_data_service
-      opts = { name: workspace_name }
-      data_service.workspaces(opts).first
+      self.data_service_operation do |data_service|
+        opts = { name: workspace_name }
+        data_service.workspaces(opts).first
+      end
     rescue => e
       self.log_error(e, "Problem finding workspace")
     end
@@ -12,9 +13,10 @@ module WorkspaceDataProxy
 
   def add_workspace(workspace_name)
     begin
-      data_service = self.get_data_service
-      opts = { name: workspace_name }
-      data_service.add_workspace(opts)
+      self.data_service_operation do |data_service|
+        opts = { name: workspace_name }
+        data_service.add_workspace(opts)
+      end
     rescue => e
       self.log_error(e, "Problem adding workspace")
     end
@@ -57,8 +59,9 @@ module WorkspaceDataProxy
 
   def workspaces(opts = {})
     begin
-      data_service = self.get_data_service
-      data_service.workspaces(opts)
+      self.data_service_operation do |data_service|
+        data_service.workspaces(opts)
+      end
     rescue => e
       self.log_error(e, "Problem retrieving workspaces")
     end
@@ -66,8 +69,9 @@ module WorkspaceDataProxy
 
   def delete_workspaces(opts)
     begin
-      data_service = self.get_data_service
-      data_service.delete_workspaces(opts)
+      self.data_service_operation do |data_service|
+        data_service.delete_workspaces(opts)
+      end
     rescue => e
       self.log_error(e, "Problem deleting workspaces")
     end
@@ -75,8 +79,9 @@ module WorkspaceDataProxy
 
   def update_workspace(opts)
     begin
-      data_service = self.get_data_service
-      data_service.update_workspace(opts)
+      self.data_service_operation do |data_service|
+        data_service.update_workspace(opts)
+      end
     rescue => e
       self.log_error(e, "Problem updating workspace")
     end

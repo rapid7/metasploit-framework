@@ -4,6 +4,10 @@ module Msf::Post::OSX::System
   include ::Msf::Post::Common
   include ::Msf::Post::File
 
+  def get_system_version
+    cmd_exec("/usr/bin/sw_vers -productVersion")
+  end
+
   #
   # Return a hash with system Information
   #

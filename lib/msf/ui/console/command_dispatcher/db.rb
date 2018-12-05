@@ -765,6 +765,10 @@ class Db
       opts[:port] = ports if ports
       framework.db.services(opts).each do |service|
 
+        unless service.state == 'open'
+          next if onlyup
+        end
+
         host = service.host
         matched_service_ids << service.id
 

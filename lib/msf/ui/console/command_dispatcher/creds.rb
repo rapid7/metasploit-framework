@@ -428,7 +428,7 @@ class Creds
 
         matched_cred_ids << core.id
         public_val = core.public ? core.public.username : ""
-        private_val = core.private ? core.private.data : ""
+        private_val = core.private ? core.private.to_s : ""
         realm_val = core.realm ? core.realm.value : ""
         human_val = core.private ? core.private.class.model_name.human : ""
 
@@ -463,7 +463,7 @@ class Creds
 
           matched_cred_ids << core.id
           public_val = core.public ? core.public.username : ""
-          private_val = core.private ? core.private.data : ""
+          private_val = core.private ? core.private.to_s : ""
           realm_val = core.realm ? core.realm.value : ""
           human_val = core.private ? core.private.class.model_name.human : ""
 
