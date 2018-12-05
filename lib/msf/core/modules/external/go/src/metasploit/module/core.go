@@ -7,11 +7,14 @@ package module
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"log"
 	"os"
 	"strings"
-	"errors"
+	"sync"
 )
+
+var logMutex = &sync.Mutex{}
 
 /*
  * RunCallback represents the method to call from the module
@@ -128,10 +131,14 @@ type (
 )
 
 func LogInfo(message string) {
+	logMutex.Lock()
+	defer logMutex.Unlock()
 	msfLog(message, "info")
 }
 
 func LogError(message string) {
+	logMutex.Lock()
+	defer logMutex.Unlock()
 	msfLog(message, "error")
 }
 

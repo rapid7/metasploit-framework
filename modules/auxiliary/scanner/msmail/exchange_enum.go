@@ -67,7 +67,6 @@ func run_exchange_enum(params map[string]interface{}) {
 func o365enum(ip string, emaillist []string, threads int) []string {
 	limit := threads
 	var wg sync.WaitGroup
-	mux := &sync.Mutex{}
 	queue := make(chan string)
 	//limit := 100
 
@@ -90,18 +89,12 @@ func o365enum(ip string, emaillist []string, threads int) []string {
 			for email := range queue {
 				responseCode := msmail.WebRequestBasicAuth(URI, email, pass, tr)
 				if strings.Contains(email, "@") && responseCode == 401 {
-					mux.Lock()
 					module.LogInfo("[+]  " + email + " - 401")
 					validemails = append(validemails, email)
-					mux.Unlock()
 				} else if strings.Contains(email, "@") && responseCode == 404 {
-					mux.Lock()
-					module.LogInfo(fmt.Sprintf("[-]  %s - %d \n", email, responseCode))
-					mux.Unlock()
+					module.LogInfo(fmt.Sprintf("[-]  %s - %d", email, responseCode))
 				} else {
-					mux.Lock()
-					module.LogInfo(fmt.Sprintf("Unusual Response: %s - %d \n", email, responseCode))
-					mux.Unlock()
+					module.LogError(fmt.Sprintf("Unusual Response: %s - %d", email, responseCode))
 				}
 			}
 		}(i)
