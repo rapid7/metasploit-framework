@@ -60,13 +60,19 @@ module Kernel
   # @return [Array]
   #
   def kernel_config
-    return [] unless cmd_exec('test -r /boot/config-`uname -r` && echo true').include? 'true'
+    return unless cmd_exec('test -r /boot/config-`uname -r` && echo true').include? 'true'
 
-    config = cmd_exec("cat /boot/config-`uname -r`").to_s.split("\n").map(&:strip)
-    config.reject {|i| i.eql? ''}.reject {|i| i.start_with? '#'}
+    output = cmd_exec("cat /boot/config-`uname -r`").to_s.strip
+
+    return if output.empty?
+
+    config = output.split("\n").map(&:strip).reject(&:empty?).reject {|i| i.start_with? '#'}
+
+    return if config.empty?
+
+    config
   rescue
     raise 'Could not retrieve kernel config'
-    []
   end
 
   #
