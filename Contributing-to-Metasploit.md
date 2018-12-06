@@ -12,7 +12,7 @@ Metasploit is a tool by and for hackers, but the hackers that maintain it also h
 
 Server exploits are always in demand; why bother with complicated social engineering campaigns when you can go straight to the pain point of a vulnerable network. Here are some search queries to get you started:
 
- * [Remote exploits](http://www.exploit-db.com/remote/) from Exploit-DB
+ * [Remote exploits](https://www.exploit-db.com/?type=remote) from Exploit-DB
 
 
 ## Client Exploits
@@ -26,7 +26,7 @@ Client exploits generally run as an "evil service" that a remote client will con
 
 Privilege escalation exploits tend to require the attacker already have an account on a target computer. They are nearly always going to be implemented as Metasploit exploit modules under one of the [local](https://github.com/rapid7/metasploit-framework/tree/master/modules/exploits/windows/local) trees (platform dependent), but sometimes they're better off as [post modules](https://github.com/rapid7/metasploit-framework/tree/master/modules/post). This is especially true for privilege escalation bugs.
 
- * [Local Vulns](http://www.exploit-db.com/local/) from Exploit-DB
+ * [Local Vulns](https://www.exploit-db.com/?type=local) from Exploit-DB
 
 ## Unstable modules
 
