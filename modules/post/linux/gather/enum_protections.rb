@@ -87,6 +87,12 @@ class MetasploitModule < Msf::Post
       report r
     end
 
+    if lkrg_installed?
+      r = 'LKRG is installed'
+      print_good r
+      report r
+    end
+
     if grsec_installed?
       r = 'grsecurity is installed'
       print_good r
