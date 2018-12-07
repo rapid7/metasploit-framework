@@ -14,8 +14,6 @@ import (
 	"sync"
 )
 
-var logMutex = &sync.Mutex{}
-
 /*
  * RunCallback represents the method to call from the module
  */
@@ -101,7 +99,12 @@ func parseParams(passedParams interface{}) (map[string]interface{}, error) {
 	return v, nil
 }
 
+var rpcMutex = &sync.Mutex{}
+
 func rpcSend(res interface{}) error {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
 	resStr, err := json.Marshal(res)
 	if err != nil {
 		return err
@@ -130,16 +133,24 @@ type (
 	}
 )
 
+func LogError(message string) {
+	msfLog(message, "error")
+}
+
+func LogWarning(message string) {
+	msfLog(message, "warning")
+}
+
+func LogGood(message string) {
+	msfLog(message, "good")
+}
+
 func LogInfo(message string) {
-	logMutex.Lock()
-	defer logMutex.Unlock()
 	msfLog(message, "info")
 }
 
-func LogError(message string) {
-	logMutex.Lock()
-	defer logMutex.Unlock()
-	msfLog(message, "error")
+func LogDebug(message string) {
+	msfLog(message, "debug")
 }
 
 func msfLog(message string, level string) {
