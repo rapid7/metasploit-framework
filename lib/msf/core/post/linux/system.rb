@@ -122,7 +122,8 @@ module System
   # @param findpath The path on the system to start searching
   # @return [Array]
   def get_suid_files(findpath = '/')
-    cmd_exec("find #{findpath} -perm -4000 -print -xdev").to_s.split("\n")
+    out = cmd_exec("find #{findpath} -perm -4000 -print -xdev").to_s.split("\n")
+    out.delete_if {|i| i.include? 'Permission denied'}
   rescue
     raise "Could not retrieve all SUID files"
   end
