@@ -55,6 +55,27 @@ module Kernel
   end
 
   #
+  # Returns the kernel boot config
+  #
+  # @return [Array]
+  #
+  def kernel_config
+    return unless cmd_exec('test -r /boot/config-`uname -r` && echo true').include? 'true'
+
+    output = cmd_exec("cat /boot/config-`uname -r`").to_s.strip
+
+    return if output.empty?
+
+    config = output.split("\n").map(&:strip).reject(&:empty?).reject {|i| i.start_with? '#'}
+
+    return if config.empty?
+
+    config
+  rescue
+    raise 'Could not retrieve kernel config'
+  end
+
+  #
   # Returns the kernel modules
   #
   # @return [Array]
