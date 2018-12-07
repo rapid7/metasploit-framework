@@ -89,10 +89,10 @@ func o365enum(ip string, emaillist []string, threads int) []string {
 			for email := range queue {
 				responseCode := msmail.WebRequestBasicAuth(URI, email, pass, tr)
 				if strings.Contains(email, "@") && responseCode == 401 {
-					module.LogInfo("[+]  " + email + " - 401")
+					module.LogGood(email + " - 401")
 					validemails = append(validemails, email)
 				} else if strings.Contains(email, "@") && responseCode == 404 {
-					module.LogInfo(fmt.Sprintf("[-]  %s - %d", email, responseCode))
+					module.LogError(fmt.Sprintf("%s - %d", email, responseCode))
 				} else {
 					module.LogError(fmt.Sprintf("Unusual Response: %s - %d", email, responseCode))
 				}

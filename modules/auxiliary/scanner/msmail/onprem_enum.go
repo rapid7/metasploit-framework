@@ -100,10 +100,10 @@ func determineValidUsers(host string, avgResponse time.Duration, userlist []stri
 				elapsedTime := time.Since(startTime)
 
 				if float64(elapsedTime) < float64(avgResponse)*0.77 {
-					module.LogInfo("[+] " + user + " - " + elapsedTime.String())
+					module.LogGood(user + " - " + elapsedTime.String())
 					validusers = append(validusers, user)
 				} else {
-					module.LogInfo("[-] " + user + " - " + elapsedTime.String())
+					module.LogError(user + " - " + elapsedTime.String())
 				}
 			}
 		}(i)

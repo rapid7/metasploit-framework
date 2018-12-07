@@ -35,11 +35,11 @@ func urlEnum(hostInput string) {
 	o365Domain := hostSlice[len(hostSlice)-2] + "-" + hostSlice[len(hostSlice)-1] + ".mail.protection.outlook.com"
 	addr, err := net.LookupIP(o365Domain)
 	if err != nil {
-		module.LogInfo("[-] Domain is not using o365 resources.")
+		module.LogError("Domain is not using o365 resources.")
 	} else if addr == nil {
 		module.LogError("error")
 	} else {
-		module.LogInfo("[+] Domain is using o365 resources.")
+		module.LogGood("Domain is using o365 resources.")
 	}
 	asURI := "https://" + hostInput + "/Microsoft-Server-ActiveSync"
 	adURI := "https://" + hostInput + "/autodiscover/autodiscover.xml"
@@ -51,11 +51,11 @@ func urlEnum(hostInput string) {
 	for _, uri := range timeEndpoints {
 		responseCode := msmail.WebRequestCodeResponse(uri)
 		if responseCode == 401 {
-			module.LogInfo("[+] " + uri)
+			module.LogGood(uri)
 			timeEndpointsIdentified = true
 		}
 		if responseCode == 200 {
-			module.LogInfo("[+] " + uri)
+			module.LogGood(uri)
 			timeEndpointsIdentified = true
 		}
 	}
@@ -73,7 +73,7 @@ func urlEnum(hostInput string) {
 	for _, uri := range passEndpoints401 {
 		responseCode := msmail.WebRequestCodeResponse(uri)
 		if responseCode == 401 {
-			module.LogInfo("[+] " + uri)
+			module.LogGood(uri)
 			passEndpointIdentified = true
 		}
 	}
@@ -82,7 +82,7 @@ func urlEnum(hostInput string) {
 	for _, uri := range endpoints200 {
 		responseCode := msmail.WebRequestCodeResponse(uri)
 		if responseCode == 200 {
-			module.LogInfo("[+] " + uri)
+			module.LogGood(uri)
 			passEndpointIdentified = true
 		}
 	}
