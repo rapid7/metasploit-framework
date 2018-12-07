@@ -7,10 +7,11 @@ package module
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"log"
 	"os"
 	"strings"
-	"errors"
+	"sync"
 )
 
 /*
@@ -98,7 +99,12 @@ func parseParams(passedParams interface{}) (map[string]interface{}, error) {
 	return v, nil
 }
 
+var rpcMutex = &sync.Mutex{}
+
 func rpcSend(res interface{}) error {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
 	resStr, err := json.Marshal(res)
 	if err != nil {
 		return err
@@ -127,12 +133,24 @@ type (
 	}
 )
 
+func LogError(message string) {
+	msfLog(message, "error")
+}
+
+func LogWarning(message string) {
+	msfLog(message, "warning")
+}
+
+func LogGood(message string) {
+	msfLog(message, "good")
+}
+
 func LogInfo(message string) {
 	msfLog(message, "info")
 }
 
-func LogError(message string) {
-	msfLog(message, "error")
+func LogDebug(message string) {
+	msfLog(message, "debug")
 }
 
 func msfLog(message string, level string) {
