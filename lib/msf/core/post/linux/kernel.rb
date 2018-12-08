@@ -203,6 +203,15 @@ module Kernel
   end
 
   #
+  # Returns true if Linux Kernel Runtime Guard (LKRG) kernel module is installed
+  #
+  def lkrg_installed?
+    cmd_exec('test -d /proc/sys/lkrg && echo true').to_s.strip.include? 'true'
+  rescue
+    raise 'Could not determine LKRG status'
+  end
+
+  #
   # Returns true if grsecurity is installed
   #
   def grsec_installed?
