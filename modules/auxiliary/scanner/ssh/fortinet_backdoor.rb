@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://seclists.org/fulldisclosure/2016/Jan/26'],
         ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
       ],
-      'DisclosureDate' => 'Jan 09 2016',
+      'DisclosureDate' => '2016-01-09',
       'License'        => MSF_LICENSE
     ))
 

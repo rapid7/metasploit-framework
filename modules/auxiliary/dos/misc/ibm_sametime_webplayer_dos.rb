@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21654041' ],
           [ 'URL', 'http://xforce.iss.net/xforce/xfdb/84969' ]
         ],
-      'DisclosureDate' => 'Nov 07 2013'))
+      'DisclosureDate' => '2013-11-07'))
 
     register_options(
       [

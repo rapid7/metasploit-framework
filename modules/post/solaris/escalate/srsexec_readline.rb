@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
           ['EDB', '30021'],
           ['BID', '23915']
         ],
-        'DisclosureDate' => 'May 07 2007',
+        'DisclosureDate' => '2007-05-07',
       ))
     register_options([
         OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow'])

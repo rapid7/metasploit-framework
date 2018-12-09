@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://en.wikipedia.org/wiki/Modbus:TCP' ]
         ],
       'Author'      => [ 'EsMnemon <esm[at]mnemonic.no>' ],
-      'DisclosureDate' => 'Nov 1 2011',
+      'DisclosureDate' => '2011-11-01',
       'License'     => MSF_LICENSE
       )
 

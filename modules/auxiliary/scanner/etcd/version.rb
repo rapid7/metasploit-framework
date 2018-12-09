@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         'Jon Hart <jon_hart@rapid7.com>' # msf module
       ],
       'License' => MSF_LICENSE,
-      'DisclosureDate' => "Mar 16 2018"
+      'DisclosureDate' => "2018-03-16"
     )
   end
 

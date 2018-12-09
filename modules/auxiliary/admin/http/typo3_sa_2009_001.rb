@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://blog.c22.cc/advisories/typo3-sa-2009-001'],
           ['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2009-001/'],
         ],
-      'DisclosureDate' => 'Jan 20 2009',
+      'DisclosureDate' => '2009-01-20',
       'Author'         => [ 'Chris John Riley' ],
       'License'        => MSF_LICENSE
     )

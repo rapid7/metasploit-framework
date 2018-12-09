@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://drupalcode.org/project/drupal.git/commit/b912710' ],
           [ 'URL', 'http://www.ubercomp.com/posts/2014-01-16_facebook_remote_code_execution' ]
         ],
-      'DisclosureDate' => 'Oct 17 2012'
+      'DisclosureDate' => '2012-10-17'
     ))
 
     register_options(

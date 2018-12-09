@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL',   'https://developer.wordpress.org/rest-api/using-the-rest-api/discovery/'],
         ['URL',   'https://developer.wordpress.org/rest-api/reference/posts/']
       ],
-      'DisclosureDate' => 'Feb 01 2017',
+      'DisclosureDate' => '2017-02-01',
       'License'        => MSF_LICENSE,
       'Actions'        => [
         ['LIST',   'Description' => 'List posts'],

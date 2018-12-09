@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=966804'],
           ['URL', 'http://projects.theforeman.org/issues/2630']
         ],
-      'DisclosureDate' => 'Jun 6 2013'
+      'DisclosureDate' => '2013-06-06'
     )
 
     register_options(

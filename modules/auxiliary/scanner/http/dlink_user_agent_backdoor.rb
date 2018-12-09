@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       # First documented in detail by Craig, but looks like it's been known
       # (at least to the Russians :-) ) since 2010 - see post at forum.codenet.ru
-      'DisclosureDate' => "Oct 12 2013"
+      'DisclosureDate' => "2013-10-12"
     )
 
   end

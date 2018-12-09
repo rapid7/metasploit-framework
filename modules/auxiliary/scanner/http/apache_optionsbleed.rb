@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://github.com/hannob/optionsbleed' ],
         [ 'URL', 'https://blog.fuzzing-project.org/60-Optionsbleed-HTTP-OPTIONS-method-can-leak-Apaches-server-memory.html' ]
       ],
-      'DisclosureDate' => 'Sep 18 2017',
+      'DisclosureDate' => '2017-09-18',
       'License' => MSF_LICENSE,
       'Notes' =>
           {

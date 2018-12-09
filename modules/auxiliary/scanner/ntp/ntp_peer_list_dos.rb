@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
           ['URL', 'http://r-7.co/R7-2014-12']
         ],
-      'DisclosureDate' => 'Aug 25 2014',
+      'DisclosureDate' => '2014-08-25',
       'License'        => MSF_LICENSE
     )
   end

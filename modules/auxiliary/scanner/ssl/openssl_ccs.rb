@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.tripwire.com/state-of-security/incident-detection/detection-script-for-cve-2014-0224-openssl-cipher-change-spec-injection/'],
           ['URL', 'https://www.imperialviolet.org/2014/06/05/earlyccs.html']
         ],
-      'DisclosureDate' => 'Jun 5 2014',
+      'DisclosureDate' => '2014-06-05',
       'License'        => MSF_LICENSE
     )
 

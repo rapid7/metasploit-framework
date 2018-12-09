@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://core.trac.wordpress.org/changeset/29404'],
           ['WPVDB', '7526']
         ],
-      'DisclosureDate'=> 'Aug 6 2014'
+      'DisclosureDate'=> '2014-08-06'
     ))
 
     register_options(

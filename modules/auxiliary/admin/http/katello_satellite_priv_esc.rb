@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CWE', '862'],
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=970849']
         ],
-      'DisclosureDate' => 'Mar 24 2014'
+      'DisclosureDate' => '2014-03-24'
     )
 
     register_options(

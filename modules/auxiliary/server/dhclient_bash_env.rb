@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ],
         [ 'URL', 'https://www.trustedsec.com/september-2014/shellshock-dhcp-rce-proof-concept/' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014',
+      'DisclosureDate' => '2014-09-24',
       'Notes' =>
           {
               'AKA' => ['Shellshock']

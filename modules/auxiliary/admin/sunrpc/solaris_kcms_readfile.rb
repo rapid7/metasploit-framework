@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://marc.info/?l=bugtraq&m=104326556329850&w=2']
         ],
       # Tested OK against sol8.tor 20100624 -jjd
-      'DisclosureDate' => 'Jan 22 2003')
+      'DisclosureDate' => '2003-01-22')
 
     register_options(
       [

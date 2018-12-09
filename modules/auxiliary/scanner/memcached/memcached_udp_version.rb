@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           'Jon Hart <jon_hart@rapid7.com>' # Metasploit scanner module
         ],
       'License'     => MSF_LICENSE,
-      'DisclosureDate' => 'Jul 23, 2003',
+      'DisclosureDate' => '2003-07-23',
       'References' =>
           [
             ['URL', 'https://github.com/memcached/memcached/blob/master/doc/protocol.txt']

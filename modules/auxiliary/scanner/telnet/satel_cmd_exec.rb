@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'DisclosureDate' => 'Apr 07, 2017',
+      'DisclosureDate' => '2017-04-07',
       'License' => MSF_LICENSE,
       'DefaultOptions' => { 'VERBOSE' => true })
       )

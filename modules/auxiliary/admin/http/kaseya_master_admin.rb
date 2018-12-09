@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/kaseya-vsa-vuln-2.txt'],
           ['URL', 'https://seclists.org/bugtraq/2015/Sep/132']
         ],
-      'DisclosureDate' => 'Sep 23 2015'))
+      'DisclosureDate' => '2015-09-23'))
 
     register_options(
       [

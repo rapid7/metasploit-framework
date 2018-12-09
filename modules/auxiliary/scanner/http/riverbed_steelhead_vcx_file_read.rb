@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           'Gregory DRAPERI <gregory.draper_at_gmail.com>', # Exploit
           'h00die' # Module
         ],
-      'DisclosureDate' => 'Jun 01 2017',
+      'DisclosureDate' => '2017-06-01',
       'License'        =>  MSF_LICENSE
     )
 

@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           ['Apache Karaf', {}],
         ],
       'Privileged'     => true,
-      'DisclosureDate' => "Feb 9 2016",
+      'DisclosureDate' => "2016-02-09",
       'DefaultTarget'  => 0))
 
     register_options(

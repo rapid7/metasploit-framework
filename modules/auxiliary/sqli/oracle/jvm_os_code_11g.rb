@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://blackhat.com/html/bh-dc-10/bh-dc-10-archives.html#Litchfield' ],
           [ 'URL', 'http://www.notsosecure.com/folder2/2010/02/04/hacking-oracle-11g/' ],
         ],
-      'DisclosureDate' => 'Feb 1 2010'))
+      'DisclosureDate' => '2010-02-01'))
 
     register_options(
       [

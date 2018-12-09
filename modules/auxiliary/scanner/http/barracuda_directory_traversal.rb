@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Tiago Ferreira <tiago.ccna[at]gmail.com>'
         ],
-      'DisclosureDate' => 'Oct 08 2010',
+      'DisclosureDate' => '2010-10-08',
       'License'        =>  MSF_LICENSE
     )
 

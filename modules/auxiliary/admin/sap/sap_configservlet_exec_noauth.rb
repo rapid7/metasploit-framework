@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '24963' ],
           [ 'URL', 'http://erpscan.com/wp-content/uploads/2012/11/Breaking-SAP-Portal-HackerHalted-2012.pdf']
         ],
-      'DisclosureDate' => 'Nov 01 2012' # Based on the reference presentation
+      'DisclosureDate' => '2012-11-01' # Based on the reference presentation
     ))
 
     register_options(

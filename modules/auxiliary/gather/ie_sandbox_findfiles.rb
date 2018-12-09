@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'Internet Explorer', {} ],
         ],
-      'DisclosureDate' => "Aug 9 2016",
+      'DisclosureDate' => "2016-08-09",
       'DefaultTarget'  => 0
     ))
 

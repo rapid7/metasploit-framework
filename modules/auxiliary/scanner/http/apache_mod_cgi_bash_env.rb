@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://access.redhat.com/articles/1200223' ],
         [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014',
+      'DisclosureDate' => '2014-09-24',
       'License' => MSF_LICENSE,
       'Notes' => {'AKA' => ['Shellshock']}
     ))

@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '26098' ],
           [ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2007.html'],
         ],
-      'DisclosureDate' => 'Oct 17 2007'))
+      'DisclosureDate' => '2007-10-17'))
 
       register_options(
         [

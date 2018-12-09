@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Post
           'Sanjay Gondaliya', # Modified PoC
           'Pratik Shah <pratik@notsosecure.com>' # Metasploit module
         ],
-      'DisclosureDate' => 'Aug 05 2018',
+      'DisclosureDate' => '2018-08-05',
       'Platform'       => ['win'],
       'Targets'        =>
         [

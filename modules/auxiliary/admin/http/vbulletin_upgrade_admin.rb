@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '98370' ],
           [ 'URL', 'http://www.vbulletin.com/forum/forum/vbulletin-announcements/vbulletin-announcements_aa/3991423-potential-vbulletin-exploit-vbulletin-4-1-vbulletin-5']
         ],
-      'DisclosureDate' => 'Oct 09 2013'))
+      'DisclosureDate' => '2013-10-09'))
 
     register_options(
       [

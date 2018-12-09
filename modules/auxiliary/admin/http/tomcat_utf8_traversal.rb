@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Author'         => [ 'aushack','guerrino <ruggine> di massa' ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Jan 9 2009'
+      'DisclosureDate' => '2009-01-09'
     )
 
     register_options(

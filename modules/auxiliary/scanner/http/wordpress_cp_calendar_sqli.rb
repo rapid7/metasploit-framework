@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '36243' ],
           [ 'WPVDB', '7910' ]
         ],
-      'DisclosureDate' => 'Mar 03 2015'))
+      'DisclosureDate' => '2015-03-03'))
 
     register_options([
       OptString.new('TARGETURI', [true, 'Target URI of the Wordpress instance', '/'])

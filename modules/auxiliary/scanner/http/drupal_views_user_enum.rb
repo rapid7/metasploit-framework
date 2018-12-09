@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['URL', 'http://www.madirish.net/node/465'],
         ],
-      'DisclosureDate' => 'Jul 2 2010'
+      'DisclosureDate' => '2010-07-02'
     ))
 
     register_options(

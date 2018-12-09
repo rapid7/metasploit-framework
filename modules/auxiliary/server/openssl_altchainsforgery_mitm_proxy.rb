@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CWE', '754'],
         ['URL', 'http://git.openssl.org/?p=openssl.git;a=commit;h=f404943bcab4898d18f3ac1b36479d1d7bbbb9e6']
       ],
-      'DisclosureDate' => 'Jul 9 2015'
+      'DisclosureDate' => '2015-07-09'
     )
 
     register_options(

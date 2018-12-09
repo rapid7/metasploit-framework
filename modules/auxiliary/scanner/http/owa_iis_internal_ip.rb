@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Nate Power'
         ],
-      'DisclosureDate' => 'Dec 17 2012',
+      'DisclosureDate' => '2012-12-17',
       'License'        => MSF_LICENSE,
       'DefaultOptions' => {
         'SSL' => true

@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://redis.io/topics/protocol']
         ],
         'Privileged'    => true,
-        'DisclosureDate' => 'Nov 11 2015'
+        'DisclosureDate' => '2015-11-11'
       )
     )
 

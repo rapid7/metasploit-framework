@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.nccgroup.trust/globalassets/our-research/us/whitepapers/PEST-CONTROL.pdf' ],
           [ 'URL', 'http://samvartaka.github.io/exploitation/2016/06/03/dead-rats-exploiting-malware' ]
         ],
-      'DisclosureDate' => 'Oct 08 2012',
+      'DisclosureDate' => '2012-10-08',
       'Platform'       => 'win'
     ))
 

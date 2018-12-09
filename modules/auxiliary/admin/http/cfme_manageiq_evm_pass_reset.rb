@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         {
           'SSL' => true
         },
-      'DisclosureDate' => 'Nov 12 2013'
+      'DisclosureDate' => '2013-11-12'
     )
 
     register_options(

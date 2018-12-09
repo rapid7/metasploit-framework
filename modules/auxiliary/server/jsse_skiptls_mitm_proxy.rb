@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'http://www.oracle.com/technetwork/topics/security/cpujan2015-1972971.html'],
         ['URL', 'https://www-304.ibm.com/support/docview.wss?uid=swg21695474']
       ],
-      'DisclosureDate' => 'Jan 20 2015'
+      'DisclosureDate' => '2015-01-20'
     )
 
     register_options(

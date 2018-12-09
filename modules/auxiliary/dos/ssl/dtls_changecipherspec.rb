@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2009-1386' ],
           [ 'OSVDB', '55073'],
         ],
-      'DisclosureDate' => 'Apr 26 2000'))
+      'DisclosureDate' => '2000-04-26'))
 
     deregister_options('FILTER','PCAPFILE', 'INTERFACE', 'SNAPLEN', 'TIMEOUT')
   end

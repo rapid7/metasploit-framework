@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '1999-0103' ], # Note, does not actually trigger a flood.
           [ 'URL', 'http://tools.ietf.org/html/rfc864' ]
         ],
-      'DisclosureDate' => 'Feb 08 1996')
+      'DisclosureDate' => '1996-02-08')
 
       register_options([
         Opt::RPORT(19)

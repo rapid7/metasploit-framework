@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Nov/18' ],
           [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/ManageEngine/me_pmp_privesc.txt' ],
         ],
-      'DisclosureDate' => 'Nov 8 2014'))
+      'DisclosureDate' => '2014-11-08'))
 
     register_options(
       [

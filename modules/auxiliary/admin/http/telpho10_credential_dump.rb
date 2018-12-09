@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['Telpho10', {}]
         ],
       'Privileged'     => false,
-      'DisclosureDate' => 'Sep 2 2016'))
+      'DisclosureDate' => '2016-09-02'))
 
       register_options(
         [

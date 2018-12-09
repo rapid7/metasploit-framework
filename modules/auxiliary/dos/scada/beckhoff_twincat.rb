@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '75495' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/twincat_1-adv.txt' ]
         ],
-      'DisclosureDate' => 'Sep 13 2011'
+      'DisclosureDate' => '2011-09-13'
     ))
 
     register_options([Opt::RPORT(48899)])

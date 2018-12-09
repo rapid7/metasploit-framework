@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'OSVDB', '49998'],
         [ 'EDB', '7109' ]
       ],
-      'DisclosureDate' => 'Nov 13 2008'))
+      'DisclosureDate' => '2008-11-13'))
 
     register_options([
       OptString.new('FILENAME', [ true, 'File in /isapi to request', 'users.txt' ])

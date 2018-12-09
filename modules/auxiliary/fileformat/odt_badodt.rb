@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2018-10583'],
           ['URL', 'https://secureyourit.co.uk/wp/2018/05/01/creating-malicious-odt-files/'],
         ],
-      'DisclosureDate' => 'May 01 2018',
+      'DisclosureDate' => '2018-05-01',
       'License'        => MSF_LICENSE
 
     )

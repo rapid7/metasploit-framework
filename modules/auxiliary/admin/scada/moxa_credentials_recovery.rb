@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/reidmefirst/MoxaPass/blob/master/moxa_getpass.py' ],
           [ 'URL', 'https://ics-cert.us-cert.gov/advisories/ICSA-16-336-02']
         ],
-      'DisclosureDate' => 'Jul 28 2015'))
+      'DisclosureDate' => '2015-07-28'))
 
     register_options([
       # Moxa protocol listens on 4800/UDP by default

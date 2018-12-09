@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2013-3623' ],
           [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities']
         ],
-      'DisclosureDate' => 'Nov 06 2013'))
+      'DisclosureDate' => '2013-11-06'))
 
   end
 

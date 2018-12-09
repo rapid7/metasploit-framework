@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-6415' ],
           [ 'URL', 'https://musalbas.com/2016/08/18/equation-group-benigncertain.html' ]
         ],
-      'DisclosureDate' => 'Sep 29 2016'
+      'DisclosureDate' => '2016-09-29'
     ))
 
     register_options(

@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '65533'],
           [ 'URL', 'https://seclists.org/bugtraq/2010/Jun/160' ]
         ],
-      'DisclosureDate' => 'Jun 15 2010'
+      'DisclosureDate' => '2010-06-15'
     )
 
     register_options(

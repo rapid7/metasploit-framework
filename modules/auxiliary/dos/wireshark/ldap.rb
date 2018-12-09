@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2008-1562' ],
           [ 'OSVDB', '43840' ],
         ],
-      'DisclosureDate' => 'Mar 28 2008')
+      'DisclosureDate' => '2008-03-28')
 
     register_options([
       OptInt.new('RPORT', [true, 'The destination port', 389]),

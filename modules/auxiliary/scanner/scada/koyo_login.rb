@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
           'todb' # Metasploit fixups
         ],
-      'DisclosureDate' => 'Jan 19 2012',
+      'DisclosureDate' => '2012-01-19',
       'License'        => MSF_LICENSE,
       'References'     =>
         [

@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
           Simply address any of the TODOs.
         ),
         'Author'         => 'Joe Contributor <joe_contributor[at]example.com>',
-        'DisclosureDate' => 'Mar 15 2014',
+        'DisclosureDate' => '2014-03-15',
         'License'        => MSF_LICENSE,
         'References'     => [
           [ 'CVE', '0000-0000' ], # remove or update if CVE exists

@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '49045' ],
           [ 'EDB', '6738']
         ],
-      'DisclosureDate' => 'Oct 12 2008'))
+      'DisclosureDate' => '2008-10-12'))
 
     # They're required
     register_options([

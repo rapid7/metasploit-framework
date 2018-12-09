@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '39500'],
           ['URL', 'http://archives.neohapsis.com/archives/fulldisclosure/2007-12/0440.html']
         ],
-      'DisclosureDate' => 'Dec 17 2007'
+      'DisclosureDate' => '2007-12-17'
     ))
 
     register_options([Opt::RPORT(5400),])

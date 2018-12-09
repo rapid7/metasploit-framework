@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'Internet Explorer 8 / Internet Explorer 9', {} ],
         ],
-      'DisclosureDate' => "Sep 9 2014", # MSB. Used in the wild since Feb 2014
+      'DisclosureDate' => "2014-09-09", # MSB. Used in the wild since Feb 2014
       'DefaultTarget'  => 0))
 
     register_options(

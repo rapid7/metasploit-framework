@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes'   => [ 'meterpreter' ],
         'Targets'        => [ [ 'Universal', {} ] ],
         'DefaultTarget'  => 0,
-        'DisclosureDate' => 'Aug 14 2012'
+        'DisclosureDate' => '2012-08-14'
       )
     )
 

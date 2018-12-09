@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           ['ColdFusion9']
         ],
       'DefaultAction' => 'ColdFusion10',
-      'DisclosureDate' => "May 7 2013"  #The day we saw the subzero poc
+      'DisclosureDate' => "2013-05-07"  #The day we saw the subzero poc
     ))
 
     register_options(

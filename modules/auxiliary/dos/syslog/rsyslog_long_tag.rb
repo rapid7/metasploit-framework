@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.rsyslog.com/potential-dos-with-malformed-tag/' ],
           [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=727644' ],
         ],
-      'DisclosureDate' => 'Sep 01 2011')
+      'DisclosureDate' => '2011-09-01')
 
     register_options(
       [

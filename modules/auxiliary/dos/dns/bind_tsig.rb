@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2016-2776'],
         ['URL', 'http://blog.infobytesec.com/2016/10/a-tale-of-dns-packet-cve-2016-2776.html']
       ],
-      'DisclosureDate' => 'Sep 27 2016',
+      'DisclosureDate' => '2016-09-27',
       'License'        => MSF_LICENSE,
       'DefaultOptions' => {'ScannerRecvWindow' => 0}
     ))

@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.securitytracker.com/id?1026215'],
           [ 'CVE', '2011-3556']
         ],
-      'DisclosureDate' => 'Oct 15 2011'
+      'DisclosureDate' => '2011-10-15'
     )
 
     register_options(

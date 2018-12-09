@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'Mac OS X', {} ]
         ],
       'DefaultTarget'  => 0,
-      'DisclosureDate' => 'Jan 16 2014'
+      'DisclosureDate' => '2014-01-16'
     ))
 
 

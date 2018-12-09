@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '49068' ],
           [ 'URL', 'http://labs.idefense.com/intelligence/vulnerabilities/display.php?id=745' ],
         ],
-      'DisclosureDate' => 'Oct 14 2008'))
+      'DisclosureDate' => '2008-10-14'))
 
       register_options(
         [
