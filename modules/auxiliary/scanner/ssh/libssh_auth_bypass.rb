@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2018-10933'],
         ['URL', 'https://www.libssh.org/security/advisories/CVE-2018-10933.txt']
       ],
-      'DisclosureDate' => '2018-10-16',
+      'DisclosureDate' => 'Oct 16 2018',
       'License'        => MSF_LICENSE,
       'Actions'        => [
         ['Shell',   'Description' => 'Spawn a shell'],

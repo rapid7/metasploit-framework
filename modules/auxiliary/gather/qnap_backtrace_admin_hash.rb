@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://seclists.org/fulldisclosure/2017/Feb/2'],
         ['URL', 'https://en.wikipedia.org/wiki/Binary_search_algorithm']
       ],
-      'DisclosureDate' => '2017-01-31',
+      'DisclosureDate' => 'Jan 31 2017',
       'License'        => MSF_LICENSE,
       'Actions'        => [
         ['Automatic', 'Description' => 'Automatic targeting'],
