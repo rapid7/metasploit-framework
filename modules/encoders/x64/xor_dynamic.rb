@@ -14,6 +14,14 @@ class MetasploitModule < Msf::Encoder::XorDynamic
       'License'          => MSF_LICENSE
       )
   end
+  
+  # Indicate that this module can preserve some registers
+  # ...which is currently not true. This is a temp fix
+  # until the full preserve_registers functionality is
+  # implemented.
+  def can_preserve_registers?
+    true
+  end
 
   def stub
     "\xeb\x27" +             #        jmp    _call
