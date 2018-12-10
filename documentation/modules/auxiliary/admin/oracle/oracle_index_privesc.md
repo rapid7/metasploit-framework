@@ -26,10 +26,3 @@
   **TABLE**
 
   Table to create the index on.
-
-## Scenarios
-
-### Escalating an Oracle SQL account to database administrator privileges.
-
-  ```
-  ```
