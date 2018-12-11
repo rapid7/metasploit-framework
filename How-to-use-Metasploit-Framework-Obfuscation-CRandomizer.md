@@ -1,10 +1,12 @@
-# What is CRandomizer
+# How to use Metasploit::Framework::Obfuscation::CRandomizer
+
+## What is CRandomizer
 
 CRandomizer is an obfuscation feature in Metasploit Framework that allows you to randomize C code. It is done by injecting random statements such as native API calls, custom fake function calls, or other routines, etc. The CRandomizer is also supported by Metasploit Framework's code compiling API, which allows you to build a custom application that is unique (in terms of checksums), also harder to reverse-engineer.
 
 The randomness of the modification is based on a weight, an arbitrary number from 0 - 100. The higher the number, the more random the code gets.
 
-# Components
+## Components
 
 CRandomizer relies on Metasm to be able to parse C code. The following components are built to parse and modify the source code.
 
