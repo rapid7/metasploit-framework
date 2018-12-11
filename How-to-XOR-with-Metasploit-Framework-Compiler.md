@@ -1,4 +1,4 @@
-# Description
+# How to XOR with Metasploit::Framework::Compiler
 
 The Metasploit C compiler has built-in support for XOR encoding and decoding, which is implemented as the `xor.h` header.
 
