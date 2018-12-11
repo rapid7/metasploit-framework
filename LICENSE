@@ -71,7 +71,7 @@ Files: lib/anemone.rb lib/anemone/*
 Copyright: 2009 Vertive, Inc.
 License: MIT
 
-Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*
+Files: data/cpuinfo/*
 Copyright: 2006-2010 Yoann GUILLOT
 License: LGPL-2.1
 
