@@ -1,3 +1,4 @@
+# How to zip files with Msf::Util::EXE.to_zip
 Compressing files into zip format is very easy with Metasploit. For most purposes, you can use `Msf::Util::EXE.to_zip()` to compress data into a zip file.
 
 Note that the former `Rex::Zip::Archive()` should no longer be used.
