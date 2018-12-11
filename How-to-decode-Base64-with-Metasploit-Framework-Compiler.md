@@ -1,5 +1,6 @@
 # Description
 
+How to decode Base64 with Metasploit::Framework::Compiler
 The Metasploit C compiler has built-in support for Base64 encoding and decoding, which is implemented as `base64.h`.
 
 # Code Example
