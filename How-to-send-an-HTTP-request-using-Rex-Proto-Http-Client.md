@@ -1,5 +1,6 @@
 **Note: This documentation may need to be vetted.**
 
+# How to send an HTTP request using Rex::Proto::Http::Client
 The Rex library (Ruby Extension Library) is the most fundamental piece of the Metasploit Framework architecture. Modules normally do not interact with Rex directly, instead they depend on the framework core and its mixins for better code sharing. If you are a Metasploit module developer, the [lib/msf/core](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core) directory should be more than enough for most of your needs. If you are writing a module that speaks HTTP, then the [Msf::Exploit::Remote::HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient) mixin (which is found in [lib/msf/core/exploit/http/client](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/http/client.rb)) is most likely the one you want.
 
 However, in some scenarios, you actually can't use the HttpClient mixin. The most common is actually when writing a form-based login module using the [LoginScanner API](https://github.com/rapid7/metasploit-framework/wiki/Creating-Metasploit-Framework-LoginScanners). If you find yourself in that situation, use [Rex::Proto::Http::Client](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/proto/http/client.rb).
