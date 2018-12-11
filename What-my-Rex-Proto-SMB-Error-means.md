@@ -1,3 +1,4 @@
+# What does my Rex::Proto::SMB Error mean?
 All SMB error codes are explained in the following MSDN documentation:
 
 [http://msdn.microsoft.com/en-us/library/ee441884.aspx](http://msdn.microsoft.com/en-us/library/ee441884.aspx)
