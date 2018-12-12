@@ -15,7 +15,7 @@ module VulnApiDoc
   ORIGIN_ID_DESC = 'ID of the associated origin record.'
   ORIGIN_TYPE_DESC = 'The origin type of this vuln.'
   REFS_DESC = 'An array of public reference IDs for this vuln.'
-  REF_ID_DESC = 'The ID of the related Mdm::ModuleRef or Mdm::VulnRef associated with this vuln.'
+  REF_ID_DESC = 'The ID of the related Mdm::ModuleRef or Mdm::Ref associated with this vuln.'
   REF_NAME_DESC = 'Designation for external reference.  May include a prefix for the authority, such as \'CVE-\', in which case the rest of the name is the designation assigned by that authority.'
   REFS_EXAMPLE = ['CVE-2008-4250','OSVDB-49243','MSB-MS08-067']
   MODULE_REF_DETAIL_ID_DESC = 'The ID of the Mdm::Module::Detail record this ModuleRef is associated with.'
@@ -32,12 +32,6 @@ module VulnApiDoc
     property :vuln_attempt_count, type: :integer, format: :int32, description: VULN_ATTEMPT_COUNT
     property :origin_id, type: :integer, format: :int32, description: ORIGIN_ID_DESC
     property :origin_type, type: :string, description: ORIGIN_TYPE_DESC
-    property :vuln_refs do
-      key :type, :array
-      items do
-        key :'$ref', :VulnRef
-      end
-    end
     property :refs do
       key :type, :array
       items do
@@ -69,14 +63,6 @@ module VulnApiDoc
     property :detail_id, type: :integer, format: :int32, description: MODULE_REF_DETAIL_ID_DESC
     property :name, type: :string, required: true, description: REF_NAME_DESC
   end
-
-  swagger_schema :VulnRef do
-    key :required, [:ref_id, :vuln_id]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
-    property :ref_id, type: :integer, format: :int32, description: RootApiDoc::CREATED_AT_DESC
-    property :vuln_id, type: :integer, format: :int32, description: RootApiDoc::UPDATED_AT_DESC
-  end
-
 
   swagger_path '/api/v1/vulns' do
     # Swagger documentation for /api/v1/vulns GET

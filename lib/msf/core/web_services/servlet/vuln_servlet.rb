@@ -1,6 +1,6 @@
 module VulnServlet
 
-  JSON_INCLUDES = [:host, :vulns_refs, :refs, :module_refs]
+  JSON_INCLUDES = [:host, :refs, :module_refs]
 
   def self.api_path
     '/api/v1/vulns'
@@ -52,7 +52,8 @@ module VulnServlet
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
-        # update_vuln
+        # update_vuln requires refs to be of type Mdm::Ref
+        # Find or create the Mdm::Ref object before moving on to the update
         if opts[:refs]
           refs = []
           opts[:refs].each do |r|
