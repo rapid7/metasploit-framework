@@ -47,7 +47,9 @@
 * For code that is shared specific to your module create a directory in your module directory:
 `shared/src/` metasploit will automatically add these to the GOPATH
 * For code that you think could be used across modules, add code [here](https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/modules/external/go/src/metasploit)
+* 3rd party libs aren't currently supported but we welcome patches
 
 #### 5. Finalize
 * Test your Pull Request
 * Create a [Pull Request](https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md#pull-requests)
+* No coding standard here, be sure to [gofmt](https://blog.golang.org/go-fmt-your-code)
