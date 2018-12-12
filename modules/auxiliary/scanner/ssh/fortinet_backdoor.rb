@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
       'USERNAME' => 'Fortimanager_Access'
     }
 
-    start_session(self, info, ds_merge, false, shell.lsock)
+    start_session(self, info, ds_merge, false, shell.lsock) if datastore['CreateSession']
 
     # XXX: Ruby segfaults if we don't remove the SSH socket
     remove_socket(ssh.transport.socket)
