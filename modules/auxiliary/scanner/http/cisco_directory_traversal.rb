@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
   def get_sessions(response)
     session_nos = response.scan(/([0-9]{2,})/)
 
-    unless !session_nos.empty?
+    if session_nos.empty?
       print_status("Could not detect any sessions")
       print("\n")
       return
