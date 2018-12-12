@@ -137,7 +137,9 @@ class MetasploitModule < Msf::Auxiliary
 
     case action.name
     when 'Shell'
-      start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+      if datastore['CreateSession']
+        start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+      end
     when 'Execute'
       output = shell.channel && (shell.channel[:data] || '').chomp
 
