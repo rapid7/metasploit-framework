@@ -133,4 +133,94 @@ module Msf::RPC::JSON
       super(APPLICATION_SERVER_ERROR, ERROR_MESSAGES[APPLICATION_SERVER_ERROR] % {msg: message}, data: data)
     end
   end
+
+  # Base class for all Msf::RPC::JSON client exceptions.
+  class ClientError < StandardError
+    attr_reader :response
+
+    # Instantiate a ClientError object.
+    #
+    # @param message [String] A String providing a short description of the error.
+    # @param response [Hash] A response hash. The default value is nil.
+    def initialize(message = nil, response: nil)
+      super(message)
+      @response = response
+    end
+  end
+
+  class InvalidResponse < ClientError
+    # Instantiate an InvalidResponse object.
+    #
+    # @param message [String] A String providing a short description of the error.
+    # @param response [Hash] A response hash. The default value is nil.
+    def initialize(message = 'Invalid response from server', response: nil)
+      super(message, response: response)
+    end
+  end
+
+  class JSONParseError < ClientError
+    # Instantiate an JSONParseError object.
+    #
+    # @param message [String] A String providing a short description of the error.
+    # @param response [Hash] A response hash. The default value is nil.
+    def initialize(message = 'Invalid JSON was received from the server', response: nil)
+      super(message, response: response)
+    end
+  end
+
+  class ErrorResponse < ClientError
+    attr_reader :id
+    attr_reader :code
+    attr_reader :message
+    attr_reader :data
+
+    # Parse response and return a new ErrorResponse instance.
+    # @param response [Hash] A response hash.
+    # @param symbolize_names [Boolean] If true, symbols are used for the names (keys) when
+    #   processing JSON objects; otherwise, strings are used. Default: true
+    # @returns [ErrorResponse] ErrorResponse object that represents the response hash.
+    def self.parse(response, symbolize_names: true)
+      id_key = symbolize_names ? :id : :id.to_s
+      error_key = symbolize_names ? :error : :error.to_s
+      code_key = symbolize_names ? :code : :code.to_s
+      message_key = symbolize_names ? :message : :message.to_s
+      data_key = symbolize_names ? :data : :data.to_s
+
+      id = response[id_key]
+      error = response[error_key]
+
+      if !error.nil?
+        code = error[code_key]
+        message = error[message_key]
+        data = error[data_key]
+      else
+        code = nil
+        message = nil
+        data = nil
+      end
+
+      ErrorResponse.new(id: id, code: code, message: message, data: data, response: response)
+    end
+
+    # Instantiate an ErrorResponse object.
+    #
+    # @param id [Integer, String, NilClass] It MUST be the same as the value of the
+    #   id member in the Request Object. If there was an error in detecting the id
+    #   in the Request object (e.g. Parse error/Invalid Request), it MUST be Null.
+    # @param code [Integer] A Number that indicates the error type that occurred.
+    # @param message [String] A String providing a short description of the error.
+    #   The message SHOULD be limited to a concise single sentence.
+    # @param data [Object] A Primitive or Structured value that contains additional
+    #   information about the error. This may be omitted. The value of this member is
+    #   defined by the Server (e.g. detailed error information, nested errors etc.).
+    #   The default value is nil.
+    # @param response [Hash] A response hash. The default value is nil.
+    def initialize(id:, code:, message:, data: nil, response: nil)
+      super(message, response: response)
+      @id = id
+      @code = code
+      @message = message
+      @data = data
+    end
+  end
 end

@@ -479,10 +479,11 @@ class Msf::Modules::Loader::Base
     module_path
   end
 
+  # Tries to determine if a file might be executable,
   def script_path?(path)
     File.executable?(path) &&
       !File.directory?(path) &&
-      File.read(path, 2) == "#!"
+      ['#!', '//'].include?(File.read(path, 2))
   end
 
   # Changes a file name path to a canonical module reference name.

@@ -765,6 +765,10 @@ class Db
       opts[:port] = ports if ports
       framework.db.services(opts).each do |service|
 
+        unless service.state == 'open'
+          next if onlyup
+        end
+
         host = service.host
         matched_service_ids << service.id
 
@@ -1710,17 +1714,28 @@ class Db
   end
 
   def cmd_db_connect_help
-    print_line("   Usage: db_connect <user:pass>@<host:port>/<database>")
-    print_line("      OR: db_connect -y [path/to/database.yml]")
-    print_line("      OR: db_connect [options] <http|https>://<host:port>")
-    print_line("Examples:")
-    print_line("       db_connect user@metasploit3")
-    print_line("       db_connect user:pass@192.168.0.2/metasploit3")
-    print_line("       db_connect user:pass@192.168.0.2:1500/metasploit3")
-    print_line("       db_connect http://localhost:8080")
-    print_line("       db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
-    print_line("       db_connect --name LA-server http://laoffice.org:8080")
-    print_line("       db_connect LA-server")
+    print_line("   USAGE:")
+    print_line("      * Postgres Data Service:")
+    print_line("          db_connect <user:[pass]>@<host:[port]>/<database>")
+    print_line("        Examples:")
+    print_line("          db_connect user@metasploit3")
+    print_line("          db_connect user:pass@192.168.0.2/metasploit3")
+    print_line("          db_connect user:pass@192.168.0.2:1500/metasploit3")
+    print_line("          db_connect -y [path/to/database.yml]")
+    print_line(" ")
+    print_line("      * HTTP Data Service:")
+    print_line("          db_connect [options] <http|https>://<host:[port]>")
+    print_line("        Examples:")
+    print_line("          db_connect http://localhost:8080")
+    print_line("          db_connect http://my-super-msf-data.service.com")
+    print_line("          db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080")
+    print_line("        NOTE: You must be connected to a Postgres data service in order to successfully connect to a HTTP data service.")
+    print_line(" ")
+    print_line("      Persisting Connections:")
+    print_line("        db_connect --name <name to save connection as> [options] <address>")
+    print_line("      Examples:")
+    print_line("        Saving:     db_connect --name LA-server http://123.123.123.45:1234")
+    print_line("        Connecting: db_connect LA-server")
     print_line(" ")
     print_line("   OPTIONS:")
     print_line("       -l,--list-services List the available data services that have been previously saved.")
@@ -1729,6 +1744,7 @@ class Db
     print_line("       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.")
     print_line("       -t,--token         The API token used to authenticate to the remote data service.")
     print_line("       --skip-verify      Skip validating authenticity of server's certificate (NOT RECOMMENDED).")
+    print_line("")
   end
 
   def cmd_db_connect(*args)

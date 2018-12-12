@@ -1,8 +1,9 @@
 module LoginDataProxy
   def logins(opts = {})
     begin
-      data_service = self.get_data_service
-      data_service.logins(opts)
+      self.data_service_operation do |data_service|
+        data_service.logins(opts)
+      end
     rescue => e
       self.log_error(e, "Problem retrieving logins")
     end
@@ -10,8 +11,9 @@ module LoginDataProxy
 
   def create_credential_login(opts)
     begin
-      data_service = self.get_data_service
-      data_service.create_credential_login(opts)
+      self.data_service_operation do |data_service|
+        data_service.create_credential_login(opts)
+      end
     rescue => e
       self.log_error(e, "Problem creating login")
     end
@@ -19,8 +21,9 @@ module LoginDataProxy
 
   def update_login(opts)
     begin
-      data_service = self.get_data_service
-      data_service.update_login(opts)
+      self.data_service_operation do |data_service|
+        data_service.update_login(opts)
+      end
     rescue => e
       self.log_error(e, "Problem updating login")
     end

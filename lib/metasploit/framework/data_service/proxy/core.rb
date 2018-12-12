@@ -150,12 +150,28 @@ class DataProxy
     return @current_data_service
   end
 
+  # Performs a set of data service operations declared within the block.
+  # This passes the @current_data_service as a parameter to the block.
+  # If there is no current data service registered or the data service
+  # is not active, the block is not executed and the method simply returns.
+  def data_service_operation(&block)
+    return unless block_given?
+
+    begin
+      data_service = self.get_data_service
+    rescue
+      return
+    end
+
+    block.call(data_service) if !data_service.nil? && self.active
+  end
+
   def log_error(exception, ui_message)
     elog "#{ui_message}: #{exception.message}"
     exception.backtrace.each { |line| elog "#{line}" }
     # TODO: We should try to surface the original exception, instead of just a generic one.
     # This should not display the full backtrace, only the message.
-    raise Exception, "#{ui_message}: #{exception.message}. See log for more details."
+    raise "#{ui_message}: #{exception.message}. See log for more details."
   end
 
   # Adds a valid workspace value to the opts hash before sending on to the data layer.
