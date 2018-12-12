@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(22),
+        Opt::RPORT(22)
       ], self.class
     )
 
@@ -128,9 +128,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        if datastore['CreateSession']
-          session_setup(result, scanner)
-        end
+        session_setup(result, scanner) if datastore['CreateSession']
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
