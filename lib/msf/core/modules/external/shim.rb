@@ -4,7 +4,7 @@ require 'msf/core/modules/external'
 class Msf::Modules::External::Shim
   def self.generate(module_path, framework)
     mod = Msf::Modules::External.new(module_path, framework: framework)
-    return '' unless mod.meta
+    return nil unless mod.meta
     case mod.meta['type']
     when 'remote_exploit'
       remote_exploit(mod)
@@ -45,6 +45,11 @@ class Msf::Modules::External::Shim
     meta[:authors]     = mod.meta['authors'].map(&:dump).join(",\n          ")
     meta[:license]     = mod.meta['license'].nil? ? 'MSF_LICENSE' : mod.meta['license']
 
+    # Set modules without options to have an empty map
+    if mod.meta['options'].nil?
+      mod.meta['options'] = {}
+    end
+
     options = mod.meta['options'].reject {|n, _| ignore_options.include? n}
 
     meta[:options]     = options.map do |n, o|
@@ -58,6 +63,7 @@ class Msf::Modules::External::Shim
     end.join(",\n          ")
 
     meta[:capabilities] = mod.meta['capabilities']
+    meta[:notes] = transform_notes(mod.meta['notes'])
     meta
   end
 
@@ -105,7 +111,6 @@ class Msf::Modules::External::Shim
     meta[:references] = mod.meta['references'].map do |r|
       "[#{r['type'].upcase.dump}, #{r['ref'].dump}]"
     end.join(",\n          ")
-
     render_template('single_scanner.erb', meta)
   end
 
@@ -138,4 +143,18 @@ class Msf::Modules::External::Shim
 
     render_template('dos.erb', meta)
   end
+
+  #
+  # In case certain notes are not properly capitalized in the external module definition,
+  # ensure that they are properly capitalized before rendering.
+  #
+  def self.transform_notes(notes)
+    return {} unless notes
+
+    notes.reduce({}) do |acc, (key, val)|
+      acc[key.upcase] = val
+      acc
+    end
+  end
+
 end

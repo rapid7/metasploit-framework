@@ -47,33 +47,6 @@ class MetasploitModule < Msf::Auxiliary
     datastore["PASSWORD"]
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
-
   def run
 
     if user == pass
@@ -109,14 +82,15 @@ class MetasploitModule < Msf::Auxiliary
 
     if res and res.code == 200 and res.body =~ /Administrator account created/
       print_good("Admin account with credentials #{user}:#{pass} successfully created")
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: 'http',
-        user: user,
-        password: pass,
-        proof: res.body
-      )
+      connection_details = {
+          module_fullname: self.fullname,
+          username: user,
+          private_data: pass,
+          private_type: :password,
+          status: Metasploit::Model::Login::Status::UNTRIED,
+          proof: res.body
+      }.merge(service_details)
+      create_credential_and_login(connection_details)
     else
       print_error("Admin account creation failed")
     end

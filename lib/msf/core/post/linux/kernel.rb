@@ -55,6 +55,27 @@ module Kernel
   end
 
   #
+  # Returns the kernel boot config
+  #
+  # @return [Array]
+  #
+  def kernel_config
+    return unless cmd_exec('test -r /boot/config-`uname -r` && echo true').include? 'true'
+
+    output = cmd_exec("cat /boot/config-`uname -r`").to_s.strip
+
+    return if output.empty?
+
+    config = output.split("\n").map(&:strip).reject(&:empty?).reject {|i| i.start_with? '#'}
+
+    return if config.empty?
+
+    config
+  rescue
+    raise 'Could not retrieve kernel config'
+  end
+
+  #
   # Returns the kernel modules
   #
   # @return [Array]
@@ -105,7 +126,8 @@ module Kernel
   #
   def userns_enabled?
     return false if cmd_exec('cat /proc/sys/user/max_user_namespaces').to_s.strip.eql? '0'
-    cmd_exec('cat /proc/sys/kernel/unprivileged_userns_clone').to_s.strip.eql? '1'
+    return false if cmd_exec('cat /proc/sys/kernel/unprivileged_userns_clone').to_s.strip.eql? '0'
+    true
   rescue
     raise 'Could not determine userns status'
   end
@@ -120,6 +142,18 @@ module Kernel
     (aslr.eql?('1') || aslr.eql?('2'))
   rescue
     raise 'Could not determine ASLR status'
+  end
+
+  #
+  # Returns true if Exec-Shield is enabled
+  #
+  # @return [Boolean]
+  #
+  def exec_shield_enabled?
+    exec_shield = cmd_exec('cat /proc/sys/kernel/exec-shield').to_s.strip
+    (exec_shield.eql?('1') || exec_shield.eql?('2'))
+  rescue
+    raise 'Could not determine exec-shield status'
   end
 
   #
@@ -166,6 +200,33 @@ module Kernel
     mmap_min_addr
   rescue
     raise 'Could not determine system mmap_min_addr'
+  end
+
+  #
+  # Returns true if Linux Kernel Runtime Guard (LKRG) kernel module is installed
+  #
+  def lkrg_installed?
+    cmd_exec('test -d /proc/sys/lkrg && echo true').to_s.strip.include? 'true'
+  rescue
+    raise 'Could not determine LKRG status'
+  end
+
+  #
+  # Returns true if grsecurity is installed
+  #
+  def grsec_installed?
+    cmd_exec('test -c /dev/grsec && echo true').to_s.strip.include? 'true'
+  rescue
+    raise 'Could not determine grsecurity status'
+  end
+
+  #
+  # Returns true if PaX is installed
+  #
+  def pax_installed?
+    cmd_exec('test -x /sbin/paxctl && echo true').to_s.strip.include? 'true'
+  rescue
+    raise 'Could not determine PaX status'
   end
 
   #

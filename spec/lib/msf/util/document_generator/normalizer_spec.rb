@@ -63,6 +63,9 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
     allow(mod).to receive(:type).and_return(mod_type)
     allow(mod).to receive(:shortname).and_return(mod_shortname)
     allow(mod).to receive(:targets).and_return(mod_targets)
+    allow(mod).to receive(:side_effects).and_return([])
+    allow(mod).to receive(:stability).and_return([])
+    allow(mod).to receive(:reliability).and_return([])
     mod
   end
 
@@ -84,6 +87,9 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
           mod_rank:          msf_mod.rank,
           mod_platforms:     msf_mod.send(:module_info)['Platform'],
           mod_options:       msf_mod.options,
+          mod_side_effects:  msf_mod.side_effects,
+          mod_reliability:   msf_mod.reliability,
+          mod_stability:     msf_mod.stability,
           mod_demo:          msf_mod
         }
         expect(subject.get_md_content(items, '')).to include('<html>')

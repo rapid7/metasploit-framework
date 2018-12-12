@@ -208,13 +208,41 @@ class Client
   # it.  Returns true on success, or false.
   #
   # @param svc_handle [String] the handle of the service (from {#openservicew}).
-  # @param magic1 [Integer] an unknown value.
-  # @param magic2 [Integer] another unknown value.
+  # @param args [Array] an array of arguments to pass to the service (or nil)
   #
   # @return [Integer] Windows error code
-  def startservice(svc_handle, magic1 = 0, magic2 = 0)
+  def startservice(svc_handle, args=[])
     svc_status = nil
-    stubdata = svc_handle + NDR.long(magic1) + NDR.long(magic2)
+
+    if args.empty?
+      stubdata = svc_handle + NDR.long(0) + NDR.long(0)
+    else
+      # This is just an arbitrary "pointer" value, gonna match it to what the real version uses
+      id_value = 0x00000200
+
+      stubdata = svc_handle
+      stubdata += NDR.long(args.length) + NDR.long(id_value) + NDR.long(args.length)
+
+      # Encode an id value for each parameter
+      args.each do
+        id_value += 0x04000000
+        stubdata += NDR.long(id_value)
+      end
+
+      # Encode the values now
+      args.each do |arg|
+        # We can't use NDR.uwstring here, because we need the "id" values to come first
+        stubdata += NDR.long(arg.length + 1) + NDR.long(0) + NDR.long(arg.length + 1)
+
+        # Unicode string
+        stubdata += Rex::Text.to_unicode(arg + "\0")
+
+        # Padding
+        if((arg.length % 2) == 0)
+          stubdata += Rex::Text.to_unicode("\0")
+        end
+      end
+    end
 
     begin
       response = dcerpc_client.call(0x13, stubdata)
