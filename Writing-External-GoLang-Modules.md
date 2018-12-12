@@ -1,4 +1,4 @@
-## Contributing modules in [GO](https://golang.org/) can be achieved in a few simple steps:
+Contributing modules in [GO](https://golang.org/) can be achieved in a few simple steps as outlined below.  As for supported GO version, we have tested with 1.11.2, no promised for version 2.
 
 #### 1. Location
 * Select the appropriate [module](https://github.com/rapid7/metasploit-framework/tree/master/modules) path based on the type of module you are trying to contribute
@@ -31,6 +31,7 @@
 
       module.Init(metadata, <the entry method to your module>)
     }
+**[FULL EXAMPLE](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/msmail/exchange_enum.go)**
 
 **_Note: Above does not outline the full potential list of metadata options_**
 
