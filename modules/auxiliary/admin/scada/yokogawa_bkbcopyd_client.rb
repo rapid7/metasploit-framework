@@ -92,12 +92,6 @@ class MetasploitModule < Msf::Auxiliary
     return data
   end
 
-  def valid_response?(data)
-    return false unless !!data
-    return false unless data =~ /500  'yyparse error': command not understood/
-    return true
-  end
-
   def on_client_connect(c)
     if action.name == 'STOR'
       contents = ""
