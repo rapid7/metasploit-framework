@@ -36,7 +36,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptBool.new('NO_SHELL', [ false, 'Do not create a shell on sucessful login.', false]),
       ], self.class
     )
 
@@ -129,7 +128,9 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        session_setup(result, scanner) unless datastore['NO_SHELL']
+        if datastore['CREATE_SESSION']
+          session_setup(result, scanner)
+        end
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         vprint_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"

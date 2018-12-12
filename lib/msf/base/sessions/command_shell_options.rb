@@ -15,6 +15,12 @@ module CommandShellOptions
   def initialize(info = {})
     super(info)
 
+    register_options(
+      [
+        OptBool.new('CREATE_SESSION', [false, 'Create a new session on successful login.', true])
+      ]
+    )
+
     register_advanced_options(
       [
         OptString.new('InitialAutoRunScript', "An initial script to run on session creation (before AutoRunScript)"),
