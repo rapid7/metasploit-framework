@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_login(credential_data)
           tmp_key = result.credential.private
           ssh_key = SSHKey.new tmp_key
-          if datastore['CREATE_SESSION']
+          if datastore['CreateSession']
             session_setup(result, scanner, ssh_key.fingerprint)
           end
           :next_user

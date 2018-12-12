@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-        if datastore['CREATE_SESSION']
+        if datastore['CreateSession']
           session_setup(result, scanner)
         end
         :next_user

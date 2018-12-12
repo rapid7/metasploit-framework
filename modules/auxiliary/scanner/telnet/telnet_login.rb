@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
-        if datastore['CREATE_SESSION']
+        if datastore['CreateSession']
           start_telnet_session(ip,rport,result.credential.public,result.credential.private,scanner)
         end
       else
