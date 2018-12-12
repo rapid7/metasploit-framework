@@ -99,7 +99,7 @@ module ResponseDataHelper
   # @return [ActiveRecord::Base] A klass object, which inherits from ActiveRecord::Base.
   def to_ar(klass, val, base_object = nil)
     return nil unless val
-    data = val.class == Hash ? val.dup : JSON.parse(val)
+    data = val.class == Hash ? val.dup : JSON.parse(val, symbolize_names: true)
     obj = base_object || klass.new
 
     obj_associations = klass.reflect_on_all_associations(:has_many).reduce({}) do |reflection, i|
