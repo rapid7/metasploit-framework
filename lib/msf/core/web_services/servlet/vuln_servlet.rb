@@ -1,5 +1,7 @@
 module VulnServlet
 
+  JSON_INCLUDES = [:host, :vulns_refs, :refs, :module_refs]
+
   def self.api_path
     '/api/v1/vulns'
   end
@@ -25,9 +27,8 @@ module VulnServlet
       begin
         sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.vulns(sanitized_params)
-        includes = [:host, :vulns_refs, :refs, :module_refs]
         data = data.first if is_single_object?(data, sanitized_params)
-        set_json_data_response(response: data, includes: includes)
+        set_json_data_response(response: data, includes: JSON_INCLUDES)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving vulns:', code: 500)
       end
@@ -51,8 +52,16 @@ module VulnServlet
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
+        # update_vuln
+        if opts[:refs]
+          refs = []
+          opts[:refs].each do |r|
+            refs << get_db.find_or_create_ref(r)
+          end
+          opts[:refs] = refs
+        end
         data = get_db.update_vuln(opts)
-        set_json_data_response(response: data)
+        set_json_data_response(response: data, includes: JSON_INCLUDES)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error updating the vuln:', code: 500)
       end
@@ -65,7 +74,7 @@ module VulnServlet
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_vuln(opts)
-        set_json_data_response(response: data)
+        set_json_data_response(response: data, includes: JSON_INCLUDES)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error deleting the vulns:', code: 500)
       end

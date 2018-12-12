@@ -5,6 +5,7 @@ module Msf::DBManager::Ref
   def find_or_create_ref(opts)
     ret = {}
     ret[:ref] = get_ref(opts[:name])
+    ret[:ref] = Mdm::Ref.find_by_id(opts[:id]) if opts[:id]
     return ret[:ref] if ret[:ref]
 
   ::ActiveRecord::Base.connection_pool.with_connection {
