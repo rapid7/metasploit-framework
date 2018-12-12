@@ -49,7 +49,7 @@ module ResponseDataHelper
       begin
         body = process_response(response_wrapper)
         if !body.nil? && !body.empty?
-          parsed_body = JSON.parse(body).symbolize_keys
+          parsed_body = JSON.parse(body, symbolize_names: true)
           data = Array.wrap(parsed_body[:data])
           rv = []
           data.each do |json_object|
@@ -107,7 +107,9 @@ module ResponseDataHelper
       reflection
     end
 
-    data.except(*obj.attributes.keys).each do |k, v|
+    obj_attribute_names = obj.attributes.transform_keys { |k| k.to_sym }.keys
+
+    data.except(*obj_attribute_names).each do |k, v|
       association = klass.reflect_on_association(k)
       next unless association
 
@@ -133,7 +135,7 @@ module ResponseDataHelper
           end
       end
     end
-    obj.assign_attributes(data.slice(*obj.attributes.keys))
+    obj.assign_attributes(data.slice(*obj_attribute_names))
 
     obj.instance_eval do
       # prevent save
