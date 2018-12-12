@@ -32,7 +32,7 @@
       module.Init(metadata, <the entry method to your module>)
     }
 
-**_Note: Above does not outline the full potential list of options_**
+**_Note: Above does not outline the full potential list of metadata options_**
 
 **Currently supported _module types_:**
 * remote_exploit
