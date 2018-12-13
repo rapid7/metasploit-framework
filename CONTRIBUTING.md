@@ -2,20 +2,18 @@
 
 Thanks for your interest in making Metasploit -- and therefore, the
 world -- a better place!  Before you get started, review our
-[Code of Conduct].  There are mutliple ways to help,
-not just writing code:
+[Code of Conduct].  There are mutliple ways to help beyond just writing code:
  - [Submit bugs and feature requests] with detailed information about your issue or idea.
  - [Help fellow users with open issues] or [help fellow committers test recent pull requests].
  - [Report a security vulnerability in Metasploit itself] to Rapid7.
  - Submit an updated or brand new module!  We are always eager for exploits, scanners, and new
-   features.  Set up a [development environment], then head over to ExploitDB to look for
-   [proof-of-concept exploits] that might make a good module.
+   integrations or features. Don't know where to start? Set up a [development environment], then head over to ExploitDB to look for [proof-of-concept exploits] that might make a good module.
 
 # Contributing to Metasploit
 
 Here's a short list of do's and don'ts to make sure *your* valuable contributions actually make
-it into Metasploit's master branch.  If you care not to follow these rules, your contribution
-**will** be closed.  Sorry!
+it into Metasploit's master branch.  If you do not care to follow these rules, your contribution
+**will** be closed. Sorry!
 
 ## Code Contributions
 
@@ -36,7 +34,7 @@ it into Metasploit's master branch.  If you care not to follow these rules, your
 * **Don't** leave your pull request description blank.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
 
-Pull requests [PR#9966] is a couple good examples to follow.
+Pull request [PR#9966] is a good example to follow.
 
 #### New Modules
 
@@ -62,7 +60,9 @@ Pull requests [PR#9966] is a couple good examples to follow.
 
 ## Bug Reports
 
-* **Do** report vulnerabilities in Rapid7 software directly to security@rapid7.com.
+Please report vulnerabilities in Rapid7 software directly to security@rapid7.com. For more on our disclosure policy and Rapid7's approach to coordinated disclosure, [head over here](https://www.rapid7.com/security). 
+
+When reporting Metasploit issues:
 * **Do** write a detailed description of your bug and use a descriptive title.
 * **Do** include reproduction steps, stack traces, and anything that might help us fix your bug.
 * **Don't** file duplicate reports; search for your bug before filing a new report.
