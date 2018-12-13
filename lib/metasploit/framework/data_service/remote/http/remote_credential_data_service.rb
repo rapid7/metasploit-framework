@@ -14,6 +14,14 @@ module RemoteCredentialDataService
     parsed_body = JSON.parse(data.response.body).symbolize_keys
     data = parsed_body[:data]
     data.each do |cred|
+      if cred['public']
+        public_object = to_ar(cred['public']['type'].constantize, cred['public'])
+        rv[data.index(cred)].public = public_object
+      end
+      if cred['private']
+        private_object = to_ar(cred['private']['type'].constantize, cred['private'])
+        rv[data.index(cred)].private = private_object
+      end
       if cred['origin']
         origin_object = to_ar(cred['origin']['type'].constantize, cred['origin'])
         rv[data.index(cred)].origin = origin_object
