@@ -242,6 +242,7 @@ module Msf::DBManager::Host
 
       # Set default fields if needed
       host.state = Msf::HostState::Alive unless host.state
+      host.state = nil if host.state.empty?
       host.comm = '' unless host.comm
       host.workspace = wspace unless host.workspace
 
