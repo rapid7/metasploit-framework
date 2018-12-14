@@ -128,7 +128,6 @@ module MetasploitModule
             push rsp
             pop rdi                             ; address of /bin/sh
             syscall
-
       EOS
 
       Metasm::Shellcode.assemble(Metasm::X86_64.new, payload).encode_string
