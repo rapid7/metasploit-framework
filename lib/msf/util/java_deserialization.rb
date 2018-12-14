@@ -45,7 +45,7 @@ class JavaDeserialization
       # Overwrite length (multiple times, if necessary)
       lengthOffsets = payload['lengthOffset']
       lengthOffsets.each do |lengthOffset|
-        # Extract length as a 16-bit unsigned int, then add 
+        # Extract length as a 16-bit unsigned int, then add the length of the command string
         length  = bytes[lengthOffset-1..lengthOffset].unpack("n").first
         length += command.length.ord
         length  = [length].pack("n")

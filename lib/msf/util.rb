@@ -30,4 +30,4 @@ require 'msf/util/host'
 require 'msf/util/db_manager'
 
 # Java deserialization payload generators
-require 'msf/util/javaDeserialization'
+require 'msf/util/java_deserialization'
