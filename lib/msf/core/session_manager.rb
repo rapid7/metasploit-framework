@@ -119,8 +119,9 @@ class SessionManager < Hash
               # as recently seen.  This notifies other framework instances that this
               # session is being maintained.
               if s.db_record
-                s.db_record.last_seen = Time.now.utc
-                s.db_record.save
+                $stderr.puts("#{DateTime.now}  SessionManager.initialize() [monitor_thread]: before update: Time.now.utc=#{Time.now.utc}, s.sid=#{s.sid}, s.db_record.id=#{s.db_record.id}, #{s.db_record.attributes}")  # TODO: remove
+                s.db_record = framework.db.update_session(id: s.db_record.id, last_seen: Time.now.utc)
+                $stderr.puts("#{DateTime.now}  SessionManager.initialize() [monitor_thread]: after update: s.sid=#{s.sid}, s.db_record.id=#{s.db_record.id}, #{s.db_record.attributes}")  # TODO: remove
               end
             end
           end
