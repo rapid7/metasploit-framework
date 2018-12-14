@@ -55,7 +55,7 @@ module UserServlet
         data = data.first if !sanitized_params[:id].nil? && data.count == 1
         set_json_data_response(response: data)
       rescue => e
-        print_error_and_create_response(error: e, message: 'There was an error creating the user:', code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error updating the user:', code: 500)
       end
     }
   end
