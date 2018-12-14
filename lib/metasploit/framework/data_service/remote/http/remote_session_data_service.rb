@@ -16,7 +16,6 @@ module RemoteSessionDataService
     session = opts[:session]
     if (session.kind_of? Msf::Session)
       opts = SessionDataProxy.convert_msf_session_to_hash(session)
-      opts[:session_dto] = true
     elsif (opts[:host])
       $stderr.puts("*** RemoteSessionDataService.report_session(): executing path where session is not a kind_of Msf::Session...")  # TODO: remove
       opts[:host] = opts[:host].address
