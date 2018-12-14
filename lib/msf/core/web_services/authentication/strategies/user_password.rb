@@ -16,15 +16,19 @@ module Authentication
       # Check if request contains valid data and should be authenticated.
       # @return [Boolean] true if strategy should be run for the request; otherwise, false.
       def valid?
-        params['username'] && params['password']
+        body = JSON.parse(request.body.read, symbolize_names: true)
+        request.body.rewind # Reset the StringIO buffer so any further consumers can read the body
+        body[:username] && body[:password]
       end
 
       # Authenticate the request.
       def authenticate!
+        body = JSON.parse(request.body.read, symbolize_names: true)
+        request.body.rewind # Reset the StringIO buffer so any further consumers can read the body
         db_manager = env['msf.db_manager']
-        user = db_manager.users(username: params['username']).first
+        user = db_manager.users(username: body[:username]).first
 
-        if user.nil? || !db_manager.authenticate_user(id: user.id, password: params['password'])
+        if user.nil? || !db_manager.authenticate_user(id: user.id, password: body[:password])
           fail("Invalid username or password.")
         else
           success!(user)
