@@ -516,7 +516,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
           })
 
           if self.db_record
-            $stderr.puts("Msf::Sessions::Meterpreter.load_session_info(): self.sid=#{self.sid}, self.db_record.id=#{self.db_record.id}; calling framework.db.update_session(self)...")  # TODO: remove
             framework.db.update_session(self)
           end
 

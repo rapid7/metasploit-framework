@@ -33,45 +33,24 @@ module SessionDataProxy
     begin
       self.data_service_operation do |data_service|
         is_msf_session = false
-        $stderr.puts("*** SessionDataProxy.update_session(): opts=#{opts}")  # TODO: remove
-        # session = opts[:session]
-        # $stderr.puts("*** SessionDataProxy.update_session(): session.class=#{session.class}")  # TODO: remove
-        # if !session.nil? && session.kind_of?(Msf::Session)
         if !opts.nil? && opts.kind_of?(Msf::Session)
           msf_session = opts
           is_msf_session = true
-          $stderr.puts("*** SessionDataProxy.update_session(): is_msf_session=#{is_msf_session}, opts=#{opts}, opts.class=#{opts.class}")  # TODO: remove
-          # save session ID
-          # id = opts.delete(:id)
-          # tmp_opts = convert_msf_session_to_hash(session)
           tmp_opts = SessionDataProxy.convert_msf_session_to_hash(msf_session)
           # only updating session data
-          # opts = tmp_opts[:session_data]
           opts = tmp_opts[:session_data]
           # add back session ID
-          # opts[:id] = id
           opts[:id] = msf_session.db_record.id
-          $stderr.puts("*** SessionDataProxy.update_session(): after convert_msf_session_to_hash, opts=#{opts}")  # TODO: remove
         end
 
         mdm_session = data_service.update_session(opts)
 
-        $stderr.puts("*** SessionDataProxy.update_session(): after update: is_msf_session=#{is_msf_session}, mdm_session=#{mdm_session}, #{mdm_session.attributes}")  # TODO: remove
         # reassign returned Mdm::Session to the Msf::Session's db_record
         msf_session.db_record = mdm_session if is_msf_session
-        $stderr.puts("*** SessionDataProxy.update_session(): msf_session.db_record=#{msf_session.db_record}") if is_msf_session  # TODO: remove
-
-        # TODO: remove block
-        if is_msf_session && !msf_session.db_record.nil?
-          $stderr.puts("SessionDataProxy.update_session(): msf_session.db_record=#{msf_session.db_record}, msf_session.db_record.id=#{msf_session.db_record.id}")  # TODO: remove
-        else
-          $stderr.puts("SessionDataProxy.update_session(): msf_session.db_record is nil")  # TODO: remove
-        end
 
         mdm_session
       end
     rescue => e
-      $stderr.puts("SessionDataProxy.update_session(): e.backtrace=#{e.backtrace}")  # TODO: remove
       self.log_error(e, "Problem updating session")
     end
   end

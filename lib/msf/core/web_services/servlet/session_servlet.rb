@@ -56,15 +56,9 @@ module SessionServlet
       warden.authenticate!
       begin
         opts = parse_json_request(request, false)
-        $stderr.puts("#{DateTime.now}  SessionServlet.update_session(): opts=#{opts}")  # TODO: remove
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
-        $stderr.puts("#{DateTime.now}  SessionServlet.update_session(): (after mod) opts=#{opts}")  # TODO: remove
         data = get_db.update_session(opts)
-
-        $stderr.puts("#{DateTime.now}  SessionServlet.update_session(): data=#{data}")  # TODO: remove
-        $stderr.puts("#{DateTime.now}  SessionServlet.update_session(): data.class=#{data.class}") unless data.nil?  # TODO: remove
-
         set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error updating the session:', code: 500)

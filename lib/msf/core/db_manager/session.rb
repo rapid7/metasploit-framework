@@ -187,17 +187,8 @@ module Msf::DBManager::Session
     return if not active
 
     ::ActiveRecord::Base.connection_pool.with_connection {
-      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): opts=#{opts}")  # TODO: remove
-
       id = opts.delete(:id)
-      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): id=#{id}, opts=#{opts}")  # TODO: remove
-      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): id=#{id}, before update: #{Mdm::Session.find(id).attributes}")  # TODO: remove
-      session_db_record = ::Mdm::Session.update(id, opts)
-      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): session_db_record=#{session_db_record}")  # TODO: remove
-      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): session_db_record.id=#{session_db_record.id}") unless session_db_record.nil?   # TODO: remove
-      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): id=#{id}, after update: #{Mdm::Session.find(id).attributes}")  # TODO: remove
-
-      session_db_record
+      ::Mdm::Session.update(id, opts)
     }
   end
 

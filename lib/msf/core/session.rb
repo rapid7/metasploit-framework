@@ -283,14 +283,10 @@ module Session
   # Also must tolerate being called multiple times.
   #
   def cleanup
-    $stderr.puts("#{DateTime.now}  Msf::Session.cleanup(): db_record=#{db_record}, db_record.class=#{db_record.class}, framework.db.active=#{framework.db.active}")  # TODO: remove
-    $stderr.puts("#{DateTime.now}  Msf::Session.cleanup(): db_record.id=#{db_record.id}, Time.now.utc=#{Time.now.utc}, before update: #{db_record.attributes}") unless db_record.nil?  # TODO: remove
     if db_record and framework.db.active
       ::ActiveRecord::Base.connection_pool.with_connection {
-        tmp_db_record = framework.db.update_session(id: db_record.id, closed_at: Time.now.utc, close_reason: db_record.close_reason)
-        $stderr.puts("#{DateTime.now}  Msf::Session.cleanup(): tmp_db_record.id=#{tmp_db_record.id}, self.sid=#{self.sid}, after save: #{tmp_db_record.attributes}") unless tmp_db_record.nil?  # TODO: remove
+        framework.db.update_session(id: db_record.id, closed_at: Time.now.utc, close_reason: db_record.close_reason)
         db_record = nil
-        $stderr.puts("#{DateTime.now}  Msf::Session.cleanup(): returning after db_record.save call... db_record.class=#{db_record.class}")  # TODO: remove
       }
     end
   end
