@@ -178,6 +178,29 @@ module Msf::DBManager::Session
     }
   end
 
+  # Update the attributes of a session entry with the values in opts.
+  # The values in opts should match the attributes to update.
+  #
+  # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
+  # @return [Mdm::Session] The updated Mdm::Session object.
+  def update_session(opts)
+    return if not active
+
+    ::ActiveRecord::Base.connection_pool.with_connection {
+      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): opts=#{opts}")  # TODO: remove
+
+      id = opts.delete(:id)
+      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): id=#{id}, opts=#{opts}")  # TODO: remove
+      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): id=#{id}, before update: #{Mdm::Session.find(id).attributes}")  # TODO: remove
+      session_db_record = ::Mdm::Session.update(id, opts)
+      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): session_db_record=#{session_db_record}")  # TODO: remove
+      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): session_db_record.id=#{session_db_record.id}") unless session_db_record.nil?   # TODO: remove
+      $stderr.puts("#{DateTime.now}  Msf::DBManager::Session.update_session(): id=#{id}, after update: #{Mdm::Session.find(id).attributes}")  # TODO: remove
+
+      session_db_record
+    }
+  end
+
   # Clean out any stale sessions that have been orphaned by a dead framework instance.
   # @param last_seen_interval [Integer] interval, in seconds, open sessions are marked as alive
   def remove_stale_sessions(last_seen_interval)
