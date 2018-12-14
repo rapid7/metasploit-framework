@@ -37,7 +37,6 @@ module Msf::Modules::Metadata::Maps
 
       unless exploit.autofilter_ports.nil? || exploit.autofilter_ports.empty?
         exploit.autofilter_ports.each do |rport|
-          next unless port_allowed?(rport)
           mports[rport.to_i]           ||= {}
           mports[rport.to_i][fullname] = exploit
         end
