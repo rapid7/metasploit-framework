@@ -8,7 +8,7 @@ PAYLOAD_FILENAME="ysoserial_payloads.json"
 
 #TODO: Support ysoserial alongside ysoserial-modified payloads (including cmd, bash, powershell, none)
 
-class Java_deserialization
+class JavaDeserialization
 
   def self.ysoserial_payload(payloadName, command=nil)
     # Open the JSON file and parse it
