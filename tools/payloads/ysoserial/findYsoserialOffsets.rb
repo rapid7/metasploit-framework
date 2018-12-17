@@ -1,4 +1,4 @@
-g#!/usr/bin/env ruby
+#!/usr/bin/env ruby
 # encoding: binary
 
 #TODO: Remove previous line?
@@ -11,7 +11,7 @@ require 'json'
 require 'base64'
 require 'open3'
 
-YSOSERIAL_RANDOMIZED_HEADER = "ysoserial\/Pwner"
+YSOSERIAL_RANDOMIZED_HEADER = "ysoserial/Pwner"
 PAYLOAD_TEST_MAX_LENGTH = 5
 
 def generatePayload(payloadName,searchStringLength)
@@ -21,8 +21,8 @@ def generatePayload(payloadName,searchStringLength)
   # Generate a string of specified length and embed it into an ASCII-encoded ysoserial payload
   searchString = 'A'*searchStringLength
   #STDERR.puts "  Calling java -jar #{program} #{payloadName} '#{searchString}'"
-  stdout, stderr, status = Open3.capture3("java -jar #{program} #{payloadName} '#{searchString}'")
-  
+  stdout, stderr, status = Open3.capture3('java', '-jar', program.to_s, payloadName.to_s, searchString.to_s)
+
   payload = stdout
   payload.force_encoding("binary")
 
@@ -89,7 +89,7 @@ def diff(a,b)
   return diffs
 end
 
-def getPayloadList()
+def getPayloadList
   # Call ysoserial and return the list of payloads that can be generated
   payloads = `java -jar ysoserial-original.jar 2>&1`
   payloads.encode!('ASCII', 'binary', invalid: :replace, undef: :replace, replace: '')
@@ -102,7 +102,7 @@ def getPayloadList()
   payloadList = []
   # Skip the header rows
   payloads.each do |line|
-    next unless line.include?"     "
+    next unless line.start_with?"     "
     payloadList.push(line.scan(/^     ([^ ]*) .*/).first.last)
   end
   return payloadList
@@ -150,7 +150,7 @@ payloadList.each do |payload|
     end
   end
 
-  payloadBytes = Base64.encode64(emptyPayload).chomp
+  payloadBytes = Base64.strict_encode64(emptyPayload).gsub(/\n/,"")
   if bufferOffset.length > 0
     results[payload]={"status": "dynamic", "lengthOffset": lengthOffset.uniq, "bufferOffset": bufferOffset.uniq, "bytes": payloadBytes }
   else
