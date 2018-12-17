@@ -636,7 +636,7 @@ def add_web_service_user
 
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
-  response_data = http_request(uri: generate_token_uri, query: cred_data, method: :get,
+  response_data = http_request(uri: generate_token_uri, data: cred_data, method: :post,
                           skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
   response = response_data[:response]
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
