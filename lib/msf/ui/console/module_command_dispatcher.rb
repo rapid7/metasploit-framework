@@ -16,7 +16,6 @@ module ModuleCommandDispatcher
 
   def commands
     {
-      "pry"    => "Open a Pry session on the current module",
       "reload" => "Reload the current module from disk",
       "check"  => "Check to see if a target is vulnerable"
     }
@@ -222,6 +221,7 @@ module ModuleCommandDispatcher
       rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
+    peer_msg = peer ? "#{peer} - " : ''
 
     begin
       if instance.respond_to?(:check_simple)
@@ -236,15 +236,15 @@ module ModuleCommandDispatcher
 
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{peer} #{code[1]}")
+          print_good("#{peer_msg}#{code[1]}")
           # Restore RHOST for report_vuln
           instance.datastore['RHOST'] ||= rhost
           report_vuln(instance)
         else
-          print_status("#{peer} #{code[1]}")
+          print_status("#{peer_msg}#{code[1]}")
         end
       else
-        msg = "#{peer} Check failed: The state could not be determined."
+        msg = "#{peer_msg}Check failed: The state could not be determined."
         print_error(msg)
         elog("#{msg}\n#{caller.join("\n")}")
       end
@@ -266,24 +266,6 @@ module ModuleCommandDispatcher
       print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     end
-  end
-
-  def cmd_pry_help
-    print_line "Usage: pry"
-    print_line
-    print_line "Open a pry session on the current module.  Be careful, you"
-    print_line "can break things."
-    print_line
-  end
-
-  def cmd_pry(*args)
-    begin
-      require 'pry'
-    rescue LoadError
-      print_error("Failed to load pry, try 'gem install pry'")
-      return
-    end
-    mod.pry
   end
 
   #

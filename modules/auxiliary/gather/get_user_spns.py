@@ -43,9 +43,7 @@ metadata = {
     'license': 'CORE_LICENSE',
     'references': [
         {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/GetUserSPNs.py'},
-        {'type': 'url', 'ref': 'https://files.sans.org/summit/hackfest2014/PDFs/Kicking%20the%20Guard%20Dog%20of%20Hades%20-%20Attacking%20Microsoft%20Kerberos%20%20-%20Tim%20Medin(1).pdf'},
-        {'type': 'aka', 'ref': 'GetUserSPNs.py'},
-        {'type': 'aka', 'ref': 'Kerberoast'}
+        {'type': 'url', 'ref': 'https://files.sans.org/summit/hackfest2014/PDFs/Kicking%20the%20Guard%20Dog%20of%20Hades%20-%20Attacking%20Microsoft%20Kerberos%20%20-%20Tim%20Medin(1).pdf'}
     ],
     'type': 'single_scanner',
     'options': {
@@ -53,6 +51,12 @@ metadata = {
         'domain': {'type': 'string', 'description': 'The target Active Directory domain', 'required': True, 'default': None},
         'user': {'type': 'string', 'description': 'Username for a domain account', 'required': True, 'default': None},
         'pass': {'type': 'string', 'description': 'Password for the domain user account', 'required': True, 'default': None}
+    },
+    'notes': {
+        'AKA': [
+            'GetUserSPNs.py',
+            'Kerberoast'
+        ]
     }}
 
 class GetUserSPNs:

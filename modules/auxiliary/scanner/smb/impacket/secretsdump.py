@@ -51,8 +51,7 @@ metadata = {
         {'type': 'url', 'ref': 'http://www.beginningtoseethelight.org/ntsecurity/index.htm'},
         {'type': 'url', 'ref': 'http://www.ntdsxtract.com/downloads/ActiveDirectoryOfflineHashDumpAndForensics.pdf'},
         {'type': 'url', 'ref': 'http://www.passcape.com/index.php?section=blog&cmd=details&id=15'},
-        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/secretsdump.py'},
-        {'type': 'aka', 'ref': 'secretsdump.py'},
+        {'type': 'url', 'ref': 'https://github.com/CoreSecurity/impacket/blob/master/examples/secretsdump.py'}
      ],
     'type': 'single_scanner',
     'options': {
@@ -61,6 +60,9 @@ metadata = {
         'SMBDomain':  {'type': 'string', 'description': 'The Windows domain to use for authentication', 'required': False, 'default': '.'},
         'SMBPass':    {'type': 'string', 'description': 'The password for the specified username', 'required': True, 'default': None},
         'SMBUser':    {'type': 'string', 'description': 'The username to authenticate as', 'required': True, 'default': None},
+    },
+    'notes': {
+        'AKA': ['secretsdump.py']
     }
 }
 

@@ -68,7 +68,9 @@ require 'msf/core/exploit'
 require 'msf/core/nop'
 require 'msf/core/payload'
 require 'msf/core/post'
+require 'msf/core/evasion'
 
 # Drivers
 require 'msf/core/exploit_driver'
+require 'msf/core/evasion_driver'
 

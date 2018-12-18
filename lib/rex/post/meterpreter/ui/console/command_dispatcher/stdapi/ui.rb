@@ -120,6 +120,20 @@ class Console::CommandDispatcher::Stdapi::Ui
   end
 
   #
+  # Tab completion for the uictl command
+  #
+  def cmd_uictl_tabs(str, words)
+    return %w[enable disable] if words.length == 1
+
+    case words[-1]
+    when 'enable', 'disable'
+      return %w[keyboard mouse all]
+    end
+
+    []
+  end
+
+  #
   # Grab a screenshot of the current interactive desktop.
   #
   def cmd_screenshot(*args)

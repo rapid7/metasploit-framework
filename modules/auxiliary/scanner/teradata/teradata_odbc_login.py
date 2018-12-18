@@ -34,8 +34,7 @@ metadata = {
     'license': 'MSF_LICENSE',
     'references': [
         {'type': 'url', 'ref': 'https://developer.teradata.com/tools/reference/teradata-python-module'},
-        {'type': 'url', 'ref': 'https://downloads.teradata.com/download/connectivity/odbc-driver/linux'},
-        {'type': 'aka', 'ref': 'Teradata ODBC Login Scanner'}
+        {'type': 'url', 'ref': 'https://downloads.teradata.com/download/connectivity/odbc-driver/linux'}
     ],
     'type': 'single_host_login_scanner',
     'options': {
@@ -44,7 +43,10 @@ metadata = {
         'userpass': {'type': 'string', 'description': 'A list of username/password combinations to try', 'required': False},
         'sleep_interval': {'type': 'float', 'description': 'Time in seconds to wait between login attempts', 'required': False}
     },
-    'service_name': 'teradata'
+    'service_name': 'teradata',
+    'notes': {
+        'AKA': ['Teradata ODBC Login Scanner']
+    }
 }
 
 
