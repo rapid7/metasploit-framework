@@ -56,7 +56,7 @@ endm
 
   li      ($14, #{reg_14})               ; 0xXXXX0e24 - store in $14 the number of passes (two's complement) - xxxx (number of passes)
   nor     $14, $14, $0                   ; 0x2770c001 - get in $14 the number of passes
-  li      ($11,-85)                      ; 0xbbff0b24 - store in $11 the offset to the end of the decoder (two's complement) (from the addu instr)
+  li      ($11,-84)                      ; 0xacff0b24 - store in $11 the offset to the end of the decoder (two's complement) (from the addu instr)
 
 ; acts as getpc
 next:
