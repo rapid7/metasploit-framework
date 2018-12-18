@@ -3,15 +3,13 @@
 
 #TODO: Remove previous line?
 
-# ASSUMPTION: A payload will not exceed 255 bytes  (TODO: That's a pretty terrible assumption.)
-# ASSUMPTION: A payload will have only one length offset and one payload string offset (this has held true on 13 of 13 tested payloads)
-
 require 'diff-lcs'
 require 'json'
 require 'base64'
 require 'open3'
 
 YSOSERIAL_RANDOMIZED_HEADER = "ysoserial/Pwner"
+PAYLOAD_TEST_MIN_LENGTH = 4
 PAYLOAD_TEST_MAX_LENGTH = 5
 
 def generatePayload(payloadName,searchStringLength)
@@ -50,7 +48,7 @@ end
 def generatePayloadArray(payloadName)
   # Generate and return a number of payloads, each with increasingly longer strings, for future comparison
   payloadArray = []
-  (1..PAYLOAD_TEST_MAX_LENGTH).each do |i|
+  (PAYLOAD_TEST_MIN_LENGTH..PAYLOAD_TEST_MAX_LENGTH).each do |i|
     payload = generatePayload(payloadName,i)
     return nil if payload.nil?
     payloadArray[i] = payload
@@ -79,8 +77,10 @@ def isBufferOffset?(currByte,nextByte)
 end
 
 def diff(a,b)
+  return nil if a.nil? or b.nil?
+
   diffs = []
-  obj=  Diff::LCS.diff(a,b)
+  obj = Diff::LCS.diff(a,b)
   obj.each do |i|
     i.each do |j|
       diffs.push(j)
@@ -127,7 +127,7 @@ payloadList.each do |payload|
   bufferOffset = []
 
   # Comparing diffs of various payload lengths to find length and buffer offsets
-  (1..payloadArray.length-1-1).each do |i|
+  (PAYLOAD_TEST_MIN_LENGTH..PAYLOAD_TEST_MAX_LENGTH).each do |i|
     # Compare this binary with the next one
     diffs = diff(payloadArray[i],payloadArray[i+1])
 

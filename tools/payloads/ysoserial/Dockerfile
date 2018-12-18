@@ -27,6 +27,6 @@ RUN wget -q https://github.com/pimps/ysoserial-modified/raw/master/target/ysoser
 #               pry (to debug issues)
 RUN gem install --silent diff-lcs json pry
 
-COPY findYsoserialOffsets.rb /
+COPY find_ysoserial_offsets.rb /
 
-CMD ruby /findYsoserialOffsets.rb
+CMD ruby /find_ysoserial_offsets.rb
