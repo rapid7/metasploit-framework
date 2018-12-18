@@ -107,7 +107,7 @@ module ResponseDataHelper
       reflection
     end
 
-    obj_attribute_names = obj.attributes.transform_keys { |k| k.to_sym }.keys
+    obj_attribute_names = obj.attributes.transform_keys(&:to_sym).keys
 
     data.except(*obj_attribute_names).each do |k, v|
       association = klass.reflect_on_association(k)
