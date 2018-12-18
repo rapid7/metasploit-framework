@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Encoder::Xor
       'Description'      => %q{
         Mips Web server exploit friendly xor encoder
       },
-      'Author'           => 
+      'Author'           =>
         [   'Julien Tinnes <julien[at]cr0.org>',   # original shellcode
             'Pedro Ribeiro <pedrib@gmail.com>',    # fix Linux >= 2.6.11 and toupper() compat
         ],
@@ -80,7 +80,7 @@ li macro reg, imm
 endm
 
   li(	$10, #{reg_10})		    ; load number of passes ^ 0xffff
-  nor	$10, $10, $0		      ; put number of passes in $10 
+  nor	$10, $10, $0		      ; put number of passes in $10
 
   li(	$11,-89)		          ; addend to calculated PC is 73
 ;.set noreorder
