@@ -9,7 +9,7 @@
 
 <script type="text/javascript">
     function getNewApiToken() {
-        loadDoc("GET", "<%= AuthServlet.api_generate_token_path %>", function(xhr) {
+        loadDoc("POST", "<%= AuthServlet.api_generate_token_path %>", function(xhr) {
             var response = JSON.parse(xhr.responseText);
             document.getElementById("api-token").innerHTML = response.data.token;
         }, errorHandler);

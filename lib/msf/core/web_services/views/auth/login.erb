@@ -7,8 +7,42 @@
 </head>
 <body>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script>
+    function ConvertFormToJSON(form){
+        var array = jQuery(form).serializeArray();
+        var json = {};
+
+        jQuery.each(array, function() {
+            json[this.name] = this.value || '';
+        });
+
+        return JSON.stringify(json);
+    }
+
+    $(document).ready(function(){
+        $("#submit").on('click', function(){
+            $.ajax({
+                url: '<%= AuthServlet.api_generate_token_path %>',
+                type : "POST",
+                dataType : 'json',
+                data : ConvertFormToJSON($("#login_form")),
+                contentType: "application/json; charset=utf-8",
+                processData: false,
+                success : function(result) {
+                    $(location).attr('href', '<%= AuthServlet.api_account_path %>')
+                },
+                error: function(xhr, resp, text) {
+                    console.log(xhr, resp, text);
+                }
+            })
+        });
+    });
+
+</script>
+
 <div style="padding:20px;">
-  <form action="<%= AuthServlet.api_login_path %>" method="post">
+  <form id="login_form" action="" method="post">
     <div class="credential-container">
       <h2>Log In - Metasploit API</h2>
       <label for="username"><b>Username</b></label>
@@ -16,8 +50,7 @@
 
       <label for="password"><b>Password</b></label>
       <input type="password" placeholder="Enter Password" name="password" required>
-
-      <button type="submit">Log In</button>
+      <input id="submit" type="button" name="submit" value="submit">
     </div>
   </form>
 </div>
