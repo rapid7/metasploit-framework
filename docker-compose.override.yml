@@ -9,6 +9,6 @@ services:
         BUNDLER_ARGS: --jobs=8
     image: metasploit:dev
     environment:
-      DATABASE_URL: postgres://postgres@db:5432/msf_dev
+      DATABASE_URL: postgres://postgres@db:5432/msf_dev?pool=200&timeout=5
     volumes:
       - .:/usr/src/metasploit-framework

@@ -326,6 +326,7 @@ module Msf
             print_line
             print_line "Keywords:"
             {
+              'aka'         => 'Modules with a matching AKA (also-known-as) name',
               'app'         => 'Modules that are client or server attacks',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
@@ -345,7 +346,7 @@ module Msf
               'ref'         => 'Modules with a matching ref',
               'reference'   => 'Modules with a matching reference',
               'target'      => 'Modules affecting this target',
-              'type'        => 'Modules of a specific type (exploit, auxiliary, or post)',
+              'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 12}:  #{description}"
             end
@@ -468,7 +469,7 @@ module Msf
           end
 
           def cmd_show_help
-            global_opts = %w{all encoders nops exploits payloads auxiliary plugins info options}
+            global_opts = %w{all encoders nops exploits payloads auxiliary post plugins info options}
             print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
             module_opts = %w{ missing advanced evasion targets actions }
@@ -480,9 +481,13 @@ module Msf
           # no type is provided.
           #
           def cmd_show(*args)
+            if args.empty?
+              print_error("Argument required\n")
+              cmd_show_help
+              return
+            end
+            
             mod = self.active_module
-
-            args << "all" if (args.length == 0)
 
             args.each { |type|
               case type
@@ -532,7 +537,7 @@ module Msf
                   if (mod)
                     show_evasion_options(mod)
                   else
-                    print_error("No module selected.")
+                    show_evasion
                   end
                 when 'sessions'
                   if (active_module and active_module.respond_to?(:compatible_sessions))
@@ -546,7 +551,7 @@ module Msf
                 when "plugins"
                   show_plugins
                 when "targets"
-                  if (mod and mod.exploit?)
+                  if (mod and (mod.exploit? or mod.evasion?))
                     show_targets(mod)
                   else
                     print_error("No exploit module selected.")
@@ -649,6 +654,8 @@ module Msf
                 dispatcher = Msf::Ui::Console::CommandDispatcher::Auxiliary
               when Msf::MODULE_POST
                 dispatcher = Msf::Ui::Console::CommandDispatcher::Post
+              when Msf::MODULE_EVASION
+                dispatcher = Msf::Ui::Console::CommandDispatcher::Evasion
               else
                 print_error("Unsupported module type: #{mod.type}")
                 return false
@@ -673,11 +680,6 @@ module Msf
             end
 
             mod.init_ui(driver.input, driver.output)
-
-            # Update the command prompt
-            prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-            prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-            driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.promptname}%clr) ", prompt_char, true)
           end
 
           #
@@ -860,11 +862,6 @@ module Msf
 
               # Destack the current dispatcher
               driver.destack_dispatcher
-
-              # Restore the prompt
-              prompt = framework.datastore['Prompt'] || Msf::Ui::Console::Driver::DefaultPrompt
-              prompt_char = framework.datastore['PromptChar'] || Msf::Ui::Console::Driver::DefaultPromptChar
-              driver.update_prompt("#{prompt} ", prompt_char, true)
             end
           end
 
@@ -985,7 +982,7 @@ module Msf
           def show_payloads(regex = nil, minrank = nil, opts = nil) # :nodoc:
             # If an active module has been selected and it's an exploit, get the
             # list of compatible payloads and display them
-            if (active_module and active_module.exploit? == true)
+            if (active_module and (active_module.exploit? == true or active_module.evasion?))
               show_module_set("Compatible Payloads", active_module.compatible_payloads, regex, minrank, opts)
             else
               show_module_set("Payloads", framework.payloads, regex, minrank, opts)
@@ -1023,6 +1020,10 @@ module Msf
             end
           end
 
+          def show_evasion(regex = nil, minrank = nil, opts = nil) # :nodoc:
+            show_module_set('evasion', framework.evasion, regex, minrank, opts)
+          end
+
           def show_global_options
             columns = [ 'Option', 'Current Setting', 'Description' ]
             tbl = Table.new(
@@ -1047,8 +1048,14 @@ module Msf
           end
 
           def show_targets(mod) # :nodoc:
-            mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
-            print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+            case mod
+            when Msf::Exploit
+              mod_targs = Serializer::ReadableText.dump_exploit_targets(mod, '   ')
+              print("\nExploit targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+            when Msf::Evasion
+              mod_targs = Serializer::ReadableText.dump_evasion_targets(mod, '   ')
+              print("\nEvasion targets:\n\n#{mod_targs}\n") if (mod_targs and mod_targs.length > 0)
+            end
           end
 
           def show_actions(mod) # :nodoc:
@@ -1085,7 +1092,7 @@ module Msf
 
             # If it's an exploit and a payload is defined, create it and
             # display the payload's options
-            if (mod.exploit? and mod.datastore['PAYLOAD'])
+            if (mod.evasion? and mod.datastore['PAYLOAD'])
               p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
               if (!p)
@@ -1105,7 +1112,7 @@ module Msf
           def show_plugins # :nodoc:
             tbl = Table.new(
               Table::Style::Default,
-              'Header'  => 'Plugins',
+              'Header'  => 'Loaded Plugins',
               'Prefix'  => "\n",
               'Postfix' => "\n",
               'Columns' => [ 'Name', 'Description' ]
@@ -1115,6 +1122,9 @@ module Msf
               tbl << [ plugin.name, plugin.desc ]
             }
 
+            # create an instance of core to call the list_plugins
+            core = Msf::Ui::Console::CommandDispatcher::Core.new(driver)
+            core.list_plugins
             print(tbl.to_s)
           end
 
