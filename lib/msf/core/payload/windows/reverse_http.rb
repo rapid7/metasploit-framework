@@ -275,7 +275,7 @@ module Payload::Windows::ReverseHttp
         push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
       ^
     end
-    if opts[:ua].to_s.empty?
+    if opts[:ua].nil?
       asm << %Q^
         push ebx               ; LPCTSTR lpszAgent (NULL)
       ^
