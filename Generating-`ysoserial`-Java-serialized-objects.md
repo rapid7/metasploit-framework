@@ -2,7 +2,7 @@ Instead of embedding static Java serialized objects, Metasploit offers ysoserial
 
 From the user's perspective, the use of the 
 
-To use the ysoserial libraries, let's look at an example from []`hp_imc_java_deserialization:`](https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/http/hp_imc_java_deserialize.rb)
+To use the ysoserial libraries, let's look at an example from the [`hp_imc_java_deserialization`](https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/http/hp_imc_java_deserialize.rb) module:
 
 ### Example code
 
