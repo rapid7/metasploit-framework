@@ -38,9 +38,10 @@ The function takes two parameters, a template name and a command:
 
 <details>
 <summary>Click to expand</summary>
+
 On occasion, Metasploit maintainers may want to re-run the script generation to incorporate new Java serialized objects from the ysoserial tool.
 
-To avoid invoking Java (and all its dependencies), the serialized objects are generated based on a JSON file.  The JSON file can be refreshed using a standalone Ruby script, which comes prepackaged with a Docker image that handles downloading `ysoserial`.  For more information, refer to `tools/payloads/ysoserial`.  An example run looks like:
+To avoid invoking Java (and all its dependencies) at runtime, the serialized objects are generated and cached within a JSON file.  The JSON file can be refreshed using a standalone Ruby script, which comes prepackaged with a Docker image that handles downloading `ysoserial` and necessary dependencies.  The script, `Dockerimage` and a high-level `runme.sh` script is stored within `tools/payloads/ysoserial`.  An example run looks like:
 
 ```
 $ cd ~/git/r7/metasploit-framework/tools/payloads/ysoserial
