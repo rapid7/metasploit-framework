@@ -117,25 +117,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def handshake(mbean)
-    begin
-      opts = {
-        object_number: mbean[:object_number],
-        uid_number: mbean[:uid].number,
-        uid_time: mbean[:uid].time,
-        uid_count: mbean[:uid].count
-      }
-
-      ref = send_new_client(opts)
-    rescue ::Rex::Proto::Rmi::Exception => e
-      vprint_error("JMXRMI discovery raised an exception of type #{e.message}")
-      if e.message == "java.lang.SecurityException"
-        return false
-      else
-        return nil
-      end
+    opts = {
+      object_number: mbean[:object_number],
+      uid_number: mbean[:uid].number,
+      uid_time: mbean[:uid].time,
+      uid_count: mbean[:uid].count
+    }
+    send_new_client(opts)
+  rescue ::Rex::Proto::Rmi::Exception => e
+    vprint_error("JMXRMI discovery raised an exception of type #{e.message}")
+    if e.message == 'java.lang.SecurityException'
+      return false
     end
-
-    ref
+    return nil
   end
-
 end
