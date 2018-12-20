@@ -924,7 +924,7 @@ def has_requirements
   missing_msg = "Missing requirement: %<name>s does not appear to be installed or '%<prog>s' is not in the environment path"
 
   postgresql_cmds.each do |cmd|
-    next if Msf::Util::Helper.which(cmd)   
+    next unless Msf::Util::Helper.which(cmd).nil?
     puts missing_msg % { name: 'PostgreSQL', prog: cmd }
     ret_val = false
   end
