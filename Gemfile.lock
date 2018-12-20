@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.32)
+    metasploit-framework (4.17.33)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -173,7 +173,7 @@ GEM
       recog (~> 2.0)
     metasploit_payloads-mettle (0.5.0)
     method_source (0.9.2)
-    mini_portile2 (2.3.0)
+    mini_portile2 (2.4.0)
     minitest (5.11.3)
     mqtt (0.5.0)
     msgpack (1.2.4)
@@ -182,8 +182,8 @@ GEM
     net-ssh (5.0.2)
     network_interface (0.0.2)
     nexpose (7.2.1)
-    nokogiri (1.8.5)
-      mini_portile2 (~> 2.3.0)
+    nokogiri (1.9.1)
+      mini_portile2 (~> 2.4.0)
     octokit (4.13.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     openssl-ccm (1.2.1)
@@ -192,7 +192,7 @@ GEM
       pcaprub
     patch_finder (1.0.2)
     pcaprub (0.13.0)
-    pdf-reader (2.1.0)
+    pdf-reader (2.2.0)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
@@ -226,7 +226,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.2)
     rb-readline (0.5.5)
-    recog (2.1.36)
+    recog (2.1.37)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
