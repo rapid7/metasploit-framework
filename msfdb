@@ -921,16 +921,17 @@ def has_requirements
   ret_val = true
   postgresql_cmds = %w(psql pg_ctl initdb createdb)
   other_cmds = %w(bundle thin)
-  missing_msg = 'Missing requirement: %<name>s does not appear to be installed or is not in the environment path'
+  missing_msg = "Missing requirement: %<name>s does not appear to be installed or '%<prog>s' is not in the environment path"
 
-  unless postgresql_cmds.all? { |cmd| !Msf::Util::Helper.which(cmd).nil? }
-    puts missing_msg % { name: 'PostgreSQL' }
+  postgresql_cmds.each do |cmd|
+    next unless Msf::Util::Helper.which(cmd).nil?
+    puts missing_msg % { name: 'PostgreSQL', prog: cmd }
     ret_val = false
   end
 
   other_cmds.each do |cmd|
     if Msf::Util::Helper.which(cmd).nil?
-      puts missing_msg % { name: "'#{cmd}'" }
+      puts missing_msg % { name: "'#{cmd}'", prog: cmd }
       ret_val = false
     end
   end
