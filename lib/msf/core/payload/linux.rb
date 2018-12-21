@@ -82,14 +82,20 @@ module Msf::Payload::Linux
             "false"
           ]
         ),
-        Msf::OptBool.new('DebugMeterpreterPayload',
+        Msf::OptInt.new('MeterpreterDebugLevel',
           [
-            false,
-            "Set Meterpreter for Debug",
-            "false"
+            true,
+            "Set debug level for meterpreter 0-3 (Default output is strerr)",
+            0
           ]
         ),
-      ], Msf::Payload::Linux)
+        Msf::OptString.new('RemoteMeterpreterDebugFile',
+          [
+            false,
+            "Redirect Debug Info to a Log File",
+            ""
+          ]
+        ),      ], Msf::Payload::Linux)
 
     ret
   end

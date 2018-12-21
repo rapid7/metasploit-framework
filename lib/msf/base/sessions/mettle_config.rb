@@ -71,12 +71,23 @@ module Msf
           opts[:name] ||= ds['PayloadProcessCommandLine']
         end
 
-        if ds['DebugMeterpreterPayload'] != ''
-          opts[:debug] ||= ds['DebugMeterpreterPayload']
+        if ds['RemoteMeterpreterDebugFile'] != ''
+          opts[:log_file] ||= ds['RemoteMeterpreterDebugFile']
+        end
+
+        if ds['MeterpreterDebugLevel'].is_a? Integer
+          opts[:debug] = ds['MeterpreterDebugLevel']
+        else
+          opts[:debug] = ds['MeterpreterDebugLevel'].to_i
         end
         
-        puts("DebugMeterpreterPayload = " + ds['DebugMeterpreterPayload'].to_s)
+        puts("MeterpreterDebugLevel = " + ds['MeterpreterDebugLevel'].to_s)
         puts("opts[:debug] = " + opts[:debug].to_s)
+        puts("opts[:debug] type = " + opts[:debug].class.to_s)
+
+        puts("RemoteMeterpreterDebugFile = " + ds['RemoteMeterpreterDebugFile'].to_s)
+        puts("opts[:log_file] = " + opts[:log_file].to_s)
+        puts("opts[:log_file] type = " + opts[:log_file].class.to_s)
 
         opts[:uuid] ||= generate_payload_uuid
 
