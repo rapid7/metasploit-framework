@@ -95,7 +95,8 @@ module Msf::Payload::Linux
             "Redirect Debug Info to a Log File",
             ""
           ]
-        ),      ], Msf::Payload::Linux)
+        ),
+      ], Msf::Payload::Linux)
 
     ret
   end
