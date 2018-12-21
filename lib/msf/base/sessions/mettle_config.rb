@@ -76,18 +76,13 @@ module Msf
         end
 
         if ds['MeterpreterDebugLevel'].is_a? Integer
-          opts[:debug] = ds['MeterpreterDebugLevel']
+          log_level = ds['MeterpreterDebugLevel']
         else
-          opts[:debug] = ds['MeterpreterDebugLevel'].to_i
+          log_level = ds['MeterpreterDebugLevel'].to_i
         end
-        
-        puts("MeterpreterDebugLevel = " + ds['MeterpreterDebugLevel'].to_s)
-        puts("opts[:debug] = " + opts[:debug].to_s)
-        puts("opts[:debug] type = " + opts[:debug].class.to_s)
-
-        puts("RemoteMeterpreterDebugFile = " + ds['RemoteMeterpreterDebugFile'].to_s)
-        puts("opts[:log_file] = " + opts[:log_file].to_s)
-        puts("opts[:log_file] type = " + opts[:log_file].class.to_s)
+        log_level = 0 if log_level < 0
+        log_level = 3 if log_level > 3
+        opts[:debug] = log_level
 
         opts[:uuid] ||= generate_payload_uuid
 
