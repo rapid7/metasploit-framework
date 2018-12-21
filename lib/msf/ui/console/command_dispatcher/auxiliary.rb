@@ -68,7 +68,17 @@ class Auxiliary
     end
   end
 
+  alias cmd_rerun_tabs cmd_run_tabs
   alias cmd_rexploit cmd_rerun
+  alias cmd_rexploit_tabs cmd_exploit_tabs
+
+  #
+  # Tab completion for the run command
+  #
+  def cmd_run_tabs(str, words)
+    return [] if words.length > 1
+    @@auxiliary_opts.fmt.keys
+  end
 
   #
   # Executes an auxiliary module
@@ -147,6 +157,7 @@ class Auxiliary
   end
 
   alias cmd_exploit cmd_run
+  alias cmd_exploit_tabs cmd_run_tabs
 
   def cmd_run_help
     print_line "Usage: run [options]"
