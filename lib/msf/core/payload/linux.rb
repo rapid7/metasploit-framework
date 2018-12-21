@@ -82,6 +82,13 @@ module Msf::Payload::Linux
             "false"
           ]
         ),
+        Msf::OptBool.new('DebugMeterpreterPayload',
+          [
+            false,
+            "Set Meterpreter for Debug",
+            "false"
+          ]
+        ),
       ], Msf::Payload::Linux)
 
     ret

@@ -71,6 +71,13 @@ module Msf
           opts[:name] ||= ds['PayloadProcessCommandLine']
         end
 
+        if ds['DebugMeterpreterPayload'] != ''
+          opts[:debug] ||= ds['DebugMeterpreterPayload']
+        end
+        
+        puts("DebugMeterpreterPayload = " + ds['DebugMeterpreterPayload'].to_s)
+        puts("opts[:debug] = " + opts[:debug].to_s)
+
         opts[:uuid] ||= generate_payload_uuid
 
         case opts[:scheme]
