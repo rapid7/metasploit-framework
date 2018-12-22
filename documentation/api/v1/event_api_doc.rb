@@ -10,7 +10,7 @@ module EventApiDoc
   SEEN_DESC = 'true if a user has acknowledged the event.'
   USERNAME_DESC = 'Name of the user that triggered the event.'
   INFO_DESC = 'Information about the event specific to the event name.'
-  INFO_EXAMPLE = '{:command=>"irb"}'
+  INFO_EXAMPLE = {command: 'irb'}
 
   ORDER_ENUM = [
       'asc',
