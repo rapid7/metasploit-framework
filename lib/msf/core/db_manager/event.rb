@@ -45,7 +45,7 @@ module Msf::DBManager::Event
   }
   end
 
-  def report_event(opts = {})
+  def report_event(opts)
     return if not active
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
