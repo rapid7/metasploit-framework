@@ -70,9 +70,8 @@ class MetasploitModule < Msf::Auxiliary
         # Detect error code
         #
         begin
-          randfile = Rex::Text.rand_text_alpha(5).chomp
 
-          filec = tpathf.sub(testf,pre + randfile + testf)
+          filec = tpathf.sub(testf,pre + testf)
 
           res = send_request_cgi({
             'uri'  		=>  filec,
