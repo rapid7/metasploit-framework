@@ -4,11 +4,11 @@ module Util
 require 'json'
 require 'base64'
 
-PAYLOAD_FILENAME="ysoserial_payloads.json"
-
 #TODO: Support ysoserial alongside ysoserial-modified payloads (including cmd, bash, powershell, none)
 
 class JavaDeserialization
+
+  PAYLOAD_FILENAME = "ysoserial_payloads.json"
 
   def self.ysoserial_payload(payloadName, command=nil)
     # Open the JSON file and parse it
