@@ -103,7 +103,6 @@ Gem::Specification.new do |spec|
   # Required for msfdb_ws (Metasploit data base as a webservice)
   spec.add_runtime_dependency 'thin'
   spec.add_runtime_dependency 'sinatra'
-  spec.add_runtime_dependency 'sysrandom'
   spec.add_runtime_dependency 'warden'
   # Required for JSON-RPC client
   spec.add_runtime_dependency 'em-http-request'
