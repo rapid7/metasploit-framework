@@ -74,12 +74,8 @@ module Msf
         if ds['RemoteMeterpreterDebugFile'] != ''
           opts[:log_file] ||= ds['RemoteMeterpreterDebugFile']
         end
-
-        if ds['MeterpreterDebugLevel'].is_a? Integer
-          log_level = ds['MeterpreterDebugLevel']
-        else
-          log_level = ds['MeterpreterDebugLevel'].to_i
-        end
+        
+        log_level = ds['MeterpreterDebugLevel'].to_i
         log_level = 0 if log_level < 0
         log_level = 3 if log_level > 3
         opts[:debug] = log_level
