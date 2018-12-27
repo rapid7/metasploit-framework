@@ -8,7 +8,7 @@ require 'open3'
 require 'optparse'
 require 'rex/socket'
 require 'rex/text'
-require 'sysrandom/securerandom'
+require 'securerandom'
 require 'uri'
 require 'yaml'
 

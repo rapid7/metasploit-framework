@@ -1,5 +1,5 @@
 require 'bcrypt'
-require 'sysrandom/securerandom'
+require 'securerandom'
 
 module Msf::DBManager::User
 

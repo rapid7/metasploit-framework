@@ -1,6 +1,6 @@
+require 'securerandom'
 require 'sinatra/base'
 require 'swagger/blocks'
-require 'sysrandom/securerandom'
 require 'warden'
 require 'msf/core/web_services/authentication'
 require 'msf/core/web_services/servlet_helper'
