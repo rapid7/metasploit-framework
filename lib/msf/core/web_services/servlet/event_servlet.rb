@@ -26,7 +26,7 @@ module EventServlet
         data = data.first if is_single_object?(data, sanitized_params)
         set_json_data_response(response: data)
       rescue => e
-        print_error_and_create_response(error: e, message: 'There was an error getting events:', code: 500)
+        print_error_and_create_response(error: e, message: 'There was an error retrieving events:', code: 500)
       end
     }
   end
