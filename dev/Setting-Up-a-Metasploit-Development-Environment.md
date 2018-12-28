@@ -1,498 +1,156 @@
-# Metasploit Development Environment
+# Setting Up a Metasploit Development Environment
 
 <sup>*The shortlink to this wiki page is https://r-7.co/MSF-DEV*</sup>
 
-This is a guide for setting up an environment for effectively **contributing to the Metasploit Framework**. If you just want to use Metasploit for legal, authorized hacking, we recommend instead you either [download the commercial Metasploit binary installer](http://metasploit.com/download), or the [open-source packages](https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers) which will take care of all the dependencies for you. The commercial installers also include the option for upgrading to Metasploit Pro and are updated semi-weekly, while the open-source installers are updated every night.
+This is a guide for setting up a developer environment to contribute modules, documentation, and fixes to the Metasploit Framework. If you just want to use Metasploit for legal, authorized hacking, we recommend instead you:
 
-If you are using Kali Linux, Metasploit is already pre-installed. [Follow the instructions](http://docs.kali.org/general-use/starting-metasploit-framework-in-kali) provided by Kali on how to use the provided metasploit-framework package and setup a database.
+ - Install the [open-source Omnibus installer][open-source-installer], or
+ - Use the pre-installed Metasploit on [Kali Linux][kali-user-instructions] or [Parrot Linux][parrot-user-instructions].
 
-If you want to develop on and [contribute] to Metasploit, read on! This guide should get you going on pretty much any Debian-based Linux system.
+If you want to contribute to Metasploit, start by reading our [CONTRIBUTING.md], then follow the rest of this guide.
 
-So let's get started!
 
-# Assumptions
+## Assumptions
 
-* You have a Debian-based Linux environment
-* You have a user that is not `root`. In this guide, we're using `msfdev`.
-* You have a GitHub account, and have associated an [ssh key][ssh-key] with it.
+* You have installed an apt-based Linux environment, such as [Ubuntu] or [Kali].
+* You have created a GitHub account and associated an [ssh key][ssh-key] with it.
+* You have familiarity with Git and Github, or have completed the [Github bootcamp][github-bootcamp].
+* For optional database and REST API functionality, you will need regular user account that is not `root`.
 
-# Install the base dev packages
+
+## Install dependencies
+
+1. Open a terminal on your Linux host and set up Git, build tools, and Ruby dependencies:
 
 ```bash
-sudo apt-get -y install \
-  autoconf \
-  bison \
-  build-essential \
-  curl \
-  git-core \
-  libapr1 \
-  libaprutil1 \
-  libcurl4-openssl-dev \
-  libgmp3-dev \
-  libpcap-dev \
-  libpq-dev \
-  libreadline6-dev \
-  libsqlite3-dev \
-  libssl-dev \
-  libsvn1 \
-  libtool \
-  libxml2 \
-  libxml2-dev \
-  libxslt-dev \
-  libyaml-dev \
-  locate \
-  ncurses-dev \
-  openssl \
-  postgresql \
-  postgresql-contrib \
-  wget \
-  xsel \
-  zlib1g \
-  zlib1g-dev
+sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev libpq-dev zlib1g-dev libsqlite3-dev
 ```
 
-Note, there's no Ruby yet -- we'll get to that soon.
 
-# Fork and Clone Metasploit-Framework
+## Setup your local copy of the repository
 
-You can follow the [forking][forking] instructions provided by GitHub,
-but it's basically just click the "Fork" button in the top right of the
-framework's repo page.
+You will need to use Github to create a fork for your contributions and receive the latest updates from our repository.
 
-## Clone
+1. Login to Github and click the "Fork" button in the top-right corner of the [metasploit-framework] repository.
 
-Once you have a fork on GitHub, it's time to pull it down to your local
-dev machine. Again, you'll want to follow the [cloning][cloning]
-instructions at GitHub.
+2.  Create a `git` directory in your home folder and clone your fork to your local machine:
 
-```
-mkdir -p $HOME/git
-cd $HOME/git
-git clone git@github.com:YOUR_USERNAME_FOR_GITHUB/metasploit-framework
-cd metasploit-framework
+```bash
+export GITHUB_USERNAME=YOUR_USERNAME_FOR_GITHUB
+export GITHUB_EMAIL=YOUR_EMAIL_ADDRESS_FOR_GITHUB
+mkdir -p ~/git
+cd ~/git
+git clone git@github.com:$GITHUB_USERNAME/metasploit-framework
+cd ~/git/metasploit-framework
 ```
 
-## Set upstream
+3. If you encounter a "permission denied" error on the above command, research the error message.  If there isn't an explicit reason given, confirm that your [Github SSH key is configured correctly][github-ssh-instructions].
 
-First off, if you ever plan to update your local clone with the latest
-from upstream, you're going to want to track it. In your
-`metasploit-framework` checkout, run the below:
+4. To receive updates, you will create an `upstream-master` branch to track the Rapid7 remote repository, alongside your `master` branch which will point to your personal repository's fork:
 
-```
+```bash
 git remote add upstream git@github.com:rapid7/metasploit-framework.git
 git fetch upstream
 git checkout -b upstream-master --track upstream/master
 ```
 
-Now, you have a branch that points to upstream (the `rapid7` fork)
-that's different from your own fork (the original `master` branch that
-points to `origin/master`). You might find having `upstream-master` and
-`master` being different branches handy (especially if you are a
-[Metasploit committer][metasploit-committer], since this makes it less
-likely to accidentally push to `rapid7/master`).
+5. Configure your Github username, email address, and username.  Ensure your `user.email` matches the email address you registered with your Github account.
 
-
-# Install RVM
-
-Most distributions do not ship with the latest Ruby with any predictable
-frequency. So we'll use RVM, the Ruby Version Manager. You can read up
-on it here: https://rvm.io/, and discover it's pretty swell. Some people
-prefer rbenv. You can [get instructions for rbenv][rbenv], but you'll be
-on your own to make sure you have a sane Ruby. Most of the committers
-use RVM, so for this guide we're going to stick with it.
-
-First, you need the signing key for the RVM distribution:
-
-```
-curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+```bash
+git config --global user.name "$GITHUB_USERNAME"
+git config --global user.email "$GITHUB_EMAIL"
+git config --global github.user "$GITHUB_USERNAME"
 ```
 
-Next, get RVM itself:
+6. Set up [msftidy] to run before each `git commit` and after each `git merge` to quickly identify potential issues with your contributions:
 
-```
-curl -L https://get.rvm.io | bash -s stable
-```
-
-This does pipe straight to bash, which can be a [sensitive issue][dont-pipe]. For the longer, safer way:
-
-```
-curl -o rvm.sh -L https://get.rvm.io
-less rvm.sh # Read it and see it's all good
-cat rvm.sh | bash -s stable
-```
-
-Once that's done, fix your current terminal to use RVM's version of ruby:
-
-```
-source ~/.rvm/scripts/rvm
+```bash
 cd ~/git/metasploit-framework
-rvm --install $(cat .ruby-version)
-```
-
-And finally, install the `bundler` gem in order to get all the other gems you'll need:
-
-```
-gem install bundler
-```
-
-## Configure Gnome Terminal to use RVM
-
-Gnome Terminal is a jerk and doesn't make your shell a login shell by
-default, so RVM won't work there without a config tweak, like so:
-
-Navigate to Edit > Profiles > Highlight Default > Edit > Title and Command > Check **[ ] Run command
-as a login shell**. It looks something like this, depending on your specific version of Gnome:
-
-[[/screens/kali-gnome-terminal.png]]
-
-Finally, see that you're now running the Ruby version in [`.ruby-version`](https://github.com/rapid7/metasploit-framework/blob/master/.ruby-version):
-
-```
-ruby -v
-```
-
-If you're *still* not running the `.ruby-version` defined version of ruby, you probably need to restart your terminal. Make sure you've added rvm to your terminal startup if your initial install of RVM didn't already with something like:
-
-```bash
-echo ''[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"' >> .bashrc
-```
-
-# Install Bundled Gems
-
-Metasploit has loads of gems (Ruby libraries) that it depends on. Because you're using RVM, though, you can install them
-locally and not worry about conflicting with Debian-packaged gems, thanks to the magic of [Bundler].
-
-Just navigate to the top-level of your local checkout, and run:
-
-```
-cd ~/git/metasploit-framework/
-bundle install
-```
-
-After a minute or two, you're all set to start Metasploiting. In your checkout directory, type:
-
-```
-./msfconsole
-```
-
-And bask in the glory that is a functioning source checkout -- and incidentally create your `~/.msf4` directory upon first start.
-
-```
-    msfdev@lys:~/git/metasploit-framework$ ./msfconsole
-    [*] Starting the Metasploit Framework console.../
-
-                    _---------.
-                .' #######   ;."
-      .---,.    ;@             @@`;   .---,..
-    ." @@@@@'.,'@@            @@@@@',.'@@@@ ".
-    '-.@@@@@@@@@@@@@          @@@@@@@@@@@@@ @;
-      `.@@@@@@@@@@@@        @@@@@@@@@@@@@@ .'
-        "--'.@@@  -.@        @ ,'-   .'--"
-              ".@' ; @       @ `.  ;'
-                |@@@@ @@@     @    .
-                ' @@@ @@   @@    ,
-                  `.@@@@    @@   .
-                    ',@@     @   ;           _____________
-                    (   3 C    )     /|___ / Metasploit! \
-                    ;@'. __*__,."    \|--- \_____________/
-                      '(.,...."/
-
-
-       =[ metasploit v5.0.0-dev-26bf96b                   ]
-+ -- --=[ 1744 exploits - 1001 auxiliary - 302 post       ]
-+ -- --=[ 536 payloads - 40 encoders - 10 nops            ]
-+ -- --=[ ** This is Metasploit 5 development branch **   ]
-
-    msf > ls ~/.msf4
-    [*] exec: ls ~/.msf4
-
-    history
-    local
-    logos
-    logs
-    loot
-    modules
-    plugins
-    msf > exit
-```
-
-Alas, though, you have no database set up to use all this hacking madness. Easily solved, though!
-
-# Set up PostgreSQL
-
-Kali linux already ships with Postgresql, so we can use that out of the gate. Everything should just work on Ubuntu and
-other Debian-based distros, assuming they have an equivalent `postgresql` package. The TLDR ensures that the database starts up on system start as well.
-
-## Start the database
-
-#### TLDR (as msfdev)
-
-----
-```
-echo 'YOUR_PASSWORD_FOR_KALI' | sudo -kS update-rc.d postgresql enable &&
-echo 'YOUR_PASSWORD_FOR_KALI' | sudo -S service postgresql start &&
-cat <<EOF> $HOME/pg-utf8.sql
-update pg_database set datallowconn = TRUE where datname = 'template0';
-\c template0
-update pg_database set datistemplate = FALSE where datname = 'template1';
-drop database template1;
-create database template1 with template = template0 encoding = 'UTF8';
-update pg_database set datistemplate = TRUE where datname = 'template1';
-\c template1
-update pg_database set datallowconn = FALSE where datname = 'template0';
-\q
-EOF
-sudo -u postgres psql -f $HOME/pg-utf8.sql &&
-sudo -u postgres createuser msfdev -dRS &&
-sudo -u postgres psql -c \
-  "ALTER USER msfdev with ENCRYPTED PASSWORD 'YOUR_PASSWORD_FOR_PGSQL';" &&
-sudo -u postgres createdb --owner msfdev msf_dev_db &&
-sudo -u postgres createdb --owner msfdev msf_test_db &&
-cat <<EOF> $HOME/.msf4/database.yml
-# Development Database
-development: &pgsql
-  adapter: postgresql
-  database: msf_dev_db
-  username: msfdev
-  password: YOUR_PASSWORD_FOR_PGSQL
-  host: localhost
-  port: 5432
-  pool: 5
-  timeout: 5
-
-# Production database -- same as dev
-production: &production
-  <<: *pgsql
-
-# Test database -- not the same, since it gets dropped all the time
-test:
-  <<: *pgsql
-  database: msf_test_db
-EOF
-```
-----
-
-On Kali Linux, postgresql (and any other listening service) isn't enabled by default. This is a fine security and resource precaution, but if you're expecting it there all the time, feel free to auto-start it:
-
-```
-update-rc.d postgresql enable
-```
-
-Next, switch to the postgres user to perform a little database
-maintenance to fix the default encoding (helpfully provided in
-[@ffmike's gist][ffmike-gist]).
-
-```
-sudo -sE su postgres
-psql
-update pg_database set datallowconn = TRUE where datname = 'template0';
-\c template0
-update pg_database set datistemplate = FALSE where datname = 'template1';
-drop database template1;
-create database template1 with template = template0 encoding = 'UTF8';
-update pg_database set datistemplate = TRUE where datname = 'template1';
-\c template1
-update pg_database set datallowconn = FALSE where datname = 'template0';
-\q
-```
-
-## Create the database user 'msfdev'
-
-While still as the postgres user:
-
-```
-createuser msfdev -dPRS              # Come up with another great password
-createdb --owner msfdev msf_dev_db   # Create the development database
-createdb --owner msfdev msf_test_db  # Create the test database
-exit                                 # Become msfdev again
-```
-
-## Create the database.yml
-
-Now that you are yourself again, create a file `$HOME/.msf4/database.yml` with the following:
-
-```yaml
-# Development Database
-development: &pgsql
-  adapter: postgresql
-  database: msf_dev_db
-  username: msfdev
-  password: YOUR_PASSWORD_FOR_PGSQL
-  host: localhost
-  port: 5432
-  pool: 5
-  timeout: 5
-
-# Production database -- same as dev
-production: &production
-  <<: *pgsql
-
-# Test database -- not the same, since it gets dropped all the time
-test:
-  <<: *pgsql
-  database: msf_test_db
-```
-
-The next time you start `./msfconsole`, the development database will be created. Check with:
-
-```
-./msfconsole -qx "db_status; exit"
-```
-
-# Run Specs
-
-We use [rspec](http://betterspecs.org/) for most Framework testing. Make sure it works for you:
-
-```
-rake spec
-```
-
-You should see over 9000 tests run, mostly resulting in green dots,
-a few in yellow stars, and no red errors.
-
-# Configure Git
-
-#### TLDR (as msfdev)
-
-----
-```bash
-cd $HOME/git/metasploit-framework &&
-git remote add upstream git@github.com:rapid7/metasploit-framework.git &&
-git fetch upstream &&
-git checkout -b upstream-master --track upstream/master &&
-ruby tools/dev/add_pr_fetch.rb &&
-ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit &&
-ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge &&
-git config --global user.name   "YOUR_USERNAME_FOR_REAL_LIFE" &&
-git config --global user.email  "YOUR_USERNAME_FOR_EMAIL" &&
-git config --global github.user "YOUR_USERNAME_FOR_GITHUB"
-```
-----
-
-## Set up a pull ref
-
-If you'd like to get easy access to upstream pull requests on your
-command line -- and who wouldn't -- you need to add the appropriate
-fetch reference to your `.git/config`. This is done easily with the
-following:
-
-```
-tools/dev/add_pr_fetch.rb
-```
-
-This will add the appropriate ref for all your remotes, including yours.
-Now, you can do fancy things like:
-
-```
-git checkout fixes-to-pr-1234 upstream/pr/1234
-git push origin
-```
-
-The less easy way to do this is described at [GitHub][gh-pr-refs].
-
-All this lets you check out someone else's pull request (PR), make
-changes, and publish to your own branch on your own fork. This will, in
-turn, allow you to help out on other people's PRs with fixes or
-additions.
-
-## Keep in sync
-
-You pretty much **never** want to commit to master directly. Always make
-changes in a branch, and then merge those changes. This makes it easy to
-keep in sync with upstream and never lose any local changes.
-
-### Sync to upstream/master
-
-Couldn't be easier.
-
-```
-git checkout master
-git fetch upstream
-git push origin
-```
-
-This also will work for keeping pull requests in sync with master, but
-unless you're running into merge conflicts, you shouldn't need to do
-this often. When you do end up resolving merge conflicts, you'll want
-to use `--force` when pushing the re-synced branch, since your commit
-history will be different after the rebase.
-
-<blockquote>
-Force pushing is **never** okay for rapid7/master, but for in-progress
-branches, lying a little about the history isn't a federal crime.
-</blockquote>
-
-### Msftidy
-
-In order to lint-check any new modules you're writing, you'll want a
-pre-commit and a post-merge hook to run our lint-checker, `msftidy.rb`.
-So, symlink like so:
-
-```
-cd $HOME/git/metasploit-framework
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
 ```
 
+## Install Ruby
 
-### Naming yourself
+Linux distributions do not ship with the latest Ruby, nor are package managers routinely updated.  Additionally, if you are working with multiple Ruby projects, each one has dependencies and Ruby versions which can start to conflict.  For these reasons, it is advisable  to use a Ruby manager.
 
-Finally, if you ever want to contribute to Metasploit, you need to
-configure at least your username and e-mail address, like so:
+You could just install Ruby directly (eg. `sudo apt install ruby-dev`), but you may likely end up with the incorrect version and no way to update.  Instead, consider using one of the many different [Ruby environment managers] available.  The Metasploit team prefers [rbenv] and [rvm].
 
-```
-git config --global user.name   "YOUR_USERNAME_FOR_REAL_LIFE"
-git config --global user.email  "YOUR_USERNAME_FOR_EMAIL"
-git config --global github.user "YOUR_USERNAME_FOR_GITHUB"
-```
-
-Your e-mail address must match your GitHub-registered e-mail.
-
-### Signing commits
-
-We love signing commits, mainly because we're [terrified of the
-alternative][git-horror]. The procedure is [detailed
-here][signing-howto]. Note that the name and e-mail address must match
-the information on the signing key exactly. Contributors are encouraged
-to sign commits, while Metasploit committers are required to sign their
-merge commits when they [land pull requests][landing-prs].
-
-# Handy Aliases
-
-No development environment setup would be complete without a few handy
-aliases to make your life easier.
-
-## Override installed `msfconsole`
-
-As the development user, you might accidentally try to use the installed
-Metasploit `msfconsole`. This won't work for a variety of reasons around
-how RVM handles different ruby versions and gemsets. So, create this
-alias:
+Regardless of your choice, you'll want to make sure that, when inside the `~/git/metasploit-framework` directory, you are running the correct version of Ruby:
 
 ```
+$ cd ~/git/metasploit-framework
+$ cat .ruby-version 
+2.5.3
+$ ruby -v
+ruby 2.5.3p105 (2018-10-18 revision 65156) [x86_64-linux-gnu]
+```
+
+Note: the Ruby version is likely to change over time, so don't rely on the output in the above example.  Instead, confirm your `ruby -v` output with the version number listed in the `.ruby-version` file.
+
+If the two versions don't match, restart your terminal. If that does not work, consult the troubleshooting documentation for your Ruby environment manager.  Unfortunately, troubleshooting the Ruby environment is beyond the scope of this document, but feel free to reach out for community support using the links at the bottom of this document.
+
+
+## Install Gems
+
+1. Before you run Metasploit, you will need to update the gems (Ruby libraries) that Metasploit depends on:
+
+```
+cd ~/git/metasploit-framework/
+gem install bundler
+bundle install
+```
+
+2. If you encounter an error with the above command, refer to the `bundle` output and search for the error message along with the name of the gem that failed. Likely, you'll need to `apt get install` a dependency that is required by that particular gem.  If it was something else, open a [new issue] to let us know what happened.
+
+Congratulations! You have now set up a development environment and the latest version of Metasploit.
+
+
+## Optional: Setup the REST API and PostgreSQL database
+
+<details><summary>The following optional section describes how to manually install PostgreSQL and setup the Metasploit database.  Alternatively, use our Omnibus installer which handles this more reliably.  Click to expand.</summary>
+
+1. Confirm that the PostgreSQL server and client are installed:
+
+```bash
+sudo apt update && sudo apt-get install -y postgresql postgresql-client
+sudo service postgresql start && sudo update-rc.d postgresql enable
+```
+
+2. Ensure that you are not running as the root user.
+
+3. Initialize the Metasploit database:
+
+```bash
+cd ~/git/metasploit-framework
+./msfdb init
+```
+
+4. If you receive an error about a component not being installed, confirm that the binaries shown are in your path using the [which] and [find] commands, then modifying your [$PATH] environment variable.  If it was something else, open a [new issue] to let us know what happened.
+
+5. If the `msfdb init` command succeeds, then confirm that the database is accessible to Metasploit:
+
+```bash
+$ ./msfconsole -qx "db_status; exit"
+```
+
+Congratulations! You have now set up the [Metasploit Web Service (REST API)][msf-web-service] and backend database.
+
+</details>
+
+## Optional: Tips to speed up common workflows
+
+<details><summary>The following section is optional but may improve your efficiency.  Click to expand.</summary>
+
+- Making sure you're in the right directory to run `msfconsole` can become tedious, so consider using the following Bash alias:
+
+```bash
 echo 'alias msfconsole="pushd $HOME/git/metasploit-framework && ./msfconsole && popd"' >> ~/.bash_aliases
 ```
 
-If you're looking to use both installed and development versions,
-different user accounts are the best way to go.
+ - Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [how][signing-howto].
 
-## Prompt with current Ruby/Gemset/Branch
-
-This is super handy to keep track of where you're at. Drop it in your
-`~/.bash_aliases`.
-
-```bash
-function git-current-branch {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1) /'
-}
-export PS1="[ruby-\$(~/.rvm/bin/rvm-prompt v p g)]\$(git-current-branch)\n$PS1"
-```
-
-## Git aliases
-
-Git has its own way of handling aliases -- either in `$HOME/.gitconfig`
-or `repo-name/.git/config` -- seperate from regular shell aliases. Below
-are some of the handier ones.
+ - Developers tend to customize their own [git aliases] to speed up common commands, but here are a few common ones:
 
 ```rc
 [alias]
@@ -505,43 +163,73 @@ c = commit -S --edit
 
 # Shorthand to always blame (praise) without looking at whitespace changes
 b= blame -w
-
-# Spin up a quick temp branch, because git stash is too spooky.
-temp = !"git branch -D temp; git checkout -b temp"
-
-# Create a pull request in a web browser from the CLI. Usage: $1 is HISNAME, $2 is HISBRANCH
-# Fixes from @kernelsmith, thanks!
-pr-url =!"xdg-open https://github.com/$(git config github.user)/$(basename $(git rev-parse --show-toplevel))/pull/new/$1:$2...$(git branch-current) #"
 ```
 
-That's it! It's still on you to set up your [aliases](#handy-aliases)
-and PGP key for [signing commits](#signing-commits) if you ever care to
-land pull requests, but other than that, you're good to go.
+ - If you plan on working with other contributor's pull requests, you may run the following script which makes it easier to do so:
 
-Again, if there are any errors, omissions, or better ways to do any of
-these things, by all means, open an [issue][issues] and we'll see about
-updating this HOWTO.
+```
+tools/dev/add_pr_fetch.rb
+```
 
-Thanks especially to [@kernelsmith](https://github.com/kernelsmith) and
-[@corelanc0d3r](https://github.com/corelanc0d3r) for their invaluable
-help and feedback on this dev environment documentation guide.
+  After running the above script, you can `checkout` other pull requests more easily:
 
-[2fa]:https://help.github.com/articles/about-two-factor-authentication/
-[Bundler]:http://bundler.io/
-[cloning]:https://help.github.com/articles/fork-a-repo/#step-2-create-a-local-clone-of-your-fork
-[contribute]:http://r-7.co/MSF-CONTRIB
-[dont-pipe]:http://www.seancassidy.me/dont-pipe-to-your-shell.html
-[ffmike-gist]: https://gist.github.com/ffmike/877447
-[forking]:https://help.github.com/articles/fork-a-repo/
+```
+git fetch upstream
+git checkout fixes-to-pr-12345 upstream/pr/12345
+```
+
+ - If you're writing test cases (which you should), then make sure [rspec] works:
+
+```bash
+rake spec
+```
+
+You should see over 9000 tests run, mostly resulting in green dots, a few in yellow stars, and no red errors.
+
+</details>
+ 
+# Great!  Now what?
+
+We're excited to see your upcoming contributions of new modules, documentation, and fixes!  Check out our [wiki documentation][wiki-documentation] and, if you're looking for inspiration, keep an eye out for [newbie-friendly pull requests and issues][newbie-friendly-prs-issues].   Please [submit your new pull requests][howto-PR] and reach out to us on [Slack] for community help.
+
+Finally, we welcome your feedback on this guide, so feel free to reach out to us on [Slack] or open a [new issue].  For their significant contributions to this guide, we would like to thank [@kernelsmith], [@corelanc0d3r], and [@ffmike].
+
+[commercial-installer]:http://metasploit.com/download
+[open-source-installer]:https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers
+[kali-user-instructions]:https://docs.kali.org/general-use/starting-metasploit-framework-in-kali
+[parrot-user-instructions]:https://docs.parrotsec.org/doku.php/metasploit-framework#start-metasploit
+[CONTRIBUTING.md]:https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md
+
+[Ubuntu]:https://www.ubuntu.com/download/desktop
+[Kali]:https://www.kali.org/downloads/
+[Parrot]:https://www.parrotsec.org/download-security.php
 [ssh-key]:https://help.github.com/articles/generating-ssh-keys/
-[gh-pr-refs]:https://help.github.com/articles/checking-out-pull-requests-locally/
-[gitconfig]:https://github.com/todb-r7/junkdrawer/blob/master/dotfiles/git-repos/gitconfig
-[git-horror]:http://mikegerwitz.com/papers/git-horror-story
-[issues]:https://github.com/rapid7/metasploit-framework/issues
-[kali-sources]: http://docs.kali.org/general-use/kali-linux-sources-list-repositories
-[landing-prs]:https://github.com/rapid7/metasploit-framework/wiki/Landing-Pull-Requests
-[metasploit-committer]:https://github.com/rapid7/metasploit-framework/wiki/Committer-Rights
-[mirrorlist]:http://http.kali.org/README.mirrorlist
-[rbenv]:https://github.com/sstephenson/rbenv#installation
+[github-bootcamp]:https://help.github.com/articles/set-up-git/
+
+[metasploit-framework]:https://github.com/rapid7/metasploit-framework/
+[github-ssh-instructions]:https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/
+[msftidy]:https://www.oreilly.com/library/view/metasploit-revealed-secrets/9781788624596/91660ab9-a260-4de8-a4ea-c1af64eafbec.xhtml
+
+[Ruby environment managers]:https://www.ruby-lang.org/en/documentation/installation/#managers
+[rvm]:https://github.com/rvm/ubuntu_rvm#install
+[rbenv]:https://github.com/rbenv/rbenv#basic-github-checkout
+
+[which]:https://linux.die.net/man/1/which
+[find]:https://linux.die.net/man/1/find
+[$PATH]:https://askubuntu.com/questions/109381/how-to-add-path-of-a-program-to-path-environment-variable
+
+[web-service]:https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service
+
+[git-horror]:https://mikegerwitz.com/papers/git-horror-story#trust-ensure
 [signing-howto]:https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys#signing-howto
-[todb]:https://github.com/todb-r7
+
+[git aliases]:https://git-scm.com/book/en/v2/Git-Basics-Git-Aliases
+[rspec]:https://www.rubyguides.com/2018/07/rspec-tutorial/
+[wiki-documentation]:https://github.com/rapid7/metasploit-framework/wiki#metasploit-development
+[newbie-friendly-prs-issues]:https://github.com/rapid7/metasploit-framework/issues?q=is%3Aopen+label%3Anewbie-friendly
+[howto-PR]:https://help.github.com/articles/about-pull-requests/
+[new issue]:https://github.com/rapid7/metasploit-framework/issues/new
+[Slack]:https://www.metasploit.com/slack
+[@kernelsmith]:https://github.com/kernelsmith
+[@corelanc0d3r]:https://github.com/corelanc0d3r
+[@ffmike]:https://github.com/ffmike
