@@ -5,8 +5,10 @@ module Msf::DBManager::Event
 
   # Retrieves events that are stored in the database.
   #
-  # @param opts [Hash] Hash containing query options.
+  # @param opts [Hash] Hash containing query key-value pairs based on the event model.
   # @option opts :id [Integer] A specific event ID. If specified, all other options are ignored.
+  #
+  # Additional query options:
   # @option opts :workspace [String] The workspace from which the data should be gathered from. (Required)
   # @option opts :order [Symbol|String] The event created_at sort order.
   #   Valid values: :asc, :desc, 'asc' or 'desc'. Default: :desc
