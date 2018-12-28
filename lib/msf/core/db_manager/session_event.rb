@@ -5,7 +5,7 @@ module Msf::DBManager::SessionEvent
 
   # Retrieves session events that are stored in the database.
   #
-  # @param opts [Hash] Hash containing query key-value pairs based on the session events model.
+  # @param opts [Hash] Hash containing query key-value pairs based on the session event model.
   # @option opts :id [Integer] A specific session event ID. If specified, all other options are ignored.
   #
   # Additional query options:
@@ -17,7 +17,7 @@ module Msf::DBManager::SessionEvent
   #   of the set. Default: 0
   # @option opts :search_term [String] Search regular expression used to filter results.
   #   All fields are converted to strings and results are returned if the pattern is matched.
-  # @return [Array<Mdm::SessionEvent>] session events that are matched.
+  # @return [Array<Mdm::SessionEvent>|Mdm::SessionEvent::ActiveRecord_Relation] session events that are matched.
   def session_events(opts)
     ::ActiveRecord::Base.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
