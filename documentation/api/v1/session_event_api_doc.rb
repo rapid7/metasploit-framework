@@ -12,6 +12,10 @@ module SessionEventApiDoc
   LOCAL_PATH_EXAMPLE = '/path/to/file'
   REMOTE_PATH_DESC = 'Path to the associated file for upload, download, and filedelete events.'
   REMOTE_PATH_EXAMPLE = '/path/to/file'
+  ORDER_ENUM = [
+      'asc',
+      'desc'
+  ]
 
 # Swagger documentation for session events model
   swagger_schema :SessionEvent do
@@ -31,6 +35,35 @@ module SessionEventApiDoc
     operation :get do
       key :description, 'Return session events that are stored in the database.'
       key :tags, [ 'session_event' ]
+
+      parameter do
+        key :name, :limit
+        key :in, :query
+        key :description, 'The maximum number of session events that will be retrieved from the query. (Default: 100)'
+        key :example, 100
+        key :type, :integer
+        key :format, :int32
+        key :required, false
+      end
+
+      parameter do
+        key :name, :offset
+        key :in, :query
+        key :description, 'The number of session events the query will begin reading from the start of the set. (Default: 0)'
+        key :example, 0
+        key :type, :integer
+        key :format, :int32
+        key :required, false
+      end
+
+      parameter do
+        key :name, :order
+        key :in, :query
+        key :description, 'The session event created_at sort order. (Default: desc)'
+        key :type, :string
+        key :required, false
+        key :enum, ORDER_ENUM
+      end
 
       response 200 do
         key :description, 'Returns session event data.'
