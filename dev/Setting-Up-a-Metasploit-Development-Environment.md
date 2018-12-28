@@ -1,5 +1,3 @@
-# Setting Up a Metasploit Development Environment
-
 <sup>*The shortlink to this wiki page is https://r-7.co/MSF-DEV*</sup>
 
 This is a guide for setting up a developer environment to contribute modules, documentation, and fixes to the Metasploit Framework. If you just want to use Metasploit for legal, authorized hacking, we recommend instead you:
