@@ -92,7 +92,7 @@ module SessionEventApiDoc
       end
     end
 
-    # Swagger documentation for /api/v1/session events POST
+    # Swagger documentation for /api/v1/session-events events POST
     operation :post do
       key :description, 'Create a session events entry.'
       key :tags, [ 'session_event' ]
@@ -138,15 +138,15 @@ module SessionEventApiDoc
   end
 
   swagger_path '/api/v1/session-events/{id}' do
-    # Swagger documentation for api/v1/session-events/:id GET
+    # Swagger documentation for /api/v1/session-events/:id GET
     operation :get do
-      key :description, 'Return a specific session_event that is stored in the database.'
+      key :description, 'Return a specific session event that is stored in the database.'
       key :tags, [ 'session_event' ]
 
       parameter do
         key :name, :id
         key :in, :path
-        key :description, 'ID of session_event to retrieve.'
+        key :description, 'ID of session event to retrieve.'
         key :required, true
         key :type, :integer
         key :format, :int32
