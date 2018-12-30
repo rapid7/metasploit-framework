@@ -6,7 +6,7 @@ Uses [Headless Chrome](https://developers.google.com/web/updates/2017/04/headles
 
 This writes to disk temporarily. You may want to consider the tradeoff between getting the user's Chrome cookies and the noisiness of writing to disk.
 
-The module writes a random 10-15 character file containing HTML to a directory you can specify via `TEMP_STORAGE_DIR`.
+The module writes a random 10-15 character file containing HTML to a directory you can specify via `WRITABLE_DIR`.
 
 ## Vulnerable Application
 
@@ -29,7 +29,7 @@ Chrome does not need to be running on the target machine for this module to work
 
   The path to the user's Chrome binary. On Linux this defaults to searching for `google-chrome` in `$PATH`. On macOS, this defaults to `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'`. If the module doesn't find any cookies, it may be that a different Chrome binary to the one the user normally uses is being run. In that case, you can change the Chrome binary executed with this option.
 
-  **TEMP_STORAGE_DIR**
+  **WRITABLE_DIR**
 
   Directory used to write temporary files.
 
@@ -58,7 +58,7 @@ Module options (post/multi/gather/chrome_cookies):
    CHROME_BINARY_PATH                      no        The path to the user's Chrome binary (leave blank to use the default for the OS)
    REMOTE_DEBUGGING_PORT  9222             no        Port on target machine to use for remote debugging protocol
    SESSION                1                yes       The session to run this module on.
-   TEMP_STORAGE_DIR       /tmp             no        Where to write the html used to steal cookies temporarily
+   WRITABLE_DIR       /tmp             no        Where to write the html used to steal cookies temporarily
 
 msf post(multi/gather/chrome_cookies) > set session <your session id>
 session => <your session id>

