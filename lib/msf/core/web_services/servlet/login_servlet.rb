@@ -25,7 +25,7 @@ module LoginServlet
         sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.logins(sanitized_params)
         data = data.first if is_single_object?(data, sanitized_params)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error retrieving logins:', code: 500)
       end
@@ -38,8 +38,8 @@ module LoginServlet
         opts = parse_json_request(request, false)
         opts[:core][:workspace] = get_db.workspaces(id: opts[:workspace_id]).first
         opts[:core] = get_db.creds(opts[:core]).first
-        response = get_db.create_credential_login(opts)
-        set_json_response(response)
+        data = get_db.create_credential_login(opts)
+        set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error creating the login:', code: 500)
       end
@@ -53,7 +53,7 @@ module LoginServlet
         tmp_params = sanitize_params(params)
         opts[:id] = tmp_params[:id] if tmp_params[:id]
         data = get_db.update_login(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error updating the login:', code: 500)
       end
@@ -65,7 +65,7 @@ module LoginServlet
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_logins(opts)
-        set_json_response(data)
+        set_json_data_response(response: data)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error deleting the logins:', code: 500)
       end
