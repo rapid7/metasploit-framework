@@ -9,7 +9,7 @@ module LoginServlet
   end
 
   def self.registered(app)
-    app.get LoginServlet.api_path, &get_logins
+    app.get LoginServlet.api_path_with_id, &get_logins
     app.post LoginServlet.api_path, &create_login
     app.put LoginServlet.api_path_with_id, &update_login
     app.delete LoginServlet.api_path, &delete_logins
