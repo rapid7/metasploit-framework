@@ -527,6 +527,7 @@ class Console::CommandDispatcher::Android
         dest = val
       when '-t'
         body = val
+        body.gsub!('\n',"\n")
       when '-r'
         dr = true
       end
