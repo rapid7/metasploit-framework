@@ -78,7 +78,7 @@ class FileStat
     # Windows can also return _stat32, _stat32i64, _stat64i32, and _stat64 structures
 
     skeys = %W{st_dev st_ino st_mode st_wtf st_nlink st_uid st_gid st_rdev st_size st_ctime st_atime st_mtime}
-    svals = buf.unpack("VvvvvvvVVVVV")
+    svals = buf.unpack("VvvvvvvVQVVV")
     skeys.each_index do |i|
       self.stathash[ skeys[i] ] = svals[i]
     end
