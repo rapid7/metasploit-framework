@@ -85,6 +85,18 @@ class FileStat
   end
 
   #
+  # This handles the old 32bit st_size buf from old stageless meterpreters for backwards compatibility
+  # Maybe we can remove this in the future
+  #
+  def update32(buf)
+    skeys = %W{st_dev st_ino st_mode st_wtf st_nlink st_uid st_gid st_rdev st_size st_ctime st_atime st_mtime}
+    svals = buf.unpack("VvvvvvvVVVVV")
+    skeys.each_index do |i|
+      self.stathash[ skeys[i] ] = svals[i]
+    end
+  end
+
+  #
   # S_IFMT     0170000   bitmask for the file type bitfields
   # S_IFSOCK   0140000   socket
   # S_IFLNK    0120000   symbolic link

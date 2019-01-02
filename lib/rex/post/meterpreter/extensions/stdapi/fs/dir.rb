@@ -73,7 +73,8 @@ class Dir < Rex::Post::Dir
   #
   def Dir.entries_with_info(name = getwd)
     request = Packet.create_request('stdapi_fs_ls')
-    files   = []
+    files = []
+    sbuf = nil
     new_stat_buf = true
 
     request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode(name))
@@ -83,9 +84,10 @@ class Dir < Rex::Post::Dir
     fname = response.get_tlvs(TLV_TYPE_FILE_NAME)
     fsname = response.get_tlvs(TLV_TYPE_FILE_SHORT_NAME)
     fpath = response.get_tlvs(TLV_TYPE_FILE_PATH)
-    sbuf  = response.get_tlvs(TLV_TYPE_STAT_BUF)
 
-    unless sbuf
+    if response.has_tlv?(TLV_TYPE_STAT_BUF)
+      sbuf = response.get_tlvs(TLV_TYPE_STAT_BUF)
+    else
       sbuf = response.get_tlvs(TLV_TYPE_STAT_BUF32)
       new_stat_buf = false
     end
@@ -125,6 +127,7 @@ class Dir < Rex::Post::Dir
   def Dir.match(name, dir = false)
     path  = name + '*'
     files = []
+    sbuf = nil
     new_stat_buf = true
 
     request = Packet.create_request('stdapi_fs_ls')
@@ -132,9 +135,10 @@ class Dir < Rex::Post::Dir
     response = client.send_request(request)
 
     fpath = response.get_tlvs(TLV_TYPE_FILE_PATH)
-    sbuf  = response.get_tlvs(TLV_TYPE_STAT_BUF)
 
-    unless sbuf
+    if response.has_tlv?(TLV_TYPE_STAT_BUF)
+      sbuf = response.get_tlvs(TLV_TYPE_STAT_BUF)
+    else
       sbuf = response.get_tlvs(TLV_TYPE_STAT_BUF32)
       new_stat_buf = false
     end
