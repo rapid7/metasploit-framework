@@ -4,11 +4,16 @@ module Msf::DBManager::Ref
   #
   def find_or_create_ref(opts)
     ret = {}
-    ret[:ref] = get_ref(opts[:name])
-    ret[:ref] = Mdm::Ref.find_by_id(opts[:id]) if opts[:id]
-    return ret[:ref] if ret[:ref]
 
   ::ActiveRecord::Base.connection_pool.with_connection {
+    if opts[:id] && !opts[:id].to_s.empty?
+      return Array.wrap(Mdm::Ref.find(opts[:id]))
+    end
+
+    if opts[:ref]
+      return Array.wrap(get_ref(opts[:name]))
+    end
+
     ref = ::Mdm::Ref.where(name: opts[:name]).first_or_initialize
 
     begin
@@ -21,7 +26,7 @@ module Msf::DBManager::Ref
     if ref and ref.changed?
       ref.save!
     end
-    ret[:ref] = ref
+    Array.wrap(ref)
   }
   end
 
