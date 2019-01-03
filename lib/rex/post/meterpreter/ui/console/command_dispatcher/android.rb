@@ -527,6 +527,7 @@ class Console::CommandDispatcher::Android
         dest = val
       when '-t'
         body = val
+        # Replace \n with a newline character to allow multi-line messages
         body.gsub!('\n',"\n")
       when '-r'
         dr = true
