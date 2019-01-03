@@ -241,8 +241,7 @@ module Msf::DBManager::Host
       host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
       # Set default fields if needed
-      host.state = Msf::HostState::Alive unless host.state
-      host.state = nil if host.state.empty?
+      host.state = Msf::HostState::Alive if host.state.nil? || host.state.empty?
       host.comm = '' unless host.comm
       host.workspace = wspace unless host.workspace
 
