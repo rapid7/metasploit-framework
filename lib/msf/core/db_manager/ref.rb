@@ -7,11 +7,11 @@ module Msf::DBManager::Ref
 
   ::ActiveRecord::Base.connection_pool.with_connection {
     if opts[:id] && !opts[:id].to_s.empty?
-      return Array.wrap(Mdm::Ref.find(opts[:id]))
+      return Mdm::Ref.find(opts[:id])
     end
 
     if opts[:ref]
-      return Array.wrap(get_ref(opts[:name]))
+      return get_ref(opts[:name])
     end
 
     ref = ::Mdm::Ref.where(name: opts[:name]).first_or_initialize
@@ -26,7 +26,7 @@ module Msf::DBManager::Ref
     if ref and ref.changed?
       ref.save!
     end
-    Array.wrap(ref)
+    ref
   }
   end
 
