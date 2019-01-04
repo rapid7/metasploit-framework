@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (4.17.34)
+    metasploit-framework (4.17.35)
       actionpack (~> 4.2.6)
       activerecord (~> 4.2.6)
       activesupport (~> 4.2.6)
@@ -179,10 +179,10 @@ GEM
     msgpack (1.2.4)
     multipart-post (2.0.0)
     nessus_rest (0.1.6)
-    net-ssh (5.0.2)
+    net-ssh (5.1.0)
     network_interface (0.0.2)
     nexpose (7.2.1)
-    nokogiri (1.9.1)
+    nokogiri (1.10.0)
       mini_portile2 (~> 2.4.0)
     octokit (4.13.0)
       sawyer (~> 0.8.0, >= 0.5.3)
@@ -226,7 +226,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (12.3.2)
     rb-readline (0.5.5)
-    recog (2.1.40)
+    recog (2.1.42)
       nokogiri
     redcarpet (3.4.0)
     rex-arch (0.1.13)
@@ -323,7 +323,7 @@ GEM
     ttfunk (1.5.1)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2018.7)
+    tzinfo-data (1.2018.9)
       tzinfo (>= 1.0.0)
     windows_error (0.1.2)
     xdr (2.0.0)
