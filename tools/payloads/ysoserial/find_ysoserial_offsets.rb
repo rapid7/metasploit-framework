@@ -1,7 +1,4 @@
 #!/usr/bin/env ruby
-# encoding: binary
-
-#TODO: Remove previous line?
 
 require 'diff-lcs'
 require 'json'
@@ -12,14 +9,40 @@ YSOSERIAL_RANDOMIZED_HEADER = "ysoserial/Pwner"
 PAYLOAD_TEST_MIN_LENGTH = 4
 PAYLOAD_TEST_MAX_LENGTH = 5
 
+#ARGV parsing
+if ARGV.include?("-h")
+  puts "ysoserial object template generator"
+  puts
+  puts "Usage:"
+  puts "  -h          Help"
+  puts "  -d          Debug mode (output offset information only)"
+  puts "  -m [type]   Use 'ysoserial-modified' with the specified payload type"
+  puts
+  abort
+end
+
+DEBUG=ARGV.include?("-d")
+YSOSERIAL_MODIFIED=ARGV.include?("-m")
+if YSOSERIAL_MODIFIED
+  PAYLOAD_TYPE=ARGV[ARGV.find_index("-m")+1]
+  unless ["cmd","bash","powershell","none"].include?(PAYLOAD_TYPE)
+    STDERR.puts "ERROR: Invalid payload type specified"
+    abort
+  end
+end
+
 def generatePayload(payloadName,searchStringLength)
-  program = "ysoserial-original.jar"
-  #STDERR.puts " Generating #{payloadName} with length #{searchStringLength} using #{program}"
+  #STDERR.puts " Generating #{payloadName} with length #{searchStringLength} using #{YSOSERIAL_BINARY}"
 
   # Generate a string of specified length and embed it into an ASCII-encoded ysoserial payload
   searchString = 'A'*searchStringLength
-  #STDERR.puts "  Calling java -jar #{program} #{payloadName} '#{searchString}'"
-  stdout, stderr, status = Open3.capture3('java', '-jar', program.to_s, payloadName.to_s, searchString.to_s)
+
+  # Build the command line with ysoserial parameters
+  if YSOSERIAL_MODIFIED
+    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-modified.jar',payloadName.to_s,PAYLOAD_TYPE.to_s,searchString.to_s)
+  else
+    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-original.jar',payloadName.to_s,searchString.to_s)
+  end
 
   payload = stdout
   payload.force_encoding("binary")
@@ -28,19 +51,19 @@ def generatePayload(payloadName,searchStringLength)
     # Pipe errors out to the console
     STDERR.puts stderr.split("\n").each {|i| i.prepend("    ")}
   elsif stderr.include?"java.lang.IllegalArgumentException"
-    #STDERR.puts "  WARNING: '#{payloadName}' with #{program} requires complex args and may not be supported"
+    #STDERR.puts "  WARNING: '#{payloadName}' requires complex args and may not be supported"
     return nil
   elsif stderr.include?"Error while generating or serializing payload"
-    #STDERR.puts "  WARNING: '#{payloadName}' with #{program} errored and may not be supported"
+    #STDERR.puts "  WARNING: '#{payloadName}' errored and may not be supported"
     return nil
   elsif stdout == "\xac\xed\x00\x05\x70"
-    #STDERR.puts "  WARNING: '#{payloadName}' with #{program} returned null and may not be supported"
+    #STDERR.puts "  WARNING: '#{payloadName}' returned null and may not be supported"
     return nil
   else
-    #STDERR.puts "  Successfully generated #{payloadName} using #{program}"
+    #STDERR.puts "  Successfully generated #{payloadName} using #{YSOSERIAL_BINARY}"
 
     # Strip out the semi-randomized ysoserial string and trailing newline
-    payload.gsub!(/#{YSOSERIAL_RANDOMIZED_HEADER}[[:digit:]]+/, 'ysoserial/Pwner00000000000000')
+    payload.gsub!(/#{YSOSERIAL_RANDOMIZED_HEADER}[[:digit:]]+/, 'ysoserial/Pwner000000000000000')
     return payload
   end
 end
@@ -60,7 +83,6 @@ def isLengthOffset?(currByte,nextByte)
   # If this byte has been changed, and is different by one, then it must be a length value
   if nextByte and currByte.position == nextByte.position and currByte.action == "-"
     if nextByte.element.ord - currByte.element.ord == 1
-      #STDERR.puts "Found a length offset at #{currByte.position}"
       return true
     end
   end
@@ -70,7 +92,6 @@ end
 def isBufferOffset?(currByte,nextByte)
   # If this byte has been inserted, then it must be part of the increasingly large payload buffer
   if (currByte.action == "+" and (nextByte.nil? or (currByte.position != nextByte.position)))
-    #STDERR.puts "Found a buffer offset at #{currByte.position}"
     return true
   end
   return false
@@ -100,8 +121,8 @@ def getPayloadList
   payloads = payloads.drop(5)
 
   payloadList = []
-  # Skip the header rows
   payloads.each do |line|
+    # Skip the header rows
     next unless line.start_with?"     "
     payloadList.push(line.scan(/^     ([^ ]*) .*/).first.last)
   end
@@ -123,8 +144,8 @@ payloadList.each do |payload|
 
   payloadArray = generatePayloadArray(payload)
 
-  lengthOffset = []
-  bufferOffset = []
+  lengthOffsets = []
+  bufferOffsets = []
 
   # Comparing diffs of various payload lengths to find length and buffer offsets
   (PAYLOAD_TEST_MIN_LENGTH..PAYLOAD_TEST_MAX_LENGTH).each do |i|
@@ -145,14 +166,24 @@ payloadList.each do |payload|
       end
 
       # Compare this byte and the following byte to identify length and buffer offsets
-      lengthOffset.push(currByte.position) if isLengthOffset?(currByte,nextByte)
-      bufferOffset.push(currByte.position) if isBufferOffset?(currByte,nextByte)
+      lengthOffsets.push(currByte.position) if isLengthOffset?(currByte,nextByte)
+      bufferOffsets.push(currByte.position) if isBufferOffset?(currByte,nextByte)
     end
   end
 
+  if DEBUG
+    for lengthOffset in lengthOffsets
+      STDERR.puts "  LENGTH OFFSET #{lengthOffset} = 0x#{emptyPayload[lengthOffset-1].ord.to_s(16)} #{emptyPayload[lengthOffset].ord.to_s(16)}"
+    end
+    for bufferOffset in bufferOffsets
+      STDERR.puts "  BUFFER OFFSET #{bufferOffset}"
+    end
+    STDERR.puts "  PAYLOAD LENGTH: #{emptyPayload.length}"
+  end
+
   payloadBytes = Base64.strict_encode64(emptyPayload).gsub(/\n/,"")
-  if bufferOffset.length > 0
-    results[payload]={"status": "dynamic", "lengthOffset": lengthOffset.uniq, "bufferOffset": bufferOffset.uniq, "bytes": payloadBytes }
+  if bufferOffsets.length > 0
+    results[payload]={"status": "dynamic", "lengthOffset": lengthOffsets.uniq, "bufferOffset": bufferOffsets.uniq, "bytes": payloadBytes }
   else
     #TODO: Turns out ysoserial doesn't have any static payloads.  Consider removing this.
     results[payload]={"status": "static", "bytes": payloadBytes }
@@ -174,6 +205,8 @@ results.each do |k,v|
   end
 end
 
-puts JSON.generate(results)
+unless DEBUG
+  puts JSON.generate(results)
+end
 
 STDERR.puts "DONE!  Successfully generated #{payloadCount['static']} static payloads and #{payloadCount['dynamic']} dynamic payloads.  Skipped #{payloadCount['skipped']} unsupported payloads."
