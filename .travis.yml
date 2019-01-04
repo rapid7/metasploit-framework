@@ -41,7 +41,8 @@ before_install:
   - ls -la ./.git/hooks
   - ./.git/hooks/post-merge
   # Update the bundler
-  - gem install bundler -v 1.17.3 
+  - gem update --system
+  - gem install bundler
 before_script:
   - cp config/database.yml.travis config/database.yml
   - bundle exec rake --version
