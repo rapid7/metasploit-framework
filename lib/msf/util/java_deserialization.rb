@@ -53,7 +53,8 @@ class JavaDeserialization
       end
 
       # Replace "ysoserial\/Pwner" timestamp string with randomness for evasion
-      bytes.gsub!(/ysoserial\/Pwner00000000000000/, Rex::Text.rand_text_alphanumeric(29))
+      bytes.gsub!(/ysoserial\/Pwner000000000000000/, Rex::Text.rand_text_alphanumeric(30))
+
       return bytes
     else 
       raise RuntimeError, "Malformed JSON file"
