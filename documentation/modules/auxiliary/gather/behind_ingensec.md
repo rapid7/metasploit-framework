@@ -56,7 +56,7 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
 
   **THREADS**
 
-  Number of concurent threads needed for DNS enumeration. Default: 15
+  Number of concurent threads needed for DNS enumeration. Default: 8
 
   **URIPATH**
 
@@ -76,6 +76,10 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
 
   Specify the nameserver to use for queries. Default: is system DNS
 
+  **TIMEOUT**
+
+  HTTP(s) request timeout. Default: 15
+
   **VERBOSE**
 
   You can also enable the verbose mode to have more information displayed in the console.
@@ -87,40 +91,24 @@ This French security solution is (apparently) mainly deployed on the Reunion isl
   If successful, you must be able to obtain the IP address of the website as follows:
 
   ```
-  [*] Passive gathering information...
-  [*]  * PrePost SEO: 1 IP address found(s).
-  [*]  * DNS Enumeration: 13 IP address found(s).
-  [*]  * Censys IPv4: 4 IP address found(s).
-  [*] 
-  [*] Clean binarysec/ingensec server(s)...
-  [+]  * TOTAL: 12 IP address found(s) after cleaning.
-  [*] 
-  [*] Bypass BinarySec/IngenSec is in progress...
-  [*]  * Initial request to the original server for comparison
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-        --> responded with an unexpected HTTP status code: 403
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-        --> responded with an unexpected HTTP status code: 301
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-        --> responded with an unexpected HTTP status code: 404
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-        --> responded with an unexpected HTTP status code: 404
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-        --> responded with an unexpected HTTP status code: 404
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-        --> responded with an unexpected HTTP status code: 301
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-        --> responded with an unexpected HTTP status code: 301
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-  [+] A direct-connect IP address was found: XXX.XXX.XXX.XXX
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-  [*] Auxiliary module execution completed
+[*] Passive gathering information...
+[*]  * ViewDNS.info: 1 IP address found(s).
+[*]  * DNS Enumeration: 17 IP address found(s).
+[*]  * Censys IPv4: 0 IP address found(s).
+[*] 
+[*] Clean binarysec/ingensec server(s)...
+[+]  * TOTAL: 5 IP address found(s) after cleaning.
+[*] 
+[*] Bypass BinarySec/IngenSec is in progress...
+[*]  * Initial request to the original server for comparison
+[*]  * Trying: http://87.98.168.187:80/
+[*]  * Trying: https://87.98.168.187:443/
+[*]  * Trying: http://87.98.172.199:80/
+[*]  * Trying: http://87.98.159.4:80/
+      --> responded with an unexpected HTTP status code: 301
+[*]  * Trying: https://87.98.159.4:443/
+[-] No direct-connect IP address found :-(
+[*] Auxiliary module execution completed
   ```
 
   For example:

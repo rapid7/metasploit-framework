@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-# rev: 1.1.2
+# rev: 1.1.3
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('Proxies', [false, 'A proxy chain of format type:host:port[,type:host:port][...]']),
         OptInt.new('RPORT', [true, 'The target TCP port on which the protected website responds', 443]),
         OptBool.new('SSL', [true, 'Negotiate SSL/TLS for outgoing connections', true]),
-        OptInt.new('THREADS', [true, 'Threads for DNS enumeration', 15]),
+        OptInt.new('THREADS', [true, 'Threads for DNS enumeration', 8]),
         OptString.new('URIPATH', [true, 'The URI path on which to perform the page comparison', '/']),
         OptPath.new('WORDLIST', [true, 'Wordlist of subdomains', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')])
       ])
@@ -43,7 +43,8 @@ class MetasploitModule < Msf::Auxiliary
     register_advanced_options(
       [
         OptBool.new('DNSENUM', [true, 'Set DNS enumeration as optional', true]),
-        OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)'])
+        OptAddress.new('NS', [false, 'Specify the nameserver to use for queries (default is system DNS)']),
+        OptInt.new('TIMEOUT', [true, 'HTTP(s) request timeout', 15])
       ])
   end
 
@@ -190,7 +191,7 @@ class MetasploitModule < Msf::Auxiliary
   def do_simple_get_request_raw(host, port, ssl, host_header=nil, uri, proxies)
     begin
       http    = Rex::Proto::Http::Client.new(host, port, {}, ssl, nil, proxies)
-      http.connect
+      http.connect(datastore['TIMEOUT'])
 
       unless host_header.eql? nil
         http.set_config({ 'vhost' => host_header })
