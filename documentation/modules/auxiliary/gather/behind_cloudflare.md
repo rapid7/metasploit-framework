@@ -14,6 +14,19 @@ More precisely, it is an simple "cloudflair" implementation for metasploit-frame
 
 ## Options
 
+  **CENSYS_SECRET**
+
+  Your Censys API SECRET.
+
+  **CENSYS_UID**
+
+  Your Censys API UID.
+
+  **COMPSTR**
+
+  You can use a custom string to perform the comparison. Default: TITLE or HOSTNAME if it's empty.
+  The best way is always to use COMPSTR for a better result.
+
   **HOSTNAME**
 
   This is the hostname [fqdn] on which the website responds. But this can also be a domain.
@@ -21,6 +34,10 @@ More precisely, it is an simple "cloudflair" implementation for metasploit-frame
     msf auxiliary(gather/behind_cloudflare) > set hostname www.zataz.com
     --or--
     msf auxiliary(gather/behind_cloudflare) > set hostname discordapp.com
+
+  **Poxies**
+
+  A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
 
   **RPORT**
 
@@ -30,17 +47,13 @@ More precisely, it is an simple "cloudflair" implementation for metasploit-frame
 
   Negotiate SSL/TLS for outgoing connections. Default: true
 
+  **THREADS**
+
+  Number of concurent threads needed for DNS enumeration. Default: 8
+
   **URIPATH**
 
   The URI path on which to perform the page comparison. Default: '/'
-
-  **Poxies**
-
-  A proxy chain of format type:host:port[,type:host:port][...]. It's optional.
-
-  **THREADS**
-
-  Number of concurent threads needed for DNS enumeration. Default: 15
 
   **WORDLIST**
 
@@ -48,13 +61,17 @@ More precisely, it is an simple "cloudflair" implementation for metasploit-frame
 
 ## Advanced options
 
-  **COMPSTR**
+  **DNSENUM**
 
-  You can use a custom string to perform the comparison. Default: HOSTNAME if it's empty.
+  Set DNS enumeration as optional. Default: true
 
   **NS**
 
   Specify the nameserver to use for queries. Default: is system DNS
+
+  **TIMEOUT**
+
+  HTTP(s) request timeout. Default: 15
 
   **VERBOSE**
 
@@ -67,30 +84,25 @@ More precisely, it is an simple "cloudflair" implementation for metasploit-frame
   If successful, you must be able to obtain the IP(s) address of the website as follows:
 
   ```
-  msf auxiliary(gather/behind_cloudflare) > set verbose true
-  verbose => true
-  msf auxiliary(gather/behind_cloudflare) > run
+msf auxiliary(gather/behind_cloudflare) > set verbose true 
+verbose => true
+msf auxiliary(gather/behind_cloudflare) > run
 
-  [*] Passive gathering information...
-  [*]  * PrePost SEO: 3 IP address found(s).
-  [*]  * DNS Enumeration: 12 IP address found(s).
-  [*] Clean cloudflare server(s)...
-  [+]  * TOTAL: 13 IP address found(s) after cleaning.
-  [*] 
-  [*] Bypass cloudflare is in progress...
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-  [+] A direct-connect IP address was found: XXX.XXX.XXX.XXX
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-        --> responded with an unexpected HTTP status code: 302
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-        --> responded with an unexpected HTTP status code: 301
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-        --> responded with an unexpected HTTP status code: 404
-  [*]  * Trying: XXX.XXX.XXX.XXX:80
-        --> responded with an unexpected HTTP status code: 302
-  [*]  * Trying: XXX.XXX.XXX.XXX:443
-        --> responded with an unexpected HTTP status code: 404
-  [*] Auxiliary module execution completed
+[*] Passive gathering information...
+[*]  * ViewDNS.info: 36 IP address found(s).
+[*]  * DNS Enumeration: 4 IP address found(s).
+[*]  * Censys IPv4: 2 IP address found(s).
+[*] 
+[*] Clean cloudflare server(s)...
+[+]  * TOTAL: 7 IP address found(s) after cleaning.
+[*] 
+[*] Bypass cloudflare is in progress...
+[*]  * Trying: http://XXX.XXX.XXX.XXX:80/
+      --> responded with an unexpected HTTP status code: 500
+[*]  * Trying: https://XXX.XXX.XXX.XXX:443/
+      --> responded with an unexpected HTTP status code: 500
+[-] No direct-connect IP address found :-(
+[*] Auxiliary module execution completed
   ```
 
   For example:
