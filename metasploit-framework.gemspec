@@ -182,6 +182,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rubyzip'
   # Needed for some post modules
   spec.add_runtime_dependency 'sqlite3'
+  # Needed for Microsoft SharePoint intraction
+  spec.add_runtime_dependency 'sharepoint-ruby',"0.0.2"
   # required for Time::TZInfo in ActiveSupport
   spec.add_runtime_dependency 'tzinfo'
   # Needed so that disk size output isn't horrible

