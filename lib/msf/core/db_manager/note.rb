@@ -200,7 +200,8 @@ module Msf::DBManager::Note
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      Mdm::Note.update(id, opts)
+      note = Mdm::Note.find(id)
+      note.update!(opts)
     }
   end
 

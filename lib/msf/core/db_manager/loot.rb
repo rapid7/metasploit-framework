@@ -102,7 +102,8 @@ module Msf::DBManager::Loot
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      Mdm::Loot.update(id, opts)
+      loot = Mdm::Loot.find(id)
+      loot.update!(opts)
     }
   end
 
