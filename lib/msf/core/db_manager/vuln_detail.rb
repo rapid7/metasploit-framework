@@ -26,7 +26,7 @@ module Msf::DBManager::VulnDetail
   ::ActiveRecord::Base.connection_pool.with_connection {
     criteria = details.delete(:key) || {}
     vuln_detail = ::Mdm::VulnDetail.find(key)
-    vuln_detail.update!(details)
+    vuln_detail.update!(criteria)
   }
   end
 end
