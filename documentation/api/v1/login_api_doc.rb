@@ -153,7 +153,7 @@ module LoginApiDoc
   end
 
   swagger_path '/api/v1/logins/{id}' do
-    # Swagger documentation for api/v1/logins/:id GET
+    # Swagger documentation for /api/v1/logins/:id GET
     operation :get do
       key :description, 'Return specific login that is stored in the database.'
       key :tags, [ 'login' ]

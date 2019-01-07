@@ -21,6 +21,7 @@ module LoginServlet
 
   def self.get_logins
     lambda {
+      warden.authenticate!
       begin
         sanitized_params = sanitize_params(params, env['rack.request.query_hash'])
         data = get_db.logins(sanitized_params)
@@ -34,6 +35,7 @@ module LoginServlet
 
   def self.create_login
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         opts[:core][:workspace] = get_db.workspaces(id: opts[:workspace_id]).first
@@ -48,6 +50,7 @@ module LoginServlet
 
   def self.update_login
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         tmp_params = sanitize_params(params)
@@ -62,6 +65,7 @@ module LoginServlet
 
   def self.delete_logins
     lambda {
+      warden.authenticate!
       begin
         opts = parse_json_request(request, false)
         data = get_db.delete_logins(opts)
