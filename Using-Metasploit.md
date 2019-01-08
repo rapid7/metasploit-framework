@@ -2,6 +2,7 @@ Start here:
 
 * http://www.offensive-security.com/metasploit-unleashed/Main_Page
 * https://metasploit.help.rapid7.com/docs/
+http://docs.kali.org/general-use/starting-metasploit-framework-in-kali
 * https://github.com/rapid7/metasploitable3
 * [[Evading Anti-Virus]]
 
