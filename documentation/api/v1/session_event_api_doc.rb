@@ -92,7 +92,7 @@ module SessionEventApiDoc
       end
     end
 
-    # Swagger documentation for /api/v1/session-events events POST
+    # Swagger documentation for /api/v1/session-events POST
     operation :post do
       key :description, 'Create a session events entry.'
       key :tags, [ 'session_event' ]
