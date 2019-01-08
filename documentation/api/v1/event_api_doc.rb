@@ -12,11 +12,6 @@ module EventApiDoc
   INFO_DESC = 'Information about the event specific to the event name.'
   INFO_EXAMPLE = {command: 'irb'}
 
-  ORDER_ENUM = [
-      'asc',
-      'desc'
-  ]
-
 # Swagger documentation for Event model
   swagger_schema :Event do
     key :required, [:name]
@@ -42,8 +37,8 @@ module EventApiDoc
       parameter do
         key :name, :limit
         key :in, :query
-        key :description, 'The maximum number of events that will be retrieved from the query. (Default: 100)'
-        key :example, 100
+        key :description, RootApiDoc::LIMIT_DESC
+        key :example, RootApiDoc::LIMIT_DEFAULT
         key :type, :integer
         key :format, :int32
         key :required, false
@@ -52,8 +47,8 @@ module EventApiDoc
       parameter do
         key :name, :offset
         key :in, :query
-        key :description, 'The number of events the query will begin reading from the start of the set. (Default: 0)'
-        key :example, 0
+        key :description, RootApiDoc::OFFSET_DESC
+        key :example, RootApiDoc::OFFSET_DEFAULT
         key :type, :integer
         key :format, :int32
         key :required, false
@@ -62,10 +57,10 @@ module EventApiDoc
       parameter do
         key :name, :order
         key :in, :query
-        key :description, 'The event created_at sort order. (Default: desc)'
+        key :description, RootApiDoc::ORDER_DESC
         key :type, :string
         key :required, false
-        key :enum, ORDER_ENUM
+        key :enum, RootApiDoc::ORDER_ENUM
       end
 
       response 200 do
