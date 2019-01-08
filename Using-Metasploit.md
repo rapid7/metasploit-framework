@@ -2,6 +2,7 @@ Start here:
 
 * http://www.offensive-security.com/metasploit-unleashed/Main_Page
 * https://metasploit.help.rapid7.com/docs/
+* https://github.com/rapid7/metasploitable3
 * [[Evading Anti-Virus]]
 
 Database troubleshooting
