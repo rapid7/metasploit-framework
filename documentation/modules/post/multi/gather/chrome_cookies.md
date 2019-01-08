@@ -10,7 +10,7 @@ The module writes a random 10-15 character file containing HTML to a directory y
 
 ## Vulnerable Application
 
-This technique works on Chrome 59 or later on all operating systems. Note that this module does not yet support Windows, only Linux and macOS.
+This technique works on Chrome 59 or later on all operating systems. This module has been tested on Windows, Linux, and OSX. Windows shell sessions are currently not supported.
 
 Chrome does not need to be running on the target machine for this module to work.
 
@@ -24,7 +24,6 @@ Chrome does not need to be running on the target machine for this module to work
 
 ## Options
 
-
   **CHROME_BINARY_PATH**
 
   The path to the user's Chrome binary. On Linux this defaults to searching for `google-chrome` in `$PATH`. On macOS, this defaults to `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'`. If the module doesn't find any cookies, it may be that a different Chrome binary to the one the user normally uses is being run. In that case, you can change the Chrome binary executed with this option.
@@ -33,7 +32,7 @@ Chrome does not need to be running on the target machine for this module to work
 
   Directory used to write temporary files.
 
-  Only one file is written, with a random 10-15 character alphanumeric filename. This file is html to be read by Chrome, and is deleted after use.
+  Two files are written, with random 10-15 character alphanumeric filenames. One file contains an html file for Chrome and the other is where the cookies are saved. Both files are deleted during cleanup.
 
   **REMOTE_DEBUGGING_PORT**
 
@@ -69,11 +68,7 @@ msf post(multi/gather/chrome_cookies) > run
 [*] Post module execution completed
 ```
 
-
 ## Future features
-
-### Windows support
-This technique works on Windows as well, this module just doesn't implement the Windows-specific functionality.
 
 ### Profiles
 This module only extracts cookies from the default Chrome profile. The target may have multiple, and you may which to extract cookies from all of them. This would require enumerating and extracting the profiles by name. Example code to extract cookies from a non-default Chrome profile can be found at https://github.com/defaultnamehere/cookie_crimes.
@@ -82,5 +77,3 @@ This module only extracts cookies from the default Chrome profile. The target ma
 See https://github.com/defaultnamehere/cookie_crimes for more information and manual instructions for Windows.
 
 See https://mango.pdf.zone/stealing-chrome-cookies-without-a-password for the blog post in which this technique was first published.
-
-
