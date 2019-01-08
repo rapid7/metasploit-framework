@@ -31,7 +31,7 @@ If you're an exploit developer, you will want to review our [[Guidelines for Acc
 - [[How to get started with writing an auxiliary module]]
 - [[How to get started with writing a post module]]
 - [[How to get started with writing a Meterpreter script]]
-- [[Loading External Modules]]
+- [[Running Private Modules]]
 - [[Exploit Ranking]]
 - [[Metasploit module reference identifiers]]
 - [[How to check Microsoft patch levels for your exploit]]
