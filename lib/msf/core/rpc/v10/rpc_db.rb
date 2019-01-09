@@ -699,7 +699,7 @@ def rpc_analyze_host(xopts)
     ret[:host] = []
     opts = fix_options(xopts)
     h = self.framework.db.get_host(opts)
-    h_result = self.framework.db.analyze(h)
+    h_result = self.framework.analyze.host(h)
     host_detail = {}
     host_detail[:address] = host
     # for now only modules can be returned, in future maybe process whole result map
