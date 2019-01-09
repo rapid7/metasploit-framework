@@ -20,7 +20,7 @@ RPC_TYPE = 'Msg'
 @ws_ssl_cert_default = "#{@localconf}/#{@ws_tag}-cert.pem"
 @ws_log = "#{@localconf}/logs/#{@ws_rpc_tag}.log"
 @ws_rpc_pid = "#{@localconf}/#{@ws_rpc_tag}.pid"
-@ws_tag = 'production'
+@ws_env = 'production'
 
 
 def start_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:, ssl_disable_verify:, daemonize:)
@@ -50,7 +50,7 @@ def start_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:, ss
                                                ssl_key: ssl_key,
                                                ssl_cert: ssl_cert,
                                                ssl_disable_verify: ssl_disable_verify,
-                                               env: @ws_tag,
+                                               env: @ws_env,
                                                daemonize: daemonize,
                                                log: @ws_log,
                                                pid: @ws_rpc_pid,
@@ -76,7 +76,7 @@ def stop_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:, ssl
                                       ssl_key: ssl_key,
                                       ssl_cert: ssl_cert,
                                       ssl_disable_verify: ssl_disable_verify,
-                                      env: @ws_tag,
+                                      env: @ws_env,
                                       daemonize: daemonize,
                                       log: @ws_log,
                                       pid: @ws_rpc_pid,
