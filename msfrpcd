@@ -10,32 +10,26 @@
 #
 
 RPC_TYPE = 'Msg'
-
-@localconf = "#{ENV['HOME']}/.msf4"
-@ws_tag = 'msf-ws'
-@ws_rpc_tag = 'msf-json-rpc'
-@ws_conf_full_path = nil
-@ws_conf = "#{@ws_rpc_tag}.ru"
-@ws_ssl_key_default = "#{@localconf}/#{@ws_tag}-key.pem"
-@ws_ssl_cert_default = "#{@localconf}/#{@ws_tag}-cert.pem"
-@ws_log = "#{@localconf}/logs/#{@ws_rpc_tag}.log"
-@ws_rpc_pid = "#{@localconf}/#{@ws_rpc_tag}.pid"
-@ws_env = 'production'
+WS_TAG = 'msf-ws'
+WS_RPC_TAG = 'msf-json-rpc'
+WS_CONF = "#{WS_RPC_TAG}.ru"
+WS_ENV = 'production'
 
 
-def start_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:, ssl_disable_verify:, daemonize:)
+def start_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:,
+                           ssl_disable_verify:, daemonize:, log:, pid:)
   unless File.file?(conf)
     $stdout.puts "[-] No MSF JSON-RPC web service configuration found at #{conf}, not starting"
     return false
   end
 
   # check if MSF JSON-RPC web service is already started
-  if File.file?(@ws_rpc_pid)
-    ws_pid = Msf::Util::ServiceHelper.tail(@ws_rpc_pid)
+  if File.file?(pid)
+    ws_pid = Msf::Util::ServiceHelper.tail(pid)
     if ws_pid.nil? || !Msf::Util::ServiceHelper.process_active?(ws_pid.to_i)
       $stdout.puts "[-] MSF JSON-RPC web service PID file found, but no active process running as PID #{ws_pid}"
-      $stdout.puts "[*] Deleting MSF JSON-RPC web service PID file #{@ws_rpc_pid}"
-      File.delete(@ws_rpc_pid)
+      $stdout.puts "[*] Deleting MSF JSON-RPC web service PID file #{pid}"
+      File.delete(pid)
     else
       $stdout.puts "[*] MSF JSON-RPC web service is already running as PID #{ws_pid}"
       return false
@@ -50,22 +44,23 @@ def start_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:, ss
                                                ssl_key: ssl_key,
                                                ssl_cert: ssl_cert,
                                                ssl_disable_verify: ssl_disable_verify,
-                                               env: @ws_env,
+                                               env: WS_ENV,
                                                daemonize: daemonize,
-                                               log: @ws_log,
-                                               pid: @ws_rpc_pid,
-                                               tag: @ws_rpc_tag)
+                                               log: log,
+                                               pid: pid,
+                                               tag: WS_RPC_TAG)
   Msf::Util::ServiceHelper.run_cmd("#{thin_cmd} start")
 end
 
-def stop_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:, ssl_disable_verify:, daemonize:)
-  ws_pid = Msf::Util::ServiceHelper.tail(@ws_rpc_pid)
+def stop_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:,
+                          ssl_disable_verify:, daemonize:, log:, pid:)
+  ws_pid = Msf::Util::ServiceHelper.tail(pid)
   $stdout.puts ''
   if ws_pid.nil? || !Msf::Util::ServiceHelper.process_active?(ws_pid.to_i)
     $stdout.puts '[*] MSF JSON-RPC web service is no longer running'
-    if File.file?(@ws_rpc_pid)
-      $stdout.puts "[*] Deleting MSF JSON-RPC web service PID file #{@ws_rpc_pid}"
-      File.delete(@ws_rpc_pid)
+    if File.file?(pid)
+      $stdout.puts "[*] Deleting MSF JSON-RPC web service PID file #{pid}"
+      File.delete(pid)
     end
   else
     $stdout.puts "[*] Stopping MSF JSON-RPC web service PID #{ws_pid}"
@@ -76,11 +71,11 @@ def stop_json_rpc_service(conf:, address:, port:, ssl:, ssl_key:, ssl_cert:, ssl
                                       ssl_key: ssl_key,
                                       ssl_cert: ssl_cert,
                                       ssl_disable_verify: ssl_disable_verify,
-                                      env: @ws_env,
+                                      env: WS_ENV,
                                       daemonize: daemonize,
-                                      log: @ws_log,
-                                      pid: @ws_rpc_pid,
-                                      tag: @ws_rpc_tag)
+                                      log: log,
+                                      pid: pid,
+                                      tag: WS_RPC_TAG)
     Msf::Util::ServiceHelper.run_cmd("#{thin_cmd} stop")
   end
 end
@@ -121,7 +116,22 @@ if $PROGRAM_NAME == __FILE__
 
   $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
+  require 'msf/base'
+  require 'msf/ui'
+  require 'msf/util/service_helper'
+  require 'msf/base/config'
   require 'rex/parser/arguments'
+
+  ws_ssl_key_default = File.join(Msf::Config.get_config_root, "#{WS_TAG}-key.pem")
+  ws_ssl_cert_default = File.join(Msf::Config.get_config_root, "#{WS_TAG}-cert.pem")
+  ws_log = File.join(Msf::Config.get_config_root, 'logs', "#{WS_RPC_TAG}.log")
+  ws_rpc_pid = File.join(Msf::Config.get_config_root, "#{WS_RPC_TAG}.pid")
+  ws_ssl_key = ws_ssl_key_default
+  ws_ssl_cert = ws_ssl_cert_default
+  ssl_enable_verify = false
+  foreground = false
+  json_rpc = false
+  frameworkOpts = {}
 
   opts = {
       'RunInForeground' => true,
@@ -144,17 +154,10 @@ if $PROGRAM_NAME == __FILE__
       "-f" => [ false, "Run the daemon in the foreground"                                  ],
       "-n" => [ false, "Disable database"                                                  ],
       "-j" => [ false, "(JSON-RPC) Start JSON-RPC server"                                  ],
-      "-k" => [ false, "(JSON-RPC) Path to private key (default: #{@ws_ssl_key_default})"  ],
-      "-c" => [ false, "(JSON-RPC) Path to certificate (default: #{@ws_ssl_cert_default})" ],
+      "-k" => [ false, "(JSON-RPC) Path to private key (default: #{ws_ssl_key_default})"   ],
+      "-c" => [ false, "(JSON-RPC) Path to certificate (default: #{ws_ssl_cert_default})"  ],
       "-v" => [ false, "(JSON-RPC) SSL enable verify (optional) client cert requests"      ],
       "-h" => [ false, "Help banner"                                                       ])
-
-  foreground = false
-  json_rpc = false
-  ssl_enable_verify = false
-  ws_ssl_key = @ws_ssl_key_default
-  ws_ssl_cert = @ws_ssl_cert_default
-  frameworkOpts = {}
 
   # Parse command line arguments.
   arguments.parse(ARGV) { |opt, idx, val|
@@ -193,23 +196,19 @@ if $PROGRAM_NAME == __FILE__
 
   $0 = "msfrpcd"
 
-  require 'msf/base'
-  require 'msf/ui'
-  require 'msf/util/service_helper'
-
   begin
     if json_rpc
 
-      if !File.file?(@ws_ssl_key_default) || !File.file?(@ws_ssl_cert_default)
+      if !File.file?(ws_ssl_key_default) || !File.file?(ws_ssl_cert_default)
         $stdout.puts "[-] It doesn't appear msfdb has been run; please run 'msfdb init' first."
         abort
       end
 
       $stderr.puts "[*] JSON-RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"})..."
       $stderr.puts "[*] URI: /api/v1/json-rpc"
-      $stderr.puts "[*] JSON-RPC server log: #{@ws_log}" unless foreground
+      $stderr.puts "[*] JSON-RPC server log: #{ws_log}" unless foreground
 
-      ws_conf_full_path = File.expand_path(File.join(File.dirname(msfbase), @ws_conf))
+      ws_conf_full_path = File.expand_path(File.join(File.dirname(msfbase), WS_CONF))
 
       start_json_rpc_service(conf: ws_conf_full_path,
                              address: opts['ServerHost'],
@@ -218,7 +217,9 @@ if $PROGRAM_NAME == __FILE__
                              ssl_key: ws_ssl_key,
                              ssl_cert: ws_ssl_cert,
                              ssl_disable_verify: !ssl_enable_verify,
-                             daemonize: !foreground)
+                             daemonize: !foreground,
+                             log: ws_log,
+                             pid: ws_rpc_pid)
     else
       unless opts['Pass']
         $stderr.puts "[-] Error: a password must be specified (-P)"
@@ -238,6 +239,8 @@ if $PROGRAM_NAME == __FILE__
                           ssl_key: ws_ssl_key,
                           ssl_cert: ws_ssl_cert,
                           ssl_disable_verify: !ssl_enable_verify,
-                          daemonize: !foreground) if json_rpc
+                          daemonize: !foreground,
+                          log: ws_log,
+                          pid: ws_rpc_pid) if json_rpc
   end
 end
