@@ -673,6 +673,49 @@ public
   }
   end
 
+  # Returns analysis of module suggestions for known data about a host.
+  #
+  # @param [Hash] xopts Options (:addr, :address, :host are the same thing, and you only need one):
+  # @option xopts [String] :addr Host address.
+  # @option xopts [String] :address Same as :addr.
+  # @option xopts [String] :host Same as :address.
+  # @raise [Msf::RPC::ServerException] You might get one of these errors:
+  #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
+  #  * 500 Database not loaded. Try: rpc.call('console.create')
+  #  * 500 Invalid workspace.
+  # @return [Hash] A hash that contains the following:
+  #  * 'host' [Array<Hash>] Each hash in the array contains the following:
+  #    * 'address' [String] Address.
+  #    * 'modules' [Array<Hash>] Each hash in the array modules contains the following:
+  #      * 'mtype' []String] Module type.
+  #      * 'nmame' [String] Module name. For example: 'windows/wlan/wlan_profile'
+  # @example Here's how you would use this from the client:
+  #  rpc.call('db.analyze_host', {:host => ip})
+def rpc_analyze_host(xopts)
+  ::ActiveRecord::Base.connection_pool.with_connection {
+    _opts, _wspace = init_db_opts_workspace(xopts)
+
+    ret = {}
+    ret[:host] = []
+    opts = fix_options(xopts)
+    h = self.framework.db.get_host(opts)
+    h_result = self.framework.db.analyze(h)
+    host_detail = {}
+    host_detail[:address] = host
+    # for now only modules can be returned, in future maybe process whole result map
+    unless h_result[:modules].empty?
+      host_detail[:modules] = []
+      h_result[:modules].each do |mod|
+        mod_detail = {}
+        mod_detail[:mtype]  = mod.mtype
+        mod_detail[:mname]  = mod.full_name
+      end
+    end
+    ret[:host] << host_detail
+    ret
+  }
+end
+
 
   # Reports a new host to the database.
   #
