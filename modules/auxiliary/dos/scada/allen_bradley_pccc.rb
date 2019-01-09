@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
   VULN_FW_VERSION_MIN = 14.00
   VULN_FW_VERSION_MAX = 16.00
   def le_pp(s)
-    return "0x" << Rex::Text.to_hex(s, prefix="").scan(/../).reverse.join("")
+    "0x#{Rex::Text.to_hex(s, prefix="").scan(/../).reverse.join("")}"
   end
 
   def enip_register_session_pkt
