@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name'        => 'DOS Vulnerability in SharePoint 2016 Server',
         'Description'    => %q{
           A vulnerability in Microsoft SharePoint Server could allow a remote attacker to make the server unavailable.
-          The vulnerability is a result of the dependency SharePoint has in Microsoft.Data.OData library which was 
+          The vulnerability is a result of the dependency SharePoint has in Microsoft.Data.OData library which was
           vulnerable to remote DOS (See CVE-2018-8269). The exploit is done by sending a crafted request that contains
           an OData filter that triggers the vulnerability in Microsoft.Data.OData library. Sending such request, will
           terminate the process that runs the server. By default, SharePoint server is configured to recover a
@@ -47,8 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME',  [true, 'The username to login with']),
         OptString.new('PASSWORD',  [true, 'The password to login with']),
         OptString.new('VHOST',  [true, 'HTTP server virtual host'])
-      ], self.class)
-      
+      ])
   end
 
   def fetch_auth_cookie
@@ -149,4 +148,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-
