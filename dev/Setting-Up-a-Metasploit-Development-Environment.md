@@ -132,7 +132,7 @@ cd ~/git/metasploit-framework
 $ ./msfconsole -qx "db_status; exit"
 ```
 
-Congratulations! You have now set up the [Metasploit Web Service / REST API][msf-web-service] and the backend database.
+Congratulations! You have now set up the [Metasploit Web Service (REST API)][msf-web-service] and the backend database.
 
 </details>
 
@@ -216,7 +216,7 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 [find]:https://linux.die.net/man/1/find
 [$PATH]:https://askubuntu.com/questions/109381/how-to-add-path-of-a-program-to-path-environment-variable
 
-[web-service]:https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service
+[msf-web-service]:https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service
 
 [git-horror]:https://mikegerwitz.com/papers/git-horror-story#trust-ensure
 [signing-howto]:https://github.com/rapid7/metasploit-framework/wiki/Committer-Keys#signing-howto
