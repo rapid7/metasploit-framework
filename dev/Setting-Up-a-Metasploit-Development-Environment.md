@@ -132,7 +132,7 @@ cd ~/git/metasploit-framework
 $ ./msfconsole -qx "db_status; exit"
 ```
 
-Congratulations! You have now set up the [Metasploit Web Service (REST API)][msf-web-service] and backend database.
+Congratulations! You have now set up the [Metasploit Web Service / REST API][msf-web-service] and the backend database.
 
 </details>
 
