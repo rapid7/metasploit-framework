@@ -87,7 +87,11 @@ def start_rpc_service(opts, frameworkOpts, foreground)
       $stdout.puts "[*] #{RPC_TYPE.upcase}RPC ready at #{Time.now}."
     else
       $stderr.puts "[*] #{RPC_TYPE.upcase}RPC backgrounding at #{Time.now}..."
-      exit(0) if Process.fork()
+      child_pid = Process.fork()
+      if child_pid
+        $stderr.puts "[*] #{RPC_TYPE.upcase}RPC background PID #{child_pid}"
+        exit(0)
+      end
     end
   rescue ::NotImplementedError
     $stderr.puts "[-] Background mode is not available on this platform"
@@ -207,6 +211,7 @@ if $PROGRAM_NAME == __FILE__
       $stderr.puts "[*] JSON-RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"})..."
       $stderr.puts "[*] URI: /api/v1/json-rpc"
       $stderr.puts "[*] JSON-RPC server log: #{ws_log}" unless foreground
+      $stderr.puts "[*] JSON-RPC server PID file: #{ws_rpc_pid}" unless foreground
 
       ws_conf_full_path = File.expand_path(File.join(File.dirname(msfbase), WS_CONF))
 
