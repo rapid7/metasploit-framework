@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif !datastore['FILENAME'].nil? && datastore['FILENAME'].to_s.end_with?('.pdf')
       createpdf
     else
-      print_error 'FILENAME or PDFINJECT must end with '.pdf' file extension'
+      print_error "FILENAME or PDFINJECT must end with '.pdf' file extension"
     end
   end
 
