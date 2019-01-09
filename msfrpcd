@@ -206,7 +206,7 @@ if $PROGRAM_NAME == __FILE__
       end
 
       $stderr.puts "[*] JSON-RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"})..."
-      $stderr.puts "[*] URI: /api/<version>/json-rpc"
+      $stderr.puts "[*] URI: /api/v1/json-rpc"
       $stderr.puts "[*] JSON-RPC server log: #{@ws_log}" unless foreground
 
       ws_conf_full_path = File.expand_path(File.join(File.dirname(msfbase), @ws_conf))
