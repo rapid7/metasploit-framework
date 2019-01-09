@@ -15,6 +15,7 @@ RUN apk add --no-cache \
       autoconf \
       bison \
       build-base \
+      curl-dev \
       ruby-dev \
       libressl-dev \
       readline-dev \

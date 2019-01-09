@@ -23,7 +23,7 @@ Vagrant.configure(2) do |config|
   [ #"echo 127.0.1.1 `cat /etc/hostname` >> /etc/hosts", work around a bug in official Ubuntu Xenial cloud images
     "apt-get update",
     "apt-get dist-upgrade -y",
-    "apt-get -y install curl build-essential git tig vim john nmap libpq-dev libpcap-dev gnupg2 fortune postgresql postgresql-contrib",
+    "apt-get -y install curl build-essential git tig vim john nmap libpq-deva libcurl4-gnutls-dev libpcap-dev gnupg2 fortune postgresql postgresql-contrib",
   ].each do |step|
     config.vm.provision "shell", inline: step
   end

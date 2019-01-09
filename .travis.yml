@@ -9,6 +9,7 @@ addons:
     packages:
       - libpcap-dev
       - graphviz
+      - libcurl4-gnutls-dev
 language: ruby
 rvm:
   - '2.3.8'
