@@ -100,7 +100,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'redcarpet'
   # Needed for Microsoft patch finding tool (msu_finder)
   spec.add_runtime_dependency 'patch_finder'
-  # Required for msfdb_ws (Metasploit data base as a webservice)
+  # Required for Metasploit Web Services
   spec.add_runtime_dependency 'thin'
   spec.add_runtime_dependency 'sinatra'
   spec.add_runtime_dependency 'warden'
