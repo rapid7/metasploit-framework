@@ -264,6 +264,7 @@ module Msf::DBManager::Cred
       id = opts.delete(:id)
       cred = Metasploit::Credential::Core.find(id)
       cred.update!(opts)
+      return cred
     }
   end
 

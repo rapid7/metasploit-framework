@@ -12,6 +12,7 @@ module Msf::DBManager::Login
       id = opts.delete(:id)
       login = Metasploit::Credential::Login.find(id)
       login.update!(opts)
+      return login
     }
   end
 

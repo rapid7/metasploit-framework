@@ -77,6 +77,7 @@ module Msf::DBManager::User
       id = opts.delete(:id)
       user = Mdm::User.find(id)
       user.update!(opts)
+      return user
     }
   end
 
@@ -135,7 +136,8 @@ module Msf::DBManager::User
     token_length = opts[:token_length] || MIN_TOKEN_LENGTH
     # NOTE: repurposing persistence_token in the database as the API token
     user = Mdm::User.find(opts[:id])
-    user.update!({persistence_token: SecureRandom.hex(token_length)}).persistence_token
+    user.update!({persistence_token: SecureRandom.hex(token_length)})
+    user.persistence_token
   end
 
 end

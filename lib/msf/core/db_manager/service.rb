@@ -172,6 +172,7 @@ module Msf::DBManager::Service
     id = opts.delete(:id)
     service = Mdm::Service.find(id)
     service.update!(opts)
+    return service
   }
   end
 end

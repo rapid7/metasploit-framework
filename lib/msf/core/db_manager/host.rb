@@ -285,6 +285,7 @@ module Msf::DBManager::Host
       id = opts.delete(:id)
       host = Mdm::Host.find(id)
       host.update!(opts)
+      return host
     }
   end
 

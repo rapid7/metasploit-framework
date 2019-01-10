@@ -190,6 +190,7 @@ module Msf::DBManager::Session
       id = opts.delete(:id)
       session = ::Mdm::Session.find(id)
       session.update!(opts)
+      return session
     }
   end
 

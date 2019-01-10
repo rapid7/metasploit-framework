@@ -202,6 +202,7 @@ module Msf::DBManager::Note
       id = opts.delete(:id)
       note = Mdm::Note.find(id)
       note.update!(opts)
+      return note
     }
   end
 

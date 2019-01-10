@@ -27,6 +27,7 @@ module Msf::DBManager::VulnDetail
     criteria = details.delete(:key) || {}
     vuln_detail = ::Mdm::VulnDetail.find(key)
     vuln_detail.update!(criteria)
+    return vuln_detail
   }
   end
 end

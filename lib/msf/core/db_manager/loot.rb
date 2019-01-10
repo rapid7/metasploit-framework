@@ -104,6 +104,7 @@ module Msf::DBManager::Loot
       id = opts.delete(:id)
       loot = Mdm::Loot.find(id)
       loot.update!(opts)
+      return loot
     }
   end
 
