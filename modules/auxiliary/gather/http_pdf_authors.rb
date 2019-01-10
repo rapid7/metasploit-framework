@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         and extract the author's name from the document metadata.
       },
       'License'     => MSF_LICENSE,
-      'Author'      => 'Brendan Coles <bcoles[at]gmail.com>'))
+      'Author'      => 'bcoles'))
     register_options(
       [
         OptString.new('URL', [ false, 'The target URL', '' ]),
