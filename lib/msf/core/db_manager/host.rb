@@ -283,7 +283,9 @@ module Msf::DBManager::Host
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      Mdm::Host.update(id, opts)
+      host = Mdm::Host.find(id)
+      host.update!(opts)
+      return host
     }
   end
 

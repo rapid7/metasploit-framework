@@ -188,7 +188,9 @@ module Msf::DBManager::Session
 
     ::ActiveRecord::Base.connection_pool.with_connection {
       id = opts.delete(:id)
-      ::Mdm::Session.update(id, opts)
+      session = ::Mdm::Session.find(id)
+      session.update!(opts)
+      return session
     }
   end
 
