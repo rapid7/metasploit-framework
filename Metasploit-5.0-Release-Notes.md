@@ -2,6 +2,8 @@ Metasploit Framework 5.0 has released!
 
 Metasploit 5.0 brings many new features, including new database and automation APIs, evasion modules and libraries, language support, improved performance, and ease-of-use. 
 
+See the release announcement [here](https://blog.rapid7.com/2019/01/10/metasploit-framework-5-0-released).
+
 The following is a high-level overview of Metasploit 5.0’s features and capabilities.
 
 * Metasploit users can now run the PostgreSQL database by itself as a RESTful service, which allows for multiple Metasploit consoles and external tools to interact with it.
