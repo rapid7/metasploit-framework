@@ -15,7 +15,7 @@ end
 
 def require_deps
   require 'pathname'
-  require Pathname.new(__FILE__).realpath.expand_path.parent.join('config', 'boot')
+  require Pathname.new(__FILE__).realpath.expand_path.parent.parent.parent.join('config', 'boot')
   require 'msf/core/web_services/http_db_manager_service'
 end
 
