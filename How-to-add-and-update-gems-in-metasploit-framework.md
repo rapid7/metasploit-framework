@@ -1,3 +1,5 @@
+**Update:** We have automated this process (it runs every Thursday at noon US Central Time), and 99.9% of the time you will not need to follow any of the below steps. That said, if you need to update a gem in a PR, this is still a good procedure to follow.
+
 Sometimes you might want to pull in a new Ruby library or update an existing one to get more functionality. Metasploit leverages [Bundler](http://bundler.io) to manage [Ruby gems](https://rubygems.org/) and make dependencies easy. This document goes over the things you need to know when updating or adding gems to Metasploit.
 
 ##### The Gemfile
