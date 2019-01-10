@@ -9,7 +9,3 @@ We hosted the first general Metasploit hackathon at the Rapid7 Austin Office Thu
 We hosted the second general Metasploit hackathon at the Rapid7 Austin Office and the Hyatt Place Arboretum, 2017-06-22 through 2017-06-25, including 15 developers. Combine a rotating cast of contributors, way too much food, a couple of guitars, and some incredibly outsized laptops, you end up with some great Metasploit hacking and fun. 
 
 ![](https://blog.rapid7.com/content/images/2017/12/IMG_1225.JPG)
-
-### 2018
-
-We're in the planning stages of our first International Metasploit Hackathon. Details TBA.
