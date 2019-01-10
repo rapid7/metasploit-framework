@@ -20,13 +20,14 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
+require 'msf/base/config'
 require 'msf/util/helper'
 
 
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
 
-@localconf = "#{ENV['HOME']}/.msf4"
+@localconf = Msf::Config.get_config_root
 @db = "#{@localconf}/db"
 @db_conf = "#{@localconf}/database.yml"
 
