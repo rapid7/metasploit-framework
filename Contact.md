@@ -12,7 +12,7 @@ The old list [is archived on seclists.org][archive].
 
 ### Abuse
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to msfdev@metasploit.com which goes to all the current committers. If the incident involves a committer, you may report directly to egypt@metasploit.com or todb@metasploit.com.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to msfdev@metasploit.com which goes to all the current committers. If the incident involves a committer, you may report directly to caitlin_condon@rapid7.com or todb@metasploit.com.
 
 
 [archive]: http://seclists.org/metasploit/ "Metasploit mailing list archive"
