@@ -89,6 +89,7 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 
 # Other Metasploit Resources #
 
+- [[Metasploit 5.0 Release Notes]]
 - [[Downloads by Version]]
 - [[Evading Anti Virus]]
 - [[How to use a Metasploit module appropriately]]
