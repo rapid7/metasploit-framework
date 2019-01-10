@@ -18,6 +18,11 @@ module LootApiDoc
   INFO_DESC = 'Information about the loot.'
   MODULE_RUN_ID_DESC = 'The ID of the module run record this loot is associated with.'
 
+  # Some of the attributes expect different data when doing a create.
+  CREATE_DATA_DESC = "Base64 encoded copy of the file's contents."
+  CREATE_DATA_EXAMPLE = 'dGhpcyBpcyB0aGUgZmlsZSdzIGNvbnRlbnRz'
+  CREATE_PATH_DESC = 'The name to give the file on the server.'
+  CREATE_PATH_EXAMPLE = 'password_file.txt'
 
 # Swagger documentation for loot model
   swagger_schema :Loot do
@@ -87,8 +92,8 @@ module LootApiDoc
           property :host, type: :string, format: :ipv4, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
           property :service,  '$ref': :Service
           property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE, required: true
-          property :path, type: :string, description: PATH_DESC, example: PATH_EXAMPLE, required: true
-          property :data, type: :string, description: DATA_DESC
+          property :path, type: :string, description: CREATE_PATH_DESC, example: CREATE_PATH_EXAMPLE, required: true
+          property :data, type: :string, description: CREATE_DATA_DESC, example: CREATE_DATA_EXAMPLE
           property :ctype, type: :string, description: CONTENT_TYPE_DESC, example: CONTENT_TYPE_EXAMPLE
           property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE, required: true
           property :info, type: :string, description: INFO_DESC
