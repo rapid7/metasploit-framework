@@ -157,7 +157,8 @@ class RemoteHTTPDataService
       # simplify query by removing nil values
       query_str = (!query.nil? && !query.empty?) ? query.compact.to_query : nil
       uri = URI::HTTP::build({path: path, query: query_str})
-      dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
+      # TODO: Re-enable this logging when framework handles true log levels.
+      #dlog("HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : "nil"}")
 
       client = @client_pool.pop
       case request_type
