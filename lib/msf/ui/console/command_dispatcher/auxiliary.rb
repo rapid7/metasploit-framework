@@ -60,9 +60,6 @@ class Auxiliary
   end
 
   #
-  # Reloads an auxiliary module and executes it
-  #
-
   # Launches an auxiliary module for single attempt.
   #
   def run_single(mod, opts)
@@ -80,9 +77,9 @@ class Auxiliary
     end
   end
 
-
   #
   # Tab completion for the run command
+  #
   def cmd_run_tabs(str, words)
     return [] if words.length > 1
     @@auxiliary_opts.fmt.keys
