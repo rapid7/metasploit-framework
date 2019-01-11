@@ -86,7 +86,7 @@ module SessionApiDoc
   end
 
   swagger_path '/api/v1/sessions/{id}' do
-    # Swagger documentation for api/v1/sessions/:id GET
+    # Swagger documentation for /api/v1/sessions/:id GET
     operation :get do
       key :description, 'Return a specific session that is stored in the database.'
       key :tags, [ 'session' ]
