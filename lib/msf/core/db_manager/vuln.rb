@@ -262,8 +262,9 @@ module Msf::DBManager::Vuln
   ::ActiveRecord::Base.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
     opts[:workspace] = wspace if wspace
-    id = opts.delete(:id)
-    Mdm::Vuln.update(id, opts)
+    v = Mdm::Vuln.find(opts.delete(:id))
+    v.update!(opts)
+    v
   }
   end
 

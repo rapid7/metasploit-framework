@@ -1,6 +1,6 @@
+require 'securerandom'
 require 'sinatra/base'
 require 'swagger/blocks'
-require 'sysrandom/securerandom'
 require 'warden'
 require 'msf/core/web_services/authentication'
 require 'msf/core/web_services/servlet_helper'
@@ -25,6 +25,7 @@ require 'msf/core/web_services/servlet/db_export_servlet'
 require 'msf/core/web_services/servlet/vuln_attempt_servlet'
 require 'msf/core/web_services/servlet/user_servlet'
 require 'msf/core/web_services/servlet/module_search_servlet'
+require 'msf/core/web_services/servlet/db_import_servlet'
 
 class MetasploitApiApp < Sinatra::Base
   helpers ServletHelper
@@ -51,6 +52,7 @@ class MetasploitApiApp < Sinatra::Base
   register VulnAttemptServlet
   register UserServlet
   register ModuleSearchServlet
+  register DbImportServlet
 
   configure do
     set :sessions, {key: 'msf-ws.session', expire_after: 300}

@@ -112,7 +112,7 @@ RSpec.configure do |config|
   if ENV['REMOTE_DB']
     require 'metasploit/framework/data_service/remote/managed_remote_data_service'
     opts = {}
-    opts[:process_name] = 'msfdb_ws'
+    opts[:process_name] = File.join('tools', 'dev', 'msfdb_ws')
     opts[:host] = 'localhost'
     opts[:port] = '8080'
 

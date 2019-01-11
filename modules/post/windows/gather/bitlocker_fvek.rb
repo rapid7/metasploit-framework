@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Post
         if !recovery_key.nil?
           recovery_key = recovery_key[1]
           id_key_tmp = id_key_tmp[1]
-          print_good("Recovery key generated successfuly : #{recovery_key}")
+          print_good("Recovery key generated successfully : #{recovery_key}")
         else
           print_error('Recovery Key generation failed')
           print_status('No recovery key can be used')

@@ -8,7 +8,7 @@ require 'open3'
 require 'optparse'
 require 'rex/socket'
 require 'rex/text'
-require 'sysrandom/securerandom'
+require 'securerandom'
 require 'uri'
 require 'yaml'
 
@@ -20,13 +20,14 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
+require 'msf/base/config'
 require 'msf/util/helper'
 
 
 @script_name = File.basename(__FILE__)
 @framework = File.expand_path(File.dirname(__FILE__))
 
-@localconf = "#{ENV['HOME']}/.msf4"
+@localconf = Msf::Config.get_config_root
 @db = "#{@localconf}/db"
 @db_conf = "#{@localconf}/database.yml"
 
@@ -636,7 +637,7 @@ def add_web_service_user
 
   # Send request to create new API token for the user
   generate_token_uri = get_web_service_uri(path: '/api/v1/auth/generate-token')
-  response_data = http_request(uri: generate_token_uri, query: cred_data, method: :get,
+  response_data = http_request(uri: generate_token_uri, data: cred_data, method: :post,
                           skip_verify: skip_ssl_verify?, cert: get_ssl_cert)
   response = response_data[:response]
   puts "add_web_service_user: generate token response=#{response}" if @options[:debug]
@@ -921,16 +922,17 @@ def has_requirements
   ret_val = true
   postgresql_cmds = %w(psql pg_ctl initdb createdb)
   other_cmds = %w(bundle thin)
-  missing_msg = 'Missing requirement: %<name>s does not appear to be installed or is not in the environment path'
+  missing_msg = "Missing requirement: %<name>s does not appear to be installed or '%<prog>s' is not in the environment path"
 
-  unless postgresql_cmds.all? { |cmd| !Msf::Util::Helper.which(cmd).nil? }
-    puts missing_msg % { name: 'PostgreSQL' }
+  postgresql_cmds.each do |cmd|
+    next unless Msf::Util::Helper.which(cmd).nil?
+    puts missing_msg % { name: 'PostgreSQL', prog: cmd }
     ret_val = false
   end
 
   other_cmds.each do |cmd|
     if Msf::Util::Helper.which(cmd).nil?
-      puts missing_msg % { name: "'#{cmd}'" }
+      puts missing_msg % { name: "'#{cmd}'", prog: cmd }
       ret_val = false
     end
   end
