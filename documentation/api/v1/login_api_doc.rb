@@ -193,7 +193,7 @@ module LoginApiDoc
 
     # Swagger documentation for /api/v1/logins/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing login.'
+      key :description, 'Update the attributes on an existing login.'
       key :tags, [ 'login' ]
 
       parameter :update_id
