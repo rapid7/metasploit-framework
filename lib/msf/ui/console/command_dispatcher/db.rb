@@ -1766,7 +1766,7 @@ class Db
         when '-l', '--list-services'
           list_saved_data_services
           return
-      when '-n', '--name'
+        when '-n', '--name'
           name = args.shift
           if name =~ /\/|\[|\]/
             print_error "Provided name contains an invalid character. Aborting connection."
@@ -2174,7 +2174,6 @@ class Db
     conf.each_pair do |k,v|
       name = k.split('/').last
       rv = name if name == search_criteria
-      rv = name if v.values.include?(search_criteria)
     end
     rv
   end

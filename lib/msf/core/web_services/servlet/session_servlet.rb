@@ -11,6 +11,7 @@ module SessionServlet
   def self.registered(app)
     app.get SessionServlet.api_path_with_id, &get_session
     app.post SessionServlet.api_path, &report_session
+    app.put SessionServlet.api_path_with_id, &update_session
   end
 
   #######
@@ -46,6 +47,21 @@ module SessionServlet
         exec_report_job(request, &job)
       rescue => e
         print_error_and_create_response(error: e, message: 'There was an error creating the session:', code: 500)
+      end
+    }
+  end
+
+  def self.update_session
+    lambda {
+      warden.authenticate!
+      begin
+        opts = parse_json_request(request, false)
+        tmp_params = sanitize_params(params)
+        opts[:id] = tmp_params[:id] if tmp_params[:id]
+        data = get_db.update_session(opts)
+        set_json_data_response(response: data)
+      rescue => e
+        print_error_and_create_response(error: e, message: 'There was an error updating the session:', code: 500)
       end
     }
   end

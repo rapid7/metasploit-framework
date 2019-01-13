@@ -49,7 +49,7 @@ module ResponseDataHelper
       begin
         body = process_response(response_wrapper)
         if !body.nil? && !body.empty?
-          parsed_body = JSON.parse(body).symbolize_keys
+          parsed_body = JSON.parse(body, symbolize_names: true)
           data = Array.wrap(parsed_body[:data])
           rv = []
           data.each do |json_object|
@@ -99,7 +99,7 @@ module ResponseDataHelper
   # @return [ActiveRecord::Base] A klass object, which inherits from ActiveRecord::Base.
   def to_ar(klass, val, base_object = nil)
     return nil unless val
-    data = val.class == Hash ? val.dup : JSON.parse(val)
+    data = val.class == Hash ? val.dup : JSON.parse(val, symbolize_names: true)
     obj = base_object || klass.new
 
     obj_associations = klass.reflect_on_all_associations(:has_many).reduce({}) do |reflection, i|
@@ -107,7 +107,9 @@ module ResponseDataHelper
       reflection
     end
 
-    data.except(*obj.attributes.keys).each do |k, v|
+    obj_attribute_names = obj.attributes.transform_keys(&:to_sym).keys
+
+    data.except(*obj_attribute_names).each do |k, v|
       association = klass.reflect_on_association(k)
       next unless association
 
@@ -133,7 +135,7 @@ module ResponseDataHelper
           end
       end
     end
-    obj.assign_attributes(data.slice(*obj.attributes.keys))
+    obj.assign_attributes(data.slice(*obj_attribute_names))
 
     obj.instance_eval do
       # prevent save
