@@ -41,6 +41,8 @@ class MetasploitModule < Msf::Post
       return
     end
 
+    client.core.use "powershell"
+
     print_status("Importing: Invoke-BloodHound")
 
     opts = {
