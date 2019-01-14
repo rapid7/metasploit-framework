@@ -16,6 +16,11 @@ module RemoteLootDataService
         local_path = File.join(Msf::Config.loot_directory, File.basename(loot.path))
         loot.path = process_file(loot.data, local_path)
       end
+      if loot.host_id
+        host_opts = { id: loot.host_id }
+        host_path = get_path_select(host_opts, RemoteHostDataService::HOST_API_PATH)
+        loot.host = json_to_mdm_object(self.get_data(host_path, nil, host_opts), RemoteHostDataService::HOST_MDM_CLASS).first
+      end
     end
     loots
   end
