@@ -22,4 +22,4 @@ xMMMMMMMMMd                        ,0MMMMMMMMMMK;
 %red           'oOWMMMMMMMMo%clr                +:+
 %red               .,cdkO0K;%clr        :+:    :+:                                
                                 :::::::+:
-           %whiMetasploit%clr %yelUnder Construction%clr
+                      %whiMetasploit%clr
