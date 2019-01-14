@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('CMD', [ true, 'Example: Invoke-BloodHound', 'Get-Help Invoke-BloodHound' ])
+        OptString.new('CMD', [ true, 'The command to execute (eg. Invoke-BloodHound)', 'Get-Help Invoke-BloodHound' ])
       ],
       self.class
     )
@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Post
 
   def run
     if have_powershell?
-      print_good('PowerShell is installed.')
+      vprint_good('PowerShell is installed.')
     else
       print_error('PowerShell is not installed! STOPPING')
       return
