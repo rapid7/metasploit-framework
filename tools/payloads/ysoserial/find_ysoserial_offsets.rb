@@ -63,7 +63,7 @@ def generatePayload(payloadName,searchStringLength)
     #STDERR.puts "  Successfully generated #{payloadName} using #{YSOSERIAL_BINARY}"
 
     # Strip out the semi-randomized ysoserial string and trailing newline
-    payload.gsub!(/#{YSOSERIAL_RANDOMIZED_HEADER}[[:digit:]]+/, 'ysoserial/Pwner000000000000000')
+    payload.gsub!(/#{YSOSERIAL_RANDOMIZED_HEADER}[[:digit:]]+/, 'ysoserial/Pwner00000000000000')
     return payload
   end
 end
