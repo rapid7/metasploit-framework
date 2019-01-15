@@ -375,7 +375,7 @@ module Metasploit
           valid!
           wordlist_file = Rex::Quickfile.new("jtrtmp")
           each_word do |word|
-            wordlist_file.puts max_len == 0 ? word : word[0..max_len-1]
+            wordlist_file.puts max_len == 0 ? word : word[0...max_len]
           end
           wordlist_file
         end
