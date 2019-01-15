@@ -32,7 +32,7 @@ module Msf::Post::File
         # and 2k
         return session.shell_command_token("echo %CD%")
       else
-        return session.shell_command_token("pwd")
+        return session.shell_command_token("pwd").to_s.strip
       end
     end
   end
