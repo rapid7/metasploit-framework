@@ -79,9 +79,10 @@ module Auxiliary::JohnTheRipper
   # This method instantiates a {Metasploit::Framework::JtR::Wordlist}, writes the data
   # out to a file and returns the {Rex::Quickfile} object.
   #
+  # @param max_len [Integer] max length of a word in the wordlist, 0 default for ignored value
   # @return [nilClass] if there is no active framework db connection
   # @return [Rex::Quickfile] if it successfully wrote the wordlist to a file
-  def wordlist_file
+  def wordlist_file(max_len = 0)
     return nil unless framework.db.active
     wordlist = Metasploit::Framework::JtR::Wordlist.new(
         custom_wordlist: datastore['CUSTOM_WORDLIST'],
@@ -93,7 +94,7 @@ module Auxiliary::JohnTheRipper
         use_common_root: datastore['USE_ROOT_WORDS'],
         workspace: myworkspace
     )
-    wordlist.to_file
+    wordlist.to_file(max_len)
   end
 
 end
